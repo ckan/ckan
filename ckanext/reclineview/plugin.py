@@ -85,6 +85,8 @@ class ReclineView(ReclineViewBase):
     This extension views resources using a Recline MultiView.
     '''
 
+    p.implements(p.ITemplateHelpers, inherit=True)
+
     def info(self):
         return {'name': 'recline_view',
                 'title': 'Data Explorer',
@@ -105,6 +107,11 @@ class ReclineView(ReclineViewBase):
             return resource_format.lower() in ['csv', 'xls', 'xlsx', 'tsv']
         else:
             return False
+
+    def get_helpers(self):
+        return {
+            'get_map_config': get_mapview_config
+        }
 
 
 class ReclineGridView(ReclineViewBase):

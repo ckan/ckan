@@ -2,7 +2,7 @@
 
 {% block page %}
 
-  {% set map_config = h.get_mapview_config() %}
+  {% set map_config = h.get_map_config() or h.get_mapview_config() %}
   <div data-module="recline_view"
        data-module-site_url="{{ h.dump_json(h.url('/', locale='default', qualified=true)) }}"
        data-module-resource = "{{ h.dump_json(resource_json) }}";

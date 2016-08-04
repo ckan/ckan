@@ -121,7 +121,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
           state.lonField = reclineView.longitude_field;
         }
 
-        view = new ckan.MapView({model: dataset, state: state, mapConfig: map_config});
+        view = new ckan.MapView({model: dataset, state: state, mapConfig: this.options.map_config});
       } else if(reclineView.view_type === "recline_view") {
         view = this._newDataExplorer(dataset, this.options.map_config);
       } else {
