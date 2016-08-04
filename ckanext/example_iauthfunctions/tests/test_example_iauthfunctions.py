@@ -3,7 +3,6 @@
 '''Tests for the ckanext.example_iauthfunctions extension.
 
 '''
-from pylons import config
 
 from nose.tools import assert_raises
 from nose.tools import assert_equal
@@ -14,6 +13,7 @@ import ckan.plugins
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import ckan.logic as logic
+from ckan.common import config
 
 
 class TestExampleIAuthFunctionsPluginV6ParentAuthFunctions(object):
@@ -86,7 +86,9 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
 
     '''
 
-    app = None
+        # Set the custom config option in config.
+        config['ckan.iauthfunctions.users_can_create_groups'] = (
+            users_can_create_groups)
 
     @classmethod
     def setup_class(cls):
@@ -105,6 +107,8 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
         return helpers._get_test_app()
 
     def teardown(self):
+        # Remove the custom config option from config.
+        del config['ckan.iauthfunctions.users_can_create_groups']
 
         # Delete any stuff that's been created in the db, so it doesn't
         # interfere with the next test.

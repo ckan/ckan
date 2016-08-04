@@ -3,7 +3,7 @@
 import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
-from pylons import config
+from ckan.common import config
 
 try:
     RowProxy = sqlalchemy.engine.result.RowProxy

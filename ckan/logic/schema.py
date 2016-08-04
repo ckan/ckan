@@ -522,7 +522,8 @@ def default_create_activity_schema():
 
 def default_follow_user_schema():
     schema = {'id': [not_missing, not_empty, unicode,
-                     convert_user_name_or_id_to_id]}
+                     convert_user_name_or_id_to_id],
+              'q': [ignore_missing]}
     return schema
 
 

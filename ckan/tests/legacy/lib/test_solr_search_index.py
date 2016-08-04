@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import pysolr
-from pylons import config
+from ckan.common import config
 from ckan import model
 import ckan.lib.search as search
 from ckan.tests.legacy import TestController, CreateTestData, setup_test_search_index, is_search_supported

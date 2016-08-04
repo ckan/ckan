@@ -1,13 +1,13 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal, assert_raises
-from pylons import config
+from nose.tools import assert_equal, assert_raises, assert_in
 from email.mime.text import MIMEText
 from email.parser import Parser
 from email.header import decode_header
 import hashlib
 import base64
 
+from ckan.common import config
 import ckan.model as model
 import ckan.lib.helpers as h
 import ckan.lib.mailer as mailer
@@ -15,8 +15,6 @@ from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-
-assert_in = helpers.assert_in
 
 
 class MailerBase(SmtpServerHarness):

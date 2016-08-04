@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 from sqlalchemy.sql import select, and_, union, or_
 from sqlalchemy import orm
 from sqlalchemy import types, Column, Table
-from pylons import config
+from ckan.common import config
 import vdm.sqlalchemy
 
 import meta

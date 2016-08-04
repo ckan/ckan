@@ -7,12 +7,12 @@ import datetime
 
 from dateutil.parser import parse as parse_date
 
-import pylons
 import requests
 
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
+from ckan.common import config
 import ckanext.datapusher.logic.schema as dpschema
 import ckanext.datapusher.interfaces as interfaces
 
@@ -57,9 +57,9 @@ def datapusher_submit(context, data_dict):
     except logic.NotFound:
         return False
 
-    datapusher_url = pylons.config.get('ckan.datapusher.url')
+    datapusher_url = config.get('ckan.datapusher.url')
 
-    site_url = pylons.config['ckan.site_url']
+    site_url = config['ckan.site_url']
     callback_url = site_url.rstrip('/') + '/api/3/action/datapusher_hook'
 
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
@@ -252,7 +252,7 @@ def datapusher_status(context, data_dict):
         'key': 'datapusher'
     })
 
-    datapusher_url = pylons.config.get('ckan.datapusher.url')
+    datapusher_url = config.get('ckan.datapusher.url')
     if not datapusher_url:
         raise p.toolkit.ValidationError(
             {'configuration': ['ckan.datapusher.url not in config file']})

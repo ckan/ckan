@@ -748,7 +748,7 @@ class IConfigurable(Interface):
 
 class IConfigurer(Interface):
     """
-    Configure CKAN (pylons) environment via the ``pylons.config`` object
+    Configure CKAN environment via the ``config`` object
     """
 
     def update_config(self, config):
@@ -756,7 +756,7 @@ class IConfigurer(Interface):
         Called by load_environment at earliest point when config is
         available to plugins. The config should be updated in place.
 
-        :param config: ``pylons.config`` object
+        :param config: ``config`` object
         """
 
     def update_config_schema(self, schema):

@@ -5,7 +5,7 @@ import asyncore
 import socket
 from smtpd import SMTPServer
 
-from pylons import config
+from ckan.common import config
 
 
 class MockSmtpServer(SMTPServer):

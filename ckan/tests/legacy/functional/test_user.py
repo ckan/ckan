@@ -2,7 +2,7 @@
 
 from routes import url_for
 from nose.tools import assert_equal
-from pylons import config
+from ckan.common import config
 import hashlib
 
 from ckan.tests.legacy import CreateTestData

@@ -12,7 +12,8 @@ import ckan.config.middleware
 
 from ckan.tests import helpers
 
-from pylons import config
+from ckan.common import config
+
 
 
 class TestEmailNotifications(mock_mail_server.SmtpServerHarness,

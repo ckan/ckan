@@ -3,7 +3,7 @@
 import math
 import string
 
-from nose.tools import assert_equal, assert_true, assert_false
+from nose.tools import assert_equal, assert_true, assert_false, assert_in
 from bs4 import BeautifulSoup
 
 from ckan.lib.helpers import url_for
@@ -11,7 +11,6 @@ from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
 
-assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 

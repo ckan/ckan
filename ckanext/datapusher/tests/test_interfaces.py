@@ -7,7 +7,7 @@ import sys
 import datetime
 
 from nose.tools import raises
-from pylons import config
+from ckan.common import config
 import sqlalchemy.orm as orm
 
 from ckan.tests import helpers, factories

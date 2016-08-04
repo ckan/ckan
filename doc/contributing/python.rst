@@ -9,7 +9,7 @@ For Python code style follow `PEP 8`_ plus the guidelines below.
 Some good links about Python code style:
 
 - `Guide to Python <http://docs.python-guide.org/en/latest/writing/style/>`_ from Hitchhiker's
-- `Google Python Style Guide <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html>`_
+- `Google Python Style Guide <https://google.github.io/styleguide/pyguide.html>`_
 
 .. seealso::
 
@@ -74,7 +74,7 @@ Imports
 Logging
 -------
 
-We use `the Python standard library's logging module <http://docs.python.org/2.6/library/logging.html>`_
+We use `the Python standard library's logging module <https://docs.python.org/2.7/library/logging.html>`_
 to log messages in CKAN, e.g.::
 
     import logging

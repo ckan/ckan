@@ -2,7 +2,7 @@
 
 import datetime
 
-from pylons import config, c
+from ckan.common import config, c
 from difflib import unified_diff
 from nose.tools import assert_equal
 

@@ -11,7 +11,7 @@ from dateutil.parser import parse
 import re
 
 import pysolr
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 
 from common import SearchIndexError, make_connection

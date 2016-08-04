@@ -7,6 +7,11 @@
 Changelog
 ---------
 
+v2.6.0 TBA
+=================
+API changes and deprecations:
+ * Replace `c.__version__` with new helper `h.ckan_version()` (#3103)
+
 v2.5.2 2016-03-31
 =================
 

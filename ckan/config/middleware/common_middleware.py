@@ -7,8 +7,11 @@ import hashlib
 import urllib
 import json
 
+<<<<<<< HEAD
 from pylons import config
 
+=======
+>>>>>>> master
 import sqlalchemy as sa
 
 from ckan.lib.i18n import get_locales_from_config
@@ -17,7 +20,12 @@ from ckan.lib.i18n import get_locales_from_config
 class I18nMiddleware(object):
     """I18n Middleware selects the language based on the url
     eg /fr/home is French"""
+<<<<<<< HEAD
     def __init__(self):
+=======
+    def __init__(self, app, config):
+        self.app = app
+>>>>>>> master
         self.default_locale = config.get('ckan.locale_default', 'en')
         self.local_list = get_locales_from_config()
 
@@ -59,6 +67,11 @@ class I18nMiddleware(object):
             else:
                 environ['CKAN_CURRENT_URL'] = path_info
 
+<<<<<<< HEAD
+=======
+        return self.app(environ, start_response)
+
+>>>>>>> master
 
 class RootPathMiddleware(object):
     '''

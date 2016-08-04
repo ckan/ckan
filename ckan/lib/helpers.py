@@ -26,14 +26,14 @@ import webhelpers.date as date
 from markdown import markdown
 from bleach import clean as clean_html
 from pylons import url as _pylons_default_url
-from pylons import config
+from ckan.common import config
 from routes import redirect_to as _redirect_to
 from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
-import ckan.exceptions
 
+import ckan.exceptions
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
@@ -43,6 +43,7 @@ import ckan.logic as logic
 import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
+import ckan
 
 from ckan.common import _, ungettext, g, c, request, session, json
 
@@ -467,6 +468,12 @@ def full_current_url():
 def lang():
     ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
+
+
+@core_helper
+def ckan_version():
+    '''Return CKAN version'''
+    return ckan.__version__
 
 
 @core_helper
@@ -1184,6 +1191,28 @@ class Page(paginate.Page):
         current_page_link = self._pagerlink(self.page, text,
                                             extra_attributes=self.curpage_attr)
         return re.sub(current_page_span, current_page_link, html)
+
+
+@core_helper
+def get_page_number(params, key='page', default=1):
+    '''
+    Return the page number from the provided params after verifying that it is
+    an positive integer.
+
+    If it fails it will abort the request with a 400 error.
+    '''
+    p = params.get(key, default)
+
+    try:
+        p = int(p)
+        if p < 1:
+            raise ValueError("Negative number not allowed")
+    except ValueError:
+        import ckan.lib.base as base
+        base.abort(400, ('"{key}" parameter must be a positive integer'
+                   .format(key=key)))
+
+    return p
 
 
 @core_helper

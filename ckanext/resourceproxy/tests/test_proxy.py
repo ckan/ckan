@@ -1,13 +1,12 @@
 # encoding: utf-8
 
-import sys
 import requests
 import json
 import httpretty
 import nose
 from nose.tools import assert_raises
 
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.plugins as p
@@ -60,22 +59,13 @@ class TestProxyPrettyfied(object):
 
         cls.app = helpers._get_test_app()
         create_test_data.CreateTestData.create()
-        # Httpretty crashes with Solr on Python 2.6,
-        # skip the tests
-        if (sys.version_info[0] == 2 and sys.version_info[1] == 6):
-            raise nose.SkipTest()
 
     @classmethod
     def teardown_class(cls):
-
         p.unload('resource_proxy')
-        model.repo.rebuild_db()
-        # Reenable Solr indexing
-        if (sys.version_info[0] == 2 and sys.version_info[1] == 6
-                and not p.plugin_loaded('synchronous_search')):
-            p.load('synchronous_search')
         config.clear()
         config.update(cls._original_config)
+        model.repo.rebuild_db()
 
     def setup(self):
         self.url = 'http://www.ckan.org/static/example.json'

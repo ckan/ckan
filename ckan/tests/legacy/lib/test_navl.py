@@ -8,7 +8,7 @@ from ckan.lib.navl.dictization_functions import (flatten_schema,
                                    missing,
                                    augment_data,
                                    validate,
-                                   validate_flattened)
+                                   _validate)
 from pprint import pprint, pformat
 from ckan.lib.navl.validators import (identity_converter,
                         empty,
@@ -352,5 +352,14 @@ def test_range_validator():
     assert errors == {'name': [u'Missing value'], 'email': [u'Please enter a number that is 10 or smaller']}, errors
 
 
+def validate_flattened(data, schema, context=None):
 
+    context = context or {}
+    assert isinstance(data, dict)
+    converted_data, errors = _validate(data, schema, context)
 
+    for key, value in errors.items():
+        if not value:
+            errors.pop(key)
+
+    return converted_data, errors

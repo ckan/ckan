@@ -18,6 +18,8 @@ class _Toolkit(object):
     # contents should describe the available functions/objects. We check
     # that this list matches the actual availables in the initialisation
     contents = [
+        # Global CKAN configuration object
+        'config',
         # i18n translation
         '_',
         # i18n translation (plural form)
@@ -144,6 +146,14 @@ class _Toolkit(object):
         t = self._toolkit
 
         # imported functions
+        t['config'] = common.config
+        self.docstring_overrides['config'] = '''The CKAN configuration object.
+
+It stores the configuration values defined in the :ref:`config_file`, eg::
+
+    title = toolkit.config.get("ckan.site_title")
+
+'''
         t['_'] = common._
         self.docstring_overrides['_'] = '''The Pylons ``_()`` function.
 

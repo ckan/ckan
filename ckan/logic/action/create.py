@@ -7,7 +7,6 @@ import random
 import re
 from socket import error as socket_error
 
-from pylons import config
 import paste.deploy.converters
 from sqlalchemy import func
 
@@ -25,7 +24,7 @@ import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
 
-from ckan.common import _
+from ckan.common import _, config
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -197,6 +196,7 @@ def package_create(context, data_dict):
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
     context_org_update['defer_commit'] = True
+    context_org_update['add_revision'] = False
     _get_action('package_owner_org_update')(context_org_update,
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})

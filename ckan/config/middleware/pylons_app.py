@@ -2,7 +2,6 @@
 
 import os
 
-from pylons import config
 from pylons.wsgiapp import PylonsApp
 
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -19,15 +18,15 @@ from fanstatic import Fanstatic
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 import ckan.lib.uploader as uploader
-from ckan.config.environment import load_environment
-import ckan.lib.app_globals as app_globals
 from ckan.config.middleware import common_middleware
+from ckan.common import config
 
 import logging
 log = logging.getLogger(__name__)
 
 
-def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
+def make_pylons_stack(conf, full_stack=True, static_files=True,
+                      **app_conf):
     """Create a Pylons WSGI application and return it
 
     ``conf``
@@ -50,13 +49,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
         defaults to main).
 
     """
-    # Configure the Pylons environment
-    load_environment(conf, app_conf)
-
     # The Pylons WSGI app
-    app = PylonsApp()
-    # set pylons globals
-    app_globals.reset()
+    app = pylons_app = CKANPylonsApp()
 
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
@@ -71,7 +65,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     # app = QueueLogMiddleware(app)
-    if asbool(config.get('ckan.use_pylons_response_cleanup_middleware', True)):
+    if asbool(config.get('ckan.use_pylons_response_cleanup_middleware',
+                         True)):
         app = execute_on_completion(app, config,
                                     cleanup_pylons_response_string)
 
@@ -135,11 +130,13 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
 
     if asbool(static_files):
         # Serve static files
-        static_max_age = None if not asbool(config.get('ckan.cache_enabled')) \
+        static_max_age = None if not asbool(
+            config.get('ckan.cache_enabled')) \
             else int(config.get('ckan.static_max_age', 3600))
 
-        static_app = StaticURLParser(config['pylons.paths']['static_files'],
-                                     cache_max_age=static_max_age)
+        static_app = StaticURLParser(
+            config['pylons.paths']['static_files'],
+            cache_max_age=static_max_age)
         static_parsers = [static_app, app]
 
         storage_directory = uploader.get_storage_path()
@@ -157,7 +154,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
 
         # Configurable extra static file paths
         extra_static_parsers = []
-        for public_path in config.get('extra_public_paths', '').split(','):
+        for public_path in config.get(
+                'extra_public_paths', '').split(','):
             if public_path.strip():
                 extra_static_parsers.append(
                     StaticURLParser(public_path.strip(),
@@ -175,7 +173,49 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
 
     app = common_middleware.RootPathMiddleware(app, config)
 
+    # Add a reference to the actual Pylons app so it's easier to access
+    app._wsgi_app = pylons_app
+
     return app
+
+
+class CKANPylonsApp(PylonsApp):
+
+    app_name = 'pylons_app'
+
+    def can_handle_request(self, environ):
+        '''
+        Decides whether it can handle a request with the Pylons app by
+        matching the request environ against the route mapper
+
+        Returns (True, 'pylons_app', origin) if this is the case.
+
+        origin can be either 'core' or 'extension' depending on where
+        the route was defined.
+
+        NOTE: There is currently a catch all route for GET requests to
+        point arbitrary urls to templates with the same name:
+
+            map.connect('/*url', controller='template', action='view')
+
+        This means that this function will match all GET requests. This
+        does not cause issues as the Pylons core routes are the last to
+        take precedence so the current behaviour is kept, but it's worth
+        keeping in mind.
+        '''
+
+        pylons_mapper = config['routes.map']
+        match_route = pylons_mapper.routematch(environ=environ)
+        if match_route:
+            match, route = match_route
+            origin = 'core'
+            if hasattr(route, '_ckan_core') and not route._ckan_core:
+                origin = 'extension'
+            log.debug('Pylons route match: {0} Origin: {1}'.format(
+                match, origin))
+            return (True, self.app_name, origin)
+        else:
+            return (False, self.app_name)
 
 
 def generate_close_and_callback(iterable, callback, environ):

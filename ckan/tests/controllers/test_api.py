@@ -8,10 +8,9 @@ import json
 import re
 
 from ckan.lib.helpers import url_for
-from nose.tools import assert_equal, eq_
+from nose.tools import assert_equal, assert_in, eq_
 
 import ckan.tests.helpers as helpers
-from ckan.tests.helpers import assert_in
 from ckan.tests import factories
 from ckan import model
 

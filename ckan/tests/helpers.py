@@ -21,27 +21,17 @@ This module is reserved for these very useful functions.
 '''
 import urlparse
 import webtest
-from pylons import config
 import nose.tools
+from nose.tools import assert_in, assert_not_in
 import mock
 from flask import Blueprint
 
+from ckan.common import config
 import ckan.lib.search as search
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
 import ckan.plugins as p
-
-
-try:
-    from nose.tools import assert_in, assert_not_in
-except ImportError:
-    # Python 2.6 doesn't have these, so define them here
-    def assert_in(a, b, msg=None):
-        assert a in b, msg or '%r was not in %r' % (a, b)
-
-    def assert_not_in(a, b, msg=None):
-        assert a not in b, msg or '%r was in %r' % (a, b)
 
 
 def reset_db():
@@ -156,7 +146,7 @@ class CKANTestApp(webtest.TestApp):
     @property
     def flask_app(self):
         if not self._flask_app:
-            self._flask_app = find_flask_app(self)
+            self._flask_app = self.app.apps['flask_app']._wsgi_app
         return self._flask_app
 
 
@@ -171,6 +161,7 @@ def _get_test_app():
     config['ckan.legacy_templates'] = False
     app = ckan.config.middleware.make_app(config['global_conf'], **config)
 
+    # TODO: remove
     # As we are setting SERVER_NAME, Flask needs the HTTP_HOST header to match
     # it otherwise the route mapper does not work (returns 404)
     parts = urlparse.urlparse(config.get('ckan.site_url'))
@@ -320,7 +311,7 @@ def webtest_maybe_follow(response, **kw):
 
 
 def change_config(key, value):
-    '''Decorator to temporarily changes Pylons' config to a new value
+    '''Decorator to temporarily change CKAN's config to a new value
 
     This allows you to easily create tests that need specific config values to
     be set, making sure it'll be reverted to what it was originally, after your
@@ -330,7 +321,7 @@ def change_config(key, value):
 
         @helpers.change_config('ckan.site_title', 'My Test CKAN')
         def test_ckan_site_title(self):
-            assert pylons.config['ckan.site_title'] == 'My Test CKAN'
+            assert config['ckan.site_title'] == 'My Test CKAN'
 
     :param key: the config key to be changed, e.g. ``'ckan.site_title'``
     :type key: string

@@ -4,7 +4,7 @@ import json
 
 import nose
 from nose.tools import assert_equals
-from pylons import config
+from ckan.common import config
 import sqlalchemy.orm as orm
 import paste.fixture
 

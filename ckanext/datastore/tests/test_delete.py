@@ -3,7 +3,6 @@
 import json
 import nose
 
-import pylons
 import sqlalchemy
 import sqlalchemy.orm as orm
 
@@ -11,6 +10,7 @@ import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
+from ckan.common import config
 
 import ckan.tests.helpers as helpers
 import ckanext.datastore.db as db
@@ -46,7 +46,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         }
 
         engine = db._get_engine(
-            {'connection_url': pylons.config['ckan.datastore.write_url']})
+            {'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
         with cls.app.flask_app.test_request_context():

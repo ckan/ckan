@@ -1,12 +1,12 @@
 # encoding: utf-8
 
 from bs4 import BeautifulSoup
-from nose.tools import assert_equal, assert_true
 from ckan.lib.helpers import url_for
+from nose.tools import assert_equal, assert_true, assert_in
 from mock import patch
 
 from ckan.tests import factories, helpers
-from ckan.tests.helpers import webtest_submit, submit_and_follow, assert_in
+from ckan.tests.helpers import webtest_submit, submit_and_follow
 
 
 class TestOrganizationNew(helpers.FunctionalTestBase):

@@ -6,6 +6,7 @@ from nose.tools import (
     assert_not_equal,
     assert_raises,
     assert_true,
+    assert_in
 )
 
 from ckan.lib.helpers import url_for
@@ -16,7 +17,6 @@ from ckan.lib import search
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-from ckan.tests.helpers import assert_in
 
 
 webtest_submit = helpers.webtest_submit
@@ -1166,6 +1166,17 @@ class TestResourceView(helpers.FunctionalTestBase):
                           view_id='inexistent-view-id')
 
         app.get(url, status=404)
+
+    def test_resource_view_description_is_rendered_as_markdown(self):
+        resource_view = factories.ResourceView(description="Some **Markdown**")
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_id=resource_view['id'])
+        app = self._get_test_app()
+        response = app.get(url)
+        response.mustcontain('Some <strong>Markdown</strong>')
 
 
 class TestResourceRead(helpers.FunctionalTestBase):

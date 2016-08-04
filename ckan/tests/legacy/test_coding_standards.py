@@ -14,7 +14,7 @@ deteriourating when they do reach the required standard.
 
 Please do not add new files to the list as any new files should meet the
 current coding standards.  Please add comments by files that fail if there
-are legitamate reasons for the failure.
+are legitimate reasons for the failure.
 '''
 
 import sys
@@ -398,7 +398,6 @@ class TestPep8(object):
         'ckan/lib/jinja_extensions.py',
         'ckan/lib/jsonp.py',
         'ckan/lib/maintain.py',
-        'ckan/lib/navl/dictization_functions.py',
         'ckan/lib/navl/validators.py',
         'ckan/lib/package_saver.py',
         'ckan/lib/plugins.py',
@@ -488,7 +487,6 @@ class TestPep8(object):
         'ckan/model/authz.py',
         'ckan/model/dashboard.py',
         'ckan/model/domain_object.py',
-        'ckan/model/extension.py',
         'ckan/model/follower.py',
         'ckan/model/group.py',
         'ckan/model/group_extra.py',

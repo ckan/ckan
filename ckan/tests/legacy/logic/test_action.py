@@ -6,7 +6,7 @@ import urllib
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
 from nose.plugins.skip import SkipTest
-from pylons import config
+from ckan.common import config
 import datetime
 import mock
 

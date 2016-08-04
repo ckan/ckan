@@ -51,12 +51,11 @@ Tempita==0.5.2            # via pylons, sqlalchemy-migrate, weberror
 tzlocal==1.2.2
 unicodecsv==0.14.1
 vdm==0.13
-WebError==0.13.1            # via pylons
+WebError==0.13.1          # via pylons
 WebHelpers==1.3           # via pylons
 WebOb==1.0.8              # via fanstatic, pylons, repoze.who-friendlyform, weberror, webtest
 WebTest==1.4.3            # via pylons
-Werkzeug==0.11.10          # via flask, wsgi-party
-wsgi-party==0.1b1
+Werkzeug==0.11.10         # via flask, wsgi-party
 zope.interface==4.2.0
 
 # The following packages are commented out because they are

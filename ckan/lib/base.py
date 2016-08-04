@@ -7,7 +7,8 @@ Provides the BaseController class for subclassing.
 import logging
 import time
 
-from pylons import cache, config
+from paste.deploy.converters import asbool
+from pylons import cache, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.controllers.util import redirect_to, redirect
@@ -33,17 +34,13 @@ from ckan.views import (identify_user,
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
 # plugins.toolkit for extensions.
-from ckan.common import (json, _, ungettext, c, g, request, response,
+from ckan.common import (json, _, ungettext, c, g, request, response, config,
                          is_flask, session)
 
 log = logging.getLogger(__name__)
 
-PAGINATE_ITEMS_PER_PAGE = 50
-
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
-
-ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 
 def abort(status_code=None, detail='', headers=None, comment=None):
@@ -214,7 +211,6 @@ class BaseController(WSGIController):
 
     def __before__(self, action, **params):
         c.__timer = time.time()
-        c.__version__ = ckan.__version__
         app_globals.app_globals._check_uptodate()
 
         self._identify_user()
@@ -258,25 +254,6 @@ class BaseController(WSGIController):
         r_time = time.time() - c.__timer
         url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
         log.info(' %s render time %.3f seconds' % (url, r_time))
-
-    def _get_page_number(self, params, key='page', default=1):
-        """
-        Returns the page number from the provided params after
-        verifies that it is an integer.
-
-        If it fails it will abort the request with a 400 error
-        """
-        p = params.get(key, default)
-
-        try:
-            p = int(p)
-            if p < 1:
-                raise ValueError("Negative number not allowed")
-        except ValueError, e:
-            abort(400, ('"page" parameter must be a positive integer'))
-
-        return p
-
 
 # Include the '_' function in the public names
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_')

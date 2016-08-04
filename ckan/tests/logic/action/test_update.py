@@ -5,7 +5,7 @@ import datetime
 
 import nose.tools
 import mock
-import pylons.config as config
+from ckan.common import config
 
 import ckan.logic as logic
 import ckan.lib.app_globals as app_globals
@@ -858,3 +858,63 @@ class TestUserUpdate(helpers.FunctionalTestBase):
 
         user_obj = model.User.get(user['id'])
         assert user_obj.password != 'pretend-this-is-a-valid-hash'
+
+
+class TestPackageOwnerOrgUpdate(object):
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_package_owner_org_added(self):
+        '''A package without an owner_org can have one added.'''
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        dataset = factories.Dataset()
+        context = {
+            'user': sysadmin['name'],
+        }
+        assert dataset['owner_org'] is None
+        helpers.call_action('package_owner_org_update',
+                            context=context,
+                            id=dataset['id'],
+                            organization_id=org['id'])
+        dataset_obj = model.Package.get(dataset['id'])
+        assert dataset_obj.owner_org == org['id']
+
+    def test_package_owner_org_changed(self):
+        '''A package with an owner_org can have it changed.'''
+
+        sysadmin = factories.Sysadmin()
+        org_1 = factories.Organization()
+        org_2 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org_1['id'])
+        context = {
+            'user': sysadmin['name'],
+        }
+        assert dataset['owner_org'] == org_1['id']
+        helpers.call_action('package_owner_org_update',
+                            context=context,
+                            id=dataset['id'],
+                            organization_id=org_2['id'])
+        dataset_obj = model.Package.get(dataset['id'])
+        assert dataset_obj.owner_org == org_2['id']
+
+    def test_package_owner_org_removed(self):
+        '''A package with an owner_org can have it removed.'''
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        context = {
+            'user': sysadmin['name'],
+        }
+        assert dataset['owner_org'] == org['id']
+        helpers.call_action('package_owner_org_update',
+                            context=context,
+                            id=dataset['id'],
+                            organization_id=None)
+        dataset_obj = model.Package.get(dataset['id'])
+        assert dataset_obj.owner_org is None

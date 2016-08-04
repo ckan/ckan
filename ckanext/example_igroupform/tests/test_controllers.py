@@ -1,14 +1,13 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal
 from ckan.lib.helpers import url_for
+from nose.tools import assert_equal, assert_in
 
 import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
 
-assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 

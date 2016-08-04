@@ -2,15 +2,14 @@
 
 import os
 import cgi
-import pylons
 import datetime
 import logging
 
 import ckan.lib.munge as munge
 import ckan.logic as logic
 import ckan.plugins as plugins
+from ckan.common import config
 
-config = pylons.config
 log = logging.getLogger(__name__)
 
 _storage_path = None

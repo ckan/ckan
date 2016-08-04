@@ -15,6 +15,7 @@ from paste.deploy.converters import asbool
 
 import interfaces
 
+from ckan.common import config
 
 __all__ = [
     'PluginImplementations', 'implements',
@@ -119,7 +120,7 @@ def plugins_update():
     environment.update_config()
 
 
-def load_all(config):
+def load_all():
     '''
     Load all plugins listed in the 'ckan.plugins' config directive.
     '''

@@ -992,7 +992,7 @@ web interface. For example::
 
   ckan.dumps_url = http://ckan.net/dump/
 
-For more information on using dumpfiles, see :ref:`paster db`.
+For more information on using dumpfiles, see :ref:`datasets dump`.
 
 .. _ckan.dumps_format:
 
@@ -1775,7 +1775,7 @@ smtp.server
 
 Example::
 
-  smtp.server = smtp.gmail.com:587
+  smtp.server = smtp.example.com:587
 
 Default value: ``None``
 
@@ -1801,7 +1801,7 @@ smtp.user
 
 Example::
 
-  smtp.user = your_username@gmail.com
+  smtp.user = username@example.com
 
 Default value: ``None``
 
@@ -1827,7 +1827,7 @@ smtp.mail_from
 
 Example::
 
-  smtp.mail_from = you@yourdomain.com
+  smtp.mail_from = ckan@example.com
 
 Default value: ``None``
 
@@ -1841,7 +1841,7 @@ email_to
 
 Example::
 
-  email_to = you@yourdomain.com
+  email_to = errors@example.com
 
 Default value: ``None``
 
@@ -1854,7 +1854,7 @@ error_email_from
 
 Example::
 
-  error_email_from = paste@localhost
+  error_email_from = ckan-errors@example.com
 
 Default value: ``None``
 
