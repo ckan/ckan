@@ -62,24 +62,6 @@ def make_flask_stack(conf, **app_conf):
 
     # Do all the Flask-specific stuff before adding other middlewares
 
-    # Automatically set SERVER_NAME from the value of ckan.site_url. This is
-    # needed so Flask is able to generate fully qualified URLs with
-    # _external=True. One major thing to note is that when SERVER_NAME is set
-    # up the incoming request `Host` header (`HTTP_HOST` in the WSGI environ)
-    # must match its value, otherwise the Flask router will return a 404 even
-    # if the route has been defined.
-    if not app.config.get('SERVER_NAME'):
-        site_url = (os.environ.get('CKAN_SITE_URL') or
-                    os.environ.get('CKAN__SITE_URL') or
-                    app_conf.get('ckan.site_url'))
-        if not site_url:
-            raise RuntimeError(
-                'ckan.site_url is not configured and it must have a value.'
-                ' Please amend your .ini file.')
-        parts = urlparse.urlparse(site_url)
-
-        app.config['SERVER_NAME'] = parts.netloc
-
     # secret key needed for flask-debug-toolbar
     app.config['SECRET_KEY'] = '<replace with a secret key>'
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False

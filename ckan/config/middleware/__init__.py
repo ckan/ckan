@@ -154,5 +154,5 @@ class AskAppDispatcherMiddleware(object):
             # builder to work and to be able to access the Flask config
             flask_app = self.apps['flask_app']._wsgi_app
 
-            with flask_app.app_context():
+            with flask_app.test_request_context():
                 return self.apps[app_name](environ, start_response)
