@@ -114,7 +114,7 @@ class TestUserInvite(object):
             'role': 'editor'
         }
 
-        app = self._get_test_app()
+        app = helpers._get_test_app()
         with app.flask_app.test_request_context():
             assert_raises(logic.ValidationError, helpers.call_action,
                           'user_invite', context, **params)

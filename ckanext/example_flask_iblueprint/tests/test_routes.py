@@ -1,7 +1,8 @@
 # encoding: utf-8
 
-from nose.tools import eq_, ok_
+from nose.tools import eq_, ok_, assert_raises
 
+from ckan.exceptions import HelperError
 import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 
@@ -43,7 +44,7 @@ class TestFlaskIBlueprint(helpers.FunctionalTestBase):
         '''
         res = self.app.get(u'/about_core')
 
-        ok_(u'<title>About - CKAN</title>' in res.body)
+        ok_(u'<title>About - CKAN</title>' in res.ubody)
 
     def test_plugin_route_with_helper(self):
         u'''
@@ -57,6 +58,6 @@ class TestFlaskIBlueprint(helpers.FunctionalTestBase):
     def test_plugin_route_with_non_existent_helper(self):
         u'''
         Test extension rendering with a helper method that doesn't exist
-        causes server error.
+        raises an exception.
         '''
-        self.app.get(u'/helper_not_here', status=500)
+        assert_raises(HelperError, self.app.get, u'/helper_not_here')
