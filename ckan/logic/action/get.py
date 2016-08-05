@@ -180,10 +180,9 @@ def current_package_list_with_resources(context, data_dict):
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
-    is_sysadmin = authz.is_sysadmin(user)
-    q = '+capacity:public' if not is_sysadmin else '*:*'
-    context['ignore_capacity_check'] = True
-    search = package_search(context, {'q': q, 'rows': limit, 'start': offset})
+    search = package_search(context, {
+        'q': '', 'rows': limit, 'start': offset,
+        'include_private': authz.is_sysadmin(user) })
     return search.get('results', [])
 
 
@@ -1453,8 +1452,9 @@ def user_show(context, data_dict):
         search_dict = {'rows': 50}
 
         if include_private_and_draft_datasets:
-            context['ignore_capacity_check'] = True
-            search_dict.update({'include_drafts': True})
+            search_dict.update({
+                'include_private': True,
+                'include_drafts': True})
 
         search_dict.update({'fq': fq})
 
@@ -1823,16 +1823,26 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id {0}'.format(data_source)
 
-        # If this query hasn't come from a controller that has set this flag
-        # then we should remove any mention of capacity from the fq and
+        # we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
         fq = data_dict.get('fq', '')
-        if not context.get('ignore_capacity_check', False):
+        include_private = asbool(data_dict.pop('include_private', False))
+        if not include_private or not user:
             fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
             data_dict['fq'] = fq + ' capacity:"public"'
+        elif not authz.is_sysadmin(user):
+            fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
+            orgs = logic.get_action('organization_list_for_user')(
+                {'user': user}, {'permission': 'member'})
+            if orgs:
+                data_dict['fq'] = (fq + ' (capactiy:"public"'
+                    ' OR owner_org:({0}))'.format(' OR '.join(
+                        org['id'] for org in orgs)))
+            else:
+                data_dict['fq'] = fq + ' capacity:"public"'
 
         # Solr doesn't need 'include_drafts`, so pop it.
-        include_drafts = data_dict.pop('include_drafts', False)
+        include_drafts = asbool(data_dict.pop('include_drafts', False))
         fq = data_dict.get('fq', '')
         if include_drafts:
             user_id = authz.get_user_id_for_username(user, allow_none=True)
