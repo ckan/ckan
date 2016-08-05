@@ -183,7 +183,7 @@ def make_flask_stack(conf, **app_conf):
     from ckan.views.api import api
     app.register_blueprint(api)
 
-    # Set up each iRoute extension as a Flask Blueprint
+    # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
         if hasattr(plugin, 'get_blueprint'):
             app.register_extension_blueprint(plugin.get_blueprint())

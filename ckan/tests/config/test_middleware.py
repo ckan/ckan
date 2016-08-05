@@ -303,11 +303,11 @@ class TestAppDispatcherAskAround(helpers.FunctionalTestBase):
         eq_(answers, [(True, 'flask_app', 'extension'), (True, 'pylons_app', 'extension')])
 
 
-class TestAppDispatcher(helpers.FunctionalTestBase):
+class TestAppDispatcher(object):
 
     def test_flask_core_route_is_served_by_flask(self):
 
-        app = self._get_test_app()
+        app = helpers._get_test_app()
 
         # api served from core flask
         res = app.get('/api/action/status_show')
@@ -316,25 +316,22 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
     def test_flask_extension_route_is_served_by_flask(self):
 
-        app = self._get_test_app()
-        flask_app = helpers.find_flask_app(app)
-
-        # Install plugin and register its blueprint
-        if not p.plugin_loaded('test_simple_flask_plugin'):
-            p.load('test_simple_flask_plugin')
-            plugin = p.get_plugin('test_simple_flask_plugin')
-            flask_app.register_extension_blueprint(plugin.get_blueprint())
+        app = helpers._get_test_app()
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+            plugin = p.get_plugin('test_routing_plugin')
+            app.flask_app.register_extension_blueprint(plugin.get_blueprint())
 
         # api served from extension flask
-        res = app.get('/simple_flask')
+        res = app.get('/from_flask_extension')
 
         eq_(res.environ['ckan.app'], 'flask_app')
 
-        p.unload('test_simple_flask_plugin')
+        p.unload('test_routing_plugin')
 
     def test_pylons_core_route_is_served_by_pylons(self):
 
-        app = self._get_test_app()
+        app = helpers._get_test_app()
 
         res = app.get('/dataset')
 
@@ -342,12 +339,12 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
     def test_pylons_extension_route_is_served_by_pylons(self):
 
+        app = helpers._get_test_app()
         if not p.plugin_loaded('test_routing_plugin'):
+
             p.load('test_routing_plugin')
 
-        app = self._get_test_app()
-
-        res = app.get('/from_pylons_extension_before_map')
+        res = app.get('/from_pylons_extension_after_map')
 
         eq_(res.environ['ckan.app'], 'pylons_app')
         eq_(res.body, 'Hello World, this is served from a Pylons extension')
@@ -356,10 +353,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
     def test_flask_core_and_pylons_extension_route_is_served_by_pylons(self):
 
+        app = helpers._get_test_app()
         if not p.plugin_loaded('test_routing_plugin'):
             p.load('test_routing_plugin')
-
-        app = self._get_test_app()
 
         res = app.get('/hello')
 
@@ -372,7 +368,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         '''
         This should never happen in core, but just in case
         '''
-        app = self._get_test_app()
+        app = helpers._get_test_app()
 
         res = app.get('/api/action/status_show')
 
@@ -563,13 +559,16 @@ class MockRoutingPlugin(p.SingletonPlugin):
         # Create Blueprint for plugin
         blueprint = Blueprint(self.name, self.__module__)
         # Add plugin url rule to Blueprint object
-        blueprint.add_url_rule('/pylons_and_flask', 'flask_plugin_view',
+        blueprint.add_url_rule('/pylons_and_flask',
+                               'pylons_and_flask_plugin_view',
+                               flask_plugin_view)
+        blueprint.add_url_rule('/from_flask_extension', 'flask_plugin_view',
                                flask_plugin_view)
 
         return blueprint
 
 
-def flask_plugin_view(self):
+def flask_plugin_view():
     return 'Hello World, this is served from a Flask extension'
 
 
