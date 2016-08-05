@@ -1199,7 +1199,6 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         '''
         user = factories.User()
         org = factories.Organization(user=user)
-        factories.Dataset(user=user)
         factories.Dataset(user=user, state='deleted')
         factories.Dataset(user=user, state='draft')
         private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
@@ -1209,8 +1208,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
             include_private=True,
             context={'user': user['name']})['results']
 
-        eq(len(results), 1)
-        eq(results[0]['name'], private_dataset['name'])
+        eq([r['name'] for r in results], [private_dataset['name']])
 
     def test_package_works_without_user_in_context(self):
         '''
