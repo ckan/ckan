@@ -145,6 +145,8 @@ def redirect_to(*args, **kw):
     uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
                 args)
     _url = url_for(*uargs, **kw)
+    if _url.startswith('/'):
+        _url = str(config['ckan.site_url'].rstrip('/') + _url)
 
     return _redirect_to(_url)
 
