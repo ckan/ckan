@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 
 render = base.render
 abort = base.abort
-redirect = base.redirect
+redirect = h.redirect_to
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
