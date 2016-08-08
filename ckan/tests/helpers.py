@@ -220,15 +220,18 @@ def submit_and_follow(app, form, extra_environ=None, name=None,
     and return the response from following that redirect.
     '''
 
+    http_host = str(urlparse.urlparse(config['ckan.site_url']).netloc)
+    if extra_environ is None:
+        extra_environ = {}
     if not extra_environ.get('HTTP_HOST'):
-        extra_environ['HTTP_HOST'] = str(urlparse.urlparse(config['ckan.site_url']).netloc)
+        extra_environ['HTTP_HOST'] = http_host
     response = webtest_submit(form, name, value=value, status=302,
                               extra_environ=extra_environ, **args)
     return app.get(url=response.headers['Location'],
                    extra_environ=extra_environ)
 
 
-## FIXME: remove webtest_* functions below when we upgrade webtest
+# FIXME: remove webtest_* functions below when we upgrade webtest
 
 def webtest_submit(form, name=None, index=None, value=None, **args):
     '''
