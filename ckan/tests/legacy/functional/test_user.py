@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from routes import url_for
+from ckan.lib.helpers import url_for
 from nose.tools import assert_equal
 from ckan.common import config
 import hashlib

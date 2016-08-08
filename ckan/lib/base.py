@@ -11,7 +11,7 @@ from paste.deploy.converters import asbool
 from pylons import cache, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
-from pylons.controllers.util import redirect_to, redirect
+from pylons.controllers.util import redirect_to, redirect as pylons_redirect
 from pylons.decorators import jsonify
 from pylons.i18n import N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
@@ -41,6 +41,12 @@ log = logging.getLogger(__name__)
 
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
+
+
+def redirect(url, code=302):
+    if url.startswith('/'):
+        url = config['ckan.site_url'].rstrip('/') + url
+    return pylons_redirect(url, code)
 
 
 def abort(status_code=None, detail='', headers=None, comment=None):
