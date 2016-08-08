@@ -142,7 +142,15 @@ def redirect_to(*args, **kw):
     '''
     if are_there_flash_messages():
         kw['__no_cache__'] = True
-    return _redirect_to(url_for(*args, **kw))
+
+    # Routes router doesn't like unicode args
+    uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
+                args)
+    _url = url_for(*uargs, **kw)
+    if _url.startswith('/'):
+        _url = str(config['ckan.site_url'].rstrip('/') + _url)
+
+    return _redirect_to(_url)
 
 
 @maintain.deprecated('h.url is deprecated please use h.url_for')
