@@ -13,16 +13,35 @@ from collections import MutableMapping
 import flask
 import pylons
 
-from werkzeug.local import Local
+from werkzeug.local import Local, LocalProxy
 
 from pylons.i18n import _, ungettext
-from pylons import g, c, request, session, response
+from pylons import g, c,  session, response
 import simplejson as json
 
 try:
     from collections import OrderedDict  # from python 2.7
 except ImportError:
     from sqlalchemy.util import OrderedDict
+
+
+def is_flask_request():
+    u'''
+    A centralized way to determine whether we are in the context of a
+    request being served by Flask or Pylons
+    '''
+    try:
+        pylons.request.environ
+        pylons_request_available = True
+    except TypeError:
+        pylons_request_available = False
+
+    if (flask.request and
+            (flask.request.environ.get(u'ckan.app') == u'flask_app' or
+             not pylons_request_available)):
+        return True
+    else:
+        return False
 
 
 class CKANConfig(MutableMapping):
@@ -91,6 +110,39 @@ class CKANConfig(MutableMapping):
         except TypeError:
             pass
 
+
+def _get_request():
+    if is_flask_request():
+        return flask.request
+    else:
+        return pylons.request
+
+
+class CKANRequest(LocalProxy):
+    u'''Common request object
+
+    This is just a wrapper around LocalProxy so we can handle some special
+    cases for backwards compatibility.
+
+    LocalProxy will forward to Flask or Pylons own request objects depending
+    on the output of `_get_request` (which essentially calls
+    `is_flask_request`) and at the same time provide all objects methods to be
+    able to interact with them transparently.
+    '''
+
+    def __getattr__(self, name):
+        u''' Special case as Pylons' request.params is used all over the place.
+        All new code meant to be run just in Flask (eg views) should always
+        use request.args
+        '''
+        try:
+            return super(CKANRequest, self).__getattr__(name)
+        except AttributeError:
+            if name == u'params':
+                return super(CKANRequest, self).__getattr__(u'args')
+            else:
+                raise
+
 local = Local()
 
 # This a proxy to the bounded config object
@@ -98,3 +150,6 @@ local(u'config')
 
 # Thread-local safe objects
 config = local.config = CKANConfig()
+
+# Proxies to already thread-local safe objects
+request = CKANRequest(_get_request)
