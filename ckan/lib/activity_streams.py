@@ -26,7 +26,8 @@ def get_snippet_user(activity, detail):
 
 def get_snippet_dataset(activity, detail):
     data = activity['data']
-    link = h.dataset_link(data.get('package') or data.get('dataset'))
+    pkg_dict = data.get('package') or data.get('dataset')
+    link = h.dataset_link(pkg_dict) if pkg_dict else ''
     return literal('''<span>%s</span>'''
         % (link)
         )
