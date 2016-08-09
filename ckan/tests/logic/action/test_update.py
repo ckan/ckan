@@ -954,7 +954,9 @@ class TestBulkOperations(object):
             eq_(dataset.private, True)
 
         revisions = model.Session.query(model.PackageRevision) \
-            .filter(model.PackageRevision.owner_org == org['id']).all()
+            .filter(model.PackageRevision.owner_org == org['id']) \
+            .filter(model.PackageRevision.current is True) \
+            .all()
         for revision in revisions:
             eq_(revision.private, True)
 
@@ -983,7 +985,9 @@ class TestBulkOperations(object):
             eq_(dataset.private, False)
 
         revisions = model.Session.query(model.PackageRevision) \
-            .filter(model.PackageRevision.owner_org == org['id']).all()
+            .filter(model.PackageRevision.owner_org == org['id']) \
+            .filter(model.PackageRevision.current is True) \
+            .all()
         for revision in revisions:
             eq_(revision.private, False)
 
@@ -1011,6 +1015,8 @@ class TestBulkOperations(object):
             eq_(dataset.state, 'deleted')
 
         revisions = model.Session.query(model.PackageRevision) \
-            .filter(model.PackageRevision.owner_org == org['id']).all()
+            .filter(model.PackageRevision.owner_org == org['id']) \
+            .filter(model.PackageRevision.current is True) \
+            .all()
         for revision in revisions:
             eq_(revision.state, 'deleted')
