@@ -1233,6 +1233,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
     model.Session.query(model.package_revision_table) \
         .filter(model.PackageRevision.id.in_(datasets)) \
         .filter(model.PackageRevision.owner_org == org_id) \
+        .filter(model.PackageRevision.current is True) \
         .update(update_dict, synchronize_session=False)
 
     model.Session.commit()
