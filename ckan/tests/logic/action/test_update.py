@@ -5,13 +5,14 @@ import nose.tools
 import mock
 import pylons.config as config
 
+import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-assert_equals = nose.tools.assert_equals
+assert_equals = eq_ = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
 
 
@@ -748,3 +749,99 @@ class TestConfigOptionUpdate(object):
         assert hasattr(app_globals.app_globals, globals_key)
 
         assert_equals(getattr(app_globals.app_globals, globals_key), value)
+
+
+class TestBulkOperations(object):
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_bulk_make_private(self):
+
+        org = factories.Organization()
+
+        dataset1 = factories.Dataset(owner_org=org['id'])
+        dataset2 = factories.Dataset(owner_org=org['id'])
+
+        helpers.call_action('bulk_update_private', {},
+                            datasets=[dataset1['id'], dataset2['id']],
+                            org_id=org['id'])
+
+        # Check search index
+        datasets = helpers.call_action('package_search', {},
+                                       q='owner_org:{0}'.format(org['id']))
+
+        for dataset in datasets['results']:
+            eq_(dataset['private'], True)
+
+        # Check DB
+        datasets = model.Session.query(model.Package) \
+            .filter(model.Package.owner_org == org['id']).all()
+        for dataset in datasets:
+            eq_(dataset.private, True)
+
+        revisions = model.Session.query(model.PackageRevision) \
+            .filter(model.PackageRevision.owner_org == org['id']).all()
+        for revision in revisions:
+            eq_(revision.private, True)
+
+    def test_bulk_make_public(self):
+
+        org = factories.Organization()
+
+        dataset1 = factories.Dataset(owner_org=org['id'], private=True)
+        dataset2 = factories.Dataset(owner_org=org['id'], private=True)
+
+        helpers.call_action('bulk_update_public', {},
+                            datasets=[dataset1['id'], dataset2['id']],
+                            org_id=org['id'])
+
+        # Check search index
+        datasets = helpers.call_action('package_search', {},
+                                       q='owner_org:{0}'.format(org['id']))
+
+        for dataset in datasets['results']:
+            eq_(dataset['private'], False)
+
+        # Check DB
+        datasets = model.Session.query(model.Package) \
+            .filter(model.Package.owner_org == org['id']).all()
+        for dataset in datasets:
+            eq_(dataset.private, False)
+
+        revisions = model.Session.query(model.PackageRevision) \
+            .filter(model.PackageRevision.owner_org == org['id']).all()
+        for revision in revisions:
+            eq_(revision.private, False)
+
+    def test_bulk_delete(self):
+
+        org = factories.Organization()
+
+        dataset1 = factories.Dataset(owner_org=org['id'])
+        dataset2 = factories.Dataset(owner_org=org['id'])
+
+        helpers.call_action('bulk_update_delete', {},
+                            datasets=[dataset1['id'], dataset2['id']],
+                            org_id=org['id'])
+
+        # Check search index
+        datasets = helpers.call_action('package_search', {},
+                                       q='owner_org:{0}'.format(org['id']))
+
+        eq_(datasets['results'], [])
+
+        # Check DB
+        datasets = model.Session.query(model.Package) \
+            .filter(model.Package.owner_org == org['id']).all()
+        for dataset in datasets:
+            eq_(dataset.state, 'deleted')
+
+        revisions = model.Session.query(model.PackageRevision) \
+            .filter(model.PackageRevision.owner_org == org['id']).all()
+        for revision in revisions:
+            eq_(revision.state, 'deleted')

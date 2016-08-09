@@ -1224,16 +1224,15 @@ def _bulk_update_dataset(context, data_dict, update_dict):
     org_id = data_dict.get('org_id')
 
     model = context['model']
-
     model.Session.query(model.package_table) \
         .filter(model.Package.id.in_(datasets)) \
         .filter(model.Package.owner_org == org_id) \
         .update(update_dict, synchronize_session=False)
 
     # revisions
-    model.Session.query(model.package_table) \
-        .filter(model.Package.id.in_(datasets)) \
-        .filter(model.Package.owner_org == org_id) \
+    model.Session.query(model.package_revision_table) \
+        .filter(model.PackageRevision.id.in_(datasets)) \
+        .filter(model.PackageRevision.owner_org == org_id) \
         .update(update_dict, synchronize_session=False)
 
     model.Session.commit()
