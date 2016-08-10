@@ -134,9 +134,9 @@ class CKANRequest(LocalProxy):
         use request.args
         '''
         try:
-            return super(CKANRequest, self).__getattr__(u'params')
+            return super(CKANRequest, self).params
         except AttributeError:
-            return super(CKANRequest, self).__getattr__(u'args')
+            return self.args
 
 
 local = Local()
