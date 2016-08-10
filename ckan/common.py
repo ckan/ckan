@@ -36,12 +36,9 @@ def is_flask_request():
     except TypeError:
         pylons_request_available = False
 
-    if (flask.request and
+    return (flask.request and
             (flask.request.environ.get(u'ckan.app') == u'flask_app' or
-             not pylons_request_available)):
-        return True
-    else:
-        return False
+             not pylons_request_available))
 
 
 class CKANConfig(MutableMapping):
@@ -130,18 +127,17 @@ class CKANRequest(LocalProxy):
     able to interact with them transparently.
     '''
 
-    def __getattr__(self, name):
+    @property
+    def params(self):
         u''' Special case as Pylons' request.params is used all over the place.
         All new code meant to be run just in Flask (eg views) should always
         use request.args
         '''
         try:
-            return super(CKANRequest, self).__getattr__(name)
+            return super(CKANRequest, self).__getattr__(u'params')
         except AttributeError:
-            if name == u'params':
-                return super(CKANRequest, self).__getattr__(u'args')
-            else:
-                raise
+            return super(CKANRequest, self).__getattr__(u'args')
+
 
 local = Local()
 
