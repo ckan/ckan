@@ -15,6 +15,7 @@ def make_flask_stack(conf, **app_conf):
     Pylons used """
 
     app = flask_app = CKANFlask(__name__)
+    app.app_ctx_globals_class = CKAN_AppCtxGlobals
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
@@ -36,6 +37,19 @@ def make_flask_stack(conf, **app_conf):
     app._wsgi_app = flask_app
 
     return app
+
+
+class CKAN_AppCtxGlobals(_AppCtxGlobals):
+
+    '''Custom Flask AppCtxGlobal class (flask.g).'''
+
+    def __getattr__(self, name):
+        '''
+        If flask.g doesn't have attribute `name`, fall back to CKAN's
+        app_globals object.
+        If the key is also not found in there, an AttributeError will be raised
+        '''
+        return getattr(app_globals.app_globals, name)
 
 
 class CKANFlask(Flask):
