@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 
-from pylons import c
+from ckan.common import c
 from ckan.lib import base
 import ckan.lib.maintain as maintain
 from ckan import logic
