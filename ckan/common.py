@@ -16,7 +16,7 @@ import pylons
 from werkzeug.local import Local, LocalProxy
 
 from pylons.i18n import _, ungettext
-from pylons import g, c,  session, response
+from pylons import session, response
 import simplejson as json
 
 try:
@@ -139,6 +139,13 @@ class CKANRequest(LocalProxy):
             return self.args
 
 
+def _get_c():
+    if is_flask_request():
+        return flask.g
+    else:
+        return pylons.c
+
+
 local = Local()
 
 # This a proxy to the bounded config object
@@ -149,3 +156,5 @@ config = local.config = CKANConfig()
 
 # Proxies to already thread-local safe objects
 request = CKANRequest(_get_request)
+# Provide a `c`  alias for `g` for backwards compatibility
+g = c = LocalProxy(_get_c)
