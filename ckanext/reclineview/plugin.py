@@ -12,13 +12,15 @@ ignore_empty = p.toolkit.get_validator('ignore_empty')
 natural_number_validator = p.toolkit.get_validator('natural_number_validator')
 Invalid = p.toolkit.Invalid
 
+
 def get_mapview_config():
     '''
-        Extracts and returns map view configuration of the reclineview extension.
+    Extracts and returns map view configuration of the reclineview extension.
     '''
     namespace = 'ckanext.reclineview.mapview.'
     return dict([(k.replace(namespace, ''), v) for k, v in config.iteritems()
                  if k.startswith(namespace)])
+
 
 def in_list(list_possible_values):
     '''
