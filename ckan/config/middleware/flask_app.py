@@ -1,10 +1,11 @@
 # encoding: utf-8
 
 from flask import Flask
+from flask.ctx import _AppCtxGlobals
 from werkzeug.exceptions import HTTPException
 
-from ckan.common import config
-
+from ckan.common import config, g
+import ckan.lib.app_globals as app_globals
 
 import logging
 log = logging.getLogger(__name__)
@@ -24,6 +25,14 @@ def make_flask_stack(conf, **app_conf):
     else:
         app.config.update(conf)
         app.config.update(app_conf)
+
+    # Template context processors
+    @app.context_processor
+    def c_object():
+        u'''
+        Expose `c` as an alias of `g` in templates for backwards compatibility
+        '''
+        return dict(c=g)
 
     @app.route('/hello', methods=['GET'])
     def hello_world():
