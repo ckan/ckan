@@ -158,7 +158,7 @@ to the rendered features.
 This plugin requires data to be in the DataStore.
 
 There is partial support to change the map tiles to a different service, such
-as Mapbox::
+as Mapbox. Look below for an example to add to your configuration file::
 
     #Mapbox example:
     ckanext.spatial.common_map.type = mapbox
