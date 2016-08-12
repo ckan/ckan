@@ -1836,7 +1836,7 @@ def package_search(context, data_dict):
             capacity_fq = None
         elif include_private and user:
             orgs = logic.get_action('organization_list_for_user')(
-                {'user': user}, {'permission': 'member'})
+                {'user': user}, {'permission': 'read'})
             if orgs:
                 capacity_fq = '({0} OR owner_org:({1}))'.format(
                     capacity_fq,

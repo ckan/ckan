@@ -1487,6 +1487,64 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_true('Dataset Two' in ds_titles)
         assert_true('Dataset Three' in ds_titles)
 
+    def test_user_not_in_organization_cannot_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], [])
+
+    def test_user_in_organization_can_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}])
+        dataset = factories.Dataset(
+            title='A private dataset',
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], ['A private dataset'])
+
+    @helpers.change_config('ckan.search.default_include_private', 'false')
+    def test_search_default_include_private_false(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}])
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], [])
+
 
 class TestPackageFollow(helpers.FunctionalTestBase):
 
