@@ -264,7 +264,9 @@ class PackageController(base.BaseController):
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,
-                'extras': search_extras
+                'extras': search_extras,
+                'include_private': asbool(config.get(
+                    'ckan.search.default_include_private', True)),
             }
 
             query = get_action('package_search')(context, data_dict)
