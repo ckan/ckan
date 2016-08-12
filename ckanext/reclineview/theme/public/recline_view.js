@@ -151,6 +151,31 @@ this.ckan.module('recline_view', function (jQuery, _) {
     },
 
     _newDataExplorer: function (dataset, map_config) {
+      var tile_url, attribution, subdomains;
+      tile_url = attribution = subdomains = '';
+
+      if (map_config.type == 'mapbox') {
+          // MapBox base map
+          if (!map_config['mapbox.map_id'] || !map_config['mapbox.access_token']) {
+            throw '[CKAN Map Widgets] You need to provide a map ID ([account].[handle]) and an access token when using a MapBox layer. ' +
+                  'See http://www.mapbox.com/developers/api-overview/ for details';
+          }
+
+          tile_url = '//{s}.tiles.mapbox.com/v4/' + map_config['mapbox.map_id'] + '/{z}/{x}/{y}.png?access_token=' + map_config['mapbox.access_token'];
+          handle = map_config['mapbox.map_id'];
+          subdomains = map_config.subdomains || 'abcd';
+          attribution = map_config.attribution || 'Data: <a href="http://osm.org/copyright" target="_blank">OpenStreetMap</a>, Design: <a href="http://mapbox.com/about/maps" target="_blank">MapBox</a>';
+
+      } else if (map_config.type == 'custom') {
+          // Custom XYZ layer
+          tile_url = map_config['custom.url'] || '';
+          attribution = map_config.attribution || '';
+          subdomains = map_config.subdomains || '';
+
+          if (map_config['custom.tms'])
+            var tms = map_config['custom.tms'];
+      }
+
       var views = [
         {
           id: 'grid',
@@ -169,9 +194,11 @@ this.ckan.module('recline_view', function (jQuery, _) {
         {
           id: 'map',
           label: 'Map',
-          view: new ckan.MapView({
-            model: dataset, 
-            mapConfig: map_config
+          view: new recline.View.Map({
+            model: dataset,
+            mapTilesURL: tile_url,
+            mapTilesAttribution: attribution,
+            mapTilesSubdomains: subdomains
           })
         }
       ];
