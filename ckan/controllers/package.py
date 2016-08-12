@@ -12,8 +12,8 @@ import paste.fileapp
 
 import ckan.logic as logic
 import ckan.lib.base as base
-import ckan.lib.maintain as maintain
 import ckan.lib.i18n as i18n
+import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.helpers as h
 import ckan.model as model
@@ -277,7 +277,6 @@ class PackageController(base.BaseController):
                 item_count=query['count'],
                 items_per_page=limit
             )
-            c.facets = query['facets']
             c.search_facets = query['search_facets']
             c.page.items = query['results']
         except SearchQueryError, se:
@@ -293,7 +292,6 @@ class PackageController(base.BaseController):
             # SOLR
             log.error('Dataset search error: %r', se.args)
             c.query_error = True
-            c.facets = {}
             c.search_facets = {}
             c.page = h.Page(collection=[])
         c.search_facets_limits = {}
@@ -306,10 +304,6 @@ class PackageController(base.BaseController):
                              'an integer').format(
                       parameter_name='_%s_limit' % facet))
             c.search_facets_limits[facet] = limit
-
-        maintain.deprecate_context_item(
-            'facets',
-            'Use `c.search_facets` instead.')
 
         self._setup_template_variables(context, {},
                                        package_type=package_type)

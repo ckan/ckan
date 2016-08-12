@@ -6,7 +6,6 @@ import sys
 
 from ckan.common import c
 from ckan.lib import base
-import ckan.lib.maintain as maintain
 from ckan import logic
 import logic.schema
 from ckan import plugins
@@ -283,9 +282,6 @@ class DefaultDatasetForm(object):
         c.groups_available = authz_fn(context, data_dict)
 
         c.licenses = [('', '')] + base.model.Package.get_license_options()
-        # CS: bad_spelling ignore 2 lines
-        c.licences = c.licenses
-        maintain.deprecate_context_item('licences', 'Use `c.licenses` instead')
         c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
 
         if context.get('revision_id') or context.get('revision_date'):

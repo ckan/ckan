@@ -4,7 +4,6 @@ from pylons import cache
 import sqlalchemy.exc
 
 import ckan.logic as logic
-import ckan.lib.maintain as maintain
 import ckan.lib.search as search
 import ckan.lib.base as base
 import ckan.model as model
@@ -57,13 +56,6 @@ class HomeController(base.BaseController):
             c.search_facets = query['search_facets']
             c.package_count = query['count']
             c.datasets = query['results']
-
-            c.facets = query['facets']
-            maintain.deprecate_context_item(
-                'facets',
-                'Use `c.search_facets` instead.')
-
-            c.search_facets = query['search_facets']
 
             c.facet_titles = {
                 'organization': _('Organizations'),
