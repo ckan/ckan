@@ -418,12 +418,6 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
 
 class TestPackageEdit(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-        helpers.reset_db()
-        search.clear_all()
-
     def test_organization_admin_can_edit(self):
         user = factories.User()
         organization = factories.Organization(
@@ -563,14 +557,6 @@ class TestPackageEdit(helpers.FunctionalTestBase):
 
 
 class TestPackageRead(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-        helpers.reset_db()
-
-    def setup(self):
-        model.repo.rebuild_db()
-
     def test_read(self):
         dataset = factories.Dataset()
         app = helpers._get_test_app()
@@ -1018,9 +1004,6 @@ class TestResourceView(helpers.FunctionalTestBase):
 
         helpers.reset_db()
 
-    def setup(self):
-        model.repo.rebuild_db()
-
     @classmethod
     def teardown_class(cls):
         p.unload('image_view')
@@ -1062,15 +1045,6 @@ class TestResourceView(helpers.FunctionalTestBase):
 
 
 class TestResourceRead(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(TestResourceRead, cls).setup_class()
-        helpers.reset_db()
-        search.clear_all()
-
-    def setup(self):
-        model.repo.rebuild_db()
-
     def test_existing_resource_with_not_associated_dataset(self):
 
         dataset = factories.Dataset()
@@ -1329,11 +1303,6 @@ class TestResourceDelete(helpers.FunctionalTestBase):
 
 
 class TestSearch(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-        helpers.reset_db()
-
     def test_search_basic(self):
         dataset1 = factories.Dataset()
 
