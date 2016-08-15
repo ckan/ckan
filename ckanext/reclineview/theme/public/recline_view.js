@@ -121,7 +121,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
           state.lonField = reclineView.longitude_field;
         }
 
-        view = new ckan.MapView({model: dataset, state: state, mapConfig: this.options.map_config});
+        view = new recline.View.Map(this._reclineMapViewOptions(dataset, this.options.map_config));
       } else if(reclineView.view_type === "recline_view") {
         view = this._newDataExplorer(dataset, this.options.map_config);
       } else {
@@ -150,7 +150,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
       }
     },
 
-    _newDataExplorer: function (dataset, map_config) {
+    _reclineMapViewOptions: function(dataset, map_config) {
       var tile_url, attribution, subdomains;
       tile_url = attribution = subdomains = '';
 
@@ -176,6 +176,15 @@ this.ckan.module('recline_view', function (jQuery, _) {
             var tms = map_config['custom.tms'];
       }
 
+      return {
+        model: dataset,
+        mapTilesURL: tile_url,
+        mapTilesAttribution: attribution,
+        mapTilesSubdomains: subdomains
+      };
+    },
+
+    _newDataExplorer: function (dataset, map_config) {
       var views = [
         {
           id: 'grid',
@@ -194,12 +203,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
         {
           id: 'map',
           label: 'Map',
-          view: new recline.View.Map({
-            model: dataset,
-            mapTilesURL: tile_url,
-            mapTilesAttribution: attribution,
-            mapTilesSubdomains: subdomains
-          })
+          view: new recline.View.Map(this._reclineMapViewOptions(dataset, map_config))
         }
       ];
 
