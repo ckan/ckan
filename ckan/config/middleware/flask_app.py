@@ -1,7 +1,12 @@
 # encoding: utf-8
 
-from flask import Flask
+import os
+import importlib
+import inspect
+
+from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
+
 from werkzeug.exceptions import HTTPException
 
 from ckan.common import config, g
@@ -41,6 +46,9 @@ def make_flask_stack(conf, **app_conf):
     @app.route('/hello', methods=['POST'])
     def hello_world_post():
         return 'Hello World, this was posted to Flask'
+
+    # Auto-register all blueprints defined in the `views` folder
+    _register_core_blueprints(app)
 
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
@@ -88,3 +96,22 @@ class CKANFlask(Flask):
             return (True, self.app_name)
         except HTTPException:
             return (False, self.app_name)
+
+
+def _register_core_blueprints(app):
+    u'''Register all blueprints defined in the `views` folder
+    '''
+    views_path = os.path.join(os.path.dirname(__file__),
+                              u'..', u'..', u'views')
+    module_names = [f.rstrip(u'.py')
+                    for f in os.listdir(views_path)
+                    if f.endswith(u'.py') and not f.startswith(u'_')]
+    blueprints = []
+    for name in module_names:
+        module = importlib.import_module(u'ckan.views.{0}'.format(name))
+        blueprints.extend([m for m in inspect.getmembers(module)
+                           if isinstance(m[1], Blueprint)])
+    if blueprints:
+        for blueprint in blueprints:
+            app.register_blueprint(blueprint[1])
+            log.debug(u'Registered core blueprint: {0}'.format(blueprint[0]))
