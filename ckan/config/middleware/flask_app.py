@@ -3,14 +3,19 @@
 import os
 import importlib
 import inspect
+import itertools
 
 from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
 
 from werkzeug.exceptions import HTTPException
+from werkzeug.routing import Rule
 
 from ckan.common import config, g
 import ckan.lib.app_globals as app_globals
+from ckan.plugins import PluginImplementations
+from ckan.plugins.interfaces import IBlueprint
+
 
 import logging
 log = logging.getLogger(__name__)
@@ -22,6 +27,7 @@ def make_flask_stack(conf, **app_conf):
 
     app = flask_app = CKANFlask(__name__)
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
+    app.url_rule_class = CKAN_Rule
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
@@ -50,10 +56,27 @@ def make_flask_stack(conf, **app_conf):
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
 
+    # Set up each IBlueprint extension as a Flask Blueprint
+    for plugin in PluginImplementations(IBlueprint):
+        if hasattr(plugin, 'get_blueprint'):
+            app.register_extension_blueprint(plugin.get_blueprint())
+
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
 
     return app
+
+
+class CKAN_Rule(Rule):
+
+    u'''Custom Flask url_rule_class.
+
+    We use it to be able to flag routes defined in extensions as such
+    '''
+
+    def __init__(self, *args, **kwargs):
+        self.ckan_core = True
+        super(CKAN_Rule, self).__init__(*args, **kwargs)
 
 
 class CKAN_AppCtxGlobals(_AppCtxGlobals):
@@ -82,20 +105,45 @@ class CKANFlask(Flask):
         Decides whether it can handle a request with the Flask app by
         matching the request environ against the route mapper
 
-        Returns (True, 'flask_app') if this is the case.
-        '''
+        Returns (True, 'flask_app', origin) if this is the case.
 
-        # TODO: identify matching urls as core or extension. This will depend
-        # on how we setup routing in Flask
+        `origin` can be either 'core' or 'extension' depending on where
+        the route was defined.
+        '''
 
         urls = self.url_map.bind_to_environ(environ)
         try:
-            endpoint, args = urls.match()
-            log.debug('Flask route match, endpoint: {0}, args: {1}'.format(
-                endpoint, args))
-            return (True, self.app_name)
+            rule, args = urls.match(return_rule=True)
+            origin = 'core'
+            if hasattr(rule, 'ckan_core') and not rule.ckan_core:
+                origin = 'extension'
+            log.debug('Flask route match, endpoint: {0}, args: {1}, '
+                      'origin: {2}'.format(rule.endpoint, args, origin))
+            return (True, self.app_name, origin)
         except HTTPException:
             return (False, self.app_name)
+
+    def register_extension_blueprint(self, blueprint, **kwargs):
+        '''
+        This method should be used to register blueprints that come from
+        extensions, so there's an opportunity to add extension-specific
+        options.
+
+        Sets the rule property `ckan_core` to False, to indicate that the rule
+        applies to an extension route.
+        '''
+        self.register_blueprint(blueprint, **kwargs)
+
+        # Get the new blueprint rules
+        bp_rules = [v for k, v in self.url_map._rules_by_endpoint.items()
+                    if k.startswith(blueprint.name)]
+        bp_rules = list(itertools.chain.from_iterable(bp_rules))
+
+        # This compare key will ensure the rule will be near the top.
+        top_compare_key = False, -100, [(-2, 0)]
+        for r in bp_rules:
+            r.ckan_core = False
+            r.match_compare_key = lambda: top_compare_key
 
 
 def _register_core_blueprints(app):

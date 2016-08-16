@@ -4,6 +4,7 @@ import mock
 import wsgiref
 from nose.tools import assert_equals, assert_not_equals, eq_
 from routes import url_for
+from flask import Blueprint
 
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
@@ -148,9 +149,8 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         # Even though this route is defined in Flask, there is catch all route
         # in Pylons for all requests to point arbitrary urls to templates with
         # the same name, so we get two positive answers
-        eq_(answers, [(True, 'flask_app'), (True, 'pylons_app', 'core')])
-        # TODO: check Flask origin (core/extension) when that is in place
-        # (also on the following tests)
+        eq_(answers, [(True, 'flask_app', 'core'),
+                      (True, 'pylons_app', 'core')])
 
     def test_ask_around_flask_core_route_post(self):
 
@@ -170,7 +170,8 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         # Even though this route is defined in Flask, there is catch all route
         # in Pylons for all requests to point arbitrary urls to templates with
         # the same name, so we get two positive answers
-        eq_(answers, [(True, 'flask_app'), (True, 'pylons_app', 'core')])
+        eq_(answers, [(True, 'flask_app', 'core'),
+                      (True, 'pylons_app', 'core')])
 
     def test_ask_around_pylons_core_route_get(self):
 
@@ -315,7 +316,8 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         answers = app.ask_around(environ)
         answers = sorted(answers, key=lambda a: a[1])
 
-        eq_(answers, [(True, 'flask_app'), (True, 'pylons_app', 'extension')])
+        eq_(answers, [(True, 'flask_app', 'core'),
+                      (True, 'pylons_app', 'extension')])
 
         p.unload('test_routing_plugin')
 
@@ -327,7 +329,21 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
         eq_(res.environ['ckan.app'], 'flask_app')
 
-    # TODO: test flask extension route
+    def test_flask_extension_route_is_served_by_flask(self):
+
+        app = self._get_test_app()
+
+        # Install plugin and register its blueprint
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+            plugin = p.get_plugin('test_routing_plugin')
+            app.flask_app.register_extension_blueprint(plugin.get_blueprint())
+
+        res = app.get('/simple_flask')
+
+        eq_(res.environ['ckan.app'], 'flask_app')
+
+        p.unload('test_routing_plugin')
 
     def test_pylons_core_route_is_served_by_pylons(self):
 
@@ -380,6 +396,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 class MockRoutingPlugin(p.SingletonPlugin):
 
     p.implements(p.IRoutes)
+    p.implements(p.IBlueprint)
 
     controller = 'ckan.tests.config.test_middleware:MockPylonsController'
 
@@ -391,8 +408,12 @@ class MockRoutingPlugin(p.SingletonPlugin):
         _map.connect('/from_pylons_extension_before_map_post_only',
                      controller=self.controller, action='view',
                      conditions={'method': 'POST'})
-        # This one conflicts with a core Flask route
+        # This one conflicts with an extension Flask route
         _map.connect('/pylons_and_flask',
+                     controller=self.controller, action='view')
+
+        # This one conflicts with a core Flask route
+        _map.connect('/hello',
                      controller=self.controller, action='view')
 
         return _map
@@ -403,6 +424,22 @@ class MockRoutingPlugin(p.SingletonPlugin):
                      controller=self.controller, action='view')
 
         return _map
+
+    def get_blueprint(self):
+        # Create Blueprint for plugin
+        blueprint = Blueprint(self.name, self.__module__)
+        # Add plugin url rule to Blueprint object
+        blueprint.add_url_rule('/pylons_and_flask', 'flask_plugin_view',
+                               flask_plugin_view)
+
+        blueprint.add_url_rule('/simple_flask', 'flask_plugin_view',
+                               flask_plugin_view)
+
+        return blueprint
+
+
+def flask_plugin_view():
+    return 'Hello World, this is served from a Flask extension'
 
 
 class MockPylonsController(p.toolkit.BaseController):
