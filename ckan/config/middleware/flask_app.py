@@ -11,6 +11,7 @@ from flask.ctx import _AppCtxGlobals
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Rule
 
+from ckan.lib import helpers
 from ckan.common import config, g
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
@@ -38,6 +39,12 @@ def make_flask_stack(conf, **app_conf):
         app.config.update(app_conf)
 
     # Template context processors
+    @app.context_processor
+    def helper_functions():
+        u'''Make helper functions (`h`) available to Flask templates'''
+        helpers.load_plugin_helpers()
+        return dict(h=helpers.helper_functions)
+
     @app.context_processor
     def c_object():
         u'''
