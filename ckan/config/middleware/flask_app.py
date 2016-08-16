@@ -12,6 +12,7 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Rule
 
 from ckan.lib import helpers
+from ckan.lib import jinja_extensions
 from ckan.common import config, g
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
@@ -26,7 +27,11 @@ def make_flask_stack(conf, **app_conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
 
+    root = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
     app = flask_app = CKANFlask(__name__)
+    app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
     app.url_rule_class = CKAN_Rule
 
@@ -37,6 +42,23 @@ def make_flask_stack(conf, **app_conf):
     else:
         app.config.update(conf)
         app.config.update(app_conf)
+
+    # Add Jinja2 extensions and filters
+    extensions = [
+        'jinja2.ext.do', 'jinja2.ext.with_',
+        jinja_extensions.SnippetExtension,
+        jinja_extensions.CkanExtend,
+        jinja_extensions.CkanInternationalizationExtension,
+        jinja_extensions.LinkForExtension,
+        jinja_extensions.ResourceExtension,
+        jinja_extensions.UrlForStaticExtension,
+        jinja_extensions.UrlForExtension
+    ]
+    for extension in extensions:
+        app.jinja_env.add_extension(extension)
+    app.jinja_env.filters['empty_and_escape'] = \
+        jinja_extensions.empty_and_escape
+    app.jinja_env.filters['truncate'] = jinja_extensions.truncate
 
     # Template context processors
     @app.context_processor
