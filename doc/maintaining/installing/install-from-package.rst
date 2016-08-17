@@ -27,9 +27,9 @@ CKAN:
 
     sudo apt-get update
 
-#. Install the Ubuntu packages that CKAN requires::
+#. Install the Ubuntu packages that CKAN requires (and 'git', to enable you to install CKAN extensions)::
 
-    sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5
+    sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5 git-core
 
 #. Download the CKAN package:
 

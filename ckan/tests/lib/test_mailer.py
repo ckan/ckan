@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal, assert_raises, assert_in
+from nose.tools import assert_equal, assert_raises, assert_in, assert_raises
 from email.mime.text import MIMEText
 from email.parser import Parser
 from email.header import decode_header
@@ -244,3 +244,13 @@ class TestMailer(MailerBase):
         body = self.get_email_body(msg[3])
         assert_in(org['title'], body)
         assert_in(h.roles_translated()[role], body)
+
+    @helpers.change_config('smtp.test_server', '999.999.999.999')
+    def test_bad_smtp_host(self):
+        test_email = {'recipient_name': 'Bob',
+                      'recipient_email': 'b@example.com',
+                      'subject': 'Meeting',
+                      'body': 'The meeting is cancelled.',
+                      'headers': {'header1': 'value1'}}
+        assert_raises(mailer.MailerException,
+                      mailer.mail_recipient, **test_email)

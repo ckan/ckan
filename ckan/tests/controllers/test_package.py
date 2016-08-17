@@ -443,12 +443,6 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
 
 class TestPackageEdit(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-        helpers.reset_db()
-        search.clear_all()
-
     def test_organization_admin_can_edit(self):
         user = factories.User()
         organization = factories.Organization(
@@ -602,14 +596,6 @@ class TestPackageEdit(helpers.FunctionalTestBase):
 
 
 class TestPackageRead(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-        helpers.reset_db()
-
-    def setup(self):
-        model.repo.rebuild_db()
-
     def test_read(self):
         dataset = factories.Dataset()
         app = helpers._get_test_app()
@@ -1138,9 +1124,6 @@ class TestResourceView(helpers.FunctionalTestBase):
 
         helpers.reset_db()
 
-    def setup(self):
-        model.repo.rebuild_db()
-
     @classmethod
     def teardown_class(cls):
         p.unload('image_view')
@@ -1187,15 +1170,6 @@ class TestResourceView(helpers.FunctionalTestBase):
 
 
 class TestResourceRead(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(TestResourceRead, cls).setup_class()
-        helpers.reset_db()
-        search.clear_all()
-
-    def setup(self):
-        model.repo.rebuild_db()
-
     def test_existing_resource_with_not_associated_dataset(self):
 
         dataset = factories.Dataset()
@@ -1484,11 +1458,6 @@ class TestResourceDelete(helpers.FunctionalTestBase):
 
 
 class TestSearch(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-        helpers.reset_db()
-
     def test_search_basic(self):
         dataset1 = factories.Dataset()
 
@@ -1684,6 +1653,104 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_true('Dataset One' not in ds_titles)
         assert_true('Dataset Two' in ds_titles)
         assert_true('Dataset Three' in ds_titles)
+
+    def test_user_not_in_organization_cannot_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], [])
+
+    def test_user_in_organization_can_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}])
+        dataset = factories.Dataset(
+            title='A private dataset',
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], ['A private dataset'])
+
+    def test_user_in_different_organization_cannot_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        org1 = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}])
+        org2 = factories.Organization()
+        dataset = factories.Dataset(
+            title='A private dataset',
+            owner_org=org2['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], [])
+
+    @helpers.change_config('ckan.search.default_include_private', 'false')
+    def test_search_default_include_private_false(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}])
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], [])
+
+    def test_sysadmin_can_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.Sysadmin()
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            title='A private dataset',
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], ['A private dataset'])
 
 
 class TestPackageFollow(helpers.FunctionalTestBase):

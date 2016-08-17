@@ -1192,24 +1192,50 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         nose.tools.assert_true(dataset['name'] not in names)
         nose.tools.assert_true(draft_dataset['name'] in names)
 
-    def test_package_search_private_with_ignore_capacity_check(self):
+    def test_package_search_private_with_include_private(self):
         '''
         package_search() can return private datasets when
-        `ignore_capacity_check` present in context.
+        `include_private=True`
         '''
         user = factories.User()
         org = factories.Organization(user=user)
-        factories.Dataset(user=user)
         factories.Dataset(user=user, state='deleted')
         factories.Dataset(user=user, state='draft')
         private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        fq = '+capacity:"private"'
-        results = helpers.call_action('package_search', fq=fq,
-                                      context={'ignore_capacity_check': True})['results']
+        results = helpers.call_action(
+            'package_search',
+            include_private=True,
+            context={'user': user['name']})['results']
 
-        eq(len(results), 1)
-        eq(results[0]['name'], private_dataset['name'])
+        eq([r['name'] for r in results], [private_dataset['name']])
+
+    def test_package_search_private_with_include_private_wont_show_other_orgs_private(self):
+        user = factories.User()
+        user2 = factories.User()
+        org = factories.Organization(user=user)
+        org2 = factories.Organization(user=user2)
+        private_dataset = factories.Dataset(user=user2, private=True, owner_org=org2['name'])
+
+        results = helpers.call_action(
+            'package_search',
+            include_private=True,
+            context={'user': user['name']})['results']
+
+        eq([r['name'] for r in results], [])
+
+    def test_package_search_private_with_include_private_syadmin(self):
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(user=user)
+        private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action(
+            'package_search',
+            include_private=True,
+            context={'user': sysadmin['name']})['results']
+
+        eq([r['name'] for r in results], [private_dataset['name']])
 
     def test_package_works_without_user_in_context(self):
         '''
