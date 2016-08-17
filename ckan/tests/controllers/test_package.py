@@ -1586,7 +1586,6 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_equal([n.string for n in ds_titles], ['A private dataset'])
 
 
-
 class TestPackageFollow(helpers.FunctionalTestBase):
 
     def test_package_follow(self):
