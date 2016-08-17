@@ -1711,6 +1711,10 @@ def package_search(context, data_dict):
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
     :type include_drafts: boolean
+    :param include_private: if ``True``, private datasets will be included in
+        the results. Only private datasets from the user's organizations will
+        be returned and sysadmins will be returned all private datasets.
+        Optional, the default is ``False``.
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: False)
     :type use_default_schema: bool
