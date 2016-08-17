@@ -1210,6 +1210,33 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         eq([r['name'] for r in results], [private_dataset['name']])
 
+    def test_package_search_private_with_include_private_wont_show_other_orgs_private(self):
+        user = factories.User()
+        user2 = factories.User()
+        org = factories.Organization(user=user)
+        org2 = factories.Organization(user=user2)
+        private_dataset = factories.Dataset(user=user2, private=True, owner_org=org2['name'])
+
+        results = helpers.call_action(
+            'package_search',
+            include_private=True,
+            context={'user': user['name']})['results']
+
+        eq([r['name'] for r in results], [])
+
+    def test_package_search_private_with_include_private_syadmin(self):
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(user=user)
+        private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action(
+            'package_search',
+            include_private=True,
+            context={'user': sysadmin['name']})['results']
+
+        eq([r['name'] for r in results], [private_dataset['name']])
+
     def test_package_works_without_user_in_context(self):
         '''
         package_search() should work even if user isn't in the context (e.g.
