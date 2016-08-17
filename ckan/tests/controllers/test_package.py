@@ -1525,6 +1525,27 @@ class TestSearch(helpers.FunctionalTestBase):
                                                 '.dataset-heading a')
         assert_equal([n.string for n in ds_titles], ['A private dataset'])
 
+    def test_user_in_different_organization_cannot_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        org1 = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}])
+        org2 = factories.Organization()
+        dataset = factories.Dataset(
+            title='A private dataset',
+            owner_org=org2['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], [])
+
     @helpers.change_config('ckan.search.default_include_private', 'false')
     def test_search_default_include_private_false(self):
         app = helpers._get_test_app()
@@ -1544,6 +1565,26 @@ class TestSearch(helpers.FunctionalTestBase):
                                                 '.dataset-item '
                                                 '.dataset-heading a')
         assert_equal([n.string for n in ds_titles], [])
+
+    def test_sysadmin_can_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.Sysadmin()
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            title='A private dataset',
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], ['A private dataset'])
+
 
 
 class TestPackageFollow(helpers.FunctionalTestBase):
