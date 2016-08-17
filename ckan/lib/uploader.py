@@ -4,6 +4,7 @@ import os
 import cgi
 import datetime
 import logging
+import magic
 
 import ckan.lib.munge as munge
 import ckan.logic as logic
@@ -96,6 +97,8 @@ class Upload(object):
         self.storage_path = None
         self.filename = None
         self.filepath = None
+        self.filesize = 0 # bytes
+        self.mimetype = None
         path = get_storage_path()
         if not path:
             return
@@ -166,9 +169,17 @@ class Upload(object):
                     raise logic.ValidationError(
                         {self.file_field: ['File upload too large']}
                     )
+            output_file.seek(0, os.SEEK_END)
+            self.filesize = output_file.tell()
             output_file.close()
             os.rename(self.tmp_filepath, self.filepath)
             self.clear = True
+
+            try:
+                self.mimetype = magic.from_file(filepath, mime=True)
+            except:
+                # Not that important if call above fails
+                self.mimetype = None
 
         if (self.clear and self.old_filename
                 and not self.old_filename.startswith('http')):
@@ -192,6 +203,8 @@ class ResourceUpload(object):
             if e.errno != 17:
                 raise
         self.filename = None
+        self.filesize = 0 # bytes
+        self.mimetype = None
 
         url = resource.get('url')
         upload_field_storage = resource.pop('upload', None)
@@ -254,6 +267,7 @@ class ResourceUpload(object):
                 current_size = current_size + 1
                 # MB chunks
                 data = self.upload_file.read(2 ** 20)
+
                 if not data:
                     break
                 output_file.write(data)
@@ -262,8 +276,18 @@ class ResourceUpload(object):
                     raise logic.ValidationError(
                         {'upload': ['File upload too large']}
                     )
+
+            output_file.seek(0, os.SEEK_END)
+            self.filesize = output_file.tell()
             output_file.close()
             os.rename(tmp_filepath, filepath)
+
+            try:
+                self.mimetype = magic.from_file(filepath, mime=True)
+            except:
+                # Not that important if call above fails
+                self.mimetype = None
+
             return
 
         # The resource form only sets self.clear (via the input clear_upload)

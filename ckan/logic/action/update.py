@@ -6,6 +6,7 @@ import logging
 import datetime
 import time
 import json
+import mimetypes
 
 from ckan.common import config
 import paste.deploy.converters as converters
@@ -93,6 +94,10 @@ def resource_update(context, data_dict):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
     upload = uploader.get_resource_uploader(data_dict)
+    upload.upload(id, uploader.get_max_resource_size())
+
+    data_dict['mimetype'] = mimetypes.guess_type(data_dict['url'])[0] or upload.mimetype
+    data_dict['size'] = upload.filesize
 
     pkg_dict['resources'][n] = data_dict
 
@@ -105,7 +110,6 @@ def resource_update(context, data_dict):
         errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
-    upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
 
     resource = _get_action('resource_show')(context, {'id': id})
