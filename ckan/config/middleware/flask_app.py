@@ -19,9 +19,11 @@ def make_flask_stack(conf, **app_conf):
     Pylons used """
 
     debug = asbool(app_conf.get('debug', app_conf.get('DEBUG', False)))
+    testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
 
     app = flask_app = CKANFlask(__name__)
     app.debug = debug
+    app.testing = testing
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
