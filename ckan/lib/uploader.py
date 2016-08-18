@@ -177,7 +177,7 @@ class Upload(object):
 
             try:
                 self.mimetype = magic.from_file(filepath, mime=True)
-            except:
+            except IOError:
                 # Not that important if call above fails
                 self.mimetype = None
 
@@ -284,7 +284,7 @@ class ResourceUpload(object):
 
             try:
                 self.mimetype = magic.from_file(filepath, mime=True)
-            except:
+            except IOError:
                 # Not that important if call above fails
                 self.mimetype = None
 
