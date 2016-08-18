@@ -96,8 +96,11 @@ def resource_update(context, data_dict):
     upload = uploader.get_resource_uploader(data_dict)
     upload.upload(id, uploader.get_max_resource_size())
 
-    data_dict['mimetype'] = mimetypes.guess_type(data_dict['url'])[0] or upload.mimetype
-    data_dict['size'] = upload.filesize
+    if not 'mimetype' in data_dict:
+        data_dict['mimetype'] = mimetypes.guess_type(data_dict['url'])[0] or upload.mimetype
+
+    if not 'size' in data_dict:
+        data_dict['size'] = upload.filesize
 
     pkg_dict['resources'][n] = data_dict
 
