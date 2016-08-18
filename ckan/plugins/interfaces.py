@@ -1576,6 +1576,10 @@ class IPermissionLabels(Interface):
     Extensions implementing this interface can override the permission
     labels applied to datasets to precisely control which datasets are
     visible to each user.
+
+    Implementations might want to consider mixing in
+    ckan.lib.plugins.DefaultPermissionLabels which provides
+    default behaviours for these methods.
     '''
 
     def get_dataset_labels(self, dataset):

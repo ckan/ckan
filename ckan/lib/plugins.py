@@ -574,3 +574,32 @@ class DefaultTranslation(object):
         ckanext-{extension name}, hence your pot, po and mo files should be
         named ckanext-{extension name}.mo'''
         return 'ckanext-{name}'.format(name=self.name)
+
+
+class DefaultPermissionLabels(object):
+    u'''
+    Default permissions for package_search/package_show:
+    - everyone can read public datasets "public"
+    - users can read their own drafts "creator-(user id)"
+    - users can read datasets belonging to their orgs "member-(org id)"
+    '''
+    def get_dataset_labels(self, dataset):
+        if dataset['state'] == 'active' and not dataset['private']:
+            return [u'public']
+
+        if dataset['private']:
+            return [u'member-%s' % dataset['owner_org']]
+
+        return [u'creator-%s' % dataset['creator_user_id']]
+
+    def get_user_dataset_labels(self, user):
+        labels = [u'public']
+        if not user:
+            return labels
+
+        labels.append(u'creator-%s' % user['id'])
+
+        orgs = logic.get_action('organization_list_for_user')(
+            {'user': user['id']}, {'permission': 'read'})
+        labels.extend(u'member-%s' % o['id'] for o in orgs)
+        return labels
