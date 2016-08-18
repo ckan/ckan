@@ -2,11 +2,12 @@
 
 import mock
 import wsgiref
-from nose.tools import assert_equals, assert_not_equals, eq_
+from nose.tools import assert_equals, assert_not_equals, eq_, assert_raises
 from routes import url_for
 
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
+from ckan.common import config
 
 from ckan.config.middleware import AskAppDispatcherMiddleware
 from ckan.config.middleware.flask_app import CKANFlask
@@ -409,3 +410,31 @@ class MockPylonsController(p.toolkit.BaseController):
 
     def view(self):
         return 'Hello World, this is served from a Pylons extension'
+
+
+class TestSecretKey(object):
+
+    @helpers.change_config('SECRET_KEY', 'super_secret_stuff')
+    def test_secret_key_is_used_if_present(self):
+
+        app = helpers._get_test_app()
+
+        eq_(app.flask_app.config['SECRET_KEY'],
+            u'super_secret_stuff')
+
+    @helpers.change_config('SECRET_KEY', None)
+    def test_beaker_secret_is_used_by_default(self):
+
+        app = helpers._get_test_app()
+
+        eq_(app.flask_app.config['SECRET_KEY'],
+            config['beaker.session.secret'])
+
+    @helpers.change_config('SECRET_KEY', None)
+    @helpers.change_config('beaker.session.secret', None)
+    def test_no_beaker_secret_crashes(self):
+
+        assert_raises(ValueError, helpers._get_test_app)
+
+        # TODO: When Pylons is finally removed, we should test for
+        # RuntimeError instead (thrown on `make_flask_stack`)

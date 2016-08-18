@@ -3,6 +3,10 @@
 from flask import Flask
 from werkzeug.exceptions import HTTPException
 
+from flask_debugtoolbar import DebugToolbarExtension
+
+from paste.deploy.converters import asbool
+
 from ckan.common import config
 
 
@@ -14,7 +18,10 @@ def make_flask_stack(conf, **app_conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
 
+    debug = asbool(app_conf.get('debug', app_conf.get('DEBUG', False)))
+
     app = flask_app = CKANFlask(__name__)
+    app.debug = debug
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
@@ -23,6 +30,19 @@ def make_flask_stack(conf, **app_conf):
     else:
         app.config.update(conf)
         app.config.update(app_conf)
+
+    # Do all the Flask-specific stuff before adding other middlewares
+
+    # Secret key needed for flask-debug-toolbar and sessions
+    if not app.config.get('SECRET_KEY'):
+        app.config['SECRET_KEY'] = config.get('beaker.session.secret')
+    if not app.config.get('SECRET_KEY'):
+        raise RuntimeError(u'You must provide a value for the secret key'
+                           ' with the SECRET_KEY config option')
+
+    if debug:
+        app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+        DebugToolbarExtension(app)
 
     @app.route('/hello', methods=['GET'])
     def hello_world():
