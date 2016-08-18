@@ -99,3 +99,5 @@ def get_api(ver=1):
 
 # Routing
 api.add_url_rule(u'/', view_func=get_api, strict_slashes=False)
+api.add_url_rule(u'/<int(min=1, max={0}):ver>'.format(API_MAX_VERSION),
+                 view_func=get_api, strict_slashes=False)
