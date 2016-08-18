@@ -11,6 +11,10 @@ from flask.ctx import _AppCtxGlobals
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Rule
 
+from flask_debugtoolbar import DebugToolbarExtension
+
+from paste.deploy.converters import asbool
+
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.common import config, g
@@ -30,7 +34,12 @@ def make_flask_stack(conf, **app_conf):
     root = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+    debug = asbool(app_conf.get('debug', app_conf.get('DEBUG', False)))
+    testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
+
     app = flask_app = CKANFlask(__name__)
+    app.debug = debug
+    app.testing = testing
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
     app.url_rule_class = CKAN_Rule
@@ -42,6 +51,19 @@ def make_flask_stack(conf, **app_conf):
     else:
         app.config.update(conf)
         app.config.update(app_conf)
+
+    # Do all the Flask-specific stuff before adding other middlewares
+
+    # Secret key needed for flask-debug-toolbar and sessions
+    if not app.config.get('SECRET_KEY'):
+        app.config['SECRET_KEY'] = config.get('beaker.session.secret')
+    if not app.config.get('SECRET_KEY'):
+        raise RuntimeError(u'You must provide a value for the secret key'
+                           ' with the SECRET_KEY config option')
+
+    if debug:
+        app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+        DebugToolbarExtension(app)
 
     # Add Jinja2 extensions and filters
     extensions = [
