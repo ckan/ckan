@@ -157,6 +157,24 @@ to the rendered features.
 
 This plugin requires data to be in the DataStore.
 
+There is partial support to change the map tiles to a different service, such
+as Mapbox. Look below for an example to add to your configuration file::
+
+    #Mapbox example:
+    ckanext.spatial.common_map.type = mapbox
+    ckanext.spatial.common_map.mapbox.map_id = <id>
+    ckanext.spatial.common_map.mapbox.access_token = <token>
+    ckanext.spatial.common_map.attribution=© <a target=_blank href='https://www.mapbox.com/map-feedback/'>Mapbox</a> © <a target=_blank href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>
+    ckanext.spatial.common_map.subdomains = <subdomains>
+
+    #Custom example:
+    ckanext.spatial.common_map.type = custom
+    ckanext.spatial.common_map.custom.url = <url>
+    ckanext.spatial.common_map.custom.tms = <tms>
+    ckanext.spatial.common_map.attribution = <copyright link>
+    ckanext.spatial.common_map.subdomains = <subdomains>
+
+
 Text view
 +++++++++
 

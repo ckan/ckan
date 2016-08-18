@@ -655,6 +655,21 @@ Default value:  ``false``
 Controls whether the default search page (``/dataset``) should show only
 standard datasets or also custom dataset types.
 
+.. _ckan.search.default_include_private:
+
+ckan.search.default_include_private
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.defalt_include_private = false
+
+Default value:  ``true``
+
+Controls whether the default search page (``/dataset``) should include
+private datasets visible to the current user or only public datasets
+visible to everyone.
+
 .. _search.facets.limit:
 
 search.facets.limit

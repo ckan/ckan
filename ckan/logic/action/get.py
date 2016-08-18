@@ -180,10 +180,9 @@ def current_package_list_with_resources(context, data_dict):
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
-    is_sysadmin = authz.is_sysadmin(user)
-    q = '+capacity:public' if not is_sysadmin else '*:*'
-    context['ignore_capacity_check'] = True
-    search = package_search(context, {'q': q, 'rows': limit, 'start': offset})
+    search = package_search(context, {
+        'q': '', 'rows': limit, 'start': offset,
+        'include_private': authz.is_sysadmin(user) })
     return search.get('results', [])
 
 
@@ -1453,8 +1452,9 @@ def user_show(context, data_dict):
         search_dict = {'rows': 50}
 
         if include_private_and_draft_datasets:
-            context['ignore_capacity_check'] = True
-            search_dict.update({'include_drafts': True})
+            search_dict.update({
+                'include_private': True,
+                'include_drafts': True})
 
         search_dict.update({'fq': fq})
 
@@ -1711,6 +1711,10 @@ def package_search(context, data_dict):
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
     :type include_drafts: boolean
+    :param include_private: if ``True``, private datasets will be included in
+        the results. Only private datasets from the user's organizations will
+        be returned and sysadmins will be returned all private datasets.
+        Optional, the default is ``False``.
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: False)
     :type use_default_schema: bool
@@ -1823,16 +1827,33 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id {0}'.format(data_source)
 
-        # If this query hasn't come from a controller that has set this flag
-        # then we should remove any mention of capacity from the fq and
+        # we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
         fq = data_dict.get('fq', '')
-        if not context.get('ignore_capacity_check', False):
-            fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
 
-        # Solr doesn't need 'include_drafts`, so pop it.
-        include_drafts = data_dict.pop('include_drafts', False)
+        # Remove before these hit solr FIXME: whitelist instead
+        include_private = asbool(data_dict.pop('include_private', False))
+        include_drafts = asbool(data_dict.pop('include_drafts', False))
+
+        capacity_fq = 'capacity:"public"'
+        if include_private and authz.is_sysadmin(user):
+            capacity_fq = None
+        elif include_private and user:
+            orgs = logic.get_action('organization_list_for_user')(
+                {'user': user}, {'permission': 'read'})
+            if orgs:
+                capacity_fq = '({0} OR owner_org:({1}))'.format(
+                    capacity_fq,
+                    ' OR '.join(org['id'] for org in orgs))
+            if include_drafts:
+                capacity_fq = '({0} OR creator_user_id:({1}))'.format(
+                    capacity_fq,
+                    authz.get_user_id_for_username(user))
+
+        if capacity_fq:
+            fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
+            data_dict['fq'] = fq + ' ' + capacity_fq
+
         fq = data_dict.get('fq', '')
         if include_drafts:
             user_id = authz.get_user_id_for_username(user, allow_none=True)
