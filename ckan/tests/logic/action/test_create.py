@@ -443,6 +443,64 @@ class TestResourceCreate(object):
 
         assert not stored_resource['url']
 
+    def test_mimetype_by_url(self):
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://localhost/data.csv',
+            'name': 'A nice resource',
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+        assert_equals(mimetype, 'text/csv')
+        #maybe see if the mimetype is in the available list of mimetypes?
+
+    def test_mimetype_by_user(self):
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://localhost/data.csv',
+            'name': 'A nice resource',
+            'mimetype': 'application/csv'
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+        assert_equals(mimetype, 'application/csv')
+
+    def test_mimetype_by_upload(self):
+        pass
+
+    def test_size_of_resource_by_upload(self):
+        pass
+        '''
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'upload': file('/home/vagrant/test.txt', 'wb+')
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        size = result.pop('size')
+        assert size
+        '''
+
+    def test_size_of_resource_by_user(self):
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'size': 500
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        size = int(result.pop('size'))
+        assert_equals(size, 500)
+
 
 class TestMemberCreate(object):
     @classmethod
