@@ -16,6 +16,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from beaker.middleware import SessionMiddleware
 from paste.deploy.converters import asbool
+from fanstatic import Fanstatic
 
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
@@ -134,6 +135,27 @@ def make_flask_stack(conf, **app_conf):
     for plugin in PluginImplementations(IBlueprint):
         if hasattr(plugin, 'get_blueprint'):
             app.register_extension_blueprint(plugin.get_blueprint())
+
+    # Start other middleware
+
+    # Fanstatic
+    if debug:
+        fanstatic_config = {
+            'versioning': True,
+            'recompute_hashes': True,
+            'minified': False,
+            'bottom': True,
+            'bundle': False,
+        }
+    else:
+        fanstatic_config = {
+            'versioning': True,
+            'recompute_hashes': False,
+            'minified': True,
+            'bottom': True,
+            'bundle': True,
+        }
+    app = Fanstatic(app, **fanstatic_config)
 
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
