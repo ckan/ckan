@@ -394,6 +394,13 @@ class TestCreateDefaultResourceViews(object):
 
 
 class TestResourceCreate(object):
+    import cgi
+    class FakeFileStorage(cgi.FieldStorage):
+        def __init__(self, fp, filename):
+            self.file = fp
+            self.filename = filename
+            self.name = 'upload'
+
 
     @classmethod
     def setup_class(cls):
@@ -470,23 +477,36 @@ class TestResourceCreate(object):
         assert_equals(mimetype, 'application/csv')
 
     def test_mimetype_by_upload(self):
-        pass
+        test_file = file('/home/vagrant/test.txt', 'rb')
+        test_resource = TestResourceCreate.FakeFileStorage(test_file, 'test.json')
 
-    def test_size_of_resource_by_upload(self):
-        pass
-        '''
         context = {}
         params = {
             'package_id': factories.Dataset()['id'],
             'url': 'http://data',
             'name': 'A nice resource',
-            'upload': file('/home/vagrant/test.txt', 'wb+')
+            'upload': test_resource
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+        assert_equals(mimetype, 'text/plain')
+
+    def test_size_of_resource_by_upload(self):
+        test_file = file('/home/vagrant/test.txt', 'rb')
+        test_resource = TestResourceCreate.FakeFileStorage(test_file, 'test.txt')
+
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'upload': test_resource
         }
         result = helpers.call_action('resource_create', context, **params)
 
         size = result.pop('size')
         assert size
-        '''
 
     def test_size_of_resource_by_user(self):
         context = {}
