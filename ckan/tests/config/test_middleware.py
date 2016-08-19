@@ -96,7 +96,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         # Add a custom route to the Flask app
         app = cls._get_test_app()
 
-        flask_app = app.app.apps['flask_app']
+        flask_app = app.flask_app
 
         def test_view():
             return 'This was served from Flask'
