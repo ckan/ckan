@@ -296,16 +296,16 @@ def resource_create(context, data_dict):
         pkg_dict['resources'] = []
 
     upload = uploader.get_resource_uploader(data_dict)
-    ## Get out resource_id resource from model as it will not appear in
-    ## package_show until after commit
-    upload.upload(context['package'].resources[-1].id,
-                  uploader.get_max_resource_size())
 
     if not 'mimetype' in data_dict:
-        data_dict['mimetype'] = mimetypes.guess_type(data_dict['url'])[0] or upload.mimetype
+        if 'url' in data_dict:
+            data_dict['mimetype'] = mimetypes.guess_type(data_dict['url'])[0]
+        elif hasattr(upload, 'mimetype'):
+            data_dict['mimetype'] = upload.mimetype
 
     if not 'size' in data_dict:
-        data_dict['size'] = upload.filesize
+        if hasattr(upload, 'filesize'):
+            data_dict['size'] = upload.filesize
 
     pkg_dict['resources'].append(data_dict)
 
@@ -317,6 +317,11 @@ def resource_create(context, data_dict):
     except ValidationError, e:
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
+
+    ## Get out resource_id resource from model as it will not appear in
+    ## package_show until after commit
+    upload.upload(context['package'].resources[-1].id,
+                  uploader.get_max_resource_size())
 
     model.repo.commit()
 

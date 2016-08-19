@@ -217,6 +217,18 @@ class ResourceUpload(object):
             resource['url_type'] = 'upload'
             resource['last_modified'] = datetime.datetime.utcnow()
             self.upload_file = upload_field_storage.file
+
+            self.upload_file.seek(0, os.SEEK_END)
+            self.filesize = self.upload_file.tell()
+            # go back to the beginning of the file buffer
+            self.upload_file.seek(0, os.SEEK_SET)
+            try:
+                self.mimetype = magic.from_buffer(self.upload_file.read(), mime=True)
+                self.upload_file.seek(0, os.SEEK_SET)
+            except IOError, e:
+                # Not that important if call above fails
+                self.mimetype = None
+
         elif self.clear:
             resource['url_type'] = ''
 
@@ -277,17 +289,8 @@ class ResourceUpload(object):
                         {'upload': ['File upload too large']}
                     )
 
-            output_file.seek(0, os.SEEK_END)
-            self.filesize = output_file.tell()
             output_file.close()
             os.rename(tmp_filepath, filepath)
-
-            try:
-                self.mimetype = magic.from_file(filepath, mime=True)
-            except IOError:
-                # Not that important if call above fails
-                self.mimetype = None
-
             return
 
         # The resource form only sets self.clear (via the input clear_upload)
