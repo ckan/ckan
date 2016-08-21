@@ -1834,45 +1834,24 @@ def package_search(context, data_dict):
         # Remove before these hit solr FIXME: whitelist instead
         include_private = asbool(data_dict.pop('include_private', False))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
-
-        capacity_fq = 'capacity:"public"'
-        if include_private and authz.is_sysadmin(user):
-            capacity_fq = None
-        elif include_private and user:
-            orgs = logic.get_action('organization_list_for_user')(
-                {'user': user}, {'permission': 'read'})
-            if orgs:
-                capacity_fq = '({0} OR owner_org:({1}))'.format(
-                    capacity_fq,
-                    ' OR '.join(org['id'] for org in orgs))
-            if include_drafts:
-                capacity_fq = '({0} OR creator_user_id:({1}))'.format(
-                    capacity_fq,
-                    authz.get_user_id_for_username(user))
-
-        if capacity_fq:
+        if not include_private:
             fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' ' + capacity_fq
-
-        fq = data_dict.get('fq', '')
+            data_dict['fq'] = fq + ' capacity:"public"'
         if include_drafts:
-            user_id = authz.get_user_id_for_username(user, allow_none=True)
-            if authz.is_sysadmin(user):
-                data_dict['fq'] = fq + ' +state:(active OR draft)'
-            elif user_id:
-                # Query to return all active datasets, and all draft datasets
-                # for this user.
-                data_dict['fq'] = fq + \
-                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
-                    ' OR state:active)'.format(user_id)
-        elif not authz.is_sysadmin(user):
-            data_dict['fq'] = fq + ' +state:active'
+            data_dict['fq'] += ' +state:(active OR draft)'
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
 
+        # enforce permission filter based on user
+        if authz.is_sysadmin(user):
+            labels = None
+        else:
+            labels = lib_plugins.get_permission_labels(
+                ).get_user_dataset_labels(context['auth_user_obj'])
+
         query = search.query_for(model.Package)
-        query.run(data_dict)
+        query.run(data_dict, permission_labels=labels)
 
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
