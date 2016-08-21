@@ -1827,16 +1827,12 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id {0}'.format(data_source)
 
-        # we should remove any mention of capacity from the fq and
-        # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq', '')
-
         # Remove before these hit solr FIXME: whitelist instead
         include_private = asbool(data_dict.pop('include_private', False))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
+        data_dict.setdefault('fq', '')
         if not include_private:
-            fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
+            data_dict['fq'] += ' +capacity:public'
         if include_drafts:
             data_dict['fq'] += ' +state:(active OR draft)'
 
@@ -1844,7 +1840,7 @@ def package_search(context, data_dict):
         extras = data_dict.pop('extras', None)
 
         # enforce permission filter based on user
-        if authz.is_sysadmin(user):
+        if context.get('ignore_auth') or (user and authz.is_sysadmin(user)):
             labels = None
         else:
             labels = lib_plugins.get_permission_labels(
