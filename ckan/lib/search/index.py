@@ -282,8 +282,9 @@ class PackageSearchIndex(SearchIndex):
         # permission labels determine visibility in search, can't be set
         # in original dataset or before_index plugins
         labels = lib_plugins.get_permission_labels()
+        dataset = model.Package.get(pkg_dict['id'])
         pkg_dict['permission_labels'] = labels.get_dataset_labels(
-            model.Package.get(pkg_dict['id']))
+            dataset) if dataset else [] # TestPackageSearchIndex-workaround
 
         # send to solr:
         try:
