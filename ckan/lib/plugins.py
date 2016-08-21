@@ -243,6 +243,13 @@ def plugin_validate(plugin, context, data_dict, schema, action):
     return toolkit.navl_validate(data_dict, schema, context)
 
 
+def get_permission_labels():
+    '''Return the permission label plugin (or default implementation)'''
+    for plugin in plugins.PluginImplementations(plugins.IPermissionLabels):
+        return plugin
+    return DefaultPermissionLabels()
+
+
 class DefaultDatasetForm(object):
     '''The default implementation of
     :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
@@ -583,23 +590,23 @@ class DefaultPermissionLabels(object):
     - users can read their own drafts "creator-(user id)"
     - users can read datasets belonging to their orgs "member-(org id)"
     '''
-    def get_dataset_labels(self, dataset):
-        if dataset['state'] == 'active' and not dataset['private']:
+    def get_dataset_labels(self, dataset_obj):
+        if dataset_obj.state == 'active' and not dataset_obj.private:
             return [u'public']
 
-        if dataset['private']:
-            return [u'member-%s' % dataset['owner_org']]
+        if dataset_obj.owner_org:
+            return [u'member-%s' % dataset_obj.owner_org]
 
-        return [u'creator-%s' % dataset['creator_user_id']]
+        return [u'creator-%s' % dataset_obj.creator_user_id]
 
-    def get_user_dataset_labels(self, user):
+    def get_user_dataset_labels(self, user_obj):
         labels = [u'public']
-        if not user:
+        if not user_obj:
             return labels
 
-        labels.append(u'creator-%s' % user['id'])
+        labels.append(u'creator-%s' % user_obj.id)
 
         orgs = logic.get_action('organization_list_for_user')(
-            {'user': user['id']}, {'permission': 'read'})
+            {'user': user_obj.id}, {'permission': 'read'})
         labels.extend(u'member-%s' % o['id'] for o in orgs)
         return labels
