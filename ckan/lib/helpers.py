@@ -26,8 +26,9 @@ import webhelpers.date as date
 from markdown import markdown
 from bleach import clean as clean_html
 from pylons import url as _pylons_default_url
-from ckan.common import config
-from routes import redirect_to as _redirect_to
+from ckan.common import config, is_flask_request
+from flask import redirect as _flask_redirect
+from routes import redirect_to as _routes_redirect_to
 from routes import url_for as _routes_default_url_for
 import i18n
 
@@ -148,7 +149,10 @@ def redirect_to(*args, **kw):
     if _url.startswith('/'):
         _url = str(config['ckan.site_url'].rstrip('/') + _url)
 
-    return _redirect_to(_url)
+    if is_flask_request():
+        return _flask_redirect(_url)
+    else:
+        return _routes_redirect_to(_url)
 
 
 @maintain.deprecated('h.url is deprecated please use h.url_for')
