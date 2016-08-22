@@ -1,15 +1,10 @@
 /* Table toggle more
  * When a table has more things to it that need to be hidden and then shown more
  */
-this.ckan.module('table-toggle-more', function($, _) {
+this.ckan.module('table-toggle-more', function($) {
   return {
     /* options object can be extended using data-module-* attributes */
-    options: {
-      i18n: {
-        show_more: _('Show more'),
-        show_less: _('Hide')
-      }
-    },
+    options: {},
 
     /* Initialises the module setting up elements and event listeners.
      *
@@ -27,8 +22,8 @@ this.ckan.module('table-toggle-more', function($, _) {
           '<tr class="toggle-show toggle-show-more">',
           '<td colspan="'+cols+'">',
           '<small>',
-          '<a href="#" class="show-more">'+this.i18n('show_more')+'</a>',
-          '<a href="#" class="show-less">'+this.i18n('show_less')+'</a>',
+          '<a href="#" class="show-more">' + this._('Show more') + '</a>',
+          '<a href="#" class="show-less">' + this._('Hide') + '</a>',
           '</small>',
           '</td>',
           '</tr>'

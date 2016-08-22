@@ -26,15 +26,11 @@ this.ckan.module('slug-preview-target', {
   }
 });
 
-this.ckan.module('slug-preview-slug', function (jQuery, _) {
+this.ckan.module('slug-preview-slug', function (jQuery) {
   return {
     options: {
       prefix: '',
-      placeholder: '<slug>',
-      i18n: {
-        url:  _('URL'),
-        edit: _('Edit')
-      }
+      placeholder: '<slug>'
     },
 
     initialize: function () {
@@ -57,8 +53,8 @@ this.ckan.module('slug-preview-slug', function (jQuery, _) {
           prefix: options.prefix,
           placeholder: options.placeholder,
           i18n: {
-            'URL': this.i18n('url'),
-            'Edit': this.i18n('edit')
+            'URL': this._('URL'),
+            'Edit': this._('Edit')
           }
         });
 

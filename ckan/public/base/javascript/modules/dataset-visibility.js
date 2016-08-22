@@ -2,7 +2,7 @@
  * When no organization is selected in the org dropdown then set visibility to
  * public always and disable dropdown
  */
-this.ckan.module('dataset-visibility', function ($, _) {
+this.ckan.module('dataset-visibility', function ($) {
   return {
     currentValue: false,
     options: {
