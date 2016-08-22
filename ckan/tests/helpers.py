@@ -27,7 +27,6 @@ import functools
 import logging
 import os
 import re
-import tempfile
 
 import webtest
 import nose.tools
@@ -666,27 +665,3 @@ class RecordingLogHandler(logging.Handler):
         Clear all captured log messages.
         '''
         self.messages = collections.defaultdict(list)
-
-
-@contextlib.contextmanager
-def temp_file(*args, **kwargs):
-    u'''
-    Context manager that provides a temporary file.
-
-    The temporary file is named and open. It is automatically deleted
-    when the context manager is left if it still exists at that point.
-
-    Any arguments are passed on to
-    :py:func:`tempfile.NamedTemporaryFile`.
-    '''
-    kwargs['delete'] = False
-    f = tempfile.NamedTemporaryFile(*args, **kwargs)
-    try:
-        yield f
-    finally:
-        f.close()
-        try:
-            os.remove(f.name)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise

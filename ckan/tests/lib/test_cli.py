@@ -6,6 +6,7 @@ import os
 import os.path
 from StringIO import StringIO
 import sys
+import tempfile
 
 from nose.tools import (assert_raises, eq_ as eq, ok_ as ok, assert_in,
                         assert_not_in, assert_not_equal as neq, assert_false as nok)
@@ -320,7 +321,7 @@ class TestJobsWorker(helpers.RQTestBase):
         '''
         Test ``jobs worker`` with the default queue.
         '''
-        with helpers.temp_file() as f:
+        with tempfile.NamedTemporaryFile(delete=False) as f:
             self.enqueue(os.remove, args=[f.name])
             paster(u'jobs', u'worker', u'--burst')
             all_jobs = self.all_jobs()
@@ -331,8 +332,8 @@ class TestJobsWorker(helpers.RQTestBase):
         '''
         Test ``jobs worker`` with specific queues.
         '''
-        with helpers.temp_file() as f:
-            with helpers.temp_file() as g:
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            with tempfile.NamedTemporaryFile(delete=False) as g:
                 job1 = self.enqueue()
                 job2 = self.enqueue(queue=u'q2')
                 self.enqueue(os.remove, args=[f.name], queue=u'q3')
