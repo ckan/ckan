@@ -20,6 +20,7 @@ describe('ckan.module(id, properties|callback)', function () {
   });
 
   it('should pass jQuery, i18n.translate() and i18n into the function', function () {
+    // Note: This behavior is deprecated but kept for backwards-compatibility
     var target = sinon.stub().returns({});
     ckan.module('test', target);
 
@@ -329,6 +330,7 @@ describe('ckan.module(id, properties|callback)', function () {
     });
 
     describe('.i18n()', function () {
+      // Note: This function is deprecated but kept for backwards-compatibility
       beforeEach(function () {
         this.i18n = {
           first: 'first string',
