@@ -623,6 +623,9 @@ class RecordingLogHandler(logging.Handler):
     You can inspect the recorded messages via the ``messages`` attribute
     (a dict that maps log levels to lists of messages) or by using
     ``assert_log``.
+
+    This class is rarely useful on its own, instead use
+    :py:func:`recorded_logs` to temporarily record log messages.
     '''
     def __init__(self, *args, **kwargs):
         super(RecordingLogHandler, self).__init__(*args, **kwargs)
