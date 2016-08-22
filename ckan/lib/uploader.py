@@ -5,6 +5,7 @@ import cgi
 import datetime
 import logging
 import magic
+import mimetypes
 
 import ckan.lib.munge as munge
 import ckan.logic as logic
@@ -97,7 +98,7 @@ class Upload(object):
         self.storage_path = None
         self.filename = None
         self.filepath = None
-        self.filesize = 0 # bytes
+        self.filesize = 0  # bytes
         self.mimetype = None
         path = get_storage_path()
         if not path:
@@ -203,12 +204,15 @@ class ResourceUpload(object):
             if e.errno != 17:
                 raise
         self.filename = None
-        self.filesize = 0 # bytes
+        self.filesize = 0  # bytes
         self.mimetype = None
 
         url = resource.get('url')
+
         upload_field_storage = resource.pop('upload', None)
         self.clear = resource.pop('clear_upload', None)
+
+        self.mimetype = mimetypes.guess_type(url)[0]
 
         if isinstance(upload_field_storage, cgi.FieldStorage):
             self.filename = upload_field_storage.filename
@@ -222,12 +226,20 @@ class ResourceUpload(object):
             self.filesize = self.upload_file.tell()
             # go back to the beginning of the file buffer
             self.upload_file.seek(0, os.SEEK_SET)
-            try:
-                self.mimetype = magic.from_buffer(self.upload_file.read(), mime=True)
-                self.upload_file.seek(0, os.SEEK_SET)
-            except IOError, e:
-                # Not that important if call above fails
-                self.mimetype = None
+
+            # check if the mimetype failed from guessing with the url
+            if not self.mimetype:
+                self.mimetype = mimetypes.guess_type(self.filename)[0]
+
+            # check again if guessing with the filename failed
+            if not self.mimetype:
+                try:
+                    self.mimetype = magic.from_buffer(self.upload_file.read(),
+                                                      mime=True)
+                    self.upload_file.seek(0, os.SEEK_SET)
+                except IOError, e:
+                    # Not that important if call above fails
+                    self.mimetype = None
 
         elif self.clear:
             resource['url_type'] = ''

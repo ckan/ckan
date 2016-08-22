@@ -796,6 +796,42 @@ class TestResourceUpdate(object):
 
         assert 'datastore_active' not in res_returned
 
+    def test_mimetype_by_url(self):
+        """
+
+        """
+        pass
+
+    def test_mimetype_by_user(self):
+        """
+
+        """
+        pass
+
+    def test_mimetype_by_upload_by_file(self):
+        """
+
+        """
+        pass
+
+    def test_mimetype_by_upload_by_filename(self):
+        """
+
+        """
+        pass
+
+    def test_size_of_resource_by_user(self):
+        """
+
+        """
+        pass
+
+    def test_size_of_resource_by_upload(self):
+        """
+
+        """
+        pass
+
 
 class TestConfigOptionUpdate(object):
 

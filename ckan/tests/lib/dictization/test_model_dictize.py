@@ -415,7 +415,7 @@ class TestPackageDictize:
             u'name': u'test_pkg_dictize',
             u'position': 0,
             u'resource_type': None,
-            u'size': None,
+            u'size': 0,
             u'state': u'active',
             u'url': u'http://link.to.some.data',
             u'url_type': None

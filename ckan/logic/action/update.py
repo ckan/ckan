@@ -97,9 +97,7 @@ def resource_update(context, data_dict):
     upload.upload(id, uploader.get_max_resource_size())
 
     if not 'mimetype' in data_dict:
-        if 'url' in data_dict:
-            data_dict['mimetype'] = mimetypes.guess_type(data_dict['url'])[0]
-        elif hasattr(upload, 'mimetype'):
+        if hasattr(upload, 'mimetype'):
             data_dict['mimetype'] = upload.mimetype
 
     if not 'size' in data_dict:
