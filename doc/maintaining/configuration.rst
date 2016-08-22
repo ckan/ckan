@@ -698,14 +698,14 @@ List of the extra resource fields that would be used when searching.
 Redis Settings
 ---------------
 
-.. _redis_url:
+.. _ckan_redis_url:
 
-redis_url
-^^^^^^^^^
+ckan.redis.url
+^^^^^^^^^^^^^^
 
 Example::
 
-    redis_url = redis://localhost:7000/1
+    ckan.redis.url = redis://localhost:7000/1
 
 Default value: ``redis://localhost:6379/0``
 

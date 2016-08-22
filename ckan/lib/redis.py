@@ -17,7 +17,7 @@ from redis import ConnectionPool, Redis
 
 log = logging.getLogger(__name__)
 
-REDIS_URL_SETTING_NAME = u'redis_url'
+REDIS_URL_SETTING_NAME = u'ckan.redis.url'
 
 REDIS_URL_DEFAULT_VALUE = u'redis://localhost:6379/0'
 

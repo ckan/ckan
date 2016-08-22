@@ -82,7 +82,7 @@ ckan.site_id = default
 ## Redis Settings
 
 # URL to your Redis instance, including the database to be used.
-#redis_url = redis://localhost:6379/0
+#ckan.redis.url = redis://localhost:6379/0
 
 
 ## CORS Settings
