@@ -22,7 +22,7 @@ def check_session_cookie(response):
     '''
     for cookie in request.cookies:
         # Remove the ckan session cookie if logged out.
-        if cookie == u'ckan' and not getattr(g, 'user', None):
+        if cookie == u'ckan' and not getattr(g, u'user', None):
             # Check session for valid data (including flash messages)
             is_valid_cookie_data = False
             for key, value in session.items():
@@ -49,15 +49,15 @@ def set_cors_headers_for_response(response):
     Set up Access Control Allow headers if either origin_allow_all is True, or
     the request Origin is in the origin_whitelist.
     '''
-    if config.get('ckan.cors.origin_allow_all') \
-       and request.headers.get('Origin'):
+    if config.get(u'ckan.cors.origin_allow_all') \
+       and request.headers.get(u'Origin'):
 
         cors_origin_allowed = None
         if asbool(config.get(u'ckan.cors.origin_allow_all')):
-            cors_origin_allowed = "*"
+            cors_origin_allowed = u'*'
         elif config.get(u'ckan.cors.origin_whitelist') and \
                 request.headers.get(u'Origin') \
-                in config[u'ckan.cors.origin_whitelist'].split(' '):
+                in config[u'ckan.cors.origin_whitelist'].split(u' '):
             # set var to the origin to allow it.
             cors_origin_allowed = request.headers.get(u'Origin')
 
