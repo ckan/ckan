@@ -7,7 +7,6 @@ Provides the BaseController class for subclassing.
 import logging
 import time
 
-from paste.deploy.converters import asbool
 from pylons import cache, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
@@ -26,7 +25,9 @@ import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
 import ckan.model as model
 
-from ckan.views import identify_user
+from ckan.views import (identify_user,
+                        set_cors_headers_for_response,
+                        )
 
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
@@ -238,35 +239,12 @@ class BaseController(WSGIController):
         return res
 
     def __after__(self, action, **params):
-        # Do we have CORS settings in config?
-        if config.get('ckan.cors.origin_allow_all') \
-                and request.headers.get('Origin'):
-            self._set_cors()
+
+        set_cors_headers_for_response(response)
+
         r_time = time.time() - c.__timer
         url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
         log.info(' %s render time %.3f seconds' % (url, r_time))
-
-    def _set_cors(self):
-        '''
-        Set up Access Control Allow headers if either origin_allow_all is
-        True, or the request Origin is in the origin_whitelist.
-        '''
-        cors_origin_allowed = None
-
-        if asbool(config.get('ckan.cors.origin_allow_all')):
-            cors_origin_allowed = "*"
-        elif config.get('ckan.cors.origin_whitelist') and \
-                request.headers.get('Origin') \
-                in config['ckan.cors.origin_whitelist'].split():
-            # set var to the origin to allow it.
-            cors_origin_allowed = request.headers.get('Origin')
-        if cors_origin_allowed is not None:
-            response.headers['Access-Control-Allow-Origin'] = \
-                cors_origin_allowed
-            response.headers['Access-Control-Allow-Methods'] = \
-                "POST, PUT, GET, DELETE, OPTIONS"
-            response.headers['Access-Control-Allow-Headers'] = \
-                "X-CKAN-API-KEY, Authorization, Content-Type"
 
 
 # Include the '_' function in the public names

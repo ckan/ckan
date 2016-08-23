@@ -22,7 +22,9 @@ from ckan.common import config, g
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint
-from ckan.views import identify_user
+from ckan.views import (identify_user,
+                        set_cors_headers_for_response,
+                        )
 
 
 import logging
@@ -90,6 +92,12 @@ def make_flask_stack(conf, **app_conf):
         # Identify the user from the repoze cookie or the API header
         # Sets g.user and g.userobj
         identify_user()
+
+    @app.after_request
+    def ckan_after_request(response):
+        # Set CORS headers if necessary
+        set_cors_headers_for_response(response)
+        return response
 
     # Template context processors
     @app.context_processor

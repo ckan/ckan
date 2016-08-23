@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from paste.deploy.converters import asbool
+
 import ckan.model as model
 from ckan.common import g, request, config
 from ckan.lib.helpers import redirect_to as redirect
@@ -10,6 +12,32 @@ log = logging.getLogger(__name__)
 
 APIKEY_HEADER_NAME_KEY = u'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Key'
+
+
+def set_cors_headers_for_response(response):
+    u'''
+    Set up Access Control Allow headers if either origin_allow_all is True, or
+    the request Origin is in the origin_whitelist.
+    '''
+    if config.get('ckan.cors.origin_allow_all') \
+       and request.headers.get('Origin'):
+
+        cors_origin_allowed = None
+        if asbool(config.get(u'ckan.cors.origin_allow_all')):
+            cors_origin_allowed = "*"
+        elif config.get(u'ckan.cors.origin_whitelist') and \
+                request.headers.get(u'Origin') \
+                in config[u'ckan.cors.origin_whitelist'].split(' '):
+            # set var to the origin to allow it.
+            cors_origin_allowed = request.headers.get(u'Origin')
+
+        if cors_origin_allowed is not None:
+            response.headers[u'Access-Control-Allow-Origin'] = \
+                cors_origin_allowed
+            response.headers[u'Access-Control-Allow-Methods'] = \
+                u'POST, PUT, GET, DELETE, OPTIONS'
+            response.headers[u'Access-Control-Allow-Headers'] = \
+                u'X-CKAN-API-KEY, Authorization, Content-Type'
 
 
 def identify_user():
