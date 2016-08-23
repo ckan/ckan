@@ -10,7 +10,6 @@ import time
 from pylons import cache, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
-from pylons.controllers.util import redirect_to, redirect
 from pylons.decorators import jsonify
 from pylons.i18n import N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
