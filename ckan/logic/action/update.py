@@ -100,7 +100,7 @@ def resource_update(context, data_dict):
         if hasattr(upload, 'mimetype'):
             data_dict['mimetype'] = upload.mimetype
 
-    if not 'size' in data_dict:
+    if not 'size' in data_dict and 'url_type' in data_dict:
         if hasattr(upload, 'filesize'):
             data_dict['size'] = upload.filesize
 
