@@ -22,7 +22,7 @@ def check_session_cookie(response):
     '''
     for cookie in request.cookies:
         # Remove the ckan session cookie if logged out.
-        if cookie == u'ckan' and not g.get('user'):
+        if cookie == u'ckan' and not getattr(g, 'user', None):
             # Check session for valid data (including flash messages)
             is_valid_cookie_data = False
             for key, value in session.items():
