@@ -94,6 +94,9 @@ def make_flask_stack(conf, **app_conf):
         # Start the request timer
         g._request_timer = time.time()
 
+        # Update app_globals
+        app_globals.app_globals._check_uptodate()
+
         # Identify the user from the repoze cookie or the API header
         # Sets g.user and g.userobj
         identify_user()
