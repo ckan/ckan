@@ -27,6 +27,7 @@ import ckan.model as model
 
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
+                        check_session_cookie,
                         )
 
 # These imports are for legacy usages and will be removed soon these should
@@ -212,29 +213,7 @@ class BaseController(WSGIController):
         finally:
             model.Session.remove()
 
-        for cookie in request.cookies:
-            # Remove the ckan session cookie if not used e.g. logged out
-            if cookie == 'ckan' and not c.user:
-                # Check session for valid data (including flash messages)
-                # (DGU also uses session for a shopping basket-type behaviour)
-                is_valid_cookie_data = False
-                for key, value in session.items():
-                    if not key.startswith('_') and value:
-                        is_valid_cookie_data = True
-                        break
-                if not is_valid_cookie_data:
-                    if session.id:
-                        self.log.debug('No valid session data - '
-                                       'deleting session')
-                        self.log.debug('Session: %r', session.items())
-                        session.delete()
-                    else:
-                        self.log.debug('No session id - '
-                                       'deleting session cookie')
-                        response.delete_cookie(cookie)
-            # Remove auth_tkt repoze.who cookie if user not logged in.
-            elif cookie == 'auth_tkt' and not session.id:
-                response.delete_cookie(cookie)
+        check_session_cookie(response)
 
         return res
 

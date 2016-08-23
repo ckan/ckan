@@ -25,6 +25,7 @@ from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
+                        check_session_cookie,
                         )
 
 
@@ -99,8 +100,11 @@ def make_flask_stack(conf, **app_conf):
 
     @app.after_request
     def ckan_after_request(response):
+        # Check session cookie
+        response = check_session_cookie(response)
+
         # Set CORS headers if necessary
-        set_cors_headers_for_response(response)
+        response = set_cors_headers_for_response(response)
 
         # Log time between before and after view
         request_time = time.time() - g._request_timer

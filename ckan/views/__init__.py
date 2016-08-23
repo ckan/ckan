@@ -3,7 +3,7 @@
 from paste.deploy.converters import asbool
 
 import ckan.model as model
-from ckan.common import g, request, config
+from ckan.common import g, request, config, session
 from ckan.lib.helpers import redirect_to as redirect
 import ckan.plugins as p
 
@@ -12,6 +12,37 @@ log = logging.getLogger(__name__)
 
 APIKEY_HEADER_NAME_KEY = u'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Key'
+
+
+def check_session_cookie(response):
+    u'''
+    The cookies for auth (auth_tkt) and session (ckan) are separate. This
+    checks whether a user is logged in, and determines the validity of the
+    session cookie, removing it if necessary.
+    '''
+    import ipdb; ipdb.set_trace()
+    for cookie in request.cookies:
+        # Remove the ckan session cookie if logged out.
+        if cookie == u'ckan' and not g.get('user'):
+            # Check session for valid data (including flash messages)
+            is_valid_cookie_data = False
+            for key, value in session.items():
+                if not key.startswith(u'_') and value:
+                    is_valid_cookie_data = True
+                    break
+            if not is_valid_cookie_data:
+                if session.id:
+                    log.debug(u'No valid session data - deleting session')
+                    log.debug(u'Session: %r', session.items())
+                    session.delete()
+                else:
+                    log.debug(u'No session id - deleting session cookie')
+                    response.delete_cookie(cookie)
+        # Remove auth_tkt repoze.who cookie if user not logged in.
+        elif cookie == u'auth_tkt' and not session.id:
+            response.delete_cookie(cookie)
+
+    return response
 
 
 def set_cors_headers_for_response(response):
