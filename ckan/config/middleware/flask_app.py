@@ -22,6 +22,7 @@ from ckan.common import config, g
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint
+from ckan.views import identify_user
 
 
 import logging
@@ -82,6 +83,13 @@ def make_flask_stack(conf, **app_conf):
     app.jinja_env.filters['empty_and_escape'] = \
         jinja_extensions.empty_and_escape
     app.jinja_env.filters['truncate'] = jinja_extensions.truncate
+
+    # Common handlers for all requests
+    @app.before_request
+    def ckan_before_request():
+        # Identify the user from the repoze cookie or the API header
+        # Sets g.user and g.userobj
+        identify_user()
 
     # Template context processors
     @app.context_processor
