@@ -20,7 +20,6 @@ def check_session_cookie(response):
     checks whether a user is logged in, and determines the validity of the
     session cookie, removing it if necessary.
     '''
-    import ipdb; ipdb.set_trace()
     for cookie in request.cookies:
         # Remove the ckan session cookie if logged out.
         if cookie == u'ckan' and not g.get('user'):
@@ -69,6 +68,8 @@ def set_cors_headers_for_response(response):
                 u'POST, PUT, GET, DELETE, OPTIONS'
             response.headers[u'Access-Control-Allow-Headers'] = \
                 u'X-CKAN-API-KEY, Authorization, Content-Type'
+
+    return response
 
 
 def identify_user():
