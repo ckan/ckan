@@ -12,6 +12,7 @@ from flask.ctx import _AppCtxGlobals
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Rule
 
+from flask_babel import Babel
 from flask_debugtoolbar import DebugToolbarExtension
 
 from paste.deploy.converters import asbool
@@ -132,6 +133,24 @@ def make_flask_stack(conf, **app_conf):
         Expose `c` as an alias of `g` in templates for backwards compatibility
         '''
         return dict(c=g)
+
+    # Babel
+    app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(root, u'i18n')
+    # TODO: this relies on unpublished changes in flask-babel
+    app.config[u'BABEL_DOMAIN'] = 'ckan'
+
+    babel = Babel(app)
+
+    @babel.localeselector
+    def get_locale():
+        u'''
+        Return the value of the `CKAN_LANG` key of the WSGI environ,
+        set by the I18nMiddleware based on the URL.
+        If no value is defined, it defaults to `ckan.locale_default` or `en`.
+        '''
+        return request.environ.get(
+            u'CKAN_LANG',
+            config.get(u'ckan.locale_default', u'en'))
 
     @app.route('/hello', methods=['GET'])
     def hello_world():
