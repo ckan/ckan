@@ -4,7 +4,7 @@ import os
 import re
 import logging
 
-from pylons import config
+from ckan.common import config
 
 log = logging.getLogger(__name__)
 
