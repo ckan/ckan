@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.logic.auth as logic_auth
@@ -73,10 +75,10 @@ def resource_update(context, data_dict):
 
 
 def resource_view_update(context, data_dict):
-    return resource_update(context, {'id': data_dict['resource_id']})
+    return authz.is_authorized('resource_update', context, {'id': data_dict['resource_id']})
 
 def resource_view_reorder(context, data_dict):
-    return resource_update(context, {'id': data_dict['resource_id']})
+    return authz.is_authorized('resource_update', context, {'id': data_dict['resource_id']})
 
 def package_relationship_update(context, data_dict):
     return authz.is_authorized('package_relationship_create',
@@ -268,7 +270,7 @@ def group_update_rest(context, data_dict):
         return {'success': False,
                 'msg': _('Valid API key needed to edit a group')}
 
-    return group_update(context, data_dict)
+    return authz.is_authorized('group_update', context, data_dict)
 
 
 def package_owner_org_update(context, data_dict):

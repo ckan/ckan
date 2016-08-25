@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 import datetime
 from urllib import urlencode
@@ -148,7 +150,7 @@ class GroupController(base.BaseController):
     def index(self):
         group_type = self._guess_group_type()
 
-        page = self._get_page_number(request.params) or 1
+        page = h.get_page_number(request.params) or 1
         items_per_page = 21
 
         context = {'model': model, 'session': model.Session,
@@ -159,6 +161,7 @@ class GroupController(base.BaseController):
         sort_by = c.sort_by_selected = request.params.get('sort')
         try:
             self._check_access('site_read', context)
+            self._check_access('group_list', context)
         except NotAuthorized:
             abort(403, _('Not authorized to see this page'))
 
@@ -244,7 +247,7 @@ class GroupController(base.BaseController):
 
         context['return_query'] = True
 
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
@@ -291,13 +294,12 @@ class GroupController(base.BaseController):
                     else:
                         search_extras[param] = value
 
-            fq = 'capacity:"public"'
+            include_private = False
             user_member_of_orgs = [org['id'] for org
                                    in h.organizations_available('read')]
 
             if (c.group and c.group.id in user_member_of_orgs):
-                fq = ''
-                context['ignore_capacity_check'] = True
+                include_private = True
 
             facets = OrderedDict()
 
@@ -324,7 +326,8 @@ class GroupController(base.BaseController):
 
             data_dict = {
                 'q': q,
-                'fq': fq,
+                'fq': '',
+                'include_private': include_private,
                 'facet.field': facets.keys(),
                 'rows': limit,
                 'sort': sort_by,
@@ -380,10 +383,6 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(
             id.split('@')[0])
 
-        if group_type != 'organization':
-            # FIXME: better error
-            raise Exception('Must be an organization')
-
         # check we are org admin
 
         context = {'model': model, 'session': model.Session,
@@ -400,6 +399,10 @@ class GroupController(base.BaseController):
             c.group = context['group']
         except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
+
+        if not c.group_dict['is_organization']:
+            # FIXME: better error
+            raise Exception('Must be an organization')
 
         #use different form names so that ie7 can be detected
         form_names = set(["bulk_action.public", "bulk_action.delete",
@@ -443,9 +446,7 @@ class GroupController(base.BaseController):
             get_action(action_functions[action])(context, data_dict)
         except NotAuthorized:
             abort(403, _('Not authorized to perform bulk update'))
-        base.redirect(h.url_for(controller='organization',
-                                action='bulk_process',
-                                id=id))
+        self._redirect_to_this_controller(action='bulk_process', id=id)
 
     def new(self, data=None, errors=None, error_summary=None):
         if data and 'type' in data:
@@ -826,10 +827,15 @@ class GroupController(base.BaseController):
         except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
 
-        # Add the group's activity stream (already rendered to HTML) to the
-        # template context for the group/read.html template to retrieve later.
-        c.group_activity_stream = self._action('group_activity_list_html')(
-            context, {'id': c.group_dict['id'], 'offset': offset})
+        try:
+            # Add the group's activity stream (already rendered to HTML) to the
+            # template context for the group/read.html
+            # template to retrieve later.
+            c.group_activity_stream = self._action('group_activity_list_html')(
+                context, {'id': c.group_dict['id'], 'offset': offset})
+
+        except ValidationError as error:
+            base.abort(400)
 
         return render(self._activity_template(group_type),
                       extra_vars={'group_type': group_type})

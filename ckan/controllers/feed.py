@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """
 The feed controller produces Atom feeds of datasets.
 
@@ -23,7 +25,7 @@ import logging
 import urlparse
 
 import webhelpers.feedgenerator
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.lib.base as base
@@ -193,22 +195,24 @@ class FeedController(base.BaseController):
                                   action=group_type,
                                   id=obj_dict['name'])
 
-        guid = _create_atom_id(u'/feeds/group/%s.atom' %
-                               obj_dict['name'])
-        alternate_url = self._alternate_url(params, groups=obj_dict['name'])
-        desc = u'Recently created or updated datasets on %s by group: "%s"' %\
-            (g.site_title, obj_dict['title'])
-        title = u'%s - Group: "%s"' %\
-            (g.site_title, obj_dict['title'])
-
         if is_org:
             guid = _create_atom_id(u'/feeds/organization/%s.atom' %
                                    obj_dict['name'])
             alternate_url = self._alternate_url(params,
                                                 organization=obj_dict['name'])
-            desc = u'Recently created or  updated datasets on %s '\
+            desc = u'Recently created or updated datasets on %s '\
                 'by organization: "%s"' % (g.site_title, obj_dict['title'])
             title = u'%s - Organization: "%s"' %\
+                (g.site_title, obj_dict['title'])
+
+        else:  # is group
+            guid = _create_atom_id(u'/feeds/group/%s.atom' %
+                                   obj_dict['name'])
+            alternate_url = self._alternate_url(params,
+                                                groups=obj_dict['name'])
+            desc = u'Recently created or updated datasets on %s '\
+                'by group: "%s"' % (g.site_title, obj_dict['title'])
+            title = u'%s - Group: "%s"' %\
                 (g.site_title, obj_dict['title'])
 
         return self.output_feed(results,
@@ -311,7 +315,7 @@ class FeedController(base.BaseController):
                 search_params[param] = value
                 fq += ' %s:"%s"' % (param, value)
 
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         limit = ITEMS_LIMIT
         data_dict = {
@@ -456,7 +460,7 @@ class FeedController(base.BaseController):
         Returns the constructed search-query dict, and the valid URL
         query parameters.
         """
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         limit = ITEMS_LIMIT
         data_dict = {

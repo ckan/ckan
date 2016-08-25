@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''**All migration scripts should have tests.**
 
 .. todo::

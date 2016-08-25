@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import json
 import httpretty
 import nose
@@ -5,7 +7,7 @@ import sys
 import datetime
 
 from nose.tools import raises
-from pylons import config
+from ckan.common import config
 import sqlalchemy.orm as orm
 import paste.fixture
 

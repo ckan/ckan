@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''API functions for partial updates of existing data in CKAN'''
 
 import ckan.logic.action.update as _update

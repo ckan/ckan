@@ -1,10 +1,12 @@
+# encoding: utf-8
+
 import logging
 from urllib import urlencode
 import datetime
 import mimetypes
 import cgi
 
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 import paste.fileapp
 
@@ -144,7 +146,7 @@ class PackageController(base.BaseController):
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', u'')
         c.query_error = False
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         limit = g.datasets_per_page
 
@@ -262,7 +264,9 @@ class PackageController(base.BaseController):
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,
-                'extras': search_extras
+                'extras': search_extras,
+                'include_private': asbool(config.get(
+                    'ckan.search.default_include_private', True)),
             }
 
             query = get_action('package_search')(context, data_dict)
@@ -420,7 +424,8 @@ class PackageController(base.BaseController):
                 h.redirect_to(controller='revision', action='diff', **params)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'auth_user_obj': c.userobj}
+                   'user': c.user, 'auth_user_obj': c.userobj,
+                   'for_view': True}
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
@@ -747,7 +752,9 @@ class PackageController(base.BaseController):
         if context['save'] and not data:
             return self._save_edit(id, context, package_type=package_type)
         try:
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
+            c.pkg_dict = get_action('package_show')(dict(context,
+                                                         for_view=True),
+                                                    {'id': id})
             context['for_edit'] = True
             old_data = get_action('package_show')(context, {'id': id})
             # old data is from the database and data is passed from the
@@ -1142,7 +1149,7 @@ class PackageController(base.BaseController):
             abort(404, _('Resource not found'))
 
         if rsc.get('url_type') == 'upload':
-            upload = uploader.ResourceUpload(rsc)
+            upload = uploader.get_resource_uploader(rsc)
             filepath = upload.get_path(rsc['id'])
             fileapp = paste.fileapp.FileApp(filepath)
             try:

@@ -33,7 +33,7 @@ wiki page for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Python                 `The Python programming language, v2.6 or 2.7 <http://www.python.org/getit/>`_
+Python                 `The Python programming language, v2.7 <http://www.python.org/getit/>`_
 |postgres|             `The PostgreSQL database system, v8.4 or newer <http://www.postgresql.org/download/>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
@@ -192,6 +192,7 @@ Create a directory to contain the site's config files:
 
     sudo mkdir -p |config_dir|
     sudo chown -R \`whoami\` |config_parent_dir|/
+    sudo chown -R \`whoami\` ~/ckan/etc
 
 Create the CKAN config file:
 
@@ -324,7 +325,7 @@ installed, we need to install and configure Solr.
 -------------------------
 
 Now that you have a configuration file that has the correct settings for your
-database, you can create the database tables:
+database, you can :ref:`create the database tables <db init>`:
 
 .. parsed-literal::
 

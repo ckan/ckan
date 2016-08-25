@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import os.path
 import logging
 import cgi
@@ -89,9 +91,9 @@ class ApiController(base.BaseController):
             else:
                 response_msg = response_data
             # Support "JSONP" callback.
-            if status_int == 200 and 'callback' in request.params and \
-                (request.method == 'GET' or
-                 c.logic_function and request.method == 'POST'):
+            if (status_int == 200 and
+                    'callback' in request.params and
+                    request.method == 'GET'):
                 # escape callback to remove '<', '&', '>' chars
                 callback = cgi.escape(request.params['callback'])
                 response_msg = self._wrap_jsonp(callback, response_msg)
@@ -166,8 +168,7 @@ class ApiController(base.BaseController):
                 _('Action name not known: %s') % logic_function)
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'return_type': 'LazyJSONObject',
-                   'auth_user_obj': c.userobj}
+                   'api_version': ver, 'auth_user_obj': c.userobj}
         model.Session()._context = context
 
         return_dict = {'help': h.url_for(controller='api',

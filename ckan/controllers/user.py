@@ -1,7 +1,9 @@
+# encoding: utf-8
+
 import logging
 from urllib import quote
 
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 
 import ckan.lib.base as base
@@ -33,6 +35,15 @@ UsernamePasswordError = logic.UsernamePasswordError
 
 DataError = dictization_functions.DataError
 unflatten = dictization_functions.unflatten
+
+
+def set_repoze_user(user_id):
+    '''Set the repoze.who cookie to match a given user_id'''
+    if 'repoze.who.plugins' in request.environ:
+        rememberer = request.environ['repoze.who.plugins']['friendlyform']
+        identity = {'repoze.who.userid': user_id}
+        response.headerlist += rememberer.remember(request.environ,
+                                                   identity)
 
 
 class UserController(base.BaseController):
@@ -86,7 +97,7 @@ class UserController(base.BaseController):
                        handler_name)
 
     def index(self):
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
@@ -155,7 +166,8 @@ class UserController(base.BaseController):
         '''GET to display a form for registering a new user.
            or POST the form data to actually do the user registration.
         '''
-        context = {'model': model, 'session': model.Session,
+        context = {'model': model,
+                   'session': model.Session,
                    'user': c.user,
                    'auth_user_obj': c.userobj,
                    'schema': self._new_form_to_db_schema(),
@@ -169,7 +181,7 @@ class UserController(base.BaseController):
         if context['save'] and not data:
             return self._save_new(context)
 
-        if c.user and not data:
+        if c.user and not data and not authz.is_sysadmin(c.user):
             # #1799 Don't offer the registration form if already logged in
             return render('user/logout_first.html')
 
@@ -245,10 +257,7 @@ class UserController(base.BaseController):
             return self.new(data_dict, errors, error_summary)
         if not c.user:
             # log the user in programatically
-            rememberer = request.environ['repoze.who.plugins']['friendlyform']
-            identity = {'repoze.who.userid': data_dict['name']}
-            response.headerlist += rememberer.remember(request.environ,
-                                                       identity)
+            set_repoze_user(data_dict['name'])
             h.redirect_to(controller='user', action='me', __ckan_no_root=True)
         else:
             # #1799 User has managed to register whilst logged in - warn user
@@ -256,7 +265,14 @@ class UserController(base.BaseController):
             h.flash_success(_('User "%s" is now registered but you are still '
                             'logged in as "%s" from before') %
                             (data_dict['name'], c.user))
-            return render('user/logout_first.html')
+            if authz.is_sysadmin(c.user):
+                # the sysadmin created a new user. We redirect him to the
+                # activity page for the newly created user
+                h.redirect_to(controller='user',
+                              action='activity',
+                              id=data_dict['name'])
+            else:
+                return render('user/logout_first.html')
 
     def edit(self, id=None, data=None, errors=None, error_summary=None):
         context = {'save': 'save' in request.params,
@@ -321,6 +337,12 @@ class UserController(base.BaseController):
 
     def _save_edit(self, id, context):
         try:
+            if id in (c.userobj.id, c.userobj.name):
+                current_user = True
+            else:
+                current_user = False
+            old_username = c.userobj.name
+
             data_dict = logic.clean_dict(unflatten(
                 logic.tuplize_dict(logic.parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
@@ -343,6 +365,11 @@ class UserController(base.BaseController):
 
             user = get_action('user_update')(context, data_dict)
             h.flash_success(_('Profile updated'))
+
+            if current_user and data_dict['name'] != old_username:
+                # Changing currently logged in user's name.
+                # Update repoze.who cookie to match
+                set_repoze_user(data_dict['name'])
             h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
             abort(403, _('Unauthorized to edit user %s') % id)
@@ -568,8 +595,11 @@ class UserController(base.BaseController):
 
         self._setup_template_variables(context, data_dict)
 
-        c.user_activity_stream = get_action('user_activity_list_html')(
-            context, {'id': c.user_dict['id'], 'offset': offset})
+        try:
+            c.user_activity_stream = get_action('user_activity_list_html')(
+                context, {'id': c.user_dict['id'], 'offset': offset})
+        except ValidationError:
+            base.abort(400)
 
         return render('user/activity_stream.html')
 

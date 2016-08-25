@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 from logging import getLogger
 import urlparse
 
 import requests
 
-import pylons.config as config
+from ckan.common import config
 
 import ckan.logic as logic
 import ckan.lib.base as base

@@ -1,5 +1,7 @@
+# encoding: utf-8
+
 from nose.tools import assert_equals, assert_raises
-import pylons.config as config
+from ckan.common import config
 
 from ckan.plugins.toolkit import get_validator, Invalid
 from ckan import plugins

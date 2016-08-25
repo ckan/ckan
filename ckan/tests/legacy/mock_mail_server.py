@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 import threading
 import asyncore
 import socket
 from smtpd import SMTPServer
 
-from pylons import config
+from ckan.common import config
 
 
 class MockSmtpServer(SMTPServer):

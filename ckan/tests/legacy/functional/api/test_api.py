@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 import json
+
+from nose.tools import assert_in
 
 from ckan.tests.legacy.functional.api.base import *
 
-import ckan.tests.legacy
-assert_in = ckan.tests.legacy.assert_in
 
 class ApiTestCase(ApiTestCase, ControllerTestCase):
 

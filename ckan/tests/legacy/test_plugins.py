@@ -1,10 +1,12 @@
+# encoding: utf-8
+
 """
 Tests for plugin loading via PCA
 """
 from nose.tools import raises, assert_equal
 from unittest import TestCase
 from pyutilib.component.core import PluginGlobals
-from pylons import config
+from ckan.common import config
 
 import ckan.logic as logic
 import ckan.authz as authz
@@ -95,14 +97,14 @@ class TestPlugins(object):
 
         config_plugins = config['ckan.plugins']
         config['ckan.plugins'] = 'mapper_plugin routes_plugin'
-        plugins.load_all(config)
+        plugins.load_all()
 
         # synchronous_search automatically gets loaded
         current_plugins = set([plugins.get_plugin(p) for p in ['mapper_plugin', 'routes_plugin', 'synchronous_search'] + find_system_plugins()])
         assert PluginGlobals.env().services == current_plugins
         # cleanup
         config['ckan.plugins'] = config_plugins
-        plugins.load_all(config)
+        plugins.load_all()
 
     def test_only_configured_plugins_loaded(self):
         with plugins.use_plugin('mapper_plugin') as p:
@@ -117,7 +119,7 @@ class TestPlugins(object):
         """
         config_plugins = config['ckan.plugins']
         config['ckan.plugins'] = 'test_observer_plugin mapper_plugin mapper_plugin2'
-        plugins.load_all(config)
+        plugins.load_all()
 
         observerplugin = plugins.get_plugin('test_observer_plugin')
 
@@ -131,7 +133,7 @@ class TestPlugins(object):
         assert observerplugin.after_load.calls[:3] == expected_order
 
         config['ckan.plugins'] = 'test_observer_plugin mapper_plugin2 mapper_plugin'
-        plugins.load_all(config)
+        plugins.load_all()
 
         expected_order = _make_calls(plugins.get_plugin('mapper_plugin2'),
                                      plugins.get_plugin('mapper_plugin'))
@@ -142,7 +144,7 @@ class TestPlugins(object):
         assert observerplugin.after_load.calls[:3] == expected_order
         # cleanup
         config['ckan.plugins'] = config_plugins
-        plugins.load_all(config)
+        plugins.load_all()
 
     def test_mapper_plugin_fired_on_insert(self):
         with plugins.use_plugin('mapper_plugin') as mapper_plugin:

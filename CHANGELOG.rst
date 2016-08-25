@@ -7,6 +7,15 @@
 Changelog
 ---------
 
+v2.6.0 TBA
+=================
+API changes and deprecations:
+ * Replace `c.__version__` with new helper `h.ckan_version()` (#3103)
+
+Major:
+ * Private datasets are now included in the default dataset search results (#3191)
+ * package_search API action now has an include_private parameter (#3191)
+
 v2.5.2 2016-03-31
 =================
 

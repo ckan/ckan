@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+
 import datetime
 from nose.tools import assert_equal, assert_raises
 
-from pylons import config
+from ckan.common import config
 
 from ckan.tests.legacy import *
 import ckan.lib.helpers as h

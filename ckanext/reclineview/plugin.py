@@ -1,13 +1,25 @@
+# encoding: utf-8
+
 from logging import getLogger
 
 from ckan.common import json
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
+from pylons import config
 
 log = getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
 natural_number_validator = p.toolkit.get_validator('natural_number_validator')
 Invalid = p.toolkit.Invalid
+
+
+def get_mapview_config():
+    '''
+    Extracts and returns map view configuration of the reclineview extension.
+    '''
+    namespace = 'ckanext.spatial.common_map.'
+    return dict([(k.replace(namespace, ''), v) for k, v in config.iteritems()
+                 if k.startswith(namespace)])
 
 
 def in_list(list_possible_values):
@@ -60,7 +72,7 @@ class ReclineViewBase(p.SingletonPlugin):
     def can_view(self, data_dict):
         resource = data_dict['resource']
         return (resource.get('datastore_active') or
-                resource.get('url') == '_datastore_only_resource')
+                '_datastore_only_resource' in resource.get('url', ''))
 
     def setup_template_variables(self, context, data_dict):
         return {'resource_json': json.dumps(data_dict['resource']),
@@ -75,6 +87,8 @@ class ReclineView(ReclineViewBase):
     This extension views resources using a Recline MultiView.
     '''
 
+    p.implements(p.ITemplateHelpers, inherit=True)
+
     def info(self):
         return {'name': 'recline_view',
                 'title': 'Data Explorer',
@@ -88,13 +102,18 @@ class ReclineView(ReclineViewBase):
         resource = data_dict['resource']
 
         if (resource.get('datastore_active') or
-                resource.get('url') == '_datastore_only_resource'):
+                '_datastore_only_resource' in resource.get('url', '')):
             return True
         resource_format = resource.get('format', None)
         if resource_format:
             return resource_format.lower() in ['csv', 'xls', 'xlsx', 'tsv']
         else:
             return False
+
+    def get_helpers(self):
+        return {
+            'get_map_config': get_mapview_config
+        }
 
 
 class ReclineGridView(ReclineViewBase):
@@ -172,6 +191,8 @@ class ReclineMapView(ReclineViewBase):
     This extension views resources using a Recline map.
     '''
 
+    p.implements(p.ITemplateHelpers, inherit=True)
+
     map_field_types = [{'value': 'lat_long',
                         'text': 'Latitude / Longitude fields'},
                        {'value': 'geojson', 'text': 'GeoJSON'}]
@@ -232,3 +253,8 @@ class ReclineMapView(ReclineViewBase):
 
     def form_template(self, context, data_dict):
         return 'recline_map_form.html'
+
+    def get_helpers(self):
+        return {
+            'get_mapview_config': get_mapview_config
+        }

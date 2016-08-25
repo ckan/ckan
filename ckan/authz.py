@@ -1,8 +1,10 @@
+# encoding: utf-8
+
 import sys
 import re
 from logging import getLogger
 
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 
 import ckan.plugins as p

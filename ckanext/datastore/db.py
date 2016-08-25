@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import json
 import datetime
 import os
@@ -9,7 +11,6 @@ import pprint
 import copy
 import hashlib
 
-import pylons
 import distutils.version
 import sqlalchemy
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
@@ -20,7 +21,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 import ckanext.datastore.interfaces as interfaces
 import ckanext.datastore.helpers as datastore_helpers
-from ckan.common import OrderedDict
+from ckan.common import OrderedDict, config
 
 log = logging.getLogger(__name__)
 
@@ -102,9 +103,8 @@ def _get_engine(data_dict):
     engine = _engines.get(connection_url)
 
     if not engine:
-        import pylons
         extras = {'url': connection_url}
-        engine = sqlalchemy.engine_from_config(pylons.config,
+        engine = sqlalchemy.engine_from_config(config,
                                                'ckan.datastore.sqlalchemy.',
                                                **extras)
         _engines[connection_url] = engine
@@ -127,7 +127,7 @@ def _cache_types(context):
                 native_json))
 
             data_dict = {
-                'connection_url': pylons.config['ckan.datastore.write_url']}
+                'connection_url': config['ckan.datastore.write_url']}
             engine = _get_engine(data_dict)
             with engine.begin() as connection:
                 connection.execute(
@@ -255,7 +255,7 @@ def json_get_values(obj, current_list=None):
     elif isinstance(obj, dict):
         json_get_values(obj.items(), current_list)
     elif obj:
-        current_list.append(str(obj))
+        current_list.append(unicode(obj))
     return current_list
 
 
@@ -469,7 +469,7 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_indexes = []
     resource_id = data_dict['resource_id']
     # FIXME: This is repeated on the plugin.py, we should keep it DRY
-    default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+    default_fts_lang = config.get('ckan.datastore.default_fts_lang')
     if default_fts_lang is None:
         default_fts_lang = u'english'
     fts_lang = data_dict.get('lang', default_fts_lang)
@@ -504,7 +504,7 @@ def _generate_index_name(resource_id, field):
 
 
 def _get_fts_index_method():
-    method = pylons.config.get('ckan.datastore.default_fts_index_method')
+    method = config.get('ckan.datastore.default_fts_index_method')
     return method or 'gist'
 
 
@@ -1325,8 +1325,8 @@ def make_public(context, data_dict):
 
 
 def get_all_resources_ids_in_datastore():
-    read_url = pylons.config.get('ckan.datastore.read_url')
-    write_url = pylons.config.get('ckan.datastore.write_url')
+    read_url = config.get('ckan.datastore.read_url')
+    write_url = config.get('ckan.datastore.write_url')
     data_dict = {
         'connection_url': read_url or write_url
     }

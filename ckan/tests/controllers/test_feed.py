@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from routes import url_for
 
 import ckan.tests.helpers as helpers

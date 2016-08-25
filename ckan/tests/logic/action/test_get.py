@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose.tools
 
 import ckan.logic as logic
@@ -51,17 +53,6 @@ class TestPackageShow(helpers.FunctionalTestBase):
                                        context={'schema': custom_schema})
 
         assert 'new_field' not in dataset2
-
-    def test_package_show_is_lazy(self):
-        dataset1 = factories.Dataset()
-
-        dataset2 = helpers.call_action(
-            'package_show',
-            id=dataset1['id'],
-            context=dict(return_type='LazyJSONObject'))
-
-        # LazyJSONObject passed through without being expanded
-        assert dataset2._json_dict is None
 
 
 class TestGroupList(helpers.FunctionalTestBase):
@@ -139,7 +130,7 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         eq(group_list, ['bb', 'aa'])
 
-    def assert_equals_expected(self, expected_dict, result_dict):
+    def eq_expected(self, expected_dict, result_dict):
         superfluous_keys = set(result_dict) - set(expected_dict)
         assert not superfluous_keys, 'Did not expect key: %s' % \
             ' '.join(('%s=%s' % (k, result_dict[k]) for k in superfluous_keys))
@@ -437,6 +428,21 @@ class TestOrganizationList(helpers.FunctionalTestBase):
 
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org1, org2]]))
+
+    def test_organization_list_return_custom_organization_type(self):
+        '''
+        Getting the org_list with a type defined should only return
+        orgs of that type.
+        '''
+        org1 = factories.Organization()
+        org2 = factories.Organization(type="custom_org")
+        factories.Group(type="custom")
+        factories.Group(type="custom")
+
+        org_list = helpers.call_action('organization_list', type='custom_org')
+
+        assert (sorted(org_list) ==
+                sorted([g['name'] for g in [org2]])), '{}'.format(org_list)
 
 
 class TestOrganizationShow(helpers.FunctionalTestBase):
@@ -1186,24 +1192,50 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         nose.tools.assert_true(dataset['name'] not in names)
         nose.tools.assert_true(draft_dataset['name'] in names)
 
-    def test_package_search_private_with_ignore_capacity_check(self):
+    def test_package_search_private_with_include_private(self):
         '''
         package_search() can return private datasets when
-        `ignore_capacity_check` present in context.
+        `include_private=True`
         '''
         user = factories.User()
         org = factories.Organization(user=user)
-        factories.Dataset(user=user)
         factories.Dataset(user=user, state='deleted')
         factories.Dataset(user=user, state='draft')
         private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        fq = '+capacity:"private"'
-        results = helpers.call_action('package_search', fq=fq,
-                                      context={'ignore_capacity_check': True})['results']
+        results = helpers.call_action(
+            'package_search',
+            include_private=True,
+            context={'user': user['name']})['results']
 
-        eq(len(results), 1)
-        eq(results[0]['name'], private_dataset['name'])
+        eq([r['name'] for r in results], [private_dataset['name']])
+
+    def test_package_search_private_with_include_private_wont_show_other_orgs_private(self):
+        user = factories.User()
+        user2 = factories.User()
+        org = factories.Organization(user=user)
+        org2 = factories.Organization(user=user2)
+        private_dataset = factories.Dataset(user=user2, private=True, owner_org=org2['name'])
+
+        results = helpers.call_action(
+            'package_search',
+            include_private=True,
+            context={'user': user['name']})['results']
+
+        eq([r['name'] for r in results], [])
+
+    def test_package_search_private_with_include_private_syadmin(self):
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(user=user)
+        private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action(
+            'package_search',
+            include_private=True,
+            context={'user': sysadmin['name']})['results']
+
+        eq([r['name'] for r in results], [private_dataset['name']])
 
     def test_package_works_without_user_in_context(self):
         '''
@@ -1899,3 +1931,159 @@ class TestRevisionList(helpers.FunctionalTestBase):
         revs = helpers.call_action('revision_list', since_id='1',
                                    sort='time_asc')
         eq(revs, ['2', '3'])
+
+
+class TestMembersList():
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_dataset_delete_marks_membership_of_group_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        group = factories.Group()
+        dataset = factories.Dataset(groups=[{'name': group['name']}])
+        context = {'user': sysadmin['name']}
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='package')
+
+        eq(len(group_members), 1)
+        eq(group_members[0][0], dataset['id'])
+        eq(group_members[0][1], 'package')
+
+        helpers.call_action('package_delete', context, id=dataset['id'])
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='package')
+
+        eq(len(group_members), 0)
+
+    def test_dataset_delete_marks_membership_of_org_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        context = {'user': sysadmin['name']}
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='package')
+
+        eq(len(org_members), 1)
+        eq(org_members[0][0], dataset['id'])
+        eq(org_members[0][1], 'package')
+
+        helpers.call_action('package_delete', context, id=dataset['id'])
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='package')
+
+        eq(len(org_members), 0)
+
+    def test_user_delete_marks_membership_of_group_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        group = factories.Group()
+        user = factories.User()
+        context = {'user': sysadmin['name']}
+
+        member_dict = {
+            'username': user['id'],
+            'id': group['id'],
+            'role': 'member'
+        }
+        helpers.call_action('group_member_create', context, **member_dict)
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='user',
+                                            capacity='member')
+
+        eq(len(group_members), 1)
+        eq(group_members[0][0], user['id'])
+        eq(group_members[0][1], 'user')
+
+        helpers.call_action('user_delete', context, id=user['id'])
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='user',
+                                            capacity='member')
+
+        eq(len(group_members), 0)
+
+    def test_user_delete_marks_membership_of_org_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        user = factories.User()
+        context = {'user': sysadmin['name']}
+
+        member_dict = {
+            'username': user['id'],
+            'id': org['id'],
+            'role': 'member'
+        }
+        helpers.call_action('organization_member_create', context,
+                            **member_dict)
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='user',
+                                          capacity='member')
+
+        eq(len(org_members), 1)
+        eq(org_members[0][0], user['id'])
+        eq(org_members[0][1], 'user')
+
+        helpers.call_action('user_delete', context, id=user['id'])
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='user',
+                                          capacity='member')
+
+        eq(len(org_members), 0)
+
+
+class TestFollow(helpers.FunctionalTestBase):
+
+    def test_followee_list(self):
+
+        group1 = factories.Group(title='Finance')
+        group2 = factories.Group(title='Environment')
+        group3 = factories.Group(title='Education')
+
+        user = factories.User()
+
+        context = {'user': user['name']}
+
+        helpers.call_action('follow_group', context, id=group1['id'])
+        helpers.call_action('follow_group', context, id=group2['id'])
+
+        followee_list = helpers.call_action('followee_list', context,
+                                            id=user['name'])
+
+        eq(len(followee_list), 2)
+        eq(sorted([f['display_name'] for f in followee_list]),
+           ['Environment', 'Finance'])
+
+    def test_followee_list_with_q(self):
+
+        group1 = factories.Group(title='Finance')
+        group2 = factories.Group(title='Environment')
+        group3 = factories.Group(title='Education')
+
+        user = factories.User()
+
+        context = {'user': user['name']}
+
+        helpers.call_action('follow_group', context, id=group1['id'])
+        helpers.call_action('follow_group', context, id=group2['id'])
+
+        followee_list = helpers.call_action('followee_list', context,
+                                            id=user['name'],
+                                            q='E')
+
+        eq(len(followee_list), 1)
+        eq(followee_list[0]['display_name'], 'Environment')

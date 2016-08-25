@@ -78,8 +78,6 @@ ckan.auth.roles_that_cascade_to_sub_groups = admin
 ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
 
-#ckan.simple_search = 1
-
 
 ## CORS Settings
 
@@ -166,11 +164,11 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 
 ## Email settings
 
-#email_to = you@yourdomain.com
-#error_email_from = paste@localhost
+#email_to = errors@example.com
+#error_email_from = ckan-errors@example.com
 #smtp.server = localhost
 #smtp.starttls = False
-#smtp.user = your_username@gmail.com
+#smtp.user = username@example.com
 #smtp.password = your_password
 #smtp.mail_from =
 

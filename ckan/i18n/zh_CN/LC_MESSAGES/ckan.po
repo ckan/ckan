@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# bo wang <kingbolanda@live.com>, 2016
 # okfncn <okfncn@gmail.com>, 2013
 # Sean Hammond <sean.hammond@okfn.org>, 2013
 # Xiaohong Zhang <xzhang50@yahoo.com>, 2013
@@ -11,8 +12,8 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2015-11-26 14:23+0000\n"
-"Last-Translator: dread <david.read@hackneyworkshop.com>\n"
+"PO-Revision-Date: 2016-02-25 16:05+0000\n"
+"Last-Translator: bo wang <kingbolanda@live.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/okfn/ckan/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -240,7 +241,7 @@ msgstr "未找到群组"
 
 #: ckan/controllers/feed.py:234
 msgid "Organization not found"
-msgstr ""
+msgstr "未发现该组织名"
 
 #: ckan/controllers/group.py:138 ckan/controllers/group.py:609
 msgid "Incorrect group type"
@@ -344,7 +345,7 @@ msgstr "群组已经被删除."
 #: ckan/controllers/group.py:653
 #, python-format
 msgid "%s has been deleted."
-msgstr ""
+msgstr "%s 已经被删除"
 
 #: ckan/controllers/group.py:729
 #, python-format
@@ -536,7 +537,7 @@ msgstr "没有权限读取数据集 %s"
 
 #: ckan/controllers/package.py:1133 ckan/controllers/package.py:1597
 msgid "Resource view not found"
-msgstr ""
+msgstr "未找到资源视图"
 
 #: ckan/controllers/package.py:1165 ckan/controllers/package.py:1355
 #: ckan/controllers/package.py:1437 ckan/controllers/package.py:1470
@@ -555,20 +556,20 @@ msgstr "没有可下载的内容"
 
 #: ckan/controllers/package.py:1505
 msgid "Unauthorized to edit resource"
-msgstr ""
+msgstr "没有权限编辑该资源"
 
 #: ckan/controllers/package.py:1523
 msgid "View not found"
-msgstr ""
+msgstr "未发现该视图"
 
 #: ckan/controllers/package.py:1525
 #, python-format
 msgid "Unauthorized to view View %s"
-msgstr ""
+msgstr "未被授权查看视图 %s"
 
 #: ckan/controllers/package.py:1531
 msgid "View Type Not found"
-msgstr ""
+msgstr "无法找到该视图类型"
 
 #: ckan/controllers/package.py:1591
 msgid "Bad resource view data"
@@ -577,7 +578,7 @@ msgstr ""
 #: ckan/controllers/package.py:1600
 #, python-format
 msgid "Unauthorized to read resource view %s"
-msgstr ""
+msgstr "未被授权读取资源视图%s"
 
 #: ckan/controllers/package.py:1603
 msgid "Resource view not supplied"
@@ -672,15 +673,15 @@ msgstr "用户 %s没有编辑权限%s"
 
 #: ckan/controllers/user.py:354
 msgid "Password entered was incorrect"
-msgstr ""
+msgstr "密码不正确"
 
 #: ckan/controllers/user.py:355 ckan/templates/user/edit_user_form.html:27
 msgid "Old Password"
-msgstr ""
+msgstr "旧密码"
 
 #: ckan/controllers/user.py:355
 msgid "incorrect password"
-msgstr ""
+msgstr "不正确的密码"
 
 #: ckan/controllers/user.py:396
 msgid "Login failed. Bad username or password."
@@ -755,7 +756,7 @@ msgstr "缺失值"
 
 #: ckan/controllers/util.py:21
 msgid "Redirecting to external site is not allowed."
-msgstr ""
+msgstr "不允许重定向至其它站点。"
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
@@ -958,7 +959,7 @@ msgstr[0] "{years}年前"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr ""
+msgstr "{月} {日},{年},{时}:{分:02}({时区})"
 
 #: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
@@ -1198,7 +1199,7 @@ msgstr "在 log_message 中不允许超链接"
 
 #: ckan/logic/validators.py:156
 msgid "Dataset id already exists"
-msgstr ""
+msgstr "数据集id已经存在"
 
 #: ckan/logic/validators.py:197 ckan/logic/validators.py:288
 msgid "Resource"
@@ -1228,7 +1229,7 @@ msgstr "这个名称不可使用"
 #: ckan/logic/validators.py:361
 #, python-format
 msgid "Must be at least %s characters long"
-msgstr ""
+msgstr "长度不得少于 %s 个字符"
 
 #: ckan/logic/validators.py:363 ckan/logic/validators.py:646
 #, python-format
@@ -1377,15 +1378,15 @@ msgstr "作为父结点，它将会在层次结构中创造环"
 
 #: ckan/logic/validators.py:815
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
-msgstr ""
+msgstr "\"filter_fields\" 和 \"filter_values\" 长度应该相同"
 
 #: ckan/logic/validators.py:826
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
-msgstr ""
+msgstr " \"filter_fields\" 与\"filter_values\"需被同时填写"
 
 #: ckan/logic/validators.py:829
 msgid "\"filter_values\" is required when \"filter_fields\" is filled"
-msgstr ""
+msgstr " \"filter_fields\" 与\"filter_values\"需被同时填写"
 
 #: ckan/logic/validators.py:843
 msgid "There is a schema field with the same name"
@@ -1569,7 +1570,7 @@ msgstr "本资源中没发现组件,无法授权."
 #: ckan/logic/auth/create.py:92
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
-msgstr ""
+msgstr "用户 %s 未被授权在数据集 %s 上创建资源"
 
 #: ckan/logic/auth/create.py:124
 #, python-format
@@ -1681,7 +1682,7 @@ msgstr "用户 %s没有权限读取资源 %s"
 #: ckan/logic/auth/get.py:166
 #, python-format
 msgid "User %s not authorized to read group %s"
-msgstr ""
+msgstr "用户 %s 未被授权读取组 %s"
 
 #: ckan/logic/auth/get.py:237
 msgid "You must be logged in to access your dashboard."
@@ -1736,7 +1737,7 @@ msgstr "用户 %s没有编辑用户%s的劝限"
 
 #: ckan/logic/auth/update.py:228
 msgid "User {0} not authorized to update user {1}"
-msgstr ""
+msgstr "用户 {0} 未被授权 更新用户 {1}"
 
 #: ckan/logic/auth/update.py:236
 #, python-format
@@ -1763,7 +1764,7 @@ msgstr "需要有效的API Key编辑一個群組"
 
 #: ckan/model/license.py:220
 msgid "License not specified"
-msgstr ""
+msgstr "未指定许可证"
 
 #: ckan/model/license.py:230
 msgid "Open Data Commons Public Domain Dedication and License (PDDL)"
@@ -2098,7 +2099,7 @@ msgstr "编辑设置"
 
 #: ckan/templates/header.html:37
 msgid "Settings"
-msgstr ""
+msgstr "设置"
 
 #: ckan/templates/header.html:43 ckan/templates/header.html:45
 msgid "Log out"
@@ -2170,7 +2171,7 @@ msgstr "配置"
 
 #: ckan/templates/admin/base.html:10 ckan/templates/admin/trash.html:29
 msgid "Trash"
-msgstr ""
+msgstr "垃圾桶"
 
 #: ckan/templates/admin/config.html:16
 #: ckan/templates/admin/confirm_reset.html:7
@@ -2216,7 +2217,7 @@ msgstr "确认重设"
 
 #: ckan/templates/admin/index.html:15
 msgid "Administer CKAN"
-msgstr ""
+msgstr "管理 CKAN"
 
 #: ckan/templates/admin/index.html:20
 #, python-format
@@ -2224,7 +2225,7 @@ msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
 "Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
 "CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
-msgstr ""
+msgstr "<p>作为系统管理员，您对该CKAN实例具有完全控制权。请谨慎操作！</p>\n<p>该链接可以引导您使用系统管理员特性 <a href=\"%(docs_url)s\" target=\"_blank\">系统管理员引导</a></p>"
 
 #: ckan/templates/admin/trash.html:20
 msgid "Purge"
@@ -2844,15 +2845,15 @@ msgstr "这是一个特殊的区段"
 
 #: ckan/templates/home/snippets/search.html:2
 msgid "E.g. environment"
-msgstr ""
+msgstr "比如 环境"
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
-msgstr ""
+msgstr "检索数据"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
-msgstr ""
+msgstr "热门标签"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
@@ -2888,7 +2889,7 @@ msgid ""
 "You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
 "target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
-msgstr ""
+msgstr "在这里你可以使用<a href=\"#markdown\" title=\"Markdown quick reference\" data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-html=\"true\">Markdown 格式</a>"
 
 #: ckan/templates/macros/form.html:265
 msgid "This field is required"
@@ -3001,7 +3002,7 @@ msgstr "用户名"
 
 #: ckan/templates/organization/member_new.html:50
 msgid "Email address"
-msgstr ""
+msgstr "Email 地址"
 
 #: ckan/templates/organization/member_new.html:62
 msgid "Update Member"
@@ -3127,7 +3128,7 @@ msgstr "编辑元数据"
 #: ckan/templates/package/edit_view.html:8
 #: ckan/templates/package/edit_view.html:12
 msgid "Edit view"
-msgstr ""
+msgstr "编辑视图"
 
 #: ckan/templates/package/edit_view.html:20
 #: ckan/templates/package/new_view.html:28
@@ -3179,7 +3180,7 @@ msgstr "新资源"
 #: ckan/templates/package/new_view.html:8
 #: ckan/templates/package/new_view.html:12
 msgid "Add view"
-msgstr ""
+msgstr "增加视图"
 
 #: ckan/templates/package/new_view.html:19
 msgid ""
@@ -3229,7 +3230,7 @@ msgstr "错误："
 
 #: ckan/templates/package/resource_data.html:36
 msgid "Error traceback:"
-msgstr ""
+msgstr "错误追踪："
 
 #: ckan/templates/package/resource_data.html:48
 msgid "Status"
@@ -3275,7 +3276,7 @@ msgstr "数据仓库"
 
 #: ckan/templates/package/resource_edit_base.html:28
 msgid "Views"
-msgstr ""
+msgstr "视图"
 
 #: ckan/templates/package/resource_read.html:39
 msgid "API Endpoint"
@@ -3307,23 +3308,23 @@ msgstr "来源: <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckan/templates/package/resource_read.html:112
 msgid "There are no views created for this resource yet."
-msgstr ""
+msgstr "该资源暂时没有视图"
 
 #: ckan/templates/package/resource_read.html:116
 msgid "Not seeing the views you were expecting?"
-msgstr ""
+msgstr "没有看到期望的视图？"
 
 #: ckan/templates/package/resource_read.html:121
 msgid "Here are some reasons you may not be seeing expected views:"
-msgstr ""
+msgstr "这里列出了一些您未找到期望视图的原因："
 
 #: ckan/templates/package/resource_read.html:123
 msgid "No view has been created that is suitable for this resource"
-msgstr ""
+msgstr "该资源没有已创建的视图"
 
 #: ckan/templates/package/resource_read.html:124
 msgid "The site administrators may not have enabled the relevant view plugins"
-msgstr ""
+msgstr "该站点管理员并没有开启相应的视图插件"
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
@@ -3374,11 +3375,11 @@ msgstr "授权"
 
 #: ckan/templates/package/resource_views.html:10
 msgid "New view"
-msgstr ""
+msgstr "新视图"
 
 #: ckan/templates/package/resource_views.html:28
 msgid "This resource has no views"
-msgstr ""
+msgstr "该资源没有视图"
 
 #: ckan/templates/package/resources.html:8
 msgid "Add new resource"
@@ -3420,15 +3421,15 @@ msgstr "您也可以使用%(api_link)s (看 %(api_doc_link)s)注册."
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
-msgstr ""
+msgstr "所有视图"
 
 #: ckan/templates/package/view_edit_base.html:12
 msgid "View view"
-msgstr ""
+msgstr "查看视图"
 
 #: ckan/templates/package/view_edit_base.html:37
 msgid "View preview"
-msgstr ""
+msgstr "视图预览"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3459,7 +3460,7 @@ msgstr "状态"
 
 #: ckan/templates/package/snippets/additional_info.html:62
 msgid "Last Updated"
-msgstr ""
+msgstr "最近更新"
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 msgid "Data API"
@@ -3580,7 +3581,7 @@ msgstr "例如：CSV, XML, 或者 JSON"
 
 #: ckan/templates/package/snippets/resource_form.html:40
 msgid "This will be guessed automatically. Leave blank if you wish"
-msgstr ""
+msgstr "该项可以自动填充，您可以留空"
 
 #: ckan/templates/package/snippets/resource_form.html:51
 msgid "eg. 2012-06-05"
@@ -3642,7 +3643,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_view.html:24
 msgid "This resource view is not available at the moment."
-msgstr ""
+msgstr "该资源暂时不可使用。"
 
 #: ckan/templates/package/snippets/resource_view.html:63
 msgid "Embed resource view"
@@ -3656,19 +3657,19 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
-msgstr ""
+msgstr "宽度"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Height"
-msgstr ""
+msgstr "高度"
 
 #: ckan/templates/package/snippets/resource_view.html:75
 msgid "Code"
-msgstr ""
+msgstr "代码"
 
 #: ckan/templates/package/snippets/resource_views_list.html:8
 msgid "Resource Preview"
-msgstr ""
+msgstr "资源预览"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
@@ -3676,7 +3677,7 @@ msgstr "数据与资源"
 
 #: ckan/templates/package/snippets/resources_list.html:29
 msgid "This dataset has no data"
-msgstr ""
+msgstr "该数据集没有数据"
 
 #: ckan/templates/package/snippets/revisions_table.html:24
 #, python-format
@@ -3696,27 +3697,27 @@ msgstr "添加数据"
 
 #: ckan/templates/package/snippets/view_form.html:8
 msgid "eg. My View"
-msgstr ""
+msgstr "比如 我的视图"
 
 #: ckan/templates/package/snippets/view_form.html:9
 msgid "eg. Information about my view"
-msgstr ""
+msgstr "比如 我的视图的相关信息"
 
 #: ckan/templates/package/snippets/view_form_filters.html:16
 msgid "Add Filter"
-msgstr ""
+msgstr "增加筛选条件"
 
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
-msgstr ""
+msgstr "移除筛选条件"
 
 #: ckan/templates/package/snippets/view_form_filters.html:46
 msgid "Filters"
-msgstr ""
+msgstr "筛选"
 
 #: ckan/templates/package/snippets/view_help.html:2
 msgid "What's a view?"
-msgstr ""
+msgstr "什么是视图？"
 
 #: ckan/templates/package/snippets/view_help.html:4
 msgid "A view is a representation of the data held against a resource"
@@ -3916,7 +3917,7 @@ msgstr[0] "查找到匹配「{query}」的{number}个组织"
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
-msgstr ""
+msgstr "\"{query}\"该查询未发现任何组织"
 
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
@@ -4060,75 +4061,75 @@ msgstr "你确定要删除此用户吗？"
 
 #: ckan/templates/user/edit_user_form.html:43
 msgid "Are you sure you want to regenerate the API key?"
-msgstr ""
+msgstr "你确定要重新生成API密钥吗？"
 
 #: ckan/templates/user/edit_user_form.html:44
 msgid "Regenerate API Key"
-msgstr ""
+msgstr "记住API密钥"
 
 #: ckan/templates/user/edit_user_form.html:48
 msgid "Update Profile"
-msgstr ""
+msgstr "更改个人信息"
 
 #: ckan/templates/user/list.html:3
 #: ckan/templates/user/snippets/user_search.html:11
 msgid "All Users"
-msgstr ""
+msgstr "所有用户"
 
 #: ckan/templates/user/login.html:3 ckan/templates/user/login.html:6
 #: ckan/templates/user/login.html:12
 #: ckan/templates/user/snippets/login_form.html:28
 msgid "Login"
-msgstr ""
+msgstr "登陆"
 
 #: ckan/templates/user/login.html:25
 msgid "Need an Account?"
-msgstr ""
+msgstr "需要一个账户？"
 
 #: ckan/templates/user/login.html:27
 msgid "Then sign right up, it only takes a minute."
-msgstr ""
+msgstr "注册仅需要几分钟"
 
 #: ckan/templates/user/login.html:30
 msgid "Create an Account"
-msgstr ""
+msgstr "创建用户"
 
 #: ckan/templates/user/login.html:42
 msgid "Forgotten your password?"
-msgstr ""
+msgstr "忘记密码？"
 
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
-msgstr ""
+msgstr "没问题，使用密码恢复功能重置密码。"
 
 #: ckan/templates/user/login.html:47
 msgid "Forgot your password?"
-msgstr ""
+msgstr "忘记密码？"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
 msgid "Logged Out"
-msgstr ""
+msgstr "登出"
 
 #: ckan/templates/user/logout.html:11
 msgid "You are now logged out."
-msgstr ""
+msgstr "你已经登出。"
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr ""
+msgstr "你已经以{user}的身份登陆了。"
 
 #: ckan/templates/user/logout_first.html:9
 msgid "Logout"
-msgstr ""
+msgstr "登出"
 
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr ""
+msgstr "记住我"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
-msgstr ""
+msgstr "你已经登陆了"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
@@ -4136,19 +4137,19 @@ msgstr ""
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
-msgstr ""
+msgstr "现在登出"
 
 #: ckan/templates/user/new.html:6
 msgid "Registration"
-msgstr ""
+msgstr "注册"
 
 #: ckan/templates/user/new.html:14
 msgid "Register for an Account"
-msgstr ""
+msgstr "注册一个账户"
 
 #: ckan/templates/user/new.html:26
 msgid "Why Sign Up?"
-msgstr ""
+msgstr "为什么注册？"
 
 #: ckan/templates/user/new.html:28
 msgid "Create datasets, groups and other exciting things"
@@ -4156,33 +4157,33 @@ msgstr ""
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
-msgstr ""
+msgstr "用户名"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr ""
+msgstr "全名"
 
 #: ckan/templates/user/new_user_form.html:17
 msgid "Create Account"
-msgstr ""
+msgstr "创建用户"
 
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:14
 msgid "Reset Your Password"
-msgstr ""
+msgstr "重置您的密码"
 
 #: ckan/templates/user/perform_reset.html:7
 msgid "Password Reset"
-msgstr ""
+msgstr "密码重置"
 
 #: ckan/templates/user/perform_reset.html:24
 msgid "Update Password"
-msgstr ""
+msgstr "更改密码"
 
 #: ckan/templates/user/perform_reset.html:38
 #: ckan/templates/user/request_reset.html:32
 msgid "How does this work?"
-msgstr ""
+msgstr "它是如何工作的？"
 
 #: ckan/templates/user/perform_reset.html:40
 msgid "Simply enter a new password and we'll update your account"
@@ -4190,15 +4191,15 @@ msgstr ""
 
 #: ckan/templates/user/read.html:21
 msgid "User hasn't created any datasets."
-msgstr ""
+msgstr "用户尚未创建数据集。"
 
 #: ckan/templates/user/read_base.html:39
 msgid "You have not provided a biography."
-msgstr ""
+msgstr "您尚未提交个人信息。"
 
 #: ckan/templates/user/read_base.html:41
 msgid "This user has no biography."
-msgstr ""
+msgstr "该用户没有任何记录。"
 
 #: ckan/templates/user/read_base.html:73
 msgid "Open ID"
@@ -4206,29 +4207,29 @@ msgstr ""
 
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "This means only you can see this"
-msgstr ""
+msgstr "这意味着只有您可以看到该项"
 
 #: ckan/templates/user/read_base.html:87
 msgid "Member Since"
-msgstr ""
+msgstr "注册时长"
 
 #: ckan/templates/user/read_base.html:96
 msgid "API Key"
-msgstr ""
+msgstr "API 密钥"
 
 #: ckan/templates/user/request_reset.html:6
 msgid "Password reset"
-msgstr ""
+msgstr "密码重置"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "Request reset"
-msgstr ""
+msgstr "请求重置"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
-msgstr ""
+msgstr "将您的用户名输入文本框，我们将给您发包含链接的送电子邮件以输入新密码。"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
 #: ckan/templates/user/snippets/followee_dropdown.html:15
@@ -4237,35 +4238,35 @@ msgstr ""
 
 #: ckan/templates/user/snippets/followee_dropdown.html:23
 msgid "Search list..."
-msgstr ""
+msgstr "搜索列表"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:44
 msgid "You are not following anything"
-msgstr ""
+msgstr "你没有关注任何内容"
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
-msgstr ""
+msgstr "没有粉丝"
 
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
-msgstr ""
+msgstr "搜索用户"
 
 #: ckanext/datapusher/helpers.py:19
 msgid "Complete"
-msgstr ""
+msgstr "完成"
 
 #: ckanext/datapusher/helpers.py:20
 msgid "Pending"
-msgstr ""
+msgstr "挂起中"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Submitting"
-msgstr ""
+msgstr "提交中"
 
 #: ckanext/datapusher/helpers.py:27
 msgid "Not Uploaded Yet"
-msgstr ""
+msgstr "尚未完成上传"
 
 #: ckanext/datastore/controller.py:31
 msgid "DataStore resource not found"
@@ -4275,25 +4276,25 @@ msgstr ""
 msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
-msgstr ""
+msgstr "数据不合法（比如： 数值越界或数值插入字符字段）。"
 
 #: ckanext/datastore/logic/action.py:215 ckanext/datastore/logic/action.py:255
 #: ckanext/datastore/logic/action.py:332 ckanext/datastore/logic/action.py:422
 #: ckanext/datastore/logic/action.py:504 ckanext/datastore/logic/action.py:530
 msgid "Resource \"{0}\" was not found."
-msgstr ""
+msgstr "未发现资源 \"{0}\""
 
 #: ckanext/datastore/logic/auth.py:16
 msgid "User {0} not authorized to update resource {1}"
-msgstr ""
+msgstr "用户{0}未被授权修改资源{1}"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
-msgstr ""
+msgstr "每页的数据集"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:13
 msgid "Test conf"
-msgstr ""
+msgstr "测试配置"
 
 #: ckanext/example_idatasetform/templates/package/search.html:16
 msgid "Custom Field Ascending"
@@ -4307,19 +4308,19 @@ msgstr ""
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 #: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
 msgid "Custom Text"
-msgstr ""
+msgstr "自定义文字"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 msgid "custom text"
-msgstr ""
+msgstr "自定义文字"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
 msgid "Country Code"
-msgstr ""
+msgstr "国家代码"
 
 #: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
 msgid "custom resource text"
-msgstr ""
+msgstr "自定义资源文字"
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
@@ -4332,15 +4333,15 @@ msgstr "此群组沒有说明"
 
 #: ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
-msgstr ""
+msgstr "CKAN的数据预览工具有很多实用功能"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "Image url"
-msgstr ""
+msgstr "图片url"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
-msgstr ""
+msgstr "例如. http://example.com/image.jpg (如果为空将使用资源路径)"
 
 #: ckanext/reclineview/plugin.py:84
 msgid "Data Explorer"
@@ -4348,11 +4349,11 @@ msgstr ""
 
 #: ckanext/reclineview/plugin.py:111
 msgid "Table"
-msgstr ""
+msgstr "表格"
 
 #: ckanext/reclineview/plugin.py:154
 msgid "Graph"
-msgstr ""
+msgstr "图"
 
 #: ckanext/reclineview/plugin.py:214
 msgid "Map"
@@ -4370,21 +4371,21 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "eg: 0"
-msgstr ""
+msgstr "例如：0"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "行数"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "eg: 100"
-msgstr ""
+msgstr "例如：100"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:6
 msgid "Graph type"
-msgstr ""
+msgstr "图片类型"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:7
 msgid "Group (Axis 1)"
@@ -4396,19 +4397,19 @@ msgstr ""
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:6
 msgid "Field type"
-msgstr ""
+msgstr "字段类型"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:7
 msgid "Latitude field"
-msgstr ""
+msgstr "纬度字段"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:8
 msgid "Longitude field"
-msgstr ""
+msgstr "经度字段"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:9
 msgid "GeoJSON field"
-msgstr ""
+msgstr "GeoJSON字段"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:10
 msgid "Auto zoom to features"
@@ -4420,16 +4421,16 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 msgid "Total number of Datasets"
-msgstr ""
+msgstr "数据集总数"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
 msgid "Date"
-msgstr ""
+msgstr "日期"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr ""
+msgstr "所有数据集"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
@@ -4442,33 +4443,33 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr ""
+msgstr "新数据集"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:180
 msgid "Top Rated Datasets"
-msgstr ""
+msgstr "最高分数据集"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:64
 msgid "Average rating"
-msgstr ""
+msgstr "平均评分"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:65
 msgid "Number of ratings"
-msgstr ""
+msgstr "评分数目"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:79
 msgid "No ratings"
-msgstr ""
+msgstr "暂无评分"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:84
 #: ckanext/stats/templates/ckanext/stats/index.html:181
 msgid "Most Edited Datasets"
-msgstr ""
+msgstr "编辑数做多的数据集"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:90
 msgid "Number of edits"
-msgstr ""
+msgstr "编辑数"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:103
 msgid "No edited datasets"
@@ -4477,15 +4478,15 @@ msgstr ""
 #: ckanext/stats/templates/ckanext/stats/index.html:108
 #: ckanext/stats/templates/ckanext/stats/index.html:182
 msgid "Largest Groups"
-msgstr ""
+msgstr "最大群组"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:114
 msgid "Number of datasets"
-msgstr ""
+msgstr "数据集数目"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:127
 msgid "No groups"
-msgstr ""
+msgstr "没有群组"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:132
 #: ckanext/stats/templates/ckanext/stats/index.html:183
@@ -4494,12 +4495,12 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:136
 msgid "Tag Name"
-msgstr ""
+msgstr "标签名"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:137
 #: ckanext/stats/templates/ckanext/stats/index.html:157
 msgid "Number of Datasets"
-msgstr ""
+msgstr "数据集数目"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
@@ -4508,15 +4509,15 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
-msgstr ""
+msgstr "统计目录"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:178
 msgid "Total Number of Datasets"
-msgstr ""
+msgstr "数据集总数"
 
 #: ckanext/textview/plugin.py:65 ckanext/textview/plugin.py:67
 msgid "Text"
-msgstr ""
+msgstr "文本"
 
 #: ckanext/textview/theme/public/text_view.js:5
 #, python-format
@@ -4525,12 +4526,12 @@ msgstr ""
 
 #: ckanext/webpageview/plugin.py:19 ckanext/webpageview/plugin.py:24
 msgid "Website"
-msgstr ""
+msgstr "网站"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "Web Page url"
-msgstr ""
+msgstr "页面url"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
-msgstr ""
+msgstr "例如. http://example.com （如果为空将使用资源路径）"

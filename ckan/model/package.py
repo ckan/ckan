@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import datetime
 from calendar import timegm
 import logging
@@ -6,7 +8,7 @@ logger = logging.getLogger(__name__)
 from sqlalchemy.sql import select, and_, union, or_
 from sqlalchemy import orm
 from sqlalchemy import types, Column, Table
-from pylons import config
+from ckan.common import config
 import vdm.sqlalchemy
 
 import meta
@@ -202,7 +204,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         groups = [getattr(group, ref_group_by) for group in self.get_groups()]
         groups.sort()
         _dict['groups'] = groups
-        _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
+        _dict['extras'] = {key: value for key, value in self.extras.items()}
         _dict['ratings_average'] = self.get_average_rating()
         _dict['ratings_count'] = len(self.ratings)
         _dict['resources'] = [res.as_dict(core_columns_only=False) \

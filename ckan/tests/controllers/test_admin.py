@@ -1,8 +1,10 @@
+# encoding: utf-8
+
 from nose.tools import assert_true, assert_equal
 
 from bs4 import BeautifulSoup
 from routes import url_for
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.tests.helpers as helpers

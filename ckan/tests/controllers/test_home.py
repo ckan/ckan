@@ -1,4 +1,8 @@
-from routes import url_for
+# encoding: utf-8
+
+from nose.tools import eq_
+from ckan.lib.helpers import url_for
+from bs4 import BeautifulSoup
 
 from ckan.tests import factories
 import ckan.tests.helpers as helpers
@@ -51,3 +55,46 @@ class TestHome(helpers.FunctionalTestBase):
         response = app.get(url=url_for('home'), extra_environ=env)
 
         assert 'add your email address' not in response
+
+
+class TestI18nURLs(helpers.FunctionalTestBase):
+
+    def test_right_urls_are_rendered_on_language_selector(self):
+        app = self._get_test_app()
+        response = app.get(url_for('home'))
+        html = BeautifulSoup(response.body)
+
+        select = html.find(id='field-lang-select')
+        for option in select.find_all('option'):
+            if option.text.strip() == u'English':
+                eq_(option['value'], '/en/')
+            elif option.text.strip() == u'čeština (Česká republika)':
+                eq_(option['value'], '/cs_CZ/')
+            elif option.text.strip() == u'português (Brasil)':
+                eq_(option['value'], '/pt_BR/')
+            elif option.text.strip() == u'srpski (latinica)':
+                eq_(option['value'], '/sr_Latn/')
+
+    def test_default_english_option_is_selected_on_language_selector(self):
+        app = self._get_test_app()
+        response = app.get(url_for('home'))
+        html = BeautifulSoup(response.body)
+
+        select = html.find(id='field-lang-select')
+        for option in select.find_all('option'):
+            if option['value'] == '/en/':
+                eq_(option['selected'], 'selected')
+            else:
+                assert not option.has_attr('selected')
+
+    def test_right_option_is_selected_on_language_selector(self):
+        app = self._get_test_app()
+        response = app.get(url_for('home', locale='ca'))
+        html = BeautifulSoup(response.body)
+
+        select = html.find(id='field-lang-select')
+        for option in select.find_all('option'):
+            if option['value'] == '/ca/':
+                eq_(option['selected'], 'selected')
+            else:
+                assert not option.has_attr('selected')

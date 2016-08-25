@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 Code for generating email notifications for users (e.g. email notifications for
 new activities in your dashboard activity stream) and emailing them to the
@@ -7,13 +9,11 @@ users.
 import datetime
 import re
 
-import pylons
-
 import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
 
-from ckan.common import ungettext
+from ckan.common import ungettext, config
 
 
 def string_to_timedelta(s):
@@ -101,7 +101,7 @@ def _notifications_for_activities(activities, user_dict):
         "{n} new activity from {site_title}",
         "{n} new activities from {site_title}",
         len(activities)).format(
-                site_title=pylons.config.get('ckan.site_title'),
+                site_title=config.get('ckan.site_title'),
                 n=len(activities))
     body = base.render(
             'activity_streams/activity_stream_email_notifications.text',
@@ -188,7 +188,7 @@ def get_and_send_notifications_for_user(user):
 
     # Parse the email_notifications_since config setting, email notifications
     # from longer ago than this time will not be sent.
-    email_notifications_since = pylons.config.get(
+    email_notifications_since = config.get(
             'ckan.email_notifications_since', '2 days')
     email_notifications_since = string_to_timedelta(
             email_notifications_since)
@@ -206,7 +206,6 @@ def get_and_send_notifications_for_user(user):
             activity_stream_last_viewed)
 
     notifications = get_notifications(user, since)
-
     # TODO: Handle failures from send_email_notification.
     for notification in notifications:
         send_notification(user, notification)

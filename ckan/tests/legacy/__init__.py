@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Pylons application test package
 
 When the test runner finds and executes tests within this directory,
@@ -16,7 +18,7 @@ from nose.tools import assert_equal, assert_not_equal, make_decorator
 from nose.plugins.skip import SkipTest
 import time
 
-from pylons import config
+from ckan.common import config
 from pylons.test import pylonsapp
 from paste.script.appinstall import SetupCommand
 
@@ -352,15 +354,6 @@ def regex_related(test):
 
 def clear_flash(res=None):
     messages = h._flash.pop_messages()
-
-try:
-    from nose.tools import assert_in, assert_not_in
-except ImportError:
-    def assert_in(a, b, msg=None):
-        assert a in b, msg or '%r was not in %r' % (a, b)
-    def assert_not_in(a, b, msg=None):
-        assert a not in b, msg or '%r was in %r' % (a, b)
-
 
 class StatusCodes:
     STATUS_200_OK = 200

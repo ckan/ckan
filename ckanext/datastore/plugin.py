@@ -1,13 +1,15 @@
+# encoding: utf-8
+
 import sys
 import logging
 import re
 
-import pylons
 import sqlalchemy.engine.url as sa_url
 
 import ckan.plugins as p
 import ckan.logic as logic
 import ckan.model as model
+from ckan.common import config
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.db as db
@@ -492,7 +494,7 @@ class DatastorePlugin(p.SingletonPlugin):
         return statements_str, rank_columns_str
 
     def _fts_lang(self, lang=None):
-        default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+        default_fts_lang = config.get('ckan.datastore.default_fts_lang')
         if default_fts_lang is None:
             default_fts_lang = u'english'
         return lang or default_fts_lang

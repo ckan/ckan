@@ -1,4 +1,5 @@
-import sys
+# encoding: utf-8
+
 import requests
 import unittest
 import json
@@ -6,7 +7,7 @@ import httpretty
 import nose
 
 import paste.fixture
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.tests.legacy as tests
@@ -58,20 +59,12 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         create_test_data.CreateTestData.create()
-        # Httpretty crashes with Solr on Python 2.6,
-        # skip the tests
-        if (sys.version_info[0] == 2 and sys.version_info[1] == 6):
-            raise nose.SkipTest()
 
     @classmethod
     def teardown_class(cls):
         config.clear()
         config.update(cls._original_config)
         model.repo.rebuild_db()
-        # Reenable Solr indexing
-        if (sys.version_info[0] == 2 and sys.version_info[1] == 6
-                and not p.plugin_loaded('synchronous_search')):
-            p.load('synchronous_search')
 
     def setUp(self):
         self.url = 'http://www.ckan.org/static/example.json'

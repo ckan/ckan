@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 These dictize functions generally take a domain object (such as Package) and
 convert it to a dictionary, including related objects (e.g. for Package it
@@ -12,7 +14,7 @@ which builds the dictionary by iterating over the table columns.
 import datetime
 import urlparse
 
-from pylons import config
+from ckan.common import config
 from sqlalchemy.sql import select
 
 import ckan.logic as logic
@@ -113,7 +115,7 @@ def resource_dictize(res, context):
                                     resource_id=res.id,
                                     filename=cleaned_name,
                                     qualified=True)
-    elif not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
+    elif resource['url'] and not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
         resource['url'] = u'http://' + url.lstrip('/')
     return resource
 
@@ -384,7 +386,7 @@ def group_dictize(group, context,
                     authz.has_user_permission_for_group_or_org(
                         group_.id, context.get('user'), 'read'))
                 if is_group_member:
-                    context['ignore_capacity_check'] = True
+                    q['include_private'] = True
 
             if not just_the_count:
                 # Is there a packages limit in the context?

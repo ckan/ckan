@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 The aim of these tests is to check and improve the coding standards in ckan.
 Common issues are tested for here and tests fail if they are discovered in
@@ -12,7 +14,7 @@ deteriourating when they do reach the required standard.
 
 Please do not add new files to the list as any new files should meet the
 current coding standards.  Please add comments by files that fail if there
-are legitamate reasons for the failure.
+are legitimate reasons for the failure.
 '''
 
 import sys
@@ -393,11 +395,9 @@ class TestPep8(object):
         'ckan/lib/formatters.py',
         'ckan/lib/hash.py',
         'ckan/lib/help/flash_messages.py',
-        'ckan/lib/i18n.py',
         'ckan/lib/jinja_extensions.py',
         'ckan/lib/jsonp.py',
         'ckan/lib/maintain.py',
-        'ckan/lib/navl/dictization_functions.py',
         'ckan/lib/navl/validators.py',
         'ckan/lib/package_saver.py',
         'ckan/lib/plugins.py',
@@ -415,7 +415,6 @@ class TestPep8(object):
         'ckan/logic/auth/get.py',
         'ckan/logic/auth/update.py',
         'ckan/logic/converters.py',
-        'ckan/logic/schema.py',
         'ckan/logic/validators.py',
         'ckan/migration/versions/001_add_existing_tables.py',
         'ckan/migration/versions/002_add_author_and_maintainer.py',
@@ -488,7 +487,6 @@ class TestPep8(object):
         'ckan/model/authz.py',
         'ckan/model/dashboard.py',
         'ckan/model/domain_object.py',
-        'ckan/model/extension.py',
         'ckan/model/follower.py',
         'ckan/model/group.py',
         'ckan/model/group_extra.py',
@@ -565,7 +563,6 @@ class TestPep8(object):
         'ckan/tests/legacy/lib/test_email_notifications.py',
         'ckan/tests/legacy/lib/test_hash.py',
         'ckan/tests/legacy/lib/test_helpers.py',
-        'ckan/tests/legacy/lib/test_i18n.py',
         'ckan/tests/legacy/lib/test_mailer.py',
         'ckan/tests/legacy/lib/test_munge.py',
         'ckan/tests/legacy/lib/test_navl.py',
@@ -779,7 +776,7 @@ class TestActionAuth(object):
     def process(cls):
         def get_functions(module_root):
             fns = {}
-            for auth_module_name in ['get', 'create', 'update', 'delete']:
+            for auth_module_name in ['get', 'create', 'update', 'delete', 'patch']:
                 module_path = '%s.%s' % (module_root, auth_module_name,)
                 try:
                     module = __import__(module_path)

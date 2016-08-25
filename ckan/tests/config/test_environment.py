@@ -1,7 +1,9 @@
+# encoding: utf-8
+
 import os
 from nose import tools as nosetools
 
-from pylons import config
+from ckan.common import config
 
 import ckan.tests.helpers as h
 import ckan.plugins as p

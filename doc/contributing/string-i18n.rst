@@ -191,12 +191,104 @@ To handle different plural and singular forms of a string, use ``ungettext()``:
        num_objects).format(count=count, name=name)
 
 
+.. _javascript_i18n:
+
 ---------------------------------------------
 Internationalizing strings in JavaScript code
 ---------------------------------------------
 
-.. todo::
+Each :ref:`CKAN JavaScript module <javascript_modules>` receives the ``_``
+translation function during construction:
 
+.. code-block:: javascript
+
+    this.ckan.module('i18n-demo', function($, _) {  // Note the `_`
+      ...
+    };
+
+Alternatively, you can use :ref:`this.sandbox.translate <this_sandbox>` (for
+which ``_`` is a shortcut).
+
+In contrast to Python code and Jinja templates, in Javascript ``_`` does not
+directly return the translated string. Instead, it returns a Jed_ translation
+object. Use its ``fetch`` method to get the translated singular string:
+
+.. code-block:: javascript
+
+    _('Translate me!').fetch()
+
+.. _Jed: http://slexaxton.github.io/Jed/
+
+Placeholders can be `specified in the string`_, their values are passed via
+``fetch``:
+
+.. _specified in the string: http://www.diveintojavascript.com/projects/javascript-sprintf
+
+.. code-block:: javascript
+
+    _('Hello, %(name)s!').fetch({name: 'John Doe'})
+
+For plural forms, use the ``ifPlural`` method:
+
+.. code-block:: javascript
+
+    var numDeleted = deletePackages();
+    console.log(
+      _('Deleted %(number)d package')
+        .ifPlural(numDeleted, 'Deleted %(number)d packages')
+        .fetch({number: numDeleted})
+    );
+
+However, you should not distribute your translateable strings all over your
+JavaScript module. Instead, collect them in ``options.i18n`` and then use the
+``this.i18n`` function to look them up:
+
+.. code-block:: javascript
+
+    this.ckan.module('i18n-demo', function($, _) {
+      return {
+        options: {
+          i18n: {
+            deleting _('Deleting...'),
+            deleted: function (data) {
+              return _('Deleted %(number)d package')
+                .isPlural(data.number, 'Deleted %(number)d packages');
+            }
+          }
+        },
+
+        // ...
+
+        deleteSomeStuff: function() {
+          console.log(this.i18n('deleting'));
+          var numDeleted = deletePackages();
+          console.log(this.i18n('deleted', {number: numDeleted}));
+        }
+      };
+    };
+
+As you can see, each entry in ``options.i18n`` maps an identifier to either a
+prepared Jed object (as returned by ``_``) or to a function that takes an
+object and then returns a Jed object. The latter form is for passing
+placeholders and constructing plural forms. Note that you should not call
+``fetch`` for the values in ``options.i18n``, that is handled automatically by
+``this.i18n``.
+
+.. note::
+
+    CKAN's JavaScript code automatically downloads the appropriate translations
+    at request time from the CKAN server. The corresponding translation files
+    are generated beforehand using ``paster trans js``. During development you
+    need to run that command manually if you're updating JavaScript
+    translations::
+
+        python setup.py extract_messages  # Extract translatable strings
+        # Update .po files as desired
+        python setup.py compile_catalog   # Compile .mo files for Python/Jinja
+        paster trans js                   # Compile JavaScript catalogs
+
+    Also note that extensions currently `cannot provide translations for
+    JS strings <https://github.com/ckan/ideas-and-roadmap/issues/176>`_.
 
 -------------------------------------------------
 General guidelines for internationalizing strings
@@ -359,20 +451,22 @@ the quality of CKAN's translations:
      {# TRANSLATORS: This heading is displayed on the user's profile page. #}
      <h1>{% trans %}Heading{% endtrans %}</h1>
 
+  In JavaScript:
+
+  .. code-block:: javascript
+
+      // TRANSLATORS: "Manual" refers to the user manual
+      _("Manual")
+
   These comments end up in the ``ckan.pot`` file and translators will see them
   when they're translating the strings (Transifex shows them, for example).
 
   .. note::
 
-     In both Python and Jinja2, the comment must be on the line before the line
-     with the ``_()``, ``ungettext()`` or ``{% trans %}``, and must start with
-     the exact string ``TRANSLATORS:`` (in upper-case and with the colon).
-     This string is configured in ``setup.cfg``.
-
-  .. todo::
-
-     Example of leaving a translator comment in JavaScript.
-     Probably ``// TRANSLATORS: This is a helpful comment`` will work.
+     The comment must be on the line before the line with the ``_()``,
+     ``ungettext()`` or ``{% trans %}``, and must start with the exact string
+     ``TRANSLATORS:`` (in upper-case and with the colon). This string is
+     configured in ``setup.cfg``.
 
 .. todo::
 

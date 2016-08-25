@@ -1,14 +1,16 @@
+# encoding: utf-8
+
 '''
 NB Don't test logic functions here. This is just for the mechanics of the API
 controller itself.
 '''
 import json
+import re
 
 from routes import url_for
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_in, eq_
 
 import ckan.tests.helpers as helpers
-from ckan.tests.helpers import assert_in
 from ckan.tests import factories
 from ckan import model
 
@@ -200,6 +202,52 @@ class TestApiController(helpers.FunctionalTestBase):
             extra_environ={'REMOTE_USER': user['name'].encode('ascii')},
             status=403,
         )
+
+    def test_jsonp_works_on_get_requests(self):
+
+        dataset1 = factories.Dataset()
+        dataset2 = factories.Dataset()
+
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='package_list',
+            ver='/3')
+        app = self._get_test_app()
+        res = app.get(
+            url=url,
+            params={'callback': 'my_callback'},
+        )
+        assert re.match('my_callback\(.*\);', res.body), res
+        # Unwrap JSONP callback (we want to look at the data).
+        msg = res.body[len('my_callback') + 1:-2]
+        res_dict = json.loads(msg)
+        eq_(res_dict['success'], True)
+        eq_(sorted(res_dict['result']),
+            sorted([dataset1['name'], dataset2['name']]))
+
+    def test_jsonp_does_not_work_on_post_requests(self):
+
+        dataset1 = factories.Dataset()
+        dataset2 = factories.Dataset()
+
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='package_list',
+            ver='/3',
+            callback='my_callback',
+        )
+        app = self._get_test_app()
+        res = app.post(
+            url=url,
+        )
+        # The callback param is ignored and the normal response is returned
+        assert not res.body.startswith('my_callback')
+        res_dict = json.loads(res.body)
+        eq_(res_dict['success'], True)
+        eq_(sorted(res_dict['result']),
+            sorted([dataset1['name'], dataset2['name']]))
 
 
 class TestRevisionSearch(helpers.FunctionalTestBase):

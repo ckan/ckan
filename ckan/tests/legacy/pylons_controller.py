@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''For unit testing that does not use paste fixture web requests, but needs
 pylons set up for access to c, g or the template engine.
 

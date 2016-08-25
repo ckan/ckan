@@ -1,4 +1,6 @@
-from nose.tools import assert_equal
+# encoding: utf-8
+
+from nose.tools import assert_equal, ok_
 
 from ckan.lib.munge import (munge_filename_legacy, munge_filename, munge_name,
                             munge_title_to_name, munge_tag)
@@ -48,12 +50,14 @@ class TestMungeFilename(object):
         ('random:other%character&', 'randomothercharacter'),
         (u'u with umlaut \xfc', 'u-with-umlaut-u'),
         ('2014-11-10 12:24:05.340603my_image.jpeg',
-         '2014-11-10-122405.340603myimage.jpeg'),
+         '2014-11-10-122405.340603my_image.jpeg'),
         ('file.csv', 'file.csv'),
+        ('underscores_are_awesome', 'underscores_are_awesome'),
         ('f' * 100 + '.csv', 'f' * 96 + '.csv'),
         ('path/to/file.csv', 'file.csv'),
         ('.longextension', '.longextension'),
         ('a.longextension', 'a.longextension'),
+        ('a.now_that_extension_is_too_long', 'a.now_that_extension_i'),
         ('.1', '.1_'),
     ]
 
@@ -62,6 +66,7 @@ class TestMungeFilename(object):
         for org, exp in self.munge_list:
             munge = munge_filename(org)
             assert_equal(munge, exp)
+            ok_(isinstance(munge, unicode))
 
     def test_munge_filename_multiple_pass(self):
         '''Munging filename multiple times produces same result.'''

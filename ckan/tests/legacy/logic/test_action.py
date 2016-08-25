@@ -1,10 +1,12 @@
+# encoding: utf-8
+
 import re
 import json
 import urllib
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
 from nose.plugins.skip import SkipTest
-from pylons import config
+from ckan.common import config
 import datetime
 import mock
 
@@ -113,22 +115,6 @@ class TestAction(WsgiAppCase):
         assert 'annakarenina' in res
         assert 'public_dataset' in res
         assert not 'private_dataset' in res
-
-    def test_01_package_show_with_jsonp(self):
-        anna_id = model.Package.by_name(u'annakarenina').id
-        postparams = '%s=1' % json.dumps({'id': anna_id})
-        res = self.app.post('/api/action/package_show?callback=jsoncallback', params=postparams)
-
-        assert re.match('jsoncallback\(.*\);', res.body), res
-        # Unwrap JSONP callback (we want to look at the data).
-        msg = res.body[len('jsoncallback')+1:-2]
-        res_dict = json.loads(msg)
-        assert_equal(res_dict['success'], True)
-        assert "/api/3/action/help_show?name=package_show" in res_dict['help']
-        pkg = res_dict['result']
-        assert_equal(pkg['name'], 'annakarenina')
-        missing_keys = set(('title', 'groups')) - set(pkg.keys())
-        assert not missing_keys, missing_keys
 
     def test_02_package_autocomplete_match_name(self):
         postparams = '%s=1' % json.dumps({'q':'war', 'limit': 5})

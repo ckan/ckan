@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''This is a collection of helper functions for use in tests.
 
 We want to avoid sharing test helper functions between test modules as
@@ -18,25 +20,15 @@ This module is reserved for these very useful functions.
 
 '''
 import webtest
-from pylons import config
 import nose.tools
+from nose.tools import assert_in, assert_not_in
 import mock
 
+from ckan.common import config
 import ckan.lib.search as search
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
-
-
-try:
-    from nose.tools import assert_in, assert_not_in
-except ImportError:
-    # Python 2.6 doesn't have these, so define them here
-    def assert_in(a, b, msg=None):
-        assert a in b, msg or '%r was not in %r' % (a, b)
-
-    def assert_not_in(a, b, msg=None):
-        assert a not in b, msg or '%r was in %r' % (a, b)
 
 
 def reset_db():
@@ -140,6 +132,21 @@ def call_auth(auth_name, context, **kwargs):
     return logic.check_access(auth_name, context, data_dict=kwargs)
 
 
+class CKANTestApp(webtest.TestApp):
+    '''A wrapper around webtest.TestApp
+
+    It adds some convenience methods for CKAN
+    '''
+
+    _flask_app = None
+
+    @property
+    def flask_app(self):
+        if not self._flask_app:
+            self._flask_app = self.app.apps['flask_app']._wsgi_app
+        return self._flask_app
+
+
 def _get_test_app():
     '''Return a webtest.TestApp for CKAN, with legacy templates disabled.
 
@@ -149,7 +156,7 @@ def _get_test_app():
     '''
     config['ckan.legacy_templates'] = False
     app = ckan.config.middleware.make_app(config['global_conf'], **config)
-    app = webtest.TestApp(app)
+    app = CKANTestApp(app)
     return app
 
 
@@ -188,6 +195,8 @@ class FunctionalTestBase(object):
     def setup(self):
         '''Reset the database and clear the search indexes.'''
         reset_db()
+        if hasattr(self, '_test_app'):
+            self._test_app.reset()
         search.clear_all()
 
     @classmethod
@@ -290,7 +299,7 @@ def webtest_maybe_follow(response, **kw):
 
 
 def change_config(key, value):
-    '''Decorator to temporarily changes Pylons' config to a new value
+    '''Decorator to temporarily change CKAN's config to a new value
 
     This allows you to easily create tests that need specific config values to
     be set, making sure it'll be reverted to what it was originally, after your
@@ -300,7 +309,7 @@ def change_config(key, value):
 
         @helpers.change_config('ckan.site_title', 'My Test CKAN')
         def test_ckan_site_title(self):
-            assert pylons.config['ckan.site_title'] == 'My Test CKAN'
+            assert config['ckan.site_title'] == 'My Test CKAN'
 
     :param key: the config key to be changed, e.g. ``'ckan.site_title'``
     :type key: string
@@ -320,6 +329,53 @@ def change_config(key, value):
                 config.update(_original_config)
 
             return return_value
+        return nose.tools.make_decorator(func)(wrapper)
+    return decorator
+
+
+def mock_auth(auth_function_path):
+    '''
+    Decorator to easily mock a CKAN auth method in the context of a test
+     function
+
+    It adds a mock object for the provided auth_function_path as a parameter to
+     the test function.
+
+    Essentially it makes sure that `ckan.authz.clear_auth_functions_cache` is
+     called before and after to make sure that the auth functions pick up
+     the newly changed values.
+
+    Usage::
+
+        @helpers.mock_auth('ckan.logic.auth.create.package_create')
+        def test_mock_package_create(self, mock_package_create):
+            from ckan import logic
+            mock_package_create.return_value = {'success': True}
+
+            # package_create is mocked
+            eq_(logic.check_access('package_create', {}), True)
+
+            assert mock_package_create.called
+
+    :param action_name: the full path to the auth function to be mocked,
+        e.g. ``ckan.logic.auth.create.package_create``
+    :type action_name: string
+
+    '''
+    from ckan.authz import clear_auth_functions_cache
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+
+            try:
+                with mock.patch(auth_function_path) as mocked_auth:
+                    clear_auth_functions_cache()
+                    new_args = args + tuple([mocked_auth])
+                    return_value = func(*new_args, **kwargs)
+            finally:
+                clear_auth_functions_cache()
+            return return_value
+
         return nose.tools.make_decorator(func)(wrapper)
     return decorator
 

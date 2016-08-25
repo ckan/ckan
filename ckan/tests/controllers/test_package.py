@@ -1,11 +1,15 @@
+# encoding: utf-8
+
 from bs4 import BeautifulSoup
 from nose.tools import (
     assert_equal,
     assert_not_equal,
     assert_raises,
     assert_true,
+    assert_in
 )
 
+from mock import patch, MagicMock
 from routes import url_for
 
 import ckan.model as model
@@ -14,10 +18,8 @@ from ckan.lib import search
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-from ckan.tests.helpers import assert_in
 
 
-assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
@@ -37,6 +39,48 @@ class TestPackageNew(helpers.FunctionalTestBase):
         app = self._get_test_app()
         env, response = _get_package_new_page(app)
         assert_true('dataset-edit' in response.forms)
+
+    @helpers.change_config('ckan.auth.create_unowned_dataset', 'false')
+    def test_needs_organization_but_no_organizations_has_button(self):
+        ''' Scenario: The settings say every dataset needs an organization
+        but there are no organizations. If the user is allowed to create an
+        organization they should be prompted to do so when they try to create
+        a new dataset'''
+        app = self._get_test_app()
+        sysadmin = factories.Sysadmin()
+
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = app.get(
+            url=url_for(controller='package', action='new'),
+            extra_environ=env
+        )
+        assert 'dataset-edit' not in response.forms
+        assert url_for(controller='organization', action='new') in response
+
+    @helpers.mock_auth('ckan.logic.auth.create.package_create')
+    @helpers.change_config('ckan.auth.create_unowned_dataset', 'false')
+    @helpers.change_config('ckan.auth.user_create_organizations', 'false')
+    def test_needs_organization_but_no_organizations_no_button(self,
+                                                               mock_p_create):
+        ''' Scenario: The settings say every dataset needs an organization
+        but there are no organizations. If the user is not allowed to create an
+        organization they should be told to ask the admin but no link should be
+        presented. Note: This cannot happen with the default ckan and requires
+        a plugin to overwrite the package_create behavior'''
+        mock_p_create.return_value = {'success': True}
+
+        app = self._get_test_app()
+        user = factories.User()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url=url_for(controller='package', action='new'),
+            extra_environ=env
+        )
+
+        assert 'dataset-edit' not in response.forms
+        assert url_for(controller='organization', action='new') not in response
+        assert 'Ask a system administrator' in response
 
     def test_name_required(self):
         app = self._get_test_app()
@@ -374,12 +418,6 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
 
 class TestPackageEdit(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-        helpers.reset_db()
-        search.clear_all()
-
     def test_organization_admin_can_edit(self):
         user = factories.User()
         organization = factories.Organization(
@@ -519,14 +557,6 @@ class TestPackageEdit(helpers.FunctionalTestBase):
 
 
 class TestPackageRead(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-        helpers.reset_db()
-
-    def setup(self):
-        model.repo.rebuild_db()
-
     def test_read(self):
         dataset = factories.Dataset()
         app = helpers._get_test_app()
@@ -974,9 +1004,6 @@ class TestResourceView(helpers.FunctionalTestBase):
 
         helpers.reset_db()
 
-    def setup(self):
-        model.repo.rebuild_db()
-
     @classmethod
     def teardown_class(cls):
         p.unload('image_view')
@@ -1005,17 +1032,19 @@ class TestResourceView(helpers.FunctionalTestBase):
         app = self._get_test_app()
         app.get(url, status=404)
 
+    def test_resource_view_description_is_rendered_as_markdown(self):
+        resource_view = factories.ResourceView(description="Some **Markdown**")
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_id=resource_view['id'])
+        app = self._get_test_app()
+        response = app.get(url)
+        response.mustcontain('Some <strong>Markdown</strong>')
+
 
 class TestResourceRead(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(TestResourceRead, cls).setup_class()
-        helpers.reset_db()
-        search.clear_all()
-
-    def setup(self):
-        model.repo.rebuild_db()
-
     def test_existing_resource_with_not_associated_dataset(self):
 
         dataset = factories.Dataset()
@@ -1274,11 +1303,6 @@ class TestResourceDelete(helpers.FunctionalTestBase):
 
 
 class TestSearch(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-        helpers.reset_db()
-
     def test_search_basic(self):
         dataset1 = factories.Dataset()
 
@@ -1463,6 +1487,104 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_true('Dataset Two' in ds_titles)
         assert_true('Dataset Three' in ds_titles)
 
+    def test_user_not_in_organization_cannot_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], [])
+
+    def test_user_in_organization_can_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}])
+        dataset = factories.Dataset(
+            title='A private dataset',
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], ['A private dataset'])
+
+    def test_user_in_different_organization_cannot_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        org1 = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}])
+        org2 = factories.Organization()
+        dataset = factories.Dataset(
+            title='A private dataset',
+            owner_org=org2['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], [])
+
+    @helpers.change_config('ckan.search.default_include_private', 'false')
+    def test_search_default_include_private_false(self):
+        app = helpers._get_test_app()
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}])
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], [])
+
+    def test_sysadmin_can_search_private_datasets(self):
+        app = helpers._get_test_app()
+        user = factories.Sysadmin()
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            title='A private dataset',
+            owner_org=organization['id'],
+            private=True,
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url, extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        assert_equal([n.string for n in ds_titles], ['A private dataset'])
+
 
 class TestPackageFollow(helpers.FunctionalTestBase):
 
@@ -1569,3 +1691,17 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         followers_response = app.get(followers_url, extra_environ=env,
                                      status=200)
         assert_true(user_one['display_name'] in followers_response)
+
+
+class TestDatasetRead(helpers.FunctionalTestBase):
+
+    def test_dataset_read(self):
+        app = self._get_test_app()
+
+        dataset = factories.Dataset()
+
+        url = url_for(controller='package',
+                      action='read',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in(dataset['title'], response)

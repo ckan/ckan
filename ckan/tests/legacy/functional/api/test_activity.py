@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Functional tests for the public activity streams API.
 
 This module tests the contents of the various public activity streams:
@@ -13,7 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import pylons.test
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 import paste.fixture
 from nose import SkipTest

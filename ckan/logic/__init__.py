@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import functools
 import logging
 import re
@@ -340,6 +342,12 @@ def get_action(action):
 
     If a ``context`` of ``None`` is passed to the action function then the
     default context dict will be created.
+
+    .. note::
+
+        Many action functions modify the context dict. It can therefore
+        not be reused for multiple calls of the same or different action
+        functions.
 
     :param action: name of the action function to return,
         eg. ``'package_create'``

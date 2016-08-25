@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''API functions for searching for and getting data from CKAN.'''
 
 import uuid
@@ -6,7 +8,7 @@ import json
 import datetime
 import socket
 
-from pylons import config
+from ckan.common import config
 import sqlalchemy
 from paste.deploy.converters import asbool
 
@@ -24,7 +26,6 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
-import ckan.lib.lazyjson as lazyjson
 
 from ckan.common import _
 
@@ -179,10 +180,9 @@ def current_package_list_with_resources(context, data_dict):
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
-    is_sysadmin = authz.is_sysadmin(user)
-    q = '+capacity:public' if not is_sysadmin else '*:*'
-    context['ignore_capacity_check'] = True
-    search = package_search(context, {'q': q, 'rows': limit, 'start': offset})
+    search = package_search(context, {
+        'q': '', 'rows': limit, 'start': offset,
+        'include_private': authz.is_sysadmin(user) })
     return search.get('results', [])
 
 
@@ -384,8 +384,8 @@ def _group_or_org_list(context, data_dict, is_org=False):
         ))
 
     query = query.filter(model.Group.is_organization == is_org)
-    if not is_org:
-        query = query.filter(model.Group.type == group_type)
+    query = query.filter(model.Group.type == group_type)
+
     if sort_info:
         sort_field = sort_info[0][0]
         sort_direction = sort_info[0][1]
@@ -521,7 +521,7 @@ def organization_list(context, data_dict):
     '''
     _check_access('organization_list', context, data_dict)
     data_dict['groups'] = data_dict.pop('organizations', [])
-    data_dict['type'] = 'organization'
+    data_dict.setdefault('type', 'organization')
     return _group_or_org_list(context, data_dict, is_org=True)
 
 
@@ -960,10 +960,7 @@ def package_show(context, data_dict):
             use_validated_cache = 'schema' not in context
             if use_validated_cache and 'validated_data_dict' in search_result:
                 package_json = search_result['validated_data_dict']
-                if context.get('return_type') == 'LazyJSONObject':
-                    package_dict = lazyjson.LazyJSONObject(package_json)
-                else:
-                    package_dict = json.loads(package_json)
+                package_dict = json.loads(package_json)
                 package_dict_validated = True
             else:
                 package_dict = json.loads(search_result['data_dict'])
@@ -1455,8 +1452,9 @@ def user_show(context, data_dict):
         search_dict = {'rows': 50}
 
         if include_private_and_draft_datasets:
-            context['ignore_capacity_check'] = True
-            search_dict.update({'include_drafts': True})
+            search_dict.update({
+                'include_private': True,
+                'include_drafts': True})
 
         search_dict.update({'fq': fq})
 
@@ -1713,6 +1711,10 @@ def package_search(context, data_dict):
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
     :type include_drafts: boolean
+    :param include_private: if ``True``, private datasets will be included in
+        the results. Only private datasets from the user's organizations will
+        be returned and sysadmins will be returned all private datasets.
+        Optional, the default is ``False``.
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: False)
     :type use_default_schema: bool
@@ -1825,17 +1827,33 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id {0}'.format(data_source)
 
-        # If this query hasn't come from a controller that has set this flag
-        # then we should remove any mention of capacity from the fq and
+        # we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
         fq = data_dict.get('fq', '')
-        if not context.get('ignore_capacity_check', False):
-            fq = ' '.join(p for p in fq.split(' ')
-                          if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
 
-        # Solr doesn't need 'include_drafts`, so pop it.
-        include_drafts = data_dict.pop('include_drafts', False)
+        # Remove before these hit solr FIXME: whitelist instead
+        include_private = asbool(data_dict.pop('include_private', False))
+        include_drafts = asbool(data_dict.pop('include_drafts', False))
+
+        capacity_fq = 'capacity:"public"'
+        if include_private and authz.is_sysadmin(user):
+            capacity_fq = None
+        elif include_private and user:
+            orgs = logic.get_action('organization_list_for_user')(
+                {'user': user}, {'permission': 'read'})
+            if orgs:
+                capacity_fq = '({0} OR owner_org:({1}))'.format(
+                    capacity_fq,
+                    ' OR '.join(org['id'] for org in orgs))
+            if include_drafts:
+                capacity_fq = '({0} OR creator_user_id:({1}))'.format(
+                    capacity_fq,
+                    authz.get_user_id_for_username(user))
+
+        if capacity_fq:
+            fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
+            data_dict['fq'] = fq + ' ' + capacity_fq
+
         fq = data_dict.get('fq', '')
         if include_drafts:
             user_id = authz.get_user_id_for_username(user, allow_none=True)
@@ -1895,9 +1913,10 @@ def package_search(context, data_dict):
     for field_name in ('groups', 'organization'):
         group_names.extend(facets.get(field_name, {}).keys())
 
-    groups = session.query(model.Group.name, model.Group.title) \
-                    .filter(model.Group.name.in_(group_names)) \
+    groups = (session.query(model.Group.name, model.Group.title)
+                    .filter(model.Group.name.in_(group_names))
                     .all()
+              if group_names else [])
     group_titles_by_name = dict(groups)
 
     # Transform facets into a more useful data structure.
@@ -3258,7 +3277,8 @@ def _group_or_org_followee_list(context, data_dict, is_org=False):
 
 @logic.validate(logic.schema.default_pagination_schema)
 def dashboard_activity_list(context, data_dict):
-    '''Return the authorized user's dashboard activity stream.
+    '''Return the authorized (via login or API key) user's dashboard activity
+       stream.
 
     Unlike the activity dictionaries returned by other ``*_activity_list``
     actions, these activity dictionaries have an extra boolean value with key
@@ -3312,13 +3332,12 @@ def dashboard_activity_list(context, data_dict):
 
 @logic.validate(ckan.logic.schema.default_pagination_schema)
 def dashboard_activity_list_html(context, data_dict):
-    '''Return the authorized user's dashboard activity stream as HTML.
+    '''Return the authorized (via login or API key) user's dashboard activity
+       stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
-    :param id: the id or name of the user
-    :type id: string
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int

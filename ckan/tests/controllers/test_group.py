@@ -1,5 +1,7 @@
+# encoding: utf-8
+
 from bs4 import BeautifulSoup
-from nose.tools import assert_equal, assert_true
+from nose.tools import assert_equal, assert_true, assert_in
 
 from routes import url_for
 
@@ -7,7 +9,6 @@ import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
 
-assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
@@ -23,17 +24,34 @@ class TestGroupController(helpers.FunctionalTestBase):
                                    action='bulk_process', id='does-not-exist')
         app.get(url=bulk_process_url, status=404)
 
-    def test_page_thru_list_of_orgs(self):
-        orgs = [factories.Organization() for i in range(35)]
+    def test_page_thru_list_of_orgs_preserves_sort_order(self):
+        orgs = [factories.Organization() for _ in range(35)]
         app = self._get_test_app()
-        org_url = url_for(controller='organization', action='index')
+        org_url = url_for(controller='organization',
+                          action='index',
+                          sort='name desc')
         response = app.get(url=org_url)
-        assert orgs[0]['name'] in response
-        assert orgs[-1]['name'] not in response
+        assert orgs[-1]['name'] in response
+        assert orgs[0]['name'] not in response
 
         response2 = response.click('2')
-        assert orgs[0]['name'] not in response2
-        assert orgs[-1]['name'] in response2
+        assert orgs[-1]['name'] not in response2
+        assert orgs[0]['name'] in response2
+
+    def test_page_thru_list_of_groups_preserves_sort_order(self):
+        groups = [factories.Group() for _ in range(35)]
+        app = self._get_test_app()
+        group_url = url_for(controller='group',
+                            action='index',
+                            sort='title desc')
+
+        response = app.get(url=group_url)
+        assert groups[-1]['title'] in response
+        assert groups[0]['title'] not in response
+
+        response2 = response.click(r'^2$')
+        assert groups[-1]['title'] not in response2
+        assert groups[0]['title'] in response2
 
 
 def _get_group_new_page(app):
