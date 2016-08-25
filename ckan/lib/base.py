@@ -7,7 +7,8 @@ Provides the BaseController class for subclassing.
 import logging
 import time
 
-from pylons import cache, session
+from paste.deploy.converters import asbool
+from pylons import cache
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.decorators import jsonify
@@ -32,7 +33,8 @@ from ckan.views import (identify_user,
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
 # plugins.toolkit for extensions.
-from ckan.common import json, _, ungettext, c, request, response, config
+from ckan.common import (json, _, ungettext, c, request, response, config,
+                         session)
 
 log = logging.getLogger(__name__)
 
