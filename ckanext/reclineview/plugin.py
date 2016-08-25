@@ -2,10 +2,9 @@
 
 from logging import getLogger
 
-from ckan.common import json
+from ckan.common import json, config
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-from pylons import config
 
 log = getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
