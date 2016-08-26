@@ -34,6 +34,15 @@ DataError = dictization_functions.DataError
 unflatten = dictization_functions.unflatten
 
 
+def set_repoze_user(user_id):
+    '''Set the repoze.who cookie to match a given user_id'''
+    if 'repoze.who.plugins' in request.environ:
+        rememberer = request.environ['repoze.who.plugins']['friendlyform']
+        identity = {'repoze.who.userid': user_id}
+        response.headerlist += rememberer.remember(request.environ,
+                                                   identity)
+
+
 class UserController(base.BaseController):
     def __before__(self, action, **env):
         base.BaseController.__before__(self, action, **env)
@@ -244,10 +253,7 @@ class UserController(base.BaseController):
             return self.new(data_dict, errors, error_summary)
         if not c.user:
             # log the user in programatically
-            rememberer = request.environ['repoze.who.plugins']['friendlyform']
-            identity = {'repoze.who.userid': data_dict['name']}
-            response.headerlist += rememberer.remember(request.environ,
-                                                       identity)
+            set_repoze_user(data_dict['name'])
             h.redirect_to(controller='user', action='me', __ckan_no_root=True)
         else:
             # #1799 User has managed to register whilst logged in - warn user
@@ -320,6 +326,12 @@ class UserController(base.BaseController):
 
     def _save_edit(self, id, context):
         try:
+            if id in (c.userobj.id, c.userobj.name):
+                current_user = True
+            else:
+                current_user = False
+            old_username = c.userobj.name
+
             data_dict = logic.clean_dict(unflatten(
                 logic.tuplize_dict(logic.parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
@@ -339,6 +351,11 @@ class UserController(base.BaseController):
 
             user = get_action('user_update')(context, data_dict)
             h.flash_success(_('Profile updated'))
+
+            if current_user and data_dict['name'] != old_username:
+                # Changing currently logged in user's name.
+                # Update repoze.who cookie to match
+                set_repoze_user(data_dict['name'])
             h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to edit user %s') % id)
