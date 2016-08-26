@@ -7,13 +7,13 @@ import nose
 import datetime
 
 import sqlalchemy.orm as orm
-import paste.fixture
 
+
+from ckan.tests import helpers
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
-import ckan.config.middleware as middleware
 
 from ckan.common import config
 
@@ -61,8 +61,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
@@ -73,8 +72,10 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         engine = db._get_engine(
             {'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        set_url_type(
-            model.Package.get('annakarenina').resources, cls.sysadmin_user)
+
+        with cls.app.flask_app.test_request_context():
+            set_url_type(
+                model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):
@@ -178,9 +179,12 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'user': self.sysadmin_user.name
         }
 
-        p.toolkit.get_action('datapusher_submit')(context, {
-            'resource_id': resource.id
-        })
+        # datapusher_submit will call a function further down the line that
+        # relies on url_for so we need a request context
+        with self.app.flask_app.test_request_context():
+            p.toolkit.get_action('datapusher_submit')(context, {
+                'resource_id': resource.id
+            })
 
         context.pop('task_status', None)
 

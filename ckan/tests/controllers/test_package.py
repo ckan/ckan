@@ -9,8 +9,7 @@ from nose.tools import (
     assert_in
 )
 
-from mock import patch, MagicMock
-from routes import url_for
+from ckan.lib.helpers import url_for
 
 import ckan.model as model
 import ckan.plugins as p
@@ -27,8 +26,10 @@ submit_and_follow = helpers.submit_and_follow
 def _get_package_new_page(app):
     user = factories.User()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
+    with app.flask_app.test_request_context():
+        url = url_for(controller='package', action='new')
     response = app.get(
-        url=url_for(controller='package', action='new'),
+        url=url,
         extra_environ=env,
     )
     return env, response
@@ -50,12 +51,15 @@ class TestPackageNew(helpers.FunctionalTestBase):
         sysadmin = factories.Sysadmin()
 
         env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
-        response = app.get(
-            url=url_for(controller='package', action='new'),
-            extra_environ=env
-        )
-        assert 'dataset-edit' not in response.forms
-        assert url_for(controller='organization', action='new') in response
+
+        with app.flask_app.test_request_context():
+            response = app.get(
+                url=url_for(controller='package', action='new'),
+                extra_environ=env
+            )
+            assert 'dataset-edit' not in response.forms
+
+            assert url_for(controller='organization', action='new') in response
 
     @helpers.mock_auth('ckan.logic.auth.create.package_create')
     @helpers.change_config('ckan.auth.create_unowned_dataset', 'false')
@@ -73,14 +77,16 @@ class TestPackageNew(helpers.FunctionalTestBase):
         user = factories.User()
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.get(
-            url=url_for(controller='package', action='new'),
-            extra_environ=env
-        )
 
-        assert 'dataset-edit' not in response.forms
-        assert url_for(controller='organization', action='new') not in response
-        assert 'Ask a system administrator' in response
+        with app.flask_app.test_request_context():
+            response = app.get(
+                url=url_for(controller='package', action='new'),
+                extra_environ=env
+            )
+
+            assert 'dataset-edit' not in response.forms
+            assert url_for(controller='organization', action='new') not in response
+            assert 'Ask a system administrator' in response
 
     def test_name_required(self):
         app = self._get_test_app()
@@ -240,8 +246,11 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='new')
         response = app.get(
-            url=url_for(controller='package', action='new'),
+            url=url,
             extra_environ=env,
         )
 
@@ -262,9 +271,11 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert_equal(pkg.state, 'active')
 
         # edit package page response
-        url = url_for(controller='package',
-                      action='edit',
-                      id=pkg.id)
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id=pkg.id)
         pkg_edit_response = app.get(url=url, extra_environ=env)
         # A field with the correct id is in the response
         form = pkg_edit_response.forms['dataset-edit']
@@ -285,8 +296,10 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='new')
         response = app.get(
-            url=url_for(controller='package', action='new'),
+            url=url,
             extra_environ=env,
         )
 
@@ -306,9 +319,10 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert_not_equal(pkg.owner_org, None)
 
         # edit package page response
-        url = url_for(controller='package',
-                      action='edit',
-                      id=pkg.id)
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id=pkg.id)
         pkg_edit_response = app.get(url=url, extra_environ=env)
 
         # edit dataset
@@ -331,8 +345,11 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='new')
         response = app.get(
-            url=url_for(controller='package', action='new'),
+            url=url,
             extra_environ=env,
         )
 
@@ -352,9 +369,10 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert_equal(pkg.state, 'active')
 
         # edit package response
-        url = url_for(controller='package',
-                      action='edit',
-                      id=model.Package.by_name(u'my-dataset').id)
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id=model.Package.by_name(u'my-dataset').id)
         pkg_edit_response = app.get(url=url, extra_environ=env)
         # A field with the correct id is in the response
         form = pkg_edit_response.forms['dataset-edit']
@@ -376,8 +394,10 @@ class TestPackageNew(helpers.FunctionalTestBase):
         app = self._get_test_app()
         # user in env is sysadmin
         env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='new')
         response = app.get(
-            url=url_for(controller='package', action='new'),
+            url=url,
             extra_environ=env,
         )
 
@@ -398,9 +418,10 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert_equal(pkg.state, 'active')
 
         # edit package page response
-        url = url_for(controller='package',
-                      action='edit',
-                      id=pkg.id)
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id=pkg.id)
         pkg_edit_response = app.get(url=url, extra_environ=env)
         # A field with the correct id is in the response
         assert 'id="field-organizations"' in pkg_edit_response
@@ -412,9 +433,13 @@ class TestPackageNew(helpers.FunctionalTestBase):
 
         # provide REMOTE_ADDR to idenfity as remote user, see
         # BaseController._identify_user() for details
-        response = app.post(url=url_for(controller='package', action='new'),
-                            extra_environ={'REMOTE_ADDR': '127.0.0.1'},
-                            status=403)
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='new')
+        app.post(
+            url=url,
+            extra_environ={'REMOTE_ADDR': '127.0.0.1'},
+            status=403
+        )
 
 
 class TestPackageEdit(helpers.FunctionalTestBase):
@@ -426,10 +451,13 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=organization['id'])
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id=dataset['name'])
         response = app.get(
-            url_for(controller='package',
-                    action='edit',
-                    id=dataset['name']),
+            url,
             extra_environ=env,
         )
         form = response.forms['dataset-edit']
@@ -447,10 +475,12 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=organization['id'])
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id=dataset['name'])
         response = app.get(
-            url_for(controller='package',
-                    action='edit',
-                    id=dataset['name']),
+            url,
             extra_environ=env,
         )
         form = response.forms['dataset-edit']
@@ -468,10 +498,12 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=organization['id'])
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.get(
-            url_for(controller='package',
-                    action='edit',
-                    id=dataset['name']),
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id=dataset['name'])
+        app.get(
+            url,
             extra_environ=env,
             status=403,
         )
@@ -482,19 +514,20 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=organization['id'])
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.get(
-            url_for(controller='package',
-                    action='edit',
-                    id=dataset['name']),
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id=dataset['name'])
+        app.get(
+            url,
             extra_environ=env,
             status=403,
         )
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.post(
-            url_for(controller='package',
-                    action='edit',
-                    id=dataset['name']),
+
+        app.post(
+            url,
             {'notes': 'edited description'},
             extra_environ=env,
             status=403,
@@ -504,17 +537,17 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization['id'])
         app = helpers._get_test_app()
-        response = app.get(
-            url_for(controller='package',
-                    action='edit',
-                    id=dataset['name']),
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id=dataset['name'])
+        app.get(
+            url,
             status=403,
         )
 
-        response = app.post(
-            url_for(controller='package',
-                    action='edit',
-                    id=dataset['name']),
+        app.post(
+            url,
             {'notes': 'edited description'},
             status=403,
         )
@@ -528,10 +561,13 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=organization['id'])
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id=dataset['name'])
+
         response = app.get(
-            url_for(controller='package',
-                    action='edit',
-                    id=dataset['name']),
+            url,
             extra_environ=env,
         )
         form = response.forms['dataset-edit']
@@ -546,10 +582,13 @@ class TestPackageEdit(helpers.FunctionalTestBase):
         user = factories.User()
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='edit',
+                          id='does-not-exist')
+
         response = app.get(
-            url_for(controller='package',
-                    action='edit',
-                    id='does-not-exist'),
+            url,
             extra_environ=env,
             expect_errors=True
         )
@@ -560,8 +599,11 @@ class TestPackageRead(helpers.FunctionalTestBase):
     def test_read(self):
         dataset = factories.Dataset()
         app = helpers._get_test_app()
-        response = app.get(url_for(controller='package', action='read',
-                                   id=dataset['name']))
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='read',
+                          id=dataset['name'])
+            response = app.get(url)
         response.mustcontain('Test Dataset')
         response.mustcontain('Just another test dataset')
 
@@ -585,13 +627,13 @@ class TestPackageRead(helpers.FunctionalTestBase):
         )
         app = helpers._get_test_app()
 
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='read',
+                          id=dataset['name'])
         for user, user_dict in members.items():
             response = app.get(
-                url_for(
-                    controller='package',
-                    action='read',
-                    id=dataset['name']
-                ),
+                url,
                 extra_environ={
                     'REMOTE_USER': user_dict['name'].encode('ascii'),
                 },
@@ -606,8 +648,13 @@ class TestPackageRead(helpers.FunctionalTestBase):
             private=True,
         )
         app = helpers._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='read',
+                          id=dataset['name'])
+
         response = app.get(
-            url_for(controller='package', action='read', id=dataset['name']),
+            url,
             status=404
         )
         assert_equal(404, response.status_int)
@@ -620,8 +667,13 @@ class TestPackageRead(helpers.FunctionalTestBase):
             private=True,
         )
         app = helpers._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='read',
+                          id=dataset['name'])
+
         response = app.get(
-            url_for(controller='package', action='read', id=dataset['name']),
+            url,
             extra_environ={'REMOTE_USER': user['name'].encode('ascii')},
             status=404
         )
@@ -631,18 +683,20 @@ class TestPackageRead(helpers.FunctionalTestBase):
         ''' The RDF outputs now live in ckanext-dcat'''
         dataset1 = factories.Dataset()
 
-        offset = url_for(controller='package', action='read',
-                         id=dataset1['name']) + ".rdf"
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='package', action='read',
+                             id=dataset1['name']) + ".rdf"
         app.get(offset, status=404)
 
     def test_read_n3(self):
         ''' The RDF outputs now live in ckanext-dcat'''
         dataset1 = factories.Dataset()
 
-        offset = url_for(controller='package', action='read',
-                         id=dataset1['name']) + ".n3"
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='package', action='read',
+                             id=dataset1['name']) + ".n3"
         app.get(offset, status=404)
 
 
@@ -656,8 +710,12 @@ class TestPackageDelete(helpers.FunctionalTestBase):
 
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='delete', id=dataset['name'])
+
         response = app.post(
-            url_for(controller='package', action='delete', id=dataset['name']),
+            url,
             extra_environ=env,
         )
         response = response.follow()
@@ -668,9 +726,13 @@ class TestPackageDelete(helpers.FunctionalTestBase):
 
     def test_delete_on_non_existing_dataset(self):
         app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='delete',
+                          id='schrodingersdatset')
+
         response = app.post(
-            url_for(controller='package', action='delete',
-                    id='schrodingersdatset'),
+            url,
             expect_errors=True,
         )
         assert_equal(404, response.status_int)
@@ -683,8 +745,11 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
 
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='delete', id=dataset['name'])
+
         response = app.post(
-            url_for(controller='package', action='delete', id=dataset['name']),
+            url,
             extra_environ=env,
         )
         response = response.follow()
@@ -701,8 +766,12 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=owner_org['id'])
 
         app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='delete', id=dataset['name'])
+
         response = app.post(
-            url_for(controller='package', action='delete', id=dataset['name']),
+            url,
             status=403,
         )
         response.mustcontain('Unauthorized to delete package')
@@ -720,8 +789,12 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         app = helpers._get_test_app()
         user = factories.User()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='delete', id=dataset['name'])
+
         response = app.post(
-            url_for(controller='package', action='delete', id=dataset['name']),
+            url,
             extra_environ=env,
             expect_errors=True
         )
@@ -741,8 +814,12 @@ class TestPackageDelete(helpers.FunctionalTestBase):
 
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='delete', id=dataset['name'])
+
         response = app.get(
-            url_for(controller='package', action='delete', id=dataset['name']),
+            url,
             extra_environ=env,
         )
         assert_equal(200, response.status_int)
@@ -766,12 +843,16 @@ class TestResourceNew(helpers.FunctionalTestBase):
         resource = factories.Resource(package_id=dataset['id'])
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.get(
-            url_for(
+
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='resources',
                 id=dataset['name'],
-            ),
+            )
+
+        response = app.get(
+            url,
             extra_environ=env
         )
         assert_in(resource['name'], response)
@@ -785,12 +866,16 @@ class TestResourceNew(helpers.FunctionalTestBase):
         resource = factories.Resource(package_id=dataset['id'])
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.get(
-            url_for(
+
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='resources',
                 id=dataset['name'],
-            ),
+            )
+
+        response = app.get(
+            url,
             extra_environ=env
         )
         assert_in(resource['name'], response)
@@ -801,12 +886,16 @@ class TestResourceNew(helpers.FunctionalTestBase):
         user = factories.User()
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.get(
-            url_for(
+
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='resources',
                 id='does-not-exist'
-            ),
+            )
+
+        response = app.get(
+            url,
             extra_environ=env,
             expect_errors=True
         )
@@ -818,12 +907,15 @@ class TestResourceNew(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         app = helpers._get_test_app()
 
-        response = app.get(
-            url_for(
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='new_resource',
                 id=dataset['id'],
-            ),
+            )
+
+        response = app.get(
+            url,
             extra_environ=env
         )
 
@@ -833,13 +925,17 @@ class TestResourceNew(helpers.FunctionalTestBase):
                                      'go-dataset-complete')
 
         result = helpers.call_action('package_show', id=dataset['id'])
-        response = app.get(
-            url_for(
+
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='resource_download',
                 id=dataset['id'],
                 resource_id=result['resources'][0]['id']
-            ),
+            )
+
+        response = app.get(
+            url,
             extra_environ=env,
         )
         assert_equal(302, response.status_int)
@@ -855,12 +951,15 @@ class TestResourceNew(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         app = helpers._get_test_app()
 
-        response = app.get(
-            url_for(
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='new_resource',
                 id=dataset['id'],
-            ),
+            )
+
+        response = app.get(
+            url,
             extra_environ=env
         )
 
@@ -885,12 +984,15 @@ class TestResourceNew(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         app = helpers._get_test_app()
 
-        response = app.get(
-            url_for(
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='new_resource',
                 id=dataset['id'],
-            ),
+            )
+
+        response = app.get(
+            url,
             extra_environ=env
         )
 
@@ -915,22 +1017,28 @@ class TestResourceNew(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         app = helpers._get_test_app()
 
-        response = app.get(
-            url_for(
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='new_resource',
                 id=dataset['id'],
-            ),
+            )
+
+        response = app.get(
+            url,
             extra_environ=env,
             status=403,
         )
 
-        response = app.post(
-            url_for(
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='new_resource',
                 id=dataset['id'],
-            ),
+            )
+
+        response = app.post(
+            url,
             {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
             extra_environ=env,
             status=403,
@@ -946,22 +1054,28 @@ class TestResourceNew(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         app = helpers._get_test_app()
 
-        response = app.get(
-            url_for(
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='new_resource',
                 id=dataset['id'],
-            ),
+            )
+
+        response = app.get(
+            url,
             extra_environ=env,
             status=403,
         )
 
-        response = app.post(
-            url_for(
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='new_resource',
                 id=dataset['id'],
-            ),
+            )
+
+        response = app.post(
+            url,
             {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
             extra_environ=env,
             status=403,
@@ -974,21 +1088,27 @@ class TestResourceNew(helpers.FunctionalTestBase):
         )
         app = helpers._get_test_app()
 
-        response = app.get(
-            url_for(
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='new_resource',
                 id=dataset['id'],
-            ),
+            )
+
+        response = app.get(
+            url,
             status=403,
         )
 
-        response = app.post(
-            url_for(
+        with app.flask_app.test_request_context():
+            url = url_for(
                 controller='package',
                 action='new_resource',
                 id=dataset['id'],
-            ),
+            )
+
+        response = app.post(
+            url,
             {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
             status=403,
         )
@@ -1011,35 +1131,40 @@ class TestResourceView(helpers.FunctionalTestBase):
     def test_existent_resource_view_page_returns_ok_code(self):
         resource_view = factories.ResourceView()
 
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=resource_view['package_id'],
-                      resource_id=resource_view['resource_id'],
-                      view_id=resource_view['id'])
-
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='resource_read',
+                          id=resource_view['package_id'],
+                          resource_id=resource_view['resource_id'],
+                          view_id=resource_view['id'])
+
         app.get(url, status=200)
 
     def test_inexistent_resource_view_page_returns_not_found_code(self):
         resource_view = factories.ResourceView()
 
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=resource_view['package_id'],
-                      resource_id=resource_view['resource_id'],
-                      view_id='inexistent-view-id')
-
         app = self._get_test_app()
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='resource_read',
+                          id=resource_view['package_id'],
+                          resource_id=resource_view['resource_id'],
+                          view_id='inexistent-view-id')
+
         app.get(url, status=404)
 
     def test_resource_view_description_is_rendered_as_markdown(self):
         resource_view = factories.ResourceView(description="Some **Markdown**")
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=resource_view['package_id'],
-                      resource_id=resource_view['resource_id'],
-                      view_id=resource_view['id'])
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='resource_read',
+                          id=resource_view['package_id'],
+                          resource_id=resource_view['resource_id'],
+                          view_id=resource_view['id'])
         response = app.get(url)
         response.mustcontain('Some <strong>Markdown</strong>')
 
@@ -1050,12 +1175,12 @@ class TestResourceRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
         resource = factories.Resource()
 
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=dataset['id'],
-                      resource_id=resource['id'])
-
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='resource_read',
+                          id=dataset['id'],
+                          resource_id=resource['id'])
         app.get(url, status=404)
 
     def test_resource_read_logged_in_user(self):
@@ -1067,12 +1192,12 @@ class TestResourceRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset['id'])
 
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=dataset['id'],
-                      resource_id=resource['id'])
-
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='resource_read',
+                          id=dataset['id'],
+                          resource_id=resource['id'])
         app.get(url, status=200, extra_environ=env)
 
     def test_resource_read_anon_user(self):
@@ -1082,12 +1207,12 @@ class TestResourceRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset['id'])
 
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=dataset['id'],
-                      resource_id=resource['id'])
-
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='resource_read',
+                          id=dataset['id'],
+                          resource_id=resource['id'])
         app.get(url, status=200)
 
     def test_resource_read_sysadmin(self):
@@ -1099,12 +1224,12 @@ class TestResourceRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset['id'])
 
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=dataset['id'],
-                      resource_id=resource['id'])
-
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='resource_read',
+                          id=dataset['id'],
+                          resource_id=resource['id'])
         app.get(url, status=200, extra_environ=env)
 
     def test_user_not_in_organization_cannot_read_private_dataset(self):
@@ -1117,12 +1242,12 @@ class TestResourceRead(helpers.FunctionalTestBase):
         )
         resource = factories.Resource(package_id=dataset['id'])
 
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=dataset['id'],
-                      resource_id=resource['id'])
-
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='resource_read',
+                          id=dataset['id'],
+                          resource_id=resource['id'])
         response = app.get(url,
                            status=404,
                            extra_environ=env)
@@ -1149,14 +1274,16 @@ class TestResourceRead(helpers.FunctionalTestBase):
 
         app = helpers._get_test_app()
 
+        with app.flask_app.test_request_context():
+            url = url_for(
+                controller='package',
+                action='resource_read',
+                id=dataset['name'],
+                resource_id=resource['id'],
+            )
         for user, user_dict in members.items():
             response = app.get(
-                url_for(
-                    controller='package',
-                    action='resource_read',
-                    id=dataset['name'],
-                    resource_id=resource['id'],
-                ),
+                url,
                 extra_environ={
                     'REMOTE_USER': user_dict['name'].encode('ascii'),
                 },
@@ -1170,8 +1297,12 @@ class TestResourceRead(helpers.FunctionalTestBase):
             private=True,
         )
         app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='read', id=dataset['name'])
+
         response = app.get(
-            url_for(controller='package', action='read', id=dataset['name']),
+            url,
             status=404
         )
         assert_equal(404, response.status_int)
@@ -1187,9 +1318,13 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         resource = factories.Resource(package_id=dataset['id'])
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='resource_delete',
+                          id=dataset['name'], resource_id=resource['id'])
+
         response = app.post(
-            url_for(controller='package', action='resource_delete',
-                    id=dataset['name'], resource_id=resource['id']),
+            url,
             extra_environ=env,
         )
         response = response.follow()
@@ -1207,9 +1342,13 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=owner_org['id'])
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='resource_delete',
+                          id=dataset['name'], resource_id='doesnotexist')
+
         response = app.post(
-            url_for(controller='package', action='resource_delete',
-                    id=dataset['name'], resource_id='doesnotexist'),
+            url,
             extra_environ=env,
             expect_errors=True
         )
@@ -1224,9 +1363,13 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         resource = factories.Resource(package_id=dataset['id'])
 
         app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='resource_delete',
+                          id=dataset['name'], resource_id=resource['id'])
+
         response = app.post(
-            url_for(controller='package', action='resource_delete',
-                    id=dataset['name'], resource_id=resource['id']),
+            url,
             status=403,
         )
         response.mustcontain('Unauthorized to delete package')
@@ -1244,9 +1387,13 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         user = factories.User()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='resource_delete',
+                          id=dataset['name'], resource_id=resource['id'])
+
         response = app.post(
-            url_for(controller='package', action='resource_delete',
-                    id=dataset['name'], resource_id=resource['id']),
+            url,
             extra_environ=env,
             expect_errors=True
         )
@@ -1261,9 +1408,13 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         sysadmin = factories.Sysadmin()
         app = helpers._get_test_app()
         env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='resource_delete',
+                          id=dataset['name'], resource_id=resource['id'])
+
         response = app.post(
-            url_for(controller='package', action='resource_delete',
-                    id=dataset['name'], resource_id=resource['id']),
+            url,
             extra_environ=env,
         )
         response = response.follow()
@@ -1286,9 +1437,13 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         resource = factories.Resource(package_id=dataset['id'])
         app = helpers._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package', action='resource_delete',
+                          id=dataset['name'], resource_id=resource['id'])
+
         response = app.get(
-            url_for(controller='package', action='resource_delete',
-                    id=dataset['name'], resource_id=resource['id']),
+            url,
             extra_environ=env,
         )
         assert_equal(200, response.status_int)
@@ -1306,8 +1461,9 @@ class TestSearch(helpers.FunctionalTestBase):
     def test_search_basic(self):
         dataset1 = factories.Dataset()
 
-        offset = url_for(controller='package', action='search')
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='package', action='search')
         page = app.get(offset)
 
         assert dataset1['name'] in page.body.decode('utf8')
@@ -1316,8 +1472,10 @@ class TestSearch(helpers.FunctionalTestBase):
         factories.Dataset()
 
         # ?sort has caused an exception in the past
-        offset = url_for(controller='package', action='search') + '?sort'
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='package', action='search') + '?sort'
         app.get(offset)
 
     def test_search_sort_by_bad(self):
@@ -1326,9 +1484,11 @@ class TestSearch(helpers.FunctionalTestBase):
         # bad spiders try all sorts of invalid values for sort. They should get
         # a 400 error with specific error message. No need to alert the
         # administrator.
-        offset = url_for(controller='package', action='search') + \
-            '?sort=gvgyr_fgevat+nfp'
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='package', action='search') + \
+                '?sort=gvgyr_fgevat+nfp'
         response = app.get(offset, status=[200, 400])
         if response.status == 200:
             import sys
@@ -1344,9 +1504,10 @@ class TestSearch(helpers.FunctionalTestBase):
         # Whilst this could be due to a bad user input, it could also be
         # because CKAN mangled things somehow and therefore we flag it up to
         # the administrator and give a meaningless error, just in case
-        offset = url_for(controller='package', action='search') + \
-            '?q=--included'
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='package', action='search') + \
+                '?q=--included'
         search_response = app.get(offset)
 
         search_response_html = BeautifulSoup(search_response.body)
@@ -1357,8 +1518,9 @@ class TestSearch(helpers.FunctionalTestBase):
     def test_search_plugin_hooks(self):
         with p.use_plugin('test_package_controller_plugin') as plugin:
 
-            offset = url_for(controller='package', action='search')
             app = self._get_test_app()
+            with app.flask_app.test_request_context():
+                offset = url_for(controller='package', action='search')
             app.get(offset)
 
             # get redirected ...
@@ -1372,7 +1534,8 @@ class TestSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="dataset-two", title='Dataset Two')
         factories.Dataset(name="dataset-three", title='Dataset Three')
 
-        search_url = url_for(controller='package', action='search')
+        with app.flask_app.test_request_context():
+            search_url = url_for(controller='package', action='search')
         search_response = app.get(search_url)
 
         assert_true('3 datasets found' in search_response)
@@ -1395,7 +1558,8 @@ class TestSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="dataset-two", title='Dataset Two')
         factories.Dataset(name="dataset-three", title='Dataset Three')
 
-        search_url = url_for(controller='package', action='search')
+        with app.flask_app.test_request_context():
+            search_url = url_for(controller='package', action='search')
         search_response = app.get(search_url)
 
         search_form = search_response.forms['dataset-search-form']
@@ -1420,7 +1584,8 @@ class TestSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="dataset-two", title='Dataset Two')
         factories.Dataset(name="dataset-three", title='Dataset Three')
 
-        search_url = url_for(controller='package', action='search')
+        with app.flask_app.test_request_context():
+            search_url = url_for(controller='package', action='search')
         search_response = app.get(search_url)
 
         search_form = search_response.forms['dataset-search-form']
@@ -1445,7 +1610,8 @@ class TestSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="dataset-two", title='Dataset Two')
         factories.Dataset(name="dataset-three", title='Dataset Three')
 
-        search_url = url_for(controller='package', action='search')
+        with app.flask_app.test_request_context():
+            search_url = url_for(controller='package', action='search')
         search_response = app.get(search_url)
 
         assert_true('/dataset?tags=my-tag' in search_response)
@@ -1473,7 +1639,8 @@ class TestSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="dataset-two", title='Dataset Two')
         factories.Dataset(name="dataset-three", title='Dataset Three')
 
-        search_url = url_for(controller='package', action='search')
+        with app.flask_app.test_request_context():
+            search_url = url_for(controller='package', action='search')
         search_response = app.get(search_url)
 
         search_response_html = BeautifulSoup(search_response.body)
@@ -1595,9 +1762,11 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         package = factories.Dataset()
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        follow_url = url_for(controller='package',
-                             action='follow',
-                             id=package['id'])
+
+        with app.flask_app.test_request_context():
+            follow_url = url_for(controller='package',
+                                 action='follow',
+                                 id=package['id'])
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow()
         assert_true('You are now following {0}'
@@ -1611,9 +1780,11 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         user_one = factories.User()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        follow_url = url_for(controller='package',
-                             action='follow',
-                             id='not-here')
+
+        with app.flask_app.test_request_context():
+            follow_url = url_for(controller='package',
+                                 action='follow',
+                                 id='not-here')
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow(status=404)
         assert_true('Dataset not found' in response)
@@ -1625,13 +1796,16 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         package = factories.Dataset()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        follow_url = url_for(controller='package',
-                             action='follow',
-                             id=package['id'])
+
+        with app.flask_app.test_request_context():
+            follow_url = url_for(controller='package',
+                                 action='follow',
+                                 id=package['id'])
         app.post(follow_url, extra_environ=env, status=302)
 
-        unfollow_url = url_for(controller='package', action='unfollow',
-                               id=package['id'])
+        with app.flask_app.test_request_context():
+            unfollow_url = url_for(controller='package', action='unfollow',
+                                   id=package['id'])
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow()
@@ -1648,8 +1822,10 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         package = factories.Dataset()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        unfollow_url = url_for(controller='package', action='unfollow',
-                               id=package['id'])
+
+        with app.flask_app.test_request_context():
+            unfollow_url = url_for(controller='package', action='unfollow',
+                                   id=package['id'])
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow()
@@ -1664,8 +1840,10 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         user_one = factories.User()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        unfollow_url = url_for(controller='package', action='unfollow',
-                               id='not-here')
+
+        with app.flask_app.test_request_context():
+            unfollow_url = url_for(controller='package', action='unfollow',
+                                   id='not-here')
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow(status=404)
@@ -1679,13 +1857,16 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         package = factories.Dataset()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        follow_url = url_for(controller='package',
-                             action='follow',
-                             id=package['id'])
-        app.post(follow_url, extra_environ=env, status=302)
 
-        followers_url = url_for(controller='package', action='followers',
-                                id=package['id'])
+        with app.flask_app.test_request_context():
+            follow_url = url_for(controller='package',
+                                 action='follow',
+                                 id=package['id'])
+
+            followers_url = url_for(controller='package', action='followers',
+                                    id=package['id'])
+
+        app.post(follow_url, extra_environ=env, status=302)
 
         # Only sysadmins can view the followers list pages
         followers_response = app.get(followers_url, extra_environ=env,
@@ -1700,8 +1881,9 @@ class TestDatasetRead(helpers.FunctionalTestBase):
 
         dataset = factories.Dataset()
 
-        url = url_for(controller='package',
-                      action='read',
-                      id=dataset['id'])
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='read',
+                          id=dataset['id'])
         response = app.get(url)
         assert_in(dataset['title'], response)

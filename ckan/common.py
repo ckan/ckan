@@ -15,14 +15,126 @@ import pylons
 
 from werkzeug.local import Local
 
-from pylons.i18n import _, ungettext
-from pylons import g, c, request, session, response
+from flask_babel import gettext as flask_gettext
+from pylons.i18n import _ as pylons_gettext, ungettext
+
+from pylons import g, response
 import simplejson as json
 
 try:
     from collections import OrderedDict  # from python 2.7
 except ImportError:
     from sqlalchemy.util import OrderedDict
+
+
+def is_flask():
+    u'''
+    A centralised way to determine whether to return flask versions of common
+    functions, or Pylon versions.
+
+    Currently using the presence of `flask.request`, though we may want to
+    change that for something more robust.
+    '''
+    try:
+        pylons.request.environ
+        pylons_request_available = True
+    except TypeError:
+        pylons_request_available = False
+
+    if (flask.request and
+            (flask.request.environ.get(u'ckan.app') == u'flask_app' or
+             flask.request.environ.get(u'ckan.wsgiparty.setup') or
+             not pylons_request_available)):
+        return True
+    else:
+        return False
+
+
+class Request(object):
+    u'''
+    Wraps the request object, returning attributes from either the Flask or
+    Pylons request object, depending of whether flask.request is available.
+    '''
+
+    @property
+    def params(self):
+        u''' Special case as request.params is used all over the place.
+        '''
+        if is_flask():
+            return flask.request.args
+        else:
+            return pylons.request.params
+
+    def __getattr__(self, name):
+        if is_flask():
+            return getattr(flask.request, name, None)
+        else:
+            return getattr(pylons.request, name, None)
+
+request = Request()
+
+
+def _(text):
+    # TODO: As is this will only work in the context of a web request
+    # Do we need something for non-web processes like paster commands?
+    # Pylons have the translator object which we need to fake but maybe
+    # that's not necessary at all
+    if is_flask():
+        # TODO: For some reasone the Flask gettext changes 'String %s' to
+        # 'String {}' (maybe it's the babel version?)
+        if u'%s' in text:
+            return flask_gettext(text).replace(u'{}', u'%s')
+        else:
+            return flask_gettext(text)
+    else:
+        return pylons_gettext(text)
+
+
+class PylonsStyleContext(object):
+
+    def __getattr__(self, name):
+        if is_flask():
+            return getattr(flask.g, name, None)
+        else:
+            return getattr(pylons.c, name, None)
+
+    def __setattr__(self, name, value):
+        if is_flask():
+            return setattr(flask.g, name, value)
+        else:
+            return setattr(pylons.c, name, value)
+
+    def __delattr__(self, name):
+        if is_flask():
+            return delattr(flask.g, name, None)
+        else:
+            return delattr(pylons.c, name, None)
+
+
+c = PylonsStyleContext()
+
+
+class Session():
+
+    def __getattr__(self, name):
+        if is_flask():
+            return getattr(flask.session, name, None)
+        else:
+            return getattr(pylons.session, name, None)
+
+    def __setattr__(self, name, value):
+        if is_flask():
+            return setattr(flask.session, name, value)
+        else:
+            return setattr(pylons.session, name, value)
+
+    def __delattr__(self, name):
+        if is_flask():
+            return delattr(flask.session, name, None)
+        else:
+            return delattr(pylons.session, name, None)
+
+session = Session()
 
 
 class CKANConfig(MutableMapping):

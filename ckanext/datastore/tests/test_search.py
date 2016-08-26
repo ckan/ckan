@@ -2,6 +2,7 @@
 
 import json
 import nose
+import urllib
 import pprint
 
 import sqlalchemy.orm as orm
@@ -25,7 +26,8 @@ assert_raises = nose.tools.assert_raises
 class TestDatastoreSearchNewTest(object):
     @classmethod
     def setup_class(cls):
-        p.load('datastore')
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
 
     @classmethod
     def teardown_class(cls):
@@ -114,7 +116,9 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -926,10 +930,9 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             where a.author = b.author
             limit 2
             '''.format(self.data['resource_id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
+        data = urllib.urlencode({'sql': query})
         auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+        res = self.app.post('/api/action/datastore_search_sql', params=data,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
@@ -1091,7 +1094,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         ]
         for query in test_cases:
             data = {'sql': query.replace('\n', '')}
-            postparams = json.dumps(data)
+            postparams = urllib.urlencode(data)
             res = self.app.post('/api/action/datastore_search_sql',
                                 params=postparams,
                                 status=403)

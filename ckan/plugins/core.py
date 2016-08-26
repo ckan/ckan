@@ -17,7 +17,6 @@ import interfaces
 
 from ckan.common import config
 
-
 __all__ = [
     'PluginImplementations', 'implements',
     'PluginNotFoundException', 'Plugin', 'SingletonPlugin',

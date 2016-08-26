@@ -4,7 +4,8 @@ Babel==2.3.4
 Beaker==1.8.0 # Needs to be pinned to a more up to date version than the Pylons one
 bleach==1.4.3
 fanstatic==0.12
-Flask==0.10.1
+Flask==0.11.1
+Flask-Babel==0.10.0
 Jinja2==2.8
 Markdown==2.6.6
 ofs==0.4.2

@@ -19,16 +19,19 @@ potential drawbacks.
 This module is reserved for these very useful functions.
 
 '''
+import urlparse
 import webtest
 import nose.tools
 from nose.tools import assert_in, assert_not_in
 import mock
+from flask import Blueprint
 
 from ckan.common import config
 import ckan.lib.search as search
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
+import ckan.plugins as p
 
 
 def reset_db():
@@ -154,9 +157,12 @@ def _get_test_app():
     Unit tests shouldn't need this.
 
     '''
+
     config['ckan.legacy_templates'] = False
     app = ckan.config.middleware.make_app(config['global_conf'], **config)
+
     app = CKANTestApp(app)
+
     return app
 
 
@@ -213,13 +219,19 @@ def submit_and_follow(app, form, extra_environ=None, name=None,
     Call webtest_submit with name/value passed expecting a redirect
     and return the response from following that redirect.
     '''
+
+    http_host = str(urlparse.urlparse(config['ckan.site_url']).netloc)
+    if extra_environ is None:
+        extra_environ = {}
+    if not extra_environ.get('HTTP_HOST'):
+        extra_environ['HTTP_HOST'] = http_host
     response = webtest_submit(form, name, value=value, status=302,
                               extra_environ=extra_environ, **args)
     return app.get(url=response.headers['Location'],
                    extra_environ=extra_environ)
 
 
-## FIXME: remove webtest_* functions below when we upgrade webtest
+# FIXME: remove webtest_* functions below when we upgrade webtest
 
 def webtest_submit(form, name=None, index=None, value=None, **args):
     '''
@@ -468,3 +480,54 @@ def set_extra_environ(key, value):
             return return_value
         return nose.tools.make_decorator(func)(wrapper)
     return decorator
+
+
+def find_flask_app(test_app):
+    '''
+    Helper function to recursively search the wsgi stack in `test_app` until
+    the flask_app is discovered.
+
+    Relies on each layer of the stack having a reference to the app they
+    wrap in either a .app attribute or .apps list.
+    '''
+    if isinstance(test_app, ckan.config.middleware.flask_app.CKANFlask):
+        return test_app
+
+    try:
+        app = test_app.apps['flask_app'].app
+    except (AttributeError, KeyError):
+        pass
+    else:
+        return find_flask_app(app)
+
+    try:
+        app = test_app.app
+    except AttributeError:
+        print('No .app attribute. '
+              'Have all layers of the stack got '
+              'a reference to the app they wrap?')
+    else:
+        return find_flask_app(app)
+
+
+class SimpleFlaskPlugin(p.SingletonPlugin):
+
+    '''
+    A simple extension that implements the Flask IBlueprint interface.
+
+    This is useful to test a route that we know will be served by Flask.
+    '''
+
+    p.implements(p.IBlueprint)
+
+    def flask_plugin_view(self):
+        return 'Hello World, this is served from a simple Flask extension.'
+
+    def get_blueprint(self):
+        # Create Blueprint for plugin
+        blueprint = Blueprint(self.name, self.__module__)
+        # Add plugin url rule to Blueprint object
+        blueprint.add_url_rule('/simple_flask', 'flask_plugin_view',
+                               self.flask_plugin_view)
+
+        return blueprint

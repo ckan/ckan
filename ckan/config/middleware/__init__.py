@@ -2,13 +2,19 @@
 
 """WSGI app initialization"""
 
+import urlparse
+
 import webob
 
 from werkzeug.test import create_environ, run_wsgi_app
 
+from routes import request_config as routes_request_config
+
 from ckan.config.environment import load_environment
 from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.config.middleware.pylons_app import make_pylons_stack
+
+from ckan.config.middleware.common_middleware import I18nMiddleware
 
 import logging
 log = logging.getLogger(__name__)
@@ -75,10 +81,11 @@ class AskAppDispatcherMiddleware(object):
     Order of precedence if more than one app can handle a url:
         Flask Extension > Pylons Extension > Flask Core > Pylons Core
     '''
-
     def __init__(self, apps=None):
         # Dict of apps managed by this middleware {<app_name>: <app_obj>, ...}
         self.apps = apps or {}
+
+        self.i18n_middleware = I18nMiddleware()
 
     def ask_around(self, environ):
         '''Checks with all apps whether they can handle the incoming request
@@ -99,8 +106,13 @@ class AskAppDispatcherMiddleware(object):
         '''Determine which app to call by asking each app if it can handle the
         url and method defined on the eviron'''
 
+        # Handle the i18n first, otherwise localized URLs (eg `/jp/about`)
+        # won't get recognized by the app route mappers
+        self.i18n_middleware(environ, start_response)
+
         app_name = 'pylons_app'  # currently defaulting to pylons app
         answers = self.ask_around(environ)
+
         available_handlers = []
         for answer in answers:
             if len(answer) == 2:
@@ -124,6 +136,17 @@ class AskAppDispatcherMiddleware(object):
         log.debug('Serving request via {0} app'.format(app_name))
         environ['ckan.app'] = app_name
         if app_name == 'flask_app':
+            # This request will be served by Flask, but we still need the
+            # Pylons URL builder (Routes) to work
+            '''
+            parts = urlparse.urlparse(config.get('ckan.site_url',
+                                                 'http://0.0.0.0:5000'))
+            request_config = routes_request_config()
+            request_config.host = str(parts.netloc + parts.path)
+            request_config.protocol = str(parts.scheme)
+            request_config.mapper = config['routes.map']
+            '''
+
             return self.apps[app_name](environ, start_response)
         else:
             # Although this request will be served by Pylons we still
@@ -131,5 +154,5 @@ class AskAppDispatcherMiddleware(object):
             # builder to work and to be able to access the Flask config
             flask_app = self.apps['flask_app']._wsgi_app
 
-            with flask_app.app_context():
+            with flask_app.test_request_context():
                 return self.apps[app_name](environ, start_response)

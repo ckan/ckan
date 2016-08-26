@@ -12,7 +12,11 @@ class TestHome(helpers.FunctionalTestBase):
 
     def test_home_renders(self):
         app = self._get_test_app()
-        response = app.get(url_for('home'))
+
+        with app.flask_app.test_request_context():
+            url = url_for('home')
+
+        response = app.get(url)
         assert 'Welcome to CKAN' in response.body
 
     def test_template_head_end(self):
@@ -20,14 +24,22 @@ class TestHome(helpers.FunctionalTestBase):
         # test-core.ini sets ckan.template_head_end to this:
         test_link = '<link rel="stylesheet" ' \
             'href="TEST_TEMPLATE_HEAD_END.css" type="text/css">'
-        response = app.get(url_for('home'))
+
+        with app.flask_app.test_request_context():
+            url = url_for('home')
+
+        response = app.get(url)
         assert test_link in response.body
 
     def test_template_footer_end(self):
         app = self._get_test_app()
         # test-core.ini sets ckan.template_footer_end to this:
         test_html = '<strong>TEST TEMPLATE_FOOTER_END TEST</strong>'
-        response = app.get(url_for('home'))
+
+        with app.flask_app.test_request_context():
+            url = url_for('home')
+
+        response = app.get(url)
         assert test_html in response.body
 
     def test_email_address_nag(self):
@@ -41,10 +53,14 @@ class TestHome(helpers.FunctionalTestBase):
         model.Session.commit()
         env = {'REMOTE_USER': user.name.encode('ascii')}
 
-        response = app.get(url=url_for('home'), extra_environ=env)
+        with app.flask_app.test_request_context():
+            url = url_for('home')
+            user_edit_url = url_for(controller='user', action='edit')
+
+        response = app.get(url, extra_environ=env)
 
         assert 'update your profile' in response.body
-        assert url_for(controller='user', action='edit') in response.body
+        assert user_edit_url in response.body
         assert ' and add your email address.' in response.body
 
     def test_email_address_no_nag(self):
@@ -52,7 +68,10 @@ class TestHome(helpers.FunctionalTestBase):
         user = factories.User(email='filled_in@nicely.com')
         env = {'REMOTE_USER': user['name'].encode('ascii')}
 
-        response = app.get(url=url_for('home'), extra_environ=env)
+        with app.flask_app.test_request_context():
+            url = url_for('home')
+
+        response = app.get(url, extra_environ=env)
 
         assert 'add your email address' not in response
 
@@ -61,7 +80,11 @@ class TestI18nURLs(helpers.FunctionalTestBase):
 
     def test_right_urls_are_rendered_on_language_selector(self):
         app = self._get_test_app()
-        response = app.get(url_for('home'))
+
+        with app.flask_app.test_request_context():
+            url = url_for('home')
+
+        response = app.get(url)
         html = BeautifulSoup(response.body)
 
         select = html.find(id='field-lang-select')
@@ -77,7 +100,11 @@ class TestI18nURLs(helpers.FunctionalTestBase):
 
     def test_default_english_option_is_selected_on_language_selector(self):
         app = self._get_test_app()
-        response = app.get(url_for('home'))
+
+        with app.flask_app.test_request_context():
+            url = url_for('home')
+
+        response = app.get(url)
         html = BeautifulSoup(response.body)
 
         select = html.find(id='field-lang-select')
@@ -89,7 +116,11 @@ class TestI18nURLs(helpers.FunctionalTestBase):
 
     def test_right_option_is_selected_on_language_selector(self):
         app = self._get_test_app()
-        response = app.get(url_for('home', locale='ca'))
+
+        with app.flask_app.test_request_context():
+            url = url_for('home', locale='ca')
+
+        response = app.get(url)
         html = BeautifulSoup(response.body)
 
         select = html.find(id='field-lang-select')

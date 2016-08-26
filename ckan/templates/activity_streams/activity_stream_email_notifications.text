@@ -1,4 +1,5 @@
-{% set num = activities|length %}{{ ungettext("You have {num} new activity on your {site_title} dashboard", "You have {num} new activities on your {site_title} dashboard", num).format(site_title=g.site_title, num=num) }} {{ _('To view your dashboard, click on this link:') }}
+{# TODO: check usage on ungettext vs ngettext in Flask/Pylons #}
+{% set num = activities|length %}{{ ngettext("You have {num} new activity on your {site_title} dashboard", "You have {num} new activities on your {site_title} dashboard", num).format(site_title=g.site_title, num=num) }} {{ _('To view your dashboard, click on this link:') }}
 
 {{ g.site_url + '/dashboard' }}
 

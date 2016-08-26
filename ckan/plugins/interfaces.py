@@ -25,7 +25,8 @@ __all__ = [
     'IFacets',
     'IAuthenticator',
     'ITranslation',
-    'IUploader'
+    'IUploader',
+    'IBlueprint'
 ]
 
 from inspect import isclass
@@ -1568,3 +1569,11 @@ class IUploader(Interface):
         :type id: string
 
         '''
+
+
+class IBlueprint(Interface):
+
+    '''Register an extension as a Flask Blueprint.'''
+
+    def get_blueprint(self):
+        '''Return a Flask Blueprint object to be registered by the app.'''

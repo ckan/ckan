@@ -16,6 +16,8 @@ import ckan.tests.legacy as tests
 import ckanext.datastore.db as db
 import ckanext.datastore.tests.helpers as helpers
 
+import ckan.tests.helpers as test_helpers
+
 
 class TestDatastoreDump(object):
     sysadmin_user = None
@@ -23,8 +25,8 @@ class TestDatastoreDump(object):
 
     @classmethod
     def setup_class(cls):
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        test_helpers.reset_db()
+        cls.app = test_helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
