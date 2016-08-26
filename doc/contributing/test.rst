@@ -6,10 +6,20 @@ If you're a CKAN developer, if you're developing an extension for CKAN, or if
 you're just installing CKAN from source, you should make sure that CKAN's tests
 pass for your copy of CKAN. This section explains how to run CKAN's tests.
 
+CKAN's testsuite contains automated tests for both the back-end (Python) and
+the front-end (JavaScript). In addition, the correct functionality of the
+complete front-end (HTML, CSS, JavaScript) on all supported browsers should be
+tested manually.
 
--------------------------------
+--------------
+Back-end tests
+--------------
+
+Most of CKAN's testsuite is for the backend Python code.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Install additional dependencies
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some additional dependencies are needed to run the tests. Make sure you've
 created a config file at |development.ini|, then activate your
@@ -31,9 +41,9 @@ environment:
     pip install -r |virtualenv|/src/ckan/dev-requirements.txt
 
 
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 Set up the test databases
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. versionchanged:: 2.1
    Previously |postgres| tests used the databases defined in your
@@ -51,9 +61,9 @@ This database connection is specified in the ``test-core.ini`` file by the
 ``sqlalchemy.url`` parameter.
 
 
--------------
+~~~~~~~~~~~~~
 Run the tests
--------------
+~~~~~~~~~~~~~
 
 To run CKAN's tests using PostgreSQL as the database, you have to give the
 ``--with-pylons=test-core.ini`` option on the command line. This command will
@@ -75,9 +85,9 @@ option::
 
 .. _migrationtesting:
 
------------------
+~~~~~~~~~~~~~~~~~
 Migration testing
------------------
+~~~~~~~~~~~~~~~~~
 
 If you're a CKAN developer or extension developer and your new code requires a
 change to CKAN's model, you'll need to write a migration script. To ensure that
@@ -98,9 +108,9 @@ is how the database is created and upgraded in production.
    is that these are versioned files and people have checked in these by
    mistake, creating problems for other developers.
 
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 Common error messages
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 ConfigError
 ===========
@@ -150,10 +160,39 @@ nosetests
          pip freeze | grep -i nose
 
 
------------------
-Front-end Testing
------------------
+---------------
+Front-end tests
+---------------
+Front-end testing consists of both automated tests (for the JavaScript code)
+and manual tests (for the complete front-end consisting of HTML, CSS and
+JavaScript).
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Automated JavaScript tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The JS tests are written using the Mocha_ test framework and run via
+PhantomJS_. First you need to install the necessary packages::
+
+    sudo apt-get install npm nodejs-legacy
+    sudo npm install -g mocha-phantomjs@3.5.0 phantomjs@~1.9.1
+
+.. _Mocha: https://mochajs.org/
+.. _PhantomJS: http://phantomjs.org//ckan
+
+To run the tests, make sure that a test server is running::
+
+    . /usr/lib/ckan/default/bin/activate
+    paster serve test-core.ini
+
+Once the test server is running switch to another terminal and execute the
+tests::
+
+    mocha-phantomjs http://localhost:5000/base/test/index.html
+
+~~~~~~~~~~~~
+Manual tests
+~~~~~~~~~~~~
 All new CKAN features should be coded so that they work in the
 following browsers:
 
@@ -191,14 +230,15 @@ Thirdly you should fully test all new features that have a front-end
 element in all browsers before making your pull request into
 CKAN master.
 
-Common pitfalls & their fixes
-=============================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Common front-end pitfalls & their fixes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here's a few of the most common front end bugs and a list of their
 fixes.
 
 Reserved JS keywords
---------------------
+====================
 
 Since IE has a stricter language definition in JS it really doesn't
 like you using JS reserved keywords method names, variables, etc...
@@ -221,7 +261,7 @@ https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Reserved_Words
   };
 
 Unclosed JS arrays / objects
-----------------------------
+============================
 
 Internet Explorer doesn't like it's JS to have unclosed JS objects
 and arrays. For example:
