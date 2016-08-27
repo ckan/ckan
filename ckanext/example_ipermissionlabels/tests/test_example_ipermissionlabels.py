@@ -11,6 +11,7 @@ from ckan.tests.helpers import FunctionalTestBase, call_action, call_auth
 from ckan.tests import factories
 from ckan import model
 
+
 class TestExampleIPermissionLabels(FunctionalTestBase):
     @classmethod
     def setup_class(cls):
@@ -57,8 +58,9 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         names = [r['name'] for r in results]
         assert_equal(names, [])
 
-        assert_raises(NotAuthorized, call_auth,
-            'package_show', {'user':'', 'model': model}, id='d1')
+        assert_raises(
+            NotAuthorized, call_auth, 'package_show',
+            {'user': '', 'model': model}, id='d1')
 
     def test_proposed_dataset_visible_to_creator(self):
         user = factories.User()
@@ -70,8 +72,8 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         names = [r['name'] for r in results]
         assert_equal(names, ['d1'])
 
-        ret = call_auth('package_show',
-            {'user': user['name'], 'model': model}, id='d1')
+        ret = call_auth(
+            'package_show', {'user': user['name'], 'model': model}, id='d1')
         assert ret
 
     def test_proposed_dataset_visible_to_org_admin(self):
@@ -89,10 +91,10 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         names = [r['name'] for r in results]
         assert_equal(names, ['d1'])
 
-        ret = call_auth('package_show',
-            {'user': user2['name'], 'model': model}, id='d1')
+        ret = call_auth(
+            'package_show', {'user': user2['name'], 'model': model}, id='d1')
         assert ret
-    
+
     def test_proposed_dataset_invisible_to_another_editor(self):
         user = factories.User()
         user2 = factories.User()
@@ -108,5 +110,6 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         names = [r['name'] for r in results]
         assert_equal(names, [])
 
-        assert_raises(NotAuthorized, call_auth,
-            'package_show', {'user':user['name'], 'model': model}, id='d1')
+        assert_raises(
+            NotAuthorized, call_auth, 'package_show',
+            {'user': user['name'], 'model': model}, id='d1')
