@@ -591,7 +591,7 @@ class DefaultPermissionLabels(object):
     - users can read datasets belonging to their orgs "member-(org id)"
     '''
     def get_dataset_labels(self, dataset_obj):
-        if dataset_obj.state == 'active' and not dataset_obj.private:
+        if dataset_obj.state == u'active' and not dataset_obj.private:
             return [u'public']
 
         if dataset_obj.owner_org:
@@ -606,7 +606,7 @@ class DefaultPermissionLabels(object):
 
         labels.append(u'creator-%s' % user_obj.id)
 
-        orgs = logic.get_action('organization_list_for_user')(
-            {'user': user_obj.id}, {'permission': 'read'})
-        labels.extend(u'member-%s' % o['id'] for o in orgs)
+        orgs = logic.get_action(u'organization_list_for_user')(
+            {u'user': user_obj.id}, {u'permission': u'read'})
+        labels.extend(u'member-%s' % o[u'id'] for o in orgs)
         return labels
