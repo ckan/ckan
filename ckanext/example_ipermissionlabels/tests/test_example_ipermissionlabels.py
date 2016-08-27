@@ -9,6 +9,7 @@ import ckan.plugins
 from ckan.plugins.toolkit import get_action, NotAuthorized
 from ckan.tests.helpers import FunctionalTestBase, call_action, call_auth
 from ckan.tests import factories
+from ckan import model
 
 class TestExampleIPermissionLabels(FunctionalTestBase):
     @classmethod
@@ -28,7 +29,7 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         org = factories.Organization(user=user)
         org2 = factories.Organization(user=user2)
         call_action(
-            'organization_member_create', None, username=user3['id'],
+            'organization_member_create', None, username=user3['name'],
             id=org2['id'], role='member')
 
         dataset = factories.Dataset(
@@ -37,12 +38,12 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
             name='d2', user=user2, private=True, owner_org=org2['id'])
 
         results = get_action('package_search')(
-            {'user': user['id']}, {})['results']
+            {'user': user['name']}, {'include_private': True})['results']
         names = [r['name'] for r in results]
         assert_equal(names, ['d1'])
 
         results = get_action('package_search')(
-            {'user': user3['id']}, {})['results']
+            {'user': user3['name']}, {'include_private': True})['results']
         names = [r['name'] for r in results]
         assert_equal(names, ['d2'])
 
@@ -51,7 +52,8 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         dataset = factories.Dataset(
             name='d1', notes='Proposed:', user=user)
 
-        results = get_action('package_search')({}, {})['results']
+        results = get_action('package_search')(
+            {}, {'include_private': True})['results']
         names = [r['name'] for r in results]
         assert_equal(names, [])
 
@@ -64,26 +66,29 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
             name='d1', notes='Proposed:', user=user)
 
         results = get_action('package_search')(
-            {'user': user['id']}, {})['results']
+            {'user': user['name']}, {'include_private': True})['results']
         names = [r['name'] for r in results]
         assert_equal(names, ['d1'])
 
         ret = call_auth('package_show',
-            {'user': user['id'], 'model': model}, id='d1')
-        assert ret['success'], ret
+            {'user': user['name'], 'model': model}, id='d1')
+        assert ret
 
     def test_proposed_dataset_visible_to_org_admin(self):
         user = factories.User()
         user2 = factories.User()
         org = factories.Organization(user=user2)
+        call_action(
+            'organization_member_create', None, username=user['name'],
+            id=org['id'], role='editor')
         dataset = factories.Dataset(
             name='d1', notes='Proposed:', user=user, owner_org=org['id'])
 
         results = get_action('package_search')(
-            {'user': user2['id']}, {})['results']
+            {'user': user2['name']}, {'include_private': True})['results']
         names = [r['name'] for r in results]
         assert_equal(names, ['d1'])
 
         ret = call_auth('package_show',
-            {'user': user2['id'], 'model': model}, id='d1')
-        assert ret['success'], ret
+            {'user': user2['name'], 'model': model}, id='d1')
+        assert ret

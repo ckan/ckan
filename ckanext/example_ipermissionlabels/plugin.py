@@ -2,6 +2,7 @@
 
 from ckan import plugins
 from ckan.lib.plugins import DefaultPermissionLabels
+from ckan.plugins.toolkit import get_action
 
 class ExampleIPermissionLabelsPlugin(
         plugins.SingletonPlugin, DefaultPermissionLabels):
@@ -33,6 +34,8 @@ class ExampleIPermissionLabelsPlugin(
         '''
         labels = super(ExampleIPermissionLabelsPlugin, self
             ).get_user_dataset_labels(user_obj)
-        orgs = logic.get_action(u'organization_list_for_user')(
-            {u'user': user_obj.id}, {u'permission': u'admin'})
-        return labels + [u'admin-%s' % o['id'] for o in orgs]
+        if user_obj:
+            orgs = get_action(u'organization_list_for_user')(
+                {u'user': user_obj.id}, {u'permission': u'admin'})
+            labels.extend(u'admin-%s' % o['id'] for o in orgs)
+        return labels
