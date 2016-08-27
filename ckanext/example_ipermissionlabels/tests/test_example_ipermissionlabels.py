@@ -92,3 +92,21 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         ret = call_auth('package_show',
             {'user': user2['name'], 'model': model}, id='d1')
         assert ret
+    
+    def test_proposed_dataset_invisible_to_another_editor(self):
+        user = factories.User()
+        user2 = factories.User()
+        org = factories.Organization(user=user2)
+        call_action(
+            'organization_member_create', None, username=user['name'],
+            id=org['id'], role='editor')
+        dataset = factories.Dataset(
+            name='d1', notes='Proposed:', user=user2, owner_org=org['id'])
+
+        results = get_action('package_search')(
+            {'user': user['name']}, {'include_private': True})['results']
+        names = [r['name'] for r in results]
+        assert_equal(names, [])
+
+        assert_raises(NotAuthorized, call_auth,
+            'package_show', {'user':user['name'], 'model': model}, id='d1')
