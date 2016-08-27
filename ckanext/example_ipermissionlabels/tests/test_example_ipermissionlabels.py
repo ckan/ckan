@@ -91,7 +91,7 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         names = [r['name'] for r in results]
         assert_equal(names, [u'd1'])
 
-        ret = call_auth(u'package_show', 
+        ret = call_auth(u'package_show',
                         {u'user': user2['name'], u'model': model}, id=u'd1')
         assert ret
 
