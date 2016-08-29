@@ -80,7 +80,7 @@ class UserController(base.BaseController):
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
-            abort(404, _('User not found'))
+            abort(401, _('Authorize to see this page'))
         except NotAuthorized:
             abort(403, _('Not authorized to see this page'))
 
