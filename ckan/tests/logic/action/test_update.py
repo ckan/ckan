@@ -628,10 +628,17 @@ class TestResourceViewUpdate(object):
 
 
 class TestResourceUpdate(object):
+    import cgi
 
-    def setup(self):
-        import ckan.model as model
-        model.repo.rebuild_db()
+    class FakeFileStorage(cgi.FieldStorage):
+        def __init__(self, fp, filename):
+            self.file = fp
+            self.filename = filename
+            self.name = 'upload'
+
+        def setup(self):
+            import ckan.model as model
+            model.repo.rebuild_db()
 
     @classmethod
     def teardown_class(cls):
@@ -798,40 +805,205 @@ class TestResourceUpdate(object):
 
     def test_mimetype_by_url(self):
         """
+        The mimetype is guessed from the url
 
+        Real world usage would be externally linking the resource and the mimetype would
+        be guessed, based on the url
         """
-        pass
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost/data.csv',
+                                      name='Test')
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost/data.json')
+
+        org_mimetype = resource.pop('mimetype')
+        upd_mimetype = res_update.pop('mimetype')
+
+        assert org_mimetype != upd_mimetype
+        assert_equals(upd_mimetype, 'application/json')
 
     def test_mimetype_by_user(self):
         """
+        The mimetype is supplied by the user
 
+        Real world usage would be using the FileStore API or web UI form to create a resource
+        and the user wanted to specify the mimetype themselves
         """
-        pass
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost/data.csv',
+                                      name='Test')
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost/data.csv',
+                                         mimetype='text/plain')
+
+        org_mimetype = resource.pop('mimetype')
+        upd_mimetype = res_update.pop('mimetype')
+
+        assert org_mimetype != upd_mimetype
+        assert_equals(upd_mimetype, 'text/plain')
 
     def test_mimetype_by_upload_by_file(self):
         """
+        The mimetype is guessed from an uploaded file by the contents inside
 
+        Real world usage would be using the FileStore API or web UI form to upload a file, that has no extension
+        If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
         """
-        pass
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost/data.csv',
+                                      name='Test')
+
+        import StringIO
+        update_file = StringIO.StringIO()
+        update_file.write('''
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
+        NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
+        ''')
+        update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test')
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost',
+                                         upload=update_resource)
+
+        org_mimetype = resource.pop('mimetype')
+        upd_mimetype = res_update.pop('mimetype')
+
+        assert org_mimetype != upd_mimetype
+        assert_equals(upd_mimetype, 'text/plain')
 
     def test_mimetype_by_upload_by_filename(self):
         """
+        The mimetype is guessed from an uploaded file with a filename
 
+        Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
+        If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
         """
-        pass
+        import StringIO
+        test_file = StringIO.StringIO()
+        test_file.write('''
+        "info": {
+            "title": "BC Data Catalogue API",
+            "description": "This API provides information about datasets in the BC Data Catalogue.",
+            "termsOfService": "http://www.data.gov.bc.ca/local/dbc/docs/license/API_Terms_of_Use.pdf",
+            "contact": {
+                "name": "Data BC",
+                "url": "http://data.gov.bc.ca/",
+                "email": ""
+            },
+            "license": {
+                "name": "Open Government License - British Columbia",
+                "url": "http://www.data.gov.bc.ca/local/dbc/docs/license/OGL-vbc2.0.pdf"
+            },
+            "version": "3.0.0"
+        }
+        ''')
+        test_resource = TestResourceUpdate.FakeFileStorage(test_file, 'test.json')
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost',
+                                      name='Test',
+                                      upload=test_resource)
+
+        update_file = StringIO.StringIO()
+        update_file.write('''
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
+        NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
+        ''')
+        update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test.csv')
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost',
+                                         upload=update_resource)
+
+        org_mimetype = resource.pop('mimetype')
+        upd_mimetype = res_update.pop('mimetype')
+
+        assert org_mimetype != upd_mimetype
+        assert_equals(upd_mimetype, 'text/csv')
 
     def test_size_of_resource_by_user(self):
         """
+        The size of the resource is provided by the users
 
+        Real world usage would be using the FileStore API and the user provides a size for the resource
         """
-        pass
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost/data.csv',
+                                      name='Test',
+                                      size=500)
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost/data.csv',
+                                         size=600)
+
+        org_size = int(resource.pop('size'))
+        upd_size = int(res_update.pop('size'))
+
+        assert org_size < upd_size
 
     def test_size_of_resource_by_upload(self):
         """
-
+        The size of the resource determined by the uploaded file
         """
-        pass
+        import StringIO
+        test_file = StringIO.StringIO()
+        test_file.write('''
+        "info": {
+            "title": "BC Data Catalogue API",
+            "description": "This API provides information about datasets in the BC Data Catalogue.",
+            "termsOfService": "http://www.data.gov.bc.ca/local/dbc/docs/license/API_Terms_of_Use.pdf",
+            "contact": {
+                "name": "Data BC",
+                "url": "http://data.gov.bc.ca/",
+                "email": ""
+            },
+            "license": {
+                "name": "Open Government License - British Columbia",
+                "url": "http://www.data.gov.bc.ca/local/dbc/docs/license/OGL-vbc2.0.pdf"
+            },
+            "version": "3.0.0"
+        }
+        ''')
+        test_resource = TestResourceUpdate.FakeFileStorage(test_file, 'test.json')
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost',
+                                      name='Test',
+                                      upload=test_resource)
 
+        update_file = StringIO.StringIO()
+        update_file.write('''
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
+        NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
+        ''')
+        update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test.csv')
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost',
+                                         upload=update_resource)
+
+        org_size = int(resource.pop('size'))  # 669 bytes
+        upd_size = int(res_update.pop('size'))  # 358 bytes
+
+        assert org_size > upd_size
 
 class TestConfigOptionUpdate(object):
 
