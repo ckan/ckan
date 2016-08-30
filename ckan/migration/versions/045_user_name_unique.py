@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import warnings
 
 from sqlalchemy import exc as sa_exc

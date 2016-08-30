@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Test for the dashboard API.
 
 This module tests the various functions of the user dashboard, such as the
@@ -30,6 +32,7 @@ class TestDashboard(object):
 
     @classmethod
     def setup_class(cls):
+        ckan.lib.search.clear_all()
         CreateTestData.create()
         cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
         joeadmin = ckan.model.User.get('joeadmin')

@@ -46,13 +46,13 @@ Minor Releases
 Patch Releases
   Patch releases, such as CKAN 1.8.1 or CKAN 2.0.1, increment the patch version
   number. These releases do not break backwards-compatibility, they include
-  only bug fixes and non-breaking optimizations and features.
+  only bug fixes and security fixes, ensured to be non-breaking.
   Patch releases do not contain:
 
   - Database schema changes or migrations
   - Function interface changes
   - Plugin interface changes
-  - New dependencies
+  - New dependencies (unless absolutely necessary)
   - Big refactorings or new features in critical parts of the code
 
 .. note::
@@ -109,17 +109,7 @@ to its pre-upgrade state.
     |activate|
     cd |virtualenv|/src/ckan
 
-#. Backup your CKAN database using the ``db dump`` command, for
-   example:
-
-   .. parsed-literal::
-
-    paster db dump --config=\ |development.ini| my_ckan_database.pg_dump
-
-   This will create a file called ``my_ckan_database.pg_dump``, you can use the
-   the ``db load`` command to restore your database to the state recorded in
-   this file. See :ref:`paster db` for details of the ``db dump`` and ``db
-   load`` commands.
+#. :ref:`Backup your CKAN database <db dumping and loading>`
 
 
 2. Upgrade CKAN

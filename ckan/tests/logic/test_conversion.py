@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Functional tests for converters in ckan/logic/converters.py.
 
 '''

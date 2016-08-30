@@ -1,8 +1,10 @@
+# encoding: utf-8
+
 import datetime
 import urllib2
 import re
 
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 
 from ckan.common import _, json

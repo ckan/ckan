@@ -1,3 +1,10 @@
-{% extends "package/base_form_page.html" %}
+{% if not h.organizations_available('create_dataset')
+        and not h.check_config_permission('ckan.auth.create_unowned_dataset') %}
 
-{% block subtitle %}{{ _('Create Dataset') }}{% endblock %}
+    {% include "package/snippets/cannot_create_package.html" %}
+
+{% else %}
+    {% extends "package/base_form_page.html" %}
+
+    {% block subtitle %}{{ _('Create Dataset') }}{% endblock %}
+{% endif  %}

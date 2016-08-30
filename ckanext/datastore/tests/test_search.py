@@ -1,8 +1,9 @@
+# encoding: utf-8
+
 import json
 import nose
 import pprint
 
-import pylons
 import sqlalchemy.orm as orm
 
 import ckan.plugins as p
@@ -10,6 +11,7 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
 
+from ckan.common import config
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
 
@@ -164,7 +166,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                                  u'rating with %': u'99%'}]
 
         engine = db._get_engine(
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
+                {'connection_url': config['ckan.datastore.write_url']}
             )
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
@@ -837,7 +839,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         cls.expected_join_results = [{u'first': 1, u'second': 1}, {u'first': 1, u'second': 2}]
 
         engine = db._get_engine(
-            {'connection_url': pylons.config['ckan.datastore.write_url']})
+            {'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -940,7 +942,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             'model': model}
         data_dict = {
             'resource_id': self.data['resource_id'],
-            'connection_url': pylons.config['ckan.datastore.write_url']}
+            'connection_url': config['ckan.datastore.write_url']}
         p.toolkit.get_action('datastore_make_private')(context, data_dict)
         query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
         data = {'sql': query}

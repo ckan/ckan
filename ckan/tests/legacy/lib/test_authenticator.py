@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan
 
 import ckan.lib.create_test_data as ctd

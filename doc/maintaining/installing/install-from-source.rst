@@ -5,10 +5,11 @@ Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 12.04 64-bit. Installing
-CKAN from source works with other versions of Ubuntu and with other operating
-systems (e.g. RedHat, Fedora, CentOS, OS X). If you install CKAN from source
-on your own operating system, please share your experiences on our
+:doc:`install-from-package` is simpler, it requires Ubuntu 14.04 64-bit or
+Ubuntu 12.04 64-bit. Installing CKAN from source works with other versions of
+Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X).
+If you install CKAN from source on your own operating system, please share your
+experiences on our
 `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
@@ -32,7 +33,7 @@ wiki page for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Python                 `The Python programming language, v2.6 or 2.7 <http://www.python.org/getit/>`_
+Python                 `The Python programming language, v2.7 <http://www.python.org/getit/>`_
 |postgres|             `The PostgreSQL database system, v8.4 or newer <http://www.postgresql.org/download/>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
@@ -191,12 +192,12 @@ Create a directory to contain the site's config files:
 
     sudo mkdir -p |config_dir|
     sudo chown -R \`whoami\` |config_parent_dir|/
+    sudo chown -R \`whoami\` ~/ckan/etc
 
-Change to the ``ckan`` directory and create a CKAN config file:
+Create the CKAN config file:
 
 .. parsed-literal::
 
-    cd |virtualenv|/src/ckan
     paster make-config ckan |development.ini|
 
 Edit the ``development.ini`` file in a text editor, changing the following
@@ -264,8 +265,15 @@ installed, we need to install and configure Solr.
    following variables::
 
     NO_START=0            # (line 4)
-    JETTY_HOST=127.0.0.1  # (line 15)
-    JETTY_PORT=8983       # (line 18)
+    JETTY_HOST=127.0.0.1  # (line 16)
+    JETTY_PORT=8983       # (line 19)
+
+   .. note::
+
+    This ``JETTY_HOST`` setting will only allow connections from the same machine.
+    If CKAN is not installed on the same machine as Jetty/Solr you will need to
+    change it to the relevant host or to 0.0.0.0 (and probably set up your firewall
+    accordingly).
 
    Start the Jetty server::
 
@@ -317,7 +325,7 @@ installed, we need to install and configure Solr.
 -------------------------
 
 Now that you have a configuration file that has the correct settings for your
-database, you can create the database tables:
+database, you can :ref:`create the database tables <db init>`:
 
 .. parsed-literal::
 

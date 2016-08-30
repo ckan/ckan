@@ -1,10 +1,13 @@
+# encoding: utf-8
+
 import requests
 import unittest
 import json
 import httpretty
+import nose
 
 import paste.fixture
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.tests.legacy as tests
@@ -27,7 +30,8 @@ def set_resource_url(url):
     context = {
         'model': model,
         'session': model.Session,
-        'user': model.User.get('testsysadmin').name
+        'user': model.User.get('testsysadmin').name,
+        'use_cache': False,
     }
 
     resource = p.toolkit.get_action('resource_show')(

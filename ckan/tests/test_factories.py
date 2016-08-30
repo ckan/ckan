@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose.tools
 
 import ckan.plugins as p
@@ -51,11 +53,6 @@ class TestFactories(object):
         organization1 = factories.Organization()
         organization2 = factories.Organization()
         assert_not_equals(organization1['id'], organization2['id'])
-
-    def test_related_factory(self):
-        related1 = factories.Related()
-        related2 = factories.Related()
-        assert_not_equals(related1['id'], related2['id'])
 
     def test_dataset_factory(self):
         dataset1 = factories.Dataset()

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from webob.multidict import UnicodeMultiDict, MultiDict
 from nose.tools import assert_raises, assert_equal
 
@@ -22,15 +24,15 @@ class TestSearch(object):
                  {'url':self.ab,
                   'description':'This is site ab.',
                   'format':'Excel spreadsheet',
-                  'hash':'abc-123',
-                  'alt_url': 'alt1',
+                  'hash':'xyz-123',
+                  'alt_url': 'alt_1',
                   'extras':{'size_extra': '100'},
                   },
                  {'url':self.cd,
                   'description':'This is site cd.',
                   'format':'Office spreadsheet',
                   'hash':'qwe-456',
-                  'alt_url':'alt2',
+                  'alt_url':'alt_2',
                   'extras':{'size_extra':'200'},
                   },
                  ]
@@ -38,7 +40,7 @@ class TestSearch(object):
             {'name':'pkg2',
              'resources':[
                  {'url':self.cd,
-                  'alt_url': 'alt1',
+                  'alt_url': 'alt_1',
                   'description':'This is site cd.'},
                  {'url':self.ef,
                   'description':'This is site ef.'},
@@ -96,11 +98,11 @@ class TestSearch(object):
         assert set([self.ab, self.cd]) == urls, urls
 
     def test_08_search_hash_complete(self):
-        urls = self.res_search(fields={'hash':'abc-123'})
+        urls = self.res_search(fields={'hash':'xyz-123'})
         assert set([self.ab]) == urls, urls
 
     def test_09_search_hash_partial(self):
-        urls = self.res_search(fields={'hash':'abc'})
+        urls = self.res_search(fields={'hash':'xyz'})
         assert set([self.ab]) == urls, urls
 
     def test_10_search_hash_partial_but_not_initial(self):
@@ -170,11 +172,11 @@ class TestSearch(object):
         assert resources == all_resources[4:6]
 
     def test_14_extra_info(self):
-        fields = {'alt_url':'alt1'}
+        fields = {'alt_url':'alt_1'}
         result = search.query_for(model.Resource).run(fields=fields)
         assert result['count'] == 2, result
 
-        fields = {'alt_url':'alt2'}
+        fields = {'alt_url':'alt_2'}
         result = search.query_for(model.Resource).run(fields=fields)
         assert result['count'] == 1, result
 

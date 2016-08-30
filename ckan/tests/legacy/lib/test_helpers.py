@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+
 import datetime
 from nose.tools import assert_equal, assert_raises
 
-from pylons import config
+from ckan.common import config
 
 from ckan.tests.legacy import *
 import ckan.lib.helpers as h
@@ -25,6 +26,10 @@ class TestHelpers(TestController):
     def test_render_datetime(self):
         res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
         assert_equal(res, 'April 13, 2008')
+
+    def test_render_datetime_with_hours(self):
+        res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456), with_hours=True)
+        assert_equal(res, 'April 13, 2008, 20:40 (UTC)')
 
     def test_render_datetime_but_from_string(self):
         res = h.render_datetime('2008-04-13T20:40:20.123456')
@@ -176,3 +181,5 @@ class TestHelpers(TestController):
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found'), None)
 
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found', 'default_value'), 'default_value')
+
+        model.repo.rebuild_db()

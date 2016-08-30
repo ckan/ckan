@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 from collections import defaultdict
 import datetime
@@ -185,7 +187,7 @@ class CreateTestData(object):
                                     if not isinstance(v, datetime.datetime):
                                         v = unicode(v)
                                     non_extras[str(k)] = v
-                            extras = dict([(str(k), unicode(v)) for k, v in res_dict.get('extras', {}).items()])
+                            extras = {str(k): unicode(v) for k, v in res_dict.get('extras', {}).items()}
                             pkg.add_resource(extras=extras, **non_extras)
                     elif attr == 'tags':
                         if isinstance(val, (str, unicode)):

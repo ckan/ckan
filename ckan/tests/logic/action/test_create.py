@@ -1,8 +1,10 @@
+# encoding: utf-8
+
 '''Unit tests for ckan/logic/auth/create.py.
 
 '''
 
-from pylons import config
+from ckan.common import config
 import mock
 import nose.tools
 
@@ -71,6 +73,22 @@ class TestUserInvite(object):
         self._invite_user_to_group(role=None)
 
     @mock.patch('ckan.lib.mailer.send_invite')
+    @nose.tools.raises(logic.NotFound)
+    def test_raises_not_found(self, _):
+        user = factories.User()
+
+        context = {
+            'user': user['name']
+        }
+        params = {
+            'email': 'a@example.com',
+            'group_id': 'group_not_found',
+            'role': 'admin'
+        }
+
+        helpers.call_action('user_invite', context, **params)
+
+    @mock.patch('ckan.lib.mailer.send_invite')
     @nose.tools.raises(logic.ValidationError)
     def test_requires_group_id(self, _):
         self._invite_user_to_group(group={'id': None})
@@ -80,6 +98,30 @@ class TestUserInvite(object):
         invited_user = self._invite_user_to_group(email='Maria@example.com')
 
         assert_equals(invited_user.name.split('-')[0], 'maria')
+
+    @helpers.change_config('smtp.server', 'email.example.com')
+    def test_smtp_error_returns_error_message(self):
+
+        sysadmin = factories.Sysadmin()
+        group = factories.Group()
+
+        context = {
+            'user': sysadmin['name']
+        }
+        params = {
+            'email': 'example-invited-user@example.com',
+            'group_id': group['id'],
+            'role': 'editor'
+        }
+
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'user_invite', context, **params)
+
+        # Check that the pending user was deleted
+        user = model.Session.query(model.User).filter(
+            model.User.name.like('example-invited-user%')).all()
+
+        assert_equals(user[0].state, 'deleted')
 
     def _invite_user_to_group(self, email='user@email.com',
                               group=None, role='member'):
@@ -110,7 +152,6 @@ class TestResourceViewCreate(object):
     @classmethod
     def teardown_class(cls):
         p.unload('image_view')
-
         helpers.reset_db()
 
     def setup(self):
@@ -387,15 +428,20 @@ class TestResourceCreate(object):
         assert_raises(logic.ValidationError, helpers.call_action,
                       'resource_create', **data_dict)
 
-    def test_it_requires_url(self):
+    def test_doesnt_require_url(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         data_dict = {
             'package_id': dataset['id']
         }
+        new_resouce = helpers.call_action('resource_create', **data_dict)
 
-        assert_raises(logic.ValidationError, helpers.call_action,
-                      'resource_create', **data_dict)
+        data_dict = {
+            'id': new_resouce['id']
+        }
+        stored_resource = helpers.call_action('resource_show', **data_dict)
+
+        assert not stored_resource['url']
 
 
 class TestMemberCreate(object):
@@ -437,6 +483,48 @@ class TestMemberCreate(object):
         assert_equals(new_membership['table_name'], 'user')
         assert_equals(new_membership['table_id'], user['id'])
         assert_equals(new_membership['capacity'], 'member')
+
+    def test_group_member_creation_raises_validation_error_if_id_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'group_member_create',
+                      username='someuser',
+                      role='member',)
+
+    def test_group_member_creation_raises_validation_error_if_username_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'group_member_create',
+                      id='someid',
+                      role='member',)
+
+    def test_group_member_creation_raises_validation_error_if_role_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'group_member_create',
+                      id='someid',
+                      username='someuser',)
+
+    def test_org_member_creation_raises_validation_error_if_id_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'organization_member_create',
+                      username='someuser',
+                      role='member',)
+
+    def test_org_member_creation_raises_validation_error_if_username_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'organization_member_create',
+                      id='someid',
+                      role='member',)
+
+    def test_org_member_creation_raises_validation_error_if_role_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'organization_member_create',
+                      id='someid',
+                      username='someuser',)
 
 
 class TestDatasetCreate(helpers.FunctionalTestBase):
@@ -636,3 +724,60 @@ class TestOrganizationCreate(helpers.FunctionalTestBase):
         assert sorted(created.keys()) == sorted(shown.keys())
         for k in created.keys():
             assert created[k] == shown[k], k
+
+    def test_create_organization_custom_type(self):
+        custom_org_type = 'some-custom-type'
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        org = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='test-organization',
+            type=custom_org_type
+        )
+
+        assert len(org['users']) == 1
+        assert org['display_name'] == u'test-organization'
+        assert org['package_count'] == 0
+        assert org['is_organization']
+        assert org['type'] == custom_org_type
+
+
+class TestUserCreate(helpers.FunctionalTestBase):
+
+    def test_user_create_with_password_hash(self):
+        sysadmin = factories.Sysadmin()
+        context = {
+            'user': sysadmin['name'],
+        }
+
+        user = helpers.call_action(
+            'user_create',
+            context=context,
+            email='test@example.com',
+            name='test',
+            password_hash='pretend-this-is-a-valid-hash')
+
+        user_obj = model.User.get(user['id'])
+        assert user_obj.password == 'pretend-this-is-a-valid-hash'
+
+    def test_user_create_password_hash_not_for_normal_users(self):
+        normal_user = factories.User()
+        context = {
+            'user': normal_user['name'],
+        }
+
+        user = helpers.call_action(
+            'user_create',
+            context=context,
+            email='test@example.com',
+            name='test',
+            password='required',
+            password_hash='pretend-this-is-a-valid-hash')
+
+        user_obj = model.User.get(user['id'])
+        assert user_obj.password != 'pretend-this-is-a-valid-hash'

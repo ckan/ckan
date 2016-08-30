@@ -1,6 +1,9 @@
+# encoding: utf-8
+
 from pprint import pprint, pformat
 
 from ckan.lib.create_test_data import CreateTestData
+from ckan.lib import search
 from ckan import model
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_dictize)
@@ -18,6 +21,7 @@ class TestBasicDictize:
 
     @classmethod
     def setup_class(cls):
+        search.clear_all()
         CreateTestData.create()
 
     @classmethod
@@ -111,19 +115,9 @@ class TestBasicDictize:
 
         assert errors == {
             'name': [u'That URL is already in use.'],
-            'resources': [{}, {'url': [u'Missing value']}]
         }, pformat(errors)
 
         data["id"] = package_id
-
-        converted_data, errors = validate(data,
-                                          default_update_package_schema(),
-                                          self.context)
-
-        assert errors == {
-            'resources': [{}, {'url': [u'Missing value']}]
-        }, pformat(errors)
-
         data['name'] = '????jfaiofjioafjij'
 
         converted_data, errors = validate(data,
@@ -132,7 +126,6 @@ class TestBasicDictize:
         assert errors == {
             'name': [u'Must be purely lowercase alphanumeric (ascii) '
                      'characters and these symbols: -_'],
-            'resources': [{}, {'url': [u'Missing value']}]
         }, pformat(errors)
 
     def test_2_group_schema(self):

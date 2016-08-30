@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose
 
 import ckan.plugins as p

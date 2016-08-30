@@ -1,4 +1,6 @@
-from ckan.tests.legacy import search_related, TestController, CreateTestData, url_for
+# encoding: utf-8
+
+from ckan.tests.legacy import TestController, CreateTestData, url_for
 import ckan.model as model
 
 # TODO: purge revisions after creating them

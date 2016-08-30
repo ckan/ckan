@@ -1,3 +1,4 @@
+# encoding: utf-8
 
 '''Unit tests for ckan/logic/auth/delete.py.
 
@@ -48,7 +49,7 @@ class TestResourceDelete(object):
                                     user=user)
 
         response = auth_delete.resource_delete(
-            {'user': user['name'], 'model': model},
+            {'user': user['name'], 'model': model, 'auth_user_obj': user},
             {'id': dataset['resources'][0]['id']})
 
         assert_equals(response['success'], True)

@@ -1,6 +1,6 @@
 <div class="module context-info">
   <section class="module-content">
-    <h1 class="heading">{{ pkg.title or pkg.name }}</h1>
+    <h1 class="heading">{{ h.dataset_display_name(pkg) }}</h1>
     {% if pkg.notes %}
       <p>
         {{ h.markdown_extract(pkg.notes, 180) }}

@@ -1,6 +1,8 @@
+# encoding: utf-8
+
 import nose.tools as nt
 
-import pylons.config as config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.plugins as plugins
@@ -18,13 +20,13 @@ class ExampleIDatasetFormPluginBase(object):
 
     def teardown(self):
         model.repo.rebuild_db()
-        ckan.lib.search.clear()
+        ckan.lib.search.clear_all()
 
     @classmethod
     def teardown_class(cls):
         helpers.reset_db()
         model.repo.rebuild_db()
-        ckan.lib.search.clear()
+        ckan.lib.search.clear_all()
 
         config.clear()
         config.update(cls.original_config)
@@ -97,7 +99,7 @@ class TestIDatasetFormPluginVersion4(object):
     def teardown_class(cls):
         plugins.unload('example_idatasetform_v4')
         helpers.reset_db()
-        ckan.lib.search.clear()
+        ckan.lib.search.clear_all()
 
         config.clear()
         config.update(cls.original_config)
@@ -139,13 +141,13 @@ class TestIDatasetFormPlugin(object):
 
     def teardown(self):
         model.repo.rebuild_db()
-        ckan.lib.search.clear()
+        ckan.lib.search.clear_all()
 
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_idatasetform')
         helpers.reset_db()
-        ckan.lib.search.clear()
+        ckan.lib.search.clear_all()
 
         config.clear()
         config.update(cls.original_config)
@@ -212,13 +214,13 @@ class TestCustomSearch(object):
 
     def teardown(self):
         model.repo.rebuild_db()
-        ckan.lib.search.clear()
+        ckan.lib.search.clear_all()
 
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_idatasetform')
         helpers.reset_db()
-        ckan.lib.search.clear()
+        ckan.lib.search.clear_all()
 
         config.clear()
         config.update(cls.original_config)

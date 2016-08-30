@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from sqlalchemy import MetaData, __version__ as sqav
 from nose.tools import assert_equal, raises
 

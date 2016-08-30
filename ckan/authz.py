@@ -1,8 +1,10 @@
+# encoding: utf-8
+
 import sys
 import re
 from logging import getLogger
 
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 
 import ckan.plugins as p
@@ -81,7 +83,6 @@ class AuthFunctions:
                             resolved_auth_function_plugins[name]
                         )
                     )
-                log.debug('Auth function {0} from plugin {1} was inserted'.format(name, plugin.name))
                 resolved_auth_function_plugins[name] = plugin.name
                 fetched_auth_functions[name] = auth_function
         # Use the updated ones in preference to the originals.
@@ -432,12 +433,6 @@ def auth_is_anon_user(context):
         See ckan/lib/base.py:232 for pylons context object logic
     '''
     context_user = context.get('user')
-    # FIXME: our current pattern is to set context['user'] to
-    # the IP address in our controller code. Detect and
-    # ignore that case for now. Stop putting the IP address
-    # in context['user'] in a future ckan version.
-    if context_user and '.' in context_user:
-        context_user = None
     is_anon_user = not bool(context_user)
 
     return is_anon_user

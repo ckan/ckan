@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from __future__ import with_statement   # necessary for python 2.5 support
 import warnings
 import logging
@@ -85,12 +87,6 @@ from rating import (
     Rating,
     MIN_RATING,
     MAX_RATING,
-)
-from related import (
-    Related,
-    RelatedDataset,
-    related_dataset_table,
-    related_table,
 )
 from package_relationship import (
     PackageRelationship,

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan.lib import config_tool
 
 
