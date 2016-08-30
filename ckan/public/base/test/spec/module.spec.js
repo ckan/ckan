@@ -376,6 +376,28 @@ describe('ckan.module(id, properties|callback)', function () {
       });
     });
 
+    describe('._()', function () {
+      it('should be a shortcut for ckan.i18n._', function () {
+        /*
+         * In a module, this._ is a shortcut for ckan.i18n._,
+         * but it's not a direct reference.
+         */
+        assert.equal(this.module._('foo'), 'FOO');
+      });
+    });
+
+    describe('.ngettext()', function () {
+      it('should be a shortcut for ckan.i18n.ngettext', function () {
+        /*
+         * In a module, this.ngettext is a shortcut for ckan.i18n.ngettext,
+         * but it's not a direct reference.
+         */
+        assert.equal(this.module.ngettext('bar', 'bars', 1), 'BAR');
+        assert.equal(this.module.ngettext('bar', 'bars', 0), 'BARS');
+        assert.equal(this.module.ngettext('bar', 'bars', 2), 'BARS');
+      });
+    });
+
     describe('.remove()', function () {
       it('should teardown the module', function () {
         var target = sinon.stub(this.module, 'teardown');
