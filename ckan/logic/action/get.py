@@ -622,7 +622,7 @@ def organization_list_for_user(context, data_dict):
 
     :param permission: the permission the user has against the
         returned organizations, for example ``"read"`` or ``"create_dataset"``
-        (optional, default: ``"admin"``)
+        (optional, default: ``"read"``)
     :type permission: string
 
     :returns: list of organizations that the user has the given permission for
@@ -643,7 +643,7 @@ def organization_list_for_user(context, data_dict):
     sysadmin = authz.is_sysadmin(user)
 
     orgs_q = model.Session.query(model.Group) \
-        .filter(model.Group.is_organization == True) \
+        .filter(model.Group.is_organization is True) \
         .filter(model.Group.state == 'active')
 
     if sysadmin:
@@ -651,7 +651,7 @@ def organization_list_for_user(context, data_dict):
     else:
         # for non-Sysadmins check they have the required permission
 
-        permission = data_dict.get('permission', 'admin')
+        permission = data_dict.get('permission', 'read')
 
         roles = authz.get_roles_with_permission(permission)
 
