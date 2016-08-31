@@ -6,7 +6,6 @@ from flask import Blueprint
 from flask import render_template
 from flask import redirect as flask_redirect
 from flask import url_for
-from ckan.lib.base import redirect as pylons_redirect
 from ckan.lib.base import render as pylons_render
 
 import ckan.plugins as p
@@ -126,4 +125,4 @@ class PylonsAddFlashMessageController(p.toolkit.BaseController):
     def add_flash_message_redirect(self):
         # Adds a flash message and redirects to flask view
         h.flash_success(u'This is a success message populated by Pylons')
-        return pylons_redirect(u'/flask_view_flash_message')
+        return h.redirect_to(u'/flask_view_flash_message')
