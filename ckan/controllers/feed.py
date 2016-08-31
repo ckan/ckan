@@ -170,11 +170,16 @@ class FeedController(base.BaseController):
     def _group_or_organization(self, obj_dict, is_org):
 
         data_dict, params = self._parse_url_params()
-        key = 'owner_org' if is_org else 'groups'
-        data_dict['fq'] = '%s:"%s"' % (key, obj_dict['id'],)
-        group_type = 'organization'
-        if not is_org:
+        if is_org:
+            key = 'owner_org'
+            value = obj_dict['id']
+            group_type = 'organization'
+        else:
+            key = 'groups'
+            value = obj_dict['name']
             group_type = 'group'
+
+        data_dict['fq'] = '{0}:"{1}"'.format(key, value)
 
         item_count, results = _package_search(data_dict)
 
@@ -259,12 +264,14 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(params, tags=id)
 
+        site_title = config.get('ckan.site_title', 'CKAN')
+
         return self.output_feed(results,
                                 feed_title=u'%s - Tag: "%s"' %
-                                (g.site_title, id),
+                                (site_title, id),
                                 feed_description=u'Recently created or '
                                 'updated datasets on %s by tag: "%s"' %
-                                (g.site_title, id),
+                                (site_title, id),
                                 feed_link=alternate_url,
                                 feed_guid=_create_atom_id
                                 (u'/feeds/tag/%s.atom' % id),
@@ -346,7 +353,7 @@ class FeedController(base.BaseController):
                                 feed_title=u'%s - Custom query' % site_title,
                                 feed_description=u'Recently created or updated'
                                 ' datasets on %s. Custom query: \'%s\'' %
-                                (g.site_title, q),
+                                (site_title, q),
                                 feed_link=alternate_url,
                                 feed_guid=_create_atom_id(atom_url),
                                 feed_url=feed_url,
