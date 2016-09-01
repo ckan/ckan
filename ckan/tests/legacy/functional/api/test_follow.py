@@ -18,6 +18,8 @@ import pylons.test
 import ckan
 from ckan.tests.legacy import are_foreign_keys_supported, SkipTest, CreateTestData, call_action_api
 
+from ckan.tests import helpers
+
 
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
@@ -295,7 +297,7 @@ class TestFollow(object):
             'id': ckan.model.Group.get('david').id,
             'name': ckan.model.Group.get('david').name,
             }
-        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        self.app = helpers._get_test_app()
 
     @classmethod
     def teardown_class(self):
@@ -804,7 +806,7 @@ class TestFollowerDelete(object):
             'id': ckan.model.Group.get('david').id,
             'name': ckan.model.Group.get('david').name,
             }
-        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        self.app = helpers._get_test_app()
         follow_user(self.app, self.testsysadmin['id'],
                 self.testsysadmin['apikey'], self.joeadmin['id'],
                 self.joeadmin['id'], self.testsysadmin['apikey'])
@@ -1154,7 +1156,7 @@ class TestFollowerCascade(object):
             'id': ckan.model.Group.get('david').id,
             'name': ckan.model.Group.get('david').name,
             }
-        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        self.app = helpers._get_test_app()
 
         follow_user(self.app, self.joeadmin['id'], self.joeadmin['apikey'],
                 self.testsysadmin['id'], self.testsysadmin['id'],
