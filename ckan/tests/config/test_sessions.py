@@ -5,7 +5,6 @@ from nose.tools import ok_
 from flask import Blueprint
 from flask import render_template
 from flask import redirect as flask_redirect
-from flask import url_for
 from ckan.lib.base import render as pylons_render
 
 import ckan.plugins as p
@@ -73,7 +72,8 @@ class FlashMessagePlugin(p.SingletonPlugin):
     def add_flash_message_view_redirect_to_flask(self):
         u'''Add flash message, then redirect to Flask view to render it.'''
         h.flash_success(u'This is a success message populated by Flask')
-        return flask_redirect(url_for(u'test_flash_plugin.flash_message_view'))
+        return flask_redirect(
+            h.url_for(u'test_flash_plugin.flash_message_view'))
 
     def add_flash_message_view_redirect_to_pylons(self):
         u'''Add flash message, then redirect to view that renders it'''

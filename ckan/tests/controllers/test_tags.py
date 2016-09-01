@@ -6,7 +6,7 @@ import string
 from nose.tools import assert_equal, assert_true, assert_false, assert_in
 from bs4 import BeautifulSoup
 
-from routes import url_for
+from ckan.lib.helpers import url_for
 
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
@@ -32,7 +32,8 @@ class TestTagIndex(helpers.FunctionalTestBase):
         expected_tags = _make_tag_list(49)
         factories.Dataset(tags=expected_tags)
 
-        tag_index_url = url_for(controller='tag', action='index')
+        with app.flask_app.test_request_context():
+            tag_index_url = url_for(controller='tag', action='index')
         tag_response = app.get(tag_index_url)
 
         tag_response_html = BeautifulSoup(tag_response.body)
@@ -53,7 +54,8 @@ class TestTagIndex(helpers.FunctionalTestBase):
         expected_tags = _make_tag_list(51)
         factories.Dataset(tags=expected_tags)
 
-        tag_index_url = url_for(controller='tag', action='index')
+        with app.flask_app.test_request_context():
+            tag_index_url = url_for(controller='tag', action='index')
         tag_response = app.get(tag_index_url)
 
         tag_response_html = BeautifulSoup(tag_response.body)
@@ -76,7 +78,8 @@ class TestTagIndex(helpers.FunctionalTestBase):
         expected_tags.append({'name': 'find-me'})
         factories.Dataset(tags=expected_tags)
 
-        tag_index_url = url_for(controller='tag', action='index')
+        with app.flask_app.test_request_context():
+            tag_index_url = url_for(controller='tag', action='index')
         tag_response = app.get(tag_index_url)
 
         search_form = tag_response.forms[1]
@@ -98,7 +101,8 @@ class TestTagIndex(helpers.FunctionalTestBase):
         expected_tags = _make_tag_list(50)
         factories.Dataset(tags=expected_tags)
 
-        tag_index_url = url_for(controller='tag', action='index')
+        with app.flask_app.test_request_context():
+            tag_index_url = url_for(controller='tag', action='index')
         tag_response = app.get(tag_index_url)
 
         search_form = tag_response.forms[1]
@@ -121,7 +125,8 @@ class TestTagRead(helpers.FunctionalTestBase):
         app = self._get_test_app()
         factories.Dataset(title='My Other Dataset', tags=[{'name': 'find-me'}])
 
-        tag_url = url_for(controller='tag', action='read', id='find-me')
+        with app.flask_app.test_request_context():
+            tag_url = url_for(controller='tag', action='read', id='find-me')
         tag_response = app.get(tag_url, status=302)
         assert_equal(tag_response.headers['Location'],
                      'http://test.ckan.net/dataset?tags=find-me')
@@ -131,5 +136,6 @@ class TestTagRead(helpers.FunctionalTestBase):
         app = self._get_test_app()
         factories.Dataset(title='My Other Dataset', tags=[{'name': 'find-me'}])
 
-        tag_url = url_for(controller='tag', action='read', id='not-here')
+        with app.flask_app.test_request_context():
+            tag_url = url_for(controller='tag', action='read', id='not-here')
         app.get(tag_url, status=404)
