@@ -3,9 +3,6 @@
 '''Tests for the ckanext.example_iauthfunctions extension.
 
 '''
-import paste.fixture
-import pylons.test
-import webtest
 
 from nose.tools import assert_raises
 from nose.tools import assert_equal
@@ -16,6 +13,8 @@ import ckan.plugins
 import ckan.tests.factories as factories
 import ckan.logic as logic
 from ckan.common import config
+
+import ckan.tests.helpers as helpers
 
 
 class TestExampleIAuthFunctionsPluginV6ParentAuthFunctions(object):
@@ -87,32 +86,35 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
     '''Tests for the plugin_v5_custom_config_setting module.
 
     '''
-    def _get_app(self, users_can_create_groups):
 
-        # Set the custom config option in config.
-        config['ckan.iauthfunctions.users_can_create_groups'] = (
-            users_can_create_groups)
+    @classmethod
+    def setup_class(cls):
 
-        # Return a test app with the custom config.
-        app = ckan.config.middleware.make_app(config['global_conf'], **config)
-        app = webtest.TestApp(app)
+        if not ckan.plugins.plugin_loaded('example_iauthfunctions_v5_custom_config_setting'):
+            ckan.plugins.load('example_iauthfunctions_v5_custom_config_setting')
 
-        ckan.plugins.load('example_iauthfunctions_v5_custom_config_setting')
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        cls._original_config = dict(config)
 
-        return app
+    @classmethod
+    def teardown_class(cls):
+        ckan.plugins.unload('example_iauthfunctions_v5_custom_config_setting')
+        # Restore the config to its original values
+        config.clear()
+        config.update(cls._original_config)
 
     def teardown(self):
-
-        # Remove the custom config option from config.
-        del config['ckan.iauthfunctions.users_can_create_groups']
 
         # Delete any stuff that's been created in the db, so it doesn't
         # interfere with the next test.
         model.repo.rebuild_db()
 
-    @classmethod
-    def teardown_class(cls):
-        ckan.plugins.unload('example_iauthfunctions_v5_custom_config_setting')
+    def _get_app(self, users_can_create_groups):
+
+        config['ckan.plugins'] = 'example_iauthfunctions_v5_custom_config_setting'
+        config['ckan.iauthfunctions.users_can_create_groups'] = users_can_create_groups
+
+        return helpers._get_test_app()
 
     def test_sysadmin_can_create_group_when_config_is_False(self):
         app = self._get_app(users_can_create_groups=False)
@@ -155,38 +157,12 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
                               status=403)
 
 
-class TestExampleIAuthFunctionsPluginV4(object):
-    '''Tests for the ckanext.example_iauthfunctions.plugin module.
-
-    '''
-    @classmethod
-    def setup_class(cls):
-        '''Nose runs this method once to setup our test class.'''
-
-        # Make the Paste TestApp that we'll use to simulate HTTP requests to
-        # CKAN.
-        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
-
-        # Test code should use CKAN's plugins.load() function to load plugins
-        # to be tested.
-        ckan.plugins.load('example_iauthfunctions_v4')
+class BaseTest(object):
 
     def teardown(self):
-        '''Nose runs this method after each test method in our test class.'''
-
         # Rebuild CKAN's database after each test method, so that each test
         # method runs with a clean slate.
         model.repo.rebuild_db()
-
-    @classmethod
-    def teardown_class(cls):
-        '''Nose runs this method once after all the test methods in our class
-        have been run.
-
-        '''
-        # We have to unload the plugin we loaded, so it doesn't affect any
-        # tests that run after ours.
-        ckan.plugins.unload('example_iauthfunctions_v4')
 
     def _make_curators_group(self):
         '''This is a helper method for test methods to call when they want
@@ -209,6 +185,42 @@ class TestExampleIAuthFunctionsPluginV4(object):
                                                users=users)
 
         return (noncurator, curator, curators_group)
+
+
+class TestExampleIAuthFunctionsPluginV4(BaseTest):
+    '''Tests for the ckanext.example_iauthfunctions.plugin module.
+
+    '''
+    @classmethod
+    def setup_class(cls):
+        '''Nose runs this method once to setup our test class.'''
+
+        # Test code should use CKAN's plugins.load() function to load plugins
+        # to be tested.
+        if not ckan.plugins.plugin_loaded('example_iauthfunctions_v4'):
+            ckan.plugins.load('example_iauthfunctions_v4')
+
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        cls._original_config = dict(config)
+        config['ckan.plugins'] = 'example_iauthfunctions_v4'
+
+        # Make the TestApp that we'll use to simulate HTTP requests to
+        # CKAN.
+        cls.app = helpers._get_test_app()
+
+    @classmethod
+    def teardown_class(cls):
+        '''Nose runs this method once after all the test methods in our class
+        have been run.
+
+        '''
+        # We have to unload the plugin we loaded, so it doesn't affect any
+        # tests that run after ours.
+        ckan.plugins.unload('example_iauthfunctions_v4')
+
+        # Restore the config to its original values
+        config.clear()
+        config.update(cls._original_config)
 
     def test_group_create_with_no_curators_group(self):
         '''Test that group_create doesn't crash when there's no curators group.
@@ -260,18 +272,33 @@ class TestExampleIAuthFunctionsPluginV4(object):
         assert result['name'] == name
 
 
-class TestExampleIAuthFunctionsPluginV3(TestExampleIAuthFunctionsPluginV4):
+class TestExampleIAuthFunctionsPluginV3(BaseTest):
     '''Tests for the ckanext.example_iauthfunctions.plugin_v3 module.
 
     '''
     @classmethod
     def setup_class(cls):
-        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
-        ckan.plugins.load('example_iauthfunctions_v3')
+        '''Nose runs this method once to setup our test class.'''
+
+        # Test code should use CKAN's plugins.load() function to load plugins
+        # to be tested.
+        if not ckan.plugins.plugin_loaded('example_iauthfunctions_v3'):
+            ckan.plugins.load('example_iauthfunctions_v3')
+
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        cls._original_config = dict(config)
+        config['ckan.plugins'] = 'example_iauthfunctions_v3'
+
+        # Make the TestApp that we'll use to simulate HTTP requests to
+        # CKAN.
+        cls.app = helpers._get_test_app()
 
     @classmethod
     def teardown_class(cls):
         ckan.plugins.unload('example_iauthfunctions_v3')
+        # Restore the config to its original values
+        config.clear()
+        config.update(cls._original_config)
 
     def test_group_create_with_no_curators_group(self):
         '''Test that group_create returns a 404 when there's no curators group.
@@ -304,18 +331,33 @@ class TestExampleIAuthFunctionsPluginV3(TestExampleIAuthFunctionsPluginV4):
         assert response['__type'] == 'Authorization Error'
 
 
-class TestExampleIAuthFunctionsPluginV2(TestExampleIAuthFunctionsPluginV4):
+class TestExampleIAuthFunctionsPluginV2(BaseTest):
     '''Tests for the ckanext.example_iauthfunctions.plugin_v2 module.
 
     '''
     @classmethod
     def setup_class(cls):
-        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
-        ckan.plugins.load('example_iauthfunctions_v2')
+        '''Nose runs this method once to setup our test class.'''
+
+        # Test code should use CKAN's plugins.load() function to load plugins
+        # to be tested.
+        if not ckan.plugins.plugin_loaded('example_iauthfunctions_v2'):
+            ckan.plugins.load('example_iauthfunctions_v2')
+
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        cls._original_config = dict(config)
+        config['ckan.plugins'] = 'example_iauthfunctions_v2'
+
+        # Make the TestApp that we'll use to simulate HTTP requests to
+        # CKAN.
+        cls.app = helpers._get_test_app()
 
     @classmethod
     def teardown_class(cls):
         ckan.plugins.unload('example_iauthfunctions_v2')
+        # Restore the config to its original values
+        config.clear()
+        config.update(cls._original_config)
 
     def test_group_create_with_curator(self):
         '''Test that a curator can*not* create a group.

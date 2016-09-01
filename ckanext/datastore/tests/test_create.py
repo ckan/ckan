@@ -2,18 +2,15 @@
 
 import json
 import nose
-import sys
 from nose.tools import assert_equal, raises
 
 import sqlalchemy.orm as orm
-import paste.fixture
 
 from ckan.common import config
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
-import ckan.config.middleware as middleware
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
@@ -24,12 +21,22 @@ from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 class TestDatastoreCreateNewTests(object):
     @classmethod
     def setup_class(cls):
+        cls.app = helpers._get_test_app()
         p.load('datastore')
 
     @classmethod
     def teardown_class(cls):
         p.unload('datastore')
         helpers.reset_db()
+
+    def setup(self):
+
+        self.request_context = self.app.flask_app.test_request_context()
+        self.request_context.push()
+
+    def teardown(self):
+
+        self.request_context.pop()
 
     def test_create_creates_index_on_primary_key(self):
         package = factories.Dataset()
@@ -233,8 +240,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
     @classmethod
     def setup_class(cls):
 
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
@@ -244,13 +250,23 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         engine = db._get_engine(
             {'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        set_url_type(
-            model.Package.get('annakarenina').resources, cls.sysadmin_user)
+        with cls.app.flask_app.test_request_context():
+            set_url_type(
+                model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
+
+    def setup(self):
+
+        self.request_context = self.app.flask_app.test_request_context()
+        self.request_context.push()
+
+    def teardown(self):
+
+        self.request_context.pop()
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]

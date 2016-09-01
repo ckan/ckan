@@ -1,21 +1,18 @@
 # encoding: utf-8
 
 import requests
-import unittest
 import json
 import httpretty
-import nose
+from nose.tools import assert_raises
 
-import paste.fixture
 from ckan.common import config
 
 import ckan.model as model
-import ckan.tests.legacy as tests
 import ckan.plugins as p
 import ckan.lib.create_test_data as create_test_data
-import ckan.config.middleware as middleware
 import ckanext.resourceproxy.controller as controller
 import ckanext.resourceproxy.plugin as proxy
+from ckan.tests import helpers
 
 
 JSON_STRING = json.dumps({
@@ -48,7 +45,7 @@ def set_resource_url(url):
     return {'resource': resource, 'package': package}
 
 
-class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
+class TestProxyPrettyfied(object):
 
     serving = False
 
@@ -56,8 +53,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
     def setup_class(cls):
         cls._original_config = config.copy()
         config['ckan.plugins'] = 'resource_proxy'
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         create_test_data.CreateTestData.create()
 
     @classmethod
@@ -66,9 +62,16 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         config.update(cls._original_config)
         model.repo.rebuild_db()
 
-    def setUp(self):
+    def setup(self):
         self.url = 'http://www.ckan.org/static/example.json'
         self.data_dict = set_resource_url(self.url)
+
+        self.request_context = self.app.flask_app.test_request_context()
+        self.request_context.push()
+
+    def teardown(self):
+
+        self.request_context.pop()
 
     def register(self, *args, **kwargs):
         httpretty.HTTPretty.register_uri(httpretty.HTTPretty.GET, *args,
@@ -104,7 +107,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         result = self.app.get(proxied_url, status='*')
         # we expect a 409 because the resourceproxy got an error (404)
         # from the server
-        assert result.status == 409, result.status
+        assert result.status_int == 409, result.status_int
         assert '404' in result.body
 
     @httpretty.activate
@@ -117,7 +120,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status == 409, result.status
+        assert result.status_int == 409, result.status_int
         assert 'too large' in result.body, result.body
 
     @httpretty.activate
@@ -130,7 +133,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status == 409, result.status
+        assert result.status_int == 409, result.status_int
         assert 'too large' in result.body, result.body
 
     @httpretty.activate
@@ -139,7 +142,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status == 409, result.status
+        assert result.status_int == 409, result.status_int
         assert 'Invalid URL' in result.body, result.body
 
     def test_non_existent_url(self):
@@ -149,11 +152,11 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
             url = self.data_dict['resource']['url']
             requests.get(url)
 
-        self.assertRaises(requests.ConnectionError, f1)
+        assert_raises(requests.ConnectionError, f1)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status == 502, result.status
+        assert result.status_int == 502, result.status_int
         assert 'connection error' in result.body, result.body
 
     def test_proxied_resource_url_proxies_http_and_https_by_default(self):
