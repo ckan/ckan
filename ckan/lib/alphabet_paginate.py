@@ -21,7 +21,7 @@ import re
 from sqlalchemy import  __version__ as sqav
 from sqlalchemy.orm.query import Query
 from webhelpers.html.builder import HTML
-from routes import url_for
+from ckan.lib.helpers import url_for
 
 
 class AlphaPage(object):
