@@ -39,6 +39,9 @@ class TestTextView(object):
         if not plugins.plugin_loaded('text_view'):
             plugins.load('text_view')
 
+        if plugins.plugin_loaded('resource_proxy'):
+            plugins.unload('resource_proxy')
+
         cls.p = plugin.TextView()
 
         create_test_data.CreateTestData.create()
