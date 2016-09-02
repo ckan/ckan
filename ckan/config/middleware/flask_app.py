@@ -140,6 +140,9 @@ def make_flask_stack(conf, **app_conf):
             log.info('{url} render time {request_time:.3f} seconds'.format(
                 url=url, request_time=request_time))
 
+        if flask_app.debug:
+            response.headers[u'X-CKAN-APP'] = u'Flask'
+
         return response
 
     # Template context processors
