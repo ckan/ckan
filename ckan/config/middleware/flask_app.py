@@ -22,7 +22,7 @@ from fanstatic import Fanstatic
 
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
-from ckan.common import config, g, request
+from ckan.common import config, g, request, ungettext
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint
@@ -159,6 +159,14 @@ def make_flask_stack(conf, **app_conf):
         Expose `c` as an alias of `g` in templates for backwards compatibility
         '''
         return dict(c=g)
+
+    @app.context_processor
+    def ungettext_alias():
+        u'''
+        Provide `ungettext` as an alias of `ngettext` for backwards
+        compatibility
+        '''
+        return dict(ungettext=ungettext)
 
     # Babel
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(root, u'i18n')
