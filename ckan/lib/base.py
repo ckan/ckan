@@ -15,6 +15,7 @@ from pylons.decorators import jsonify
 from pylons.templating import cached_template, pylons_globals
 from webhelpers.html import literal
 
+from flask import render_template as flask_render_template
 import ckan.exceptions
 import ckan
 import ckan.lib.i18n as i18n
@@ -33,7 +34,7 @@ from ckan.views import (identify_user,
 # be imported directly from ckan.common for internal ckan code and via the
 # plugins.toolkit for extensions.
 from ckan.common import (json, _, ungettext, c, request, response, config,
-                         session)
+                         session, is_flask_request)
 
 log = logging.getLogger(__name__)
 
@@ -130,10 +131,23 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         del globs['config']
         return render_jinja2(template_name, globs)
 
-    if 'Pragma' in response.headers:
-        del response.headers["Pragma"]
+    def set_pylons_response_headers(allow_cache):
+        if 'Pragma' in response.headers:
+            del response.headers["Pragma"]
+        if allow_cache:
+            response.headers["Cache-Control"] = "public"
+            try:
+                cache_expire = int(config.get('ckan.cache_expires', 0))
+                response.headers["Cache-Control"] += \
+                    ", max-age=%s, must-revalidate" % cache_expire
+            except ValueError:
+                pass
+        else:
+            # We do not want caching.
+            response.headers["Cache-Control"] = "private"
 
-    ## Caching Logic
+    # Caching Logic
+
     allow_cache = True
     # Force cache or not if explicit.
     if cache_force is not None:
@@ -150,7 +164,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     # Don't cache if we have set the __no_cache__ param in the query string.
     elif request.params.get('__no_cache__'):
         allow_cache = False
-   # Don't cache if we have extra vars containing data.
+    # Don't cache if we have extra vars containing data.
     elif extra_vars:
         for k, v in extra_vars.iteritems():
             allow_cache = False
@@ -158,23 +172,23 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     # Record cachability for the page cache if enabled
     request.environ['CKAN_PAGE_CACHABLE'] = allow_cache
 
-    if allow_cache:
-        response.headers["Cache-Control"] = "public"
-        try:
-            cache_expire = int(config.get('ckan.cache_expires', 0))
-            response.headers["Cache-Control"] += \
-                ", max-age=%s, must-revalidate" % cache_expire
-        except ValueError:
-            pass
-    else:
-        # We do not want caching.
-        response.headers["Cache-Control"] = "private"
+    # TODO: replicate this logic in Flask once we start looking at the
+    # rendering for the frontend controllers
+    if not is_flask_request():
+        set_pylons_response_headers(allow_cache)
+
+    if not allow_cache:
         # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
 
     # Render Time :)
     try:
-        return cached_template(template_name, render_template)
+        # TODO: investigate and test this properly
+        if is_flask_request():
+            return flask_render_template(template_name)
+        else:
+            return cached_template(template_name, render_template)
+
     except ckan.exceptions.CkanUrlException, e:
         raise ckan.exceptions.CkanUrlException(
             '\nAn Exception has been raised for template %s\n%s' %
