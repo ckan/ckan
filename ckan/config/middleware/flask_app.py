@@ -20,6 +20,7 @@ from beaker.middleware import SessionMiddleware
 from paste.deploy.converters import asbool
 from fanstatic import Fanstatic
 
+import ckan.model as model
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.common import config, g, request, ungettext
@@ -127,6 +128,10 @@ def make_flask_stack(conf, **app_conf):
 
     @app.after_request
     def ckan_after_request(response):
+
+        # Dispose of the SQLALchemy session
+        model.Session.remove()
+
         # Check session cookie
         response = check_session_cookie(response)
 
