@@ -23,6 +23,7 @@ CONTENT_TYPES = {
     u'json': u'application/json;charset=utf-8',
 }
 
+API_REST_DEFAULT_VERSION = 1
 
 API_DEFAULT_VERSION = 3
 API_MAX_VERSION = 3
@@ -55,7 +56,7 @@ def _finish(status_int, response_data=None,
                 for_json=True)  # handle objects with for_json methods
         else:
             response_msg = response_data
-        # Support "JSONP" callback.
+        # Support JSONP callback.
         if (status_int == 200 and u'callback' in request.args and
                 request.method == u'GET'):
             # escape callback to remove '<', '&', '>' chars
@@ -206,6 +207,21 @@ def _get_request_data(try_url_params=False):
     return request_data
 
 
+def _get_action_from_map(action_map, register, subregister):
+    u'''Helper function to get the action function specified in
+        the action map'''
+
+    # translate old package calls to use dataset
+    if register == u'package':
+        register = u'dataset'
+
+    action = action_map.get((register, subregister))
+    if not action:
+        action = action_map.get(register)
+    if action:
+        return get_action(action)
+
+
 # View functions
 
 def action(logic_function, ver=API_DEFAULT_VERSION):
@@ -333,11 +349,220 @@ def get_api(ver=1):
     return _finish_ok(response_data)
 
 
+def rest_list(ver=API_REST_DEFAULT_VERSION, register=None, subregister=None,
+              id=None):
+    context = {u'model': model, u'session': model.Session,
+               u'user': g.user, u'api_version': ver,
+               u'auth_user_obj': g.userobj}
+    action_map = {
+        u'revision': u'revision_list',
+        u'group': u'group_list',
+        u'dataset': u'package_list',
+        u'tag': u'tag_list',
+        u'licenses': u'license_list',
+        (u'dataset', u'relationships'): u'package_relationships_list',
+        (u'dataset', u'revisions'): u'package_revision_list',
+        (u'dataset', u'activity'): u'package_activity_list',
+        (u'group', u'activity'): u'group_activity_list',
+        (u'user', u'activity'): u'user_activity_list',
+        (u'user', u'dashboard_activity'): u'dashboard_activity_list',
+        (u'activity', u'details'): u'activity_detail_list',
+    }
+
+    action = _get_action_from_map(action_map, register, subregister)
+    if not action:
+        return _finish_bad_request(
+            _(u'Cannot list entity of this type: %s') % register)
+    try:
+        return _finish_ok(action(context, {u'id': id}))
+    except NotFound, e:
+        return _finish_not_found(unicode(e))
+    except NotAuthorized, e:
+        return _finish_not_authz(unicode(e))
+
+
+def rest_show(ver=API_REST_DEFAULT_VERSION, register=None, subregister=None,
+              id=None, id2=None):
+    action_map = {
+        u'revision': u'revision_show',
+        u'group': u'group_show_rest',
+        u'tag': u'tag_show_rest',
+        u'dataset': u'package_show_rest',
+        (u'dataset', u'relationships'): u'package_relationships_list',
+    }
+    for _type in model.PackageRelationship.get_all_types():
+        action_map[(u'dataset', _type)] = u'package_relationships_list'
+
+    context = {u'model': model, u'session': model.Session, u'user': g.user,
+               u'api_version': ver, u'auth_user_obj': g.userobj}
+    data_dict = {u'id': id, u'id2': id2, u'rel': subregister}
+
+    action = _get_action_from_map(action_map, register, subregister)
+    if not action:
+        return _finish_bad_request(
+            _(u'Cannot read entity of this type: %s') % register)
+    try:
+        return _finish_ok(action(context, data_dict))
+    except NotFound, e:
+        return _finish_not_found(unicode(e))
+    except NotAuthorized, e:
+        return _finish_not_authz(unicode(e))
+
+
+def rest_create(ver=API_REST_DEFAULT_VERSION, register=None, subregister=None,
+                id=None, id2=None):
+    action_map = {
+        u'group': u'group_create_rest',
+        u'dataset': u'package_create_rest',
+        u'rating': u'rating_create',
+        (u'dataset', u'relationships'): u'package_relationship_create_rest',
+    }
+    for type in model.PackageRelationship.get_all_types():
+        action_map[(u'dataset', type)] = u'package_relationship_create_rest'
+
+    context = {u'model': model, u'session': model.Session, u'user': g.user,
+               u'api_version': ver, u'auth_user_obj': g.userobj}
+    log.debug(u'create: %s', (context))
+    try:
+        request_data = _get_request_data()
+        data_dict = {u'id': id, u'id2': id2, u'rel': subregister}
+        data_dict.update(request_data)
+    except ValueError, inst:
+        return _finish_bad_request(
+            _(u'JSON Error: %s') % inst)
+
+    action = _get_action_from_map(action_map, register, subregister)
+    if not action:
+        return _finish_bad_request(
+            _(u'Cannot create new entity of this type: %s %s') %
+            (register, subregister))
+
+    try:
+        response_data = action(context, data_dict)
+        location = None
+        if u'id' in data_dict:
+            location = str(u'%s/%s' % (request.path.replace(u'package',
+                                                            u'dataset'),
+                                       data_dict.get(u'id')))
+        return _finish_ok(response_data, resource_location=location)
+    except NotAuthorized, e:
+        return _finish_not_authz(unicode(e))
+    except NotFound, e:
+        return _finish_not_found(unicode(e))
+    except ValidationError, e:
+        log.info(u'Validation error (REST create): %r', str(e.error_dict))
+        return _finish(409, e.error_dict, content_type=u'json')
+    except DataError, e:
+        log.info(u'Format incorrect (REST create): %s - %s',
+                 e.error, request_data)
+        error_dict = {
+            u'success': False,
+            u'error': {u'__type': u'Integrity Error',
+                       u'message': e.error,
+                       u'data': request_data}}
+        return _finish(400, error_dict, content_type=u'json')
+    except SearchIndexError:
+        msg = u'Unable to add package to search index: %s' % request_data
+        log.error(msg)
+        return _finish(500, msg)
+    except:
+        model.Session.rollback()
+        raise
+
+
+def rest_update(ver=API_REST_DEFAULT_VERSION, register=None, subregister=None,
+                id=None, id2=None):
+    action_map = {
+        u'dataset': u'package_update_rest',
+        u'group': u'group_update_rest',
+        (u'dataset', u'relationships'): u'package_relationship_update_rest',
+    }
+    for type in model.PackageRelationship.get_all_types():
+        action_map[(u'dataset', type)] = u'package_relationship_update_rest'
+
+    context = {u'model': model, u'session': model.Session, u'user': g.user,
+               u'api_version': ver, u'id': id, u'auth_user_obj': g.userobj}
+    log.debug(u'update: %s', context)
+    try:
+        request_data = _get_request_data()
+        data_dict = {u'id': id, u'id2': id2, u'rel': subregister}
+        data_dict.update(request_data)
+    except ValueError, inst:
+        return _finish_bad_request(
+            _(u'JSON Error: %s') % inst)
+
+    action = _get_action_from_map(action_map, register, subregister)
+    if not action:
+        return _finish_bad_request(
+            _(u'Cannot update entity of this type: %s') %
+            register.encode(u'utf-8'))
+    try:
+        response_data = action(context, data_dict)
+        return _finish_ok(response_data)
+    except NotAuthorized, e:
+        return _finish_not_authz(unicode(e))
+    except NotFound, e:
+        return _finish_not_found(unicode(e))
+    except ValidationError, e:
+        log.info(u'Validation error (REST update): %r', str(e.error_dict))
+        return _finish(409, e.error_dict, content_type=u'json')
+    except DataError, e:
+        log.info(u'Format incorrect (REST update): %s - %s',
+                 e.error, request_data)
+        error_dict = {
+            u'success': False,
+            u'error': {u'__type': u'Integrity Error',
+                       u'message': e.error,
+                       u'data': request_data}}
+        return _finish(400, error_dict, content_type=u'json')
+    except SearchIndexError:
+        msg = u'Unable to add package to search index: %s' % request_data
+        log.error(msg)
+        return _finish(500, msg)
+
+
+def rest_delete(ver=API_REST_DEFAULT_VERSION, register=None, subregister=None,
+                id=None, id2=None):
+    action_map = {
+        u'group': u'group_delete',
+        u'dataset': u'package_delete',
+        (u'dataset', u'relationships'): u'package_relationship_delete_rest',
+    }
+    for type in model.PackageRelationship.get_all_types():
+        action_map[(u'dataset', type)] = u'package_relationship_delete_rest'
+
+    context = {u'model': model, u'session': model.Session, u'user': g.user,
+               u'api_version': ver, u'auth_user_obj': g.userobj}
+
+    data_dict = {u'id': id, u'id2': id2, u'rel': subregister}
+
+    log.debug(u'delete %s/%s/%s/%s', register, id, subregister, id2)
+
+    action = _get_action_from_map(action_map, register, subregister)
+    if not action:
+        return _finish_bad_request(
+            _(u'Cannot delete entity of this type: %s %s') %
+            (register, subregister or u''))
+    try:
+        response_data = action(context, data_dict)
+        return _finish_ok(response_data)
+    except NotAuthorized, e:
+        return _finish_not_authz(unicode(e))
+    except NotFound, e:
+        return _finish_not_found(unicode(e))
+    except ValidationError, e:
+        log.info(u'Validation error (REST delete): %r', str(e.error_dict))
+        return _finish(409, e.error_dict, content_type=u'json')
+
+
 # Routing
 
+# Root
 api.add_url_rule(u'/', view_func=get_api, strict_slashes=False)
 api.add_url_rule(u'/<int(min=1, max={0}):ver>'.format(API_MAX_VERSION),
                  view_func=get_api, strict_slashes=False)
+
+# Action API (v3)
 
 api.add_url_rule(u'/action/<logic_function>', methods=[u'GET', u'POST'],
                  view_func=action)
@@ -345,3 +570,49 @@ api.add_url_rule(u'/<int(min=3, max={0}):ver>/action/<logic_function>'.format(
                  API_MAX_VERSION),
                  methods=[u'GET', u'POST'],
                  view_func=action)
+
+# REST API (v1, v2)
+
+api.add_url_rule(u'/rest', view_func=get_api, strict_slashes=False)
+api.add_url_rule(u'/<int(min=1, max=2):ver>/rest', view_func=get_api,
+                 strict_slashes=False)
+
+register_list = [
+    u'package',
+    u'dataset',
+    u'resource',
+    u'tag',
+    u'group',
+    u'revision',
+    u'licenses',
+    u'rating',
+    u'user',
+    u'activity',
+]
+
+rest_version_rule = u'/<int(min=1, max=2):ver>'
+rest_root_rule = u'/rest/<any({allowed}):register>'.format(
+    allowed=register_list)
+rest_id_rule = rest_root_rule + u'/<id>'
+rest_sub_root_rule = rest_id_rule + u'/<subregister>'
+rest_sub_id_rule = rest_sub_root_rule + u'/<id2>'
+
+rest_rules = [
+    (rest_root_rule, rest_list, [u'GET']),
+    (rest_root_rule, rest_create, [u'POST']),
+    (rest_id_rule, rest_show, [u'GET']),
+    (rest_id_rule, rest_update, [u'POST', u'PUT']),
+    (rest_id_rule, rest_delete, [u'DELETE']),
+    (rest_sub_root_rule, rest_list, [u'GET']),
+    (rest_sub_root_rule, rest_create, [u'POST']),
+    (rest_sub_id_rule, rest_show, [u'GET']),
+    (rest_sub_id_rule, rest_update, [u'POST', u'PUT']),
+    (rest_sub_id_rule, rest_delete, [u'DELETE']),
+]
+
+# For each REST endpoint we register a rule with and without the version
+# number at the start (eg /api/rest/package and /api/rest/2/package)
+for rule, view_func, methods in rest_rules:
+    api.add_url_rule(rule, view_func=view_func, methods=methods)
+    api.add_url_rule(rest_version_rule + rule, view_func=view_func,
+                     methods=methods)
