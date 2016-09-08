@@ -6,6 +6,9 @@ This section documents our CKAN-specific coding standards, which are guidelines
 for writing code that is consistent with the intended design and architecture
 of CKAN.
 
+  .. image:: /images/architecture.png
+     :alt: CKAN architecture diagram
+
 
 ----------------------------------------
 Encapsulate SQLAlchemy in ``ckan.model``
