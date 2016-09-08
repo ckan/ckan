@@ -193,6 +193,8 @@ class Upload(object):
 class ResourceUpload(object):
     def __init__(self, resource):
         path = get_storage_path()
+        config_mimetype_guess = config.get('ckan.mimetype_guess', 'file_ext')
+
         if not path:
             self.storage_path = None
             return
@@ -212,7 +214,8 @@ class ResourceUpload(object):
         upload_field_storage = resource.pop('upload', None)
         self.clear = resource.pop('clear_upload', None)
 
-        self.mimetype = mimetypes.guess_type(url)[0]
+        if config_mimetype_guess == 'file_ext':
+            self.mimetype = mimetypes.guess_type(url)[0]
 
         if isinstance(upload_field_storage, cgi.FieldStorage):
             self.filename = upload_field_storage.filename
@@ -228,11 +231,10 @@ class ResourceUpload(object):
             self.upload_file.seek(0, os.SEEK_SET)
 
             # check if the mimetype failed from guessing with the url
-            if not self.mimetype:
+            if not self.mimetype and config_mimetype_guess == 'file_ext':
                 self.mimetype = mimetypes.guess_type(self.filename)[0]
 
-            # check again if guessing with the filename failed
-            if not self.mimetype:
+            if not self.mimetype and config_mimetype_guess == 'file_contents':
                 try:
                     self.mimetype = magic.from_buffer(self.upload_file.read(),
                                                       mime=True)
