@@ -27,21 +27,29 @@ Default routes are defined in ``ckan.config.routing`` and extended with the
 Views
 -----
 
-Views process requests and build a response by rendering Jinja2 templates.
+Views process requests by reading and updating data with action
+function and return a response by rendering Jinja2 templates.
 CKAN views are defined in ``ckan.controllers`` and templates in
 ``ckan.templates``.
 
-Plugins define new views by adding or updating routes. See
-:doc:`../theming/index` for adding templates from a plugin, and
-:ref:`custom template helper functions` 
+Views and templates may use ``logic.check_access`` or
+:func:`ckan.lib.helpers.check_access` to hide links or render
+helpful errors but action functions, not views, are responsible for
+actually enforcing permissions checking.
+
+Plugins define new views by adding or updating routes. For adding
+templates or helper functions from a plugin see
+:doc:`../theming/index` and
+:ref:`custom template helper functions`.
 
 
 Template helper functions
 #########################
 
-Template helpers are used for code that is reused frequently or too
-complicated to be included in the templates themselves. Template helpers
-should never perform expensive queries or update data.
+Template helper functions are used for code that is reused frequently or
+code that is too complicated to be included in the templates themselves.
+
+Template helpers should never perform expensive queries or update data.
 
 ``ckan.lib.helpers`` contains helper functions that can be used from
 ``ckan.controllers`` or from templates. When developing for ckan core, only use
@@ -56,6 +64,7 @@ to get, create, update or delete an object from CKAN's model it should do so by
 calling a function from the ``ckan.logic.action`` package, and *not* by
 accessing ``ckan.model`` directly.
 
+
 Use ``get_action()``
 ####################
 
@@ -69,7 +78,7 @@ Instead of ::
 
     ckan.logic.action.get.group_activity_list(...)
 
-Views and templates may check authorization to avoid rendering 
+Views and templates may check authorization to avoid rendering
 
 Don't pass ORM objects to templates
 ###################################
@@ -86,6 +95,19 @@ errors that cause 500 Server Errors and can be difficult to debug.
 -----
 Logic
 -----
+
+Logic includes action functions, auth functions, background tasks
+and business logic.
+
+Action functions have a uniform interface accepting a dictionary of simple
+strings lists, dictionaries or files (wrapped in a ``cgi.FieldStorage``
+objects). They return simple dictionaries or raise one of a small number of
+exceptions including ``ckan.logic.NotAuthorized``, ``ckan.logic.NotFound``
+and ``ckan.logic.ValidationError``.
+
+Plugins override action functions with the
+:class:`ckan.plugins.interfaces.IActions` interface and auth functions
+with the :class:`ckan.plugins.interfaces.IAuthFunctions` interface.
 
 
 Action functions are exposed in the API
