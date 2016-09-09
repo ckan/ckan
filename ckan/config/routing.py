@@ -145,20 +145,10 @@ def make_map():
     # /api/util ver 1, 2 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
                    ver='/1') as m:
-        m.connect('/util/user/autocomplete', action='user_autocomplete')
         m.connect('/util/is_slug_valid', action='is_slug_valid',
                   conditions=GET)
-        m.connect('/util/dataset/autocomplete', action='dataset_autocomplete',
-                  conditions=GET)
-        m.connect('/util/tag/autocomplete', action='tag_autocomplete',
-                  conditions=GET)
-        m.connect('/util/resource/format_autocomplete',
-                  action='format_autocomplete', conditions=GET)
         m.connect('/util/resource/format_icon',
                   action='format_icon', conditions=GET)
-        m.connect('/util/group/autocomplete', action='group_autocomplete')
-        m.connect('/util/organization/autocomplete', action='organization_autocomplete',
-                  conditions=GET)
         m.connect('/util/markdown', action='markdown')
         m.connect('/util/dataset/munge_name', action='munge_package_name')
         m.connect('/util/dataset/munge_title_to_name',

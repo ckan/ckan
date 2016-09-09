@@ -2,6 +2,7 @@
 
 import cgi
 import logging
+import urllib
 
 from flask import Blueprint, make_response
 from werkzeug.exceptions import BadRequest
@@ -561,6 +562,101 @@ def rest_delete(ver=API_REST_DEFAULT_VERSION, register=None, subregister=None,
         return _finish(409, e.error_dict, content_type=u'json')
 
 
+def util_dataset_autocomplete():
+    q = request.params.get(u'incomplete', u'')
+    limit = request.params.get(u'limit', 10)
+    package_dicts = []
+    if q:
+        context = {u'model': model, u'session': model.Session,
+                   u'user': g.user, u'auth_user_obj': g.userobj}
+
+        data_dict = {u'q': q, u'limit': limit}
+
+        package_dicts = get_action(
+            u'package_autocomplete')(context, data_dict)
+
+    resultSet = {u'ResultSet': {u'Result': package_dicts}}
+    return _finish_ok(resultSet)
+
+
+def util_tag_autocomplete():
+    q = request.str_params.get(u'incomplete', u'')
+    q = unicode(urllib.unquote(q), u'utf-8')
+    limit = request.params.get(u'limit', 10)
+    tag_names = []
+    if q:
+        context = {u'model': model, u'session': model.Session,
+                   u'user': g.user, u'auth_user_obj': g.userobj}
+
+        data_dict = {u'q': q, u'limit': limit}
+
+        tag_names = get_action(u'tag_autocomplete')(context, data_dict)
+
+    resultSet = {
+        u'ResultSet': {
+            u'Result': [{u'Name': tag} for tag in tag_names]
+        }
+    }
+    return _finish_ok(resultSet)
+
+
+def util_format_autocomplete():
+    q = request.params.get(u'incomplete', u'')
+    limit = request.params.get(u'limit', 5)
+    formats = []
+    if q:
+        context = {u'model': model, u'session': model.Session,
+                   u'user': g.user, u'auth_user_obj': g.userobj}
+        data_dict = {u'q': q, u'limit': limit}
+        formats = get_action(u'format_autocomplete')(context, data_dict)
+
+    resultSet = {
+        u'ResultSet': {
+            u'Result': [{u'Format': format} for format in formats]
+        }
+    }
+    return _finish_ok(resultSet)
+
+
+def util_user_autocomplete():
+    q = request.params.get(u'q', u'')
+    limit = request.params.get(u'limit', 20)
+    user_list = []
+    if q:
+        context = {u'model': model, u'session': model.Session,
+                   u'user': g.user, u'auth_user_obj': g.userobj}
+
+        data_dict = {u'q': q, u'limit': limit}
+
+        user_list = get_action(u'user_autocomplete')(context, data_dict)
+    return user_list
+
+
+def util_group_autocomplete():
+    q = request.params.get(u'q', u'')
+    limit = request.params.get(u'limit', 20)
+    group_list = []
+
+    if q:
+        context = {u'user': g.user, u'model': model}
+        data_dict = {u'q': q, u'limit': limit}
+        group_list = get_action(u'group_autocomplete')(context, data_dict)
+    return group_list
+
+
+def util_organization_autocomplete():
+    q = request.params.get(u'q', u'')
+    limit = request.params.get(u'limit', 20)
+    organization_list = []
+
+    if q:
+        context = {u'user': g.user, u'model': model}
+        data_dict = {u'q': q, u'limit': limit}
+        organization_list = get_action(
+            u'organization_autocomplete')(context, data_dict)
+    return organization_list
+
+
 # Routing
 
 # Root
@@ -598,7 +694,7 @@ register_list = [
 
 rest_version_rule = u'/<int(min=1, max=2):ver>'
 rest_root_rule = u'/rest/<any({allowed}):register>'.format(
-    allowed=','.join(register_list))
+    allowed=u','.join(register_list))
 rest_id_rule = rest_root_rule + u'/<id>'
 rest_sub_root_rule = rest_id_rule + u'/<subregister>'
 rest_sub_id_rule = rest_sub_root_rule + u'/<id2>'
@@ -623,3 +719,18 @@ for rule, view_func, methods in rest_rules:
     api.add_url_rule(rule, view_func=view_func, methods=methods)
     api.add_url_rule(rest_version_rule + rule, view_func=view_func,
                      methods=methods)
+
+# Util API
+
+api.add_url_rule(u'/util/dataset/autocomplete',
+                 view_func=util_dataset_autocomplete)
+api.add_url_rule(u'/util/user/autocomplete',
+                 view_func=util_user_autocomplete)
+api.add_url_rule(u'/util/tag/autocomplete',
+                 view_func=util_tag_autocomplete)
+api.add_url_rule(u'/util/group/autocomplete',
+                 view_func=util_group_autocomplete)
+api.add_url_rule(u'/util/organization/autocomplete',
+                 view_func=util_organization_autocomplete)
+api.add_url_rule(u'/util/resource/format_autocomplete',
+                 view_func=util_format_autocomplete)
