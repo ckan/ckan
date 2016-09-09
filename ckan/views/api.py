@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import os
 import cgi
 import logging
 import urllib
@@ -657,6 +658,17 @@ def util_organization_autocomplete():
     return organization_list
 
 
+def util_i18n_js_translations(lang):
+    ckan_path = os.path.join(os.path.dirname(__file__), '..')
+    source = os.path.abspath(os.path.join(ckan_path, 'public',
+                             'base', 'i18n', '{0}.js'.format(lang)))
+    headers = {'Content-Type': CONTENT_TYPES['json']}
+    if not os.path.exists(source):
+        return '{}'
+    translations = open(source, 'r').read()
+    return make_response((translations, 200, headers))
+
+
 # Routing
 
 # Root
@@ -734,3 +746,4 @@ api.add_url_rule(u'/util/organization/autocomplete',
                  view_func=util_organization_autocomplete)
 api.add_url_rule(u'/util/resource/format_autocomplete',
                  view_func=util_format_autocomplete)
+api.add_url_rule(u'/i18n/<lang>', view_func=util_i18n_js_translations)
