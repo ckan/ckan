@@ -226,14 +226,8 @@ class PackagesTestCase(BaseModelApiTestCase):
                                         self.STATUS_201_CREATED],
                                 extra_environ=self.admin_extra_environ)
         model.Session.remove()
-        # Some versions of webob work, some don't. No matter, we record this
-        # behaviour.
         package = self.get_package_by_name(self.package_fixture_data['name'])
-        if res.status == self.STATUS_400_BAD_REQUEST:
-            # Check there is no database record.
-            assert not package
-        else:
-            assert package
+        assert not package
 
     def test_register_post_bad_request(self):
         test_params = {

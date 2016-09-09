@@ -170,7 +170,7 @@ def _get_request_data(try_url_params=False):
                          'for your request')
 
     request_data = {}
-    if request.method == u'POST' and request.form:
+    if request.method in [u'POST', u'PUT'] and request.form:
         if (len(request.form.values()) == 1 and
                 request.form.values()[0] in [u'1', u'']):
             try:
@@ -197,6 +197,11 @@ def _get_request_data(try_url_params=False):
     if not isinstance(request_data, dict):
         raise ValueError(u'Request data JSON decoded to %r but '
                          'it needs to be a dictionary.' % request_data)
+
+    if request.method == u'PUT' and not request_data:
+        raise ValueError(u'Invalid request. Please use the POST method for '
+                         'your request')
+
     if request_data:
         # ensure unicode values
         for key, val in request_data.items():
@@ -204,6 +209,7 @@ def _get_request_data(try_url_params=False):
             # utf8 encoded JSON to unicode
             request_data[key] = make_unicode(val)
     log.debug(u'Request data extracted: %r', request_data)
+
     return request_data
 
 
@@ -592,7 +598,7 @@ register_list = [
 
 rest_version_rule = u'/<int(min=1, max=2):ver>'
 rest_root_rule = u'/rest/<any({allowed}):register>'.format(
-    allowed=register_list)
+    allowed=','.join(register_list))
 rest_id_rule = rest_root_rule + u'/<id>'
 rest_sub_root_rule = rest_id_rule + u'/<subregister>'
 rest_sub_id_rule = rest_sub_root_rule + u'/<id2>'
@@ -606,7 +612,8 @@ rest_rules = [
     (rest_sub_root_rule, rest_list, [u'GET']),
     (rest_sub_root_rule, rest_create, [u'POST']),
     (rest_sub_id_rule, rest_show, [u'GET']),
-    (rest_sub_id_rule, rest_update, [u'POST', u'PUT']),
+    (rest_sub_id_rule, rest_create, [u'POST']),
+    (rest_sub_id_rule, rest_update, [u'PUT']),
     (rest_sub_id_rule, rest_delete, [u'DELETE']),
 ]
 
