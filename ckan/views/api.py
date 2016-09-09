@@ -659,13 +659,13 @@ def util_organization_autocomplete():
 
 
 def util_i18n_js_translations(lang):
-    ckan_path = os.path.join(os.path.dirname(__file__), '..')
-    source = os.path.abspath(os.path.join(ckan_path, 'public',
-                             'base', 'i18n', '{0}.js'.format(lang)))
-    headers = {'Content-Type': CONTENT_TYPES['json']}
+    ckan_path = os.path.join(os.path.dirname(__file__), u'..')
+    source = os.path.abspath(os.path.join(ckan_path, u'public',
+                             u'base', u'i18n', u'{0}.js'.format(lang)))
+    headers = {u'Content-Type': CONTENT_TYPES[u'json']}
     if not os.path.exists(source):
-        return '{}'
-    translations = open(source, 'r').read()
+        return u'{}'
+    translations = open(source, u'r').read()
     return make_response((translations, 200, headers))
 
 
