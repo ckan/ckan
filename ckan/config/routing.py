@@ -111,51 +111,21 @@ def make_map():
         if not hasattr(route, '_ckan_core'):
             route._ckan_core = False
 
-    map.connect('invite', '/__invite__/', controller='partyline', action='join_party')
-
     map.connect('home', '/', controller='home', action='index')
     map.connect('about', '/about', controller='home', action='about')
-
-    # CKAN API versioned.
-    register_list = [
-        'package',
-        'dataset',
-        'resource',
-        'tag',
-        'group',
-        'revision',
-        'licenses',
-        'rating',
-        'user',
-        'activity'
-    ]
-    register_list_str = '|'.join(register_list)
 
     # /api ver 1, 2, 3 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}',
                    ver='/1') as m:
         m.connect('/search/{register}', action='search')
 
-    # /api ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
-                   ver='/1') as m:
-        m.connect('/tag_counts', action='tag_counts')
-        m.connect('/qos/throughput/', action='throughput', conditions=GET)
-
     # /api/util ver 1, 2 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
                    ver='/1') as m:
-        m.connect('/util/is_slug_valid', action='is_slug_valid',
-                  conditions=GET)
-        m.connect('/util/resource/format_icon',
-                  action='format_icon', conditions=GET)
-        m.connect('/util/markdown', action='markdown')
         m.connect('/util/dataset/munge_name', action='munge_package_name')
         m.connect('/util/dataset/munge_title_to_name',
                   action='munge_title_to_package_name')
         m.connect('/util/tag/munge', action='munge_tag')
-        m.connect('/util/status', action='status')
-        m.connect('/util/snippet/{snippet_path:.*}', action='snippet')
 
     ###########
     ## /END API

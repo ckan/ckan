@@ -155,12 +155,6 @@ class ApiController(base.BaseController):
         response_data['version'] = ver
         return self._finish_ok(response_data)
 
-    def snippet(self, snippet_path, ver=None):
-        ''' Renders and returns a snippet used by ajax calls '''
-        # we only allow snippets in templates/ajax_snippets and it's subdirs
-        snippet_path = u'ajax_snippets/' + snippet_path
-        return base.render(snippet_path, extra_vars=dict(request.params))
-
     def action(self, logic_function, ver=None):
         try:
             function = get_action(logic_function)
@@ -333,10 +327,6 @@ class ApiController(base.BaseController):
             return self._finish_not_found(unicode(e))
         except NotAuthorized, e:
             return self._finish_not_authz(unicode(e))
-
-    def _represent_package(self, package):
-        return package.as_dict(ref_package_by=self.ref_package_by,
-                               ref_group_by=self.ref_group_by)
 
     def create(self, ver=None, register=None, subregister=None,
                id=None, id2=None):
@@ -611,44 +601,6 @@ class ApiController(base.BaseController):
             raise ValueError(msg)
         return params
 
-    def markdown(self, ver=None):
-        raw_markdown = request.params.get('q', '')
-        results = h.render_markdown(raw_markdown)
-
-        return self._finish_ok(results)
-
-    def tag_counts(self, ver=None):
-        c.q = request.params.get('q', '')
-
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'auth_user_obj': c.userobj}
-
-        tag_names = get_action('tag_list')(context, {})
-        results = []
-        for tag_name in tag_names:
-            tag_count = len(context['model'].Tag.get(tag_name).packages)
-            results.append((tag_name, tag_count))
-        return self._finish_ok(results)
-
-    def throughput(self, ver=None):
-        qos = self._calc_throughput()
-        qos = str(qos)
-        return self._finish_ok(qos)
-
-    def _calc_throughput(self, ver=None):
-        period = 10  # Seconds.
-        timing_cache_path = self._get_timing_cache_path()
-        call_count = 0
-        for t in range(0, period):
-            expr = '%s/%s*' % (
-                timing_cache_path,
-                (datetime.datetime.now() -
-                 datetime.timedelta(0, t)).isoformat()[0:19],
-            )
-            call_count += len(glob.glob(expr))
-        # Todo: Clear old records.
-        return float(call_count) / period
-
     @jsonp.jsonpify
     def user_autocomplete(self):
         q = request.params.get('q', '')
@@ -698,34 +650,6 @@ class ApiController(base.BaseController):
             organization_list = \
                 get_action('organization_autocomplete')(context, data_dict)
         return organization_list
-
-    def is_slug_valid(self):
-
-        def package_exists(val):
-            if model.Session.query(model.Package) \
-                    .autoflush(False).filter_by(name=val).count():
-                return True
-            return False
-
-        def group_exists(val):
-            if model.Session.query(model.Group) \
-                    .autoflush(False).filter_by(name=val).count():
-                return True
-            return False
-
-        slug = request.params.get('slug') or ''
-        slugtype = request.params.get('type') or ''
-        # TODO: We need plugins to be able to register new disallowed names
-        disallowed = ['new', 'edit', 'search']
-        if slugtype == u'package':
-            response_data = dict(valid=not (package_exists(slug)
-                                 or slug in disallowed))
-            return self._finish_ok(response_data)
-        if slugtype == u'group':
-            response_data = dict(valid=not (group_exists(slug) or
-                                 slug in disallowed))
-            return self._finish_ok(response_data)
-        return self._finish_bad_request('Bad slug type: %s' % slugtype)
 
     def dataset_autocomplete(self):
         q = request.params.get('incomplete', '')
@@ -794,20 +718,6 @@ class ApiController(base.BaseController):
         tag = request.params.get('tag') or request.params.get('name')
         munged_tag = munge.munge_tag(tag)
         return self._finish_ok(munged_tag)
-
-    def format_icon(self):
-        f = request.params.get('format')
-        out = {
-            'format': f,
-            'icon': h.icon_url(h.format_icon(f))
-        }
-        return self._finish_ok(out)
-
-    def status(self):
-        context = {'model': model, 'session': model.Session}
-        data_dict = {}
-        status = get_action('status_show')(context, data_dict)
-        return self._finish_ok(status)
 
     def i18n_js_translations(self, lang):
         ''' translation strings for front end '''
