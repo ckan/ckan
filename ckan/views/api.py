@@ -10,6 +10,7 @@ from werkzeug.exceptions import BadRequest
 import ckan.model as model
 from ckan.common import json, _, g, request
 from ckan.lib.helpers import url_for
+from ckan.lib.base import render
 
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, ValidationError, NotFound, NotAuthorized
@@ -656,6 +657,15 @@ def organization_autocomplete(ver=API_REST_DEFAULT_VERSION):
     return _finish_ok(organization_list)
 
 
+def snippet(snippet_path, ver=API_REST_DEFAULT_VERSION):
+    u'''Renders and returns a snippet used by ajax calls
+
+        We only allow snippets in templates/ajax_snippets and its subdirs
+    '''
+    snippet_path = u'ajax_snippets/' + snippet_path
+    return render(snippet_path, extra_vars=dict(request.args))
+
+
 def i18n_js_translations(lang, ver=API_REST_DEFAULT_VERSION):
     ckan_path = os.path.join(os.path.dirname(__file__), u'..')
     source = os.path.abspath(os.path.join(ckan_path, u'public',
@@ -738,6 +748,7 @@ util_rules = [
     (u'/util/group/autocomplete', group_autocomplete),
     (u'/util/organization/autocomplete', organization_autocomplete),
     (u'/util/resource/format_autocomplete', format_autocomplete),
+    (u'/util/snippet/<snippet_path>', snippet),
     (u'/i18n/<lang>', i18n_js_translations),
 ]
 

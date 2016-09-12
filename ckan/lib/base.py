@@ -185,7 +185,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     try:
         # TODO: investigate and test this properly
         if is_flask_request():
-            return flask_render_template(template_name)
+            return flask_render_template(template_name, **extra_vars)
         else:
             return cached_template(template_name, render_template)
 
