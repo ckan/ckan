@@ -80,10 +80,10 @@ the name of your extension. For example:
   begin with the name of your extension. For example
   ``my_extension:super-special-job-queue``.
 
-In some situations, resources like databases may even be shared between
-multiple CKAN *instances*, which requires an even higher degree of uniqueness
-for the corresponding names. In that case, you should also prefix your
-identifiers with the CKAN site ID, which is available via
+In some situations, a resource may even be shared between multiple CKAN
+*instances*, which requires an even higher degree of uniqueness for the
+corresponding names. In that case, you should also prefix your identifiers with
+the CKAN site ID, which is available via
 
 ::
 
