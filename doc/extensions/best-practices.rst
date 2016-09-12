@@ -50,7 +50,7 @@ conflicts you should prefix any public name that your extension introduces with
 the name of your extension. For example:
 
 * The names of *configuration settings* introduced by your extension should
-  have the form ``ckan.my_extension.my_config_setting``.
+  have the form ``my_extension.my_config_setting``.
 
 * The names of *templates and template snippets* introduced by your extension
   should begin with the name of your extension::
