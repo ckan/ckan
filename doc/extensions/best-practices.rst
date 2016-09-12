@@ -10,6 +10,8 @@ Follow CKAN's coding standards
 See :doc:`/contributing/index`.
 
 
+.. _use the plugins toolkit:
+
 -------------------------------------------------
 Use the plugins toolkit instead of importing CKAN
 -------------------------------------------------

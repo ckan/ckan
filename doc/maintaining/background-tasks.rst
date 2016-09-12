@@ -80,6 +80,13 @@ Once you have a job function, all you need to do is to use
 This will place a job on the :ref:`job queue <background jobs queues>` where it
 can be picked up and executed by a worker.
 
+.. note::
+
+    Extensions should use :py:func:`ckan.plugins.toolkit.enqueue_job` instead.
+    It's the same function but accessing it via :py:mod:`ckan.plugins.toolkit`
+    :ref:`decouples your code from CKAN's internal structure <use the plugins
+    toolkit>`.
+
 The first argument to ``enqueue`` is the job function to use. The second is a
 list of the arguments which should be passed to the function. You can omit it
 in which case no arguments will be passed. You can also pass keyword arguments
