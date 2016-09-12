@@ -3,7 +3,6 @@
 import os
 import cgi
 import logging
-import urllib
 
 from flask import Blueprint, make_response
 from werkzeug.exceptions import BadRequest
@@ -563,9 +562,9 @@ def rest_delete(ver=API_REST_DEFAULT_VERSION, register=None, subregister=None,
         return _finish(409, e.error_dict, content_type=u'json')
 
 
-def util_dataset_autocomplete():
-    q = request.params.get(u'incomplete', u'')
-    limit = request.params.get(u'limit', 10)
+def dataset_autocomplete(ver=API_REST_DEFAULT_VERSION):
+    q = request.args.get(u'incomplete', u'')
+    limit = request.args.get(u'limit', 10)
     package_dicts = []
     if q:
         context = {u'model': model, u'session': model.Session,
@@ -580,10 +579,9 @@ def util_dataset_autocomplete():
     return _finish_ok(resultSet)
 
 
-def util_tag_autocomplete():
-    q = request.str_params.get(u'incomplete', u'')
-    q = unicode(urllib.unquote(q), u'utf-8')
-    limit = request.params.get(u'limit', 10)
+def tag_autocomplete(ver=API_REST_DEFAULT_VERSION):
+    q = request.args.get(u'incomplete', u'')
+    limit = request.args.get(u'limit', 10)
     tag_names = []
     if q:
         context = {u'model': model, u'session': model.Session,
@@ -601,9 +599,9 @@ def util_tag_autocomplete():
     return _finish_ok(resultSet)
 
 
-def util_format_autocomplete():
-    q = request.params.get(u'incomplete', u'')
-    limit = request.params.get(u'limit', 5)
+def format_autocomplete(ver=API_REST_DEFAULT_VERSION):
+    q = request.args.get(u'incomplete', u'')
+    limit = request.args.get(u'limit', 5)
     formats = []
     if q:
         context = {u'model': model, u'session': model.Session,
@@ -619,9 +617,9 @@ def util_format_autocomplete():
     return _finish_ok(resultSet)
 
 
-def util_user_autocomplete():
-    q = request.params.get(u'q', u'')
-    limit = request.params.get(u'limit', 20)
+def user_autocomplete(ver=API_REST_DEFAULT_VERSION):
+    q = request.args.get(u'q', u'')
+    limit = request.args.get(u'limit', 20)
     user_list = []
     if q:
         context = {u'model': model, u'session': model.Session,
@@ -630,24 +628,24 @@ def util_user_autocomplete():
         data_dict = {u'q': q, u'limit': limit}
 
         user_list = get_action(u'user_autocomplete')(context, data_dict)
-    return user_list
+    return _finish_ok(user_list)
 
 
-def util_group_autocomplete():
-    q = request.params.get(u'q', u'')
-    limit = request.params.get(u'limit', 20)
+def group_autocomplete(ver=API_REST_DEFAULT_VERSION):
+    q = request.args.get(u'q', u'')
+    limit = request.args.get(u'limit', 20)
     group_list = []
 
     if q:
         context = {u'user': g.user, u'model': model}
         data_dict = {u'q': q, u'limit': limit}
         group_list = get_action(u'group_autocomplete')(context, data_dict)
-    return group_list
+    return _finish_ok(group_list)
 
 
-def util_organization_autocomplete():
-    q = request.params.get(u'q', u'')
-    limit = request.params.get(u'limit', 20)
+def organization_autocomplete(ver=API_REST_DEFAULT_VERSION):
+    q = request.args.get(u'q', u'')
+    limit = request.args.get(u'limit', 20)
     organization_list = []
 
     if q:
@@ -655,18 +653,17 @@ def util_organization_autocomplete():
         data_dict = {u'q': q, u'limit': limit}
         organization_list = get_action(
             u'organization_autocomplete')(context, data_dict)
-    return organization_list
+    return _finish_ok(organization_list)
 
 
-def util_i18n_js_translations(lang):
+def i18n_js_translations(lang, ver=API_REST_DEFAULT_VERSION):
     ckan_path = os.path.join(os.path.dirname(__file__), u'..')
     source = os.path.abspath(os.path.join(ckan_path, u'public',
                              u'base', u'i18n', u'{0}.js'.format(lang)))
-    headers = {u'Content-Type': CONTENT_TYPES[u'json']}
     if not os.path.exists(source):
         return u'{}'
     translations = open(source, u'r').read()
-    return make_response((translations, 200, headers))
+    return _finish_ok(translations)
 
 
 # Routing
@@ -704,7 +701,7 @@ register_list = [
     u'activity',
 ]
 
-rest_version_rule = u'/<int(min=1, max=2):ver>'
+version_rule = u'/<int(min=1, max=2):ver>'
 rest_root_rule = u'/rest/<any({allowed}):register>'.format(
     allowed=u','.join(register_list))
 rest_id_rule = rest_root_rule + u'/<id>'
@@ -729,21 +726,21 @@ rest_rules = [
 # number at the start (eg /api/rest/package and /api/rest/2/package)
 for rule, view_func, methods in rest_rules:
     api.add_url_rule(rule, view_func=view_func, methods=methods)
-    api.add_url_rule(rest_version_rule + rule, view_func=view_func,
+    api.add_url_rule(version_rule + rule, view_func=view_func,
                      methods=methods)
 
 # Util API
 
-api.add_url_rule(u'/util/dataset/autocomplete',
-                 view_func=util_dataset_autocomplete)
-api.add_url_rule(u'/util/user/autocomplete',
-                 view_func=util_user_autocomplete)
-api.add_url_rule(u'/util/tag/autocomplete',
-                 view_func=util_tag_autocomplete)
-api.add_url_rule(u'/util/group/autocomplete',
-                 view_func=util_group_autocomplete)
-api.add_url_rule(u'/util/organization/autocomplete',
-                 view_func=util_organization_autocomplete)
-api.add_url_rule(u'/util/resource/format_autocomplete',
-                 view_func=util_format_autocomplete)
-api.add_url_rule(u'/i18n/<lang>', view_func=util_i18n_js_translations)
+util_rules = [
+    (u'/util/dataset/autocomplete', dataset_autocomplete),
+    (u'/util/user/autocomplete', user_autocomplete),
+    (u'/util/tag/autocomplete', tag_autocomplete),
+    (u'/util/group/autocomplete', group_autocomplete),
+    (u'/util/organization/autocomplete', organization_autocomplete),
+    (u'/util/resource/format_autocomplete', format_autocomplete),
+    (u'/i18n/<lang>', i18n_js_translations),
+]
+
+for rule, view_func in util_rules:
+    api.add_url_rule(rule, view_func=view_func)
+    api.add_url_rule(version_rule + rule, view_func=view_func)
