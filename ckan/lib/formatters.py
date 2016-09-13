@@ -99,7 +99,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
     if not show_date:
         now = datetime.datetime.now(pytz.utc)
         if datetime_.tzinfo is None:
-            datetime_ = datetime_.astimezone(pytz.utc)
+            datetime_ = datetime_.replace(tzinfo=pytz.utc)
 
         date_diff = now - datetime_
         days = date_diff.days
