@@ -369,6 +369,25 @@ Default value: true
 
 This enables middleware that clears the response string after it has been sent. This helps CKAN's memory management if CKAN repeatedly serves very large requests.
 
+.. _ckan.mimetype_guess:
+
+ckan.mimetype_guess
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.mimetype_guess = file_ext
+
+Default value: ``file_ext``
+
+There are three options for guessing the mimetype of uploaded or linked resources: file_ext, file_contents, None.
+
+``file_ext`` will guess the mimetype by the url first, then the file extension.
+
+``file_contents`` will guess the mimetype by the file itself, this tends to be inaccurate.
+
+``None`` will not store the mimetype for the resource.
+
 .. _ckan.static_max_age:
 
 ckan.static_max_age
