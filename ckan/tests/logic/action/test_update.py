@@ -848,6 +848,7 @@ class TestResourceUpdate(object):
         assert org_mimetype != upd_mimetype
         assert_equals(upd_mimetype, 'text/plain')
 
+    @helpers.change_config('ckan.mimetype_guess', 'file_contents')
     def test_mimetype_by_upload_by_file(self):
         """
         The mimetype is guessed from an uploaded file by the contents inside

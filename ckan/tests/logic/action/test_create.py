@@ -531,6 +531,7 @@ class TestResourceCreate(object):
         assert mimetype
         assert_equals(mimetype, 'application/json')
 
+    @helpers.change_config('ckan.mimetype_guess', 'file_contents')
     def test_mimetype_by_upload_by_file(self):
         """
         The mimetype is guessed from an uploaded file by the contents inside
