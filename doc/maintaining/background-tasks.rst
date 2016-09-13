@@ -22,7 +22,7 @@ application is waiting is a good candidate for a background job.
 .. note::
 
     The current background job system is based on RQ_ and was introduced in
-    CKAN 2.6. See :ref:`background jobs migration` for details on how to
+    CKAN 2.7. See :ref:`background jobs migration` for details on how to
     migrate your jobs from the previous system introduced in CKAN 1.5.
 
     .. _RQ: http://python-rq.org
@@ -260,7 +260,7 @@ to use non-standard queues.
 
 Migrating from CKAN's previous background job system
 ====================================================
-Before version 2.6 (starting from 1.5), CKAN offered a different background job
+Before version 2.7 (starting from 1.5), CKAN offered a different background job
 system built around Celery_. That system is still available but deprecated and
 will be removed in future versions of CKAN. You should therefore update your
 code to use the new system described above.
@@ -304,7 +304,7 @@ job ID, that will be done automatically for you.
 
 Supporting both systems at once
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Not all CKAN installations will immediately update to CKAN 2.6. It might
+Not all CKAN installations will immediately update to CKAN 2.7. It might
 therefore make sense for you to support both the new and the old job system.
 That way you are ready when the old system is removed but can continue to
 support older CKAN installations.

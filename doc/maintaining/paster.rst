@@ -265,7 +265,7 @@ jobs: Manage background jobs
 
 The ``jobs`` command can be used to manage :ref:`background jobs`.
 
-.. versionadded:: 2.6
+.. versionadded:: 2.7
 
 
 .. _paster jobs worker:

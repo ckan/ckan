@@ -15,7 +15,7 @@ raw RQ objects (e.g. a queue returned by ``get_queue``) use the full,
 prefixed names. Use the functions ``add_queue_name_prefix`` and
 ``remove_queue_name_prefix`` to manage queue name prefixes.
 
-.. versionadded:: 2.6
+.. versionadded:: 2.7
 '''
 
 import logging

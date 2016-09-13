@@ -3,7 +3,7 @@
 u'''
 Redis utilities.
 
-.. versionadded:: 2.6
+.. versionadded:: 2.7
 '''
 
 from __future__ import absolute_import
