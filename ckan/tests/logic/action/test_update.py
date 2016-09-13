@@ -1006,6 +1006,7 @@ class TestResourceUpdate(object):
 
         assert org_size > upd_size
 
+
 class TestConfigOptionUpdate(object):
 
     @classmethod
