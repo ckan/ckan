@@ -5,7 +5,7 @@ import datetime
 
 def upgrade(migrate_engine):
     """
-    The script assumes that the current timestamp was 
+    The script assumes that the current timestamp was
     recorded with the server's current set timezone
     """
     utc_now = datetime.datetime.utcnow()
