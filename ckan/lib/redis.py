@@ -11,8 +11,9 @@ from __future__ import absolute_import
 import datetime
 import logging
 
-from pylons import config
 from redis import ConnectionPool, Redis
+
+from ckan.common import config
 
 
 log = logging.getLogger(__name__)

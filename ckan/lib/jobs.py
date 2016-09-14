@@ -20,7 +20,6 @@ prefixed names. Use the functions ``add_queue_name_prefix`` and
 
 import logging
 
-from pylons import config
 import rq
 from rq.connections import push_connection
 from rq.exceptions import NoSuchJobError
@@ -28,6 +27,7 @@ from rq.job import Job
 from rq.utils import ensure_list
 
 from ckan.lib.redis import connect_to_redis
+from ckan.common import config
 
 
 log = logging.getLogger(__name__)

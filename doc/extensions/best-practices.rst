@@ -87,7 +87,13 @@ the CKAN site ID, which is available via
 
 ::
 
-    from pylons import config
+    try:
+        # CKAN 2.7 and later
+        from ckan.common import config
+    except ImportError:
+        # CKAN 2.6 and earlier
+        from pylons import config
+
     site_id = config[u'ckan.site_id']
 
 Currently this only affects the :ref:`Redis database <ckan_redis_url>`:

@@ -7,11 +7,11 @@ Tests for ``ckan.lib.jobs``.
 import datetime
 
 from nose.tools import ok_, assert_equal, raises
-from pylons import config
 import rq
 
 import ckan.lib.jobs as jobs
 from ckan.tests.helpers import changed_config, recorded_logs, RQTestBase
+from ckan.common import config
 
 
 class TestQueueNamePrefixes(RQTestBase):
