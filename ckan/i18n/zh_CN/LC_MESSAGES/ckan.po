@@ -1,7 +1,7 @@
 # Translations template for ckan.
 # Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# 
+#
 # Translators:
 # bo wang <kingbolanda@live.com>, 2016
 # okfncn <okfncn@gmail.com>, 2013
@@ -959,7 +959,7 @@ msgstr[0] "{years}年前"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr "{月} {日},{年},{时}:{分:02}({时区})"
+msgstr "{month} {day},{year},{hour}:{min:02}({timezone})"
 
 #: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
