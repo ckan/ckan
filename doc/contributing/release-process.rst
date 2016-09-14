@@ -34,7 +34,8 @@ and the release is tagged in the form ``ckan-M.m.p``. All backports are cherry-p
           ckan-2.6.0    ckan-2.6.1       
 
 
-Additionally, the ``release-vM.m-latest`` branches always contain the latest published released for that version.
+Additionally, the ``release-vM.m-latest`` branches always contain the latest
+published release for that version (eg ``2.6.1`` on the example above).
 
 
 .. note::
