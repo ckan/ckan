@@ -2,10 +2,9 @@
 
 from logging import getLogger
 
-from ckan.common import json
+from ckan.common import json, config
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-from pylons import config
 
 log = getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
@@ -59,6 +58,7 @@ class ReclineViewBase(p.SingletonPlugin):
     '''
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
+    p.implements(p.ITemplateHelpers, inherit=True)
 
     def update_config(self, config):
         '''
@@ -81,13 +81,16 @@ class ReclineViewBase(p.SingletonPlugin):
     def view_template(self, context, data_dict):
         return 'recline_view.html'
 
+    def get_helpers(self):
+        return {
+            'get_map_config': get_mapview_config
+        }
+
 
 class ReclineView(ReclineViewBase):
     '''
     This extension views resources using a Recline MultiView.
     '''
-
-    p.implements(p.ITemplateHelpers, inherit=True)
 
     def info(self):
         return {'name': 'recline_view',
@@ -109,11 +112,6 @@ class ReclineView(ReclineViewBase):
             return resource_format.lower() in ['csv', 'xls', 'xlsx', 'tsv']
         else:
             return False
-
-    def get_helpers(self):
-        return {
-            'get_map_config': get_mapview_config
-        }
 
 
 class ReclineGridView(ReclineViewBase):
@@ -191,8 +189,6 @@ class ReclineMapView(ReclineViewBase):
     This extension views resources using a Recline map.
     '''
 
-    p.implements(p.ITemplateHelpers, inherit=True)
-
     map_field_types = [{'value': 'lat_long',
                         'text': 'Latitude / Longitude fields'},
                        {'value': 'geojson', 'text': 'GeoJSON'}]
@@ -253,8 +249,3 @@ class ReclineMapView(ReclineViewBase):
 
     def form_template(self, context, data_dict):
         return 'recline_map_form.html'
-
-    def get_helpers(self):
-        return {
-            'get_mapview_config': get_mapview_config
-        }
