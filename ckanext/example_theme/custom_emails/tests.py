@@ -1,12 +1,12 @@
 # encoding: utf-8
 
 import os
-from pylons import config
 from ckan import plugins
 import ckan.model as model
 import ckan.lib.mailer as mailer
 from ckan.tests import factories
 from ckan.lib.base import render_jinja2
+from ckan.common import config
 
 from ckan.tests.lib.test_mailer import MailerBase
 import ckan.tests.helpers as helpers
