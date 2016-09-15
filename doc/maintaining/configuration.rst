@@ -581,19 +581,6 @@ a single CKAN instance then this can be ignored.
 
 Note, if you change this value, you need to rebuild the search index.
 
-.. _ckan.simple_search:
-
-ckan.simple_search
-^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.simple_search = true
-
-Default value:  ``false``
-
-Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
-
 .. _solr_url:
 
 solr_url
@@ -654,6 +641,21 @@ Default value:  ``false``
 
 Controls whether the default search page (``/dataset``) should show only
 standard datasets or also custom dataset types.
+
+.. _ckan.search.default_include_private:
+
+ckan.search.default_include_private
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.defalt_include_private = false
+
+Default value:  ``true``
+
+Controls whether the default search page (``/dataset``) should include
+private datasets visible to the current user or only public datasets
+visible to everyone.
 
 .. _search.facets.limit:
 

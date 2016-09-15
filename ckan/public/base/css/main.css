@@ -5763,7 +5763,7 @@ a.tag:hover {
   margin-top: 0;
 }
 .ckanext-datapreview > iframe {
-  min-height: 400px;
+  min-height: 650px;
 }
 .ckanext-datapreview > img {
   max-height: 500px;
