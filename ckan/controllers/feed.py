@@ -351,7 +351,7 @@ class FeedController(base.BaseController):
                                 feed_title=u'%s - Custom query' % site_title,
                                 feed_description=u'Recently created or updated'
                                 ' datasets on %s. Custom query: \'%s\'' %
-                                (g.site_title, q),
+                                (site_title, q),
                                 feed_link=alternate_url,
                                 feed_guid=_create_atom_id(atom_url),
                                 feed_url=feed_url,
