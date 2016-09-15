@@ -386,7 +386,7 @@ def group_dictize(group, context,
                     authz.has_user_permission_for_group_or_org(
                         group_.id, context.get('user'), 'read'))
                 if is_group_member:
-                    context['ignore_capacity_check'] = True
+                    q['include_private'] = True
 
             if not just_the_count:
                 # Is there a packages limit in the context?

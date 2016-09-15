@@ -20,7 +20,7 @@ body {
 .recline-slickgrid {
   height: 600px;
 }
-
+/*
 .recline-timeline .vmm-timeline {
   height: 600px;
 }
@@ -39,11 +39,12 @@ body {
   margin: 0;
   padding: 2px 4px;
 }
-
+*/
+/*
 .recline-query-editor {
   float: right;
 }
-
+*/
 .loading-spinner {
   float: right;
   background-image: url('../img/ajaxload-circle.gif');
@@ -51,6 +52,328 @@ body {
   height: 32px;
 }
 
-.recline-pager label, .recline-query-editor label {
+.recline-data-explorer .data-view-sidebar {
+  float: right;
+  margin-left: 8px;
+  width: 220px;
+}
+
+.recline-data-explorer .header .navigation {
+  margin-bottom: 8px;
+}
+
+.recline-data-explorer .header .navigation,
+.recline-data-explorer .header .pagination,
+.recline-data-explorer .header .pagination form
+{
+  display: inline;
+}
+
+.recline-data-explorer .header .navigation {
+  float: left;
+}
+
+.recline-data-explorer .header .menu-right {
+  float: right;
+  margin-left: 5px;
+  padding-left: 5px;
+}
+
+.recline-results-info {
+  line-height: 35px;
+  margin-left: 20px;
+  float: left;
+}
+
+.recline-data-explorer .data-view-sidebar > div {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.recline-data-explorer .radio,
+.recline-data-explorer .checkbox {
+  padding-left: 20px;
+}
+
+.recline-data-explorer .editor-update-map {
+  margin: 30px 0px 20px 0px;
+}
+
+.recline-data-explorer label {
+  font-weight: normal;
+}
+
+/**********************************************************
+  * Query Editor
+  *********************************************************/
+
+.recline-query-editor {
+  float: right;
+  height: 35px;
+  padding-right: 5px;
+  margin-right: 5px;
+  border-right: solid 2px #ddd;
+}
+
+.header .input-prepend {
+  margin-bottom: auto;
+}
+
+.header .add-on {
+  float: left;
+}
+
+/* needed for Chrome but not FF */
+.header .add-on {
+  margin-left: -27px;
+}
+
+/* needed for FF but not chrome */
+.header .input-prepend {
+  vertical-align: top;
+}
+
+.recline-query-editor form button {
+  vertical-align: top;
+}
+
+/* label for screen reader */
+.recline-query-editor .form-inline label {
+  position: absolute;
+  top:0;
+  left:-9999px
+}
+
+/**********************************************************
+  * Pager
+  *********************************************************/
+
+.recline-pager {
+  float: left;
+  margin: auto;
+  display: block;
+  margin-left: 20px;
+}
+
+.recline-pager .pagination li {
+  display: inline-block;
+}
+
+.recline-pager .pagination label {
+  display:none;
+}
+
+.recline-pager .pagination input {
+  width: 40px;
+  height: 25px;
+  padding: 2px 4px;
+  margin: 0;
+  margin-top: -2px;
+
+  border: 1px solid #cccccc;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  transition: border linear 0.2s, box-shadow linear 0.2s;
+  border-radius: 4px;
+
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+  -webkit-border-radius: 4px;
+
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+  -moz-border-radius: 4px;
+
+  -o-transition: border linear 0.2s, box-shadow linear 0.2s;
+}
+
+.recline-pager .pagination a {
+  float: none;
+  margin-left: -5px;
+  color: #555;
+}
+
+.recline-pager .pagination .page-range {
+  height: 34px;
+  padding: 5px 8px;
+  margin-left: -5px;
+  border: 1px solid #ddd;
+}
+
+.recline-pager .pagination .page-range a {
+  padding: 0px 12px;
+  border: none;
+}
+
+.recline-pager .pagination .page-range a:hover {
+  background-color: #ffffff;
+}
+
+.recline-pager .pagination > li:first-child > a {
+  border-bottom-left-radius: 4px;
+  border-top-left-radius: 4px;
+  border-bottom-right-radius: 0px;
+  border-top-right-radius: 0px;
+  height: 34px;
+}
+
+.recline-pager .pagination > li:last-child > a {
+  border-bottom-right-radius: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-left-radius: 0px;
+  border-top-left-radius: 0px;
+  height: 34px;
+}
+
+/**********************************************************
+  * Filter Editor
+  *********************************************************/
+
+.recline-filter-editor {
+  padding: 8px;
   display: none;
+}
+
+.recline-filter-editor .filters {
+  margin: 20px 0px;
+}
+
+.recline-filter-editor h3 {
+  margin-top: 4px;
+}
+
+.recline-filter-editor .filter {
+  margin-top: 20px;
+}
+
+.recline-filter-editor .filter .form-group {
+  margin-bottom: 0px;
+}
+
+.recline-filter-editor .filter input,
+.recline-filter-editor .filter label {
+  margin: 0px;
+}
+
+.recline-filter-editor .js-edit button {
+  margin: 25px 0px 0px 0px;
+}
+
+.recline-filter-editor .filter-term a {
+  font-size: 18px;
+}
+
+.recline-filter-editor input,
+.recline-filter-editor select
+{
+  width: 175px;
+}
+
+.recline-filter-editor input {
+  margin-top: 0.5em;
+  margin-bottom: 10px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  border: 1px solid #cccccc;
+}
+
+.recline-filter-editor label {
+  font-weight: normal;
+  display: block;
+}
+
+.recline-filter-editor legend {
+  margin-bottom: 5px;
+}
+
+.recline-filter-editor .add-filter {
+  margin-top: 1em;
+  margin-bottom: 2em;
+}
+
+.recline-filter-editor .update-filter {
+  margin-top: 1em;
+}
+
+/**********************************************************
+  * Fields Widget
+  *********************************************************/
+
+.recline-fields-view {
+  display: none;
+}
+
+.recline-fields-view .fields-list {
+  padding: 0;
+}
+
+.recline-fields-view .panel {
+  background-color: #f5f5f5;
+  border: 1px solid #e5e5e5;
+}
+
+.recline-fields-view .panel-group h3 {
+  padding-left: 10px;
+}
+
+.recline-fields-view .fields-list .panel-heading {
+  padding: 2px 5px;
+  margin: 1px 0px 1px 5px;
+}
+
+.recline-fields-view .panel a,
+.recline-fields-view .panel h4 {
+  display: inline;
+}
+
+.recline-fields-view .panel a {
+  padding: 0;
+}
+
+.recline-fields-view .panel h4 {
+  word-wrap: break-word
+}
+
+.recline-fields-view .clear {
+  clear: both;
+}
+
+.recline-fields-view .facet-items {
+  list-style-type: none;
+  margin-left: 0;
+}
+
+.recline-fields-view .facet-item .term {
+  font-weight: bold;
+}
+
+.recline-fields-view .facet-item .count {
+}
+
+/**********************************************************
+  * Notifications
+  *********************************************************/
+
+.recline-data-explorer .notification-loader {
+  width: 18px;
+  margin-left: 5px;
+  background-image: url(data:image/gif;base64,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%3D%3D);
+  display: inline-block;
+}
+
+.recline-data-explorer .alert-loader {
+  position: absolute;
+  width: 200px;
+  left: 50%;
+  margin-left: -100px;
+  z-index: 10000;
+  padding: 40px 0px 40px 0px;
+  margin-top: -10px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+  border-top: none;
 }
