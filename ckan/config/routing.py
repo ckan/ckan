@@ -9,10 +9,10 @@ refer to the routes manual at http://routes.groovie.org/docs/
 """
 import re
 
-from pylons import config
 from routes.mapper import SubMapper, Mapper as _Mapper
 
 import ckan.plugins as p
+from ckan.common import config
 
 named_routes = {}
 
