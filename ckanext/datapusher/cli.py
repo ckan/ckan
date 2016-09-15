@@ -60,7 +60,7 @@ class DatapusherCommand(cli.CkanCommand):
             sys.exit(0)
 
     def _resubmit_all(self):
-        resources_ids = datastore_db.get_all_resources_ids_in_datastore()
+        resource_ids = datastore_db.get_all_resources_ids_in_datastore()
         self._submit(resource_ids)
 
     def _submit_all_packages(self):
