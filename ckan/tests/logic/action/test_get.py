@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+import datetime
+
 import nose.tools
 
 import ckan.logic as logic
@@ -11,6 +13,7 @@ from ckan.lib.search.common import SearchError
 
 
 eq = nose.tools.eq_
+ok = nose.tools.ok_
 assert_raises = nose.tools.assert_raises
 
 
@@ -2087,3 +2090,55 @@ class TestFollow(helpers.FunctionalTestBase):
 
         eq(len(followee_list), 1)
         eq(followee_list[0]['display_name'], 'Environment')
+
+
+class TestJobList(helpers.FunctionalRQTestBase):
+
+    def test_all_queues(self):
+        '''
+        Test getting jobs from all queues.
+        '''
+        job1 = self.enqueue()
+        job2 = self.enqueue()
+        job3 = self.enqueue(queue=u'my_queue')
+        jobs = helpers.call_action(u'job_list')
+        eq(len(jobs), 3)
+        eq({job[u'id'] for job in jobs}, {job1.id, job2.id, job3.id})
+
+    def test_specific_queues(self):
+        '''
+        Test getting jobs from specific queues.
+        '''
+        job1 = self.enqueue()
+        job2 = self.enqueue(queue=u'q2')
+        job3 = self.enqueue(queue=u'q3')
+        job4 = self.enqueue(queue=u'q3')
+        jobs = helpers.call_action(u'job_list', queues=[u'q2'])
+        eq(len(jobs), 1)
+        eq(jobs[0][u'id'], job2.id)
+        jobs = helpers.call_action(u'job_list', queues=[u'q2', u'q3'])
+        eq(len(jobs), 3)
+        eq({job[u'id'] for job in jobs}, {job2.id, job3.id, job4.id})
+
+
+class TestJobShow(helpers.FunctionalRQTestBase):
+
+    def test_existing_job(self):
+        '''
+        Test showing an existing job.
+        '''
+        job = self.enqueue(queue=u'my_queue', title=u'Title')
+        d = helpers.call_action(u'job_show', id=job.id)
+        eq(d[u'id'], job.id)
+        eq(d[u'title'], u'Title')
+        eq(d[u'queue'], u'my_queue')
+        dt = datetime.datetime.strptime(d[u'created'], u'%Y-%m-%dT%H:%M:%S')
+        now = datetime.datetime.utcnow()
+        ok(abs((now - dt).total_seconds()) < 10)
+
+    @nose.tools.raises(logic.NotFound)
+    def test_not_existing_job(self):
+        '''
+        Test showing a not existing job.
+        '''
+        helpers.call_action(u'job_show', id=u'does-not-exist')

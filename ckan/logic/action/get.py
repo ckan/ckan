@@ -17,6 +17,7 @@ import ckan.logic as logic
 import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
 import ckan.model as model
 import ckan.model.misc as misc
@@ -1112,6 +1113,8 @@ def resource_view_list(context, data_dict):
 
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
+
+    This function is DEPRECATED.
 
     :param id: the id of the resource
     :type id: string
@@ -3500,3 +3503,46 @@ def config_option_list(context, data_dict):
     schema = ckan.logic.schema.update_configuration_schema()
 
     return schema.keys()
+
+
+@logic.validate(logic.schema.job_list_schema)
+def job_list(context, data_dict):
+    '''List enqueued background jobs.
+
+    :param list queues: Queues to list jobs from. If not given then the
+        jobs from all queues are listed.
+
+    :returns: The currently enqueued background jobs.
+    :rtype: list
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_list', context, data_dict)
+    dictized_jobs = []
+    queues = data_dict.get(u'queues')
+    if queues:
+        queues = [jobs.get_queue(q) for q in queues]
+    else:
+        queues = jobs.get_all_queues()
+    for queue in queues:
+        for job in queue.jobs:
+            dictized_jobs.append(jobs.dictize_job(job))
+    return dictized_jobs
+
+
+def job_show(context, data_dict):
+    '''Show details for a background job.
+
+    :param string id: The ID of the background job.
+
+    :returns: Details about the background job.
+    :rtype: dict
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_show', context, data_dict)
+    id = _get_or_bust(data_dict, u'id')
+    try:
+        return jobs.dictize_job(jobs.job_from_id(id))
+    except KeyError:
+        raise NotFound
