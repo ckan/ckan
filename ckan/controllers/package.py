@@ -30,7 +30,6 @@ log = logging.getLogger(__name__)
 
 render = base.render
 abort = base.abort
-redirect = base.redirect
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -575,8 +574,8 @@ class PackageController(base.BaseController):
                                           errors, error_summary)
             except NotAuthorized:
                 abort(403, _('Unauthorized to edit this resource'))
-            redirect(h.url_for(controller='package', action='resource_read',
-                               id=id, resource_id=resource_id))
+            h.redirect_to(controller='package', action='resource_read', id=id,
+                          resource_id=resource_id)
 
         context = {'model': model, 'session': model.Session,
                    'api_version': 3, 'for_edit': True,
@@ -645,8 +644,7 @@ class PackageController(base.BaseController):
             if not data_provided and save_action != "go-dataset-complete":
                 if save_action == 'go-dataset':
                     # go to final stage of adddataset
-                    redirect(h.url_for(controller='package',
-                                       action='edit', id=id))
+                    h.redirect_to(controller='package', action='edit', id=id)
                 # see if we have added any resources
                 try:
                     data_dict = get_action('package_show')(context, {'id': id})
@@ -661,8 +659,8 @@ class PackageController(base.BaseController):
                     # On new templates do not use flash message
                     if g.legacy_templates:
                         h.flash_error(msg)
-                        redirect(h.url_for(controller='package',
-                                           action='new_resource', id=id))
+                        h.redirect_to(controller='package',
+                                      action='new_resource', id=id)
                     else:
                         errors = {}
                         error_summary = {_('Error'): msg}
@@ -673,8 +671,7 @@ class PackageController(base.BaseController):
                 get_action('package_update')(
                     dict(context, allow_state_change=True),
                     dict(data_dict, state='active'))
-                redirect(h.url_for(controller='package',
-                                   action='read', id=id))
+                h.redirect_to(controller='package', action='read', id=id)
 
             data['package_id'] = id
             try:
@@ -698,20 +695,17 @@ class PackageController(base.BaseController):
                 get_action('package_update')(
                     dict(context, allow_state_change=True),
                     dict(data_dict, state='active'))
-                redirect(h.url_for(controller='package',
-                                   action='read', id=id))
+                h.redirect_to(controller='package', action='read', id=id)
             elif save_action == 'go-dataset':
                 # go to first stage of add dataset
-                redirect(h.url_for(controller='package',
-                                   action='edit', id=id))
+                h.redirect_to(controller='package', action='edit', id=id)
             elif save_action == 'go-dataset-complete':
                 # go to first stage of add dataset
-                redirect(h.url_for(controller='package',
-                                   action='read', id=id))
+                h.redirect_to(controller='package', action='read', id=id)
             else:
                 # add more resources
-                redirect(h.url_for(controller='package',
-                                   action='new_resource', id=id))
+                h.redirect_to(controller='package', action='new_resource',
+                              id=id)
 
         # get resources for sidebar
         context = {'model': model, 'session': model.Session,
@@ -906,7 +900,7 @@ class PackageController(base.BaseController):
                         url = h.url_for(controller='package',
                                         action='new_resource',
                                         id=pkg_dict['name'])
-                    redirect(url)
+                    h.redirect_to(url)
                 # Make sure we don't index this dataset
                 if request.params['save'] not in ['go-resource',
                                                   'go-metadata']:
@@ -923,7 +917,7 @@ class PackageController(base.BaseController):
                 url = h.url_for(controller='package',
                                 action='new_resource',
                                 id=pkg_dict['name'])
-                redirect(url)
+                h.redirect_to(url)
 
             self._form_save_redirect(pkg_dict['name'], 'new',
                                      package_type=package_type)
@@ -1010,7 +1004,7 @@ class PackageController(base.BaseController):
                                 id=pkgname)
             else:
                 url = h.url_for('{0}_read'.format(package_type), id=pkgname)
-        redirect(url)
+        h.redirect_to(url)
 
     def delete(self, id):
 
@@ -1165,7 +1159,7 @@ class PackageController(base.BaseController):
             return app_iter
         elif not 'url' in rsc:
             abort(404, _('No download is available'))
-        redirect(rsc['url'])
+        h.redirect_to(rsc['url'])
 
     def follow(self, id):
         '''Start following this dataset.'''
@@ -1264,8 +1258,7 @@ class PackageController(base.BaseController):
                     get_action('member_delete')(context, data_dict)
                 except NotFound:
                     abort(404, _('Group not found'))
-            redirect(h.url_for(controller='package',
-                               action='groups', id=id))
+            h.redirect_to(controller='package', action='groups', id=id)
 
         context['is_member'] = True
         users_groups = get_action('group_list_authz')(context, data_dict)
@@ -1477,9 +1470,9 @@ class PackageController(base.BaseController):
                 abort(403, _('Unauthorized to edit resource'))
             else:
                 if not to_preview:
-                    redirect(h.url_for(controller='package',
-                                       action='resource_views',
-                                       id=id, resource_id=resource_id))
+                    h.redirect_to(controller='package',
+                                  action='resource_views',
+                                  id=id, resource_id=resource_id)
 
         ## view_id exists only when updating
         if view_id:
