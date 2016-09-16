@@ -7,7 +7,7 @@ from nose.tools import assert_raises, assert_equal
 
 import ckan.plugins
 from ckan.plugins.toolkit import get_action, NotAuthorized
-from ckan.tests.helpers import FunctionalTestBase, call_action, call_auth
+from ckan.tests.helpers import FunctionalTestBase, call_auth
 from ckan.tests import factories
 from ckan import model
 
@@ -28,10 +28,9 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         user2 = factories.User()
         user3 = factories.User()
         org = factories.Organization(user=user)
-        org2 = factories.Organization(user=user2)
-        call_action(
-            u'organization_member_create', None, username=user3['name'],
-            id=org2['id'], role=u'member')
+        org2 = factories.Organization(
+            user=user2,
+            users=[{'name': user3['id'], 'capacity': 'member'}])
 
         dataset = factories.Dataset(
             name=u'd1', user=user, private=True, owner_org=org['id'])
@@ -79,10 +78,9 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
     def test_proposed_dataset_visible_to_org_admin(self):
         user = factories.User()
         user2 = factories.User()
-        org = factories.Organization(user=user2)
-        call_action(
-            u'organization_member_create', None, username=user['name'],
-            id=org['id'], role=u'editor')
+        org = factories.Organization(
+            user=user2,
+            users=[{'name': user['id'], 'capacity': 'editor'}])
         dataset = factories.Dataset(
             name=u'd1', notes=u'Proposed:', user=user, owner_org=org['id'])
 
@@ -98,10 +96,9 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
     def test_proposed_dataset_invisible_to_another_editor(self):
         user = factories.User()
         user2 = factories.User()
-        org = factories.Organization(user=user2)
-        call_action(
-            u'organization_member_create', None, username=user['name'],
-            id=org['id'], role=u'editor')
+        org = factories.Organization(
+            user=user2,
+            users=[{'name': user['id'], 'capacity': 'editor'}])
         dataset = factories.Dataset(
             name=u'd1', notes=u'Proposed:', user=user2, owner_org=org['id'])
 
