@@ -30,7 +30,7 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         org = factories.Organization(user=user)
         org2 = factories.Organization(
             user=user2,
-            users=[{'name': user3['id'], 'capacity': 'member'}])
+            users=[{u'name': user3['id'], u'capacity': u'member'}])
 
         dataset = factories.Dataset(
             name=u'd1', user=user, private=True, owner_org=org['id'])
@@ -80,7 +80,7 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         user2 = factories.User()
         org = factories.Organization(
             user=user2,
-            users=[{'name': user['id'], 'capacity': 'editor'}])
+            users=[{u'name': user['id'], u'capacity': u'editor'}])
         dataset = factories.Dataset(
             name=u'd1', notes=u'Proposed:', user=user, owner_org=org['id'])
 
@@ -98,7 +98,7 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
         user2 = factories.User()
         org = factories.Organization(
             user=user2,
-            users=[{'name': user['id'], 'capacity': 'editor'}])
+            users=[{u'name': user['id'], u'capacity': u'editor'}])
         dataset = factories.Dataset(
             name=u'd1', notes=u'Proposed:', user=user2, owner_org=org['id'])
 
