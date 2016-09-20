@@ -5,6 +5,7 @@ import ckan.authz as authz
 from ckan.lib.base import _
 from ckan.logic.auth import (get_package_object, get_group_object,
                             get_resource_object)
+from ckan.lib.plugins import get_permission_labels
 
 
 def sysadmin(context, data_dict):
@@ -112,22 +113,15 @@ def package_relationships_list(context, data_dict):
 def package_show(context, data_dict):
     user = context.get('user')
     package = get_package_object(context, data_dict)
-    # draft state indicates package is still in the creation process
-    # so we need to check we have creation rights.
-    if package.state.startswith('draft'):
-        auth = authz.is_authorized('package_update',
-                                       context, data_dict)
-        authorized = auth.get('success')
-    elif package.owner_org is None and package.state == 'active':
-        return {'success': True}
-    else:
-        # anyone can see a public package
-        if not package.private and package.state == 'active':
-            return {'success': True}
-        authorized = authz.has_user_permission_for_group_or_org(
-            package.owner_org, user, 'read')
+    labels = get_permission_labels()
+    user_labels = labels.get_user_dataset_labels(context['auth_user_obj'])
+    authorized = any(
+        dl in user_labels for dl in labels.get_dataset_labels(package))
+
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read package %s') % (user, package.id)}
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to read package %s') % (user, package.id)}
     else:
         return {'success': True}
 
@@ -342,4 +336,14 @@ def config_option_show(context, data_dict):
 
 def config_option_list(context, data_dict):
     '''List runtime-editable configuration options. Only sysadmins.'''
+    return {'success': False}
+
+
+def job_list(context, data_dict):
+    '''List background jobs. Only sysadmins.'''
+    return {'success': False}
+
+
+def job_show(context, data_dict):
+    '''Show background job. Only sysadmins.'''
     return {'success': False}

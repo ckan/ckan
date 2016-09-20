@@ -219,8 +219,10 @@ def find_unprefixed_string_literals(filename):
                         break
                     except ValueError:
                         continue
-            first_char = lines[lineno][col_offset]
-            if first_char not in u'ub':  # Don't allow capital U and B either
+            leading = lines[lineno][col_offset - 1:col_offset + 1]
+            if leading[:-1] == u'[':  # data['id'] is unambiguous, ignore these
+                continue
+            if leading[-1:] not in u'ub':  # Don't allow capital U and B either
                 problems.append((lineno + 1, col_offset + 1))
     return sorted(problems)
 
