@@ -206,6 +206,7 @@ class PackageController(base.BaseController):
             c.fields_grouped = {}
             search_extras = {}
             fq = []
+            fq_list = []
             # FIXME: This seems moderately insane - it treats *every* argument
             # to the URL as a fq filter. We should have more knowledge of what
             # we expect to see passed in, no need to guess.
@@ -239,7 +240,7 @@ class PackageController(base.BaseController):
                         )
 
                     # Tag each value with a domain so we can act on it later.
-                    fq.append('{{!tag={p}}}{p}:{v}'.format(
+                    fq_list.append('{{!tag={p}}}{p}:{v}'.format(
                         p=param,
                         v=filter_value
                     ))
@@ -292,6 +293,7 @@ class PackageController(base.BaseController):
             data_dict = {
                 'q': q,
                 'fq': ' '.join(fq),
+                'fq_list': fq_list,
                 'facet.field': [
                     # When faceting, exclude the facet group from the facet
                     # counts. This lets us always get a count back, rather than
