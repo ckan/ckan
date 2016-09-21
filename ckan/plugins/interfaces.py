@@ -51,15 +51,40 @@ class Interface(_pca_Interface):
 
 
 class IMiddleware(Interface):
-    '''Hook into Pylons middleware stack
+    '''Hook into CKAN middleware stack
+
+    Note that methods on this interface will be called two times,
+    one for the Pylons stack and one for the Flask stack (eventually
+    there will be only the Flask stack).
     '''
     def make_middleware(self, app, config):
         '''Return an app configured with this middleware
+
+        When called on the Flask stack, this method will get the actual Flask
+        app so plugins wanting to install Flask extensions can do it like
+        this::
+
+            import ckan.plugins as p
+            from flask_mail import Mail
+
+            class MyPlugin(p.SingletonPlugin):
+
+                p.implements(p.I18nMiddleware)
+
+                def make_middleware(app, config):
+
+                    mail = Mail(app)
+
+                    return app
         '''
         return app
 
     def make_error_log_middleware(self, app, config):
         '''Return an app configured with this error log middleware
+
+        Note that both on the Flask and Pylons middleware stacks, this
+        method will receive a wrapped WSGI app, not the actual Flask or
+        Pylons app.
         '''
         return app
 
