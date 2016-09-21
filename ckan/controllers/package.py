@@ -209,7 +209,8 @@ class PackageController(base.BaseController):
             # FIXME: This seems moderately insane - it treats *every* argument
             # to the URL as a fq filter. We should have more knowledge of what
             # we expect to see passed in, no need to guess.
-            for param, value in request.params.iteritems():
+            query_params = request.params.mixed()
+            for param, value in query_params.iteritems():
                 if param in ('q', 'page', 'sort') or not value:
                     continue
                 elif param.startswith('_'):
@@ -217,16 +218,30 @@ class PackageController(base.BaseController):
                 elif param.startswith('ext_'):
                     search_extras[param] = value
                 else:
-                    c.fields.append((param, value))
-
-                    # if value starts with [, assume range facet filter
-                    # query, otherwise a quoted literal.
-                    fq.append('{{!tag={p}}}{p}:{v}'.format(
-                        p=param,
-                        v=(
+                    if isinstance(value, (list, tuple)):
+                        c.fields.extend((param, v) for v in value)
+                        # We're filtering on a list of items, each of which
+                        # should be escaped and OR'd instead of Solr's default
+                        # AND.
+                        filter_value = '({0})'.format(
+                            ' OR '.join('"{0}"'.format(
+                                v
+                            ) for v in value)
+                        )
+                    else:
+                        c.fields.append((param, value))
+                        # We're just filtering on a single item, which might be
+                        # a range. We assume it's a range if it starts with a
+                        # [, otherwise we escape it and treat it as a literal.
+                        filter_value = (
                             value if value.startswith('[')
                             else '"{0}"'.format(value)
                         )
+
+                    # Tag each value with a domain so we can act on it later.
+                    fq.append('{{!tag={p}}}{p}:{v}'.format(
+                        p=param,
+                        v=filter_value
                     ))
 
                     c.fields_grouped.setdefault(param, []).append(value)
@@ -278,6 +293,9 @@ class PackageController(base.BaseController):
                 'q': q,
                 'fq': ' '.join(fq),
                 'facet.field': [
+                    # When faceting, exclude the facet group from the facet
+                    # counts. This lets us always get a count back, rather than
+                    # an intersection (which would always be 0)
                     '{{!ex={k}}}{k}'.format(k=k) for k in facets.iterkeys()
                 ],
                 'rows': limit,
