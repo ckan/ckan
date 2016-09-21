@@ -25,7 +25,8 @@ __all__ = [
     'IFacets',
     'IAuthenticator',
     'ITranslation',
-    'IUploader'
+    'IUploader',
+    'IPermissionLabels',
 ]
 
 from inspect import isclass
@@ -1567,4 +1568,44 @@ class IUploader(Interface):
         :param id: resource id
         :type id: string
 
+        '''
+
+
+class IPermissionLabels(Interface):
+    '''
+    Extensions implementing this interface can override the permission
+    labels applied to datasets to precisely control which datasets are
+    visible to each user.
+
+    Implementations might want to consider mixing in
+    ``ckan.lib.plugins.DefaultPermissionLabels`` which provides
+    default behaviours for these methods.
+
+    See ``ckanext/example_ipermissionlabels`` for an example plugin.
+    '''
+
+    def get_dataset_labels(self, dataset_obj):
+        '''
+        Return a list of unicode strings to be stored in the search index
+        as the permission lables for a dataset dict.
+
+        :param dataset_obj: dataset details
+        :type dataset_obj: Package model object
+
+        :returns: permission labels
+        :rtype: list of unicode strings
+        '''
+
+    def get_user_dataset_labels(self, user_obj):
+        '''
+        Return the permission labels that give a user permission to view
+        a dataset. If any of the labels returned from this method match
+        any of the labels returned from :py:meth:`.get_dataset_labels`
+        then this user is permitted to view that dataset.
+
+        :param user_obj: user details
+        :type user_obj: User model object or None
+
+        :returns: permission labels
+        :rtype: list of unicode strings
         '''
