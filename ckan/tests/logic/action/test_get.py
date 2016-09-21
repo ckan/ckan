@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+import datetime
+
 import nose.tools
 
 import ckan.logic as logic
@@ -11,6 +13,7 @@ from ckan.lib.search.common import SearchError
 
 
 eq = nose.tools.eq_
+ok = nose.tools.ok_
 assert_raises = nose.tools.assert_raises
 
 
@@ -961,10 +964,10 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, private=True, owner_org=org['name'])
 
         fq = "capacity:private"
-        results = helpers.call_action('package_search', fq=fq)['results']
+        results = logic.get_action('package_search')(
+            {}, {'fq': fq})['results']
 
-        eq(len(results), 1)
-        eq(results[0]['name'], dataset['name'])
+        eq(len(results), 0)
 
     def test_package_search_with_fq_excludes_drafts(self):
         '''
@@ -997,7 +1000,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         draft_dataset = factories.Dataset(user=user, state='draft')
         factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        results = helpers.call_action('package_search', include_drafts=True)['results']
+        results = logic.get_action('package_search')(
+            {}, {'include_drafts': True})['results']
 
         eq(len(results), 1)
         nose.tools.assert_not_equals(results[0]['name'], draft_dataset['name'])
@@ -1018,8 +1022,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         other_draft_dataset = factories.Dataset(user=other_user, state='draft')
         factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        results = helpers.call_action('package_search', include_drafts=True,
-                                      context={'user': sysadmin['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': sysadmin['name']}, {'include_drafts': True})['results']
 
         eq(len(results), 3)
         names = [r['name'] for r in results]
@@ -1042,8 +1046,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         other_draft_dataset = factories.Dataset(user=other_user, state='draft')
         factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        results = helpers.call_action('package_search', include_drafts=False,
-                                      context={'user': sysadmin['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': sysadmin['name']}, {'include_drafts': False})['results']
 
         eq(len(results), 1)
         names = [r['name'] for r in results]
@@ -1066,8 +1070,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         other_draft_dataset = factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
-        results = helpers.call_action('package_search', include_drafts=True,
-                                      context={'user': user['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': user['name']}, {'include_drafts': True})['results']
 
         eq(len(results), 3)
         names = [r['name'] for r in results]
@@ -1092,8 +1096,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
         fq = "creator_user_id:{0}".format(other_user['id'])
-        results = helpers.call_action('package_search', fq=fq,
-                                      context={'user': user['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': user['name']}, {'fq': fq})['results']
 
         eq(len(results), 1)
         names = [r['name'] for r in results]
@@ -1118,8 +1122,9 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
         fq = "(creator_user_id:{0} AND +state:draft)".format(other_user['id'])
-        results = helpers.call_action('package_search', fq=fq,
-                                      context={'user': user['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': user['name']},
+            {'fq': fq, 'include_drafts': True})['results']
 
         eq(len(results), 0)
 
@@ -1139,8 +1144,9 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
         fq = "(creator_user_id:{0} AND +state:draft)".format(other_user['id'])
-        results = helpers.call_action('package_search', fq=fq, include_drafts=True,
-                                      context={'user': user['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': user['name']},
+            {'fq': fq, 'include_drafts': True})['results']
 
         eq(len(results), 0)
 
@@ -1160,8 +1166,9 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
         fq = "creator_user_id:{0}".format(other_user['id'])
-        results = helpers.call_action('package_search', fq=fq, include_drafts=True,
-                                      context={'user': user['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': user['name']},
+            {'fq': fq, 'include_drafts': True})['results']
 
         names = [r['name'] for r in results]
         eq(len(results), 1)
@@ -1184,8 +1191,9 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
         fq = "(creator_user_id:{0} AND +state:draft)".format(user['id'])
-        results = helpers.call_action('package_search', fq=fq,
-                                      context={'user': sysadmin['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': sysadmin['name']},
+            {'fq': fq})['results']
 
         names = [r['name'] for r in results]
         eq(len(results), 1)
@@ -1203,10 +1211,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, state='draft')
         private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        results = helpers.call_action(
-            'package_search',
-            include_private=True,
-            context={'user': user['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': user['name']}, {'include_private': True})['results']
 
         eq([r['name'] for r in results], [private_dataset['name']])
 
@@ -1217,10 +1223,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         org2 = factories.Organization(user=user2)
         private_dataset = factories.Dataset(user=user2, private=True, owner_org=org2['name'])
 
-        results = helpers.call_action(
-            'package_search',
-            include_private=True,
-            context={'user': user['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': user['name']}, {'include_private': True})['results']
 
         eq([r['name'] for r in results], [])
 
@@ -1230,10 +1234,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         org = factories.Organization(user=user)
         private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        results = helpers.call_action(
-            'package_search',
-            include_private=True,
-            context={'user': sysadmin['name']})['results']
+        results = logic.get_action('package_search')(
+            {'user': sysadmin['name']}, {'include_private': True})['results']
 
         eq([r['name'] for r in results], [private_dataset['name']])
 
@@ -2087,3 +2089,55 @@ class TestFollow(helpers.FunctionalTestBase):
 
         eq(len(followee_list), 1)
         eq(followee_list[0]['display_name'], 'Environment')
+
+
+class TestJobList(helpers.FunctionalRQTestBase):
+
+    def test_all_queues(self):
+        '''
+        Test getting jobs from all queues.
+        '''
+        job1 = self.enqueue()
+        job2 = self.enqueue()
+        job3 = self.enqueue(queue=u'my_queue')
+        jobs = helpers.call_action(u'job_list')
+        eq(len(jobs), 3)
+        eq({job[u'id'] for job in jobs}, {job1.id, job2.id, job3.id})
+
+    def test_specific_queues(self):
+        '''
+        Test getting jobs from specific queues.
+        '''
+        job1 = self.enqueue()
+        job2 = self.enqueue(queue=u'q2')
+        job3 = self.enqueue(queue=u'q3')
+        job4 = self.enqueue(queue=u'q3')
+        jobs = helpers.call_action(u'job_list', queues=[u'q2'])
+        eq(len(jobs), 1)
+        eq(jobs[0][u'id'], job2.id)
+        jobs = helpers.call_action(u'job_list', queues=[u'q2', u'q3'])
+        eq(len(jobs), 3)
+        eq({job[u'id'] for job in jobs}, {job2.id, job3.id, job4.id})
+
+
+class TestJobShow(helpers.FunctionalRQTestBase):
+
+    def test_existing_job(self):
+        '''
+        Test showing an existing job.
+        '''
+        job = self.enqueue(queue=u'my_queue', title=u'Title')
+        d = helpers.call_action(u'job_show', id=job.id)
+        eq(d[u'id'], job.id)
+        eq(d[u'title'], u'Title')
+        eq(d[u'queue'], u'my_queue')
+        dt = datetime.datetime.strptime(d[u'created'], u'%Y-%m-%dT%H:%M:%S')
+        now = datetime.datetime.utcnow()
+        ok(abs((now - dt).total_seconds()) < 10)
+
+    @nose.tools.raises(logic.NotFound)
+    def test_not_existing_job(self):
+        '''
+        Test showing a not existing job.
+        '''
+        helpers.call_action(u'job_show', id=u'does-not-exist')

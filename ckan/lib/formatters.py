@@ -99,12 +99,10 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         return months
 
     if not show_date:
-        now = datetime.datetime.utcnow()
-        if datetime_.tzinfo is not None:
-            now = now.replace(tzinfo=datetime_.tzinfo)
-        else:
-            now = now.replace(tzinfo=pytz.utc)
+        now = datetime.datetime.now(pytz.utc)
+        if datetime_.tzinfo is None:
             datetime_ = datetime_.replace(tzinfo=pytz.utc)
+
         date_diff = now - datetime_
         days = date_diff.days
         if days < 1 and now > datetime_:

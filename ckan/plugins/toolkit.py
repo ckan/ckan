@@ -96,6 +96,8 @@ class _Toolkit(object):
         'auth_disallow_anonymous_access',
         # Helper not found error.
         'HelperError',
+        # Enqueue background job
+        'enqueue_job',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -134,6 +136,7 @@ class _Toolkit(object):
             CkanVersionException,
             HelperError
         )
+        from ckan.lib.jobs import enqueue as enqueue_job
 
         from paste.deploy import converters
         import pylons
@@ -271,6 +274,7 @@ content type, cookies, etc.
         t['check_ckan_version'] = self._check_ckan_version
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
+        t['enqueue_job'] = enqueue_job
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))
