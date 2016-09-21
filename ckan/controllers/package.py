@@ -206,24 +206,30 @@ class PackageController(base.BaseController):
             c.fields_grouped = {}
             search_extras = {}
             fq = []
-            for (param, value) in request.params.items():
-                if param not in ['q', 'page', 'sort'] \
-                        and value and not param.startswith('_'):
-                    if not param.startswith('ext_'):
-                        c.fields.append((param, value))
+            # FIXME: This seems moderately insane - it treats *every* argument
+            # to the URL as a fq filter. We should have more knowledge of what
+            # we expect to see passed in, no need to guess.
+            for param, value in request.params.iteritems():
+                if param in ('q', 'page', 'sort') or not value:
+                    continue
+                elif param.startswith('_'):
+                    continue
+                elif param.startswith('ext_'):
+                    search_extras[param] = value
+                else:
+                    c.fields.append((param, value))
 
-                        # if value starts with [, assume range facet filter
-                        # query
-                        fq.append('{p}:{v}'.format(
-                            p=param,
-                            v=(
-                                value if value.startswith('[')
-                                else '"{0}"'.format(value)
-                            )
-                        ))
-                        c.fields_grouped.setdefault(param, []).append(value)
-                    else:
-                        search_extras[param] = value
+                    # if value starts with [, assume range facet filter
+                    # query, otherwise a quoted literal.
+                    fq.append('{{!tag={p}}}{p}:{v}'.format(
+                        p=param,
+                        v=(
+                            value if value.startswith('[')
+                            else '"{0}"'.format(value)
+                        )
+                    ))
+
+                    c.fields_grouped.setdefault(param, []).append(value)
 
             context = {
                 'model': model,
@@ -271,7 +277,9 @@ class PackageController(base.BaseController):
             data_dict = {
                 'q': q,
                 'fq': ' '.join(fq),
-                'facet.field': facets.keys(),
+                'facet.field': [
+                    '{{!ex={k}}}{k}'.format(k=k) for k in facets.iterkeys()
+                ],
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,
