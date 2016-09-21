@@ -10,7 +10,9 @@ __all__ = [
     'IMapper', 'ISession',
     'IMiddleware',
     'IAuthFunctions',
-    'IDomainObjectModification', 'IGroupController',
+    'IDomainObjectModification',
+    'IFeed',
+    'IGroupController',
     'IOrganizationController',
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer',
@@ -196,6 +198,42 @@ class IDomainObjectModification(Interface):
 
         :param entity: instance of module.Package.
         :param operation: 'new', 'changed' or 'deleted'.
+        """
+        pass
+
+
+class IFeed(Interface):
+    """
+    Allows extension of the default Atom feeds
+    """
+
+    def get_feed_class(self):
+        """
+        Allows plugins to provide a custom class to generate feed items.
+
+        The feed item generator class should accept the following parameters
+        on the constructor method:
+        feed_title
+        feed_link
+        feed_description
+        language
+        author_name
+        author_link
+        feed_guid
+        feed_url
+        previous_page
+        next_page
+        first_page
+        last_page
+        """
+
+        pass
+
+    def get_item_additional_fields(self, dataset_dict):
+        """
+        Allows plugins to set additional fields on a feed item.
+
+        :param dataset_dict, a dict with the dataset metadata
         """
         pass
 
