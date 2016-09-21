@@ -212,7 +212,8 @@ class PackageController(base.BaseController):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
 
-                        #if value starts with [, assume range facet filter query
+                        # if value starts with [, assume range facet filter
+                        # query
                         if value.startswith("["):
                             fq += ' %s:%s' % (param, value)
                         else:
@@ -639,8 +640,8 @@ class PackageController(base.BaseController):
             # see if we have any data that we are trying to save
             data_provided = False
             for key, value in data.iteritems():
-                if ((value or isinstance(value, cgi.FieldStorage))
-                        and key != 'resource_type'):
+                if ((value or isinstance(value, cgi.FieldStorage)) and
+                        key != 'resource_type'):
                     data_provided = True
                     break
 
@@ -1186,7 +1187,7 @@ class PackageController(base.BaseController):
                 response.headers['Content-Type'] = content_type
             response.status = status
             return app_iter
-        elif not 'url' in rsc:
+        elif 'url' not in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])
 
@@ -1202,8 +1203,7 @@ class PackageController(base.BaseController):
             h.flash_success(_("You are now following {0}").format(
                 package_dict['title']))
         except ValidationError as e:
-            error_message = (e.message or e.error_summary
-                             or e.error_dict)
+            error_message = (e.message or e.error_summary or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
             h.flash_error(e.message)
@@ -1221,8 +1221,7 @@ class PackageController(base.BaseController):
             h.flash_success(_("You are no longer following {0}").format(
                 package_dict['title']))
         except ValidationError as e:
-            error_message = (e.message or e.error_summary
-                             or e.error_dict)
+            error_message = (e.message or e.error_summary or e.error_dict)
             h.flash_error(error_message)
         except (NotFound, NotAuthorized) as e:
             error_message = e.message
@@ -1502,13 +1501,13 @@ class PackageController(base.BaseController):
                 else:
                     data = get_action('resource_view_create')(context, data)
             except ValidationError, e:
-                ## Could break preview if validation error
+                # Could break preview if validation error
                 to_preview = False
                 errors = e.error_dict
                 error_summary = e.error_summary
             except NotAuthorized:
-                ## This should never happen unless the user maliciously changed
-                ## the resource_id in the url.
+                # This should never happen unless the user maliciously changed
+                # the resource_id in the url.
                 abort(401, _('Unauthorized to edit resource'))
             else:
                 if not to_preview:
@@ -1516,14 +1515,14 @@ class PackageController(base.BaseController):
                                        action='resource_views',
                                        id=id, resource_id=resource_id))
 
-        ## view_id exists only when updating
+        # view_id exists only when updating
         if view_id:
             try:
                 old_data = get_action('resource_view_show')(context,
                                                             {'id': view_id})
                 data = data or old_data
                 view_type = old_data.get('view_type')
-                ## might as well preview when loading good existing view
+                # might as well preview when loading good existing view
                 if not errors:
                     to_preview = True
             except NotFound:
