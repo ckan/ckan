@@ -69,7 +69,7 @@
   ["TAR", "TAR Compressed File", "application/x-tar", []],
   ["PNG", "PNG Image File", "image/png", []],
   ["RSS", "RSS feed", "application/rss+xml", []],
-  ["GeoJSON", "Geographic JavaScript Object Notation", null, []],
+  ["GeoJSON", "Geographic JavaScript Object Notation", "application/geo+json", ["geojson"]],
   ["SHP", "Shapefile", null, ["esri shapefile"]],
   ["TORRENT", "Torrent", "application/x-bittorrent", ["bittorrent"]],
   ["ICS", "iCalendar", "text/calendar", ["ifb", "iCal"]],
