@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+import re
+
 import nose.tools
 
 import ckan.tests.helpers as helpers
@@ -7,10 +9,15 @@ import ckan.tests.factories as factories
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
+import ckan.lib.jobs as jobs
 import ckan.lib.search as search
+
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+eq = nose.tools.eq_
+ok = nose.tools.ok_
+raises = nose.tools.raises
 
 
 class TestDelete:
@@ -451,6 +458,30 @@ class TestDatasetPurge(object):
         # No Revision objects were purged or created
         assert_equals(num_revisions_after - num_revisions_before, 0)
 
+    def test_purged_dataset_removed_from_relationships(self):
+        child = factories.Dataset()
+        parent = factories.Dataset()
+        grandparent = factories.Dataset()
+
+        helpers.call_action('package_relationship_create',
+                            subject=child['id'],
+                            type='child_of',
+                            object=parent['id'])
+
+        helpers.call_action('package_relationship_create',
+                            subject=parent['id'],
+                            type='child_of',
+                            object=grandparent['id'])
+
+        assert_equals(len(
+            model.Session.query(model.PackageRelationship).all()), 2)
+
+        helpers.call_action('dataset_purge',
+                            context={'ignore_auth': True},
+                            id=parent['name'])
+
+        assert_equals(model.Session.query(model.PackageRelationship).all(), [])
+
     def test_missing_id_returns_error(self):
         assert_raises(logic.ValidationError,
                       helpers.call_action, 'dataset_purge')
@@ -458,3 +489,57 @@ class TestDatasetPurge(object):
     def test_bad_id_returns_404(self):
         assert_raises(logic.NotFound,
                       helpers.call_action, 'dataset_purge', id='123')
+
+
+class TestJobClear(helpers.FunctionalRQTestBase):
+
+    def test_all_queues(self):
+        '''
+        Test clearing all queues.
+        '''
+        self.enqueue()
+        self.enqueue(queue=u'q')
+        self.enqueue(queue=u'q')
+        self.enqueue(queue=u'q')
+        queues = helpers.call_action(u'job_clear')
+        eq({jobs.DEFAULT_QUEUE_NAME, u'q'}, set(queues))
+        all_jobs = self.all_jobs()
+        eq(len(all_jobs), 0)
+
+    def test_specific_queues(self):
+        '''
+        Test clearing specific queues.
+        '''
+        job1 = self.enqueue()
+        job2 = self.enqueue(queue=u'q1')
+        job3 = self.enqueue(queue=u'q1')
+        job4 = self.enqueue(queue=u'q2')
+        with helpers.recorded_logs(u'ckan.logic') as logs:
+            queues = helpers.call_action(u'job_clear', queues=[u'q1', u'q2'])
+        eq({u'q1', u'q2'}, set(queues))
+        all_jobs = self.all_jobs()
+        eq(len(all_jobs), 1)
+        eq(all_jobs[0], job1)
+        logs.assert_log(u'info', u'q1')
+        logs.assert_log(u'info', u'q2')
+
+
+class TestJobCancel(helpers.FunctionalRQTestBase):
+
+    def test_existing_job(self):
+        '''
+        Test cancelling an existing job.
+        '''
+        job1 = self.enqueue(queue=u'q')
+        job2 = self.enqueue(queue=u'q')
+        with helpers.recorded_logs(u'ckan.logic') as logs:
+            helpers.call_action(u'job_cancel', id=job1.id)
+        all_jobs = self.all_jobs()
+        eq(len(all_jobs), 1)
+        eq(all_jobs[0], job2)
+        assert_raises(KeyError, jobs.job_from_id, job1.id)
+        logs.assert_log(u'info', re.escape(job1.id))
+
+    @raises(logic.NotFound)
+    def test_not_existing_job(self):
+        helpers.call_action(u'job_cancel', id=u'does-not-exist')

@@ -5763,7 +5763,7 @@ a.tag:hover {
   margin-top: 0;
 }
 .ckanext-datapreview > iframe {
-  min-height: 400px;
+  min-height: 650px;
 }
 .ckanext-datapreview > img {
   max-height: 500px;
@@ -6876,7 +6876,7 @@ textarea {
   box-shadow: none;
 }
 .js .image-upload #field-image-url {
-  padding-right: 29px;
+  padding-right: 90px;
 }
 .js .image-upload #field-image-upload {
   cursor: pointer;
@@ -6907,7 +6907,7 @@ textarea {
   margin-right: 0;
   top: 4px;
   right: 5px;
-  padding: 0 4px;
+  padding: 0 12px;
   -webkit-border-radius: 100px;
   -moz-border-radius: 100px;
   border-radius: 100px;

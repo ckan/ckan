@@ -581,19 +581,6 @@ a single CKAN instance then this can be ignored.
 
 Note, if you change this value, you need to rebuild the search index.
 
-.. _ckan.simple_search:
-
-ckan.simple_search
-^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.simple_search = true
-
-Default value:  ``false``
-
-Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
-
 .. _solr_url:
 
 solr_url
@@ -655,6 +642,21 @@ Default value:  ``false``
 Controls whether the default search page (``/dataset``) should show only
 standard datasets or also custom dataset types.
 
+.. _ckan.search.default_include_private:
+
+ckan.search.default_include_private
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.defalt_include_private = false
+
+Default value:  ``true``
+
+Controls whether the default search page (``/dataset``) should include
+private datasets visible to the current user or only public datasets
+visible to everyone.
+
 .. _search.facets.limit:
 
 search.facets.limit
@@ -691,6 +693,25 @@ Example::
 Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
+
+
+Redis Settings
+---------------
+
+.. _ckan_redis_url:
+
+ckan.redis.url
+^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.redis.url = redis://localhost:7000/1
+
+Default value: ``redis://localhost:6379/0``
+
+URL to your Redis instance, including the database to be used.
+
+.. versionadded:: 2.7
 
 
 CORS Settings
@@ -992,7 +1013,7 @@ web interface. For example::
 
   ckan.dumps_url = http://ckan.net/dump/
 
-For more information on using dumpfiles, see :ref:`paster db`.
+For more information on using dumpfiles, see :ref:`datasets dump`.
 
 .. _ckan.dumps_format:
 
@@ -1775,7 +1796,7 @@ smtp.server
 
 Example::
 
-  smtp.server = smtp.gmail.com:587
+  smtp.server = smtp.example.com:587
 
 Default value: ``None``
 
@@ -1801,7 +1822,7 @@ smtp.user
 
 Example::
 
-  smtp.user = your_username@gmail.com
+  smtp.user = username@example.com
 
 Default value: ``None``
 
@@ -1827,7 +1848,7 @@ smtp.mail_from
 
 Example::
 
-  smtp.mail_from = you@yourdomain.com
+  smtp.mail_from = ckan@example.com
 
 Default value: ``None``
 
@@ -1841,7 +1862,7 @@ email_to
 
 Example::
 
-  email_to = you@yourdomain.com
+  email_to = errors@example.com
 
 Default value: ``None``
 
@@ -1854,7 +1875,7 @@ error_email_from
 
 Example::
 
-  error_email_from = paste@localhost
+  error_email_from = ckan-errors@example.com
 
 Default value: ``None``
 

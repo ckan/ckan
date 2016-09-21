@@ -50,23 +50,9 @@ CKAN release you're upgrading to:
 
     sudo service jetty restart
 
-#. If you are upgrading to a new :ref:`major release <releases>` update your
-   CKAN database's schema using the ``db upgrade`` command.
-
-   .. warning ::
-
-     To avoid problems during the database upgrade, comment out any plugins
-     that you have enabled in your ini file. You can uncomment them again when
-     the upgrade finishes.
-
-   For example:
-
-   .. parsed-literal::
-
-    paster db upgrade --config=\ |development.ini|
-
-   See :ref:`paster db` for details of the ``db upgrade``
-   command.
+#. If there have been changes in the database schema (check the
+   :doc:`/changelog` to find out) you need to :ref:`upgrade your database
+   schema <db upgrade>`.
 
 #. Rebuild your search index by running the ``ckan search-index rebuild``
    command:

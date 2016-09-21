@@ -8,10 +8,9 @@ import logging
 import time
 
 from paste.deploy.converters import asbool
-from pylons import cache, config, session
+from pylons import cache, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
-from pylons.controllers.util import redirect_to, redirect
 from pylons.decorators import jsonify
 from pylons.i18n import N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
@@ -30,16 +29,12 @@ import ckan.lib.maintain as maintain
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
 # plugins.toolkit for extensions.
-from ckan.common import json, _, ungettext, c, g, request, response
+from ckan.common import json, _, ungettext, c, g, request, response, config
 
 log = logging.getLogger(__name__)
 
-PAGINATE_ITEMS_PER_PAGE = 50
-
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
-
-ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 
 def abort(status_code=None, detail='', headers=None, comment=None):
@@ -197,7 +192,6 @@ class BaseController(WSGIController):
 
     def __before__(self, action, **params):
         c.__timer = time.time()
-        c.__version__ = ckan.__version__
         app_globals.app_globals._check_uptodate()
 
         self._identify_user()
@@ -310,15 +304,14 @@ class BaseController(WSGIController):
                         break
                 if not is_valid_cookie_data:
                     if session.id:
-                        if not session.get('lang'):
-                            self.log.debug('No session data any more - '
-                                           'deleting session')
-                            self.log.debug('Session: %r', session.items())
-                            session.delete()
+                        self.log.debug('No valid session data - '
+                                       'deleting session')
+                        self.log.debug('Session: %r', session.items())
+                        session.delete()
                     else:
-                        response.delete_cookie(cookie)
-                        self.log.debug('No session data any more - '
+                        self.log.debug('No session id - '
                                        'deleting session cookie')
+                        response.delete_cookie(cookie)
             # Remove auth_tkt repoze.who cookie if user not logged in.
             elif cookie == 'auth_tkt' and not session.id:
                 response.delete_cookie(cookie)
@@ -340,6 +333,7 @@ class BaseController(WSGIController):
         True, or the request Origin is in the origin_whitelist.
         '''
         cors_origin_allowed = None
+
         if asbool(config.get('ckan.cors.origin_allow_all')):
             cors_origin_allowed = "*"
         elif config.get('ckan.cors.origin_whitelist') and \
@@ -347,7 +341,6 @@ class BaseController(WSGIController):
                 in config['ckan.cors.origin_whitelist'].split():
             # set var to the origin to allow it.
             cors_origin_allowed = request.headers.get('Origin')
-
         if cors_origin_allowed is not None:
             response.headers['Access-Control-Allow-Origin'] = \
                 cors_origin_allowed
@@ -377,24 +370,6 @@ class BaseController(WSGIController):
         query = model.Session.query(model.User)
         user = query.filter_by(apikey=apikey).first()
         return user
-
-    def _get_page_number(self, params, key='page', default=1):
-        """
-        Returns the page number from the provided params after
-        verifies that it is an integer.
-
-        If it fails it will abort the request with a 400 error
-        """
-        p = params.get(key, default)
-
-        try:
-            p = int(p)
-            if p < 1:
-                raise ValueError("Negative number not allowed")
-        except ValueError, e:
-            abort(400, ('"page" parameter must be a positive integer'))
-
-        return p
 
 
 # Include the '_' function in the public names

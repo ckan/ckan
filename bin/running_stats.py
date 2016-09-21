@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Tool for a script to keep track changes performed on a large number
 of objects.
 

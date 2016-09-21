@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from bs4 import BeautifulSoup
-from nose.tools import assert_equal, assert_true
+from nose.tools import assert_equal, assert_true, assert_in
 
 from routes import url_for
 
@@ -9,7 +9,6 @@ import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
 
-assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 

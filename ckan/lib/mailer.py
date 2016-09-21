@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import smtplib
+import socket
 import logging
 import uuid
 from time import time
@@ -9,7 +10,7 @@ from email.header import Header
 from email import Utils
 from urlparse import urljoin
 
-from pylons import config
+from ckan.common import config
 import paste.deploy.converters
 
 import ckan
@@ -56,7 +57,13 @@ def _mail_recipient(recipient_name, recipient_email,
             config.get('smtp.starttls'))
         smtp_user = config.get('smtp.user')
         smtp_password = config.get('smtp.password')
-    smtp_connection.connect(smtp_server)
+
+    try:
+        smtp_connection.connect(smtp_server)
+    except socket.error, e:
+        log.exception(e)
+        raise MailerException('SMTP server could not be connected to: "%s" %s'
+                              % (smtp_server, e))
     try:
         # Identify ourselves and prompt the server for supported features.
         smtp_connection.ehlo()

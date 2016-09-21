@@ -64,7 +64,7 @@ command line with the ``create-test-data`` command:
    paster create-test-data -c |production.ini|
 
 If you later want to delete this test data and start again with an empty
-database, you can use the ``db clean`` command, see :ref:`paster db`.
+database, you can use the :ref:`db clean <db clean>` command.
 
 For a list of other command line commands for creating tests data, run::
 

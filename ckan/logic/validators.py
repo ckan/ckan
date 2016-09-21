@@ -29,7 +29,7 @@ def owner_org_validator(key, data, errors, context):
 
     if value is missing or value is None:
         if not authz.check_config_permission('create_unowned_dataset'):
-            raise Invalid(_('A organization must be supplied'))
+            raise Invalid(_('An organization must be provided'))
         data.pop(key, None)
         raise df.StopOnError
 
@@ -38,7 +38,7 @@ def owner_org_validator(key, data, errors, context):
     user = model.User.get(user)
     if value == '':
         if not authz.check_config_permission('create_unowned_dataset'):
-            raise Invalid(_('A organization must be supplied'))
+            raise Invalid(_('An organization must be provided'))
         return
 
     group = model.Group.get(value)

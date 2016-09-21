@@ -2,8 +2,11 @@
 
 '''API functions for deleting data from CKAN.'''
 
+import logging
+
 import sqlalchemy as sqla
 
+import ckan.lib.jobs as jobs
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
@@ -11,6 +14,9 @@ import ckan.lib.dictization.model_dictize as model_dictize
 from ckan import authz
 
 from ckan.common import _
+
+
+log = logging.getLogger('ckan.logic')
 
 validate = ckan.lib.navl.dictization_functions.validate
 
@@ -117,6 +123,8 @@ def dataset_purge(context, data_dict):
     :type id: string
 
     '''
+    from sqlalchemy import or_
+
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
@@ -133,6 +141,11 @@ def dataset_purge(context, data_dict):
     if members.count() > 0:
         for m in members.all():
             m.purge()
+
+    for r in model.Session.query(model.PackageRelationship).filter(
+            or_(model.PackageRelationship.subject_package_id == pkg.id,
+                model.PackageRelationship.object_package_id == pkg.id)).all():
+        r.purge()
 
     pkg = model.Package.get(id)
     # no new_revision() needed since there are no object_revisions created
@@ -694,3 +707,48 @@ def unfollow_group(context, data_dict):
             ckan.logic.schema.default_follow_group_schema())
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingGroup)
+
+
+@ckan.logic.validate(ckan.logic.schema.job_clear_schema)
+def job_clear(context, data_dict):
+    '''Clear background job queues.
+
+    Does not affect jobs that are already being processed.
+
+    :param list queues: The queues to clear. If not given then ALL
+        queues are cleared.
+
+    :returns: The cleared queues.
+    :rtype: list
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_clear', context, data_dict)
+    queues = data_dict.get(u'queues')
+    if queues:
+        queues = [jobs.get_queue(q) for q in queues]
+    else:
+        queues = jobs.get_all_queues()
+    names = [jobs.remove_queue_name_prefix(queue.name) for queue in queues]
+    for queue, name in zip(queues, names):
+        queue.empty()
+        log.info(u'Cleared background job queue "{}"'.format(name))
+    return names
+
+
+def job_cancel(context, data_dict):
+    '''Cancel a queued background job.
+
+    Removes the job from the queue and deletes it.
+
+    :param string id: The ID of the background job.
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_cancel', context, data_dict)
+    id = _get_or_bust(data_dict, u'id')
+    try:
+        jobs.job_from_id(id).delete()
+        log.info(u'Cancelled background job {}'.format(id))
+    except KeyError:
+        raise NotFound

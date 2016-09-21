@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from pylons import config
+from ckan.common import config
 
 import urllib
 import urllib2

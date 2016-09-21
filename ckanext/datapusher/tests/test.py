@@ -4,11 +4,8 @@ import json
 import httpretty
 import httpretty.core
 import nose
-import sys
 import datetime
 
-import pylons
-from pylons import config
 import sqlalchemy.orm as orm
 import paste.fixture
 
@@ -17,6 +14,8 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
 import ckan.config.middleware as middleware
+
+from ckan.common import config
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
@@ -56,19 +55,12 @@ class HTTPrettyFix(httpretty.core.fakesock.socket):
 httpretty.core.fakesock.socket = HTTPrettyFix
 
 
-# avoid hanging tests https://github.com/gabrielfalcao/HTTPretty/issues/34
-if sys.version_info < (2, 7, 0):
-    import socket
-    socket.setdefaulttimeout(1)
-
-
 class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-
         wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         if not tests.is_datastore_supported():
@@ -79,25 +71,16 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
         engine = db._get_engine(
-            {'connection_url': pylons.config['ckan.datastore.write_url']})
+            {'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
-
-        # Httpretty crashes with Solr on Python 2.6,
-        # skip the tests
-        if (sys.version_info[0] == 2 and sys.version_info[1] == 6):
-            raise nose.SkipTest()
 
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
         p.unload('datapusher')
-        # Reenable Solr indexing
-        if (sys.version_info[0] == 2 and sys.version_info[1] == 6
-                and not p.plugin_loaded('synchronous_search')):
-            p.load('synchronous_search')
 
     def test_create_ckan_resource_in_package(self):
         package = model.Package.get('annakarenina')
@@ -119,7 +102,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @httpretty.activate
     def test_providing_res_with_url_calls_datapusher_correctly(self):
-        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
+        config['datapusher.url'] = 'http://datapusher.ckan.org'
         httpretty.HTTPretty.register_uri(
             httpretty.HTTPretty.POST,
             'http://datapusher.ckan.org/job',
@@ -145,7 +128,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @httpretty.activate
     def test_pass_the_received_ignore_hash_param_to_the_datapusher(self):
-        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
+        config['datapusher.url'] = 'http://datapusher.ckan.org'
         httpretty.HTTPretty.register_uri(
             httpretty.HTTPretty.POST,
             'http://datapusher.ckan.org/job',

@@ -2,7 +2,7 @@
 
 import time
 from nose.tools import assert_equal
-from pylons import config
+from ckan.common import config
 from email.mime.text import MIMEText
 import hashlib
 

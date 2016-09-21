@@ -1,7 +1,6 @@
 language: python
 sudo: required
 python:
-    - "2.6"
     - "2.7"
 env: PGVERSION=9.1
 install:

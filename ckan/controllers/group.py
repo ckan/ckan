@@ -150,7 +150,7 @@ class GroupController(base.BaseController):
     def index(self):
         group_type = self._guess_group_type()
 
-        page = self._get_page_number(request.params) or 1
+        page = h.get_page_number(request.params) or 1
         items_per_page = 21
 
         context = {'model': model, 'session': model.Session,
@@ -247,7 +247,7 @@ class GroupController(base.BaseController):
 
         context['return_query'] = True
 
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
@@ -294,13 +294,12 @@ class GroupController(base.BaseController):
                     else:
                         search_extras[param] = value
 
-            fq = 'capacity:"public"'
+            include_private = False
             user_member_of_orgs = [org['id'] for org
                                    in h.organizations_available('read')]
 
             if (c.group and c.group.id in user_member_of_orgs):
-                fq = ''
-                context['ignore_capacity_check'] = True
+                include_private = True
 
             facets = OrderedDict()
 
@@ -327,7 +326,8 @@ class GroupController(base.BaseController):
 
             data_dict = {
                 'q': q,
-                'fq': fq,
+                'fq': '',
+                'include_private': include_private,
                 'facet.field': facets.keys(),
                 'rows': limit,
                 'sort': sort_by,

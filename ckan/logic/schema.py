@@ -55,8 +55,10 @@ from ckan.logic.validators import (
     resource_id_exists,
     tag_not_in_vocabulary,
     group_id_exists,
+    group_id_or_name_exists,
     owner_org_validator,
     user_name_exists,
+    user_id_or_name_exists,
     role_exists,
     datasets_with_no_organization_cannot_be_private,
     list_of_strings,
@@ -520,7 +522,8 @@ def default_create_activity_schema():
 
 def default_follow_user_schema():
     schema = {'id': [not_missing, not_empty, unicode,
-                     convert_user_name_or_id_to_id]}
+                     convert_user_name_or_id_to_id],
+              'q': [ignore_missing]}
     return schema
 
 
@@ -532,9 +535,9 @@ def default_follow_dataset_schema():
 
 def member_schema():
     schema = {
-        'id': [group_id_exists, unicode],
-        'username': [user_name_exists, unicode],
-        'role': [role_exists, unicode],
+        'id': [not_missing, group_id_or_name_exists, unicode],
+        'username': [not_missing, user_id_or_name_exists, unicode],
+        'role': [not_missing, role_exists, unicode],
     }
     return schema
 
@@ -616,7 +619,7 @@ def create_schema_for_required_keys(keys):
     ''' helper function that creates a schema definition where
     each key from keys is validated against ``not_missing``.
     '''
-    schema = dict([(x, [not_missing]) for x in keys])
+    schema = {x: [not_missing] for x in keys}
     return schema
 
 
@@ -698,3 +701,15 @@ def update_configuration_schema():
             schema = plugin.update_config_schema(schema)
 
     return schema
+
+
+def job_list_schema():
+    return {
+        u'queues': [ignore_missing, list_of_strings],
+    }
+
+
+def job_clear_schema():
+    return {
+        u'queues': [ignore_missing, list_of_strings],
+    }

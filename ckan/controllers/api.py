@@ -91,9 +91,9 @@ class ApiController(base.BaseController):
             else:
                 response_msg = response_data
             # Support "JSONP" callback.
-            if status_int == 200 and 'callback' in request.params and \
-                (request.method == 'GET' or
-                 c.logic_function and request.method == 'POST'):
+            if (status_int == 200 and
+                    'callback' in request.params and
+                    request.method == 'GET'):
                 # escape callback to remove '<', '&', '>' chars
                 callback = cgi.escape(request.params['callback'])
                 response_msg = self._wrap_jsonp(callback, response_msg)

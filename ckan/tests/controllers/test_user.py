@@ -59,6 +59,37 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         response = form.submit('save')
         assert_true('The passwords you entered do not match' in response)
 
+    def test_create_user_as_sysadmin(self):
+        admin_pass = 'pass'
+        sysadmin = factories.Sysadmin(password=admin_pass)
+        app = self._get_test_app()
+
+        # Have to do an actual login as this test relies on repoze
+        #  cookie handling.
+
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+        # fill it in
+        login_form['login'] = sysadmin['name']
+        login_form['password'] = admin_pass
+        # submit it
+        login_form.submit('save')
+
+        response = app.get(
+            url=url_for(controller='user', action='register'),
+        )
+        assert "user-register-form" in response.forms
+        form = response.forms['user-register-form']
+        form['name'] = 'newestuser'
+        form['fullname'] = 'Newest User'
+        form['email'] = 'test@test.com'
+        form['password1'] = 'testpassword'
+        form['password2'] = 'testpassword'
+        response2 = form.submit('save')
+        assert '/user/activity' in response2.location
+
 
 class TestLoginView(helpers.FunctionalTestBase):
     def test_registered_user_login(self):
@@ -143,7 +174,9 @@ class TestLogout(helpers.FunctionalTestBase):
 
     @helpers.change_config('ckan.root_path', '/my/prefix')
     def test_non_root_user_logout_url_redirect(self):
-        '''_logout url redirects to logged out page.
+        '''
+        _logout url redirects to logged out page with `ckan.root_path`
+        prefixed.
 
         Note: this doesn't test the actual logout of a logged in user, just
         the associated redirect.
@@ -152,10 +185,8 @@ class TestLogout(helpers.FunctionalTestBase):
 
         logout_url = url_for(controller='user', action='logout')
         logout_response = app.get(logout_url, status=302)
-        try:
-            final_response = helpers.webtest_maybe_follow(logout_response)
-        except Exception as e:
-            assert_true('/my/prefix/user/logout' in e.message)
+        assert_equal(logout_response.status_int, 302)
+        assert_true('/my/prefix/user/logout' in logout_response.location)
 
 
 class TestUser(helpers.FunctionalTestBase):

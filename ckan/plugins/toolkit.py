@@ -18,6 +18,8 @@ class _Toolkit(object):
     # contents should describe the available functions/objects. We check
     # that this list matches the actual availables in the initialisation
     contents = [
+        # Global CKAN configuration object
+        'config',
         # i18n translation
         '_',
         # i18n translation (plural form)
@@ -94,6 +96,8 @@ class _Toolkit(object):
         'auth_disallow_anonymous_access',
         # Helper not found error.
         'HelperError',
+        # Enqueue background job
+        'enqueue_job',
 
         # Fully defined in this file ##
         'add_template_directory',
@@ -132,6 +136,7 @@ class _Toolkit(object):
             CkanVersionException,
             HelperError
         )
+        from ckan.lib.jobs import enqueue as enqueue_job
 
         from paste.deploy import converters
         import pylons
@@ -144,6 +149,14 @@ class _Toolkit(object):
         t = self._toolkit
 
         # imported functions
+        t['config'] = common.config
+        self.docstring_overrides['config'] = '''The CKAN configuration object.
+
+It stores the configuration values defined in the :ref:`config_file`, eg::
+
+    title = toolkit.config.get("ckan.site_title")
+
+'''
         t['_'] = common._
         self.docstring_overrides['_'] = '''The Pylons ``_()`` function.
 
@@ -261,6 +274,7 @@ content type, cookies, etc.
         t['check_ckan_version'] = self._check_ckan_version
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
+        t['enqueue_job'] = enqueue_job
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))

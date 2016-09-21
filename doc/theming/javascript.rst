@@ -1,3 +1,5 @@
+.. _javascript_modules:
+
 =============================
 Customizing CKAN's JavaScript
 =============================
@@ -86,8 +88,7 @@ To get CKAN to call some custom JavaScript code, we need to:
    .. note::
 
       |javascript| module names should begin with the name of the extension,
-      to avoid conflicting with other modules.
-      See :ref:`javascript module names best practice`.
+      to avoid conflicting with other modules. See :ref:`avoid name clashes`.
 
    .. note::
 
@@ -521,10 +522,7 @@ clicked it turns green:
 Internationalization
 --------------------
 
-.. todo::
-
-   Show how to Internationalize a JavaScript module.
-
+See :ref:`javascript_i18n`.
 
 --------------------------
 Testing JavaScript modules

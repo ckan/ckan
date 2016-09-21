@@ -23,7 +23,7 @@ work on CKAN.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk
+    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -33,7 +33,7 @@ wiki page for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Python                 `The Python programming language, v2.6 or 2.7 <http://www.python.org/getit/>`_
+Python                 `The Python programming language, v2.7 <http://www.python.org/getit/>`_
 |postgres|             `The PostgreSQL database system, v8.4 or newer <http://www.postgresql.org/download/>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
@@ -42,6 +42,7 @@ Git                    `A distributed version control system <http://book.git-sc
 Apache Solr            `A search platform <http://lucene.apache.org/solr>`_
 Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr).
 OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
+Redis                  `An in-memory data structure store <http://redis.io/>`_
 =====================  ===============================================
 
 
@@ -325,7 +326,7 @@ installed, we need to install and configure Solr.
 -------------------------
 
 Now that you have a configuration file that has the correct settings for your
-database, you can create the database tables:
+database, you can :ref:`create the database tables <db init>`:
 
 .. parsed-literal::
 

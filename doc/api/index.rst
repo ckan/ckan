@@ -1,3 +1,5 @@
+.. _action api:
+
 =========
 API guide
 =========
@@ -314,7 +316,7 @@ call. The function is named in the 'callback' parameter. For example:
 
 http://demo.ckan.org/api/3/action/package_show?id=adur_district_spending&callback=myfunction
 
-.. todo :: This doesn't work with all functions.
+.. note :: This only works for GET requests
 
 
 .. _api-examples:

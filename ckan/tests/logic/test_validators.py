@@ -11,13 +11,13 @@ import warnings
 import mock
 import nose.tools
 
-import ckan.tests.factories as factories
 # Import some test helper functions from another module.
 # This is bad (test modules shouldn't share code with eachother) but because of
 # the way validator functions are organised in CKAN (in different modules in
 # different places in the code) we have to either do this or introduce a shared
 # test helper functions module (which we also don't want to do).
 import ckan.tests.lib.navl.test_validators as t
+
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 import ckan.tests.factories as factories

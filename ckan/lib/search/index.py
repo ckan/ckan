@@ -11,7 +11,7 @@ from dateutil.parser import parse
 import re
 
 import pysolr
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 
 from common import SearchIndexError, make_connection
@@ -278,6 +278,13 @@ class PackageSearchIndex(SearchIndex):
             pkg_dict = item.before_index(pkg_dict)
 
         assert pkg_dict, 'Plugin must return non empty package dict on index'
+
+        # permission labels determine visibility in search, can't be set
+        # in original dataset or before_index plugins
+        labels = lib_plugins.get_permission_labels()
+        dataset = model.Package.get(pkg_dict['id'])
+        pkg_dict['permission_labels'] = labels.get_dataset_labels(
+            dataset) if dataset else [] # TestPackageSearchIndex-workaround
 
         # send to solr:
         try:

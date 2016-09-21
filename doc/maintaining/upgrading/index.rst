@@ -109,17 +109,7 @@ to its pre-upgrade state.
     |activate|
     cd |virtualenv|/src/ckan
 
-#. Backup your CKAN database using the ``db dump`` command, for
-   example:
-
-   .. parsed-literal::
-
-    paster db dump --config=\ |development.ini| my_ckan_database.pg_dump
-
-   This will create a file called ``my_ckan_database.pg_dump``, you can use the
-   the ``db load`` command to restore your database to the state recorded in
-   this file. See :ref:`paster db` for details of the ``db dump`` and ``db
-   load`` commands.
+#. :ref:`Backup your CKAN database <db dumping and loading>`
 
 
 2. Upgrade CKAN

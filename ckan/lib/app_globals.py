@@ -8,11 +8,12 @@ from threading import Lock
 import re
 
 from paste.deploy.converters import asbool
-from pylons import config
+from ckan.common import config
 
 import ckan
 import ckan.model as model
 import ckan.logic as logic
+from logic.schema import update_configuration_schema
 
 
 log = logging.getLogger(__name__)
@@ -162,20 +163,17 @@ def reset():
 
         # update the config
         config[key] = value
+
         return value
 
     # update the config settings in auto update
-    schema = logic.schema.update_configuration_schema()
+    schema = update_configuration_schema()
     for key in schema.keys():
         get_config_value(key)
 
-    # cusom styling
+    # custom styling
     main_css = get_config_value('ckan.main_css', '/base/css/main.css')
     set_main_css(main_css)
-    # site_url_nice
-    site_url_nice = app_globals.site_url.replace('http://', '')
-    site_url_nice = site_url_nice.replace('www.', '')
-    app_globals.site_url_nice = site_url_nice
 
     if app_globals.site_logo:
         app_globals.header_class = 'header-image'

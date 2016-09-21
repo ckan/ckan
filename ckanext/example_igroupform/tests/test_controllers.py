@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_in
 from routes import url_for
 
 import ckan.plugins as plugins
@@ -8,7 +8,6 @@ import ckan.tests.helpers as helpers
 import ckan.model as model
 from ckan.tests import factories
 
-assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
@@ -137,7 +136,7 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
         # check correct redirect
         assert_equal(response.req.url,
-                     'http://localhost/%s/saved' % custom_group_type)
+                     'http://test.ckan.net/%s/saved' % custom_group_type)
         # check saved ok
         group = model.Group.by_name(u'saved')
         assert_equal(group.title, u'')
@@ -173,7 +172,7 @@ class TestGroupControllerNew_DefaultGroupType(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
         # check correct redirect
         assert_equal(response.req.url,
-                     'http://localhost/%s/saved' % group_type)
+                     'http://test.ckan.net/%s/saved' % group_type)
         # check saved ok
         group = model.Group.by_name(u'saved')
         assert_equal(group.title, u'')

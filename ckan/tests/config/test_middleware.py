@@ -8,8 +8,9 @@ from routes import url_for
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
 
-from ckan.config.middleware import AskAppDispatcherMiddleware, CKANFlask
-from ckan.controllers.partyline import PartylineController
+from ckan.config.middleware import AskAppDispatcherMiddleware
+from ckan.config.middleware.flask_app import CKANFlask
+from ckan.config.middleware.pylons_app import CKANPylonsApp
 
 
 class TestPylonsResponseCleanupMiddleware(helpers.FunctionalTestBase):
@@ -39,20 +40,6 @@ class TestAppDispatcherPlain(object):
     the mocks, so they don't extend FunctionalTestBase
     '''
 
-    def test_invitations_are_sent(self):
-
-        with mock.patch.object(AskAppDispatcherMiddleware, 'send_invitations') as \
-                mock_send_invitations:
-
-            # This will create the whole WSGI stack
-            helpers._get_test_app()
-
-            assert mock_send_invitations.called
-            eq_(len(mock_send_invitations.call_args[0]), 1)
-
-            eq_(sorted(mock_send_invitations.call_args[0][0].keys()),
-                ['flask_app', 'pylons_app'])
-
     def test_flask_can_handle_request_is_called_with_environ(self):
 
         with mock.patch.object(CKANFlask, 'can_handle_request') as \
@@ -76,7 +63,7 @@ class TestAppDispatcherPlain(object):
 
     def test_pylons_can_handle_request_is_called_with_environ(self):
 
-        with mock.patch.object(PartylineController, 'can_handle_request') as \
+        with mock.patch.object(CKANPylonsApp, 'can_handle_request') as \
                 mock_can_handle_request:
 
             # We need set this otherwise the mock object is returned
@@ -141,7 +128,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
             ckan_app(environ, start_response)
             assert mock_ask_around.called
-            mock_ask_around.assert_called_with('can_handle_request', environ)
+            mock_ask_around.assert_called_with(environ)
 
     def test_ask_around_flask_core_route_get(self):
 
@@ -156,15 +143,14 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         }
         wsgiref.util.setup_testing_defaults(environ)
 
-        answers = app.ask_around('can_handle_request', environ)
+        answers = app.ask_around(environ)
 
         # Even though this route is defined in Flask, there is catch all route
         # in Pylons for all requests to point arbitrary urls to templates with
         # the same name, so we get two positive answers
-        eq_(len(answers), 2)
-        eq_([a[0] for a in answers], [True, True])
-        eq_(sorted([a[1] for a in answers]), ['flask_app', 'pylons_app'])
-        # TODO: check origin (core/extension) when that is in place
+        eq_(answers, [(True, 'flask_app'), (True, 'pylons_app', 'core')])
+        # TODO: check Flask origin (core/extension) when that is in place
+        # (also on the following tests)
 
     def test_ask_around_flask_core_route_post(self):
 
@@ -179,15 +165,12 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         }
         wsgiref.util.setup_testing_defaults(environ)
 
-        answers = app.ask_around('can_handle_request', environ)
+        answers = app.ask_around(environ)
 
         # Even though this route is defined in Flask, there is catch all route
         # in Pylons for all requests to point arbitrary urls to templates with
         # the same name, so we get two positive answers
-        eq_(len(answers), 2)
-        eq_([a[0] for a in answers], [True, True])
-        eq_(sorted([a[1] for a in answers]), ['flask_app', 'pylons_app'])
-        # TODO: check origin (core/extension) when that is in place
+        eq_(answers, [(True, 'flask_app'), (True, 'pylons_app', 'core')])
 
     def test_ask_around_pylons_core_route_get(self):
 
@@ -202,12 +185,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         }
         wsgiref.util.setup_testing_defaults(environ)
 
-        answers = app.ask_around('can_handle_request', environ)
+        answers = app.ask_around(environ)
 
-        eq_(len(answers), 1)
-        eq_(answers[0][0], True)
-        eq_(answers[0][1], 'pylons_app')
-        eq_(answers[0][2], 'core')
+        eq_(answers, [(False, 'flask_app'), (True, 'pylons_app', 'core')])
 
     def test_ask_around_pylons_core_route_post(self):
 
@@ -222,12 +202,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         }
         wsgiref.util.setup_testing_defaults(environ)
 
-        answers = app.ask_around('can_handle_request', environ)
+        answers = app.ask_around(environ)
 
-        eq_(len(answers), 1)
-        eq_(answers[0][0], True)
-        eq_(answers[0][1], 'pylons_app')
-        eq_(answers[0][2], 'core')
+        eq_(answers, [(False, 'flask_app'), (True, 'pylons_app', 'core')])
 
     def test_ask_around_pylons_extension_route_get_before_map(self):
 
@@ -245,12 +222,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         }
         wsgiref.util.setup_testing_defaults(environ)
 
-        answers = app.ask_around('can_handle_request', environ)
+        answers = app.ask_around(environ)
 
-        eq_(len(answers), 1)
-        eq_(answers[0][0], True)
-        eq_(answers[0][1], 'pylons_app')
-        eq_(answers[0][2], 'extension')
+        eq_(answers, [(False, 'flask_app'), (True, 'pylons_app', 'extension')])
 
         p.unload('test_routing_plugin')
 
@@ -270,12 +244,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         }
         wsgiref.util.setup_testing_defaults(environ)
 
-        answers = app.ask_around('can_handle_request', environ)
+        answers = app.ask_around(environ)
 
-        eq_(len(answers), 1)
-        eq_(answers[0][0], True)
-        eq_(answers[0][1], 'pylons_app')
-        eq_(answers[0][2], 'extension')
+        eq_(answers, [(False, 'flask_app'), (True, 'pylons_app', 'extension')])
 
         p.unload('test_routing_plugin')
 
@@ -295,14 +266,11 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         }
         wsgiref.util.setup_testing_defaults(environ)
 
-        answers = app.ask_around('can_handle_request', environ)
+        answers = app.ask_around(environ)
 
         # We are going to get an answer from Pylons, but just because it will
         # match the catch-all template route, hence the `core` origin.
-        eq_(len(answers), 1)
-        eq_(answers[0][0], True)
-        eq_(answers[0][1], 'pylons_app')
-        eq_(answers[0][2], 'core')
+        eq_(answers, [(False, 'flask_app'), (True, 'pylons_app', 'core')])
 
         p.unload('test_routing_plugin')
 
@@ -322,12 +290,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         }
         wsgiref.util.setup_testing_defaults(environ)
 
-        answers = app.ask_around('can_handle_request', environ)
+        answers = app.ask_around(environ)
 
-        eq_(len(answers), 1)
-        eq_(answers[0][0], True)
-        eq_(answers[0][1], 'pylons_app')
-        eq_(answers[0][2], 'extension')
+        eq_(answers, [(False, 'flask_app'), (True, 'pylons_app', 'extension')])
 
         p.unload('test_routing_plugin')
 
@@ -347,17 +312,10 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         }
         wsgiref.util.setup_testing_defaults(environ)
 
-        answers = app.ask_around('can_handle_request', environ)
+        answers = app.ask_around(environ)
         answers = sorted(answers, key=lambda a: a[1])
 
-        eq_(len(answers), 2)
-        eq_([a[0] for a in answers], [True, True])
-        eq_([a[1] for a in answers], ['flask_app', 'pylons_app'])
-
-        # TODO: we still can't distinguish between Flask core and extension
-        # eq_(answers[0][2], 'extension')
-
-        eq_(answers[1][2], 'extension')
+        eq_(answers, [(True, 'flask_app'), (True, 'pylons_app', 'extension')])
 
         p.unload('test_routing_plugin')
 

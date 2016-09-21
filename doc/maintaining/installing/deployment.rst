@@ -112,7 +112,7 @@ CKAN to run in).
 6. Create the Apache config file
 --------------------------------
 
-Create your site's Apache config file at ``|apache_config_file|``, with the
+Create your site's Apache config file at |apache_config_file|, with the
 following contents:
 
 .. parsed-literal::
@@ -203,7 +203,7 @@ Open ``/etc/apache2/ports.conf``. We need to replace the default port 80 with th
 8. Create the Nginx config file
 -------------------------------
 
-Create your site's Nginx config file at ``|nginx_config_file|``, with the
+Create your site's Nginx config file at |nginx_config_file|, with the
 following contents:
 
 .. parsed-literal::
@@ -246,6 +246,17 @@ To prevent conflicts, disable your default nginx and apache sites.  Finally, ena
 
 You should now be able to visit your server in a web browser and see your new
 CKAN instance.
+
+
+--------------------------------------
+10. Setup a worker for background jobs
+--------------------------------------
+CKAN uses asynchronous :ref:`background jobs` for long tasks. These jobs are
+executed by a separate process which is called a :ref:`worker <background jobs
+workers>`.
+
+To run the worker in a robust way, :ref:`install and configure Supervisor
+<background jobs supervisor>`.
 
 
 ---------------

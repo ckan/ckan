@@ -243,6 +243,13 @@ def plugin_validate(plugin, context, data_dict, schema, action):
     return toolkit.navl_validate(data_dict, schema, context)
 
 
+def get_permission_labels():
+    '''Return the permission label plugin (or default implementation)'''
+    for plugin in plugins.PluginImplementations(plugins.IPermissionLabels):
+        return plugin
+    return DefaultPermissionLabels()
+
+
 class DefaultDatasetForm(object):
     '''The default implementation of
     :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
@@ -574,3 +581,32 @@ class DefaultTranslation(object):
         ckanext-{extension name}, hence your pot, po and mo files should be
         named ckanext-{extension name}.mo'''
         return 'ckanext-{name}'.format(name=self.name)
+
+
+class DefaultPermissionLabels(object):
+    u'''
+    Default permissions for package_search/package_show:
+    - everyone can read public datasets "public"
+    - users can read their own drafts "creator-(user id)"
+    - users can read datasets belonging to their orgs "member-(org id)"
+    '''
+    def get_dataset_labels(self, dataset_obj):
+        if dataset_obj.state == u'active' and not dataset_obj.private:
+            return [u'public']
+
+        if dataset_obj.owner_org:
+            return [u'member-%s' % dataset_obj.owner_org]
+
+        return [u'creator-%s' % dataset_obj.creator_user_id]
+
+    def get_user_dataset_labels(self, user_obj):
+        labels = [u'public']
+        if not user_obj:
+            return labels
+
+        labels.append(u'creator-%s' % user_obj.id)
+
+        orgs = logic.get_action(u'organization_list_for_user')(
+            {u'user': user_obj.id}, {u'permission': u'read'})
+        labels.extend(u'member-%s' % o[u'id'] for o in orgs)
+        return labels

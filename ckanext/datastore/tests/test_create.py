@@ -5,11 +5,10 @@ import nose
 import sys
 from nose.tools import assert_equal, raises
 
-import pylons
-from pylons import config
 import sqlalchemy.orm as orm
 import paste.fixture
 
+from ckan.common import config
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
@@ -20,12 +19,6 @@ import ckan.tests.factories as factories
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
-
-
-# avoid hanging tests https://github.com/gabrielfalcao/HTTPretty/issues/34
-if sys.version_info < (2, 7, 0):
-    import socket
-    socket.setdefaulttimeout(1)
 
 
 class TestDatastoreCreateNewTests(object):
@@ -187,7 +180,7 @@ class TestDatastoreCreateNewTests(object):
 
     def _execute_sql(self, sql, *args):
         engine = db._get_engine(
-            {'connection_url': pylons.config['ckan.datastore.write_url']})
+            {'connection_url': config['ckan.datastore.write_url']})
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
         return session.connection().execute(sql, *args)
 
@@ -249,7 +242,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
         engine = db._get_engine(
-            {'connection_url': pylons.config['ckan.datastore.write_url']})
+            {'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)

@@ -5,7 +5,7 @@ import datetime
 
 import nose.tools
 import mock
-import pylons.config as config
+from ckan.common import config
 
 import ckan.logic as logic
 import ckan.lib.app_globals as app_globals
@@ -14,7 +14,7 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 from ckan import model
 
-assert_equals = nose.tools.assert_equals
+assert_equals = eq_ = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
 
 
@@ -858,3 +858,165 @@ class TestUserUpdate(helpers.FunctionalTestBase):
 
         user_obj = model.User.get(user['id'])
         assert user_obj.password != 'pretend-this-is-a-valid-hash'
+
+
+class TestPackageOwnerOrgUpdate(object):
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_package_owner_org_added(self):
+        '''A package without an owner_org can have one added.'''
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        dataset = factories.Dataset()
+        context = {
+            'user': sysadmin['name'],
+        }
+        assert dataset['owner_org'] is None
+        helpers.call_action('package_owner_org_update',
+                            context=context,
+                            id=dataset['id'],
+                            organization_id=org['id'])
+        dataset_obj = model.Package.get(dataset['id'])
+        assert dataset_obj.owner_org == org['id']
+
+    def test_package_owner_org_changed(self):
+        '''A package with an owner_org can have it changed.'''
+
+        sysadmin = factories.Sysadmin()
+        org_1 = factories.Organization()
+        org_2 = factories.Organization()
+        dataset = factories.Dataset(owner_org=org_1['id'])
+        context = {
+            'user': sysadmin['name'],
+        }
+        assert dataset['owner_org'] == org_1['id']
+        helpers.call_action('package_owner_org_update',
+                            context=context,
+                            id=dataset['id'],
+                            organization_id=org_2['id'])
+        dataset_obj = model.Package.get(dataset['id'])
+        assert dataset_obj.owner_org == org_2['id']
+
+    def test_package_owner_org_removed(self):
+        '''A package with an owner_org can have it removed.'''
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        context = {
+            'user': sysadmin['name'],
+        }
+        assert dataset['owner_org'] == org['id']
+        helpers.call_action('package_owner_org_update',
+                            context=context,
+                            id=dataset['id'],
+                            organization_id=None)
+        dataset_obj = model.Package.get(dataset['id'])
+        assert dataset_obj.owner_org is None
+
+
+class TestBulkOperations(object):
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_bulk_make_private(self):
+
+        org = factories.Organization()
+
+        dataset1 = factories.Dataset(owner_org=org['id'])
+        dataset2 = factories.Dataset(owner_org=org['id'])
+
+        helpers.call_action('bulk_update_private', {},
+                            datasets=[dataset1['id'], dataset2['id']],
+                            org_id=org['id'])
+
+        # Check search index
+        datasets = helpers.call_action('package_search', {},
+                                       q='owner_org:{0}'.format(org['id']))
+
+        for dataset in datasets['results']:
+            eq_(dataset['private'], True)
+
+        # Check DB
+        datasets = model.Session.query(model.Package) \
+            .filter(model.Package.owner_org == org['id']).all()
+        for dataset in datasets:
+            eq_(dataset.private, True)
+
+        revisions = model.Session.query(model.PackageRevision) \
+            .filter(model.PackageRevision.owner_org == org['id']) \
+            .filter(model.PackageRevision.current is True) \
+            .all()
+        for revision in revisions:
+            eq_(revision.private, True)
+
+    def test_bulk_make_public(self):
+
+        org = factories.Organization()
+
+        dataset1 = factories.Dataset(owner_org=org['id'], private=True)
+        dataset2 = factories.Dataset(owner_org=org['id'], private=True)
+
+        helpers.call_action('bulk_update_public', {},
+                            datasets=[dataset1['id'], dataset2['id']],
+                            org_id=org['id'])
+
+        # Check search index
+        datasets = helpers.call_action('package_search', {},
+                                       q='owner_org:{0}'.format(org['id']))
+
+        for dataset in datasets['results']:
+            eq_(dataset['private'], False)
+
+        # Check DB
+        datasets = model.Session.query(model.Package) \
+            .filter(model.Package.owner_org == org['id']).all()
+        for dataset in datasets:
+            eq_(dataset.private, False)
+
+        revisions = model.Session.query(model.PackageRevision) \
+            .filter(model.PackageRevision.owner_org == org['id']) \
+            .filter(model.PackageRevision.current is True) \
+            .all()
+        for revision in revisions:
+            eq_(revision.private, False)
+
+    def test_bulk_delete(self):
+
+        org = factories.Organization()
+
+        dataset1 = factories.Dataset(owner_org=org['id'])
+        dataset2 = factories.Dataset(owner_org=org['id'])
+
+        helpers.call_action('bulk_update_delete', {},
+                            datasets=[dataset1['id'], dataset2['id']],
+                            org_id=org['id'])
+
+        # Check search index
+        datasets = helpers.call_action('package_search', {},
+                                       q='owner_org:{0}'.format(org['id']))
+
+        eq_(datasets['results'], [])
+
+        # Check DB
+        datasets = model.Session.query(model.Package) \
+            .filter(model.Package.owner_org == org['id']).all()
+        for dataset in datasets:
+            eq_(dataset.state, 'deleted')
+
+        revisions = model.Session.query(model.PackageRevision) \
+            .filter(model.PackageRevision.owner_org == org['id']) \
+            .filter(model.PackageRevision.current is True) \
+            .all()
+        for revision in revisions:
+            eq_(revision.state, 'deleted')

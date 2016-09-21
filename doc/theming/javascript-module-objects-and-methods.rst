@@ -23,6 +23,8 @@ module to use, including:
   document traversal and manipulation, event handling, and animation. See
   `jQuery's own docs <http://jquery.com/>`_ for details.
 
+.. _this_sandbox:
+
 * :js:data:`this.sandbox`, an object containing useful functions for all
   modules to use, including:
 
