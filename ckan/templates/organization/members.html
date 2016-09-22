@@ -3,7 +3,10 @@
 {% block subtitle %}{{ _('Members') }} - {{ super() }}{% endblock %}
 
 {% block page_primary_action %}
-  {% link_for _('Add Member'), controller='organization', action='member_new', id=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
+  {% if h.check_access('organization_update', {'id': organization.id}) %}
+
+    {% link_for _('Add Member'), controller='organization', action='member_new', id=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
+  {% endif %}
 {% endblock %}
 
 {% block primary_content_inner %}
@@ -27,13 +30,15 @@
           </td>
           <td>{{ role }}</td>
           <td>
-            {% set locale = h.dump_json({'content': _('Are you sure you want to delete this member?')}) %}
-            <div class="btn-group pull-right">
-              <a class="btn btn-small" href="{% url_for controller='organization', action='member_new', id=c.group_dict.id, user=user_id %}" title="{{ _('Edit') }}">
-                <i class="icon-wrench"></i>
-              </a>
-              <a class="btn btn-danger btn-small" href="{% url_for controller='organization', action='member_delete', id=c.group_dict.id, user=user_id %}" data-module="confirm-action" data-module-i18n="{{ locale }}" title="{{ _('Delete') }}">{% block delete_button_text %}<i class="icon-remove"></i>{% endblock %}</a>
-            </div>
+            {% if h.check_access('organization_update', {'id': organization.id}) %}
+              {% set locale = h.dump_json({'content': _('Are you sure you want to delete this member?')}) %}
+              <div class="btn-group pull-right">
+                <a class="btn btn-small" href="{% url_for controller='organization', action='member_new', id=c.group_dict.id, user=user_id %}" title="{{ _('Edit') }}">
+                  <i class="icon-wrench"></i>
+                </a>
+                <a class="btn btn-danger btn-small" href="{% url_for controller='organization', action='member_delete', id=c.group_dict.id, user=user_id %}" data-module="confirm-action" data-module-i18n="{{ locale }}" title="{{ _('Delete') }}">{% block delete_button_text %}<i class="icon-remove"></i>{% endblock %}</a>
+              </div>
+            {% endif %}
           </td>
         </tr>
       {% endfor %}
