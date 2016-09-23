@@ -40,10 +40,14 @@ class TestUpdateConfig(h.FunctionalTestBase):
         # plugin.load() will force the config to update
         p.load()
 
+    def setup(self):
+        self._old_config = dict(config)
+
     def teardown(self):
         for env_var, _ in self.ENV_VAR_LIST:
             if os.environ.get(env_var, None):
                 del os.environ[env_var]
+        config.update(self._old_config)
         # plugin.load() will force the config to update
         p.load()
 
