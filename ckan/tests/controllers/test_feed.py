@@ -90,7 +90,9 @@ class TestFeedInterface(helpers.FunctionalTestBase):
     @classmethod
     def setup_class(cls):
         super(TestFeedInterface, cls).setup_class()
-        plugins.load('test_feed_plugin')
+
+        if not plugins.plugin_loaded('test_feed_plugin'):
+            plugins.load('test_feed_plugin')
 
     @classmethod
     def teardown_class(cls):
