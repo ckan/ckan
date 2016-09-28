@@ -53,7 +53,7 @@ class TestExampleIPermissionLabels(FunctionalTestBase):
             name=u'd1', notes=u'Proposed:', user=user)
 
         results = get_action(u'package_search')(
-            {}, {u'include_private': True})['results']
+            {u'user': u''}, {u'include_private': True})['results']
         names = [r['name'] for r in results]
         assert_equal(names, [])
 

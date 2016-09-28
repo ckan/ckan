@@ -964,14 +964,13 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, private=True, owner_org=org['name'])
 
         fq = "capacity:private"
-        results = logic.get_action('package_search')(
-            {}, {'fq': fq})['results']
+        results = helpers.call_action('package_search', fq=fq)['results']
 
         eq(len(results), 0)
 
     def test_package_search_with_fq_excludes_drafts(self):
         '''
-        An anon user can't use fq drafts to get draft datasets. Nothing is
+        A sysadmin user can't use fq drafts to get draft datasets. Nothing is
         returned.
         '''
         user = factories.User()
@@ -1001,7 +1000,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, private=True, owner_org=org['name'])
 
         results = logic.get_action('package_search')(
-            {}, {'include_drafts': True})['results']
+            {u'user': u''}, {'include_drafts': True})['results']
 
         eq(len(results), 1)
         nose.tools.assert_not_equals(results[0]['name'], draft_dataset['name'])
