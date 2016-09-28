@@ -100,6 +100,28 @@ You can also give the job a title which can be useful for identifying it when
     jobs.enqueue(log_job, [u'My log message'], title=u'My log job')
 
 
+Accessing the database from background jobs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Code running in a background job can access the CKAN database like any other
+CKAN code.
+
+In particular, using the action functions to modify the database from within a
+background job is perfectly fine. Just keep in mind that while your job is
+running in the background, the CKAN main process or other background jobs may
+also modify the database. Hence a single call to an action function is atomic
+from your job's view point, but between multiple calls there may be foreign
+changes to the database.
+
+Special care has to be taken if your background job needs low-level access to
+the database, for example to modify SQLAlchemy model instances directly without
+going through an action function. Each background job runs in a separate
+process and therefore has its own SQLAlchemy session. Your code has to make
+sure that the changes it makes are properly contained in transactions and that
+you refresh your view of the database to receive updates where necessary. For
+these (and other) reasons it is recommended to :ref:`use the action functions
+to interact with the database <always use action functions>`.
+
+
 .. _background jobs workers:
 
 Running background jobs

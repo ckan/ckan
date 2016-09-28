@@ -28,6 +28,7 @@ from rq.utils import ensure_list
 
 from ckan.lib.redis import connect_to_redis
 from ckan.common import config
+from ckan.config.environment import load_environment
 
 
 log = logging.getLogger(__name__)
@@ -249,3 +250,9 @@ class Worker(rq.Worker):
         log.exception(u'Job {} on worker {} raised an exception: {}'.format(
                       job.id, self.key, exc_info[1]))
         return super(Worker, self).handle_exception(job, *exc_info)
+
+    def main_work_horse(self, job, queue):
+        # This method is called in a worker's work horse process right
+        # after forking.
+        load_environment(config[u'global_conf'], config)
+        return super(Worker, self).main_work_horse(job, queue)
