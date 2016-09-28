@@ -112,7 +112,7 @@ CKAN to run in).
 6. Create the Apache config file
 --------------------------------
 
-Create your site's Apache config file at ``|apache_config_file|``, with the
+Create your site's Apache config file at |apache_config_file|, with the
 following contents:
 
 .. parsed-literal::
@@ -203,7 +203,7 @@ Open ``/etc/apache2/ports.conf``. We need to replace the default port 80 with th
 8. Create the Nginx config file
 -------------------------------
 
-Create your site's Nginx config file at ``|nginx_config_file|``, with the
+Create your site's Nginx config file at |nginx_config_file|, with the
 following contents:
 
 .. parsed-literal::
