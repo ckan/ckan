@@ -10,8 +10,12 @@ from nose.tools import ok_, assert_equal, raises
 import rq
 
 import ckan.lib.jobs as jobs
-from ckan.tests.helpers import changed_config, recorded_logs, RQTestBase
 from ckan.common import config
+from ckan.logic import NotFound
+from ckan import model
+
+from ckan.tests.helpers import (call_action, changed_config, recorded_logs,
+                                RQTestBase)
 
 
 class TestQueueNamePrefixes(RQTestBase):
@@ -141,6 +145,17 @@ def failing_job():
     raise RuntimeError(u'JOB FAILURE')
 
 
+def database_job(pkg_id, pkg_title):
+    u'''
+    A background job that uses the PostgreSQL database.
+
+    Appends ``pkg_title`` to the title of package ``pkg_id``.
+    '''
+    pkg_dict = call_action(u'package_show', id=pkg_id)
+    pkg_dict[u'title'] += pkg_title
+    pkg_dict = call_action(u'package_update', **pkg_dict)
+
+
 class TestWorker(RQTestBase):
 
     def test_worker_logging_lifecycle(self):
@@ -199,3 +214,45 @@ class TestWorker(RQTestBase):
         assert_equal(len(all_jobs), 1)
         assert_equal(jobs.remove_queue_name_prefix(all_jobs[0].origin),
                      jobs.DEFAULT_QUEUE_NAME)
+
+    def test_worker_database_access(self):
+        u'''
+        Test database access from within the worker.
+        '''
+        # See https://github.com/ckan/ckan/issues/3243
+        pkg_name = u'test-worker-database-access'
+        try:
+            pkg_dict = call_action(u'package_show', id=pkg_name)
+        except NotFound:
+            pkg_dict = call_action(u'package_create', name=pkg_name)
+        pkg_dict[u'title'] = u'foo'
+        pkg_dict = call_action(u'package_update', **pkg_dict)
+        titles = u'1 2 3'.split()
+        for title in titles:
+            self.enqueue(database_job, args=[pkg_dict[u'id'], title])
+        jobs.Worker().work(burst=True)
+        # Aside from ensuring that the jobs succeeded, this also checks
+        # that database access still works in the main process.
+        pkg_dict = call_action(u'package_show', id=pkg_name)
+        assert_equal(pkg_dict[u'title'], u'foo' + u''.join(titles))
+
+    def test_fork_within_a_transaction(self):
+        u'''
+        Test forking a worker horse within a database transaction.
+
+        The horse should get a new SQLAlchemy session but leave the
+        original session alone.
+        '''
+        pkg_name = u'test-fork-within-a-transaction'
+        model.repo.new_revision()
+        pkg = model.Package.get(pkg_name)
+        if not pkg:
+            pkg = model.Package(name=pkg_name)
+        pkg.title = u'foo'
+        pkg.save()
+        pkg.title = u'bar'
+        self.enqueue(database_job, [pkg.id, u'foo'])
+        jobs.Worker().work(burst=True)
+        assert_equal(pkg.title, u'bar')  # Original session is unchanged
+        pkg.Session.refresh(pkg)
+        assert_equal(pkg.title, u'foofoo')  # Worker only saw committed changes
