@@ -23,7 +23,7 @@ work on CKAN.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk
+    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -42,6 +42,7 @@ Git                    `A distributed version control system <http://book.git-sc
 Apache Solr            `A search platform <http://lucene.apache.org/solr>`_
 Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr).
 OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
+Redis                  `An in-memory data structure store <http://redis.io/>`_
 =====================  ===============================================
 
 

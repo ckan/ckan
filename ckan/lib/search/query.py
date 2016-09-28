@@ -280,12 +280,17 @@ class PackageSearchQuery(SearchQuery):
             return solr_response.docs[0]
 
 
-    def run(self, query):
+    def run(self, query, permission_labels=None, **kwargs):
         '''
         Performs a dataset search using the given query.
 
-        @param query - dictionary with keys like: q, fq, sort, rows, facet
-        @return - dictionary with keys results and count
+        :param query: dictionary with keys like: q, fq, sort, rows, facet
+        :type query: dict
+        :param permission_labels: filter results to those that include at
+            least one of these labels. None to not filter (return everything)
+        :type permission_labels: list of unicode strings; or None
+
+        :returns: dictionary with keys results and count
 
         May raise SearchQueryError or SearchError.
         '''
@@ -310,18 +315,23 @@ class PackageSearchQuery(SearchQuery):
             rows_to_query = rows_to_return
         query['rows'] = rows_to_query
 
+        fq = []
+        if 'fq' in query:
+            fq.append(query['fq'])
+        fq.extend(query.get('fq_list', []))
+
         # show only results from this CKAN instance
-        fq = query.get('fq', '')
-        if not '+site_id:' in fq:
-            fq += ' +site_id:"%s"' % config.get('ckan.site_id')
+        fq.append('+site_id:%s' % solr_literal(config.get('ckan.site_id')))
 
         # filter for package status
-        if not '+state:' in fq:
-            fq += " +state:active"
-        query['fq'] = [fq]
+        if not '+state:' in query.get('fq', ''):
+            fq.append('+state:active')
 
-        fq_list = query.get('fq_list', [])
-        query['fq'].extend(fq_list)
+        # only return things we should be able to see
+        if permission_labels is not None:
+            fq.append('+permission_labels:(%s)' % ' OR '.join(
+                solr_literal(p) for p in permission_labels))
+        query['fq'] = fq
 
         # faceting
         query['facet'] = query.get('facet', 'true')
@@ -387,3 +397,13 @@ class PackageSearchQuery(SearchQuery):
             self.facets[field] = dict(zip(values[0::2], values[1::2]))
 
         return {'results': self.results, 'count': self.count}
+
+
+def solr_literal(t):
+    '''
+    return a safe literal string for a solr query. Instead of escaping
+    each of + - && || ! ( ) { } [ ] ^ " ~ * ? : \ / we're just dropping
+    double quotes -- this method currently only used by tokens like site_id
+    and permission labels.
+    '''
+    return u'"' + t.replace(u'"', u'') + u'"'

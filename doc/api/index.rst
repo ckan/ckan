@@ -1,3 +1,5 @@
+.. _action api:
+
 =========
 API guide
 =========

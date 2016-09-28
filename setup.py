@@ -49,6 +49,7 @@ entry_points = {
         'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
         'views = ckan.lib.cli:ViewsCommand',
         'config-tool = ckan.lib.cli:ConfigToolCommand',
+        'jobs = ckan.lib.cli:JobsCommand',
     ],
     'console_scripts': [
         'ckan-admin = bin.ckan_admin:Command',
@@ -142,6 +143,7 @@ entry_points = {
         'example_iconfigurer_v1 = ckanext.example_iconfigurer.plugin_v1:ExampleIConfigurerPlugin',
         'example_iconfigurer_v2 = ckanext.example_iconfigurer.plugin_v2:ExampleIConfigurerPlugin',
         'example_iuploader = ckanext.example_iuploader.plugin:ExampleIUploader',
+        'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',

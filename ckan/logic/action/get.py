@@ -17,6 +17,7 @@ import ckan.logic as logic
 import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
 import ckan.model as model
 import ckan.model.misc as misc
@@ -1113,6 +1114,8 @@ def resource_view_list(context, data_dict):
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
 
+    This function is DEPRECATED.
+
     :param id: the id of the resource
     :type id: string
 
@@ -1827,52 +1830,27 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id {0}'.format(data_source)
 
-        # we should remove any mention of capacity from the fq and
-        # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq', '')
-
         # Remove before these hit solr FIXME: whitelist instead
         include_private = asbool(data_dict.pop('include_private', False))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
-
-        capacity_fq = 'capacity:"public"'
-        if include_private and authz.is_sysadmin(user):
-            capacity_fq = None
-        elif include_private and user:
-            orgs = logic.get_action('organization_list_for_user')(
-                {'user': user}, {'permission': 'read'})
-            if orgs:
-                capacity_fq = '({0} OR owner_org:({1}))'.format(
-                    capacity_fq,
-                    ' OR '.join(org['id'] for org in orgs))
-            if include_drafts:
-                capacity_fq = '({0} OR creator_user_id:({1}))'.format(
-                    capacity_fq,
-                    authz.get_user_id_for_username(user))
-
-        if capacity_fq:
-            fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' ' + capacity_fq
-
-        fq = data_dict.get('fq', '')
+        data_dict.setdefault('fq', '')
+        if not include_private:
+            data_dict['fq'] += ' +capacity:public'
         if include_drafts:
-            user_id = authz.get_user_id_for_username(user, allow_none=True)
-            if authz.is_sysadmin(user):
-                data_dict['fq'] = fq + ' +state:(active OR draft)'
-            elif user_id:
-                # Query to return all active datasets, and all draft datasets
-                # for this user.
-                data_dict['fq'] = fq + \
-                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
-                    ' OR state:active)'.format(user_id)
-        elif not authz.is_sysadmin(user):
-            data_dict['fq'] = fq + ' +state:active'
+            data_dict['fq'] += ' +state:(active OR draft)'
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
 
+        # enforce permission filter based on user
+        if context.get('ignore_auth') or (user and authz.is_sysadmin(user)):
+            labels = None
+        else:
+            labels = lib_plugins.get_permission_labels(
+                ).get_user_dataset_labels(context['auth_user_obj'])
+
         query = search.query_for(model.Package)
-        query.run(data_dict)
+        query.run(data_dict, permission_labels=labels)
 
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
@@ -3500,3 +3478,46 @@ def config_option_list(context, data_dict):
     schema = ckan.logic.schema.update_configuration_schema()
 
     return schema.keys()
+
+
+@logic.validate(logic.schema.job_list_schema)
+def job_list(context, data_dict):
+    '''List enqueued background jobs.
+
+    :param list queues: Queues to list jobs from. If not given then the
+        jobs from all queues are listed.
+
+    :returns: The currently enqueued background jobs.
+    :rtype: list
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_list', context, data_dict)
+    dictized_jobs = []
+    queues = data_dict.get(u'queues')
+    if queues:
+        queues = [jobs.get_queue(q) for q in queues]
+    else:
+        queues = jobs.get_all_queues()
+    for queue in queues:
+        for job in queue.jobs:
+            dictized_jobs.append(jobs.dictize_job(job))
+    return dictized_jobs
+
+
+def job_show(context, data_dict):
+    '''Show details for a background job.
+
+    :param string id: The ID of the background job.
+
+    :returns: Details about the background job.
+    :rtype: dict
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_show', context, data_dict)
+    id = _get_or_bust(data_dict, u'id')
+    try:
+        return jobs.dictize_job(jobs.job_from_id(id))
+    except KeyError:
+        raise NotFound

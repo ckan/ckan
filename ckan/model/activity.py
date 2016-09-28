@@ -40,7 +40,7 @@ class Activity(domain_object.DomainObject):
     def __init__(self, user_id, object_id, revision_id, activity_type,
             data=None):
         self.id = _types.make_uuid()
-        self.timestamp = datetime.datetime.now()
+        self.timestamp = datetime.datetime.utcnow()
         self.user_id = user_id
         self.object_id = object_id
         self.revision_id = revision_id

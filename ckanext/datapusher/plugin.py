@@ -41,11 +41,11 @@ class ResourceDataController(base.BaseController):
             except logic.ValidationError:
                 pass
 
-            base.redirect(core_helpers.url_for(
+            core_helpers.redirect_to(
                 controller='ckanext.datapusher.plugin:ResourceDataController',
                 action='resource_data',
                 id=id,
-                resource_id=resource_id)
+                resource_id=resource_id
             )
 
         try:

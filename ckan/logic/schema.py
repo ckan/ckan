@@ -701,3 +701,15 @@ def update_configuration_schema():
             schema = plugin.update_config_schema(schema)
 
     return schema
+
+
+def job_list_schema():
+    return {
+        u'queues': [ignore_missing, list_of_strings],
+    }
+
+
+def job_clear_schema():
+    return {
+        u'queues': [ignore_missing, list_of_strings],
+    }
