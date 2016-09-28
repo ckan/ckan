@@ -16,6 +16,7 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
+from ckan.lib.redis import is_redis_available
 import ckan.lib.render as render
 import ckan.lib.search as search
 import ckan.logic as logic
@@ -93,6 +94,10 @@ def load_environment(global_conf, app_conf):
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
+    # Check Redis availability
+    if not is_redis_available():
+        log.critical('Could not connect to Redis.')
+
     # load all CKAN plugins
     p.load_all()
 
@@ -105,6 +110,7 @@ CONFIG_FROM_ENV_VARS = {
     'sqlalchemy.url': 'CKAN_SQLALCHEMY_URL',
     'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
     'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
+    'ckan.redis.url': 'CKAN_REDIS_URL',
     'solr_url': 'CKAN_SOLR_URL',
     'ckan.site_id': 'CKAN_SITE_ID',
     'ckan.site_url': 'CKAN_SITE_URL',
@@ -245,17 +251,9 @@ def update_config():
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
 
-    # for postgresql we want to enforce utf-8
-    sqlalchemy_url = config.get('sqlalchemy.url', '')
-    if sqlalchemy_url.startswith('postgresql://'):
-        extras = {'client_encoding': 'utf8'}
-    else:
-        extras = {}
-
-    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.', **extras)
-
-    if not model.meta.engine:
-        model.init_model(engine)
+    # Initialize SQLAlchemy
+    engine = sqlalchemy.engine_from_config(config, client_encoding='utf8')
+    model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
