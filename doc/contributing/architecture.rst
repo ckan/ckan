@@ -56,6 +56,8 @@ Template helpers should never perform expensive queries or update data.
 the helper functions found in ``ckan.lib.helpers.__allowed_functions__``.
 
 
+.. _always use action functions:
+
 Always go through the action functions
 ######################################
 

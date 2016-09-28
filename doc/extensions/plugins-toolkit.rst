@@ -1,3 +1,5 @@
+.. py:module:: ckan.plugins.toolkit
+
 -------------------------
 Plugins toolkit reference
 -------------------------

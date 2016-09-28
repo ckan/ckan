@@ -79,6 +79,12 @@ ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
 
 
+## Redis Settings
+
+# URL to your Redis instance, including the database to be used.
+#ckan.redis.url = redis://localhost:6379/0
+
+
 ## CORS Settings
 
 # If cors.origin_allow_all is true, all origins are allowed.
