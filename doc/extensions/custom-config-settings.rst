@@ -32,7 +32,7 @@ will be allowed to create groups.
    Names of config settings provided by extensions should include the name
    of the extension, to avoid conflicting with core config settings or with
    config settings from other extensions.
-   See :ref:`extension config setting names best practice`.
+   See :ref:`avoid name clashes`.
 
 .. note::
 

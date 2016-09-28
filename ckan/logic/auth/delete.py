@@ -137,3 +137,13 @@ def organization_member_delete(context, data_dict):
 
 def member_delete(context, data_dict):
     return authz.is_authorized('member_create', context, data_dict)
+
+
+def job_clear(context, data_dict):
+    '''Clear background jobs. Only sysadmins.'''
+    return {'success': False}
+
+
+def job_cancel(context, data_dict):
+    '''Cancel a background job. Only sysadmins.'''
+    return {'success': False}
