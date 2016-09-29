@@ -48,6 +48,7 @@ class DatastoreException(Exception):
 
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
+    p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
     p.implements(p.IResourceUrlChange)
@@ -70,6 +71,9 @@ class DatastorePlugin(p.SingletonPlugin):
             raise DatastoreException(msg)
 
         return super(cls, cls).__new__(cls, *args, **kwargs)
+
+    def update_config(self, config):
+        p.toolkit.add_template_directory(config, 'templates')
 
     def configure(self, config):
         self.config = config
