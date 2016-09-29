@@ -224,8 +224,8 @@ class PackageController(base.BaseController):
                         # We're filtering on a list of items, each of which
                         # should be escaped and OR'd instead of Solr's default
                         # AND.
-                        filter_value = '({0})'.format(
-                            ' OR '.join('"{0}"'.format(
+                        filter_value = u'({0})'.format(
+                            u' OR '.join(u'"{0}"'.format(
                                 v
                             ) for v in value)
                         )
@@ -235,12 +235,12 @@ class PackageController(base.BaseController):
                         # a range. We assume it's a range if it starts with a
                         # [, otherwise we escape it and treat it as a literal.
                         filter_value = (
-                            value if value.startswith('[')
-                            else '"{0}"'.format(value)
+                            value if value.startswith(u'[')
+                            else u'"{0}"'.format(value)
                         )
 
                     # Tag each value with a domain so we can act on it later.
-                    fq_list.append('{{!tag={p}}}{p}:{v}'.format(
+                    fq_list.append(u'{{!tag={p}}}{p}:{v}'.format(
                         p=param,
                         v=filter_value
                     ))
