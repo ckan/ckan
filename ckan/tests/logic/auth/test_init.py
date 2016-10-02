@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose
 
 import ckan.model as core_model
@@ -12,7 +14,6 @@ class TestGetObjectErrors(object):
         _get_object_functions = {
             'package': logic_auth.get_package_object,
             'resource': logic_auth.get_resource_object,
-            'related': logic_auth.get_related_object,
             'user': logic_auth.get_user_object,
             'group': logic_auth.get_group_object,
         }
@@ -48,9 +49,6 @@ class TestGetObjectErrors(object):
     def test_get_resource_object_in_context(self):
         self._get_object_in_context('resource')
 
-    def test_get_related_object_in_context(self):
-        self._get_object_in_context('related')
-
     def test_get_user_object_in_context(self):
         self._get_object_in_context('user')
 
@@ -63,9 +61,6 @@ class TestGetObjectErrors(object):
     def test_get_resource_object_id_not_found(self):
         self._get_object_id_not_found('resource')
 
-    def test_get_related_object_id_not_found(self):
-        self._get_object_id_not_found('related')
-
     def test_get_user_object_id_not_found(self):
         self._get_object_id_not_found('user')
 
@@ -77,9 +72,6 @@ class TestGetObjectErrors(object):
 
     def test_get_resource_object_id_none(self):
         self._get_object_id_none('resource')
-
-    def test_get_related_object_id_none(self):
-        self._get_object_id_none('related')
 
     def test_get_user_object_id_none(self):
         self._get_object_id_none('user')
@@ -128,18 +120,6 @@ class TestGetObject(object):
 
         assert obj.id == resource['id']
         assert context['resource'] == obj
-
-    def test_get_related_object_with_id(self):
-
-        user_name = helpers.call_action('get_site_user')['name']
-        related = helpers.call_action('related_create',
-                                      context={'user': user_name},
-                                      title='test related', type='app')
-        context = {'model': core_model}
-        obj = logic_auth.get_related_object(context, {'id': related['id']})
-
-        assert obj.id == related['id']
-        assert context['related'] == obj
 
     def test_get_user_object_with_id(self):
 

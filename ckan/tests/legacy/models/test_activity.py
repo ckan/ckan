@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan.model as model
 
 Activity = model.Activity

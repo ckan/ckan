@@ -1,11 +1,11 @@
+# encoding: utf-8
+
 import json
 import httpretty
+import httpretty.core
 import nose
-import sys
 import datetime
 
-import pylons
-from pylons import config
 import sqlalchemy.orm as orm
 import paste.fixture
 
@@ -15,14 +15,44 @@ import ckan.model as model
 import ckan.tests.legacy as tests
 import ckan.config.middleware as middleware
 
+from ckan.common import config
+
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
-# avoid hanging tests https://github.com/gabrielfalcao/HTTPretty/issues/34
-if sys.version_info < (2, 7, 0):
-    import socket
-    socket.setdefaulttimeout(1)
+class HTTPrettyFix(httpretty.core.fakesock.socket):
+    """
+    Monkey-patches HTTPretty with a fix originally suggested in PR #161
+    from 2014 (still open).
+
+    Versions of httpretty < 0.8.10 use a bufsize of 16 *bytes*, and
+    an infinite timeout. This makes httpretty unbelievably slow, and because
+    the httpretty decorator monkey patches *all* requests (like solr),
+    the performance impact is massive.
+
+    While this is fixed in versions >= 0.8.10, newer versions of HTTPretty
+    break SOLR and other database wrappers (See #265).
+    """
+    def __init__(self, *args, **kwargs):
+        super(HTTPrettyFix, self).__init__(*args, **kwargs)
+        self._bufsize = 4096
+
+        original_socket = self.truesock
+        self.truesock.settimeout(3)
+
+        # We also patch the "real" socket itself to prevent HTTPretty
+        # from changing it to infinite which it tries to do in real_sendall.
+        class SetTimeoutPatch(object):
+            def settimeout(self, *args, **kwargs):
+                pass
+
+            def __getattr__(self, attr):
+                return getattr(original_socket, attr)
+
+        self.truesock = SetTimeoutPatch()
+
+httpretty.core.fakesock.socket = HTTPrettyFix
 
 
 class TestDatastoreCreate(tests.WsgiAppCase):
@@ -31,7 +61,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-
         wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         if not tests.is_datastore_supported():
@@ -42,7 +71,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
         engine = db._get_engine(
-            {'connection_url': pylons.config['ckan.datastore.write_url']})
+            {'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
@@ -73,7 +102,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @httpretty.activate
     def test_providing_res_with_url_calls_datapusher_correctly(self):
-        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
+        config['datapusher.url'] = 'http://datapusher.ckan.org'
         httpretty.HTTPretty.register_uri(
             httpretty.HTTPretty.POST,
             'http://datapusher.ckan.org/job',
@@ -83,8 +112,11 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         package = model.Package.get('annakarenina')
 
         tests.call_action_api(
-            self.app, 'datastore_create', apikey=self.sysadmin_user.apikey,
-            resource=dict(package_id=package.id, url='demo.ckan.org'))
+            self.app,
+            'datastore_create',
+            apikey=self.sysadmin_user.apikey,
+            resource=dict(package_id=package.id, url='demo.ckan.org')
+        )
 
         assert len(package.resources) == 4, len(package.resources)
         resource = package.resources[3]
@@ -96,7 +128,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @httpretty.activate
     def test_pass_the_received_ignore_hash_param_to_the_datapusher(self):
-        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
+        config['datapusher.url'] = 'http://datapusher.ckan.org'
         httpretty.HTTPretty.register_uri(
             httpretty.HTTPretty.POST,
             'http://datapusher.ckan.org/job',

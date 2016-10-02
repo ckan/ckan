@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''API functions for searching for and getting data from CKAN.'''
 
 import uuid
@@ -6,7 +8,7 @@ import json
 import datetime
 import socket
 
-from pylons import config
+from ckan.common import config
 import sqlalchemy
 from paste.deploy.converters import asbool
 
@@ -15,6 +17,7 @@ import ckan.logic as logic
 import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
 import ckan.model as model
 import ckan.model.misc as misc
@@ -24,7 +27,6 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
-import ckan.lib.lazyjson as lazyjson
 
 from ckan.common import _
 
@@ -179,10 +181,9 @@ def current_package_list_with_resources(context, data_dict):
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
-    is_sysadmin = authz.is_sysadmin(user)
-    q = '+capacity:public' if not is_sysadmin else '*:*'
-    context['ignore_capacity_check'] = True
-    search = package_search(context, {'q': q, 'rows': limit, 'start': offset})
+    search = package_search(context, {
+        'q': '', 'rows': limit, 'start': offset,
+        'include_private': authz.is_sysadmin(user) })
     return search.get('results', [])
 
 
@@ -262,92 +263,6 @@ def package_revision_list(context, data_dict):
                                                      include_packages=False,
                                                      include_groups=False))
     return revision_dicts
-
-
-def related_show(context, data_dict=None):
-    '''Return a single related item.
-
-    :param id: the id of the related item to show
-    :type id: string
-
-    :rtype: dictionary
-
-    '''
-    model = context['model']
-    id = _get_or_bust(data_dict, 'id')
-
-    related = model.Related.get(id)
-    context['related'] = related
-
-    if related is None:
-        raise NotFound
-
-    _check_access('related_show', context, data_dict)
-    schema = context.get('schema') \
-        or ckan.logic.schema.default_related_schema()
-    related_dict = model_dictize.related_dictize(related, context)
-    related_dict, errors = _validate(related_dict, schema, context=context)
-
-    return related_dict
-
-
-def related_list(context, data_dict=None):
-    '''Return a dataset's related items.
-
-    :param id: id or name of the dataset (optional)
-    :type id: string
-    :param dataset: dataset dictionary of the dataset (optional)
-    :type dataset: dictionary
-    :param type_filter: the type of related item to show (optional,
-      default: None, show all items)
-    :type type_filter: string
-    :param sort: the order to sort the related items in, possible values are
-      'view_count_asc', 'view_count_desc', 'created_asc' or 'created_desc'
-      (optional)
-    :type sort: string
-    :param featured: whether or not to restrict the results to only featured
-      related items (optional, default: False)
-    :type featured: bool
-
-    :rtype: list of dictionaries
-
-    '''
-    model = context['model']
-    dataset = data_dict.get('dataset', None)
-    if not dataset:
-        dataset = model.Package.get(data_dict.get('id'))
-    _check_access('related_show', context, data_dict)
-    related_list = []
-    if not dataset:
-        related_list = model.Session.query(model.Related)
-
-        filter_on_type = data_dict.get('type_filter', None)
-        if filter_on_type:
-            related_list = related_list.filter(
-                model.Related.type == filter_on_type)
-
-        sort = data_dict.get('sort', None)
-        if sort:
-            sortables = {
-                'view_count_asc': model.Related.view_count.asc,
-                'view_count_desc': model.Related.view_count.desc,
-                'created_asc': model.Related.created.asc,
-                'created_desc': model.Related.created.desc,
-            }
-            s = sortables.get(sort, None)
-            if s:
-                related_list = related_list.order_by(s())
-
-        if data_dict.get('featured', False):
-            related_list = related_list.filter(model.Related.featured == 1)
-        related_items = related_list.all()
-        context['sorted'] = True
-    else:
-        relateds = model.Related.get_for_dataset(dataset, status='active')
-        related_items = (r.related for r in relateds)
-    related_list = model_dictize.related_list_dictize(
-        related_items, context)
-    return related_list
 
 
 def member_list(context, data_dict=None):
@@ -470,8 +385,8 @@ def _group_or_org_list(context, data_dict, is_org=False):
         ))
 
     query = query.filter(model.Group.is_organization == is_org)
-    if not is_org:
-        query = query.filter(model.Group.type == group_type)
+    query = query.filter(model.Group.type == group_type)
+
     if sort_info:
         sort_field = sort_info[0][0]
         sort_direction = sort_info[0][1]
@@ -607,7 +522,7 @@ def organization_list(context, data_dict):
     '''
     _check_access('organization_list', context, data_dict)
     data_dict['groups'] = data_dict.pop('organizations', [])
-    data_dict['type'] = 'organization'
+    data_dict.setdefault('type', 'organization')
     return _group_or_org_list(context, data_dict, is_org=True)
 
 
@@ -1046,10 +961,7 @@ def package_show(context, data_dict):
             use_validated_cache = 'schema' not in context
             if use_validated_cache and 'validated_data_dict' in search_result:
                 package_json = search_result['validated_data_dict']
-                if context.get('return_type') == 'LazyJSONObject':
-                    package_dict = lazyjson.LazyJSONObject(package_json)
-                else:
-                    package_dict = json.loads(package_json)
+                package_dict = json.loads(package_json)
                 package_dict_validated = True
             else:
                 package_dict = json.loads(search_result['data_dict'])
@@ -1143,7 +1055,7 @@ def resource_show(context, data_dict):
         if resource_dict['id'] == id:
             break
     else:
-        log.error('Could not find resource ' + id)
+        log.error('Could not find resource %s after all', id)
         raise NotFound(_('Resource was not found.'))
 
     return resource_dict
@@ -1201,6 +1113,8 @@ def resource_view_list(context, data_dict):
 
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
+
+    This function is DEPRECATED.
 
     :param id: the id of the resource
     :type id: string
@@ -1479,8 +1393,11 @@ def user_show(context, data_dict):
         (optional, default:``False``, limit:50)
     :type include_datasets: boolean
     :param include_num_followers: Include the number of followers the user has
-         (optional, default:``False``)
+        (optional, default:``False``)
     :type include_num_followers: boolean
+    :param include_password_hash: Include the stored password hash
+        (sysadmin only, optional, default:``False``)
+    :type include_password_hash: boolean
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
         number_created_packages (which excludes draft or private datasets
@@ -1508,24 +1425,29 @@ def user_show(context, data_dict):
 
     # include private and draft datasets?
     requester = context.get('user')
+    sysadmin = False
     if requester:
+        sysadmin = authz.is_sysadmin(requester)
         requester_looking_at_own_account = requester == user_obj.name
-        include_private_and_draft_datasets = \
-            authz.is_sysadmin(requester) or \
-            requester_looking_at_own_account
+        include_private_and_draft_datasets = (
+            sysadmin or requester_looking_at_own_account)
     else:
         include_private_and_draft_datasets = False
     context['count_private_and_draft_datasets'] = \
         include_private_and_draft_datasets
 
-    user_dict = model_dictize.user_dictize(user_obj, context)
+    include_password_hash = sysadmin and asbool(
+        data_dict.get('include_password_hash', False))
+
+    user_dict = model_dictize.user_dictize(
+        user_obj, context, include_password_hash)
 
     if context.get('return_minimal'):
         log.warning('Use of the "return_minimal" in user_show is '
                     'deprecated.')
         return user_dict
 
-    if data_dict.get('include_datasets', False):
+    if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []
 
         fq = "+creator_user_id:{0}".format(user_dict['id'])
@@ -1533,8 +1455,9 @@ def user_show(context, data_dict):
         search_dict = {'rows': 50}
 
         if include_private_and_draft_datasets:
-            context['ignore_capacity_check'] = True
-            search_dict.update({'include_drafts': True})
+            search_dict.update({
+                'include_private': True,
+                'include_drafts': True})
 
         search_dict.update({'fq': fq})
 
@@ -1543,7 +1466,7 @@ def user_show(context, data_dict):
                                                data_dict=search_dict) \
             .get('results')
 
-    if data_dict.get('include_num_followers', False):
+    if asbool(data_dict.get('include_num_followers', False)):
         user_dict['num_followers'] = logic.get_action('user_follower_count')(
             {'model': model, 'session': model.Session},
             {'id': user_dict['id']})
@@ -1791,6 +1714,14 @@ def package_search(context, data_dict):
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
     :type include_drafts: boolean
+    :param include_private: if ``True``, private datasets will be included in
+        the results. Only private datasets from the user's organizations will
+        be returned and sysadmins will be returned all private datasets.
+        Optional, the default is ``False``.
+    :param use_default_schema: use default package schema instead of
+        a custom schema defined with an IDatasetForm plugin (default: False)
+    :type use_default_schema: bool
+
 
     The following advanced Solr parameters are supported as well. Note that
     some of these are only available on particular Solr versions. See Solr's
@@ -1830,9 +1761,6 @@ def package_search(context, data_dict):
         "count", "display_name" and "name" entries.  The display_name is a
         form of the name that can be used in titles.
     :type search_facets: nested dict of dicts.
-    :param use_default_schema: use default package schema instead of
-        a custom schema defined with an IDatasetForm plugin (default: False)
-    :type use_default_schema: bool
 
     An example result: ::
 
@@ -1894,47 +1822,42 @@ def package_search(context, data_dict):
 
     results = []
     if not abort:
-        data_source = 'data_dict' if data_dict.get('use_default_schema') else 'validated_data_dict'
+        if asbool(data_dict.get('use_default_schema')):
+            data_source = 'data_dict'
+        else:
+            data_source = 'validated_data_dict'
+        data_dict.pop('use_default_schema', None)
         # return a list of package ids
         data_dict['fl'] = 'id {0}'.format(data_source)
 
-        # If this query hasn't come from a controller that has set this flag
-        # then we should remove any mention of capacity from the fq and
-        # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq', '')
-        if not context.get('ignore_capacity_check', False):
-            fq = ' '.join(p for p in fq.split(' ')
-                          if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
-
-        # Solr doesn't need 'include_drafts`, so pop it.
-        include_drafts = data_dict.pop('include_drafts', False)
-        fq = data_dict.get('fq', '')
+        # Remove before these hit solr FIXME: whitelist instead
+        include_private = asbool(data_dict.pop('include_private', False))
+        include_drafts = asbool(data_dict.pop('include_drafts', False))
+        data_dict.setdefault('fq', '')
+        if not include_private:
+            data_dict['fq'] += ' +capacity:public'
         if include_drafts:
-            user_id = authz.get_user_id_for_username(user, allow_none=True)
-            if authz.is_sysadmin(user):
-                data_dict['fq'] = fq + ' +state:(active OR draft)'
-            elif user_id:
-                # Query to return all active datasets, and all draft datasets
-                # for this user.
-                data_dict['fq'] = fq + \
-                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
-                    ' OR state:active)'.format(user_id)
-        elif not authz.is_sysadmin(user):
-            data_dict['fq'] = fq + ' +state:active'
+            data_dict['fq'] += ' +state:(active OR draft)'
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
 
+        # enforce permission filter based on user
+        if context.get('ignore_auth') or (user and authz.is_sysadmin(user)):
+            labels = None
+        else:
+            labels = lib_plugins.get_permission_labels(
+                ).get_user_dataset_labels(context['auth_user_obj'])
+
         query = search.query_for(model.Package)
-        query.run(data_dict)
+        query.run(data_dict, permission_labels=labels)
 
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
 
         for package in query.results:
             # get the package object
-            package, package_dict = package['id'], package.get(data_source)
+            package_dict = package.get(data_source)
             ## use data in search index if there
             if package_dict:
                 # the package_dict still needs translating when being viewed
@@ -1968,9 +1891,10 @@ def package_search(context, data_dict):
     for field_name in ('groups', 'organization'):
         group_names.extend(facets.get(field_name, {}).keys())
 
-    groups = session.query(model.Group.name, model.Group.title) \
-                    .filter(model.Group.name.in_(group_names)) \
+    groups = (session.query(model.Group.name, model.Group.title)
+                    .filter(model.Group.name.in_(group_names))
                     .all()
+              if group_names else [])
     group_titles_by_name = dict(groups)
 
     # Transform facets into a more useful data structure.
@@ -3331,7 +3255,8 @@ def _group_or_org_followee_list(context, data_dict, is_org=False):
 
 @logic.validate(logic.schema.default_pagination_schema)
 def dashboard_activity_list(context, data_dict):
-    '''Return the authorized user's dashboard activity stream.
+    '''Return the authorized (via login or API key) user's dashboard activity
+       stream.
 
     Unlike the activity dictionaries returned by other ``*_activity_list``
     actions, these activity dictionaries have an extra boolean value with key
@@ -3385,13 +3310,12 @@ def dashboard_activity_list(context, data_dict):
 
 @logic.validate(ckan.logic.schema.default_pagination_schema)
 def dashboard_activity_list_html(context, data_dict):
-    '''Return the authorized user's dashboard activity stream as HTML.
+    '''Return the authorized (via login or API key) user's dashboard activity
+       stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
-    :param id: the id or name of the user
-    :type id: string
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
@@ -3515,8 +3439,8 @@ def config_option_show(context, data_dict):
     :py:func:`~ckan.logic.action.get.config_option_list`), which can be updated with the
     :py:func:`~ckan.logic.action.update.config_option_update` action.
 
-    :param id: The configuration option key
-    :type id: string
+    :param key: The configuration option key
+    :type key: string
 
     :returns: The value of the config option from either the system_info table
         or ini file.
@@ -3554,3 +3478,46 @@ def config_option_list(context, data_dict):
     schema = ckan.logic.schema.update_configuration_schema()
 
     return schema.keys()
+
+
+@logic.validate(logic.schema.job_list_schema)
+def job_list(context, data_dict):
+    '''List enqueued background jobs.
+
+    :param list queues: Queues to list jobs from. If not given then the
+        jobs from all queues are listed.
+
+    :returns: The currently enqueued background jobs.
+    :rtype: list
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_list', context, data_dict)
+    dictized_jobs = []
+    queues = data_dict.get(u'queues')
+    if queues:
+        queues = [jobs.get_queue(q) for q in queues]
+    else:
+        queues = jobs.get_all_queues()
+    for queue in queues:
+        for job in queue.jobs:
+            dictized_jobs.append(jobs.dictize_job(job))
+    return dictized_jobs
+
+
+def job_show(context, data_dict):
+    '''Show details for a background job.
+
+    :param string id: The ID of the background job.
+
+    :returns: Details about the background job.
+    :rtype: dict
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_show', context, data_dict)
+    id = _get_or_bust(data_dict, u'id')
+    try:
+        return jobs.dictize_job(jobs.job_from_id(id))
+    except KeyError:
+        raise NotFound

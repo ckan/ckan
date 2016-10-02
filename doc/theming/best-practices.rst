@@ -50,42 +50,12 @@ All user-visible strings should be internationalized, see
 :doc:`/contributing/string-i18n`.
 
 
------------------------------------------------------------------
-Helper function names should begin with the name of the extension
------------------------------------------------------------------
+------------------
+Avoid name clashes
+------------------
 
-Namespacing helper functions in this way avoids accidentally overriding, or
-being overriden by, a core helper function, or a helper function from another
-extension. For example:
+See :ref:`avoid name clashes`.
 
-.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/plugin.py
-   :pyobject: ExampleThemePlugin.get_helpers
-
-
-.. _snippet filenames best practice:
-
--------------------------------------------------------------
-Snippet filenames should begin with the name of the extension
--------------------------------------------------------------
-
-Namespacing snippets in this way avoids accidentally overriding, or being
-overridden by, a core snippet, or a snippet from another extension.
-For example::
-
- snippets/example_theme_most_popular_groups.html
-
-
-.. _javascript module names best practice:
-
-----------------------------------------------------------------------
-|javascript| modules names should begin with the name of the extension
-----------------------------------------------------------------------
-
-Namespacing |javascript| modules in this way avoids accidentally overriding, or
-being overridden by, a core module, or a module from another extension.  For
-example: ``fanstatic/example_theme_popover.js``:
-
-.. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
 
 .. _javascript module docstrings best practice:
 

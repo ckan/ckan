@@ -1,11 +1,21 @@
+# encoding: utf-8
+
+'''
+Celery background tasks management.
+
+This module is DEPRECATED, use ``ckan.lib.jobs`` instead.
+'''
+
 import ConfigParser
 import os
 import logging
 
-from pylons import config as pylons_config
+from ckan.common import config as ckan_config
 from pkg_resources import iter_entry_points, VersionConflict
 
 log = logging.getLogger(__name__)
+
+log.warning('ckan.lib.celery_app is deprecated, use ckan.lib.jobs instead.')
 
 LIST_PARAMS = """CELERY_IMPORTS ADMINS ROUTES""".split()
 
@@ -23,7 +33,7 @@ if not config_file:
 config.read(config_file)
 
 
-sqlalchemy_url = pylons_config.get('sqlalchemy.url')
+sqlalchemy_url = ckan_config.get('sqlalchemy.url')
 if not sqlalchemy_url:
     sqlalchemy_url = config.get('app:main', 'sqlalchemy.url')
 

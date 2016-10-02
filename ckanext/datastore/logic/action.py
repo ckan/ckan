@@ -1,12 +1,13 @@
+# encoding: utf-8
+
 import logging
 
-import pylons
 import sqlalchemy
 
-import ckan.lib.base as base
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
+from ckan.common import config
 import ckanext.datastore.db as db
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
@@ -120,7 +121,7 @@ def datastore_create(context, data_dict):
             resource_id = data_dict['resource_id']
             _check_read_only(context, resource_id)
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
+    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
     # validate aliases
     aliases = datastore_helpers.get_list(data_dict.get('aliases', []))
@@ -133,7 +134,7 @@ def datastore_create(context, data_dict):
     # create a private datastore resource, if necessary
     model = _get_or_bust(context, 'model')
     resource = model.Resource.get(data_dict['resource_id'])
-    legacy_mode = 'ckan.datastore.read_url' not in pylons.config
+    legacy_mode = 'ckan.datastore.read_url' not in config
     if not legacy_mode and resource.package.private:
         data_dict['private'] = True
 
@@ -143,8 +144,13 @@ def datastore_create(context, data_dict):
         raise p.toolkit.ValidationError(str(err))
 
     # Set the datastore_active flag on the resource if necessary
-    p.toolkit.get_action('resource_patch')(
-        context, {'id': data_dict['resource_id'], 'datastore_active': True})
+    if resource.extras.get('datastore_active') is not True:
+        log.debug(
+            'Setting datastore_active=True on resource {0}'.format(resource.id)
+        )
+        p.toolkit.get_action('resource_patch')(
+            context,
+            {'id': data_dict['resource_id'], 'datastore_active': True})
 
     result.pop('id', None)
     result.pop('private', None)
@@ -202,7 +208,7 @@ def datastore_upsert(context, data_dict):
         resource_id = data_dict['resource_id']
         _check_read_only(context, resource_id)
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
+    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
     res_id = data_dict['resource_id']
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
@@ -244,7 +250,7 @@ def datastore_info(context, data_dict):
     resource_id = _get_or_bust(data_dict, 'id')
     resource = p.toolkit.get_action('resource_show')(context, {'id':resource_id})
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore.read_url']
+    data_dict['connection_url'] = config['ckan.datastore.read_url']
 
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
@@ -306,10 +312,20 @@ def datastore_delete(context, data_dict):
 
     '''
     schema = context.get('schema', dsschema.datastore_upsert_schema())
+
+    # Remove any applied filters before running validation.
     filters = data_dict.pop('filters', None)
     data_dict, errors = _validate(data_dict, schema, context)
-    if filters:
+
+    if filters is not None:
+        if not isinstance(filters, dict):
+            raise p.toolkit.ValidationError({
+                'filters': [
+                    'filters must be either a dict or null.'
+                ]
+            })
         data_dict['filters'] = filters
+
     if errors:
         raise p.toolkit.ValidationError(errors)
 
@@ -319,7 +335,7 @@ def datastore_delete(context, data_dict):
         resource_id = data_dict['resource_id']
         _check_read_only(context, resource_id)
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
+    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
     res_id = data_dict['resource_id']
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
@@ -335,9 +351,17 @@ def datastore_delete(context, data_dict):
     result = db.delete(context, data_dict)
 
     # Set the datastore_active flag on the resource if necessary
-    if not data_dict.get('filters'):
+    model = _get_or_bust(context, 'model')
+    resource = model.Resource.get(data_dict['resource_id'])
+
+    if (not data_dict.get('filters') and
+            resource.extras.get('datastore_active') is True):
+        log.debug(
+            'Setting datastore_active=True on resource {0}'.format(resource.id)
+        )
         p.toolkit.get_action('resource_patch')(
-            context, {'id': data_dict['resource_id'], 'datastore_active': False})
+            context, {'id': data_dict['resource_id'],
+                      'datastore_active': False})
 
     result.pop('id', None)
     result.pop('connection_url')
@@ -410,7 +434,7 @@ def datastore_search(context, data_dict):
         raise p.toolkit.ValidationError(errors)
 
     res_id = data_dict['resource_id']
-    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
+    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
     resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
                                         WHERE name = :id''')
@@ -443,7 +467,7 @@ def datastore_search_sql(context, data_dict):
     The datastore_search_sql action allows a user to search data in a resource
     or connect multiple resources with join expressions. The underlying SQL
     engine is the
-    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_.
+    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
     DataStore resource that belong to a private CKAN resource cannot be searched with
     this action. Use :meth:`~ckanext.datastore.logic.action.datastore_search` instead.
@@ -474,7 +498,7 @@ def datastore_search_sql(context, data_dict):
 
     p.toolkit.check_access('datastore_search_sql', context, data_dict)
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore.read_url']
+    data_dict['connection_url'] = config['ckan.datastore.read_url']
 
     result = db.search_sql(context, data_dict)
     result.pop('id', None)
@@ -497,7 +521,7 @@ def datastore_make_private(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
+    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
@@ -523,7 +547,7 @@ def datastore_make_public(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
+    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(

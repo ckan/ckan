@@ -4,7 +4,9 @@ Making configuration options runtime-editable
 
 Extensions can allow certain configuration options to be edited during
 :ref:`runtime <runtime-config>`, as opposed to having to edit the
-`configuration file <CKAN configuration file>`_ and restart the server.
+`configuration file`_ and restart the server.
+
+.. _configuration file: ../maintaining/configuration.html#ckan-configuration-file
 
 .. warning::
 

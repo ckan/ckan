@@ -1,4 +1,6 @@
-import pylons.config as config
+# encoding: utf-8
+
+from ckan.common import config
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit

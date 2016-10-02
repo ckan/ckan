@@ -1,10 +1,12 @@
+# encoding: utf-8
+
 import re
 import json
 import urllib
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
 from nose.plugins.skip import SkipTest
-from pylons import config
+from ckan.common import config
 import datetime
 import mock
 
@@ -16,7 +18,7 @@ import ckan.model as model
 import ckan.tests.legacy as tests
 from ckan.tests.legacy import WsgiAppCase
 from ckan.tests.legacy.functional.api import assert_dicts_equal_ignoring_ordering
-from ckan.tests.legacy import setup_test_search_index, search_related
+from ckan.tests.legacy import setup_test_search_index
 from ckan.tests.legacy import StatusCodes
 from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
@@ -113,22 +115,6 @@ class TestAction(WsgiAppCase):
         assert 'annakarenina' in res
         assert 'public_dataset' in res
         assert not 'private_dataset' in res
-
-    def test_01_package_show_with_jsonp(self):
-        anna_id = model.Package.by_name(u'annakarenina').id
-        postparams = '%s=1' % json.dumps({'id': anna_id})
-        res = self.app.post('/api/action/package_show?callback=jsoncallback', params=postparams)
-
-        assert re.match('jsoncallback\(.*\);', res.body), res
-        # Unwrap JSONP callback (we want to look at the data).
-        msg = res.body[len('jsoncallback')+1:-2]
-        res_dict = json.loads(msg)
-        assert_equal(res_dict['success'], True)
-        assert "/api/3/action/help_show?name=package_show" in res_dict['help']
-        pkg = res_dict['result']
-        assert_equal(pkg['name'], 'annakarenina')
-        missing_keys = set(('title', 'groups')) - set(pkg.keys())
-        assert not missing_keys, missing_keys
 
     def test_02_package_autocomplete_match_name(self):
         postparams = '%s=1' % json.dumps({'q':'war', 'limit': 5})
@@ -1362,69 +1348,3 @@ class TestMember(WsgiAppCase):
         group_ids = [g.id for g in groups]
         assert res['success'] is True, res
         assert group.id in group_ids, (group, user_groups)
-
-
-class TestRelatedAction(WsgiAppCase):
-
-    sysadmin_user = None
-
-    normal_user = None
-
-    @classmethod
-    def setup_class(cls):
-        search.clear_all()
-        CreateTestData.create()
-        cls.sysadmin_user = model.User.get('testsysadmin')
-
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-
-    def _add_basic_package(self, package_name=u'test_package', **kwargs):
-        package = {
-            'name': package_name,
-            'title': u'A Novel By Tolstoy',
-            'resources': [{
-                'description': u'Full text.',
-                'format': u'plain text',
-                'url': u'http://datahub.io/download/'
-            }]
-        }
-        package.update(kwargs)
-
-        postparams = '%s=1' % json.dumps(package)
-        res = self.app.post('/api/action/package_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
-        return json.loads(res.body)['result']
-
-    def test_update_add_related_item(self):
-        package = self._add_basic_package()
-        related_item = {
-            "description": "Testing a Description",
-            "url": "http://example.com/image.png",
-            "title": "Testing",
-            "featured": 0,
-            "image_url": "http://example.com/image.png",
-            "type": "idea",
-            "dataset_id": package['id'],
-        }
-        related_item_json = json.dumps(related_item)
-        res_create = self.app.post('/api/action/related_create',
-                                   params=related_item_json,
-                                   extra_environ={'Authorization': 'tester'})
-        assert res_create.json['success']
-
-        related_update = res_create.json['result']
-        related_update = {'id': related_update['id'], 'title': 'Updated'}
-        related_update_json = json.dumps(related_update)
-        res_update = self.app.post('/api/action/related_update',
-                                   params=related_update_json,
-                                   extra_environ={'Authorization': 'tester'})
-        assert res_update.json['success']
-        res_update_json = res_update.json['result']
-        assert res_update_json['title'] == related_update['title']
-
-        related_item.pop('title')
-        related_item.pop('dataset_id')
-        for field in related_item:
-            assert related_item[field] == res_update_json[field]

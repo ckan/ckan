@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 
 from ckan.lib.search import SearchIndexError
@@ -88,7 +90,7 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 log.exception(search_error)
                 # Reraise, since it's pretty crucial to ckan if it can't index
                 # a dataset
-                raise search_error
+                raise
             except Exception, ex:
                 log.exception(ex)
                 # Don't reraise other exceptions since they are generally of
@@ -103,7 +105,7 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 log.exception(search_error)
                 # Reraise, since it's pretty crucial to ckan if it can't index
                 # a dataset
-                raise search_error
+                raise
             except Exception, ex:
                 log.exception(ex)
                 # Don't reraise other exceptions since they are generally of

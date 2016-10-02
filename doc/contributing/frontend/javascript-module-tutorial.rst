@@ -106,34 +106,30 @@ functionality elsewhere.
       this.sandbox.client.favoriteDataset(this.button.val());
     }
 
-Notifications and Internationalisation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Internationalisation
+~~~~~~~~~~~~~~~~~~~~
+See :ref:`javascript_i18n`.
+
+
+Notifications
+~~~~~~~~~~~~~
 
 This submits the dataset to the API but ideally we want to tell the user
 what we're doing.
 
-::
+.. code-block:: javascript
 
-    options: {
-      i18n: {
-        loading: _('Favouriting dataset'),
-        done: _('Favourited dataset %(id)s')
-      }
-    },
     favorite: function () {
-      // i18n gets a translation key from the options object.
-      this.button.text(this.i18n('loading'));
+      this.button.text('Loading');
 
       // The client on the sandbox should always be used to talk to the api.
       var request = this.sandbox.client.favoriteDataset(this.button.val())
       request.done(jQuery.proxy(this._onSuccess, this));
     },
     _onSuccess: function () {
-      // We can perform interpolation on messages.
-      var message = this.i18n('done', {id: this.button.val()});
-
       // Notify allows global messages to be displayed to the user.
-      this.sandbox.notify(message, 'success');
+      this.sandbox.notify('Done', 'success');
     }
 
 Options

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from sqlalchemy import *
 import sqlalchemy.sql as sql
 

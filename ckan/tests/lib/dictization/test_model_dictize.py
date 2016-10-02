@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import datetime
 import copy
 
@@ -416,9 +418,7 @@ class TestPackageDictize:
             u'size': None,
             u'state': u'active',
             u'url': u'http://link.to.some.data',
-            u'url_type': None,
-            u'webstore_last_updated': None,
-            u'webstore_url': None
+            u'url_type': None
         }
         self.assert_equals_expected(expected_dict, result['resources'][0])
 

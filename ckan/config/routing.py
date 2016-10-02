@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Routes configuration
 
 The more specific and detailed routes should be defined first so they
@@ -7,10 +9,10 @@ refer to the routes manual at http://routes.groovie.org/docs/
 """
 import re
 
-from pylons import config
 from routes.mapper import SubMapper, Mapper as _Mapper
 
 import ckan.plugins as p
+from ckan.common import config
 
 named_routes = {}
 
@@ -40,9 +42,14 @@ class Mapper(_Mapper):
         :type highlight_actions: string
 
         '''
+
         ckan_icon = kw.pop('ckan_icon', None)
         highlight_actions = kw.pop('highlight_actions', kw.get('action', ''))
+        ckan_core = kw.pop('ckan_core', None)
         out = _Mapper.connect(self, *args, **kw)
+        route = self.matchlist[-1]
+        if ckan_core is not None:
+            route._ckan_core = ckan_core
         if len(args) == 1 or args[0].startswith('_redirect_'):
             return out
         # we have a named route
@@ -88,15 +95,23 @@ def make_map():
 
     # The ErrorController route (handles 404/500 error pages); it should
     # likely stay at the top, ensuring it can always be resolved.
-    map.connect('/error/{action}', controller='error')
-    map.connect('/error/{action}/{id}', controller='error')
+    map.connect('/error/{action}', controller='error', ckan_core=True)
+    map.connect('/error/{action}/{id}', controller='error', ckan_core=True)
 
     map.connect('*url', controller='home', action='cors_options',
-                conditions=OPTIONS)
+                conditions=OPTIONS, ckan_core=True)
 
     # CUSTOM ROUTES HERE
     for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.before_map(map)
+
+    # Mark all routes added from extensions on the `before_map` extension point
+    # as non-core
+    for route in map.matchlist:
+        if not hasattr(route, '_ckan_core'):
+            route._ckan_core = False
+
+    map.connect('invite', '/__invite__/', controller='partyline', action='join_party')
 
     map.connect('home', '/', controller='home', action='index')
     map.connect('about', '/about', controller='home', action='about')
@@ -108,7 +123,6 @@ def make_map():
         'resource',
         'tag',
         'group',
-        'related',
         'revision',
         'licenses',
         'rating',
@@ -234,7 +248,6 @@ def make_map():
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
         m.connect('dataset_groups', '/dataset/groups/{id}',
                   action='groups', ckan_icon='group')
-        m.connect('/dataset/{id}.{format}', action='read')
         m.connect('dataset_resources', '/dataset/resources/{id}',
                   action='resources', ckan_icon='reorder')
         m.connect('dataset_read', '/dataset/{id}', action='read',
@@ -415,8 +428,19 @@ def make_map():
         m.connect('/testing/primer', action='primer')
         m.connect('/testing/markup', action='markup')
 
+    # Mark all unmarked routes added up until now as core routes
+    for route in map.matchlist:
+        if not hasattr(route, '_ckan_core'):
+            route._ckan_core = True
+
     for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.after_map(map)
+
+    # Mark all routes added from extensions on the `after_map` extension point
+    # as non-core
+    for route in map.matchlist:
+        if not hasattr(route, '_ckan_core'):
+            route._ckan_core = False
 
     # sometimes we get requests for favicon.ico we should redirect to
     # the real favicon location.
@@ -424,6 +448,6 @@ def make_map():
 
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')
-    map.connect('/*url', controller='template', action='view')
+    map.connect('/*url', controller='template', action='view', ckan_core=True)
 
     return map

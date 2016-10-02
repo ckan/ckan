@@ -1,23 +1,19 @@
+# encoding: utf-8
+
 """
 Provides bridges between the model and plugin PluginImplementationss
 """
 import logging
+from operator import methodcaller
 
 from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.orm.session import SessionExtension
 
 import ckan.plugins as plugins
 
-try:
-    from operator import methodcaller
-except ImportError:
-    def methodcaller(name, *args, **kwargs):
-        "Replaces stdlib operator.methodcaller in python <2.6"
-        def caller(obj):
-            return getattr(obj, name)(*args, **kwargs)
-        return caller
 
 log = logging.getLogger(__name__)
+
 
 class ObserverNotifier(object):
     """
@@ -91,7 +87,6 @@ class PluginSessionExtension(SessionExtension):
         for observer in plugins.PluginImplementations(plugins.ISession):
             func(observer)
 
-
     def after_begin(self, session, transaction, connection):
         return self.notify_observers(
             methodcaller('after_begin', session, transaction, connection)
@@ -121,4 +116,3 @@ class PluginSessionExtension(SessionExtension):
         return self.notify_observers(
             methodcaller('after_rollback', session)
         )
-

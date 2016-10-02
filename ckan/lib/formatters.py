@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import datetime
 import pytz
 from babel import numbers
@@ -97,12 +99,10 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         return months
 
     if not show_date:
-        now = datetime.datetime.utcnow()
-        if datetime_.tzinfo is not None:
-            now = now.replace(tzinfo=datetime_.tzinfo)
-        else:
-            now = now.replace(tzinfo=pytz.utc)
+        now = datetime.datetime.now(pytz.utc)
+        if datetime_.tzinfo is None:
             datetime_ = datetime_.replace(tzinfo=pytz.utc)
+
         date_diff = now - datetime_
         days = date_diff.days
         if days < 1 and now > datetime_:
@@ -137,7 +137,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         'day': datetime_.day,
         'year': datetime_.year,
         'month': _MONTH_FUNCTIONS[datetime_.month - 1](),
-        'timezone': datetime_.tzinfo.zone,
+        'timezone': datetime_.tzname(),
     }
 
     if with_hours:

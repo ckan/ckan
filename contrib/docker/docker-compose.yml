@@ -1,0 +1,19 @@
+version: '2'
+services:
+  ckan:
+    container_name: ckan
+    image: ckan/ckan:latest
+    depends_on:
+      - db
+      - solr
+    links:
+       - db
+       - solr
+    ports:
+       - "80:80"
+  db:
+    container_name: db
+    image: ckan/postgresql:latest
+  solr:
+    container_name: solr
+    image: ckan/solr:latest

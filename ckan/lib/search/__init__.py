@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 import sys
 import cgitb
@@ -5,7 +7,6 @@ import warnings
 import xml.dom.minidom
 import urllib2
 
-from pylons import config
 from paste.deploy.converters import asbool
 
 import ckan.model as model
@@ -21,7 +22,6 @@ from query import (TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
 log = logging.getLogger(__name__)
 
 
-
 def text_traceback():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -30,9 +30,8 @@ def text_traceback():
         ).strip()
     return res
 
-SIMPLE_SEARCH = asbool(config.get('ckan.simple_search', False))
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.3']
+SUPPORTED_SCHEMA_VERSIONS = ['2.7']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -57,11 +56,6 @@ _QUERIES = {
 }
 
 SOLR_SCHEMA_FILE_OFFSET = '/admin/file/?file=schema.xml'
-
-if SIMPLE_SEARCH:
-    import sql as sql
-    _INDICES['package'] = NoopSearchIndex
-    _QUERIES['package'] = sql.PackageSearchQuery
 
 
 def _normalize_type(_type):
@@ -217,6 +211,7 @@ def commit():
     package_index.commit()
     log.info('Commited pending changes on the search index')
 
+
 def check():
     package_query = query_for(model.Package)
 
@@ -247,10 +242,9 @@ def clear(package_reference):
 
 
 def clear_all():
-    if not SIMPLE_SEARCH:
-        package_index = index_for(model.Package)
-        log.debug("Clearing search index...")
-        package_index.clear()
+    package_index = index_for(model.Package)
+    log.debug("Clearing search index...")
+    package_index.clear()
 
 
 def check_solr_schema_version(schema_file=None):
@@ -273,11 +267,6 @@ def check_solr_schema_version(schema_file=None):
         :schema_file: Absolute path to an alternative schema file. Should
                       be only used for testing purposes (Default is None)
     '''
-
-
-    if SIMPLE_SEARCH:
-        # Not using the SOLR search backend
-        return False
 
     if not is_available():
         # Something is wrong with the SOLR server

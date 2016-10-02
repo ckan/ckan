@@ -1,0 +1,3 @@
+Come join {{ site_title }} **test**
+
+# These lines should be ignored

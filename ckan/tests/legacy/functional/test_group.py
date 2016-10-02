@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import mock
 
 import ckan.model as model
@@ -16,10 +18,6 @@ class TestGroup(FunctionalTestCase):
         search.clear_all()
         model.Session.remove()
         CreateTestData.create()
-
-        # reduce extraneous logging
-        from ckan.lib import activity_streams_session_extension
-        activity_streams_session_extension.logger.level = 100
 
     @classmethod
     def teardown_class(self):

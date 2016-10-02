@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Tests for the ckan.lib.email_notifications module.
 
 Note that email_notifications is used by an action function, so most of the

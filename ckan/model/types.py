@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 ## IMPORTS FIXED
 import datetime
 import copy

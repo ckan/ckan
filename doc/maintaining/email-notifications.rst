@@ -80,8 +80,8 @@ notifications for a CKAN site, a sysadmin must:
     smtp.mail_from = your_username@gmail.com
 
 
-6. For the new configuration to take effect you need to restart the web server.
-   For example if your are using Apache on Ubuntu, run this command in a
+6. You need to restart the web server for the new configuration to take effect.
+   For example, if you are using Apache on Ubuntu, run this command in a
    shell:
 
    .. parsed-literal::

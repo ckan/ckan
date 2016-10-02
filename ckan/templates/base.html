@@ -26,7 +26,7 @@
     #}
     {%- block meta -%}
       <meta charset="utf-8" />
-      {% block meta_generator %}<meta name="generator" content="ckan {{ c.__version__ }}" />{% endblock %}
+      {% block meta_generator %}<meta name="generator" content="ckan {{ h.ckan_version() }}" />{% endblock %}
       {% block meta_viewport %}<meta name="viewport" content="width=device-width, initial-scale=1.0">{% endblock %}
     {%- endblock -%}
 
@@ -86,7 +86,7 @@
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
-  <body{% block bodytag %} data-site-root="{{ h.url('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url('/', qualified=true) }}" {% endblock %}>
+  <body{% block bodytag %} data-site-root="{{ h.url_for('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url_for('/', qualified=true) }}" {% endblock %}>
 
     {#
     The page block allows you to add content to the page. Most of the time it is

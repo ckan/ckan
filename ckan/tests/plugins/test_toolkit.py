@@ -1,4 +1,6 @@
-from nose.tools import assert_equal, assert_raises
+# encoding: utf-8
+
+from nose.tools import assert_equal, assert_raises, assert_true, raises
 
 from ckan.plugins import toolkit as tk
 
@@ -258,3 +260,23 @@ class TestRequiresCkanVersion(object):
         tk.ckan.__version__ = '2'
         assert_raises(tk.CkanVersionException,
                       tk.requires_ckan_version, min_version='3')
+
+
+class TestToolkitHelper(object):
+    def test_call_helper(self):
+        # the null_function would return ''
+        assert_true(tk.h.icon_url('x'))
+
+    def test_tk_helper_attribute_error_on_missing_helper(self):
+        assert_raises(AttributeError, getattr,
+                      tk.h, 'not_a_real_helper_function')
+
+    @raises(AttributeError)
+    def test_tk_helper_as_attribute_missing_helper(self):
+        '''Directly attempt access to module function'''
+        tk.h.nothere()
+
+    @raises(tk.HelperError)
+    def test_tk_helper_as_item_missing_helper(self):
+        '''Directly attempt access as item'''
+        tk.h['nothere']()

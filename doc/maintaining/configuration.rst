@@ -11,12 +11,12 @@ but some of them can also be set via `Environment variables`_ or at :ref:`runtim
 Environment variables
 *********************
 
-Some of the CKAN configuration options can be defined as `Environment variables <env-vars-wikipedia>`_
+Some of the CKAN configuration options can be defined as `Environment variables`_
 on the server operating system.
 
 These are generally low-level critical settings needed when setting up the application, like the database
 connection, the Solr server URL, etc. Sometimes it can be useful to define them as environment variables to
-automate and orchestrate deployments without having to first modify the `configuration file <CKAN configuration file>`_.
+automate and orchestrate deployments without having to first modify the `CKAN configuration file`_.
 
 These options are only read at startup time to update the ``config`` object used by CKAN,
 but they won't we accessed any more during the lifetime of the application.
@@ -26,14 +26,14 @@ and prefixed with `CKAN_` (this prefix is added even if
 the corresponding option in the ini file does not have it), and replacing dots with underscores.
 
 This is the list of currently supported environment variables, please refer to the entries in the
-`configuration file <CKAN configuration file>`_ section below for more details about each one:
+`CKAN configuration file`_ section below for more details about each one:
 
 .. literalinclude:: /../ckan/config/environment.py
     :language: python
     :start-after: Start CONFIG_FROM_ENV_VARS
     :end-before: End CONFIG_FROM_ENV_VARS
 
-.. _env-vars-wikipedia: http://en.wikipedia.org/wiki/Environment_variable
+.. _Environment variables: http://en.wikipedia.org/wiki/Environment_variable
 
 
 .. _runtime-config:
@@ -42,7 +42,7 @@ Updating configuration options during runtime
 *********************************************
 
 CKAN configuration options are generally defined before starting the web application (either in the
-`configuration file <CKAN configuration file>`_ or via `Environment variables`_).
+`CKAN configuration file`_ or via `Environment variables`_).
 
 A limited number of configuration options can also be edited during runtime. This can be done on the
 :ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`
@@ -287,15 +287,18 @@ Default value:  (an explicit value is mandatory)
 Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
 site use this setting.
 
-.. important:: It is mandatory to complete this setting
+This setting should only contain the protocol (e.g. ``http://``), host (e.g.
+``www.example.com``) and (optionally) the port (e.g. ``:8080``). In particular,
+if you have mounted CKAN at a path other than ``/`` then the mount point must
+*not* be included in ``ckan.site_url``. Instead, you need to set
+:ref:`ckan.root_path`.
 
-.. note:: If you want to mount CKAN at a path other than /, then this setting
-  should reflect that, but the URL you mount it at is determined by your
-  apache config (your WSGIScriptAlias path) (or equivalent for other servers).
+.. important:: It is mandatory to complete this setting
 
 .. warning::
 
   This setting should not have a trailing / on the end.
+
 
 .. _apikey_header_name:
 
@@ -392,6 +395,16 @@ Default value: ``False``
 
 This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
 
+ckan.valid_url_schemes
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.valid_url_schemes = http https ftp sftp
+
+Default value: ``http https ftp``
+
+Controls what uri schemes are rendered as links.
 
 .. _config-authorization:
 
@@ -568,19 +581,6 @@ a single CKAN instance then this can be ignored.
 
 Note, if you change this value, you need to rebuild the search index.
 
-.. _ckan.simple_search:
-
-ckan.simple_search
-^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.simple_search = true
-
-Default value:  ``false``
-
-Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
-
 .. _solr_url:
 
 solr_url
@@ -642,6 +642,21 @@ Default value:  ``false``
 Controls whether the default search page (``/dataset``) should show only
 standard datasets or also custom dataset types.
 
+.. _ckan.search.default_include_private:
+
+ckan.search.default_include_private
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.defalt_include_private = false
+
+Default value:  ``true``
+
+Controls whether the default search page (``/dataset``) should include
+private datasets visible to the current user or only public datasets
+visible to everyone.
+
 .. _search.facets.limit:
 
 search.facets.limit
@@ -678,6 +693,25 @@ Example::
 Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
+
+
+Redis Settings
+---------------
+
+.. _ckan_redis_url:
+
+ckan.redis.url
+^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.redis.url = redis://localhost:7000/1
+
+Default value: ``redis://localhost:6379/0``
+
+URL to your Redis instance, including the database to be used.
+
+.. versionadded:: 2.7
 
 
 CORS Settings
@@ -754,21 +788,6 @@ Format as a space-separated list of the plugin names. The plugin name is the key
         Fix CKAN's plugin loading order to simply load all plugins in the order
         they're given in the config file, regardless of which Python modules
         they're implemented in.
-
-.. _ckan.datastore.enabled:
-
-ckan.datastore.enabled
-^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.datastore.enabled = True
-
-Default value: ``False``
-
-Controls if the Data API link will appear in Dataset's Resource page.
-
-.. note:: This setting only applies to the legacy templates.
 
 .. _ckanext.stats.cache_enabled:
 
@@ -953,7 +972,7 @@ Default value: ``False``
 
 This controls if the legacy genshi templates are used.
 
-.. note:: This is only for legacy code, and shouldn't be used anymore.
+.. note:: This is option is **deprecated** and has no effect any more.
 
 .. _ckan.datasets_per_page:
 
@@ -983,21 +1002,6 @@ This sets a space-separated list of extra field key values which will not be sho
 
 .. warning::  While this is useful to e.g. create internal notes, it is not a security measure. The keys will still be available via the API and in revision diffs.
 
-.. _ckan.dataset.show_apps_ideas:
-
-ckan.dataset.show_apps_ideas
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-ckan.dataset.show_apps_ideas::
-
- ckan.dataset.show_apps_ideas = false
-
-Default value:  true
-
-When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on the package read page. If the value is not set, or is set to true or yes, then the tab will shown.
-
-.. note::  This only applies to the legacy Genshi-based templates
-
 .. _ckan.dumps_url:
 
 ckan.dumps_url
@@ -1009,7 +1013,7 @@ web interface. For example::
 
   ckan.dumps_url = http://ckan.net/dump/
 
-For more information on using dumpfiles, see :ref:`paster db`.
+For more information on using dumpfiles, see :ref:`datasets dump`.
 
 .. _ckan.dumps_format:
 
@@ -1263,7 +1267,7 @@ Example::
 
  extra_template_paths = /home/okfn/brazil_ckan_config/templates
 
-To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
+Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
 For more information on theming, see :doc:`/theming/index`.
 
@@ -1387,6 +1391,23 @@ DataPusher endpoint to use when enabling the ``datapusher`` extension. If you
 installed CKAN via :doc:`/maintaining/installing/install-from-package`, the DataPusher was installed for you
 running on port 8800. If you want to manually install the DataPusher, follow
 the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
+
+
+User Settings
+-------------------------
+
+.. _ckan.user_list_limit:
+
+ckan.user_list_limit
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.user_list_limit = 50
+
+Default value: ``20``
+
+This controls the number of users to show in the Users list. By default, it shows 20 users.
 
 
 Activity Streams Settings
@@ -1592,29 +1613,29 @@ Default value: (none)
 
 By default, the locales are searched for in the ``ckan/i18n`` directory. Use this option if you want to use another folder.
 
-.. _ckan.18n.extra_directory:
+.. _ckan.i18n.extra_directory:
 
 ckan.i18n.extra_directory
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  ckan.18n.extra_directory = /opt/ckan/extra_translations/
+  ckan.i18n.extra_directory = /opt/ckan/extra_translations/
 
 Default value: (none)
 
-If you wish to add extra translation strings and have them merged with the 
+If you wish to add extra translation strings and have them merged with the
 default ckan translations at runtime you can specify the location of the extra
 translations using this option.
 
-.. _ckan.18n.extra_gettext_domain:
+.. _ckan.i18n.extra_gettext_domain:
 
 ckan.i18n.extra_gettext_domain
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  ckan.18n.extra_gettext_domain = mydomain
+  ckan.i18n.extra_gettext_domain = mydomain
 
 Default value: (none)
 
@@ -1623,18 +1644,18 @@ example if your translations are stored as
 ``i18n/<locale>/LC_MESSAGES/somedomain.mo`` you would want to set this option
 to ``somedomain``
 
-.. _ckan.18n.extra_locales:
+.. _ckan.i18n.extra_locales:
 
-ckan.18n.extra_locales
-^^^^^^^^^^^^^^^^^^^^^^
+ckan.i18n.extra_locales
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  ckan.18n.extra_locales = fr es de
+  ckan.i18n.extra_locales = fr es de
 
 Default value: (none)
 
-If you have set an extra i18n directory using ``ckan.18n.extra_directory``, you
+If you have set an extra i18n directory using ``ckan.i18n.extra_directory``, you
 should specify the locales that have been translated in that directory in this
 option.
 
@@ -1664,10 +1685,27 @@ Example::
 
 Default value: (none)
 
-By default, the URLs are formatted as ``/some/url``, when using the default
-locale, or ``/de/some/url`` when using the "de" locale, for example. This
-lets you change this. You can use any path that you want, adding ``{{LANG}}``
-where you want the locale code to go.
+This setting is used to construct URLs inside CKAN. It specifies two things:
+
+* *At which path CKAN is mounted:* By default it is assumed that CKAN is mounted
+  at ``/``, i.e. at the root of your web server. If you have configured your
+  web server to serve CKAN from a different mount point then you need to
+  duplicate that setting here.
+
+* *Where the locale is added to an URL:* By default, URLs are formatted as
+  ``/some/url`` when using the default locale, or ``/de/some/url`` when using
+  the ``de`` locale, for example. When ``ckan.root_path`` is set it must
+  include the string ``{{LANG}}``, which will be replaced by the locale.
+
+.. important::
+
+    The setting must contain ``{{LANG}}`` exactly as written here. Do not add
+    spaces between the brackets.
+
+.. seealso::
+
+    The host of your CKAN installation can be set via :ref:`ckan.site_url`.
+
 
 .. _ckan.resource_formats:
 
@@ -1758,7 +1796,7 @@ smtp.server
 
 Example::
 
-  smtp.server = smtp.gmail.com:587
+  smtp.server = smtp.example.com:587
 
 Default value: ``None``
 
@@ -1784,7 +1822,7 @@ smtp.user
 
 Example::
 
-  smtp.user = your_username@gmail.com
+  smtp.user = username@example.com
 
 Default value: ``None``
 
@@ -1810,7 +1848,7 @@ smtp.mail_from
 
 Example::
 
-  smtp.mail_from = you@yourdomain.com
+  smtp.mail_from = ckan@example.com
 
 Default value: ``None``
 
@@ -1824,7 +1862,7 @@ email_to
 
 Example::
 
-  email_to = you@yourdomain.com
+  email_to = errors@example.com
 
 Default value: ``None``
 
@@ -1837,7 +1875,7 @@ error_email_from
 
 Example::
 
-  error_email_from = paste@localhost
+  error_email_from = ckan-errors@example.com
 
 Default value: ``None``
 

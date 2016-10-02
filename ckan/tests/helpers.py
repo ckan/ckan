@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''This is a collection of helper functions for use in tests.
 
 We want to avoid sharing test helper functions between test modules as
@@ -17,25 +19,28 @@ potential drawbacks.
 This module is reserved for these very useful functions.
 
 '''
-import webtest
-from pylons import config
-import nose.tools
 
+import collections
+import contextlib
+import errno
+import functools
+import logging
+import os
+import re
+
+import webtest
+import nose.tools
+from nose.tools import assert_in, assert_not_in
+import mock
+import rq
+
+from ckan.common import config
+import ckan.lib.jobs as jobs
+from ckan.lib.redis import connect_to_redis
 import ckan.lib.search as search
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
-
-
-try:
-    from nose.tools import assert_in, assert_not_in
-except ImportError:
-    # Python 2.6 doesn't have these, so define them here
-    def assert_in(a, b, msg=None):
-        assert a in b, msg or '%r was not in %r' % (a, b)
-
-    def assert_not_in(a, b, msg=None):
-        assert a not in b, msg or '%r was in %r' % (a, b)
 
 
 def reset_db():
@@ -139,6 +144,21 @@ def call_auth(auth_name, context, **kwargs):
     return logic.check_access(auth_name, context, data_dict=kwargs)
 
 
+class CKANTestApp(webtest.TestApp):
+    '''A wrapper around webtest.TestApp
+
+    It adds some convenience methods for CKAN
+    '''
+
+    _flask_app = None
+
+    @property
+    def flask_app(self):
+        if not self._flask_app:
+            self._flask_app = self.app.apps['flask_app']._wsgi_app
+        return self._flask_app
+
+
 def _get_test_app():
     '''Return a webtest.TestApp for CKAN, with legacy templates disabled.
 
@@ -148,7 +168,7 @@ def _get_test_app():
     '''
     config['ckan.legacy_templates'] = False
     app = ckan.config.middleware.make_app(config['global_conf'], **config)
-    app = webtest.TestApp(app)
+    app = CKANTestApp(app)
     return app
 
 
@@ -187,6 +207,8 @@ class FunctionalTestBase(object):
     def setup(self):
         '''Reset the database and clear the search indexes.'''
         reset_db()
+        if hasattr(self, '_test_app'):
+            self._test_app.reset()
         search.clear_all()
 
     @classmethod
@@ -195,6 +217,49 @@ class FunctionalTestBase(object):
         # changed any config settings.
         config.clear()
         config.update(cls._original_config)
+
+
+class RQTestBase(object):
+    '''
+    Base class for tests of RQ functionality.
+    '''
+    def setup(self):
+        u'''
+        Delete all RQ queues and jobs.
+        '''
+        # See https://github.com/nvie/rq/issues/731
+        redis_conn = connect_to_redis()
+        for queue in rq.Queue.all(connection=redis_conn):
+            queue.empty()
+            redis_conn.srem(rq.Queue.redis_queues_keys, queue._key)
+            redis_conn.delete(queue._key)
+
+    def all_jobs(self):
+        u'''
+        Get a list of all RQ jobs.
+        '''
+        jobs = []
+        redis_conn = connect_to_redis()
+        for queue in rq.Queue.all(connection=redis_conn):
+            jobs.extend(queue.jobs)
+        return jobs
+
+    def enqueue(self, job=None, *args, **kwargs):
+        u'''
+        Enqueue a test job.
+        '''
+        if job is None:
+            job = jobs.test_job
+        return jobs.enqueue(job, *args, **kwargs)
+
+
+class FunctionalRQTestBase(FunctionalTestBase, RQTestBase):
+    '''
+    Base class for functional tests of RQ functionality.
+    '''
+    def setup(self):
+        FunctionalTestBase.setup(self)
+        RQTestBase.setup(self)
 
 
 def submit_and_follow(app, form, extra_environ=None, name=None,
@@ -289,7 +354,7 @@ def webtest_maybe_follow(response, **kw):
 
 
 def change_config(key, value):
-    '''Decorator to temporarily changes Pylons' config to a new value
+    '''Decorator to temporarily change CKAN's config to a new value
 
     This allows you to easily create tests that need specific config values to
     be set, making sure it'll be reverted to what it was originally, after your
@@ -299,24 +364,307 @@ def change_config(key, value):
 
         @helpers.change_config('ckan.site_title', 'My Test CKAN')
         def test_ckan_site_title(self):
-            assert pylons.config['ckan.site_title'] == 'My Test CKAN'
+            assert config['ckan.site_title'] == 'My Test CKAN'
 
     :param key: the config key to be changed, e.g. ``'ckan.site_title'``
     :type key: string
 
     :param value: the new config key's value, e.g. ``'My Test CKAN'``
     :type value: string
+
+    .. seealso:: The context manager :py:func:`changed_config`
+    '''
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            with changed_config(key, value):
+                return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+@contextlib.contextmanager
+def changed_config(key, value):
+    '''
+    Context manager for temporarily changing a config value.
+
+    Allows you to temporarily change the value of a CKAN configuration
+    option. The original value is restored once the context manager is
+    left.
+
+    Usage::
+
+        with changed_config(u'ckan.site_title', u'My Test CKAN'):
+            assert config[u'ckan.site_title'] == u'My Test CKAN'
+
+    .. seealso:: The decorator :py:func:`change_config`
+    '''
+    _original_config = config.copy()
+    config[key] = value
+    try:
+        yield
+    finally:
+        config.clear()
+        config.update(_original_config)
+
+
+def mock_auth(auth_function_path):
+    '''
+    Decorator to easily mock a CKAN auth method in the context of a test
+     function
+
+    It adds a mock object for the provided auth_function_path as a parameter to
+     the test function.
+
+    Essentially it makes sure that `ckan.authz.clear_auth_functions_cache` is
+     called before and after to make sure that the auth functions pick up
+     the newly changed values.
+
+    Usage::
+
+        @helpers.mock_auth('ckan.logic.auth.create.package_create')
+        def test_mock_package_create(self, mock_package_create):
+            from ckan import logic
+            mock_package_create.return_value = {'success': True}
+
+            # package_create is mocked
+            eq_(logic.check_access('package_create', {}), True)
+
+            assert mock_package_create.called
+
+    :param action_name: the full path to the auth function to be mocked,
+        e.g. ``ckan.logic.auth.create.package_create``
+    :type action_name: string
+
+    '''
+    from ckan.authz import clear_auth_functions_cache
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+
+            try:
+                with mock.patch(auth_function_path) as mocked_auth:
+                    clear_auth_functions_cache()
+                    new_args = args + tuple([mocked_auth])
+                    return_value = func(*new_args, **kwargs)
+            finally:
+                clear_auth_functions_cache()
+            return return_value
+
+        return nose.tools.make_decorator(func)(wrapper)
+    return decorator
+
+
+def mock_action(action_name):
+    '''
+    Decorator to easily mock a CKAN action in the context of a test function
+
+    It adds a mock object for the provided action as a parameter to the test
+    function. The mock is discarded at the end of the function, even if there
+    is an exception raised.
+
+    Note that this mocks the action both when it's called directly via
+    ``ckan.logic.get_action`` and via ``ckan.plugins.toolkit.get_action``.
+
+    Usage::
+
+        @mock_action('user_list')
+        def test_mock_user_list(self, mock_user_list):
+
+            mock_user_list.return_value = 'hi'
+
+            # user_list is mocked
+            eq_(helpers.call_action('user_list', {}), 'hi')
+
+            assert mock_user_list.called
+
+    :param action_name: the name of the action to be mocked,
+        e.g. ``package_create``
+    :type action_name: string
+
     '''
     def decorator(func):
         def wrapper(*args, **kwargs):
-            _original_config = config.copy()
-            config[key] = value
+            mock_action = mock.MagicMock()
 
-            return_value = func(*args, **kwargs)
+            from ckan.logic import get_action as original_get_action
 
-            config.clear()
-            config.update(_original_config)
+            def side_effect(called_action_name):
+                if called_action_name == action_name:
+                    return mock_action
+                else:
+                    return original_get_action(called_action_name)
+            try:
+                with mock.patch('ckan.logic.get_action') as mock_get_action, \
+                        mock.patch('ckan.plugins.toolkit.get_action') \
+                        as mock_get_action_toolkit:
+                    mock_get_action.side_effect = side_effect
+                    mock_get_action_toolkit.side_effect = side_effect
+
+                    new_args = args + tuple([mock_action])
+                    return_value = func(*new_args, **kwargs)
+            finally:
+                # Make sure to stop the mock, even with an exception
+                mock_action.stop()
+            return return_value
+
+        return nose.tools.make_decorator(func)(wrapper)
+    return decorator
+
+
+def set_extra_environ(key, value):
+    '''Decorator to temporarily changes a single request environemnt value
+
+    Create a new test app and use the a side effect of making a request
+    to set an extra_environ value. Reset the value to '' after the test.
+
+    Usage::
+
+        @helpers.extra_environ('SCRIPT_NAME', '/myscript')
+        def test_ckan_thing_affected_by_script_name(self):
+            # ...
+
+    :param key: the extra_environ key to be changed, e.g. ``'SCRIPT_NAME'``
+    :type key: string
+
+    :param value: the new extra_environ key's value, e.g. ``'/myscript'``
+    :type value: string
+    '''
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            app = _get_test_app()
+            app.get('/', extra_environ={key: value})
+
+            try:
+                return_value = func(*args, **kwargs)
+            finally:
+                app.get('/', extra_environ={key: ''})
 
             return return_value
         return nose.tools.make_decorator(func)(wrapper)
     return decorator
+
+
+@contextlib.contextmanager
+def recorded_logs(logger=None, level=logging.DEBUG,
+                  override_disabled=True, override_global_level=True):
+    u'''
+    Context manager for recording log messages.
+
+    :param logger: The logger to record messages from. Can either be a
+        :py:class:`logging.Logger` instance or a string with the
+        logger's name. Defaults to the root logger.
+
+    :param int level: Temporary log level for the target logger while
+        the context manager is active. Pass ``None`` if you don't want
+        the level to be changed. The level is automatically reset to its
+        original value when the context manager is left.
+
+    :param bool override_disabled: A logger can be disabled by setting
+        its ``disabled`` attribute. By default, this context manager
+        sets that attribute to ``False`` at the beginning of its
+        execution and resets it when the context manager is left. Set
+        ``override_disabled`` to ``False`` to keep the current value
+        of the attribute.
+
+    :param bool override_global_level: The ``logging.disable`` function
+        allows one to install a global minimum log level that takes
+        precedence over a logger's own level. By default, this context
+        manager makes sure that the global limit is at most ``level``,
+        and reduces it if necessary during its execution. Set
+        ``override_global_level`` to ``False`` to keep the global limit.
+
+    :returns: A recording log handler that listens to ``logger`` during
+        the execution of the context manager.
+    :rtype: :py:class:`RecordingLogHandler`
+
+    Example::
+
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        with recorded_logs(logger) as logs:
+            logger.info(u'Hello, world!')
+
+        logs.assert_log(u'info', u'world')
+    '''
+    if logger is None:
+        logger = logging.getLogger()
+    elif not isinstance(logger, logging.Logger):
+        logger = logging.getLogger(logger)
+    handler = RecordingLogHandler()
+    old_level = logger.level
+    manager_level = logger.manager.disable
+    disabled = logger.disabled
+    logger.addHandler(handler)
+    try:
+        if level is not None:
+            logger.setLevel(level)
+        if override_disabled:
+            logger.disabled = False
+        if override_global_level:
+            if (level is None) and (manager_level > old_level):
+                logger.manager.disable = old_level
+            elif (level is not None) and (manager_level > level):
+                logger.manager.disable = level
+        yield handler
+    finally:
+        logger.handlers.remove(handler)
+        logger.setLevel(old_level)
+        logger.disabled = disabled
+        logger.manager.disable = manager_level
+
+
+class RecordingLogHandler(logging.Handler):
+    u'''
+    Log handler that records log messages for later inspection.
+
+    You can inspect the recorded messages via the ``messages`` attribute
+    (a dict that maps log levels to lists of messages) or by using
+    ``assert_log``.
+
+    This class is rarely useful on its own, instead use
+    :py:func:`recorded_logs` to temporarily record log messages.
+    '''
+    def __init__(self, *args, **kwargs):
+        super(RecordingLogHandler, self).__init__(*args, **kwargs)
+        self.clear()
+
+    def emit(self, record):
+        self.messages[record.levelname.lower()].append(record.getMessage())
+
+    def assert_log(self, level, pattern, msg=None):
+        u'''
+        Assert that a certain message has been logged.
+
+        :param string pattern: A regex which the message has to match.
+            The match is done using ``re.search``.
+
+        :param string level: The message level (``'debug'``, ...).
+
+        :param string msg: Optional failure message in case the expected
+            log message was not logged.
+
+        :raises AssertionError: If the expected message was not logged.
+        '''
+        compiled_pattern = re.compile(pattern)
+        for log_msg in self.messages[level]:
+            if compiled_pattern.search(log_msg):
+                return
+        if not msg:
+            if self.messages[level]:
+                lines = u'\n    '.join(self.messages[level])
+                msg = (u'Pattern "{}" was not found in the log messages for '
+                       + u'level "{}":\n    {}').format(pattern, level, lines)
+            else:
+                msg = (u'Pattern "{}" was not found in the log messages for '
+                       + u'level "{}" (no messages were recorded for that '
+                       + u'level).').format(pattern, level)
+        raise AssertionError(msg)
+
+    def clear(self):
+        u'''
+        Clear all captured log messages.
+        '''
+        self.messages = collections.defaultdict(list)

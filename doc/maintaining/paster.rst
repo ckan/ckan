@@ -1,3 +1,5 @@
+.. _paster:
+
 ======================
 Command Line Interface
 ======================
@@ -169,7 +171,6 @@ Paster Commands Reference
 The following paster commands are supported by CKAN:
 
 ================= ============================================================
-celeryd           Control celery daemon.
 check-po-files    Check po files for common mistakes
 color             Create or remove a color scheme.
 create-test-data  Create test data in the database.
@@ -177,6 +178,7 @@ dataset           Manage datasets.
 datastore         Perform commands to set up the datastore.
 db                Perform various tasks on the database.
 front-end-build   Creates and minifies css and JavaScript files
+jobs              Manage background jobs
 less              Compile all root less documents into their CSS counterparts
 minify            Create minified versions of the given Javascript and CSS files.
 notify            Send out modification notifications.
@@ -190,18 +192,6 @@ tracking          Update tracking statistics.
 trans             Translation helper functions
 user              Manage users.
 ================= ============================================================
-
-
-celeryd: Control celery daemon
-==============================
-
-Usage::
-
-    celeryd <run>            - run the celery daemon
-    celeryd run concurrency  - run the celery daemon with
-                               argument 'concurrency'
-    celeryd view             - view all tasks in the queue
-    celeryd clean            - delete all tasks in the queue
 
 
 check-po-files: Check po files for common mistakes
@@ -254,126 +244,11 @@ Usage::
     datastore set-permissions  - shows a SQL script to execute
 
 
-.. _paster db:
-
 db: Manage databases
 ====================
 
-Lets you initialise, upgrade, and dump the CKAN database.
+See :doc:`database-management`.
 
-Initialization
---------------
-
-Before you can run CKAN for the first time, you need to run ``db init`` to
-initialize your database:
-
-.. parsed-literal::
-
- paster db init -c |production.ini|
-
-If you forget to do this you'll see this error message in your web browser:
-
- 503 Service Unavailable:  This site is currently off-line. Database is not
- initialised.
-
-Cleaning
---------
-
-You can delete everything in the CKAN database, including the tables, to start
-from scratch:
-
-.. warning::
-
-   This will delete all data from your CKAN database!
-
-.. parsed-literal::
-
- paster db clean -c |production.ini|
-
-After cleaning the db you must do a ``db init`` or ``db load`` before CKAN will
-work again.
-
-.. _dumping and loading:
-
-Dumping and Loading databases to/from a file
---------------------------------------------
-
-You can 'dump' (save) the exact state of the database to a file on disk and at
-a later point 'load' (restore) it again.
-
-.. tip::
-
-   You can also dump the database from one CKAN instance, and then load it into
-   another CKAN instance on the same or another machine. This will even work if
-   the CKAN instance you dumped the database from is an older version of CKAN
-   than the one you load it into, the database will be automatically upgraded
-   during the load command. (But you cannot load a database from a newer
-   version of CKAN into an older version of CKAN.)
-
-To export a dump of your CKAN database:
-
-.. parsed-literal::
-
- paster db dump -c |production.ini| my_database_dump.sql
-
-To load it in again, you first have to clean the database (this will delete all
-data in the database!) and then load the file:
-
-.. parsed-literal::
-
- paster db clean -c |production.ini|
- paster db load -c |production.ini| my_database_dump.sql
-
-.. warning:
-
-   The exported file is a complete backup of the database in plain text, and
-   includes API keys and other user data which may be regarded as private. So
-   keep it secure, like your database server.
-
-Exporting Datasets to JSON or CSV
----------------------------------
-
-You can export all of your CKAN site's datasets from your database to a JSON file
-using the ``db simple-dump-json`` command:
-
-.. parsed-literal::
-
- paster db simple-dump-json -c |production.ini| my_datasets.json
-
-To export the datasets in CSV format instead, use ``db simple-dump-csv``:
-
-.. parsed-literal::
-
- paster db simple-dump-csv -c |production.ini| my_datasets.csv
-
-This is useful to create a simple public listing of the datasets, with no user
-information. Some simple additions to the Apache config can serve the dump
-files to users in a directory listing. To do this, add these lines to your
-virtual Apache config file (e.g. |apache_config_file|)::
-
-    Alias /dump/ /home/okfn/var/srvc/ckan.net/dumps/
-
-    # Disable the mod_python handler for static files
-    <Location /dump>
-        SetHandler None
-        Options +Indexes
-    </Location>
-
-.. warning::
-
-   Don't serve an SQL dump of your database (created using the ``paster db
-   dump`` command), as those contain private user information such as email
-   addresses and API keys.
-
-Exporting User Accounts to CSV
-------------------------------
-
-You can export all of your CKAN site's user accounts from your database to a CSV file
-using the ``db user-dump-csv`` command:
-
-.. parsed-literal::
-
- paster db user-dump-csv -c |production.ini| my_database_users.csv
 
 front-end-build: Creates and minifies css and JavaScript files
 ==============================================================
@@ -381,6 +256,114 @@ front-end-build: Creates and minifies css and JavaScript files
 Usage::
 
     front-end-build
+
+
+.. _paster jobs:
+
+jobs: Manage background jobs
+============================
+
+The ``jobs`` command can be used to manage :ref:`background jobs`.
+
+.. versionadded:: 2.7
+
+
+.. _paster jobs worker:
+
+Run a background job worker
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+::
+
+    paster jobs worker [--burst] [QUEUES]
+
+Starts a worker that fetches job from the :ref:`job queues <background jobs
+queues>` and executes them. If no queue names are given then it listens to
+the default queue. This is equivalent to
+
+::
+
+    paster jobs worker default
+
+If queue names are given then the worker listens to those queues and only
+those::
+
+    paster jobs worker my-custom-queue another-special-queue
+
+Hence, if you want the worker to listen to the default queue and some others
+then you must list the default queue explicitly::
+
+    paster jobs worker default my-custom-queue
+
+If the ``--burst`` option is given then the worker will exit as soon as all its
+queues are empty. Otherwise it will wait indefinitely until a new job is
+enqueued (this is the default).
+
+.. note::
+
+    In a production setting you should :ref:`use a more robust way of running
+    background workers <background jobs supervisor>`.
+
+
+.. _paster jobs list:
+
+List enqueued jobs
+^^^^^^^^^^^^^^^^^^
+::
+
+    paster jobs list [QUEUES]
+
+Lists the currently enqueued jobs from the given :ref:`job queues <background
+jobs queues>`. If no queue names are given then the jobs from all queues are
+listed.
+
+
+.. _paster jobs show:
+
+Show details about a job
+^^^^^^^^^^^^^^^^^^^^^^^^
+::
+
+    paster jobs show ID
+
+Shows details about the enqueued job with the given ID.
+
+
+.. _paster jobs cancel:
+
+Cancel a job
+^^^^^^^^^^^^
+::
+
+    paster jobs cancel ID
+
+Cancels the enqueued job with the given ID. Jobs can only be canceled while
+they are enqueued. Once a worker has started executing a job it cannot be
+aborted anymore.
+
+
+.. _paster jobs clear:
+
+Clear job queues
+^^^^^^^^^^^^^^^^
+::
+
+    paster jobs clear [QUEUES]
+
+Cancels all jobs on the given :ref:`job queues <background jobs queues>`. If no
+queues are given then *all* queues are cleared.
+
+
+.. _paster jobs test:
+
+Enqueue a test job
+^^^^^^^^^^^^^^^^^^
+::
+
+    paster jobs test [QUEUES]
+
+Enqueues a test job. If no :ref:`job queues <background jobs queues>` are given
+then the job is added to the default queue. If queue names are given then a
+separate test job is added to each of the queues.
 
 
 .. _less:

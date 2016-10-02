@@ -1,6 +1,8 @@
+# encoding: utf-8
+
 import nose.tools
 
-from pylons import config
+from ckan.common import config
 
 import ckan.lib.app_globals as app_globals
 

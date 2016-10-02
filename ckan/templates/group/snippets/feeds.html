@@ -1,4 +1,4 @@
-{%- set dataset_feed = h.url(controller='feed', action='group', id=c.group_dict.name) -%}
-{%- set history_feed = h.url(controller='revision', action='list', format='atom', days=1) -%}
+{%- set dataset_feed = h.url_for(controller='feed', action='group', id=c.group_dict.name) -%}
+{%- set history_feed = h.url_for(controller='revision', action='list', format='atom', days=1) -%}
 <link rel="alternate" type="application/atom+xml" title="{{ g.site_title }} - {{ _('Datasets in group: {group}').format(group=c.group_dict.display_name) }}" href="{{ dataset_feed }}" />
 <link rel="alternate" type="application/atom+xml" title="{{ g.site_title }} - {{ _('Recent Revision History') }}" href="{{ history_feed }}" />

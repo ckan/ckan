@@ -13,7 +13,7 @@ allows users to create new groups if a new config setting
 .. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v5_custom_config_setting.py
 
 The ``group_create`` authorization function in this plugin uses
-:py:obj:`pylons.config` to read the setting from the config file, then calls
+:py:obj:`config` to read the setting from the config file, then calls
 :py:func:`ckan.plugins.toolkit.asbool` to convert the value from a string
 (all config settings values are strings, when read from the file) to a boolean.
 
@@ -32,7 +32,7 @@ will be allowed to create groups.
    Names of config settings provided by extensions should include the name
    of the extension, to avoid conflicting with core config settings or with
    config settings from other extensions.
-   See :ref:`extension config setting names best practice`.
+   See :ref:`avoid name clashes`.
 
 .. note::
 

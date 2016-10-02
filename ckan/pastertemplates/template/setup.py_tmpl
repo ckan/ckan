@@ -43,7 +43,6 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
     ],
 
@@ -54,12 +53,14 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
+    namespace_packages=['ckanext'],
 
-    # List run-time dependencies here.  These will be installed by pip when your
-    # project is installed. For an analysis of "install_requires" vs pip's
-    # requirements files see:
-    # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
-    install_requires=[],
+    install_requires=[
+      # CKAN extensions should not list dependencies here, but in a separate
+      # ``requirements.txt`` file.
+      #
+      # http://docs.ckan.org/en/latest/extensions/best-practices.html#add-third-party-libraries-to-requirements-txt
+    ],
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
@@ -80,8 +81,9 @@ setup(
     entry_points='''
         [ckan.plugins]
         {{ project_shortname }}=ckanext.{{ project_shortname }}.plugin:{{ plugin_class_name }}
-	[babel.extractors]
-	ckan = ckan.lib.extract:extract_ckan
+
+        [babel.extractors]
+        ckan = ckan.lib.extract:extract_ckan
     ''',
 
     # If you are changing from the default layout of your extension, you may

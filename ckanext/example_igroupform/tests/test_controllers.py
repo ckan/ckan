@@ -1,12 +1,13 @@
-from nose.tools import assert_equal
+# encoding: utf-8
+
+from nose.tools import assert_equal, assert_in
 from routes import url_for
 
 import ckan.plugins as plugins
-import ckan.new_tests.helpers as helpers
+import ckan.tests.helpers as helpers
 import ckan.model as model
-from ckan.new_tests import factories
+from ckan.tests import factories
 
-assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
@@ -22,6 +23,97 @@ def _get_group_new_page(app, group_type):
         extra_environ=env,
     )
     return env, response
+
+
+class TestGroupController(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(TestGroupController, cls).setup_class()
+        plugins.load('example_igroupform')
+
+    @classmethod
+    def teardown_class(cls):
+        plugins.unload('example_igroupform')
+        super(TestGroupController, cls).teardown_class()
+
+    def test_about(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user, type=custom_group_type)
+        group_name = group['name']
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        url = url_for('%s_about' % custom_group_type,
+                      id=group_name)
+        response = app.get(url=url, extra_environ=env)
+        response.mustcontain(group_name)
+
+    def test_bulk_process(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user, type=custom_group_type)
+        group_name = group['name']
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        url = url_for('%s_bulk_process' % custom_group_type,
+                      id=group_name)
+        try:
+            response = app.get(url=url, extra_environ=env)
+        except Exception as e:
+            assert (e.args == ('Must be an organization', ))
+        else:
+            raise Exception("Response should have raised an exception")
+
+    def test_delete(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user, type=custom_group_type)
+        group_name = group['name']
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        url = url_for('%s_action' % custom_group_type, action='delete',
+                      id=group_name)
+        response = app.get(url=url, extra_environ=env)
+
+
+class TestOrganizationController(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(TestOrganizationController, cls).setup_class()
+        plugins.load('example_igroupform_organization')
+
+    @classmethod
+    def teardown_class(cls):
+        plugins.unload('example_igroupform_organization')
+        super(TestOrganizationController, cls).teardown_class()
+
+    def test_about(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Organization(user=user, type=custom_group_type)
+        group_name = group['name']
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        url = url_for('%s_about' % custom_group_type,
+                      id=group_name)
+        response = app.get(url=url, extra_environ=env)
+        response.mustcontain(group_name)
+
+    def test_bulk_process(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Organization(user=user, type=custom_group_type)
+        group_name = group['name']
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        url = url_for('%s_bulk_process' % custom_group_type,
+                      id=group_name)
+        response = app.get(url=url, extra_environ=env)
+
+    def test_delete(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Organization(user=user, type=custom_group_type)
+        group_name = group['name']
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        url = url_for('%s_action' % custom_group_type, action='delete',
+                      id=group_name)
+        response = app.get(url=url, extra_environ=env)
 
 
 class TestGroupControllerNew(helpers.FunctionalTestBase):
@@ -44,7 +136,7 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
         # check correct redirect
         assert_equal(response.req.url,
-                     'http://localhost/%s/saved' % custom_group_type)
+                     'http://test.ckan.net/%s/saved' % custom_group_type)
         # check saved ok
         group = model.Group.by_name(u'saved')
         assert_equal(group.title, u'')
@@ -80,7 +172,7 @@ class TestGroupControllerNew_DefaultGroupType(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
         # check correct redirect
         assert_equal(response.req.url,
-                     'http://localhost/%s/saved' % group_type)
+                     'http://test.ckan.net/%s/saved' % group_type)
         # check saved ok
         group = model.Group.by_name(u'saved')
         assert_equal(group.title, u'')

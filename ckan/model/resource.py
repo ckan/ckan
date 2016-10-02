@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 import datetime
 
 from sqlalchemy.util import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
-from pylons import config
+from ckan.common import config
 import vdm.sqlalchemy
 import vdm.sqlalchemy.stateful
 from sqlalchemy import types, func, Column, Table, ForeignKey, and_
@@ -26,8 +28,7 @@ __all__ = ['Resource', 'resource_table',
 CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
                          'size', 'created', 'last_modified', 'cache_url',
-                         'cache_last_updated', 'webstore_url',
-                         'webstore_last_updated', 'url_type']
+                         'cache_last_updated', 'url_type']
 
 ##formally package_resource
 resource_table = Table(
@@ -51,8 +52,6 @@ resource_table = Table(
     Column('last_modified', types.DateTime),
     Column('cache_url', types.UnicodeText),
     Column('cache_last_updated', types.DateTime),
-    Column('webstore_url', types.UnicodeText),
-    Column('webstore_last_updated', types.DateTime),
     Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
 )
@@ -111,8 +110,10 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get(cls, reference):
         '''Returns a resource object referenced by its name or id.'''
-        query = meta.Session.query(Resource).filter(Resource.id == reference)
-        resource = query.first()
+        if not reference:
+            return None
+
+        resource = meta.Session.query(cls).get(reference)
         if resource is None:
             resource = cls.by_name(reference)
         return resource

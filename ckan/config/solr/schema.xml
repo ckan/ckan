@@ -24,7 +24,7 @@
 <!-- We update the version when there is a backward-incompatible change to this
 schema. In this case the version should be set to the next CKAN version number.
 (x.y but not x.y.z since it needs to be a float) -->
-<schema name="ckan" version="2.3">
+<schema name="ckan" version="2.7">
 
 <types>
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
@@ -40,6 +40,13 @@ schema. In this case the version should be set to the next CKAN version number.
     <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
     <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
+
+    <fieldType name="tdates" class="solr.TrieDateField" precisionStep="7" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
+    <fieldType name="tints" class="solr.TrieIntField" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="tfloats" class="solr.TrieFloatField" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="tlongs" class="solr.TrieLongField" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="tdoubles" class="solr.TrieDoubleField" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
 
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
@@ -105,6 +112,7 @@ schema. In this case the version should be set to the next CKAN version number.
     <field name="organization" type="string" indexed="true" stored="true" multiValued="false"/>
 
     <field name="capacity" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="permission_labels" type="text" indexed="true" stored="false" multiValued="true"/>
 
     <field name="res_name" type="textgen" indexed="true" stored="true" multiValued="true" />
     <field name="res_description" type="textgen" indexed="true" stored="true" multiValued="true"/>

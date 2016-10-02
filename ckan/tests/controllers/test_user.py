@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from bs4 import BeautifulSoup
 from nose.tools import assert_true, assert_false, assert_equal
 
@@ -55,7 +57,38 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         form['password2'] = ''
 
         response = form.submit('save')
-        assert_true('The passwords you entered do not match')
+        assert_true('The passwords you entered do not match' in response)
+
+    def test_create_user_as_sysadmin(self):
+        admin_pass = 'pass'
+        sysadmin = factories.Sysadmin(password=admin_pass)
+        app = self._get_test_app()
+
+        # Have to do an actual login as this test relies on repoze
+        #  cookie handling.
+
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+        # fill it in
+        login_form['login'] = sysadmin['name']
+        login_form['password'] = admin_pass
+        # submit it
+        login_form.submit('save')
+
+        response = app.get(
+            url=url_for(controller='user', action='register'),
+        )
+        assert "user-register-form" in response.forms
+        form = response.forms['user-register-form']
+        form['name'] = 'newestuser'
+        form['fullname'] = 'Newest User'
+        form['email'] = 'test@test.com'
+        form['password1'] = 'testpassword'
+        form['password2'] = 'testpassword'
+        response2 = form.submit('save')
+        assert '/user/activity' in response2.location
 
 
 class TestLoginView(helpers.FunctionalTestBase):
@@ -139,6 +172,22 @@ class TestLogout(helpers.FunctionalTestBase):
 
         assert_true('You are now logged out.' in final_response)
 
+    @helpers.change_config('ckan.root_path', '/my/prefix')
+    def test_non_root_user_logout_url_redirect(self):
+        '''
+        _logout url redirects to logged out page with `ckan.root_path`
+        prefixed.
+
+        Note: this doesn't test the actual logout of a logged in user, just
+        the associated redirect.
+        '''
+        app = self._get_test_app()
+
+        logout_url = url_for(controller='user', action='logout')
+        logout_response = app.get(logout_url, status=302)
+        assert_equal(logout_response.status_int, 302)
+        assert_true('/my/prefix/user/logout' in logout_response.location)
+
 
 class TestUser(helpers.FunctionalTestBase):
 
@@ -192,10 +241,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         app = self._get_test_app()
         response = app.get(
             url_for(controller='user', action='edit', id='unknown_person'),
-            status=302  # redirect to login page
+            status=403
         )
-        response = response.follow()
-        assert_true('Login' in response)
 
     def test_user_edit_not_logged_in(self):
         '''Attempt to read edit user for an existing, not-logged in user
@@ -205,10 +252,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         username = user['name']
         response = app.get(
             url_for(controller='user', action='edit', id=username),
-            status=302
+            status=403
         )
-        response = response.follow()
-        assert_true('Login' in response)
 
     def test_edit_user(self):
         user = factories.User(password='pass')
@@ -245,6 +290,131 @@ class TestUserEdit(helpers.FunctionalTestBase):
         assert_equal(user.email, 'new@example.com')
         assert_equal(user.about, 'new about')
         assert_equal(user.activity_streams_email_notifications, True)
+
+    def test_email_change_without_password(self):
+
+        app = self._get_test_app()
+        env, response, user = _get_user_edit_page(app)
+
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['email'] = 'new@example.com'
+
+        # factory returns user with password 'pass'
+        form.fields['old_password'][0].value = 'wrong-pass'
+
+        response = webtest_submit(form, 'save', status=200, extra_environ=env)
+        assert_true('Old Password: incorrect password' in response)
+
+    def test_email_change_with_password(self):
+        app = self._get_test_app()
+        env, response, user = _get_user_edit_page(app)
+
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['email'] = 'new@example.com'
+
+        # factory returns user with password 'pass'
+        form.fields['old_password'][0].value = 'pass'
+
+        response = submit_and_follow(app, form, env, 'save')
+        assert_true('Profile updated' in response)
+
+    def test_edit_user_logged_in_username_change(self):
+
+        user_pass = 'pass'
+        user = factories.User(password=user_pass)
+        app = self._get_test_app()
+
+        # Have to do an actual login as this test relys on repoze cookie handling.
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+        # fill it in
+        login_form['login'] = user['name']
+        login_form['password'] = user_pass
+        # submit it
+        login_form.submit()
+
+        # Now the cookie is set, run the test
+        response = app.get(
+            url=url_for(controller='user', action='edit'),
+        )
+        # existing values in the form
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['name'] = 'new-name'
+        response = submit_and_follow(app, form, name='save')
+        response = helpers.webtest_maybe_follow(response)
+
+        expected_url = url_for(controller='user', action='read', id='new-name')
+        assert response.request.path == expected_url
+
+    def test_edit_user_logged_in_username_change_by_name(self):
+        user_pass = 'pass'
+        user = factories.User(password=user_pass)
+        app = self._get_test_app()
+
+        # Have to do an actual login as this test relys on repoze cookie handling.
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+        # fill it in
+        login_form['login'] = user['name']
+        login_form['password'] = user_pass
+        # submit it
+        login_form.submit()
+
+        # Now the cookie is set, run the test
+        response = app.get(
+            url=url_for(controller='user', action='edit', id=user['name']),
+        )
+        # existing values in the form
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['name'] = 'new-name'
+        response = submit_and_follow(app, form, name='save')
+        response = helpers.webtest_maybe_follow(response)
+
+        expected_url = url_for(controller='user', action='read', id='new-name')
+        assert response.request.path == expected_url
+
+    def test_edit_user_logged_in_username_change_by_id(self):
+        user_pass = 'pass'
+        user = factories.User(password=user_pass)
+        app = self._get_test_app()
+
+        # Have to do an actual login as this test relys on repoze cookie handling.
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+        # fill it in
+        login_form['login'] = user['name']
+        login_form['password'] = user_pass
+        # submit it
+        login_form.submit()
+
+        # Now the cookie is set, run the test
+        response = app.get(
+            url=url_for(controller='user', action='edit', id=user['id']),
+        )
+        # existing values in the form
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['name'] = 'new-name'
+        response = submit_and_follow(app, form, name='save')
+        response = helpers.webtest_maybe_follow(response)
+
+        expected_url = url_for(controller='user', action='read', id='new-name')
+        assert response.request.path == expected_url
 
     def test_perform_reset_for_key_change(self):
         password = 'password'

@@ -16,11 +16,11 @@ MOCHA_ERROR=$?
 killall paster
 
 # And finally, run the nosetests
-nosetests --ckan --reset-db --with-pylons=test-core.ini --nologcapture --with-coverage ckan ckanext
+nosetests --ckan --reset-db --with-pylons=test-core.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext
 # Did an error occur?
 NOSE_ERROR=$?
 
-[ "0" -ne "$MOCHA_ERROR" ] && echo MOCKA tests have failed
+[ "0" -ne "$MOCHA_ERROR" ] && echo MOCHA tests have failed
 [ "0" -ne "$NOSE_ERROR" ] && echo NOSE tests have failed
 
 # If an error occurred in our tests make sure travis knows

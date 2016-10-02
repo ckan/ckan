@@ -1,7 +1,12 @@
+# encoding: utf-8
+
 '''API functions for deleting data from CKAN.'''
+
+import logging
 
 import sqlalchemy as sqla
 
+import ckan.lib.jobs as jobs
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
@@ -9,6 +14,9 @@ import ckan.lib.dictization.model_dictize as model_dictize
 from ckan import authz
 
 from ckan.common import _
+
+
+log = logging.getLogger('ckan.logic')
 
 validate = ckan.lib.navl.dictization_functions.validate
 
@@ -37,10 +45,22 @@ def user_delete(context, data_dict):
     user_id = _get_or_bust(data_dict, 'id')
     user = model.User.get(user_id)
 
+    # New revision, needed by the member table
+    rev = model.repo.new_revision()
+    rev.author = context['user']
+    rev.message = _(u' Delete User: {0}').format(user.name)
+
     if user is None:
         raise NotFound('User "{id}" was not found.'.format(id=user_id))
 
     user.delete()
+
+    user_memberships = model.Session.query(model.Member).filter(
+        model.Member.table_id == user_id).all()
+
+    for membership in user_memberships:
+        membership.delete()
+
     model.repo.commit()
 
 
@@ -65,7 +85,7 @@ def package_delete(context, data_dict):
     if entity is None:
         raise NotFound
 
-    _check_access('package_delete',context, data_dict)
+    _check_access('package_delete', context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -77,6 +97,14 @@ def package_delete(context, data_dict):
         item.after_delete(context, data_dict)
 
     entity.delete()
+
+    dataset_memberships = model.Session.query(model.Member).filter(
+        model.Member.table_id == id).filter(
+        model.Member.state == 'active').all()
+
+    for membership in dataset_memberships:
+        membership.delete()
+
     model.repo.commit()
 
 
@@ -95,6 +123,8 @@ def dataset_purge(context, data_dict):
     :type id: string
 
     '''
+    from sqlalchemy import or_
+
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
@@ -111,6 +141,11 @@ def dataset_purge(context, data_dict):
     if members.count() > 0:
         for m in members.all():
             m.purge()
+
+    for r in model.Session.query(model.PackageRelationship).filter(
+            or_(model.PackageRelationship.subject_package_id == pkg.id,
+                model.PackageRelationship.object_package_id == pkg.id)).all():
+        r.purge()
 
     pkg = model.Package.get(id)
     # no new_revision() needed since there are no object_revisions created
@@ -242,53 +277,6 @@ def package_relationship_delete(context, data_dict):
 
     relationship.delete()
     model.repo.commit()
-
-def related_delete(context, data_dict):
-    '''Delete a related item from a dataset.
-
-    You must be a sysadmin or the owner of the related item to delete it.
-
-    :param id: the id of the related item
-    :type id: string
-
-    '''
-    model = context['model']
-    session = context['session']
-    user = context['user']
-    userobj = model.User.get(user)
-
-    id = _get_or_bust(data_dict, 'id')
-
-    entity = model.Related.get(id)
-
-    if entity is None:
-        raise NotFound
-
-    _check_access('related_delete',context, data_dict)
-
-    related_dict = model_dictize.related_dictize(entity, context)
-    activity_dict = {
-        'user_id': userobj.id,
-        'object_id': entity.id,
-        'activity_type': 'deleted related item',
-    }
-    activity_dict['data'] = {
-        'related': related_dict
-    }
-    activity_create_context = {
-        'model': model,
-        'user': user,
-        'defer_commit': True,
-        'ignore_auth': True,
-        'session': session
-    }
-
-    _get_action('activity_create')(activity_create_context, activity_dict)
-    session.commit()
-
-    entity.delete()
-    model.repo.commit()
-
 
 def member_delete(context, data_dict=None):
     '''Remove an object (e.g. a user, dataset or group) from a group.
@@ -719,3 +707,48 @@ def unfollow_group(context, data_dict):
             ckan.logic.schema.default_follow_group_schema())
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingGroup)
+
+
+@ckan.logic.validate(ckan.logic.schema.job_clear_schema)
+def job_clear(context, data_dict):
+    '''Clear background job queues.
+
+    Does not affect jobs that are already being processed.
+
+    :param list queues: The queues to clear. If not given then ALL
+        queues are cleared.
+
+    :returns: The cleared queues.
+    :rtype: list
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_clear', context, data_dict)
+    queues = data_dict.get(u'queues')
+    if queues:
+        queues = [jobs.get_queue(q) for q in queues]
+    else:
+        queues = jobs.get_all_queues()
+    names = [jobs.remove_queue_name_prefix(queue.name) for queue in queues]
+    for queue, name in zip(queues, names):
+        queue.empty()
+        log.info(u'Cleared background job queue "{}"'.format(name))
+    return names
+
+
+def job_cancel(context, data_dict):
+    '''Cancel a queued background job.
+
+    Removes the job from the queue and deletes it.
+
+    :param string id: The ID of the background job.
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_cancel', context, data_dict)
+    id = _get_or_bust(data_dict, u'id')
+    try:
+        jobs.job_from_id(id).delete()
+        log.info(u'Cancelled background job {}'.format(id))
+    except KeyError:
+        raise NotFound

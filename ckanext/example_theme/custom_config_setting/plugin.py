@@ -1,7 +1,9 @@
-import pylons.config as config
+# encoding: utf-8
+
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
+from ckan.common import config
 
 
 def show_most_popular_groups():

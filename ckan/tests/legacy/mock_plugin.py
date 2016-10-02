@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan.plugins import Plugin, SingletonPlugin
 
 class _MockPlugin(object):

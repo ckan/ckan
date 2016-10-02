@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import re
 try:
     from cStringIO import StringIO
@@ -6,7 +8,7 @@ except ImportError:
 
 import urllib
 
-from pylons import config
+from ckan.common import config
 import webhelpers.util
 from nose.tools import assert_equal
 from paste.fixture import TestRequest

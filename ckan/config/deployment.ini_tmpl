@@ -78,7 +78,11 @@ ckan.auth.roles_that_cascade_to_sub_groups = admin
 ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
 
-#ckan.simple_search = 1
+
+## Redis Settings
+
+# URL to your Redis instance, including the database to be used.
+#ckan.redis.url = redis://localhost:6379/0
 
 
 ## CORS Settings
@@ -107,7 +111,7 @@ ckan.views.default_views = image_view text_view recline_view
 ckan.site_title = CKAN
 ckan.site_logo = /base/images/ckan-logo.png
 ckan.site_description =
-ckan.favicon = /images/icons/ckan.ico
+ckan.favicon = /base/images/ckan.ico
 ckan.gravatar_default = identicon
 ckan.preview.direct = png jpg gif
 ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
@@ -166,11 +170,11 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 
 ## Email settings
 
-#email_to = you@yourdomain.com
-#error_email_from = paste@localhost
+#email_to = errors@example.com
+#error_email_from = ckan-errors@example.com
 #smtp.server = localhost
 #smtp.starttls = False
-#smtp.user = your_username@gmail.com
+#smtp.user = username@example.com
 #smtp.password = your_password
 #smtp.mail_from =
 

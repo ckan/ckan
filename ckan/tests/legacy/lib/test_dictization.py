@@ -1,8 +1,10 @@
-from ckan.tests.legacy import assert_equal, assert_not_in, assert_in
+# encoding: utf-8
+
+from nose.tools import assert_equal, assert_not_in, assert_in
 from pprint import pprint, pformat
 from difflib import unified_diff
-import ckan.lib.search as search
 
+import ckan.lib.search as search
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
 from ckan.lib.dictization import (table_dictize,
@@ -97,9 +99,7 @@ class TestBasicDictize:
                             u'size_extra': u'123',
                             u'url_type': None,
                             u'state': u'active',
-                            u'url': u'http://datahub.io/download/x=1&y=2',
-                            u'webstore_last_updated': None,
-                            u'webstore_url': None},
+                            u'url': u'http://datahub.io/download/x=1&y=2',},
                            {u'alt_url': u'alt345',
                             u'cache_last_updated': None,
                             u'cache_url': None,
@@ -116,9 +116,7 @@ class TestBasicDictize:
                             u'size': None,
                             u'size_extra': u'345',
                             u'state': u'active',
-                            u'url': u'http://datahub.io/index.json',
-                            u'webstore_last_updated': None,
-                            u'webstore_url': None}],
+                            u'url': u'http://datahub.io/index.json'}],
             u'state': u'active',
             'tags': [{u'name': u'Flexible \u30a1',
                         'display_name': u'Flexible \u30a1',
@@ -437,9 +435,7 @@ class TestBasicDictize:
             u'url_type': None,
             u'size': None,
             u'state': u'active',
-            u'url': u'http://newurl',
-            u'webstore_last_updated': None,
-            u'webstore_url': None})
+            u'url': u'http://newurl'})
         third_dictized['num_resources'] = third_dictized['num_resources'] + 1
 
         third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'display_name': u'newnew_tag', 'state': 'active'})
@@ -471,11 +467,9 @@ class TestBasicDictize:
             'format': u'plain text',
             'url': u'http://test_new',
             'cache_url': None,
-            'webstore_url': None,
             'cache_last_updated': None,
             'state': u'active',
             'mimetype_inner': None,
-            'webstore_last_updated': None,
             'url_type': None,
             'last_modified': None,
             'position': 0,
