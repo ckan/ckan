@@ -25,6 +25,22 @@ except ImportError:
     from sqlalchemy.util import OrderedDict
 
 
+def is_flask_request():
+    u'''
+    A centralized way to determine whether we are in the context of a
+    request being served by Flask or Pylons
+    '''
+    try:
+        pylons.request.environ
+        pylons_request_available = True
+    except TypeError:
+        pylons_request_available = False
+
+    return (flask.request and
+            (flask.request.environ.get(u'ckan.app') == u'flask_app' or
+             not pylons_request_available))
+
+
 class CKANConfig(MutableMapping):
     u'''Main CKAN configuration object
 

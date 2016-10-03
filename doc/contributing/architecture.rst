@@ -6,30 +6,84 @@ This section documents our CKAN-specific coding standards, which are guidelines
 for writing code that is consistent with the intended design and architecture
 of CKAN.
 
-
-----------------------------------------
-Encapsulate SQLAlchemy in ``ckan.model``
-----------------------------------------
-
-Ideally SQLAlchemy should only be used within ``ckan.model`` and not from other
-packages such as ``ckan.logic``.  For example instead of using an SQLAlchemy
-query from the logic package to retrieve a particular user from the database,
-we add a ``get()`` method to ``ckan.model.user.User``::
-
-    @classmethod
-    def get(cls, user_id):
-        query = ...
-        .
-        .
-        .
-        return query.first()
-
-Now we can call this method from the logic package.
+  .. image:: /images/architecture.png
+     :alt: CKAN architecture diagram
 
 
------------------------------------
+------
+Routes
+------
+
+Routes define the connection between CKAN URLs and views that process
+requests and provide responses.
+
+Default routes are defined in ``ckan.config.routing`` and extended with the
+:class:`ckan.plugins.interfaces.IRoutes` plugin interface.
+
+.. FIXME: talk about flask
+
+
+-----
+Views
+-----
+
+Views process requests by reading and updating data with action
+function and return a response by rendering Jinja2 templates.
+CKAN views are defined in ``ckan.controllers`` and templates in
+``ckan.templates``.
+
+Views and templates may use ``logic.check_access`` or
+:func:`ckan.lib.helpers.check_access` to hide links or render
+helpful errors but action functions, not views, are responsible for
+actually enforcing permissions checking.
+
+Plugins define new views by adding or updating routes. For adding
+templates or helper functions from a plugin see
+:doc:`../theming/index` and
+:ref:`custom template helper functions`.
+
+
+Template helper functions
+#########################
+
+Template helper functions are used for code that is reused frequently or
+code that is too complicated to be included in the templates themselves.
+
+Template helpers should never perform expensive queries or update data.
+
+``ckan.lib.helpers`` contains helper functions that can be used from
+``ckan.controllers`` or from templates. When developing for ckan core, only use
+the helper functions found in ``ckan.lib.helpers.__allowed_functions__``.
+
+
+.. _always use action functions:
+
+Always go through the action functions
+######################################
+
+Whenever some code, for example in ``ckan.lib`` or ``ckan.controllers``, wants
+to get, create, update or delete an object from CKAN's model it should do so by
+calling a function from the ``ckan.logic.action`` package, and *not* by
+accessing ``ckan.model`` directly.
+
+
+Use ``get_action()``
+####################
+
+Don't call ``logic.action`` functions directly, instead use ``get_action()``.
+This allows plugins to override action functions using the ``IActions`` plugin
+interface. For example::
+
+    ckan.logic.get_action('group_activity_list')(...)
+
+Instead of ::
+
+    ckan.logic.action.get.group_activity_list(...)
+
+Views and templates may check authorization to avoid rendering
+
 Don't pass ORM objects to templates
------------------------------------
+###################################
 
 Don't pass SQLAlchemy ORM objects (e.g. :py:class:`ckan.model.User` objects)
 to templates (for example by adding them to :py:data:`c`, passing them to
@@ -39,25 +93,27 @@ from template helper functions, etc.)
 Using ORM objects in the templates often creates SQLAlchemy "detached instance"
 errors that cause 500 Server Errors and can be difficult to debug.
 
-Instead, ORM objects should be dictized and their dictionary forms should be
-passed to templates. Controllers can dictize ORM objects using the funtions in
-:py:mod:`ckan.lib.dictization`, but they should probably just get dictionaries
-from :py:mod:`ckan.logic.action` functions instead.
+
+-----
+Logic
+-----
+
+Logic includes action functions, auth functions, background tasks
+and business logic.
+
+Action functions have a uniform interface accepting a dictionary of simple
+strings lists, dictionaries or files (wrapped in a ``cgi.FieldStorage``
+objects). They return simple dictionaries or raise one of a small number of
+exceptions including ``ckan.logic.NotAuthorized``, ``ckan.logic.NotFound``
+and ``ckan.logic.ValidationError``.
+
+Plugins override action functions with the
+:class:`ckan.plugins.interfaces.IActions` interface and auth functions
+with the :class:`ckan.plugins.interfaces.IAuthFunctions` interface.
 
 
---------------------------------------
-Always go through the action functions
---------------------------------------
-
-Whenever some code, for example in ``ckan.lib`` or ``ckan.controllers``, wants
-to get, create, update or delete an object from CKAN's model it should do so by
-calling a function from the ``ckan.logic.action`` package, and *not* by
-accessing ``ckan.model`` directly.
-
-
----------------------------------------
 Action functions are exposed in the API
----------------------------------------
+#######################################
 
 The functions in ``ckan.logic.action`` are exposed to the world as the
 :doc:`/api/index`.  The API URL for an action function is automatically generated
@@ -92,24 +148,8 @@ care should be taken to:
      _get_or_bust = logic.get_or_bust
 
 
---------------------
-Use ``get_action()``
---------------------
-
-Don't call ``logic.action`` functions directly, instead use ``get_action()``.
-This allows plugins to override action functions using the ``IActions`` plugin
-interface. For example::
-
-    ckan.logic.get_action('group_activity_list_html')(...)
-
-Instead of ::
-
-    ckan.logic.action.get.group_activity_list_html(...)
-
-
--------------------------------------
 Auth functions and ``check_access()``
--------------------------------------
+#####################################
 
 Each action function defined in ``ckan.logic.action`` should use its own
 corresponding auth function defined in ``ckan.logic.auth``. Instead of calling
@@ -127,9 +167,8 @@ an authorization error in their browser (or will receive one in their response
 from the API).
 
 
------------------------
 ``logic.get_or_bust()``
------------------------
+#######################
 
 The ``data_dict`` parameter of logic action functions may be user provided, so
 required files may be invalid or absent. Naive Code like::
@@ -146,9 +185,8 @@ which will raise ``ValidationError`` if ``"id"`` is not in ``data_dict``. The
 response and an error message explaining the problem.
 
 
-------------------------------------
 Validation and ``ckan.logic.schema``
-------------------------------------
+####################################
 
 Logic action functions can use schema defined in ``ckan.logic.schema`` to
 validate the contents of the ``data_dict`` parameters that users pass to them.
@@ -166,13 +204,24 @@ is the validation code from the ``user_create()`` action function::
      raise ValidationError(errors)
 
 
---------------------------------------
-Controller & template helper functions
---------------------------------------
+------
+Models
+------
 
-``ckan.lib.helpers`` contains helper functions that can be used from
-``ckan.controllers`` or from templates. When developing for ckan core, only use
-the helper functions found in ``ckan.lib.helpers.__allowed_functions__``.
+Ideally SQLAlchemy should only be used within ``ckan.model`` and not from other
+packages such as ``ckan.logic``.  For example instead of using an SQLAlchemy
+query from the logic package to retrieve a particular user from the database,
+we add a ``get()`` method to ``ckan.model.user.User``::
+
+    @classmethod
+    def get(cls, user_id):
+        query = ...
+        .
+        .
+        .
+        return query.first()
+
+Now we can call this method from the logic package.
 
 
 -----------
