@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+{% block resource_actions_inner %}
+  {{ super() }}
+  <li>{% snippet 'package/snippets/data_api_button.html', resource=res,  datastore_root_url=c.datastore_api %}</li>
+{% endblock %}
