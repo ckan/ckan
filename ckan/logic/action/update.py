@@ -94,7 +94,6 @@ def resource_update(context, data_dict):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
     upload = uploader.get_resource_uploader(data_dict)
-    upload.upload(id, uploader.get_max_resource_size())
 
     if not 'mimetype' in data_dict:
         if hasattr(upload, 'mimetype'):
@@ -115,6 +114,7 @@ def resource_update(context, data_dict):
         errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
+    upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
 
     resource = _get_action('resource_show')(context, {'id': id})

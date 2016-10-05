@@ -98,8 +98,6 @@ class Upload(object):
         self.storage_path = None
         self.filename = None
         self.filepath = None
-        self.filesize = 0  # bytes
-        self.mimetype = None
         path = get_storage_path()
         if not path:
             return
@@ -170,17 +168,9 @@ class Upload(object):
                     raise logic.ValidationError(
                         {self.file_field: ['File upload too large']}
                     )
-            output_file.seek(0, os.SEEK_END)
-            self.filesize = output_file.tell()
             output_file.close()
             os.rename(self.tmp_filepath, self.filepath)
             self.clear = True
-
-            try:
-                self.mimetype = magic.from_file(filepath, mime=True)
-            except IOError:
-                # Not that important if call above fails
-                self.mimetype = None
 
         if (self.clear and self.old_filename
                 and not self.old_filename.startswith('http')):
