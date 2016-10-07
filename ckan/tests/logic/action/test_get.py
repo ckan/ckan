@@ -861,7 +861,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
             SearchError,
             helpers.call_action,
             'package_search', sort='metadata_modified')
-            # SOLR doesn't like that we didn't specify 'asc' or 'desc'
+        # SOLR doesn't like that we didn't specify 'asc' or 'desc'
         # SOLR error is 'Missing sort order' or 'Missing_sort_order',
         # depending on the solr version.
 
@@ -1625,14 +1625,14 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         org1 = factories.Organization(users=[
             {'name': user1['name'], 'capacity': 'admin'},
             {'name': user2['name'], 'capacity': 'editor'},
-            ])
+        ])
         org2 = factories.Organization(users=[
             {'name': user1['name'], 'capacity': 'member'},
             {'name': user2['name'], 'capacity': 'member'},
-            ])
+        ])
         org3 = factories.Organization(users=[
             {'name': user1['name'], 'capacity': 'editor'},
-            ])
+        ])
 
         org_list_for_user1 = helpers.call_action('organization_list_for_user',
                                                  id=user1['id'])
