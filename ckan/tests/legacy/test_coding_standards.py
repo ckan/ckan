@@ -374,7 +374,6 @@ class TestPep8(object):
         'ckan/config/middleware.py',
         'ckan/config/routing.py',
         'ckan/config/sp_config.py',
-        'ckan/controllers/admin.py',
         'ckan/controllers/revision.py',
         'ckan/include/rcssmin.py',
         'ckan/include/rjsmin.py',
@@ -383,7 +382,6 @@ class TestPep8(object):
         'ckan/lib/alphabet_paginate.py',
         'ckan/lib/app_globals.py',
         'ckan/lib/captcha.py',
-        'ckan/lib/cli.py',
         'ckan/lib/create_test_data.py',
         'ckan/lib/dictization/__init__.py',
         'ckan/lib/dictization/model_dictize.py',
@@ -775,9 +773,11 @@ class TestActionAuth(object):
 
     @classmethod
     def process(cls):
+        auth_module_names = ['get', 'create', 'update', 'delete', 'patch']
+
         def get_functions(module_root):
             fns = {}
-            for auth_module_name in ['get', 'create', 'update', 'delete', 'patch']:
+            for auth_module_name in auth_module_names:
                 module_path = '%s.%s' % (module_root, auth_module_name,)
                 try:
                     module = __import__(module_path)
@@ -796,6 +796,7 @@ class TestActionAuth(object):
                         name = '%s: %s' % (auth_module_name, key)
                         fns[name] = v
             return fns
+
         cls.actions = get_functions('logic.action')
         cls.auths = get_functions('logic.auth')
 
