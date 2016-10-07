@@ -1422,9 +1422,9 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         org_ids = set(org['id'] for org in organizations)
         assert bottom_organization['id'] in org_ids
 
-    def test_does_not_return_members(self):
+    def test_does_return_members(self):
         """
-        By default organization_list_for_user() should not return organizations
+        By default organization_list_for_user() should return organizations
         that the user is just a member (not an admin) of.
         """
         user = factories.User()
@@ -1438,11 +1438,11 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         organizations = helpers.call_action('organization_list_for_user',
                                             context=context)
 
-        assert organizations == []
+        assert [org['id'] for org in organizations] == [organization['id']]
 
-    def test_does_not_return_editors(self):
+    def test_does_return_editors(self):
         """
-        By default organization_list_for_user() should not return organizations
+        By default organization_list_for_user() should return organizations
         that the user is just an editor (not an admin) of.
         """
         user = factories.User()
@@ -1456,7 +1456,7 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         organizations = helpers.call_action('organization_list_for_user',
                                             context=context)
 
-        assert organizations == []
+        assert [org['id'] for org in organizations] == [organization['id']]
 
     def test_editor_permission(self):
         """
@@ -1616,6 +1616,35 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         organizations = helpers.call_action('organization_list_for_user')
 
         assert organizations == []
+
+    def test_organization_list_for_user_returns_all_roles(self):
+
+        user1 = factories.User()
+        user2 = factories.User()
+
+        org1 = factories.Organization(users=[
+            {'name': user1['name'], 'capacity': 'admin'},
+            {'name': user2['name'], 'capacity': 'editor'},
+            ])
+        org2 = factories.Organization(users=[
+            {'name': user1['name'], 'capacity': 'member'},
+            {'name': user2['name'], 'capacity': 'member'},
+            ])
+        org3 = factories.Organization(users=[
+            {'name': user1['name'], 'capacity': 'editor'},
+            ])
+
+        org_list_for_user1 = helpers.call_action('organization_list_for_user',
+                                                 id=user1['id'])
+
+        eq(len(org_list_for_user1), 3)
+        assert sorted([org['id'] for org in org_list_for_user1]) == sorted([org1['id'], org2['id'], org3['id']])
+
+        org_list_for_user2 = helpers.call_action('organization_list_for_user',
+                                                 id=user2['id'])
+
+        eq(len(org_list_for_user2), 2)
+        assert sorted([org['id'] for org in org_list_for_user2]) == sorted([org1['id'], org2['id']])
 
 
 class TestShowResourceView(object):
