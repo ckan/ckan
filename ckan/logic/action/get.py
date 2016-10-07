@@ -631,7 +631,6 @@ def organization_list_for_user(context, data_dict):
 
     '''
     model = context['model']
-
     if data_dict.get('id'):
         user_obj = model.User.get(data_dict['id'])
         if not user_obj:
@@ -644,7 +643,7 @@ def organization_list_for_user(context, data_dict):
     sysadmin = authz.is_sysadmin(user)
 
     orgs_q = model.Session.query(model.Group) \
-        .filter(model.Group.is_organization is True) \
+        .filter(model.Group.is_organization == True) \
         .filter(model.Group.state == 'active')
 
     if sysadmin:
