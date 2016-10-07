@@ -71,54 +71,6 @@ class TestConfig(helpers.FunctionalTestBase):
         reset_index_response = app.get('/')
         assert_true('Welcome - CKAN' in reset_index_response)
 
-    def test_main_css_list(self):
-        '''Style list contains pre-configured styles'''
-
-        STYLE_NAMES = [
-            'Default',
-            'Red',
-            'Green',
-            'Maroon',
-            'Fuchsia'
-        ]
-
-        app = self._get_test_app()
-
-        env, config_response = _get_admin_config_page(app)
-        config_response_html = BeautifulSoup(config_response.body)
-        style_select_options = \
-            config_response_html.select('#field-ckan-main-css option')
-        for option in style_select_options:
-            assert_true(option.string in STYLE_NAMES)
-
-    def test_main_css(self):
-        '''Select a colour style'''
-        app = self._get_test_app()
-
-        # current style
-        index_response = app.get('/')
-        assert_true('main.css' in index_response or
-                    'main.min.css' in index_response)
-
-        # set new style css
-        env, config_response = _get_admin_config_page(app)
-        config_form = config_response.forms['admin-config-form']
-        config_form['ckan.main_css'] = '/base/css/red.css'
-        webtest_submit(config_form, 'save', status=302, extra_environ=env)
-
-        # new style
-        new_index_response = app.get('/')
-        assert_true('red.css' in new_index_response or
-                    'red.min.css' in new_index_response)
-        assert_true('main.css' not in new_index_response)
-        assert_true('main.min.css' not in new_index_response)
-
-        # reset config value
-        _reset_config(app)
-        reset_index_response = app.get('/')
-        assert_true('main.css' in reset_index_response or
-                    'main.min.css' in reset_index_response)
-
     def test_tag_line(self):
         '''Add a tag line (only when no logo)'''
         app = self._get_test_app()
@@ -264,7 +216,7 @@ class TestTrashView(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         trash_url = url_for(controller='admin', action='trash')
-        trash_response = app.get(trash_url, status=403)
+        app.get(trash_url, status=403)
 
     def test_trash_view_normal_user(self):
         '''A normal logged in user shouldn't be able to access trash view.'''

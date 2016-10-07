@@ -912,19 +912,6 @@ Format tips:
 .. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
           For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`/theming/index`.
 
-.. _ckan.main_css:
-
-ckan.main_css
-^^^^^^^^^^^^^
-
-Example::
-
-  ckan.main_css = /base/css/my-custom.css
-
-Default value: ``/base/css/main.css``
-
-With this option, instead of using the default `main.css`, you can use your own.
-
 .. _ckan.favicon:
 
 ckan.favicon
