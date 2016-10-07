@@ -121,6 +121,7 @@ install or a source install of CKAN, and whether you're upgrading to a
 appropriate one of these documents:
 
 .. toctree::
+    :maxdepth: 1
 
     upgrade-package-ckan-1-to-2
     upgrade-package-to-patch-release

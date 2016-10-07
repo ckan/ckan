@@ -1,14 +1,17 @@
 ===========================================
-Upgrading Postgres for the CKAN 2.5 release
+Upgrading Postgres for the CKAN 2.6 release
 ===========================================
 
-CKAN 2.5 requires |postgres| to be of version 9.2 or later (previously it was
+
+CKAN 2.6 requires |postgres| to be of version 9.2 or later (previously it was
 8.4). This is a guide to doing the upgrade if necessary.
 
 What are CKAN's |postgres| connection settings?
 ===============================================
 
-Find out the |postgres| connection settings, as used by CKAN and Datastore::
+Find out the |postgres| connection settings, as used by CKAN and Datastore:
+
+.. parsed-literal::
 
    grep sqlalchemy.url |production.ini|
    grep ckan.datastore.write_url |production.ini|
@@ -110,7 +113,7 @@ Upgrading
 
      sudo /etc/init.d/postgresql restart 9.4
 
-#. REALLY? Follow the instructions in :ref:`postgres-setup` to setup |postgres| with a user and database. Ensure your username, password and database name match those in your connection settings (see previous section.)
+#. Follow the instructions in :ref:`postgres-setup` to setup |postgres| with a user and database. Ensure your username, password and database name match those in your connection settings (see previous section.)
 
 #. Now log-in to the CKAN machine, if you have a separate |postgres| machine.
 
@@ -156,6 +159,7 @@ Upgrading
      * Test Datastore database - default '|test_datastore|'
 
    which do not need to be migrated - they will be regenerated later on.
+
    .. warning::
 
      If you have other databases apart from these (or have created any
@@ -178,10 +182,9 @@ Upgrading
 
    You need to use the `-Fc -b` options because that is required by PostGIS migration.
 
-#. Update the PostGIS objects (known as a 'hard upgrade')::
+#. Optional: If necessary, update the PostGIS objects (known as a 'hard upgrade'). Please refer to the `documentation <http://postgis.net/docs/postgis_installation.html#hard_upgrade>`_ if you find any issues. ::
 
      perl /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis_restore.pl backup_ckan.sql > backup_ckan_postgis.sql
-     perl /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis_restore.pl backup_datastore.sql > backup_datastore_postgis.sql
 
 #. Restore your |postgres| roles into the new |postgres| version cluster. If
    you're not upgrading to |postgres| version 9.4, you'll need to change the
@@ -195,32 +198,33 @@ Upgrading
 
    which you can ignore - it should carry on regardless and finish ok.
 
-#. Create the databases and enable PostGIS on them:
+#. Create the databases:
 
    .. parsed-literal::
 
         sudo -u postgres createdb --cluster 9.4/main |database|
         sudo -u postgres createdb --cluster 9.4/main |datastore|
-        sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis.sql
-        sudo -u postgres psql --cluster 9.4/main -d |datastore| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis.sql
-        sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/spatial_ref_sys.sql
-        sudo -u postgres psql --cluster 9.4/main -d |datastore| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/spatial_ref_sys.sql
-        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
-        sudo -u postgres psql --cluster 9.4/main -d |datastore| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
-        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
-        sudo -u postgres psql --cluster 9.4/main -d |datastore| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
 
-   Just check if PostGIS was properly installed on each database:
+#. Optional: If necessary, enable PostGIS on the main database:
+
+   .. parsed-literal::
+
+        sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis.sql
+        sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/spatial_ref_sys.sql
+        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
+        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
+
+   To check if PostGIS was properly installed:
 
    .. parsed-literal::
 
         sudo -u postgres psql --cluster 9.4/main -d |database| -c "SELECT postgis_full_version()"
-        sudo -u postgres psql --cluster 9.4/main -d |datastore| -c "SELECT postgis_full_version()"
+
 
 #. Now restore your databases::
 
-     sudo -u postgres psql --cluster 9.4/main -f backup_ckan_postgis.sql
-     sudo -u postgres psql --cluster 9.4/main -f backup_datastore_postgis.sql
+     sudo -u postgres psql --cluster 9.4/main -f backup_ckan.sql
+     sudo -u postgres psql --cluster 9.4/main -f backup_datastore.sql
 
    .. note:
 
@@ -233,11 +237,6 @@ Upgrading
         sudo pg_dropcluster --stop 9.4 main
         sudo pg_createcluster --start 9.4 main --locale=en_US.UTF-8
 
-   .. note:
-
-      If you get errors like ``could not access file "$libdir/postgis-1.5": No such file or directory``:
-
-        ???
 
 #. Tell CKAN to use the new |postgres| database by switching the |postgres| port number in the |production.ini|. First find the correct port::
 
@@ -261,12 +260,12 @@ Upgrading
 
      sudo apt-get purge postgresql-9.1
 
-   If you also have PostGIS install, remove that too::
+   If you also have PostGIS installed, remove that too::
 
      sudo apt-get remove postgresql-9.1-postgis
 
 #. Download the CKAN package for the new minor release you want to upgrade
    to (replace the version number with the relevant one)::
 
-    wget http://packaging.ckan.org/python-ckan_2.1_amd64.deb
+    wget http://packaging.ckan.org/python-ckan_2.5_amd64.deb
 

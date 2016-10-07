@@ -51,7 +51,7 @@ Setting up the DataStore
    that is not supported by CKAN that has not been made 'end-of-life' by the
    |postgres| community is 9.1.
 
-.. versionchanged:: 2.5
+.. versionchanged:: 2.6
 
    Previous CKAN (and DataStore) versions were compatible with earlier versions
    of |postgres|.
