@@ -41,7 +41,6 @@ entry_points = {
         'profile = ckan.lib.cli:Profile',
         'check-po-files = ckan.i18n.check_po_files:CheckPoFiles',
         'trans = ckan.lib.cli:TranslationsCommand',
-        'minify = ckan.lib.cli:MinifyCommand',
         'datastore = ckanext.datastore.commands:SetupDatastoreCommand',
         'datapusher = ckanext.datapusher.cli:DatapusherCommand',
         'views = ckan.lib.cli:ViewsCommand',
