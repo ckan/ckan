@@ -293,7 +293,7 @@ config file you would put this code in any template file:
    CKAN's :ref:`template helper functions <template helper functions>` and any
    :ref:`custom template helper functions <custom template helper functions>`
    provided by your extension,
-   and use any of the 
+   and use any of the
    `literals and operators <http://jinja.pocoo.org/docs/templates/#expressions>`_
    that Jinja provides.
 
@@ -657,8 +657,7 @@ should see the most popular groups rendered differently:
 
    To avoid unintended conflicts, we recommend that snippet filenames begin
    with the name of the extension they belong to, e.g.
-   ``snippets/example_theme_*.html``.
-   See :ref:`snippet filenames best practice`.
+   ``snippets/example_theme_*.html``. See :ref:`avoid name clashes`.
 
 .. note::
 
@@ -680,7 +679,7 @@ use the right HTML tags and CSS classes.
 
 There are two places to look for CSS classes available in CKAN:
 
-1. The `Bootstrap 2.3.2 docs <bootstrap>`_. All of the HTML, CSS and JavaScript
+1. The `Bootstrap 2.3.2 docs <http://getbootstrap.com/2.3.2/components.html>`_. All of the HTML, CSS and JavaScript
    provided by Bootstrap is available to use in CKAN.
 
 2. CKAN's development primer page, which can be found on any CKAN site at
@@ -754,8 +753,7 @@ the most popular groups on the front page. First, add a new helper function to
 
    Names of config settings provided by extensions should include the name
    of the extension, to avoid conflicting with core config settings or with
-   config settings from other extensions.
-   See :ref:`extension config setting names best practice`.
+   config settings from other extensions. See :ref:`avoid name clashes`.
 
 Now we can call this helper function from our ``layout1.html`` template:
 

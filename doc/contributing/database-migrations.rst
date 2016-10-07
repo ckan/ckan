@@ -8,9 +8,8 @@ databases to the new database schema when they upgrade their copies of CKAN.
 These migration scripts are kept in ``ckan.migration.versions``.
 
 When you upgrade a CKAN instance, as part of the upgrade process you run any
-necessary migration scripts with the ``paster db upgrade`` command::
-
- paster --plugin=ckan db upgrade --config={.ini file}
+necessary migration scripts with the :ref:`paster db upgrade <db upgrade>`
+command.
 
 A migration script should be checked into CKAN at the same time as the model
 changes it is related to. Before pushing the changes, ensure the tests pass

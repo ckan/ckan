@@ -1,9 +1,11 @@
-from routes import url_for
+# encoding: utf-8
+
+from ckan.lib.helpers import url_for
 from nose.tools import assert_equal
-from pylons import config
+from ckan.common import config
 import hashlib
 
-from ckan.tests.legacy import search_related, CreateTestData
+from ckan.tests.legacy import CreateTestData
 from ckan.tests.legacy.html_check import HtmlCheckMethods
 from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
@@ -65,7 +67,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         url = url_for(controller='user', action='delete', id=user.id)
         extra_environ = {'REMOTE_USER': 'an_unauthorized_user'}
 
-        self.app.get(url, status=401, extra_environ=extra_environ)
+        self.app.get(url, status=403, extra_environ=extra_environ)
 
     def test_user_read_without_id(self):
         offset = '/user/'
@@ -160,7 +162,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                          action='perform_reset',
                          id=user.id,
                          key=user.reset_key)
-        res = self.app.post(offset, params=params, status=302)
+        res = self.app.post(offset, params=params, status=403)
 
         user = model.User.get(user.id)
         assert user.is_deleted(), user

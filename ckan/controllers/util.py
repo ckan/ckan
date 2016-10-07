@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import re
 
 import ckan.lib.base as base
@@ -16,7 +18,7 @@ class UtilController(base.BaseController):
             base.abort(400, _('Missing Value') + ': url')
 
         if h.url_is_local(url):
-            return base.redirect(url)
+            return h.redirect_to(url)
         else:
             base.abort(403, _('Redirecting to external site is not allowed.'))
 

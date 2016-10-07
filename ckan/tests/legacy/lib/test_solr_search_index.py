@@ -1,8 +1,7 @@
-from datetime import datetime
-import hashlib
-import socket
-import solr
-from pylons import config
+# encoding: utf-8
+
+import pysolr
+from ckan.common import config
 from ckan import model
 import ckan.lib.search as search
 from ckan.tests.legacy import TestController, CreateTestData, setup_test_search_index, is_search_supported
@@ -20,9 +19,8 @@ class TestSolrConfig(TestController):
         try:
             # solr.SolrConnection.query will throw a socket.error if it
             # can't connect to the SOLR instance
-            q = conn.query("*:*", rows=1)
-            conn.close()
-        except socket.error, e:
+            q = conn.search(q="*:*", rows=1)
+        except pysolr.SolrError, e:
             if not config.get('solr_url'):
                 raise AssertionError("Config option 'solr_url' needs to be defined in this CKAN's development.ini. Default of %s didn't work: %s" % (search.DEFAULT_SOLR_URL, e))
             else:
@@ -41,7 +39,6 @@ class TestSolrSearch:
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        cls.solr.close()
         search.index_for('Package').clear()
 
     def test_0_indexing(self):
@@ -49,11 +46,11 @@ class TestSolrSearch:
         Make sure that all packages created by CreateTestData.create_search_test_data
         have been added to the search index.
         """
-        results = self.solr.query('*:*', fq=self.fq)
+        results = self.solr.search(q='*:*', fq=self.fq)
         assert len(results) == 6, len(results)
 
     def test_1_basic(self):
-        results = self.solr.query('sweden', fq=self.fq)
+        results = self.solr.search(q='sweden', fq=self.fq)
         assert len(results) == 2
         result_names = [r['name'] for r in results]
         assert 'se-publications' in result_names

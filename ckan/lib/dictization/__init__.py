@@ -1,7 +1,9 @@
+# encoding: utf-8
+
 import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
-from pylons import config
+from ckan.common import config
 
 try:
     RowProxy = sqlalchemy.engine.result.RowProxy
@@ -115,7 +117,7 @@ def table_dict_save(table_dict, ModelClass, context):
 
     obj = None
 
-    unique_constriants = get_unique_constraints(table, context)
+    unique_constraints = get_unique_constraints(table, context)
 
     id = table_dict.get("id")
 
@@ -123,8 +125,8 @@ def table_dict_save(table_dict, ModelClass, context):
         obj = session.query(ModelClass).get(id)
 
     if not obj:
-        unique_constriants = get_unique_constraints(table, context)
-        for constraint in unique_constriants:
+        unique_constraints = get_unique_constraints(table, context)
+        for constraint in unique_constraints:
             params = dict((key, table_dict.get(key)) for key in constraint)
             obj = session.query(ModelClass).filter_by(**params).first()
             if obj:

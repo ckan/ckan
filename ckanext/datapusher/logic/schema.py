@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan.plugins as p
 import ckanext.datastore.logic.schema as dsschema
 

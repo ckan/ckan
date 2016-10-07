@@ -1,13 +1,15 @@
+# encoding: utf-8
+
 import sys
 import logging
 import re
 
-import pylons
 import sqlalchemy.engine.url as sa_url
 
 import ckan.plugins as p
 import ckan.logic as logic
 import ckan.model as model
+from ckan.common import config
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.db as db
@@ -46,6 +48,7 @@ class DatastoreException(Exception):
 
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
+    p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
     p.implements(p.IResourceUrlChange)
@@ -68,6 +71,9 @@ class DatastorePlugin(p.SingletonPlugin):
             raise DatastoreException(msg)
 
         return super(cls, cls).__new__(cls, *args, **kwargs)
+
+    def update_config(self, config):
+        p.toolkit.add_template_directory(config, 'templates')
 
     def configure(self, config):
         self.config = config
@@ -282,21 +288,9 @@ class DatastorePlugin(p.SingletonPlugin):
                 controller='ckanext.datastore.controller:DatastoreController',
                 action='dump', resource_id=resource_dict['id'])
 
-        connection = None
+        if 'datastore_active' not in resource_dict:
+            resource_dict[u'datastore_active'] = False
 
-        resource_dict['datastore_active'] = False
-
-        try:
-            connection = self.read_engine.connect()
-            result = connection.execute(
-                'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
-                resource_dict['id']
-            ).fetchone()
-            if result:
-                resource_dict['datastore_active'] = True
-        finally:
-            if connection:
-                connection.close()
         return resource_dict
 
     def datastore_validate(self, context, data_dict, fields_types):
@@ -504,7 +498,7 @@ class DatastorePlugin(p.SingletonPlugin):
         return statements_str, rank_columns_str
 
     def _fts_lang(self, lang=None):
-        default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+        default_fts_lang = config.get('ckan.datastore.default_fts_lang')
         if default_fts_lang is None:
             default_fts_lang = u'english'
         return lang or default_fts_lang

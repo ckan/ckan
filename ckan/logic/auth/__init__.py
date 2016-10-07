@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 Helper functions to be used in the auth check functions
 '''
@@ -24,10 +26,6 @@ def _get_object(context, data_dict, name, class_name):
         # Save in case we need this again during the request
         context[name] = obj
         return obj
-
-
-def get_related_object(context, data_dict=None):
-    return _get_object(context, data_dict, 'related', 'Related')
 
 
 def get_package_object(context, data_dict=None):

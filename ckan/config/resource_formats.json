@@ -20,6 +20,7 @@
   ["ArcGIS Map Service", "ArcGIS Map Service", "ArcGIS Map Service", ["arcgis map service"]],
   ["TSV", "Tab Separated Values File", "text/tab-separated-values", ["text/tsv"]],
   ["WFS", "Web Feature Service", null, []],
+  ["WMTS", "Web Map Tile Service", null, []],
   ["ArcGIS Online Map", "ArcGIS Online Map", "ArcGIS Online Map", ["web map application"]],
   ["Perl", "Perl Script", "text/x-perl", []],
   ["KMZ", "KMZ File", "application/vnd.google-earth.kmz+xml", ["application/vnd.google-earth.kmz"]],
@@ -48,7 +49,7 @@
   ["WMS", "Web Mapping Service", "WMS", ["wms"]],
   ["SVG", "SVG vector image", "image/svg+xml", ["svg"]],
   ["PPT", "Powerpoint Presentation", "application/vnd.ms-powerpoint", []],
-  ["ODP", "OpenDocument Presentation", "application/vnd.oasis.opendocument.presentation", []], 
+  ["ODP", "OpenDocument Presentation", "application/vnd.oasis.opendocument.presentation", []],
   ["JPEG", "JPG Image File", "image/jpeg", ["jpeg", "jpg"]],
   ["SPARQL", "SPARQL end-point", "application/sparql-results+xml", []],
   ["GIF", "GIF Image File", "image/gif", []],
@@ -68,6 +69,9 @@
   ["TAR", "TAR Compressed File", "application/x-tar", []],
   ["PNG", "PNG Image File", "image/png", []],
   ["RSS", "RSS feed", "application/rss+xml", []],
-  ["GeoJSON", "Geographic JavaScript Object Notation", null, []],
-  ["SHP", "Shapefile", null, ["esri shapefile"]]
+  ["GeoJSON", "Geographic JavaScript Object Notation", "application/geo+json", ["geojson"]],
+  ["SHP", "Shapefile", null, ["esri shapefile"]],
+  ["TORRENT", "Torrent", "application/x-bittorrent", ["bittorrent"]],
+  ["ICS", "iCalendar", "text/calendar", ["ifb", "iCal"]],
+  ["GTFS", "General Transit Feed Specification", null, []]
 ]

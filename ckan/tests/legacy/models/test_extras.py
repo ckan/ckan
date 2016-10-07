@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan.tests.legacy import *
 
 import ckan.model as model

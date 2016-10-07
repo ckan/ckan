@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import meta
 import datetime
 import sqlalchemy

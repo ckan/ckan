@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import json
 
 from ckan.tests.legacy import *

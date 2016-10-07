@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import datetime
 
 import sqlalchemy as sa
@@ -36,7 +38,7 @@ class DomainObject(object):
 
     @classmethod
     def count(cls):
-        cls.Session.query(cls).count()
+        return cls.Session.query(cls).count()
 
     @classmethod
     def by_name(cls, name, autoflush=True):

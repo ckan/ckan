@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 import datetime
 from urllib import urlencode
@@ -127,8 +129,6 @@ class GroupController(base.BaseController):
             idx = -2
 
         gt = parts[idx]
-        if gt == 'group':
-            gt = None
 
         return gt
 
@@ -150,19 +150,20 @@ class GroupController(base.BaseController):
     def index(self):
         group_type = self._guess_group_type()
 
-        page = self._get_page_number(request.params) or 1
+        page = h.get_page_number(request.params) or 1
         items_per_page = 21
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True,
+                   'user': c.user, 'for_view': True,
                    'with_private': False}
 
         q = c.q = request.params.get('q', '')
         sort_by = c.sort_by_selected = request.params.get('sort')
         try:
             self._check_access('site_read', context)
+            self._check_access('group_list', context)
         except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            abort(403, _('Not authorized to see this page'))
 
         # pass user info to context as needed to view private datasets of
         # orgs correctly
@@ -206,10 +207,10 @@ class GroupController(base.BaseController):
             id.split('@')[0])
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'type': group_type}
 
         # unicode format (decoded from utf8)
         c.q = request.params.get('q', '')
@@ -220,10 +221,8 @@ class GroupController(base.BaseController):
             data_dict['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % id)
 
         self._read(id, limit, group_type)
         return render(self._read_template(c.group_dict['type']),
@@ -232,7 +231,7 @@ class GroupController(base.BaseController):
     def _read(self, id, limit, group_type):
         ''' This is common code used by both read and bulk_process'''
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True, 'extras_as_string': True}
 
@@ -248,11 +247,7 @@ class GroupController(base.BaseController):
 
         context['return_query'] = True
 
-        # c.group_admins is used by CKAN's legacy (Genshi) templates only,
-        # if we drop support for those then we can delete this line.
-        c.group_admins = authz.get_group_or_org_admin_ids(c.group.id)
-
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
@@ -299,13 +294,12 @@ class GroupController(base.BaseController):
                     else:
                         search_extras[param] = value
 
-            fq = 'capacity:"public"'
+            include_private = False
             user_member_of_orgs = [org['id'] for org
                                    in h.organizations_available('read')]
 
             if (c.group and c.group.id in user_member_of_orgs):
-                fq = ''
-                context['ignore_capacity_check'] = True
+                include_private = True
 
             facets = OrderedDict()
 
@@ -332,7 +326,8 @@ class GroupController(base.BaseController):
 
             data_dict = {
                 'q': q,
-                'fq': fq,
+                'fq': '',
+                'include_private': include_private,
                 'facet.field': facets.keys(),
                 'rows': limit,
                 'sort': sort_by,
@@ -388,17 +383,13 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(
             id.split('@')[0])
 
-        if group_type != 'organization':
-            # FIXME: better error
-            raise Exception('Must be an organization')
-
         # check we are org admin
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True, 'extras_as_string': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'type': group_type}
 
         try:
             # Do not query for the group datasets when dictizing, as they will
@@ -406,10 +397,12 @@ class GroupController(base.BaseController):
             data_dict['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % id)
+
+        if not c.group_dict['is_organization']:
+            # FIXME: better error
+            raise Exception('Must be an organization')
 
         #use different form names so that ie7 can be detected
         form_names = set(["bulk_action.public", "bulk_action.delete",
@@ -452,10 +445,8 @@ class GroupController(base.BaseController):
         try:
             get_action(action_functions[action])(context, data_dict)
         except NotAuthorized:
-            abort(401, _('Not authorized to perform bulk update'))
-        base.redirect(h.url_for(controller='organization',
-                                action='bulk_process',
-                                id=id))
+            abort(403, _('Not authorized to perform bulk update'))
+        self._redirect_to_this_controller(action='bulk_process', id=id)
 
     def new(self, data=None, errors=None, error_summary=None):
         if data and 'type' in data:
@@ -466,13 +457,13 @@ class GroupController(base.BaseController):
             data['type'] = group_type
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'save': 'save' in request.params,
                    'parent': request.params.get('parent', None)}
         try:
             self._check_access('group_create', context)
         except NotAuthorized:
-            abort(401, _('Unauthorized to create a group'))
+            abort(403, _('Unauthorized to create a group'))
 
         if context['save'] and not data:
             return self._save_new(context, group_type)
@@ -498,7 +489,7 @@ class GroupController(base.BaseController):
             id.split('@')[0])
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'save': 'save' in request.params,
                    'for_edit': True,
                    'parent': request.params.get('parent', None)
@@ -514,10 +505,8 @@ class GroupController(base.BaseController):
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
             data = data or old_data
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % '')
 
         group = context.get("group")
         c.group = group
@@ -526,7 +515,7 @@ class GroupController(base.BaseController):
         try:
             self._check_access('group_update', context)
         except NotAuthorized:
-            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+            abort(403, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
@@ -537,16 +526,6 @@ class GroupController(base.BaseController):
         c.form = render(self._group_form(group_type), extra_vars=vars)
         return render(self._edit_template(c.group.type),
                       extra_vars={'group_type': group_type})
-
-    def _get_group_type(self, id):
-        """
-        Given the id of a group it determines the type of a group given
-        a valid id/name for the group.
-        """
-        group = model.Group.get(id)
-        if not group:
-            return None
-        return group.type
 
     def _save_new(self, context, group_type=None):
         try:
@@ -559,9 +538,7 @@ class GroupController(base.BaseController):
 
             # Redirect to the appropriate _read route for the type of group
             h.redirect_to(group['type'] + '_read', id=group['name'])
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % '')
-        except NotFound, e:
+        except (NotFound, NotAuthorized), e:
             abort(404, _('Group not found'))
         except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
@@ -591,9 +568,7 @@ class GroupController(base.BaseController):
                 self._force_reindex(group)
 
             h.redirect_to('%s_read' % group['type'], id=group['name'])
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % id)
-        except NotFound, e:
+        except (NotFound, NotAuthorized), e:
             abort(404, _('Group not found'))
         except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
@@ -614,14 +589,14 @@ class GroupController(base.BaseController):
 
         try:
             context = \
-                {'model': model, 'user': c.user or c.author, 'group': group}
+                {'model': model, 'user': c.user, 'group': group}
             self._check_access('group_edit_permissions', context)
             c.authz_editable = True
             c.group = context['group']
         except NotAuthorized:
             c.authz_editable = False
         if not c.authz_editable:
-            abort(401,
+            abort(403,
                   _('User %r not authorized to edit %s authorizations') %
                    (c.user, id))
 
@@ -637,12 +612,12 @@ class GroupController(base.BaseController):
             self._redirect_to_this_controller(action='edit', id=id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
 
         try:
             self._check_access('group_delete', context, {'id': id})
         except NotAuthorized:
-            abort(401, _('Unauthorized to delete group %s') % '')
+            abort(403, _('Unauthorized to delete group %s') % '')
 
         try:
             if request.method == 'POST':
@@ -657,7 +632,7 @@ class GroupController(base.BaseController):
                 self._redirect_to_this_controller(action='index')
             c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
-            abort(401, _('Unauthorized to delete group %s') % '')
+            abort(403, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
         return self._render_template('group/confirm_delete.html', group_type)
@@ -666,7 +641,7 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
 
         try:
             c.members = self._action('member_list')(
@@ -675,9 +650,7 @@ class GroupController(base.BaseController):
             data_dict = {'id': id}
             data_dict['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
-        except NotAuthorized:
-            abort(401, _('Unauthorized to delete group %s') % '')
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
         return self._render_template('group/members.html', group_type)
 
@@ -685,7 +658,7 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
 
         #self._check_access('group_delete', context, {'id': id})
         try:
@@ -728,7 +701,7 @@ class GroupController(base.BaseController):
                 else:
                     c.user_role = 'member'
         except NotAuthorized:
-            abort(401, _('Unauthorized to add member to group %s') % '')
+            abort(403, _('Unauthorized to add member to group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
         except ValidationError, e:
@@ -742,12 +715,12 @@ class GroupController(base.BaseController):
             self._redirect_to_this_controller(action='members', id=id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
 
         try:
             self._check_access('group_member_delete', context, {'id': id})
         except NotAuthorized:
-            abort(401, _('Unauthorized to delete group %s members') % '')
+            abort(403, _('Unauthorized to delete group %s members') % '')
 
         try:
             user_id = request.params.get('user')
@@ -760,7 +733,7 @@ class GroupController(base.BaseController):
             c.user_id = user_id
             c.group_id = id
         except NotAuthorized:
-            abort(401, _('Unauthorized to delete group %s') % '')
+            abort(403, _('Unauthorized to delete group %s members') % '')
         except NotFound:
             abort(404, _('Group not found'))
         return self._render_template('group/confirm_delete_member.html',
@@ -784,7 +757,7 @@ class GroupController(base.BaseController):
                 h.redirect_to(controller='revision', action='diff', **params)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'schema': self._db_to_form_schema()}
         data_dict = {'id': id}
         try:
@@ -794,10 +767,8 @@ class GroupController(base.BaseController):
             #TODO: remove
             # Still necessary for the authz check in group/layout.html
             c.group = context['group']
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(401, _('User %r not authorized to edit %r') % (c.user, id))
 
         format = request.params.get('format', '')
         if format == 'atom':
@@ -850,20 +821,21 @@ class GroupController(base.BaseController):
 
         group_type = self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user, 'for_view': True}
         try:
             c.group_dict = self._get_group_dict(id)
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(401,
-                  _('Unauthorized to read group {group_id}').format(
-                      group_id=id))
 
-        # Add the group's activity stream (already rendered to HTML) to the
-        # template context for the group/read.html template to retrieve later.
-        c.group_activity_stream = self._action('group_activity_list_html')(
-            context, {'id': c.group_dict['id'], 'offset': offset})
+        try:
+            # Add the group's activity stream (already rendered to HTML) to the
+            # template context for the group/read.html
+            # template to retrieve later.
+            c.group_activity_stream = self._action('group_activity_list_html')(
+                context, {'id': c.group_dict['id'], 'offset': offset})
+
+        except ValidationError as error:
+            base.abort(400)
 
         return render(self._activity_template(group_type),
                       extra_vars={'group_type': group_type})
@@ -873,7 +845,7 @@ class GroupController(base.BaseController):
         self._ensure_controller_matches_group_type(id)
         context = {'model': model,
                    'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
         data_dict = {'id': id}
         try:
             get_action('follow_group')(context, data_dict)
@@ -893,7 +865,7 @@ class GroupController(base.BaseController):
         self._ensure_controller_matches_group_type(id)
         context = {'model': model,
                    'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
         data_dict = {'id': id}
         try:
             get_action('unfollow_group')(context, data_dict)
@@ -912,13 +884,13 @@ class GroupController(base.BaseController):
     def followers(self, id):
         group_type = self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
         c.group_dict = self._get_group_dict(id)
         try:
             c.followers = \
                 get_action('group_follower_list')(context, {'id': id})
         except NotAuthorized:
-            abort(401, _('Unauthorized to view followers %s') % '')
+            abort(403, _('Unauthorized to view followers %s') % '')
         return render('group/followers.html',
                       extra_vars={'group_type': group_type})
 
@@ -932,7 +904,7 @@ class GroupController(base.BaseController):
     def about(self, id):
         group_type = self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
         c.group_dict = self._get_group_dict(id)
         group_type = c.group_dict['type']
         self._setup_template_variables(context, {'id': id},
@@ -944,12 +916,10 @@ class GroupController(base.BaseController):
         ''' returns the result of group_show action or aborts if there is a
         problem '''
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'for_view': True}
         try:
             return self._action('group_show')(
                 context, {'id': id, 'include_datasets': False})
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % id)

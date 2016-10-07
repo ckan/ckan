@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import assert_equal, assert_raises
 
 from ckan import model
@@ -56,7 +58,7 @@ class TestSearch(TestController):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
 
     def _pkg_names(self, result):
         return ' '.join(result['results'])
@@ -316,7 +318,7 @@ class TestSearchOverall(TestController):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
 
     def test_overall(self):
         check_search_results('annakarenina', 1, ['annakarenina'])
@@ -358,7 +360,7 @@ class TestGeographicCoverage(TestController):
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
 
     def _do_search(self, q, expected_pkgs, count=None):
         query = {
@@ -422,7 +424,7 @@ class TestExtraFields(TestController):
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
 
     def _do_search(self, department, expected_pkgs, count=None):
         result = search.query_for(model.Package).run({'q': 'department: %s' % department})
@@ -467,7 +469,7 @@ class TestRank(TestController):
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
 
     def _do_search(self, q, wanted_results):
         query = {

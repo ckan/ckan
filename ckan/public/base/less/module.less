@@ -57,12 +57,6 @@
   color: @layoutBoldColor;
 }
 
-.module .pagination {
-  height: 34px;
-  margin-bottom: 0;
-  border-top: 1px solid @moduleHeadingBorderColor;
-}
-
 .module-content .pagination {
   margin-left: -25px;
   margin-right: -25px;
@@ -76,8 +70,8 @@
 }
 
 .module .pagination li a {
-  border-top: none;
-  border-bottom: none;
+  border-top: 1px solid @moduleHeadingBorderColor;;
+  border-bottom: 1px solid @moduleHeadingBorderColor;;
   padding-top: 7px;
   padding-bottom: 7px;
 }
@@ -85,19 +79,6 @@
 .module .pagination li:first-child a,
 .module .pagination li:last-child a {
   .border-radius(0);
-}
-
-.module .pagination li:first-child a {
-  border-left-width: 0;
-}
-
-.module .pagination li:last-child a {
-  border-right-width: 0;
-}
-
-.module .pagination li.active a {
-  border-left-width: 1px;
-  border-right-width: 1px;
 }
 
 .module-content-shallow {
@@ -189,7 +170,7 @@
   margin-top: 0;
 
   & > iframe {
-    min-height: 400px;
+    min-height: 650px;
   }
   & > img {
     max-height: 500px;

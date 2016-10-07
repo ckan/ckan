@@ -1,8 +1,10 @@
+# encoding: utf-8
+
 from nose.tools import assert_true, assert_equal
 
 from bs4 import BeautifulSoup
 from routes import url_for
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.tests.helpers as helpers
@@ -95,7 +97,8 @@ class TestConfig(helpers.FunctionalTestBase):
 
         # current style
         index_response = app.get('/')
-        assert_true('main.css' in index_response)
+        assert_true('main.css' in index_response or
+                    'main.min.css' in index_response)
 
         # set new style css
         env, config_response = _get_admin_config_page(app)
@@ -105,13 +108,16 @@ class TestConfig(helpers.FunctionalTestBase):
 
         # new style
         new_index_response = app.get('/')
-        assert_true('red.css' in new_index_response)
+        assert_true('red.css' in new_index_response or
+                    'red.min.css' in new_index_response)
         assert_true('main.css' not in new_index_response)
+        assert_true('main.min.css' not in new_index_response)
 
         # reset config value
         _reset_config(app)
         reset_index_response = app.get('/')
-        assert_true('main.css' in reset_index_response)
+        assert_true('main.css' in reset_index_response or
+                    'main.min.css' in reset_index_response)
 
     def test_tag_line(self):
         '''Add a tag line (only when no logo)'''
@@ -219,6 +225,7 @@ class TestConfig(helpers.FunctionalTestBase):
         style_tag = reset_intro_response_html.select('head style')
         assert_equal(len(style_tag), 0)
 
+    @helpers.change_config('debug', True)
     def test_homepage_style(self):
         '''Select a homepage style'''
         app = self._get_test_app()
@@ -251,18 +258,13 @@ class TestConfig(helpers.FunctionalTestBase):
 class TestTrashView(helpers.FunctionalTestBase):
     '''View tests for permanently deleting datasets with Admin Trash.'''
 
+    @helpers.change_config('debug', True)
     def test_trash_view_anon_user(self):
         '''An anon user shouldn't be able to access trash view.'''
         app = self._get_test_app()
 
         trash_url = url_for(controller='admin', action='trash')
-        trash_response = app.get(trash_url, status=302)
-        # redirects to login page with flash message
-        trash_response = trash_response.follow()
-        assert_true('Need to be system administrator to administer'
-                    in trash_response)
-        assert_true('<!-- Snippet user/snippets/login_form.html start -->'
-                    in trash_response)
+        trash_response = app.get(trash_url, status=403)
 
     def test_trash_view_normal_user(self):
         '''A normal logged in user shouldn't be able to access trash view.'''
@@ -271,7 +273,7 @@ class TestTrashView(helpers.FunctionalTestBase):
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         trash_url = url_for(controller='admin', action='trash')
-        trash_response = app.get(trash_url, extra_environ=env, status=401)
+        trash_response = app.get(trash_url, extra_environ=env, status=403)
         assert_true('Need to be system administrator to administer'
                     in trash_response)
 

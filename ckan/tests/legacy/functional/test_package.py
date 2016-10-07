@@ -1,7 +1,8 @@
+# encoding: utf-8
+
 import datetime
 
-from pylons import config, c
-from genshi.core import escape as genshi_escape
+from ckan.common import config, c
 from difflib import unified_diff
 from nose.tools import assert_equal
 
@@ -143,8 +144,8 @@ class TestPackageForm(TestPackageBase):
         for num, (key, value, deleted) in enumerate(sorted(extras)):
             key_in_html_body = self.escape_for_html_body(key)
             value_in_html_body = self.escape_for_html_body(value)
-            key_escaped = genshi_escape(key)
-            value_escaped = genshi_escape(value)
+            key_escaped = key
+            value_escaped = value
             self.check_tag(main_res, 'extras__%s__key' % num, key_in_html_body)
             self.check_tag(main_res, 'extras__%s__value' % num, value_escaped)
             if deleted:
@@ -512,7 +513,7 @@ class TestEdit(TestPackageForm):
             self.res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
             fv = self.res.forms['dataset-edit']
             fv['title'] = u'New Title'
-            res = fv.submit('save')
+            res = fv.submit('save', extra_environ=self.extra_environ_admin)
 
             # check relationship still exists
             rels = model.Package.by_name(self.editpkg_name).get_relationships()
@@ -611,7 +612,7 @@ class TestNew(TestPackageForm):
         plugins.unload('test_package_controller_plugin')
 
     def test_new_indexerror(self):
-        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        bad_solr_url = 'http://example.com/badsolrurl'
         solr_url = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)
@@ -683,7 +684,7 @@ class TestNonActivePackages(TestPackageBase):
 
     def test_read(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
-        res = self.app.get(offset, status=[302, 401])
+        res = self.app.get(offset, status=[404])
 
 
     def test_read_as_admin(self):
@@ -764,10 +765,10 @@ class TestResourceListing(TestPackageBase):
          self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_tester, status=200)
 
     def test_resource_listing_premissions_non_auth_user(self):
-        # non auth user 401
-         self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_someone_else, status=[302,401])
+        # non auth user 403
+         self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_someone_else, status=[403])
 
     def test_resource_listing_premissions_not_logged_in(self):
-        # not logged in 401
-         self.app.get('/dataset/resources/crimeandpunishment', status=[302,401])
+        # not logged in 403
+         self.app.get('/dataset/resources/crimeandpunishment', status=[403])
 

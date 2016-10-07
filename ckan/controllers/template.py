@@ -1,11 +1,14 @@
+# encoding: utf-8
+
 import ckan.lib.base as base
 import ckan.lib.render
+from ckan.common import response
 
 
 class TemplateController(base.BaseController):
 
     def view(self, url):
-        """By default, the final controller tried to fulfill the request
+        u"""By default, the final controller tried to fulfill the request
         when no other routes match. It may be used to display a template
         when all else fails, e.g.::
 
@@ -26,12 +29,16 @@ class TemplateController(base.BaseController):
         By default this controller aborts the request with a 404 (Not
         Found)
         """
+        if url.endswith(u'.txt'):
+            response.headers[u'Content-Type'] = u'text/plain; charset=utf-8'
+        # Default content-type is text/html
         try:
             return base.render(url)
         except ckan.lib.render.TemplateNotFound:
-            if url.endswith('.html'):
+            if url.endswith(u'.html'):
                 base.abort(404)
-            url += '.html'
+            url += u'.html'
+            response.headers[u'Content-Type'] = u'text/html; charset=utf-8'
             try:
                 return base.render(url)
             except ckan.lib.render.TemplateNotFound:

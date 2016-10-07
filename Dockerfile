@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.10
+FROM phusion/baseimage:0.9.15
 MAINTAINER Open Knowledge
 
 # Disable SSH
@@ -53,6 +53,8 @@ ADD ./contrib/docker/my_init.d /etc/my_init.d
 ADD ./contrib/docker/svc /etc/service
 CMD ["/sbin/my_init"]
 
+# Volumes
+VOLUME ["/etc/ckan/default"]
 VOLUME ["/var/lib/ckan"]
 EXPOSE 80
 

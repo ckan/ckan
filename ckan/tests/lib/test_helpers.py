@@ -1,11 +1,19 @@
+# encoding: utf-8
+
 import nose
-import i18n
+import pytz
+import tzlocal
+from babel import Locale
 
 import ckan.lib.helpers as h
+import ckan.plugins as p
 import ckan.exceptions
 from ckan.tests import helpers
+import ckan.lib.base as base
 
+ok_ = nose.tools.ok_
 eq_ = nose.tools.eq_
+raises = nose.tools.raises
 CkanUrlException = ckan.exceptions.CkanUrlException
 
 
@@ -31,6 +39,28 @@ class TestHelpersUrlForStatic(object):
     def test_url_for_static_raises_when_called_with_protocol_relative(self):
         url = '//assets.ckan.org/ckan.jpg'
         nose.tools.assert_raises(CkanUrlException, h.url_for_static, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_with_root_path(self):
+        url = '/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_qualified_with_root_path(self):
+        url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        eq_(generated_url, url)
+
+    @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_with_root_path_and_script_name_env(self):
+        url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        eq_(generated_url, url)
 
 
 class TestHelpersUrlForStaticOrExternal(object):
@@ -72,6 +102,14 @@ class TestHelpersUrlFor(object):
                                   action='read',
                                   id='my_dataset',
                                   locale='de')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/foo/{{LANG}}')
+    def test_url_for_with_locale_object(self):
+        url = '/foo/de/dataset/my_dataset'
+        generated_url = h.url_for('/dataset/my_dataset',
+                                  locale=Locale('de'))
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
@@ -123,6 +161,18 @@ class TestHelpersUrlFor(object):
                                   locale='de')
         eq_(generated_url, url)
 
+    @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_qualified_with_root_path_locale_and_script_name_env(self):
+        url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=True,
+                                  locale='de')
+        eq_(generated_url, url)
+
 
 class TestHelpersRenderMarkdown(object):
 
@@ -132,22 +182,27 @@ class TestHelpersRenderMarkdown(object):
 
     def test_render_markdown_not_allow_html(self):
         data = '<h1>moo</h1>'
-        output = '<p>moo\n</p>'
+        output = '<p>moo</p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link_without_path(self):
         data = 'http://example.com'
-        output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a>\n</p>'
+        output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link(self):
         data = 'https://example.com/page.html'
-        output = '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a>\n</p>'
+        output = '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a></p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link_ignoring_trailing_punctuation(self):
         data = 'My link: http://example.com/page.html.'
-        output = '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.\n</p>'
+        output = '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_render_naughty_markdown(self):
+        data = u'* [Foo (http://foo.bar) * Bar] (http://foo.bar)'
+        output = u'<ul>\n<li>[Foo (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>) * Bar] (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>)</li>\n</ul>'
         eq_(h.render_markdown(data), output)
 
 
@@ -203,3 +258,116 @@ class TestUnifiedResourceFormat(object):
         eq_(h.unified_resource_format('text/tab-separated-values'), 'TSV')
 
         eq_(h.unified_resource_format('text/tsv'), 'TSV')
+
+
+class TestGetDisplayTimezone(object):
+    @helpers.change_config('ckan.display_timezone', '')
+    def test_missing_config(self):
+        eq_(h.get_display_timezone(), pytz.timezone('utc'))
+
+    @helpers.change_config('ckan.display_timezone', 'server')
+    def test_server_timezone(self):
+        eq_(h.get_display_timezone(), tzlocal.get_localzone())
+
+    @helpers.change_config('ckan.display_timezone', 'America/New_York')
+    def test_named_timezone(self):
+        eq_(h.get_display_timezone(), pytz.timezone('America/New_York'))
+
+
+class TestHelperException(helpers.FunctionalTestBase):
+
+    @raises(ckan.exceptions.HelperError)
+    def test_helper_exception_non_existing_helper_as_attribute(self):
+        '''Calling a non-existing helper on `h` raises a HelperException.'''
+        if not p.plugin_loaded('test_helpers_plugin'):
+            p.load('test_helpers_plugin')
+
+        app = self._get_test_app()
+
+        app.get('/broken_helper_as_attribute')
+
+        p.unload('test_helpers_plugin')
+
+    @raises(ckan.exceptions.HelperError)
+    def test_helper_exception_non_existing_helper_as_item(self):
+        '''Calling a non-existing helper on `h` raises a HelperException.'''
+        if not p.plugin_loaded('test_helpers_plugin'):
+            p.load('test_helpers_plugin')
+
+        app = self._get_test_app()
+
+        app.get('/broken_helper_as_item')
+
+        p.unload('test_helpers_plugin')
+
+    def test_helper_existing_helper_as_attribute(self):
+        '''Calling an existing helper on `h` doesn't raises a
+        HelperException.'''
+
+        if not p.plugin_loaded('test_helpers_plugin'):
+            p.load('test_helpers_plugin')
+
+        app = self._get_test_app()
+
+        res = app.get('/helper_as_attribute')
+
+        ok_('My lang is: en' in res.body)
+
+        p.unload('test_helpers_plugin')
+
+    def test_helper_existing_helper_as_item(self):
+        '''Calling an existing helper on `h` doesn't raises a
+        HelperException.'''
+
+        if not p.plugin_loaded('test_helpers_plugin'):
+            p.load('test_helpers_plugin')
+
+        app = self._get_test_app()
+
+        res = app.get('/helper_as_item')
+
+        ok_('My lang is: en' in res.body)
+
+        p.unload('test_helpers_plugin')
+
+
+class TestHelpersPlugin(p.SingletonPlugin):
+
+    p.implements(p.IRoutes, inherit=True)
+
+    controller = 'ckan.tests.lib.test_helpers:TestHelperController'
+
+    def after_map(self, _map):
+
+        _map.connect('/broken_helper_as_attribute',
+                     controller=self.controller,
+                     action='broken_helper_as_attribute')
+
+        _map.connect('/broken_helper_as_item',
+                     controller=self.controller,
+                     action='broken_helper_as_item')
+
+        _map.connect('/helper_as_attribute',
+                     controller=self.controller,
+                     action='helper_as_attribute')
+
+        _map.connect('/helper_as_item',
+                     controller=self.controller,
+                     action='helper_as_item')
+
+        return _map
+
+
+class TestHelperController(p.toolkit.BaseController):
+
+    def broken_helper_as_attribute(self):
+        return base.render('tests/broken_helper_as_attribute.html')
+
+    def broken_helper_as_item(self):
+        return base.render('tests/broken_helper_as_item.html')
+
+    def helper_as_attribute(self):
+        return base.render('tests/helper_as_attribute.html')
+
+    def helper_as_item(self):
+        return base.render('tests/helper_as_item.html')

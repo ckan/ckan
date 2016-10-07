@@ -1,12 +1,14 @@
+# encoding: utf-8
+
 import re
 import logging
 
-from pylons import config
-from solr import SolrException
+from ckan.common import config
+import pysolr
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
+import six
 
-from ckan.common import json
 from ckan.lib.search.common import make_connection, SearchError, SearchQueryError
 import ckan.logic as logic
 import ckan.model as model
@@ -254,12 +256,8 @@ class PackageSearchQuery(SearchQuery):
         fq += "+state:active "
 
         conn = make_connection()
-        try:
-            data = conn.query(query, fq=fq, rows=max_results, fields='id')
-        finally:
-            conn.close()
-
-        return [r.get('id') for r in data.results]
+        data = conn.search(query, fq=fq, rows=max_results, fields='id')
+        return [r.get('id') for r in data.docs]
 
     def get_index(self,reference):
         query = {
@@ -268,34 +266,31 @@ class PackageSearchQuery(SearchQuery):
             'wt': 'json',
             'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
 
-        conn = make_connection()
+        conn = make_connection(decode_dates=False)
         log.debug('Package query: %r' % query)
         try:
-            solr_response = conn.raw_query(**query)
-        except SolrException, e:
+            solr_response = conn.search(**query)
+        except pysolr.SolrError, e:
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
-                              (query, e.reason))
-        try:
-            data = json.loads(solr_response)
+                              (query, e))
 
-            if data['response']['numFound'] == 0:
-                raise SearchError('Dataset not found in the search index: %s' % reference)
-            else:
-                return data['response']['docs'][0]
-        except Exception, e:
-            if not isinstance(e, SearchError):
-                log.exception(e)
-            raise SearchError(e)
-        finally:
-            conn.close()
+        if solr_response.hits == 0:
+            raise SearchError('Dataset not found in the search index: %s' % reference)
+        else:
+            return solr_response.docs[0]
 
 
-    def run(self, query):
+    def run(self, query, permission_labels=None, **kwargs):
         '''
         Performs a dataset search using the given query.
 
-        @param query - dictionary with keys like: q, fq, sort, rows, facet
-        @return - dictionary with keys results and count
+        :param query: dictionary with keys like: q, fq, sort, rows, facet
+        :type query: dict
+        :param permission_labels: filter results to those that include at
+            least one of these labels. None to not filter (return everything)
+        :type permission_labels: list of unicode strings; or None
+
+        :returns: dictionary with keys results and count
 
         May raise SearchQueryError or SearchError.
         '''
@@ -320,18 +315,23 @@ class PackageSearchQuery(SearchQuery):
             rows_to_query = rows_to_return
         query['rows'] = rows_to_query
 
+        fq = []
+        if 'fq' in query:
+            fq.append(query['fq'])
+        fq.extend(query.get('fq_list', []))
+
         # show only results from this CKAN instance
-        fq = query.get('fq', '')
-        if not '+site_id:' in fq:
-            fq += ' +site_id:"%s"' % config.get('ckan.site_id')
+        fq.append('+site_id:%s' % solr_literal(config.get('ckan.site_id')))
 
         # filter for package status
-        if not '+state:' in fq:
-            fq += " +state:active"
-        query['fq'] = [fq]
+        if not '+state:' in query.get('fq', ''):
+            fq.append('+state:active')
 
-        fq_list = query.get('fq_list', [])
-        query['fq'].extend(fq_list)
+        # only return things we should be able to see
+        if permission_labels is not None:
+            fq.append('+permission_labels:(%s)' % ' OR '.join(
+                solr_literal(p) for p in permission_labels))
+        query['fq'] = fq
 
         # faceting
         query['facet'] = query.get('facet', 'true')
@@ -354,45 +354,56 @@ class PackageSearchQuery(SearchQuery):
             query['mm'] = query.get('mm', '2<-1 5<80%')
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
-
-        conn = make_connection()
+        conn = make_connection(decode_dates=False)
         log.debug('Package query: %r' % query)
         try:
-            solr_response = conn.raw_query(**query)
-        except SolrException, e:
+            solr_response = conn.search(**query)
+        except pysolr.SolrError, e:
+            # Error with the sort parameter.  You see slightly different
+            # error messages depending on whether the SOLR JSON comes back
+            # or Jetty gets in the way converting it to HTML - not sure why
+            #
+            if e.args and isinstance(e.args[0], str):
+                if "Can't determine a Sort Order" in e.args[0] or \
+                        "Can't determine Sort Order" in e.args[0] or \
+                        'Unknown sort order' in e.args[0]:
+                    raise SearchQueryError('Invalid "sort" parameter')
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
-                              (query, e.reason))
-        try:
-            data = json.loads(solr_response)
-            response = data['response']
-            self.count = response.get('numFound', 0)
-            self.results = response.get('docs', [])
+                              (query, e))
+        self.count = solr_response.hits
+        self.results = solr_response.docs
 
-            # #1683 Filter out the last row that is sometimes out of order
-            self.results = self.results[:rows_to_return]
 
-            # get any extras and add to 'extras' dict
-            for result in self.results:
-                extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
-                extras = {}
-                for extra_key in extra_keys:
-                    value = result.pop(extra_key)
-                    extras[extra_key[len('extras_'):]] = value
-                if extra_keys:
-                    result['extras'] = extras
+        # #1683 Filter out the last row that is sometimes out of order
+        self.results = self.results[:rows_to_return]
 
-            # if just fetching the id or name, return a list instead of a dict
-            if query.get('fl') in ['id', 'name']:
-                self.results = [r.get(query.get('fl')) for r in self.results]
+        # get any extras and add to 'extras' dict
+        for result in self.results:
+            extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
+            extras = {}
+            for extra_key in extra_keys:
+                value = result.pop(extra_key)
+                extras[extra_key[len('extras_'):]] = value
+            if extra_keys:
+                result['extras'] = extras
 
-            # get facets and convert facets list to a dict
-            self.facets = data.get('facet_counts', {}).get('facet_fields', {})
-            for field, values in self.facets.iteritems():
-                self.facets[field] = dict(zip(values[0::2], values[1::2]))
-        except Exception, e:
-            log.exception(e)
-            raise SearchError(e)
-        finally:
-            conn.close()
+        # if just fetching the id or name, return a list instead of a dict
+        if query.get('fl') in ['id', 'name']:
+            self.results = [r.get(query.get('fl')) for r in self.results]
+
+        # get facets and convert facets list to a dict
+        self.facets = solr_response.facets.get('facet_fields', {})
+        for field, values in six.iteritems(self.facets):
+            self.facets[field] = dict(zip(values[0::2], values[1::2]))
 
         return {'results': self.results, 'count': self.count}
+
+
+def solr_literal(t):
+    '''
+    return a safe literal string for a solr query. Instead of escaping
+    each of + - && || ! ( ) { } [ ] ^ " ~ * ? : \ / we're just dropping
+    double quotes -- this method currently only used by tokens like site_id
+    and permission labels.
+    '''
+    return u'"' + t.replace(u'"', u'') + u'"'

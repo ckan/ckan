@@ -1,5 +1,10 @@
-from pylons import config
+# encoding: utf-8
+
+import datetime
 import logging
+import re
+import pysolr
+import simplejson
 log = logging.getLogger(__name__)
 
 
@@ -48,23 +53,35 @@ def is_available():
     """
     try:
         conn = make_connection()
-        conn.query("*:*", rows=1)
+        conn.search(q="*:*", rows=1)
     except Exception, e:
         log.exception(e)
         return False
-    finally:
-        if 'conn' in dir():
-            conn.close()
-
     return True
 
 
-def make_connection():
-    from solr import SolrConnection
+def make_connection(decode_dates=True):
     solr_url, solr_user, solr_password = SolrSettings.get()
-    assert solr_url is not None
-    if solr_user is not None and solr_password is not None:
-        return SolrConnection(solr_url, http_user=solr_user,
-                              http_pass=solr_password)
+    if decode_dates:
+        decoder = simplejson.JSONDecoder(object_hook=solr_datetime_decoder)
+        return pysolr.Solr(solr_url, decoder=decoder)
     else:
-        return SolrConnection(solr_url)
+        return pysolr.Solr(solr_url)
+
+
+def solr_datetime_decoder(d):
+    for k, v in d.items():
+        if isinstance(v, basestring):
+            possible_datetime = re.search(pysolr.DATETIME_REGEX, v)
+            if possible_datetime:
+                date_values = possible_datetime.groupdict()
+                for dk, dv in date_values.items():
+                    date_values[dk] = int(dv)
+
+                d[k] = datetime.datetime(date_values['year'],
+                                         date_values['month'],
+                                         date_values['day'],
+                                         date_values['hour'],
+                                         date_values['minute'],
+                                         date_values['second'])
+    return d

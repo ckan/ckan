@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose.tools
 
 import ckan.model as model

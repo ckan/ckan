@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+
 import nose
-from pylons import config
+from ckan.common import config
 
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview
@@ -270,50 +271,6 @@ class TestViewsCreation(object):
             eq_(len(views_list), 1)
             eq_(views_list[0]['view_type'], 'image_view')
 
-    def test_default_views_created_on_package_update(self):
-
-        dataset_dict = factories.Dataset(
-            resources=[{
-                'url': 'http://not.for.viewing',
-                'format': 'xxx',
-            }]
-        )
-
-        resource_id = dataset_dict['resources'][0]['id']
-
-        views_list = helpers.call_action('resource_view_list', id=resource_id)
-
-        eq_(len(views_list), 0)
-
-        updated_data_dict = {
-            'id': dataset_dict['id'],
-            'resources': [
-                {
-                    'url': 'http://not.for.viewing',
-                    'format': 'xxx',
-                },
-                {
-                    'url': 'http://some.image.png',
-                    'format': 'png',
-                },
-
-
-            ]
-        }
-
-        dataset_dict = helpers.call_action('package_update', **updated_data_dict)
-
-        for resource in dataset_dict['resources']:
-            resource_id = resource['id'] if resource['format'] == 'PNG' else None
-
-        assert resource_id
-
-        updated_views_list = helpers.call_action('resource_view_list', id=resource_id)
-        eq_(len(updated_views_list), 1)
-        eq_(updated_views_list[0]['view_type'], 'image_view')
-
-        pass
-
     def test_default_views_created_on_resource_create(self):
 
         dataset_dict = factories.Dataset(
@@ -332,35 +289,6 @@ class TestViewsCreation(object):
         new_resource_dict = helpers.call_action('resource_create', **resource_dict)
 
         views_list = helpers.call_action('resource_view_list', id=new_resource_dict['id'])
-
-        eq_(len(views_list), 1)
-        eq_(views_list[0]['view_type'], 'image_view')
-
-    def test_default_views_created_on_resource_update(self):
-
-        dataset_dict = factories.Dataset(
-            resources=[{
-                'url': 'http://not.for.viewing',
-                'format': 'xxx',
-            }]
-        )
-
-        resource_id = dataset_dict['resources'][0]['id']
-
-        views_list = helpers.call_action('resource_view_list', id=resource_id)
-
-        eq_(len(views_list), 0)
-
-        resource_dict = {
-            'id': resource_id,
-            'package_id': dataset_dict['id'],
-            'url': 'http://some.image.png',
-            'format': 'png',
-        }
-
-        updated_resource_dict = helpers.call_action('resource_update', **resource_dict)
-
-        views_list = helpers.call_action('resource_view_list', id=updated_resource_dict['id'])
 
         eq_(len(views_list), 1)
         eq_(views_list[0]['view_type'], 'image_view')

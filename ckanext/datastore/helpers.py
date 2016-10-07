@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 import json
 
@@ -79,7 +81,7 @@ def get_table_names_from_sql(context, sql):
         return table_names
 
     result = context['connection'].execute(
-        'EXPLAIN (FORMAT JSON) {0}'.format(sql)).fetchone()
+        'EXPLAIN (FORMAT JSON) {0}'.format(sql.encode('utf-8'))).fetchone()
 
     table_names = []
 

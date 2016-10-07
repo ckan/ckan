@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import datetime
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_
@@ -80,21 +82,13 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get(cls, reference):
         '''Returns a group object referenced by its id or name.'''
-        query = meta.Session.query(cls).filter(cls.id == reference)
-        member = query.first()
+        if not reference:
+            return None
+
+        member = meta.Session.query(cls).get(reference)
         if member is None:
             member = cls.by_name(reference)
         return member
-
-    def get_related(self, type):
-        """ TODO: Determine if this is useful
-            Get all objects that are members of the group of the specified
-            type.
-
-            Should the type be used to get table_name or should we use the
-            one in the constructor
-        """
-        pass
 
     def related_packages(self):
         # TODO do we want to return all related packages or certain ones?

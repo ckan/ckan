@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import os.path
 import logging
 import cgi
@@ -52,7 +54,7 @@ class ApiController(base.BaseController):
 
         self._identify_user()
         try:
-            context = {'model': model, 'user': c.user or c.author,
+            context = {'model': model, 'user': c.user,
                        'auth_user_obj': c.userobj}
             logic.check_access('site_read', context)
         except NotAuthorized:
@@ -89,9 +91,9 @@ class ApiController(base.BaseController):
             else:
                 response_msg = response_data
             # Support "JSONP" callback.
-            if status_int == 200 and 'callback' in request.params and \
-                (request.method == 'GET' or
-                 c.logic_function and request.method == 'POST'):
+            if (status_int == 200 and
+                    'callback' in request.params and
+                    request.method == 'GET'):
                 # escape callback to remove '<', '&', '>' chars
                 callback = cgi.escape(request.params['callback'])
                 response_msg = self._wrap_jsonp(callback, response_msg)
@@ -166,8 +168,7 @@ class ApiController(base.BaseController):
                 _('Action name not known: %s') % logic_function)
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'return_type': 'LazyJSONObject',
-                   'auth_user_obj': c.userobj}
+                   'api_version': ver, 'auth_user_obj': c.userobj}
         model.Session()._context = context
 
         return_dict = {'help': h.url_for(controller='api',
@@ -197,6 +198,10 @@ class ApiController(base.BaseController):
         # if callback is specified we do not want to send that to the search
         if 'callback' in request_data:
             del request_data['callback']
+            c.user = None
+            c.userobj = None
+            context['user'] = None
+            context['auth_user_obj'] = None
         try:
             result = function(context, request_data)
             return_dict['success'] = True
@@ -277,7 +282,6 @@ class ApiController(base.BaseController):
             'group': 'group_list',
             'dataset': 'package_list',
             'tag': 'tag_list',
-            'related': 'related_list',
             'licenses': 'license_list',
             ('dataset', 'relationships'): 'package_relationships_list',
             ('dataset', 'revisions'): 'package_revision_list',
@@ -305,7 +309,6 @@ class ApiController(base.BaseController):
             'revision': 'revision_show',
             'group': 'group_show_rest',
             'tag': 'tag_show_rest',
-            'related': 'related_show',
             'dataset': 'package_show_rest',
             ('dataset', 'relationships'): 'package_relationships_list',
         }
@@ -340,7 +343,6 @@ class ApiController(base.BaseController):
             'group': 'group_create_rest',
             'dataset': 'package_create_rest',
             'rating': 'rating_create',
-            'related': 'related_create',
             ('dataset', 'relationships'): 'package_relationship_create_rest',
         }
         for type in model.PackageRelationship.get_all_types():
@@ -455,7 +457,6 @@ class ApiController(base.BaseController):
         action_map = {
             'group': 'group_delete',
             'dataset': 'package_delete',
-            'related': 'related_delete',
             ('dataset', 'relationships'): 'package_relationship_delete_rest',
         }
         for type in model.PackageRelationship.get_all_types():
@@ -618,7 +619,7 @@ class ApiController(base.BaseController):
         c.q = request.params.get('q', '')
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                   'user': c.user, 'auth_user_obj': c.userobj}
 
         tag_names = get_action('tag_list')(context, {})
         results = []
@@ -653,7 +654,7 @@ class ApiController(base.BaseController):
         user_list = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
 
             data_dict = {'q': q, 'limit': limit}
 
@@ -730,7 +731,7 @@ class ApiController(base.BaseController):
         package_dicts = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
 
             data_dict = {'q': q, 'limit': limit}
 
@@ -747,7 +748,7 @@ class ApiController(base.BaseController):
         tag_names = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
 
             data_dict = {'q': q, 'limit': limit}
 
@@ -766,7 +767,7 @@ class ApiController(base.BaseController):
         formats = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
             data_dict = {'q': q, 'limit': limit}
             formats = get_action('format_autocomplete')(context, data_dict)
 
@@ -893,7 +894,8 @@ class ApiController(base.BaseController):
             cls.log.debug('Retrieved request body: %r', request.body)
             if not request_data:
                 if not try_url_params:
-                    msg = "No request body data"
+                    msg = "Invalid request. Please use POST method" \
+                        " for your request"
                     raise ValueError(msg)
                 else:
                     request_data = {}

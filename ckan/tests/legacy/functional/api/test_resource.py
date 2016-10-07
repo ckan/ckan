@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan.tests.legacy.functional.api.base import ApiTestCase, CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan import model

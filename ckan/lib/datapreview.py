@@ -1,4 +1,4 @@
-# coding=UTF-8
+# encoding: utf-8
 
 """Data previewer functions
 
@@ -8,7 +8,7 @@ Functions and data structures that are needed for the ckan data preview.
 import urlparse
 import logging
 
-import pylons.config as config
+from ckan.common import config
 
 import ckan.plugins as p
 from ckan import logic
@@ -175,7 +175,7 @@ def get_default_view_plugins(get_datastore_views=False):
     if config.get('ckan.views.default_views') is None:
         default_view_types = DEFAULT_RESOURCE_VIEW_TYPES
     else:
-        default_view_types = config.get('ckan.views.default_views').split(' ')
+        default_view_types = config.get('ckan.views.default_views').split()
 
     default_view_plugins = []
     for view_type in default_view_types:

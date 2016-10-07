@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import unittest
 import nose.tools
 import pyutilib.component.core

@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+
 '''Unit tests for ckan/logic/validators.py.
 
 '''
@@ -10,15 +11,17 @@ import warnings
 import mock
 import nose.tools
 
-import ckan.tests.factories as factories
 # Import some test helper functions from another module.
 # This is bad (test modules shouldn't share code with eachother) but because of
 # the way validator functions are organised in CKAN (in different modules in
 # different places in the code) we have to either do this or introduce a shared
 # test helper functions module (which we also don't want to do).
 import ckan.tests.lib.navl.test_validators as t
+
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
+import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
 import ckan.model as model
 
 assert_equals = nose.tools.assert_equals
@@ -523,6 +526,71 @@ class TestBoolValidator(object):
 
     def test_string_false(self):
         assert_equals(validators.boolean_validator('f', None), False)
+
+
+class TestExistsValidator(helpers.FunctionalTestBase):
+
+    def _make_context(self):
+        return {
+            'model': model,
+            'session': model.Session
+        }
+
+    @nose.tools.raises(df.Invalid)
+    def test_package_name_exists_empty(self):
+        ctx = self._make_context()
+        v = validators.package_name_exists('', ctx)
+
+    def test_package_name_exists(self):
+        name = 'pne_validation_test'
+        dataset = factories.Dataset(name=name)
+        ctx = self._make_context()
+        v = validators.package_name_exists(name, ctx)
+        assert v == name
+
+    @nose.tools.raises(df.Invalid)
+    def test_resource_id_exists_empty(self):
+        ctx = self._make_context()
+        v = validators.resource_id_exists('', ctx)
+
+    def test_resource_id_exists(self):
+        resource = factories.Resource()
+        ctx = self._make_context()
+        v = validators.resource_id_exists(resource['id'], ctx)
+        assert v == resource['id']
+
+    @nose.tools.raises(df.Invalid)
+    def test_user_id_or_name_exists_empty(self):
+        ctx = self._make_context()
+        v = validators.user_id_or_name_exists('', ctx)
+
+    def test_user_id_or_name_exists(self):
+        user = factories.User(name='username')
+        ctx = self._make_context()
+        v = validators.user_id_or_name_exists(user['id'], ctx)
+        assert v == user['id']
+        v = validators.user_id_or_name_exists(user['name'], ctx)
+        assert v == user['name']
+
+    @nose.tools.raises(df.Invalid)
+    def test_group_id_or_name_exists_empty(self):
+        ctx = self._make_context()
+        v = validators.user_id_or_name_exists('', ctx)
+
+    def test_group_id_or_name_exists(self):
+        group = factories.Group()
+        ctx = self._make_context()
+        v = validators.group_id_or_name_exists(group['id'], ctx)
+        assert v == group['id']
+
+        v = validators.group_id_or_name_exists(group['name'], ctx)
+        assert v == group['name']
+
+    @nose.tools.raises(df.Invalid)
+    def test_role_exists_empty(self):
+        ctx = self._make_context()
+        v = validators.role_exists('', ctx)
+
 
 #TODO: Need to test when you are not providing owner_org and the validator
 #      queries for the dataset with package_show
