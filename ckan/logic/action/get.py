@@ -616,7 +616,7 @@ def organization_list_for_user(context, data_dict):
     organization hierarchy.
 
     :param id: the name or id of the user to get the organization list for
-        (optional, defaults to the currently authrized user (logged in or via
+        (optional, defaults to the currently authorized user (logged in or via
         API key))
     :type permission: string
 
