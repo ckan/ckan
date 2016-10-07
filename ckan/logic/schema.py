@@ -54,10 +54,8 @@ from ckan.logic.validators import (
     activity_type_exists,
     resource_id_exists,
     tag_not_in_vocabulary,
-    group_id_exists,
     group_id_or_name_exists,
     owner_org_validator,
-    user_name_exists,
     user_id_or_name_exists,
     role_exists,
     datasets_with_no_organization_cannot_be_private,
@@ -663,7 +661,6 @@ def default_update_configuration_schema():
         'ckan.site_about': [unicode],
         'ckan.site_intro_text': [unicode],
         'ckan.site_custom_css': [unicode],
-        'ckan.main_css': [unicode],
         'ckan.homepage_style': [is_positive_integer],
     }
 
