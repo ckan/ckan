@@ -1621,6 +1621,7 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
 
         user1 = factories.User()
         user2 = factories.User()
+        user3 = factories.User()
 
         org1 = factories.Organization(users=[
             {'name': user1['name'], 'capacity': 'admin'},
@@ -1637,14 +1638,17 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         org_list_for_user1 = helpers.call_action('organization_list_for_user',
                                                  id=user1['id'])
 
-        eq(len(org_list_for_user1), 3)
         assert sorted([org['id'] for org in org_list_for_user1]) == sorted([org1['id'], org2['id'], org3['id']])
 
         org_list_for_user2 = helpers.call_action('organization_list_for_user',
                                                  id=user2['id'])
 
-        eq(len(org_list_for_user2), 2)
         assert sorted([org['id'] for org in org_list_for_user2]) == sorted([org1['id'], org2['id']])
+
+        org_list_for_user3 = helpers.call_action('organization_list_for_user',
+                                                 id=user3['id'])
+
+        eq(org_list_for_user3, [])
 
 
 class TestShowResourceView(object):

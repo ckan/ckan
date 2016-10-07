@@ -592,13 +592,12 @@ def group_list_authz(context, data_dict):
 def organization_list_for_user(context, data_dict):
     '''Return the organizations that the user has a given permission for.
 
-    By default this returns the list of organizations that the currently
-    authorized user can edit, i.e. the list of organizations that the user is
-    an admin of.
-
     Specifically it returns the list of organizations that the currently
     authorized user has a given permission (for example: "manage_group")
     against.
+
+    By default this returns the list of organizations that the currently
+    authorized user is member of, in any capacity.
 
     When a user becomes a member of an organization in CKAN they're given a
     "capacity" (sometimes called a "role"), for example "member", "editor" or
@@ -623,7 +622,7 @@ def organization_list_for_user(context, data_dict):
 
     :param permission: the permission the user has against the
         returned organizations, for example ``"read"`` or ``"create_dataset"``
-        (optional, default: ``"read"``)
+        (optional, default: ``"manage_group"``)
     :type permission: string
 
     :returns: list of organizations that the user has the given permission for
@@ -651,7 +650,7 @@ def organization_list_for_user(context, data_dict):
     else:
         # for non-Sysadmins check they have the required permission
 
-        permission = data_dict.get('permission', 'read')
+        permission = data_dict.get('permission', 'manage_group')
 
         roles = authz.get_roles_with_permission(permission)
 
