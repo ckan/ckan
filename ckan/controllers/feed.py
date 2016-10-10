@@ -31,6 +31,7 @@ import ckan.model as model
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.logic as logic
+import ckan.plugins as plugins
 
 from ckan.common import _, g, c, request, response, json
 
@@ -361,10 +362,18 @@ class FeedController(base.BaseController):
             config.get('ckan.site_url', '').strip()
 
         # TODO language
-        feed = _FixedAtom1Feed(
-            title=feed_title,
-            link=feed_link,
-            description=feed_description,
+        feed_class = None
+        for plugin in plugins.PluginImplementations(plugins.IFeed):
+            if hasattr(plugin, 'get_feed_class'):
+                feed_class = plugin.get_feed_class()
+
+        if not feed_class:
+            feed_class = _FixedAtom1Feed
+
+        feed = feed_class(
+            feed_title,
+            feed_link,
+            feed_description,
             language=u'en',
             author_name=author_name,
             author_link=author_link,
@@ -377,6 +386,12 @@ class FeedController(base.BaseController):
         )
 
         for pkg in results:
+            additional_fields = {}
+
+            for plugin in plugins.PluginImplementations(plugins.IFeed):
+                if hasattr(plugin, 'get_item_additional_fields'):
+                    additional_fields = plugin.get_item_additional_fields(pkg)
+
             feed.add_item(
                 title=pkg.get('title', ''),
                 link=self.base_url + h.url_for(controller='package',
@@ -396,7 +411,8 @@ class FeedController(base.BaseController):
                                               id=pkg['name'],
                                               ver='2'),
                     unicode(len(json.dumps(pkg))),   # TODO fix this
-                    u'application/json')
+                    u'application/json'),
+                **additional_fields
             )
         response.content_type = feed.mime_type
         return feed.writeString('utf-8')
