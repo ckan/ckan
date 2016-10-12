@@ -1,6 +1,9 @@
 # encoding: utf-8
 
+import json
+import logging
 import os
+import os.path
 
 from babel import Locale
 from babel.core import (LOCALE_ALIASES,
@@ -10,12 +13,15 @@ from babel.support import Translations
 from paste.deploy.converters import aslist
 from pylons import i18n
 import pylons
-
+import polib
 
 from ckan.common import config
 import ckan.i18n
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
+
+
+log = logging.getLogger(__name__)
 
 # Default Portuguese language to Brazilian territory, since
 # we don't have a Portuguese territory translation currently.
@@ -236,3 +242,97 @@ def set_lang(language_code):
         language_code = config.get('ckan.locale_default', 'en')
     if language_code != 'en':
         _set_lang(language_code)
+
+
+def _po2dict(po, lang):
+    '''
+    Convert po object to dictionary data structure (ready for JSON).
+
+    This function is from pojson
+    https://bitbucket.org/obviel/pojson
+
+    Copyright (c) 2010, Fanstatic Developers
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above
+          copyright notice, this list of conditions and the following
+          disclaimer in the documentation and/or other materials
+          provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote
+          products derived from this software without specific prior
+          written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL FANSTATIC
+    DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+    OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+    DAMAGE.
+    '''
+    result = {}
+
+    result[u''] = {}
+    result[u''][u'plural-forms'] = po.metadata[u'Plural-Forms']
+    result[u''][u'lang'] = lang
+    result[u''][u'domain'] = u'ckan'
+
+    for entry in po:
+        if entry.obsolete:
+            continue
+        # check if used in js file we only include these
+        occurrences = entry.occurrences
+        js_use = False
+        for occurrence in occurrences:
+            if occurrence[0].endswith(u'.js'):
+                js_use = True
+                continue
+        if not js_use:
+            continue
+        if entry.msgstr:
+            result[entry.msgid] = [None, entry.msgstr]
+        elif entry.msgstr_plural:
+            plural = [entry.msgid_plural]
+            result[entry.msgid] = plural
+            ordered_plural = sorted(entry.msgstr_plural.items())
+            for order, msgstr in ordered_plural:
+                plural.append(msgstr)
+    return result
+
+
+def build_js_translations():
+    '''
+    Build JavaScript translation files.
+
+    Takes the PO files from ``ckan/i18n`` and creates corresponding JS
+    translation files in ``ckan.i18n_directory``. These include only
+    those translation strings that are actually used in JS files.
+    '''
+    ckan_dir = os.path.join(os.path.dirname(__file__), '..')
+    source_dir = config.get('ckan.i18n_directory',
+                            os.path.join(ckan_dir, 'i18n'))
+    dest_dir = os.path.join(ckan_dir, 'public', 'base', 'i18n')
+    for lang in os.listdir(source_dir):
+        if os.path.isdir(os.path.join(source_dir, lang)):
+            log.debug('Generating JS translations for {}'.format(lang))
+            source_file = os.path.join(source_dir, lang, 'LC_MESSAGES',
+                                       'ckan.po')
+            po = polib.pofile(source_file)
+            data = _po2dict(po, lang)
+            dest_file = os.path.join(dest_dir, '%s.js' % lang)
+            with open(dest_file, 'w') as f:
+                s = json.dumps(data, sort_keys=True, indent=2,
+                               ensure_ascii=False)
+                f.write(s.encode('utf-8'))
