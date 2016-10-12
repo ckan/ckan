@@ -348,6 +348,7 @@ def build_js_translations():
     ``ckan.i18n_directory``. These include only those translation
     strings that are actually used in JS files.
     '''
+    log.debug(u'Generating JavaScript translations')
     ckan_dir = os.path.join(os.path.dirname(__file__), u'..')
     ckan_i18n_dir = config.get(u'ckan.i18n_directory',
                                os.path.join(ckan_dir, u'i18n'))
@@ -379,6 +380,10 @@ def build_js_translations():
                                  domain + u'.po')
                     for i18n_dir, domain in i18n_dirs.iteritems()]
         po_files = [fn for fn in po_files if os.path.isfile(fn)]
-        log.debug(u'Generating JS translations for {}'.format(lang))
+        latest = max(os.path.getmtime(fn) for fn in po_files)
         dest_file = os.path.join(dest_dir, lang + u'.js')
-        _build_js_translation(lang, po_files, js_entries, dest_file)
+        if os.path.isfile(dest_file) and os.path.getmtime(dest_file) > latest:
+            log.debug(u'JS translation for "{}" is up to date'.format(lang))
+        else:
+            log.debug(u'Generating JS translation for "{}"'.format(lang))
+            _build_js_translation(lang, po_files, js_entries, dest_file)
