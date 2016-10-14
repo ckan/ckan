@@ -61,7 +61,7 @@ Example:
       {% block resources %}
         {% if package.resources and not hide_resources %}
           {% block resources_outer %}
-            <ul class="dataset-resources unstyled">
+            <ul class="dataset-resources list-unstyled">
               {% block resources_inner %}
                 {% for resource in h.dict_list_reduce(package.resources, 'format') %}
                 <li>
