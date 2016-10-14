@@ -2,7 +2,7 @@
 
 .account-masthead {
   .clearfix();
-  min-height: 30px;
+  padding: 5px 0;
   color: @mastheadTextColor;
   background: darken(@mastheadBackgroundColor, 10%) url("@{bgPath}");
   .account {
@@ -78,12 +78,17 @@
         }
       }
     }
+    .list-unstyled{
+        margin-bottom: 0;
+    }
   }
 }
 
 .masthead {
   .clearfix();
-  min-height: 55px;
+  /*min-height: 55px;*/
+  padding: 10px 0;
+  margin-bottom: 0;
   color: @mastheadTextColor;
   background: @mastheadBackgroundColor url("@{bgPath}");
 
@@ -132,6 +137,7 @@
   }
 
   .navigation {
+      display: inline-block;
     margin-right: 20px;
     .nav-pills {
       margin-bottom: 0;

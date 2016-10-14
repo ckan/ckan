@@ -29,10 +29,10 @@
         <td>
           {% set locale = h.dump_json({'content': _('Are you sure you want to delete this member?')}) %}
           <div class="btn-group pull-right">
-            <a class="btn btn-small" href="{% url_for controller='group', action='member_new', id=c.group_dict.id, user=user_id %}" title="{{ _('Edit') }}">
+            <a class="btn btn-sm" href="{% url_for controller='group', action='member_new', id=c.group_dict.id, user=user_id %}" title="{{ _('Edit') }}">
               <i class="icon-wrench"></i>
             </a>
-            <a class="btn btn-danger btn-small" href="{% url_for controller='group', action='member_delete', id=c.group_dict.id, user=user_id %}" data-module="confirm-action" data-module-i18n="{{ locale }}" title="{{ _('Delete') }}">{% block delete_button_text %}<i class="icon-remove"></i>{% endblock %}</a>
+            <a class="btn btn-danger btn-sm" href="{% url_for controller='group', action='member_delete', id=c.group_dict.id, user=user_id %}" data-module="confirm-action" data-module-i18n="{{ locale }}" title="{{ _('Delete') }}">{% block delete_button_text %}<i class="icon-remove"></i>{% endblock %}</a>
           </div>
         </td>
       </tr>
