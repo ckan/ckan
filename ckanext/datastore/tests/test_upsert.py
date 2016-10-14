@@ -10,8 +10,8 @@ import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
-import ckan.tests.helpers as helpers
-import ckan.tests.factories as factories
+import ckan.new_tests.helpers as helpers
+import ckan.new_tests.factories as factories
 
 
 import ckanext.datastore.db as db
