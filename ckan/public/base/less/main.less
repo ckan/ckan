@@ -1,60 +1,59 @@
-
-// Bootstrap imports
-
-// CSS Reset
-@import "../vendor/bootstrap/less/reset.less";
+/*!
+ * Bootstrap v3.3.7 (http://getbootstrap.com)
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
 
 // Core variables and mixins
-@import "../vendor/bootstrap/less/variables.less"; // Modify this for custom colors, font-sizes, etc
-@import "../vendor/bootstrap/less/mixins.less";
+@import "../vendor/bootstrap-3/less/variables.less";
+@import "../vendor/bootstrap-3/less/mixins.less";
 
-// Grid system and page structure
-@import "../vendor/bootstrap/less/scaffolding.less";
-@import "../vendor/bootstrap/less/grid.less";
-@import "../vendor/bootstrap/less/layouts.less";
+// Reset and dependencies
+@import "../vendor/bootstrap-3/less/normalize.less";
+@import "../vendor/bootstrap-3/less/print.less";
+@import "../vendor/bootstrap-3/less/glyphicons.less";
 
-// Base CSS
-@import "../vendor/bootstrap/less/type.less";
-@import "../vendor/bootstrap/less/code.less";
-@import "../vendor/bootstrap/less/forms.less";
-@import "../vendor/bootstrap/less/tables.less";
+// Core CSS
+@import "../vendor/bootstrap-3/less/scaffolding.less";
+@import "../vendor/bootstrap-3/less/type.less";
+@import "../vendor/bootstrap-3/less/code.less";
+@import "../vendor/bootstrap-3/less/grid.less";
+@import "../vendor/bootstrap-3/less/tables.less";
+@import "../vendor/bootstrap-3/less/forms.less";
+@import "../vendor/bootstrap-3/less/buttons.less";
 
-// Components: common
-// @import "../vendor/bootstrap/less/sprites.less"; // Replaced by font-awesome.less
-@import "../vendor/bootstrap/less/dropdowns.less";
-@import "../vendor/bootstrap/less/wells.less";
-@import "../vendor/bootstrap/less/component-animations.less";
-@import "../vendor/bootstrap/less/close.less";
+// Components
+@import "../vendor/bootstrap-3/less/component-animations.less";
+@import "../vendor/bootstrap-3/less/dropdowns.less";
+@import "../vendor/bootstrap-3/less/button-groups.less";
+@import "../vendor/bootstrap-3/less/input-groups.less";
+@import "../vendor/bootstrap-3/less/navs.less";
+@import "../vendor/bootstrap-3/less/navbar.less";
+@import "../vendor/bootstrap-3/less/breadcrumbs.less";
+@import "../vendor/bootstrap-3/less/pagination.less";
+@import "../vendor/bootstrap-3/less/pager.less";
+@import "../vendor/bootstrap-3/less/labels.less";
+@import "../vendor/bootstrap-3/less/badges.less";
+@import "../vendor/bootstrap-3/less/jumbotron.less";
+@import "../vendor/bootstrap-3/less/thumbnails.less";
+@import "../vendor/bootstrap-3/less/alerts.less";
+@import "../vendor/bootstrap-3/less/progress-bars.less";
+@import "../vendor/bootstrap-3/less/media.less";
+@import "../vendor/bootstrap-3/less/list-group.less";
+@import "../vendor/bootstrap-3/less/panels.less";
+@import "../vendor/bootstrap-3/less/responsive-embed.less";
+@import "../vendor/bootstrap-3/less/wells.less";
+@import "../vendor/bootstrap-3/less/close.less";
 
-// Components: Buttons & Alerts
-@import "../vendor/bootstrap/less/buttons.less";
-@import "../vendor/bootstrap/less/button-groups.less";
-@import "../vendor/bootstrap/less/alerts.less"; // Note: alerts share common CSS with buttons and thus have styles in buttons.less
-
-// Components: Nav
-@import "../vendor/bootstrap/less/navs.less";
-@import "../vendor/bootstrap/less/navbar.less";
-@import "../vendor/bootstrap/less/breadcrumbs.less";
-@import "../vendor/bootstrap/less/pagination.less";
-@import "../vendor/bootstrap/less/pager.less";
-
-// Components: Popovers
-@import "../vendor/bootstrap/less/modals.less";
-@import "../vendor/bootstrap/less/tooltip.less";
-
-// Components: Misc
-@import "../vendor/bootstrap/less/thumbnails.less";
-@import "../vendor/bootstrap/less/labels-badges.less";
-@import "../vendor/bootstrap/less/progress-bars.less";
-@import "../vendor/bootstrap/less/accordion.less";
-@import "../vendor/bootstrap/less/carousel.less";
-@import "../vendor/bootstrap/less/hero-unit.less";
-@import "../vendor/bootstrap/less/popovers.less";
+// Components w/ JavaScript
+@import "../vendor/bootstrap-3/less/modals.less";
+@import "../vendor/bootstrap-3/less/tooltip.less";
+@import "../vendor/bootstrap-3/less/popovers.less";
+@import "../vendor/bootstrap-3/less/carousel.less";
 
 // Utility classes
-@import "../vendor/bootstrap/less/utilities.less"; // Has to be last to override when necessary
-
-@import "../vendor/bootstrap/less/responsive.less";
+@import "../vendor/bootstrap-3/less/utilities.less";
+@import "../vendor/bootstrap-3/less/responsive-utilities.less";
 
 // CKAN
 @import "ckan.less";
