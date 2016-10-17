@@ -38,7 +38,7 @@
 .toolbar .breadcrumb a {
   color: @breadcrumbTextColor;
 }
-@media (max-width: 767px) {
+@media (max-width: @screen-xs-max) {
   .toolbar .breadcrumb {
     color:#fff;
     text-shadow:none;
@@ -111,12 +111,12 @@
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: @screen-sm-min) {
   .col-md-9 .page-header {
     margin-left:-17px;
   }
 }
-@media (max-width: 768px) {
+@media (max-width: @screen-xs-max) {
   .page-header .nav-tabs {
     margin:5px 10px 10px -5px;
     border:none;

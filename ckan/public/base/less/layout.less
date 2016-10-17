@@ -9,7 +9,7 @@
   position: relative;
   padding-bottom: @jumbotron-padding/2;
 }
-@media (min-width: 768px) {
+@media (min-width: @screen-sm-min) {
   [role=main], .main {
     padding-top: 10px;
     background: @layoutBackgroundColor url("@{bgPath}");
@@ -37,7 +37,7 @@
 .hide-filters {
   display:none;
 }
-@media (max-width: 768px) {
+@media (max-width: @screen-xs-max) {
   .wrapper {
     border-width: 0;
     .box-shadow(0);
@@ -109,7 +109,7 @@
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: @screen-sm-min) {
   .hero {
     background: url("@{imagePath}/background-tile.png");
   }
