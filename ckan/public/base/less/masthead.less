@@ -2,7 +2,7 @@
 
 .account-masthead {
   .clearfix();
-  padding: 5px 0;
+  padding: @grid-gutter-width/6 0;
   color: @mastheadTextColor;
   background: darken(@mastheadBackgroundColor, 10%) url("@{bgPath}");
   .account {
@@ -87,7 +87,7 @@
 .masthead {
   .clearfix();
   /*min-height: 55px;*/
-  padding: 10px 0;
+  padding: @grid-gutter-width/3 0;
   margin-bottom: 0;
   color: @mastheadTextColor;
   background: @mastheadBackgroundColor url("@{bgPath}");
@@ -199,10 +199,10 @@
 
 @media (max-width: 767px) {
   .account-masthead {
-    margin-left:-20px;
-    margin-right:-20px;
-    padding-left:20px;
-    padding-right:20px;
+    margin-left: -@grid-gutter-width;
+    margin-right: -@grid-gutter-width;
+    padding-left: @grid-gutter-width;
+    padding-right: @grid-gutter-width;
   }
   .masthead .section {
     float: none;
@@ -214,8 +214,8 @@
 @media (max-width: 979px) {
   .masthead {
     .container {
-      padding-left:20px;
-      padding-right:20px;
+      padding-left: @grid-gutter-width;
+      padding-right: @grid-gutter-width;
     }
     .site-search {
       display:none;
