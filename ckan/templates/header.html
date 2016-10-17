@@ -73,10 +73,9 @@
     {% endblock %}
     <div class="container">
         <div class="navbar-header">
-            <button data-target=".navbar-collapse" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar_collapse" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <i class="icon-reorder"></i>
             </button>
             {# The .header-image class hides the main text and uses image replacement for the title #}
             <div class="{{ g.header_class }}">
@@ -94,7 +93,7 @@
 
             </div>
         </div>
-        <div class="navbar-collapse collapse navbar-right">
+        <div class="navbar-collapse collapse navbar-right" id="navbar_collapse">
 
             {% block header_site_navigation %}
             <nav class="navigation">
