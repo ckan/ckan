@@ -18,7 +18,7 @@ Examples:
   {{ form.input('title', label=_('Title'), value=data.title, error=errors.title) }}
 
 #}
-{% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={}, is_required=false) %}
+{% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={'class':'form-control'}, is_required=false) %}
   {%- set extra_html = caller() if caller -%}
 
   {% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %}
@@ -122,7 +122,7 @@ Examples:
 
   {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes, control_classes=["editor"], extra_html=extra_html, is_required=is_required) %}
-    <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
+    <textarea class="form-control" id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
     <span class="editor-info-block">{% trans %}You can use <a href="#markdown" title="Markdown quick reference" data-target="popover" data-content="{{ markdown_tooltip }}" data-html="true">Markdown formatting</a> here{% endtrans %}</span>
   {% endcall %}
 {% endmacro %}
@@ -152,7 +152,7 @@ Examples:
 
   {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %}
-    <textarea id="{{ id or name }}" name="{{ name }}" cols="{{ cols }}" rows="{{ rows }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
+    <textarea class="form-control" id="{{ id or name }}" name="{{ name }}" cols="{{ cols }}" rows="{{ rows }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
   {% endcall %}
 {% endmacro %}
 
@@ -231,9 +231,11 @@ Examples:
       <label for="{{ label_id }}" class="add-on">Key</label><input id="{{ id or names[0] }}-key" type="text" name="{{ names[0] }}" value="{{ values[0] | empty_and_escape }}" placeholder="{{ placeholders[0] }}" />
       <label for="{{ id or names[1] }}-value" class="add-on">Value</label><input id="{{ id or names[1] }}-value" type="text" name="{{ names[1] }}" value="{{ values[1] | empty_and_escape }}" placeholder="{{ placeholders[1] }}" />
       {% if values[0] or values[1] or error %}
-        <label class="checkbox" for="{{ id or names[2] }}-remove">
+      <div class="checkbox">
+        <label for="{{ id or names[2] }}-remove">
           <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} /> <span>{{ _('Remove') }}</span>
         </label>
+      </div>
       {% endif %}
     </div>
   {% endcall %}
@@ -256,7 +258,7 @@ Example:
 
   {% import 'macros/form.html' as form %}
   {% call form.input_block("field", "My Field") %}
-    <input id="field" type="text" name="{{ name }}" value="{{ value | empty_and_escape }}" />
+    <input id="field" class="form-control" type="text" name="{{ name }}" value="{{ value | empty_and_escape }}" />
   {% endcall %}
 
 #}

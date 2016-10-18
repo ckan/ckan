@@ -9,7 +9,7 @@
 <form {% if form_id %}id="{{ form_id }}" {% endif %}class="search-form{% if no_bottom_border %} no-bottom-border{% endif %}" method="get" data-module="select-switch">
 
   {% block search_input %}
-    <div class="search-input control-group {{ search_class }}">
+    <div class="search-input form-group {{ search_class }}">
       <input type="text" class="search form-control" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
       {% block search_input_button %}
       <button type="submit" value="search">
@@ -28,7 +28,7 @@
 
   {% block search_sortby %}
     {% if sorting %}
-      <div class="form-select control-group control-order-by">
+      <div class="form-select form-group control-order-by">
         <label for="field-order-by">{{ _('Order by') }}</label>
         <select id="field-order-by" name="sort">
           {% for label, value in sorting %}

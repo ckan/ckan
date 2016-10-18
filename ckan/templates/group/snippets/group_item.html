@@ -5,16 +5,16 @@ group - A group dict.
 
 Example:
 
-    <ul class="media-grid">
+    <div class="media-grid">
       {% for group in groups %}
         {% snippet "group/snippets/group_item.html", group=group %}
       {% endfor %}
-    </ul>
+    </div>
 #}
 {% set type = group.type or 'group' %}
 {% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
 {% block item %}
-<li class="media-item">
+<div class="media-item">
   {% block item_inner %}
   {% block image %}
     <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image">
@@ -43,7 +43,7 @@ Example:
     <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm media-edit" title="{{ _('Remove dataset from this group') }}"/>
   {% endif %}
   {% endblock %}
-</li>
+</div>
 {% endblock %}
 {% if position is divisibleby 3 %}
   <li class="clearfix js-hide"></li>
