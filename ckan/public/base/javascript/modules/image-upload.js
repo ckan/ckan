@@ -35,15 +35,15 @@ this.ckan.module('image-upload', function($, _) {
       var field_clear = 'input[name="' + options.field_clear + '"]';
 
       this.input = $(field_upload, this.el);
-      this.field_url = $(field_url, this.el).parents('.control-group');
-      this.field_image = this.input.parents('.control-group');
+      this.field_url = $(field_url, this.el).parents('.form-group');
+      this.field_image = this.input.parents('.form-group');
       this.field_url_input = $('input', this.field_url);
 
       // Is there a clear checkbox on the form already?
       var checkbox = $(field_clear, this.el);
       if (checkbox.length > 0) {
         options.is_upload = true;
-        checkbox.parents('.control-group').remove();
+        checkbox.parents('.form-group').remove();
       }
 
       // Adds the hidden clear input to the form
