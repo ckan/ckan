@@ -1,14 +1,14 @@
 {% import 'macros/form.html' as form %}
 
 {% block package_basic_fields_title %}
-  {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large'], attrs={'data-module': 'slug-preview-target'}) }}
+  {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large'], attrs={'data-module': 'slug-preview-target', 'class': 'form-control'}) }}
 {% endblock %}
 
 {% block package_basic_fields_url %}
   {% set prefix = h.url_for(controller='package', action='read', id='') %}
   {% set domain = h.url_for(controller='package', action='read', id='', qualified=true) %}
   {% set domain = domain|replace("http://", "")|replace("https://", "") %}
-  {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>'} %}
+  {% set attrs = {'data-module': 'slug-preview-slug', 'class': 'form-control', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>'} %}
 
   {{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_('eg. my-dataset'), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
 {% endblock %}
@@ -16,7 +16,7 @@
 {% block package_basic_fields_custom %}{% endblock %}
 
 {% block package_basic_fields_description %}
-  {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes) }}
+  {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), attrs={'class': 'form-control'}, value=data.notes, error=errors.notes) }}
 {% endblock %}
 
 {% block package_basic_fields_tags %}
@@ -69,7 +69,7 @@
     <div class="control-group">
       <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
       <div class="controls">
-        <select id="field-organizations" name="owner_org" data-module="autocomplete">
+        <select id="field-organizations" class="form-control" name="owner_org" data-module="autocomplete">
           {% if h.check_config_permission('create_unowned_dataset') %}
              <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('No organization') }}</option>
           {% endif %}
@@ -88,7 +88,7 @@
       <div class="control-group">
         <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
         <div class="controls">
-          <select id="field-private" name="private">
+            <select id="field-private" class="form-control" name="private">
             {% for option in [('True', _('Private')), ('False', _('Public'))] %}
             <option value="{{ option[0] }}" {% if option[0] == data.private|trim %}selected="selected"{% endif %}>{{ option[1] }}</option>
             {% endfor %}
@@ -107,7 +107,7 @@
     <div class="control-group">
       <label for="field-state" class="control-label">{{ _('State') }}</label>
       <div class="controls">
-        <select id="field-state" name="state">
+        <select id="field-state" class="form-control" name="state">
           <option value="active" {% if data.get('state', 'none') == 'active' %} selected="selected" {% endif %}>{{ _('Active') }}</option>
           <option value="deleted" {% if data.get('state', 'none') == 'deleted' %} selected="selected" {% endif %}>{{ _('Deleted') }}</option>
         </select>
