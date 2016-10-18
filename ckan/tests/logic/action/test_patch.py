@@ -97,3 +97,27 @@ class TestPatch(helpers.FunctionalTestBase):
 
         assert_equals(organization2['name'], 'economy')
         assert_equals(organization2['description'], 'somethingnew')
+
+        
+    def test_user_patch_updating_single_field(self):
+        user = factories.User()
+        user_test = factories.User(
+            name='issacasimov',
+            about='some test now',
+            user=user)
+
+        user_test = helpers.call_action(
+            'user_patch',
+            id=user_test['id'],
+            about='somethingnew',
+            context={'user': user['name']})
+
+        assert_equals(user_test['name'], 'issacasimov')
+        assert_equals(user_test['description'], 'somethingnew')
+
+        user_test2 = helpers.call_action(
+            'user_show',
+            id=userTest['id'])
+
+        assert_equals(user_test2['name'], 'economy')
+        assert_equals(user_test2['description'], 'somethingnew')
