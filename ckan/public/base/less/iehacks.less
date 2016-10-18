@@ -17,7 +17,7 @@
   }
 
   .group-listing {
-    margin-left: -24px; // Include border around items.
+    margin-left: -(@grid-gutter-width - 6); // Include border around items.
   }
 
   .toolbar .breadcrumb {
@@ -65,14 +65,14 @@
     float:right;
   }
   [role=main], .main {
-    padding-top: 10px;
+    padding-top: @grid-gutter-width/3;
     background: @layoutBackgroundColor url("@{bgPath}");
   }
   // Homepage
   .hero {
     background: url("@{imagePath}/background-tile.png");
     .hero-primary.module-popup .box {
-      padding-bottom: 20px !important;
+      padding-bottom: (@grid-gutter-width - 10) !important;
       margin-bottom: 0 !important;
     }
   }
@@ -125,7 +125,7 @@
       width: 95%;
     }
     &.control-large .controls input {
-      padding-bottom: 20px;
+      padding-bottom: @grid-gutter-width - 10;
     }
   }
   .controls {
@@ -153,7 +153,7 @@
       span {
         display: block;
         height: 30px;
-        padding-left: 20px;
+        padding-left: @grid-gutter-width - 10;
       }
       button {
         height: 50px;
@@ -195,8 +195,8 @@
 
   // Toolbar
   .toolbar .breadcrumb li {
-    padding-right: 10px;
-    margin-right: 5px;
+    padding-right: @grid-gutter-width/3;
+    margin-right: @grid-gutter-width/6;
     background: transparent url("@{imagePath}/breadcrumb-slash-ie7.png") 100% 50% no-repeat;
     &.active {
       background-image: none;

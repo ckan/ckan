@@ -22,13 +22,13 @@
 
 .dashboard-context {
   position: relative;
-  margin-bottom: 20px;
-  padding: 20px;
+  margin-bottom: @grid-gutter-width - 10;
+  padding: @grid-gutter-width - 10;
   border-bottom: 1px solid #DCDCDC;
   background-color: @moduleHeadingBackgroundColor;
   .border-radius(3px 0 0 0);
   h2 {
-    margin-bottom: 10px;
+    margin-bottom: @grid-gutter-width/3;
   }
   .arrow {
     position: absolute;
@@ -96,7 +96,7 @@
         i {
           background-color: @layoutLinkColor;
           color: @inputBackground;
-          margin-right: 11px;
+          margin-right: @grid-gutter-width/3;
           padding: 3px 5px;
           line-height: 1;
           .border-radius(100px);
@@ -119,7 +119,7 @@
   padding: 15px 15px 0 15px;
   img {
     float: left;
-    margin-right: 10px;
+    margin-right: @grid-gutter-width/3;
     .border-radius(100px);
   }
   strong {

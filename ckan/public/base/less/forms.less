@@ -13,8 +13,8 @@ label {
 
 .btn-rounded {
   .border-radius(100px);
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: @grid-gutter-width/2;
+  padding-right: @grid-gutter-width/2;
 }
 
 label {
@@ -94,7 +94,7 @@ textarea {
 
 .form-actions .control-required-message {
   float: left;
-  margin-left: 20px;
+  margin-left: @grid-gutter-width - 10;
   margin-bottom: 0;
   line-height: 30px;
   &:first-child {
@@ -135,7 +135,7 @@ textarea {
 
 @media (max-width: @screen-xs-max) {
   .form-actions .btn {
-    margin-top:5px;
+    margin-top: @grid-gutter-width/6;
   }
 }
 
@@ -165,7 +165,7 @@ textarea {
   }
 }
 .form-horizontal .info-help-tight {
-  margin-top: -10px;
+  margin-top: -(@grid-gutter-width/3);
 }
 
 @media (min-width: @screen-md-min) {
@@ -223,7 +223,7 @@ textarea {
 }
 
 .form-inline .btn {
-  margin-left: 5px;
+  margin-left: @grid-gutter-width/6;
 }
 
 // Form Narrow
@@ -245,7 +245,7 @@ textarea {
 // Inline Select Forms
 
 .form-select label {
-  margin-right: 5px;
+  margin-right: @grid-gutter-width/6;
 }
 
 // Single Field Inputs
@@ -278,7 +278,7 @@ textarea {
   padding: 0;
   top: 50%;
   right: 0;
-  margin-top: -10px;
+  margin-top: -(@grid-gutter-width/3);
   background-color: transparent;
   border: none;
   color: #999;
@@ -355,7 +355,7 @@ textarea {
 
 .control-custom .checkbox {
   display: inline-block;
-  margin-left: 5px;
+  margin-left: @grid-gutter-width/6;
 }
 
 .control-custom .checkbox input {
@@ -498,7 +498,7 @@ textarea {
   display: inline-block;
   width: 27px;
   height: 27px;
-  margin-right: 5px;
+  margin-right: @grid-gutter-width/6;
   font-weight: bold;
   text-align: center;
   color: @stagesCounterTextColor;
@@ -518,8 +518,8 @@ textarea {
   border-bottom-color: @stagesBackground;
   border-width: 29px; // Needs to be an odd number
   top: 50%;
-  margin-top: -29px;
-  margin-left: -30px;
+  margin-top: -(@grid-gutter-width - 1);
+  margin-left: -@grid-gutter-width;
 }
 
 .stages li.last {
@@ -610,8 +610,8 @@ textarea {
 .slug-preview {
   font-size: 14px;
   line-height: 1.5;
-  margin-top: 5px;
-  margin-left: 10px;
+  margin-top: @grid-gutter-width/6;
+  margin-left: @grid-gutter-width/3;
 }
 
 .slug-preview-value {
@@ -649,7 +649,7 @@ textarea {
 .resource-upload-field.loading {
   display: inline-block;
   background: url("@{imagePath}/loading-spinner.gif") no-repeat center right;
-  padding-right: 5px;
+  padding-right: @grid-gutter-width/6;
 }
 
 // Select2
@@ -666,7 +666,7 @@ textarea {
 .select2-container .select2-choice input,
 .select2-container-multi .select2-choices .select2-search-field:first-child input {
   // Only apply if there are no other tags (ie. is the first child)
-  padding-left: 10px;
+  padding-left: @grid-gutter-width/3;
 }
 
 .select2-container {
@@ -736,7 +736,7 @@ textarea {
 
 .js .image-upload {
   #field-image-url {
-    padding-right: 29px;
+    padding-right: @grid-gutter-width - 1;
   }
   #field-image-upload {
     cursor: pointer;
@@ -750,7 +750,7 @@ textarea {
   .btn {
     position: relative;
     top: 0;
-    margin-right: 10px;
+    margin-right: @grid-gutter-width/3;
     &.hover {
       color: @grayDark;
       text-decoration: none;

@@ -1,12 +1,12 @@
 .toolbar {
   .clearfix;
   position: relative;
-  margin-bottom: 10px;
-  padding: 5px 0;
+  margin-bottom: @grid-gutter-width/3;
+  padding: @grid-gutter-width/6 0;
 }
 
 .page_primary_action {
-  margin-bottom: 20px;
+  margin-bottom: @grid-gutter-width - 10;
 }
 
 .toolbar .breadcrumb {
@@ -67,7 +67,7 @@
 
 .actions li {
   display: inline-block;
-  margin-right: 5px;
+  margin-right: @grid-gutter-width/6;
   /*.ie7-inline-block;*/
 }
 
@@ -94,7 +94,7 @@
   }
   .content_action {
     float: right;
-    margin-top: -5px;
+    margin-top: -(@grid-gutter-width/6);
     margin-right: -7px;
   }
 }

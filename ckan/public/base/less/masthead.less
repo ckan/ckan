@@ -139,7 +139,7 @@
 
     .navigation {
         display: inline-block;
-        margin-right: 20px;
+        margin-right: @grid-gutter-width - 10;
         .nav-pills {
             li {
                 a:hover,
@@ -160,7 +160,7 @@
     }
 
     .site-search {
-        margin-right: -5px;
+        margin-right: -(@grid-gutter-width/6);
         input {
             width: 200px;
         }
@@ -178,7 +178,7 @@
         border:none;
         .box-shadow(none);
         text-shadow: none;
-        margin-top:15px;
+        margin-top: @grid-gutter-width/2;
         .icon-bar {
             margin-right:0;
         }

@@ -18,15 +18,15 @@
 .media-grid {
   .unstyled;
   .clearfix;
-  margin: 0 -25px;
-  padding-bottom: 15px;
+  margin: 0 -(@grid-gutter-width - 5);
+  padding-bottom: @grid-gutter-width/2;
   background: lighten(@layoutBackgroundColor, 5%) url("@{bgPath}");
   border: 1px solid @moduleHeadingBorderColor;
   border-width: 1px 0;
 }
 @media (min-width: @screen-sm-min) {
   .media-grid {
-    margin-left:-27px;
+    margin-left:-(@grid-gutter-width - 3);
   }
 }
 
@@ -34,15 +34,15 @@
   position: relative;
   float: left;
   width: 189px;
-  padding: 15px;
-  margin: 15px 0 0 15px;
+  padding: @grid-gutter-width/2;
+  margin: @grid-gutter-width/2 0 0 @grid-gutter-width/2;
   background-color: white;
   .border-radius(3px);
   span.count {
     color: #999;
   }
   .media-image {
-    margin-bottom: 5px;
+    margin-bottom: @grid-gutter-width/6;
   }
   .media-edit {
     opacity: 0;
@@ -136,7 +136,7 @@
     opacity: 0;
   }
   &:hover {
-    padding-bottom: 35px;
+    padding-bottom: @grid-gutter-width + 5;
     .truncator-link {
       opacity: 1;
     }

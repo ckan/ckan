@@ -1,7 +1,7 @@
 .dataset-item {
   border-bottom: 1px dotted @genericBorderColor;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+  padding-bottom: @grid-gutter-width - 10;
+  margin-bottom: @grid-gutter-width - 10;
 }
 @media (max-width: @screen-xs-max) {
   .dataset-item {
@@ -32,7 +32,7 @@
 }
 
 .dataset-private {
-  margin-right: 10px;
+  margin-right: @grid-gutter-width/3;
   text-transform: uppercase;
   .icon-lock {
     width: 9px;
@@ -107,7 +107,7 @@
 .resource-list.reordering {
   .resource-item {
     border: 1px solid @moduleHeadingBorderColor;
-    margin-bottom: 10px;
+    margin-bottom: @grid-gutter-width/3;
     cursor: move;
     .handle {
       display: block;
@@ -115,7 +115,7 @@
       color: @moduleHeadingActionTextColor;
       left: -31px;
       top: 50%;
-      margin-top: -15px;
+      margin-top: -(@grid-gutter-width/2);
       width: 30px;
       height: 30px;
       line-height: 30px;
@@ -157,7 +157,7 @@
 
 .tag-list li {
   display: inline-block;
-  margin-right: 5px;
+  margin-right: @grid-gutter-width/6;
 }
 
 .tag-list li:last-child {
@@ -231,7 +231,7 @@
   .unstyled;
   li {
     position: relative;
-    margin-bottom: 10px;
+    margin-bottom: @grid-gutter-width/3;
     a {
       display: block;
       min-height: 50px;
@@ -244,7 +244,7 @@
         width: 50px;
         height: 50px;
         overflow: hidden;
-        margin-right: 10px;
+        margin-right: @grid-gutter-width/3;
         color: @layoutTextColor;
         background-color: @layoutBackgroundColor;
         .border-radius(3px);
@@ -310,7 +310,7 @@
     li {
       display: inline-block;
       width: 250px;
-      margin-right: 10px;
+      margin-right: @grid-gutter-width/3;
       &:last-child {
         margin-right: 0;
       }
@@ -336,5 +336,5 @@
 }
 
 .resource-view {
-  margin-top: 20px;
+  margin-top: @grid-gutter-width - 10;
 }

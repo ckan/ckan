@@ -11,7 +11,7 @@
 }
 @media (min-width: @screen-sm-min) {
   [role=main], .main {
-    padding-top: 10px;
+    padding-top: @grid-gutter-width/3;
     background: @layoutBackgroundColor url("@{bgPath}");
   }
 }
@@ -95,7 +95,7 @@
     float: left;
     width: 467px;
     margin-left: 0;
-    margin-bottom: 20px;
+    margin-bottom: @grid-gutter-width - 10;
     h1, h2, h3, h4 {
       &:first-child {
         margin-top: 0;
@@ -105,8 +105,8 @@
   .tertiary {
     float: left;
     width: 180px;
-    margin-left: 18px;
-    margin-bottom: 20px;
+    margin-left: @grid-gutter-width - 12;
+    margin-bottom: @grid-gutter-width - 10;
   }
 }
 
@@ -134,10 +134,10 @@
 
 .context-info {
   .module-content {
-    padding: 15px;
+    padding: @grid-gutter-width/2;
   }
   .image {
-    margin-bottom: 10px;
+    margin-bottom: @grid-gutter-width/3;
     img,
     a {
       display: block;
@@ -161,8 +161,8 @@
     .break-word();
   }
   .info {
-    margin-top: 15px;
-    padding-top: 10px;
+    margin-top: @grid-gutter-width/2;
+    padding-top: @grid-gutter-width - 10;
     border-top: 1px dotted #DDD;
     word-break: break-word;
     dl dd {
@@ -172,8 +172,8 @@
   }
   .nums {
     .clearfix;
-    margin-top: 15px;
-    padding-top: 10px;
+    margin-top: @grid-gutter-width/2;
+    padding-top: @grid-gutter-width/3;
     padding-bottom: 0;
     border-top: 1px dotted #DDD;
     dl {
@@ -205,7 +205,7 @@
     }
   }
   .follow_button {
-    margin-top: 15px;
+    margin-top: @grid-gutter-width/2;
   }
   &.editing {
     .module-heading {

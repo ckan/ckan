@@ -20,7 +20,7 @@
 			color: @activityColorText;
 			text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 			font-weight: normal;
-			margin-right: 10px;
+			margin-right: @grid-gutter-width/3;
 			.border-radius(100px);
 			.box-shadow(inset 0 1px 2px rgba(0, 0, 0, 0.2));
 		}
@@ -57,11 +57,11 @@
 			.box-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 		}
 		&.no-avatar p {
-			margin-left: 40px;
+			margin-left: @grid-gutter-width + 10;
 		}
 	}
 	.load-less {
-		margin-bottom: 15px;
+		margin-bottom: @grid-gutter-width/2;
 	}
 }
 
@@ -88,7 +88,7 @@
 			margin: 0;
 			dd {
 				margin-left: 0;
-				margin-bottom: 10px;
+				margin-bottom: @grid-gutter-width/3;
 			}
 		}
 	}

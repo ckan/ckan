@@ -77,8 +77,8 @@ a.tag:hover {
   display: inline-block;
   background-color: @pillBackgroundColor;
   color: @pillTextColor;
-  padding: 2px 10px 1px 10px;
-  margin-right: 5px;
+  padding: 2px @grid-gutter-width/3 1px @grid-gutter-width/3;
+  margin-right: @grid-gutter-width/6;
   font-weight: normal;
   .border-radius(100px);
   a {
@@ -129,7 +129,7 @@ a.tag:hover {
   //overflow: hidden;
   //white-space: nowrap;
   //text-overflow: ellipsis;
-  margin-bottom: 5px;
+  margin-bottom: @grid-gutter-width/6;
 }
 
 .listing .key,

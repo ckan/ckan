@@ -19,7 +19,7 @@
 }
 @media (min-width: @screen-sm-min) {
   .col-md-9 div.module-content {
-    padding-left:10px;
+    padding-left: @grid-gutter-width/3;
   }
 }
 
@@ -43,7 +43,7 @@
 }
 
 .module:last-child {
-  margin-bottom: 20px;
+  margin-bottom: @grid-gutter-width - 10;
 }
 
 .module-footer {
@@ -64,9 +64,9 @@
 }
 
 .module-content .pagination {
-  margin-left: -25px;
-  margin-right: -25px;
-  margin-bottom: -20px;
+  margin-left: -(@grid-gutter-width - 5);
+  margin-right: -(@grid-gutter-width - 5);
+  margin-bottom: -(@grid-gutter-width - 10);
 }
 
 .module .pagination > ul {
@@ -102,18 +102,18 @@
 
 .module-content-shallow {
   padding: 0;
-  margin-top: 10px;
-  padding-bottom: 10px;
+  margin-top: @grid-gutter-width/3;
+  padding-bottom: @grid-gutter-width/3;
 }
 
 .module h1 {
-  margin-bottom: 20px;
+  margin-bottom: @grid-gutter-width - 10;
 }
 
 // Module Shallow
 
 .module-shallow .module-content {
-  padding: 10px;
+  padding: @grid-gutter-width/3;
   margin: 0;
 }
 
@@ -123,11 +123,11 @@
 }
 
 .module-shallow .module-content:first-child {
-  padding-top: 10px;
+  padding-top: @grid-gutter-width/3;
 }
 
 .module-shallow .module-content:last-child {
-  padding-bottom: 10px;
+  padding-bottom: @grid-gutter-width/3;
 }
 
 // Secondary column specific
@@ -152,9 +152,9 @@
 .module-item {
   .media-item;
   .make-md-column(6);
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-right: 50px;
+  padding-top: @grid-gutter-width/3;
+  padding-bottom: @grid-gutter-width/3;
+  padding-right: @grid-gutter-width + 20;
   overflow: hidden;
   position: relative;
 }
@@ -176,7 +176,7 @@
 }
 
 .group-listing {
-  margin-left: -20px; // Same as .row
+  margin-left: -(@grid-gutter-width - 10); // Same as .row
 }
 
 // PREVIEW
@@ -185,7 +185,7 @@
   position: relative;
   clear: both;
 
-  padding-top: 15px;
+  padding-top: @grid-gutter-width/2;
   margin-top: 0;
 
   & > iframe {
@@ -200,7 +200,7 @@
 
 .package-info {
   h4 {
-    margin-bottom: 10px;
+    margin-bottom: @grid-gutter-width/3;
   }
 }
 
@@ -239,7 +239,7 @@
   height: 50px;
   line-height: 50px;
   text-align: center;
-  margin-right: 15px;
+  margin-right: @grid-gutter-width/2;
   img {
     max-width: 50px;
     max-height: 50px;
