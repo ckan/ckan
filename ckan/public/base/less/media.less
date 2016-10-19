@@ -6,8 +6,8 @@
     top: 15px;
     right: -35px;
     width: 80px;
-    color: @bannerTextColor;
-    background-color: @bannerBackgroundColor;
+    color: @body-bg;
+    background-color: @masthead-bg;
     padding: 1px 20px;
     font-size: 11px;
     text-align: center;
@@ -24,8 +24,8 @@
     padding-bottom: @grid-gutter-width/2;
 
     .unstyled;
-    background: lighten(@layoutBackgroundColor, 5%) url("@{bgPath}");
-    border: 1px solid @moduleHeadingBorderColor;
+    background: lighten(@gray-lighter, 5%) url("@{background-image}");
+    border: 1px solid @panel-default-border;
     border-width: 1px 0;
 }
 
@@ -72,17 +72,17 @@
     left: 0;
     right: 0;
     bottom: 0;
-    border: 1px solid @moduleHeadingBorderColor;
+    border: 1px solid @panel-default-border;
     overflow: hidden;
     .transition(all 0.2s ease-in);
     .border-radius(3px);
     &:hover,
         &.hovered {
         cursor: pointer;
-        border-color: @mastheadBackgroundColor;
+        border-color: @masthead-bg;
         .box-shadow(0 0 0 4px rgba(0, 0, 0, 0.1));
         .banner {
-            background-color: @bannerBackgroundColor;
+            background-color: @masthead-bg;
         }
     }
     span {
@@ -90,7 +90,7 @@
     }
     .banner {
         display: block;
-        background-color: darken(@moduleHeadingBorderColor, 15%);
+        background-color: darken(@panel-default-border, 15%);
         .transition(background-color 0.2s ease-in);
     }
 }

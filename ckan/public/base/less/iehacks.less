@@ -66,11 +66,11 @@
   }
   [role=main], .main {
     padding-top: @grid-gutter-width/3;
-    background: @layoutBackgroundColor url("@{bgPath}");
+    background: @gray-lighter url("@{background-image}");
   }
   // Homepage
   .hero {
-    background: url("@{imagePath}/background-tile.png");
+    background: url("@{image-path}/background-tile.png");
     .hero-primary.module-popup .box {
       padding-bottom: (@grid-gutter-width - 10) !important;
       margin-bottom: 0 !important;
@@ -92,7 +92,7 @@
     .close {
       position: absolute;
       top: 6px !important;
-      right: @gutterSmallY;
+      right: @grid-gutter-width - 10;
     }
   }
   .media-item {
@@ -145,7 +145,7 @@
   }
   .stages {
     overflow: hidden;
-    background-color: @stagesBackground;
+    background-color: @stages-bg;
     li {
       height: 30px;
       width: 27.5%;
@@ -197,7 +197,7 @@
   .toolbar .breadcrumb li {
     padding-right: @grid-gutter-width/3;
     margin-right: @grid-gutter-width/6;
-    background: transparent url("@{imagePath}/breadcrumb-slash-ie7.png") 100% 50% no-repeat;
+    background: transparent url("@{image-path}/breadcrumb-slash-ie7.png") 100% 50% no-repeat;
     &.active {
       background-image: none;
     }

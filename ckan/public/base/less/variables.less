@@ -1,131 +1,53 @@
-// Colors from old Bootstrap
-@black: #000;
-@grayDarker: @gray-darker;
-@grayDark: @gray-dark;
-@grayLight: @gray-light;
-@grayLighter: @gray-lighter;
-@white: #fff;
+/* Images */
+@image-path: "../../../base/images";
+@background-image: "@{image-path}/bg.png";
 
-// Base variables
-@imagePath: "../../../base/images";
-@spritePath: "@{imagePath}/sprite-ckan-icons.png";
-@bgPath: "@{imagePath}/bg.png";
+/* Masthead */
+@masthead-text-color: @body-bg;
+@masthead-link-color: @masthead-text-color;
+@masthead-bg: #005d7a;
+@masthead-bg-start: #005d7a;
+@masthead-bg-end: #00536b;
 
-// Layout Variables
-@layoutFontFamily: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-@layoutTextColor: #444;
-@layoutBoldColor: #000;
-@layoutLinkColor: #187794;
-@layoutBackgroundColor: #eee;
-@layoutTrimBackgroundColor: #fff;
-@layoutTrimBorderColor: #ccc;
+/* Stages */
+@stages-text-color: #aeaeae;
+@stages-bg: #ededed;
+@stages-transparent-bg: rgba(237, 237, 237, 0); // Used for arrows.
+@stages-active-text-color: @body-bg;
+@stages-active-bg: #8cc68a;
+@stages-active-transparent-bg: rgba(140, 198, 138, 0);
+@stages-complete-text-color: #eef6ed;
+@stages-complete-bg: #c5e2c4;
+@stages-complete-transparent-bg: rgba(197, 226, 196, 0);
+@stages-counter-text-color: @body-bg;
+@stages-counter-bg: @stages-text-color;
+@stages-counter-active-text-color: @stages-active-bg;
+@stages-counter-active-bg: @body-bg;
+@stages-counter-complete-text-color: @stages-complete-bg;
+@stages-counter-complete-bg: @stages-complete-text-color;
 
-@navLinkColor: #333;
-@navActiveBackgroundColor: #f6f6f6;
+/* Datasets */
+@resource-format-background: #aaa;
 
-// Module Variables
-@moduleBackgroundColor: #fff;
-@moduleHeadingBorderColor: #ddd;
-@moduleHeadingBackgroundColor: #f6f6f6;
-@moduleHeadingActionTextColor: #888;
-@moduleExpandedBackgroundColor: rgba(255, 255, 255, 0.9);
+/* Table */
+@chunky-table-header-text-color: @body-bg;
+@chunky-table-header-bg: #aaa;
+@chunky-table-stripe-bg: #f2f2f2;
 
-@tabTextColor: #111;
-@tagBackgroundColor: #f6f6f6;
+/* Footer */
+@footer-text-color: #CCDEE3;
+@footer-link-color: @footer-text-color;
 
-@gutterX: @grid-gutter-width - 5;
-@gutterY: @grid-gutter-width - 10;
-@gutterSmallX: @grid-gutter-width/2;
-@gutterSmallY: @gutterY;
+/* Activity Stream base colors */
+@activity-color-text: @body-bg;
+@activity-color-blank: #999999;
+@activity-color-new: #69A67A;
+@activity-color-neutral: #767DCE;
+@activity-color-modify: #767DCE;
+@activity-color-delete: #B95252;
 
-@emptyTextColor: #aaa;
-@genericBorderColor: #ddd;
+/* Other */
+@breadcrumb-text-color: #505050;
 
-@breadcrumbTextColor: #505050;
-
-@mastheadTextColor: #fff;
-@mastheadLinkColor: @mastheadTextColor;
-@mastheadBackgroundColor: #005d7a;
-@mastheadBackgroundColorStart: #005d7a;
-@mastheadBackgroundColorEnd: #00536b;
-
-@navItemActiveTextColor: #FFF;
-@navItemActiveBackgroundColor: #8CA0A6;
-
-@pillTextColor: @navItemActiveTextColor;
-@pillBackgroundColor: darken(@navItemActiveBackgroundColor, 10%);
-
-@bannerTextColor: @mastheadTextColor;
-@bannerBackgroundColor: @mastheadBackgroundColor;
-
-
-@footerTextColor: #CCDEE3;
-@footerLinkColor: @footerTextColor;
-
-@inputColor: @black;
-@inputBackground: @white;
-@inputBorder: #ccc;
-@inputBorderRadius: 3px;
-@disabledCustomInputTextColor: #aaa;
-@disabledCustomInputBackground: #f3f3f3;
-
-@highlightBackground: #fdf7e9;
-@highlightHoverBackground: #fdf3d9;
-
-// Forms
-
-@errorText: #b55457;
-@errorBackground: lighten(#c6898b, 30%);
-@errorBorder: #c6898b;
-
-@formInfoText: #707070;
-
-@stagesTextColor: #aeaeae;
-@stagesBackground: #EDEDED;
-@stagesTransparentBackground: rgba(237, 237, 237, 0); // Used for arrows.
-@stagesActiveTextColor: #fff;
-@stagesActiveBackground: #8cc68a;
-@stagesActiveTransparentBackground: rgba(140, 198, 138, 0);
-@stagesCompleteTextColor: #eef6ed;
-@stagesCompleteBackground: #c5e2c4;
-@stagesCompleteTransparentBackground: rgba(197, 226, 196, 0);
-@stagesCounterTextColor: #fff;
-@stagesCounterBackground: #aeaeae;
-@stagesCounterActiveTextColor: #8cc68a;
-@stagesCounterActiveBackground: #fff;
-@stagesCounterCompleteTextColor: #c5e2c4;
-@stagesCounterCompleteBackground: #eef6ed;
-
-@codeTextColor: #000;
-
-
-// Datasets
-
-@listingHeadingTextColor: #333;
-@resourceFormatBackground: #aaa;
-
-// Table
-
-@chunkyTableHeaderTextColor: #fff;
-@chunkyTableHeaderBackgroundColor: #aaa;
-@chunkyTableStripeBackgroundColor: #f2f2f2;
-
-// Twitter Bootstrap Overrides
-@bodyBackground: @layoutBackgroundColor;
-@btnBackground: #ffffff;
-@btnBackgroundHighlight: #eaeaea;
-@btnPrimaryBackground: #30778d;
-@btnPrimaryBackgroundHighlight: #085871;
-@baseFontFamily: @layoutFontFamily;
-@textColor: @layoutTextColor;
-@linkColor: @layoutLinkColor;
-@iconSpritePath: "../images/bootstrap-glyphicons-halflings.png";
-@iconWhiteSpritePath: "../images/bootstrap-glyphicons-halflings-white.png";
-
-// Activity Stream base colors
-@activityColorText: #FFFFFF;
-@activityColorBlank: #999999;
-@activityColorNew: #69A67A;
-@activityColorNeutral: #767DCE;
-@activityColorModify: #767DCE;
-@activityColorDelete: #B95252;
+@highlight-bg: #fdf7e9;
+@highlight-hover-bg: #fdf3d9;

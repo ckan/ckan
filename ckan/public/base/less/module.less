@@ -5,16 +5,16 @@
 .module-heading {
   .clearfix;
   margin: 0;
-  padding: 7px @gutterX;
+  padding: 7px @grid-gutter-width - 5;
   font-size: 14px;
   line-height: 1.3;
-  background-color: @moduleHeadingBackgroundColor;
-  border-top: 1px solid @moduleHeadingBorderColor;
-  border-bottom: 1px solid @moduleHeadingBorderColor;
+  background-color: @well-bg;
+  border-top: 1px solid @panel-default-border;
+  border-bottom: 1px solid @panel-default-border;
 }
 
 .module-content {
-  padding: 0 @gutterX;
+  padding: 0 @grid-gutter-width - 5;
   margin: 20px 0;
 }
 @media (min-width: @screen-sm-min) {
@@ -25,12 +25,12 @@
 
 .module-content:first-child {
   margin-top: 0;
-  padding-top: @gutterY;
+  padding-top: @grid-gutter-width - 10;
 }
 
 .module-content:last-child {
   margin-bottom: 0;
-  padding-bottom: @gutterY;
+  padding-bottom: @grid-gutter-width;
 }
 
 .module-content > :last-child {
@@ -43,24 +43,24 @@
 }
 
 .module:last-child {
-  margin-bottom: @grid-gutter-width - 10;
+  margin-bottom: @grid-gutter-width;
 }
 
 .module-footer {
-  padding: 7px @gutterX 7px;
+  padding: 7px (@grid-gutter-width - 5) 7px;
   margin: 0;
-  border-top: 1px dotted @genericBorderColor;
+  border-top: 1px dotted @panel-default-border;
 }
 
 .module .read-more {
   font-weight: bold;
-  color: @layoutBoldColor;
+  /*color: @layoutBoldColor;*/
 }
 
 .module .pagination {
   height: 34px;
   margin-bottom: 0;
-  border-top: 1px solid @moduleHeadingBorderColor;
+  border-top: 1px solid @panel-default-border;
 }
 
 .module-content .pagination {
@@ -136,8 +136,8 @@
   .module-heading,
   .module-content,
   .module-footer {
-    padding-left:  @gutterSmallX;
-    padding-right: @gutterSmallX;
+    padding-left:  @grid-gutter-width/2;
+    padding-right: @grid-gutter-width/2;
   }
 }
 
@@ -205,8 +205,8 @@
 }
 
 .module-resource {
-  background-color: @layoutTrimBackgroundColor;
-  border-bottom: 1px solid @genericBorderColor;
+  background-color: @body-bg;
+  border-bottom: 1px solid @panel-default-border;
   margin-top: 0;
   margin-bottom: 0;
   .border-radius(3px 3px 0 0);

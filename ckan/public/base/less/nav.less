@@ -12,26 +12,26 @@
 
 .nav-item > a,
 .nav-aside li a {
-  color: @navLinkColor;
+  color: @gray-dark;
   font-size: @font-size-base;
   line-height: @line-height-base;
-  margin: -7px -@gutterX;
-  padding: 7px @gutterX;
+  margin: -7px -(@grid-gutter-width - 5);
+  padding: 7px (@grid-gutter-width - 5);
 }
 
 .nav-item.active,
 .nav-aside li.active {
-  background-color: @navActiveBackgroundColor;
+  background-color: @well-bg;
 }
 
 .nav-item.active > a,
 .nav-aside li.active a {
   position: relative;
-  color: @navItemActiveTextColor;
-  background-color: @navItemActiveBackgroundColor;
+  color: @body-bg;
+  background-color: @navbar-default-link-active-color;
   &:hover {
-    color: @navItemActiveTextColor;
-    background-color: @navItemActiveBackgroundColor;
+    color: @body-bg;
+    background-color: @navbar-default-link-active-color;
   }
 }
 @media (min-width: @screen-sm-min) {
@@ -43,7 +43,7 @@
     right: -6px;
     width: 6px;
     height: 34px;
-    background-image: url("@{imagePath}/nav-active.png?1");
+    background-image: url("@{image-path}/nav-active.png?1");
   }
 }
 
@@ -56,8 +56,8 @@
 
 .module-narrow .nav-item > a,
 .module-narrow .nav-aside li a {
-  padding-left:  @gutterSmallX;
-  padding-right: @gutterSmallX;
+  padding-left:  @grid-gutter-width/2;
+  padding-right: @grid-gutter-width/2;
   position: relative;
 }
 
@@ -68,15 +68,15 @@
 
 .module-narrow .nav-item.image > a,
 .module-narrow .nav-aside li.image a {
-  padding-left:  @gutterSmallX + 27;
-  padding-right: @gutterSmallX + 27;
+  padding-left:  @grid-gutter-width/2 + 27;
+  padding-right: @grid-gutter-width/2 + 27;
 }
 
 .module-narrow .nav-item.image > img,
 .module-narrow .nav-aside li.image img {
   position: absolute;
   top: 50%;
-  left: @gutterSmallX;
+  left: @grid-gutter-width/2;
   width: 20px;
   height: 20px;
   margin-top: -(@grid-gutter-width/3);

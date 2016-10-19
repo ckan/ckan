@@ -3,8 +3,8 @@
 .account-masthead {
     .clearfix();
     padding: @grid-gutter-width/6 0;
-    color: @mastheadTextColor;
-    background: darken(@mastheadBackgroundColor, 10%) url("@{bgPath}");
+    color: masthead-text-color;
+    background: darken(@masthead-bg, 10%) url("@{background-image}");
     .account {
         float: right;
         ul {
@@ -12,10 +12,10 @@
             li {
                 display: block;
                 float: left;
-                border-left: 1px solid darken(@mastheadBackgroundColor, 15%);
+                border-left: 1px solid darken(@masthead-bg, 15%);
                 a {
                     display: block;
-                    color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
+                    color: mix(@masthead-bg, @masthead-link-color, 25%);
                     font-size: 13px;
                     font-weight: bold;
                     padding: 0 10px;
@@ -32,8 +32,8 @@
                     }
 
                     &:hover {
-                        color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 15%);
-                        background-color: darken(@mastheadBackgroundColor, 15%);
+                        color: mix(@masthead-bg, @masthead-link-color, 15%);
+                        background-color: darken(@masthead-bg, 15%);
                         text-decoration: none;
                     }
                     &.sub {
@@ -52,19 +52,19 @@
                     font-size: 12px;
                     margin-left: 3px;
                     padding: 1px 6px;
-                    background-color: darken(@mastheadBackgroundColor, 15%);
+                    background-color: darken(@masthead-bg, 15%);
                     .border-radius(4px);
                     text-shadow:none;
-                    color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
+                    color: mix(@masthead-bg, @masthead-link-color, 25%);
                 }
                 &:hover span {
-                    color: @mastheadLinkColor;
-                    background-color: darken(@mastheadBackgroundColor, 20%);
+                    color: @masthead-link-color;
+                    background-color: darken(@masthead-bg, 20%);
                 }
             }
             &.notifications-important a {
                 span.badge {
-                    color: @mastheadLinkColor;
+                    color: @masthead-link-color;
                     background-color: @notificationsBg;
                 }
             }
@@ -88,15 +88,15 @@
     /*min-height: 55px;*/
     padding: @grid-gutter-width/3 @grid-gutter-width/2;
     margin-bottom: 0;
-    color: @mastheadTextColor;
-    background: @mastheadBackgroundColor url("@{bgPath}");
+    color: masthead-text-color;
+    background: @masthead-bg url("@{background-image}");
 
     .container {
         position: relative;
     }
 
     a {
-        color: @mastheadLinkColor;
+        color: @masthead-link-color;
     }
 
     hgroup {
@@ -133,8 +133,8 @@
     }
 
     input[type="text"] {
-        border-color: darken(@mastheadBackgroundColor, 5);
-        color: darken(@mastheadBackgroundColor, 5);
+        border-color: darken(@masthead-bg, 5);
+        color: darken(@masthead-bg, 5);
     }
 
     .navigation {
@@ -144,7 +144,7 @@
             li {
                 a:hover,
                     &.active a {
-                    background-color: darken(@mastheadBackgroundColor, 10%);
+                    background-color: darken(@masthead-bg, 10%);
                 }
             }
         }
@@ -173,7 +173,7 @@
         .btn-navbar.active,
         .btn-navbar.disabled,
         .btn-navbar[disabled] {
-        background-color: darken(@mastheadBackgroundColor, 10%);
+        background-color: darken(@masthead-bg, 10%);
         background-image: none;
         border:none;
         .box-shadow(none);
@@ -204,7 +204,7 @@
             float: none;
         }
         .nav-collapse {
-            margin-bottom: @gutterX;
+            margin-bottom: @grid-gutter-width - 5;
         }
     }
 }

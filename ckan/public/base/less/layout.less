@@ -12,7 +12,7 @@
 @media (min-width: @screen-sm-min) {
   [role=main], .main {
     padding-top: @grid-gutter-width/3;
-    background: @layoutBackgroundColor url("@{bgPath}");
+    background: @gray-lighter url("@{background-image}");
   }
 }
 
@@ -112,7 +112,7 @@
 
 @media (min-width: @screen-sm-min) {
   .hero {
-    background: url("@{imagePath}/background-tile.png");
+    background: url("@{image-path}/background-tile.png");
   }
 }
 
@@ -120,8 +120,8 @@
   // Need to manually declare this here. If you pass rgba() through to
   // #gradient it breaks the filter property in IE7.
   .rgba-vertial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
-  background-color: @moduleHeadingBackgroundColor;
-  border-bottom: 1px solid darken(@moduleHeadingBorderColor, 5%);
+  background-color: @well-bg;
+  border-bottom: 1px solid darken(@panel-default-border, 5%);
   .border-radius(3px 3px 0 0);
   .box-shadow(inset 0 -4px 0 rgba(0, 0, 0, 0.03));
   .back:hover {
@@ -180,7 +180,7 @@
       float: left;
       width: 50%;
       margin: 5px 0 0 0;
-      color: @layoutTextColor;
+      color: @text-color;
       dt {
         display: block;
         font-size: 13px;

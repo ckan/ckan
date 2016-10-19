@@ -2,7 +2,7 @@
 	margin: 10px 0;
 	padding: 0;
 	list-style-type: none;
-	background: transparent url('@{imagePath}/dotted.png') 14px 0 repeat-y;
+	background: transparent url('@{image-path}/dotted.png') 14px 0 repeat-y;
 	.item {
 		position: relative;
 		margin: 0 0 15px 0;
@@ -17,7 +17,7 @@
 			height: 30px;
 			line-height: 30px;
 			text-align: center;
-			color: @activityColorText;
+			color: @activity-color-text;
 			text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 			font-weight: normal;
 			margin-right: @grid-gutter-width/3;
@@ -82,7 +82,7 @@
 	.popover-content {
 		font-size: @font-size-base;
 		line-height: @line-height-base;
-		color: @layoutTextColor;
+		color: @text-color;
 		word-break: break-all;
 		dl {
 			margin: 0;
@@ -96,31 +96,31 @@
 
 // colors
 .activity .item {
-	& .icon { background-color: @activityColorBlank; } // Non defined
-	&.failure .icon { background-color: @activityColorDelete; }
-	&.success .icon { background-color: @activityColorNew; }
-	&.added-tag .icon { background-color: spin(@activityColorNew, 60); }
-	&.changed-group .icon { background-color: @activityColorModify; }
-	&.changed-package .icon { background-color: spin(@activityColorModify, 20); }
-	&.changed-package_extra .icon { background-color: spin(@activityColorModify, -20); }
-	&.changed-resource .icon { background-color: spin(@activityColorModify, 40); }
-	&.changed-user .icon { background-color: spin(@activityColorModify, -40); }
-	&.changed-organization .icon { background-color: spin(@activityColorNew, 50); }
-	&.deleted-group .icon { background-color: @activityColorDelete; }
-	&.deleted-package .icon { background-color: spin(@activityColorDelete, 20); }
-	&.deleted-package_extra .icon { background-color: spin(@activityColorDelete, -20); }
-	&.deleted-resource .icon { background-color: spin(@activityColorDelete, 40); }
-	&.deleted-organization .icon { background-color: spin(@activityColorDelete, -40); }
-	&.new-group .icon { background-color: @activityColorNew; }
-	&.new-package .icon { background-color: spin(@activityColorNew, 20); }
-	&.new-package_extra .icon { background-color: spin(@activityColorNew, -20); }
-	&.new-resource .icon { background-color: spin(@activityColorNew, -40); }
-	&.new-user .icon { background-color: spin(@activityColorNew, 40); }
-	&.new-organization .icon { background-color: spin(@activityColorNew, -40); }
-	&.removed-tag .icon { background-color: spin(@activityColorDelete, -40); }
-	&.deleted-related-item .icon { background-color: spin(@activityColorDelete, 60); }
-	&.follow-dataset .icon { background-color: @activityColorNeutral; }
-	&.follow-user .icon { background-color: spin(@activityColorNeutral, 20); }
-	&.new-related-item .icon { background-color: spin(@activityColorNew, -60); }
-	&.follow-group .icon { background-color: spin(@activityColorNew, -50); }
+	& .icon { background-color: @activity-color-blank; } // Non defined
+	&.failure .icon { background-color: @activity-color-delete; }
+	&.success .icon { background-color: @activity-color-new; }
+	&.added-tag .icon { background-color: spin(@activity-color-new, 60); }
+	&.changed-group .icon { background-color: @activity-color-modify; }
+	&.changed-package .icon { background-color: spin(@activity-color-modify, 20); }
+	&.changed-package_extra .icon { background-color: spin(@activity-color-modify, -20); }
+	&.changed-resource .icon { background-color: spin(@activity-color-modify, 40); }
+	&.changed-user .icon { background-color: spin(@activity-color-modify, -40); }
+	&.changed-organization .icon { background-color: spin(@activity-color-new, 50); }
+	&.deleted-group .icon { background-color: @activity-color-delete; }
+	&.deleted-package .icon { background-color: spin(@activity-color-delete, 20); }
+	&.deleted-package_extra .icon { background-color: spin(@activity-color-delete, -20); }
+	&.deleted-resource .icon { background-color: spin(@activity-color-delete, 40); }
+	&.deleted-organization .icon { background-color: spin(@activity-color-delete, -40); }
+	&.new-group .icon { background-color: @activity-color-new; }
+	&.new-package .icon { background-color: spin(@activity-color-new, 20); }
+	&.new-package_extra .icon { background-color: spin(@activity-color-new, -20); }
+	&.new-resource .icon { background-color: spin(@activity-color-new, -40); }
+	&.new-user .icon { background-color: spin(@activity-color-new, 40); }
+	&.new-organization .icon { background-color: spin(@activity-color-new, -40); }
+	&.removed-tag .icon { background-color: spin(@activity-color-delete, -40); }
+	&.deleted-related-item .icon { background-color: spin(@activity-color-delete, 60); }
+	&.follow-dataset .icon { background-color: @activity-color-neutral; }
+	&.follow-user .icon { background-color: spin(@activity-color-neutral, 20); }
+	&.new-related-item .icon { background-color: spin(@activity-color-new, -60); }
+	&.follow-group .icon { background-color: spin(@activity-color-new, -50); }
 }

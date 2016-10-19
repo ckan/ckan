@@ -89,7 +89,7 @@ textarea {
 }
 
 .control-required {
-    color: @errorBorder;
+    color: @brand-danger;
 }
 
 .form-actions .control-required-message {
@@ -111,7 +111,7 @@ textarea {
 .form-actions .action-info {
     line-height: 2;
     text-align: left;
-    color: @formInfoText;
+    color: @gray-light;
     margin: 0;
 }
 
@@ -147,7 +147,7 @@ textarea {
     position: relative;
     display: block;
     font-size: 11px;
-    color: @emptyTextColor;
+    color: @gray-light;
     line-height: 1.3;
     margin-top: 6px;
 }
@@ -194,18 +194,18 @@ textarea {
     .icon-large {
         float: left;
         font-size: 22px;
-        margin-right: @gutterSmallX;
+        margin-right: @grid-gutter-width/2;
     }
 }
 
 .form-horizontal .info-block a {
-    color: @emptyTextColor;
+    color: @gray-light;
     text-decoration: underline;
 }
 
 .form-horizontal .form-actions {
-    padding-left: @gutterX;
-    padding-right: @gutterX;
+    padding-left: @grid-gutter-width - 5;
+    padding-right: @grid-gutter-width - 5;
 }
 
 .form-inline input {
@@ -231,9 +231,9 @@ textarea {
 }
 
 .form-narrow .form-actions {
-    margin-left: -@gutterSmallX;
-    margin-right: -@gutterSmallX;
-    padding: 10px @gutterSmallX 0;
+    margin-left: -@grid-gutter-width/2;
+    margin-right: -@grid-gutter-width/2;
+    padding: 10px @grid-gutter-width/2 0;
 }
 
 // Inline Select Forms
@@ -254,7 +254,7 @@ textarea {
 }
 
 .simple-input .field-bordered {
-    border-bottom: 1px dotted @genericBorderColor;
+    border-bottom: 1px dotted @panel-default-border;
 }
 
 .simple-input .field input {
@@ -283,25 +283,25 @@ textarea {
 }
 
 .editor textarea {
-    .border-radius(@inputBorderRadius @inputBorderRadius 0 0);
+    .border-radius(@border-radius-small @border-radius-small 0 0);
     border-bottom: none;
 }
 
 .editor .editor-info-block {
-    .border-radius(0 0 @inputBorderRadius @inputBorderRadius);
+    .border-radius(0 0 @border-radius-small @border-radius-small);
     display: block;
     float: none;
     padding: 4px 10px;
     background: #ebebeb;
     width: auto;
-    border: 1px solid @inputBorder;
+    border: 1px solid @input-border;
     border-top: none;
     font-size: 11px;
     color: #282828;
 }
 
 .editor .editor-info-block a {
-    color: @layoutLinkColor;
+    color: @link-color;
     text-decoration: none;
 }
 
@@ -329,18 +329,18 @@ textarea {
 
 .control-custom.disabled label,
 .control-custom.disabled input {
-    color: @disabledCustomInputTextColor;
+    color: @gray-light;
     text-decoration: line-through;
     text-shadow: none;
 }
 
 .control-custom.disabled input {
     .box-shadow(none);
-    background-color: @disabledCustomInputBackground;
+    background-color: @well-bg;
 }
 
 .control-custom.disabled .checkbox {
-    color: @layoutTextColor;
+    color: @text-color;
     text-decoration: none;
 }
 
@@ -366,7 +366,7 @@ textarea {
     position: relative;
     top: 1px;
     left: -1px;
-    color: #fff;
+    color: @body-bg;
 }
 
 .control-custom .checkbox.btn input {
@@ -380,7 +380,7 @@ textarea {
 // Errors
 
 .alert-danger a, .alert-error a {
-    color: @errorText;
+    color: @brand-danger;
 }
 
 .control-group.error input,
@@ -388,11 +388,11 @@ textarea {
 .control-group.error textarea,
 .control-group.error .input-prepend .add-on,
 .control-group.error .input-append .add-on {
-    border-color: @errorBorder;
+    border-color: @brand-danger;
 }
 
 .error-inline {
-    color: @errorText;
+    color: @brand-danger;
 }
 
 .error-block,
@@ -401,12 +401,12 @@ textarea {
 }
 
 .error-block {
-    .border-radius(0 0 @inputBorderRadius @inputBorderRadius);
+    .border-radius(0 0 @border-radius-small @border-radius-small);
     display: block;
     padding: 6px 8px 3px;
-    background: @errorBorder;
-    margin: -@inputBorderRadius 0 0;
-    color: @inputBackground;
+    background: @brand-danger;
+    margin: -@border-radius-small 0 0;
+    color: @input-bg;
     width: 208px;
 }
 
@@ -439,9 +439,10 @@ textarea {
 .stages {
     .unstyled;
     .clearfix;
-    color: @stagesTextColor;
+    color: @stages-text-color;
     counter-reset: stage;
-    margin: -@gutterY 0 @gutterY -(@grid-gutter-width + 10);
+    margin: @grid-gutter-width/2 0;
+    padding-left: 0;
     overflow: hidden;
 }
 
@@ -450,7 +451,7 @@ textarea {
     line-height: 27px;
     counter-increment: stage;
     width: 50%;
-    background-color: @stagesBackground;
+    background-color: @stages-bg;
     float: left;
     padding: 10px 20px;
     position: relative;
@@ -466,21 +467,21 @@ textarea {
     margin-right: @grid-gutter-width/6;
     font-weight: bold;
     text-align: center;
-    color: @stagesCounterTextColor;
-    background-color: @stagesCounterBackground;
+    color: @stages-counter-text-color;
+    background-color: @stages-counter-bg;
     z-index: 1;
 }
 
 .stages li:after {
     left: 0;
-    border: solid @stagesTransparentBackground;
+    border: solid @stages-transparent-bg;
     content: " ";
     height: 0;
     width: 0;
     position: absolute;
     pointer-events: none;
-    border-top-color: @stagesBackground;
-    border-bottom-color: @stagesBackground;
+    border-top-color: @stages-bg;
+    border-bottom-color: @stages-bg;
     border-width: 29px; // Needs to be an odd number
     top: 50%;
     margin-top: -(@grid-gutter-width - 1);
@@ -503,15 +504,15 @@ textarea {
 }
 
 .stages li.active:after {
-    border-color: @stagesActiveTransparentBackground;
-    border-top-color: @stagesActiveBackground;
-    border-bottom-color: @stagesActiveBackground;
+    border-color: @stages-active-transparent-bg;
+    border-top-color: @stages-active-bg;
+    border-bottom-color: @stages-active-bg;
 }
 
 .stages li.complete:after {
-    border-color: @stagesCompleteTransparentBackground;
-    border-top-color: @stagesCompleteBackground;
-    border-bottom-color: @stagesCompleteBackground;
+    border-color: @stages-complete-transparent-bg;
+    border-top-color: @stages-complete-bg;
+    border-bottom-color: @stages-complete-bg;
 }
 
 .stages.stage-3 li.complete:first-child:after {
@@ -524,13 +525,13 @@ textarea {
 }
 
 .stages li.active:before {
-    color: @stagesCounterActiveTextColor;
-    background: @stagesCounterActiveBackground;
+    color: @stages-counter-active-text-color;
+    background: @stages-counter-active-bg;
 }
 
 .stages li.complete:before {
-    color: @stagesCounterCompleteTextColor;
-    background: @stagesCounterCompleteBackground;
+    color: @stages-counter-complete-text-color;
+    background: @stages-counter-complete-bg;
 }
 
 // Needs to style spa, button and a elements.
@@ -555,13 +556,13 @@ textarea {
     }
 }
 .stages li.active .highlight {
-    color: @stagesActiveTextColor;
-    background: @stagesActiveBackground;
+    color: @stages-active-text-color;
+    background: @stages-active-bg;
 }
 
 .stages li.complete .highlight {
-    color: @stagesCompleteTextColor;
-    background: @stagesCompleteBackground;
+    color: @stages-complete-text-color;
+    background: @stages-complete-bg;
 }
 
 // Errors
@@ -613,7 +614,7 @@ textarea {
 
 .resource-upload-field.loading {
     display: inline-block;
-    background: url("@{imagePath}/loading-spinner.gif") no-repeat center right;
+    background: url("@{image-path}/loading-spinner.gif") no-repeat center right;
     padding-right: @grid-gutter-width/6;
 }
 
@@ -662,8 +663,8 @@ textarea {
     .box-shadow(inset 0 1px 1px rgba(0,0,0,.075));
     @transition: border linear .2s, box-shadow linear .2s;
     .transition(@transition);
-    background-color: @inputBackground;
-    border: 1px solid @inputBorder;
+    background-color: @input-bg;
+    border: 1px solid @input-border;
 }
 
 .select2-container-active .select2-choices,
@@ -717,7 +718,7 @@ textarea {
         top: 0;
         margin-right: @grid-gutter-width/3;
         &.hover {
-            color: @grayDark;
+            color: @gray-dark;
             text-decoration: none;
             background-position: 0 -15px;
             .transition(background-position .1s linear);
@@ -750,7 +751,7 @@ textarea {
     width: 7%;
     text-align: center;
     text-transform: uppercase;
-    color: @grayLight;
+    color: @gray-light;
     font-weight: bold;
 }
 

@@ -26,7 +26,7 @@
 body {
   // Using the masthead/footer gradient prevents the color from changing
   // at the bottom of the window on pages with little content.
-  background: @mastheadBackgroundColor url("@{bgPath}");
+  background: @masthead-bg url("@{background-image}");
 }
 
 [hidden] {
@@ -50,7 +50,7 @@ table .metric {
 }
 
 code {
-  color: @codeTextColor;
+  color: @code-color;
   border: none;
   background: none;
   white-space: normal;
@@ -64,7 +64,7 @@ pre {
 }
 
 mark {
-  background: @highlightBackground;
+  background: @highlight-bg;
 }
 
 blockquote p {
@@ -92,7 +92,7 @@ iframe {
 }
 
 .empty {
-  color: @emptyTextColor;
+  color: @gray-light;
   font-style: italic;
 }
 
@@ -102,16 +102,16 @@ iframe {
 }
 
 .m-top {
-  margin-top: @gutterSmallX;
+  margin-top: @grid-gutter-width/2;
 }
 .m-left {
-  margin-left: @gutterSmallX;
+  margin-left: @grid-gutter-width/2;
 }
 .m-right {
-  margin-right: @gutterSmallX;
+  margin-right: @grid-gutter-width/2;
 }
 .m-bottom {
-  margin-bottom: @gutterSmallX;
+  margin-bottom: @grid-gutter-width/2;
 }
 .no-margin {
   margin: 0;
@@ -121,16 +121,16 @@ iframe {
 }
 
 .p-top {
-  padding-top: @gutterSmallX;
+  padding-top: @grid-gutter-width/2;
 }
 .p-left {
-  padding-left: @gutterSmallX;
+  padding-left: @grid-gutter-width/2;
 }
 .p-right {
-  padding-right: @gutterSmallX;
+  padding-right: @grid-gutter-width/2;
 }
 .p-bottom {
-  padding-bottom: @gutterSmallX;
+  padding-bottom: @grid-gutter-width/2;
 }
 .no-padding {
   padding: 0;
@@ -139,4 +139,4 @@ iframe {
   padding: 3px 5px;
 }
 
-@import "iehacks.less";
+// @import "iehacks.less";

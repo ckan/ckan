@@ -1,5 +1,5 @@
 .dataset-item {
-  border-bottom: 1px dotted @genericBorderColor;
+  border-bottom: 1px dotted @panel-default-border;
   padding-bottom: @grid-gutter-width - 10;
   margin-bottom: @grid-gutter-width - 10;
 }
@@ -23,7 +23,7 @@
 }
 
 .dataset-heading a {
-  color: @listingHeadingTextColor;
+  color: @gray-dark;
 }
 
 .dataset-heading .label {
@@ -51,7 +51,7 @@
 }
 
 .dataset-resources li a {
-  background-color: @resourceFormatBackground;
+  background-color: @resource-format-background;
 }
 
 .dataset-heading .popular {
@@ -71,12 +71,12 @@
   margin-bottom: 0px;
   .border-radius(3px);
   &:hover {
-    background-color: @layoutBackgroundColor;
+    background-color: @gray-lighter;
   }
 }
 
 .resource-item .heading {
-  color: @layoutBoldColor;
+  /*color: @layoutBoldColor;*/
   font-size: 14px;
   font-weight: bold;
 }
@@ -106,13 +106,13 @@
 
 .resource-list.reordering {
   .resource-item {
-    border: 1px solid @moduleHeadingBorderColor;
+    border: 1px solid @panel-default-border;
     margin-bottom: @grid-gutter-width/3;
     cursor: move;
     .handle {
       display: block;
       position: absolute;
-      color: @moduleHeadingActionTextColor;
+      color: lighten(@gray-base, 40%);
       left: -31px;
       top: 50%;
       margin-top: -(@grid-gutter-width/2);
@@ -120,24 +120,24 @@
       height: 30px;
       line-height: 30px;
       text-align: center;
-      border: 1px solid @moduleHeadingBorderColor;
+      border: 1px solid @panel-default-border;
       border-width: 1px 0 1px 1px;
-      background-color: @moduleBackgroundColor;
+      background-color: @panel-bg;
       .border-radius(20px 0 0 20px);
       &:hover {
         text-decoration: none;
       }
     }
     &:hover .handle {
-      background-color: @layoutBackgroundColor;
+      background-color: @gray-lighter;
     }
     &.ui-sortable-helper {
-      background-color: @layoutBackgroundColor;
-      border: 1px solid @layoutLinkColor;
+      background-color: @gray-lighter;
+      border: 1px solid @link-color;
       .handle {
-        background-color: @layoutBackgroundColor;
-        border-color: @layoutLinkColor;
-        color: @navLinkColor;
+        background-color: @gray-lighter;
+        border-color: @link-color;
+        color: @gray-dark;
       }
     }
   }
@@ -236,7 +236,7 @@
       display: block;
       min-height: 50px;
       padding: 10px;
-      border: 1px solid @moduleHeadingBorderColor;
+      border: 1px solid @panel-default-border;
       overflow: hidden;
       .border-radius(3px);
       .icon {
@@ -245,8 +245,8 @@
         height: 50px;
         overflow: hidden;
         margin-right: @grid-gutter-width/3;
-        color: @layoutTextColor;
-        background-color: @layoutBackgroundColor;
+        color: @text-color;
+        background-color: @gray-lighter;
         .border-radius(3px);
         i {
           display: block;
@@ -257,7 +257,7 @@
       }
       h3 {
         font-weight: bold;
-        color: @layoutBoldColor;
+        /*color: @layoutBoldColor;*/
         font-weight: bold;
         font-size: 16px;
         margin: 0 0 3px 0;
@@ -267,15 +267,15 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        color: @layoutTextColor;
+        color: @text-color;
       }
       &.active,
       &:hover {
         text-decoration: none;
-        border-color: @layoutLinkColor;
+        border-color: @link-color;
         .icon {
-          background-color: @layoutLinkColor;
-          color: @navActiveBackgroundColor;
+          background-color: @link-color;
+          color: @well-bg;
         }
       }
     }
@@ -283,7 +283,7 @@
       position: absolute;
       display: none;
       border: 8px solid transparent;
-      border-top-color: @layoutLinkColor;
+      border-top-color: @link-color;
       left: 50%;
       bottom: -15px;
       margin-left: -4px;
@@ -291,10 +291,10 @@
     &.active {
       a {
         text-decoration: none;
-        border-color: @layoutLinkColor;
+        border-color: @link-color;
         .icon {
-          background-color: @layoutLinkColor;
-          color: @navActiveBackgroundColor;
+          background-color: @link-color;
+          color: @well-bg;
         }
       }
       .arrow {
@@ -322,13 +322,13 @@
     }
     &::-webkit-scrollbar-track {
       border-radius: 10px;
-      background-color: @navActiveBackgroundColor;
+      background-color: @well-bg;
     }
     &::-webkit-scrollbar-thumb {
       border-radius: 10px;
-      background-color: darken(@navActiveBackgroundColor, 20%);
+      background-color: darken(@well-bg, 20%);
       &:hover {
-        background-color: @layoutLinkColor;
+        background-color: @link-color;
       }
     }
 

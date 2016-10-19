@@ -36,14 +36,14 @@
 }
 
 .toolbar .breadcrumb a {
-  color: @breadcrumbTextColor;
+  color: @breadcrumb-text-color;
 }
 @media (max-width: @screen-xs-max) {
   .toolbar .breadcrumb {
-    color:#fff;
+    color:@body-bg;
     text-shadow:none;
     a {
-      color:#fff;
+      color:@body-bg;
       text-shadow:none;
     }
   }
@@ -78,15 +78,15 @@
 
 .page-header {
   .clearfix;
-  border-bottom: 1px solid @moduleHeadingBorderColor;
-  background-color: @moduleHeadingBackgroundColor;
+  border-bottom: 1px solid @panel-default-border;
+  background-color: @well-bg;
   .border-radius(0 3px 0 0);
   .nav-tabs {
     float: left;
     margin-bottom: -1px;
     li.active a,
     a:hover {
-      background-color: @moduleBackgroundColor;
+      background-color: @panel-bg;
     }
   }
   .content_action {
@@ -101,10 +101,10 @@
 }
 
 .nav-tabs-plain {
-  padding: 0 @gutterX;
+  padding: 0 @grid-gutter-width - 5;
   & > .active > a,
   & > .active > a:hover {
-    background-color: @moduleBackgroundColor;
+    background-color: @panel-bg;
   }
 }
 
