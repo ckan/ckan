@@ -50,8 +50,6 @@
     }
     .media-image {
         margin-bottom: @grid-gutter-width/6;
-        min-width: 100%;
-        max-width: 100%;
     }
     .media-edit {
         opacity: 0;
@@ -99,6 +97,16 @@
 
 .media-image {
     .border-radius(4px);
+
+    &,
+    img{
+        min-width: 100%;
+        max-width: 100%;
+    }
+    
+    img{
+        height: auto;
+    }
 }
 
 .media-heading {
