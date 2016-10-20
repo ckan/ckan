@@ -15,7 +15,7 @@ function compile(event, filename) {
   var start = Date.now(),
       filename = 'main.css';
 
-  exec('`npm bin`/lessc --clean-css="--compatibility=ie8 --advanced" --source-map-map-inline ' + __dirname + '/../ckan/public/base/less/main.less > ' + __dirname + '/../ckan/public/base/css/' + filename, function (err, stdout, stderr) {
+  exec('`npm bin`/lessc ' + __dirname + '/../ckan/public/base/less/main.less > ' + __dirname + '/../ckan/public/base/css/' + filename, function (err, stdout, stderr) {
     var duration = Date.now() - start;
 
     if (err) {
