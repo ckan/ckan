@@ -236,6 +236,17 @@ textarea {
     padding: 10px @grid-gutter-width/2 0;
 }
 
+.site-search,
+.hero .search-form {
+
+    input{
+        &:focus,
+            &:active{
+            box-shadow: 0 0 0 2px darken(@masthead-bg, 8);
+        }
+    }
+}
+
 // Inline Select Forms
 
 .form-select label {
@@ -260,8 +271,7 @@ textarea {
 .simple-input .field input {
     width: 100%;
     height: auto;
-    margin: 0 -7px; // Pull input out into gutter
-    padding: 7px 5px;
+    padding: @grid-gutter-width/6 @grid-gutter-width/6;
 }
 
 .simple-input .field .btn-search {
@@ -270,9 +280,8 @@ textarea {
     height: 17px;
     width: 17px;
     padding: 0;
-    top: 50%;
-    right: 0;
-    margin-top: -(@grid-gutter-width/3);
+    top: 22.5%;
+    right: 5px;
     background-color: transparent;
     border: none;
     color: #999;
@@ -314,13 +323,13 @@ textarea {
     }
 }
 [data-module="custom-fields"] {
-    
+
     margin-bottom: @grid-gutter-width/2;
 
     > .form-group{
         margin-top: @grid-gutter-width;
     }
-    
+
 }
 
 // Controls
