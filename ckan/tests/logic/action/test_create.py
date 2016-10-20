@@ -471,12 +471,12 @@ class TestResourceCreate(object):
     @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
     def test_mimetype_by_url(self, mock_open):
-        """
+        '''
         The mimetype is guessed from the url
 
         Real world usage would be externally linking the resource and the mimetype would
         be guessed, based on the url
-        """
+        '''
         context = {}
         params = {
             'package_id': factories.Dataset()['id'],
@@ -491,12 +491,12 @@ class TestResourceCreate(object):
         assert_equals(mimetype, 'text/csv')
 
     def test_mimetype_by_user(self):
-        """
+        '''
         The mimetype is supplied by the user
 
         Real world usage would be using the FileStore API or web UI form to create a resource
         and the user wanted to specify the mimetype themselves
-        """
+        '''
         context = {}
         params = {
             'package_id': factories.Dataset()['id'],
@@ -514,12 +514,12 @@ class TestResourceCreate(object):
     @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
     def test_mimetype_by_upload_by_filename(self, mock_open):
-        """
+        '''
         The mimetype is guessed from an uploaded file with a filename
 
         Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
         If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
-        """
+        '''
         import StringIO
         test_file = StringIO.StringIO()
         test_file.write('''
@@ -561,12 +561,12 @@ class TestResourceCreate(object):
     @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
     def test_mimetype_by_upload_by_file(self, mock_open):
-        """
+        '''
         The mimetype is guessed from an uploaded file by the contents inside
 
         Real world usage would be using the FileStore API or web UI form to upload a file, that has no extension
         If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
-        """
+        '''
         import StringIO
         test_file = StringIO.StringIO()
         test_file.write('''
@@ -596,9 +596,9 @@ class TestResourceCreate(object):
     @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
     def test_size_of_resource_by_upload(self, mock_open):
-        """
+        '''
         The size of the resource determined by the uploaded file
-        """
+        '''
         import StringIO
         test_file = StringIO.StringIO()
         test_file.write('''
@@ -624,11 +624,11 @@ class TestResourceCreate(object):
         assert size > 0
 
     def test_size_of_resource_by_user(self):
-        """
+        '''
         The size of the resource is provided by the users
 
         Real world usage would be using the FileStore API and the user provides a size for the resource
-        """
+        '''
         context = {}
         params = {
             'package_id': factories.Dataset()['id'],
