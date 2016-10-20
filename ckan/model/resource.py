@@ -47,7 +47,7 @@ resource_table = Table(
     Column('resource_type', types.UnicodeText),
     Column('mimetype', types.UnicodeText),
     Column('mimetype_inner', types.UnicodeText),
-    Column('size', types.BigInteger),
+    Column('size', types.BigInteger, default=0),
     Column('created', types.DateTime, default=datetime.datetime.now),
     Column('last_modified', types.DateTime),
     Column('cache_url', types.UnicodeText),
