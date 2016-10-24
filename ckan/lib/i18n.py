@@ -27,8 +27,9 @@ def get_locales_from_config():
     the config AND also the locals available subject to the config. '''
     locales_offered = config.get('ckan.locales_offered', '').split()
     filtered_out = config.get('ckan.locales_filtered_out', '').split()
-    locale_default = config.get('ckan.locale_default', 'en')
+    locale_default = [config.get('ckan.locale_default', 'en')]
     locale_order = config.get('ckan.locale_order', '').split()
+
     known_locales = get_locales()
     all_locales = (set(known_locales) |
                    set(locales_offered) |
