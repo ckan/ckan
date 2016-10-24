@@ -196,7 +196,6 @@ class ResourceUpload(object):
             if e.errno != 17:
                 raise
         self.filename = None
-        self.filesize = 0  # bytes
         self.mimetype = None
 
         url = resource.get('url')
@@ -208,6 +207,8 @@ class ResourceUpload(object):
             self.mimetype = mimetypes.guess_type(url)[0]
 
         if isinstance(upload_field_storage, cgi.FieldStorage):
+            self.filesize = 0  # bytes
+
             self.filename = upload_field_storage.filename
             self.filename = munge.munge_filename(self.filename)
             resource['url'] = self.filename
