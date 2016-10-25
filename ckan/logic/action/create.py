@@ -296,7 +296,7 @@ def resource_create(context, data_dict):
 
     upload = uploader.get_resource_uploader(data_dict)
 
-    if not 'size' in data_dict and hasattr(upload, 'upload_file'):
+    if 'size' not in data_dict and hasattr(upload, 'upload_file'):
         file_object = upload.upload_file
         file_object.seek(0, 2)
         data_dict['size'] = file_object.tell()
