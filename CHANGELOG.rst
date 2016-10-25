@@ -21,6 +21,9 @@ Major:
  * Private datasets are now included in the default dataset search results (#3191)
  * package_search API action now has an include_private parameter (#3191)
 
+Minor:
+ * ``resource['size']`` will change from string to long integer (#3205)
+
 v2.5.2 2016-03-31
 =================
 
