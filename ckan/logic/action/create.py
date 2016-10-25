@@ -296,6 +296,12 @@ def resource_create(context, data_dict):
 
     upload = uploader.get_resource_uploader(data_dict)
 
+    if 'size' not in data_dict and hasattr(upload, 'upload_file'):
+        file_object = upload.upload_file
+        file_object.seek(0, 2)
+        data_dict['size'] = file_object.tell()
+        file_object.seek(0)
+
     pkg_dict['resources'].append(data_dict)
 
     try:
