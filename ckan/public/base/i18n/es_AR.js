@@ -1,108 +1,108 @@
 {
   "": {
     "domain": "ckan",
-    "lang": "sk",
-    "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+    "lang": "es_AR",
+    "plural-forms": "nplurals=2; plural=(n != 1);"
   },
   "An Error Occurred": [
     null,
-    "Vyskytla sa chyba"
+    "Ocurrió un error"
   ],
   "Are you sure you want to perform this action?": [
     null,
-    "Chcete vykonať túto akciu?"
+    "¿Seguro de que deseas realizar esta acción?"
   ],
   "Cancel": [
     null,
-    "Zrušiť"
+    "Cancelar"
   ],
   "Confirm": [
     null,
-    "Potvrdiť"
+    "Confirmar"
   ],
   "Edit": [
     null,
-    "Upraviť"
+    "Editar"
   ],
   "Failed to load data API information": [
     null,
-    "Zlyhalo načítanie informácie o dátovom API"
+    "Falló carga de información de datos de API"
   ],
   "Follow": [
     null,
-    "Odoberať"
+    "Seguir"
   ],
   "Hide": [
     null,
-    "Skryť"
+    "Esconder"
   ],
   "Image": [
     null,
-    "Obrázok"
+    "Imagen"
   ],
   "Input is too short, must be at least one character": [
     null,
-    "Vstup je príliš krátky, zadajte aspoň jeden znak"
+    "Ingreso es muy corto, debe tener al menos un caracter"
   ],
   "Link": [
     null,
-    "Odkaz"
+    "Enlace"
   ],
   "Link to a URL on the internet (you can also link to an API)": [
     null,
-    "Odkaz URL na internete (môžete prepojiť s API)"
+    "Enlazar a una URL de internet (también puede enlazar a una API)"
   ],
   "Loading...": [
     null,
-    "Prebieha načítavanie..."
+    "Cargando ..."
   ],
   "No matches found": [
     null,
-    "Žiadna zhoda"
+    "No se encontraron coincidencias"
   ],
   "Please Confirm Action": [
     null,
-    "Prosím, potvrďte túto akciu"
+    "Confirma la acción"
   ],
   "Remove": [
     null,
-    "Zmazať"
+    "Quitar"
   ],
   "Reorder resource view": [
     null,
-    "Preusporiadať náhľad dátového zdroja"
+    "Reordenar vista de recurso"
   ],
   "Reorder resources": [
     null,
-    "Preusporiadať zdroje"
+    "Reordenar recursos"
   ],
   "Resource uploaded": [
     null,
-    "Zdroj nahraný"
+    "Recurso subido"
   ],
   "Save order": [
     null,
-    "Uložiť výber"
+    "Guardar orden"
   ],
   "Saving...": [
     null,
-    "Ukladám..."
+    "Guardando..."
   ],
   "Show more": [
     null,
-    "Ukázať viac"
+    "Mostrar más"
   ],
   "Start typing…": [
     null,
-    "Začnite písať..."
+    "Comience a escribir..."
   ],
   "There are unsaved modifications to this form": [
     null,
-    "Neuložili ste vykonané zmeny vo formulári"
+    "Existen modificaciones no guardadas para este formulario"
   ],
   "There is no API data to load for this resource": [
     null,
-    "Neexistuje dátové API na načítanie tohto zdroja"
+    "No existen datos de API para cargar para este recurso"
   ],
   "URL": [
     null,
@@ -110,42 +110,42 @@
   ],
   "Unable to authenticate upload": [
     null,
-    "Nie je možné autentifikovať nahraté súbory"
+    "No se pudo autenticar subida"
   ],
   "Unable to get data for uploaded file": [
     null,
-    "Nie je možné pristúpiť k nahranému súboru"
+    "No se pudo obtener datos para el archivo subido"
   ],
   "Unable to upload file": [
     null,
-    "Nie je možné nahrať súbor"
+    "No se pudo subir el archivo"
   ],
   "Unfollow": [
     null,
-    "Prestať odoberať"
+    "Dejar de seguir"
   ],
   "Upload": [
     null,
-    "Nahrávanie"
+    "Subir"
   ],
   "Upload a file": [
     null,
-    "Nahrať súbor"
+    "Sube un archivo"
   ],
   "Upload a file on your computer": [
     null,
-    "Odošlite súbor na váš počítať"
+    "Subir un archivo de tu PC"
   ],
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
-    "Nahrávate súbor. Chcete odísť preč a prerušiť nahrávanie?"
+    "Estás subiendo un archivo. ¿Estás seguro que quieres salir y detener esta subida?"
   ],
   "show less": [
     null,
-    "ukázať menej"
+    "mostrar menos"
   ],
   "show more": [
     null,
-    "ukázať viac"
+    "mostrar más"
   ]
 }
