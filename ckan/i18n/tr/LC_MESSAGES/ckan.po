@@ -4,7 +4,7 @@
 # 
 # Translators:
 # cagdas!123 <olgun.cagdas@gmail.com>, 2013,2015
-# sercan erhan <sercanerhan@gmail.com>, 2015
+# Sercan <sercanerhan@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"

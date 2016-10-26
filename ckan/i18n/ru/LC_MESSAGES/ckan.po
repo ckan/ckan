@@ -5,7 +5,7 @@
 # Translators:
 # Dmitry Oshkalo <dmitry.oshkalo@gmail.com>, 2015
 # Gromislav <igromislav@gmail.com>, 2013
-# ivbeg <ibegtin@gmail.com>, 2013
+# Ivan Begtin <ibegtin@gmail.com>, 2013
 # mih, 2015
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 # Sergey Motornyuk <sergey.motornyuk@linkdigital.com.au>, 2015
