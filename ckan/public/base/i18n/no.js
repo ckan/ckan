@@ -8,6 +8,10 @@
     null,
     "En feil oppsto"
   ],
+  "An error occurred: %(text)s %(error)s": [
+    null,
+    "En feil har oppstått: %(text)s %(error)s"
+  ],
   "Are you sure you want to perform this action?": [
     null,
     "Er du sikker på at du vil utføre denne handlingen?"
@@ -67,6 +71,10 @@
   "Remove": [
     null,
     "Fjern"
+  ],
+  "Reorder resource view": [
+    null,
+    "Forandre rekkefølgen i ressursvisning"
   ],
   "Reorder resources": [
     null,
@@ -135,6 +143,10 @@
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
     "Du laster opp en fil. Er du sikker på at du vil forlate siden og stoppe denne opplastingen?"
+  ],
+  "error loading view": [
+    null,
+    "feil i innlasting av visning"
   ],
   "show less": [
     null,
