@@ -711,7 +711,7 @@ textarea {
 
 .js .image-upload {
     #field-image-url {
-        padding-right: @grid-gutter-width - 1;
+        padding-right: @grid-gutter-width/2;
     }
     #field-image-upload {
         cursor: pointer;
@@ -722,6 +722,9 @@ textarea {
     .controls {
         position: relative;
     }
+    .fa{
+        margin-right: @grid-gutter-width/6;
+    } 
     .btn {
         position: relative;
         top: 0;
@@ -736,11 +739,12 @@ textarea {
     .btn-remove-url {
         position: absolute;
         margin-right: 0;
-        top: 4px;
-        right: 5px;
-        padding: 0 4px;
+        top: (@grid-gutter-width/6) + 3;
+        right: @grid-gutter-width/3;
+        padding: 0 @grid-gutter-width/10;
+        line-height: 1;
         .border-radius(100px);
-        .icon-remove {
+        .fa-remove {
             margin-right: 0;
         }
     }

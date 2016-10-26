@@ -51,17 +51,17 @@ this.ckan.module('image-upload', function($, _) {
         .appendTo(this.el);
 
       // Button to set the field to be a URL
-      this.button_url = $('<a href="javascript:;" class="btn"><i class="icon-globe"></i> '+this.i18n('url')+'</a>')
+      this.button_url = $('<a href="javascript:;" class="btn btn-default"><i class="fa fa-globe"></i>'+this.i18n('url')+'</a>')
         .prop('title', this.i18n('url_tooltip'))
         .on('click', this._onFromWeb)
         .insertAfter(this.input);
 
       // Button to attach local file to the form
-      this.button_upload = $('<a href="javascript:;" class="btn"><i class="icon-cloud-upload"></i>'+this.i18n('upload')+'</a>')
+      this.button_upload = $('<a href="javascript:;" class="btn btn-default"><i class="fa fa-cloud-upload"></i>'+this.i18n('upload')+'</a>')
         .insertAfter(this.input);
 
       // Button for resetting the form when there is a URL set
-      $('<a href="javascript:;" class="btn btn-danger btn-remove-url"><i class="icon-remove"></i></a>')
+      $('<a href="javascript:;" class="btn btn-danger btn-remove-url"><i class="fa fa-remove"></i></a>')
         .prop('title', this.i18n('remove'))
         .on('click', this._onRemove)
         .insertBefore(this.field_url_input);
