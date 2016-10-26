@@ -1,28 +1,23 @@
-# Hebrew translations for ckan.
-# Copyright (C) 2015 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
-# Translators:
-# Nir Hirshman <nirshman99@gmail.com>, 2014
-# noamoss <noamoss@gmail.com>, 2014
-# Ram Ezrach <ram.ezrach@gmail.com>, 2014
-# rshlo <r@roishlomi.com>, 2014
-# Yaron Shahrabani <sh.yaron@gmail.com>, 2014
-# Yehuda Deutsch <yeh@uda.co.il>, 2014
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+# 
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version:  CKAN\n"
+"Project-Id-Version: ckan 2.6.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-10-18 10:37+0100\n"
-"PO-Revision-Date: 2015-11-26 14:24+0000\n"
-"Last-Translator: dread <david.read@hackneyworkshop.com>\n"
-"Language: he\n"
-"Language-Team: Hebrew (http://www.transifex.com/okfn/ckan/language/he/)\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2016\n"
+"Language-Team: Hebrew (https://www.transifex.com/okfn/teams/11162/he/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
+"Language: he\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ckan/authz.py:179
 #, python-format
@@ -99,7 +94,8 @@ msgstr "עמוד הבית"
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr "אין אפשרות למחוק את חבילה %s מכיוון שגרסה %s כוללת חבילות שטרם נמחקו %s "
+msgstr ""
+"אין אפשרות למחוק את חבילה %s מכיוון שגרסה %s כוללת חבילות שטרם נמחקו %s "
 
 #: ckan/controllers/admin.py:182
 #, python-format
@@ -429,8 +425,8 @@ msgid ""
 "Viewing {package_type} datasets in {format} format is not supported "
 "(template file {file} not found)."
 msgstr ""
-"אין אפשרות לראות את צביר הנתונים {package_type} בתצורה {format} התצוה "
-"אינה נתמכת (קובץ הדוגמה {file} אינו נמצא)."
+"אין אפשרות לראות את צביר הנתונים {package_type} בתצורה {format} התצוה אינה "
+"נתמכת (קובץ הדוגמה {file} אינו נמצא)."
 
 #: ckan/controllers/package.py:439 ckan/controllers/package.py:830
 #: ckan/controllers/package.py:931 ckan/controllers/package.py:979
@@ -1164,8 +1160,8 @@ msgstr "אורך השם אינו יכול לעלות על %i תווים"
 
 #: ckan/logic/validators.py:342
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr ""
 
 #: ckan/logic/validators.py:360
@@ -1931,9 +1927,10 @@ msgstr "איני מצליחה לקבל נתונים מהקובץ שהועלה"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
-msgstr "אתם מעלים קובץ. האם אתם בטוחים שברצונכם לצאת מהעמוד ולהפסיק את ההעלאה?"
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
+msgstr ""
+"אתם מעלים קובץ. האם אתם בטוחים שברצונכם לצאת מהעמוד ולהפסיק את ההעלאה?"
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:8
 msgid "Reorder resource view"
@@ -2036,8 +2033,9 @@ msgstr "הרשמה"
 #: ckan/templates/revision/diff.html:11 ckan/templates/revision/read.html:65
 #: ckan/templates/snippets/context/group.html:17
 #: ckan/templates/snippets/context/user.html:19
-#: ckan/templates/snippets/organization.html:59 ckan/templates/user/read.html:5
-#: ckan/templates/user/read_base.html:19 ckan/templates/user/read_base.html:53
+#: ckan/templates/snippets/organization.html:59
+#: ckan/templates/user/read.html:5 ckan/templates/user/read_base.html:19
+#: ckan/templates/user/read_base.html:53
 msgid "Datasets"
 msgstr "צבירי נתונים"
 
@@ -2103,36 +2101,35 @@ msgstr "הגדרות התצורה של תביאתה"
 #: ckan/templates/admin/config.html:34
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> "
-"<p><strong>Style:</strong> Choose from a list of simple variations of the"
-" main colour scheme to get a very quick custom theme working.</p> "
-"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-"<p><strong>Homepage:</strong> This is for choosing a predefined layout "
-"for the modules that appear on your homepage.</p> "
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p> "
 msgstr ""
 " <p><strong>כותרת האתר</strong> זוהי הכותרת של מופע CKAN כפי שהוא מוצג "
-"במקומות ב-CKAN.</p> <p><strong>סגנון:</strong> בחרו מרשימה של סוגים שונים"
-" של תבניות צבע כדי להפעיל במהירות תבנית מותאמת אישית. </p> "
-"<p><strong>לוגו תגית האתר: </strong> זה הלוגו שמופיע בכותרת של כל התבניות"
-" של CKAN.</p> <p><strong>אודות:</strong> הטקסט הזה יופיע במופעי CKAN הללו"
-" <a href=\"%(about_url)s\">עמוד אודות</a>.</p> <p><strong>טקסט "
-"מקדים:</strong> הטקסט הזה יופיע במופעי CKAN הללו <a "
-"href=\"%(home_url)s\">ביתpage</a> כהקדמה למבקרים.</p> <p><strong>CSS "
-"מותאם אישית:</strong> זהו קטע של CSS שיופיע ב <code>&lt;head&gt;</code> "
-"תגית של כל עמוד. אם אתם מעוניינים להתאים את התבניות יותר אנחנו ממליצים על"
-"  <a href=\"%(docs_url)s\" target=\"_blank\">המדריכים המפורטים "
-"שלנו</a>.</p> <p><strong>עמוד הבית:</strong> זה על מנת לבחור סידור מותאם "
-"מראש לתבניות שיופיעו בדף הבית.</p> "
+"במקומות ב-CKAN.</p> <p><strong>סגנון:</strong> בחרו מרשימה של סוגים שונים של"
+" תבניות צבע כדי להפעיל במהירות תבנית מותאמת אישית. </p> <p><strong>לוגו תגית"
+" האתר: </strong> זה הלוגו שמופיע בכותרת של כל התבניות של CKAN.</p> "
+"<p><strong>אודות:</strong> הטקסט הזה יופיע במופעי CKAN הללו <a "
+"href=\"%(about_url)s\">עמוד אודות</a>.</p> <p><strong>טקסט מקדים:</strong> "
+"הטקסט הזה יופיע במופעי CKAN הללו <a href=\"%(home_url)s\">ביתpage</a> כהקדמה"
+" למבקרים.</p> <p><strong>CSS מותאם אישית:</strong> זהו קטע של CSS שיופיע ב "
+"<code>&lt;head&gt;</code> תגית של כל עמוד. אם אתם מעוניינים להתאים את "
+"התבניות יותר אנחנו ממליצים על  <a href=\"%(docs_url)s\" "
+"target=\"_blank\">המדריכים המפורטים שלנו</a>.</p> <p><strong>עמוד "
+"הבית:</strong> זה על מנת לבחור סידור מותאם מראש לתבניות שיופיעו בדף "
+"הבית.</p> "
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2147,9 +2144,8 @@ msgstr ""
 #, python-format
 msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin "
-"guide</a></p> "
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
+"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
 msgstr ""
 
 #: ckan/templates/admin/trash.html:20
@@ -2172,8 +2168,7 @@ msgstr "גשו למשאב מידע דרך API מקוון עם תמיכה בשא�
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
-" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:33
@@ -2182,9 +2177,10 @@ msgstr "נקודות קצה"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
-msgstr "ה-API של המידע יכול להתקבל באמצעות הפעולות הבאות של API פעולות של CKAN. "
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
+msgstr ""
+"ה-API של המידע יכול להתקבל באמצעות הפעולות הבאות של API פעולות של CKAN. "
 
 #: ckan/templates/ajax_snippets/api_info.html:42
 msgid "Create"
@@ -2389,8 +2385,9 @@ msgstr "האם אתם בטוחים שאתם רוצים למחוק את חבר ה
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
 #: ckan/templates/package/read_base.html:14
-#: ckan/templates/package/resource_read.html:31 ckan/templates/user/edit.html:8
-#: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:14
+#: ckan/templates/package/resource_read.html:31
+#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/read_base.html:14
 msgid "Manage"
 msgstr "ניהול"
 
@@ -2458,7 +2455,8 @@ msgstr "שמות בסדר יורד"
 msgid "There are currently no groups for this site"
 msgstr "אין כרגע קבוצות לאתר הזה"
 
-#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "מה דעתכם ליצור קבוצה?"
 
@@ -2507,19 +2505,22 @@ msgstr "משתמש חדש"
 msgid "If you wish to invite a new user, enter their email address."
 msgstr "אם אתם רוצים להזמין משתמש חדש, הקלידו את כתובת הדואר האלקטרוני שלהם."
 
-#: ckan/templates/group/member_new.html:55 ckan/templates/group/members.html:18
+#: ckan/templates/group/member_new.html:55
+#: ckan/templates/group/members.html:18
 #: ckan/templates/organization/member_new.html:56
 #: ckan/templates/organization/members.html:18
 msgid "Role"
 msgstr "תפקיד"
 
-#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:30
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:30
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
 msgstr "האם אתם בטוחים שאתם רוצים למחוק את חבר הקבוצה הזה?"
 
-#: ckan/templates/group/member_new.html:59 ckan/templates/group/members.html:35
+#: ckan/templates/group/member_new.html:59
+#: ckan/templates/group/members.html:35
 #: ckan/templates/group/snippets/group_form.html:61
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:60
@@ -2544,13 +2545,13 @@ msgstr " מה הם התפקידים"
 
 #: ckan/templates/group/member_new.html:81
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage"
-" organization members.</p> <p><strong>Member:</strong> Can add/remove "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
 msgstr ""
-" <p><strong>מנהל:</strong>יכול לערוך את מידע הקבוצה, וכן לנהל את חברי "
-"הארגון members.</p> <p><strong>חבר קבוצה:</strong> יכול להוסיף/להסיר "
-"צבירי נתונים מקבוצות</p> "
+" <p><strong>מנהל:</strong>יכול לערוך את מידע הקבוצה, וכן לנהל את חברי הארגון"
+" members.</p> <p><strong>חבר קבוצה:</strong> יכול להוסיף/להסיר צבירי נתונים "
+"מקבוצות</p> "
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -2670,15 +2671,15 @@ msgstr "מה הן קבוצות?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets. "
+" You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets. "
 msgstr ""
-"אתם יכולים להשתמש בקבוצות של CKAN כדי ליצור ולנהל אוספים של צבירי נתונים."
-" זה יכול להיות לשמש לקטלג צבירי נתונים לצורך פרויקט או קבוצה מסוימת, "
-"לצבירים בנושא מסוים, או כדרך פשוטה כדי לעזור לאנשים למצוא ולחפש מידע "
-"בצבירי הנתונים שפרסמתם. "
+"אתם יכולים להשתמש בקבוצות של CKAN כדי ליצור ולנהל אוספים של צבירי נתונים. זה"
+" יכול להיות לשמש לקטלג צבירי נתונים לצורך פרויקט או קבוצה מסוימת, לצבירים "
+"בנושא מסוים, או כדרך פשוטה כדי לעזור לאנשים למצוא ולחפש מידע בצבירי הנתונים "
+"שפרסמתם. "
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
@@ -2741,14 +2742,13 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2758,18 +2758,18 @@ msgid ""
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 msgstr ""
-" <p>CKAN היא פלטפורמת המידע הפתוחה המובילה בעולם</p> <p>CKAN היא פתרון "
-"שלם ישר  מהקופסה שהופך מידע לנגיש ושימושי - על ידי כלים שמאפשרים פרסום, "
-"שיתוף חיפוש ושימוש במידע (כולל אחסון המידע וכלי API מתקדמים). CKAN מיועדת"
-" לגופים המפרסמים מידע (ברמה הלאומית והאזורית, חברות וארגונים) שמעונינים "
-"להפוך את המידע שלהם לפתוח וזמין.</p> <p>CKAN נמצאות בשימוש ממשלות וקבוצות"
-" משתמשים ברחבי העולם ומפעילה מגוון אתרים רשמיים וקהילתיים כולל מידע "
-"מקומי, לאומי ובינלאומי. בין היתר ניתן למצוא את <a "
+" <p>CKAN היא פלטפורמת המידע הפתוחה המובילה בעולם</p> <p>CKAN היא פתרון שלם "
+"ישר  מהקופסה שהופך מידע לנגיש ושימושי - על ידי כלים שמאפשרים פרסום, שיתוף "
+"חיפוש ושימוש במידע (כולל אחסון המידע וכלי API מתקדמים). CKAN מיועדת לגופים "
+"המפרסמים מידע (ברמה הלאומית והאזורית, חברות וארגונים) שמעונינים להפוך את "
+"המידע שלהם לפתוח וזמין.</p> <p>CKAN נמצאות בשימוש ממשלות וקבוצות משתמשים "
+"ברחבי העולם ומפעילה מגוון אתרים רשמיים וקהילתיים כולל מידע מקומי, לאומי "
+"ובינלאומי. בין היתר ניתן למצוא את <a "
 "href=\"http://data.gov.uk\">data.gov.uk</a> ואת האיחוד האירופי <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, הברזילאי<a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, אתרים ממשלתיים של גרמניה "
-"והולנד, כמו למשל אתרים עירוניים ואזוריים בארה\"ב, בריטניה, ארגנטינה, "
-"פינלנד ומקומות רבים אחרים. </p> <p>CKAN: <a "
+"והולנד, כמו למשל אתרים עירוניים ואזוריים בארה\"ב, בריטניה, ארגנטינה, פינלנד "
+"ומקומות רבים אחרים. </p> <p>CKAN: <a "
 "href=\"http://ckan.org/\">http://ckan.org/</a><br /> סיור ב-CKAN: <a "
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> אפשרויות "
 "המערכת: <a "
@@ -2781,11 +2781,11 @@ msgstr "ברוכים הבאים ל-CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will "
 msgstr ""
-"זוהי פסקת הקדמה נחמדה על CKAN או על האתר באופן כללי. אין לנו עותק להכניס "
-"כאן בינתיים, אבל בקרוב יהיה"
+"זוהי פסקת הקדמה נחמדה על CKAN או על האתר באופן כללי. אין לנו עותק להכניס כאן"
+" בינתיים, אבל בקרוב יהיה"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -2826,8 +2826,8 @@ msgstr "קבוצות"
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
@@ -2898,8 +2898,8 @@ msgstr "טיוטא"
 #: ckan/templates/package/read.html:11
 #: ckan/templates/package/snippets/package_basic_fields.html:92
 #: ckan/templates/snippets/package_item.html:31
-#: ckan/templates/snippets/private.html:2 ckan/templates/user/read_base.html:82
-#: ckan/templates/user/read_base.html:96
+#: ckan/templates/snippets/private.html:2
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "Private"
 msgstr "פרטי"
 
@@ -2953,14 +2953,14 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
 msgstr ""
-"<p><strong> מנהל/ת (אדמין): </strong> יכולים להוסיף/לערוך צבירי נתונים "
-"ולנהל את החברים בארגון. </p> <p><strong> עורכ/ת (editor): </strong>  "
-"יכולים להוסיף ולערוך צבירי נתונים, אך לא יכולים לערוך את החברים בארגון. "
-"</p> <p><strong> חבר/ה: (member)</strong> יכולים לראות את צבירי הנתונים "
-"הפרטיים של הארגון, אך לא יכולים להוסיף צבירי נתונים חדשים.</p>"
+"<p><strong> מנהל/ת (אדמין): </strong> יכולים להוסיף/לערוך צבירי נתונים ולנהל"
+" את החברים בארגון. </p> <p><strong> עורכ/ת (editor): </strong>  יכולים "
+"להוסיף ולערוך צבירי נתונים, אך לא יכולים לערוך את החברים בארגון. </p> "
+"<p><strong> חבר/ה: (member)</strong> יכולים לראות את צבירי הנתונים הפרטיים "
+"של הארגון, אך לא יכולים להוסיף צבירי נתונים חדשים.</p>"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -2994,19 +2994,19 @@ msgstr "מה הם ארגונים?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for "
-"example, the Department of Health). This means that datasets can be "
-"published by and belong to a department instead of an individual "
-"user.</p> <p>Within organizations, admins can assign roles and authorise "
-"its members, giving individual users the right to publish datasets from "
-"that particular organisation (e.g. Office of National Statistics).</p> "
+" <p>Organizations act like publishing departments for datasets (for example,"
+" the Department of Health). This means that datasets can be published by and"
+" belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorise its members, giving "
+"individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of"
-" datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish. "
+" CKAN Organizations are used to create, manage and publish collections of "
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish. "
 msgstr ""
 "ארגונים ב-CKAN משמשים כדי ליצור, לנהל ולפרסם אוספים של צבירי נתונים. "
 "למשתמשים יכולים תפקידים שונםי בארגון, בהתאם לרמת ההרשאות ליצור, לערוך "
@@ -3026,8 +3026,8 @@ msgstr "מידע קצר על הארגון שלי..."
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all "
-"the public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? This will delete all the "
+"public and private datasets belonging to this organization."
 msgstr ""
 "האם אתם בטוחים שאתם רוצים למחוק את הארגון הזה? פעולה זו תמחק את כל צבירי "
 "הנתונים הפומביים והפרטיים השייכים לארגון."
@@ -3052,13 +3052,13 @@ msgstr "מה הם צבירי נתונים?"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data. "
+" A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data. "
 msgstr ""
-"צביר נתונים של CKAN הוא אוסף של משאבי מידע (כמו קבצים) המופיע בקישור "
-"קבוע. הצביר כולל גם תיאור ומידע נוסף. צבירי נתונים הם מה שמשתמשים רואים "
-"כאשר הם מחפשים מידע. "
+"צביר נתונים של CKAN הוא אוסף של משאבי מידע (כמו קבצים) המופיע בקישור קבוע. "
+"הצביר כולל גם תיאור ומידע נוסף. צבירי נתונים הם מה שמשתמשים רואים כאשר הם "
+"מחפשים מידע. "
 
 #: ckan/templates/package/confirm_delete.html:12
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3139,9 +3139,9 @@ msgstr ""
 msgid ""
 " Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
-" documentation</a>. "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>Data Explorer "
+"documentation</a>. "
 msgstr ""
 
 #: ckan/templates/package/new_view.html:29
@@ -3152,12 +3152,11 @@ msgstr "הוספה"
 #: ckan/templates/package/read_base.html:32
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
 msgstr ""
-"זהו עדכון ישן של צביר נתונים זה, כפי שנערך ב-%(timestamp)s. הוא עשוי "
-"להיות שונה מאוד מה<a href=\"%(url)s\">גרסה הנוכחית</a>."
+"זהו עדכון ישן של צביר נתונים זה, כפי שנערך ב-%(timestamp)s. הוא עשוי להיות "
+"שונה מאוד מה<a href=\"%(url)s\">גרסה הנוכחית</a>."
 
 #: ckan/templates/package/resource_data.html:12
 msgid "Upload to DataStore"
@@ -3272,9 +3271,9 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 
 #: ckan/templates/package/resource_read.html:147
@@ -3333,11 +3332,11 @@ msgstr "הוסף משאב נוסף"
 #: ckan/templates/package/snippets/resources_list.html:25
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
-" add some?</a></p> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a></p> "
 msgstr ""
-"<p class=\"empty\"> אין נתונים בצביר נתונים זה, <a href=\"%(url)s\"> מדוע"
-" שלא תוסיפו כמה? </a></p>"
+"<p class=\"empty\"> אין נתונים בצביר נתונים זה, <a href=\"%(url)s\"> מדוע "
+"שלא תוסיפו כמה? </a></p>"
 
 #: ckan/templates/package/search.html:52
 msgid "API"
@@ -3486,12 +3485,11 @@ msgstr "פעיל/ה"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:39
@@ -3835,8 +3833,8 @@ msgstr " <p class=\"extra\">אנא נסו חיפוש נוסף.</p> "
 
 #: ckan/templates/snippets/search_form.html:86
 msgid ""
-" <p id=\"search-error\"><strong>There was an error while "
-"searching.</strong> Please try again.</p> "
+" <p id=\"search-error\"><strong>There was an error while searching.</strong>"
+" Please try again.</p> "
 msgstr ""
 
 #: ckan/templates/snippets/search_result_text.html:15
@@ -3983,8 +3981,7 @@ msgstr "מידע על חשבון"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
+" Your profile lets other CKAN users know about who you are and what you do. "
 msgstr "הפרופיל שלך מאפשר למשתמשי CKAN אחרים לדעת מי את/ה ומה אתם עושים."
 
 #: ckan/templates/user/edit_user_form.html:7
@@ -4208,11 +4205,11 @@ msgstr ""
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
+"Enter your username into the box and we will send you an email with a link "
+"to enter a new password."
 msgstr ""
-"הזינו את שם המשתמש/ת שלך לתוך התיבה ואנחנו נשלח לכם דוא\"ל עם קישור להזין"
-" סיסמא חדשה."
+"הזינו את שם המשתמש/ת שלך לתוך התיבה ואנחנו נשלח לכם דוא\"ל עם קישור להזין "
+"סיסמא חדשה."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
 #: ckan/templates/user/snippets/followee_dropdown.html:15
@@ -4257,8 +4254,8 @@ msgstr "משאב DataStore לא נמצא"
 
 #: ckanext/datastore/db.py:663
 msgid ""
-"The data was invalid (for example: a numeric value is out of range or was"
-" inserted into a text field)."
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
 msgstr ""
 
 #: ckanext/datastore/logic/action.py:221 ckanext/datastore/logic/action.py:261
@@ -4518,357 +4515,3 @@ msgstr ""
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
 msgstr ""
-
-#~ msgid "Unauthorized to read group %s"
-#~ msgstr "ללא הרשאה לקרוא את הקבוצה %s"
-
-#~ msgid "User %r not authorized to edit %r"
-#~ msgstr "משתמשת %r אינה מורשה לערוך %r"
-
-#~ msgid "Unauthorized to read group {group_id}"
-#~ msgstr "אינך מורשה לקרוא את קבוצה {group_id}"
-
-#~ msgid ""
-#~ "Please <a href=\"{link}\">update your "
-#~ "profile</a> and add your email address"
-#~ " and your full name. {site} uses "
-#~ "your email address if you need to"
-#~ " reset your password."
-#~ msgstr ""
-#~ "אנא <a href=\"{link}\">עדכני את הפרופיל "
-#~ "שלך</a> , את כתובת הדוא\"ל ואת שמך"
-#~ " המלא {site} משתמשת בכתובת הדוא\"ל "
-#~ "כדי לאתחל את הסיסמה שלך."
-
-#~ msgid "Please <a href=\"%s\">update your profile</a> and add your full name."
-#~ msgstr "אנא <a href=\"%s\">עדכני את הפרופיל שלך</a> ואת שמך המלא."
-
-#~ msgid "Unauthorized to view View %s"
-#~ msgstr ""
-
-#~ msgid "Unauthorized to read resource view %s"
-#~ msgstr ""
-
-#~ msgid "Most viewed"
-#~ msgstr "הכי נצפה"
-
-#~ msgid "Most Viewed"
-#~ msgstr "הכי נצפה"
-
-#~ msgid "Least Viewed"
-#~ msgstr "הכי פחות נצפה"
-
-#~ msgid "Newest"
-#~ msgstr "הכי חדש"
-
-#~ msgid "Oldest"
-#~ msgstr "הכי ותיק"
-
-#~ msgid "The requested related item was not found"
-#~ msgstr "הפריט הקשור המבוקש לא נמצא"
-
-#~ msgid "Related item not found"
-#~ msgstr "הפריט הקשור לא נמצא"
-
-#~ msgid "Package not found"
-#~ msgstr "החבילה לא נמצאה"
-
-#~ msgid "Related item was successfully created"
-#~ msgstr "הפריט הקשור נותר בהצלחה"
-
-#~ msgid "Related item was successfully updated"
-#~ msgstr "הפריט הקשור עודכן בהצלחה"
-
-#~ msgid "Related item has been deleted."
-#~ msgstr "הפריט הקשור נמחק"
-
-#~ msgid "Unauthorized to delete related item %s"
-#~ msgstr "אין לך הרשאה למחיקת הפריט הקשור %s"
-
-#~ msgid "Application"
-#~ msgstr "יישום"
-
-#~ msgid "Idea"
-#~ msgstr "רעיון"
-
-#~ msgid "News Article"
-#~ msgstr "מאמר חדשותי"
-
-#~ msgid "Paper"
-#~ msgstr "נייר או מסמך"
-
-#~ msgid "Post"
-#~ msgstr "פוסט"
-
-#~ msgid "Visualization"
-#~ msgstr "ויזואליזציה"
-
-#~ msgid "Unauthorized to read {0} {1}"
-#~ msgstr "לא מורשה לקרוא {0} {1}"
-
-#~ msgid ""
-#~ "{actor} updated the {related_type} "
-#~ "{related_item} of the dataset {dataset}"
-#~ msgstr "{actor} עדכן את ה {related_type} {related_item} של דאטה סט {dataset}"
-
-#~ msgid "{actor} updated the {related_type} {related_item}"
-#~ msgstr "{actor} עדכן את ה {related_type} {related_item}"
-
-#~ msgid "{actor} deleted the related item {related_item}"
-#~ msgstr "{actor} מחק את הפריט הקשור {related_item}"
-
-#~ msgid ""
-#~ "{actor} added the {related_type} "
-#~ "{related_item} to the dataset {dataset}"
-#~ msgstr "{actor} הוסיף את {related_type} {related_item} לדאטה סט {dataset}"
-
-#~ msgid "{actor} added the {related_type} {related_item}"
-#~ msgstr "{actor} הוסיף את {related_type} {related_item}"
-
-#~ msgid "1 new activity from {site_title}"
-#~ msgid_plural "{n} new activities from {site_title}"
-#~ msgstr[0] "פעולה אחת חדשה {site_title}"
-#~ msgstr[1] "{n} פעולות חדשות מ {site_title}"
-
-#~ msgid "{month} {day}, {year}, {hour:02}:{min:02}"
-#~ msgstr " {day} {month}, {year}, {hour:02}:{min:02}"
-
-#~ msgid "Dear %s,"
-#~ msgstr "%s יקר,"
-
-#~ msgid ""
-#~ "You have requested your password on {site_title} to be reset.\n"
-#~ "\n"
-#~ "Please click the following link to confirm this request:\n"
-#~ "\n"
-#~ "   {reset_link}\n"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "You have been invited to {site_title}."
-#~ " A user has already been created "
-#~ "to you with the username {user_name}."
-#~ " You can change it later.\n"
-#~ "\n"
-#~ "To accept this invite, please reset your password at:\n"
-#~ "\n"
-#~ "   {reset_link}\n"
-#~ msgstr ""
-
-#~ msgid "Invite for {site_title}"
-#~ msgstr " הזמנה עבור {site_title}"
-
-#~ msgid "A organization must be supplied"
-#~ msgstr "יש לספק את שם האירגון"
-
-#~ msgid "Related"
-#~ msgstr "קשור"
-
-#~ msgid "unknown user:"
-#~ msgstr "משתמש לא קיים:"
-
-#~ msgid "Item was not found."
-#~ msgstr "הפריט לא נמצא."
-
-#~ msgid "You must be a sysadmin to create a featured related item"
-#~ msgstr "רק מנהל מערכת יכול ליצור פריט מקושר- מקודם."
-
-#~ msgid "You must be logged in to add a related item"
-#~ msgstr "אתם חייבים להיות מחוברים כדי להוסיף פריט מקושר"
-
-#~ msgid "Only the owner can delete a related item"
-#~ msgstr "רק הבעלים יכול למחוק פריט קשור"
-
-#~ msgid "Only the owner can update a related item"
-#~ msgstr "רק בעלים יכול לעדכן פריט קשור"
-
-#~ msgid "You must be a sysadmin to change a related item's featured field."
-#~ msgstr "אתם חייבים להיות מנהלי מערכת כדי לשנות שדה מובלט של פריט קשור."
-
-#~ msgid "show more"
-#~ msgstr "הראה עוד"
-
-#~ msgid "show less"
-#~ msgstr "הצג פחות"
-
-#~ msgid "Open Knowledge Foundation"
-#~ msgstr "קרן המידע הפתוח"
-
-#~ msgid "related item"
-#~ msgstr "פריט קשור"
-
-#~ msgid "related items"
-#~ msgstr "פריטים קשורים"
-
-#~ msgid "Related Media for {dataset}"
-#~ msgstr "מדיה רלוונטית עבור {dataset}"
-
-#~ msgid "No related items"
-#~ msgstr "אין פריטים קשורים"
-
-#~ msgid "Add Related Item"
-#~ msgstr "הוסף פריט קשור"
-
-#~ msgid "Related Form"
-#~ msgstr "טופס קשור"
-
-#~ msgid "What are related items?"
-#~ msgstr "מה הם הפריטים הקשורים?"
-
-#~ msgid ""
-#~ " <p>Related Media is any app, "
-#~ "article, visualisation or idea related "
-#~ "to this dataset.</p> <p>For example, it"
-#~ " could be a custom visualisation, "
-#~ "pictograph or bar chart, an app "
-#~ "using all or part of the data "
-#~ "or even a news story that "
-#~ "references this dataset.</p> "
-#~ msgstr ""
-#~ "<p>מדיה קשורה היא כל יישום, מאמר, "
-#~ "ויזואליזציה או רעיון הקשור לצביר נתונים"
-#~ " זה. .</p> <p> לדוגמא, הוא יכול "
-#~ "להיות ויזואליזציה מותאמת, תרשים או גרף,"
-#~ " יישום המשתמשים בכל הנתונים או חלק"
-#~ " מהם או אפילו ידיעה חדשותית המפנה "
-#~ "אל צביר נתונים זה. </p>"
-
-#~ msgid "Are you sure you want to delete related item - {name}?"
-#~ msgstr "האם אתם בטוחים שאתם רוצים למחקור פרטי מקושר  - {name}??"
-
-#~ msgid "Apps & Ideas"
-#~ msgstr "יישומים ורעיונות"
-
-#~ msgid ""
-#~ " <p>Showing items <strong>%(first)s - "
-#~ "%(last)s</strong> of <strong>%(item_count)s</strong> "
-#~ "related items found</p> "
-#~ msgstr ""
-#~ "<p> הצגת פריטים  <strong>%(first)s - "
-#~ "%(last)s</strong>  מתוך <strong>%(item_count)s</strong>"
-#~ " פריטים קשורים שנמצאו </p>"
-
-#~ msgid " <p><strong>%(item_count)s</strong> related items found</p> "
-#~ msgstr "<p><strong>%(item_count)s</strong> פריטים קשורים שנמצאו </p>"
-
-#~ msgid "There have been no apps submitted yet."
-#~ msgstr "עוד לא שודרו יישומים."
-
-#~ msgid "What are applications?"
-#~ msgstr "מהם יישומים?"
-
-#~ msgid ""
-#~ " These are applications built with "
-#~ "the datasets as well as ideas for"
-#~ " things that could be done with "
-#~ "them. "
-#~ msgstr "אלו יישומים שנבנו עם צבירי המידע ורעיונות לדברים שניתן לעשות איתם"
-
-#~ msgid "Filter by type"
-#~ msgstr "סינון לפי סוג"
-
-#~ msgid "All"
-#~ msgstr "הכל"
-
-#~ msgid "Sort by"
-#~ msgstr "סידור על-פי"
-
-#~ msgid "Default"
-#~ msgstr "ברירת מחדל"
-
-#~ msgid "Only show featured items"
-#~ msgstr "הצג רק פריטים מובילים"
-
-#~ msgid "Apply"
-#~ msgstr "הפעלה"
-
-#~ msgid "Edit related item"
-#~ msgstr "ערוך פריט קשור"
-
-#~ msgid "Edit Related"
-#~ msgstr "ערוך קשור"
-
-#~ msgid "Edit Related Item"
-#~ msgstr "ערוך פריט קשור"
-
-#~ msgid "Create a related item"
-#~ msgstr "צור פריט קשור"
-
-#~ msgid "Create Related"
-#~ msgstr "צור קשור"
-
-#~ msgid "Create Related Item"
-#~ msgstr "צור פריט קשור"
-
-#~ msgid "My Related Item"
-#~ msgstr "פריט הקשור שלי"
-
-#~ msgid "http://example.com/"
-#~ msgstr "http://example.com/"
-
-#~ msgid "http://example.com/image.png"
-#~ msgstr "http://example.com/image.png"
-
-#~ msgid "A little information about the item..."
-#~ msgstr "מידע קצר על הפריט..."
-
-#~ msgid "Type"
-#~ msgstr "סוג"
-
-#~ msgid "Are you sure you want to delete this related item?"
-#~ msgstr "האם אתם בטוחים שאתם מעוניינים למחוק את הפריט הקשור?"
-
-#~ msgid "Go to {related_item_type}"
-#~ msgstr "לך אל {related_item_type}"
-
-#~ msgid ""
-#~ "No apps, ideas, news stories or "
-#~ "images have been related to this "
-#~ "dataset yet."
-#~ msgstr ""
-#~ "שום יישומים, רעיונות, סיפורי חדשות או"
-#~ " תמונות יוחסו לבסיס נתונים זה עדיין."
-
-#~ msgid "Add Item"
-#~ msgstr "הוסף פריט"
-
-#~ msgid ""
-#~ " <p><strong>There was an error while "
-#~ "searching.</strong> Please try again.</p> "
-#~ msgstr "<p><strong> ארעה שגיאה בעת החיפוש. </strong> אנא נסו שוב. </p>"
-
-#~ msgid "Users Owning Most Datasets"
-#~ msgstr "משתמשים בעלי מספר צבירי נתונים הגבוה ביותר"
-
-#~ msgid "Statistics"
-#~ msgstr "סטטיסטיקות"
-
-#~ msgid "Revisions to Datasets per week"
-#~ msgstr "שינויים לצבירי נתונים בשבוע"
-
-#~ msgid "Users owning most datasets"
-#~ msgstr "משתמשים בעלי מספר צבירי נתונים הגבוה ביותר"
-
-#~ msgid "Page last updated:"
-#~ msgstr "דף שעודכן לאחרונה:"
-
-#~ msgid "Leaderboard - Stats"
-#~ msgstr "לוח הישגים - סטטיסטיקות"
-
-#~ msgid "Dataset Leaderboard"
-#~ msgstr "לוח מעקב של צביר נתונים"
-
-#~ msgid ""
-#~ "Choose a dataset attribute and find "
-#~ "out which categories in that area "
-#~ "have the most datasets. E.g. tags, "
-#~ "groups, license, res_format, country."
-#~ msgstr ""
-#~ "בחרו מאפיין של צביר הנתונים, וגלו "
-#~ "את הקטגוריות בתחום הכוללות את רוב "
-#~ "צבירי הנתונים. לדוגמא: תגיות, קבוצות, "
-#~ "רישיון, res_format, מדינה."
-
-#~ msgid "Choose area"
-#~ msgstr "בחר אזור"
-
