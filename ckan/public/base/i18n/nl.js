@@ -68,6 +68,10 @@
     null,
     "Verwijder"
   ],
+  "Reorder resource view": [
+    null,
+    "Wijzig sortering bronnen"
+  ],
   "Reorder resources": [
     null,
     "Wijzig sortering bronnen"
