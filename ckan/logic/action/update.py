@@ -6,6 +6,7 @@ import logging
 import datetime
 import time
 import json
+import mimetypes
 
 from ckan.common import config
 import paste.deploy.converters as converters
@@ -93,6 +94,14 @@ def resource_update(context, data_dict):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
     upload = uploader.get_resource_uploader(data_dict)
+
+    if 'mimetype' not in data_dict:
+        if hasattr(upload, 'mimetype'):
+            data_dict['mimetype'] = upload.mimetype
+
+    if 'size' not in data_dict and 'url_type' in data_dict:
+        if hasattr(upload, 'filesize'):
+            data_dict['size'] = upload.filesize
 
     pkg_dict['resources'][n] = data_dict
 

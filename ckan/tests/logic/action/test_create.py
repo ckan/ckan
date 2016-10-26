@@ -3,7 +3,7 @@
 '''Unit tests for ckan/logic/auth/create.py.
 
 '''
-
+import ckan
 from ckan.common import config
 import mock
 import nose.tools
@@ -16,6 +16,22 @@ import ckan.plugins as p
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+
+# Mock file uploads
+import __builtin__ as builtins
+from pyfakefs import fake_filesystem
+
+real_open = open
+fs = fake_filesystem.FakeFilesystem()
+fake_os = fake_filesystem.FakeOsModule(fs)
+fake_open = fake_filesystem.FakeFileOpen(fs)
+
+
+def mock_open_if_open_fails(*args, **kwargs):
+    try:
+        return real_open(*args, **kwargs)
+    except (OSError, IOError):
+        return fake_open(*args, **kwargs)
 
 
 class TestUserInvite(object):
@@ -394,6 +410,13 @@ class TestCreateDefaultResourceViews(object):
 
 
 class TestResourceCreate(object):
+    import cgi
+
+    class FakeFileStorage(cgi.FieldStorage):
+        def __init__(self, fp, filename):
+            self.file = fp
+            self.filename = filename
+            self.name = 'upload'
 
     @classmethod
     def setup_class(cls):
@@ -442,6 +465,181 @@ class TestResourceCreate(object):
         stored_resource = helpers.call_action('resource_show', **data_dict)
 
         assert not stored_resource['url']
+
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_mimetype_by_url(self, mock_open):
+        '''
+        The mimetype is guessed from the url
+
+        Real world usage would be externally linking the resource and the mimetype would
+        be guessed, based on the url
+        '''
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://localhost/data.csv',
+            'name': 'A nice resource',
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+
+        assert mimetype
+        assert_equals(mimetype, 'text/csv')
+
+    def test_mimetype_by_user(self):
+        '''
+        The mimetype is supplied by the user
+
+        Real world usage would be using the FileStore API or web UI form to create a resource
+        and the user wanted to specify the mimetype themselves
+        '''
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://localhost/data.csv',
+            'name': 'A nice resource',
+            'mimetype': 'application/csv'
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+        assert_equals(mimetype, 'application/csv')
+
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_mimetype_by_upload_by_filename(self, mock_open):
+        '''
+        The mimetype is guessed from an uploaded file with a filename
+
+        Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
+        If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
+        '''
+        import StringIO
+        test_file = StringIO.StringIO()
+        test_file.write('''
+        "info": {
+            "title": "BC Data Catalogue API",
+            "description": "This API provides information about datasets in the BC Data Catalogue.",
+            "termsOfService": "http://www.data.gov.bc.ca/local/dbc/docs/license/API_Terms_of_Use.pdf",
+            "contact": {
+                "name": "Data BC",
+                "url": "http://data.gov.bc.ca/",
+                "email": ""
+            },
+            "license": {
+                "name": "Open Government License - British Columbia",
+                "url": "http://www.data.gov.bc.ca/local/dbc/docs/license/OGL-vbc2.0.pdf"
+            },
+            "version": "3.0.0"
+        }
+        ''')
+        test_resource = TestResourceCreate.FakeFileStorage(test_file, 'test.json')
+
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'upload': test_resource
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+
+        assert mimetype
+        assert_equals(mimetype, 'application/json')
+
+    @helpers.change_config('ckan.mimetype_guess', 'file_contents')
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_mimetype_by_upload_by_file(self, mock_open):
+        '''
+        The mimetype is guessed from an uploaded file by the contents inside
+
+        Real world usage would be using the FileStore API or web UI form to upload a file, that has no extension
+        If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
+        '''
+        import StringIO
+        test_file = StringIO.StringIO()
+        test_file.write('''
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
+        NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
+        ''')
+        test_resource = TestResourceCreate.FakeFileStorage(test_file, '')
+
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'upload': test_resource
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+
+        assert mimetype
+        assert_equals(mimetype, 'text/plain')
+
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_size_of_resource_by_upload(self, mock_open):
+        '''
+        The size of the resource determined by the uploaded file
+        '''
+        import StringIO
+        test_file = StringIO.StringIO()
+        test_file.write('''
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
+        NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
+        ''')
+        test_resource = TestResourceCreate.FakeFileStorage(test_file, 'test.csv')
+
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'upload': test_resource
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        size = result.pop('size')
+
+        assert size
+        assert size > 0
+
+    def test_size_of_resource_by_user(self):
+        '''
+        The size of the resource is provided by the users
+
+        Real world usage would be using the FileStore API and the user provides a size for the resource
+        '''
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'size': 500
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        size = int(result.pop('size'))
+        assert_equals(size, 500)
 
 
 class TestMemberCreate(object):
