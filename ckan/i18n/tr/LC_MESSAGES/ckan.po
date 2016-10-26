@@ -4,14 +4,14 @@
 # 
 # Translators:
 # cagdas!123 <olgun.cagdas@gmail.com>, 2013,2015
-# sercan erhan <sercanerhan@gmail.com>, 2015
+# Sercan <sercanerhan@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-01-26 11:55+0000\n"
 "PO-Revision-Date: 2015-11-26 14:18+0000\n"
-"Last-Translator: sercan erhan <sercanerhan@gmail.com>\n"
+"Last-Translator: Sercan <sercanerhan@gmail.com>\n"
 "Language-Team: Turkish (http://www.transifex.com/okfn/ckan/language/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"

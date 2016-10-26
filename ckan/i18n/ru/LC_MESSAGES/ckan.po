@@ -4,7 +4,7 @@
 # 
 # Translators:
 # Gromislav <igromislav@gmail.com>, 2013
-# ivbeg <ibegtin@gmail.com>, 2013
+# Ivan Begtin <ibegtin@gmail.com>, 2013
 # mih, 2015
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 msgid ""

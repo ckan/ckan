@@ -4,6 +4,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2015
+# Andi Chandler <andi@gowling.com>, 2016
 # darwinp <darwinpeltan@gmail.com>, 2013
 # Sean Hammond <sean.hammond@okfn.org>, 2013
 msgid ""
@@ -11,8 +12,8 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-01-26 11:55+0000\n"
-"PO-Revision-Date: 2015-11-26 14:24+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
+"PO-Revision-Date: 2016-04-01 18:51+0000\n"
+"Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language-Team: English (United Kingdom) (http://www.transifex.com/okfn/ckan/language/en_GB/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1032,18 +1033,18 @@ msgstr[1] "{days} days ago"
 #: ckan/lib/formatters.py:123
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{months} month ago"
+msgstr[1] "{months} months ago"
 
 #: ckan/lib/formatters.py:125
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "over {years} year ago"
+msgstr[1] "over {years} years ago"
 
 #: ckan/lib/formatters.py:138
 msgid "{month} {day}, {year}, {hour:02}:{min:02}"
-msgstr ""
+msgstr "{month} {day}, {year}, {hour:02}:{min:02}"
 
 #: ckan/lib/formatters.py:142
 msgid "{month} {day}, {year}"
@@ -1171,7 +1172,7 @@ msgid ""
 "To accept this invite, please reset your password at:\n"
 "\n"
 "   {reset_link}\n"
-msgstr ""
+msgstr "You have been invited to {site_title}. A user has already been created for you with the username {user_name}. You can change it later.\n\nTo accept this invite, please reset your password at:\n\n   {reset_link}\n"
 
 #: ckan/lib/mailer.py:145 ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:13
@@ -2985,11 +2986,11 @@ msgstr "groups"
 
 #: ckan/templates/home/snippets/stats.html:28
 msgid "related item"
-msgstr ""
+msgstr "related item"
 
 #: ckan/templates/home/snippets/stats.html:28
 msgid "related items"
-msgstr ""
+msgstr "related items"
 
 #: ckan/templates/macros/form.html:126
 #, python-format
@@ -3944,7 +3945,7 @@ msgstr "Are you sure you want to delete this related item?"
 
 #: ckan/templates/related/snippets/related_item.html:16
 msgid "Go to {related_item_type}"
-msgstr ""
+msgstr "Go to {related_item_type}"
 
 #: ckan/templates/revision/diff.html:6
 msgid "Differences"
