@@ -6,6 +6,7 @@
 # abrahaj <a_brahaj@yahoo.com>, 2011
 # Endrit Bytyqi <endriti.92@gmail.com>, 2015
 # Festina <festina.ismajli123@gmail.com>, 2015
+# Georges <georges@opendatakosovo.org>, 2016
 # <internet@davidread.org>, 2011
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 msgid ""
@@ -13,8 +14,8 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2015-11-26 14:24+0000\n"
-"Last-Translator: dread <david.read@hackneyworkshop.com>\n"
+"PO-Revision-Date: 2016-04-26 20:25+0000\n"
+"Last-Translator: Georges <georges@opendatakosovo.org>\n"
 "Language-Team: Albanian (http://www.transifex.com/okfn/ckan/language/sq/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -879,8 +880,8 @@ msgstr "Shikoni"
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} aktivitet i ri nga {site_title}"
+msgstr[1] "{n} aktivitete të reja nga {site_title}"
 
 #: ckan/lib/formatters.py:17
 msgid "January"
@@ -937,36 +938,36 @@ msgstr "Tani"
 #: ckan/lib/formatters.py:116
 msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Para {mins} minuti"
+msgstr[1] "Para {mins} minutave"
 
 #: ckan/lib/formatters.py:119
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{hours} orë më parë"
+msgstr[1] "{hours} orë më parë"
 
 #: ckan/lib/formatters.py:125
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{days} ditë  më parë"
+msgstr[1] "{days} ditë më parë"
 
 #: ckan/lib/formatters.py:128
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{months} muaj më parë"
+msgstr[1] "{months} muaj më parë"
 
 #: ckan/lib/formatters.py:130
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "mbi {years} vit më parë"
+msgstr[1] "mbi {years} vite më parë"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr ""
+msgstr "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
@@ -1055,14 +1056,14 @@ msgstr "Redakto cilësimet"
 #: ckan/lib/helpers.py:1518
 msgid "{number} view"
 msgid_plural "{number} views"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} shikim"
+msgstr[1] "{number} shikime"
 
 #: ckan/lib/helpers.py:1520
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} shikim i fundit"
+msgstr[1] "{number} shikime të fundit"
 
 #: ckan/lib/mailer.py:25
 #, python-format
@@ -2096,8 +2097,8 @@ msgstr "Shiko Profilin"
 #, python-format
 msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Dashboard (%(num)d artikull i ri)"
+msgstr[1] "Dashboard (%(num)d artikuj të ri)"
 
 #: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -2218,7 +2219,7 @@ msgid ""
 "target=\"_blank\">reading the documentation</a>.</p> "
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p> "
-msgstr ""
+msgstr "<p><strong>Titulli i faqes:</strong> Ky është titulli i kësaj instance të CKAN që shfaqet në vendndodhje të ndryshme nëpër CKAN.</p> <p><strong>Stili:</strong> Zgjidh nga lista e thjeshte e mundësive për ngjyrën kryesore që të funksionalizoni një theme të rregulluar.</p> <p><strong>Tagu i Logos së Faqes:</strong> Kjo është logo që shfaqet në krye të të gjithë shablloneve të instancës së CKAN.</p> <p><strong>Rreth:</strong>Ky tekst do të paraqitet në këto instanca të CKAN <a href=\"%(about_url)s\">faqja rreth nesh</a>.</p> <p><strong>Teksti hyrjes:</strong> Ky tekst do të paraqitet në këto instanca të CKAN <a href=\"%(home_url)s\">faqja fillestare</a> si mirëseardhje për vizitorët.</p> <p><strong>CSS i rregulluar:</strong> Ky është një bllok i CSS që paraqitet në <code>&lt;head&gt;</code> tag të të gjitha faqeve. Nëse dëshironi të rregulloni shabllone në mënyrë më të plotë, ju rekomandojmë <a href=\"%(docs_url)s\" target=\"_blank\">të lexoni dokumentimin</a>.</p> <p><strong>Faqja fillestare:</strong> Kjo shërben për të zgjedhur një pamje të pre-definuar për modulet që shfaqen në faqen fillestare.</p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2731,8 +2732,8 @@ msgstr "Ruaj grupin"
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{num} Dataset"
+msgstr[1] "{num} Datasetet"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -2838,7 +2839,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
+msgstr "<p>CKAN është portali lider i platformës së të dhënave me kod të hapur.</p> <p> CKAN është një out-of-the-box softuer i kompletuar që bën të dhënat e qas’shme dhe të përdorshme- duke ofruar vegla për të publikuar, shpërndarë, gjetur dhe përdorur të dhënat (duke përfshirë hapësirën e të dhënave the ofrimin e një API të fuqishme.). CKAN është i targetuar tek publikuesit e të dhënave(qeveri nacionale dhe dhe regjionale, kompani dhe organizata) të cilat dëshirojnë të bëjnë të dhënat e tyre të qas’shme dhe të disponueshme. </p> <p>CKAN përdoret nga qeveritë dhe grupet e përdorimit në mbarë botën dhe fuqizon portale të të dhënave zyrtare dhe të komunitetit duke përfshirë portale lokale, nacionale, dhe qeveri internacionale, si portali i Anglisë <a href=\"http://data.gov.uk\">data.gov.uk</a> dhe ai i Unionit Europian  <a href=\"http://publicdata.eu/\">publicdata.eu</a>, Brazilian <a href=\"http://dados.gov.br/\">dados.gov.br</a>, portalet qeveritare të Gjermanisë dhe Holandës, gjithashtu edhe portalet e qyteteve dhe komunave ne Amerike, Angli, Argjentinë, Finlandë dhe vende të tjera.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> Si ta përdorim CKAN: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Pasqyra e veqorive: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -3116,7 +3117,7 @@ msgid ""
 " A CKAN Dataset is a collection of data resources (such as files), together "
 "with a description and other information, at a fixed URL. Datasets are what "
 "users see when searching for data. "
-msgstr ""
+msgstr "Një CKAN Dataset është një koleksion i të dhënave burimore (si skedarë), së bashku me përshkrime dhe informacione tjera, në një URL fiks. Datasetet janë çfarë  shfrytëzuesit shohin kur kërkojnë të dhëna."
 
 #: ckan/templates/package/confirm_delete.html:11
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3154,7 +3155,7 @@ msgstr "Ndrysho"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Associate this group with this dataset"
-msgstr ""
+msgstr "Lidhe këtë grup me këtë dataset"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Add to group"
@@ -3162,7 +3163,7 @@ msgstr "Shto në grup"
 
 #: ckan/templates/package/group_list.html:23
 msgid "There are no groups associated with this dataset"
-msgstr ""
+msgstr "Nuk ka asnjë grup të lidhur me këtë dataset"
 
 #: ckan/templates/package/new_package_form.html:15
 msgid "Update Dataset"
@@ -3170,21 +3171,21 @@ msgstr "Ndrysho setin e të dhënave"
 
 #: ckan/templates/package/new_resource.html:5
 msgid "Add data to the dataset"
-msgstr ""
+msgstr "Shto të dhëna në dataset"
 
 #: ckan/templates/package/new_resource.html:11
 #: ckan/templates/package/new_resource_not_draft.html:8
 msgid "Add New Resource"
-msgstr ""
+msgstr "Shto burime të reja"
 
 #: ckan/templates/package/new_resource_not_draft.html:3
 #: ckan/templates/package/new_resource_not_draft.html:4
 msgid "Add resource"
-msgstr ""
+msgstr "Shto burim"
 
 #: ckan/templates/package/new_resource_not_draft.html:16
 msgid "New resource"
-msgstr ""
+msgstr "Burim i ri"
 
 #: ckan/templates/package/new_view.html:3
 #: ckan/templates/package/new_view.html:4
@@ -3200,7 +3201,7 @@ msgid ""
 "href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
 "structured-data-the-data-explorer' target='_blank'>Data Explorer "
 "documentation</a>. "
-msgstr ""
+msgstr "Eksploruesi i të dhënave mund të jetë i ngadalshëm dhe i pasigurtë përderisa nuk aktivizohet ekstenzioni DataStore. Për më shumë informata, ju lutem shihni <a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-structured-data-the-data-explorer' target='_blank'>Dokumentimi për Eksploruesin e të Dhënave</a>"
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:82
@@ -3241,7 +3242,7 @@ msgstr "Gabim:"
 
 #: ckan/templates/package/resource_data.html:36
 msgid "Error traceback:"
-msgstr ""
+msgstr "Gabim gjurmimi:"
 
 #: ckan/templates/package/resource_data.html:48
 msgid "Status"
@@ -3414,7 +3415,7 @@ msgstr "API Docs"
 
 #: ckan/templates/package/search.html:55
 msgid "full {format} dump"
-msgstr ""
+msgstr "grumbill i plotë i {format}"
 
 #: ckan/templates/package/search.html:56
 #, python-format
@@ -3888,8 +3889,8 @@ msgstr "<p><strong>Ndodhi një gabim gjatë kërkimit.</strong> Ju lutem provoni
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} dataset u gjet për  \"{query}\""
+msgstr[1] "{number} datasete u gjetën për  \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -3898,8 +3899,8 @@ msgstr "Asnjë set i të dhënave nuk është gjetur për \"{query}\""
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "U gjet {number} dataset"
+msgstr[1] "U gjetën {number} datasete"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -3908,8 +3909,8 @@ msgstr "Asnjë set i të dhënave nuk është gjetur"
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "U gjet {number} grup për  \"{query}\""
+msgstr[1] "U gjeten {number} grupe për  \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -3918,8 +3919,8 @@ msgstr "Asnjë grup nuk është gjetur për \"{query}\""
 #: ckan/templates/snippets/search_result_text.html:23
 msgid "{number} group found"
 msgid_plural "{number} groups found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "U gjet {number} grup"
+msgstr[1] "U gjetën {number} grupe"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -3928,8 +3929,8 @@ msgstr "Asnjë grup nuk është gjetur"
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "U gjet {number} organizatë për  \"{query}\""
+msgstr[1] "U gjetën {number} organizata për  \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -3938,8 +3939,8 @@ msgstr "Asnjë organizatë nuk është gjetur për \"{query}\""
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "U gjet {number} organizatë"
+msgstr[1] "U gjeten {number} organizata"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
@@ -4341,7 +4342,7 @@ msgstr "teksti burimor i kustomizuar"
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr ""
+msgstr "Ky është një varg i pa përkthyer"
 
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
@@ -4378,7 +4379,7 @@ msgstr "Harta"
 
 #: ckanext/reclineview/theme/public/recline_view.js:34
 msgid "error loading view"
-msgstr ""
+msgstr "gabim në ngarkimin e pamjes"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -4522,7 +4523,7 @@ msgstr "Numri i setit të të dhënave"
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "Përdoruesit që krijojnë më së shumti datasete"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
@@ -4539,7 +4540,7 @@ msgstr "Teksti"
 #: ckanext/textview/theme/public/text_view.js:5
 #, python-format
 msgid "An error occurred: %(text)s %(error)s"
-msgstr ""
+msgstr "Një gabim ndodhi: %(text)s %(error)s"
 
 #: ckanext/webpageview/plugin.py:19 ckanext/webpageview/plugin.py:24
 msgid "Website"

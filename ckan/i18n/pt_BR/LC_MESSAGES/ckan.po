@@ -5,7 +5,7 @@
 # Translators:
 # Augusto Herrmann <augusto.herrmann@gmail.com>, 2015
 # Christian Moryah Contiero Miranda <christianmoryah@gmail.com>, 2012,2014
-# Gustavo Rocha Pereira de Souza <gustavorps@gustavorps.net>, 2014
+# Gustavo RPS, 2014
 # Pablo Mendes <>, 2012
 # Yaso <inactive+Yaso@transifex.com>, 2013
 msgid ""

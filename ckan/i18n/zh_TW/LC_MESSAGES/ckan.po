@@ -10,14 +10,15 @@
 # JH Kang <dio.paper@gmail.com>, 2013
 # Sol Lee <u103133.u103135@gmail.com>, 2013,2015
 # whisky <whisky@ystaiwan.org.tw>, 2013
+# Xaver Y.R. Chen <yrchen@atcity.org>, 2016
 # Youchen Lee <isacl@unisharp.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2015-12-07 02:08+0000\n"
-"Last-Translator: Sol Lee <u103133.u103135@gmail.com>\n"
+"PO-Revision-Date: 2016-07-06 05:14+0000\n"
+"Last-Translator: Xaver Y.R. Chen <yrchen@atcity.org>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/okfn/ckan/language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2241,11 +2242,11 @@ msgstr "<p>永久清除標記為刪除的資料集。</p>"
 
 #: ckan/templates/ajax_snippets/api_info.html:19
 msgid "CKAN Data API"
-msgstr "CKAN資料API。"
+msgstr "CKAN資料API"
 
 #: ckan/templates/ajax_snippets/api_info.html:23
 msgid "Access resource data via a web API with powerful query support"
-msgstr "透過一擁有強大查詢功能支援的網路API來存取資源之資料。"
+msgstr "透過一擁有強大查詢功能支援的網路API來存取資源之資料"
 
 #: ckan/templates/ajax_snippets/api_info.html:24
 msgid ""
@@ -2256,7 +2257,7 @@ msgstr "進一步的資訊位於 <a href=\"http://docs.ckan.org/en/latest/mainta
 
 #: ckan/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
-msgstr "終端點。"
+msgstr "終端點"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
@@ -2270,35 +2271,35 @@ msgstr "建立"
 
 #: ckan/templates/ajax_snippets/api_info.html:46
 msgid "Update / Insert"
-msgstr "更新 / 插入。"
+msgstr "更新 / 插入"
 
 #: ckan/templates/ajax_snippets/api_info.html:50
 msgid "Query"
-msgstr "查詢。"
+msgstr "查詢"
 
 #: ckan/templates/ajax_snippets/api_info.html:54
 msgid "Query (via SQL)"
-msgstr "查詢 (透過SQL)。"
+msgstr "查詢 (透過SQL)"
 
 #: ckan/templates/ajax_snippets/api_info.html:66
 msgid "Querying"
-msgstr "查詢。"
+msgstr "查詢"
 
 #: ckan/templates/ajax_snippets/api_info.html:70
 msgid "Query example (first 5 results)"
-msgstr "查詢之範例 (前5個結果)。"
+msgstr "查詢之範例 (前5個結果)"
 
 #: ckan/templates/ajax_snippets/api_info.html:75
 msgid "Query example (results containing 'jones')"
-msgstr "查詢之範例 (包含字串 'jones' 的結果)。"
+msgstr "查詢之範例 (包含字串 'jones' 的結果)"
 
 #: ckan/templates/ajax_snippets/api_info.html:81
 msgid "Query example (via SQL statement)"
-msgstr "查詢之範例 (透過SQL指令敘述)。"
+msgstr "查詢之範例 (透過SQL指令敘述)"
 
 #: ckan/templates/ajax_snippets/api_info.html:93
 msgid "Example: Javascript"
-msgstr "範例：Javascript。"
+msgstr "範例：Javascript"
 
 #: ckan/templates/ajax_snippets/api_info.html:97
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
@@ -2306,7 +2307,7 @@ msgstr "使用jQuery對資料API發出一個簡單的ajax(JSONP)請求。"
 
 #: ckan/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
-msgstr "範例：Python。"
+msgstr "範例：Python"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
@@ -2331,7 +2332,7 @@ msgstr "你的瀏覽器不支援此頁框"
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "No preview available."
-msgstr "無法預覽。"
+msgstr "無法預覽"
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:5
 msgid "More details..."
@@ -2509,7 +2510,7 @@ msgstr "新增群組"
 
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
-msgstr "搜尋群組。"
+msgstr "搜尋群組"
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:16
 #: ckan/templates/organization/bulk_process.html:97
@@ -2570,7 +2571,7 @@ msgstr "已存在的使用者"
 #: ckan/templates/group/member_new.html:21
 #: ckan/templates/organization/member_new.html:23
 msgid "If you wish to add an existing user, search for their username below."
-msgstr "若您欲新增已存在之使用者，請在下面搜尋。"
+msgstr "若您欲新增已存在之使用者，請在下面搜尋"
 
 #: ckan/templates/group/member_new.html:38
 #: ckan/templates/organization/member_new.html:40
@@ -2674,7 +2675,7 @@ msgstr "熱門的"
 #: ckan/templates/group/read.html:21 ckan/templates/organization/read.html:25
 #: ckan/templates/snippets/search_form.html:3
 msgid "Search datasets..."
-msgstr "搜尋資料集。"
+msgstr "搜尋資料集"
 
 #: ckan/templates/group/snippets/feeds.html:3
 msgid "Datasets in group: {group}"
@@ -2758,7 +2759,7 @@ msgstr "您可以使用 CKAN 群組建立並管理多個資料集。群組可以
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
 msgid "Compare"
-msgstr "比較。"
+msgstr "比較"
 
 #: ckan/templates/group/snippets/info.html:16
 #: ckan/templates/organization/bulk_process.html:72
@@ -2841,7 +2842,7 @@ msgstr "歡迎來到CKAN"
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will "
-msgstr "這裡是關於 CKAN 或本網站的簡介。目前沒有文案，但很快就會有。"
+msgstr "這裡是關於 CKAN 或本網站的簡介。目前沒有文案，但很快就會有"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -2930,15 +2931,15 @@ msgstr "組織表單"
 #: ckan/templates/organization/bulk_process.html:3
 #: ckan/templates/organization/bulk_process.html:11
 msgid "Edit datasets"
-msgstr "編輯資料集。"
+msgstr "編輯資料集"
 
 #: ckan/templates/organization/bulk_process.html:6
 msgid "Add dataset"
-msgstr "新增資料集。"
+msgstr "新增資料集"
 
 #: ckan/templates/organization/bulk_process.html:16
 msgid " found for \"{query}\""
-msgstr "根據 \"{query}\" 找到。"
+msgstr "根據 \"{query}\" 找到"
 
 #: ckan/templates/organization/bulk_process.html:18
 msgid "Sorry no datasets found for \"{query}\""
@@ -2946,11 +2947,11 @@ msgstr "根據\"{query}\"找不到任何資料集"
 
 #: ckan/templates/organization/bulk_process.html:37
 msgid "Make public"
-msgstr "設為公開。"
+msgstr "設為公開"
 
 #: ckan/templates/organization/bulk_process.html:41
 msgid "Make private"
-msgstr "設為非公開。"
+msgstr "設為非公開"
 
 #: ckan/templates/organization/bulk_process.html:70
 #: ckan/templates/package/read.html:18
@@ -2969,7 +2970,7 @@ msgstr "非公開"
 
 #: ckan/templates/organization/bulk_process.html:88
 msgid "This organization has no datasets associated to it"
-msgstr "沒有任何資料集和這個組織有關聯。"
+msgstr "沒有任何資料集和這個組織有關聯"
 
 #: ckan/templates/organization/confirm_delete.html:11
 msgid "Are you sure you want to delete organization - {name}?"
@@ -2988,7 +2989,7 @@ msgstr "新增組織"
 
 #: ckan/templates/organization/index.html:20
 msgid "Search organizations..."
-msgstr "搜尋組織。"
+msgstr "搜尋組織"
 
 #: ckan/templates/organization/index.html:29
 msgid "There are currently no organizations for this site"
@@ -3093,7 +3094,7 @@ msgstr "儲存組織"
 #: ckan/templates/organization/snippets/organization_item.html:37
 #: ckan/templates/organization/snippets/organization_item.html:38
 msgid "View {organization_name}"
-msgstr "查看 {organization_name}。"
+msgstr "查看 {organization_name}"
 
 #: ckan/templates/package/base.html:22 ckan/templates/package/new.html:3
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
@@ -3289,7 +3290,7 @@ msgstr "API終端"
 #: ckan/templates/package/resource_read.html:41
 #: ckan/templates/package/snippets/resource_item.html:48
 msgid "Go to resource"
-msgstr "前往存取資源。"
+msgstr "前往存取資源"
 
 #: ckan/templates/package/resource_read.html:43
 #: ckan/templates/package/snippets/resource_item.html:45
@@ -3312,7 +3313,7 @@ msgstr "來源：<a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckan/templates/package/resource_read.html:112
 msgid "There are no views created for this resource yet."
-msgstr "此資料沒有可用的檢視。"
+msgstr "此資料沒有可用的檢視"
 
 #: ckan/templates/package/resource_read.html:116
 msgid "Not seeing the views you were expecting?"
@@ -3324,7 +3325,7 @@ msgstr "這裡列出一些可能造成無法檢視的原因："
 
 #: ckan/templates/package/resource_read.html:123
 msgid "No view has been created that is suitable for this resource"
-msgstr "沒有適用於此資料的檢視。"
+msgstr "沒有適用於此資料的檢視"
 
 #: ckan/templates/package/resource_read.html:124
 msgid "The site administrators may not have enabled the relevant view plugins"
@@ -3585,7 +3586,7 @@ msgstr "例如：CSV, XML or JSON"
 
 #: ckan/templates/package/snippets/resource_form.html:40
 msgid "This will be guessed automatically. Leave blank if you wish"
-msgstr "通常狀況下將自動生成，可以保持空白。 "
+msgstr "通常狀況下將自動生成，可以保持空白"
 
 #: ckan/templates/package/snippets/resource_form.html:51
 msgid "eg. 2012-06-05"
@@ -3639,7 +3640,7 @@ msgstr "探索"
 
 #: ckan/templates/package/snippets/resource_item.html:36
 msgid "More information"
-msgstr "更多資訊。"
+msgstr "更多資訊"
 
 #: ckan/templates/package/snippets/resource_view.html:11
 msgid "Embed"
@@ -3657,7 +3658,7 @@ msgstr "嵌入資料檢視"
 msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
-msgstr "您可以將此程式碼複製並貼上至支援 HTML 的內容管理系統或部落格。"
+msgstr "您可以將此程式碼複製並貼上至支援 HTML 的內容管理系統或部落格"
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
@@ -3725,16 +3726,16 @@ msgstr "檢視是什麼？"
 
 #: ckan/templates/package/snippets/view_help.html:4
 msgid "A view is a representation of the data held against a resource"
-msgstr "檢視是資料的呈現方式。"
+msgstr "檢視是資料的呈現方式"
 
 #: ckan/templates/revision/diff.html:6
 msgid "Differences"
-msgstr "差異。"
+msgstr "差異"
 
 #: ckan/templates/revision/diff.html:13 ckan/templates/revision/diff.html:18
 #: ckan/templates/revision/diff.html:23
 msgid "Revision Differences"
-msgstr "版本差異。"
+msgstr "版本差異"
 
 #: ckan/templates/revision/diff.html:44
 msgid "Difference"
@@ -3742,7 +3743,7 @@ msgstr "差異"
 
 #: ckan/templates/revision/diff.html:54
 msgid "No Differences"
-msgstr "沒有差異。"
+msgstr "沒有差異"
 
 #: ckan/templates/revision/list.html:3 ckan/templates/revision/list.html:6
 #: ckan/templates/revision/list.html:10
@@ -3803,15 +3804,15 @@ msgstr "引用網址"
 
 #: ckan/templates/snippets/facet_list.html:80
 msgid "Show More {facet_type}"
-msgstr "顯示更多 {facet_type}。"
+msgstr "顯示更多 {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:83
 msgid "Show Only Popular {facet_type}"
-msgstr "僅顯示熱門的 {facet_type}。"
+msgstr "僅顯示熱門的 {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:87
 msgid "There are no {facet_type} that match this search"
-msgstr "沒有 {facet_type} 符合這個搜尋結果。"
+msgstr "沒有 {facet_type} 符合這個搜尋結果"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 msgid "Home"
@@ -3842,13 +3843,13 @@ msgstr "此組織沒有任何說明"
 
 #: ckan/templates/snippets/package_item.html:57
 msgid "This dataset has no description"
-msgstr "此資料集沒有說明。"
+msgstr "此資料集沒有說明"
 
 #: ckan/templates/snippets/related.html:15
 msgid ""
 "No apps, ideas, news stories or images have been related to this dataset "
 "yet."
-msgstr "目前此資料集沒有任何APP、想法、新故事、圖片。"
+msgstr "目前此資料集沒有任何APP、想法、新故事、圖片"
 
 #: ckan/templates/snippets/related.html:18
 msgid "Add Item"
@@ -3958,7 +3959,7 @@ msgstr "編輯"
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
 msgid "Search Tags"
-msgstr "搜尋標籤。"
+msgstr "搜尋標籤"
 
 #: ckan/templates/user/dashboard.html:19 ckan/templates/user/dashboard.html:37
 msgid "News feed"
@@ -3972,12 +3973,12 @@ msgstr "我的資料集"
 #: ckan/templates/user/dashboard.html:21
 #: ckan/templates/user/dashboard_organizations.html:12
 msgid "My Organizations"
-msgstr "我的組織。"
+msgstr "我的組織"
 
 #: ckan/templates/user/dashboard.html:22
 #: ckan/templates/user/dashboard_groups.html:12
 msgid "My Groups"
-msgstr "我的群組。"
+msgstr "我的群組"
 
 #: ckan/templates/user/dashboard.html:39
 msgid "Activity from items that I'm following"
@@ -3997,11 +3998,11 @@ msgstr "馬上建立一個？"
 
 #: ckan/templates/user/dashboard_groups.html:20
 msgid "You are not a member of any groups."
-msgstr "你不屬於任何群組之成員。"
+msgstr "你不屬於任何群組之成員"
 
 #: ckan/templates/user/dashboard_organizations.html:20
 msgid "You are not a member of any organizations."
-msgstr "你不屬於任何組織之成員。"
+msgstr "你不屬於任何組織之成員"
 
 #: ckan/templates/user/edit.html:6 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/list.html:6 ckan/templates/user/list.html:13
@@ -4274,7 +4275,7 @@ msgstr "尚未上傳"
 
 #: ckanext/datastore/controller.py:31
 msgid "DataStore resource not found"
-msgstr "資料儲存之資源不存在。"
+msgstr "資料儲存之資源不存在"
 
 #: ckanext/datastore/db.py:663
 msgid ""
