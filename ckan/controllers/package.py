@@ -554,7 +554,7 @@ class PackageController(base.BaseController):
                 clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                                                            request.POST))))
             # we don't want to include save as it is part of the form
-            del data['save']
+            data.pop('save', None)
 
             context = {'model': model, 'session': model.Session,
                        'api_version': 3, 'for_edit': True,
@@ -564,7 +564,7 @@ class PackageController(base.BaseController):
             try:
                 if resource_id:
                     data['id'] = resource_id
-                    get_action('resource_update')(context, data)
+                    get_action('resource_patch')(context, data)
                 else:
                     get_action('resource_create')(context, data)
             except ValidationError, e:

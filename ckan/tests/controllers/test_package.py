@@ -994,6 +994,28 @@ class TestResourceNew(helpers.FunctionalTestBase):
         )
 
 
+class TestResourceEdit(helpers.FunctionalTestBase):
+
+    # See issue #2649
+    def test_resource_edit_keeps_extras(self):
+        resource = factories.Resource(name=u'A resource', my_extra=u'foobar')
+        app = helpers._get_test_app()
+        response = app.get(
+            url_for(
+                controller=u'package',
+                action=u'resource_edit',
+                id=resource[u'package_id'],
+                resource_id=resource[u'id'],
+            ),
+        )
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        submit_and_follow(app, response.forms[u'resource-edit'], env)
+        result = helpers.call_action(u'resource_show', id=resource[u'id'])
+        assert_true(u'my_extra' in result)
+        assert_equal(result[u'my_extra'], resource[u'my_extra'])
+
+
 class TestResourceView(helpers.FunctionalTestBase):
     @classmethod
     def setup_class(cls):
