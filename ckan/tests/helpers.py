@@ -668,6 +668,8 @@ class RecordingLogHandler(logging.Handler):
         Clear all captured log messages.
         '''
         self.messages = collections.defaultdict(list)
+
+
 def mock_action(action_name):
     '''
     Decorator to easily mock a CKAN action in the context of a test function
