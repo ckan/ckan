@@ -2,55 +2,29 @@
   .clearfix();
   .box();
   position: relative;
-  background-color:#fff;
-  margin-bottom: 20px;
-  margin-left:0;
+  background-color: @body-bg;
+  margin-bottom: @jumbotron-padding/2;
 }
-@media (min-width: 768px) {
-  .wrapper {
-    background-image:url("@{imagePath}/nav.png");
-    background-repeat:repeat-y;
-    background-position:-54px 0px;
-  }
-}
-@media (min-width: 980px) {
-  .wrapper {
-    background-position:0px 0px;
-  }
-}
-
-.wrapper.no-nav {
-  background-image: none;
-}
-
 [role=main], .main {
   position: relative;
-  padding-bottom: 20px;
+  padding-bottom: @jumbotron-padding/2;
 }
-@media (min-width: 768px) {
+@media (min-width: @screen-sm-min) {
   [role=main], .main {
-    padding-top: 10px;
-    background: @layoutBackgroundColor url("@{bgPath}");
+    padding-top: @grid-gutter-width/3;
+    background: @gray-lighter url("@{background-image}");
   }
 }
 
 [role=main] {
   min-height: 350px;
+  overflow: auto;  
 }
 
 .main:after,
 [role=main]:after {
   bottom: 0;
   border-top-width: 1px;
-}
-
-[role=main] .primary {
-  float: right;
-  margin-left: 0; // Remove grid margin.
-}
-
-[role=main] .secondary {
-  margin-left: 0; // Remove grid margin.
 }
 
 /* Filters modal */
@@ -64,9 +38,8 @@
 .hide-filters {
   display:none;
 }
-@media (max-width: 768px) {
+@media (max-width: @screen-xs-max) {
   .wrapper {
-    margin: 0 -20px;
     border-width: 0;
     .box-shadow(0);
     .border-radius(0);
@@ -80,7 +53,7 @@
     right:0;
     bottom:0;
     z-index:1;
-    padding:10px;
+    padding: @jumbotron-padding/2;
     background-color:rgb(0,0,0);
     background-color:rgba(0,0,0,0.50);
   }
@@ -88,7 +61,7 @@
     display:block;
   }
   .js [role=main] .secondary .filters > div {
-    background-color:#fff;
+    background-color: @body-bg;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
@@ -122,7 +95,7 @@
     float: left;
     width: 467px;
     margin-left: 0;
-    margin-bottom: 20px;
+    margin-bottom: @grid-gutter-width - 10;
     h1, h2, h3, h4 {
       &:first-child {
         margin-top: 0;
@@ -132,14 +105,14 @@
   .tertiary {
     float: left;
     width: 180px;
-    margin-left: 18px;
-    margin-bottom: 20px;
+    margin-left: @grid-gutter-width - 12;
+    margin-bottom: @grid-gutter-width - 10;
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: @screen-sm-min) {
   .hero {
-    background: url("@{imagePath}/background-tile.png");
+    background: url("@{image-path}/background-tile.png");
   }
 }
 
@@ -147,8 +120,8 @@
   // Need to manually declare this here. If you pass rgba() through to
   // #gradient it breaks the filter property in IE7.
   .rgba-vertial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
-  background-color: @moduleHeadingBackgroundColor;
-  border-bottom: 1px solid darken(@moduleHeadingBorderColor, 5%);
+  background-color: @well-bg;
+  border-bottom: 1px solid darken(@panel-default-border, 5%);
   .border-radius(3px 3px 0 0);
   .box-shadow(inset 0 -4px 0 rgba(0, 0, 0, 0.03));
   .back:hover {
@@ -161,10 +134,10 @@
 
 .context-info {
   .module-content {
-    padding: 15px;
+    padding: @grid-gutter-width/2;
   }
   .image {
-    margin-bottom: 10px;
+    margin-bottom: @grid-gutter-width/3;
     img,
     a {
       display: block;
@@ -188,8 +161,8 @@
     .break-word();
   }
   .info {
-    margin-top: 15px;
-    padding-top: 10px;
+    margin-top: @grid-gutter-width/2;
+    padding-top: @grid-gutter-width - 10;
     border-top: 1px dotted #DDD;
     word-break: break-word;
     dl dd {
@@ -199,15 +172,15 @@
   }
   .nums {
     .clearfix;
-    margin-top: 15px;
-    padding-top: 10px;
+    margin-top: @grid-gutter-width/2;
+    padding-top: @grid-gutter-width/3;
     padding-bottom: 0;
     border-top: 1px dotted #DDD;
     dl {
       float: left;
       width: 50%;
       margin: 5px 0 0 0;
-      color: @layoutTextColor;
+      color: @text-color;
       dt {
         display: block;
         font-size: 13px;
@@ -232,7 +205,7 @@
     }
   }
   .follow_button {
-    margin-top: 15px;
+    margin-top: @grid-gutter-width/2;
   }
   &.editing {
     .module-heading {

@@ -8,7 +8,7 @@
 
   {{ form.errors(error_summary) }}
 
-  <form method='post' action="" class="form-horizontal" id="admin-config-form">
+  <form method='post' action="" class="" id="admin-config-form">
     {% block admin_form %}
       {{ autoform.generate(form_items, data, errors) }}
     {% endblock %}
@@ -23,7 +23,7 @@
 {% block secondary_content %}
   <div class="module module-narrow module-shallow">
     <h2 class="module-heading">
-      <i class="icon-info-sign"></i>
+      <i class="fa fa-info-sign"></i>
       {{ _('CKAN config options') }}
     </h2>
     <div class="module-content">

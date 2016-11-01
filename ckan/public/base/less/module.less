@@ -5,32 +5,32 @@
 .module-heading {
   .clearfix;
   margin: 0;
-  padding: 7px @gutterX;
+  padding: 7px @grid-gutter-width - 5;
   font-size: 14px;
   line-height: 1.3;
-  background-color: @moduleHeadingBackgroundColor;
-  border-top: 1px solid @moduleHeadingBorderColor;
-  border-bottom: 1px solid @moduleHeadingBorderColor;
+  background-color: @well-bg;
+  border-top: 1px solid @panel-default-border;
+  border-bottom: 1px solid @panel-default-border;
 }
 
 .module-content {
-  padding: 0 @gutterX;
+  padding: 0 @grid-gutter-width - 5;
   margin: 20px 0;
 }
-@media (min-width: 768px) {
-  .span9 div.module-content {
-    padding-left:10px;
+@media (min-width: @screen-sm-min) {
+  .col-md-9 div.module-content {
+    padding-left: @grid-gutter-width/3;
   }
 }
 
 .module-content:first-child {
   margin-top: 0;
-  padding-top: @gutterY;
+  padding-top: @grid-gutter-width - 10;
 }
 
 .module-content:last-child {
   margin-bottom: 0;
-  padding-bottom: @gutterY;
+  padding-bottom: @grid-gutter-width;
 }
 
 .module-content > :last-child {
@@ -43,24 +43,30 @@
 }
 
 .module:last-child {
-  margin-bottom: 20px;
+  margin-bottom: @grid-gutter-width;
 }
 
 .module-footer {
-  padding: 7px @gutterX 7px;
+  padding: 7px (@grid-gutter-width - 5) 7px;
   margin: 0;
-  border-top: 1px dotted @genericBorderColor;
+  border-top: 1px dotted @panel-default-border;
 }
 
 .module .read-more {
   font-weight: bold;
-  color: @layoutBoldColor;
+  /*color: @layoutBoldColor;*/
+}
+
+.module .pagination {
+  height: 34px;
+  margin-bottom: 0;
+  border-top: 1px solid @panel-default-border;
 }
 
 .module-content .pagination {
-  margin-left: -25px;
-  margin-right: -25px;
-  margin-bottom: -20px;
+  margin-left: -(@grid-gutter-width - 5);
+  margin-right: -(@grid-gutter-width - 5);
+  margin-bottom: -(@grid-gutter-width - 10);
 }
 
 .module .pagination > ul {
@@ -83,18 +89,18 @@
 
 .module-content-shallow {
   padding: 0;
-  margin-top: 10px;
-  padding-bottom: 10px;
+  margin-top: @grid-gutter-width/3;
+  padding-bottom: @grid-gutter-width/3;
 }
 
 .module h1 {
-  margin-bottom: 20px;
+  margin-bottom: @grid-gutter-width - 10;
 }
 
 // Module Shallow
 
 .module-shallow .module-content {
-  padding: 10px;
+  padding: @grid-gutter-width/3;
   margin: 0;
 }
 
@@ -104,11 +110,11 @@
 }
 
 .module-shallow .module-content:first-child {
-  padding-top: 10px;
+  padding-top: @grid-gutter-width/3;
 }
 
 .module-shallow .module-content:last-child {
-  padding-bottom: 10px;
+  padding-bottom: @grid-gutter-width/3;
 }
 
 // Secondary column specific
@@ -117,8 +123,8 @@
   .module-heading,
   .module-content,
   .module-footer {
-    padding-left:  @gutterSmallX;
-    padding-right: @gutterSmallX;
+    padding-left:  @grid-gutter-width/2;
+    padding-right: @grid-gutter-width/2;
   }
 }
 
@@ -132,10 +138,10 @@
 
 .module-item {
   .media-item;
-  .makeColumn(6);
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-right: 50px;
+  .make-md-column(6);
+  padding-top: @grid-gutter-width/3;
+  padding-bottom: @grid-gutter-width/3;
+  padding-right: @grid-gutter-width + 20;
   overflow: hidden;
   position: relative;
 }
@@ -157,7 +163,7 @@
 }
 
 .group-listing {
-  margin-left: -20px; // Same as .row
+  margin-left: -(@grid-gutter-width - 10); // Same as .row
 }
 
 // PREVIEW
@@ -166,7 +172,7 @@
   position: relative;
   clear: both;
 
-  padding-top: 15px;
+  padding-top: @grid-gutter-width/2;
   margin-top: 0;
 
   & > iframe {
@@ -181,13 +187,13 @@
 
 .package-info {
   h4 {
-    margin-bottom: 10px;
+    margin-bottom: @grid-gutter-width/3;
   }
 }
 
 .module-resource {
-  background-color: @layoutTrimBackgroundColor;
-  border-bottom: 1px solid @genericBorderColor;
+  background-color: @body-bg;
+  border-bottom: 1px solid @panel-default-border;
   margin-top: 0;
   margin-bottom: 0;
   .border-radius(3px 3px 0 0);
@@ -206,7 +212,7 @@
 .secondary,
 .primary {
   .module:first-child {
-    margin-top: 0;
+    /*margin-top: 0;*/
   }
 }
 
@@ -220,7 +226,7 @@
   height: 50px;
   line-height: 50px;
   text-align: center;
-  margin-right: 15px;
+  margin-right: @grid-gutter-width/2;
   img {
     max-width: 50px;
     max-height: 50px;

@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 import sqlalchemy.orm as orm
 import nose
 
