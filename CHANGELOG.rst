@@ -9,8 +9,20 @@ Changelog
 
 v2.6.0 TBA
 =================
+
 API changes and deprecations:
- * Replace `c.__version__` with new helper `h.ckan_version()` (#3103)
+ * Replace ``c.__version__`` with new helper ``h.ckan_version()`` (#3103)
+ * ``organization_list_for_user`` (and the ``h.organizations_available()``
+   helper) now return all organizations a user belongs to regardless of
+   capacity (Admin, Editor or Member), not just the ones where she is an
+   administrator (#2457)
+
+Major:
+ * Private datasets are now included in the default dataset search results (#3191)
+ * package_search API action now has an include_private parameter (#3191)
+
+Minor:
+ * ``resource['size']`` will change from string to long integer (#3205)
 
 v2.5.2 2016-03-31
 =================

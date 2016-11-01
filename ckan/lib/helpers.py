@@ -26,8 +26,9 @@ import webhelpers.date as date
 from markdown import markdown
 from bleach import clean as clean_html
 from pylons import url as _pylons_default_url
-from ckan.common import config
-from routes import redirect_to as _redirect_to
+from ckan.common import config, is_flask_request
+from flask import redirect as _flask_redirect
+from routes import redirect_to as _routes_redirect_to
 from routes import url_for as _routes_default_url_for
 import i18n
 
@@ -140,7 +141,18 @@ def redirect_to(*args, **kw):
     '''
     if are_there_flash_messages():
         kw['__no_cache__'] = True
-    return _redirect_to(url_for(*args, **kw))
+
+    # Routes router doesn't like unicode args
+    uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
+                args)
+    _url = url_for(*uargs, **kw)
+    if _url.startswith('/'):
+        _url = str(config['ckan.site_url'].rstrip('/') + _url)
+
+    if is_flask_request():
+        return _flask_redirect(_url)
+    else:
+        return _routes_redirect_to(_url)
 
 
 @maintain.deprecated('h.url is deprecated please use h.url_for')
@@ -1640,7 +1652,7 @@ def groups_available(am_member=False):
 
 
 @core_helper
-def organizations_available(permission='edit_group'):
+def organizations_available(permission='manage_group'):
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''

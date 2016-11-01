@@ -46,7 +46,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
         }
       }
 
-      var errorMsg, dataset;
+      var errorMsg, dataset, map_config;
 
       if (!resourceData.datastore_active) {
           recline.Backend.DataProxy.timeout = 10000;
@@ -58,20 +58,23 @@ this.ckan.module('recline_view', function (jQuery, _) {
 
       dataset = new recline.Model.Dataset(resourceData);
 
+      map_config = this.options.map_config;
+
       var query = new recline.Model.Query();
       query.set({ size: reclineView.limit || 100 });
       query.set({ from: reclineView.offset || 0 });
-
+      
+      var urlFilters = {};
       try {
         if (window.parent.ckan.views && window.parent.ckan.views.filters) {
-          var defaultFilters = reclineView.filters || {},
-              urlFilters = window.parent.ckan.views.filters.get(),
-              filters = $.extend({}, defaultFilters, urlFilters);
-          $.each(filters, function (field,values) {
-            query.addFilter({type: 'term', field: field, term: values});
-          });
+          urlFilters = window.parent.ckan.views.filters.get();
         }
       } catch(e) {}
+      var defaultFilters = reclineView.filters || {},
+          filters = $.extend({}, defaultFilters, urlFilters);
+      $.each(filters, function (field,values) {
+        query.addFilter({type: 'term', field: field, term: values});
+      });
 
       dataset.queryState.set(query.toJSON(), {silent: true});
 
@@ -119,9 +122,9 @@ this.ckan.module('recline_view', function (jQuery, _) {
           state.lonField = reclineView.longitude_field;
         }
 
-        view = new recline.View.Map({model: dataset, state: state});
+        view = new recline.View.Map(this._reclineMapViewOptions(dataset, this.options.map_config));
       } else if(reclineView.view_type === "recline_view") {
-        view = this._newDataExplorer(dataset);
+        view = this._newDataExplorer(dataset, this.options.map_config);
       } else {
         // default to Grid
         view = new recline.View.SlickGrid({model: dataset});
@@ -148,7 +151,41 @@ this.ckan.module('recline_view', function (jQuery, _) {
       }
     },
 
-    _newDataExplorer: function (dataset) {
+    _reclineMapViewOptions: function(dataset, map_config) {
+      var tile_url, attribution, subdomains;
+      tile_url = attribution = subdomains = '';
+
+      if (map_config.type == 'mapbox') {
+          // MapBox base map
+          if (!map_config['mapbox.map_id'] || !map_config['mapbox.access_token']) {
+            throw '[CKAN Map Widgets] You need to provide a map ID ([account].[handle]) and an access token when using a MapBox layer. ' +
+                  'See http://www.mapbox.com/developers/api-overview/ for details';
+          }
+
+          tile_url = '//{s}.tiles.mapbox.com/v4/' + map_config['mapbox.map_id'] + '/{z}/{x}/{y}.png?access_token=' + map_config['mapbox.access_token'];
+          handle = map_config['mapbox.map_id'];
+          subdomains = map_config.subdomains || 'abcd';
+          attribution = map_config.attribution || 'Data: <a href="http://osm.org/copyright" target="_blank">OpenStreetMap</a>, Design: <a href="http://mapbox.com/about/maps" target="_blank">MapBox</a>';
+
+      } else if (map_config.type == 'custom') {
+          // Custom XYZ layer
+          tile_url = map_config['custom.url'] || '';
+          attribution = map_config.attribution || '';
+          subdomains = map_config.subdomains || '';
+
+          if (map_config['custom.tms'])
+            var tms = map_config['custom.tms'];
+      }
+
+      return {
+        model: dataset,
+        mapTilesURL: tile_url,
+        mapTilesAttribution: attribution,
+        mapTilesSubdomains: subdomains
+      };
+    },
+
+    _newDataExplorer: function (dataset, map_config) {
       var views = [
         {
           id: 'grid',
@@ -167,9 +204,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
         {
           id: 'map',
           label: 'Map',
-          view: new recline.View.Map({
-            model: dataset
-          })
+          view: new recline.View.Map(this._reclineMapViewOptions(dataset, map_config))
         }
       ];
 

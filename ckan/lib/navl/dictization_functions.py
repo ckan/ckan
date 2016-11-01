@@ -12,33 +12,45 @@ from ckan.common import _
 class Missing(object):
     def __unicode__(self):
         raise Invalid(_('Missing value'))
+
     def __str__(self):
         raise Invalid(_('Missing value'))
+
     def __int__(self):
         raise Invalid(_('Missing value'))
+
     def __complex__(self):
         raise Invalid(_('Missing value'))
+
     def __long__(self):
         raise Invalid(_('Missing value'))
+
     def __float__(self):
         raise Invalid(_('Missing value'))
+
     def __oct__(self):
         raise Invalid(_('Missing value'))
+
     def __hex__(self):
         raise Invalid(_('Missing value'))
+
     def __nonzero__(self):
         return False
 
+
 missing = Missing()
+
 
 class State(object):
     pass
+
 
 class DictizationError(Exception):
     def __str__(self):
         if hasattr(self, 'error') and self.error:
             return repr(self.error)
         return ''
+
 
 class Invalid(DictizationError):
     '''Exception raised by some validator, converter and dictization functions
@@ -48,22 +60,42 @@ class Invalid(DictizationError):
     def __init__(self, error, key=None):
         self.error = error
 
+
 class DataError(DictizationError):
     def __init__(self, error):
         self.error = error
 
+
 class StopOnError(DictizationError):
     '''error to stop validations for a particualar key'''
     pass
+
 
 def flattened_order_key(key):
     '''order by key length first then values'''
 
     return tuple([len(key)] + list(key))
 
-def flatten_schema(schema, flattened=None, key=None):
-    '''convert schema into flat dict where the keys are tuples'''
 
+def flatten_schema(schema, flattened=None, key=None):
+    '''convert schema into flat dict, where the keys become tuples
+
+    e.g.
+    {
+      "toplevel": [validators],
+      "parent": {
+        "child1": [validators],
+        "child2": [validators],
+        }
+    }
+    becomes:
+    {
+      ('toplevel',): [validators],
+      ('parent', 'child1'): [validators],
+      ('parent', 'child2'): [validators],
+    }
+    See also: test_flatten_schema()
+    '''
     flattened = flattened or {}
     old_key = key or []
 
@@ -76,34 +108,36 @@ def flatten_schema(schema, flattened=None, key=None):
 
     return flattened
 
-def get_all_key_combinations(data, flattented_schema):
+
+def get_all_key_combinations(data, flattened_schema):
     '''Compare the schema against the given data and get all valid tuples that
     match the schema ignoring the last value in the tuple.
 
     '''
-    schema_prefixes = set([key[:-1] for key in flattented_schema])
+    schema_prefixes = set([key[:-1] for key in flattened_schema])
     combinations = set([()])
 
     for key in sorted(data.keys(), key=flattened_order_key):
-        ## make sure the tuple key is a valid one in the schema
+        # make sure the tuple key is a valid one in the schema
         key_prefix = key[:-1:2]
         if key_prefix not in schema_prefixes:
             continue
-        ## make sure the parent key exists, this is assured by sorting the keys
-        ## first
+        # make sure the parent key exists, this is assured by sorting the keys
+        # first
         if tuple(tuple(key[:-3])) not in combinations:
             continue
         combinations.add(tuple(key[:-1]))
 
     return combinations
 
+
 def make_full_schema(data, schema):
-    '''make schema by getting all valid combinations and making sure that all keys
-    are available'''
+    '''make schema by getting all valid combinations and making sure that all
+    keys are available'''
 
-    flattented_schema = flatten_schema(schema)
+    flattened_schema = flatten_schema(schema)
 
-    key_combinations = get_all_key_combinations(data, flattented_schema)
+    key_combinations = get_all_key_combinations(data, flattened_schema)
 
     full_schema = {}
 
@@ -118,28 +152,37 @@ def make_full_schema(data, schema):
 
     return full_schema
 
+
 def augment_data(data, schema):
-    '''add missing, extras and junk data'''
-    flattented_schema = flatten_schema(schema)
-    key_combinations = get_all_key_combinations(data, flattented_schema)
+    '''Takes 'flattened' data, compares it with the schema, and returns it with
+    any problems marked, as follows:
+
+    * keys in the data not in the schema are moved into a list under new key
+      ('__junk')
+    * keys in the schema but not data are added as keys with value 'missing'
+
+    '''
+    flattened_schema = flatten_schema(schema)
+    key_combinations = get_all_key_combinations(data, flattened_schema)
 
     full_schema = make_full_schema(data, schema)
 
     new_data = copy.copy(data)
 
-    ## fill junk and extras
+    # fill junk and extras
 
     for key, value in new_data.items():
         if key in full_schema:
             continue
 
-        ## check if any thing naugthy is placed against subschemas
+        # check if any thing naughty is placed against subschemas
         initial_tuple = key[::2]
         if initial_tuple in [initial_key[:len(initial_tuple)]
-                             for initial_key in flattented_schema]:
-            if data[key] <> []:
+                             for initial_key in flattened_schema]:
+            if data[key] != []:
                 raise DataError('Only lists of dicts can be placed against '
-                                'subschema %s, not %s' % (key,type(data[key])))
+                                'subschema %s, not %s' %
+                                (key, type(data[key])))
 
         if key[:-1] in key_combinations:
             extras_key = key[:-1] + ('__extras',)
@@ -152,13 +195,14 @@ def augment_data(data, schema):
             new_data[("__junk",)] = junk
         new_data.pop(key)
 
-    ## add missing
+    # add missing
 
     for key, value in full_schema.items():
         if key not in new_data and not key[-1].startswith("__"):
             new_data[key] = missing
 
     return new_data
+
 
 def convert(converter, key, converted_data, errors, context):
 
@@ -183,9 +227,9 @@ def convert(converter, key, converted_data, errors, context):
         converted_data[key] = value
         return
     except TypeError, e:
-        ## hack to make sure the type error was caused by the wrong
-        ## number of arguments given.
-        if not converter.__name__ in str(e):
+        # hack to make sure the type error was caused by the wrong
+        # number of arguments given.
+        if converter.__name__ not in str(e):
             raise
     except Invalid, e:
         errors[key].append(e.error)
@@ -198,9 +242,9 @@ def convert(converter, key, converted_data, errors, context):
         errors[key].append(e.error)
         return
     except TypeError, e:
-        ## hack to make sure the type error was caused by the wrong
-        ## number of arguments given.
-        if not converter.__name__ in str(e):
+        # hack to make sure the type error was caused by the wrong
+        # number of arguments given.
+        if converter.__name__ not in str(e):
             raise
 
     try:
@@ -210,6 +254,7 @@ def convert(converter, key, converted_data, errors, context):
     except Invalid, e:
         errors[key].append(e.error)
         return
+
 
 def _remove_blank_keys(schema):
 
@@ -221,6 +266,7 @@ def _remove_blank_keys(schema):
                 schema.pop(key)
 
     return schema
+
 
 def validate(data, schema, context=None):
     '''Validate an unflattened nested dict against a schema.'''
@@ -250,7 +296,7 @@ def validate(data, schema, context=None):
 
     errors_unflattened = unflatten(errors)
 
-    ##remove validators that passed
+    # remove validators that passed
     dicts_to_process = [errors_unflattened]
     while dicts_to_process:
         dict_to_process = dicts_to_process.pop()
@@ -265,18 +311,6 @@ def validate(data, schema, context=None):
 
     return converted_data, errors_unflattened
 
-def validate_flattened(data, schema, context=None):
-
-    context = context or {}
-    assert isinstance(data, dict)
-    converted_data, errors = _validate(data, schema, context)
-
-    for key, value in errors.items():
-        if not value:
-            errors.pop(key)
-
-    return converted_data, errors
-
 
 def _validate(data, schema, context):
     '''validate a flattened dict against a schema'''
@@ -285,7 +319,7 @@ def _validate(data, schema, context):
 
     errors = dict((key, []) for key in full_schema)
 
-    ## before run
+    # before run
     for key in sorted(full_schema, key=flattened_order_key):
         if key[-1] == '__before':
             for converter in full_schema[key]:
@@ -294,7 +328,7 @@ def _validate(data, schema, context):
                 except StopOnError:
                     break
 
-    ## main run
+    # main run
     for key in sorted(full_schema, key=flattened_order_key):
         if not key[-1].startswith('__'):
             for converter in full_schema[key]:
@@ -303,7 +337,7 @@ def _validate(data, schema, context):
                 except StopOnError:
                     break
 
-    ## extras run
+    # extras run
     for key in sorted(full_schema, key=flattened_order_key):
         if key[-1] == '__extras':
             for converter in full_schema[key]:
@@ -312,7 +346,7 @@ def _validate(data, schema, context):
                 except StopOnError:
                     break
 
-    ## after run
+    # after run
     for key in reversed(sorted(full_schema, key=flattened_order_key)):
         if key[-1] == '__after':
             for converter in full_schema[key]:
@@ -321,11 +355,12 @@ def _validate(data, schema, context):
                 except StopOnError:
                     break
 
-    ## junk
+    # junk
     if ('__junk',) in full_schema:
         for converter in full_schema[('__junk',)]:
             try:
-                convert(converter, ('__junk',), converted_data, errors, context)
+                convert(converter, ('__junk',), converted_data, errors,
+                        context)
             except StopOnError:
                 break
 
@@ -346,8 +381,9 @@ def flatten_list(data, flattened=None, old_key=None):
 
     return flattened
 
+
 def flatten_dict(data, flattened=None, old_key=None):
-    '''flatten a dict'''
+    '''Flatten a dict'''
 
     flattened = flattened or {}
     old_key = old_key or []
@@ -397,8 +433,8 @@ def unflatten(data):
         current_pos = unflattened
 
         if (len(flattend_key) > 1
-            and not flattend_key[0] in convert_to_list
-            and not flattend_key[0] in unflattened):
+                and not flattend_key[0] in convert_to_list
+                and not flattend_key[0] in unflattened):
             convert_to_list.append(flattend_key[0])
 
         for key in flattend_key[:-1]:
@@ -411,7 +447,8 @@ def unflatten(data):
         current_pos[flattend_key[-1]] = data[flattend_key]
 
     for key in convert_to_list:
-        unflattened[key] = [unflattened[key][s] for s in sorted(unflattened[key])]
+        unflattened[key] = [unflattened[key][s]
+                            for s in sorted(unflattened[key])]
 
     return unflattened
 

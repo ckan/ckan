@@ -17,6 +17,7 @@ import ckan.logic as logic
 import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
 import ckan.model as model
 import ckan.model.misc as misc
@@ -180,10 +181,9 @@ def current_package_list_with_resources(context, data_dict):
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
-    is_sysadmin = authz.is_sysadmin(user)
-    q = '+capacity:public' if not is_sysadmin else '*:*'
-    context['ignore_capacity_check'] = True
-    search = package_search(context, {'q': q, 'rows': limit, 'start': offset})
+    search = package_search(context, {
+        'q': '', 'rows': limit, 'start': offset,
+        'include_private': authz.is_sysadmin(user) })
     return search.get('results', [])
 
 
@@ -592,12 +592,12 @@ def group_list_authz(context, data_dict):
 def organization_list_for_user(context, data_dict):
     '''Return the organizations that the user has a given permission for.
 
-    By default this returns the list of organizations that the currently
-    authorized user can edit, i.e. the list of organizations that the user is an
-    admin of.
-
     Specifically it returns the list of organizations that the currently
-    authorized user has a given permission (for example: "manage_group") against.
+    authorized user has a given permission (for example: "manage_group")
+    against.
+
+    By default this returns the list of organizations that the currently
+    authorized user is member of, in any capacity.
 
     When a user becomes a member of an organization in CKAN they're given a
     "capacity" (sometimes called a "role"), for example "member", "editor" or
@@ -615,9 +615,14 @@ def organization_list_for_user(context, data_dict):
     datasets in. This takes account of when permissions cascade down an
     organization hierarchy.
 
+    :param id: the name or id of the user to get the organization list for
+        (optional, defaults to the currently authorized user (logged in or via
+        API key))
+    :type permission: string
+
     :param permission: the permission the user has against the
         returned organizations, for example ``"read"`` or ``"create_dataset"``
-        (optional, default: ``"edit_group"``)
+        (optional, default: ``"manage_group"``)
     :type permission: string
 
     :returns: list of organizations that the user has the given permission for
@@ -625,7 +630,13 @@ def organization_list_for_user(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
+    if data_dict.get('id'):
+        user_obj = model.User.get(data_dict['id'])
+        if not user_obj:
+            raise NotFound
+        user = user_obj.name
+    else:
+        user = context['user']
 
     _check_access('organization_list_for_user', context, data_dict)
     sysadmin = authz.is_sysadmin(user)
@@ -634,12 +645,12 @@ def organization_list_for_user(context, data_dict):
         .filter(model.Group.is_organization == True) \
         .filter(model.Group.state == 'active')
 
-    if not sysadmin:
+    if sysadmin:
+        orgs_and_capacities = [(org, 'admin') for org in orgs_q.all()]
+    else:
         # for non-Sysadmins check they have the required permission
 
-        # NB 'edit_group' doesn't exist so by default this action returns just
-        # orgs with admin role
-        permission = data_dict.get('permission', 'edit_group')
+        permission = data_dict.get('permission', 'manage_group')
 
         roles = authz.get_roles_with_permission(permission)
 
@@ -659,20 +670,29 @@ def organization_list_for_user(context, data_dict):
         group_ids = set()
         roles_that_cascade = \
             authz.check_config_permission('roles_that_cascade_to_sub_groups')
+        group_ids_to_capacities = {}
         for member, group in q.all():
             if member.capacity in roles_that_cascade:
-                group_ids |= set([
+                children_group_ids = [
                     grp_tuple[0] for grp_tuple
                     in group.get_children_group_hierarchy(type='organization')
-                    ])
+                ]
+                for group_id in children_group_ids:
+                    group_ids_to_capacities[group_id] = member.capacity
+                group_ids |= set(children_group_ids)
+
+            group_ids_to_capacities[group.id] = member.capacity
             group_ids.add(group.id)
 
         if not group_ids:
             return []
 
         orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
+        orgs_and_capacities = [
+            (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()]
 
-    orgs_list = model_dictize.group_list_dictize(orgs_q.all(), context)
+    context['with_capacity'] = True
+    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context)
     return orgs_list
 
 
@@ -1114,6 +1134,8 @@ def resource_view_list(context, data_dict):
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
 
+    This function is DEPRECATED.
+
     :param id: the id of the resource
     :type id: string
 
@@ -1453,8 +1475,9 @@ def user_show(context, data_dict):
         search_dict = {'rows': 50}
 
         if include_private_and_draft_datasets:
-            context['ignore_capacity_check'] = True
-            search_dict.update({'include_drafts': True})
+            search_dict.update({
+                'include_private': True,
+                'include_drafts': True})
 
         search_dict.update({'fq': fq})
 
@@ -1711,6 +1734,10 @@ def package_search(context, data_dict):
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
     :type include_drafts: boolean
+    :param include_private: if ``True``, private datasets will be included in
+        the results. Only private datasets from the user's organizations will
+        be returned and sysadmins will be returned all private datasets.
+        Optional, the default is ``False``.
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: False)
     :type use_default_schema: bool
@@ -1823,35 +1850,27 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id {0}'.format(data_source)
 
-        # If this query hasn't come from a controller that has set this flag
-        # then we should remove any mention of capacity from the fq and
-        # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq', '')
-        if not context.get('ignore_capacity_check', False):
-            fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
-
-        # Solr doesn't need 'include_drafts`, so pop it.
-        include_drafts = data_dict.pop('include_drafts', False)
-        fq = data_dict.get('fq', '')
+        # Remove before these hit solr FIXME: whitelist instead
+        include_private = asbool(data_dict.pop('include_private', False))
+        include_drafts = asbool(data_dict.pop('include_drafts', False))
+        data_dict.setdefault('fq', '')
+        if not include_private:
+            data_dict['fq'] += ' +capacity:public'
         if include_drafts:
-            user_id = authz.get_user_id_for_username(user, allow_none=True)
-            if authz.is_sysadmin(user):
-                data_dict['fq'] = fq + ' +state:(active OR draft)'
-            elif user_id:
-                # Query to return all active datasets, and all draft datasets
-                # for this user.
-                data_dict['fq'] = fq + \
-                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
-                    ' OR state:active)'.format(user_id)
-        elif not authz.is_sysadmin(user):
-            data_dict['fq'] = fq + ' +state:active'
+            data_dict['fq'] += ' +state:(active OR draft)'
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
 
+        # enforce permission filter based on user
+        if context.get('ignore_auth') or (user and authz.is_sysadmin(user)):
+            labels = None
+        else:
+            labels = lib_plugins.get_permission_labels(
+                ).get_user_dataset_labels(context['auth_user_obj'])
+
         query = search.query_for(model.Package)
-        query.run(data_dict)
+        query.run(data_dict, permission_labels=labels)
 
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
@@ -3256,7 +3275,8 @@ def _group_or_org_followee_list(context, data_dict, is_org=False):
 
 @logic.validate(logic.schema.default_pagination_schema)
 def dashboard_activity_list(context, data_dict):
-    '''Return the authorized user's dashboard activity stream.
+    '''Return the authorized (via login or API key) user's dashboard activity
+       stream.
 
     Unlike the activity dictionaries returned by other ``*_activity_list``
     actions, these activity dictionaries have an extra boolean value with key
@@ -3310,13 +3330,12 @@ def dashboard_activity_list(context, data_dict):
 
 @logic.validate(ckan.logic.schema.default_pagination_schema)
 def dashboard_activity_list_html(context, data_dict):
-    '''Return the authorized user's dashboard activity stream as HTML.
+    '''Return the authorized (via login or API key) user's dashboard activity
+       stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
-    :param id: the id or name of the user
-    :type id: string
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
@@ -3330,11 +3349,13 @@ def dashboard_activity_list_html(context, data_dict):
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
     model = context['model']
+    user_id = context['user']
     offset = data_dict.get('offset', 0)
     extra_vars = {
         'controller': 'user',
         'action': 'dashboard',
         'offset': offset,
+        'id': user_id
     }
     return activity_streams.activity_list_to_html(context, activity_stream,
                                                   extra_vars)
@@ -3479,3 +3500,46 @@ def config_option_list(context, data_dict):
     schema = ckan.logic.schema.update_configuration_schema()
 
     return schema.keys()
+
+
+@logic.validate(logic.schema.job_list_schema)
+def job_list(context, data_dict):
+    '''List enqueued background jobs.
+
+    :param list queues: Queues to list jobs from. If not given then the
+        jobs from all queues are listed.
+
+    :returns: The currently enqueued background jobs.
+    :rtype: list
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_list', context, data_dict)
+    dictized_jobs = []
+    queues = data_dict.get(u'queues')
+    if queues:
+        queues = [jobs.get_queue(q) for q in queues]
+    else:
+        queues = jobs.get_all_queues()
+    for queue in queues:
+        for job in queue.jobs:
+            dictized_jobs.append(jobs.dictize_job(job))
+    return dictized_jobs
+
+
+def job_show(context, data_dict):
+    '''Show details for a background job.
+
+    :param string id: The ID of the background job.
+
+    :returns: Details about the background job.
+    :rtype: dict
+
+    .. versionadded:: 2.7
+    '''
+    _check_access(u'job_show', context, data_dict)
+    id = _get_or_bust(data_dict, u'id')
+    try:
+        return jobs.dictize_job(jobs.job_from_id(id))
+    except KeyError:
+        raise NotFound

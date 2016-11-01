@@ -27,9 +27,9 @@ CKAN:
 
     sudo apt-get update
 
-#. Install the Ubuntu packages that CKAN requires::
+#. Install the Ubuntu packages that CKAN requires (and 'git', to enable you to install CKAN extensions)::
 
-    sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5
+    sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5 redis-server git-core
 
 #. Download the CKAN package:
 
@@ -80,32 +80,48 @@ CKAN:
         sudo service apache2 restart
 
 
-------------------------------
-2. Install PostgreSQL and Solr
-------------------------------
+-----------------------------------
+2. Install and configure PostgreSQL
+-----------------------------------
 
 .. tip::
 
-   You can install |postgres|, |solr| and CKAN on different servers. Just
-   change the :ref:`sqlalchemy.url` and :ref:`solr_url` settings in your
-   |production.ini| file to reference your |postgres| and |solr| servers.
+   You can install |postgres| and CKAN on different servers. Just
+   change the :ref:`sqlalchemy.url` setting in your
+   |production.ini| file to reference your |postgres| server.
 
-#. Install |postgres| and |solr|, run this command in a terminal::
+Install |postgres|, running this command in a terminal::
 
-    sudo apt-get install -y postgresql solr-jetty
+    sudo apt-get install -y postgresql
 
-   The install will whirr away, then towards the end you'll see this::
+.. include:: postgres.rst
+
+Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|production.ini|) file and
+set the correct password, database and database user.
+
+
+-----------------------------
+3. Install and configure Solr
+-----------------------------
+
+.. tip::
+
+   You can install |solr| and CKAN on different servers. Just
+   change the :ref:`solr_url` setting in your
+   |production.ini| file to reference your |solr| server.
+
+Install |solr|, running this command in a terminal::
+
+    sudo apt-get install -y solr-jetty
+
+The install will whirr away, then towards the end you'll see this::
 
      * Not starting jetty - edit /etc/default/jetty and change NO_START to be 0 (or comment it out).
 
-#. Follow the instructions in :ref:`setting up solr` to setup |solr|.
-
-#. Follow the instructions in :ref:`postgres-setup` to setup |postgres|,
-   then edit the :ref:`sqlalchemy.url` option in your |production.ini| file and
-   set the correct password, database and database user.
+.. include:: solr.rst
 
 -------------------------------------------------------
-3. Update the configuration and initialize the database
+4. Update the configuration and initialize the database
 -------------------------------------------------------
 
 #. Edit the :ref:`config_file` (|production.ini|) to set up the following options:
@@ -131,7 +147,7 @@ CKAN:
    instructions in :doc:`/maintaining/filestore`.
 
 ---------------------------
-4. Restart Apache and Nginx
+5. Restart Apache and Nginx
 ---------------------------
 
 Restart Apache and Nginx by running this command in a terminal::
@@ -140,7 +156,7 @@ Restart Apache and Nginx by running this command in a terminal::
     sudo service nginx restart
 
 ---------------
-5. You're done!
+6. You're done!
 ---------------
 
 Open http://localhost in your web browser. You should see the CKAN front
