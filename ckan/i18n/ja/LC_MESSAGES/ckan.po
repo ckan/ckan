@@ -8,7 +8,7 @@
 # Hal Seki <hal@plants-web.jp>, 2015
 # Kayama Yoichi <yoichi.kayama@gmail.com>, 2015
 # nyampire  <>, 2012
-# nyampire <nyampire@gmail.com>, 2013
+# Satoshi IIDA <nyampire@gmail.com>, 2013
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 # Takayuki Miyauchi <miya0001@users.noreply.github.com>, 2015
 msgid ""

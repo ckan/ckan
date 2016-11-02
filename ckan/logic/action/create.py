@@ -1409,6 +1409,9 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
 
     schema = ckan.logic.schema.member_schema()
     data, errors = _validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
 
     username = _get_or_bust(data_dict, 'username')
     role = data_dict.get('role')

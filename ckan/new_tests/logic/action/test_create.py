@@ -110,7 +110,6 @@ class TestResourceViewCreate(object):
     @classmethod
     def teardown_class(cls):
         p.unload('image_view')
-
         helpers.reset_db()
 
     def setup(self):
@@ -437,6 +436,48 @@ class TestMemberCreate(object):
         assert_equals(new_membership['table_name'], 'user')
         assert_equals(new_membership['table_id'], user['id'])
         assert_equals(new_membership['capacity'], 'member')
+
+    def test_group_member_creation_raises_validation_error_if_id_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'group_member_create',
+                      username='someuser',
+                      role='member',)
+
+    def test_group_member_creation_raises_validation_error_if_username_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'group_member_create',
+                      id='someid',
+                      role='member',)
+
+    def test_group_member_creation_raises_validation_error_if_role_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'group_member_create',
+                      id='someid',
+                      username='someuser',)
+
+    def test_org_member_creation_raises_validation_error_if_id_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'organization_member_create',
+                      username='someuser',
+                      role='member',)
+
+    def test_org_member_creation_raises_validation_error_if_username_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'organization_member_create',
+                      id='someid',
+                      role='member',)
+
+    def test_org_member_creation_raises_validation_error_if_role_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'organization_member_create',
+                      id='someid',
+                      username='someuser',)
 
 
 class TestDatasetCreate(helpers.FunctionalTestBase):

@@ -8,10 +8,10 @@ this.recline.Backend.DataProxy = this.recline.Backend.DataProxy || {};
   // URL for the dataproxy
   my.dataproxy_url = '//jsonpdataproxy.appspot.com';
   // Timeout for dataproxy (after this time if no response we error)
-  // Needed because use JSONP so do not receive e.g. 500 errors 
+  // Needed because use JSONP so do not receive e.g. 500 errors
   my.timeout = 5000;
 
-  
+
   // use either jQuery or Underscore Deferred depending on what is available
   var Deferred = (typeof jQuery !== "undefined" && jQuery.Deferred) || _.Deferred;
 
@@ -50,7 +50,7 @@ this.recline.Backend.DataProxy = this.recline.Backend.DataProxy || {};
   };
 
   // ## _wrapInTimeout
-  // 
+  //
   // Convenience method providing a crude way to catch backend errors on JSONP calls.
   // Many of backends use JSONP and so will not get error messages and this is
   // a crude way to catch those errors.
@@ -145,7 +145,7 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
       var numRows = queryObj.size || this.records.length;
       var start = queryObj.from || 0;
       var results = this.records;
-      
+
       results = this._applyFilters(results, queryObj);
       results = this._applyFreeTextQuery(results, queryObj);
 
@@ -259,7 +259,7 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
             var foundmatch = false;
             _.each(self.fields, function(field) {
               var value = rawdoc[field.id];
-              if ((value !== null) && (value !== undefined)) { 
+              if ((value !== null) && (value !== undefined)) {
                 value = value.toString();
               } else {
                 // value can be null (apparently in some cases)
@@ -432,7 +432,7 @@ my.Dataset = Backbone.Model.extend({
     this._store = this.backend;
 
     // if backend has a handleQueryResultFunction, use that
-    this._handleResult = (this.backend != null && _.has(this.backend, 'handleQueryResult')) ? 
+    this._handleResult = (this.backend != null && _.has(this.backend, 'handleQueryResult')) ?
       this.backend.handleQueryResult : this._handleQueryResult;
     if (this.backend == recline.Backend.Memory) {
       this.fetch();
@@ -492,7 +492,7 @@ my.Dataset = Backbone.Model.extend({
   },
 
   // ### _normalizeRecordsAndFields
-  // 
+  //
   // Get a proper set of fields and records from incoming set of fields and records either of which may be null or arrays or objects
   //
   // e.g. fields = ['a', 'b', 'c'] and records = [ [1,2,3] ] =>
@@ -509,7 +509,7 @@ my.Dataset = Backbone.Model.extend({
           return {id: key};
         });
       }
-    } 
+    }
 
     // fields is an array of strings (i.e. list of field headings/ids)
     if (fields && fields.length > 0 && (fields[0] === null || typeof(fields[0]) != 'object')) {
@@ -633,7 +633,7 @@ my.Dataset = Backbone.Model.extend({
   // ### getFieldsSummary
   //
   // Get a summary for each field in the form of a `Facet`.
-  // 
+  //
   // @return null as this is async function. Provides deferred/promise interface.
   getFieldsSummary: function() {
     var self = this;
@@ -680,7 +680,7 @@ my.Dataset = Backbone.Model.extend({
 
 
 // ## <a id="record">A Record</a>
-// 
+//
 // A single record (or row) in the dataset
 my.Record = Backbone.Model.extend({
   constructor: function Record() {
@@ -688,7 +688,7 @@ my.Record = Backbone.Model.extend({
   },
 
   // ### initialize
-  // 
+  //
   // Create a Record
   //
   // You usually will not do this directly but will have records created by
@@ -736,7 +736,7 @@ my.Record = Backbone.Model.extend({
   summary: function(record) {
     var self = this;
     var html = '<div class="recline-record-summary">';
-    this.fields.each(function(field) { 
+    this.fields.each(function(field) {
       if (field.id != 'id') {
         html += '<div class="' + field.id + '"><strong>' + field.get('label') + '</strong>: ' + self.getFieldValue(field) + '</div>';
       }
@@ -820,7 +820,7 @@ my.Field = Backbone.Model.extend({
       return JSON.stringify(val);
     },
     'number': function(val, field, doc) {
-      var format = field.get('format'); 
+      var format = field.get('format');
       if (format === 'percentage') {
         return val + '%';
       }
@@ -892,7 +892,7 @@ my.Query = Backbone.Model.extend({
         lat: 0
       }
     }
-  },  
+  },
   // ### addFilter(filter)
   //
   // Add a new filter specified by the filter hash and append to the list of filters
@@ -918,7 +918,7 @@ my.Query = Backbone.Model.extend({
         idx = key;
       }
     });
-    // trigger just one event (change:filters:new-blank) instead of one for remove and 
+    // trigger just one event (change:filters:new-blank) instead of one for remove and
     // one for add
     if (idx >= 0) {
       filters.splice(idx, 1);
@@ -1580,7 +1580,7 @@ my.Grid = Backbone.View.extend({
     var state = _.extend({
         hiddenFields: []
       }, modelEtc.state
-    ); 
+    );
     this.state = new recline.Model.ObjectState(state);
   },
 
@@ -1597,7 +1597,7 @@ my.Grid = Backbone.View.extend({
     sort[0][this.tempState.currentColumn] = {order: order};
     this.model.query({sort: sort});
   },
-  
+
   hideColumn: function() {
     var hiddenFields = this.state.get('hiddenFields');
     hiddenFields.push(this.tempState.currentColumn);
@@ -1606,7 +1606,7 @@ my.Grid = Backbone.View.extend({
     this.state.trigger('change');
     this.render();
   },
-  
+
   showColumn: function(e) {
     var hiddenFields = _.without(this.state.get('hiddenFields'), $(e.target).data('column'));
     this.state.set({hiddenFields: hiddenFields});
@@ -1639,7 +1639,7 @@ my.Grid = Backbone.View.extend({
   ',
 
   toTemplateJSON: function() {
-    var self = this; 
+    var self = this;
     var modelData = this.model.toJSON();
     modelData.notEmpty = ( this.fields.length > 0 );
     // TODO: move this sort of thing into a toTemplateJSON method on Dataset?
@@ -1661,7 +1661,7 @@ my.Grid = Backbone.View.extend({
     // compute field widths (-20 for first menu col + 10px for padding on each col and finally 16px for the scrollbar)
     var fullWidth = self.$el.width() - 20 - 10 * numFields - this.scrollbarDimensions.width;
     var width = parseInt(Math.max(50, fullWidth / numFields), 10);
-    // if columns extend outside viewport then remainder is 0 
+    // if columns extend outside viewport then remainder is 0
     var remainder = Math.max(fullWidth - numFields * width,0);
     this.fields.each(function(field, idx) {
       // add the remainder to the first field width so we make up full col
@@ -1694,7 +1694,7 @@ my.Grid = Backbone.View.extend({
   },
 
   // ### _scrollbarSize
-  // 
+  //
   // Measure width of a vertical scrollbar and height of a horizontal scrollbar.
   //
   // @return: { width: pixelWidth, height: pixelHeight }
@@ -1743,7 +1743,7 @@ my.GridRow = Backbone.View.extend({
     'click .data-table-cell-editor .okButton': 'onEditorOK',
     'click .data-table-cell-editor .cancelButton': 'onEditorCancel'
   },
-  
+
   toTemplateJSON: function() {
     var self = this;
     var doc = this.model;
@@ -2159,7 +2159,7 @@ my.Map = Backbone.View.extend({
     var dms = coord.split(/[^-?\.\d\w]+/);
     var deg = 0; var m = 0;
     var toDeg = [1, 60, 3600]; // conversion factors for Deg, min, sec
-    var i; 
+    var i;
     for (i = 0; i < dms.length; ++i) {
         if (isNaN(parseFloat(dms[i]))) {
           continue;
@@ -2276,16 +2276,16 @@ my.Map = Backbone.View.extend({
 
   // Private: Sets up the Leaflet map control and the features layer.
   //
-  // The map uses a base layer from [MapQuest](http://www.mapquest.com) based
+  // The map uses a base layer from [Stamen](http://maps.stamen.com) based
   // on [OpenStreetMap](http://openstreetmap.org).
   //
   _setupMap: function(){
     var self = this;
     this.map = new L.Map(this.$map.get(0));
 
-    var mapUrl = "//otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
-    var osmAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="//developer.mapquest.com/content/osm/mq_logo.png">';
-    var bg = new L.TileLayer(mapUrl, {maxZoom: 18, attribution: osmAttribution ,subdomains: '1234'});
+    var mapUrl = "//stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg";
+    var osmAttribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.';
+    var bg = new L.TileLayer(mapUrl, {maxZoom: 18, attribution: osmAttribution, subdomains: 'abcd'});
     this.map.addLayer(bg);
 
     this.markers = new L.MarkerClusterGroup(this._clusterOptions);
@@ -2504,7 +2504,7 @@ this.recline.View = this.recline.View || {};
 // ## MultiView
 //
 // Manage multiple views together along with query editor etc. Usage:
-// 
+//
 // <pre>
 // var myExplorer = new recline.View.MultiView({
 //   model: {{recline.Model.Dataset instance}}
@@ -2512,10 +2512,10 @@ this.recline.View = this.recline.View || {};
 //   views: {{dataset views}}
 //   state: {{state configuration -- see below}}
 // });
-// </pre> 
+// </pre>
 //
 // ### Parameters
-// 
+//
 // **model**: (required) recline.model.Dataset instance.
 //
 // **el**: (required) DOM element to bind to. NB: the element already
@@ -2548,7 +2548,7 @@ this.recline.View = this.recline.View || {};
 //
 // **sidebarViews**: (optional) the sidebar views (Filters, Fields) for
 // MultiView to show. This is an array of view hashes. If not provided
-// initialize with (recline.View.)FilterEditor and Fields views (with obvious 
+// initialize with (recline.View.)FilterEditor and Fields views (with obvious
 // id and labels!).
 //
 // <pre>
@@ -2586,7 +2586,7 @@ this.recline.View = this.recline.View || {};
 // </pre>
 //
 // Note that at present we do *not* serialize information about the actual set
-// of views in use -- e.g. those specified by the views argument -- but instead 
+// of views in use -- e.g. those specified by the views argument -- but instead
 // expect either that the default views are fine or that the client to have
 // initialized the MultiView with the relevant views themselves.
 my.MultiView = Backbone.View.extend({
@@ -2846,7 +2846,7 @@ my.MultiView = Backbone.View.extend({
   },
 
   // create a state object for this view and do the job of
-  // 
+  //
   // a) initializing it from both data passed in and other sources (e.g. hash url)
   //
   // b) ensure the state object is updated in responese to changes in subviews, query etc.
@@ -3087,10 +3087,10 @@ this.recline.View = this.recline.View || {};
 //         state: {
 //          gridOptions: {
 //            editable: true,
-//            enableAddRow: true 
+//            enableAddRow: true
 //            // Enable support for row delete
 //            enabledDelRow: true,
-//            // Enable support for row Reorder 
+//            // Enable support for row Reorder
 //            enableReOrderRow:true,
 //            ...
 //          },
@@ -3105,8 +3105,8 @@ my.SlickGrid = Backbone.View.extend({
   initialize: function(modelEtc) {
     var self = this;
     this.$el.addClass('recline-slickgrid');
-  
-    // Template for row delete menu , change it if you don't love 
+
+    // Template for row delete menu , change it if you don't love
     this.templates = {
       "deleterow" : '<a href="#" class="recline-row-delete btn" title="Delete row">X</a>'
     };
@@ -3129,12 +3129,12 @@ my.SlickGrid = Backbone.View.extend({
     this._slickHandler = new Slick.EventHandler();
 
     //add menu for new row , check if enableAddRow is set to true or not set
-    if(this.state.get("gridOptions") 
-  && this.state.get("gridOptions").enabledAddRow != undefined 
+    if(this.state.get("gridOptions")
+  && this.state.get("gridOptions").enabledAddRow != undefined
       && this.state.get("gridOptions").enabledAddRow == true ){
       this.editor    =  new  my.GridControl()
       this.elSidebar =  this.editor.$el
-  this.listenTo(this.editor.state, 'change', function(){   
+  this.listenTo(this.editor.state, 'change', function(){
     this.model.records.add(new recline.Model.Record())
       });
     }
@@ -3163,26 +3163,26 @@ my.SlickGrid = Backbone.View.extend({
     }, self.state.get('gridOptions'));
 
     // We need all columns, even the hidden ones, to show on the column picker
-    var columns = []; 
+    var columns = [];
 
     // custom formatter as default one escapes html
     // plus this way we distinguish between rendering/formatting and computed value (so e.g. sort still works ...)
     // row = row index, cell = cell index, value = value, columnDef = column definition, dataContext = full row values
     var formatter = function(row, cell, value, columnDef, dataContext) {
       if(columnDef.id == "del"){
-        return self.templates.deleterow 
+        return self.templates.deleterow
       }
       var field = self.model.fields.get(columnDef.id);
       if (field.renderer) {
         return  field.renderer(value, field, dataContext);
       } else {
-        return  value 
+        return  value
       }
     };
 
-    // we need to be sure that user is entering a valid  input , for exemple if 
-    // field is date type and field.format ='YY-MM-DD', we should be sure that 
-    // user enter a correct value 
+    // we need to be sure that user is entering a valid  input , for exemple if
+    // field is date type and field.format ='YY-MM-DD', we should be sure that
+    // user enter a correct value
     var validator = function(field) {
       return function(value){
         if (field.type == "date" && isNaN(Date.parse(value))){
@@ -3191,7 +3191,7 @@ my.SlickGrid = Backbone.View.extend({
             msg: "A date is required, check field field-date-format"
           };
         } else {
-          return {valid: true, msg :null } 
+          return {valid: true, msg :null }
         }
       }
     };
@@ -3222,13 +3222,7 @@ my.SlickGrid = Backbone.View.extend({
     }
 
     function sanitizeFieldName(name) {
-      var sanitized;
-      try{
-        sanitized = $(name).text();
-      } catch(e) {
-        sanitized = '';
-      }
-      return (name !== sanitized && sanitized !== '') ? sanitized : name;
+      return $('<div>').text(name).html();
     }
 
     _.each(this.model.fields.toJSON(),function(field){
@@ -3268,7 +3262,7 @@ my.SlickGrid = Backbone.View.extend({
         }
       }
       columns.push(column);
-    });    
+    });
     // Restrict the visible columns
     var visibleColumns = _.filter(columns, function(column) {
       return _.indexOf(self.state.get('hiddenColumns'), column.id) === -1;
@@ -3345,7 +3339,7 @@ my.SlickGrid = Backbone.View.extend({
     if (this.state.get("gridOptions") && this.state.get("gridOptions").enableReOrderRow) {
       this._setupRowReordering();
     }
-    
+
     this._slickHandler.subscribe(this.grid.onSort, function(e, args){
       var order = (args.sortAsc) ? 'asc':'desc';
       var sort = [{
@@ -3354,11 +3348,11 @@ my.SlickGrid = Backbone.View.extend({
       }];
       self.model.query({sort: sort});
     });
-    
+
     this._slickHandler.subscribe(this.grid.onColumnsReordered, function(e, args){
       self.state.set({columnsOrder: _.pluck(self.grid.getColumns(),'id')});
     });
-    
+
     this.grid.onColumnsResized.subscribe(function(e, args){
         var columns = args.grid.getColumns();
         var defaultColumnWidth = args.grid.getOptions().defaultColumnWidth;
@@ -3370,7 +3364,7 @@ my.SlickGrid = Backbone.View.extend({
         });
         self.state.set({columnsWidth:columnsWidth});
     });
-    
+
     this._slickHandler.subscribe(this.grid.onCellChange, function (e, args) {
       // We need to change the model associated value
       var grid = args.grid;
@@ -3379,7 +3373,7 @@ my.SlickGrid = Backbone.View.extend({
       var v = {};
       v[field] = args.item[field];
       model.set(v);
-    });  
+    });
     this._slickHandler.subscribe(this.grid.onClick,function(e, args){
       //try catch , because this fail in qunit , but no
       //error on browser.
@@ -3390,8 +3384,8 @@ my.SlickGrid = Backbone.View.extend({
       // else it is The the second cell (1) , because The 0 is now cell
       // that handle row Reoder.
       var cell =0
-      if(self.state.get("gridOptions") 
-  && self.state.get("gridOptions").enableReOrderRow != undefined 
+      if(self.state.get("gridOptions")
+  && self.state.get("gridOptions").enableReOrderRow != undefined
         && self.state.get("gridOptions").enableReOrderRow == true ){
         cell =1
       }
@@ -3433,16 +3427,16 @@ my.SlickGrid = Backbone.View.extend({
       }
       return true;
     });
-    
+
     moveRowsPlugin.onMoveRows.subscribe(function (e, args) {
       var extractedRows = [], left, right;
       var rows = args.rows;
       var insertBefore = args.insertBefore;
 
-      var data = self.model.records.toJSON()      
+      var data = self.model.records.toJSON()
       left = data.slice(0, insertBefore);
       right= data.slice(insertBefore, data.length);
-      
+
       rows.sort(function(a,b) { return a-b; });
 
       for (var i = 0; i < rows.length; i++) {
@@ -3463,10 +3457,10 @@ my.SlickGrid = Backbone.View.extend({
       data = left.concat(extractedRows.concat(right));
       var selectedRows = [];
       for (var i = 0; i < rows.length; i++)
-        selectedRows.push(left.length + i);      
+        selectedRows.push(left.length + i);
 
       self.model.records.reset(data)
-      
+
     });
     //register The plugin to handle row Reorder
     if(this.state.get("gridOptions") && this.state.get("gridOptions").enableReOrderRow) {
@@ -3498,13 +3492,13 @@ my.SlickGrid = Backbone.View.extend({
 });
 
 // Add new grid Control to display a new row add menu bouton
-// It display a simple side-bar menu ,for user to add new 
-// row to grid 
+// It display a simple side-bar menu ,for user to add new
+// row to grid
 my.GridControl= Backbone.View.extend({
   className: "recline-row-add",
   // Template for row edit menu , change it if you don't love
   template: '<h1><a href="#" class="recline-row-add btn">Add row</a></h1>',
-  
+
   initialize: function(options){
     var self = this;
     _.bindAll(this, 'render');
@@ -3777,7 +3771,7 @@ my.Timeline = Backbone.View.extend({
     this.model.records.each(function(record) {
       var newEntry = self.convertRecord(record, self.fields);
       if (newEntry) {
-        out.timeline.date.push(newEntry); 
+        out.timeline.date.push(newEntry);
       }
     });
     // if no entries create a placeholder entry to prevent Timeline crashing with error
@@ -3850,7 +3844,7 @@ this.recline.View = this.recline.View || {};
 
 // ## FacetViewer
 //
-// Widget for displaying facets 
+// Widget for displaying facets
 //
 // Usage:
 //
@@ -3858,7 +3852,7 @@ this.recline.View = this.recline.View || {};
 //        model: dataset
 //      });
 my.FacetViewer = Backbone.View.extend({
-  className: 'recline-facet-viewer', 
+  className: 'recline-facet-viewer',
   template: ' \
     <div class="facets"> \
       {{#facets}} \
@@ -3951,9 +3945,9 @@ this.recline.View = this.recline.View || {};
 
 (function($, my) {
   "use strict";
-  
+
 my.Fields = Backbone.View.extend({
-  className: 'recline-fields-view', 
+  className: 'recline-fields-view',
   template: ' \
     <div class="accordion fields-list well"> \
     <h3>Fields <a href="#" class="js-show-hide">+</a></h3> \
@@ -4032,7 +4026,7 @@ this.recline.View = this.recline.View || {};
   "use strict";
 
 my.FilterEditor = Backbone.View.extend({
-  className: 'recline-filter-editor well', 
+  className: 'recline-filter-editor well',
   template: ' \
     <div class="filters"> \
       <h3>Filters</h3> \
@@ -4201,7 +4195,7 @@ this.recline.View = this.recline.View || {};
   "use strict";
 
 my.Pager = Backbone.View.extend({
-  className: 'recline-pager', 
+  className: 'recline-pager',
   template: ' \
     <div class="pagination"> \
       <ul> \
@@ -4225,8 +4219,8 @@ my.Pager = Backbone.View.extend({
   onFormSubmit: function(e) {
     e.preventDefault();
     // filter is 0-based; form is 1-based
-    var formFrom = parseInt(this.$el.find('input[name="from"]').val())-1; 
-    var formTo = parseInt(this.$el.find('input[name="to"]').val())-1; 
+    var formFrom = parseInt(this.$el.find('input[name="from"]').val())-1;
+    var formTo = parseInt(this.$el.find('input[name="to"]').val())-1;
     var maxRecord = this.model.recordCount-1;
     if (this.model.queryState.get('from') != formFrom) { // changed from; update from
       this.model.queryState.set({from: Math.min(maxRecord, Math.max(formFrom, 0))});
@@ -4275,7 +4269,7 @@ this.recline.View = this.recline.View || {};
   "use strict";
 
 my.QueryEditor = Backbone.View.extend({
-  className: 'recline-query-editor', 
+  className: 'recline-query-editor',
   template: ' \
     <form action="" method="GET" class="form-inline"> \
       <div class="input-prepend text-query"> \
@@ -4318,7 +4312,7 @@ this.recline.View = this.recline.View || {};
   "use strict";
 
 my.ValueFilter = Backbone.View.extend({
-  className: 'recline-filter-editor well', 
+  className: 'recline-filter-editor well',
   template: ' \
     <div class="filters"> \
       <h3>Filters</h3> \

@@ -68,13 +68,17 @@
     null,
     "Zmazať"
   ],
+  "Reorder resource view": [
+    null,
+    "Preusporiadať náhľad dátového zdroja"
+  ],
   "Reorder resources": [
     null,
-    "Preusporiadať zdroje"
+    "Preusporiadať dátové zdroje"
   ],
   "Resource uploaded": [
     null,
-    "Zdroj nahraný"
+    "Dátový zdroj nahraný"
   ],
   "Save order": [
     null,
@@ -98,7 +102,7 @@
   ],
   "There is no API data to load for this resource": [
     null,
-    "Neexistuje dátové API na načítanie tohto zdroja"
+    "Neexistuje dátové API na načítanie tohto dátového zdroja"
   ],
   "URL": [
     null,

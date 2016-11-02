@@ -61,17 +61,18 @@ this.ckan.module('recline_view', function (jQuery, _) {
       var query = new recline.Model.Query();
       query.set({ size: reclineView.limit || 100 });
       query.set({ from: reclineView.offset || 0 });
-
+      
+      var urlFilters = {};
       try {
         if (window.parent.ckan.views && window.parent.ckan.views.filters) {
-          var defaultFilters = reclineView.filters || {},
-              urlFilters = window.parent.ckan.views.filters.get(),
-              filters = $.extend({}, defaultFilters, urlFilters);
-          $.each(filters, function (field,values) {
-            query.addFilter({type: 'term', field: field, term: values});
-          });
+          urlFilters = window.parent.ckan.views.filters.get();
         }
       } catch(e) {}
+      var defaultFilters = reclineView.filters || {},
+          filters = $.extend({}, defaultFilters, urlFilters);
+      $.each(filters, function (field,values) {
+        query.addFilter({type: 'term', field: field, term: values});
+      });
 
       dataset.queryState.set(query.toJSON(), {silent: true});
 

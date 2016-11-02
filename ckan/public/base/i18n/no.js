@@ -68,6 +68,10 @@
     null,
     "Fjern"
   ],
+  "Reorder resource view": [
+    null,
+    "Forandre rekkefølgen i ressursvisning"
+  ],
   "Reorder resources": [
     null,
     "Forandre rekkefølge på ressurser"

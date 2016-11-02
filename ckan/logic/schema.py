@@ -45,8 +45,10 @@ from ckan.logic.validators import (package_id_not_changed,
                                    resource_id_exists,
                                    tag_not_in_vocabulary,
                                    group_id_exists,
+                                   group_id_or_name_exists,
                                    owner_org_validator,
                                    user_name_exists,
+                                   user_id_or_name_exists,
                                    role_exists,
                                    url_validator,
                                    datasets_with_no_organization_cannot_be_private,
@@ -71,6 +73,7 @@ from ckan.logic.converters import (convert_user_name_or_id_to_id,
 from formencode.validators import OneOf
 import ckan.model
 import ckan.lib.maintain as maintain
+
 
 def default_resource_schema():
 
@@ -541,9 +544,9 @@ def default_follow_dataset_schema():
 
 def member_schema():
     schema = {
-        'id': [group_id_exists, unicode],
-        'username': [user_name_exists, unicode],
-        'role': [role_exists, unicode],
+        'id': [not_missing, group_id_or_name_exists, unicode],
+        'username': [not_missing, user_id_or_name_exists, unicode],
+        'role': [not_missing, role_exists, unicode],
     }
     return schema
 

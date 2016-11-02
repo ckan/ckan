@@ -169,11 +169,16 @@ class FeedController(base.BaseController):
     def _group_or_organization(self, obj_dict, is_org):
 
         data_dict, params = self._parse_url_params()
-        key = 'owner_org' if is_org else 'groups'
-        data_dict['fq'] = '%s:"%s"' % (key, obj_dict['id'],)
-        group_type = 'organization'
-        if not is_org:
+        if is_org:
+            key = 'owner_org'
+            value = obj_dict['id']
+            group_type = 'organization'
+        else:
+            key = 'groups'
+            value = obj_dict['name']
             group_type = 'group'
+
+        data_dict['fq'] = '{0}:"{1}"'.format(key, value)
 
         item_count, results = _package_search(data_dict)
 

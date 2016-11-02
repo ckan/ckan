@@ -175,7 +175,7 @@ def get_default_view_plugins(get_datastore_views=False):
     if config.get('ckan.views.default_views') is None:
         default_view_types = DEFAULT_RESOURCE_VIEW_TYPES
     else:
-        default_view_types = config.get('ckan.views.default_views').split(' ')
+        default_view_types = config.get('ckan.views.default_views').split()
 
     default_view_plugins = []
     for view_type in default_view_types:
