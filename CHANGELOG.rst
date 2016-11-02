@@ -7,6 +7,21 @@
 Changelog
 ---------
 
+v2.4.4 2016-11-02
+=================
+
+ * Changing your user name produces an error and logs you out (#2394)
+ * Fix "Load more" functionality in the dashboard (#2346)
+ * Fix filters not working when embedding a resource view (#2657)
+ * Proper sanitation of header name on SlickGrid view (#2923)
+ * Fix unicode error when indexing field of type JSON (#2969)
+ * Fix group feeds returning no datasets (#2955)
+ * Replace MapQuest tiles in Recline with Stamen Terrain (#3162)
+ * Fix bulk operations not taking effect (#3199)
+ * Raise validation errors on group/org_member_create (#3108)
+ * Incorrect warnings when ckan.views.default_views is empty (#3093)
+ * Don't show deleted users/datasets on member_list (#3078)
+
 v2.4.3 2016-03-31
 =================
 
@@ -130,6 +145,22 @@ Changes and deprecations
 
 * Config option ``site_url`` is now required - CKAN will not abort during
   start-up if it is not set. (#1976)
+
+
+v2.3.5 2016-11-02
+=================
+
+ * Fix "Load more" functionality in the dashboard (#2346)
+ * Fix filters not working when embedding a resource view (#2657)
+ * Proper sanitation of header name on SlickGrid view (#2923)
+ * Fix unicode error when indexing field of type JSON (#2969)
+ * Fix group feeds returning no datasets (#2955)
+ * Replace MapQuest tiles in Recline with Stamen Terrain (#3162)
+ * Fix bulk operations not taking effect (#3199)
+ * Raise validation errors on group/org_member_create (#3108)
+ * Incorrect warnings when ckan.views.default_views is empty (#3093)
+ * Don't show deleted users/datasets on member_list (#3078)
+
 
 v2.3.4 2016-03-31
 =================
