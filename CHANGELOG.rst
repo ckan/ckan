@@ -7,14 +7,126 @@
 Changelog
 ---------
 
-v2.6.0 TBA
+v2.6.0 2016-11-02
 =================
-API changes and deprecations:
- * Replace `c.__version__` with new helper `h.ckan_version()` (#3103)
+
+Note: Starting from this version, CKAN requires at least Python 2.7 and Postgres 9.2
+
+Note: This version requires a requirements upgrade on source installations
+
+Note: This version requires a database upgrade
+
+Note: This version does not require a Solr schema upgrade (You may want to
+         upgrade the schema if you want to target Solr>=5, see #2914)
 
 Major:
  * Private datasets are now included in the default dataset search results (#3191)
  * package_search API action now has an include_private parameter (#3191)
+
+Minor:
+ * Make resource name default to file name (#1372)
+ * Customizable email templates  (#1527)
+ * Change solrpy library to pysolr (#2352)
+ * Cache SQL query results (#2353)
+ * File Upload UX improvements (#2604)
+ * Helpers for multilingual fields (#2678)
+ * Improve Extension translation docs (#2783)
+ * Decouple configuration from Pylons (#3163)
+ * toolkit: add h, StopOnError, DefaultOrganizationForm (#2835)
+ * Remove Genshi support (#2833)
+ * Make resource URLs optional (#2844)
+ * Use 403 when actions are forbidden, not 401  (#2846)
+ * Upgrade requirements version (#3004, #3005)
+ * Add icons sources (#3048)
+ * Remove lib/dumper (#2879)
+ * ckan.__version__ available as template helper (#3103)
+ * Remove `site_url_nice` from app_globals (#3117)
+ * Remove `e.message` deprecation warning when running tests (#3121)
+ * Drop Python 2.6 support (#3126)
+ * Update Recline version (#3184)
+ * Refactor config/middleware.py to more closely match poc-flask-views (#3116)
+ * Creation of datasets sources with no organization specified (#3046)
+
+Bug fixes:
+ * DataPusher called multiple times when creating a dataset (#2856)
+ * Default view is re-added when removed before DataStore upload is complete (#3011)
+ * "Data API" button disappears on resource page after empty update (#3012)
+ * Uncaught email exceptions on user invite (#3077)
+ * Resource view description is not rendered as Markdown (#3128)
+ * Fix broken html5lib dependency (#3180)
+ * ZH_cn translation formatter fix (#3238)
+ * Incorrect i18n-paths in extension's setup.cfg (#3275)
+ * Changing your user name produces an error and logs you out (#2394)
+ * Fix "Load more" functionality in the dashboard (#2346)
+ * Fix filters not working when embedding a resource view (#2657)
+ * Proper sanitation of header name on SlickGrid view (#2923)
+ * Fix unicode error when indexing field of type JSON (#2969)
+ * Fix group feeds returning no datasets (#2955)
+ * Replace MapQuest tiles in Recline with Stamen Terrain (#3162)
+ * Fix bulk operations not taking effect (#3199)
+ * Raise validation errors on group/org_member_create (#3108)
+ * Incorrect warnings when ckan.views.default_views is empty (#3093)
+ * Don't show deleted users/datasets on member_list (#3078)
+ * Fix Tag pagination widget styling (#2399)
+ * Fix package_owner_org_update standalone (#2661)
+ * Don't template fanstatic error pages (#2770)
+ * group_controller() on IGroupForm not in interface (#2771)
+ * Fix assert_true to test for message in response (#2802)
+ * Add user parameter to paster profile command (#2815)
+ * make context['user'] always username or None (#2817)
+ * remove some deprecated compatibility hacks (#2818)
+ * Param use_default_schema does not work on package_search (#2848)
+ * Sanitize offset when listing group activity (#2859)
+ * Incorrect 'download resource' hyperlink when a resource is unable to upload to datastore  (#2873)
+ * Resolve datastore_delete erasing the database when filters was blank. (#2885)
+ * DomainObject.count() doesn't return count (#2919)
+ * Fix response code test failures (#2931)
+ * Fixed the url_for_* helpers when both SCRIPT_NAME and ckan.root_path are defined (#2936)
+ * Escape special characters in password while db loading (#2952)
+ * Fix redirect not working with non-root (#2968)
+ * Group pagination does not preserve sort order (#2981)
+ * Remove LazyJSONObject (#2983)
+ * Deleted users appear in sysadmin user lists (#2988)
+ * Server error at /organization if not authorized to list organizations (#2990)
+ * Slow page rendering when using lots of snippets (#3000)
+ * Only allow JSONP callbacks on GET requests (#3002)
+ * Attempting to access non-existing helpers should raise HelperException (#3041)
+ * Deprecate h.url, make it use h.url_for internally (#3055)
+ * Tests fail when LANG environment variable is set to German (#3060)
+ * Fix pagination style (CSS) (#3067)
+ * Login fails with 404 when using root_path (#3089)
+ * Resource view description is not rendered as Markdown (#3128)
+ * Clarify package_relationship_update documentation (#3132)
+ * `q` parameter in followee_list action has no effect (#3167)
+ * Zh cn translation formatter fix (#3238)
+ * Users are not removed in related tables if the main user entry is deleted (#3265)
+
+API changes and deprecations:
+ * Replace `c.__version__` with new helper `h.ckan_version()` (#3103)
+
+
+v2.5.3 2016-11-02
+=================
+
+ * DataPusher called multiple times when creating a dataset (#2856)
+ * Default view is re-added when removed before DataStore upload is complete (#3011)
+ * "Data API" button disappears on resource page after empty update (#3012)
+ * Uncaught email exceptions on user invite (#3077)
+ * Resource view description is not rendered as Markdown (#3128)
+ * Fix broken html5lib dependency (#3180)
+ * ZH_cn translation formatter fix (#3238)
+ * Incorrect i18n-paths in extension's setup.cfg (#3275)
+ * Changing your user name produces an error and logs you out (#2394)
+ * Fix "Load more" functionality in the dashboard (#2346)
+ * Fix filters not working when embedding a resource view (#2657)
+ * Proper sanitation of header name on SlickGrid view (#2923)
+ * Fix unicode error when indexing field of type JSON (#2969)
+ * Fix group feeds returning no datasets (#2955)
+ * Replace MapQuest tiles in Recline with Stamen Terrain (#3162)
+ * Fix bulk operations not taking effect (#3199)
+ * Raise validation errors on group/org_member_create (#3108)
+ * Incorrect warnings when ckan.views.default_views is empty (#3093)
+ * Don't show deleted users/datasets on member_list (#3078)
 
 v2.5.2 2016-03-31
 =================
@@ -93,6 +205,21 @@ v2.5.0 2015-12-17
 =================
 
 Cancelled release
+
+v2.4.4 2016-11-02
+=================
+
+ * Changing your user name produces an error and logs you out (#2394)
+ * Fix "Load more" functionality in the dashboard (#2346)
+ * Fix filters not working when embedding a resource view (#2657)
+ * Proper sanitation of header name on SlickGrid view (#2923)
+ * Fix unicode error when indexing field of type JSON (#2969)
+ * Fix group feeds returning no datasets (#2955)
+ * Replace MapQuest tiles in Recline with Stamen Terrain (#3162)
+ * Fix bulk operations not taking effect (#3199)
+ * Raise validation errors on group/org_member_create (#3108)
+ * Incorrect warnings when ckan.views.default_views is empty (#3093)
+ * Don't show deleted users/datasets on member_list (#3078)
 
 v2.4.3 2016-03-31
 =================
@@ -221,13 +348,19 @@ Changes and deprecations
 * Config option ``site_url`` is now required - CKAN will not abort during
   start-up if it is not set. (#1976)
 
-v2.3.3 2015-12-17
+v2.3.5 2016-11-02
 =================
 
-Bug fixes:
- * Fix Markdown rendering issue
- * Return default error page on fanstatic errors
- * Prevent authentication when using API callbacks
+ * Fix "Load more" functionality in the dashboard (#2346)
+ * Fix filters not working when embedding a resource view (#2657)
+ * Proper sanitation of header name on SlickGrid view (#2923)
+ * Fix unicode error when indexing field of type JSON (#2969)
+ * Fix group feeds returning no datasets (#2955)
+ * Replace MapQuest tiles in Recline with Stamen Terrain (#3162)
+ * Fix bulk operations not taking effect (#3199)
+ * Raise validation errors on group/org_member_create (#3108)
+ * Incorrect warnings when ckan.views.default_views is empty (#3093)
+ * Don't show deleted users/datasets on member_list (#3078)
 
 v2.3.4 2016-03-31
 =================
