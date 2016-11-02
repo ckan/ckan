@@ -63,6 +63,12 @@ log = logging.getLogger(__name__)
 # we don't have a Portuguese territory translation currently.
 LOCALE_ALIASES['pt'] = 'pt_BR'
 
+# CKAN root directory
+_CKAN_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), u'..'))
+
+# Output directory for generated JavaScript translations
+_JS_TRANSLATIONS_DIR = os.path.join(_CKAN_DIR, u'public', u'base', u'i18n')
+
 
 def get_locales_from_config():
     ''' despite the name of this function it gets the locales defined by
@@ -349,10 +355,8 @@ def build_js_translations():
     strings that are actually used in JS files.
     '''
     log.debug(u'Generating JavaScript translations')
-    ckan_dir = os.path.join(os.path.dirname(__file__), u'..')
     ckan_i18n_dir = config.get(u'ckan.i18n_directory',
-                               os.path.join(ckan_dir, u'i18n'))
-    dest_dir = os.path.join(ckan_dir, u'public', u'base', u'i18n')
+                               os.path.join(_CKAN_DIR, u'i18n'))
 
     # Collect all language codes (an extension might add support for a
     # language that isn't supported by CKAN core, yet).
@@ -381,7 +385,7 @@ def build_js_translations():
                     for i18n_dir, domain in i18n_dirs.iteritems()]
         po_files = [fn for fn in po_files if os.path.isfile(fn)]
         latest = max(os.path.getmtime(fn) for fn in po_files)
-        dest_file = os.path.join(dest_dir, lang + u'.js')
+        dest_file = os.path.join(_JS_TRANSLATIONS_DIR, lang + u'.js')
         if os.path.isfile(dest_file) and os.path.getmtime(dest_file) > latest:
             log.debug(u'JS translation for "{}" is up to date'.format(lang))
         else:
