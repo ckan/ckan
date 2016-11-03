@@ -708,7 +708,8 @@ def default_group_type():
 
 
 @core_helper
-def get_facet_items_dict(facet, limit=None, exclude_active=False, int_sort=False):
+def get_facet_items_dict(facet, limit=None, exclude_active=False,
+                         int_sort=False):
     '''Return the list of unselected facet items for the given facet, sorted
     by count (default) or name.
 
@@ -741,7 +742,8 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False, int_sort=False
             all_ints = all(map(isint, names))
             if all_ints:
                 return sorted(f, key=lambda it: -int(it['display_name']))
-        return sorted(f, key=lambda it: (-it['count'], it['display_name'].lower()))
+        return sorted(f, key=lambda it: (-it['count'],
+                      it['display_name'].lower()))
 
     try:
         facet_items = c.search_facets.get(facet)['items']
@@ -762,6 +764,7 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False, int_sort=False
     # zero treated as infinite for hysterical raisins
     if limit is not None and limit > 0:
         return sort(facets)[:limit]
+
     return sort(facets)
 
 
