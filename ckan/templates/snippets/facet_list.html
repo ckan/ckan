@@ -56,7 +56,9 @@ within_tertiary
             </h2>
           {% endblock %}
           {% block facet_list_items %}
-            {% with items = items or h.get_facet_items_dict(name) %}
+            {#  set int_sort=True if you have facets with int values and want to sort them
+                by name (number) instead of count #}
+            {% with items = items or h.get_facet_items_dict(name, int_sort=False) %}
             {% if items %}
               <nav>
                 <ul class="{{ nav_class or 'unstyled nav nav-simple nav-facet' }}">
