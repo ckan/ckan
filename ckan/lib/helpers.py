@@ -726,24 +726,18 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False,
     facet -- the name of the facet to filter.
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
-    int_sort -- sort facets with int literals in 'name' by name and descending
+    int_sort -- sort facets with int literals in 'display_name' numerically
+        and descending
     '''
-
-    def isint(v):
-        try:
-            i = int(v)
-        except:
-            i = v
-        return isinstance(i, int)
 
     def sort(f):
         if int_sort:
-            names = map(lambda it: it['display_name'], f)
-            all_ints = all(map(isint, names))
-            if all_ints:
+            try:
                 return sorted(f, key=lambda it: -int(it['display_name']))
+            except ValueError:
+                pass
         return sorted(f, key=lambda it: (-it['count'],
-                      it['display_name'].lower()))
+                                         it['display_name'].lower()))
 
     try:
         facet_items = c.search_facets.get(facet)['items']
