@@ -1618,6 +1618,10 @@ class IUploader(Interface):
         :param resource: resource dict
         :type resource: dictionary
 
+        Optional attributes:
+            filesize (int):  Uploaded file filesize.
+            mimetype (str):  Uploaded file mimetype.
+
         ``upload(id, max_size)``
 
         Perform the actual upload.
