@@ -727,7 +727,6 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False,
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
     int_sort -- sort facets with int literals in 'display_name' numerically
-        and descending
     '''
 
     def sort(f):
