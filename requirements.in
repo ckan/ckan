@@ -17,7 +17,7 @@ python-magic==0.4.12
 pysolr==3.6.0
 Pylons==0.9.7
 python-dateutil>=1.5.0,<2.0.0
-pytz==2016.4
+pytz==2016.7
 pyutilib.component.core==4.6.4
 repoze.who-friendlyform==1.0.8
 repoze.who==2.3
