@@ -6,7 +6,7 @@ bleach==1.5.0
 fanstatic==0.12
 Flask==0.11.1
 Jinja2==2.8
-Markdown==2.6.6
+Markdown==2.6.7
 ofs==0.4.2
 ordereddict==1.1
 Pairtree==0.7.1-T
