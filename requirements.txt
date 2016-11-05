@@ -41,7 +41,7 @@ redis==2.10.5             # via rq
 repoze.lru==0.6           # via routes
 repoze.who-friendlyform==1.0.8
 repoze.who==2.3
-requests==2.10.0
+requests==2.11.1
 Routes==1.13              # via pylons
 rq==0.6.0
 simplejson==3.8.2         # via pylons
