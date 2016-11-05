@@ -7,7 +7,7 @@
 argparse==1.4.0           # via ofs
 Babel==2.3.4
 Beaker==1.8.1             # via pylons
-bleach==1.4.3
+bleach==1.5.0
 click==6.6                # via rq
 decorator==4.0.6          # via pylons, sqlalchemy-migrate
 fanstatic==0.12
