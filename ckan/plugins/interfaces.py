@@ -1618,6 +1618,12 @@ class IUploader(Interface):
         :param resource: resource dict
         :type resource: dictionary
 
+        Optionally, this method can set the following two attributes
+        on the class instance so they are set in the resource object:
+            
+            filesize (int):  Uploaded file filesize.
+            mimetype (str):  Uploaded file mimetype.
+
         ``upload(id, max_size)``
 
         Perform the actual upload.
