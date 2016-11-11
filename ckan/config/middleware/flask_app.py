@@ -249,9 +249,10 @@ class CKANFlask(Flask):
         self.register_blueprint(blueprint, **kwargs)
 
         # Get the new blueprint rules
-        bp_rules = [v for k, v in self.url_map._rules_by_endpoint.items()
-                    if k.startswith(blueprint.name)]
-        bp_rules = list(itertools.chain.from_iterable(bp_rules))
+        bp_rules = itertools.chain.from_iterable(
+            v for k, v in self.url_map._rules_by_endpoint.iteritems()
+            if k.startswith(u'{0}.'.format(blueprint.name))
+        )
 
         # This compare key will ensure the rule will be near the top.
         top_compare_key = False, -100, [(-2, 0)]
