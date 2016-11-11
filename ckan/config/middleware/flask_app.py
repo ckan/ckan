@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import os
-import time
 import importlib
 import inspect
 import itertools
@@ -19,7 +18,7 @@ from fanstatic import Fanstatic
 
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
-from ckan.common import config, g, request
+from ckan.common import config, g
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware
@@ -91,8 +90,6 @@ def make_flask_stack(conf, **app_conf):
     # Common handlers for all requests
     @app.before_request
     def ckan_before_request():
-        # Start the request timer
-        g._request_timer = time.time()
 
         # Update app_globals
         app_globals.app_globals._check_uptodate()
@@ -108,14 +105,6 @@ def make_flask_stack(conf, **app_conf):
 
         # Set CORS headers if necessary
         response = set_cors_headers_for_response(response)
-
-        # Log time between before and after view
-        request_time = time.time() - g._request_timer
-        url = request.environ.get('CKAN_CURRENT_URL')
-        if url:
-            url = url.split('?')[0]
-            log.info('{url} render time {request_time:.3f} seconds'.format(
-                url=url, request_time=request_time))
 
         return response
 
@@ -150,7 +139,6 @@ def make_flask_stack(conf, **app_conf):
             app.register_extension_blueprint(plugin.get_blueprint())
 
     # Start other middleware
-
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
 
