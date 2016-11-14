@@ -88,39 +88,12 @@ def make_flask_stack(conf, **app_conf):
     app.jinja_env.filters['truncate'] = jinja_extensions.truncate
 
     # Common handlers for all requests
-    @app.before_request
-    def ckan_before_request():
-
-        # Update app_globals
-        app_globals.app_globals._check_uptodate()
-
-        # Identify the user from the repoze cookie or the API header
-        # Sets g.user and g.userobj
-        identify_user()
-
-    @app.after_request
-    def ckan_after_request(response):
-        # Check session cookie
-        response = check_session_cookie(response)
-
-        # Set CORS headers if necessary
-        response = set_cors_headers_for_response(response)
-
-        return response
+    app.before_request(ckan_before_request)
+    app.after_request(ckan_after_request)
 
     # Template context processors
-    @app.context_processor
-    def helper_functions():
-        u'''Make helper functions (`h`) available to Flask templates'''
-        helpers.load_plugin_helpers()
-        return dict(h=helpers.helper_functions)
-
-    @app.context_processor
-    def c_object():
-        u'''
-        Expose `c` as an alias of `g` in templates for backwards compatibility
-        '''
-        return dict(c=g)
+    app.context_processor(helper_functions)
+    app.context_processor(c_object)
 
     @app.route('/hello', methods=['GET'])
     def hello_world():
@@ -179,6 +152,42 @@ def make_flask_stack(conf, **app_conf):
     app._wsgi_app = flask_app
 
     return app
+
+
+def ckan_before_request():
+    u'''Common handler executed before all Flask requests'''
+
+    # Update app_globals
+    app_globals.app_globals._check_uptodate()
+
+    # Identify the user from the repoze cookie or the API header
+    # Sets g.user and g.userobj
+    identify_user()
+
+
+def ckan_after_request(response):
+    u'''Common handler executed after all Flask requests'''
+
+    # Check session cookie
+    response = check_session_cookie(response)
+
+    # Set CORS headers if necessary
+    response = set_cors_headers_for_response(response)
+
+    return response
+
+
+def helper_functions():
+    u'''Make helper functions (`h`) available to Flask templates'''
+    helpers.load_plugin_helpers()
+    return dict(h=helpers.helper_functions)
+
+
+def c_object():
+    u'''
+    Expose `c` as an alias of `g` in templates for backwards compatibility
+    '''
+    return dict(c=g)
 
 
 class CKAN_Rule(Rule):
