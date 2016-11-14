@@ -427,6 +427,9 @@ def make_map():
         m.connect('/testing/primer', action='primer')
         m.connect('/testing/markup', action='markup')
 
+    # robots.txt
+    map.connect('/(robots.txt)', controller='template', action='view')
+
     # Mark all unmarked routes added up until now as core routes
     for route in map.matchlist:
         if not hasattr(route, '_ckan_core'):

@@ -1654,7 +1654,7 @@ def groups_available(am_member=False):
 
 
 @core_helper
-def organizations_available(permission='edit_group'):
+def organizations_available(permission='manage_group'):
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''

@@ -254,7 +254,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/controllers/revision.py',
     u'ckan/controllers/storage.py',
     u'ckan/controllers/tag.py',
-    u'ckan/controllers/template.py',
     u'ckan/controllers/user.py',
     u'ckan/controllers/util.py',
     u'ckan/exceptions.py',
