@@ -4,6 +4,7 @@ import os
 import importlib
 import inspect
 import itertools
+import pkgutil
 
 from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
@@ -273,17 +274,11 @@ class CKANFlask(Flask):
 def _register_core_blueprints(app):
     u'''Register all blueprints defined in the `views` folder
     '''
-    views_path = os.path.join(os.path.dirname(__file__),
-                              u'..', u'..', u'views')
-    module_names = [f.rstrip(u'.py')
-                    for f in os.listdir(views_path)
-                    if f.endswith(u'.py') and not f.startswith(u'_')]
-    blueprints = []
-    for name in module_names:
-        module = importlib.import_module(u'ckan.views.{0}'.format(name))
-        blueprints.extend([m for m in inspect.getmembers(module)
-                           if isinstance(m[1], Blueprint)])
-    if blueprints:
-        for blueprint in blueprints:
+    def is_blueprint(mm):
+        return isinstance(mm, Blueprint)
+
+    for loader, name, _ in pkgutil.iter_modules(['ckan/views'], 'ckan.views.'):
+        module = loader.find_module(name).load_module(name)
+        for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
-            log.debug(u'Registered core blueprint: {0}'.format(blueprint[0]))
+            log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
