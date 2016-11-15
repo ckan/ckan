@@ -9,7 +9,7 @@ mock==2.0.0
 pep8==1.4.6
 pip-tools==1.7.0
 polib==1.0.7
-pyfakefs==2.7
+pyfakefs==2.9
 Sphinx==1.2.3
 sphinx-rtd-theme==0.1.9
 
