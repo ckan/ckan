@@ -142,7 +142,7 @@ def datastore_create(context, data_dict):
     try:
         result = db.create(context, data_dict)
     except db.InvalidDataError as err:
-        raise p.toolkit.ValidationError(str(err))
+        raise p.toolkit.ValidationError(unicode(err))
 
     # Set the datastore_active flag on the resource if necessary
     if resource.extras.get('datastore_active') is not True:
