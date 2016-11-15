@@ -139,7 +139,7 @@ def datastore_create(context, data_dict):
     try:
         result = db.create(context, data_dict)
     except db.InvalidDataError as err:
-        raise p.toolkit.ValidationError(str(err))
+        raise p.toolkit.ValidationError(unicode(err))
 
     result.pop('id', None)
     result.pop('private', None)
