@@ -1,11 +1,11 @@
 # encoding: utf-8
 
-import ckan.model as model
+import ckan.lib.create_test_data as ctd
+import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
 import ckan.logic.converters as converters
-import ckan.lib.navl.dictization_functions as df
+import ckan.model as model
 import ckan.tests.legacy as tests
-import ckan.lib.create_test_data as ctd
 
 TEST_VOCAB_NAME = 'test-vocab'
 
@@ -120,8 +120,8 @@ class TestVocabFacets(object):
         assert len(facet_tags)
 
         # make sure vocab tags are not in 'tags' facet
-        assert not 'tag1' in facet_tags
-        assert not 'tag2' in facet_tags
+        assert 'tag1' not in facet_tags
+        assert 'tag2' not in facet_tags
 
         # make sure vocab tags are in vocab_<TEST_VOCAB_NAME> facet
         vocab_facet_tags = [t['name'] for t in facets[vocab_facet]['items']]

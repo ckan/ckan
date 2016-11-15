@@ -1157,7 +1157,7 @@ class PackageController(base.BaseController):
                 response.headers['Content-Type'] = content_type
             response.status = status
             return app_iter
-        elif not 'url' in rsc:
+        elif 'url' not in rsc:
             abort(404, _('No download is available'))
         h.redirect_to(rsc['url'])
 
@@ -1460,13 +1460,13 @@ class PackageController(base.BaseController):
                 else:
                     data = get_action('resource_view_create')(context, data)
             except ValidationError, e:
-                ## Could break preview if validation error
+                # Could break preview if validation error
                 to_preview = False
                 errors = e.error_dict
                 error_summary = e.error_summary
             except NotAuthorized:
-                ## This should never happen unless the user maliciously changed
-                ## the resource_id in the url.
+                # This should never happen unless the user maliciously changed
+                # the resource_id in the url.
                 abort(403, _('Unauthorized to edit resource'))
             else:
                 if not to_preview:
@@ -1474,14 +1474,14 @@ class PackageController(base.BaseController):
                                   action='resource_views',
                                   id=id, resource_id=resource_id)
 
-        ## view_id exists only when updating
+        # view_id exists only when updating
         if view_id:
             try:
                 old_data = get_action('resource_view_show')(context,
                                                             {'id': view_id})
                 data = data or old_data
                 view_type = old_data.get('view_type')
-                ## might as well preview when loading good existing view
+                # might as well preview when loading good existing view
                 if not errors:
                     to_preview = True
             except (NotFound, NotAuthorized):

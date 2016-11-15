@@ -24,16 +24,14 @@ of the revision history, rather than a feed of datasets.
 import logging
 import urlparse
 
-import webhelpers.feedgenerator
-from ckan.common import config
-
-import ckan.model as model
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.logic as logic
+import ckan.model as model
 import ckan.plugins as plugins
-
+import webhelpers.feedgenerator
 from ckan.common import _, g, c, request, response, json
+from ckan.common import config
 
 # TODO make the item list configurable
 ITEMS_LIMIT = 20
@@ -417,7 +415,7 @@ class FeedController(base.BaseController):
         response.content_type = feed.mime_type
         return feed.writeString('utf-8')
 
-    #### CLASS PRIVATE METHODS ####
+    # CLASS PRIVATE METHODS #
 
     def _feed_url(self, query, controller, action, **kwargs):
         """

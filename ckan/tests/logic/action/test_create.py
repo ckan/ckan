@@ -3,23 +3,21 @@
 '''Unit tests for ckan/logic/auth/create.py.
 
 '''
+import __builtin__ as builtins
+
 import ckan
-from ckan.common import config
+import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins as p
+import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
 import mock
 import nose.tools
-
-import ckan.tests.helpers as helpers
-import ckan.tests.factories as factories
-import ckan.model as model
-import ckan.logic as logic
-import ckan.plugins as p
+from ckan.common import config
+from pyfakefs import fake_filesystem
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
-
-# Mock file uploads
-import __builtin__ as builtins
-from pyfakefs import fake_filesystem
 
 real_open = open
 fs = fake_filesystem.FakeFilesystem()

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import logging
 import math
 import os
 
@@ -8,7 +9,6 @@ from repoze.who.plugins import auth_tkt as repoze_auth_tkt
 
 _bool = repoze_auth_tkt._bool
 
-import logging
 log = logging.getLogger(__name__)
 
 
