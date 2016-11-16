@@ -220,6 +220,9 @@ def _prepopulate_context(context):
     context.setdefault('session', model.Session)
     try:
         context.setdefault('user', c.user)
+    except AttributeError:
+        # c.user not set
+        pass
     except TypeError:
         # c not registered
         pass

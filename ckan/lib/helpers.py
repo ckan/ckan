@@ -44,9 +44,11 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
-from ckan.common import _, ungettext, g, c, request, session, json
+from ckan.common import _, ungettext, c, request, session, json
 
 log = logging.getLogger(__name__)
+
+DEFAULT_FACET_NAMES = u'organization groups tags res_format license_id'
 
 
 class HelperAttributeDict(dict):
@@ -857,7 +859,7 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
     # If exclude is not supplied use values defined in the config
     if not exclude:
-        exclude = g.package_hide_extras
+        exclude = config.get('package_hide_extras', [])
     output = []
     for extra in sorted(package_extras, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
@@ -2278,6 +2280,12 @@ def get_translated(data_dict, field):
         return data_dict[field+'_translated'][language]
     except KeyError:
         return data_dict.get(field, '')
+
+
+@core_helper
+def facets():
+    u'''Returns a list of the current facet names'''
+    return config.get(u'search.facets', DEFAULT_FACET_NAMES).split()
 
 
 core_helper(flash, name='flash')

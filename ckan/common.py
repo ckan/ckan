@@ -13,10 +13,10 @@ from collections import MutableMapping
 import flask
 import pylons
 
-from werkzeug.local import Local
+from werkzeug.local import Local, LocalProxy
 
 from pylons.i18n import _, ungettext
-from pylons import g, c, request, session, response
+from pylons import session, response
 import simplejson as json
 
 try:
@@ -107,6 +107,45 @@ class CKANConfig(MutableMapping):
         except TypeError:
             pass
 
+
+def _get_request():
+    if is_flask_request():
+        return flask.request
+    else:
+        return pylons.request
+
+
+class CKANRequest(LocalProxy):
+    u'''Common request object
+
+    This is just a wrapper around LocalProxy so we can handle some special
+    cases for backwards compatibility.
+
+    LocalProxy will forward to Flask or Pylons own request objects depending
+    on the output of `_get_request` (which essentially calls
+    `is_flask_request`) and at the same time provide all objects methods to be
+    able to interact with them transparently.
+    '''
+
+    @property
+    def params(self):
+        u''' Special case as Pylons' request.params is used all over the place.
+        All new code meant to be run just in Flask (eg views) should always
+        use request.args
+        '''
+        try:
+            return super(CKANRequest, self).params
+        except AttributeError:
+            return self.args
+
+
+def _get_c():
+    if is_flask_request():
+        return flask.g
+    else:
+        return pylons.c
+
+
 local = Local()
 
 # This a proxy to the bounded config object
@@ -114,3 +153,8 @@ local(u'config')
 
 # Thread-local safe objects
 config = local.config = CKANConfig()
+
+# Proxies to already thread-local safe objects
+request = CKANRequest(_get_request)
+# Provide a `c`  alias for `g` for backwards compatibility
+g = c = LocalProxy(_get_c)

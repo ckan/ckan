@@ -1,10 +1,11 @@
 # encoding: utf-8
 
 from flask import Flask
+from flask.ctx import _AppCtxGlobals
 from werkzeug.exceptions import HTTPException
 
-from ckan.common import config
-
+from ckan.common import config, g
+import ckan.lib.app_globals as app_globals
 
 import logging
 log = logging.getLogger(__name__)
@@ -15,6 +16,7 @@ def make_flask_stack(conf, **app_conf):
     Pylons used """
 
     app = flask_app = CKANFlask(__name__)
+    app.app_ctx_globals_class = CKAN_AppCtxGlobals
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
@@ -23,6 +25,14 @@ def make_flask_stack(conf, **app_conf):
     else:
         app.config.update(conf)
         app.config.update(app_conf)
+
+    # Template context processors
+    @app.context_processor
+    def c_object():
+        u'''
+        Expose `c` as an alias of `g` in templates for backwards compatibility
+        '''
+        return dict(c=g)
 
     @app.route('/hello', methods=['GET'])
     def hello_world():
@@ -42,6 +52,19 @@ def make_flask_stack(conf, **app_conf):
     app._wsgi_app = flask_app
 
     return app
+
+
+class CKAN_AppCtxGlobals(_AppCtxGlobals):
+
+    '''Custom Flask AppCtxGlobal class (flask.g).'''
+
+    def __getattr__(self, name):
+        '''
+        If flask.g doesn't have attribute `name`, fall back to CKAN's
+        app_globals object.
+        If the key is also not found in there, an AttributeError will be raised
+        '''
+        return getattr(app_globals.app_globals, name)
 
 
 class CKANFlask(Flask):
