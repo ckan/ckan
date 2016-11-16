@@ -24,12 +24,11 @@ import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
 import ckan.model as model
-import ckan.lib.maintain as maintain
 
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
 # plugins.toolkit for extensions.
-from ckan.common import json, _, ungettext, c, g, request, response, config
+from ckan.common import json, _, ungettext, c, request, response, config
 
 log = logging.getLogger(__name__)
 
@@ -197,10 +196,6 @@ class BaseController(WSGIController):
         self._identify_user()
 
         i18n.handle_request(request, c)
-
-        maintain.deprecate_context_item(
-            'new_activities',
-            'Use `h.new_activities` instead.')
 
     def _identify_user(self):
         '''Try to identify the user
