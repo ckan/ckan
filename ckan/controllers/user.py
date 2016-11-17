@@ -57,7 +57,7 @@ class UserController(base.BaseController):
             if c.action not in ('login', 'request_reset', 'perform_reset',):
                 abort(403, _('Not authorized to see this page'))
 
-    ## hooks for subclasses
+    # hooks for subclasses
     new_user_form = 'user/new_user_form.html'
     edit_user_form = 'user/edit_user_form.html'
 
@@ -88,7 +88,7 @@ class UserController(base.BaseController):
         c.is_myself = user_dict['name'] == c.user
         c.about_formatted = h.render_markdown(user_dict['about'])
 
-    ## end hooks
+    # end hooks
 
     def _get_repoze_handler(self, handler_name):
         '''Returns the URL that repoze.who will respond to and perform a

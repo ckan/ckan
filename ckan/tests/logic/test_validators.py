@@ -4,25 +4,18 @@
 
 '''
 import copy
-import fractions
 import decimal
+import fractions
 import warnings
-
-import mock
-import nose.tools
-
-# Import some test helper functions from another module.
-# This is bad (test modules shouldn't share code with eachother) but because of
-# the way validator functions are organised in CKAN (in different modules in
-# different places in the code) we have to either do this or introduce a shared
-# test helper functions module (which we also don't want to do).
-import ckan.tests.lib.navl.test_validators as t
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
+import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-import ckan.model as model
+import ckan.tests.lib.navl.test_validators as t
+import mock
+import nose.tools
 
 assert_equals = nose.tools.assert_equals
 
@@ -226,7 +219,7 @@ class TestValidators(object):
                 return validators.name_validator(*args, **kwargs)
             call_validator(valid_name)
 
-    ## START-AFTER
+    # START-AFTER
 
     def test_user_name_validator_with_non_string_value(self):
         '''user_name_validator() should raise Invalid if given a non-string
@@ -265,7 +258,7 @@ class TestValidators(object):
                 return validators.user_name_validator(*args, **kwargs)
             call_validator(key, data, errors, context={'model': mock_model})
 
-    ## END-BEFORE
+    # END-BEFORE
 
     def test_user_name_validator_with_a_name_that_already_exists(self):
         '''user_name_validator() should add to the errors dict if given a
@@ -591,6 +584,4 @@ class TestExistsValidator(helpers.FunctionalTestBase):
         ctx = self._make_context()
         v = validators.role_exists('', ctx)
 
-
-#TODO: Need to test when you are not providing owner_org and the validator
-#      queries for the dataset with package_show
+# TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show

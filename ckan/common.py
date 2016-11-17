@@ -107,6 +107,7 @@ class CKANConfig(MutableMapping):
         except TypeError:
             pass
 
+
 local = Local()
 
 # This a proxy to the bounded config object

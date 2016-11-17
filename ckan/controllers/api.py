@@ -181,8 +181,8 @@ class ApiController(base.BaseController):
                        }
         try:
             side_effect_free = getattr(function, 'side_effect_free', False)
-            request_data = self._get_request_data(try_url_params=
-                                                  side_effect_free)
+            request_data = self._get_request_data(
+                try_url_params=side_effect_free)
         except ValueError, inst:
             log.info('Bad Action API request data: %s', inst)
             return self._finish_bad_request(

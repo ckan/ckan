@@ -145,6 +145,7 @@ def _get_locales():
 
     return ordered_list
 
+
 available_locales = None
 locales = None
 locales_dict = None
