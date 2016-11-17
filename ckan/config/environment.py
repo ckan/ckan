@@ -104,13 +104,9 @@ def load_environment(global_conf, app_conf):
 
     app_globals.reset()
 
-<<<<<<< HEAD
-=======
     # Build JavaScript translations. Must be done after plugins have
     # been loaded.
     build_js_translations()
-
->>>>>>> refs/remotes/ckan/master
 
 # A mapping of config settings that can be overridden by env vars.
 # Note: Do not remove the following lines, they are used in the docs
