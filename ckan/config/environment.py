@@ -108,6 +108,7 @@ def load_environment(global_conf, app_conf):
     # been loaded.
     build_js_translations()
 
+
 # A mapping of config settings that can be overridden by env vars.
 # Note: Do not remove the following lines, they are used in the docs
 # Start CONFIG_FROM_ENV_VARS
