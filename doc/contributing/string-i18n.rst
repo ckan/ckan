@@ -277,18 +277,17 @@ placeholders and constructing plural forms. Note that you should not call
 .. note::
 
     CKAN's JavaScript code automatically downloads the appropriate translations
-    at request time from the CKAN server. The corresponding translation files
-    are generated beforehand using ``paster trans js``. During development you
-    need to run that command manually if you're updating JavaScript
-    translations::
+    at request time from the CKAN server. Since CKAN 2.7 the corresponding
+    translation files are regenerated automatically if necessary when CKAN
+    starts.
+
+    You can also regenerate the translation files manually using ``paster trans
+    js``::
 
         python setup.py extract_messages  # Extract translatable strings
         # Update .po files as desired
         python setup.py compile_catalog   # Compile .mo files for Python/Jinja
         paster trans js                   # Compile JavaScript catalogs
-
-    Also note that extensions currently `cannot provide translations for
-    JS strings <https://github.com/ckan/ideas-and-roadmap/issues/176>`_.
 
 -------------------------------------------------
 General guidelines for internationalizing strings
