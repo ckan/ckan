@@ -4,14 +4,11 @@ Internationalizing strings in extensions
 
 .. seealso::
 
-   In order to internationalize your extension you must mark the strings for
-   internationalization. You can find out how to do this by reading
+   In order to internationalize your extension you must :doc:`mark its strings
+   for internationalization </contributing/string-i18n>`. See also
    :doc:`/contributing/i18n`.
 
-.. seealso::
-
-   In this tutorial we are assuming that you have read the
-   :doc:`/extensions/tutorial`.
+   This tutorial assumes that you have read the :doc:`/extensions/tutorial`.
 
 We will create a simple extension to demonstrate the translation of strings
 inside extensions. After running::
