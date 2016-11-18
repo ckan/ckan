@@ -58,7 +58,7 @@ def proxy_resource(context, data_dict):
         if not did_get:
             r = requests.get(url, stream=True)
 
-        base.response.content_type = r.headers['content-type']
+        base.response.content_type = r.headers.get('content-type', '')
         base.response.charset = r.encoding
 
         length = 0
