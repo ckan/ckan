@@ -231,6 +231,11 @@ def load_environment(global_conf, app_conf):
     # load all CKAN plugins
     p.load_all(config)
 
+    # issue #3260: remove idle transaction
+    # Session that was used for getting all config params nor committed,
+    # neither removed and we have idle connection as result
+    model.Session.commit()
+
 
 # A mapping of config settings that can be overridden by env vars.
 # Note: Do not remove the following lines, they are used in the docs
