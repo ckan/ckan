@@ -381,10 +381,20 @@ def build_js_translations():
 
     # Build translations for each language
     for lang in sorted(langs):
-        po_files = [os.path.join(i18n_dir, lang, u'LC_MESSAGES',
-                                 domain + u'.po')
-                    for i18n_dir, domain in i18n_dirs.iteritems()]
-        po_files = [fn for fn in po_files if os.path.isfile(fn)]
+        po_files = [
+            fn for fn in (
+                os.path.join(
+                    i18n_dir,
+                    lang,
+                    u'LC_MESSAGES',
+                    domain + u'.po'
+                )
+                for i18n_dir, domain in i18n_dirs.iteritems()
+            ) if os.path.isfile(fn)
+        ]
+        if not po_files:
+            continue
+
         latest = max(os.path.getmtime(fn) for fn in po_files)
         dest_file = os.path.join(_JS_TRANSLATIONS_DIR, lang + u'.js')
         if os.path.isfile(dest_file) and os.path.getmtime(dest_file) > latest:
