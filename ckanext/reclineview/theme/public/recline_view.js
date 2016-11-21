@@ -1,11 +1,20 @@
 this.ckan.module('recline_view', function (jQuery, _) {
+  var NoRecordsView = Backbone.View.extend({
+    template: '<div class="recline-norecords">{{text}}</div>',
+    render: function(){
+      var self = this;
+      var htmls = Mustache.render(self.template, {text: self.options.i18n.noRecords});
+      self.$el.html(htmls);
+    }
+  });
   return {
     options: {
       i18n: {
         errorLoadingPreview: "Could not load view",
         errorDataProxy: "DataProxy returned an error",
         errorDataStore: "DataStore returned an error",
-        previewNotAvailableForDataType: "View not available for data type: "
+        previewNotAvailableForDataType: "View not available for data type: ",
+        noRecords: "No matching records"
       },
       site_url: "",
       controlsClassName: "controls"
@@ -99,7 +108,12 @@ this.ckan.module('recline_view', function (jQuery, _) {
           state,
           controls = [];
 
-      if(reclineView.view_type === "recline_graph_view") {
+      if(typeof(dataset.recordCount) == 'undefined' || dataset.recordCount == 0){
+        view = new NoRecordsView({
+          'model': dataset,
+          i18n: {noRecords:this.options.i18n.noRecords}
+        });
+      } else if(reclineView.view_type === "recline_graph_view") {
         state = {
           "graphType": reclineView.graph_type,
           "group": reclineView.group,
