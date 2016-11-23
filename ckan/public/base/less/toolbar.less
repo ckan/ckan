@@ -1,12 +1,12 @@
 .toolbar {
   .clearfix;
   position: relative;
-  margin-bottom: 10px;
-  padding: 5px 0;
+  margin-bottom: @grid-gutter-width/3;
+  padding: @grid-gutter-width/6 0;
 }
 
 .page_primary_action {
-  margin-bottom: 20px;
+  margin-bottom: @grid-gutter-width - 10;
 }
 
 .toolbar .breadcrumb {
@@ -20,14 +20,6 @@
   background: none;
   font-size: 20px;
   line-height: 1.3;
-}
-
-.toolbar .breadcrumb li:after {
-  content: " / ";
-}
-
-.toolbar .breadcrumb li.active:after {
-  content: "";
 }
 
 // Needs to be a separate declaration as IE chokes on the last-of-type.
@@ -44,17 +36,14 @@
 }
 
 .toolbar .breadcrumb a {
-  color: @breadcrumbTextColor;
+  color: @breadcrumb-text-color;
 }
-@media (max-width: 767px) {
+@media (max-width: @screen-xs-max) {
   .toolbar .breadcrumb {
-    color:#fff;
+    color:@body-bg;
     text-shadow:none;
-    .home {
-      display:none;
-    }
     a {
-      color:#fff;
+      color:@body-bg;
       text-shadow:none;
     }
   }
@@ -75,8 +64,8 @@
 
 .actions li {
   display: inline-block;
-  margin-right: 5px;
-  .ie7-inline-block;
+  margin-right: @grid-gutter-width/6;
+  /*.ie7-inline-block;*/
 }
 
 .actions li:last-of-type {
@@ -89,20 +78,20 @@
 
 .page-header {
   .clearfix;
-  border-bottom: 1px solid @moduleHeadingBorderColor;
-  background-color: @moduleHeadingBackgroundColor;
+  border-bottom: 1px solid @panel-default-border;
+  background-color: @well-bg;
   .border-radius(0 3px 0 0);
   .nav-tabs {
     float: left;
     margin-bottom: -1px;
     li.active a,
     a:hover {
-      background-color: @moduleBackgroundColor;
+      background-color: @panel-bg;
     }
   }
   .content_action {
     float: right;
-    margin-top: -5px;
+    margin-top: -(@grid-gutter-width/6);
     margin-right: -7px;
   }
 }
@@ -112,19 +101,19 @@
 }
 
 .nav-tabs-plain {
-  padding: 0 @gutterX;
+  padding: 0 @grid-gutter-width - 5;
   & > .active > a,
   & > .active > a:hover {
-    background-color: @moduleBackgroundColor;
+    background-color: @panel-bg;
   }
 }
 
-@media (min-width: 768px) {
-  .span9 .page-header {
+@media (min-width: @screen-sm-min) {
+  .col-md-9 .page-header {
     margin-left:-17px;
   }
 }
-@media (max-width: 768px) {
+@media (max-width: @screen-xs-max) {
   .page-header .nav-tabs {
     margin:5px 10px 10px -5px;
     border:none;

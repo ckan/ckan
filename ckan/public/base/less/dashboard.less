@@ -22,13 +22,13 @@
 
 .dashboard-context {
   position: relative;
-  margin-bottom: 20px;
-  padding: 20px;
+  margin-bottom: @grid-gutter-width - 10;
+  padding: @grid-gutter-width - 10;
   border-bottom: 1px solid #DCDCDC;
-  background-color: @moduleHeadingBackgroundColor;
+  background-color: @well-bg;
   .border-radius(3px 0 0 0);
   h2 {
-    margin-bottom: 10px;
+    margin-bottom: @grid-gutter-width/3;
   }
   .arrow {
     position: absolute;
@@ -37,7 +37,7 @@
     right: -10px;
     width: 10px;
     height: 21px;
-    background: transparent url("@{imagePath}/dashboard-followee-related.png");
+    background: transparent url("@{image-path}/dashboard-followee-related.png");
   }
 }
 
@@ -56,7 +56,7 @@
     .clearfix();
     background-color: whiteSmoke;
     padding: 5px;
-    border-bottom: 1px solid @inputBorder;
+    border-bottom: 1px solid @input-border;
     .border-radius(3px 3px 0 0);
     .input-prepend {
       margin-bottom: 0;
@@ -94,9 +94,9 @@
         margin: 0;
         .border-radius(0);
         i {
-          background-color: @layoutLinkColor;
-          color: @inputBackground;
-          margin-right: 11px;
+          background-color: @link-color;
+          color: @input-bg;
+          margin-right: @grid-gutter-width/3;
           padding: 3px 5px;
           line-height: 1;
           .border-radius(100px);
@@ -107,8 +107,8 @@
         }
       }
       &.active a i {
-        color: @layoutLinkColor;
-        background-color: @inputBackground;
+        color: @link-color;
+        background-color: @input-bg;
       }
     }
   }
@@ -119,7 +119,7 @@
   padding: 15px 15px 0 15px;
   img {
     float: left;
-    margin-right: 10px;
+    margin-right: @grid-gutter-width/3;
     .border-radius(100px);
   }
   strong {
