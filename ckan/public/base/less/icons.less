@@ -20,14 +20,14 @@
 @formatMediumOffsetY: -62px;
 
 .ckan-icon {
-  .ie7-restore-right-whitespace;
+  //.ie7-restore-right-whitespace;
   display: inline-block;
   vertical-align: text-bottom;
   position: relative;
   top: 2px;
   width: 16px;
   height: 16px;
-  background-image: url("@{imagePath}/sprite-ckan-icons.png");
+  background-image: url("@{image-path}/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
 }
@@ -93,7 +93,7 @@
   .ckan-icon;
 
   text-indent: -900em;
-  background: url("@{imagePath}/sprite-resource-icons.png") no-repeat 0 0;
+  background: url("@{image-path}/sprite-resource-icons.png") no-repeat 0 0;
 }
 
 .format-label {
@@ -175,7 +175,7 @@
     float: left;
     font-size: 28px;
     width: 28px;
-    margin-right: 5px;
+    margin-right: @grid-gutter-width/6;
     margin-top: 2px;
   }
 }

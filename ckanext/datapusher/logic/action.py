@@ -7,6 +7,7 @@ import datetime
 
 from dateutil.parser import parse as parse_date
 
+import pylons
 import requests
 
 import ckan.lib.navl.dictization_functions

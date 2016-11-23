@@ -1,12 +1,12 @@
 {% import 'macros/form.html' as form %}
 
-<form id='organization-edit-form' class="dataset-form form-horizontal" method="post" data-module="basic-form" enctype="multipart/form-data">
+<form id='organization-edit-form' class="dataset-form " method="post" data-module="basic-form" enctype="multipart/form-data">
   {% block error_summary %}
     {{ form.errors(error_summary) }}
   {% endblock %}
 
   {% block basic_fields %}
-    {% set attrs = {'data-module': 'slug-preview-target'} %}
+    {% set attrs = {'data-module': 'slug-preview-target', 'class': 'form-control'} %}
     {{ form.input('title', label=_('Name'), id='field-name', placeholder=_('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
     {# Perhaps these should be moved into the controller? #}

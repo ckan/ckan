@@ -1,13 +1,13 @@
 .search-form {
   // .clearfix;
-  margin-bottom: 20px;
-  padding-bottom: 25px;
-  border-bottom: 1px dotted @genericBorderColor;
+  margin-bottom: @grid-gutter-width - 10;
+  padding-bottom: @grid-gutter-width - 5;
+  border-bottom: 1px dotted @panel-default-border;
 
   // Normal search box
   .search-input {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: @grid-gutter-width - 10;
   	input {
       .box-sizing(border-box);
       margin: 0;
@@ -19,7 +19,7 @@
       display: block;
       position: absolute;
       top: 50%;
-      margin-top: -10px;
+      margin-top: -(@grid-gutter-width/3);
       right: 10px;
       height: 20px;
       padding: 0;
@@ -29,11 +29,11 @@
         display: none;
       }
       i {
-        color: @inputBorder;
+        color: @input-border;
         .transition(color 0.2s ease-in);
       }
       &:hover i {
-        color: @inputColor;
+        color: @input-color;
       }
     }
     &.search-giant {
@@ -42,7 +42,7 @@
         padding: 15px;
       }
       button {
-        margin-top: -15px;
+        margin-top: -(@grid-gutter-width/2);
         right: 15px;
         height: 30px;
         i {
@@ -65,22 +65,22 @@
   h2 {
     font-size: 24px;
     line-height: 1.3;
-    color: @layoutBoldColor;
+    /*color: @layoutBoldColor;*/
     margin-bottom: 0;
-    margin-top:20px;
+    margin-top: @grid-gutter-width - 10;
   }
   .filter-list {
-    color: @layoutTextColor;
+    color: @text-color;
     line-height: 32px;
     margin: 10px 0 0 0;
     .pill {
       line-height: 21px;
     }
     .extra {
-      margin-top: 10px;
+      margin-top: @grid-gutter-width/3;
       font-size: 18px;
       font-weight: normal;
-      color: @layoutBoldColor;
+      /*color: @layoutBoldColor;*/
     }
   }
   &.no-bottom-border {
@@ -95,7 +95,7 @@
     margin: 0;
     label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: @grid-gutter-width/6;
       font-weight: normal;
       font-size: 12px;
     }
@@ -106,13 +106,13 @@
     }
   }
   .search-input {
-    margin-bottom: 10px;
+    margin-bottom: @grid-gutter-width/3;
   }
 }
-@media (min-width: 980px) {
+@media (min-width: @screen-md-min) {
   .search-form .control-order-by {
     float:right;
-    margin-left:15px;
+    margin-left: @grid-gutter-width/2;
   }
   .tertiary {
     .search-form .control-order-by {
