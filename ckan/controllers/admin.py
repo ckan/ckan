@@ -80,7 +80,7 @@ class AdminController(base.BaseController):
             app_globals.reset()
             h.redirect_to(controller='admin', action='config')
 
-        return base.render('admin/confirm_reset.html')
+        return base.render('ckan-admin/confirm_reset.html')
 
     def config(self):
 
@@ -104,7 +104,7 @@ class AdminController(base.BaseController):
                 error_summary = e.error_summary
                 vars = {'data': data, 'errors': errors,
                         'error_summary': error_summary, 'form_items': items}
-                return base.render('admin/config.html', extra_vars=vars)
+                return base.render('ckan-admin/config.html', extra_vars=vars)
 
             h.redirect_to(controller='admin', action='config')
 
@@ -114,14 +114,14 @@ class AdminController(base.BaseController):
             data[key] = config.get(key)
 
         vars = {'data': data, 'errors': {}, 'form_items': items}
-        return base.render('admin/config.html',
+        return base.render('ckan-admin/config.html',
                            extra_vars=vars)
 
     def index(self):
         #now pass the list of sysadmins
         c.sysadmins = [a.name for a in get_sysadmins()]
 
-        return base.render('admin/index.html')
+        return base.render('ckan-admin/index.html')
 
 
     def trash(self):
@@ -131,7 +131,7 @@ class AdminController(base.BaseController):
             model.Package).filter_by(state=model.State.DELETED)
         if not request.params or (len(request.params) == 1 and '__no_cache__'
                                   in request.params):
-            return base.render('admin/trash.html')
+            return base.render('ckan-admin/trash.html')
         else:
             # NB: we repeat retrieval of of revisions
             # this is obviously inefficient (but probably not *that* bad)
