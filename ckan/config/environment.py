@@ -284,6 +284,8 @@ def update_config():
     except sqlalchemy.exc.InternalError:
         # The database is not initialised.  Travis hits this
         pass
-    # if an extension or our code does not finish
-    # transaction properly db cli commands can fail
+
+    # Close current session and open database connections to ensure a clean
+    # clean environment even if an error occurs later on
     model.Session.remove()
+    model.Session.bind.dispose()
