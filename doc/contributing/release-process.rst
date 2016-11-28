@@ -183,7 +183,6 @@ Turn this file into a github issue with a checklist using this command::
 
    g. Run our script that checks for mistakes in the ckan.po files::
 
-        pip install polib
         paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
 
       If the script finds any mistakes then at some point before release you
