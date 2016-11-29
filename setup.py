@@ -168,6 +168,7 @@ entry_points = {
         'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
         'test_helpers_plugin = ckan.tests.lib.test_helpers:TestHelpersPlugin',
         'test_feed_plugin = ckan.tests.controllers.test_feed:MockFeedPlugin',
+        'test_js_translations_plugin = ckan.tests.lib.test_i18n:TestJSTranslationsPlugin',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',

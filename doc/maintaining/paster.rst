@@ -504,8 +504,14 @@ trans: Translation helper functions
 
 Usage::
 
-    trans js      - generate the javascript translations
+    trans js      - generate the JavaScript translations
     trans mangle  - mangle the zh_TW translations for testing
+
+.. note::
+
+    Since version 2.7 the JavaScript translation files are automatically
+    regenerated if necessary when CKAN is started. Hence you usually do not
+    need to run ``paster trans js`` manually.
 
 
 .. _paster-user:

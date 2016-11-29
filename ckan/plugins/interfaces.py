@@ -1573,6 +1573,9 @@ class IAuthenticator(Interface):
 
 
 class ITranslation(Interface):
+    u'''
+    Allows extensions to provide their own translation strings.
+    '''
     def i18n_directory(self):
         u'''Change the directory of the .mo translation files'''
 

@@ -145,7 +145,6 @@ def _get_c():
     else:
         return pylons.c
 
-
 local = Local()
 
 # This a proxy to the bounded config object

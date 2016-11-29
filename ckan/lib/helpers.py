@@ -474,6 +474,7 @@ class _Flash(object):
     def are_there_messages(self):
         return bool(session.get(self.session_key))
 
+
 flash = _Flash()
 # this is here for backwards compatability
 _flash = flash
@@ -1033,6 +1034,7 @@ def linked_gravatar(email_hash, size=100, default=None):
         '%s</a>' % gravatar(email_hash, size, default)
     )
 
+
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid',
                             'wavatar', 'retro']
 
@@ -1445,6 +1447,7 @@ def convert_to_dict(object_type, objs):
         items.append(item)
     return items
 
+
 # these are the types of objects that can be followed
 _follow_objects = ['dataset', 'user', 'group']
 
@@ -1773,6 +1776,7 @@ def get_request_param(parameter_name, default=None):
     searches. '''
     return request.params.get(parameter_name, default)
 
+
 # find all inner text of html eg `<b>moo</b>` gets `moo` but not of <a> tags
 # as this would lead to linkifying links if they are urls.
 RE_MD_GET_INNER_HTML = re.compile(
@@ -2080,6 +2084,7 @@ def SI_number_span(number):
                          + '">')
     return output + formatters.localised_SI_number(number) + literal('</span>')
 
+
 # add some formatter functions
 localised_number = formatters.localised_number
 localised_SI_number = formatters.localised_SI_number
@@ -2179,6 +2184,7 @@ def get_site_statistics():
     stats['organization_count'] = len(
         logic.get_action('organization_list')({}, {}))
     return stats
+
 
 _RESOURCE_FORMATS = None
 

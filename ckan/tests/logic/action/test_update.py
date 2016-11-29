@@ -1,26 +1,23 @@
 # encoding: utf-8
 
 '''Unit tests for ckan/logic/action/update.py.'''
+import __builtin__ as builtins
 import datetime
 
-import nose.tools
-import mock
 import ckan
-from ckan.common import config
-
-import ckan.logic as logic
 import ckan.lib.app_globals as app_globals
+import ckan.logic as logic
 import ckan.plugins as p
-import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
+import mock
+import nose.tools
 from ckan import model
+from ckan.common import config
+from pyfakefs import fake_filesystem
 
 assert_equals = eq_ = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
-
-# Mock file uploads
-import __builtin__ as builtins
-from pyfakefs import fake_filesystem
 
 real_open = open
 fs = fake_filesystem.FakeFilesystem()
@@ -45,7 +42,6 @@ def datetime_from_string(s):
 
 
 class TestUpdate(object):
-
     @classmethod
     def setup_class(cls):
 
@@ -70,7 +66,7 @@ class TestUpdate(object):
         # method aborts with an exception or something.)
         mock.patch.stopall()
 
-    ## START-AFTER
+    # START-AFTER
 
     def test_user_update_name(self):
         '''Test that updating a user's name works successfully.'''
@@ -103,7 +99,7 @@ class TestUpdate(object):
 
         # 4. Do nothing else!
 
-    ## END-BEFORE
+    # END-BEFORE
 
     def test_user_generate_apikey(self):
         user = factories.User()
@@ -129,8 +125,11 @@ class TestUpdate(object):
         assert result['apikey'] == updated_user['apikey']
 
     def test_user_generate_apikey_nonexistent_user(self):
-        user = {'id': 'nonexistent', 'name': 'nonexistent', 'email':
-                'does@notexist.com'}
+        user = {
+            'id': 'nonexistent',
+            'name': 'nonexistent',
+            'email': 'does@notexist.com'
+        }
         context = {'user': user['name']}
         nose.tools.assert_raises(logic.NotFound, helpers.call_action,
                                  'user_generate_apikey', context=context,
@@ -149,7 +148,7 @@ class TestUpdate(object):
         assert_raises(logic.ValidationError, helpers.call_action,
                       'user_update', **user_dict)
 
-    ## START-FOR-LOOP-EXAMPLE
+    # START-FOR-LOOP-EXAMPLE
 
     def test_user_update_with_invalid_name(self):
         user = factories.User()
@@ -162,7 +161,7 @@ class TestUpdate(object):
                           helpers.call_action, 'user_update',
                           **user)
 
-    ## END-FOR-LOOP-EXAMPLE
+    # END-FOR-LOOP-EXAMPLE
 
     def test_user_update_to_name_that_already_exists(self):
         fred = factories.User(name='fred')
@@ -415,9 +414,15 @@ class TestUpdate(object):
         mapping = dict((resource['url'], resource['id']) for resource
                        in dataset['resources'])
 
-        ## This should put c.html at the front
-        reorder = {'id': dataset['id'], 'order':
-                   [mapping["http://c.html"]]}
+        # This should put c.html at the front
+        reorder = {
+            'id': dataset['id'],
+            'order': [
+                mapping[
+                    "http://c.html"
+                ]
+            ]
+        }
 
         helpers.call_action('package_resource_reorder', **reorder)
 
@@ -477,9 +482,10 @@ class TestUpdate(object):
             type='ragtagband')
 
         assert_equals(org['type'], 'organization')
-        assert_equals(helpers.call_action(
-            'organization_show', id='unchanging')['type'],
-            'organization')
+        assert_equals(
+            helpers.call_action('organization_show', id='unchanging')['type'],
+            'organization'
+        )
 
     def test_update_group_cant_change_type(self):
         user = factories.User()
@@ -524,7 +530,6 @@ class TestUpdateSendEmailNotifications(object):
 
 
 class TestResourceViewUpdate(object):
-
     @classmethod
     def setup_class(cls):
         if not p.plugin_loaded('image_view'):
@@ -588,7 +593,6 @@ class TestResourceViewUpdate(object):
                                  'resource_view_update', **params)
 
     def test_resource_view_list_reorder(self):
-
         resource_view_1 = factories.ResourceView(title='View 1')
 
         resource_id = resource_view_1['resource_id']
@@ -614,7 +618,6 @@ class TestResourceViewUpdate(object):
         assert_equals(resource_view_list[1]['title'], 'View 1')
 
     def test_resource_view_list_reorder_just_one_id(self):
-
         resource_view_1 = factories.ResourceView(title='View 1')
 
         resource_id = resource_view_1['resource_id']
@@ -804,7 +807,6 @@ class TestResourceUpdate(object):
         assert_equals(res_returned['datastore_active'], False)
 
     def test_datastore_active_not_present_if_not_provided_and_not_datastore_plugin_enabled(self):
-
         assert not p.plugin_loaded('datastore')
 
         dataset = factories.Dataset()
@@ -1041,7 +1043,6 @@ class TestResourceUpdate(object):
 
 
 class TestConfigOptionUpdate(object):
-
     @classmethod
     def teardown_class(cls):
         helpers.reset_db()
@@ -1053,7 +1054,6 @@ class TestConfigOptionUpdate(object):
     # ckan/ckanext/example_iconfigurer/tests/test_iconfigurer_update_config.py
     # as we need to enable an external config option from an extension
     def test_app_globals_set_if_defined(self):
-
         key = 'ckan.site_title'
         value = 'Test site title'
 
@@ -1068,7 +1068,6 @@ class TestConfigOptionUpdate(object):
 
 
 class TestUserUpdate(helpers.FunctionalTestBase):
-
     def test_user_update_with_password_hash(self):
         sysadmin = factories.Sysadmin()
         context = {
@@ -1104,7 +1103,6 @@ class TestUserUpdate(helpers.FunctionalTestBase):
 
 
 class TestPackageOwnerOrgUpdate(object):
-
     @classmethod
     def teardown_class(cls):
         helpers.reset_db()
@@ -1164,7 +1162,6 @@ class TestPackageOwnerOrgUpdate(object):
 
 
 class TestBulkOperations(object):
-
     @classmethod
     def teardown_class(cls):
         helpers.reset_db()

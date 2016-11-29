@@ -18,8 +18,9 @@ import subprocess
 import sys
 
 
-FILESYSTEM_ENCODING = unicode(sys.getfilesystemencoding()
-                              or sys.getdefaultencoding())
+FILESYSTEM_ENCODING = unicode(
+    sys.getfilesystemencoding() or sys.getdefaultencoding()
+)
 
 HERE = os.path.abspath(os.path.dirname(__file__.decode(FILESYSTEM_ENCODING)))
 
@@ -143,11 +144,15 @@ def test_source_files_specify_encoding():
 
     msgs = []
     if no_specification:
-        msgs.append(u'The following files are missing an encoding '
-                    + u'specification: {}'.format(no_specification))
+        msgs.append(
+            u'The following files are missing an encoding specification: '
+            u'{}'.format(no_specification)
+        )
     if decode_errors:
-        msgs.append(u'The following files are not valid UTF-8: {}'.format(
-                    decode_errors))
+        msgs.append(
+            u'The following files are not valid UTF-8: '
+            u'{}'.format(decode_errors)
+        )
     if msgs:
         assert False, u'\n\n'.join(msgs)
 
