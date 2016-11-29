@@ -50,6 +50,20 @@ class TestDatastoreCreateNewTests(object):
         index_names = self._get_index_names(resource_id)
         assert resource_id + '_pkey' in index_names
 
+    def test_create_creates_url_with_site_name(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'boo%k': 'crime',
+                'package_id': package['id']
+            },
+        }
+        result = helpers.call_action('datastore_create', **data)
+        resource_id = result['resource_id']
+        resource = helpers.call_action('resource_show', id=resource_id)
+        url = resource['url']
+        assert url.startswith(config.get('ckan.site_url'))
+
     def test_create_index_on_specific_fields(self):
         package = factories.Dataset()
         data = {
