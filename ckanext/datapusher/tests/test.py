@@ -78,7 +78,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         res = tests.call_action_api(
             self.app, 'resource_show', id=res_dict['result']['resource_id'])
-        assert res['url'] == '/datastore/dump/' + res['id'], res
+        assert res['url'].endswith('/datastore/dump/' + res['id']), res
 
     @httpretty.activate
     def test_providing_res_with_url_calls_datapusher_correctly(self):
