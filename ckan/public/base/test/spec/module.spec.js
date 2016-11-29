@@ -20,6 +20,7 @@ describe('ckan.module(id, properties|callback)', function () {
   });
 
   it('should pass jQuery, i18n.translate() and i18n into the function', function () {
+    // Note: This behavior is deprecated but kept for backwards-compatibility
     var target = sinon.stub().returns({});
     ckan.module('test', target);
 
@@ -329,6 +330,7 @@ describe('ckan.module(id, properties|callback)', function () {
     });
 
     describe('.i18n()', function () {
+      // Note: This function is deprecated but kept for backwards-compatibility
       beforeEach(function () {
         this.i18n = {
           first: 'first string',
@@ -371,6 +373,28 @@ describe('ckan.module(id, properties|callback)', function () {
         this.module.i18n('third', 1, 2, 3);
         assert.called(target);
         assert.calledWith(target, 1, 2, 3);
+      });
+    });
+
+    describe('._()', function () {
+      it('should be a shortcut for ckan.i18n._', function () {
+        /*
+         * In a module, this._ is a shortcut for ckan.i18n._,
+         * but it's not a direct reference.
+         */
+        assert.equal(this.module._('foo'), 'FOO');
+      });
+    });
+
+    describe('.ngettext()', function () {
+      it('should be a shortcut for ckan.i18n.ngettext', function () {
+        /*
+         * In a module, this.ngettext is a shortcut for ckan.i18n.ngettext,
+         * but it's not a direct reference.
+         */
+        assert.equal(this.module.ngettext('bar', 'bars', 1), 'BAR');
+        assert.equal(this.module.ngettext('bar', 'bars', 0), 'BARS');
+        assert.equal(this.module.ngettext('bar', 'bars', 2), 'BARS');
       });
     });
 

@@ -12,7 +12,7 @@
  *           template: Optional template can be provided.
  *
  */
-this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
+this.ckan.module('resource-upload-field', function (jQuery) {
   return {
     /* Default options for the module */
     options: {
@@ -20,15 +20,6 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
         method: 'POST',
         file: 'file',
         params: []
-      },
-      i18n: {
-        label: _('Upload a file'),
-        errorTitle: _('An Error Occurred'),
-        uploadSuccess: _('Resource uploaded'),
-        uploadError: _('Unable to upload file'),
-        authError: _('Unable to authenticate upload'),
-        metadataError: _('Unable to get data for uploaded file'),
-        uploadingWarning: _('You are uploading a file. Are you sure you want to navigate away and stop this upload?')
       },
       template: [
         '<span class="resource-upload-field">',
@@ -63,7 +54,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
     setupFileUpload: function () {
       var options = this.options;
 
-      this.upload.find('label').text(this.i18n('label'));
+      this.upload.find('label').text(this._('Upload a file'));
       this.upload.find('input[type=file]').fileupload({
         type: options.form.method,
         paramName: options.form.file,
@@ -150,7 +141,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
      * Returns nothing.
      */
     notify: function (message, type) {
-      var title = this.i18n('errorTitle');
+      var title = this._('An Error Occurred');
       this.sandbox.notify(title, message, type);
     },
 
@@ -207,7 +198,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
      * a file.
      */
     _onUploadFail: function () {
-      this.sandbox.notify(this.i18n('uploadError'));
+      this.sandbox.notify(this._('Unable to upload file'));
     },
 
     /* Callback called when jQuery file upload plugin sends a file */
@@ -258,7 +249,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
 
     /* Called when the request for auth credentials fails. */
     _onAuthError: function (event, data) {
-      this.sandbox.notify(this.i18n('authError'));
+      this.sandbox.notify(this._('Unable to authenticate upload'));
       this._onUploadComplete();
     },
 
@@ -266,19 +257,20 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
     _onMetadataSuccess: function (data, response) {
       var resource = this.sandbox.client.convertStorageMetadataToResource(response);
 
-      this.sandbox.notify(this.i18n('uploadSuccess'), '', 'success');
+      this.sandbox.notify(this._('Resource uploaded'), '', 'success');
       this.sandbox.publish('resource:uploaded', resource);
     },
 
     /* Called when the request for file metadata fails */
     _onMetadataError: function () {
-      this.sandbox.notify(this.i18n('metadataError'));
+      this.sandbox.notify(this._('Unable to get data for uploaded file'));
       this._onUploadComplete();
     },
 
     /* Called before the window unloads whilst uploading */
     _onWindowBeforeUnload: function(event) {
-      var message = this.i18n('uploadingWarning');
+      var message = this._('You are uploading a file. Are you sure you ' +
+                           'want to navigate away and stop this upload?');
       if (event.originalEvent.returnValue) {
         event.originalEvent.returnValue = message;
       }

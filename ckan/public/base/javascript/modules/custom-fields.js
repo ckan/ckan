@@ -4,7 +4,7 @@
  *
  * See the snippets/custom_form_fields.html for an example.
  */
-this.ckan.module('custom-fields', function (jQuery, _) {
+this.ckan.module('custom-fields', function (jQuery) {
   return {
     options: {
       /* The selector used for each custom field wrapper */

@@ -31,7 +31,7 @@ window.popover_context = {
 	}
 };
 
-this.ckan.module('popover-context', function($, _) {
+this.ckan.module('popover-context', function($) {
 	return {
 
 		/* options object can be extended using data-module-* attributes */
@@ -40,10 +40,7 @@ this.ckan.module('popover-context', function($, _) {
 			loading: false,
 			error: false,
 			authed: false,
-			throbber: '<img src="{SITE_ROOT}/base/images/loading-spinner.gif">',
-			i18n: {
-				loading: _('Loading...')
-			}
+			throbber: '<img src="{SITE_ROOT}/base/images/loading-spinner.gif">'
 		},
 
 		/* Initialises the module setting up elements and event listeners.
@@ -62,7 +59,7 @@ this.ckan.module('popover-context', function($, _) {
 				this.el.popover({
 					animation: false,
 					html: true,
-					content: this.options.throbber.replace('{SITE_ROOT}', ckan.SITE_ROOT) + this.i18n('loading'),
+					content: this.options.throbber.replace('{SITE_ROOT}', ckan.SITE_ROOT) + this._('Loading...'),
 					placement: 'bottom'
 				});
 				this.el.on('mouseover', this._onMouseOver);
