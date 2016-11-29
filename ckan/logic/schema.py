@@ -323,7 +323,6 @@ def group_form_schema():
         "capacity": [ignore_missing],
         "__extras": [ignore]
     }
-    schema['display_name'] = [ignore_missing]
     return schema
 
 
