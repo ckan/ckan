@@ -924,7 +924,7 @@ msgstr[1] "Il y a plus de {years} ans"
 
 #: ckan/lib/formatters.py:148
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr "{month} {day}, {year}, {heure:02}:{min:02} ({timezone})"
+msgstr "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:153
 msgid "{month} {day}, {year}"
