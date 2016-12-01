@@ -60,6 +60,11 @@ code that calls the CKAN API.  For example, using the CKAN API your app can:
    legacy-api
 
 
+.. note:: On early CKAN versions, datasets were called "packages" and this name
+    has stuck in some places, specially internally and on API calls. Package has
+    exactly the same meaning as "dataset".
+
+
 ---------------------
 Making an API request
 ---------------------
