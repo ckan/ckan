@@ -40,8 +40,9 @@ class DatastoreController(base.BaseController):
 
             if not wr:
                 pylons.response.headers['Content-Type'] = 'text/csv'
-                pylons.response.headers['Content-disposition'] = \
-                    'attachment; filename="{name}.csv"'.format(name=resource_id)
+                pylons.response.headers['Content-disposition'] = (
+                    'attachment; filename="{name}.csv"'.format(
+                        name=resource_id))
                 wr = csv.writer(pylons.response, encoding='utf-8')
 
                 header = [x['id'] for x in result['fields']]
