@@ -12,6 +12,9 @@ import ckan.model as model
 from ckan.common import request
 
 
+PAGINATE_BY = 10000
+
+
 class DatastoreController(base.BaseController):
     def dump(self, resource_id):
         context = {
@@ -20,27 +23,33 @@ class DatastoreController(base.BaseController):
             'user': p.toolkit.c.user
         }
 
-        data_dict = {
-            'resource_id': resource_id,
-            'limit': request.GET.get('limit', 100000),
-            'offset': request.GET.get('offset', 0)
-        }
+        offset = 0
+        wr = None
+        while True:
+            data_dict = {
+                'resource_id': resource_id,
+                'limit': request.GET.get('limit', PAGINATE_BY),
+                'offset': request.GET.get('offset', offset)
+            }
 
-        action = p.toolkit.get_action('datastore_search')
-        try:
-            result = action(context, data_dict)
-        except p.toolkit.ObjectNotFound:
-            base.abort(404, p.toolkit._('DataStore resource not found'))
+            action = p.toolkit.get_action('datastore_search')
+            try:
+                result = action(context, data_dict)
+            except p.toolkit.ObjectNotFound:
+                base.abort(404, p.toolkit._('DataStore resource not found'))
 
-        pylons.response.headers['Content-Type'] = 'text/csv'
-        pylons.response.headers['Content-disposition'] = \
-            'attachment; filename="{name}.csv"'.format(name=resource_id)
-        f = StringIO.StringIO()
-        wr = csv.writer(f, encoding='utf-8')
+            if not wr:
+                pylons.response.headers['Content-Type'] = 'text/csv'
+                pylons.response.headers['Content-disposition'] = \
+                    'attachment; filename="{name}.csv"'.format(name=resource_id)
+                wr = csv.writer(pylons.response, encoding='utf-8')
 
-        header = [x['id'] for x in result['fields']]
-        wr.writerow(header)
+                header = [x['id'] for x in result['fields']]
+                wr.writerow(header)
 
-        for record in result['records']:
-            wr.writerow([record[column] for column in header])
-        return f.getvalue()
+            for record in result['records']:
+                wr.writerow([record[column] for column in header])
+
+            offset += PAGINATE_BY
+            if len(result['records']) < PAGINATE_BY:
+                break
