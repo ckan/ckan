@@ -36,9 +36,11 @@ dependencies:
         - if [[ -e ~/docker/ckan.tar ]]; then docker load -i ~/docker/ckan.tar; fi
         - docker build --rm=false -t postgresql ./contrib/docker/postgresql/
         - docker build --rm=false -t solr ./contrib/docker/solr/
+        - docker pull redis:latest
         - docker build --rm=false -t ckan .
         - mkdir -p ~/docker; docker save postgresql > ~/docker/postgresql.tar
         - mkdir -p ~/docker; docker save solr > ~/docker/solr.tar
+        - mkdir -p ~/docker; docker save redis:latest > ~/docker/redis.tar
         - mkdir -p ~/docker; docker save ckan > ~/docker/ckan.tar
 
     post:
@@ -82,9 +84,9 @@ test:
         - mocha-phantomjs http://localhost:5000/base/test/index.html
 
         # Docker
-        - docker run -d -p -name db postgresql
-        - docker run -d -p -name solr solr
-        - docker run -d -p -name redis redis:latest
-        - docker run -d -p -name ckan 5000:5000 --link db:db --link redis:redis --link solr:solr ckan; sleep 10
+        - docker run -d -p --name db postgresql
+        - docker run -d -p --name solr solr
+        - docker run -d -p --name redis redis:latest
+        - docker run -d -p --name ckan 5000:5000 --link db:db --link redis:redis --link solr:solr ckan; sleep 10
         - curl --retry 10 --retry-delay 5 -v http://localhost:5000
 
