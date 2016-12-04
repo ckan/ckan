@@ -1,3 +1,4 @@
+# docker-compose build && docker-compose up
 version: '2'
 services:
   ckan:
@@ -21,13 +22,19 @@ services:
     image: ckan/postgresql:latest
     build:
       context: ./postgresql/
+    ports:
+      - "5432:5432"
     
   solr:
     container_name: solr
     image: ckan/solr:latest
     build: 
       context: ./solr/
+    ports: 
+      - "8983:8983"
       
   redis:
     container_name: redis
     image: redis:latest
+    ports: 
+      - "6379:6379"

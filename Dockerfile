@@ -1,11 +1,11 @@
+# docker build . -t ckan && docker run -d -p 80:5000 --link db:db --link redis:redis --link solr:solr ckan
+
 FROM debian:jessie
 MAINTAINER Open Knowledge
 
 ENV CKAN_HOME /usr/lib/ckan/default
 ENV CKAN_CONFIG /etc/ckan/default
 ENV CKAN_DATA /var/lib/ckan
-
-# docker run -d -p 80:5000 --link db:db --link redis:redis --link solr:solr ckan
 
 # Install required packages
 RUN apt-get -q -y update && apt-get -q -y upgrade && DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
@@ -33,6 +33,7 @@ RUN ln -s $CKAN_HOME/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini
 
 # SetUp EntryPoint
 COPY ./contrib/docker/ckan-entrypoint.sh /
+RUN chmod +x /ckan-entrypoint.sh
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 
 # Volumes
