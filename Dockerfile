@@ -32,8 +32,8 @@ RUN ckan-pip install -e $CKAN_HOME/src/ckan/
 RUN ln -s $CKAN_HOME/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini
 
 # SetUp EntryPoint
-COPY ./contrib/docker/ckan-entrypoint.sh /usr/local/bin/
-ENTRYPOINT ["ckan-entrypoint.sh"]
+COPY ./contrib/docker/ckan-entrypoint.sh /
+ENTRYPOINT ["/ckan-entrypoint.sh"]
 
 # Volumes
 VOLUME ["/etc/ckan/default"]
