@@ -6,14 +6,19 @@ services:
     depends_on:
       - db
       - solr
+      - redis
     links:
        - db
        - solr
+       - redis
     ports:
-       - "80:80"
+       - "80:5000"
   db:
     container_name: db
     image: ckan/postgresql:latest
   solr:
     container_name: solr
     image: ckan/solr:latest
+  redis:
+    container_name: redis
+    image: redis:latest
