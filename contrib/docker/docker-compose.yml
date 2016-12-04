@@ -3,6 +3,8 @@ services:
   ckan:
     container_name: ckan
     image: ckan/ckan:latest
+    build: 
+      context: ./../../
     depends_on:
       - db
       - solr
@@ -13,12 +15,19 @@ services:
        - redis
     ports:
        - "80:5000"
+
   db:
     container_name: db
     image: ckan/postgresql:latest
+    build:
+      context: ./postgresql/
+    
   solr:
     container_name: solr
     image: ckan/solr:latest
+    build: 
+      context: ./solr/
+      
   redis:
     container_name: redis
     image: redis:latest
