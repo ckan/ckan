@@ -291,6 +291,9 @@ class TestActivity:
 
         # Create a new package.
         request_data = make_package(name)
+        # quick fix for #3351
+        request_data['groups'] = []
+
         before = self.record_details(user_id=user_id,
                 group_ids=[group['name'] for group in request_data['groups']],
                 apikey=apikey)
