@@ -570,6 +570,16 @@ class TestUserList(helpers.FunctionalTestBase):
         assert len(got_users) == 1
         assert got_users[0]['name'] == user['name']
 
+    def test_user_list_not_all_fields(self):
+
+        user = factories.User()
+
+        got_users = helpers.call_action('user_list', all_fields=False)
+
+        assert len(got_users) == 1
+        got_user = got_users[0]
+        assert got_user == user['name']
+
 
 class TestUserShow(helpers.FunctionalTestBase):
 
