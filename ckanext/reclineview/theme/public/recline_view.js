@@ -1,12 +1,6 @@
-this.ckan.module('recline_view', function (jQuery, _) {
+this.ckan.module('recline_view', function (jQuery) {
   return {
     options: {
-      i18n: {
-        errorLoadingPreview: "Could not load view",
-        errorDataProxy: "DataProxy returned an error",
-        errorDataStore: "DataStore returned an error",
-        previewNotAvailableForDataType: "View not available for data type: "
-      },
       site_url: "",
       controlsClassName: "controls"
     },
@@ -31,7 +25,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
       var self = this;
 
       function showError(msg){
-        msg = msg || _('error loading view');
+        msg = msg || self._('error loading view');
         window.parent.ckan.pubsub.publish('data-viewer-error', msg);
       }
 
@@ -63,7 +57,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
       var query = new recline.Model.Query();
       query.set({ size: reclineView.limit || 100 });
       query.set({ from: reclineView.offset || 0 });
-      
+
       var urlFilters = {};
       try {
         if (window.parent.ckan.views && window.parent.ckan.views.filters) {
@@ -71,18 +65,18 @@ this.ckan.module('recline_view', function (jQuery, _) {
         }
       } catch(e) {}
       var defaultFilters = reclineView.filters || {},
-          filters = $.extend({}, defaultFilters, urlFilters);
-      $.each(filters, function (field,values) {
+          filters = jQuery.extend({}, defaultFilters, urlFilters);
+      jQuery.each(filters, function (field,values) {
         query.addFilter({type: 'term', field: field, term: values});
       });
 
       dataset.queryState.set(query.toJSON(), {silent: true});
 
-      errorMsg = this.options.i18n.errorLoadingPreview + ': '
+      errorMsg = this._('Could not load view') + ': ';
       if (resourceData.backend == 'ckan') {
-        errorMsg += this.options.i18n.errorDataStore;
+        errorMsg += this._('DataStore returned an error');
       } else if (resourceData.backend == 'dataproxy'){
-        errorMsg += this.options.i18n.errorDataProxy;
+        errorMsg += this._('DataProxy returned an error');
       }
       dataset.fetch()
         .done(function(dataset){
@@ -138,10 +132,10 @@ this.ckan.module('recline_view', function (jQuery, _) {
       // recline_view automatically adds itself to the DOM, so we don't
       // need to bother with it.
       if(reclineView.view_type !== 'recline_view') {
-        var newElements = $('<div />');
+        var newElements = jQuery('<div />');
         this._renderControls(newElements, controls, this.options.controlsClassName);
         newElements.append(view.el);
-        $(this.el).html(newElements);
+        jQuery(this.el).html(newElements);
         view.visible = true;
         view.render();
       }
@@ -158,15 +152,22 @@ this.ckan.module('recline_view', function (jQuery, _) {
       if (map_config.type == 'mapbox') {
           // MapBox base map
           if (!map_config['mapbox.map_id'] || !map_config['mapbox.access_token']) {
-            throw '[CKAN Map Widgets] You need to provide a map ID ([account].[handle]) and an access token when using a MapBox layer. ' +
-                  'See http://www.mapbox.com/developers/api-overview/ for details';
+            throw '[CKAN Map Widgets] You need to provide a map ID ' +
+                  '([account].[handle]) and an access token when using a ' +
+                  'MapBox layer. See ' +
+                  'http://www.mapbox.com/developers/api-overview/ for details';
           }
-
-          tile_url = '//{s}.tiles.mapbox.com/v4/' + map_config['mapbox.map_id'] + '/{z}/{x}/{y}.png?access_token=' + map_config['mapbox.access_token'];
+          tile_url = '//{s}.tiles.mapbox.com/v4/' +
+                     map_config['mapbox.map_id'] +
+                     '/{z}/{x}/{y}.png?access_token=' +
+                     map_config['mapbox.access_token'];
           handle = map_config['mapbox.map_id'];
           subdomains = map_config.subdomains || 'abcd';
-          attribution = map_config.attribution || 'Data: <a href="http://osm.org/copyright" target="_blank">OpenStreetMap</a>, Design: <a href="http://mapbox.com/about/maps" target="_blank">MapBox</a>';
-
+          attribution = map_config.attribution ||
+                        'Data: <a href="http://osm.org/copyright" ' +
+                        'target="_blank">OpenStreetMap</a>, Design: <a ' +
+                        'href="http://mapbox.com/about/maps" ' +
+                        'target="_blank">MapBox</a>';
       } else if (map_config.type == 'custom') {
           // Custom XYZ layer
           tile_url = map_config['custom.url'] || '';
@@ -189,21 +190,21 @@ this.ckan.module('recline_view', function (jQuery, _) {
       var views = [
         {
           id: 'grid',
-          label: 'Grid',
+          label: this._('Grid'),
           view: new recline.View.SlickGrid({
             model: dataset
           })
         },
         {
           id: 'graph',
-          label: 'Graph',
+          label: this._('Graph'),
           view: new recline.View.Graph({
             model: dataset
           })
         },
         {
           id: 'map',
-          label: 'Map',
+          label: this._('Map'),
           view: new recline.View.Map(this._reclineMapViewOptions(dataset, map_config))
         }
       ];
@@ -211,7 +212,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
       var sidebarViews = [
         {
           id: 'valueFilter',
-          label: 'Filters',
+          label: this._('Filters'),
           view: new recline.View.ValueFilter({
             model: dataset
           })
@@ -232,11 +233,11 @@ this.ckan.module('recline_view', function (jQuery, _) {
     },
 
     _renderControls: function (el, controls, className) {
-      var controlsEl = $("<div class=\"clearfix " + className + "\" />");
+      var controlsEl = jQuery("<div class=\"clearfix " + className + "\" />");
       for (var i = 0; i < controls.length; i++) {
         controlsEl.append(controls[i].el);
       }
-      $(el).append(controlsEl);
+      jQuery(el).append(controlsEl);
     }
   };
 });

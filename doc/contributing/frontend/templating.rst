@@ -85,39 +85,12 @@ be extended:
 Most template pages will define enough blocks so that the extending page
 can customise as little or as much as required.
 
+
 Internationalisation
 --------------------
 
-Jinja2 provides a couple of helpers for
-`internationalisation <http://Jinja2.pocoo.org/docs/templates/#i18n>`_.
-The most common is to use the ``_()`` function:
+See :ref:`jinja_i18n`.
 
-::
-
-    {% block page_content.html %}
-      <h1>{{ _('My page title') }}</h1>
-      <p>{{ _('This content will be added to the page') }}</p>
-    {% endblock %}
-
-Variables can be provided using the "format" function:
-
-::
-
-    {% block page_content.html %}
-      <p>{{ _('Welcome to CKAN {name}').format(name=username) }}</p>
-    {% endblock %}
-
-For longer multiline blocks the ``{% trans %}`` block can be used.
-
-::
-
-    {% block page_content.html %}
-      <p>
-        {% trans name=username %}
-          Welcome to CKAN {{ name }}
-        {% endtrans %}
-      </p>
-    {% endblock %}
 
 Conventions
 -----------

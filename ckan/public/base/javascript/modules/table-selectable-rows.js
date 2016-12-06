@@ -7,7 +7,7 @@
  *   <table data-module="table-selectable-rows">...</table>
  *
  */
-this.ckan.module('table-selectable-rows', function($, _) {
+this.ckan.module('table-selectable-rows', function($) {
 	return {
 
 		// Store for jQuery object for the select all checkbox
