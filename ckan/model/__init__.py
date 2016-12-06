@@ -255,6 +255,8 @@ class Repository(vdm.sqlalchemy.Repository):
         else:
             tables = reversed(self.metadata.sorted_tables)
         for table in tables:
+            if table.name == 'migrate_version':
+                continue
             connection.execute('delete from "%s"' % table.name)
         self.session.commit()
         log.info('Database table data deleted')
