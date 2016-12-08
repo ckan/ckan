@@ -573,7 +573,8 @@ def group_list_authz(context, data_dict):
 
     q = model.Session.query(model.Group) \
         .filter(model.Group.is_organization == False) \
-        .filter(model.Group.state == 'active')
+        .filter(model.Group.state == 'active') \
+        .filter(model.Group.type == data_dict.get('type', 'group'))
 
     if not sysadmin or am_member:
         q = q.filter(model.Group.id.in_(group_ids))

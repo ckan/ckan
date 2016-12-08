@@ -244,7 +244,8 @@ def package_dictize(pkg, context):
                from_obj=member.join(group, group.c.id == member.c.group_id)
                ).where(member.c.table_id == pkg.id)\
                 .where(member.c.state == 'active') \
-                .where(group.c.is_organization == False)
+                .where(group.c.is_organization == False) \
+                .where(group.c.type == 'group')
     result = execute(q, member, context)
     context['with_capacity'] = False
     ## no package counts as cannot fetch from search index at the same
