@@ -294,13 +294,6 @@ class GroupController(base.BaseController):
                     else:
                         search_extras[param] = value
 
-            include_private = False
-            user_member_of_orgs = [org['id'] for org
-                                   in h.organizations_available('read')]
-
-            if (c.group and c.group.id in user_member_of_orgs):
-                include_private = True
-
             facets = OrderedDict()
 
             default_facet_titles = {'organization': _('Organizations'),
@@ -318,16 +311,12 @@ class GroupController(base.BaseController):
             # Facet titles
             self._update_facet_titles(facets, group_type)
 
-            if 'capacity' in facets and (group_type != 'organization' or
-                                         not user_member_of_orgs):
-                del facets['capacity']
-
             c.facet_titles = facets
 
             data_dict = {
                 'q': q,
                 'fq': '',
-                'include_private': include_private,
+                'include_private': True,
                 'facet.field': facets.keys(),
                 'rows': limit,
                 'sort': sort_by,
