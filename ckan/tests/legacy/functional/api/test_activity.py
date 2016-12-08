@@ -21,6 +21,7 @@ import paste.fixture
 from nose import SkipTest
 from ckan.common import json
 import ckan.tests.legacy as tests
+from ckan.tests.helpers import call_action
 
 
 ##def package_update(context, data_dict):
@@ -190,6 +191,14 @@ class TestActivity:
                 'name': sysadmin_user.name,
                 }
         normal_user = model.User.get('annafan')
+
+        call_action(
+            'member_create',
+            id='roger',
+            object=normal_user.id,
+            object_type='user', capacity='admin'
+        )
+
         self.normal_user = {
                 'id': normal_user.id,
                 'apikey': normal_user.apikey,
@@ -291,8 +300,6 @@ class TestActivity:
 
         # Create a new package.
         request_data = make_package(name)
-        # quick fix for #3351
-        request_data['groups'] = []
 
         before = self.record_details(user_id=user_id,
                 group_ids=[group['name'] for group in request_data['groups']],
