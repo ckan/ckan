@@ -244,7 +244,7 @@ class TestWorker(RQTestBase):
         The horse should get a new SQLAlchemy session but leave the
         original session alone.
         '''
-        raise SkipTest("Failing intermittently")  # FIXME
+        raise SkipTest(u'Failing intermittently')  # FIXME
         pkg_name = u'test-fork-within-a-transaction'
         model.repo.new_revision()
         pkg = model.Package.get(pkg_name)
