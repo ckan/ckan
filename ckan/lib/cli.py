@@ -1492,7 +1492,7 @@ class Profile(CkanCommand):
                 print 'App error: ', url.strip()
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 error(traceback.format_exc())
 
         output_filename = 'ckan%s.profile' % re.sub('[/?]', '.', url.replace('/', '.'))
