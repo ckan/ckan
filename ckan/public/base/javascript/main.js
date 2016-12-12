@@ -20,7 +20,6 @@ this.ckan = this.ckan || {};
   ckan.initialize = function () {
     var body = jQuery('body');
     var locale = jQuery('html').attr('lang');
-    var browserLocale = window.navigator.userLanguage || window.navigator.language;
     var location = window.location;
     var root = location.protocol + '//' + location.host;
 
@@ -33,7 +32,7 @@ this.ckan = this.ckan || {};
 
     // Convert all datetimes to the users timezone
     jQuery('.automatic-local-datetime').each(function() {
-        moment.locale(browserLocale);
+        moment.locale(locale);
         var date = moment(jQuery(this).data('datetime'));
         if (date.isValid()) {
             jQuery(this).html(date.format("LL, LT ([UTC]Z)")); 
