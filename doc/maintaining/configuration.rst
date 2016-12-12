@@ -454,9 +454,9 @@ ckan.auth.user_create_groups
 
 Example::
 
- ckan.auth.user_create_groups = False
+ ckan.auth.user_create_groups = True
 
-Default value: ``True``
+Default value: ``False``
 
 
 Allow users to create groups.
