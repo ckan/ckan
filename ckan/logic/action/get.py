@@ -818,6 +818,9 @@ def user_list(context, data_dict):
     :param order_by: which field to sort the list by (optional, default:
       ``'name'``). Can be any user field or ``edits`` (i.e. number_of_edits).
     :type order_by: string
+    :param all_fields: return full user dictionaries instead of just names.
+      (optional, default: ``True``)
+    :type all_fields: boolean
 
     :rtype: list of user dictionaries. User properties include:
       ``number_of_edits`` which counts the revisions by the user and
@@ -831,26 +834,30 @@ def user_list(context, data_dict):
 
     q = data_dict.get('q', '')
     order_by = data_dict.get('order_by', 'name')
+    all_fields = asbool(data_dict.get('all_fields', True))
 
-    query = model.Session.query(
-        model.User,
-        model.User.name.label('name'),
-        model.User.fullname.label('fullname'),
-        model.User.about.label('about'),
-        model.User.about.label('email'),
-        model.User.created.label('created'),
-        _select([_func.count(model.Revision.id)],
-                _or_(
-                    model.Revision.author == model.User.name,
-                    model.Revision.author == model.User.openid
-                )).label('number_of_edits'),
-        _select([_func.count(model.Package.id)],
-                _and_(
-                    model.Package.creator_user_id == model.User.id,
-                    model.Package.state == 'active',
-                    model.Package.private == False,
-                )).label('number_created_packages')
-    )
+    if all_fields:
+        query = model.Session.query(
+            model.User,
+            model.User.name.label('name'),
+            model.User.fullname.label('fullname'),
+            model.User.about.label('about'),
+            model.User.about.label('email'),
+            model.User.created.label('created'),
+            _select([_func.count(model.Revision.id)],
+                    _or_(
+                        model.Revision.author == model.User.name,
+                        model.Revision.author == model.User.openid
+                    )).label('number_of_edits'),
+            _select([_func.count(model.Package.id)],
+                    _and_(
+                        model.Package.creator_user_id == model.User.id,
+                        model.Package.state == 'active',
+                        model.Package.private == False,
+                    )).label('number_created_packages')
+        )
+    else:
+        query = model.Session.query(model.User.name)
 
     if q:
         query = model.User.search(q, query, user_name=context.get('user'))
@@ -861,7 +868,6 @@ def user_list(context, data_dict):
                     _or_(
                         model.Revision.author == model.User.name,
                         model.Revision.author == model.User.openid))))
-
     else:
         query = query.order_by(
             _case([(
@@ -879,9 +885,13 @@ def user_list(context, data_dict):
 
     users_list = []
 
-    for user in query.all():
-        result_dict = model_dictize.user_dictize(user[0], context)
-        users_list.append(result_dict)
+    if all_fields:
+        for user in query.all():
+            result_dict = model_dictize.user_dictize(user[0], context)
+            users_list.append(result_dict)
+    else:
+        for user in query.all():
+            users_list.append(user[0])
 
     return users_list
 
