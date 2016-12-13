@@ -1,7 +1,7 @@
+# -*- coding: utf-8 -*-
 import functools
 import logging
 import re
-import sys
 
 import formencode.validators
 
@@ -26,6 +26,7 @@ class UsernamePasswordError(Exception):
 
 class ActionError(Exception):
     pass
+
 
 class NotFound(ActionError):
     '''Exception raised by logic functions when a given object is not found.
@@ -267,7 +268,7 @@ def check_access(action, context, data_dict=None):
     user = context.get('user')
 
     try:
-        if not 'auth_user_obj' in context:
+        if 'auth_user_obj' not in context:
             context['auth_user_obj'] = None
 
         if not context.get('ignore_auth'):
@@ -294,6 +295,8 @@ def check_access(action, context, data_dict=None):
 
 
 _actions = {}
+
+
 def clear_actions_cache():
     _actions.clear()
 
@@ -343,9 +346,10 @@ def get_action(action):
     '''
 
     if _actions:
-        if not action in _actions:
+        if action not in _actions:
             raise KeyError("Action '%s' not found" % action)
         return _actions.get(action)
+
     # Otherwise look in all the plugins to resolve all possible
     # First get the default ones in the ckan/logic/action directory
     # Rather than writing them out in full will use __import__
@@ -370,7 +374,6 @@ def get_action(action):
                     if action_module_name == 'get' and \
                        not hasattr(v, 'side_effect_free'):
                         v.side_effect_free = True
-
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
@@ -421,8 +424,11 @@ def get_action(action):
                             log.debug('No auth function for %s' % action_name)
                         elif not getattr(_action, 'auth_audit_exempt', False):
                             raise Exception(
-                                'Action function {0} did not call its auth function'
-                                .format(action_name))
+                                'Action function {0} did not call its auth'
+                                ' function'.format(
+                                    action_name
+                                )
+                            )
                         # remove from audit stack
                         context['__auth_audit'].pop()
                 except IndexError:
@@ -485,6 +491,7 @@ def get_or_bust(data_dict, keys):
         return values[0]
     return tuple(values)
 
+
 def validate(schema_func, can_skip_validator=False):
     ''' A decorator that validates an action function against a given schema
     '''
@@ -502,6 +509,7 @@ def validate(schema_func, can_skip_validator=False):
             return action(context, data_dict)
         return wrapper
     return action_decorator
+
 
 def side_effect_free(action):
     '''A decorator that marks the given action function as side-effect-free.
@@ -556,6 +564,15 @@ def auth_sysadmins_check(action):
     return wrapper
 
 
+def auth_read_safe(action):
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+
+    wrapper.auth_read_safe = True
+    return wrapper
+
+
 def auth_audit_exempt(action):
     ''' Dirty hack to stop auth audit being done '''
     @functools.wraps(action)
@@ -563,6 +580,7 @@ def auth_audit_exempt(action):
         return action(context, data_dict)
     wrapper.auth_audit_exempt = True
     return wrapper
+
 
 def auth_allow_anonymous_access(action):
     ''' Flag an auth function as not requiring a logged in user
@@ -578,6 +596,7 @@ def auth_allow_anonymous_access(action):
     wrapper.auth_allow_anonymous_access = True
     return wrapper
 
+
 def auth_disallow_anonymous_access(action):
     ''' Flag an auth function as requiring a logged in user
 
@@ -591,6 +610,7 @@ def auth_disallow_anonymous_access(action):
     wrapper.auth_allow_anonymous_access = False
     return wrapper
 
+
 class UnknownValidator(Exception):
     '''Exception raised when a requested validator function cannot be found.
 
@@ -599,6 +619,7 @@ class UnknownValidator(Exception):
 
 
 _validators_cache = {}
+
 
 def clear_validators_cache():
     _validators_cache.clear()
@@ -620,7 +641,7 @@ def get_validator(validator):
     :rtype: ``types.FunctionType``
 
     '''
-    if  not _validators_cache:
+    if not _validators_cache:
         validators = _import_module_functions('ckan.lib.navl.validators')
         _validators_cache.update(validators)
         validators = _import_module_functions('ckan.logic.validators')
@@ -635,7 +656,10 @@ def get_validator(validator):
                     raise NameConflict(
                         'The validator %r is already defined' % (name,)
                     )
-                log.debug('Validator function {0} from plugin {1} was inserted'.format(name, plugin.name))
+                log.debug(
+                    'Validator function {0} from plugin {1}'
+                    ' was inserted'.format(name, plugin.name)
+                )
                 _validators_cache[name] = fn
     try:
         return _validators_cache[validator]
@@ -644,7 +668,8 @@ def get_validator(validator):
 
 
 def model_name_to_class(model_module, model_name):
-    '''Return the class in model_module that has the same name as the received string.
+    '''Return the class in model_module that has the same name as the received
+    string.
 
     Raises AttributeError if there's no model in model_module named model_name.
     '''
@@ -653,6 +678,7 @@ def model_name_to_class(model_module, model_name):
         return getattr(model_module, model_class_name)
     except AttributeError:
         raise ValidationError("%s isn't a valid model" % model_class_name)
+
 
 def _import_module_functions(module_path):
     '''Import a module and get the functions and return them in a dict'''
