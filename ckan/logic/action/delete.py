@@ -24,9 +24,7 @@ _get_action = ckan.logic.get_action
 
 def user_delete(context, data_dict):
     '''Delete a user.
-
     Only sysadmins can delete users.
-
     :param id: the id or usernamename of the user to delete
     :type id: string
     '''
@@ -37,10 +35,22 @@ def user_delete(context, data_dict):
     user_id = _get_or_bust(data_dict, 'id')
     user = model.User.get(user_id)
 
+    # New revision, needed by the member table
+    rev = model.repo.new_revision()
+    rev.author = context['user']
+    rev.message = _(u' Delete User: {0}').format(user.name)
+
     if user is None:
         raise NotFound('User "{id}" was not found.'.format(id=user_id))
 
     user.delete()
+
+    user_memberships = model.Session.query(model.Member).filter(
+        model.Member.table_id == user.id).all()
+
+    for membership in user_memberships:
+        membership.delete()
+
     model.repo.commit()
 
 
