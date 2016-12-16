@@ -27,7 +27,7 @@ from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
 from markdown import markdown
-from bleach import clean as clean_html, ALLOWED_TAGS
+from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
 from pylons import config
@@ -55,6 +55,9 @@ MARKDOWN_TAGS = set([
     'h3', 'img', 'kbd', 'p', 'pre', 's',
     'sup', 'sub', 'strike', 'br', 'hr'
 ]).union(ALLOWED_TAGS)
+
+MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
+MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
 
 
 get_available_locales = i18n.get_available_locales
@@ -1734,7 +1737,9 @@ def render_markdown(data, auto_link=True, allow_html=False):
         data = markdown(data.strip())
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
-        data = clean_html(markdown(data), strip=True, tags=MARKDOWN_TAGS)
+        data = clean_html(
+            markdown(data), strip=True,
+            tags=MARKDOWN_TAGS, attributes=MARKDOWN_ATTRIBUTES)
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:
