@@ -765,6 +765,24 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             name='test-dataset',
         )
 
+    def test_name_not_changed_during_deletion(self):
+        dataset = factories.Dataset()
+        helpers.call_action('package_delete', id=dataset['id'])
+        deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(deleted_dataset['name'], dataset['name'])
+
+    def test_creation_of_dataset_with_name_same_as_of_previously_removed(self):
+        dataset = factories.Dataset()
+        initial_name = dataset['name']
+        helpers.call_action('package_delete', id=dataset['id'])
+        new_dataset = helpers.call_action(
+            'package_create',
+            name=initial_name
+        )
+        assert_equals(new_dataset['name'], initial_name)
+        deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(deleted_dataset['name'], dataset['id'])
+
 
 class TestGroupCreate(helpers.FunctionalTestBase):
 
