@@ -5,45 +5,56 @@ import unicodecsv as csv
 
 import pylons
 
-import ckan.plugins as p
-import ckan.lib.base as base
-import ckan.model as model
+from ckan.plugins.toolkit import (
+    Invalid,
+    ObjectNotFound,
+    get_action,
+    get_validator,
+    _,
+    request,
+    response,
+    BaseController,
+    abort,
+)
 
-from ckan.common import request
-
+int_validator = get_validator('int_validator')
 
 PAGINATE_BY = 10000
 
 
-class DatastoreController(base.BaseController):
+class DatastoreController(BaseController):
     def dump(self, resource_id):
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': p.toolkit.c.user
-        }
+        try:
+            offset = int_validator(request.GET.get('offset', 0), {})
+        except Invalid as e:
+            abort(400, u'offset: ' + e.error)
+        try:
+            limit = int_validator(request.GET.get('limit'), {})
+        except Invalid as e:
+            abort(400, u'limit: ' + e.error)
 
-        offset = 0
         wr = None
         while True:
-            data_dict = {
-                'resource_id': resource_id,
-                'limit': request.GET.get('limit', PAGINATE_BY),
-                'offset': request.GET.get('offset', offset)
-            }
+            if limit is not None and limit <= 0:
+                break
 
-            action = p.toolkit.get_action('datastore_search')
             try:
-                result = action(context, data_dict)
-            except p.toolkit.ObjectNotFound:
-                base.abort(404, p.toolkit._('DataStore resource not found'))
+                result = get_action('datastore_search')(None, {
+                    'resource_id': resource_id,
+                    'limit':
+                        PAGINATE_BY if limit is None
+                        else min(PAGINATE_BY, limit),
+                    'offset': offset,
+                    })
+            except ObjectNotFound:
+                abort(404, _('DataStore resource not found'))
 
             if not wr:
-                pylons.response.headers['Content-Type'] = 'text/csv'
-                pylons.response.headers['Content-disposition'] = (
+                response.headers['Content-Type'] = 'text/csv; charset=utf-8'
+                response.headers['Content-disposition'] = (
                     'attachment; filename="{name}.csv"'.format(
                         name=resource_id))
-                wr = csv.writer(pylons.response, encoding='utf-8')
+                wr = csv.writer(response, encoding='utf-8')
 
                 header = [x['id'] for x in result['fields']]
                 wr.writerow(header)
@@ -51,6 +62,8 @@ class DatastoreController(base.BaseController):
             for record in result['records']:
                 wr.writerow([record[column] for column in header])
 
-            offset += PAGINATE_BY
             if len(result['records']) < PAGINATE_BY:
                 break
+            offset += PAGINATE_BY
+            if limit is not None:
+                limit -= PAGINATE_BY
