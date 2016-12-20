@@ -985,7 +985,7 @@ def dashboard_mark_activities_old(context, data_dict):
     model = context['model']
     user_id = model.User.get(context['user']).id
     model.Dashboard.get(user_id).activity_stream_last_viewed = (
-            datetime.datetime.now())
+            datetime.datetime.utcnow())
     if not context.get('defer_commit'):
         model.repo.commit()
 
