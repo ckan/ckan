@@ -8,8 +8,6 @@ set -eu
 : ${SOLR_URL:=}
 # URL for redis (required unless linked to a container called 'redis')
 : ${REDIS_URL:=}
-# Email to which errors should be sent (optional, default: none)
-: ${ERROR_EMAIL:=}
 
 CONFIG="${CKAN_CONFIG}/ckan.ini"
 
@@ -25,14 +23,8 @@ write_config () {
       "sqlalchemy.url = ${DATABASE_URL}" \
       "solr_url = ${SOLR_URL}" \
       "ckan.redis.url = ${REDIS_URL}" \
-      "ckan.storage_path = /var/lib/ckan" \
-      "email_to = disabled@example.com" \
-      "error_email_from = ckan@$(hostname -f)" \
-      "ckan.site_url = http://localhost:5000"
-
-  if [ -n "$ERROR_EMAIL" ]; then
-    sed -i -e "s&^#email_to.*&email_to = ${ERROR_EMAIL}&" "$CONFIG"
-  fi
+      "ckan.storage_path = ${CKAN_DATA}" \
+      "ckan.site_url = ${SITE_URL}"
 }
 
 link_postgres_url () {

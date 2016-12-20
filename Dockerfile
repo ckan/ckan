@@ -6,6 +6,7 @@ MAINTAINER Open Knowledge
 ENV CKAN_HOME /usr/lib/ckan/default
 ENV CKAN_CONFIG /etc/ckan/default
 ENV CKAN_DATA /var/lib/ckan
+ENV SITE_URL http://localhost:5000
 
 # Install required packages
 RUN apt-get -q -y update && apt-get -q -y upgrade && DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
