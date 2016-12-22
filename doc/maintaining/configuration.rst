@@ -1214,6 +1214,19 @@ Default value: ``text plain text/plain``
 
 Plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
 
+.. _ckan.preview.image_formats:
+
+ckan.preview.image_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.text_formats = png jpeg jpg gif
+
+Default value: ``png jpeg jpg gif``
+
+Image based resource formats that will be rendered by the Image view plugin (``image_view``)
+
 .. end_resource-views
 
 Theming Settings

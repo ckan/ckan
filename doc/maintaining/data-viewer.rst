@@ -200,7 +200,8 @@ View plugin: ``image_view``
 
 If the resource format is a common image format like PNG, JPEG or GIF, it adds
 an ``<img>`` tag pointing to the resource URL. You can provide an alternative
-URL on the edit view form.
+URL on the edit view form. The available formats can be configured using the
+:ref:`ckan.preview.image_formats` configuration option.
 
 Web page view
 +++++++++++++
