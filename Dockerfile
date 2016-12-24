@@ -15,11 +15,8 @@ RUN apt-get -q -y update && \
         python-minimal \
         python-dev \
         python-virtualenv \
-        libevent-dev \
         libpq-dev \
         nginx-light \
-        apache2 \
-        libapache2-mod-wsgi \
         postfix \
         build-essential && \
     apt-get clean && \
@@ -30,18 +27,12 @@ RUN virtualenv $CKAN_HOME
 RUN mkdir -p $CKAN_HOME $CKAN_CONFIG $CKAN_DATA
 RUN chown www-data:www-data $CKAN_DATA
 
+RUN $CKAN_HOME/bin/pip install gunicorn==19.1.0 gevent==1.0.1
 ADD ./requirements.txt $CKAN_HOME/src/ckan/requirements.txt
 RUN $CKAN_HOME/bin/pip install -r $CKAN_HOME/src/ckan/requirements.txt
 ADD . $CKAN_HOME/src/ckan/
 RUN $CKAN_HOME/bin/pip install -e $CKAN_HOME/src/ckan/
 RUN ln -s $CKAN_HOME/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini
-ADD ./contrib/docker/apache.wsgi $CKAN_CONFIG/apache.wsgi
-
-# Configure apache
-ADD ./contrib/docker/apache.conf /etc/apache2/sites-available/ckan_default.conf
-RUN echo "Listen 8080" > /etc/apache2/ports.conf
-RUN a2ensite ckan_default
-RUN a2dissite 000-default
 
 # Configure nginx
 ADD ./contrib/docker/nginx.conf /etc/nginx/nginx.conf

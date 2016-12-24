@@ -1,7 +1,14 @@
 #!/bin/sh
 exec 2>&1
 
-set -e
+# Number of gunicorn workers to spawn (optional, default: 2)
+: ${GUNICORN_NUM_WORKERS:=2}
 
-. /etc/apache2/envvars
-exec /usr/sbin/apache2 -D FOREGROUND
+set -eu
+
+exec "$CKAN_HOME"/bin/gunicorn \
+  -b unix:/var/run/gunicorn-ckan.sock \
+  -n "$GUNICORN_NUM_WORKERS" \
+  -k gevent \
+  --max-requests 1000 \
+  --paste "$CKAN_CONFIG"/ckan.ini
