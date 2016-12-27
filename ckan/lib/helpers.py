@@ -737,6 +737,11 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
     exclude_active -- only return unselected facets.
 
     '''
+    if (limit == None and config.get('search.facets.default') ):       
+       limit = int(config.get('search.facets.default')) 
+    elif(limit == None and not config.get('search.facets.default')):
+       limit = 10
+
     if not c.search_facets or \
             not c.search_facets.get(facet) or \
             not c.search_facets.get(facet).get('items'):
