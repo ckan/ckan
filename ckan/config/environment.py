@@ -9,6 +9,7 @@ from urlparse import urlparse
 
 import sqlalchemy
 import formencode
+from pylons.configuration import PylonsConfig
 from pylons import config as pylons_config
 
 import ckan.config.routing as routing
@@ -80,7 +81,14 @@ def load_environment(global_conf, app_conf):
     config.update(app_conf)
 
     # Initialize Pylons own config object
-    pylons_config.init_app(global_conf, app_conf, package='ckan', paths=paths)
+    pylons_app_config = PylonsConfig()
+    pylons_app_config.init_app(
+        global_conf,
+        app_conf,
+        package='ckan',
+        paths=paths
+    )
+    pylons_config.push_process_config(pylons_app_config)
 
     # Update the main CKAN config object with the Pylons specific stuff, as it
     # quite hard to keep them separated. This should be removed once Pylons

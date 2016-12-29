@@ -178,6 +178,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
     # Add a reference to the actual Pylons app so it's easier to access
     app._wsgi_app = pylons_app
 
+    app.config = conf
+
     return app
 
 

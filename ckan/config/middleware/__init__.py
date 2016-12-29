@@ -24,6 +24,9 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     app = AskAppDispatcherMiddleware({'pylons_app': pylons_app,
                                       'flask_app': flask_app})
 
+    # Needed for the pylons test framework.
+    app.config = pylons_app.config
+
     return app
 
 
