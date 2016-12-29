@@ -6,33 +6,33 @@
 #
 argparse==1.4.0           # via ofs
 Babel==2.3.4
-Beaker==1.8.1             # via pylons
+beaker==1.8.1
 bleach==1.5.0
-click==6.6                # via rq
+click==6.6                # via flask, rq
 decorator==4.0.6          # via pylons, sqlalchemy-migrate
 fanstatic==0.12
 Flask==0.11.1
-FormEncode==1.3.0         # via pylons
+formencode==1.3.0         # via pylons
 funcsigs==1.0.2           # via beaker
 html5lib==0.9999999       # via bleach
 itsdangerous==0.24        # via flask
-Jinja2==2.8               # via flask
-Mako==1.0.4               # via pylons
+jinja2==2.8
+mako==1.0.4               # via pylons
 Markdown==2.6.7
-MarkupSafe==0.23          # via jinja2, mako, webhelpers
+markupsafe==0.23          # via jinja2, mako, pylons, webhelpers
 nose==1.3.7               # via pylons
 ofs==0.4.2
 ordereddict==1.1
 Pairtree==0.7.1-T
 passlib==1.6.5
-paste==1.7.5.1
-PasteDeploy==1.5.2        # via pastescript, pylons
-PasteScript==2.0.2        # via pylons
+paste==2.0.3
+pastedeploy==1.5.2        # via pastescript, pylons
+pastescript==2.0.2        # via pylons
 pbr==1.10.0               # via sqlalchemy-migrate
 polib==1.0.7
 psycopg2==2.4.5
-Pygments==2.1.3           # via weberror
-Pylons==0.9.7
+pygments==2.1.3           # via weberror
+Pylons==1.0.2
 pysolr==3.6.0
 python-dateutil==1.5
 python-magic==0.4.12
@@ -43,24 +43,23 @@ repoze.lru==0.6           # via routes
 repoze.who-friendlyform==1.0.8
 repoze.who==2.3
 requests==2.11.1
-Routes==1.13              # via pylons
+routes==1.13              # via pylons
 rq==0.6.0
 simplejson==3.8.2         # via pylons
-six==1.10.0               # via bleach, html5lib, pastescript, pyutilib.component.core, sqlalchemy-migrate
+six==1.10.0               # via bleach, html5lib, paste, pastescript, pyutilib.component.core, sqlalchemy-migrate
 sqlalchemy-migrate==0.10.0
-SQLAlchemy==0.9.6         # via sqlalchemy-migrate
+sqlalchemy==0.9.6
 sqlparse==0.2.2
-Tempita==0.5.2            # via pylons, sqlalchemy-migrate, weberror
+tempita==0.5.2            # via pylons, sqlalchemy-migrate, weberror
 tzlocal==1.3
 unicodecsv==0.14.1
 vdm==0.13
-WebError==0.13.1          # via pylons
-WebHelpers==1.3           # via pylons
-WebOb==1.0.8              # via fanstatic, pylons, repoze.who, repoze.who-friendlyform, weberror, webtest
-WebTest==1.4.3            # via pylons
-Werkzeug==0.11.10         # via flask
+weberror==0.13.1          # via pylons
+webhelpers==1.3           # via pylons
+WebOb==1.7.0              # via fanstatic, pylons, repoze.who, repoze.who-friendlyform, weberror, webtest
+webtest==1.4.3            # via pylons
+werkzeug==0.11.10         # via flask
 zope.interface==4.3.2
 
-# The following packages are commented out because they are
-# considered to be unsafe in a requirements file:
+# The following packages are considered to be unsafe in a requirements file:
 # setuptools                # via repoze.who, zope.interface
