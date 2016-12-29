@@ -5,13 +5,12 @@ from nose.plugins.skip import SkipTest
 
 from urllib import quote
 
-from ckan import plugins
 import ckan.lib.search as search
 from ckan.tests.legacy import setup_test_search_index
 from ckan.tests.legacy.functional.api.base import *
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.controllers.api import ApiController
-from webob.multidict import UnicodeMultiDict
+from paste.util.multidict import MultiDict
 
 class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
@@ -48,27 +47,27 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
             params = ApiController._get_search_params(request_params)
             assert_equal(params, expected_params)
         # uri parameters
-        check(UnicodeMultiDict({'q': '', 'ref': 'boris'}),
+        check(MultiDict({'q': '', 'ref': 'boris'}),
               {"q": "", "ref": "boris"})
         # uri json
-        check(UnicodeMultiDict({'qjson': '{"q": "", "ref": "boris"}'}),
+        check(MultiDict({'qjson': '{"q": "", "ref": "boris"}'}),
               {"q": "", "ref": "boris"})
         # posted json
-        check(UnicodeMultiDict({'{"q": "", "ref": "boris"}': u'1'}),
+        check(MultiDict({'{"q": "", "ref": "boris"}': u'1'}),
               {"q": "", "ref": "boris"})
-        check(UnicodeMultiDict({'{"q": "", "ref": "boris"}': u''}),
+        check(MultiDict({'{"q": "", "ref": "boris"}': u''}),
               {"q": "", "ref": "boris"})
         # no parameters
-        check(UnicodeMultiDict({}),
+        check(MultiDict({}),
               {})
 
     def test_00_read_search_params_with_errors(self):
         def check_error(request_params):
             assert_raises(ValueError, ApiController._get_search_params, request_params)
         # uri json
-        check_error(UnicodeMultiDict({'qjson': '{"q": illegal json}'}))
+        check_error(MultiDict({'qjson': '{"q": illegal json}'}))
         # posted json
-        check_error(UnicodeMultiDict({'{"q": illegal json}': u'1'}))
+        check_error(MultiDict({'{"q": illegal json}': u'1'}))
 
     def test_01_uri_q(self):
         offset = self.base_url + '?q=%s' % self.package_fixture_data['name']

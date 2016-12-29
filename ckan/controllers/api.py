@@ -7,7 +7,6 @@ import datetime
 import glob
 import urllib
 
-from webob.multidict import UnicodeMultiDict
 from paste.util.multidict import MultiDict
 
 import ckan.model as model
@@ -603,7 +602,7 @@ class ApiController(base.BaseController):
             params = h.json.loads(request_params.keys()[0], encoding='utf8')
         else:
             params = request_params
-        if not isinstance(params, (UnicodeMultiDict, dict)):
+        if not isinstance(params, (MultiDict, dict)):
             msg = _('Request params must be in form ' +
                     'of a json encoded dictionary.')
             raise ValueError(msg)
