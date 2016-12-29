@@ -16,7 +16,11 @@ import pylons
 from werkzeug.local import Local
 
 from pylons.i18n import _, ungettext
-from pylons import g, c, request, session, response
+# Backwards compatibility for Pylons 0.9.7 -> 1.0.0, which renamed this global.
+from pylons import app_globals as g
+# Backwards compatibility for Pylons 0.9.7 -> 1.0.0, which renamed this global.
+from pylons import tmpl_context as c
+from pylons import request, session, response
 import simplejson as json
 
 try:

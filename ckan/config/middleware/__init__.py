@@ -1,40 +1,12 @@
 # encoding: utf-8
 
 """WSGI app initialization"""
-
-import webob
-
-from werkzeug.test import create_environ, run_wsgi_app
-
 from ckan.config.environment import load_environment
 from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.config.middleware.pylons_app import make_pylons_stack
 
 import logging
 log = logging.getLogger(__name__)
-
-# This monkey-patches the webob request object because of the way it messes
-# with the WSGI environ.
-
-# Start of webob.requests.BaseRequest monkey patch
-original_charset__set = webob.request.BaseRequest._charset__set
-
-
-def custom_charset__set(self, charset):
-    original_charset__set(self, charset)
-    if self.environ.get('CONTENT_TYPE', '').startswith(';'):
-        self.environ['CONTENT_TYPE'] = ''
-
-
-webob.request.BaseRequest._charset__set = custom_charset__set
-
-webob.request.BaseRequest.charset = property(
-    webob.request.BaseRequest._charset__get,
-    custom_charset__set,
-    webob.request.BaseRequest._charset__del,
-    webob.request.BaseRequest._charset__get.__doc__)
-
-# End of webob.requests.BaseRequest monkey patch
 
 
 def make_app(conf, full_stack=True, static_files=True, **app_conf):

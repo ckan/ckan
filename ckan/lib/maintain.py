@@ -7,7 +7,7 @@ import time
 import logging
 import re
 
-from pylons import c
+from ckan.common import c
 
 log = logging.getLogger(__name__)
 

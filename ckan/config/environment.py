@@ -4,25 +4,26 @@
 import os
 import logging
 import warnings
-from urlparse import urlparse
 import pytz
+from urlparse import urlparse
 
 import sqlalchemy
-from pylons import config as pylons_config
 import formencode
+from pylons import config as pylons_config
 
 import ckan.config.routing as routing
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
-from ckan.lib.redis import is_redis_available
 import ckan.lib.render as render
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
+from ckan.lib.redis import is_redis_available
 from ckan.lib.i18n import build_js_translations
+from ckan.common import g
 
 from ckan.common import _, ungettext, config
 from ckan.exceptions import CkanConfigurationException
@@ -214,6 +215,10 @@ def update_config():
     # routes.named_routes is a CKAN thing
     config['routes.named_routes'] = routing.named_routes
     config['pylons.app_globals'] = app_globals.app_globals
+    # Pylons 1.0.0 made the tmpl_context object raise AttributeErrors on
+    # missing attributes (a very sensible decision), however to many internals
+    # and extensions rely on the weird default behaviour so we undo it here.
+    config['pylons.strict_tmpl_context'] = False
     # initialise the globals
     app_globals.app_globals._init()
 
@@ -227,6 +232,7 @@ def update_config():
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
+
     config['pylons.app_globals'].template_paths = template_paths
 
     # Set the default language for validation messages from formencode
@@ -253,6 +259,9 @@ def update_config():
                     jinja_extensions.UrlForStaticExtension,
                     jinja_extensions.UrlForExtension]
     )
+    # Pylons 1.0.0 renamins the global "g" to app_globals, but getting every
+    # extension and internal template to update is a lost cause, add an alias.
+    env.globals['g'] = g
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
     env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape

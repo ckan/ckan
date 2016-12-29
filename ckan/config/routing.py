@@ -44,19 +44,29 @@ class Mapper(_Mapper):
         '''
 
         ckan_icon = kw.pop('ckan_icon', None)
-        highlight_actions = kw.pop('highlight_actions', kw.get('action', ''))
         ckan_core = kw.pop('ckan_core', None)
+        highlight_actions = kw.pop('highlight_actions', kw.get('action', ''))
+
+        # Routes changed named paths to be mandatory in v2.3, then undid it
+        # immediately after. This little patch allows us to work with all
+        # versions.
+        args = (args[0],) if len(args) == 2 and args[1] is None else args
+
         out = _Mapper.connect(self, *args, **kw)
+
         route = self.matchlist[-1]
         if ckan_core is not None:
             route._ckan_core = ckan_core
+
         if len(args) == 1 or args[0].startswith('_redirect_'):
             return out
+
         # we have a named route
         needed = []
         matches = re.findall('\{([^:}]*)(\}|:)', args[1])
         for match in matches:
             needed.append(match[0])
+
         route_data = {
             'icon': ckan_icon,
             # needed lists the names of the parameters that need defining
@@ -66,6 +76,7 @@ class Mapper(_Mapper):
             'action': kw.get('action', ''),
             'highlight_actions': highlight_actions
         }
+
         named_routes[args[0]] = route_data
         return out
 
@@ -214,11 +225,12 @@ def make_map():
                   highlight_actions='index search')
         m.connect('add dataset', '/dataset/new', action='new')
         m.connect('/dataset/{action}',
-                  requirements=dict(action='|'.join([
-                      'list',
-                      'autocomplete',
-                      'search'
-                  ])))
+            requirements=dict(action='|'.join([
+                'list',
+                'autocomplete',
+                'search'
+            ]))
+        )
 
         m.connect('/dataset/{action}/{id}/{revision}', action='read_ajax',
                   requirements=dict(action='|'.join([

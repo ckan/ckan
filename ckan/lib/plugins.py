@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 
-from pylons import c
 from ckan.lib import base
 import ckan.lib.maintain as maintain
 from ckan import logic
@@ -12,6 +11,7 @@ import logic.schema
 from ckan import plugins
 import ckan.authz
 import ckan.plugins.toolkit as toolkit
+from ckan.common import c
 
 log = logging.getLogger(__name__)
 

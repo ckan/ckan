@@ -28,7 +28,7 @@ from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
-from routes import redirect_to as _routes_redirect_to
+from pylons.controllers.util import redirect as _pylons_redirect
 from routes import url_for as _routes_default_url_for
 import i18n
 
@@ -161,7 +161,7 @@ def redirect_to(*args, **kw):
     if is_flask_request():
         return _flask_redirect(_url)
     else:
-        return _routes_redirect_to(_url)
+        return _pylons_redirect(_url)
 
 
 @maintain.deprecated('h.url is deprecated please use h.url_for')
