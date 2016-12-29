@@ -16,6 +16,9 @@ from ckan import (__version__, __description__, __long_description__,
                   __license__)
 
 entry_points = {
+    'nose.plugins': [
+        'pylons = pylons.test:PylonsPlugin'
+    ],
     'nose.plugins.0.10': [
         'main = ckan.ckan_nose_plugin:CkanNose',
     ],
