@@ -30,7 +30,7 @@ def _set_permissions():
     # could be different), but it's better than nothing, I guess.
     if write_url['db_name'] != read_url['db_name']:
         exit("The datastore write_url and read_url must refer to the same "
-               "database!")
+             "database!")
 
     context = {
         'maindb': db_url['db_name'],
@@ -61,6 +61,7 @@ def datastore_command(command):
     if opts['set-permissions']:
         _set_permissions()
     exit(0)  # avoid paster error
+
 
 # for paster's command index
 datastore_command.summary = __doc__.split(u'\n')[0]
