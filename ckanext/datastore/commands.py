@@ -1,19 +1,26 @@
 # encoding: utf-8
+u"""Perform commands to set up the datastore
 
-from __future__ import print_function
-import argparse
+Usage:
+  paster [options] datastore set-permissions
+
+Emit an SQL script that will set the permissions for the
+datastore users as configured in your configuration file.
+
+Options:
+  -c --config=CONFIG   CKAN configuration file
+  --plugin=ckan        paster plugin (when used outside of ckan directory)
+"""
+
 import os
 import sys
 
-import ckan.lib.cli as cli
+from ckan.lib import cli
+
+from docopt import docopt
 
 
-def _abort(message):
-    print(message, file=sys.stderr)
-    sys.exit(1)
-
-
-def _set_permissions(args):
+def _set_permissions():
     write_url = cli.parse_db_config('ckan.datastore.write_url')
     read_url = cli.parse_db_config('ckan.datastore.read_url')
     db_url = cli.parse_db_config('sqlalchemy.url')
@@ -22,7 +29,7 @@ def _set_permissions(args):
     # This obviously doesn't check they're the same database (the hosts/ports
     # could be different), but it's better than nothing, I guess.
     if write_url['db_name'] != read_url['db_name']:
-        _abort("The datastore write_url and read_url must refer to the same "
+        exit("The datastore write_url and read_url must refer to the same "
                "database!")
 
     context = {
@@ -46,30 +53,14 @@ def _permissions_sql(context):
     return template.format(**context)
 
 
-parser = argparse.ArgumentParser(
-    prog='paster datastore',
-    description='Perform commands to set up the datastore',
-    epilog='Make sure that the datastore URLs are set properly before you run '
-           'these commands!')
-subparsers = parser.add_subparsers(title='commands')
+def datastore_command(command):
+    opts = docopt(__doc__)
 
-parser_set_perms = subparsers.add_parser(
-    'set-permissions',
-    description='Set the permissions on the datastore.',
-    help='This command will help ensure that the permissions for the '
-         'datastore users as configured in your configuration file are '
-         'correct at the database. It will emit an SQL script that '
-         'you can use to set these permissions.',
-    epilog='"The ships hung in the sky in much the same way that bricks '
-           'don\'t."')
-parser_set_perms.set_defaults(func=_set_permissions)
+    cli.load_config(opts['--config'])
 
+    if opts['set-permissions']:
+        _set_permissions()
+    exit(0)  # avoid paster error
 
-class SetupDatastoreCommand(cli.CkanCommand):
-    summary = parser.description
-
-    def command(self):
-        self._load_config()
-
-        args = parser.parse_args(self.args)
-        args.func(args)
+# for paster's command index
+datastore_command.summary = __doc__.split(u'\n')[0]
