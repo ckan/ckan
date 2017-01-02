@@ -6,7 +6,7 @@ import ckan.plugins as p
 log = logging.getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
 
-DEFAULT_IMAGE_FORMATS = ['png', 'jpeg', 'jpg', 'gif']
+DEFAULT_IMAGE_FORMATS = 'png jpeg jpg gif'
 
 
 class ImageView(p.SingletonPlugin):
@@ -17,8 +17,7 @@ class ImageView(p.SingletonPlugin):
 
     def update_config(self, config):
         p.toolkit.add_template_directory(config, 'theme/templates')
-        image_formats = config.get('ckan.preview.image_formats', '').split()
-        self.formats = image_formats or DEFAULT_IMAGE_FORMATS
+        self.formats = config.get('ckan.preview.image_formats', DEFAULT_IMAGE_FORMATS).split()
 
     def info(self):
         return {'name': 'image_view',
