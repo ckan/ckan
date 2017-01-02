@@ -1186,7 +1186,7 @@ Example::
 
 Default value: ``json``
 
-JSON based resource formats that will be rendered by the Text view plugin (``text_view``)
+Space-delimited list of JSON based resource formats that will be rendered by the Text view plugin (``text_view``)
 
 .. _ckan.preview.xml_formats:
 
@@ -1199,7 +1199,7 @@ Example::
 
 Default value: ``xml rdf rdf+xml owl+xml atom rss``
 
-XML based resource formats that will be rendered by the Text view plugin (``text_view``)
+Space-delimited list of XML based resource formats that will be rendered by the Text view plugin (``text_view``)
 
 .. _ckan.preview.text_formats:
 
@@ -1212,7 +1212,7 @@ Example::
 
 Default value: ``text plain text/plain``
 
-Plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
+Space-delimited list of plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
 
 .. _ckan.preview.image_formats:
 
@@ -1221,11 +1221,11 @@ ckan.preview.image_formats
 
 Example::
 
- ckan.preview.text_formats = png jpeg jpg gif
+ ckan.preview.image_formats = png jpeg jpg gif
 
 Default value: ``png jpeg jpg gif``
 
-Image based resource formats that will be rendered by the Image view plugin (``image_view``)
+Space-delimited list of image-based resource formats that will be rendered by the Image view plugin (``image_view``)
 
 .. end_resource-views
 

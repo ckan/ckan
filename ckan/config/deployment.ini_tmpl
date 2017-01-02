@@ -106,6 +106,13 @@ ckan.plugins = stats text_view image_view recline_view
 # (plugins must be loaded in ckan.plugins)
 ckan.views.default_views = image_view text_view recline_view
 
+# Customize which text formats the text_view plugin will show
+#ckan.preview.json_formats = json
+#ckan.preview.xml_formats = xml rdf rdf+xml owl+xml atom rss
+#ckan.preview.text_formats = text plain text/plain
+
+# Customize which image formats the image_view plugin will show
+#ckan.preview.image_formats = png jpeg jpg gif
 
 ## Front-End Settings
 ckan.site_title = CKAN
