@@ -454,6 +454,9 @@ def group_list(context, data_dict):
         packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
+    :param include_dataset_count: if all_fields, include the full package_count
+        (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: if all_fields, include the group extra fields
         (optional, default: ``False``)
     :type include_extras: boolean
@@ -467,9 +470,7 @@ def group_list(context, data_dict):
         (optional, default: ``False``).
     :type include_users: boolean
 
-
     :rtype: list of strings
-
     '''
     _check_access('group_list', context, data_dict)
     return _group_or_org_list(context, data_dict)
@@ -503,6 +504,9 @@ def organization_list(context, data_dict):
         packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
+    :param include_dataset_count: if all_fields, include the full package_count
+        (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: if all_fields, include the organization extra fields
         (optional, default: ``False``)
     :type include_extras: boolean
