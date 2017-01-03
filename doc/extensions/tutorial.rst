@@ -257,8 +257,9 @@ dictionary:
 Whenever a user tries to create a new group via the web interface or the API,
 CKAN calls the :func:`~ckan.logic.auth.create.group_create` authorization
 function to decide whether to allow the action. Let's override this function
-and simply prevent anyone from creating new groups. Edit your ``plugin.py``
-file so that it looks like this:
+and simply prevent anyone from creating new groups(Note: this is default behavior.
+In order to go further, you need to change ``ckan.auth.user_create_groups`` to `True`
+in configuration file). Edit your ``plugin.py`` file so that it looks like this:
 
 .. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v2.py
 
