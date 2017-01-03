@@ -692,7 +692,8 @@ def organization_list_for_user(context, data_dict):
             (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()]
 
     context['with_capacity'] = True
-    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context)
+    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
+        with_package_counts=False)
     return orgs_list
 
 
