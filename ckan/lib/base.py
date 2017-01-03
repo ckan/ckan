@@ -366,7 +366,7 @@ class BaseController(WSGIController):
         if not apikey:
             return None
         self.log.debug("Received API Key: %s" % apikey)
-        apikey = unicode(apikey)
+        apikey = apikey.decode('utf8', 'ignore')
         query = model.Session.query(model.User)
         user = query.filter_by(apikey=apikey).first()
         return user
