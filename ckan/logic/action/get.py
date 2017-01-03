@@ -1210,8 +1210,12 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
 
-    include_datasets = asbool(data_dict.get('include_datasets', False))
-    packages_field = 'datasets' if include_datasets else 'dataset_count'
+    if asbool(data_dict.get('include_datasets', False)):
+        packages_field = 'datasets'
+    elif asbool(data_dict.get('include_dataset_count', True)):
+        packages_field = 'dataset_count'
+    else:
+        packages_field = None
 
     include_tags = asbool(data_dict.get('include_tags', True))
     include_users = asbool(data_dict.get('include_users', True))
@@ -1275,9 +1279,12 @@ def group_show(context, data_dict):
 
     :param id: the id or name of the group
     :type id: string
-    :param include_datasets: include a list of the group's datasets
+    :param include_datasets: include a truncated list of the group's datasets
          (optional, default: ``False``)
-    :type id: boolean
+    :type include_datasets: boolean
+    :param include_dataset_count: include the full package_count
+         (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: include the group's extra fields
          (optional, default: ``True``)
     :type id: boolean
@@ -1307,9 +1314,12 @@ def organization_show(context, data_dict):
 
     :param id: the id or name of the organization
     :type id: string
-    :param include_datasets: include a list of the organization's datasets
+    :param include_datasets: include a truncated list of the org's datasets
          (optional, default: ``False``)
-    :type id: boolean
+    :type include_datasets: boolean
+    :param include_dataset_count: include the full package_count
+         (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: include the organization's extra fields
          (optional, default: ``True``)
     :type id: boolean

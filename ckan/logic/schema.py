@@ -340,7 +340,7 @@ def default_show_group_schema():
     schema['created'] = []
     schema['display_name'] = []
     schema['extras'] = {'__extras': [keep_extras]}
-    schema['package_count'] = []
+    schema['package_count'] = [ignore_missing]
     schema['packages'] = {'__extras': [keep_extras]}
     schema['revision_id'] = []
     schema['state'] = []
