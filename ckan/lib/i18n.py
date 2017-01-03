@@ -36,6 +36,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 
+import collections
 import json
 import logging
 import os
@@ -362,7 +363,7 @@ def build_js_translations():
     # Collect all language codes (an extension might add support for a
     # language that isn't supported by CKAN core, yet).
     langs = set()
-    i18n_dirs = {ckan_i18n_dir: u'ckan'}
+    i18n_dirs = collections.OrderedDict([(ckan_i18n_dir, u'ckan')])
     for item in os.listdir(ckan_i18n_dir):
         if os.path.isdir(os.path.join(ckan_i18n_dir, item)):
             langs.add(item)
