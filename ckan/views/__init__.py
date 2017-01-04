@@ -173,8 +173,8 @@ def _get_user_for_apikey():
             apikey = u''
     if not apikey:
         return None
-    log.debug(u'Received API Key: %s' % apikey)
     apikey = apikey.decode('utf8', 'ignore')
+    log.debug(u'Received API Key: %s' % apikey)
     query = model.Session.query(model.User)
     user = query.filter_by(apikey=apikey).first()
     return user
