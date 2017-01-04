@@ -3,7 +3,9 @@
 from nose import tools as nose_tools
 
 import ckan.tests.helpers as helpers
+
 import ckan.plugins as p
+import ckan.tests.factories as factories
 
 
 class TestRenderSnippet(helpers.FunctionalTestBase):
@@ -19,6 +21,38 @@ class TestRenderSnippet(helpers.FunctionalTestBase):
     def test_comment_absent_if_debug_false(self):
         response = self._get_test_app().get('/')
         assert '<!-- Snippet ' not in response
+
+
+class TestGetUserForApikey(helpers.FunctionalTestBase):
+
+    def test_apikey_missing(self):
+        app = self._get_test_app()
+        request_headers = {}
+
+        app.get('/dataset/new', headers=request_headers, status=403)
+
+    def test_apikey_in_authorization_header(self):
+        user = factories.Sysadmin()
+        app = self._get_test_app()
+        request_headers = {'Authorization': str(user['apikey'])}
+
+        app.get('/dataset/new', headers=request_headers)
+
+    def test_apikey_in_x_ckan_header(self):
+        user = factories.Sysadmin()
+        app = self._get_test_app()
+        # non-standard header name is defined in test-core.ini
+        request_headers = {'X-Non-Standard-CKAN-API-Key': str(user['apikey'])}
+
+        app.get('/dataset/new', headers=request_headers)
+
+    def test_apikey_contains_unicode(self):
+        # there is no valid apikey containing unicode, but we should fail
+        # nicely if unicode is supplied
+        app = self._get_test_app()
+        request_headers = {'Authorization': '\xc2\xb7'}
+
+        app.get('/dataset/new', headers=request_headers, status=403)
 
 
 class TestCORS(helpers.FunctionalTestBase):
