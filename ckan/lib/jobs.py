@@ -29,6 +29,7 @@ from rq.utils import ensure_list
 from ckan.lib.redis import connect_to_redis
 from ckan.common import config
 from ckan.config.environment import load_environment
+from ckan.model import meta
 
 
 log = logging.getLogger(__name__)
@@ -256,3 +257,18 @@ class Worker(rq.Worker):
         # after forking.
         load_environment(config[u'global_conf'], config)
         return super(Worker, self).main_work_horse(job, queue)
+
+    def perform_job(self, *args, **kwargs):
+        result = super(Worker, self).perform_job(*args, **kwargs)
+        # rq.Worker.main_work_horse does a hard exit via os._exit directly
+        # after its call to perform_job returns. Hence here is the correct
+        # location to clean up.
+        try:
+            meta.Session.remove()
+        except Exception:
+            log.exception(u'Error while closing database session')
+        try:
+            meta.engine.dispose()
+        except Exception:
+            log.exception(u'Error while disposing database engine')
+        return result

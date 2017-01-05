@@ -5,9 +5,12 @@ import wsgiref
 from nose.tools import assert_equals, assert_not_equals, eq_, assert_raises
 from routes import url_for
 from flask import Blueprint
+import flask
 
+import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
 from ckan.common import config
 
 from ckan.config.middleware import AskAppDispatcherMiddleware
@@ -392,6 +395,156 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
         eq_(res.environ['ckan.app'], 'flask_app')
         eq_(res.body, 'This was served from Flask')
+
+
+class TestFlaskUserIdentifiedInRequest(helpers.FunctionalTestBase):
+
+    '''Flask identifies user during each request.
+
+    Flask route provided by test.helpers.SimpleFlaskPlugin.
+    '''
+
+    @classmethod
+    def setup_class(cls):
+        super(TestFlaskUserIdentifiedInRequest, cls).setup_class()
+        cls.app = cls._get_test_app()
+        cls.flask_app = cls.app.flask_app
+
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+            plugin = p.get_plugin('test_routing_plugin')
+            cls.flask_app.register_extension_blueprint(
+                plugin.get_blueprint())
+
+    @classmethod
+    def teardown_class(cls):
+        super(TestFlaskUserIdentifiedInRequest, cls).teardown_class()
+        p.unload('test_routing_plugin')
+
+    def test_user_objects_in_g_normal_user(self):
+        '''
+        A normal logged in user request will have expected user objects added
+        to request.
+        '''
+        user = factories.User()
+        test_user_obj = model.User.by_name(user['name'])
+
+        with self.flask_app.app_context():
+            self.app.get(
+                '/simple_flask',
+                extra_environ={'REMOTE_USER': user['name'].encode('ascii')},)
+            eq_(flask.g.user, user['name'])
+            eq_(flask.g.userobj, test_user_obj)
+            eq_(flask.g.author, user['name'])
+            eq_(flask.g.remote_addr, 'Unknown IP Address')
+
+    def test_user_objects_in_g_anon_user(self):
+        '''
+        An anon user request will have expected user objects added to request.
+        '''
+        with self.flask_app.app_context():
+            self.app.get(
+                '/simple_flask',
+                extra_environ={'REMOTE_USER': ''},)
+            eq_(flask.g.user, '')
+            eq_(flask.g.userobj, None)
+            eq_(flask.g.author, 'Unknown IP Address')
+            eq_(flask.g.remote_addr, 'Unknown IP Address')
+
+    def test_user_objects_in_g_sysadmin(self):
+        '''
+        A sysadmin user request will have expected user objects added to
+        request.
+        '''
+        user = factories.Sysadmin()
+        test_user_obj = model.User.by_name(user['name'])
+
+        with self.flask_app.app_context():
+            self.app.get(
+                '/simple_flask',
+                extra_environ={'REMOTE_USER': user['name'].encode('ascii')},)
+            eq_(flask.g.user, user['name'])
+            eq_(flask.g.userobj, test_user_obj)
+            eq_(flask.g.author, user['name'])
+            eq_(flask.g.remote_addr, 'Unknown IP Address')
+
+
+class TestPylonsUserIdentifiedInRequest(helpers.FunctionalTestBase):
+
+    '''Pylons identifies user during each request.
+
+    Using a route setup via an extension to ensure we're always testing a
+    Pylons-flavoured request.
+    '''
+
+    def test_user_objects_in_c_normal_user(self):
+        '''
+        A normal logged in user request will have expected user objects added
+        to request.
+        '''
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+
+        app = self._get_test_app()
+        user = factories.User()
+        test_user_obj = model.User.by_name(user['name'])
+
+        resp = app.get(
+            '/from_pylons_extension_before_map',
+            extra_environ={'REMOTE_USER': user['name'].encode('ascii')})
+
+        # tmpl_context available on response
+        eq_(resp.tmpl_context.user, user['name'])
+        eq_(resp.tmpl_context.userobj, test_user_obj)
+        eq_(resp.tmpl_context.author, user['name'])
+        eq_(resp.tmpl_context.remote_addr, 'Unknown IP Address')
+
+        p.unload('test_routing_plugin')
+
+    def test_user_objects_in_c_anon_user(self):
+        '''
+        An anon user request will have expected user objects added to request.
+        '''
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+
+        app = self._get_test_app()
+
+        resp = app.get(
+            '/from_pylons_extension_before_map',
+            extra_environ={'REMOTE_USER': ''})
+
+        # tmpl_context available on response
+        eq_(resp.tmpl_context.user, '')
+        eq_(resp.tmpl_context.userobj, None)
+        eq_(resp.tmpl_context.author, 'Unknown IP Address')
+        eq_(resp.tmpl_context.remote_addr, 'Unknown IP Address')
+
+        p.unload('test_routing_plugin')
+
+    def test_user_objects_in_c_sysadmin(self):
+        '''
+        A sysadmin user request will have expected user objects added to
+        request.
+        '''
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+
+        app = self._get_test_app()
+        user = factories.Sysadmin()
+        test_user_obj = model.User.by_name(user['name'])
+
+        resp = app.get(
+            '/from_pylons_extension_before_map',
+            extra_environ={'REMOTE_USER': user['name'].encode('ascii')})
+
+        # tmpl_context available on response
+        eq_(resp.tmpl_context.user, user['name'])
+        eq_(resp.tmpl_context.userobj, test_user_obj)
+        eq_(resp.tmpl_context.author, user['name'])
+        eq_(resp.tmpl_context.remote_addr, 'Unknown IP Address')
+
+        p.unload('test_routing_plugin')
 
 
 class MockRoutingPlugin(p.SingletonPlugin):

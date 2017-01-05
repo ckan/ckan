@@ -168,6 +168,8 @@ entry_points = {
         'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
         'test_flash_plugin = ckan.tests.config.test_sessions:FlashMessagePlugin',
         'test_helpers_plugin = ckan.tests.lib.test_helpers:TestHelpersPlugin',
+        'test_feed_plugin = ckan.tests.controllers.test_feed:MockFeedPlugin',
+        'test_js_translations_plugin = ckan.tests.lib.test_i18n:TestJSTranslationsPlugin',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',
@@ -208,4 +210,12 @@ setup(
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
+    classifiers=[
+        # https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        'Development Status :: 5 - Production/Stable',
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2 :: Only'
+        'Programming Language :: Python :: 2.7',
+    ],
 )

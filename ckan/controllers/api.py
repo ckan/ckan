@@ -19,6 +19,8 @@ import ckan.lib.navl.dictization_functions
 import ckan.lib.jsonp as jsonp
 import ckan.lib.munge as munge
 
+from ckan.views import identify_user
+
 from ckan.common import _, c, request, response
 
 
@@ -52,7 +54,7 @@ class ApiController(base.BaseController):
             api_version = api_version[1:]
             routes_dict['ver'] = int(api_version)
 
-        self._identify_user()
+        identify_user()
         try:
             context = {'model': model, 'user': c.user,
                        'auth_user_obj': c.userobj}
@@ -181,8 +183,8 @@ class ApiController(base.BaseController):
                        }
         try:
             side_effect_free = getattr(function, 'side_effect_free', False)
-            request_data = self._get_request_data(try_url_params=
-                                                  side_effect_free)
+            request_data = self._get_request_data(
+                try_url_params=side_effect_free)
         except ValueError, inst:
             log.info('Bad Action API request data: %s', inst)
             return self._finish_bad_request(

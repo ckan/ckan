@@ -4,6 +4,7 @@ import os
 import importlib
 import inspect
 import itertools
+import pkgutil
 
 from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
@@ -24,6 +25,10 @@ from ckan.common import config, g
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware
+from ckan.views import (identify_user,
+                        set_cors_headers_for_response,
+                        check_session_cookie,
+                        )
 
 
 import logging
@@ -106,19 +111,13 @@ def make_flask_stack(conf, **app_conf):
         jinja_extensions.empty_and_escape
     app.jinja_env.filters['truncate'] = jinja_extensions.truncate
 
-    # Template context processors
-    @app.context_processor
-    def helper_functions():
-        u'''Make helper functions (`h`) available to Flask templates'''
-        helpers.load_plugin_helpers()
-        return dict(h=helpers.helper_functions)
+    # Common handlers for all requests
+    app.before_request(ckan_before_request)
+    app.after_request(ckan_after_request)
 
-    @app.context_processor
-    def c_object():
-        u'''
-        Expose `c` as an alias of `g` in templates for backwards compatibility
-        '''
-        return dict(c=g)
+    # Template context processors
+    app.context_processor(helper_functions)
+    app.context_processor(c_object)
 
     @app.route('/hello', methods=['GET'])
     def hello_world():
@@ -178,6 +177,42 @@ def make_flask_stack(conf, **app_conf):
     app._wsgi_app = flask_app
 
     return app
+
+
+def ckan_before_request():
+    u'''Common handler executed before all Flask requests'''
+
+    # Update app_globals
+    app_globals.app_globals._check_uptodate()
+
+    # Identify the user from the repoze cookie or the API header
+    # Sets g.user and g.userobj
+    identify_user()
+
+
+def ckan_after_request(response):
+    u'''Common handler executed after all Flask requests'''
+
+    # Check session cookie
+    response = check_session_cookie(response)
+
+    # Set CORS headers if necessary
+    response = set_cors_headers_for_response(response)
+
+    return response
+
+
+def helper_functions():
+    u'''Make helper functions (`h`) available to Flask templates'''
+    helpers.load_plugin_helpers()
+    return dict(h=helpers.helper_functions)
+
+
+def c_object():
+    u'''
+    Expose `c` as an alias of `g` in templates for backwards compatibility
+    '''
+    return dict(c=g)
 
 
 class CKAN_Rule(Rule):
@@ -248,9 +283,10 @@ class CKANFlask(Flask):
         self.register_blueprint(blueprint, **kwargs)
 
         # Get the new blueprint rules
-        bp_rules = [v for k, v in self.url_map._rules_by_endpoint.items()
-                    if k.startswith(blueprint.name)]
-        bp_rules = list(itertools.chain.from_iterable(bp_rules))
+        bp_rules = itertools.chain.from_iterable(
+            v for k, v in self.url_map._rules_by_endpoint.iteritems()
+            if k.startswith(u'{0}.'.format(blueprint.name))
+        )
 
         # This compare key will ensure the rule will be near the top.
         top_compare_key = False, -100, [(-2, 0)]
@@ -262,17 +298,11 @@ class CKANFlask(Flask):
 def _register_core_blueprints(app):
     u'''Register all blueprints defined in the `views` folder
     '''
-    views_path = os.path.join(os.path.dirname(__file__),
-                              u'..', u'..', u'views')
-    module_names = [f.rstrip(u'.py')
-                    for f in os.listdir(views_path)
-                    if f.endswith(u'.py') and not f.startswith(u'_')]
-    blueprints = []
-    for name in module_names:
-        module = importlib.import_module(u'ckan.views.{0}'.format(name))
-        blueprints.extend([m for m in inspect.getmembers(module)
-                           if isinstance(m[1], Blueprint)])
-    if blueprints:
-        for blueprint in blueprints:
+    def is_blueprint(mm):
+        return isinstance(mm, Blueprint)
+
+    for loader, name, _ in pkgutil.iter_modules(['ckan/views'], 'ckan.views.'):
+        module = loader.find_module(name).load_module(name)
+        for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
-            log.debug(u'Registered core blueprint: {0}'.format(blueprint[0]))
+            log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))

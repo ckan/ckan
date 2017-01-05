@@ -7,9 +7,10 @@ This module is DEPRECATED, use ``ckan.lib.jobs`` instead.
 '''
 
 import ConfigParser
-import os
 import logging
+import os
 
+from celery import Celery
 from ckan.common import config as ckan_config
 from pkg_resources import iter_entry_points, VersionConflict
 
@@ -18,8 +19,6 @@ log = logging.getLogger(__name__)
 log.warning('ckan.lib.celery_app is deprecated, use ckan.lib.jobs instead.')
 
 LIST_PARAMS = """CELERY_IMPORTS ADMINS ROUTES""".split()
-
-from celery import Celery
 
 celery = Celery()
 

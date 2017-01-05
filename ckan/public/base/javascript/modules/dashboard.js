@@ -7,7 +7,7 @@
  *   <div data-module="dashboard"></div>
  *
  */
-this.ckan.module('dashboard', function ($, _) {
+this.ckan.module('dashboard', function ($) {
   return {
     button: null,
     popover: null,

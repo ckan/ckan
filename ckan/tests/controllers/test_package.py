@@ -411,7 +411,7 @@ class TestPackageNew(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         # provide REMOTE_ADDR to idenfity as remote user, see
-        # BaseController._identify_user() for details
+        # ckan.views.identify_user() for details
         response = app.post(url=url_for(controller='package', action='new'),
                             extra_environ={'REMOTE_ADDR': '127.0.0.1'},
                             status=403)

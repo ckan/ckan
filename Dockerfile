@@ -10,8 +10,8 @@ ENV CKAN_CONFIG /etc/ckan/default
 ENV CKAN_DATA /var/lib/ckan
 
 # Install required packages
-RUN apt-get -q -y update
-RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
+RUN apt-get -q -y update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
         python-minimal \
         python-dev \
         python-virtualenv \
@@ -21,7 +21,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
         apache2 \
         libapache2-mod-wsgi \
         postfix \
-        build-essential
+        build-essential && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install CKAN
 RUN virtualenv $CKAN_HOME
@@ -58,4 +60,4 @@ VOLUME ["/etc/ckan/default"]
 VOLUME ["/var/lib/ckan"]
 EXPOSE 80
 
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN rm -rf /tmp/* /var/tmp/*

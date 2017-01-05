@@ -19,6 +19,7 @@ class SearchError(Exception):
 class SearchQueryError(SearchError):
     pass
 
+
 DEFAULT_SOLR_URL = 'http://127.0.0.1:8983/solr'
 
 

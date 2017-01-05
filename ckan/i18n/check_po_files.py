@@ -6,11 +6,6 @@
     paster check-po-files --help
 
 for usage.
-
-Requires polib <http://pypi.python.org/pypi/polib>:
-
-    pip install polib
-
 '''
 import polib
 import re

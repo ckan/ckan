@@ -3,6 +3,7 @@
 '''API functions for adding data to CKAN.'''
 
 import logging
+import mimetypes
 import random
 import re
 from socket import error as socket_error
@@ -220,9 +221,9 @@ def package_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    ## need to let rest api create
+    # need to let rest api create
     context["package"] = pkg
-    ## this is added so that the rest controller can make a new location
+    # this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % pkg.name)
 
@@ -291,10 +292,18 @@ def resource_create(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_create(context, data_dict)
 
-    if not 'resources' in pkg_dict:
+    if 'resources' not in pkg_dict:
         pkg_dict['resources'] = []
 
     upload = uploader.get_resource_uploader(data_dict)
+
+    if 'mimetype' not in data_dict:
+        if hasattr(upload, 'mimetype'):
+            data_dict['mimetype'] = upload.mimetype
+
+    if 'size' not in data_dict:
+        if hasattr(upload, 'filesize'):
+            data_dict['size'] = upload.filesize
 
     pkg_dict['resources'].append(data_dict)
 
@@ -307,17 +316,18 @@ def resource_create(context, data_dict):
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
-    ## Get out resource_id resource from model as it will not appear in
-    ## package_show until after commit
+    # Get out resource_id resource from model as it will not appear in
+    # package_show until after commit
     upload.upload(context['package'].resources[-1].id,
                   uploader.get_max_resource_size())
+
     model.repo.commit()
 
-    ##  Run package show again to get out actual last_resource
+    #  Run package show again to get out actual last_resource
     updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
 
-    ##  Add the default views to the new resource
+    #  Add the default views to the new resource
     logic.get_action('resource_create_default_resource_views')(
         {'model': context['model'],
          'user': context['user'],
@@ -1073,7 +1083,7 @@ def _get_random_username_from_email(email):
     return cleaned_localpart
 
 
-## Modifications for rest api
+# Modifications for rest api
 
 def package_create_rest(context, data_dict):
     _check_access('package_create_rest', context, data_dict)
@@ -1319,7 +1329,7 @@ def follow_dataset(context, data_dict):
 
     '''
 
-    if not 'user' in context:
+    if 'user' not in context:
         raise logic.NotAuthorized(
             _("You must be logged in to follow a dataset."))
 

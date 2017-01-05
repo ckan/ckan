@@ -66,6 +66,20 @@ describe('ckan.sandbox()', function () {
         assert.ok(target.window === window);
       });
     });
+
+    describe('.i18n', function () {
+      it('should be available while being deprecated', function () {
+        var target = new Sandbox();
+        assert.equal(target.i18n, ckan.i18n);
+      });
+    });
+
+    describe('.translate', function () {
+      it('should be available while being deprecated', function () {
+        var target = new Sandbox();
+        assert.equal(target.translate, ckan.i18n.translate);
+      });
+    });
   });
 
   describe('sandbox.extend()', function () {
@@ -94,4 +108,5 @@ describe('ckan.sandbox()', function () {
       });
     });
   });
+
 });
