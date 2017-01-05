@@ -22,6 +22,7 @@ import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
+from ckan.lib.i18n import build_js_translations
 
 from ckan.common import _, ungettext, config
 from ckan.exceptions import CkanConfigurationException
@@ -102,6 +103,16 @@ def load_environment(global_conf, app_conf):
     p.load_all()
 
     app_globals.reset()
+
+    # issue #3260: remove idle transaction
+    # Session that was used for getting all config params nor committed,
+    # neither removed and we have idle connection as result
+    model.Session.commit()
+
+    # Build JavaScript translations. Must be done after plugins have
+    # been loaded.
+    build_js_translations()
+
 
 # A mapping of config settings that can be overridden by env vars.
 # Note: Do not remove the following lines, they are used in the docs
@@ -278,6 +289,8 @@ def update_config():
     except sqlalchemy.exc.InternalError:
         # The database is not initialised.  Travis hits this
         pass
-    # if an extension or our code does not finish
-    # transaction properly db cli commands can fail
+
+    # Close current session and open database connections to ensure a clean
+    # clean environment even if an error occurs later on
     model.Session.remove()
+    model.Session.bind.dispose()

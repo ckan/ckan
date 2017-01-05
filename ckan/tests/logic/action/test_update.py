@@ -1,21 +1,35 @@
 # encoding: utf-8
 
 '''Unit tests for ckan/logic/action/update.py.'''
+import __builtin__ as builtins
 import datetime
 
-import nose.tools
-import mock
-from ckan.common import config
-
-import ckan.logic as logic
+import ckan
 import ckan.lib.app_globals as app_globals
+import ckan.logic as logic
 import ckan.plugins as p
-import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
+import mock
+import nose.tools
 from ckan import model
+from ckan.common import config
+from pyfakefs import fake_filesystem
 
 assert_equals = eq_ = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+
+real_open = open
+fs = fake_filesystem.FakeFilesystem()
+fake_os = fake_filesystem.FakeOsModule(fs)
+fake_open = fake_filesystem.FakeFileOpen(fs)
+
+
+def mock_open_if_open_fails(*args, **kwargs):
+    try:
+        return real_open(*args, **kwargs)
+    except (OSError, IOError):
+        return fake_open(*args, **kwargs)
 
 
 def datetime_from_string(s):
@@ -28,7 +42,6 @@ def datetime_from_string(s):
 
 
 class TestUpdate(object):
-
     @classmethod
     def setup_class(cls):
 
@@ -53,7 +66,7 @@ class TestUpdate(object):
         # method aborts with an exception or something.)
         mock.patch.stopall()
 
-    ## START-AFTER
+    # START-AFTER
 
     def test_user_update_name(self):
         '''Test that updating a user's name works successfully.'''
@@ -86,7 +99,7 @@ class TestUpdate(object):
 
         # 4. Do nothing else!
 
-    ## END-BEFORE
+    # END-BEFORE
 
     def test_user_generate_apikey(self):
         user = factories.User()
@@ -112,8 +125,11 @@ class TestUpdate(object):
         assert result['apikey'] == updated_user['apikey']
 
     def test_user_generate_apikey_nonexistent_user(self):
-        user = {'id': 'nonexistent', 'name': 'nonexistent', 'email':
-                'does@notexist.com'}
+        user = {
+            'id': 'nonexistent',
+            'name': 'nonexistent',
+            'email': 'does@notexist.com'
+        }
         context = {'user': user['name']}
         nose.tools.assert_raises(logic.NotFound, helpers.call_action,
                                  'user_generate_apikey', context=context,
@@ -132,7 +148,7 @@ class TestUpdate(object):
         assert_raises(logic.ValidationError, helpers.call_action,
                       'user_update', **user_dict)
 
-    ## START-FOR-LOOP-EXAMPLE
+    # START-FOR-LOOP-EXAMPLE
 
     def test_user_update_with_invalid_name(self):
         user = factories.User()
@@ -145,7 +161,7 @@ class TestUpdate(object):
                           helpers.call_action, 'user_update',
                           **user)
 
-    ## END-FOR-LOOP-EXAMPLE
+    # END-FOR-LOOP-EXAMPLE
 
     def test_user_update_to_name_that_already_exists(self):
         fred = factories.User(name='fred')
@@ -398,9 +414,15 @@ class TestUpdate(object):
         mapping = dict((resource['url'], resource['id']) for resource
                        in dataset['resources'])
 
-        ## This should put c.html at the front
-        reorder = {'id': dataset['id'], 'order':
-                   [mapping["http://c.html"]]}
+        # This should put c.html at the front
+        reorder = {
+            'id': dataset['id'],
+            'order': [
+                mapping[
+                    "http://c.html"
+                ]
+            ]
+        }
 
         helpers.call_action('package_resource_reorder', **reorder)
 
@@ -460,9 +482,10 @@ class TestUpdate(object):
             type='ragtagband')
 
         assert_equals(org['type'], 'organization')
-        assert_equals(helpers.call_action(
-            'organization_show', id='unchanging')['type'],
-            'organization')
+        assert_equals(
+            helpers.call_action('organization_show', id='unchanging')['type'],
+            'organization'
+        )
 
     def test_update_group_cant_change_type(self):
         user = factories.User()
@@ -507,7 +530,6 @@ class TestUpdateSendEmailNotifications(object):
 
 
 class TestResourceViewUpdate(object):
-
     @classmethod
     def setup_class(cls):
         if not p.plugin_loaded('image_view'):
@@ -571,7 +593,6 @@ class TestResourceViewUpdate(object):
                                  'resource_view_update', **params)
 
     def test_resource_view_list_reorder(self):
-
         resource_view_1 = factories.ResourceView(title='View 1')
 
         resource_id = resource_view_1['resource_id']
@@ -597,7 +618,6 @@ class TestResourceViewUpdate(object):
         assert_equals(resource_view_list[1]['title'], 'View 1')
 
     def test_resource_view_list_reorder_just_one_id(self):
-
         resource_view_1 = factories.ResourceView(title='View 1')
 
         resource_id = resource_view_1['resource_id']
@@ -628,10 +648,17 @@ class TestResourceViewUpdate(object):
 
 
 class TestResourceUpdate(object):
+    import cgi
 
-    def setup(self):
-        import ckan.model as model
-        model.repo.rebuild_db()
+    class FakeFileStorage(cgi.FieldStorage):
+        def __init__(self, fp, filename):
+            self.file = fp
+            self.filename = filename
+            self.name = 'upload'
+
+        def setup(self):
+            import ckan.model as model
+            model.repo.rebuild_db()
 
     @classmethod
     def teardown_class(cls):
@@ -780,7 +807,6 @@ class TestResourceUpdate(object):
         assert_equals(res_returned['datastore_active'], False)
 
     def test_datastore_active_not_present_if_not_provided_and_not_datastore_plugin_enabled(self):
-
         assert not p.plugin_loaded('datastore')
 
         dataset = factories.Dataset()
@@ -796,9 +822,227 @@ class TestResourceUpdate(object):
 
         assert 'datastore_active' not in res_returned
 
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_mimetype_by_url(self, mock_open):
+        '''
+        The mimetype is guessed from the url
+
+        Real world usage would be externally linking the resource and the mimetype would
+        be guessed, based on the url
+        '''
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost/data.csv',
+                                      name='Test')
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost/data.json')
+
+        org_mimetype = resource.pop('mimetype')
+        upd_mimetype = res_update.pop('mimetype')
+
+        assert org_mimetype != upd_mimetype
+        assert_equals(upd_mimetype, 'application/json')
+
+    def test_mimetype_by_user(self):
+        '''
+        The mimetype is supplied by the user
+
+        Real world usage would be using the FileStore API or web UI form to create a resource
+        and the user wanted to specify the mimetype themselves
+        '''
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost/data.csv',
+                                      name='Test')
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost/data.csv',
+                                         mimetype='text/plain')
+
+        org_mimetype = resource.pop('mimetype')
+        upd_mimetype = res_update.pop('mimetype')
+
+        assert org_mimetype != upd_mimetype
+        assert_equals(upd_mimetype, 'text/plain')
+
+    @helpers.change_config('ckan.mimetype_guess', 'file_contents')
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_mimetype_by_upload_by_file(self, mock_open):
+        '''
+        The mimetype is guessed from an uploaded file by the contents inside
+
+        Real world usage would be using the FileStore API or web UI form to upload a file, that has no extension
+        If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
+        '''
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost/data.csv',
+                                      name='Test')
+
+        import StringIO
+        update_file = StringIO.StringIO()
+        update_file.write('''
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
+        NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
+        ''')
+        update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test')
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost',
+                                         upload=update_resource)
+
+        org_mimetype = resource.pop('mimetype')
+        upd_mimetype = res_update.pop('mimetype')
+
+        assert org_mimetype != upd_mimetype
+        assert_equals(upd_mimetype, 'text/plain')
+
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_mimetype_by_upload_by_filename(self, mock_open):
+        '''
+        The mimetype is guessed from an uploaded file with a filename
+
+        Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
+        If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
+        '''
+        import StringIO
+        test_file = StringIO.StringIO()
+        test_file.write('''
+        "info": {
+            "title": "BC Data Catalogue API",
+            "description": "This API provides information about datasets in the BC Data Catalogue.",
+            "termsOfService": "http://www.data.gov.bc.ca/local/dbc/docs/license/API_Terms_of_Use.pdf",
+            "contact": {
+                "name": "Data BC",
+                "url": "http://data.gov.bc.ca/",
+                "email": ""
+            },
+            "license": {
+                "name": "Open Government License - British Columbia",
+                "url": "http://www.data.gov.bc.ca/local/dbc/docs/license/OGL-vbc2.0.pdf"
+            },
+            "version": "3.0.0"
+        }
+        ''')
+        test_resource = TestResourceUpdate.FakeFileStorage(test_file, 'test.json')
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost',
+                                      name='Test',
+                                      upload=test_resource)
+
+        update_file = StringIO.StringIO()
+        update_file.write('''
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
+        NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
+        ''')
+        update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test.csv')
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost',
+                                         upload=update_resource)
+
+        org_mimetype = resource.pop('mimetype')
+        upd_mimetype = res_update.pop('mimetype')
+
+        assert org_mimetype != upd_mimetype
+        assert_equals(upd_mimetype, 'text/csv')
+
+    def test_size_of_resource_by_user(self):
+        '''
+        The size of the resource is provided by the users
+
+        Real world usage would be using the FileStore API and the user provides a size for the resource
+        '''
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost/data.csv',
+                                      name='Test',
+                                      size=500)
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost/data.csv',
+                                         size=600)
+
+        org_size = int(resource.pop('size'))
+        upd_size = int(res_update.pop('size'))
+
+        assert org_size < upd_size
+
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_size_of_resource_by_upload(self, mock_open):
+        '''
+        The size of the resource determined by the uploaded file
+        '''
+        import StringIO
+        test_file = StringIO.StringIO()
+        test_file.write('''
+        "info": {
+            "title": "BC Data Catalogue API",
+            "description": "This API provides information about datasets in the BC Data Catalogue.",
+            "termsOfService": "http://www.data.gov.bc.ca/local/dbc/docs/license/API_Terms_of_Use.pdf",
+            "contact": {
+                "name": "Data BC",
+                "url": "http://data.gov.bc.ca/",
+                "email": ""
+            },
+            "license": {
+                "name": "Open Government License - British Columbia",
+                "url": "http://www.data.gov.bc.ca/local/dbc/docs/license/OGL-vbc2.0.pdf"
+            },
+            "version": "3.0.0"
+        }
+        ''')
+        test_resource = TestResourceUpdate.FakeFileStorage(test_file, 'test.json')
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost',
+                                      name='Test',
+                                      upload=test_resource)
+
+        update_file = StringIO.StringIO()
+        update_file.write('''
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
+        NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
+        ''')
+        update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test.csv')
+
+        res_update = helpers.call_action('resource_update',
+                                         id=resource['id'],
+                                         url='http://localhost',
+                                         upload=update_resource)
+
+        org_size = int(resource.pop('size'))  # 669 bytes
+        upd_size = int(res_update.pop('size'))  # 358 bytes
+
+        assert org_size > upd_size
+
 
 class TestConfigOptionUpdate(object):
-
     @classmethod
     def teardown_class(cls):
         helpers.reset_db()
@@ -810,7 +1054,6 @@ class TestConfigOptionUpdate(object):
     # ckan/ckanext/example_iconfigurer/tests/test_iconfigurer_update_config.py
     # as we need to enable an external config option from an extension
     def test_app_globals_set_if_defined(self):
-
         key = 'ckan.site_title'
         value = 'Test site title'
 
@@ -825,7 +1068,6 @@ class TestConfigOptionUpdate(object):
 
 
 class TestUserUpdate(helpers.FunctionalTestBase):
-
     def test_user_update_with_password_hash(self):
         sysadmin = factories.Sysadmin()
         context = {
@@ -861,7 +1103,6 @@ class TestUserUpdate(helpers.FunctionalTestBase):
 
 
 class TestPackageOwnerOrgUpdate(object):
-
     @classmethod
     def teardown_class(cls):
         helpers.reset_db()
@@ -921,7 +1162,6 @@ class TestPackageOwnerOrgUpdate(object):
 
 
 class TestBulkOperations(object):
-
     @classmethod
     def teardown_class(cls):
         helpers.reset_db()

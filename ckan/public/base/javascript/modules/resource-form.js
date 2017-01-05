@@ -1,7 +1,7 @@
 /* Module for the resource form. Handles validation and updating the form
  * with external data such as from a file upload.
  */
-this.ckan.module('resource-form', function (jQuery, _) {
+this.ckan.module('resource-form', function (jQuery) {
   return {
     /* Called by the ckan core if a corresponding element is found on the page.
      * Handles setting up event listeners, adding elements to the page etc.

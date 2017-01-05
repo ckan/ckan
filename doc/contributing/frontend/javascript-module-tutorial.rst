@@ -41,7 +41,7 @@ A module can be created by calling ``ckan.module()``:
 
 ::
 
-    ckan.module('favorite', function (jQuery, _) {
+    ckan.module('favorite', function (jQuery) {
       return {};
     });
 
@@ -62,7 +62,7 @@ your module and if present calls the ``.initialize()`` method.
 
 ::
 
-    ckan.module('favorite', function (jQuery, _) {
+    ckan.module('favorite', function (jQuery) {
       return {
         initialize: function () {
           console.log('I've been called for element: %o', this.el);
@@ -146,11 +146,10 @@ This will override the defaults in the options object.
 
 ::
 
-    ckan.module('favorite', function (jQuery, _) {
+    ckan.module('favorite', function (jQuery) {
       return {
         options: {
-          dataset: '',
-          i18n: {...}
+          dataset: ''
         }
         initialize: function () {
           console.log('this dataset is: %s', this.options.dataset);
@@ -175,10 +174,8 @@ the user if the request fails. Again we can use
       request.fail(jQuery.proxy(this._onError, this));
     },
     _onError: function () {
-      var message = this.i18n('error', {id: this.button.val()});
-
       // Notify allows global messages to be displayed to the user.
-      this.sandbox.notify(message, 'error');
+      this.sandbox.notify('An error occurred!', 'error');
     }
 
 Module Scope
@@ -230,7 +227,7 @@ Now in our other module 'user-favorite-counter' we can listen for this.
 
 ::
 
-    ckan.module('user-favorite-counter', function (jQuery, _) {
+    ckan.module('user-favorite-counter', function (jQuery) {
       return {
         initialize: function () {
           jQuery.proxyAll(this, /_on/);

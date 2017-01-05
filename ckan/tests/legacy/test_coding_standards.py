@@ -17,14 +17,14 @@ current coding standards.  Please add comments by files that fail if there
 are legitimate reasons for the failure.
 '''
 
-import sys
-import os
-import re
 import cStringIO
 import inspect
 import itertools
+import os
+import re
+import sys
 
-import pep8
+import pycodestyle
 
 file_path = os.path.dirname(__file__)
 base_path = os.path.abspath(os.path.join(file_path, '..', '..', '..'))
@@ -660,8 +660,8 @@ class TestPep8(object):
             if cls._is_test(filename):
                 config['ignore'] = ['E501']
 
-            checker = pep8.Checker(filename=filename, lines=lines,
-                                   **config)
+            checker = pycodestyle.Checker(filename=filename, lines=lines,
+                                          **config)
             checker.check_all()
             output = sys.stdout.getvalue()
         finally:
@@ -826,9 +826,9 @@ class TestActionAuth(object):
         errors = []
         for name, fn in self.actions.iteritems():
             args_info = inspect.getargspec(fn)
-            if (args_info.args != ['context', 'data_dict']
-                    or args_info.varargs is not None
-                    or args_info.keywords is not None):
+            if args_info.args != ['context', 'data_dict'] \
+                    or args_info.varargs is not None \
+                    or args_info.keywords is not None:
                 if name not in self.ACTION_FN_SIGNATURES_BLACKLIST:
                     errors.append(name)
         assert not errors, 'These action functions have the wrong function' + \

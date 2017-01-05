@@ -21,20 +21,25 @@ API_DEFAULT_VERSION = 3
 API_MAX_VERSION = 3
 
 
-# Blueprint definition
-
 api = Blueprint(u'api', __name__, url_prefix=u'/api')
 
-
-# Private methods
 
 def _finish(status_int, response_data=None,
             content_type=u'text', headers=None):
     u'''When a controller method has completed, call this method
     to prepare the response.
-    @return response message - return this value from the controller
-                               method
-             e.g. return _finish(404, 'Package not found')
+
+    :param status_int: The HTTP status code to return
+    :type status_int: int
+    :param response_data: The body of the response
+    :type response_data: object if content_type is `text`, a string otherwise
+    :param content_type: One of `text`, `html` or `json`. Defaults to `text`
+    :type content_type: string
+    :param headers: Extra headers to serve with the response
+    :type headers: dict
+
+    :rtype: response object. Return this value from the view function
+        e.g. return _finish(404, 'Dataset not found')
     '''
     assert(isinstance(status_int, int))
     response_msg = u''
@@ -62,11 +67,17 @@ def _finish_ok(response_data=None,
                resource_location=None):
     u'''If a controller method has completed successfully then
     calling this method will prepare the response.
-    @param resource_location - specify this if a new
-       resource has just been created.
-    @return response message - return this value from the controller
-                               method
-                               e.g. return _finish_ok(pkg_dict)
+
+    :param response_data: The body of the response
+    :type response_data: object if content_type is `text`, a string otherwise
+    :param content_type: One of `text`, `html` or `json`. Defaults to `json`
+    :type content_type: string
+    :param resource_location: Specify this if a new resource has just been
+        created and you need to add a `Location` header
+    :type headers: string
+
+    :rtype: response object. Return this value from the view function
+        e.g. return _finish_ok(pkg_dict)
     '''
     status_int = 200
     headers = None
@@ -88,8 +99,6 @@ def _wrap_jsonp(callback, response_msg):
     return u'{0}({1});'.format(callback, response_msg)
 
 
-# View functions
-
 def get_api(ver=1):
     response_data = {
         u'version': ver
@@ -97,7 +106,6 @@ def get_api(ver=1):
     return _finish_ok(response_data)
 
 
-# Routing
 api.add_url_rule(u'/', view_func=get_api, strict_slashes=False)
 api.add_url_rule(u'/<int(min=1, max={0}):ver>'.format(API_MAX_VERSION),
                  view_func=get_api, strict_slashes=False)

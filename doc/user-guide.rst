@@ -48,6 +48,12 @@ A dataset contains two things:
   example, different resources might contain the data for different years, or
   they might contain the same data in different formats.
 
+
+.. note:: On early CKAN versions, datasets were called "packages" and this name
+    has stuck in some places, specially internally and on API calls. Package has
+    exactly the same meaning as "dataset".
+
+
 Users, organizations and authorization
 ======================================
 

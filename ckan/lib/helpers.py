@@ -24,7 +24,7 @@ from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
 from markdown import markdown
-from bleach import clean as clean_html
+from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
@@ -51,6 +51,15 @@ from ckan.common import _, ungettext, c, request, session, json
 log = logging.getLogger(__name__)
 
 DEFAULT_FACET_NAMES = u'organization groups tags res_format license_id'
+
+MARKDOWN_TAGS = set([
+    'del', 'dd', 'dl', 'dt', 'h1', 'h2',
+    'h3', 'img', 'kbd', 'p', 'pre', 's',
+    'sup', 'sub', 'strike', 'br', 'hr'
+]).union(ALLOWED_TAGS)
+
+MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
+MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
 
 
 class HelperAttributeDict(dict):
@@ -588,6 +597,7 @@ class _Flash(object):
 
     def are_there_messages(self):
         return bool(session.get(self.session_key))
+
 
 flash = _Flash()
 # this is here for backwards compatability
@@ -1148,6 +1158,7 @@ def linked_gravatar(email_hash, size=100, default=None):
         '%s</a>' % gravatar(email_hash, size, default)
     )
 
+
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid',
                             'wavatar', 'retro']
 
@@ -1560,6 +1571,7 @@ def convert_to_dict(object_type, objs):
         items.append(item)
     return items
 
+
 # these are the types of objects that can be followed
 _follow_objects = ['dataset', 'user', 'group']
 
@@ -1769,7 +1781,7 @@ def groups_available(am_member=False):
 
 
 @core_helper
-def organizations_available(permission='edit_group'):
+def organizations_available(permission='manage_group'):
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
@@ -1888,6 +1900,7 @@ def get_request_param(parameter_name, default=None):
     searches. '''
     return request.params.get(parameter_name, default)
 
+
 # find all inner text of html eg `<b>moo</b>` gets `moo` but not of <a> tags
 # as this would lead to linkifying links if they are urls.
 RE_MD_GET_INNER_HTML = re.compile(
@@ -1972,7 +1985,9 @@ def render_markdown(data, auto_link=True, allow_html=False):
         data = markdown(data.strip())
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
-        data = markdown(clean_html(data, strip=True))
+        data = clean_html(
+            markdown(data), strip=True,
+            tags=MARKDOWN_TAGS, attributes=MARKDOWN_ATTRIBUTES)
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:
@@ -2195,6 +2210,7 @@ def SI_number_span(number):
                          + '">')
     return output + formatters.localised_SI_number(number) + literal('</span>')
 
+
 # add some formatter functions
 localised_number = formatters.localised_number
 localised_SI_number = formatters.localised_SI_number
@@ -2294,6 +2310,7 @@ def get_site_statistics():
     stats['organization_count'] = len(
         logic.get_action('organization_list')({}, {}))
     return stats
+
 
 _RESOURCE_FORMATS = None
 

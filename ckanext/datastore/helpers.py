@@ -1,12 +1,10 @@
 # encoding: utf-8
 
-import logging
 import json
-
-import sqlparse
+import logging
 
 import paste.deploy.converters as converters
-
+import sqlparse
 
 log = logging.getLogger(__name__)
 
@@ -18,11 +16,11 @@ def get_list(input, strip_values=True):
     if input == '':
         return []
 
-    l = converters.aslist(input, ',', True)
+    converters_list = converters.aslist(input, ',', True)
     if strip_values:
-        return [_strip(x) for x in l]
+        return [_strip(x) for x in converters_list]
     else:
-        return l
+        return converters_list
 
 
 def is_single_statement(sql):
