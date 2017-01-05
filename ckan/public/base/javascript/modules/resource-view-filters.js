@@ -1,4 +1,4 @@
-this.ckan.module('resource-view-filters', function (jQuery, _) {
+this.ckan.module('resource-view-filters', function (jQuery) {
   'use strict';
 
   function initialize() {

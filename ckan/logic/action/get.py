@@ -592,12 +592,12 @@ def group_list_authz(context, data_dict):
 def organization_list_for_user(context, data_dict):
     '''Return the organizations that the user has a given permission for.
 
-    By default this returns the list of organizations that the currently
-    authorized user can edit, i.e. the list of organizations that the user is an
-    admin of.
-
     Specifically it returns the list of organizations that the currently
-    authorized user has a given permission (for example: "manage_group") against.
+    authorized user has a given permission (for example: "manage_group")
+    against.
+
+    By default this returns the list of organizations that the currently
+    authorized user is member of, in any capacity.
 
     When a user becomes a member of an organization in CKAN they're given a
     "capacity" (sometimes called a "role"), for example "member", "editor" or
@@ -615,9 +615,14 @@ def organization_list_for_user(context, data_dict):
     datasets in. This takes account of when permissions cascade down an
     organization hierarchy.
 
+    :param id: the name or id of the user to get the organization list for
+        (optional, defaults to the currently authorized user (logged in or via
+        API key))
+    :type permission: string
+
     :param permission: the permission the user has against the
         returned organizations, for example ``"read"`` or ``"create_dataset"``
-        (optional, default: ``"edit_group"``)
+        (optional, default: ``"manage_group"``)
     :type permission: string
 
     :returns: list of organizations that the user has the given permission for
@@ -625,7 +630,13 @@ def organization_list_for_user(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
+    if data_dict.get('id'):
+        user_obj = model.User.get(data_dict['id'])
+        if not user_obj:
+            raise NotFound
+        user = user_obj.name
+    else:
+        user = context['user']
 
     _check_access('organization_list_for_user', context, data_dict)
     sysadmin = authz.is_sysadmin(user)
@@ -634,12 +645,12 @@ def organization_list_for_user(context, data_dict):
         .filter(model.Group.is_organization == True) \
         .filter(model.Group.state == 'active')
 
-    if not sysadmin:
+    if sysadmin:
+        orgs_and_capacities = [(org, 'admin') for org in orgs_q.all()]
+    else:
         # for non-Sysadmins check they have the required permission
 
-        # NB 'edit_group' doesn't exist so by default this action returns just
-        # orgs with admin role
-        permission = data_dict.get('permission', 'edit_group')
+        permission = data_dict.get('permission', 'manage_group')
 
         roles = authz.get_roles_with_permission(permission)
 
@@ -659,20 +670,29 @@ def organization_list_for_user(context, data_dict):
         group_ids = set()
         roles_that_cascade = \
             authz.check_config_permission('roles_that_cascade_to_sub_groups')
+        group_ids_to_capacities = {}
         for member, group in q.all():
             if member.capacity in roles_that_cascade:
-                group_ids |= set([
+                children_group_ids = [
                     grp_tuple[0] for grp_tuple
                     in group.get_children_group_hierarchy(type='organization')
-                    ])
+                ]
+                for group_id in children_group_ids:
+                    group_ids_to_capacities[group_id] = member.capacity
+                group_ids |= set(children_group_ids)
+
+            group_ids_to_capacities[group.id] = member.capacity
             group_ids.add(group.id)
 
         if not group_ids:
             return []
 
         orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
+        orgs_and_capacities = [
+            (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()]
 
-    orgs_list = model_dictize.group_list_dictize(orgs_q.all(), context)
+    context['with_capacity'] = True
+    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context)
     return orgs_list
 
 
@@ -798,6 +818,9 @@ def user_list(context, data_dict):
     :param order_by: which field to sort the list by (optional, default:
       ``'name'``). Can be any user field or ``edits`` (i.e. number_of_edits).
     :type order_by: string
+    :param all_fields: return full user dictionaries instead of just names.
+      (optional, default: ``True``)
+    :type all_fields: boolean
 
     :rtype: list of user dictionaries. User properties include:
       ``number_of_edits`` which counts the revisions by the user and
@@ -811,26 +834,30 @@ def user_list(context, data_dict):
 
     q = data_dict.get('q', '')
     order_by = data_dict.get('order_by', 'name')
+    all_fields = asbool(data_dict.get('all_fields', True))
 
-    query = model.Session.query(
-        model.User,
-        model.User.name.label('name'),
-        model.User.fullname.label('fullname'),
-        model.User.about.label('about'),
-        model.User.about.label('email'),
-        model.User.created.label('created'),
-        _select([_func.count(model.Revision.id)],
-                _or_(
-                    model.Revision.author == model.User.name,
-                    model.Revision.author == model.User.openid
-                )).label('number_of_edits'),
-        _select([_func.count(model.Package.id)],
-                _and_(
-                    model.Package.creator_user_id == model.User.id,
-                    model.Package.state == 'active',
-                    model.Package.private == False,
-                )).label('number_created_packages')
-    )
+    if all_fields:
+        query = model.Session.query(
+            model.User,
+            model.User.name.label('name'),
+            model.User.fullname.label('fullname'),
+            model.User.about.label('about'),
+            model.User.about.label('email'),
+            model.User.created.label('created'),
+            _select([_func.count(model.Revision.id)],
+                    _or_(
+                        model.Revision.author == model.User.name,
+                        model.Revision.author == model.User.openid
+                    )).label('number_of_edits'),
+            _select([_func.count(model.Package.id)],
+                    _and_(
+                        model.Package.creator_user_id == model.User.id,
+                        model.Package.state == 'active',
+                        model.Package.private == False,
+                    )).label('number_created_packages')
+        )
+    else:
+        query = model.Session.query(model.User.name)
 
     if q:
         query = model.User.search(q, query, user_name=context.get('user'))
@@ -841,7 +868,6 @@ def user_list(context, data_dict):
                     _or_(
                         model.Revision.author == model.User.name,
                         model.Revision.author == model.User.openid))))
-
     else:
         query = query.order_by(
             _case([(
@@ -859,9 +885,13 @@ def user_list(context, data_dict):
 
     users_list = []
 
-    for user in query.all():
-        result_dict = model_dictize.user_dictize(user[0], context)
-        users_list.append(result_dict)
+    if all_fields:
+        for user in query.all():
+            result_dict = model_dictize.user_dictize(user[0], context)
+            users_list.append(result_dict)
+    else:
+        for user in query.all():
+            users_list.append(user[0])
 
     return users_list
 
@@ -3354,11 +3384,13 @@ def dashboard_activity_list_html(context, data_dict):
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
     model = context['model']
+    user_id = context['user']
     offset = data_dict.get('offset', 0)
     extra_vars = {
         'controller': 'user',
         'action': 'dashboard',
         'offset': offset,
+        'id': user_id
     }
     return activity_streams.activity_list_to_html(context, activity_stream,
                                                   extra_vars)

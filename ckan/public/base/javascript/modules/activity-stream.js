@@ -7,7 +7,7 @@
  * - id: what's the id of the context?
  * - offset: what's the current offset?
  */	
-this.ckan.module('activity-stream', function($, _) {
+this.ckan.module('activity-stream', function($) {
 	return {
 		/* options object can be extended using data-module-* attributes */
 		options : {
@@ -15,10 +15,7 @@ this.ckan.module('activity-stream', function($, _) {
 			id: null,
 			context: null,
 			offset: null,
-			loading: false,
-			i18n: {
-				loading: _('Loading...')
-			}
+			loading: false
 		},
 
 		/* Initialises the module setting up elements and event listeners.
@@ -97,7 +94,7 @@ this.ckan.module('activity-stream', function($, _) {
 			var options = this.options;
 			if (!options.loading) {
 				options.loading = true;
-				$('.load-more a', this.el).html(this.i18n('loading')).addClass('disabled');
+				$('.load-more a', this.el).html(this._('Loading...')).addClass('disabled');
 				this.sandbox.client.call('GET', options.context+'_activity_list_html', '?id='+options.id+'&offset='+options.offset, this._onActivitiesLoaded);
 			}
 		},

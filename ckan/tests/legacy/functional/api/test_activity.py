@@ -21,6 +21,7 @@ import paste.fixture
 from nose import SkipTest
 from ckan.common import json
 import ckan.tests.legacy as tests
+from ckan.tests.helpers import call_action
 
 from ckan.tests import helpers
 
@@ -192,6 +193,7 @@ class TestActivity:
                 'name': sysadmin_user.name,
                 }
         normal_user = model.User.get('annafan')
+
         self.normal_user = {
                 'id': normal_user.id,
                 'apikey': normal_user.apikey,
@@ -278,7 +280,7 @@ class TestActivity:
         details['recently changed datasets stream'] = \
                 self.recently_changed_datasets_stream(apikey)
 
-        details['time'] = datetime.datetime.now()
+        details['time'] = datetime.datetime.utcnow()
         return details
 
     def _create_package(self, user, name=None):
@@ -293,10 +295,17 @@ class TestActivity:
 
         # Create a new package.
         request_data = make_package(name)
+
         before = self.record_details(user_id=user_id,
                 group_ids=[group['name'] for group in request_data['groups']],
                 apikey=apikey)
         extra_environ = {'Authorization': str(user['apikey'])}
+
+        call_action('member_create',
+                    capacity='admin',
+                    object=user['id'],
+                    object_type='user',
+                    id='roger')
         response = self.app.post('/api/action/package_create',
                 json.dumps(request_data), extra_environ=extra_environ)
         response_dict = json.loads(response.body)
@@ -1406,7 +1415,7 @@ class TestActivity:
         a new user is created.
 
         """
-        before = datetime.datetime.now()
+        before = datetime.datetime.utcnow()
 
         # Create a new user.
         user_dict = {'name': 'testuser',

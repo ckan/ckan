@@ -48,6 +48,7 @@ class DatastoreException(Exception):
 
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
+    p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
     p.implements(p.IResourceUrlChange)
@@ -70,6 +71,9 @@ class DatastorePlugin(p.SingletonPlugin):
             raise DatastoreException(msg)
 
         return super(cls, cls).__new__(cls, *args, **kwargs)
+
+    def update_config(self, config):
+        p.toolkit.add_template_directory(config, 'templates')
 
     def configure(self, config):
         self.config = config
@@ -120,7 +124,6 @@ class DatastorePlugin(p.SingletonPlugin):
                      'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
-            self._create_alias_table()
 
     def notify(self, entity, operation=None):
         if not isinstance(entity, model.Package) or self.legacy_mode:
@@ -216,34 +219,6 @@ class DatastorePlugin(p.SingletonPlugin):
             write_connection.close()
         return True
 
-    def _create_alias_table(self):
-        mapping_sql = '''
-            SELECT DISTINCT
-                substr(md5(dependee.relname || COALESCE(dependent.relname, '')), 0, 17) AS "_id",
-                dependee.relname AS name,
-                dependee.oid AS oid,
-                dependent.relname AS alias_of
-                -- dependent.oid AS oid
-            FROM
-                pg_class AS dependee
-                LEFT OUTER JOIN pg_rewrite AS r ON r.ev_class = dependee.oid
-                LEFT OUTER JOIN pg_depend AS d ON d.objid = r.oid
-                LEFT OUTER JOIN pg_class AS dependent ON d.refobjid = dependent.oid
-            WHERE
-                (dependee.oid != dependent.oid OR dependent.oid IS NULL) AND
-                (dependee.relname IN (SELECT tablename FROM pg_catalog.pg_tables)
-                    OR dependee.relname IN (SELECT viewname FROM pg_catalog.pg_views)) AND
-                dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
-            ORDER BY dependee.oid DESC;
-        '''
-        create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
-        try:
-            connection = db._get_engine(
-                {'connection_url': self.write_url}).connect()
-            connection.execute(create_alias_table_sql)
-        finally:
-            connection.close()
-
     def get_actions(self):
         actions = {'datastore_create': action.datastore_create,
                    'datastore_upsert': action.datastore_upsert,
@@ -282,7 +257,8 @@ class DatastorePlugin(p.SingletonPlugin):
         if resource_dict.get('url_type') == 'datastore':
             resource_dict['url'] = p.toolkit.url_for(
                 controller='ckanext.datastore.controller:DatastoreController',
-                action='dump', resource_id=resource_dict['id'])
+                action='dump', resource_id=resource_dict['id'],
+                qualified=True)
 
         if 'datastore_active' not in resource_dict:
             resource_dict[u'datastore_active'] = False
