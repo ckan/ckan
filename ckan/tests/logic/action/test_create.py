@@ -548,7 +548,10 @@ class TestResourceCreate(object):
             'name': 'A nice resource',
             'upload': test_resource
         }
-        result = helpers.call_action('resource_create', context, **params)
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            result = helpers.call_action('resource_create', context, **params)
 
         mimetype = result.pop('mimetype')
 
@@ -584,7 +587,10 @@ class TestResourceCreate(object):
             'name': 'A nice resource',
             'upload': test_resource
         }
-        result = helpers.call_action('resource_create', context, **params)
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            result = helpers.call_action('resource_create', context, **params)
 
         mimetype = result.pop('mimetype')
 
@@ -616,7 +622,10 @@ class TestResourceCreate(object):
             'name': 'A nice resource',
             'upload': test_resource
         }
-        result = helpers.call_action('resource_create', context, **params)
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            result = helpers.call_action('resource_create', context, **params)
 
         size = result.pop('size')
 
