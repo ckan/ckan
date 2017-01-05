@@ -3,16 +3,13 @@
 '''Unit tests for ckan/logic/auth/update.py.
 
 '''
-import mock
-import nose
-
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
-
-import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-
+import ckan.tests.helpers as helpers
+import mock
+import nose
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
@@ -47,7 +44,7 @@ class TestUpdate(object):
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
                                  'user_update', context=context, **params)
 
-    ## START-AFTER
+    # START-AFTER
 
     def test_user_update_user_cannot_update_another_user(self):
         '''Users should not be able to update other users' accounts.'''
@@ -84,7 +81,7 @@ class TestUpdate(object):
 
         # 4. Do nothing else!
 
-    ## END-BEFORE
+    # END-BEFORE
 
     def test_user_update_user_can_update_herself(self):
         '''Users should be authorized to update their own accounts.'''

@@ -1,10 +1,10 @@
 # encoding: utf-8
 
 import os
-import time
 import importlib
 import inspect
 import itertools
+import pkgutil
 
 from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
@@ -20,7 +20,7 @@ from fanstatic import Fanstatic
 
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
-from ckan.common import config, g, request
+from ckan.common import config, g
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware
@@ -90,49 +90,12 @@ def make_flask_stack(conf, **app_conf):
     app.jinja_env.filters['truncate'] = jinja_extensions.truncate
 
     # Common handlers for all requests
-    @app.before_request
-    def ckan_before_request():
-        # Start the request timer
-        g._request_timer = time.time()
-
-        # Update app_globals
-        app_globals.app_globals._check_uptodate()
-
-        # Identify the user from the repoze cookie or the API header
-        # Sets g.user and g.userobj
-        identify_user()
-
-    @app.after_request
-    def ckan_after_request(response):
-        # Check session cookie
-        response = check_session_cookie(response)
-
-        # Set CORS headers if necessary
-        response = set_cors_headers_for_response(response)
-
-        # Log time between before and after view
-        request_time = time.time() - g._request_timer
-        url = request.environ.get('CKAN_CURRENT_URL')
-        if url:
-            url = url.split('?')[0]
-            log.info('{url} render time {request_time:.3f} seconds'.format(
-                url=url, request_time=request_time))
-
-        return response
+    app.before_request(ckan_before_request)
+    app.after_request(ckan_after_request)
 
     # Template context processors
-    @app.context_processor
-    def helper_functions():
-        u'''Make helper functions (`h`) available to Flask templates'''
-        helpers.load_plugin_helpers()
-        return dict(h=helpers.helper_functions)
-
-    @app.context_processor
-    def c_object():
-        u'''
-        Expose `c` as an alias of `g` in templates for backwards compatibility
-        '''
-        return dict(c=g)
+    app.context_processor(helper_functions)
+    app.context_processor(c_object)
 
     # Babel
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(root, u'i18n')
@@ -169,6 +132,8 @@ def make_flask_stack(conf, **app_conf):
             app.register_extension_blueprint(plugin.get_blueprint())
 
     # Start other middleware
+    for plugin in PluginImplementations(IMiddleware):
+        app = plugin.make_middleware(app, config)
 
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
@@ -210,6 +175,42 @@ def make_flask_stack(conf, **app_conf):
     app._wsgi_app = flask_app
 
     return app
+
+
+def ckan_before_request():
+    u'''Common handler executed before all Flask requests'''
+
+    # Update app_globals
+    app_globals.app_globals._check_uptodate()
+
+    # Identify the user from the repoze cookie or the API header
+    # Sets g.user and g.userobj
+    identify_user()
+
+
+def ckan_after_request(response):
+    u'''Common handler executed after all Flask requests'''
+
+    # Check session cookie
+    response = check_session_cookie(response)
+
+    # Set CORS headers if necessary
+    response = set_cors_headers_for_response(response)
+
+    return response
+
+
+def helper_functions():
+    u'''Make helper functions (`h`) available to Flask templates'''
+    helpers.load_plugin_helpers()
+    return dict(h=helpers.helper_functions)
+
+
+def c_object():
+    u'''
+    Expose `c` as an alias of `g` in templates for backwards compatibility
+    '''
+    return dict(c=g)
 
 
 class CKAN_Rule(Rule):
@@ -280,9 +281,10 @@ class CKANFlask(Flask):
         self.register_blueprint(blueprint, **kwargs)
 
         # Get the new blueprint rules
-        bp_rules = [v for k, v in self.url_map._rules_by_endpoint.items()
-                    if k.startswith(blueprint.name)]
-        bp_rules = list(itertools.chain.from_iterable(bp_rules))
+        bp_rules = itertools.chain.from_iterable(
+            v for k, v in self.url_map._rules_by_endpoint.iteritems()
+            if k.startswith(u'{0}.'.format(blueprint.name))
+        )
 
         # This compare key will ensure the rule will be near the top.
         top_compare_key = False, -100, [(-2, 0)]
@@ -294,17 +296,11 @@ class CKANFlask(Flask):
 def _register_core_blueprints(app):
     u'''Register all blueprints defined in the `views` folder
     '''
-    views_path = os.path.join(os.path.dirname(__file__),
-                              u'..', u'..', u'views')
-    module_names = [f.rstrip(u'.py')
-                    for f in os.listdir(views_path)
-                    if f.endswith(u'.py') and not f.startswith(u'_')]
-    blueprints = []
-    for name in module_names:
-        module = importlib.import_module(u'ckan.views.{0}'.format(name))
-        blueprints.extend([m for m in inspect.getmembers(module)
-                           if isinstance(m[1], Blueprint)])
-    if blueprints:
-        for blueprint in blueprints:
+    def is_blueprint(mm):
+        return isinstance(mm, Blueprint)
+
+    for loader, name, _ in pkgutil.iter_modules(['ckan/views'], 'ckan.views.'):
+        module = loader.find_module(name).load_module(name)
+        for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
-            log.debug(u'Registered core blueprint: {0}'.format(blueprint[0]))
+            log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))

@@ -45,6 +45,8 @@ def table_dictize(obj, context, **kw):
             result_dict[name] = value
         elif isinstance(value, int):
             result_dict[name] = value
+        elif isinstance(value, long):
+            result_dict[name] = value
         elif isinstance(value, datetime.datetime):
             result_dict[name] = value.isoformat()
         elif isinstance(value, list):

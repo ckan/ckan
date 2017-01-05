@@ -26,7 +26,7 @@
  * can also be applied to parse the value. Only data-type="date" is currently
  * supported and expects data-value to be a unix timestamp.
  */
-this.ckan.module('plot', function (jQuery, _) {
+this.ckan.module('plot', function (jQuery) {
   return {
     /* Holds the jQuery.plot() object when created */
     graph: null,

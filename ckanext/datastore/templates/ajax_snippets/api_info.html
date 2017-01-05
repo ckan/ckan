@@ -69,19 +69,17 @@ Example
         <div class="accordion-inner">
           <strong>{{ _('Query example (first 5 results)') }}</strong>
           <p>
-          <code><a href="{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&limit=5" target="_blank">{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&limit=5</a></code>
+          <code>{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&limit=5</code>
           </p>
 
           <strong>{{ _('Query example (results containing \'jones\')') }}</strong>
           <p>
-          <code><a href="{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&q=jones"
-              target="_blank">{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&q=jones</a></code>
+          <code>{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&q=jones</code>
           </p>
 
           <strong>{{ _('Query example (via SQL statement)') }}</strong>
           <p>
-          <code><a href="{{sql_example_url}}"
-              target="_blank">{{sql_example_url}}</a></code>
+          <code>{{sql_example_url}}</code>
           </p>
 
         </div>

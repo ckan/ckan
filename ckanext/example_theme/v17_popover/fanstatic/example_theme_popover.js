@@ -11,7 +11,7 @@
  * num_resources - the number of resources that the dataset has.
  *
  */
-ckan.module('example_theme_popover', function ($, _) {
+ckan.module('example_theme_popover', function ($) {
   return {
     initialize: function () {
 

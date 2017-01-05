@@ -34,7 +34,7 @@ wiki page for help):
 Package                Description
 =====================  ===============================================
 Python                 `The Python programming language, v2.7 <http://www.python.org/getit/>`_
-|postgres|             `The PostgreSQL database system, v8.4 or newer <http://www.postgresql.org/download/>`_
+|postgres|             `The PostgreSQL database system, v9.2 or newer <http://www.postgresql.org/download/>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
 virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
@@ -141,47 +141,7 @@ d. Deactivate and reactivate your virtualenv, to make sure you're using the
 3. Setup a PostgreSQL database
 ------------------------------
 
-List existing databases::
-
-    sudo -u postgres psql -l
-
-Check that the encoding of databases is ``UTF8``, if not internationalisation
-may be a problem. Since changing the encoding of |postgres| may mean deleting
-existing databases, it is suggested that this is fixed before continuing with
-the CKAN install.
-
-Next you'll need to create a database user if one doesn't already exist.
-Create a new |postgres| database user called |database_user|, and enter a
-password for the user when prompted. You'll need this password later:
-
-.. parsed-literal::
-
-    sudo -u postgres createuser -S -D -R -P |database_user|
-
-Create a new |postgres| database, called |database|, owned by the
-database user you just created:
-
-.. parsed-literal::
-
-    sudo -u postgres createdb -O |database_user| |database| -E utf-8
-
-.. note::
-
-    If PostgreSQL is run on a separate server, you will need to edit
-    `postgresql.conf` and `pg_hba.conf`. For PostgreSQL 9.1 on Ubuntu, these
-    files are located in `etc/postgresql/9.1/main`.
-
-    Uncomment the `listen_addresses` parameter and specify a comma-separated
-    list of IP addresses of the network interfaces PostgreSQL should listen on
-    or '*' to listen on all interfaces. For example,
-
-    ``listen_addresses = 'localhost,192.168.1.21'``
-
-    Add a line similar to the line below to the bottom of `pg_hba.conf` to
-    allow the machine running Apache to connect to PostgreSQL. Please change
-    the IP address as desired according to your network settings.
-
-    ``host    all             all             192.168.1.22/32                 md5``
+.. include:: postgres.rst
 
 ----------------------------
 4. Create a CKAN config file
@@ -243,81 +203,8 @@ site_url
 5. Setup Solr
 -------------
 
-CKAN uses Solr_ as its search platform, and uses a customized Solr schema file
-that takes into account CKAN's specific search needs. Now that we have CKAN
-installed, we need to install and configure Solr.
+.. include:: solr.rst
 
-.. _Solr: http://lucene.apache.org/solr/
-
-.. note::
-
-   These instructions explain how to setup |solr| with a single core.
-   If you want multiple applications, or multiple instances of CKAN, to share
-   the same |solr| server then you probably want a multi-core |solr| setup
-   instead. See :doc:`/maintaining/solr-multicore`.
-
-.. note::
-
-   These instructions explain how to deploy Solr using the Jetty web
-   server, but CKAN doesn't require Jetty - you can deploy Solr to another web
-   server, such as Tomcat, if that's convenient on your operating system.
-
-#. Edit the Jetty configuration file (``/etc/default/jetty``) and change the
-   following variables::
-
-    NO_START=0            # (line 4)
-    JETTY_HOST=127.0.0.1  # (line 16)
-    JETTY_PORT=8983       # (line 19)
-
-   .. note::
-
-    This ``JETTY_HOST`` setting will only allow connections from the same machine.
-    If CKAN is not installed on the same machine as Jetty/Solr you will need to
-    change it to the relevant host or to 0.0.0.0 (and probably set up your firewall
-    accordingly).
-
-   Start the Jetty server::
-
-    sudo service jetty start
-
-   You should now see a welcome page from Solr if you open
-   http://localhost:8983/solr/ in your web browser (replace localhost with
-   your server address if needed).
-
-   .. note::
-
-    If you get the message ``Could not start Jetty servlet engine because no
-    Java Development Kit (JDK) was found.`` then you will have to edit the
-    ``JAVA_HOME`` setting in ``/etc/default/jetty`` to point to your machine's
-    JDK install location. For example::
-
-        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
-
-    or::
-
-        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
-
-#. Replace the default ``schema.xml`` file with a symlink to the CKAN schema
-   file included in the sources.
-
-   .. parsed-literal::
-
-      sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
-      sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-
-   Now restart Solr:
-
-   .. parsed-literal::
-
-      |restart_solr|
-
-   and check that Solr is running by opening http://localhost:8983/solr/.
-
-
-#. Finally, change the :ref:`solr_url` setting in your CKAN config file to
-   point to your Solr server, for example::
-
-       solr_url=http://127.0.0.1:8983/solr
 
 .. _postgres-init:
 

@@ -2,19 +2,18 @@
 
 import json
 
-import nose
-from nose.tools import assert_equals
-from ckan.common import config
-import sqlalchemy.orm as orm
-import paste.fixture
-
 import ckan.config.middleware as middleware
-import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
+import ckan.plugins as p
 import ckan.tests.legacy as tests
 import ckanext.datastore.db as db
 import ckanext.datastore.tests.helpers as helpers
+import nose
+import paste.fixture
+import sqlalchemy.orm as orm
+from ckan.common import config
+from nose.tools import assert_equals
 
 
 class TestDatastoreDump(object):
@@ -36,17 +35,43 @@ class TestDatastoreDump(object):
             'resource_id': resource.id,
             'force': True,
             'aliases': 'books',
-            'fields': [{'id': u'b\xfck', 'type': 'text'},
-                       {'id': 'author', 'type': 'text'},
-                       {'id': 'published'},
-                       {'id': u'characters', u'type': u'_text'}],
-            'records': [{u'b\xfck': 'annakarenina',
-                        'author': 'tolstoy',
-                        'published': '2005-03-01',
-                        'nested': ['b', {'moo': 'moo'}],
-                        u'characters': [u'Princess Anna', u'Sergius']},
-                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                         'nested': {'a': 'b'}}]
+            'fields': [
+                {
+                    'id': u'b\xfck',
+                    'type': 'text'
+                },
+                {
+                    'id': 'author',
+                    'type': 'text'
+                },
+                {
+                    'id': 'published'
+                },
+                {
+                    'id': u'characters',
+                    u'type': u'_text'
+                }
+            ],
+            'records': [
+                {
+                    u'b\xfck': 'annakarenina',
+                    'author': 'tolstoy',
+                    'published': '2005-03-01',
+                    'nested': [
+                        'b',
+                        {'moo': 'moo'}
+                    ],
+                    u'characters': [
+                        u'Princess Anna',
+                        u'Sergius'
+                    ]
+                },
+                {
+                    u'b\xfck': 'warandpeace',
+                    'author': 'tolstoy',
+                    'nested': {'a': 'b'}
+                }
+            ]
         }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
