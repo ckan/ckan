@@ -898,10 +898,12 @@ class TestResourceUpdate(object):
         ''')
         update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test')
 
-        res_update = helpers.call_action('resource_update',
-                                         id=resource['id'],
-                                         url='http://localhost',
-                                         upload=update_resource)
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            res_update = helpers.call_action('resource_update',
+                                             id=resource['id'],
+                                             url='http://localhost',
+                                             upload=update_resource)
 
         org_mimetype = resource.pop('mimetype')
         upd_mimetype = res_update.pop('mimetype')
@@ -941,10 +943,13 @@ class TestResourceUpdate(object):
         ''')
         test_resource = TestResourceUpdate.FakeFileStorage(test_file, 'test.json')
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url='http://localhost',
-                                      name='Test',
-                                      upload=test_resource)
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            resource = factories.Resource(package=dataset,
+                                          url='http://localhost',
+                                          name='Test',
+                                          upload=test_resource)
 
         update_file = StringIO.StringIO()
         update_file.write('''
@@ -955,10 +960,11 @@ class TestResourceUpdate(object):
         ''')
         update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test.csv')
 
-        res_update = helpers.call_action('resource_update',
-                                         id=resource['id'],
-                                         url='http://localhost',
-                                         upload=update_resource)
+        with mock.patch('ckan.lib.helpers.url_for'):
+            res_update = helpers.call_action('resource_update',
+                                             id=resource['id'],
+                                             url='http://localhost',
+                                             upload=update_resource)
 
         org_mimetype = resource.pop('mimetype')
         upd_mimetype = res_update.pop('mimetype')
@@ -1017,10 +1023,13 @@ class TestResourceUpdate(object):
         ''')
         test_resource = TestResourceUpdate.FakeFileStorage(test_file, 'test.json')
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url='http://localhost',
-                                      name='Test',
-                                      upload=test_resource)
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            resource = factories.Resource(package=dataset,
+                                          url='http://localhost',
+                                          name='Test',
+                                          upload=test_resource)
 
         update_file = StringIO.StringIO()
         update_file.write('''
@@ -1031,10 +1040,11 @@ class TestResourceUpdate(object):
         ''')
         update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test.csv')
 
-        res_update = helpers.call_action('resource_update',
-                                         id=resource['id'],
-                                         url='http://localhost',
-                                         upload=update_resource)
+        with mock.patch('ckan.lib.helpers.url_for'):
+            res_update = helpers.call_action('resource_update',
+                                             id=resource['id'],
+                                             url='http://localhost',
+                                             upload=update_resource)
 
         org_size = int(resource.pop('size'))  # 669 bytes
         upd_size = int(res_update.pop('size'))  # 358 bytes
