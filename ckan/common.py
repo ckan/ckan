@@ -152,6 +152,7 @@ def _get_session():
     else:
         return pylons.session
 
+
 local = Local()
 
 # This a proxy to the bounded config object
