@@ -20,7 +20,7 @@ def csv_writer(response, columns, name=None, bom=False):
     :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
 
-    >>> with csv_writer(response, fields) as d:
+    >>> with csv_writer(response, columns) as d:
     >>>    d.writerow(row1)
     >>>    d.writerow(row2)
     '''
@@ -48,7 +48,7 @@ def tsv_writer(response, columns, name=None, bom=False):
     :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
 
-    >>> with tsv_writer(response, fields) as d:
+    >>> with tsv_writer(response, columns) as d:
     >>>    d.writerow(row1)
     >>>    d.writerow(row2)
     '''
@@ -78,7 +78,7 @@ def json_writer(response, columns, name=None, bom=False):
     :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
 
-    >>> with json_writer(response, fields) as d:
+    >>> with json_writer(response, columns) as d:
     >>>    d.writerow(row1)
     >>>    d.writerow(row2)
     '''
@@ -126,7 +126,7 @@ def xml_writer(response, columns, name=None, bom=False):
     :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
 
-    >>> with xml_writer(response, fields) as d:
+    >>> with xml_writer(response, columns) as d:
     >>>    d.writerow(row1)
     >>>    d.writerow(row2)
     '''
