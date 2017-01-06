@@ -17,20 +17,22 @@ abort () {
 }
 
 write_config () {
+
+  export CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL}
+  export CKAN_SOLR_URL=${CKAN_SOLR_URL}
+  export CKAN_REDIS_URL=${CKAN_REDIS_URL}
+  export CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
+  export CKAN_SITE_URL=${CKAN_SITE_URL}
+
   ckan-paster make-config ckan "$CONFIG"
 
-  #export CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL}
-  #export CKAN_SOLR_URL=${CKAN_SOLR_URL}
-  #export CKAN_SITE_URL=${CKAN_SITE_URL}
-  #export CKAN_REDIS_URL=${KAN_REDIS_URL}
-  #export CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
-
-  ckan-paster --plugin=ckan config-tool "$CONFIG" -e \
-      "sqlalchemy.url = ${CKAN_SQLALCHEMY_URL}" \
-      "solr_url = ${CKAN_SOLR_URL}" \
-      "ckan.redis.url = ${CKAN_REDIS_URL}" \
-      "ckan.storage_path = ${CKAN_STORAGE_PATH}" \
-      "ckan.site_url = ${CKAN_SITE_URL}"
+  # In case want to use the config from ckan.ini use this
+  #ckan-paster --plugin=ckan config-tool "$CONFIG" -e \
+  #    "sqlalchemy.url = ${CKAN_SQLALCHEMY_URL}" \
+  #    "solr_url = ${CKAN_SOLR_URL}" \
+  #    "ckan.redis.url = ${CKAN_REDIS_URL}" \
+  #    "ckan.storage_path = ${CKAN_STORAGE_PATH}" \
+  #    "ckan.site_url = ${CKAN_SITE_URL}"
 }
 
 link_postgres_url () {
@@ -79,6 +81,7 @@ if [ ! -e "$CONFIG" ]; then
 
 fi
 
+# Initializes the Database
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"
 
 exec "$@"
