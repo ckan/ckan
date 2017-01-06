@@ -92,7 +92,9 @@ def json_writer(response, columns, name=None, bom=False):
                     name=encode_rfc2231(name)))
     if bom:
         response.write(UTF8_BOM)
-    response.write(b'{\n  "data": [')
+    response.write(
+        b'{\n  "columns": %s,\n  "data": [' % json.dumps(
+            columns, ensure_ascii=False, separators=(u',', u':')))
     yield JSONWriter(response, columns)
     response.write(b'\n]}\n')
 
@@ -110,7 +112,7 @@ class JSONWriter(object):
         else:
             self.response.write(b',\n    ')
         self.response.write(json.dumps(
-            {k: v for (k, v) in zip(self.columns, row)},
+            row,
             ensure_ascii=False,
             separators=(u',', u':'),
             sort_keys=True).encode(u'utf-8'))
