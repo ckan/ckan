@@ -19,6 +19,8 @@ import ckan.lib.navl.dictization_functions
 import ckan.lib.jsonp as jsonp
 import ckan.lib.munge as munge
 
+from ckan.views import identify_user
+
 from ckan.common import _, c, request, response
 
 
@@ -52,7 +54,7 @@ class ApiController(base.BaseController):
             api_version = api_version[1:]
             routes_dict['ver'] = int(api_version)
 
-        self._identify_user()
+        identify_user()
         try:
             context = {'model': model, 'user': c.user,
                        'auth_user_obj': c.userobj}

@@ -1,13 +1,11 @@
 # encoding: utf-8
 
 ''' This module contains code that helps in maintaining the Ckan codebase. '''
-
 import inspect
 import time
 import logging
 import re
 
-from pylons import c
 
 log = logging.getLogger(__name__)
 
@@ -38,64 +36,6 @@ def deprecated(message=''):
             return fn(*args, **kw)
         return wrapped
     return decorator
-
-def deprecate_context_item(item_name, message=''):
-    ''' Deprecate a named item in the global context object.
-
-    It logs a warning when the item is accessed.  If a mesage is passed, it is
-    also logged.  This can be useful to indicate for example that a different
-    function should be used instead.
-
-    No warnings are given when an attempt to change or delete the named item
-    from the context object.
-
-    Example usage:
-
-    >>> c.facets = "Foobar"
-    >>> deprecate_context_item('facets', 'Use `c.search_facets` instead')
-    >>> print c.facets
-    2012-07-12 13:27:06,294 WARNI [ckan.lib.maintain] c.facets has been deprecated [...]
-    Foobar
-
-    This function works by attaching a property to the underlying
-    `pylons.util.AttribSafeContextObj` object which provides the storage of the
-    context object.  ie - it adds a class-level attribute to the
-    `pylons.util.AttribSafeContextObj` at runtime.
-    '''
-
-    # we need to store the origional __getattr__ and replace with our own one
-    if not hasattr(c.__class__, '__old_getattr__'):
-        def custom__getattr__(self, name):
-            # get the origional __getattr__ so we can access things
-            __old_getattr__ = self.__class__.__dict__['__old_getattr__']
-            # see if we have a __deprecated_properties__ for this name and
-            # if so log a warning
-            try:
-                deprecated = __old_getattr__(self, '__deprecated_properties__')
-                if name in deprecated:
-                    log.warn(deprecated[name])
-            except AttributeError:
-                pass
-            # return the requested value
-            return __old_getattr__(self, name)
-
-        # get store the old __getattr__ method and then replace it
-        __old_getattr__ =  getattr(c.__class__, '__getattr__')
-        setattr(c.__class__, '__old_getattr__', __old_getattr__)
-        setattr(c.__class__, '__getattr__', custom__getattr__)
-
-    # if c.__deprecated_properties__ is not set it returns ''
-    if not c.__deprecated_properties__:
-        c.__deprecated_properties__ = {}
-    c.__deprecated_properties__[item_name] = message
-
-
-def defer_context_item(item_name, function):
-    ''' Allows a function to be passed that will be appended to c as a property
-    so that it is only called if actually used. '''
-
-    assert hasattr(function, '__call__'), 'must pass a function'
-    setattr(c, item_name, property(function))
 
 
 def timer(params):
