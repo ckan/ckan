@@ -18,12 +18,15 @@ from ckan.plugins.toolkit import (
 )
 
 int_validator = get_validator('int_validator')
+boolean_validator = get_validator('boolean_validator')
+
+UTF8_BOM = u'\uFEFF'.encode('utf-8')
 
 PAGINATE_BY = 10000
 
 
 class DatastoreController(BaseController):
-    def dump(self, resource_id):
+    def dump_csv(self, resource_id):
         try:
             offset = int_validator(request.GET.get('offset', 0), {})
         except Invalid as e:
@@ -32,6 +35,7 @@ class DatastoreController(BaseController):
             limit = int_validator(request.GET.get('limit'), {})
         except Invalid as e:
             abort(400, u'limit: ' + e.error)
+        bom = boolean_validator(request.GET.get('bom'), {})
 
         wr = None
         while True:
@@ -57,6 +61,8 @@ class DatastoreController(BaseController):
                 wr = csv.writer(response, encoding='utf-8')
 
                 header = [x['id'] for x in result['fields']]
+                if bom:
+                    response.write(UTF8_BOM)
                 wr.writerow(header)
 
             for record in result['records']:
