@@ -280,7 +280,9 @@ Download resource as CSV
 
 A DataStore resource can be downloaded in the `CSV`_ file format from ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}``.
 
-For an Excel-compatible CSV file use ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}&bom=true``
+For an Excel-compatible CSV file use ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?bom=true``.
+
+For tab-separated values use ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?format=tsv``.
 
 .. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
 

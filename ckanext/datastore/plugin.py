@@ -248,7 +248,7 @@ class DatastorePlugin(p.SingletonPlugin):
     def before_map(self, m):
         m.connect('/datastore/dump/{resource_id}',
                   controller='ckanext.datastore.controller:DatastoreController',
-                  action='dump_csv')
+                  action='dump')
         return m
 
     def before_show(self, resource_dict):
