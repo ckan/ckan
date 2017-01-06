@@ -19,12 +19,13 @@ from ckanext.datastore.writer import (
     csv_writer,
     tsv_writer,
     json_writer,
+    xml_writer,
 )
 
 int_validator = get_validator('int_validator')
 boolean_validator = get_validator('boolean_validator')
 
-DUMP_FORMATS = 'csv', 'tsv', 'json'
+DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
 PAGINATE_BY = 10000
 
 
@@ -48,6 +49,8 @@ class DatastoreController(BaseController):
                 return tsv_writer(response, columns, resource_id, bom)
             if fmt == 'json':
                 return json_writer(response, columns, resource_id, bom)
+            if fmt == 'xml':
+                return xml_writer(response, columns, resource_id, bom)
             abort(400, _(
                 u'format: must be one of %s') % u', '.join(DUMP_FORMATS))
 
