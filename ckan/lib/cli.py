@@ -13,6 +13,7 @@ import json
 import logging
 import urlparse
 from optparse import OptionConflictError
+import traceback
 
 import sqlalchemy as sa
 import routes
@@ -851,7 +852,7 @@ class UserCmd(CkanCommand):
             user_dict = logic.get_action('user_create')(context, data_dict)
             pprint(user_dict)
         except logic.ValidationError, e:
-            error(e)
+            error(traceback.format_exc())
 
     def remove(self):
         import ckan.model as model
@@ -1491,10 +1492,8 @@ class Profile(CkanCommand):
                 print 'App error: ', url.strip()
             except KeyboardInterrupt:
                 raise
-            except:
-                import traceback
-                traceback.print_exc()
-                print 'Unknown error: ', url.strip()
+            except Exception:
+                error(traceback.format_exc())
 
         output_filename = 'ckan%s.profile' % re.sub('[/?]', '.', url.replace('/', '.'))
         profile_command = "profile_url('%s')" % url
@@ -2478,7 +2477,7 @@ class ConfigToolCommand(paste.script.command.Command):
                     config_filepath, options, self.options.section,
                     edit=self.options.edit)
             except config_tool.ConfigToolError, e:
-                error(e)
+                error(traceback.format_exc())
 
 
 class JobsCommand(CkanCommand):
