@@ -5,8 +5,8 @@ MAINTAINER Open Knowledge
 
 ENV CKAN_HOME /usr/lib/ckan/default
 ENV CKAN_CONFIG /etc/ckan/default
-ENV CKAN_DATA /var/lib/ckan
-ENV SITE_URL http://localhost:5000
+ENV CKAN_STORAGE_PATH /var/lib/ckan
+ENV CKAN_SITE_URL http://localhost:5000
 
 # Install required packages
 RUN apt-get -q -y update && apt-get -q -y upgrade && DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
@@ -18,7 +18,7 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && DEBIAN_FRONTEND=noninteract
 	&& apt-get -q clean
 
 # SetUp Virtual Environment CKAN
-RUN mkdir -p $CKAN_HOME $CKAN_CONFIG $CKAN_DATA
+RUN mkdir -p $CKAN_HOME $CKAN_CONFIG $CKAN_STORAGE_PATH
 RUN virtualenv $CKAN_HOME
 RUN ln -s $CKAN_HOME/bin/pip /usr/local/bin/ckan-pip
 RUN ln -s $CKAN_HOME/bin/paster /usr/local/bin/ckan-paster

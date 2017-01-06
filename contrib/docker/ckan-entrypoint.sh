@@ -1,13 +1,13 @@
 #!/bin/sh
-set -eu
+set -e
 
 # URL for the primary database, in the format expected by sqlalchemy (required
 # unless linked to a container called 'db')
-: ${DATABASE_URL:=}
+: ${CKAN_SQLALCHEMY_URL:=}
 # URL for solr (required unless linked to a container called 'solr')
-: ${SOLR_URL:=}
+: ${CKAN_SOLR_URL:=}
 # URL for redis (required unless linked to a container called 'redis')
-: ${REDIS_URL:=}
+: ${CKAN_REDIS_URL:=}
 
 CONFIG="${CKAN_CONFIG}/ckan.ini"
 
@@ -19,12 +19,18 @@ abort () {
 write_config () {
   ckan-paster make-config ckan "$CONFIG"
 
+  #export CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL}
+  #export CKAN_SOLR_URL=${CKAN_SOLR_URL}
+  #export CKAN_SITE_URL=${CKAN_SITE_URL}
+  #export CKAN_REDIS_URL=${KAN_REDIS_URL}
+  #export CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
+
   ckan-paster --plugin=ckan config-tool "$CONFIG" -e \
-      "sqlalchemy.url = ${DATABASE_URL}" \
-      "solr_url = ${SOLR_URL}" \
-      "ckan.redis.url = ${REDIS_URL}" \
-      "ckan.storage_path = ${CKAN_DATA}" \
-      "ckan.site_url = ${SITE_URL}"
+      "sqlalchemy.url = ${CKAN_SQLALCHEMY_URL}" \
+      "solr_url = ${CKAN_SOLR_URL}" \
+      "ckan.redis.url = ${CKAN_REDIS_URL}" \
+      "ckan.storage_path = ${CKAN_STORAGE_PATH}" \
+      "ckan.site_url = ${CKAN_SITE_URL}"
 }
 
 link_postgres_url () {
@@ -51,21 +57,21 @@ link_redis_url () {
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
 
-  if [ -z "$DATABASE_URL" ]; then
-    if ! DATABASE_URL=$(link_postgres_url); then
-      abort "ERROR: no DATABASE_URL specified and linked container called 'db' was not found"
+  if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
+    if ! CKAN_SQLALCHEMY_URL=$(link_postgres_url); then
+      abort "ERROR: no CKAN_SQLALCHEMY_URL specified and linked container called 'db' was not found"
     fi
   fi
 
-  if [ -z "$SOLR_URL" ]; then
-    if ! SOLR_URL=$(link_solr_url); then
-      abort "ERROR: no SOLR_URL specified and linked container called 'solr' was not found"
+  if [ -z "$CKAN_SOLR_URL" ]; then
+    if ! CKAN_SOLR_URL=$(link_solr_url); then
+      abort "ERROR: no CKAN_SOLR_URL specified and linked container called 'solr' was not found"
     fi
   fi
     
-  if [ -z "$REDIS_URL" ]; then
-    if ! REDIS_URL=$(link_redis_url); then
-      abort "ERROR: no REDIS_URL specified and linked container called 'redis' was not found"
+  if [ -z "$CKAN_REDIS_URL" ]; then
+    if ! CKAN_REDIS_URL=$(link_redis_url); then
+      abort "ERROR: no CKAN_REDIS_URL specified and linked container called 'redis' was not found"
     fi
   fi
 
