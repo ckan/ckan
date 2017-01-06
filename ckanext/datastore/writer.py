@@ -1,10 +1,12 @@
+# encoding: utf-8
+
 from contextlib import contextmanager
 from email.utils import encode_rfc2231
 import json
 
 import unicodecsv
 
-UTF8_BOM = u'\uFEFF'.encode('utf-8')
+UTF8_BOM = u'\uFEFF'.encode(u'utf-8')
 
 
 @contextmanager
@@ -22,13 +24,13 @@ def csv_writer(response, columns, name=None, bom=False):
     >>>    d.writerow(row2)
     '''
 
-    if hasattr(response, 'headers'):
-        response.headers['Content-Type'] = 'text/csv; charset=utf-8'
+    if hasattr(response, u'headers'):
+        response.headers['Content-Type'] = b'text/csv; charset=utf-8'
         if name:
             response.headers['Content-disposition'] = (
-                'attachment; filename="{name}.csv"'.format(
+                b'attachment; filename="{name}.csv"'.format(
                     name=encode_rfc2231(name)))
-    wr = unicodecsv.writer(response, encoding='utf-8')
+    wr = unicodecsv.writer(response, encoding=u'utf-8')
     if bom:
         response.write(UTF8_BOM)
     wr.writerow(columns)
@@ -50,15 +52,15 @@ def tsv_writer(response, columns, name=None, bom=False):
     >>>    d.writerow(row2)
     '''
 
-    if hasattr(response, 'headers'):
+    if hasattr(response, u'headers'):
         response.headers['Content-Type'] = (
-            'text/tab-separated-values; charset=utf-8')
+            b'text/tab-separated-values; charset=utf-8')
         if name:
             response.headers['Content-disposition'] = (
-                'attachment; filename="{name}.tsv"'.format(
+                b'attachment; filename="{name}.tsv"'.format(
                     name=encode_rfc2231(name)))
     wr = unicodecsv.writer(
-        response, encoding='utf-8', dialect=unicodecsv.excel_tab)
+        response, encoding=u'utf-8', dialect=unicodecsv.excel_tab)
     if bom:
         response.write(UTF8_BOM)
     wr.writerow(columns)
@@ -80,12 +82,12 @@ def json_writer(response, columns, name=None, bom=False):
     >>>    d.writerow(row2)
     '''
 
-    if hasattr(response, 'headers'):
+    if hasattr(response, u'headers'):
         response.headers['Content-Type'] = (
-            'application/json; charset=utf-8')
+            b'application/json; charset=utf-8')
         if name:
             response.headers['Content-disposition'] = (
-                'attachment; filename="{name}.json"'.format(
+                b'attachment; filename="{name}.json"'.format(
                     name=encode_rfc2231(name)))
     if bom:
         response.write(UTF8_BOM)
@@ -109,5 +111,5 @@ class JSONWriter(object):
         self.response.write(json.dumps(
             {k: v for (k, v) in zip(self.columns, row)},
             ensure_ascii=False,
-            separators=(',', ':'),
-            sort_keys=True).encode('utf-8'))
+            separators=(u',', u':'),
+            sort_keys=True).encode(u'utf-8'))
