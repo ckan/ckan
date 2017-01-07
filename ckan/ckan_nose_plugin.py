@@ -95,6 +95,11 @@ class CkanNose(Plugin):
 
         return wanted
 
+    def wantFunction(self, fn):
+        if self.segments and hashlib.md5(
+                fn.__name__).hexdigest()[0] not in self.segments:
+            return False
+
     def finalize(self, report):
         if self.segments:
             print 'Segments: %s' % self.segments
