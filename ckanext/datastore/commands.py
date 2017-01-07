@@ -16,30 +16,45 @@ Options:
 import os
 import sys
 
-from ckan.lib import cli
+from ckan.lib.cli import load_config, parse_db_config
 from ckanext.datastore.helpers import identifier
 
-from docopt import docopt
+import click
 
 
 def datastore_command(command):
-    opts = docopt(__doc__)
-
-    cli.load_config(opts['--config'])
-
-    if opts['set-permissions']:
-        set_permissions()
+    'a small adapter for paster -> click'
+    cli()
     exit(0)  # avoid paster error
 
 
 # for paster's command index
 datastore_command.summary = __doc__.split(u'\n')[0]
+datastore_command.group_name = 'ckan'
 
 
-def set_permissions():
-    write_url = cli.parse_db_config('ckan.datastore.write_url')
-    read_url = cli.parse_db_config('ckan.datastore.read_url')
-    db_url = cli.parse_db_config('sqlalchemy.url')
+@click.group('paster')
+@click.help_option('-h', '--help')
+@click.option(
+    '--plugin',
+    metavar='ckan',
+    help='paster plugin (when run outside ckan directory)')
+@click.argument('datastore', metavar='datastore')
+def cli(plugin, datastore):
+    pass
+
+
+@cli.command(
+    'set-permissions',
+    help='Emit an SQL script that will set the permissions for the '
+         'datastore users as configured in your configuration file.')
+@click.option('-c', '--config', default='development.ini')
+def set_permissions(config):
+    load_config(config)
+
+    write_url = parse_db_config('ckan.datastore.write_url')
+    read_url = parse_db_config('ckan.datastore.read_url')
+    db_url = parse_db_config('sqlalchemy.url')
 
     # Basic validation that read and write URLs reference the same database.
     # This obviously doesn't check they're the same database (the hosts/ports
