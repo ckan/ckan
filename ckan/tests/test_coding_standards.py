@@ -1,3 +1,4 @@
+# encoding: utf-8
 
 u'''A module for coding standards tests.
 
