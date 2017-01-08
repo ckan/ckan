@@ -20,6 +20,7 @@ import routes
 import paste.script
 from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
+import click
 
 import ckan.logic as logic
 import ckan.model as model
@@ -186,6 +187,43 @@ def load_config(config, load_site_user=True):
     request_config = routes.request_config()
     request_config.host = parsed.netloc + parsed.path
     request_config.protocol = parsed.scheme
+
+
+def paster_click_group(command, summary):
+    '''Return a paster command click.Group for paster subcommands
+
+    :param command: the paster command linked to this function from
+        setup.py, used in help text (e.g. "datastore")
+    :param summary: summary text used in paster's help/command listings
+        (e.g. "Perform commands to set up the datastore")
+    '''
+    class PasterClickGroup(click.Group):
+        '''A click.Group that may be called like a paster command'''
+        def __call__(self, ignored_command):
+            super(PasterClickGroup, self).__call__()
+
+    @click.group('paster', cls=PasterClickGroup)
+    @click.help_option('-h', '--help')
+    @click.option(
+        '--plugin',
+        metavar='ckan',
+        help='paster plugin (when run outside ckan directory)')
+    @click.argument('command', metavar=command)
+    def cli(plugin, command):
+        pass
+
+    cli.summary = summary
+    cli.group_name = u'ckan'
+    return cli
+
+
+# common definition for paster ... --config
+click_config_option = click.option(
+    '-c',
+    '--config',
+    default=None,
+    metavar='CONFIG',
+    help=u'Config file to use (default: development.ini)')
 
 
 class CkanCommand(paste.script.command.Command):

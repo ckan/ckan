@@ -1,54 +1,30 @@
 # encoding: utf-8
-u"""Perform commands to set up the datastore
-
-Usage:
-  paster [options] datastore set-permissions
-
-set-permissions: Emit an SQL script that will set the permissions
-for the datastore users as configured in your configuration file.
-
-Options:
-  -h --help            This help text
-  -c --config=CONFIG   CKAN configuration file
-  --plugin=ckan        paster plugin (when used outside of ckan directory)
-"""
 
 import os
 import sys
 
-from ckan.lib.cli import load_config, parse_db_config
+from ckan.lib.cli import (
+    load_config,
+    parse_db_config,
+    paster_click_group,
+    click_config_option,
+)
 from ckanext.datastore.helpers import identifier
 
 import click
 
 
-def datastore_command(command):
-    'a small adapter for paster -> click'
-    cli()
-    exit(0)  # avoid paster error
+datastore_group = paster_click_group(
+    command=u'datastore',
+    summary=u'Perform commands to set up the datastore')
 
 
-# for paster's command index
-datastore_command.summary = __doc__.split(u'\n')[0]
-datastore_command.group_name = 'ckan'
-
-
-@click.group('paster')
-@click.help_option('-h', '--help')
-@click.option(
-    '--plugin',
-    metavar='ckan',
-    help='paster plugin (when run outside ckan directory)')
-@click.argument('datastore', metavar='datastore')
-def cli(plugin, datastore):
-    pass
-
-
-@cli.command(
+@datastore_group.command(
     'set-permissions',
     help='Emit an SQL script that will set the permissions for the '
          'datastore users as configured in your configuration file.')
-@click.option('-c', '--config', default='development.ini')
+@click.help_option('-h', '--help')
+@click_config_option
 def set_permissions(config):
     load_config(config)
 
