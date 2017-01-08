@@ -200,16 +200,16 @@ def paster_click_group(command, summary):
     class PasterClickGroup(click.Group):
         '''A click.Group that may be called like a paster command'''
         def __call__(self, ignored_command):
-            super(PasterClickGroup, self).__call__()
+            super(PasterClickGroup, self).__call__(
+                prog_name=u'paster ' + command,
+                help_option_names=[u'-h', u'--help'])
 
     @click.group('paster', cls=PasterClickGroup)
-    @click.help_option('-h', '--help')
     @click.option(
         '--plugin',
         metavar='ckan',
         help='paster plugin (when run outside ckan directory)')
-    @click.argument('command', metavar=command)
-    def cli(plugin, command):
+    def cli(plugin):
         pass
 
     cli.summary = summary
