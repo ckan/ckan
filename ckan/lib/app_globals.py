@@ -39,6 +39,9 @@ app_globals_from_config_details = {
     'ckan.favicon': {}, # default gets set in config.environment.py
     'ckan.template_head_end': {},
     'ckan.template_footer_end': {},
+    'image_url':{},
+    'image_upload':{},
+    'clear_upload':{},
         # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},

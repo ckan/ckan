@@ -51,6 +51,10 @@ Example
           {{ item.html }}
         </div>
       </div>
+    {% elif control == 'image_upload' %}
+      {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
+      {% set is_url = data.image_url and data.image_url.startswith('http') %}
+      {{ form.image_upload(data, errors, is_upload_enabled=true, is_url=is_url, is_upload=is_upload, upload_label = _('Site logo'), url_label=_('Site logo')) }}
     {% else %}
       {% call form[control](name, id=id, label=label, placeholder=placeholder, value=value, error=error, classes=classes) %}
         {% if item.extra_info %}{{ form.info(item.extra_info) }}{% endif %}
