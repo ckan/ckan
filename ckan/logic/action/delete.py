@@ -45,13 +45,13 @@ def user_delete(context, data_dict):
     user_id = _get_or_bust(data_dict, 'id')
     user = model.User.get(user_id)
 
+    if user is None:
+        raise NotFound('User "{id}" was not found.'.format(id=user_id))
+
     # New revision, needed by the member table
     rev = model.repo.new_revision()
     rev.author = context['user']
     rev.message = _(u' Delete User: {0}').format(user.name)
-
-    if user is None:
-        raise NotFound('User "{id}" was not found.'.format(id=user_id))
 
     user.delete()
 
