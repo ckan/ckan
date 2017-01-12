@@ -628,6 +628,9 @@ def organization_list_for_user(context, data_dict):
         returned organizations, for example ``"read"`` or ``"create_dataset"``
         (optional, default: ``"manage_group"``)
     :type permission: string
+    :param include_dataset_count: include the package_count in each org
+        (optional, default: ``False``)
+    :type include_dataset_count: boolean
 
     :returns: list of organizations that the user has the given permission for
     :rtype: list of dicts
@@ -697,7 +700,7 @@ def organization_list_for_user(context, data_dict):
 
     context['with_capacity'] = True
     orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
-        with_package_counts=False)
+        with_package_counts=asbool(data_dict.get('include_dataset_count')))
     return orgs_list
 
 

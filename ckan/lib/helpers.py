@@ -1664,12 +1664,15 @@ def groups_available(am_member=False):
 
 
 @core_helper
-def organizations_available(permission='manage_group'):
+def organizations_available(
+        permission='manage_group', include_dataset_count=False):
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
     context = {'user': c.user}
-    data_dict = {'permission': permission}
+    data_dict = {
+        'permission': permission,
+        'include_dataset_count': include_dataset_count}
     return logic.get_action('organization_list_for_user')(context, data_dict)
 
 
