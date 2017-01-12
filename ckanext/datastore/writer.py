@@ -11,16 +11,16 @@ UTF8_BOM = u'\uFEFF'.encode(u'utf-8')
 
 
 @contextmanager
-def csv_writer(response, columns, name=None, bom=False):
+def csv_writer(response, fields, name=None, bom=False):
     u'''Context manager for writing UTF-8 CSV data to response
 
     :param response: file-like or response-like object for writing
         data and headers (response-like objects only)
-    :param columns: list of column names
+    :param fields: list of datastore fields
     :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
 
-    >>> with csv_writer(response, columns) as d:
+    >>> with csv_writer(response, fields) as d:
     >>>    d.writerow(row1)
     >>>    d.writerow(row2)
     '''
@@ -34,21 +34,21 @@ def csv_writer(response, columns, name=None, bom=False):
     wr = unicodecsv.writer(response, encoding=u'utf-8')
     if bom:
         response.write(UTF8_BOM)
-    wr.writerow(columns)
+    wr.writerow(f['id'] for f in fields)
     yield wr
 
 
 @contextmanager
-def tsv_writer(response, columns, name=None, bom=False):
+def tsv_writer(response, fields, name=None, bom=False):
     u'''Context manager for writing UTF-8 TSV data to response
 
     :param response: file-like or response-like object for writing
         data and headers (response-like objects only)
-    :param columns: list of column names
+    :param fields: list of datastore fields
     :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
 
-    >>> with tsv_writer(response, columns) as d:
+    >>> with tsv_writer(response, fields) as d:
     >>>    d.writerow(row1)
     >>>    d.writerow(row2)
     '''
@@ -64,21 +64,21 @@ def tsv_writer(response, columns, name=None, bom=False):
         response, encoding=u'utf-8', dialect=unicodecsv.excel_tab)
     if bom:
         response.write(UTF8_BOM)
-    wr.writerow(columns)
+    wr.writerow(f['id'] for f in fields)
     yield wr
 
 
 @contextmanager
-def json_writer(response, columns, name=None, bom=False):
+def json_writer(response, fields, name=None, bom=False):
     u'''Context manager for writing UTF-8 JSON data to response
 
     :param response: file-like or response-like object for writing
         data and headers (response-like objects only)
-    :param columns: list of column names
+    :param fields: list of datastore fields
     :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
 
-    >>> with json_writer(response, columns) as d:
+    >>> with json_writer(response, fields) as d:
     >>>    d.writerow(row1)
     >>>    d.writerow(row2)
     '''
@@ -93,9 +93,9 @@ def json_writer(response, columns, name=None, bom=False):
     if bom:
         response.write(UTF8_BOM)
     response.write(
-        b'{\n  "columns": %s,\n  "data": [' % json.dumps(
-            columns, ensure_ascii=False, separators=(u',', u':')))
-    yield JSONWriter(response, columns)
+        b'{\n  "fields": %s,\n  "records": [' % json.dumps(
+            fields, ensure_ascii=False, separators=(u',', u':')))
+    yield JSONWriter(response, [f['id'] for f in fields])
     response.write(b'\n]}\n')
 
 
@@ -119,16 +119,16 @@ class JSONWriter(object):
 
 
 @contextmanager
-def xml_writer(response, columns, name=None, bom=False):
+def xml_writer(response, fields, name=None, bom=False):
     u'''Context manager for writing UTF-8 XML data to response
 
     :param response: file-like or response-like object for writing
         data and headers (response-like objects only)
-    :param columns: list of column names
+    :param fields: list of datastore fields
     :param name: file name (for headers, response-like objects only)
     :param bom: True to include a UTF-8 BOM at the start of the file
 
-    >>> with xml_writer(response, columns) as d:
+    >>> with xml_writer(response, fields) as d:
     >>>    d.writerow(row1)
     >>>    d.writerow(row2)
     '''
@@ -143,7 +143,7 @@ def xml_writer(response, columns, name=None, bom=False):
     if bom:
         response.write(UTF8_BOM)
     response.write(b'<data>\n')
-    yield XMLWriter(response, columns)
+    yield XMLWriter(response, [f['id'] for f in fields])
     response.write(b'</data>\n')
 
 

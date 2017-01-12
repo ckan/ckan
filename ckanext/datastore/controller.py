@@ -42,15 +42,15 @@ class DatastoreController(BaseController):
         bom = boolean_validator(request.GET.get('bom'), {})
         fmt = request.GET.get('format', 'csv')
 
-        def start_writer(columns):
+        def start_writer(fields):
             if fmt == 'csv':
-                return csv_writer(response, columns, resource_id, bom)
+                return csv_writer(response, fields, resource_id, bom)
             if fmt == 'tsv':
-                return tsv_writer(response, columns, resource_id, bom)
+                return tsv_writer(response, fields, resource_id, bom)
             if fmt == 'json':
-                return json_writer(response, columns, resource_id, bom)
+                return json_writer(response, fields, resource_id, bom)
             if fmt == 'xml':
-                return xml_writer(response, columns, resource_id, bom)
+                return xml_writer(response, fields, resource_id, bom)
             abort(400, _(
                 u'format: must be one of %s') % u', '.join(DUMP_FORMATS))
 
@@ -69,7 +69,7 @@ class DatastoreController(BaseController):
         result = result_page(offset, limit)
         columns = [x['id'] for x in result['fields']]
 
-        with start_writer(columns) as wr:
+        with start_writer(result['fields']) as wr:
             while True:
                 if limit is not None and limit <= 0:
                     break
