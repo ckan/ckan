@@ -204,12 +204,17 @@ def paster_click_group(command, summary):
                 prog_name=u'paster ' + command,
                 help_option_names=[u'-h', u'--help'])
 
-    @click.group('paster', cls=PasterClickGroup)
+    class HiddenClickArgument(click.Argument):
+        def get_usage_pieces(self, ctx):
+            return []
+
+    @click.group(cls=PasterClickGroup)
     @click.option(
         '--plugin',
         metavar='ckan',
         help='paster plugin (when run outside ckan directory)')
-    def cli(plugin):
+    @click.argument('command', cls=HiddenClickArgument)
+    def cli(plugin, command):
         pass
 
     cli.summary = summary
