@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import StringIO
-import unicodecsv as csv
 
 import pylons
 
@@ -16,9 +15,17 @@ from ckan.plugins.toolkit import (
     BaseController,
     abort,
 )
+from ckanext.datastore.writer import (
+    csv_writer,
+    tsv_writer,
+    json_writer,
+    xml_writer,
+)
 
 int_validator = get_validator('int_validator')
+boolean_validator = get_validator('boolean_validator')
 
+DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
 PAGINATE_BY = 10000
 
 
@@ -32,14 +39,24 @@ class DatastoreController(BaseController):
             limit = int_validator(request.GET.get('limit'), {})
         except Invalid as e:
             abort(400, u'limit: ' + e.error)
+        bom = boolean_validator(request.GET.get('bom'), {})
+        fmt = request.GET.get('format', 'csv')
 
-        wr = None
-        while True:
-            if limit is not None and limit <= 0:
-                break
+        def start_writer(fields):
+            if fmt == 'csv':
+                return csv_writer(response, fields, resource_id, bom)
+            if fmt == 'tsv':
+                return tsv_writer(response, fields, resource_id, bom)
+            if fmt == 'json':
+                return json_writer(response, fields, resource_id, bom)
+            if fmt == 'xml':
+                return xml_writer(response, fields, resource_id, bom)
+            abort(400, _(
+                u'format: must be one of %s') % u', '.join(DUMP_FORMATS))
 
+        def result_page(offset, limit):
             try:
-                result = get_action('datastore_search')(None, {
+                return get_action('datastore_search')(None, {
                     'resource_id': resource_id,
                     'limit':
                         PAGINATE_BY if limit is None
@@ -49,21 +66,21 @@ class DatastoreController(BaseController):
             except ObjectNotFound:
                 abort(404, _('DataStore resource not found'))
 
-            if not wr:
-                response.headers['Content-Type'] = 'text/csv; charset=utf-8'
-                response.headers['Content-disposition'] = (
-                    'attachment; filename="{name}.csv"'.format(
-                        name=resource_id))
-                wr = csv.writer(response, encoding='utf-8')
+        result = result_page(offset, limit)
+        columns = [x['id'] for x in result['fields']]
 
-                header = [x['id'] for x in result['fields']]
-                wr.writerow(header)
+        with start_writer(result['fields']) as wr:
+            while True:
+                if limit is not None and limit <= 0:
+                    break
 
-            for record in result['records']:
-                wr.writerow([record[column] for column in header])
+                for record in result['records']:
+                    wr.writerow([record[column] for column in columns])
 
-            if len(result['records']) < PAGINATE_BY:
-                break
-            offset += PAGINATE_BY
-            if limit is not None:
-                limit -= PAGINATE_BY
+                if len(result['records']) < PAGINATE_BY:
+                    break
+                offset += PAGINATE_BY
+                if limit is not None:
+                    limit -= PAGINATE_BY
+
+                result = result_page(offset, limit)

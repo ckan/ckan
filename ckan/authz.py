@@ -118,6 +118,9 @@ def _get_user(username):
     try:
         if c.userobj and c.userobj.name == username:
             return c.userobj
+    except AttributeError:
+        # c.userobj not set
+        pass
     except TypeError:
         # c is not available
         pass
