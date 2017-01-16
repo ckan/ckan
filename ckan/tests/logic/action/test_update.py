@@ -516,9 +516,10 @@ class TestDatasetUpdate(object):
         dataset = factories.Dataset(
             user=user)
 
-        assert_raises(logic.ValidationError, helpers.call_action,
+        assert_raises(
+            logic.ValidationError, helpers.call_action,
             'package_update'
-            )
+        )
 
     def test_name(self):
         user = factories.User()
@@ -529,7 +530,7 @@ class TestDatasetUpdate(object):
             'package_update',
             id=dataset['id'],
             name='new-name',
-            )
+        )
 
         assert_equals(dataset_['name'], 'new-name')
         assert_equals(
@@ -545,7 +546,7 @@ class TestDatasetUpdate(object):
             'package_update',
             id=dataset['id'],
             title='New Title',
-            )
+        )
 
         assert_equals(dataset_['title'], 'New Title')
         assert_equals(
@@ -562,7 +563,7 @@ class TestDatasetUpdate(object):
             id=dataset['id'],
             extras=[{'key': u'original media',
                      'value': u'"book"'}],
-            )
+        )
 
         assert_equals(dataset_['extras'][0]['key'], 'original media')
         assert_equals(dataset_['extras'][0]['value'], '"book"')
@@ -579,7 +580,7 @@ class TestDatasetUpdate(object):
             'package_update',
             id=dataset['id'],
             license_id='other-open',
-            )
+        )
 
         assert_equals(dataset_['license_id'], 'other-open')
         dataset_ = helpers.call_action('package_show', id=dataset['id'])
@@ -594,7 +595,7 @@ class TestDatasetUpdate(object):
             'package_update',
             id=dataset['id'],
             notes='some notes',
-            )
+        )
 
         assert_equals(dataset_['notes'], 'some notes')
         dataset_ = helpers.call_action('package_show', id=dataset['id'])
@@ -612,7 +613,7 @@ class TestDatasetUpdate(object):
                 {'alt_url': u'alt123',
                  'description': u'Full text.',
                  'somekey': 'somevalue',  # this is how to do resource extras
-                 'extras': {u'someotherkey': u'alt234',}, # this isnt
+                 'extras': {u'someotherkey': u'alt234'},  # this isnt
                  'format': u'plain text',
                  'hash': u'abc123',
                  'position': 0,
@@ -621,7 +622,7 @@ class TestDatasetUpdate(object):
                  'format': u'JSON',
                  'position': 1,
                  'url': u'http://datahub.io/index.json'}],
-            )
+        )
 
         resources_ = dataset_['resources']
         assert_equals(resources_[0]['alt_url'], 'alt123')
@@ -662,14 +663,14 @@ class TestDatasetUpdate(object):
             'package_update',
             id=dataset['id'],
             tags=[{'name': u'russian'}, {'name': u'tolstoy'}],
-            )
+        )
 
         tag_names = sorted([tag_dict['name']
-                             for tag_dict in dataset_['tags']])
+                            for tag_dict in dataset_['tags']])
         assert_equals(tag_names, ['russian', 'tolstoy'])
         dataset_ = helpers.call_action('package_show', id=dataset['id'])
         tag_names = sorted([tag_dict['name']
-                             for tag_dict in dataset_['tags']])
+                            for tag_dict in dataset_['tags']])
         assert_equals(tag_names, ['russian', 'tolstoy'])
 
 
@@ -1222,10 +1223,10 @@ class TestResourceUpdate(object):
             'resource_update',
             id=dataset['resources'][0]['id'],
             somekey='somevalue',  # this is how to do resource extras
-            extras={u'someotherkey': u'alt234',}, # this isnt
+            extras={u'someotherkey': u'alt234'},  # this isnt
             format=u'plain text',
             url=u'http://datahub.io/download/',
-            )
+        )
 
         assert_equals(resource['somekey'], 'somevalue')
         assert 'extras' not in resource

@@ -648,10 +648,10 @@ class TestResourceCreate(object):
             'resource_create',
             package_id=dataset['id'],
             somekey='somevalue',  # this is how to do resource extras
-            extras={u'someotherkey': u'alt234',}, # this isnt
+            extras={u'someotherkey': u'alt234'},  # this isnt
             format=u'plain text',
             url=u'http://datahub.io/download/',
-            )
+        )
 
         assert_equals(resource['somekey'], 'somevalue')
         assert 'extras' not in resource
@@ -793,15 +793,16 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
         )
 
     def test_missing_id(self):
-        assert_raises(logic.ValidationError, helpers.call_action,
+        assert_raises(
+            logic.ValidationError, helpers.call_action,
             'package_create'
-            )
+        )
 
     def test_name(self):
         dataset = helpers.call_action(
             'package_create',
             name='some-name',
-            )
+        )
 
         assert_equals(dataset['name'], 'some-name')
         assert_equals(
@@ -813,7 +814,7 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             'package_create',
             name='test_title',
             title='New Title',
-            )
+        )
 
         assert_equals(dataset['title'], 'New Title')
         assert_equals(
@@ -827,7 +828,7 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             title='Test Extras',
             extras=[{'key': u'original media',
                      'value': u'"book"'}],
-            )
+        )
 
         assert_equals(dataset['extras'][0]['key'], 'original media')
         assert_equals(dataset['extras'][0]['value'], '"book"')
@@ -841,7 +842,7 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             name='test-license',
             title='Test License',
             license_id='other-open',
-            )
+        )
 
         assert_equals(dataset['license_id'], 'other-open')
         dataset = helpers.call_action('package_show', id=dataset['id'])
@@ -853,7 +854,7 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             name='test-notes',
             title='Test Notes',
             notes='some notes',
-            )
+        )
 
         assert_equals(dataset['notes'], 'some notes')
         dataset = helpers.call_action('package_show', id=dataset['id'])
@@ -868,7 +869,7 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
                 {'alt_url': u'alt123',
                  'description': u'Full text.',
                  'somekey': 'somevalue',  # this is how to do resource extras
-                 'extras': {u'someotherkey': u'alt234',}, # this isnt
+                 'extras': {u'someotherkey': u'alt234'},  # this isnt
                  'format': u'plain text',
                  'hash': u'abc123',
                  'position': 0,
@@ -876,8 +877,9 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
                 {'description': u'Index of the novel',
                  'format': u'JSON',
                  'position': 1,
-                 'url': u'http://datahub.io/index.json'}],
-            )
+                 'url': u'http://datahub.io/index.json'}
+            ],
+        )
 
         resources = dataset['resources']
         assert_equals(resources[0]['alt_url'], 'alt123')
@@ -915,14 +917,14 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             name='test-tags',
             title='Test Tags',
             tags=[{'name': u'russian'}, {'name': u'tolstoy'}],
-            )
+        )
 
         tag_names = sorted([tag_dict['name']
-                             for tag_dict in dataset['tags']])
+                            for tag_dict in dataset['tags']])
         assert_equals(tag_names, ['russian', 'tolstoy'])
         dataset = helpers.call_action('package_show', id=dataset['id'])
         tag_names = sorted([tag_dict['name']
-                             for tag_dict in dataset['tags']])
+                            for tag_dict in dataset['tags']])
         assert_equals(tag_names, ['russian', 'tolstoy'])
 
 
