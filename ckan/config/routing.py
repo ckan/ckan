@@ -243,7 +243,7 @@ def make_map():
         m.connect('dataset_followers', '/dataset/followers/{id}',
                   action='followers', ckan_icon='group')
         m.connect('dataset_activity', '/dataset/activity/{id}',
-                  action='activity', ckan_icon='time')
+                  action='activity', ckan_icon='clock-o')
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
         m.connect('dataset_groups', '/dataset/groups/{id}',
                   action='groups', ckan_icon='group')
@@ -312,7 +312,7 @@ def make_map():
         m.connect('group_members', '/group/members/{id}', action='members',
                   ckan_icon='group'),
         m.connect('group_activity', '/group/activity/{id}/{offset}',
-                  action='activity', ckan_icon='time'),
+                  action='activity', ckan_icon='clock-o'),
         m.connect('group_read', '/group/{id}', action='read',
                   ckan_icon='sitemap')
 
@@ -330,7 +330,7 @@ def make_map():
                       'history'
                   ])))
         m.connect('organization_activity', '/organization/activity/{id}/{offset}',
-                  action='activity', ckan_icon='time')
+                  action='activity', ckan_icon='clock-o')
         m.connect('organization_read', '/organization/{id}', action='read')
         m.connect('organization_about', '/organization/about/{id}',
                   action='about', ckan_icon='info-sign')
@@ -363,7 +363,7 @@ def make_map():
         m.connect('user_generate_apikey', '/user/generate_key/{id}', action='generate_apikey')
         m.connect('/user/activity/{id}/{offset}', action='activity')
         m.connect('user_activity_stream', '/user/activity/{id}',
-                  action='activity', ckan_icon='time')
+                  action='activity', ckan_icon='clock-o')
         m.connect('user_dashboard', '/dashboard', action='dashboard',
                   ckan_icon='list')
         m.connect('user_dashboard_datasets', '/dashboard/datasets',
@@ -410,11 +410,11 @@ def make_map():
         m.connect('/feeds/custom.atom', action='custom')
 
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin',
-                action='index', ckan_icon='legal')
+                action='index', ckan_icon='gavel')
     map.connect('ckanadmin_config', '/ckan-admin/config', controller='admin',
                 action='config', ckan_icon='check')
     map.connect('ckanadmin_trash', '/ckan-admin/trash', controller='admin',
-                action='trash', ckan_icon='trash')
+                action='trash', ckan_icon='trash-o')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
 
     with SubMapper(map, controller='ckan.controllers.storage:StorageController') as m:
