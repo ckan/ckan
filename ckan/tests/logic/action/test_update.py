@@ -505,11 +505,7 @@ class TestUpdate(object):
             'group')
 
 
-class TestDatasetUpdate(object):
-
-    @classmethod
-    def teardown_class(cls):
-        helpers.reset_db()
+class TestDatasetUpdate(helpers.FunctionalTestBase):
 
     def test_missing_id(self):
         user = factories.User()

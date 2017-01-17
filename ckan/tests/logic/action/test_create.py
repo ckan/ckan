@@ -748,10 +748,6 @@ class TestMemberCreate(object):
 
 class TestDatasetCreate(helpers.FunctionalTestBase):
 
-    @classmethod
-    def teardown_class(cls):
-        helpers.reset_db()
-
     def test_normal_user_cant_set_id(self):
         user = factories.User()
         context = {
