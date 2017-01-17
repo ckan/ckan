@@ -190,7 +190,8 @@ def update_config():
         if u':' in ckan_host:
             ckan_host, port = ckan_host.split(':')
         assert ckan_host, u'You need to configure ckan.site_url or ' \
-                          u'ckan.site_id for SOLR search-index rebuild to work.'
+                          u'ckan.site_id for SOLR ' \
+                          u'search-index rebuild to work.'
         config[u'ckan.site_id'] = ckan_host
 
     # ensure that a favicon has been set
