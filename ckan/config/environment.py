@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
-warnings.simplefilter('ignore', UserWarning)
+warnings.simplefilter(u'ignore', UserWarning)
 
 
 def load_environment(global_conf, app_conf):
@@ -51,9 +51,9 @@ def load_environment(global_conf, app_conf):
             return self.controller_classes[controller]
         # Check to see if its a dotted name
         if '.' in controller or ':' in controller:
-            ep = pkg_resources.EntryPoint.parse('x={0}'.format(controller))
+            ep = pkg_resources.EntryPoint.parse(u'x={0}'.format(controller))
 
-            if hasattr(ep, 'resolve'):
+            if hasattr(ep, u'resolve'):
                 # setuptools >= 10.2
                 mycontroller = ep.resolve()
             else:
@@ -65,13 +65,13 @@ def load_environment(global_conf, app_conf):
         return find_controller_generic(self, controller)
     PylonsApp.find_controller = find_controller
 
-    os.environ['CKAN_CONFIG'] = global_conf['__file__']
+    os.environ[u'CKAN_CONFIG'] = global_conf[u'__file__']
 
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     paths = dict(root=root,
-                 controllers=os.path.join(root, 'controllers'),
-                 static_files=os.path.join(root, 'public'),
+                 controllers=os.path.join(root, u'controllers'),
+                 static_files=os.path.join(root, u'public'),
                  templates=[])
 
     # Initialize main CKAN config object
@@ -88,16 +88,16 @@ def load_environment(global_conf, app_conf):
 
     # Setup the SQLAlchemy database engine
     # Suppress a couple of sqlalchemy warnings
-    msgs = ['^Unicode type received non-unicode bind param value',
-            "^Did not recognize type 'BIGINT' of column 'size'",
-            "^Did not recognize type 'tsvector' of column 'search_vector'"
+    msgs = [u'^Unicode type received non-unicode bind param value',
+            u"^Did not recognize type 'BIGINT' of column 'size'",
+            u"^Did not recognize type 'tsvector' of column 'search_vector'"
             ]
     for msg in msgs:
-        warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
+        warnings.filterwarnings(u'ignore', msg, sqlalchemy.exc.SAWarning)
 
     # Check Redis availability
     if not is_redis_available():
-        log.critical('Could not connect to Redis.')
+        log.critical(u'Could not connect to Redis.')
 
     # load all CKAN plugins
     p.load_all()
@@ -118,20 +118,20 @@ def load_environment(global_conf, app_conf):
 # Note: Do not remove the following lines, they are used in the docs
 # Start CONFIG_FROM_ENV_VARS
 CONFIG_FROM_ENV_VARS = {
-    'sqlalchemy.url': 'CKAN_SQLALCHEMY_URL',
-    'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
-    'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
-    'ckan.redis.url': 'CKAN_REDIS_URL',
-    'solr_url': 'CKAN_SOLR_URL',
-    'ckan.site_id': 'CKAN_SITE_ID',
-    'ckan.site_url': 'CKAN_SITE_URL',
-    'ckan.storage_path': 'CKAN_STORAGE_PATH',
-    'ckan.datapusher.url': 'CKAN_DATAPUSHER_URL',
-    'smtp.server': 'CKAN_SMTP_SERVER',
-    'smtp.starttls': 'CKAN_SMTP_STARTTLS',
-    'smtp.user': 'CKAN_SMTP_USER',
-    'smtp.password': 'CKAN_SMTP_PASSWORD',
-    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM'
+    u'sqlalchemy.url': u'CKAN_SQLALCHEMY_URL',
+    u'ckan.datastore.write_url': u'CKAN_DATASTORE_WRITE_URL',
+    u'ckan.datastore.read_url': u'CKAN_DATASTORE_READ_URL',
+    u'ckan.redis.url': u'CKAN_REDIS_URL',
+    u'solr_url': u'CKAN_SOLR_URL',
+    u'ckan.site_id': u'CKAN_SITE_ID',
+    u'ckan.site_url': u'CKAN_SITE_URL',
+    u'ckan.storage_path': u'CKAN_STORAGE_PATH',
+    u'ckan.datapusher.url': u'CKAN_DATAPUSHER_URL',
+    u'smtp.server': u'CKAN_SMTP_SERVER',
+    u'smtp.starttls': u'CKAN_SMTP_STARTTLS',
+    u'smtp.user': u'CKAN_SMTP_USER',
+    u'smtp.password': u'CKAN_SMTP_PASSWORD',
+    u'smtp.mail_from': u'CKAN_SMTP_MAIL_FROM'
 }
 # End CONFIG_FROM_ENV_VARS
 
@@ -150,12 +150,12 @@ def update_config():
     # Set whitelisted env vars on config object
     # This is set up before globals are initialized
 
-    ckan_db = os.environ.get('CKAN_DB', None)
+    ckan_db = os.environ.get(u'CKAN_DB', None)
     if ckan_db:
-        msg = 'Setting CKAN_DB as an env var is deprecated and will be' \
-            ' removed in a future release. Use CKAN_SQLALCHEMY_URL instead.'
+        msg = u'Setting CKAN_DB as an env var is deprecated and will be' \
+            u' removed in a future release. Use CKAN_SQLALCHEMY_URL instead.'
         log.warn(msg)
-        config['sqlalchemy.url'] = ckan_db
+        config[u'sqlalchemy.url'] = ckan_db
 
     for option in CONFIG_FROM_ENV_VARS:
         from_env = os.environ.get(CONFIG_FROM_ENV_VARS[option], None)
@@ -164,87 +164,87 @@ def update_config():
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    site_url = config.get('ckan.site_url', '')
+    site_url = config.get(u'ckan.site_url', '')
     if not site_url:
         raise RuntimeError(
-            'ckan.site_url is not configured and it must have a value.'
-            ' Please amend your .ini file.')
+            u'ckan.site_url is not configured and it must have a value.'
+            u' Please amend your .ini file.')
     if not site_url.lower().startswith('http'):
         raise RuntimeError(
-            'ckan.site_url should be a full URL, including the schema '
-            '(http or https)')
+            u'ckan.site_url should be a full URL, including the schema '
+            u'(http or https)')
 
-    display_timezone = config.get('ckan.display_timezone', '')
+    display_timezone = config.get(u'ckan.display_timezone', '')
     if (display_timezone and
-            display_timezone != 'server' and
+            display_timezone != u'server' and
             display_timezone not in pytz.all_timezones):
         raise CkanConfigurationException(
-            "ckan.display_timezone is not 'server' or a valid timezone"
+            u"ckan.display_timezone is not 'server' or a valid timezone"
         )
 
     # Remove backslash from site_url if present
-    config['ckan.site_url'] = config['ckan.site_url'].rstrip('/')
+    config[u'ckan.site_url'] = config[u'ckan.site_url'].rstrip('/')
 
-    ckan_host = config['ckan.host'] = urlparse(site_url).netloc
-    if config.get('ckan.site_id') is None:
-        if ':' in ckan_host:
+    ckan_host = config[u'ckan.host'] = urlparse(site_url).netloc
+    if config.get(u'ckan.site_id') is None:
+        if u':' in ckan_host:
             ckan_host, port = ckan_host.split(':')
-        assert ckan_host, 'You need to configure ckan.site_url or ' \
-                          'ckan.site_id for SOLR search-index rebuild to work.'
-        config['ckan.site_id'] = ckan_host
+        assert ckan_host, u'You need to configure ckan.site_url or ' \
+                          u'ckan.site_id for SOLR search-index rebuild to work.'
+        config[u'ckan.site_id'] = ckan_host
 
     # ensure that a favicon has been set
-    favicon = config.get('ckan.favicon', '/base/images/ckan.ico')
-    config['ckan.favicon'] = favicon
+    favicon = config.get(u'ckan.favicon', u'/base/images/ckan.ico')
+    config[u'ckan.favicon'] = favicon
 
     # Init SOLR settings and check if the schema is compatible
     # from ckan.lib.search import SolrSettings, check_solr_schema_version
 
     # lib.search is imported here as we need the config enabled and parsed
-    search.SolrSettings.init(config.get('solr_url'),
-                             config.get('solr_user'),
-                             config.get('solr_password'))
+    search.SolrSettings.init(config.get(u'solr_url'),
+                             config.get(u'solr_user'),
+                             config.get(u'solr_password'))
     search.check_solr_schema_version()
 
     routes_map = routing.make_map()
-    config['routes.map'] = routes_map
+    config[u'routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists
-    if 'routes.middleware' in config:
-        config['routes.middleware'].mapper = routes_map
+    if u'routes.middleware' in config:
+        config[u'routes.middleware'].mapper = routes_map
     # routes.named_routes is a CKAN thing
-    config['routes.named_routes'] = routing.named_routes
-    config['pylons.app_globals'] = app_globals.app_globals
+    config[u'routes.named_routes'] = routing.named_routes
+    config[u'pylons.app_globals'] = app_globals.app_globals
     # initialise the globals
     app_globals.app_globals._init()
 
     helpers.load_plugin_helpers()
-    config['pylons.h'] = helpers.helper_functions
+    config[u'pylons.h'] = helpers.helper_functions
 
-    jinja2_templates_path = os.path.join(root, 'templates')
+    jinja2_templates_path = os.path.join(root, u'templates')
     template_paths = [jinja2_templates_path]
 
-    extra_template_paths = config.get('extra_template_paths', '')
+    extra_template_paths = config.get(u'extra_template_paths', '')
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
-    config['pylons.app_globals'].template_paths = template_paths
+    config[u'pylons.app_globals'].template_paths = template_paths
 
     # Set the default language for validation messages from formencode
     # to what is set as the default locale in the config
-    default_lang = config.get('ckan.locale_default', 'en')
-    formencode.api.set_stdtranslation(domain="FormEncode",
+    default_lang = config.get(u'ckan.locale_default', 'en')
+    formencode.api.set_stdtranslation(domain=u"FormEncode",
                                       languages=[default_lang])
 
     # Markdown ignores the logger config, so to get rid of excessive
     # markdown debug messages in the log, set it to the level of the
     # root logger.
-    logging.getLogger("MARKDOWN").setLevel(logging.getLogger().level)
+    logging.getLogger(u"MARKDOWN").setLevel(logging.getLogger().level)
 
     # Create Jinja2 environment
     env = jinja_extensions.Environment(
         loader=jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
-        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
+        extensions=[u'jinja2.ext.do', u'jinja2.ext.with_',
                     jinja_extensions.SnippetExtension,
                     jinja_extensions.CkanExtend,
                     jinja_extensions.CkanInternationalizationExtension,
@@ -255,9 +255,9 @@ def update_config():
     )
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
-    env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
-    env.filters['truncate'] = jinja_extensions.truncate
-    config['pylons.app_globals'].jinja_env = env
+    env.filters[u'empty_and_escape'] = jinja_extensions.empty_and_escape
+    env.filters[u'truncate'] = jinja_extensions.truncate
+    config[u'pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
@@ -280,7 +280,7 @@ def update_config():
 
     # Here we create the site user if they are not already in the database
     try:
-        logic.get_action('get_site_user')({'ignore_auth': True}, None)
+        logic.get_action(u'get_site_user')({u'ignore_auth': True}, None)
     except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
         # (ProgrammingError for Postgres, OperationalError for SQLite)
         # The database is not initialised.  This is a bit dirty.  This occurs
