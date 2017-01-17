@@ -9,7 +9,7 @@
   {% link_for _('All views'), controller='package', action='resource_views', id=pkg.name, resource_id=res.id, class_='btn', icon='arrow-left' %}
   {% if res %}
     {% set url = h.url_for(controller='package', action='resource_read', id=pkg.name, resource_id=res.id) ~ '?view_id=' ~ resource_view.id %}
-    <a href="{{ url }}" class="btn"><i class="icon-eye-open"></i> {{ _('View view') }}</a>
+    <a href="{{ url }}" class="btn"><i class="fa fa-eye"></i> {{ _('View view') }}</a>
   {% endif %}
 {% endblock %}
 
@@ -34,7 +34,7 @@
     <div class="wrapper no-nav">
       <section class="module module-narrow module-shallow">
         <h2 class="module-heading">
-          <i class="icon-picture"></i> {{ _('View preview') }}
+          <i class="fa fa-picture-o"></i> {{ _('View preview') }}
         </h2>
         <div class="module-content">
           {% snippet 'package/snippets/resource_view.html', resource_view=resource_view, resource=resource, package=package, to_preview=True %}
