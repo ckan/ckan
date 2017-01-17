@@ -84,6 +84,7 @@ class AdminController(base.BaseController):
 
     def config(self):
 
+        import pdb; pdb.set_trace()  # breakpoint df6065b6 //
         items = self._get_config_form_items()
         data = request.POST
         if 'save' in data:

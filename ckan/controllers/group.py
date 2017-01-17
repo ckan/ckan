@@ -452,6 +452,7 @@ class GroupController(base.BaseController):
         if context['save'] and not data:
             return self._save_new(context, group_type)
 
+        import pdb; pdb.set_trace()  # breakpoint 08a9f946 //
         data = data or {}
         if not data.get('image_url', '').startswith('http'):
             data.pop('image_url', None)

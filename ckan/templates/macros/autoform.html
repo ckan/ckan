@@ -29,7 +29,6 @@ Example
   {{ form.errors(error_summary) if error_summary }}
 
   {% for item in form_info %}
-    {% print not data.image_url %}
     {% set name = item.name %}
     {% set value = data.get(name) %}
     {% set error = errors.get(name) %}
