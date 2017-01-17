@@ -242,7 +242,9 @@ def package_update(context, data_dict):
     '''
     model = context['model']
     user = context['user']
-    name_or_id = data_dict.get("id") or data_dict['name']
+    name_or_id = data_dict.get('id') or data_dict.get('name')
+    if name_or_id is None:
+        raise ValidationError({'id': _('Missing value')})
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:
