@@ -1247,6 +1247,11 @@ def config_option_update(context, data_dict):
 
         raise ValidationError(msg, error_summary={'message': msg})
 
+    upload = uploader.get_uploader('admin')
+    #upload.upload(uploader.get_max_image_size())
+    upload.update_data_dict(data_dict, 'image_url',
+                            'image_upload', 'clear_upload')
+    upload.upload(uploader.get_max_image_size())
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
