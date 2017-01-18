@@ -240,7 +240,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/__init__.py',
     u'ckan/authz.py',
     u'ckan/ckan_nose_plugin.py',
-    u'ckan/config/environment.py',
     u'ckan/config/install.py',
     u'ckan/config/middleware/__init__.py',
     u'ckan/config/middleware/common_middleware.py',
