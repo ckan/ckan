@@ -161,7 +161,7 @@ def create_library(name, path, depend_base=True):
                         dep_resources = [dep]
                     else:
                         dep_resources = groups[dep]
-                    diff = set(dep_resources).difference(depends[resource])
+                    diff = [res for res in dep_resources if res not in depends[resource]]
                     depends[resource].extend(diff)
 
     # process each .js/.css file found
