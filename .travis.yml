@@ -32,4 +32,5 @@ install:
   - docker run -d --name ckan -p 5000:5000 --link db:db --link redis:redis --link solr:solr ckan
 
 script:
-  - docker ps -a
+  - sleep 10
+  - docker ps
