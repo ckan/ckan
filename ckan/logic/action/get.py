@@ -1917,7 +1917,7 @@ def package_search(context, data_dict):
                 results.append(package_dict)
             else:
                 log.error('No package_dict is coming from solr for package '
-                          'id %s', package['id'])
+                          'id %s', package)
 
         count = query.count
         facets = query.facets
