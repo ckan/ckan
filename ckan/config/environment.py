@@ -50,7 +50,7 @@ def load_environment(global_conf, app_conf):
         if controller in self.controller_classes:
             return self.controller_classes[controller]
         # Check to see if its a dotted name
-        if '.' in controller or ':' in controller:
+        if u'.' in controller or u':' in controller:
             ep = pkg_resources.EntryPoint.parse(u'x={0}'.format(controller))
 
             if hasattr(ep, u'resolve'):
@@ -79,7 +79,7 @@ def load_environment(global_conf, app_conf):
     config.update(app_conf)
 
     # Initialize Pylons own config object
-    pylons_config.init_app(global_conf, app_conf, package='ckan', paths=paths)
+    pylons_config.init_app(global_conf, app_conf, package=u'ckan', paths=paths)
 
     # Update the main CKAN config object with the Pylons specific stuff, as it
     # quite hard to keep them separated. This should be removed once Pylons
@@ -164,17 +164,17 @@ def update_config():
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    site_url = config.get(u'ckan.site_url', '')
+    site_url = config.get(u'ckan.site_url', u'')
     if not site_url:
         raise RuntimeError(
             u'ckan.site_url is not configured and it must have a value.'
             u' Please amend your .ini file.')
-    if not site_url.lower().startswith('http'):
+    if not site_url.lower().startswith(u'http'):
         raise RuntimeError(
             u'ckan.site_url should be a full URL, including the schema '
             u'(http or https)')
 
-    display_timezone = config.get(u'ckan.display_timezone', '')
+    display_timezone = config.get(u'ckan.display_timezone', u'')
     if (display_timezone and
             display_timezone != u'server' and
             display_timezone not in pytz.all_timezones):
@@ -183,12 +183,12 @@ def update_config():
         )
 
     # Remove backslash from site_url if present
-    config[u'ckan.site_url'] = config[u'ckan.site_url'].rstrip('/')
+    config[u'ckan.site_url'] = config[u'ckan.site_url'].rstrip(u'/')
 
     ckan_host = config[u'ckan.host'] = urlparse(site_url).netloc
     if config.get(u'ckan.site_id') is None:
         if u':' in ckan_host:
-            ckan_host, port = ckan_host.split(':')
+            ckan_host, port = ckan_host.split(u':')
         assert ckan_host, u'You need to configure ckan.site_url or ' \
                           u'ckan.site_id for SOLR ' \
                           u'search-index rebuild to work.'
@@ -224,15 +224,15 @@ def update_config():
     jinja2_templates_path = os.path.join(root, u'templates')
     template_paths = [jinja2_templates_path]
 
-    extra_template_paths = config.get(u'extra_template_paths', '')
+    extra_template_paths = config.get(u'extra_template_paths', u'')
     if extra_template_paths:
         # must be first for them to override defaults
-        template_paths = extra_template_paths.split(',') + template_paths
+        template_paths = extra_template_paths.split(u',') + template_paths
     config[u'pylons.app_globals'].template_paths = template_paths
 
     # Set the default language for validation messages from formencode
     # to what is set as the default locale in the config
-    default_lang = config.get(u'ckan.locale_default', 'en')
+    default_lang = config.get(u'ckan.locale_default', u'en')
     formencode.api.set_stdtranslation(domain=u"FormEncode",
                                       languages=[default_lang])
 
@@ -264,7 +264,7 @@ def update_config():
     # any Pylons config options)
 
     # Initialize SQLAlchemy
-    engine = sqlalchemy.engine_from_config(config, client_encoding='utf8')
+    engine = sqlalchemy.engine_from_config(config, client_encoding=u'utf8')
     model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):
