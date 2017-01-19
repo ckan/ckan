@@ -25,7 +25,7 @@ this.ckan.module('custom-fields', function (jQuery, _) {
         this.el.on('change', ':checkbox', this._onRemove);
 
         // Style the remove checkbox like a button.
-        this.$('.checkbox').addClass("btn btn-danger icon-remove");
+        this.$('.checkbox').addClass("btn btn-danger fa fa-times");
       }
     },
 
