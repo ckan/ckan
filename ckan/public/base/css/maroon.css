@@ -9320,197 +9320,25 @@ iframe {
   white-space: nowrap;
 }
 .ie9 .homepage .media.module-heading .media-image img,
-.ie8 .homepage .media.module-heading .media-image img,
-.ie7 .homepage .media.module-heading .media-image img {
+.ie8 .homepage .media.module-heading .media-image img {
   width: 85px !important;
 }
-.ie8 .masthead .nav-collapse,
-.ie7 .masthead .nav-collapse {
+.ie8 .masthead .nav-collapse {
   float: right;
 }
 .ie8 [role=main],
-.ie7 [role=main],
-.ie8 .main,
-.ie7 .main {
+.ie8 .main {
   padding-top: 10px;
   background: #eeeeee url("../../../base/images/bg.png");
 }
-.ie8 .hero,
-.ie7 .hero {
+.ie8 .hero {
   background: url("../../../base/images/background-tile.png");
 }
-.ie8 .hero .hero-primary.module-popup .box,
-.ie7 .hero .hero-primary.module-popup .box {
+.ie8 .hero .hero-primary.module-popup .box {
   padding-bottom: 20px !important;
   margin-bottom: 0 !important;
 }
-.ie8 .lang-dropdown,
-.ie7 .lang-dropdown {
+.ie8 .lang-dropdown {
   position: relative !important;
   top: -90px !important;
-}
-.ie7 .alert {
-  position: relative;
-}
-.ie7 .alert .close {
-  position: absolute;
-  top: 6px !important;
-  right: 20px;
-}
-.ie7 .media-item {
-  width: 30%;
-}
-.ie7 .tags .tag-list {
-  *zoom: 1;
-}
-.ie7 .tags .tag-list:before,
-.ie7 .tags .tag-list:after {
-  display: table;
-  content: "";
-  line-height: 0;
-}
-.ie7 .tags .tag-list:after {
-  clear: both;
-}
-.ie7 .tags .tag-list li {
-  display: block;
-  float: left;
-}
-.ie7 .tags h3 {
-  float: left;
-}
-.ie7 .tags .tag {
-  display: block;
-}
-.ie7 .search-giant input {
-  width: 95%;
-}
-.ie7 .control-full input,
-.ie7 .control-full select,
-.ie7 .control-full textarea {
-  width: 95%;
-}
-.ie7 .control-full.control-large .controls input {
-  padding-bottom: 20px;
-}
-.ie7 .controls {
-  position: relative;
-}
-.ie7 .controls .info-block,
-.ie7 .controls .info-inline {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-.ie7 .form-horizontal .controls {
-  margin-left: 0;
-}
-.ie7 .control-custom .checkbox {
-  *display: inline;
-  /* IE7 inline-block hack */
-  *zoom: 1;
-}
-.ie7 .stages {
-  overflow: hidden;
-  background-color: #ededed;
-}
-.ie7 .stages li {
-  height: 30px;
-  width: 27.5%;
-}
-.ie7 .stages li button,
-.ie7 .stages li span {
-  display: block;
-  height: 30px;
-  padding-left: 20px;
-}
-.ie7 .stages li button {
-  height: 50px;
-}
-.ie7 .stages li .highlight {
-  width: auto;
-}
-.ie7 .account-masthead .account a i {
-  line-height: 31px;
-}
-.ie7 .masthead {
-  position: relative;
-  z-index: 1;
-}
-.ie7 .masthead .logo img,
-.ie7 .masthead nav {
-  *display: inline;
-  /* IE7 inline-block hack */
-  *zoom: 1;
-}
-.ie7 .masthead .header-image {
-  display: block;
-}
-.ie7 .masthead .account .dropdown-menu {
-  z-index: 10000;
-}
-.ie7 .module-narrow .nav-item.image {
-  *zoom: 1;
-}
-.ie7 .module-narrow .nav-item.image:before,
-.ie7 .module-narrow .nav-item.image:after {
-  display: table;
-  content: "";
-  line-height: 0;
-}
-.ie7 .module-narrow .nav-item.image:after {
-  clear: both;
-}
-.ie7 .nav-facet .nav-item.active a {
-  content: 'x';
-}
-.ie7 .toolbar .breadcrumb li {
-  padding-right: 10px;
-  margin-right: 5px;
-  background: transparent url("../../../base/images/breadcrumb-slash-ie7.png") 100% 50% no-repeat;
-}
-.ie7 .toolbar .breadcrumb li.active {
-  background-image: none;
-}
-.ie7 .module-heading {
-  *zoom: 1;
-  position: relative;
-}
-.ie7 .module-heading:before,
-.ie7 .module-heading:after {
-  display: table;
-  content: "";
-  line-height: 0;
-}
-.ie7 .module-heading:after {
-  clear: both;
-}
-.ie7 .module-heading .media-content {
-  position: relative;
-}
-.ie7 .module-heading .media-image img {
-  float: left;
-}
-.ie7 .group-listing {
-  position: relative;
-  zoom: 1;
-}
-.ie7 .resource-item {
-  position: static;
-  padding-bottom: 1px;
-}
-.ie7 .resource-item .heading {
-  position: relative;
-}
-.ie7 .resource-item .format-label {
-  left: -48px;
-}
-.ie7 .resource-item .btn-group {
-  position: relative;
-  float: right;
-  top: -35px;
-  right: 0;
-}
-.ie7 .media-overlay .media-heading {
-  background-color: #000;
 }
