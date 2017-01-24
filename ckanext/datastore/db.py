@@ -226,6 +226,24 @@ def _guess_type(field):
     return 'text'
 
 
+def _get_field_info(connection, resource_id):
+    u'''return a dictionary mapping column names to their info data,
+    when present'''
+    qtext = sqlalchemy.text(u'''
+        select pa.attname as name, pd.description as info
+        from pg_class pc, pg_attribute pa, pg_description pd
+        where pa.attrelid = pc.oid and pd.objoid = pc.oid
+            and pd.objsubid = pa.attnum and pc.relname = :res_id
+            and pa.attnum > 0
+    ''')
+    try:
+        return dict(
+            (n, json.loads(v)) for (n, v) in
+            connection.execute(qtext, res_id=resource_id).fetchall())
+    except ValueError:  # don't die on non-json comments
+        return {}
+
+
 def _get_fields(context, data_dict):
     fields = []
     all_fields = context['connection'].execute(
@@ -993,7 +1011,8 @@ def search_data(context, data_dict):
     results = _execute_single_statement(context, sql_string, where_values)
 
     _insert_links(data_dict, limit, offset)
-    return format_results(context, results, data_dict)
+    return format_results(context, results, data_dict, _get_field_info(
+        context['connection'], data_dict['resource_id']))
 
 
 def _execute_single_statement(context, sql_string, where_values):
@@ -1007,13 +1026,16 @@ def _execute_single_statement(context, sql_string, where_values):
     return results
 
 
-def format_results(context, results, data_dict):
+def format_results(context, results, data_dict, field_info=None):
     result_fields = []
     for field in results.cursor.description:
-        result_fields.append({
+        f = {
             'id': field[0].decode('utf-8'),
             'type': _get_type(context, field[1])
-        })
+        }
+        if field_info and f['id'] in field_info:
+            f['info'] = field_info[f['id']]
+        result_fields.append(f)
     if len(result_fields) and result_fields[-1]['id'] == '_full_count':
         result_fields.pop()  # remove _full_count
 
