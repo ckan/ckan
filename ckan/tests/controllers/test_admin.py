@@ -140,7 +140,7 @@ class TestConfig(helpers.FunctionalTestBase):
         # remove logo
         env, config_response = _get_admin_config_page(app)
         config_form = config_response.forms['admin-config-form']
-        config_form['image_url'] = ''
+        config_form['ckan.site_logo'] = ''
         webtest_submit(config_form, 'save', status=302, extra_environ=env)
 
         # new tagline

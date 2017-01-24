@@ -665,9 +665,8 @@ def default_update_configuration_schema():
         'ckan.site_custom_css': [unicode],
         'ckan.main_css': [unicode],
         'ckan.homepage_style': [is_positive_integer],
-        'image_url': [ignore_missing, unicode],
-        'image_upload': [ignore_missing, unicode],
-        'clear_upload': [ignore_missing, unicode],
+        'logo_upload': [ignore_missing, unicode],
+        'clear_logo_upload': [ignore_missing, unicode],
     }
 
     # Add ignore_missing to all fields, otherwise you need to provide them all
