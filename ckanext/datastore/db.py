@@ -357,15 +357,26 @@ def create_table(context, data_dict):
                 })
 
     fields = datastore_fields + supplied_fields + extra_fields
-    sql_fields = u", ".join([u'"{0}" {1}'.format(
-        f['id'], f['type']) for f in fields])
+    sql_fields = u", ".join([u'{0} {1}'.format(
+        datastore_helpers.identifier(f['id']), f['type']) for f in fields])
 
-    sql_string = u'CREATE TABLE "{0}" ({1});'.format(
-        data_dict['resource_id'],
+    sql_string = u'CREATE TABLE {0} ({1});'.format(
+        datastore_helpers.identifier(data_dict['resource_id']),
         sql_fields
     )
 
-    context['connection'].execute(sql_string.replace('%', '%%'))
+    info_sql = []
+    for f in supplied_fields:
+        info = f.get(u'info')
+        if isinstance(info, dict):
+            info_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
+                datastore_helpers.identifier(data_dict['resource_id']),
+                datastore_helpers.identifier(f['id']),
+                datastore_helpers.literal_string(
+                    json.dumps(info, ensure_ascii=False))))
+
+    context['connection'].execute(
+        (sql_string + u';'.join(info_sql)).replace(u'%', u'%%'))
 
 
 def _get_aliases(context, data_dict):
@@ -625,12 +636,29 @@ def alter_table(context, data_dict):
                     'type': _guess_type(records[0][field_id])
                 })
 
-    for field in new_fields:
-        sql = 'ALTER TABLE "{0}" ADD "{1}" {2}'.format(
-            data_dict['resource_id'],
-            field['id'],
-            field['type'])
-        context['connection'].execute(sql.replace('%', '%%'))
+    alter_sql = []
+    for f in new_fields:
+        alter_sql.append(u'ALTER TABLE {0} ADD {1} {2};'.format(
+            datastore_helpers.identifier(data_dict['resource_id']),
+            datastore_helpers.identifier(f['id']),
+            f['type']))
+
+    for f in supplied_fields:
+        if u'info' in f:
+            info = f.get(u'info')
+            if isinstance(info, dict):
+                info_sql = datastore_helpers.literal_string(
+                    json.dumps(info, ensure_ascii=False))
+            else:
+                info_sql = 'NULL'
+            alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
+                datastore_helpers.identifier(data_dict['resource_id']),
+                datastore_helpers.identifier(f['id']),
+                info_sql))
+
+    if alter_sql:
+        context['connection'].execute(
+            u';'.join(alter_sql).replace(u'%', u'%%'))
 
 
 def insert_data(context, data_dict):
