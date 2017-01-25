@@ -99,7 +99,8 @@ def datastore_create_schema():
         'aliases': [ignore_missing, list_of_strings_or_string],
         'fields': {
             'id': [not_empty, unicode],
-            'type': [ignore_missing]
+            'type': [ignore_missing],
+            'info': [ignore_missing],
         },
         'primary_key': [ignore_missing, list_of_strings_or_string],
         'indexes': [ignore_missing, list_of_strings_or_string],
