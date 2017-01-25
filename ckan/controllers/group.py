@@ -8,7 +8,6 @@ from pylons.i18n import get_lang
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
-import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.lib.search as search
@@ -16,7 +15,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins
 import ckan.plugins as plugins
-from ckan.common import OrderedDict, c, g, request, _
+from ckan.common import OrderedDict, c, config, request, _
 
 log = logging.getLogger(__name__)
 
@@ -302,7 +301,7 @@ class GroupController(base.BaseController):
                                     'res_format': _('Formats'),
                                     'license_id': _('Licenses')}
 
-            for facet in g.facets:
+            for facet in h.facets():
                 if facet in default_facet_titles:
                     facets[facet] = default_facet_titles[facet]
                 else:
@@ -337,15 +336,12 @@ class GroupController(base.BaseController):
             )
 
             c.group_dict['package_count'] = query['count']
-            c.facets = query['facets']
-            maintain.deprecate_context_item('facets',
-                                            'Use `c.search_facets` instead.')
 
             c.search_facets = query['search_facets']
             c.search_facets_limits = {}
-            for facet in c.facets.keys():
+            for facet in c.search_facets.keys():
                 limit = int(request.params.get('_%s_limit' % facet,
-                                               g.facets_default_number))
+                            config.get('search.facets.default', 10)))
                 c.search_facets_limits[facet] = limit
             c.page.items = query['results']
 
@@ -354,7 +350,6 @@ class GroupController(base.BaseController):
         except search.SearchError, se:
             log.error('Group search error: %r', se.args)
             c.query_error = True
-            c.facets = {}
             c.page = h.Page(collection=[])
 
         self._setup_template_variables(context, {'id': id},

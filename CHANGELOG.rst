@@ -15,6 +15,9 @@ API changes and deprecations:
    helper) now return all organizations a user belongs to regardless of
    capacity (Admin, Editor or Member), not just the ones where she is an
    administrator (#2457)
+ * ``organization_list_for_user`` (and the ``h.organizations_available()``
+   helper) now default to not include package_count. Pass
+   include_dataset_count=True if you need the package_count values.
  * ``resource['size']`` will change from string to long integer (#3205)
 
 v2.6.0 2016-11-02

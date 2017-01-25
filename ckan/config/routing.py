@@ -140,7 +140,6 @@ def make_map():
     # /api ver 1, 2, 3 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}',
                    ver='/1') as m:
-        m.connect('', action='get_api')
         m.connect('/search/{register}', action='search')
 
     # /api ver 1, 2 or none

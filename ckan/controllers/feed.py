@@ -24,14 +24,15 @@ of the revision history, rather than a feed of datasets.
 import logging
 import urlparse
 
+import webhelpers.feedgenerator
+
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
-import webhelpers.feedgenerator
-from ckan.common import _, g, c, request, response, json
-from ckan.common import config
+
+from ckan.common import _, config, c, request, response, json
 
 # TODO make the item list configurable
 ITEMS_LIMIT = 20
@@ -194,15 +195,16 @@ class FeedController(base.BaseController):
                                   action=group_type,
                                   id=obj_dict['name'])
 
+        site_title = config.get('ckan.site_title', 'CKAN')
         if is_org:
             guid = _create_atom_id(u'/feeds/organization/%s.atom' %
                                    obj_dict['name'])
             alternate_url = self._alternate_url(params,
                                                 organization=obj_dict['name'])
             desc = u'Recently created or updated datasets on %s '\
-                'by organization: "%s"' % (g.site_title, obj_dict['title'])
-            title = u'%s - Organization: "%s"' %\
-                (g.site_title, obj_dict['title'])
+                'by organization: "%s"' % (site_title, obj_dict['title'])
+            title = u'%s - Organization: "%s"' % (site_title,
+                                                  obj_dict['title'])
 
         else:  # is group
             guid = _create_atom_id(u'/feeds/group/%s.atom' %
@@ -210,9 +212,9 @@ class FeedController(base.BaseController):
             alternate_url = self._alternate_url(params,
                                                 groups=obj_dict['name'])
             desc = u'Recently created or updated datasets on %s '\
-                'by group: "%s"' % (g.site_title, obj_dict['title'])
+                'by group: "%s"' % (site_title, obj_dict['title'])
             title = u'%s - Group: "%s"' %\
-                (g.site_title, obj_dict['title'])
+                (site_title, obj_dict['title'])
 
         return self.output_feed(results,
                                 feed_title=title,
@@ -263,12 +265,14 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(params, tags=id)
 
+        site_title = config.get('ckan.site_title', 'CKAN')
+
         return self.output_feed(results,
                                 feed_title=u'%s - Tag: "%s"' %
-                                (g.site_title, id),
+                                (site_title, id),
                                 feed_description=u'Recently created or '
                                 'updated datasets on %s by tag: "%s"' %
-                                (g.site_title, id),
+                                (site_title, id),
                                 feed_link=alternate_url,
                                 feed_guid=_create_atom_id
                                 (u'/feeds/tag/%s.atom' % id),
@@ -293,10 +297,12 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(params)
 
+        site_title = config.get('ckan.site_title', 'CKAN')
+
         return self.output_feed(results,
-                                feed_title=g.site_title,
+                                feed_title=site_title,
                                 feed_description=u'Recently created or '
-                                'updated datasets on %s' % g.site_title,
+                                'updated datasets on %s' % site_title,
                                 feed_link=alternate_url,
                                 feed_guid=_create_atom_id
                                 (u'/feeds/dataset.atom'),
@@ -342,11 +348,13 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(request.params)
 
+        site_title = config.get('ckan.site_title', 'CKAN')
+
         return self.output_feed(results,
-                                feed_title=u'%s - Custom query' % g.site_title,
+                                feed_title=u'%s - Custom query' % site_title,
                                 feed_description=u'Recently created or updated'
                                 ' datasets on %s. Custom query: \'%s\'' %
-                                (g.site_title, q),
+                                (site_title, q),
                                 feed_link=alternate_url,
                                 feed_guid=_create_atom_id(atom_url),
                                 feed_url=feed_url,
