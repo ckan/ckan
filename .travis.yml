@@ -1,0 +1,35 @@
+sudo: required
+
+language: python
+
+services:
+  - docker
+
+cache:
+  directories:
+     - ~/docker
+
+before_install:
+  - if [[ -e ~/docker/postgresql.tar ]]; then docker load -i ~/docker/postgresql.tar; fi
+  - if [[ -e ~/docker/solr.tar ]]; then docker load -i ~/docker/solr.tar; fi
+  - if [[ -e ~/docker/redis.tar ]]; then docker load -i ~/docker/redis.tar; fi
+  - if [[ -e ~/docker/ckan.tar ]]; then docker load -i ~/docker/ckan.tar; fi
+
+  - docker build --rm=false -t postgresql ./contrib/docker/postgresql/
+  - docker build --rm=false -t solr ./contrib/docker/solr/
+  - docker pull redis:latest
+  - docker build --rm=false -t ckan .
+
+  - mkdir -p ~/docker; docker save postgresql > ~/docker/postgresql.tar
+  - mkdir -p ~/docker; docker save solr > ~/docker/solr.tar
+  - mkdir -p ~/docker; docker save redis:latest > ~/docker/redis.tar
+  - mkdir -p ~/docker; docker save ckan > ~/docker/ckan.tar
+
+install:
+  - docker run -d --name db postgresql
+  - docker run -d --name solr solr
+  - docker run -d --name redis redis:latest
+  - docker run -d --name ckan -p 5000:5000 --link db:db --link redis:redis --link solr:solr ckan
+
+script:
+  - docker ps -a

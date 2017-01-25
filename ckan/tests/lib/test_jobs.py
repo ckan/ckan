@@ -6,8 +6,7 @@ Tests for ``ckan.lib.jobs``.
 
 import datetime
 
-from nose.tools import ok_, assert_equal, raises
-from nose.plugins.skip import SkipTest
+from nose.tools import ok_, assert_equal, raises, assert_false
 import rq
 
 import ckan.lib.jobs as jobs
@@ -241,10 +240,9 @@ class TestWorker(RQTestBase):
         u'''
         Test forking a worker horse within a database transaction.
 
-        The horse should get a new SQLAlchemy session but leave the
-        original session alone.
+        The original instances should be unchanged but their session
+        must be closed.
         '''
-        raise SkipTest(u'Failing intermittently')  # FIXME
         pkg_name = u'test-fork-within-a-transaction'
         model.repo.new_revision()
         pkg = model.Package.get(pkg_name)
@@ -255,6 +253,9 @@ class TestWorker(RQTestBase):
         pkg.title = u'bar'
         self.enqueue(database_job, [pkg.id, u'foo'])
         jobs.Worker().work(burst=True)
-        assert_equal(pkg.title, u'bar')  # Original session is unchanged
-        pkg.Session.refresh(pkg)
+        assert_equal(pkg.title, u'bar')  # Original instance is unchanged
+        # The original session has been closed, `pkg.Session` uses the new
+        # session in which `pkg` is not registered.
+        assert_false(pkg in pkg.Session)
+        pkg = model.Package.get(pkg.id)  # Get instance from new session
         assert_equal(pkg.title, u'foofoo')  # Worker only saw committed changes

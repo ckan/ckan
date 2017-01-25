@@ -340,7 +340,7 @@ def default_show_group_schema():
     schema['created'] = []
     schema['display_name'] = []
     schema['extras'] = {'__extras': [keep_extras]}
-    schema['package_count'] = []
+    schema['package_count'] = [ignore_missing]
     schema['packages'] = {'__extras': [keep_extras]}
     schema['revision_id'] = []
     schema['state'] = []
@@ -665,6 +665,8 @@ def default_update_configuration_schema():
         'ckan.site_custom_css': [unicode],
         'ckan.main_css': [unicode],
         'ckan.homepage_style': [is_positive_integer],
+        'logo_upload': [ignore_missing, unicode],
+        'clear_logo_upload': [ignore_missing, unicode],
     }
 
     # Add ignore_missing to all fields, otherwise you need to provide them all
