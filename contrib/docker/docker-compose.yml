@@ -1,19 +1,28 @@
-version: '2'
-services:
-  ckan:
-    container_name: ckan
-    image: ckan/ckan:latest
-    depends_on:
+# docker-compose build && docker-compose up
+ckan:
+  container_name: ckan
+  image: ckan/ckan:latest
+  links:
       - db
       - solr
-    links:
-       - db
-       - solr
-    ports:
-       - "80:80"
-  db:
-    container_name: db
-    image: ckan/postgresql:latest
-  solr:
-    container_name: solr
-    image: ckan/solr:latest
+      - redis
+  ports:
+      - "80:5000"
+
+db:
+  container_name: db
+  image: ckan/postgresql:latest
+  ports:
+    - "5432:5432"
+  
+solr:
+  container_name: solr
+  image: ckan/solr:latest
+  ports: 
+    - "8983:8983"
+    
+redis:
+  container_name: redis
+  image: redis:latest
+  ports: 
+    - "6379:6379"

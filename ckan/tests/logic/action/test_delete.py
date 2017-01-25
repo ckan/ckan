@@ -506,6 +506,15 @@ class TestUserDelete(object):
         user_obj = model.User.get(user[u'id'])
         assert_equals(user_obj.state, u'deleted')
 
+    def test_user_delete_but_user_doesnt_exist(self):
+        context = {}
+        params = {u'id': 'unknown'}
+
+        assert_raises(
+            logic.NotFound,
+            helpers.call_action,
+            u'user_delete', context, **params)
+
     def test_user_delete_removes_memberships(self):
         user = factories.User()
         factories.Organization(
