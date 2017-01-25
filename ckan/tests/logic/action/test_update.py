@@ -505,6 +505,171 @@ class TestUpdate(object):
             'group')
 
 
+class TestDatasetUpdate(helpers.FunctionalTestBase):
+
+    def test_missing_id(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        assert_raises(
+            logic.ValidationError, helpers.call_action,
+            'package_update'
+        )
+
+    def test_name(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        dataset_ = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            name='new-name',
+        )
+
+        assert_equals(dataset_['name'], 'new-name')
+        assert_equals(
+            helpers.call_action('package_show', id=dataset['id'])['name'],
+            'new-name')
+
+    def test_title(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        dataset_ = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            title='New Title',
+        )
+
+        assert_equals(dataset_['title'], 'New Title')
+        assert_equals(
+            helpers.call_action('package_show', id=dataset['id'])['title'],
+            'New Title')
+
+    def test_extras(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        dataset_ = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            extras=[{'key': u'original media',
+                     'value': u'"book"'}],
+        )
+
+        assert_equals(dataset_['extras'][0]['key'], 'original media')
+        assert_equals(dataset_['extras'][0]['value'], '"book"')
+        dataset_ = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(dataset_['extras'][0]['key'], 'original media')
+        assert_equals(dataset_['extras'][0]['value'], '"book"')
+
+    def test_license(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        dataset_ = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            license_id='other-open',
+        )
+
+        assert_equals(dataset_['license_id'], 'other-open')
+        dataset_ = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(dataset_['license_id'], 'other-open')
+
+    def test_notes(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        dataset_ = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            notes='some notes',
+        )
+
+        assert_equals(dataset_['notes'], 'some notes')
+        dataset_ = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(dataset_['notes'], 'some notes')
+
+    def test_resources(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        dataset_ = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            resources=[
+                {'alt_url': u'alt123',
+                 'description': u'Full text.',
+                 'somekey': 'somevalue',  # this is how to do resource extras
+                 'extras': {u'someotherkey': u'alt234'},  # this isnt
+                 'format': u'plain text',
+                 'hash': u'abc123',
+                 'position': 0,
+                 'url': u'http://datahub.io/download/'},
+                {'description': u'Index of the novel',
+                 'format': u'JSON',
+                 'position': 1,
+                 'url': u'http://datahub.io/index.json'}],
+        )
+
+        resources_ = dataset_['resources']
+        assert_equals(resources_[0]['alt_url'], 'alt123')
+        assert_equals(resources_[0]['description'], 'Full text.')
+        assert_equals(resources_[0]['somekey'], 'somevalue')
+        assert 'extras' not in resources_[0]
+        assert 'someotherkey' not in resources_[0]
+        assert_equals(resources_[0]['format'], 'plain text')
+        assert_equals(resources_[0]['hash'], 'abc123')
+        assert_equals(resources_[0]['position'], 0)
+        assert_equals(resources_[0]['url'], 'http://datahub.io/download/')
+        assert_equals(resources_[1]['description'], 'Index of the novel')
+        assert_equals(resources_[1]['format'], 'JSON')
+        assert_equals(resources_[1]['url'], 'http://datahub.io/index.json')
+        assert_equals(resources_[1]['position'], 1)
+        resources_ = helpers.call_action(
+            'package_show', id=dataset['id'])['resources']
+        assert_equals(resources_[0]['alt_url'], 'alt123')
+        assert_equals(resources_[0]['description'], 'Full text.')
+        assert_equals(resources_[0]['somekey'], 'somevalue')
+        assert 'extras' not in resources_[0]
+        assert 'someotherkey' not in resources_[0]
+        assert_equals(resources_[0]['format'], 'plain text')
+        assert_equals(resources_[0]['hash'], 'abc123')
+        assert_equals(resources_[0]['position'], 0)
+        assert_equals(resources_[0]['url'], 'http://datahub.io/download/')
+        assert_equals(resources_[1]['description'], 'Index of the novel')
+        assert_equals(resources_[1]['format'], 'JSON')
+        assert_equals(resources_[1]['url'], 'http://datahub.io/index.json')
+        assert_equals(resources_[1]['position'], 1)
+
+    def test_tags(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        dataset_ = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            tags=[{'name': u'russian'}, {'name': u'tolstoy'}],
+        )
+
+        tag_names = sorted([tag_dict['name']
+                            for tag_dict in dataset_['tags']])
+        assert_equals(tag_names, ['russian', 'tolstoy'])
+        dataset_ = helpers.call_action('package_show', id=dataset['id'])
+        tag_names = sorted([tag_dict['name']
+                            for tag_dict in dataset_['tags']])
+        assert_equals(tag_names, ['russian', 'tolstoy'])
+
+
 class TestUpdateSendEmailNotifications(object):
     @classmethod
     def setup_class(cls):
@@ -1040,6 +1205,33 @@ class TestResourceUpdate(object):
         upd_size = int(res_update.pop('size'))  # 358 bytes
 
         assert org_size > upd_size
+
+    def test_extras(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user,
+            resources=[dict(
+                format=u'json',
+                url=u'http://datahub.io/',
+            )])
+
+        resource = helpers.call_action(
+            'resource_update',
+            id=dataset['resources'][0]['id'],
+            somekey='somevalue',  # this is how to do resource extras
+            extras={u'someotherkey': u'alt234'},  # this isnt
+            format=u'plain text',
+            url=u'http://datahub.io/download/',
+        )
+
+        assert_equals(resource['somekey'], 'somevalue')
+        assert 'extras' not in resource
+        assert 'someotherkey' not in resource
+        resource = helpers.call_action(
+            'package_show', id=dataset['id'])['resources'][0]
+        assert_equals(resource['somekey'], 'somevalue')
+        assert 'extras' not in resource
+        assert 'someotherkey' not in resource
 
 
 class TestConfigOptionUpdate(object):
