@@ -454,6 +454,9 @@ def group_list(context, data_dict):
         packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
+    :param include_dataset_count: if all_fields, include the full package_count
+        (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: if all_fields, include the group extra fields
         (optional, default: ``False``)
     :type include_extras: boolean
@@ -467,9 +470,7 @@ def group_list(context, data_dict):
         (optional, default: ``False``).
     :type include_users: boolean
 
-
     :rtype: list of strings
-
     '''
     _check_access('group_list', context, data_dict)
     return _group_or_org_list(context, data_dict)
@@ -503,6 +504,9 @@ def organization_list(context, data_dict):
         packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
+    :param include_dataset_count: if all_fields, include the full package_count
+        (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: if all_fields, include the organization extra fields
         (optional, default: ``False``)
     :type include_extras: boolean
@@ -624,6 +628,9 @@ def organization_list_for_user(context, data_dict):
         returned organizations, for example ``"read"`` or ``"create_dataset"``
         (optional, default: ``"manage_group"``)
     :type permission: string
+    :param include_dataset_count: include the package_count in each org
+        (optional, default: ``False``)
+    :type include_dataset_count: boolean
 
     :returns: list of organizations that the user has the given permission for
     :rtype: list of dicts
@@ -692,7 +699,8 @@ def organization_list_for_user(context, data_dict):
             (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()]
 
     context['with_capacity'] = True
-    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context)
+    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
+        with_package_counts=asbool(data_dict.get('include_dataset_count')))
     return orgs_list
 
 
@@ -1210,8 +1218,12 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
 
-    include_datasets = asbool(data_dict.get('include_datasets', False))
-    packages_field = 'datasets' if include_datasets else 'dataset_count'
+    if asbool(data_dict.get('include_datasets', False)):
+        packages_field = 'datasets'
+    elif asbool(data_dict.get('include_dataset_count', True)):
+        packages_field = 'dataset_count'
+    else:
+        packages_field = None
 
     include_tags = asbool(data_dict.get('include_tags', True))
     include_users = asbool(data_dict.get('include_users', True))
@@ -1275,9 +1287,12 @@ def group_show(context, data_dict):
 
     :param id: the id or name of the group
     :type id: string
-    :param include_datasets: include a list of the group's datasets
+    :param include_datasets: include a truncated list of the group's datasets
          (optional, default: ``False``)
-    :type id: boolean
+    :type include_datasets: boolean
+    :param include_dataset_count: include the full package_count
+         (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: include the group's extra fields
          (optional, default: ``True``)
     :type id: boolean
@@ -1307,9 +1322,12 @@ def organization_show(context, data_dict):
 
     :param id: the id or name of the organization
     :type id: string
-    :param include_datasets: include a list of the organization's datasets
+    :param include_datasets: include a truncated list of the org's datasets
          (optional, default: ``False``)
-    :type id: boolean
+    :type include_datasets: boolean
+    :param include_dataset_count: include the full package_count
+         (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: include the organization's extra fields
          (optional, default: ``True``)
     :type id: boolean
