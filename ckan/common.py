@@ -50,6 +50,8 @@ def ugettext(*args, **kwargs):
         return flask_ugettext(*args, **kwargs)
     else:
         return pylons_ugettext(*args, **kwargs)
+
+
 _ = ugettext
 
 
