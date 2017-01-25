@@ -231,9 +231,6 @@ def ckan_after_request(response):
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
 
-    if flask_app.debug:
-        response.headers[u'X-CKAN-APP'] = u'Flask'
-
     return response
 
 
