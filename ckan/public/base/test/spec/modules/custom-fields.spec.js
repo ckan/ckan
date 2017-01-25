@@ -55,7 +55,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
       this.module.initialize();
 
       assert.equal(this.module.$('.checkbox.btn').length, 1, 'each item should have the .btn class');
-      assert.equal(this.module.$('.checkbox.icon-remove').length, 1, 'each item shoud have the .icon-remove class');
+      assert.equal(this.module.$('.checkbox.fa-times').length, 1, 'each item shoud have the .fa-times class');
     });
   });
 

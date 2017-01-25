@@ -12,7 +12,7 @@
 <li{% if is_selected %} class="active"{% endif %} data-id="{{ view.id }}">
 
   <a href="{{ url }}" data-id="{{ view.id }}">
-    <i class="icon icon-{{ h.resource_view_icon(view) }}"></i>
+    <i class="fa icon fa-{{ h.resource_view_icon(view) }}"></i>
     {{ view.title }}
   </a>
 </li>
