@@ -795,7 +795,6 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
         deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
         assert_equals(deleted_dataset['name'], dataset['name'])
 
-
     def test_name_not_changed_after_restoring(self):
         dataset = factories.Dataset()
         context = {
