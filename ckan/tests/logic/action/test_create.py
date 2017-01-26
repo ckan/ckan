@@ -18,6 +18,7 @@ from pyfakefs import fake_filesystem
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+assert_not_equals = nose.tools.assert_not_equals
 
 real_open = open
 fs = fake_filesystem.FakeFilesystem()
@@ -794,6 +795,19 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
         deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
         assert_equals(deleted_dataset['name'], dataset['name'])
 
+
+    def test_name_not_changed_after_restoring(self):
+        dataset = factories.Dataset()
+        context = {
+            'user': factories.Sysadmin()['name']
+        }
+        helpers.call_action('package_delete', id=dataset['id'])
+        deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
+        restored_dataset = helpers.call_action(
+            'package_patch', context=context, id=dataset['id'], state='active')
+        assert_equals(deleted_dataset['name'], restored_dataset['name'])
+        assert_equals(deleted_dataset['id'], restored_dataset['id'])
+
     def test_creation_of_dataset_with_name_same_as_of_previously_removed(self):
         dataset = factories.Dataset()
         initial_name = dataset['name']
@@ -804,7 +818,9 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
         )
         assert_equals(new_dataset['name'], initial_name)
         deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
-        assert_equals(deleted_dataset['name'], dataset['id'])
+
+        assert_not_equals(new_dataset['id'], deleted_dataset['id'])
+        assert_equals(deleted_dataset['name'], deleted_dataset['id'])
 
     def test_missing_id(self):
         assert_raises(
