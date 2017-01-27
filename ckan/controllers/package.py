@@ -403,7 +403,24 @@ class PackageController(base.BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-        except (NotFound, NotAuthorized):
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            tmp_context = context.copy()
+            tmp_context['ignore_auth'] = True
+
+            pkg = get_action('package_show')(tmp_context, data_dict)
+            if pkg['state'] == 'deleted':
+                # We're not authorized because this dataset has been deleted
+                # and we're not allowed to see deleted packages. Instead of
+                # 404ing as in core CKAN we display a "Dataset Deleted" page.
+                return render('package/deleted.html', extra_vars={
+                    'created': pkg['metadata_created'],
+                    'modified': pkg['metadata_modified'],
+                    'organization': pkg.get('organization', {}).get('title'),
+                    'site_url': config.get('ckan.site_url')
+                })
+
             abort(404, _('Dataset not found'))
 
         # used by disqus plugin
