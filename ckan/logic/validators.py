@@ -358,7 +358,7 @@ def package_name_validator(key, data, errors, context):
         query = query.filter(model.Package.id <> package_id)
     result = query.first()
     if result and result.state != State.DELETED:
-            errors[key].append(_('That URL is already in use.'))
+        errors[key].append(_('That URL is already in use.'))
 
     value = data[key]
     if len(value) < PACKAGE_NAME_MIN_LENGTH:
