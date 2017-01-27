@@ -1493,6 +1493,8 @@ def user_show(context, data_dict):
     :rtype: dictionary
 
     '''
+    _check_access('user_show', context, data_dict)
+
     model = context['model']
 
     id = data_dict.get('id', None)
@@ -1506,8 +1508,6 @@ def user_show(context, data_dict):
         context['user_obj'] = user_obj = provided_user
     else:
         raise NotFound
-
-    _check_access('user_show', context, data_dict)
 
     # include private and draft datasets?
     requester = context.get('user')
