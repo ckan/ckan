@@ -90,16 +90,6 @@ this.ckan = this.ckan || {};
 
 })(this.ckan, this.jQuery);
 
-// Forces this to redraw in Internet Explorer 7
-// This is useful for when IE7 doesn't properly render parts of the page after
-// some dom manipulation has happened
-this.jQuery.fn.ie7redraw = function() {
-  if (jQuery('html').hasClass('ie7')) {
-    jQuery(this).css('zoom', 1);
-  }
-};
-
-
 // Show / hide filters for mobile
 $(function() {
   $(".show-filters").click(function() {

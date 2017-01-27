@@ -19,6 +19,10 @@ API changes and deprecations:
    helper) now default to not include package_count. Pass
    include_dataset_count=True if you need the package_count values.
  * ``resource['size']`` will change from string to long integer (#3205)
+ * upgrade Font-Awesome from version 3.2.1 to 4.0.3
+   please refer to
+   https://github.com/FortAwesome/Font-Awesome/wiki/Upgrading-from-3.2.1-to-4
+   to upgrade your code accordingly.
 
 v2.6.0 2016-11-02
 =================

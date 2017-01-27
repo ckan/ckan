@@ -11,6 +11,7 @@ import mimetypes
 from ckan.common import config
 import paste.deploy.converters as converters
 
+import ckan.lib.helpers as h
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema as schema_
@@ -1249,12 +1250,20 @@ def config_option_update(context, data_dict):
 
         raise ValidationError(msg, error_summary={'message': msg})
 
+    upload = uploader.get_uploader('admin')
+    upload.update_data_dict(data_dict, 'ckan.site_logo',
+                            'logo_upload', 'clear_logo_upload')
+    upload.upload(uploader.get_max_image_size())
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
 
     for key, value in data.iteritems():
+
+        # Set full Logo url
+        if key =='ckan.site_logo' and value and not value.startswith('http'):
+            value = h.url_for_static('uploads/admin/{0}'.format(value))
 
         # Save value in database
         model.set_system_info(key, value)

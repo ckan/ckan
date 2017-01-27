@@ -9,13 +9,13 @@
 {% endblock %}
 
 {% block content_primary_nav %}
-  <li class="active"><a href="#"><i class="icon-edit"></i> {{ _('Add view') }}</a></li>
+  <li class="active"><a href="#"><i class="fa fa-pencil-square-o"></i> {{ _('Add view') }}</a></li>
 {% endblock %}
 
 {% block form %}
   {% if resource_view.view_type == 'recline_view' and not datastore_available %}
     <p class="text-info">
-      <i class="icon-info-sign"></i>
+      <i class="fa fa-info-circle"></i>
       {% trans %}
       Data Explorer views may be slow and unreliable unless the DataStore extension is enabled. For more information, please see the <a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer documentation</a>.
       {% endtrans %}
