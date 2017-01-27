@@ -1,0 +1,5 @@
+{% ckan_extends %}
+
+{% block inner_primary_nav %}
+  {{ h.build_nav_icon('resource_data', _('DataPusher'), id=pkg.name, resource_id=res.id) }}
+{% endblock %}

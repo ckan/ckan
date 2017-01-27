@@ -22,9 +22,7 @@
 
 {% block content_primary_nav %}
   {{ h.build_nav_icon('resource_edit', _('Edit resource'), id=pkg.name, resource_id=res.id) }}
-  {% if 'datapusher' in g.plugins %}
-    {{ h.build_nav_icon('resource_data', _('DataStore'), id=pkg.name, resource_id=res.id) }}
-  {% endif %}
+  {% block inner_primary_nav %}{% endblock %}
   {{ h.build_nav_icon('views', _('Views'), id=pkg.name, resource_id=res.id) }}
 {% endblock %}
 

@@ -72,6 +72,7 @@ class ResourceDataController(base.BaseController):
 
 
 class DatapusherPlugin(p.SingletonPlugin):
+    p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
@@ -82,6 +83,9 @@ class DatapusherPlugin(p.SingletonPlugin):
 
     legacy_mode = False
     resource_show_action = None
+
+    def update_config(self, config):
+        p.toolkit.add_template_directory(config, 'templates')
 
     def configure(self, config):
         self.config = config
