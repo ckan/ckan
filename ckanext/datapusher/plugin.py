@@ -67,7 +67,7 @@ class ResourceDataController(base.BaseController):
         except logic.NotAuthorized:
             base.abort(401, _('Not authorized to see this page'))
 
-        return base.render('package/resource_data.html',
+        return base.render('datapusher/resource_data.html',
                            extra_vars={'status': datapusher_status})
 
 
