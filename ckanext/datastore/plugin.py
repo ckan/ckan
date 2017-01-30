@@ -246,9 +246,14 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
-        m.connect('/datastore/dump/{resource_id}',
-                  controller='ckanext.datastore.controller:DatastoreController',
-                  action='dump')
+        m.connect(
+            '/datastore/dump/{resource_id}',
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='dump')
+        m.connect(
+            'resource_dictionary', '/dataset/{id}/dictionary/{resource_id}',
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='dictionary', ckan_icon='book')
         return m
 
     def before_show(self, resource_dict):
