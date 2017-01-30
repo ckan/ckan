@@ -18,6 +18,7 @@ from ckan.plugins.toolkit import (
     abort,
     render,
     c,
+    h,
 )
 from ckanext.datastore.writer import (
     csv_writer,
@@ -91,8 +92,6 @@ class DatastoreController(BaseController):
 
     def dictionary(self, id, resource_id):
         u'''data dictionary view: show/edit field labels and descriptions'''
-        if request.method == 'POST':
-            return
 
         try:
             # resource_edit_base template uses these
@@ -105,10 +104,29 @@ class DatastoreController(BaseController):
                 'limit': 0})
         except (ObjectNotFound, NotAuthorized):
             abort(404, _('Resource not found'))
-        
+
         fields = [f for f in rec['fields'] if not f['id'].startswith('_')]
 
-        return render('datastore/dictionary.html',
+        if request.method == 'POST':
+            get_action('datastore_create')(None, {
+                'resource_id': resource_id,
+                'force': True,
+                'fields': [{
+                    'id': f['id'],
+                    'type': f['type'],
+                    'info': {
+                        'label': request.POST.get('f{0}label'.format(i)),
+                        'notes': request.POST.get('f{0}notes'.format(i)),
+                        }} for i, f in enumerate(fields, 1)]})
+
+            h.redirect_to(
+                controller='ckanext.datastore.controller:DatastoreController',
+                action='dictionary',
+                id=id,
+                resource_id=resource_id)
+
+        return render(
+            'datastore/dictionary.html',
             extra_vars={'fields': fields})
 
 
