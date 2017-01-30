@@ -231,7 +231,7 @@ class IResourceView(Interface):
         :param default_description: default description that will be used if
             the view is created automatically (optional, defaults to '').
         :param icon: icon for the view type. Should be one of the
-            `Font Awesome`_ types without the `icon-` prefix eg. `compass`
+            `Font Awesome`_ types without the `fa fa-` prefix eg. `compass`
             (optional, defaults to 'picture').
         :param always_available: the view type should be always available when
             creating new views regardless of the format of the resource
@@ -262,7 +262,7 @@ class IResourceView(Interface):
              'schema': {
                 'image_url': [ignore_empty, unicode]
              },
-             'icon': 'picture',
+             'icon': 'picture-o',
              'always_available': True,
              'iframed': False,
              }

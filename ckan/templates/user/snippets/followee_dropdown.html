@@ -1,12 +1,12 @@
 {% macro followee_icon(type) -%}
   {% if type == 'dataset' %}
-    <i class="icon-sitemap"></i>
+    <i class="fa fa-sitemap"></i>
   {% elif type == 'user' %}
-    <i class="icon-user"></i>
+    <i class="fa fa-user"></i>
   {% elif type == 'group' %}
-    <i class="icon-group"></i>
+    <i class="fa fa-users"></i>
   {% elif type == 'organization' %}
-    <i class="icon-building"></i>
+    <i class="fa fa-building-o"></i>
   {% endif %}
 {%- endmacro %}
 
@@ -19,7 +19,7 @@
   <form id="followee-popover" action="/dashboard" class="dropdown js-hide">
     <div class="popover-header">
       <div class="input-prepend">
-        <span class="add-on"><i class="icon-search"></i></span>
+        <span class="add-on"><i class="fa fa-search"></i></span>
         <input type="text" name="q" placeholder="{{ _('Search list...') }}" value="{{context.q}}" autocomplete="off">
       </div>
     </div>
@@ -27,7 +27,7 @@
       <ul class="nav nav-pills nav-stacked">
         <li class="everything {% if context.selected_id == False %} active{% endif %}">
           <a href="{{ h.url_for(controller='user', action='dashboard') }}">
-            <i class="icon-star"></i>
+            <i class="fa fa-star"></i>
             <span>Everything</span>
           </a>
         </li>
