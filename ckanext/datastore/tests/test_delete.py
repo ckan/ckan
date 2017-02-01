@@ -20,6 +20,7 @@ from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 assert_raises = nose.tools.assert_raises
 
+
 class TestDatastoreDelete(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
