@@ -9,6 +9,7 @@ import sqlalchemy.engine.url as sa_url
 import ckan.plugins as p
 import ckan.logic as logic
 import ckan.model as model
+from ckan.model.core import State
 from ckan.common import config
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
@@ -251,6 +252,8 @@ class DatastorePlugin(p.SingletonPlugin):
                   action='dump')
         return m
 
+    # IResourceController
+
     def before_show(self, resource_dict):
         # Modify the resource url of datastore resources so that
         # they link to the datastore dumps.
@@ -264,6 +267,28 @@ class DatastorePlugin(p.SingletonPlugin):
             resource_dict[u'datastore_active'] = False
 
         return resource_dict
+
+    def after_delete(self, context, resources):
+        model = context['model']
+        pkg = context['package']
+        res_query = model.Session.query(model.Resource)
+        query = res_query.filter(
+            model.Resource.package_id == pkg.id,
+            model.Resource.state == State.DELETED
+        )
+        deleted = [
+            res for res in query.all()
+            if res.extras.get('datastore_active') is True]
+
+        for res in deleted:
+            try:
+                logic.get_action('datastore_delete')(
+                    context, {'resource_id': res.id, 'force': True})
+            except logic.NotFound:
+                # resource was just deleted, so it's expected situation
+                res.extras['datastore_active'] = False
+                res_query.update(
+                    {'extras': res.extras}, synchronize_session=False)
 
     def datastore_validate(self, context, data_dict, fields_types):
         column_names = fields_types.keys()
