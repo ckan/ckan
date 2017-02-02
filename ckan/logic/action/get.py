@@ -1866,6 +1866,8 @@ def package_search(context, data_dict):
         The parameter that controls which fields are returned in the solr
         query cannot be changed.  CKAN always returns the matched datasets as
         dictionary objects.
+        if fl='id' or 'name', only this field in the dataset dictionary will
+        be returned.
     '''
     # sometimes context['schema'] is None
     schema = (context.get('schema') or
@@ -1908,8 +1910,10 @@ def package_search(context, data_dict):
         else:
             data_source = 'validated_data_dict'
         data_dict.pop('use_default_schema', None)
+
         # return a list of package ids
-        data_dict['fl'] = 'id {0}'.format(data_source)
+        if data_dict.get('fl') not in ('id', 'name'):
+            data_dict['fl'] = 'id {0}'.format(data_source)
 
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
@@ -1944,21 +1948,25 @@ def package_search(context, data_dict):
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
 
-        for package in query.results:
-            # get the package object
-            package_dict = package.get(data_source)
-            ## use data in search index if there
-            if package_dict:
-                # the package_dict still needs translating when being viewed
-                package_dict = json.loads(package_dict)
-                if context.get('for_view'):
-                    for item in plugins.PluginImplementations(
-                            plugins.IPackageController):
-                        package_dict = item.before_view(package_dict)
-                results.append(package_dict)
-            else:
-                log.error('No package_dict is coming from solr for package '
-                          'id %s', package['id'])
+        if data_dict.get('fl') in ['id', 'name']:
+            for package in query.results:
+                results.append( {data_dict.get('fl'):package} )
+        else:
+            for package in query.results:
+                # get the package object
+                package_dict = package.get(data_source)
+                ## use data in search index if there
+                if package_dict:
+                    # the package_dict still needs translating when being viewed
+                    package_dict = json.loads(package_dict)
+                    if context.get('for_view'):
+                        for item in plugins.PluginImplementations(
+                                plugins.IPackageController):
+                            package_dict = item.before_view(package_dict)
+                    results.append(package_dict)
+                else:
+                    log.error('No package_dict is coming from solr for package '
+                              'id %s', package['id'])
 
         count = query.count
         facets = query.facets
