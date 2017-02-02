@@ -455,6 +455,7 @@ class PackageController(base.BaseController):
         assert False, "We should never get here"
 
     def history(self, id):
+        abort(429, _('Too many requests.'))
 
         if 'diff' in request.params or 'selected1' in request.params:
             try:
