@@ -15,7 +15,6 @@ import click
 
 
 datastore_group = paster_click_group(
-    command=u'datastore',
     summary=u'Perform commands to set up the datastore')
 
 
@@ -25,8 +24,9 @@ datastore_group = paster_click_group(
          u'datastore users as configured in your configuration file.')
 @click.help_option(u'-h', u'--help')
 @click_config_option
-def set_permissions(config):
-    load_config(config)
+@click.pass_context
+def set_permissions(ctx, config):
+    load_config(config or ctx.obj['config'])
 
     write_url = parse_db_config(u'ckan.datastore.write_url')
     read_url = parse_db_config(u'ckan.datastore.read_url')

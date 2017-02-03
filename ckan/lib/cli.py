@@ -189,7 +189,7 @@ def load_config(config, load_site_user=True):
     request_config.protocol = parsed.scheme
 
 
-def paster_click_group(command, summary):
+def paster_click_group(summary):
     '''Return a paster command click.Group for paster subcommands
 
     :param command: the paster command linked to this function from
@@ -200,22 +200,22 @@ def paster_click_group(command, summary):
     class PasterClickGroup(click.Group):
         '''A click.Group that may be called like a paster command'''
         def __call__(self, ignored_command):
-            super(PasterClickGroup, self).__call__(
-                prog_name=u'paster ' + command,
-                help_option_names=[u'-h', u'--help'])
-
-    class HiddenClickArgument(click.Argument):
-        def get_usage_pieces(self, ctx):
-            return []
+            sys.argv.remove(ignored_command)
+            return super(PasterClickGroup, self).__call__(
+                prog_name=u'paster ' + ignored_command,
+                help_option_names=[u'-h', u'--help'],
+                obj={})
 
     @click.group(cls=PasterClickGroup)
     @click.option(
         '--plugin',
         metavar='ckan',
         help='paster plugin (when run outside ckan directory)')
-    @click.argument('command', cls=HiddenClickArgument)
-    def cli(plugin, command):
-        pass
+    @click_config_option
+    @click.pass_context
+    def cli(ctx, plugin, config):
+        ctx.obj['config'] = config
+
 
     cli.summary = summary
     cli.group_name = u'ckan'
