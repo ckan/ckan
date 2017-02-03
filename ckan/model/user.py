@@ -7,7 +7,7 @@ import passlib.utils
 from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
-from sqlalchemy import types, Column, Table
+from sqlalchemy import types, Column, Table, func
 import vdm.sqlalchemy
 
 import meta
@@ -192,9 +192,20 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
     def number_of_edits(self):
         # have to import here to avoid circular imports
         import ckan.model as model
-        revisions_q = meta.Session.query(model.Revision)
-        revisions_q = revisions_q.filter_by(author=self.name)
-        return revisions_q.count()
+
+        # Get count efficiently without spawning the SQLAlchemy subquery
+        # wrapper. Reset the VDM-forced order_by on timestamp.
+        return meta.Session.execute(
+            meta.Session.query(
+                model.Revision
+            ).filter_by(
+                author=self.name
+            ).statement.with_only_columns(
+                [func.count()]
+            ).order_by(
+                None
+            )
+        ).scalar()
 
     def number_created_packages(self, include_private_and_draft=False):
         # have to import here to avoid circular imports
