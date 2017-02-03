@@ -210,14 +210,27 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
     def number_created_packages(self, include_private_and_draft=False):
         # have to import here to avoid circular imports
         import ckan.model as model
-        q = meta.Session.query(model.Package)\
-            .filter_by(creator_user_id=self.id)
+
+        # Get count efficiently without spawning the SQLAlchemy subquery
+        # wrapper. Reset the VDM-forced order_by on timestamp.
+        q = meta.Session.query(
+            model.Package
+        ).filter_by(
+            creator_user_id=self.id
+        )
+
         if include_private_and_draft:
             q = q.filter(model.Package.state != 'deleted')
         else:
-            q = q.filter_by(state='active')\
-                 .filter_by(private=False)
-        return q.count()
+            q = q.filter_by(state='active', private=False)
+
+        return meta.Session.execute(
+            q.statement.with_only_columns(
+                [func.count()]
+            ).order_by(
+                None
+            )
+        ).scalar()
 
     def activate(self):
         ''' Activate the user '''
