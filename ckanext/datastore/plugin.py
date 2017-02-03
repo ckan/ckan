@@ -55,6 +55,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
+    p.implements(p.ITemplateHelpers)
     p.implements(interfaces.IDatastore, inherit=True)
 
     legacy_mode = False
@@ -513,3 +514,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if field:
             rank_alias += u' ' + field
         return u'"{0}"'.format(rank_alias)
+
+    def get_helpers(self):
+        return {
+            'datastore_dictionary': datastore_helpers.datastore_dictionary}
