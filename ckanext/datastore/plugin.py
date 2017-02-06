@@ -281,14 +281,13 @@ class DatastorePlugin(p.SingletonPlugin):
             if res.extras.get('datastore_active') is True]
 
         for res in deleted:
-            try:
-                logic.get_action('datastore_delete')(
-                    context, {'resource_id': res.id, 'force': True})
-            except logic.NotFound:
-                # resource was just deleted, so it's expected situation
-                res.extras['datastore_active'] = False
-                res_query.update(
-                    {'extras': res.extras}, synchronize_session=False)
+            db.delete(context, {
+                'resource_id': res.id,
+                'connection_url': self.write_url
+            })
+            res.extras['datastore_active'] = False
+            res_query.update(
+                {'extras': res.extras}, synchronize_session=False)
 
     def datastore_validate(self, context, data_dict, fields_types):
         column_names = fields_types.keys()
