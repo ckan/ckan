@@ -112,8 +112,12 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
+<<<<<<< HEAD
         engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
+=======
+        engine = db.get_write_engine()
+>>>>>>> fb5cef3... [#3428] replace db._get_engine with db.get_(read|write)_engine
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -364,8 +368,12 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
+<<<<<<< HEAD
         engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
+=======
+        engine = db.get_write_engine()
+>>>>>>> fb5cef3... [#3428] replace db._get_engine with db.get_(read|write)_engine
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -471,8 +479,12 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
+<<<<<<< HEAD
         engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
+=======
+        engine = db.get_write_engine()
+>>>>>>> fb5cef3... [#3428] replace db._get_engine with db.get_(read|write)_engine
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod

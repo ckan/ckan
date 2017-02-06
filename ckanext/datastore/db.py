@@ -10,6 +10,7 @@ import copy
 import hashlib
 
 import pylons
+from pylons import config
 import distutils.version
 import sqlalchemy
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
@@ -96,9 +97,16 @@ def _is_valid_table_name(name):
     return _is_valid_field_name(name)
 
 
-def _get_engine(data_dict):
+def get_read_engine():
+    return _get_engine_from_url(config['ckan.datastore.read_url'])
+
+
+def get_write_engine():
+    return _get_engine_from_url(config['ckan.datastore.write_url'])
+
+
+def _get_engine_from_url(connection_url):
     '''Get either read or write engine.'''
-    connection_url = data_dict['connection_url']
     engine = _engines.get(connection_url)
 
     if not engine:
@@ -126,9 +134,7 @@ def _cache_types(context):
             log.info("Create nested type. Native JSON: {0!r}".format(
                 native_json))
 
-            data_dict = {
-                'connection_url': pylons.config['ckan.datastore.write_url']}
-            engine = _get_engine(data_dict)
+            engine = get_write_engine()
             with engine.begin() as connection:
                 connection.execute(
                     'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
@@ -962,7 +968,6 @@ def validate(context, data_dict):
                                                    fields_types)
 
     # Remove default elements in data_dict
-    del data_dict_copy['connection_url']
     del data_dict_copy['resource_id']
     data_dict_copy.pop('id', None)
 
@@ -1101,7 +1106,7 @@ def create(context, data_dict):
     :raises InvalidDataError: if there is an invalid value in the given data
 
     '''
-    engine = _get_engine(data_dict)
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1166,7 +1171,7 @@ def upsert(context, data_dict):
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
     '''
-    engine = _get_engine(data_dict)
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
 
@@ -1209,7 +1214,7 @@ def upsert(context, data_dict):
 
 
 def delete(context, data_dict):
-    engine = _get_engine(data_dict)
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     _cache_types(context)
 
@@ -1233,7 +1238,7 @@ def delete(context, data_dict):
 
 
 def search(context, data_dict):
-    engine = _get_engine(data_dict)
+    engine = get_read_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1260,7 +1265,7 @@ def search(context, data_dict):
 
 
 def search_sql(context, data_dict):
-    engine = _get_engine(data_dict)
+    engine = get_read_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1352,7 +1357,7 @@ def _change_privilege(context, data_dict, what):
 
 def make_private(context, data_dict):
     log.info('Making resource {resource_id!r} private'.format(**data_dict))
-    engine = _get_engine(data_dict)
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
     try:
@@ -1364,7 +1369,7 @@ def make_private(context, data_dict):
 
 def make_public(context, data_dict):
     log.info('Making resource {resource_id!r} public'.format(**data_dict))
-    engine = _get_engine(data_dict)
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
     try:
@@ -1375,12 +1380,9 @@ def make_public(context, data_dict):
 
 
 def get_all_resources_ids_in_datastore():
-    read_url = pylons.config.get('ckan.datastore.read_url')
-    write_url = pylons.config.get('ckan.datastore.write_url')
-    data_dict = {
-        'connection_url': read_url or write_url
-    }
+    read_url = config.get('ckan.datastore.read_url')
+    write_url = config.get('ckan.datastore.write_url')
     resources_sql = sqlalchemy.text(u'''SELECT name FROM "_table_metadata"
                                         WHERE alias_of IS NULL''')
-    query = _get_engine(data_dict).execute(resources_sql)
+    query = get_read_engine().execute(resources_sql)
     return [q[0] for q in query.fetchall()]
