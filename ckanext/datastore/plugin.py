@@ -33,9 +33,7 @@ def _is_legacy_mode(config):
         Returns True if `ckan.datastore.read_url` is not set in the provided
         config object or CKAN is running on Postgres < 9.x
     '''
-    write_url = config.get('ckan.datastore.write_url')
-
-    engine = db._get_engine({'connection_url': write_url})
+    engine = db.get_write_engine()
     connection = engine.connect()
 
     return (not config.get('ckan.datastore.read_url') or
@@ -110,8 +108,7 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
-        self.read_engine = db._get_engine(
-            {'connection_url': self.read_url})
+        self.read_engine = db.get_read_engine()
         if not model.engine_is_pg(self.read_engine):
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
@@ -138,7 +135,6 @@ class DatastorePlugin(p.SingletonPlugin):
             for resource in entity.resources:
                 try:
                     func(context, {
-                        'connection_url': self.write_url,
                         'resource_id': resource.id})
                 except p.toolkit.ObjectNotFound:
                     pass
@@ -172,7 +168,7 @@ class DatastorePlugin(p.SingletonPlugin):
         ''' Returns True if no connection has CREATE privileges on the public
         schema. This is the case if replication is enabled.'''
         for url in [self.ckan_url, self.write_url, self.read_url]:
-            connection = db._get_engine({'connection_url': url}).connect()
+            connection = db._get_engine_from_url(url).connect()
             try:
                 sql = u"SELECT has_schema_privilege('public', 'CREATE')"
                 is_writable = connection.execute(sql).first()[0]
@@ -198,8 +194,7 @@ class DatastorePlugin(p.SingletonPlugin):
         only user. A table is created by the write user to test the
         read only user.
         '''
-        write_connection = db._get_engine(
-            {'connection_url': self.write_url}).connect()
+        write_connection = db.get_write_engine().connect()
         read_connection_user = sa_url.make_url(self.read_url).username
 
         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
