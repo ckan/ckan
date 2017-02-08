@@ -54,9 +54,6 @@ def is_available():
     except Exception, e:
         log.exception(e)
         return False
-    finally:
-        if 'conn' in dir():
-            conn.close()
 
     return True
 

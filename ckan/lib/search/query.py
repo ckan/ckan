@@ -255,10 +255,7 @@ class PackageSearchQuery(SearchQuery):
         fq += "+state:active "
 
         conn = make_connection()
-        try:
-            data = conn.query(query, fq=fq, rows=max_results, fields='id')
-        finally:
-            conn.close()
+        data = conn.query(query, fq=fq, rows=max_results, fields='id')
 
         return [r.get('id') for r in data.results]
 
@@ -287,8 +284,6 @@ class PackageSearchQuery(SearchQuery):
             if not isinstance(e, SearchError):
                 log.exception(e)
             raise SearchError(e)
-        finally:
-            conn.close()
 
 
     def run(self, query):
@@ -394,7 +389,5 @@ class PackageSearchQuery(SearchQuery):
         except Exception, e:
             log.exception(e)
             raise SearchError(e)
-        finally:
-            conn.close()
 
         return {'results': self.results, 'count': self.count}
