@@ -852,6 +852,17 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         eq(search_result['results'][0]['title'], 'Rivers')
         eq(search_result['count'], 1)
 
+    def test_search_fl(self):
+        factories.Dataset(title='Rivers', name='test_ri')
+        factories.Dataset(title='Lakes')
+
+        search_result = helpers.call_action('package_search', q='rivers', fl=['title', 'name'])
+
+        eq(search_result['results'][0]['title'], 'Rivers')
+        eq(search_result['results'][0]['name'], 'test_ri')
+        eq(len(search_result['results'][0]), 2)
+        eq(search_result['count'], 1)
+
     def test_search_all(self):
         factories.Dataset(title='Rivers')
         factories.Dataset(title='Lakes')
