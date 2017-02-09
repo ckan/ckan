@@ -128,20 +128,3 @@ class DatastoreController(BaseController):
         return render(
             'datastore/dictionary.html',
             extra_vars={'fields': fields})
-
-
-def short_hash(field):
-    u'''
-    return a short hash (20 hex digits) of a json-compatible object.
-
-    We're using this to identify fields modified by the user when they
-    submit a form, and to detect if the source data changed before the
-    user submitted their changes. There's no need for a strong
-    cryptographic hash because this hash is only for preventing
-    accidental conflicts not enforcing access controls.
-    '''
-    return md5.md5(json.dumps(
-        field,
-        sort_keys=True,
-        ensure_ascii=False,
-        separators=(u',', u':').encode('utf-8'))).hexdigest()[:20]
