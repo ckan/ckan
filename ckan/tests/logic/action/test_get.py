@@ -858,10 +858,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         search_result = helpers.call_action('package_search', q='rivers', fl=['title', 'name'])
 
-        eq(search_result['results'][0]['title'], 'Rivers')
-        eq(search_result['results'][0]['name'], 'test_ri')
-        eq(len(search_result['results'][0]), 2)
-        eq(search_result['count'], 1)
+        eq(search_result['results'], [{'title': 'Rivers', 'name': 'test_ri'}])
 
     def test_search_all(self):
         factories.Dataset(title='Rivers')
