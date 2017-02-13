@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block page %}
+  <table id="dtprv"
+      data-role="table"
+      data-mode="columntoggle" >
+    <thead>
+      <tr>
+        {% for field in h.datastore_dictionary(resource.id) %}
+          <th scope="col">{{ field.id }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css" type="text/css" />
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#dtprv').DataTable(
+    {
+      "paging": true,
+      "serverSide": true,
+      "processing": true,
+      "ajax": {
+        "url": "/datatables/ajax/{{ resource.id }}",
+        "type": "POST"
+      }
+    }
+  );
+});
+</script>
+{% endblock %}
+
+{% block styles %}{% endblock %}
+{% block custom_styles %}{% endblock %}
