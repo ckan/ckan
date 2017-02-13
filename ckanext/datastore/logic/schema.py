@@ -14,6 +14,7 @@ empty = get_validator('empty')
 boolean_validator = get_validator('boolean_validator')
 int_validator = get_validator('int_validator')
 OneOf = get_validator('OneOf')
+unicode_only = get_validator('unicode_only')
 
 
 def rename(old, new):
@@ -151,3 +152,19 @@ def datastore_search_schema():
         '__before': [rename('id', 'resource_id')]
     }
     return schema
+
+
+def datastore_function_create_schema():
+    return {
+        'name': [unicode_only, not_empty],
+        'or_replace': [default(False), boolean_validator],
+        # we're only exposing functions for triggers at the moment
+        'rettype': [unicode_only, OneOf(['trigger'])],
+        'definition': [unicode_only],
+    }
+
+
+def datastore_function_delete_schema():
+    return {
+        'name': [unicode_only, not_empty],
+    }

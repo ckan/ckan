@@ -565,3 +565,40 @@ def _check_read_only(context, resource_id):
             'read-only': ['Cannot edit read-only resource. Either pass'
                           '"force=True" or change url-type to "datastore"']
         })
+
+
+@logic.validate(dsschema.datastore_function_create_schema)
+def datastore_function_create(context, data_dict):
+    u'''
+    Create a trigger function for use with datastore_create
+
+    :param name: function name
+    :type name: string
+    :param or_replace: True to replace if function already exists
+        (default: False)
+    :type or_replace: bool
+    :param rettype: set to 'trigger'
+        (only trigger functions may be created at this time)
+    :type rettype: string
+    :param definition: PL/pgSQL function body for trigger function
+    :type definition: string
+    '''
+    p.toolkit.check_access('datastore_function_create', context, data_dict)
+
+    db.create_trigger_function(
+        name=data_dict['name'],
+        definition=data_dict['definition'],
+        or_replace=data_dict['or_replace'])
+
+
+@logic.validate(dsschema.datastore_function_delete_schema)
+def datastore_function_delete(context, data_dict):
+    u'''
+    Delete a trigger function
+
+    :param name: function name
+    :type name: string
+    '''
+    p.toolkit.check_access('datastore_function_delete', context, data_dict)
+
+    db.drop_function(data_dict['name'])
