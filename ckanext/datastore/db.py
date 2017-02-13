@@ -1384,9 +1384,42 @@ def make_public(context, data_dict):
 
 
 def get_all_resources_ids_in_datastore():
-    read_url = config.get('ckan.datastore.read_url')
-    write_url = config.get('ckan.datastore.write_url')
     resources_sql = sqlalchemy.text(u'''SELECT name FROM "_table_metadata"
                                         WHERE alias_of IS NULL''')
     query = get_read_engine().execute(resources_sql)
     return [q[0] for q in query.fetchall()]
+
+
+def create_trigger_function(name, definition, or_replace):
+    sql = u'''
+        CREATE {or_replace} FUNCTION
+            {name}() RETURNS trigger AS {definition}
+            LANGUAGE plpgsql;'''.format(
+        or_replace=u'OR REPLACE' if or_replace else u'',
+        name=datastore_helpers.identifier(name),
+        definition=datastore_helpers.literal(definition))
+
+    _write_engine_execute(sql)
+
+
+def drop_function(name, if_exists):
+    sql = u'''
+        DROP FUNCTION {if_exists} {name};
+        '''.format(
+        if_exists=u'IF EXISTS' if if_exists else u'',
+        name=datastore_helpers.identifier(name))
+
+    _write_engine_execute(sql)
+
+
+def _write_engine_execute(sql):
+    connection = get_write_engine().connect()
+    trans = connection.begin()
+    try:
+        connection.execute(sql)
+        trans.commit()
+    except Exception:
+        trans.rollback()
+        raise
+    finally:
+        connection.close()
