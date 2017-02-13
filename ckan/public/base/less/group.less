@@ -35,3 +35,28 @@
     max-width: 85px;
   }
 }
+
+colgroup {
+    @media (min-width: 320px) and (max-width: 479px) {
+        col:first-child {
+            width: 43%;
+        }
+        col + col {
+            width: 31%;
+        }
+        col + col + col {
+            width: 36%;
+        }
+    }
+    @media (min-width: 480px) {
+        col:first-child {
+            width: 55%;
+        }
+        col + col {
+            width: 25%;
+        }
+        col + col + col {
+            width: 20%;
+        }
+    }
+}
