@@ -145,3 +145,14 @@ class IDatastore(interfaces.Interface):
         :rtype: dictionary
         '''
         return query_dict
+
+
+class IDatastoreBackend(interfaces.Interface):
+
+    def configure_datastore(self, config):
+        """
+        Initial configuration and any assertions based on config.
+
+        Takes `config` object from IConfigurable.configure method
+        """
+        return config

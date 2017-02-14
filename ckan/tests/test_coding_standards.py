@@ -593,6 +593,7 @@ _STRING_LITERALS_WHITELIST = [
     u'ckanext/datastore/logic/auth.py',
     u'ckanext/datastore/logic/schema.py',
     u'ckanext/datastore/plugin.py',
+    u'ckanext/datastore/backend.py',
     u'ckanext/datastore/tests/helpers.py',
     u'ckanext/datastore/tests/sample_datastore_plugin.py',
     u'ckanext/datastore/tests/test_configure.py',
