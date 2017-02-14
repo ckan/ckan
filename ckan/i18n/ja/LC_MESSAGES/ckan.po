@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-10-18 10:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2016\n"
+"Last-Translator: Azusa Akiyama <azusasansan@gmail.com>, 2017\n"
 "Language-Team: Japanese (https://www.transifex.com/okfn/teams/11162/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -395,7 +395,7 @@ msgstr "パスワードをリセットする必要があるときには，%sは�
 
 #: ckan/controllers/package.py:290
 msgid "Invalid search query: {error_message}"
-msgstr ""
+msgstr "不正な検索クエリ: {error_message}"
 
 #: ckan/controllers/package.py:307
 msgid "Parameter \"{parameter_name}\" is not an integer"
@@ -820,7 +820,7 @@ msgstr "表示"
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
+msgstr[0] "{site_title} の新しいアクティビティ {n}件"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -901,7 +901,7 @@ msgstr[0] "{years} 年以上前"
 
 #: ckan/lib/formatters.py:148
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr ""
+msgstr "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:153
 msgid "{month} {day}, {year}"
@@ -1085,7 +1085,7 @@ msgstr "正しいJOSN形式としてペーストできません"
 
 #: ckan/logic/validators.py:32 ckan/logic/validators.py:41
 msgid "An organization must be provided"
-msgstr ""
+msgstr "組織が必要です"
 
 #: ckan/logic/validators.py:46
 msgid "Organization does not exist"
@@ -1343,7 +1343,7 @@ msgstr "レーティングは %i から %i の間の値を入力してくださ�
 
 #: ckan/logic/action/create.py:1052
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr ""
+msgstr "招待メールの送信でエラーが発生し、ユーザを作成できませんでした。: {0}"
 
 #: ckan/logic/action/create.py:1265 ckan/logic/action/create.py:1272
 msgid "You must be logged in to follow users"
@@ -1372,7 +1372,7 @@ msgstr "グループをフォローするにはログインが必要です"
 
 #: ckan/logic/action/delete.py:45
 msgid " Delete User: {0}"
-msgstr ""
+msgstr "削除ユーザ: {0}"
 
 #: ckan/logic/action/delete.py:86
 #, python-format
@@ -1962,7 +1962,7 @@ msgstr "CKAN API"
 
 #: ckan/templates/footer.html:16
 msgid "CKAN Association"
-msgstr ""
+msgstr "CKANアソシエーション"
 
 #: ckan/templates/footer.html:24
 msgid ""
@@ -3151,7 +3151,7 @@ msgstr "エラー:"
 
 #: ckan/templates/package/resource_data.html:36
 msgid "Error traceback:"
-msgstr ""
+msgstr "エラートレースバック"
 
 #: ckan/templates/package/resource_data.html:48
 msgid "Status"
@@ -3390,21 +3390,21 @@ msgstr "最終更新"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
-msgstr ""
+msgstr "データセットを作成する前に、組織を作成する必要があります。"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
-msgstr ""
+msgstr "新しい組織を作る"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:18
 msgid "There are no organizations to which you can assign this dataset."
-msgstr ""
+msgstr "このデータセットを割り当てられる組織はありません。"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:19
 msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
-msgstr ""
+msgstr "操作を続ける前に、組織の作成をシステム管理者に依頼してください。"
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 msgid "Data API"
@@ -3515,11 +3515,11 @@ msgstr "リソースの更新"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "Data"
-msgstr ""
+msgstr "データ"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "http://example.com/external-data.csv"
-msgstr ""
+msgstr "http://example.com/external-data.csv"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
@@ -3816,7 +3816,7 @@ msgstr " <p class=\"extra\">他の検索を試してください。</p> "
 msgid ""
 " <p id=\"search-error\"><strong>There was an error while searching.</strong>"
 " Please try again.</p> "
-msgstr ""
+msgstr "<p id=\"search-error\"><strong>検索でエラーが発生しました。</strong>もう一度試してください。</p>"
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -3989,7 +3989,7 @@ msgstr "パスワードの変更"
 
 #: ckan/templates/user/edit_user_form.html:29
 msgid "Sysadmin Password"
-msgstr ""
+msgstr "システム管理者　パスワード"
 
 #: ckan/templates/user/edit_user_form.html:37
 #: ckan/templates/user/logout_first.html:12
@@ -4277,7 +4277,7 @@ msgstr "カスタムリソーステキスト"
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr ""
+msgstr "これは翻訳されていない文字列です"
 
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
@@ -4314,7 +4314,7 @@ msgstr "マップ"
 
 #: ckanext/reclineview/theme/public/recline_view.js:34
 msgid "error loading view"
-msgstr ""
+msgstr "エラーローディングビュー"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -4458,7 +4458,7 @@ msgstr "データセット数"
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "最もデータセットを作成しているユーザ"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
@@ -4475,7 +4475,7 @@ msgstr "テキスト"
 #: ckanext/textview/theme/public/text_view.js:5
 #, python-format
 msgid "An error occurred: %(text)s %(error)s"
-msgstr ""
+msgstr "エラー発生: %(text)s %(error)s"
 
 #: ckanext/webpageview/plugin.py:21 ckanext/webpageview/plugin.py:26
 msgid "Website"
