@@ -288,14 +288,44 @@ class GroupController(base.BaseController):
         try:
             c.fields = []
             search_extras = {}
-            for (param, value) in request.params.items():
-                if not param in ['q', 'page', 'sort'] \
-                        and len(value) and not param.startswith('_'):
-                    if not param.startswith('ext_'):
-                        c.fields.append((param, value))
-                        q += ' %s: "%s"' % (param, value)
+            c.fields_grouped = {}
+            fq_list = []
+            query_params = request.params.mixed()
+            for (param, value) in query_params.iteritems():
+                if param in ('q', 'page', 'sort') or not value:
+                    continue
+                elif param.startswith('_'):
+                    continue
+                elif param.startswith('ext_'):
+                    search_extras[param] = value
+                else:
+                    if isinstance(value, (list, tuple)):
+                        c.fields.extend((param, v) for v in value)
+                        # We're filtering on a list of items, each of which
+                        # should be escaped and OR'd instead of Solr's default
+                        # AND.
+                        filter_value = u'({0})'.format(
+                            u' OR '.join(u'"{0}"'.format(
+                                v
+                            ) for v in value)
+                        )
                     else:
-                        search_extras[param] = value
+                        c.fields.append((param, value))
+                        # We're just filtering on a single item, which might be
+                        # a range. We assume it's a range if it starts with a
+                        # [, otherwise we escape it and treat it as a literal.
+                        filter_value = (
+                            value if value.startswith(u'[')
+                            else u'"{0}"'.format(value)
+                        )
+
+                    # Tag each value with a domain so we can act on it later.
+                    fq_list.append(u'{{!tag={p}}}{p}:{v}'.format(
+                        p=param,
+                        v=filter_value
+                    ))
+
+                    c.fields_grouped.setdefault(param, []).append(value)
 
             fq = 'capacity:"public"'
             user_member_of_orgs = [org['id'] for org
@@ -331,7 +361,13 @@ class GroupController(base.BaseController):
             data_dict = {
                 'q': q,
                 'fq': fq,
-                'facet.field': facets.keys(),
+                'fq_list': fq_list,
+                'facet.field': [
+                    # When faceting, exclude the facet group from the facet
+                    # counts. This lets us always get a count back, rather than
+                    # an intersection (which would always be 0)
+                    '{{!ex={k}}}{k}'.format(k=k) for k in facets.iterkeys()
+                ],
                 'rows': limit,
                 'sort': sort_by,
                 'start': (page - 1) * limit,
