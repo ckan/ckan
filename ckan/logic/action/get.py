@@ -1917,7 +1917,7 @@ def package_search(context, data_dict):
         fq = data_dict.get('fq', '')
         if not context.get('ignore_capacity_check', False):
             fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
+            data_dict['fq'] = 'capacity:"public" ' + fq
 
         # Solr doesn't need 'include_drafts`, so pop it.
         include_drafts = data_dict.pop('include_drafts', False)
@@ -1925,15 +1925,15 @@ def package_search(context, data_dict):
         if include_drafts:
             user_id = authz.get_user_id_for_username(user, allow_none=True)
             if authz.is_sysadmin(user):
-                data_dict['fq'] = fq + ' +state:(active OR draft)'
+                data_dict['fq'] = '+state:(active OR draft) ' + fq
             elif user_id:
                 # Query to return all active datasets, and all draft datasets
                 # for this user.
-                data_dict['fq'] = fq + \
-                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
-                    ' OR state:active)'.format(user_id)
+                u_fq = ' ((creator_user_id:{0} AND +state:(draft OR active))' \
+                       ' OR state:active) '.format(user_id)
+                data_dict['fq'] = u_fq + ' ' + fq
         elif not authz.is_sysadmin(user):
-            data_dict['fq'] = fq + ' +state:active'
+            data_dict['fq'] = '+state:active ' + fq
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
