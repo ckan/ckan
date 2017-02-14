@@ -8,15 +8,12 @@
 
 {% block primary_content_inner %}
   <h3 class="page-heading">{{ _('{0} members'.format(c.members|length)) }}</h3>
-  <table class="table table-header table-hover table-bordered" id="member-table">
-    <col width="70" />
-    <col width="40" />
-    <col width="20" />
+  <table class="table table-header table-hover table-bordered group-org-members" id="member-table">
     <thead>
       <tr>
-        <th scope="col">{{ _('User') }}</th>
-        <th scope="col">{{ _('Role') }}</th>
-        <th scope="col"></th>
+        <th class="col-user">{{ _('User') }}</th>
+        <th class="col-role">{{ _('Role') }}</th>
+        <th class="col-actions"></th>
       </tr>
     </thead>
     <tbody>
