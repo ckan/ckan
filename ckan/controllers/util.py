@@ -15,7 +15,7 @@ class UtilController(base.BaseController):
         if not url:
             base.abort(400, _('Missing Value') + ': url')
 
-        if h.url_is_local(url):
+        if h.url_is_local(url) and '\r' not in url and '\n' not in url:
             return base.redirect(url)
         else:
             base.abort(403, _('Redirecting to external site is not allowed.'))
