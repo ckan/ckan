@@ -1852,21 +1852,21 @@ def package_search(context, data_dict):
 
         if capacity_fq:
             fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' ' + capacity_fq
+            data_dict['fq'] = capacity_fq + ' ' + fq
 
         fq = data_dict.get('fq', '')
         if include_drafts:
             user_id = authz.get_user_id_for_username(user, allow_none=True)
             if authz.is_sysadmin(user):
-                data_dict['fq'] = fq + ' +state:(active OR draft)'
+                data_dict['fq'] = '+state:(active OR draft) ' + fq
             elif user_id:
                 # Query to return all active datasets, and all draft datasets
                 # for this user.
-                data_dict['fq'] = fq + \
-                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
-                    ' OR state:active)'.format(user_id)
+                u_fq = ' ((creator_user_id:{0} AND +state:(draft OR active))' \
+                       ' OR state:active) '.format(user_id)
+                data_dict['fq'] = u_fq + ' ' + fq
         elif not authz.is_sysadmin(user):
-            data_dict['fq'] = fq + ' +state:active'
+            data_dict['fq'] = '+state:active ' + fq
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
