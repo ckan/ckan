@@ -1126,6 +1126,11 @@ def create(context, data_dict):
             create_table(context, data_dict)
         else:
             alter_table(context, data_dict)
+        if 'triggers' in data_dict:
+            _create_triggers(
+                context['connection'],
+                data_dict['resource_id'],
+                data_dict['triggers'])
         insert_data(context, data_dict)
         create_indexes(context, data_dict)
         create_alias(context, data_dict)
@@ -1161,6 +1166,34 @@ def create(context, data_dict):
         raise
     finally:
         context['connection'].close()
+
+
+def _create_triggers(connection, resource_id, triggers):
+    u'''
+    Delete existing triggers on table then create triggers
+
+    Currently our schema requires "before insert or update"
+    triggers run on each row, so we're not reading "when"
+    or "for_each" parameters from triggers list.
+    '''
+    existing = connection.execute(
+        u'SELECT tgname FROM pg_trigger WHERE tgrelid = %s::regclass',
+        resource_id)
+    sql_list = (
+        [u'DROP TRIGGER {name} ON {table}'.format(
+                name=datastore_helpers.identifier(r[0]),
+                table=datastore_helpers.identifier(resource_id))
+            for r in existing] +
+        [u'''CREATE TRIGGER {name}
+            BEFORE INSERT OR UPDATE ON {table}
+            FOR EACH ROW EXECUTE PROCEDURE {function}()'''.format(
+                # 1000 triggers per table should be plenty
+                name=datastore_helpers.identifier(u't%03d' % i),
+                table=datastore_helpers.identifier(resource_id),
+                function=datastore_helpers.identifier(t['function']))
+            for i, t in enumerate(triggers)])
+    if sql_list:
+        connection.execute(u';\n'.join(sql_list))
 
 
 def upsert(context, data_dict):
@@ -1393,7 +1426,7 @@ def create_trigger_function(name, definition, or_replace):
             LANGUAGE plpgsql;'''.format(
         or_replace=u'OR REPLACE' if or_replace else u'',
         name=datastore_helpers.identifier(name),
-        definition=datastore_helpers.literal(definition))
+        definition=datastore_helpers.literal_string(definition))
 
     _write_engine_execute(sql)
 

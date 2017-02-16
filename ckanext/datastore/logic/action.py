@@ -53,6 +53,10 @@ def datastore_create(context, data_dict):
     :type primary_key: list or comma separated string
     :param indexes: indexes on table (optional)
     :type indexes: list or comma separated string
+    :param triggers: triggers to apply to this table, eg: [
+        {"function": "trigger_clean_reference"},
+        {"function": "trigger_check_codes"}]
+    :type triggers: list of dictionaries
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key`` replaces the exising
     aliases or constraints. Setting ``records`` appends the provided records to the resource.

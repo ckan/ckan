@@ -15,6 +15,7 @@ boolean_validator = get_validator('boolean_validator')
 int_validator = get_validator('int_validator')
 OneOf = get_validator('OneOf')
 unicode_only = get_validator('unicode_only')
+default = get_validator('default')
 
 
 def rename(old, new):
@@ -105,6 +106,17 @@ def datastore_create_schema():
         },
         'primary_key': [ignore_missing, list_of_strings_or_string],
         'indexes': [ignore_missing, list_of_strings_or_string],
+        'triggers': {
+            'when': [
+                default(u'before insert or update'),
+                unicode_only,
+                OneOf([u'before insert or update'])],
+            'for_each': [
+                default(u'row'),
+                unicode_only,
+                OneOf([u'row'])],
+            'function': [not_empty, unicode_only],
+        },
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
