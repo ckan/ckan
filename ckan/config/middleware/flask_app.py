@@ -82,15 +82,16 @@ def make_flask_stack(conf, **app_conf):
         def save_session(self, app, session, response):
             session.save()
 
-    cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
-    session_opts = {
-        'session.data_dir': '{data_dir}/sessions'.format(
-            data_dir=cache_dir),
-        'session.key': app_conf.get('beaker.session.key'),
-        'session.cookie_expires':
-        app_conf.get('beaker.session.cookie_expires'),
-        'session.secret': app_conf.get('beaker.session.secret')
-    }
+    namespace = 'beaker.session.'
+    session_opts = dict([(k.replace('beaker.', ''), v)
+                        for k, v in config.iteritems()
+                        if k.startswith(namespace)])
+    if (not session_opts.get('session.data_dir') and
+            session_opts.get('session.type', 'file') == 'file'):
+        cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
+        session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
+                data_dir=cache_dir)
+
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
     app.session_interface = BeakerSessionInterface()
 
