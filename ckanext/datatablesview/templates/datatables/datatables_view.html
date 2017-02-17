@@ -18,21 +18,26 @@
 
 {% block scripts %}
 <script
-  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
   crossorigin="anonymous"></script>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css" type="text/css" />
-<script type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-2.2.4/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-print-1.2.4/r-2.1.1/sc-1.4.2/datatables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-2.2.4/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-print-1.2.4/r-2.1.1/sc-1.4.2/datatables.min.js"></script>
+
 <script type="text/javascript">
 $(document).ready(function() {
   $('#dtprv').DataTable(
     {
-      "paging": true,
-      "serverSide": true,
-      "processing": true,
-      "ajax": {
-        "url": "/datatables/ajax/{{ resource.id }}",
-        "type": "POST"
-      }
+      paging: true,
+      serverSide: true,
+      processing: true,
+      ajax: {
+        url: "/datatables/ajax/{{ resource.id }}",
+        type: "POST"
+      },
+      responsive: true,
+      dom: 'Bfrtip',
+      buttons: ['colvis']
     }
   );
 });
