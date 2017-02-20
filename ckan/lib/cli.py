@@ -684,9 +684,14 @@ class Sysadmin(CkanCommand):
             print 'User "%s" not found' % username
             makeuser = raw_input('Create new user: %s? [y/n]' % username)
             if makeuser == 'y':
+                useremail = raw_input('Please input %s email: ' % username)
+                if not useremail:
+                    print 'Need email to create new user'
+                    return
                 password = UserCmd.password_prompt()
                 print('Creating %s user' % username)
                 user = model.User(name=unicode(username),
+                                  email=unicode(useremail),
                                   password=password)
             else:
                 print 'Exiting ...'
