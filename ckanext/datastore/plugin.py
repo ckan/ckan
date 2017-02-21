@@ -6,6 +6,9 @@ import logging
 import ckan.plugins as p
 import ckan.logic as logic
 import ckan.model as model
+from ckan.model.core import State
+
+import ckanext.datastore.db as db
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.interfaces as interfaces
@@ -154,6 +157,27 @@ class DatastorePlugin(p.SingletonPlugin):
             resource_dict[u'datastore_active'] = False
 
         return resource_dict
+
+    def after_delete(self, context, resources):
+        model = context['model']
+        pkg = context['package']
+        res_query = model.Session.query(model.Resource)
+        query = res_query.filter(
+            model.Resource.package_id == pkg.id,
+            model.Resource.state == State.DELETED
+        )
+        deleted = [
+            res for res in query.all()
+            if res.extras.get('datastore_active') is True]
+
+        for res in deleted:
+            db.delete(context, {
+                'resource_id': res.id,
+                'connection_url': self.write_url
+            })
+            res.extras['datastore_active'] = False
+            res_query.update(
+                {'extras': res.extras}, synchronize_session=False)
 
     # IDatastore
 

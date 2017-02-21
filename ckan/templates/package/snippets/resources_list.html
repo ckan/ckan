@@ -15,8 +15,9 @@ Example:
     {% if resources %}
       <ul class="{% block resource_list_class %}resource-list{% endblock %}">
         {% block resource_list_inner %}
+          {% set can_edit = h.check_access('package_update', {'id':pkg.id }) %}
           {% for resource in resources %}
-            {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource %}
+            {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, can_edit=can_edit %}
           {% endfor %}
         {% endblock %}
       </ul>
