@@ -8,14 +8,16 @@ import ckan.logic as logic
 import ckan.model as model
 from ckan.model.core import State
 
-import ckanext.datastore.db as db
+import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.interfaces as interfaces
 from ckanext.datastore.backend import (
-    DatastorePostgresqlBackend,
-    DatastoreException
+    DatastoreException,
+    _parse_sort_clause,
+    DatastoreBackend
 )
+from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -54,14 +56,19 @@ class DatastorePlugin(p.SingletonPlugin):
 
     # IDatastoreBackend
 
-    def configure_datastore(self, config):
-        self.backend.configure_datastore(config)
+    def register_backends(self):
+        return {
+            'postgresql': DatastorePostgresqlBackend
+        }
 
     # IConfigurer
 
     def update_config(self, config):
+        for plugin in p.PluginImplementations(interfaces.IDatastoreBackend):
+            DatastoreBackend.register_backend(plugin.register_backends())
+
         p.toolkit.add_template_directory(config, 'templates')
-        self.backend = DatastorePostgresqlBackend()
+        self.backend = DatastoreBackend.get_active_backend(config)
 
     # IConfigurable
 
@@ -72,10 +79,10 @@ class DatastorePlugin(p.SingletonPlugin):
         # is not available and permissions do not have to be changed. In
         # legacy mode, the datastore runs on PG prior to 9.0 (for
         # example 8.4).
-        self.legacy_mode = self.backend.is_legacy_mode(self.config)
+        if hasattr(self.backend, 'is_legacy_mode'):
+            self.legacy_mode = self.backend.is_legacy_mode(self.config)
 
-        self.configure_datastore(config)
-        # self.backend.configure_datastore(config)
+        self.backend.configure(config)
 
     # IDomainObjectModification
     # IResourceUrlChange
@@ -109,11 +116,10 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_info': action.datastore_info,
         }
         if not self.legacy_mode:
-            if self.backend.advanced_search_enabled():
+            if getattr(self.backend, 'enable_sql_search', False):
                 # Only enable search_sql if the config does not disable it
                 actions.update({
                     'datastore_search_sql': action.datastore_search_sql,
-                    'datastore_advanced_search': action.datastore_search_sql
                 })
             actions.update({
                 'datastore_make_private': action.datastore_make_private,
@@ -171,9 +177,8 @@ class DatastorePlugin(p.SingletonPlugin):
             if res.extras.get('datastore_active') is True]
 
         for res in deleted:
-            db.delete(context, {
+            self.backend.delete(context, {
                 'resource_id': res.id,
-                'connection_url': self.write_url
             })
             res.extras['datastore_active'] = False
             res_query.update(
@@ -181,11 +186,73 @@ class DatastorePlugin(p.SingletonPlugin):
 
     # IDatastore
 
-    def datastore_validate(self, *pargs, **kwargs):
-        return self.backend.datastore_validate(*pargs, **kwargs)
+    def datastore_validate(self, context, data_dict, fields_types):
+        column_names = fields_types.keys()
+        fields = data_dict.get('fields')
+        if fields:
+            data_dict['fields'] = list(set(fields) - set(column_names))
 
-    def datastore_delete(self, *pargs, **kwargs):
-        return self.backend.datastore_delete(*pargs, **kwargs)
+        filters = data_dict.get('filters', {})
+        for key in filters.keys():
+            if key in fields_types:
+                del filters[key]
 
-    def datastore_search(self, *pargs, **kwargs):
-        return self.backend.datastore_search(*pargs, **kwargs)
+        q = data_dict.get('q')
+        if q:
+            if isinstance(q, basestring):
+                del data_dict['q']
+            elif isinstance(q, dict):
+                for key in q.keys():
+                    if key in fields_types and isinstance(q[key], basestring):
+                        del q[key]
+
+        language = data_dict.get('language')
+        if language:
+            if isinstance(language, basestring):
+                del data_dict['language']
+
+        plain = data_dict.get('plain')
+        if plain:
+            if isinstance(plain, bool):
+                del data_dict['plain']
+
+        distinct = data_dict.get('distinct')
+        if distinct:
+            if isinstance(distinct, bool):
+                del data_dict['distinct']
+
+        sort_clauses = data_dict.get('sort')
+        if sort_clauses:
+            invalid_clauses = [c for c in sort_clauses
+                               if not _parse_sort_clause(
+                                       c, fields_types)]
+            data_dict['sort'] = invalid_clauses
+
+        limit = data_dict.get('limit')
+        if limit:
+            is_positive_int = datastore_helpers.validate_int(limit,
+                                                             non_negative=True)
+            is_all = isinstance(limit, basestring) and limit.lower() == 'all'
+            if is_positive_int or is_all:
+                del data_dict['limit']
+
+        offset = data_dict.get('offset')
+        if offset:
+            is_positive_int = datastore_helpers.validate_int(offset,
+                                                             non_negative=True)
+            if is_positive_int:
+                del data_dict['offset']
+
+        return data_dict
+
+    def datastore_delete(self, context, data_dict, fields_types, query_dict):
+        hook = getattr(self.backend, 'datastore_delete', None)
+        if hook:
+            query_dict = hook(context, data_dict, fields_types, query_dict)
+        return query_dict
+
+    def datastore_search(self, context, data_dict, fields_types, query_dict):
+        hook = getattr(self.backend, 'datastore_search', None)
+        if hook:
+            query_dict = hook(context, data_dict, fields_types, query_dict)
+        return query_dict

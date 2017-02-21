@@ -9,7 +9,7 @@ from ckan.common import config
 import ckan.tests.legacy as tests
 import ckanext.datastore.db as db
 import ckanext.datastore.plugin as plugin
-import ckanext.datastore.backend as backend
+import ckanext.datastore.backend.postgres as backend
 
 
 class TestTypeGetters(unittest.TestCase):

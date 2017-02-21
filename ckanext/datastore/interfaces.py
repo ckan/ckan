@@ -149,10 +149,10 @@ class IDatastore(interfaces.Interface):
 
 class IDatastoreBackend(interfaces.Interface):
 
-    def configure_datastore(self, config):
+    def register_backends(self):
         """
         Initial configuration and any assertions based on config.
 
         Takes `config` object from IConfigurable.configure method
         """
-        return config
+        return {}

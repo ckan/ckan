@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
-
-import re
-import sys
 import logging
-
+import sys
 import sqlalchemy.engine.url as sa_url
 
 import ckan.model as model
 import ckan.plugins.toolkit as toolkit
 from ckan.common import config
+
 import ckanext.datastore.db as db
 import ckanext.datastore.helpers as datastore_helpers
-from ckanext.datastore.helpers import literal_string
+from ckanext.datastore.backend import (
+    DatastoreBackend,
+    DatastoreException,
+    _parse_sort_clause
+)
 
 log = logging.getLogger(__name__)
 
@@ -72,8 +74,9 @@ def _where(data_dict, fields_types):
                     clauses.append((clause_str,))
 
                 clause_str = (u'to_tsvector({0}, cast("{1}" as text)) '
-                              u'@@ {2}').format(literal_string(lang),
-                                                field, query_field)
+                              u'@@ {2}').format(
+                                  datastore_helpers.literal_string(lang),
+                                  field, query_field)
                 clauses.append((clause_str,))
 
     return clauses
@@ -109,8 +112,8 @@ def _textsearch_query(data_dict):
 def _build_query_and_rank_statements(lang, query, plain, field=None):
     query_alias = _ts_query_alias(field)
     rank_alias = _ts_rank_alias(field)
-    lang_literal = literal_string(lang)
-    query_literal = literal_string(query)
+    lang_literal = datastore_helpers.literal_string(lang)
+    query_literal = datastore_helpers.literal_string(query)
     if plain:
         statement = u"plainto_tsquery({lang_literal}, {literal}) {alias}"
     else:
@@ -144,23 +147,6 @@ def _ts_rank_alias(field=None):
     return u'"{0}"'.format(rank_alias)
 
 
-def _parse_sort_clause(clause, fields_types):
-    clause_match = re.match(u'^(.+?)( +(asc|desc) *)?$', clause, re.I)
-
-    if not clause_match:
-        return False
-
-    field = clause_match.group(1)
-    if field[0] == field[-1] == u'"':
-        field = field[1:-1]
-    sort = (clause_match.group(3) or u'asc').lower()
-
-    if field not in fields_types:
-        return False
-
-    return field, sort
-
-
 def _sort(data_dict, fields_types):
     sort = data_dict.get('sort')
     if not sort:
@@ -191,30 +177,6 @@ def _ts_query_alias(field=None):
     if field:
         query_alias += u' ' + field
     return u'"{0}"'.format(query_alias)
-
-
-class DatastoreException(Exception):
-    pass
-
-
-class DatastoreBackend:
-    def datastore_validate(self, context, data_dict, field_types):
-        return data_dict
-
-    def datastore_delete(self, context, data_dict, field_types, query_dict):
-        return query_dict
-
-    def datastore_search(self, context, data_dict, field_types, query_dict):
-        return query_dict
-
-    def is_legacy_mode(self, config):
-        return False
-
-    def configure_datastore(self, config):
-        return config
-
-    def advanced_search_enabled(self):
-        return False
 
 
 class DatastorePostgresqlBackend(DatastoreBackend):
@@ -298,13 +260,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             write_connection.close()
         return True
 
-    def advanced_search_enabled(self):
-        return self.enable_sql_search
-
     def is_legacy_mode(self, config):
         return _is_legacy_mode(config)
 
-    def configure_datastore(self, config):
+    def configure(self, config):
         self.config = config
         self.legacy_mode = self.is_legacy_mode(config)
         # check for ckan.datastore.write_url and ckan.datastore.read_url
@@ -348,63 +307,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         else:
             self._check_urls_and_permissions()
 
-    def datastore_validate(self, context, data_dict, fields_types):
-        column_names = fields_types.keys()
-        fields = data_dict.get('fields')
-        if fields:
-            data_dict['fields'] = list(set(fields) - set(column_names))
 
-        filters = data_dict.get('filters', {})
-        for key in filters.keys():
-            if key in fields_types:
-                del filters[key]
-
-        q = data_dict.get('q')
-        if q:
-            if isinstance(q, basestring):
-                del data_dict['q']
-            elif isinstance(q, dict):
-                for key in q.keys():
-                    if key in fields_types and isinstance(q[key], basestring):
-                        del q[key]
-
-        language = data_dict.get('language')
-        if language:
-            if isinstance(language, basestring):
-                del data_dict['language']
-
-        plain = data_dict.get('plain')
-        if plain:
-            if isinstance(plain, bool):
-                del data_dict['plain']
-
-        distinct = data_dict.get('distinct')
-        if distinct:
-            if isinstance(distinct, bool):
-                del data_dict['distinct']
-
-        sort_clauses = data_dict.get('sort')
-        if sort_clauses:
-            invalid_clauses = [c for c in sort_clauses
-                               if not _parse_sort_clause(c, fields_types)]
-            data_dict['sort'] = invalid_clauses
-
-        limit = data_dict.get('limit')
-        if limit:
-            is_positive_int = datastore_helpers.validate_int(limit,
-                                                             non_negative=True)
-            is_all = isinstance(limit, basestring) and limit.lower() == 'all'
-            if is_positive_int or is_all:
-                del data_dict['limit']
-
-        offset = data_dict.get('offset')
-        if offset:
-            is_positive_int = datastore_helpers.validate_int(offset,
-                                                             non_negative=True)
-            if is_positive_int:
-                del data_dict['offset']
-
-        return data_dict
 
     def datastore_delete(self, context, data_dict, fields_types, query_dict):
         query_dict['where'] += _where(data_dict, fields_types)
@@ -437,3 +340,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         query_dict['offset'] = offset
 
         return query_dict
+
+    def delete(self, context, data_dict):
+        data_dict['connection_url'] = self.write_url
+        return db.delete(context, data_dict)
