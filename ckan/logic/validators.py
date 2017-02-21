@@ -606,12 +606,6 @@ def user_password_not_empty(key, data, errors, context):
         if not password:
             errors[key].append(_('Missing value'))
 
-def user_about_validator(value,context):
-    if 'http://' in value or 'https://' in value:
-        raise Invalid(_('Edit not allowed as it looks like spam. Please avoid links in your description.'))
-
-    return value
-
 def vocabulary_name_validator(name, context):
     model = context['model']
     session = context['session']
