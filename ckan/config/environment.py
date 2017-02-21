@@ -5,6 +5,7 @@ import logging
 import warnings
 from urlparse import urlparse
 
+import jinja2
 import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
@@ -376,7 +377,11 @@ def update_config():
                     jinja_extensions.LinkForExtension,
                     jinja_extensions.ResourceExtension,
                     jinja_extensions.UrlForStaticExtension,
-                    jinja_extensions.UrlForExtension]
+                    jinja_extensions.UrlForExtension
+        ],
+        # The pre-2.8 default was only 50, the post-2.8 default is 400.
+        cache_size=400,
+        bytecode_cache=jinja2.FileSystemBytecodeCache()
     )
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters

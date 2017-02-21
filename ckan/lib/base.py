@@ -111,115 +111,44 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
     This is CKAN's main template rendering function.
 
+    :param cache_expire: DEPRECATED
+    :param cache_force: DEPRECATED
+    :param method: DEPRECATED
+    :param loader_class: DEPRECATED
+    :param renderer: DEPRECATED
+    :param cache_type: DEPRECATED
+    :param cache_key: DEPRECATED
+
     .. todo::
 
        Document the parameters of :py:func:`ckan.plugins.toolkit.render`.
 
     '''
-    def render_template():
-        globs = extra_vars or {}
-        globs.update(pylons_globals())
+    globs = extra_vars or {}
+    globs.update(pylons_globals())
 
-        # Using pylons.url() directly destroys the localisation stuff so
-        # we remove it so any bad templates crash and burn
-        del globs['url']
+    # Using pylons.url() directly destroys the localisation stuff so
+    # we remove it so any bad templates crash and burn
+    del globs['url']
 
-        try:
-            template_path, template_type = render_.template_info(template_name)
-        except render_.TemplateNotFound:
-            raise
-
-        log.debug('rendering %s [%s]' % (template_path, template_type))
-        if config.get('debug'):
-            context_vars = globs.get('c')
-            if context_vars:
-                context_vars = dir(context_vars)
-            debug_info = {'template_name': template_name,
-                          'template_path': template_path,
-                          'template_type': template_type,
-                          'vars': globs,
-                          'c_vars': context_vars,
-                          'renderer': renderer}
-            if 'CKAN_DEBUG_INFO' not in request.environ:
-                request.environ['CKAN_DEBUG_INFO'] = []
-            request.environ['CKAN_DEBUG_INFO'].append(debug_info)
-
-        # Jinja2 templates
-        if template_type == 'jinja2':
-            # We don't want to have the config in templates it should be
-            # accessed via g (app_globals) as this gives us flexability such
-            # as changing via database settings.
-            del globs['config']
-            # TODO should we raise error if genshi filters??
-            return render_jinja2(template_name, globs)
-
-        # Genshi templates
-        template = globs['app_globals'].genshi_loader.load(
-            template_name.encode('utf-8'), cls=loader_class
-        )
-        stream = template.generate(**globs)
-
-        for item in p.PluginImplementations(p.IGenshiStreamFilter):
-            stream = item.filter(stream)
-
-        if loader_class == NewTextTemplate:
-            return literal(stream.render(method="text", encoding=None))
-
-        return literal(stream.render(method=method, encoding=None,
-                                     strip_whitespace=True))
-
-    if 'Pragma' in response.headers:
-        del response.headers["Pragma"]
-
-    ## Caching Logic
-    allow_cache = True
-    # Force cache or not if explicit.
-    if cache_force is not None:
-        allow_cache = cache_force
-    # Do not allow caching of pages for logged in users/flash messages etc.
-    elif session.last_accessed:
-        allow_cache = False
-    # Tests etc.
-    elif 'REMOTE_USER' in request.environ:
-        allow_cache = False
-    # Don't cache if based on a non-cachable template used in this.
-    elif request.environ.get('__no_cache__'):
-        allow_cache = False
-    # Don't cache if we have set the __no_cache__ param in the query string.
-    elif request.params.get('__no_cache__'):
-        allow_cache = False
-    # Don't cache if we have extra vars containing data.
-    elif extra_vars:
-        for k, v in extra_vars.iteritems():
-            allow_cache = False
-            break
-    # Record cachability for the page cache if enabled
-    request.environ['CKAN_PAGE_CACHABLE'] = allow_cache
-
-    if allow_cache:
-        response.headers["Cache-Control"] = "public"
-        try:
-            cache_expire = int(config.get('ckan.cache_expires', 0))
-            response.headers["Cache-Control"] += \
-                ", max-age=%s, must-revalidate" % cache_expire
-        except ValueError:
-            pass
-    else:
-        # We do not want caching.
-        response.headers["Cache-Control"] = "private"
-        # Prevent any further rendering from being cached.
-        request.environ['__no_cache__'] = True
-
-    # Render Time :)
     try:
-        return cached_template(template_name, render_template,
-                               loader_class=loader_class)
-    except ckan.exceptions.CkanUrlException, e:
-        raise ckan.exceptions.CkanUrlException(
-            '\nAn Exception has been raised for template %s\n%s' %
-            (template_name, e.message))
+        template_path, template_type = render_.template_info(template_name)
     except render_.TemplateNotFound:
         raise
+
+    log.debug('rendering %s [%s]' % (template_path, template_type))
+
+    # Jinja2 templates
+    if template_type != 'jinja2':
+        # FIXME: Needs a proper error.
+        raise RuntimeError(u'Attempted to render a legacy template type.')
+
+    # We don't want to have the config in templates it should be
+    # accessed via g (app_globals) as this gives us flexability such
+    # as changing via database settings.
+    del globs['config']
+
+    return render_jinja2(template_name, globs)
 
 
 class ValidationException(Exception):
