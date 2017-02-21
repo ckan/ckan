@@ -152,6 +152,9 @@ def package_create(context, data_dict):
 
     _check_access('package_create', context, data_dict)
 
+    for plugin in plugins.PluginImplementations(plugins.IPackageController):
+        plugin.before_create(context, data_dict)
+
     if 'api_version' not in context:
         # check_data_dict() is deprecated. If the package_plugin has a
         # check_data_dict() we'll call it, if it doesn't have the method we'll

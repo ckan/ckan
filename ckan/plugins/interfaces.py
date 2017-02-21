@@ -591,6 +591,18 @@ class IPackageController(Interface):
     def delete(self, entity):
         pass
 
+    def before_create(self, context, pkg_dict):
+        u'''
+        Extensions will receive this before a package is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param pkg_dict: An object representing the dataset (the one that is about to be created).
+        :type pkg_dict: dictionary
+        '''
+        pass
+
     def after_create(self, context, pkg_dict):
         u'''
             Extensions will receive the validated data dict after the package
