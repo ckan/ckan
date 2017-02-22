@@ -256,7 +256,7 @@ v2.5.0 2015-12-17
 
 Cancelled release
 
-v2.4.5 2017-02-22
+v2.4.6 2017-02-22
 =================
 
  * Use the url_for() helper for datapusher URLs (#2866)
@@ -270,6 +270,11 @@ v2.4.5 2017-02-22
  * Fix memberships after user deletion (#3265)
  * Remove idle database connection (#3260)
  * Fix package_owner_org_update action when called via the API (#2661)
+
+v2.4.5 2017-02-22
+=================
+
+Cancelled release
 
 v2.4.4 2016-11-02
 =================
