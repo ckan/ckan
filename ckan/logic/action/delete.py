@@ -45,7 +45,7 @@ def user_delete(context, data_dict):
     user.delete()
 
     user_memberships = model.Session.query(model.Member).filter(
-        model.Member.table_id == user_id).all()
+        model.Member.table_id == user.id).all()
 
     for membership in user_memberships:
         membership.delete()

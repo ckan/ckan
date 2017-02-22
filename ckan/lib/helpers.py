@@ -11,7 +11,6 @@ import logging
 import re
 import os
 import urllib
-import urlparse
 import pprint
 import copy
 import urlparse
@@ -25,6 +24,8 @@ from lib.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
+from markdown import markdown
+from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
 from pylons import config
@@ -42,6 +43,17 @@ import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
 import ckan.authz as authz
+
+
+MARKDOWN_TAGS = set([
+    'del', 'dd', 'dl', 'dt', 'h1', 'h2',
+    'h3', 'img', 'kbd', 'p', 'pre', 's',
+    'sup', 'sub', 'strike', 'br', 'hr'
+]).union(ALLOWED_TAGS)
+
+MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
+MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
+
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -117,7 +129,7 @@ def get_site_protocol_and_host():
     If `ckan.site_url` is set like this::
 
         ckan.site_url = http://example.com
-    
+
     Then this function would return a tuple `('http', 'example.com')`
     If the setting is missing, `(None, None)` is returned instead.
 
@@ -261,7 +273,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         if default_locale:
             root_path = re.sub('/{{LANG}}', '', root_path)
         else:
-            root_path = re.sub('{{LANG}}', locale, root_path)
+            root_path = re.sub('{{LANG}}', str(locale), root_path)
         # make sure we don't have a trailing / on the root
         if root_path[-1] == '/':
             root_path = root_path[:-1]
@@ -1690,7 +1702,9 @@ def render_markdown(data, auto_link=True, allow_html=False):
         data = markdown(data.strip(), safe_mode=False)
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
-        data = markdown(data, safe_mode=True)
+        data = clean_html(
+            markdown(data), strip=True,
+            tags=MARKDOWN_TAGS, attributes=MARKDOWN_ATTRIBUTES)
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:

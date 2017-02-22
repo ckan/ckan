@@ -7,6 +7,21 @@
 Changelog
 ---------
 
+v2.4.5 2017-02-22
+=================
+
+ * Use the url_for() helper for datapusher URLs (#2866)
+ * Resource creation date use datetime.utcnow() (#3447)
+ * Fix locale error when using fix ckan.root_path
+ * `render_markdown` breaks links with ampersands
+ * Check group name and id during package creation
+ * Use utcnow() on dashboard_mark_activities_old (#3373)
+ * Fix encoding error on DataStore exception
+ * Datastore doesn't add site_url to resource created via API (#3189)
+ * Fix memberships after user deletion (#3265)
+ * Remove idle database connection (#3260)
+ * Fix package_owner_org_update action when called via the API (#2661)
+
 v2.4.4 2016-11-02
 =================
 
@@ -139,8 +154,8 @@ Changes and deprecations
   Custom templates or users of this API call will need to pass
   ``include_datasets=True`` to include datasets in the response.
 
-* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the 
-  ``packages`` key - i.e. datasets that use the vocabulary or tag. 
+* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the
+  ``packages`` key - i.e. datasets that use the vocabulary or tag.
   However ``tag_show`` now has an ``include_datasets`` option. (#1886)
 
 * Config option ``site_url`` is now required - CKAN will not abort during
