@@ -7,6 +7,24 @@
 Changelog
 ---------
 
+v2.6.1 2017-02-22
+=================
+
+ * Fix DataPusher being fired multiple times (#3245)
+ * Use the url_for() helper for datapusher URLs (#2866)
+ * Resource creation date use datetime.utcnow() (#3447)
+ * Fix locale error when using fix ckan.root_path
+ * `render_markdown` breaks links with ampersands
+ * Check group name and id during package creation
+ * Use utcnow() on dashboard_mark_activities_old (#3373)
+ * Fix encoding error on DataStore exception
+ * Datastore doesn't add site_url to resource created via API (#3189)
+ * Fix memberships after user deletion (#3265)
+ * Remove idle database connection (#3260)
+ * Fix package_owner_org_update action when called via the API (#2661)
+ * Fix French locale (#3327)
+ * Updated translations
+
 v2.6.0 2016-11-02
 =================
 
@@ -104,6 +122,21 @@ Bug fixes:
 API changes and deprecations:
  * Replace `c.__version__` with new helper `h.ckan_version()` (#3103)
 
+v2.5.4 2017-02-22
+=================
+
+ * Fix DataPusher being fired multiple times (#3245)
+ * Use the url_for() helper for datapusher URLs (#2866)
+ * Resource creation date use datetime.utcnow() (#3447)
+ * Fix locale error when using fix ckan.root_path
+ * `render_markdown` breaks links with ampersands
+ * Check group name and id during package creation
+ * Use utcnow() on dashboard_mark_activities_old (#3373)
+ * Fix encoding error on DataStore exception
+ * Datastore doesn't add site_url to resource created via API (#3189)
+ * Fix memberships after user deletion (#3265)
+ * Remove idle database connection (#3260)
+ * Fix package_owner_org_update action when called via the API (#2661)
 
 v2.5.3 2016-11-02
 =================
@@ -205,6 +238,21 @@ v2.5.0 2015-12-17
 =================
 
 Cancelled release
+
+v2.4.5 2017-02-22
+=================
+
+ * Use the url_for() helper for datapusher URLs (#2866)
+ * Resource creation date use datetime.utcnow() (#3447)
+ * Fix locale error when using fix ckan.root_path
+ * `render_markdown` breaks links with ampersands
+ * Check group name and id during package creation
+ * Use utcnow() on dashboard_mark_activities_old (#3373)
+ * Fix encoding error on DataStore exception
+ * Datastore doesn't add site_url to resource created via API (#3189)
+ * Fix memberships after user deletion (#3265)
+ * Remove idle database connection (#3260)
+ * Fix package_owner_org_update action when called via the API (#2661)
 
 v2.4.4 2016-11-02
 =================
