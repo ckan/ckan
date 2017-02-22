@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+from pylons import config
 import logging
 log = logging.getLogger(__name__)
 
@@ -15,8 +15,6 @@ class SearchQueryError(SearchError):
     pass
 
 DEFAULT_SOLR_URL = 'http://127.0.0.1:8983/solr'
-# I'm so sorry.
-SOLR_CONNECTION = None
 
 
 class SolrSettings(object):
@@ -59,18 +57,11 @@ def is_available():
 
 
 def make_connection():
-    global SOLR_CONNECTION
-
-    if SOLR_CONNECTION is None:
-        from solr import SolrConnection
-        solr_url, solr_user, solr_password = SolrSettings.get()
-        if solr_user is not None and solr_password is not None:
-            SOLR_CONNECTION = SolrConnection(
-                solr_url,
-                http_user=solr_user,
-                http_pass=solr_password
-            )
-        else:
-            SOLR_CONNECTION = SolrConnection(solr_url)
-
-    return SOLR_CONNECTION
+    from solr import SolrConnection
+    solr_url, solr_user, solr_password = SolrSettings.get()
+    assert solr_url is not None
+    if solr_user is not None and solr_password is not None:
+        return SolrConnection(solr_url, http_user=solr_user,
+                              http_pass=solr_password)
+    else:
+        return SolrConnection(solr_url)
