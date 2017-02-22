@@ -59,7 +59,8 @@ def clear_index():
         err = 'SOLR %r exception: %r' % (conn.url, e)
         log.error(err)
         raise SearchIndexError(err)
-
+    finally:
+        conn.close()
 
 class SearchIndex(object):
     """
@@ -296,6 +297,8 @@ class PackageSearchIndex(SearchIndex):
             err = 'Could not connect to Solr using {0}: {1}'.format(conn.url, str(e))
             log.error(err)
             raise SearchIndexError(err)
+        finally:
+            conn.close()
 
         commit_debug_msg = 'Not committed yet' if defer_commit else 'Committed'
         log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
@@ -307,6 +310,8 @@ class PackageSearchIndex(SearchIndex):
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
+        finally:
+            conn.close()
 
 
     def delete_package(self, pkg_dict):
@@ -321,3 +326,5 @@ class PackageSearchIndex(SearchIndex):
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
+        finally:
+            conn.close()
