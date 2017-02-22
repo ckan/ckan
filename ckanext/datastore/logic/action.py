@@ -179,7 +179,7 @@ def datastore_create(context, data_dict):
             'q': 'id:"{0}"'.format(package_id),
             'fl': 'data_dict',
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+            'fq': 'site_id:"%s"' % pylons.config.get('ckan.site_id'),
             'rows': 1
         }
         for record in solr_query.run(q)['results']:
