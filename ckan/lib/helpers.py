@@ -24,8 +24,6 @@ from lib.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
-from markdown import markdown
-from bleach import clean as clean_html, ALLOWED_TAGS
 from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
 from pylons import config
@@ -43,14 +41,6 @@ import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
 import ckan.authz as authz
-
-
-MARKDOWN_TAGS = set([
-    'del', 'dd', 'dl', 'dt', 'h1', 'h2',
-    'h3', 'img', 'kbd', 'p', 'pre', 's',
-    'sup', 'sub', 'strike', 'br', 'hr'
-]).union(ALLOWED_TAGS)
-
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -126,7 +116,7 @@ def get_site_protocol_and_host():
     If `ckan.site_url` is set like this::
 
         ckan.site_url = http://example.com
-
+    
     Then this function would return a tuple `('http', 'example.com')`
     If the setting is missing, `(None, None)` is returned instead.
 
@@ -1699,7 +1689,7 @@ def render_markdown(data, auto_link=True, allow_html=False):
         data = markdown(data.strip(), safe_mode=False)
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
-        data = clean_html(markdown(data), strip=True, tags=MARKDOWN_TAGS)
+        data = markdown(data, safe_mode=True)
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:
