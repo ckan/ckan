@@ -19,8 +19,8 @@ class Dashboard(object):
 
     def __init__(self, user_id):
         self.user_id = user_id
-        self.activity_stream_last_viewed = datetime.datetime.now()
-        self.email_last_sent = datetime.datetime.now()
+        self.activity_stream_last_viewed = datetime.datetime.utcnow()
+        self.email_last_sent = datetime.datetime.utcnow()
 
     @classmethod
     def get(cls, user_id):
