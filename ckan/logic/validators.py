@@ -17,7 +17,7 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
 import ckan.authz as authz
 from ckan.model.core import State
 
-from ckan.common import _
+from ckan.common import _, config
 
 Invalid = df.Invalid
 StopOnError = df.StopOnError
@@ -605,6 +605,13 @@ def user_password_not_empty(key, data, errors, context):
         password = data.get(('password',),None)
         if not password:
             errors[key].append(_('Missing value'))
+
+def user_about_validator(value,context):
+    if not config.get('ckan.markdown_filter_links', False):
+        if 'http://' in value or 'https://' in value:
+            raise Invalid(_('Edit not allowed as it looks like spam. Please avoid links in your description.'))
+
+    return value
 
 def vocabulary_name_validator(name, context):
     model = context['model']

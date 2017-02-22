@@ -1389,6 +1389,21 @@ Only used with the local storage backend. Use this to specify where uploaded fil
 Deprecated, please use ckan.storage_path.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
 
 
+Markdown Settings
+-----------------
+
+.. _ckan.markdown_filter_links:
+
+ckan.markdown_filter_links
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.markdown_filter_links = True
+
+Default value: False
+
+Allows to set links in markdown fields Like User management "About" textarea
 
 
 DataPusher Settings
