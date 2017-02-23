@@ -1428,7 +1428,11 @@ def create_trigger_function(name, definition, or_replace):
         name=datastore_helpers.identifier(name),
         definition=datastore_helpers.literal_string(definition))
 
-    _write_engine_execute(sql)
+    try:
+        _write_engine_execute(sql)
+    except ProgrammingError as pe:
+        raise ValidationError({
+            u'definition': [pe.args[0].split('\n')[0].decode('utf8')]})
 
 
 def drop_function(name, if_exists):
