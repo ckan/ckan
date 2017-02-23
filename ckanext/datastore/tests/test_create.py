@@ -19,6 +19,7 @@ import ckan.tests.factories as factories
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
+from ckan.plugins.toolkit import ValidationError
 
 
 class TestDatastoreCreateNewTests(object):
@@ -905,3 +906,27 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert res_dict['success'] is False
         assert res_dict['error']['__type'] == 'Validation Error'
         assert res_dict['error']['message'].startswith('The data was invalid')
+
+
+class TestDatastoreFunctionCreateTests(helpers.FunctionalTestBase):
+    _load_plugins = [u'datastore']
+
+    def test_nop_trigger(self):
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'test_nop',
+            or_replace=True,
+            rettype=u'trigger',
+            definition=u'BEGIN RETURN NEW; END;')
+
+    def test_invalid_definition(self):
+        try:
+            helpers.call_action(
+                u'datastore_function_create',
+                name=u'test_invalid_def',
+                rettype=u'trigger',
+                definition=u'HELLO WORLD')
+        except ValidationError as ve:
+            assert_equal(
+                ve.error_dict['definition'],
+                [u'(ProgrammingError) syntax error at or near "HELLO"'])
