@@ -40,6 +40,11 @@ class ModelFollowingModel(domain_object.DomainObject):
         return cls._get_followees(follower_id).count()
 
     @classmethod
+    def followee_count_org(cls, follower_id):
+        '''Return the number of objects followed by the follower.'''
+        return cls._get_followees_org(follower_id).count()
+
+    @classmethod
     def followee_list(cls, follower_id):
         '''Return a list of objects followed by the follower.'''
         query = cls._get_followees(follower_id).all()
@@ -67,11 +72,16 @@ class ModelFollowingModel(domain_object.DomainObject):
         return cls._get(follower_id)
 
     @classmethod
+    def _get_followees_org(cls, follower_id):
+        return cls._get_filter_by_org(follower_id)
+
+    @classmethod
     def _get_followers(cls, object_id):
         return cls._get(None, object_id)
 
     @classmethod
     def _get(cls, follower_id=None, object_id=None):
+
         follower_alias = sqlalchemy.orm.aliased(cls._follower_class())
         object_alias = sqlalchemy.orm.aliased(cls._object_class())
 
@@ -85,6 +95,27 @@ class ModelFollowingModel(domain_object.DomainObject):
                 cls.object_id == object_alias.id,
                 follower_alias.state != core.State.DELETED,
                 object_alias.state != core.State.DELETED,
+                object_alias.id == object_id))
+
+        return query
+
+    @classmethod
+    def _get_filter_by_org(cls, follower_id=None, object_id=None):
+
+        follower_alias = sqlalchemy.orm.aliased(cls._follower_class())
+        object_alias = sqlalchemy.orm.aliased(cls._object_class())
+
+        follower_id = follower_id or cls.follower_id
+        object_id = object_id or cls.object_id
+
+        query = meta.Session.query(cls, follower_alias, object_alias)\
+            .filter(sqlalchemy.and_(
+                follower_alias.id == follower_id,
+                cls.follower_id == follower_alias.id,
+                cls.object_id == object_alias.id,
+                follower_alias.state != core.State.DELETED,
+                object_alias.state != core.State.DELETED,
+                object_alias.type == 'organization',
                 object_alias.id == object_id))
 
         return query

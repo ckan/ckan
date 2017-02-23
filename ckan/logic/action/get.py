@@ -3047,6 +3047,9 @@ def _followee_count(context, data_dict, FollowerClass):
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
+    if data_dict.get('__extras'):
+        if data_dict['__extras'].get('type') == 'organization':
+            return FollowerClass.followee_count_org(data_dict['id'])
     return FollowerClass.followee_count(data_dict['id'])
 
 
