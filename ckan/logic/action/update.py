@@ -124,6 +124,7 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
+    old_resource = _get_action('resource_show')(context, {'id': id})
 
     resource = model.Resource.get(id)
     context["resource"] = resource
@@ -171,6 +172,19 @@ def resource_update(context, data_dict):
     model.repo.commit()
 
     resource = _get_action('resource_show')(context, {'id': id})
+
+    if old_resource['format'] != resource['format']:
+        q = model.Session.query(model.ResourceView) \
+            .filter(model.ResourceView.resource_id == resource['id'])
+        resources_view_id = q.all()
+        if resources_view_id:
+            for view_id in resources_view_id:
+                _get_action(
+                    'resource_view_delete')(context, {'id': view_id.id})
+        _get_action('package_create_default_resource_views')(
+            {'model': context['model'], 'user': context['user'],
+             'ignore_auth': True},
+            {'package': updated_pkg_dict})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_update(context, resource)
