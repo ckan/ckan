@@ -6,6 +6,7 @@
       data-mode="columntoggle" >
     <thead>
       <tr>
+        <th scope="col">_id</th>
         {% for field in h.datastore_dictionary(resource.id) %}
           <th scope="col">{{ field.id }}</th>
         {% endfor %}
