@@ -22,8 +22,8 @@
   src="https://code.jquery.com/jquery-2.2.4.min.js"
   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
   crossorigin="anonymous"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-2.2.4/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-print-1.2.4/r-2.1.1/sc-1.4.2/datatables.min.css"/>
-<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-2.2.4/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-print-1.2.4/r-2.1.1/sc-1.4.2/datatables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-2.2.4/jszip-2.5.0/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/fc-3.2.2/fh-3.1.2/datatables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-2.2.4/jszip-2.5.0/dt-1.10.13/b-1.2.4/b-colvis-1.2.4/b-flash-1.2.4/b-html5-1.2.4/b-print-1.2.4/fc-3.2.2/fh-3.1.2/datatables.min.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -36,7 +36,11 @@ $(document).ready(function() {
         url: "/datatables/ajax/{{ resource.id }}",
         type: "POST"
       },
-      responsive: true,
+      responsive: {{
+        'true' if resource_view.get('responsive') else 'false' }},
+      fixedHeader: true,
+      fixedColumns: true,
+      scrollX: true,
       dom: 'Bfrtip',
       buttons: ['colvis']
     }
