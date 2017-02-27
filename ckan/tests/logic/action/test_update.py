@@ -12,7 +12,7 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 from ckan import model
 
-assert_equals = nose.tools.assert_equals
+assert_equals = eq_ = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
 
 
@@ -723,6 +723,77 @@ class TestResourceUpdate(object):
         assert_equals(res_returned['anotherfield'], 'second')
         assert 'newfield' not in res_returned
 
+    def test_datastore_active_is_persisted_if_true_and_not_provided(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://example.com',
+                                      datastore_active=True)
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://example.com',
+                                           name='Test')
+
+        assert_equals(res_returned['datastore_active'], True)
+
+    def test_datastore_active_is_persisted_if_false_and_not_provided(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://example.com',
+                                      datastore_active=False)
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://example.com',
+                                           name='Test')
+
+        assert_equals(res_returned['datastore_active'], False)
+
+    def test_datastore_active_is_updated_if_false_and_provided(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://example.com',
+                                      datastore_active=False)
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://example.com',
+                                           name='Test',
+                                           datastore_active=True)
+
+        assert_equals(res_returned['datastore_active'], True)
+
+    def test_datastore_active_is_updated_if_true_and_provided(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://example.com',
+                                      datastore_active=True)
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://example.com',
+                                           name='Test',
+                                           datastore_active=False)
+
+        assert_equals(res_returned['datastore_active'], False)
+
+    def test_datastore_active_not_present_if_not_provided_and_not_datastore_plugin_enabled(self):
+
+        assert not p.plugin_loaded('datastore')
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://example.com',
+                                      )
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://example.com',
+                                           name='Test',
+                                           )
+
+        assert 'datastore_active' not in res_returned
+
 
 class TestConfigOptionUpdate(object):
 
@@ -785,3 +856,105 @@ class TestUserUpdate(helpers.FunctionalTestBase):
 
         user_obj = model.User.get(user['id'])
         assert user_obj.password != 'pretend-this-is-a-valid-hash'
+
+
+class TestBulkOperations(object):
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_bulk_make_private(self):
+
+        org = factories.Organization()
+
+        dataset1 = factories.Dataset(owner_org=org['id'])
+        dataset2 = factories.Dataset(owner_org=org['id'])
+
+        helpers.call_action('bulk_update_private', {},
+                            datasets=[dataset1['id'], dataset2['id']],
+                            org_id=org['id'])
+
+        # Check search index
+        datasets = helpers.call_action('package_search', {},
+                                       q='owner_org:{0}'.format(org['id']))
+
+        for dataset in datasets['results']:
+            eq_(dataset['private'], True)
+
+        # Check DB
+        datasets = model.Session.query(model.Package) \
+            .filter(model.Package.owner_org == org['id']).all()
+        for dataset in datasets:
+            eq_(dataset.private, True)
+
+        revisions = model.Session.query(model.PackageRevision) \
+            .filter(model.PackageRevision.owner_org == org['id']) \
+            .filter(model.PackageRevision.current is True) \
+            .all()
+        for revision in revisions:
+            eq_(revision.private, True)
+
+    def test_bulk_make_public(self):
+
+        org = factories.Organization()
+
+        dataset1 = factories.Dataset(owner_org=org['id'], private=True)
+        dataset2 = factories.Dataset(owner_org=org['id'], private=True)
+
+        helpers.call_action('bulk_update_public', {},
+                            datasets=[dataset1['id'], dataset2['id']],
+                            org_id=org['id'])
+
+        # Check search index
+        datasets = helpers.call_action('package_search', {},
+                                       q='owner_org:{0}'.format(org['id']))
+
+        for dataset in datasets['results']:
+            eq_(dataset['private'], False)
+
+        # Check DB
+        datasets = model.Session.query(model.Package) \
+            .filter(model.Package.owner_org == org['id']).all()
+        for dataset in datasets:
+            eq_(dataset.private, False)
+
+        revisions = model.Session.query(model.PackageRevision) \
+            .filter(model.PackageRevision.owner_org == org['id']) \
+            .filter(model.PackageRevision.current is True) \
+            .all()
+        for revision in revisions:
+            eq_(revision.private, False)
+
+    def test_bulk_delete(self):
+
+        org = factories.Organization()
+
+        dataset1 = factories.Dataset(owner_org=org['id'])
+        dataset2 = factories.Dataset(owner_org=org['id'])
+
+        helpers.call_action('bulk_update_delete', {},
+                            datasets=[dataset1['id'], dataset2['id']],
+                            org_id=org['id'])
+
+        # Check search index
+        datasets = helpers.call_action('package_search', {},
+                                       q='owner_org:{0}'.format(org['id']))
+
+        eq_(datasets['results'], [])
+
+        # Check DB
+        datasets = model.Session.query(model.Package) \
+            .filter(model.Package.owner_org == org['id']).all()
+        for dataset in datasets:
+            eq_(dataset.state, 'deleted')
+
+        revisions = model.Session.query(model.PackageRevision) \
+            .filter(model.PackageRevision.owner_org == org['id']) \
+            .filter(model.PackageRevision.current is True) \
+            .all()
+        for revision in revisions:
+            eq_(revision.state, 'deleted')

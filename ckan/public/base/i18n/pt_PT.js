@@ -8,6 +8,10 @@
     null,
     "Ocorreu Um Erro"
   ],
+  "An error occurred: %(text)s %(error)s": [
+    null,
+    "Ocorreu um erro: %(text)s %(error)s"
+  ],
   "Are you sure you want to perform this action?": [
     null,
     "Tem a certeza que deseja realizar esta ação?"
@@ -139,6 +143,10 @@
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
     "Está a enviar um ficheiro. Tem a certeza de que deseja sair e parar o envio?"
+  ],
+  "error loading view": [
+    null,
+    "erro a carregar a visualização"
   ],
   "show less": [
     null,

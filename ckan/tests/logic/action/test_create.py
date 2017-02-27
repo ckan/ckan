@@ -11,6 +11,7 @@ import ckan.tests.factories as factories
 import ckan.model as model
 import ckan.logic as logic
 import ckan.plugins as p
+import ckan.lib.mailer as mailer
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
@@ -81,6 +82,31 @@ class TestUserInvite(object):
 
         assert_equals(invited_user.name.split('-')[0], 'maria')
 
+    @helpers.change_config('smtp.server', 'email.example.com')
+    @mock.patch('ckan.lib.mailer.send_invite', side_effect=mailer.MailerException())
+    def test_smtp_error_returns_error_message(self, _):
+
+        sysadmin = factories.Sysadmin()
+        group = factories.Group()
+
+        context = {
+            'user': sysadmin['name']
+        }
+        params = {
+            'email': 'example-invited-user@example.com',
+            'group_id': group['id'],
+            'role': 'editor'
+        }
+
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'user_invite', context, **params)
+
+        # Check that the pending user was deleted
+        user = model.Session.query(model.User).filter(
+            model.User.name.like('example-invited-user%')).all()
+
+        assert_equals(user[0].state, 'deleted')
+
     def _invite_user_to_group(self, email='user@email.com',
                               group=None, role='member'):
         user = factories.User()
@@ -110,7 +136,6 @@ class TestResourceViewCreate(object):
     @classmethod
     def teardown_class(cls):
         p.unload('image_view')
-
         helpers.reset_db()
 
     def setup(self):
@@ -437,6 +462,48 @@ class TestMemberCreate(object):
         assert_equals(new_membership['table_name'], 'user')
         assert_equals(new_membership['table_id'], user['id'])
         assert_equals(new_membership['capacity'], 'member')
+
+    def test_group_member_creation_raises_validation_error_if_id_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'group_member_create',
+                      username='someuser',
+                      role='member',)
+
+    def test_group_member_creation_raises_validation_error_if_username_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'group_member_create',
+                      id='someid',
+                      role='member',)
+
+    def test_group_member_creation_raises_validation_error_if_role_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'group_member_create',
+                      id='someid',
+                      username='someuser',)
+
+    def test_org_member_creation_raises_validation_error_if_id_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'organization_member_create',
+                      username='someuser',
+                      role='member',)
+
+    def test_org_member_creation_raises_validation_error_if_username_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'organization_member_create',
+                      id='someid',
+                      role='member',)
+
+    def test_org_member_creation_raises_validation_error_if_role_missing(self):
+
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'organization_member_create',
+                      id='someid',
+                      username='someuser',)
 
 
 class TestDatasetCreate(helpers.FunctionalTestBase):

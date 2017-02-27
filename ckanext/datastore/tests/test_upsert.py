@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import nose
 import datetime
@@ -9,11 +10,70 @@ import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
+import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
+
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 assert_equal = nose.tools.assert_equal
+
+
+class TestDatastoreUpsertNewTests(object):
+    @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('datastore')
+        helpers.reset_db()
+
+    def test_upsert_doesnt_crash_with_json_field(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'primary_key': 'id',
+            'fields': [{'id': 'id', 'type': 'text'},
+                       {'id': 'book', 'type': 'json'},
+                       {'id': 'author', 'type': 'text'}],
+        }
+        helpers.call_action('datastore_create', **data)
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'method': 'insert',
+            'records': [
+                {'id': '1',
+                 'book': {'code': 'A', 'title': u'ñ'},
+                 'author': 'tolstoy'}],
+        }
+        helpers.call_action('datastore_upsert', **data)
+
+    def test_upsert_doesnt_crash_with_json_field_with_string_value(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'primary_key': 'id',
+            'fields': [{'id': 'id', 'type': 'text'},
+                       {'id': 'book', 'type': 'json'},
+                       {'id': 'author', 'type': 'text'}],
+        }
+        helpers.call_action('datastore_create', **data)
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'method': 'insert',
+            'records': [
+                {'id': '1',
+                 'book': u'ñ',
+                 'author': 'tolstoy'}],
+        }
+        helpers.call_action('datastore_upsert', **data)
 
 
 class TestDatastoreUpsert(tests.WsgiAppCase):

@@ -5,17 +5,18 @@
 # Translators:
 # Dmitry Oshkalo <dmitry.oshkalo@gmail.com>, 2015
 # Gromislav <igromislav@gmail.com>, 2013
-# ivbeg <ibegtin@gmail.com>, 2013
+# Ivan Begtin <ibegtin@gmail.com>, 2013
 # mih, 2015
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 # Sergey Motornyuk <sergey.motornyuk@linkdigital.com.au>, 2015
+# Илья i <777_2005.87@mail.ru>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2015-11-26 14:20+0000\n"
-"Last-Translator: dread <david.read@hackneyworkshop.com>\n"
+"PO-Revision-Date: 2016-09-28 19:38+0000\n"
+"Last-Translator: Илья i <777_2005.87@mail.ru>\n"
 "Language-Team: Russian (http://www.transifex.com/okfn/ckan/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -940,10 +941,10 @@ msgstr "Только что"
 #: ckan/lib/formatters.py:116
 msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
-msgstr[0] "{mins} минуту спустя"
-msgstr[1] "{mins} минут спустя"
-msgstr[2] "{mins} минут спустя"
-msgstr[3] "{mins} минут спустя"
+msgstr[0] "{mins} минуту назад"
+msgstr[1] "{mins} минут назад"
+msgstr[2] "{mins} минут назад"
+msgstr[3] "{mins} минут назад"
 
 #: ckan/lib/formatters.py:119
 msgid "{hours} hour ago"

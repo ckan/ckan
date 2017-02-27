@@ -523,6 +523,17 @@ class TestResourceRead(helpers.FunctionalTestBase):
         app = self._get_test_app()
         app.get(url, status=404)
 
+    def test_resource_view_description_is_rendered_as_markdown(self):
+        resource_view = factories.ResourceView(description="Some **Markdown**")
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_id=resource_view['id'])
+        app = self._get_test_app()
+        response = app.get(url)
+        response.mustcontain('Some <strong>Markdown</strong>')
+
     def test_existing_resource_with_associated_dataset(self):
 
         dataset = factories.Dataset()

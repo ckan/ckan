@@ -79,7 +79,7 @@ def package_delete(context, data_dict):
     if entity is None:
         raise NotFound
 
-    _check_access('package_delete',context, data_dict)
+    _check_access('package_delete', context, data_dict)
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -91,6 +91,14 @@ def package_delete(context, data_dict):
         item.after_delete(context, data_dict)
 
     entity.delete()
+
+    dataset_memberships = model.Session.query(model.Member).filter(
+        model.Member.table_id == id).filter(
+        model.Member.state == 'active').all()
+
+    for membership in dataset_memberships:
+        membership.delete()
+
     model.repo.commit()
 
 

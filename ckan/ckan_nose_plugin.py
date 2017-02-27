@@ -127,7 +127,7 @@ class CkanNose(Plugin):
 ##
 ##        testname = str(test)
 ##        #if ' ' in testname:
-##        #    testname = testname.split(' ')[1]
+##        #    testname = testname.split()[1]
 ##
 ##        f.write('%s,%s\n' % (testname, str(runtime)))
 ##

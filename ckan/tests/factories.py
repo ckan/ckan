@@ -109,7 +109,7 @@ class User(factory.Factory):
     about = 'Just another test user.'
 
     # Generate a different user name param for each user that gets created.
-    name = factory.Sequence(lambda n: 'test_user_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'test_user_{0:02d}'.format(n))
 
     # Compute the email param for each user based on the values of the other
     # params above.
@@ -138,7 +138,7 @@ class Resource(factory.Factory):
 
     FACTORY_FOR = ckan.model.Resource
 
-    name = factory.Sequence(lambda n: 'test_resource_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'test_resource_{0:02d}'.format(n))
     description = 'Just another test resource.'
     format = 'res_format'
     url = 'http://link.to.some.data'
@@ -182,7 +182,7 @@ class ResourceView(factory.Factory):
 
     FACTORY_FOR = ckan.model.ResourceView
 
-    title = factory.Sequence(lambda n: 'test_resource_view_{n}'.format(n=n))
+    title = factory.Sequence(lambda n: 'test_resource_view_{0:02d}'.format(n))
     description = 'Just another test resource view.'
     view_type = 'image_view'
     resource_id = factory.LazyAttribute(lambda _: Resource()['id'])
@@ -212,7 +212,7 @@ class Sysadmin(factory.Factory):
     password = 'pass'
     about = 'Just another test sysadmin.'
 
-    name = factory.Sequence(lambda n: 'test_sysadmin_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'test_sysadmin_{0:02d}'.format(n))
 
     email = factory.LazyAttribute(_generate_email)
     sysadmin = True
@@ -245,7 +245,7 @@ class Group(factory.Factory):
 
     FACTORY_FOR = ckan.model.Group
 
-    name = factory.Sequence(lambda n: 'test_group_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'test_group_{0:02d}'.format(n))
     title = factory.LazyAttribute(_generate_group_title)
     description = 'A test description for this test group.'
 
@@ -286,7 +286,7 @@ class Organization(factory.Factory):
     image_url = 'http://placekitten.com/g/200/100'
 
     # Generate a different group name param for each user that gets created.
-    name = factory.Sequence(lambda n: 'test_org_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'test_org_{0:02d}'.format(n))
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -341,7 +341,7 @@ class Dataset(factory.Factory):
     notes = 'Just another test dataset.'
 
     # Generate a different group name param for each user that gets created.
-    name = factory.Sequence(lambda n: 'test_dataset_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'test_dataset_{0:02d}'.format(n))
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -368,7 +368,7 @@ class MockUser(factory.Factory):
     fullname = 'Mr. Mock User'
     password = 'pass'
     about = 'Just another mock user.'
-    name = factory.Sequence(lambda n: 'mock_user_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'mock_user_{0:02d}'.format(n))
     email = factory.LazyAttribute(_generate_email)
     reset_key = factory.LazyAttribute(_generate_reset_key)
     id = factory.LazyAttribute(_generate_user_id)
@@ -393,7 +393,7 @@ class SystemInfo(factory.Factory):
 
     FACTORY_FOR = ckan.model.SystemInfo
 
-    key = factory.Sequence(lambda n: 'test_config_{n}'.format(n=n))
+    key = factory.Sequence(lambda n: 'test_config_{0:02d}'.format(n))
     value = _generate_random_string()
 
     @classmethod
@@ -433,7 +433,7 @@ class Vocabulary(factory.Factory):
     '''A factory class for creating tag vocabularies.'''
 
     FACTORY_FOR = ckan.model.Vocabulary
-    name = factory.Sequence(lambda n: 'test_vocabulary_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'test_vocabulary_{0:02d}'.format(n))
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):

@@ -8,6 +8,10 @@
     null,
     "Ka ndodhur një gabim"
   ],
+  "An error occurred: %(text)s %(error)s": [
+    null,
+    "Një gabim ndodhi: %(text)s %(error)s"
+  ],
   "Are you sure you want to perform this action?": [
     null,
     "A jeni te sigurte qe doni ta kryeni këtë veprim?"
@@ -139,6 +143,10 @@
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
     "Ju jeni duke ngarkuar një skedar. A jeni të sigurt që doni të largoheni dhe t'a ndalni këtë ngarkim?"
+  ],
+  "error loading view": [
+    null,
+    "gabim në ngarkimin e pamjes"
   ],
   "show less": [
     null,

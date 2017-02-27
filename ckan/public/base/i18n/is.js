@@ -8,6 +8,10 @@
     null,
     "Villa kom upp"
   ],
+  "An error occurred: %(text)s %(error)s": [
+    null,
+    "Villa kom upp: %(text)s %(error)s"
+  ],
   "Are you sure you want to perform this action?": [
     null,
     "Ertu viss um að þú viljir framkvæma þessa aðgerð?"
@@ -67,6 +71,10 @@
   "Remove": [
     null,
     "Fjarlægja"
+  ],
+  "Reorder resource view": [
+    null,
+    "Endurraða tilfangssýnum"
   ],
   "Reorder resources": [
     null,
@@ -135,6 +143,10 @@
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
     "Þú ert að sækja skrá. Ertu viss um að viljir fara af síðunni og stöðva niðurhalið? "
+  ],
+  "error loading view": [
+    null,
+    "villa við að hlaða sýn"
   ],
   "show less": [
     null,

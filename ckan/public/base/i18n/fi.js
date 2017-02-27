@@ -8,6 +8,10 @@
     null,
     "Tapahtui virhe"
   ],
+  "An error occurred: %(text)s %(error)s": [
+    null,
+    "Virhe tapahtui: %(text)s %(error)s"
+  ],
   "Are you sure you want to perform this action?": [
     null,
     "Oletko varma, että haluat tehdä tämän?"
@@ -139,6 +143,10 @@
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
     "Olet parhaillaan lataamassa tiedostoa palvelimelle. Oletko varma, että haluat poistua sivulta ja keskeyttää lataamisen?"
+  ],
+  "error loading view": [
+    null,
+    "virhe ladattaessa näkymää"
   ],
   "show less": [
     null,
