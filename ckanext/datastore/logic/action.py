@@ -12,6 +12,7 @@ from ckan.common import config
 import ckanext.datastore.db as db
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
+from ckanext.datastore.backend import DatastoreBackend
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -275,60 +276,20 @@ def datastore_info(context, data_dict):
     :param id: Id of the resource we want info about
     :type id: A UUID
     '''
-    def _type_lookup(t):
-        if t in ['numeric', 'integer']:
-            return 'number'
-
-        if t.startswith('timestamp'):
-            return "date"
-
-        return "text"
+    backend = DatastoreBackend.get_active_backend()
 
     p.toolkit.check_access('datastore_info', context, data_dict)
 
     resource_id = _get_or_bust(data_dict, 'id')
     resource = p.toolkit.get_action('resource_show')(context, {'id':resource_id})
 
-    data_dict['connection_url'] = config['ckan.datastore.read_url']
-
-    resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
-                                        WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(data_dict).execute(resources_sql, id=resource_id)
-    res_exists = results.rowcount > 0
+    res_exists = backend.resource_exists(resource_id)
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             u'Resource "{0}" was not found.'.format(resource_id)
         ))
 
-    info = {'schema': {}, 'meta': {}}
-
-    schema_results = None
-    meta_results = None
-    try:
-        schema_sql = sqlalchemy.text(u'''
-            SELECT column_name, data_type
-            FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = :resource_id;
-        ''')
-        schema_results = db._get_engine(data_dict).execute(schema_sql, resource_id=resource_id)
-        for row in schema_results.fetchall():
-            k = row[0]
-            v = row[1]
-            if k.startswith('_'):  # Skip internal rows
-                continue
-            info['schema'][k] = _type_lookup(v)
-
-        # We need to make sure the resource_id is a valid resource_id before we use it like
-        # this, we have done that above.
-        meta_sql = sqlalchemy.text(u'''
-            SELECT count(_id) FROM "{0}";
-        '''.format(resource_id))
-        meta_results = db._get_engine(data_dict).execute(meta_sql, resource_id=resource_id)
-        info['meta']['count'] = meta_results.fetchone()[0]
-    finally:
-        if schema_results:
-            schema_results.close()
-        if meta_results:
-            meta_results.close()
+    info = backend.datastore_info(resource_id)
 
     return info
 
@@ -351,6 +312,7 @@ def datastore_delete(context, data_dict):
 
     '''
     schema = context.get('schema', dsschema.datastore_upsert_schema())
+    backend = DatastoreBackend.get_active_backend()
 
     # Remove any applied filters before running validation.
     filters = data_dict.pop('filters', None)
@@ -374,20 +336,16 @@ def datastore_delete(context, data_dict):
         resource_id = data_dict['resource_id']
         _check_read_only(context, resource_id)
 
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
-
     res_id = data_dict['resource_id']
-    resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
-                                        WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
-    res_exists = results.rowcount > 0
+
+    res_exists = backend.resource_exists(res_id)
 
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             u'Resource "{0}" was not found.'.format(res_id)
         ))
 
-    result = db.delete(context, data_dict)
+    result = backend.delete(context, data_dict)
 
     # Set the datastore_active flag on the resource if necessary
     model = _get_or_bust(context, 'model')

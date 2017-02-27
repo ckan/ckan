@@ -32,39 +32,47 @@ class DatastoreException(Exception):
 class DatastoreBackend:
 
     _backends = {}
+    _active_backend = None
 
     @classmethod
     def register_backend(cls, backends_dict):
         cls._backends.update(backends_dict)
 
     @classmethod
-    def get_active_backend(cls, config):
+    def set_active_backend(cls, config):
         schema = config.get('ckan.datastore.write_url').split(':')[0]
-        return cls._backends[schema]()
+        cls._active_backend = cls._backends[schema]()
+
+    @classmethod
+    def get_active_backend(cls):
+        return cls._active_backend
 
     def configure(self, config):
         return config
 
     def create(self, context, data_dict):
-        pass
+        raise NotImplementedError()
 
     def upsert(self, context, data_dict):
-        pass
+        raise NotImplementedError()
 
     def delete(self, context, data_dict):
-        pass
+        raise NotImplementedError()
 
     def search(self, context, data_dict):
-        pass
+        raise NotImplementedError()
 
     def search_sql(self, context, data_dict):
-        pass
+        raise NotImplementedError()
 
     def resource_exists(self, id):
-        pass
+        raise NotImplementedError()
 
     def resource_fields(self, id):
-        pass
+        raise NotImplementedError()
 
     def resource_info(self, id):
-        pass
+        raise NotImplementedError()
+
+    def datastore_info(self, id):
+        raise NotImplementedError()

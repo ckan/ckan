@@ -66,9 +66,10 @@ class DatastorePlugin(p.SingletonPlugin):
     def update_config(self, config):
         for plugin in p.PluginImplementations(interfaces.IDatastoreBackend):
             DatastoreBackend.register_backend(plugin.register_backends())
+        DatastoreBackend.set_active_backend(config)
 
         p.toolkit.add_template_directory(config, 'templates')
-        self.backend = DatastoreBackend.get_active_backend(config)
+        self.backend = DatastoreBackend.get_active_backend()
 
     # IConfigurable
 

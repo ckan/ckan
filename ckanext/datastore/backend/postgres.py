@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import sys
+import sqlalchemy
 import sqlalchemy.engine.url as sa_url
 
 import ckan.model as model
@@ -180,6 +181,21 @@ def _ts_query_alias(field=None):
 
 
 class DatastorePostgresqlBackend(DatastoreBackend):
+    _engines = {}
+
+    def _get_engine(self, url):
+        engine = self._engines.get(url)
+        if not engine:
+            extras = {'url': url}
+            engine = sqlalchemy.engine_from_config(
+                config,
+                'ckan.datastore.sqlalchemy.',
+                **extras)
+        self._engines[url] = engine
+        return engine
+
+    def _get_write_engine(self):
+        return self._get_engine(self.write_url)
 
     def _log_or_raise(self, message):
         if self.config.get('debug'):
@@ -344,3 +360,68 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     def delete(self, context, data_dict):
         data_dict['connection_url'] = self.write_url
         return db.delete(context, data_dict)
+
+    # def create(self, context, data_dict):
+    #     pass
+
+    # def upsert(self, context, data_dict):
+    #     pass
+
+    # def search(self, context, data_dict):
+    #     pass
+
+    # def search_sql(self, context, data_dict):
+    #     pass
+
+    def resource_exists(self, id):
+        resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
+                                        WHERE name = :id AND alias_of IS NULL''')
+        results = self._get_write_engine().execute(resources_sql, id=id)
+        res_exists = results.rowcount > 0
+        return res_exists
+
+
+    # def resource_fields(self, id):
+    #     pass
+
+    # def resource_info(self, id):
+    #     pass
+
+    def datastore_info(self, id):
+        def _type_lookup(t):
+            if t in ['numeric', 'integer']:
+                return 'number'
+            if t.startswith('timestamp'):
+                return "date"
+            return "text"
+
+        info = {'schema': {}, 'meta': {}}
+
+        schema_results = None
+        meta_results = None
+        try:
+            schema_sql = sqlalchemy.text(u'''
+                SELECT column_name, data_type
+                FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = :resource_id;
+            ''')
+            schema_results = self._get_write_engine().execute(schema_sql, resource_id=id)
+            for row in schema_results.fetchall():
+                k = row[0]
+                v = row[1]
+                if k.startswith('_'):  # Skip internal rows
+                    continue
+                info['schema'][k] = _type_lookup(v)
+
+            # We need to make sure the resource_id is a valid resource_id before we use it like
+            # this, we have done that above.
+            meta_sql = sqlalchemy.text(u'''
+                SELECT count(_id) FROM "{0}";
+            '''.format(id))
+            meta_results = self._get_write_engine().execute(meta_sql, resource_id=id)
+            info['meta']['count'] = meta_results.fetchone()[0]
+        finally:
+            if schema_results:
+                schema_results.close()
+            if meta_results:
+                meta_results.close()
+        return info
