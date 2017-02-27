@@ -79,7 +79,7 @@ class UserController(base.BaseController):
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
-            h.flash_error('Authorize to see this page')
+            h.flash_error(_('Not authorized to see this page'))
             h.redirect_to(controller='user', action='login')
         except NotAuthorized:
             abort(403, _('Not authorized to see this page'))
