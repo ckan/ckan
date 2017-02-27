@@ -1100,8 +1100,8 @@ class Page(paginate.Page):
 
     def _pagerlink(self, page, text, extra_attributes=None, pager_text=None):
 
-        if text.isdigit() and page_text:
-            text = literal(page_text + text)
+        if text.isdigit() and pager_text:
+            text = literal(pager_text + text)
         anchor = super(Page, self)._pagerlink(page, text)
         extra_attributes = extra_attributes or {}
         return HTML.li(anchor, **extra_attributes)
