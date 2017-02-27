@@ -17,6 +17,7 @@ import pprint
 import copy
 import urlparse
 from urllib import urlencode
+from functools import partial
 
 from paste.deploy import converters
 from webhelpers.html import escape, HTML, literal, tags, tools
@@ -1079,17 +1080,25 @@ class Page(paginate.Page):
     # our custom layout set as default.
 
     def pager(self, *args, **kwargs):
+        prev_link = kwargs['symbol_previous'] if 'symbol_previous' in kwargs else u'«'
+        next_link = kwargs['symbol_next'] if 'symbol_next' in kwargs else u'»'
+        pager_item_text = kwargs['page_alt_text'] if 'page_alt_text' in kwargs else None
         kwargs.update(
-            format=u"<div class='pagination pagination-centered'><ul>"
-            "$link_previous ~2~ $link_next</ul></div>",
-            symbol_previous=u'«', symbol_next=u'»',
-            curpage_attr={'class': 'active'}, link_attr={}
+            format=u"<ul>$link_previous ~2~ $link_next</ul>",
+            symbol_previous=literal(prev_link),
+            symbol_next=literal(next_link),
+            curpage_attr={'class': 'active'},
+            link_attr={'class': 'pager_link'}
         )
+        self._pagerlink = partial(self._pagerlink, page_alt_text=pager_item_text)
         return super(Page, self).pager(*args, **kwargs)
 
     # Put each page link into a <li> (for Bootstrap to style it)
 
-    def _pagerlink(self, page, text, extra_attributes=None):
+    def _pagerlink(self, page, text, extra_attributes=None, page_alt_text=None):
+
+        if text.isdigit() and page_alt_text:
+            text = literal(page_alt_text + text)
         anchor = super(Page, self)._pagerlink(page, text)
         extra_attributes = extra_attributes or {}
         return HTML.li(anchor, **extra_attributes)

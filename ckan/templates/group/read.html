@@ -26,7 +26,7 @@
     {% endif %}
   {% endblock %}
   {% block page_pagination %}
-    {{ c.page.pager(q=c.q) }}
+    {% snippet 'snippets/pager.html', q=c.q %}
   {% endblock %}
 {% endblock %}
 
