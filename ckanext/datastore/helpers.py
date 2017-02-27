@@ -9,6 +9,30 @@ import sqlparse
 log = logging.getLogger(__name__)
 
 
+def is_single_statement(sql):
+    '''Returns True if received SQL string contains at most one statement'''
+    return len(sqlparse.split(sql)) <= 1
+
+
+def is_valid_field_name(name):
+    '''
+    Check that field name is valid:
+    * can't start or end with whitespace characters
+    * can't start with underscore
+    * can't contain double quote (")
+    * can't be empty
+    '''
+    return (name and name == name.strip()
+            and not name.startswith('_')
+            and '"' not in name)
+
+
+def is_valid_table_name(name):
+    if '%' in name:
+        return False
+    return is_valid_field_name(name)
+
+
 def get_list(input, strip_values=True):
     '''Transforms a string or list to a list'''
     if input is None:
@@ -21,11 +45,6 @@ def get_list(input, strip_values=True):
         return [_strip(x) for x in converters_list]
     else:
         return converters_list
-
-
-def is_single_statement(sql):
-    '''Returns True if received SQL string contains at most one statement'''
-    return len(sqlparse.split(sql)) <= 1
 
 
 def validate_int(i, non_negative=False):

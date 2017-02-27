@@ -18,6 +18,7 @@ from ckanext.datastore.backend import (
 
 log = logging.getLogger(__name__)
 
+is_single_statement = datastore_helpers.is_single_statement
 
 def _is_legacy_mode(config):
     '''
@@ -361,17 +362,39 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         data_dict['connection_url'] = self.write_url
         return db.delete(context, data_dict)
 
-    # def create(self, context, data_dict):
-    #     pass
+    def create(self, context, data_dict):
+        data_dict['connection_url'] = self.write_url
+        try:
+            result =  db.create(context, data_dict)
+        except db.InvalidDataError as err:
+            raise toolkit.ValidationError(unicode(err))
+        return result
 
-    # def upsert(self, context, data_dict):
-    #     pass
+    def upsert(self, context, data_dict):
+        data_dict['connection_url'] = self.write_url
+        return db.upsert(context, data_dict)
 
-    # def search(self, context, data_dict):
-    #     pass
+    def search(self, context, data_dict):
+        data_dict['connection_url'] = self.write_url
+        return db.search(context, data_dict)
 
-    # def search_sql(self, context, data_dict):
-    #     pass
+    def search_sql(self, context, data_dict):
+        sql = toolkit.get_or_bust(data_dict, 'sql')
+        data_dict['connection_url'] = self.read_url
+
+        if not is_single_statement(sql):
+            raise toolkit.ValidationError({
+                'query': ['Query is not a single statement.']
+            })
+        return db.search_sql(context, data_dict)
+
+    def make_private(self, context, data_dict):
+        data_dict['connection_url'] = self.write_url
+        return db.make_private(context, data_dict)
+
+    def make_public(self, context, data_dict):
+        data_dict['connection_url'] = self.write_url
+        return db.make_public(context, data_dict)
 
     def resource_exists(self, id):
         resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
@@ -380,6 +403,16 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         res_exists = results.rowcount > 0
         return res_exists
 
+    def resource_id_from_alias(self, alias):
+        real_id = None
+        resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
+                                        WHERE name = :id''')
+        results = self._get_write_engine().execute(resources_sql, id=alias)
+
+        res_exists = results.rowcount > 0
+        if res_exists:
+            real_id = results.fetchone()[0]
+        return res_exists, real_id
 
     # def resource_fields(self, id):
     #     pass

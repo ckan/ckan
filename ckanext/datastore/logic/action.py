@@ -2,14 +2,12 @@
 
 import logging
 import json
-import sqlalchemy
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
 from ckan.common import config
-import ckanext.datastore.db as db
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
 from ckanext.datastore.backend import DatastoreBackend
@@ -26,12 +24,13 @@ def datastore_create(context, data_dict):
 
     The datastore_create action allows you to post JSON data to be
     stored against a resource. This endpoint also supports altering tables,
-    aliases and indexes and bulk insertion. This endpoint can be called multiple
-    times to initially insert more data, add fields, change the aliases or indexes
-    as well as the primary keys.
+    aliases and indexes and bulk insertion. This endpoint can be called
+    multiple times to initially insert more data, add fields, change the
+    aliases or indexes as well as the primary keys.
 
     To create an empty datastore resource and a CKAN resource at the same time,
-    provide ``resource`` with a valid ``package_id`` and omit the ``resource_id``.
+    provide ``resource`` with a valid ``package_id`` and omit the
+    ``resource_id``.
 
     If you want to create a datastore resource from the content of a file,
     provide ``resource`` with a valid ``url``.
@@ -57,8 +56,9 @@ def datastore_create(context, data_dict):
     :param indexes: indexes on table (optional)
     :type indexes: list or comma separated string
 
-    Please note that setting the ``aliases``, ``indexes`` or ``primary_key`` replaces the exising
-    aliases or constraints. Setting ``records`` appends the provided records to the resource.
+    Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
+    replaces the exising aliases or constraints. Setting ``records`` appends
+    the provided records to the resource.
 
     **Results:**
 
@@ -68,6 +68,7 @@ def datastore_create(context, data_dict):
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
     '''
+    backend = DatastoreBackend.get_active_backend()
     schema = context.get('schema', dsschema.datastore_create_schema())
     records = data_dict.pop('records', None)
     resource = data_dict.pop('resource', None)
@@ -87,7 +88,7 @@ def datastore_create(context, data_dict):
             'resource': ['resource cannot be used with resource_id']
         })
 
-    if not 'resource' in data_dict and not 'resource_id' in data_dict:
+    if 'resource' not in data_dict and 'resource_id' not in data_dict:
         raise p.toolkit.ValidationError({
             'resource_id': ['resource_id or resource required']
         })
@@ -123,12 +124,10 @@ def datastore_create(context, data_dict):
             resource_id = data_dict['resource_id']
             _check_read_only(context, resource_id)
 
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
-
     # validate aliases
     aliases = datastore_helpers.get_list(data_dict.get('aliases', []))
     for alias in aliases:
-        if not db._is_valid_table_name(alias):
+        if not datastore_helpers.is_valid_table_name(alias):
             raise p.toolkit.ValidationError({
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
@@ -140,10 +139,7 @@ def datastore_create(context, data_dict):
     if not legacy_mode and resource.package.private:
         data_dict['private'] = True
 
-    try:
-        result = db.create(context, data_dict)
-    except db.InvalidDataError as err:
-        raise p.toolkit.ValidationError(unicode(err))
+    result = backend.create(context, data_dict)
 
     # Set the datastore_active flag on the resource if necessary
     if resource.extras.get('datastore_active') is not True:
@@ -234,6 +230,7 @@ def datastore_upsert(context, data_dict):
     :rtype: dictionary
 
     '''
+    backend = DatastoreBackend.get_active_backend()
     schema = context.get('schema', dsschema.datastore_upsert_schema())
     records = data_dict.pop('records', None)
     data_dict, errors = _validate(data_dict, schema, context)
@@ -244,24 +241,19 @@ def datastore_upsert(context, data_dict):
 
     p.toolkit.check_access('datastore_upsert', context, data_dict)
 
+    resource_id = data_dict['resource_id']
+
     if not data_dict.pop('force', False):
-        resource_id = data_dict['resource_id']
         _check_read_only(context, resource_id)
 
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
-
-    res_id = data_dict['resource_id']
-    resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
-                                        WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
-    res_exists = results.rowcount > 0
+    res_exists = backend.resource_exists(resource_id)
 
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(res_id)
+            u'Resource "{0}" was not found.'.format(resource_id)
         ))
 
-    result = db.upsert(context, data_dict)
+    result = backend.upsert(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url')
     return result
@@ -281,7 +273,7 @@ def datastore_info(context, data_dict):
     p.toolkit.check_access('datastore_info', context, data_dict)
 
     resource_id = _get_or_bust(data_dict, 'id')
-    resource = p.toolkit.get_action('resource_show')(context, {'id':resource_id})
+    p.toolkit.get_action('resource_show')(context, {'id': resource_id})
 
     res_exists = backend.resource_exists(resource_id)
     if not res_exists:
@@ -425,33 +417,30 @@ def datastore_search(context, data_dict):
     :type records: list of dictionaries
 
     '''
+    backend = DatastoreBackend.get_active_backend()
     schema = context.get('schema', dsschema.datastore_search_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise p.toolkit.ValidationError(errors)
 
     res_id = data_dict['resource_id']
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
-    resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
-                                        WHERE name = :id''')
-    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
-
+    res_exists, real_id = backend.resource_id_from_alias(res_id)
     # Resource only has to exist in the datastore (because it could be an alias)
-    if not results.rowcount > 0:
+
+    if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
         ))
 
-    if not data_dict['resource_id'] in WHITELISTED_RESOURCES:
+    if data_dict['resource_id'] not in WHITELISTED_RESOURCES:
         # Replace potential alias with real id to simplify access checks
-        resource_id = results.fetchone()[0]
-        if resource_id:
-            data_dict['resource_id'] = resource_id
+        if real_id:
+            data_dict['resource_id'] = real_id
 
         p.toolkit.check_access('datastore_search', context, data_dict)
 
-    result = db.search(context, data_dict)
+    result = backend.search(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url')
     return result
@@ -466,10 +455,12 @@ def datastore_search_sql(context, data_dict):
     engine is the
     `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
-    DataStore resource that belong to a private CKAN resource cannot be searched with
-    this action. Use :meth:`~ckanext.datastore.logic.action.datastore_search` instead.
+    DataStore resource that belong to a private CKAN resource cannot be
+    searched with this action. Use
+    :meth:`~ckanext.datastore.logic.action.datastore_search` instead.
 
-    .. note:: This action is only available when using PostgreSQL 9.X and using a read-only user on the database.
+    .. note:: This action is only available when using PostgreSQL 9.X and
+        using a read-only user on the database.
         It is not available in :ref:`legacy mode<legacy-mode>`.
 
     :param sql: a single SQL select statement
@@ -486,18 +477,11 @@ def datastore_search_sql(context, data_dict):
     :type records: list of dictionaries
 
     '''
-    sql = _get_or_bust(data_dict, 'sql')
-
-    if not datastore_helpers.is_single_statement(sql):
-        raise p.toolkit.ValidationError({
-            'query': ['Query is not a single statement.']
-        })
+    backend = DatastoreBackend.get_active_backend()
 
     p.toolkit.check_access('datastore_search_sql', context, data_dict)
 
-    data_dict['connection_url'] = config['ckan.datastore.read_url']
-
-    result = db.search_sql(context, data_dict)
+    result = backend.search_sql(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url')
     return result
@@ -514,11 +498,10 @@ def datastore_make_private(context, data_dict):
     :param resource_id: id of resource that should become private
     :type resource_id: string
     '''
+    backend = DatastoreBackend.get_active_backend()
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
-
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
@@ -527,7 +510,7 @@ def datastore_make_private(context, data_dict):
 
     p.toolkit.check_access('datastore_change_permissions', context, data_dict)
 
-    db.make_private(context, data_dict)
+    backend.make_private(context, data_dict)
 
 
 def datastore_make_public(context, data_dict):
@@ -540,11 +523,10 @@ def datastore_make_public(context, data_dict):
     :param resource_id: if of resource that should become public
     :type resource_id: string
     '''
+    backend = DatastoreBackend.get_active_backend()
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
-
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
@@ -553,7 +535,7 @@ def datastore_make_public(context, data_dict):
 
     p.toolkit.check_access('datastore_change_permissions', context, data_dict)
 
-    db.make_public(context, data_dict)
+    backend.make_public(context, data_dict)
 
 
 def _resource_exists(context, data_dict):
@@ -563,10 +545,9 @@ def _resource_exists(context, data_dict):
     if not model.Resource.get(res_id):
         return False
 
-    resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
-                                        WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
-    return results.rowcount > 0
+    backend = DatastoreBackend.get_active_backend()
+
+    return backend.resource_exists(res_id)
 
 
 def _check_read_only(context, resource_id):

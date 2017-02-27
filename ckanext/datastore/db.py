@@ -79,25 +79,6 @@ def _pluck(field, arr):
     return [x[field] for x in arr]
 
 
-def _is_valid_field_name(name):
-    '''
-    Check that field name is valid:
-    * can't start or end with whitespace characters
-    * can't start with underscore
-    * can't contain double quote (")
-    * can't be empty
-    '''
-    return (name and name == name.strip()
-            and not name.startswith('_')
-            and '"' not in name)
-
-
-def _is_valid_table_name(name):
-    if '%' in name:
-        return False
-    return _is_valid_field_name(name)
-
-
 def _get_engine(data_dict):
     '''Get either read or write engine.'''
     connection_url = data_dict['connection_url']
@@ -268,7 +249,7 @@ def check_fields(context, fields):
                 'fields': [u'"{0}" is not a valid field type'.format(
                     field['type'])]
             })
-        elif not _is_valid_field_name(field['id']):
+        elif not datastore_helpers.is_valid_field_name(field['id']):
             raise ValidationError({
                 'fields': [u'"{0}" is not a valid field name'.format(
                     field['id'])]

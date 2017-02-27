@@ -65,6 +65,12 @@ class DatastoreBackend:
     def search_sql(self, context, data_dict):
         raise NotImplementedError()
 
+    def make_private(self, context, data_dict):
+        raise NotImplementedError()
+
+    def make_public(self, context, data_dict):
+        raise NotImplementedError()
+
     def resource_exists(self, id):
         raise NotImplementedError()
 
@@ -75,4 +81,7 @@ class DatastoreBackend:
         raise NotImplementedError()
 
     def datastore_info(self, id):
+        raise NotImplementedError()
+
+    def resource_id_from_alias(self, alias):
         raise NotImplementedError()
