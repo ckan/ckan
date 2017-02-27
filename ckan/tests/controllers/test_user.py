@@ -496,8 +496,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
                              action='follow',
                              id='not-here')
         response = app.post(follow_url, extra_environ=env, status=302)
-        response = response.follow(status=302)
-        assert_true('User not found' in response)
+        assert_equals(response['headers']['location'], 'user/login')
 
     def test_user_unfollow(self):
         app = self._get_test_app()
@@ -549,9 +548,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
                                id='not-here')
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
-        unfollow_response = unfollow_response.follow(status=302)
-
-        assert_true('User not found' in unfollow_response)
+        assert_equals(unfollow_response['headers']['location'], 'user/login')
 
     def test_user_follower_list(self):
         '''Following users appear on followers list page.'''
