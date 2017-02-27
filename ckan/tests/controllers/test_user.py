@@ -496,6 +496,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
                              action='follow',
                              id='not-here')
         response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow(status=302)
         assert_in('user/login', response.headers['location'])
 
     def test_user_unfollow(self):
@@ -548,6 +549,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
                                id='not-here')
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
+        unfollow_response = unfollow_response.follow(status=302)
         assert_in('user/login', unfollow_response.headers['location'])
 
     def test_user_follower_list(self):
