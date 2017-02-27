@@ -21,7 +21,7 @@
       {% endblock %}
     </div>
     {% block page_pagination %}
-      {% snippet 'snippets/pager.html', q=c.q %}
+      {% snippet 'snippets/pager.html', q=c.q, page=c.page %}
     {% endblock %}
   </article>
 {% endblock %}

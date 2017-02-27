@@ -1080,9 +1080,10 @@ class Page(paginate.Page):
     # our custom layout set as default.
 
     def pager(self, *args, **kwargs):
-        prev_link = kwargs['symbol_previous'] if 'symbol_previous' in kwargs else u'«'
-        next_link = kwargs['symbol_next'] if 'symbol_next' in kwargs else u'»'
-        pager_item_text = kwargs['page_alt_text'] if 'page_alt_text' in kwargs else None
+        print(kwargs)
+        prev_link = kwargs.get('symbol_previous', u'«')
+        next_link = kwargs.get('symbol_next', u'»')
+        pager_item_text = kwargs.get('pager_item_text', None)
         kwargs.update(
             format=u"<ul>$link_previous ~2~ $link_next</ul>",
             symbol_previous=literal(prev_link),
@@ -1090,12 +1091,15 @@ class Page(paginate.Page):
             curpage_attr={'class': 'active'},
             link_attr={'class': 'pager_link'}
         )
-        self._pagerlink = partial(self._pagerlink, page_alt_text=pager_item_text)
+        self._pagerlink = partial(
+            self._pagerlink,
+            pager_text=pager_item_text
+        )
         return super(Page, self).pager(*args, **kwargs)
 
     # Put each page link into a <li> (for Bootstrap to style it)
 
-    def _pagerlink(self, page, text, extra_attributes=None, page_alt_text=None):
+    def _pagerlink(self, page, text, extra_attributes=None, pager_text=None):
 
         if text.isdigit() and page_alt_text:
             text = literal(page_alt_text + text)

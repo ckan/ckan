@@ -1,3 +1,5 @@
-<div class='pagination pagination-centered'>
-    {{ c.page.pager(q=c.q) }}
-</div>
+{% if page.page_count > 1 %}
+    <div class='pagination pagination-centered'>
+        {{ page.pager(q=q) }}
+    </div>
+{% endif %}
