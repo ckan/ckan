@@ -1,4 +1,4 @@
-this.ckan.module('resource-view-filters', function (jQuery, _) {
+this.ckan.module('resource-view-filters', function (jQuery) {
   'use strict';
 
   function initialize() {
@@ -6,7 +6,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         resourceId = self.options.resourceId,
         fields = self.options.fields,
         dropdownTemplate = self.options.dropdownTemplate,
-        addFilterTemplate = self.options.addFilterTemplate,
+        addFilterTemplate = '<a href="#">' + self._('Add Filter') + '</a>';
         filtersDiv = $('<div></div>');
 
     var filters = ckan.views.filters.get();
@@ -26,7 +26,8 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
   }
 
   function _buildAddFilterButton(el, template, fields, filters, onChangeCallback) {
-    var addFilterButton = $(template),
+    var self = this,
+        addFilterButton = $(template),
         currentFilters = Object.keys(filters),
         fieldsNotFiltered = $.grep(fields, function (field) {
           return !filters.hasOwnProperty(field);
@@ -48,7 +49,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
       // TODO: Remove element from "data" when some select selects it.
       addFilterInput.select2({
         data: data,
-        placeholder: 'Select a field',
+        placeholder: self._('Select a field'),
         width: 'resolve',
       }).on('change', onChangeCallback);
 
@@ -175,9 +176,6 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         '  {filter}:',
         '  <div class="resource-view-filter-values"></div>',
         '</div>',
-      ].join('\n'),
-      addFilterTemplate: [
-        '<a href="#">Add Filter</a>',
       ].join('\n')
     }
   };

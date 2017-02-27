@@ -1,0 +1,29 @@
+# Manually maintained helper file for `ckan/tests/lib/test_i18n.py`.
+
+msgid ""
+msgstr ""
+"Project-Id-Version: ckan 2.5.0b\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2015-11-26 13:42+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.1.1\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Overriding a JS translation from CKAN core
+msgid "Loading..."
+msgstr "foo"
+
+# Introducing a (fake) JS translation string that doesn't occur in CKAN core
+msgid "Test JS Translations 1"
+msgstr "bar"
+
+# Introducing a (fake) translation string that doesn't occur in JS
+msgid "Test JS Translations 2"
+msgstr "baz"
+

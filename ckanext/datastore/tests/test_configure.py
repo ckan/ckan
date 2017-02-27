@@ -1,11 +1,13 @@
 # encoding: utf-8
 
 import unittest
+
+import ckan.plugins
 import nose.tools
 import pyutilib.component.core
 
-import ckan.plugins
-#import ckanext.datastore.plugin as plugin
+
+# import ckanext.datastore.plugin as plugin
 
 
 class _TestConfiguration(unittest.TestCase):

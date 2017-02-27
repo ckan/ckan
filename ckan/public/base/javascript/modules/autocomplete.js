@@ -15,7 +15,7 @@
  *   // <input name="tags" data-module="autocomplete" data-module-source="http://" />
  *
  */
-this.ckan.module('autocomplete', function (jQuery, _) {
+this.ckan.module('autocomplete', function (jQuery) {
   return {
     /* Options for the module */
     options: {
@@ -26,15 +26,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       source: null,
       interval: 1000,
       dropdownClass: '',
-      containerClass: '',
-      i18n: {
-        noMatches: _('No matches found'),
-        emptySearch: _('Start typing…'),
-        inputTooShort: function (data) {
-          return _('Input is too short, must be at least one character')
-          .ifPlural(data.min, 'Input is too short, must be at least %(min)d characters');
-        }
-      }
+      containerClass: ''
     },
 
     /* Sets up the module, binding methods, creating elements etc. Called
@@ -200,7 +192,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns a text string.
      */
     formatNoMatches: function (term) {
-      return !term ? this.i18n('emptySearch') : this.i18n('noMatches');
+      return !term ? this._('Start typing…') : this._('No matches found');
     },
 
     /* Formatter used by the select2 plugin that returns a string when the
@@ -209,7 +201,11 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns a string.
      */
     formatInputTooShort: function (term, min) {
-      return this.i18n('inputTooShort', {min: min});
+      return this.ngettext(
+        'Input is too short, must be at least one character',
+        'Input is too short, must be at least %(num)d characters',
+        min
+      );
     },
 
     /* Takes a string and converts it into an object used by the select2 plugin.

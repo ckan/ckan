@@ -74,14 +74,11 @@ describe('ckan.module.ConfirmActionModule()', function () {
       assert.calledWith(jQuery.fn.modal, {show: false});
     });
 
-    it('should insert the localized strings', function () {
+    it('should allow to customize the content', function () {
+      this.module.options.content = 'some custom content';
       var target = this.module.createModal();
-      var i18n = this.module.options.i18n;
 
-      assert.equal(target.find('h3').text(), i18n.heading.fetch());
-      assert.equal(target.find('.modal-body').text(), i18n.content.fetch());
-      assert.equal(target.find('.btn-primary').text(), i18n.confirm.fetch());
-      assert.equal(target.find('.btn-cancel').text(), i18n.cancel.fetch());
+      assert.equal(target.find('.modal-body').text(), 'some custom content');
     });
   });
 

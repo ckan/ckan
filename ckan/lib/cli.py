@@ -11,20 +11,24 @@ import re
 import itertools
 import json
 import logging
+import urlparse
+from optparse import OptionConflictError
+import traceback
+
+import sqlalchemy as sa
+import routes
+import paste.script
+from paste.registry import Registry
+from paste.script.util.logging_config import fileConfig
+
 import ckan.logic as logic
 import ckan.model as model
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.plugins as p
-import sqlalchemy as sa
-import urlparse
-import routes
 from ckan.common import config
 
-import paste.script
-from paste.registry import Registry
-from paste.script.util.logging_config import fileConfig
 
 #NB No CKAN imports are allowed until after the config file is loaded.
 #   i.e. do the imports in methods, after _load_config is called.
@@ -41,6 +45,16 @@ def deprecation_warning(message=None):
     if message:
         sys.stderr.write(u' ' + message.strip())
     sys.stderr.write(u'\n')
+
+
+def error(msg):
+    '''
+    Print an error message to STDOUT and exit with return code 1.
+    '''
+    sys.stderr.write(msg)
+    if not msg.endswith('\n'):
+        sys.stderr.write('\n')
+    sys.exit(1)
 
 
 def parse_db_config(config_key='sqlalchemy.url'):
@@ -257,8 +271,7 @@ class ManageDb(CkanCommand):
         elif cmd == 'migrate-filestore':
             self.migrate_filestore()
         else:
-            print 'Command %s not recognized' % cmd
-            sys.exit(1)
+            error('Command %s not recognized' % cmd)
 
     def _get_db_config(self):
         return parse_db_config()
@@ -610,9 +623,8 @@ class RDFExport(CkanCommand):
                     r = urllib2.urlopen(url).read()
                 except urllib2.HTTPError, e:
                     if e.code == 404:
-                        print ('Please install ckanext-dcat and enable the ' +
-                               '`dcat` plugin to use the RDF serializations')
-                        sys.exit(1)
+                        error('Please install ckanext-dcat and enable the ' +
+                              '`dcat` plugin to use the RDF serializations')
                 with open(fname, 'wb') as f:
                     f.write(r)
             except IOError, ioe:
@@ -801,16 +813,14 @@ class UserCmd(CkanCommand):
             password1 = getpass.getpass('Password: ')
         password2 = getpass.getpass('Confirm password: ')
         if password1 != password2:
-            print 'Passwords do not match'
-            sys.exit(1)
+            error('Passwords do not match')
         return password1
 
     def add(self):
         import ckan.model as model
 
         if len(self.args) < 2:
-            print 'Need name of the user.'
-            sys.exit(1)
+            error('Need name of the user.')
         username = self.args[1]
 
         # parse args into data_dict
@@ -842,8 +852,7 @@ class UserCmd(CkanCommand):
             user_dict = logic.get_action('user_create')(context, data_dict)
             pprint(user_dict)
         except logic.ValidationError, e:
-            print e
-            sys.exit(1)
+            error(traceback.format_exc())
 
     def remove(self):
         import ckan.model as model
@@ -853,12 +862,9 @@ class UserCmd(CkanCommand):
             return
         username = self.args[1]
 
-        user = model.User.by_name(unicode(username))
-        if not user:
-            print 'Error: user "%s" not found!' % username
-            return
-        user.delete()
-        model.repo.commit_and_remove()
+        p.toolkit.get_action('user_delete')(
+            {'model': model, 'ignore_auth': True},
+            {'id': username})
         print('Deleted user: %s' % username)
 
 
@@ -939,7 +945,9 @@ class DatasetCmd(CkanCommand):
 
 
 class Celery(CkanCommand):
-    '''Celery daemon
+    '''Celery daemon [DEPRECATED]
+
+    This command is DEPRECATED, use `paster jobs` instead.
 
     Usage:
         celeryd <run>            - run the celery daemon
@@ -965,10 +973,10 @@ class Celery(CkanCommand):
             elif cmd == 'clean':
                 self.clean()
             else:
-                print 'Command %s not recognized' % cmd
-                sys.exit(1)
+                error('Command %s not recognized' % cmd)
 
     def run_(self):
+        deprecation_warning(u'Use `paster jobs worker` instead.')
         default_ini = os.path.join(os.getcwd(), 'development.ini')
 
         if self.options.config:
@@ -976,8 +984,7 @@ class Celery(CkanCommand):
         elif os.path.isfile(default_ini):
             os.environ['CKAN_CONFIG'] = default_ini
         else:
-            print 'No .ini specified and none was found in current directory'
-            sys.exit(1)
+            error('No .ini specified and none was found in current directory')
 
         from ckan.lib.celery_app import celery
         celery_args = []
@@ -986,6 +993,7 @@ class Celery(CkanCommand):
         celery.worker_main(argv=['celeryd', '--loglevel=INFO'] + celery_args)
 
     def view(self):
+        deprecation_warning(u'Use `paster jobs list` instead.')
         self._load_config()
         import ckan.model as model
         from kombu.transport.sqlalchemy.models import Message
@@ -1000,6 +1008,7 @@ class Celery(CkanCommand):
                 print '%i: Invisible Sent:%s' % (message.id, message.sent_at)
 
     def clean(self):
+        deprecation_warning(u'Use `paster jobs clear` instead.')
         self._load_config()
         import ckan.model as model
         query = model.Session.execute("select * from kombu_message")
@@ -1013,8 +1022,7 @@ class Celery(CkanCommand):
         print '%i of %i tasks deleted' % (tasks_initially - tasks_afterwards,
                                           tasks_initially)
         if tasks_afterwards:
-            print 'ERROR: Failed to delete all tasks'
-            sys.exit(1)
+            error('Failed to delete all tasks')
         model.repo.commit_and_remove()
 
 
@@ -1094,15 +1102,13 @@ class Tracking(CkanCommand):
             self.update_all(engine, start_date)
         elif cmd == 'export':
             if len(self.args) <= 1:
-                print self.__class__.__doc__
-                sys.exit(1)
+                error(self.__class__.__doc__)
             output_file = self.args[1]
             start_date = self.args[2] if len(self.args) > 2 else None
             self.update_all(engine, start_date)
             self.export_tracking(engine, output_file)
         else:
-            print self.__class__.__doc__
-            sys.exit(1)
+            error(self.__class__.__doc__)
 
     def update_all(self, engine, start_date=None):
         if start_date:
@@ -1486,10 +1492,8 @@ class Profile(CkanCommand):
                 print 'App error: ', url.strip()
             except KeyboardInterrupt:
                 raise
-            except:
-                import traceback
-                traceback.print_exc()
-                print 'Unknown error: ', url.strip()
+            except Exception:
+                error(traceback.format_exc())
 
         output_filename = 'ckan%s.profile' % re.sub('[/?]', '.', url.replace('/', '.'))
         profile_command = "profile_url('%s')" % url
@@ -1774,98 +1778,17 @@ class TranslationsCommand(CkanCommand):
     def command(self):
         self._load_config()
         from ckan.common import config
-        self.ckan_path = os.path.join(os.path.dirname(__file__), '..')
-        i18n_path = os.path.join(self.ckan_path, 'i18n')
-        self.i18n_path = config.get('ckan.i18n_directory', i18n_path)
+        from ckan.lib.i18n import build_js_translations
+        ckan_path = os.path.join(os.path.dirname(__file__), '..')
+        self.i18n_path = config.get('ckan.i18n_directory',
+                                    os.path.join(ckan_path, 'i18n'))
         command = self.args[0]
         if command == 'mangle':
             self.mangle_po()
         elif command == 'js':
-            self.build_js_translations()
+            build_js_translations()
         else:
             print 'command not recognised'
-
-    def po2dict(self, po, lang):
-        '''Convert po object to dictionary data structure (ready for JSON).
-
-        This function is from pojson
-        https://bitbucket.org/obviel/pojson
-
-Copyright (c) 2010, Fanstatic Developers
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of the <organization> nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL FANSTATIC DEVELOPERS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-'''
-        result = {}
-
-        result[''] = {}
-        result['']['plural-forms'] = po.metadata['Plural-Forms']
-        result['']['lang'] = lang
-        result['']['domain'] = 'ckan'
-
-        for entry in po:
-            if entry.obsolete:
-                continue
-            # check if used in js file we only include these
-            occurrences = entry.occurrences
-            js_use = False
-            for occurrence in occurrences:
-                if occurrence[0].endswith('.js'):
-                    js_use = True
-                    continue
-            if not js_use:
-                continue
-            if entry.msgstr:
-                result[entry.msgid] = [None, entry.msgstr]
-            elif entry.msgstr_plural:
-                plural = [entry.msgid_plural]
-                result[entry.msgid] = plural
-                ordered_plural = sorted(entry.msgstr_plural.items())
-                for order, msgstr in ordered_plural:
-                    plural.append(msgstr)
-        return result
-
-    def build_js_translations(self):
-        import polib
-        import simplejson as json
-
-        def create_js(source, lang):
-            print 'Generating', lang
-            po = polib.pofile(source)
-            data = self.po2dict(po, lang)
-            data = json.dumps(data, sort_keys=True,
-                              ensure_ascii=False, indent=2 * ' ')
-            out_dir = os.path.abspath(os.path.join(self.ckan_path, 'public',
-                                                   'base', 'i18n'))
-            out_file = open(os.path.join(out_dir, '%s.js' % lang), 'w')
-            out_file.write(data.encode('utf-8'))
-            out_file.close()
-
-        for l in os.listdir(self.i18n_path):
-            if os.path.isdir(os.path.join(self.i18n_path, l)):
-                f = os.path.join(self.i18n_path, l, 'LC_MESSAGES', 'ckan.po')
-                create_js(f, l)
-        print 'Completed generating JavaScript translations'
 
     def mangle_po(self):
         ''' This will mangle the zh_TW translations for translation coverage
@@ -2250,11 +2173,9 @@ Not used when using the `-d` option.''')
                                  set(loaded_view_plugins))
 
         if plugins_not_found:
-            msg = ('View plugin(s) not found : {0}. '.format(plugins_not_found)
-                   + 'Have they been added to the `ckan.plugins` configuration'
-                   + ' option?')
-            log.error(msg)
-            sys.exit(1)
+            error('View plugin(s) not found : {0}. '.format(plugins_not_found)
+                  + 'Have they been added to the `ckan.plugins` configuration'
+                  + ' option?')
 
         return loaded_view_plugins
 
@@ -2338,8 +2259,7 @@ Not used when using the `-d` option.''')
         try:
             user_search_params = json.loads(self.options.search_params)
         except ValueError, e:
-            log.error('Unable to parse JSON search parameters: {0}'.format(e))
-            sys.exit(1)
+            error('Unable to parse JSON search parameters: {0}'.format(e))
 
         if user_search_params.get('q'):
             search_data_dict['q'] = user_search_params['q']
@@ -2413,8 +2333,7 @@ Not used when using the `-d` option.''')
             query = self._search_datasets(page, loaded_view_plugins)
 
             if page == 1 and query['count'] == 0:
-                log.info('No datasets to create resource views on, exiting...')
-                sys.exit(1)
+                error('No datasets to create resource views on, exiting...')
 
             elif page == 1 and not self.options.assume_yes:
 
@@ -2426,8 +2345,7 @@ Not used when using the `-d` option.''')
                                                   loaded_view_plugins))
 
                 if confirm == 'no':
-                    log.info('Command aborted by user')
-                    sys.exit(1)
+                    error('Command aborted by user')
 
             if query['results']:
                 for dataset_dict in query['results']:
@@ -2472,8 +2390,7 @@ Not used when using the `-d` option.''')
             result = query_yes_no(msg, default='no')
 
             if result == 'no':
-                log.info('Command aborted by user')
-                sys.exit(1)
+                error('Command aborted by user')
 
         context = {'user': self.site_user['name']}
         logic.get_action('resource_view_clear')(
@@ -2551,15 +2468,161 @@ class ConfigToolCommand(paste.script.command.Command):
         if options:
             for option in options:
                 if '=' not in option:
-                    sys.stderr.write(
+                    error(
                         'An option does not have an equals sign: %r '
                         'It should be \'key=value\'. If there are spaces '
                         'you\'ll need to quote the option.\n' % option)
-                    sys.exit(1)
             try:
                 config_tool.config_edit_using_option_strings(
                     config_filepath, options, self.options.section,
                     edit=self.options.edit)
             except config_tool.ConfigToolError, e:
-                sys.stderr.write(e.message)
-                sys.exit(1)
+                error(traceback.format_exc())
+
+
+class JobsCommand(CkanCommand):
+    '''Manage background jobs
+
+    Usage:
+
+        paster jobs worker [--burst] [QUEUES]
+
+            Start a worker that fetches jobs from queues and executes
+            them. If no queue names are given then the worker listens
+            to the default queue, this is equivalent to
+
+                paster jobs worker default
+
+            If queue names are given then the worker listens to those
+            queues and only those:
+
+                paster jobs worker my-custom-queue
+
+            Hence, if you want the worker to listen to the default queue
+            and some others then you must list the default queue explicitly:
+
+                paster jobs worker default my-custom-queue
+
+            If the `--burst` option is given then the worker will exit
+            as soon as all its queues are empty.
+
+        paster jobs list [QUEUES]
+
+                List currently enqueued jobs from the given queues. If no queue
+                names are given then the jobs from all queues are listed.
+
+        paster jobs show ID
+
+                Show details about a specific job.
+
+        paster jobs cancel ID
+
+                Cancel a specific job. Jobs can only be canceled while they are
+                enqueued. Once a worker has started executing a job it cannot
+                be aborted anymore.
+
+        paster jobs clear [QUEUES]
+
+                Cancel all jobs on the given queues. If no queue names are
+                given then ALL queues are cleared.
+
+        paster jobs test [QUEUES]
+
+                Enqueue a test job. If no queue names are given then the job is
+                added to the default queue. If queue names are given then a
+                separate test job is added to each of the queues.
+    '''
+
+    summary = __doc__.split(u'\n')[0]
+    usage = __doc__
+    min_args = 0
+
+
+    def __init__(self, *args, **kwargs):
+        super(JobsCommand, self).__init__(*args, **kwargs)
+        try:
+            self.parser.add_option(u'--burst', action='store_true',
+                                   default=False,
+                                   help=u'Start worker in burst mode.')
+        except OptionConflictError:
+            # Option has already been added in previous call
+            pass
+
+    def command(self):
+        self._load_config()
+        try:
+            cmd = self.args.pop(0)
+        except IndexError:
+            print(self.__doc__)
+            sys.exit(0)
+        if cmd == u'worker':
+            self.worker()
+        elif cmd == u'list':
+            self.list()
+        elif cmd == u'show':
+            self.show()
+        elif cmd == u'cancel':
+            self.cancel()
+        elif cmd == u'clear':
+            self.clear()
+        elif cmd == u'test':
+            self.test()
+        else:
+            error(u'Unknown command "{}"'.format(cmd))
+
+    def worker(self):
+        from ckan.lib.jobs import Worker
+        Worker(self.args).work(burst=self.options.burst)
+
+    def list(self):
+        data_dict = {
+            u'queues': self.args,
+        }
+        jobs = p.toolkit.get_action(u'job_list')({}, data_dict)
+        for job in jobs:
+            if job[u'title'] is None:
+                job[u'title'] = ''
+            else:
+                job[u'title'] = u'"{}"'.format(job[u'title'])
+            print(u'{created} {id} {queue} {title}'.format(**job))
+
+    def show(self):
+        if not self.args:
+            error(u'You must specify a job ID')
+        id = self.args[0]
+        try:
+            job = p.toolkit.get_action(u'job_show')({}, {u'id': id})
+        except logic.NotFound:
+            error(u'There is no job with ID "{}"'.format(id))
+        print(u'ID:      {}'.format(job[u'id']))
+        if job[u'title'] is None:
+            title = u'None'
+        else:
+            title = u'"{}"'.format(job[u'title'])
+        print(u'Title:   {}'.format(title))
+        print(u'Created: {}'.format(job[u'created']))
+        print(u'Queue:   {}'.format(job[u'queue']))
+
+    def cancel(self):
+        if not self.args:
+            error(u'You must specify a job ID')
+        id = self.args[0]
+        try:
+            p.toolkit.get_action(u'job_cancel')({}, {u'id': id})
+        except logic.NotFound:
+            error(u'There is no job with ID "{}"'.format(id))
+        print(u'Cancelled job {}'.format(id))
+
+    def clear(self):
+        data_dict = {
+            u'queues': self.args,
+        }
+        queues = p.toolkit.get_action(u'job_clear')({}, data_dict)
+        queues = (u'"{}"'.format(q) for q in queues)
+        print(u'Cleared queue(s) {}'.format(u', '.join(queues)))
+
+    def test(self):
+        from ckan.lib.jobs import DEFAULT_QUEUE_NAME, enqueue, test_job
+        for queue in (self.args or [DEFAULT_QUEUE_NAME]):
+            job = enqueue(test_job, [u'A test job'], title=u'A test job', queue=queue)
+            print(u'Added test job {} to queue "{}"'.format(job.id, queue))

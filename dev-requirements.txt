@@ -1,15 +1,15 @@
 # These are packages that required when running ckan tests and building the docs
 
-beautifulsoup4==4.4.1
+beautifulsoup4==4.5.1
 coveralls   #Let Unpinned - Requires latest coveralls
 docutils==0.12
 factory-boy==2.1.1
+Flask-DebugToolbar==0.10.0
 httpretty==0.8.3
 mock==2.0.0
-pep8==1.4.6
-pip-tools==1.6.5
-polib==1.0.7
-pyfakefs==2.7
+pycodestyle==2.2.0
+pip-tools==1.7.0
+pyfakefs==2.9
 Sphinx==1.2.3
 sphinx-rtd-theme==0.1.9
 

@@ -8,13 +8,12 @@
 
   {{ form.errors(error_summary) }}
 
-  <form method='post' action="" class="form-horizontal" id="admin-config-form">
+  <form method='post' action="" class="form-horizontal" id="admin-config-form" enctype="multipart/form-data">
     {% block admin_form %}
       {{ autoform.generate(form_items, data, errors) }}
     {% endblock %}
     <div class="form-actions">
-      {% set locale = h.dump_json({'content': _('Are you sure you want to reset the config?')}) %}
-      <a href="{% url_for controller='admin', action='reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-i18n="{{ locale }}">{{ _('Reset') }}</a>
+      <a href="{% url_for controller='admin', action='reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to reset the config?') }}">{{ _('Reset') }}</a>
       <button type="submit" class="btn btn-primary" name="save">{{ _('Update Config') }}</button>
     </div>
   </form>
@@ -23,7 +22,7 @@
 {% block secondary_content %}
   <div class="module module-narrow module-shallow">
     <h2 class="module-heading">
-      <i class="icon-info-sign"></i>
+      <i class="fa fa-info-circle"></i>
       {{ _('CKAN config options') }}
     </h2>
     <div class="module-content">

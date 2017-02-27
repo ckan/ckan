@@ -25,6 +25,7 @@ def custom_charset__set(self, charset):
     if self.environ.get('CONTENT_TYPE', '').startswith(';'):
         self.environ['CONTENT_TYPE'] = ''
 
+
 webob.request.BaseRequest._charset__set = custom_charset__set
 
 webob.request.BaseRequest.charset = property(

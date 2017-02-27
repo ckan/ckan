@@ -11,18 +11,14 @@
  *   <a data-module="follow" data-module-action="follow" data-module-type="user" data-module-id="{user_id}">Follow User</a>
  *
  */
-this.ckan.module('follow', function($, _) {
+this.ckan.module('follow', function($) {
 	return {
 		/* options object can be extended using data-module-* attributes */
 		options : {
 			action: null,
 			type: null,
 			id: null,
-			loading: false,
-			i18n: {
-				follow: _('Follow'),
-				unfollow: _('Unfollow')
-			}
+			loading: false
 		},
 
 		/* Initialises the module setting up elements and event listeners.
@@ -70,10 +66,10 @@ this.ckan.module('follow', function($, _) {
 			this.el.removeClass('disabled');
 			if (options.action == 'follow') {
 				options.action = 'unfollow';
-				this.el.html('<i class="icon-remove-sign"></i> ' + this.i18n('unfollow')).removeClass('btn-success').addClass('btn-danger');
+				this.el.html('<i class="fa fa-times-circle"></i> ' + this._('Unfollow')).removeClass('btn-success').addClass('btn-danger');
 			} else {
 				options.action = 'follow';
-				this.el.html('<i class="icon-plus-sign"></i> ' + this.i18n('follow')).removeClass('btn-danger').addClass('btn-success');
+				this.el.html('<i class="fa fa-plus-circle"></i> ' + this._('Follow')).removeClass('btn-danger').addClass('btn-success');
 			}
 			sandbox.publish('follow-' + options.action + '-' + options.id);
 		}

@@ -1,3 +1,5 @@
+.. _paster:
+
 ======================
 Command Line Interface
 ======================
@@ -169,7 +171,6 @@ Paster Commands Reference
 The following paster commands are supported by CKAN:
 
 ================= ============================================================
-celeryd           Control celery daemon.
 check-po-files    Check po files for common mistakes
 color             Create or remove a color scheme.
 create-test-data  Create test data in the database.
@@ -177,6 +178,7 @@ dataset           Manage datasets.
 datastore         Perform commands to set up the datastore.
 db                Perform various tasks on the database.
 front-end-build   Creates and minifies css and JavaScript files
+jobs              Manage background jobs
 less              Compile all root less documents into their CSS counterparts
 minify            Create minified versions of the given Javascript and CSS files.
 notify            Send out modification notifications.
@@ -190,18 +192,6 @@ tracking          Update tracking statistics.
 trans             Translation helper functions
 user              Manage users.
 ================= ============================================================
-
-
-celeryd: Control celery daemon
-==============================
-
-Usage::
-
-    celeryd <run>            - run the celery daemon
-    celeryd run concurrency  - run the celery daemon with
-                               argument 'concurrency'
-    celeryd view             - view all tasks in the queue
-    celeryd clean            - delete all tasks in the queue
 
 
 check-po-files: Check po files for common mistakes
@@ -266,6 +256,114 @@ front-end-build: Creates and minifies css and JavaScript files
 Usage::
 
     front-end-build
+
+
+.. _paster jobs:
+
+jobs: Manage background jobs
+============================
+
+The ``jobs`` command can be used to manage :ref:`background jobs`.
+
+.. versionadded:: 2.7
+
+
+.. _paster jobs worker:
+
+Run a background job worker
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+::
+
+    paster jobs worker [--burst] [QUEUES]
+
+Starts a worker that fetches job from the :ref:`job queues <background jobs
+queues>` and executes them. If no queue names are given then it listens to
+the default queue. This is equivalent to
+
+::
+
+    paster jobs worker default
+
+If queue names are given then the worker listens to those queues and only
+those::
+
+    paster jobs worker my-custom-queue another-special-queue
+
+Hence, if you want the worker to listen to the default queue and some others
+then you must list the default queue explicitly::
+
+    paster jobs worker default my-custom-queue
+
+If the ``--burst`` option is given then the worker will exit as soon as all its
+queues are empty. Otherwise it will wait indefinitely until a new job is
+enqueued (this is the default).
+
+.. note::
+
+    In a production setting you should :ref:`use a more robust way of running
+    background workers <background jobs supervisor>`.
+
+
+.. _paster jobs list:
+
+List enqueued jobs
+^^^^^^^^^^^^^^^^^^
+::
+
+    paster jobs list [QUEUES]
+
+Lists the currently enqueued jobs from the given :ref:`job queues <background
+jobs queues>`. If no queue names are given then the jobs from all queues are
+listed.
+
+
+.. _paster jobs show:
+
+Show details about a job
+^^^^^^^^^^^^^^^^^^^^^^^^
+::
+
+    paster jobs show ID
+
+Shows details about the enqueued job with the given ID.
+
+
+.. _paster jobs cancel:
+
+Cancel a job
+^^^^^^^^^^^^
+::
+
+    paster jobs cancel ID
+
+Cancels the enqueued job with the given ID. Jobs can only be canceled while
+they are enqueued. Once a worker has started executing a job it cannot be
+aborted anymore.
+
+
+.. _paster jobs clear:
+
+Clear job queues
+^^^^^^^^^^^^^^^^
+::
+
+    paster jobs clear [QUEUES]
+
+Cancels all jobs on the given :ref:`job queues <background jobs queues>`. If no
+queues are given then *all* queues are cleared.
+
+
+.. _paster jobs test:
+
+Enqueue a test job
+^^^^^^^^^^^^^^^^^^
+::
+
+    paster jobs test [QUEUES]
+
+Enqueues a test job. If no :ref:`job queues <background jobs queues>` are given
+then the job is added to the default queue. If queue names are given then a
+separate test job is added to each of the queues.
 
 
 .. _less:
@@ -406,8 +504,14 @@ trans: Translation helper functions
 
 Usage::
 
-    trans js      - generate the javascript translations
+    trans js      - generate the JavaScript translations
     trans mangle  - mangle the zh_TW translations for testing
+
+.. note::
+
+    Since version 2.7 the JavaScript translation files are automatically
+    regenerated if necessary when CKAN is started. Hence you usually do not
+    need to run ``paster trans js`` manually.
 
 
 .. _paster-user:

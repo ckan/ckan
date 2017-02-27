@@ -22,7 +22,6 @@ this.ckan = this.ckan || {};
  *     initialize: function () {
  *       var el = this.el;
  *       var sandbox = this.sandbox;
- *       var _ = this.sandbox.translate;
  *
  *       // .el is the dom node the element was created with.
  *       this.el.on('change', function () {
@@ -31,8 +30,7 @@ this.ckan = this.ckan || {};
  *         sandbox.publish('lang', this.selected);
  *
  *         // Display a localized notification to the user.
- *         // NOTE: _ is an alias for sb.translate()
- *         sandbox.notify(_('Language changed to: ' + this.selected).fetch());
+ *         sandbox.notify(this._('Language changed to: %(lang)s', {lang: this.selected}));
  *       });
  *
  *       // listen for other updates to lang.
@@ -44,9 +42,8 @@ this.ckan = this.ckan || {};
  *   });
  *
  *   // Can also provide a function that returns this object. The function will
- *   // be passed jQuery, i18n.translate() and i18n objects. This can save
- *   // typing when using these objects a lot.
- *   ckan.module('language-picker', function (jQuery, translate, i18n) {
+ *   // be passed jQuery.
+ *   ckan.module('language-picker', function (jQuery) {
  *     return {
  *       // Module code.
  *     }
@@ -93,7 +90,7 @@ this.ckan = this.ckan || {};
 
     /* A scoped find function restricted to the current scope. Essentially
      * the same as doing this.el.find(selector);
-     * 
+     *
      * selector - A standard jQuery/CSS selector query.
      *
      * Example
@@ -110,6 +107,9 @@ this.ckan = this.ckan || {};
      * It should be called with an i18n key and any arguments that are to
      * be passed into the .fetch() method.
      *
+     * This method is DEPRECATED. Module code should instead use the
+     * `_` and `ngettext` methods (`this._` and `this.ngettext`).
+     *
      * An i18n option can either be a string, an object returned by
      * ckan.i18n.translate or a function that returns one of the above. If
      * a function is provided then it will be passed the same arguments that
@@ -122,12 +122,14 @@ this.ckan = this.ckan || {};
      *
      *   ckan.module.translate('trans', function (jQuery, _) {
      *     options: {
-     *       saved: _('Saved!'), // A translation object.
-     *       loading: 'Loading', // A plain string (not a good idea).
-     *       itemCount: function (data) {
-     *         // A function can be used to provide more complex translations
-     *         // where the arguments may affect the outcome.
-     *         return _('There is one item').isPlural(data.items, 'There are %(items)d items')
+     *       i18n: {
+     *         saved: _('Saved!'), // A translation object.
+     *         loading: 'Loading', // A plain string (not a good idea).
+     *         itemCount: function (data) {
+     *           // A function can be used to provide more complex translations
+     *           // where the arguments may affect the outcome.
+     *           return _('There is one item').isPlural(data.items, 'There are %(items)d items')
+     *         }
      *       }
      *     },
      *     example: function () {
@@ -151,6 +153,20 @@ this.ckan = this.ckan || {};
 
       // If the result has a fetch method, call it with the args.
       return typeof trans.fetch === 'function' ? trans.fetch.apply(trans, args) : trans;
+    },
+
+    /*
+     * Shortcuts for i18n.
+     *
+     * Note that we cannot simply set them to their `ckan.i18n` counterparts
+     * since those might now have been defined, yet. Hence we redirect at
+     * runtime.
+     */
+    _: function(/* args */) {
+      return ckan.i18n._.apply(ckan.i18n, arguments);
+    },
+    ngettext: function(/* args */) {
+      return ckan.i18n.ngettext.apply(ckan.i18n, arguments);
     },
 
     /* Should be defined by the extending module to provide initialization
@@ -222,6 +238,8 @@ this.ckan = this.ckan || {};
     // If a function is provided then call it to get a returns object of
     // properties.
     if (typeof properties === 'function') {
+      // The `ckan.i18n.translate` and `ckan.i18n` arguments are deprecated
+      // and only passed for backwards-compatibility.
       properties = properties(jQuery, ckan.i18n.translate, ckan.i18n);
     }
 

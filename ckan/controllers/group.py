@@ -8,7 +8,6 @@ from pylons.i18n import get_lang
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
-import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.lib.search as search
@@ -16,7 +15,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins
 import ckan.plugins as plugins
-from ckan.common import OrderedDict, c, g, request, _
+from ckan.common import OrderedDict, c, config, request, _
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +39,7 @@ class GroupController(base.BaseController):
 
     group_types = ['group']
 
-    ## hooks for subclasses
+    # hooks for subclasses
 
     def _group_form(self, group_type=None):
         return lookup_group_plugin(group_type).group_form()
@@ -84,7 +83,7 @@ class GroupController(base.BaseController):
     def _bulk_process_template(self, group_type):
         return lookup_group_plugin(group_type).bulk_process_template()
 
-    ## end hooks
+    # end hooks
     def _replace_group_org(self, string):
         ''' substitute organization for group if this is an org'''
         return string
@@ -286,20 +285,13 @@ class GroupController(base.BaseController):
             c.fields = []
             search_extras = {}
             for (param, value) in request.params.items():
-                if not param in ['q', 'page', 'sort'] \
+                if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
                         q += ' %s: "%s"' % (param, value)
                     else:
                         search_extras[param] = value
-
-            include_private = False
-            user_member_of_orgs = [org['id'] for org
-                                   in h.organizations_available('read')]
-
-            if (c.group and c.group.id in user_member_of_orgs):
-                include_private = True
 
             facets = OrderedDict()
 
@@ -309,7 +301,7 @@ class GroupController(base.BaseController):
                                     'res_format': _('Formats'),
                                     'license_id': _('Licenses')}
 
-            for facet in g.facets:
+            for facet in h.facets():
                 if facet in default_facet_titles:
                     facets[facet] = default_facet_titles[facet]
                 else:
@@ -318,16 +310,12 @@ class GroupController(base.BaseController):
             # Facet titles
             self._update_facet_titles(facets, group_type)
 
-            if 'capacity' in facets and (group_type != 'organization' or
-                                         not user_member_of_orgs):
-                del facets['capacity']
-
             c.facet_titles = facets
 
             data_dict = {
                 'q': q,
                 'fq': '',
-                'include_private': include_private,
+                'include_private': True,
                 'facet.field': facets.keys(),
                 'rows': limit,
                 'sort': sort_by,
@@ -348,15 +336,12 @@ class GroupController(base.BaseController):
             )
 
             c.group_dict['package_count'] = query['count']
-            c.facets = query['facets']
-            maintain.deprecate_context_item('facets',
-                                            'Use `c.search_facets` instead.')
 
             c.search_facets = query['search_facets']
             c.search_facets_limits = {}
-            for facet in c.facets.keys():
+            for facet in c.search_facets.keys():
                 limit = int(request.params.get('_%s_limit' % facet,
-                                               g.facets_default_number))
+                            config.get('search.facets.default', 10)))
                 c.search_facets_limits[facet] = limit
             c.page.items = query['results']
 
@@ -365,7 +350,6 @@ class GroupController(base.BaseController):
         except search.SearchError, se:
             log.error('Group search error: %r', se.args)
             c.query_error = True
-            c.facets = {}
             c.page = h.Page(collection=[])
 
         self._setup_template_variables(context, {'id': id},
@@ -404,7 +388,7 @@ class GroupController(base.BaseController):
             # FIXME: better error
             raise Exception('Must be an organization')
 
-        #use different form names so that ie7 can be detected
+        # use different form names so that ie7 can be detected
         form_names = set(["bulk_action.public", "bulk_action.delete",
                           "bulk_action.private"])
         actions_in_form = set(request.params.keys())
@@ -418,13 +402,13 @@ class GroupController(base.BaseController):
             return render(self._bulk_process_template(group_type),
                           extra_vars={'group_type': group_type})
 
-        #ie7 puts all buttons in form params but puts submitted one twice
+        # ie7 puts all buttons in form params but puts submitted one twice
         for key, value in dict(request.params.dict_of_lists()).items():
             if len(value) == 2:
                 action = key.split('.')[-1]
                 break
         else:
-            #normal good browser form submission
+            # normal good browser form submission
             action = actions.pop().split('.')[-1]
 
         # process the action first find the datasets to perform the action on.
@@ -660,7 +644,7 @@ class GroupController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user}
 
-        #self._check_access('group_delete', context, {'id': id})
+        # self._check_access('group_delete', context, {'id': id})
         try:
             data_dict = {'id': id}
             data_dict['include_datasets'] = False
@@ -764,7 +748,7 @@ class GroupController(base.BaseController):
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group_revisions = self._action('group_revision_list')(context,
                                                                     data_dict)
-            #TODO: remove
+            # TODO: remove
             # Still necessary for the authz check in group/layout.html
             c.group = context['group']
         except (NotFound, NotAuthorized):

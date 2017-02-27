@@ -8,18 +8,14 @@
  *   <a data-module="api-info" data-module-template="http://example.com/path/to/template">API</a>
  *
  */
-this.ckan.module('api-info', function (jQuery, _) {
+this.ckan.module('api-info', function (jQuery) {
   return {
 
     /* holds the loaded lightbox */
     modal: null,
 
     options: {
-      template: null,
-      i18n: {
-        noTemplate: _('There is no API data to load for this resource'),
-        loadError: _('Failed to load data API information')
-      }
+      template: null
     },
 
     /* Sets up the API info module.
@@ -97,7 +93,7 @@ this.ckan.module('api-info', function (jQuery, _) {
      */
     loadTemplate: function () {
       if (!this.options.template) {
-        this.sandbox.notify(this.i18n('noTemplate'));
+        this.sandbox.notify(this._('There is no API data to load for this resource'));
         return jQuery.Deferred().reject().promise();
       }
 
@@ -125,7 +121,7 @@ this.ckan.module('api-info', function (jQuery, _) {
     /* error handler when the template fails to load */
     _onTemplateError: function () {
       this.loading(false);
-      this.sandbox.notify(this.i18n('loadError'));
+      this.sandbox.notify(this._('Failed to load data API information'));
     }
   };
 });

@@ -1,23 +1,20 @@
 # encoding: utf-8
 
+import datetime
 import json
+
+import ckan.config.middleware as middleware
+import ckan.lib.create_test_data as ctd
+import ckan.model as model
+import ckan.plugins as p
+import ckan.tests.legacy as tests
+import ckanext.datastore.db as db
 import httpretty
 import httpretty.core
 import nose
-import datetime
-
-import sqlalchemy.orm as orm
 import paste.fixture
-
-import ckan.plugins as p
-import ckan.lib.create_test_data as ctd
-import ckan.model as model
-import ckan.tests.legacy as tests
-import ckan.config.middleware as middleware
-
+import sqlalchemy.orm as orm
 from ckan.common import config
-
-import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
@@ -51,6 +48,7 @@ class HTTPrettyFix(httpretty.core.fakesock.socket):
                 return getattr(original_socket, attr)
 
         self.truesock = SetTimeoutPatch()
+
 
 httpretty.core.fakesock.socket = HTTPrettyFix
 
@@ -98,7 +96,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         res = tests.call_action_api(
             self.app, 'resource_show', id=res_dict['result']['resource_id'])
-        assert res['url'] == '/datastore/dump/' + res['id'], res
+        assert res['url'].endswith('/datastore/dump/' + res['id']), res
 
     @httpretty.activate
     def test_providing_res_with_url_calls_datapusher_correctly(self):

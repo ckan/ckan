@@ -1,15 +1,12 @@
 # encoding: utf-8
 
-from bs4 import BeautifulSoup
-from nose.tools import assert_true, assert_false, assert_equal
-
-from routes import url_for
-
-import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
+from bs4 import BeautifulSoup
 from ckan import model
 from ckan.lib.mailer import create_reset_key
-
+from nose.tools import assert_true, assert_false, assert_equal
+from routes import url_for
 
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
@@ -274,7 +271,7 @@ class TestUserEdit(helpers.FunctionalTestBase):
         assert_equal(form['password2'].value, '')
 
         # new values
-        #form['name'] = 'new-name'
+        # form['name'] = 'new-name'
         form['fullname'] = 'new full name'
         form['email'] = 'new@example.com'
         form['about'] = 'new about'
@@ -285,7 +282,7 @@ class TestUserEdit(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
 
         user = model.Session.query(model.User).get(user['id'])
-        #assert_equal(user.name, 'new-name')
+        # assert_equal(user.name, 'new-name')
         assert_equal(user.fullname, 'new full name')
         assert_equal(user.email, 'new@example.com')
         assert_equal(user.about, 'new about')

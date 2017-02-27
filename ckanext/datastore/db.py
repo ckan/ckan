@@ -1,27 +1,27 @@
 # encoding: utf-8
 
-import json
+import copy
 import datetime
+import distutils.version
+import hashlib
+import json
+import logging
 import os
+import pprint
 import urllib
 import urllib2
 import urlparse
-import logging
-import pprint
-import copy
-import hashlib
 
-import distutils.version
-import sqlalchemy
-from sqlalchemy.exc import (ProgrammingError, IntegrityError,
-                            DBAPIError, DataError)
-import psycopg2.extras
 import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-import ckanext.datastore.interfaces as interfaces
 import ckanext.datastore.helpers as datastore_helpers
+import ckanext.datastore.interfaces as interfaces
+import psycopg2.extras
+import sqlalchemy
 from ckan.common import OrderedDict, config
+from sqlalchemy.exc import (ProgrammingError, IntegrityError,
+                            DBAPIError, DataError)
 
 log = logging.getLogger(__name__)
 
@@ -87,8 +87,9 @@ def _is_valid_field_name(name):
     * can't contain double quote (")
     * can't be empty
     '''
-    return (name and name == name.strip() and not name.startswith('_')
-            and not '"' in name)
+    return (name and name == name.strip()
+            and not name.startswith('_')
+            and '"' not in name)
 
 
 def _is_valid_table_name(name):
@@ -135,7 +136,7 @@ def _cache_types(context):
                         'json' if native_json else 'text'))
             _pg_types.clear()
 
-            ## redo cache types with json now available.
+            # redo cache types with json now available.
             return _cache_types(context)
 
         psycopg2.extras.register_composite('nested',
@@ -215,7 +216,7 @@ def _guess_type(field):
     elif float in data_types:
         return 'numeric'
 
-    ##try iso dates
+    # try iso dates
     for format in _DATE_FORMATS:
         try:
             datetime.datetime.strptime(field, format)
@@ -331,7 +332,7 @@ def create_table(context, data_dict):
             })
         supplied_field_ids = records[0].keys()
         for field_id in supplied_field_ids:
-            if not field_id in field_ids:
+            if field_id not in field_ids:
                 extra_fields.append({
                     'id': field_id,
                     'type': _guess_type(records[0][field_id])
@@ -475,8 +476,12 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_lang = data_dict.get('lang', default_fts_lang)
 
     # create full-text search indexes
-    to_tsvector = lambda x: u"to_tsvector('{0}', {1})".format(fts_lang, x)
-    cast_as_text = lambda x: u'cast("{0}" AS text)'.format(x)
+    def to_tsvector(x):
+        return u"to_tsvector('{0}', {1})".format(fts_lang, x)
+
+    def cast_as_text(x):
+        return u'cast("{0}" AS text)'.format(x)
+
     full_text_field = {'type': 'tsvector', 'id': '_full_text'}
     for field in [full_text_field] + fields:
         if not datastore_helpers.should_fts_index_field_type(field['type']):
@@ -572,7 +577,7 @@ def alter_table(context, data_dict):
                                 u'present or in wrong order').format(
                         field['id'])]
                 })
-            ## no need to check type as field already defined.
+            # no need to check type as field already defined.
             continue
 
         if 'type' not in field:
@@ -596,7 +601,7 @@ def alter_table(context, data_dict):
             })
         supplied_field_ids = records[0].keys()
         for field_id in supplied_field_ids:
-            if not field_id in field_ids:
+            if field_id not in field_ids:
                 new_fields.append({
                     'id': field_id,
                     'type': _guess_type(records[0][field_id])
@@ -643,7 +648,7 @@ def upsert_data(context, data_dict):
             for field in fields:
                 value = record.get(field['id'])
                 if value and field['type'].lower() == 'nested':
-                    ## a tuple with an empty second value
+                    # a tuple with an empty second value
                     value = (json.dumps(value), '')
                 row.append(value)
             row.append(_to_full_text(fields, record))
@@ -685,7 +690,7 @@ def upsert_data(context, data_dict):
             for field in fields:
                 value = record.get(field['id'])
                 if value is not None and field['type'].lower() == 'nested':
-                    ## a tuple with an empty second value
+                    # a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
 
             non_existing_filed_names = [field for field in record
@@ -785,7 +790,7 @@ def _validate_record(record, num, field_names):
         raise ValidationError({
             'records': [u'row "{0}" is not a json object'.format(num)]
         })
-    ## check for extra fields in data
+    # check for extra fields in data
     extra_keys = set(record.keys()) - set(field_names)
 
     if extra_keys:
@@ -1166,7 +1171,7 @@ def delete(context, data_dict):
     trans = context['connection'].begin()
     try:
         # check if table exists
-        if not 'filters' in data_dict:
+        if 'filters' not in data_dict:
             context['connection'].execute(
                 u'DROP TABLE "{0}" CASCADE'.format(data_dict['resource_id'])
             )

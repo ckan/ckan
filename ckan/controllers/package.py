@@ -12,8 +12,8 @@ import paste.fileapp
 
 import ckan.logic as logic
 import ckan.lib.base as base
-import ckan.lib.maintain as maintain
 import ckan.lib.i18n as i18n
+import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.helpers as h
 import ckan.model as model
@@ -23,14 +23,13 @@ import ckan.lib.uploader as uploader
 import ckan.plugins as p
 import ckan.lib.render
 
-from ckan.common import OrderedDict, _, json, request, c, g, response
+from ckan.common import OrderedDict, _, json, request, c, response
 from home import CACHE_PARAMETERS
 
 log = logging.getLogger(__name__)
 
 render = base.render
 abort = base.abort
-redirect = base.redirect
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -148,7 +147,7 @@ class PackageController(base.BaseController):
         c.query_error = False
         page = h.get_page_number(request.params)
 
-        limit = g.datasets_per_page
+        limit = int(config.get('ckan.datasets_per_page', 20))
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
@@ -245,7 +244,7 @@ class PackageController(base.BaseController):
                 'license_id': _('Licenses'),
                 }
 
-            for facet in g.facets:
+            for facet in h.facets():
                 if facet in default_facet_titles:
                     facets[facet] = default_facet_titles[facet]
                 else:
@@ -279,7 +278,6 @@ class PackageController(base.BaseController):
                 item_count=query['count'],
                 items_per_page=limit
             )
-            c.facets = query['facets']
             c.search_facets = query['search_facets']
             c.page.items = query['results']
         except SearchQueryError, se:
@@ -295,23 +293,18 @@ class PackageController(base.BaseController):
             # SOLR
             log.error('Dataset search error: %r', se.args)
             c.query_error = True
-            c.facets = {}
             c.search_facets = {}
             c.page = h.Page(collection=[])
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
             try:
                 limit = int(request.params.get('_%s_limit' % facet,
-                                               g.facets_default_number))
+                            int(config.get('search.facets.default', 10))))
             except ValueError:
                 abort(400, _('Parameter "{parameter_name}" is not '
                              'an integer').format(
                       parameter_name='_%s_limit' % facet))
             c.search_facets_limits[facet] = limit
-
-        maintain.deprecate_context_item(
-            'facets',
-            'Use `c.search_facets` instead.')
 
         self._setup_template_variables(context, {},
                                        package_type=package_type)
@@ -575,8 +568,8 @@ class PackageController(base.BaseController):
                                           errors, error_summary)
             except NotAuthorized:
                 abort(403, _('Unauthorized to edit this resource'))
-            redirect(h.url_for(controller='package', action='resource_read',
-                               id=id, resource_id=resource_id))
+            h.redirect_to(controller='package', action='resource_read', id=id,
+                          resource_id=resource_id)
 
         context = {'model': model, 'session': model.Session,
                    'api_version': 3, 'for_edit': True,
@@ -645,8 +638,7 @@ class PackageController(base.BaseController):
             if not data_provided and save_action != "go-dataset-complete":
                 if save_action == 'go-dataset':
                     # go to final stage of adddataset
-                    redirect(h.url_for(controller='package',
-                                       action='edit', id=id))
+                    h.redirect_to(controller='package', action='edit', id=id)
                 # see if we have added any resources
                 try:
                     data_dict = get_action('package_show')(context, {'id': id})
@@ -659,10 +651,11 @@ class PackageController(base.BaseController):
                     # no data so keep on page
                     msg = _('You must add at least one data resource')
                     # On new templates do not use flash message
-                    if g.legacy_templates:
+
+                    if asbool(config.get('ckan.legacy_templates')):
                         h.flash_error(msg)
-                        redirect(h.url_for(controller='package',
-                                           action='new_resource', id=id))
+                        h.redirect_to(controller='package',
+                                      action='new_resource', id=id)
                     else:
                         errors = {}
                         error_summary = {_('Error'): msg}
@@ -673,8 +666,7 @@ class PackageController(base.BaseController):
                 get_action('package_update')(
                     dict(context, allow_state_change=True),
                     dict(data_dict, state='active'))
-                redirect(h.url_for(controller='package',
-                                   action='read', id=id))
+                h.redirect_to(controller='package', action='read', id=id)
 
             data['package_id'] = id
             try:
@@ -698,20 +690,17 @@ class PackageController(base.BaseController):
                 get_action('package_update')(
                     dict(context, allow_state_change=True),
                     dict(data_dict, state='active'))
-                redirect(h.url_for(controller='package',
-                                   action='read', id=id))
+                h.redirect_to(controller='package', action='read', id=id)
             elif save_action == 'go-dataset':
                 # go to first stage of add dataset
-                redirect(h.url_for(controller='package',
-                                   action='edit', id=id))
+                h.redirect_to(controller='package', action='edit', id=id)
             elif save_action == 'go-dataset-complete':
                 # go to first stage of add dataset
-                redirect(h.url_for(controller='package',
-                                   action='read', id=id))
+                h.redirect_to(controller='package', action='read', id=id)
             else:
                 # add more resources
-                redirect(h.url_for(controller='package',
-                                   action='new_resource', id=id))
+                h.redirect_to(controller='package', action='new_resource',
+                              id=id)
 
         # get resources for sidebar
         context = {'model': model, 'session': model.Session,
@@ -906,7 +895,7 @@ class PackageController(base.BaseController):
                         url = h.url_for(controller='package',
                                         action='new_resource',
                                         id=pkg_dict['name'])
-                    redirect(url)
+                    h.redirect_to(url)
                 # Make sure we don't index this dataset
                 if request.params['save'] not in ['go-resource',
                                                   'go-metadata']:
@@ -923,7 +912,7 @@ class PackageController(base.BaseController):
                 url = h.url_for(controller='package',
                                 action='new_resource',
                                 id=pkg_dict['name'])
-                redirect(url)
+                h.redirect_to(url)
 
             self._form_save_redirect(pkg_dict['name'], 'new',
                                      package_type=package_type)
@@ -1010,7 +999,7 @@ class PackageController(base.BaseController):
                                 id=pkgname)
             else:
                 url = h.url_for('{0}_read'.format(package_type), id=pkgname)
-        redirect(url)
+        h.redirect_to(url)
 
     def delete(self, id):
 
@@ -1163,9 +1152,9 @@ class PackageController(base.BaseController):
                 response.headers['Content-Type'] = content_type
             response.status = status
             return app_iter
-        elif not 'url' in rsc:
+        elif 'url' not in rsc:
             abort(404, _('No download is available'))
-        redirect(rsc['url'])
+        h.redirect_to(rsc['url'])
 
     def follow(self, id):
         '''Start following this dataset.'''
@@ -1264,8 +1253,7 @@ class PackageController(base.BaseController):
                     get_action('member_delete')(context, data_dict)
                 except NotFound:
                     abort(404, _('Group not found'))
-            redirect(h.url_for(controller='package',
-                               action='groups', id=id))
+            h.redirect_to(controller='package', action='groups', id=id)
 
         context['is_member'] = True
         users_groups = get_action('group_list_authz')(context, data_dict)
@@ -1467,28 +1455,28 @@ class PackageController(base.BaseController):
                 else:
                     data = get_action('resource_view_create')(context, data)
             except ValidationError, e:
-                ## Could break preview if validation error
+                # Could break preview if validation error
                 to_preview = False
                 errors = e.error_dict
                 error_summary = e.error_summary
             except NotAuthorized:
-                ## This should never happen unless the user maliciously changed
-                ## the resource_id in the url.
+                # This should never happen unless the user maliciously changed
+                # the resource_id in the url.
                 abort(403, _('Unauthorized to edit resource'))
             else:
                 if not to_preview:
-                    redirect(h.url_for(controller='package',
-                                       action='resource_views',
-                                       id=id, resource_id=resource_id))
+                    h.redirect_to(controller='package',
+                                  action='resource_views',
+                                  id=id, resource_id=resource_id)
 
-        ## view_id exists only when updating
+        # view_id exists only when updating
         if view_id:
             try:
                 old_data = get_action('resource_view_show')(context,
                                                             {'id': view_id})
                 data = data or old_data
                 view_type = old_data.get('view_type')
-                ## might as well preview when loading good existing view
+                # might as well preview when loading good existing view
                 if not errors:
                     to_preview = True
             except (NotFound, NotAuthorized):

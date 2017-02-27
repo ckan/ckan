@@ -1,17 +1,24 @@
 # encoding: utf-8
 
-import ConfigParser
-import os
-import logging
+'''
+Celery background tasks management.
 
+This module is DEPRECATED, use ``ckan.lib.jobs`` instead.
+'''
+
+import ConfigParser
+import logging
+import os
+
+from celery import Celery
 from ckan.common import config as ckan_config
 from pkg_resources import iter_entry_points, VersionConflict
 
 log = logging.getLogger(__name__)
 
-LIST_PARAMS = """CELERY_IMPORTS ADMINS ROUTES""".split()
+log.warning('ckan.lib.celery_app is deprecated, use ckan.lib.jobs instead.')
 
-from celery import Celery
+LIST_PARAMS = """CELERY_IMPORTS ADMINS ROUTES""".split()
 
 celery = Celery()
 

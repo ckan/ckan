@@ -16,11 +16,13 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
+from ckan.lib.redis import is_redis_available
 import ckan.lib.render as render
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
+from ckan.lib.i18n import build_js_translations
 
 from ckan.common import _, ungettext, config
 from ckan.exceptions import CkanConfigurationException
@@ -93,10 +95,24 @@ def load_environment(global_conf, app_conf):
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
+    # Check Redis availability
+    if not is_redis_available():
+        log.critical('Could not connect to Redis.')
+
     # load all CKAN plugins
     p.load_all()
 
     app_globals.reset()
+
+    # issue #3260: remove idle transaction
+    # Session that was used for getting all config params nor committed,
+    # neither removed and we have idle connection as result
+    model.Session.commit()
+
+    # Build JavaScript translations. Must be done after plugins have
+    # been loaded.
+    build_js_translations()
+
 
 # A mapping of config settings that can be overridden by env vars.
 # Note: Do not remove the following lines, they are used in the docs
@@ -105,6 +121,7 @@ CONFIG_FROM_ENV_VARS = {
     'sqlalchemy.url': 'CKAN_SQLALCHEMY_URL',
     'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
     'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
+    'ckan.redis.url': 'CKAN_REDIS_URL',
     'solr_url': 'CKAN_SOLR_URL',
     'ckan.site_id': 'CKAN_SITE_ID',
     'ckan.site_url': 'CKAN_SITE_URL',
@@ -239,23 +256,14 @@ def update_config():
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
     env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
-    env.filters['truncate'] = jinja_extensions.truncate
     config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
 
-    # for postgresql we want to enforce utf-8
-    sqlalchemy_url = config.get('sqlalchemy.url', '')
-    if sqlalchemy_url.startswith('postgresql://'):
-        extras = {'client_encoding': 'utf8'}
-    else:
-        extras = {}
-
-    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.', **extras)
-
-    if not model.meta.engine:
-        model.init_model(engine)
+    # Initialize SQLAlchemy
+    engine = sqlalchemy.engine_from_config(config, client_encoding='utf8')
+    model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
@@ -280,6 +288,8 @@ def update_config():
     except sqlalchemy.exc.InternalError:
         # The database is not initialised.  Travis hits this
         pass
-    # if an extension or our code does not finish
-    # transaction properly db cli commands can fail
+
+    # Close current session and open database connections to ensure a clean
+    # clean environment even if an error occurs later on
     model.Session.remove()
+    model.Session.bind.dispose()

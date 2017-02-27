@@ -1,6 +1,6 @@
 "use strict";
 
-ckan.module('example_theme_popover', function ($, _) {
+ckan.module('example_theme_popover', function ($) {
   return {
     initialize: function () {
 
@@ -18,7 +18,7 @@ ckan.module('example_theme_popover', function ($, _) {
       // Add a Bootstrap popover to the button. Since we don't have the HTML
       // from the snippet yet, we just set the content to "Loading..."
       this.el.popover({title: this.options.title, html: true,
-                       content: 'Loading...', placement: 'left'});
+                       content: this._('Loading...'), placement: 'left'});
 
       // Add an event handler to the button, when the user clicks the button
       // our _onClick() function will be called.

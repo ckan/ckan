@@ -25,14 +25,14 @@ import logging
 import urlparse
 
 import webhelpers.feedgenerator
-from ckan.common import config
 
-import ckan.model as model
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins as plugins
 
-from ckan.common import _, g, c, request, response, json
+from ckan.common import _, config, c, request, response, json
 
 # TODO make the item list configurable
 ITEMS_LIMIT = 20
@@ -195,15 +195,16 @@ class FeedController(base.BaseController):
                                   action=group_type,
                                   id=obj_dict['name'])
 
+        site_title = config.get('ckan.site_title', 'CKAN')
         if is_org:
             guid = _create_atom_id(u'/feeds/organization/%s.atom' %
                                    obj_dict['name'])
             alternate_url = self._alternate_url(params,
                                                 organization=obj_dict['name'])
             desc = u'Recently created or updated datasets on %s '\
-                'by organization: "%s"' % (g.site_title, obj_dict['title'])
-            title = u'%s - Organization: "%s"' %\
-                (g.site_title, obj_dict['title'])
+                'by organization: "%s"' % (site_title, obj_dict['title'])
+            title = u'%s - Organization: "%s"' % (site_title,
+                                                  obj_dict['title'])
 
         else:  # is group
             guid = _create_atom_id(u'/feeds/group/%s.atom' %
@@ -211,9 +212,9 @@ class FeedController(base.BaseController):
             alternate_url = self._alternate_url(params,
                                                 groups=obj_dict['name'])
             desc = u'Recently created or updated datasets on %s '\
-                'by group: "%s"' % (g.site_title, obj_dict['title'])
+                'by group: "%s"' % (site_title, obj_dict['title'])
             title = u'%s - Group: "%s"' %\
-                (g.site_title, obj_dict['title'])
+                (site_title, obj_dict['title'])
 
         return self.output_feed(results,
                                 feed_title=title,
@@ -264,12 +265,14 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(params, tags=id)
 
+        site_title = config.get('ckan.site_title', 'CKAN')
+
         return self.output_feed(results,
                                 feed_title=u'%s - Tag: "%s"' %
-                                (g.site_title, id),
+                                (site_title, id),
                                 feed_description=u'Recently created or '
                                 'updated datasets on %s by tag: "%s"' %
-                                (g.site_title, id),
+                                (site_title, id),
                                 feed_link=alternate_url,
                                 feed_guid=_create_atom_id
                                 (u'/feeds/tag/%s.atom' % id),
@@ -294,10 +297,12 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(params)
 
+        site_title = config.get('ckan.site_title', 'CKAN')
+
         return self.output_feed(results,
-                                feed_title=g.site_title,
+                                feed_title=site_title,
                                 feed_description=u'Recently created or '
-                                'updated datasets on %s' % g.site_title,
+                                'updated datasets on %s' % site_title,
                                 feed_link=alternate_url,
                                 feed_guid=_create_atom_id
                                 (u'/feeds/dataset.atom'),
@@ -343,11 +348,13 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(request.params)
 
+        site_title = config.get('ckan.site_title', 'CKAN')
+
         return self.output_feed(results,
-                                feed_title=u'%s - Custom query' % g.site_title,
+                                feed_title=u'%s - Custom query' % site_title,
                                 feed_description=u'Recently created or updated'
                                 ' datasets on %s. Custom query: \'%s\'' %
-                                (g.site_title, q),
+                                (site_title, q),
                                 feed_link=alternate_url,
                                 feed_guid=_create_atom_id(atom_url),
                                 feed_url=feed_url,
@@ -361,10 +368,18 @@ class FeedController(base.BaseController):
             config.get('ckan.site_url', '').strip()
 
         # TODO language
-        feed = _FixedAtom1Feed(
-            title=feed_title,
-            link=feed_link,
-            description=feed_description,
+        feed_class = None
+        for plugin in plugins.PluginImplementations(plugins.IFeed):
+            if hasattr(plugin, 'get_feed_class'):
+                feed_class = plugin.get_feed_class()
+
+        if not feed_class:
+            feed_class = _FixedAtom1Feed
+
+        feed = feed_class(
+            feed_title,
+            feed_link,
+            feed_description,
             language=u'en',
             author_name=author_name,
             author_link=author_link,
@@ -377,6 +392,12 @@ class FeedController(base.BaseController):
         )
 
         for pkg in results:
+            additional_fields = {}
+
+            for plugin in plugins.PluginImplementations(plugins.IFeed):
+                if hasattr(plugin, 'get_item_additional_fields'):
+                    additional_fields = plugin.get_item_additional_fields(pkg)
+
             feed.add_item(
                 title=pkg.get('title', ''),
                 link=self.base_url + h.url_for(controller='package',
@@ -396,12 +417,13 @@ class FeedController(base.BaseController):
                                               id=pkg['name'],
                                               ver='2'),
                     unicode(len(json.dumps(pkg))),   # TODO fix this
-                    u'application/json')
+                    u'application/json'),
+                **additional_fields
             )
         response.content_type = feed.mime_type
         return feed.writeString('utf-8')
 
-    #### CLASS PRIVATE METHODS ####
+    # CLASS PRIVATE METHODS #
 
     def _feed_url(self, query, controller, action, **kwargs):
         """

@@ -119,6 +119,7 @@ class ValidationError(ActionError):
                     self.error_dict)
         return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
 
+
 log = logging.getLogger(__name__)
 
 
@@ -220,6 +221,9 @@ def _prepopulate_context(context):
     context.setdefault('session', model.Session)
     try:
         context.setdefault('user', c.user)
+    except AttributeError:
+        # c.user not set
+        pass
     except TypeError:
         # c not registered
         pass

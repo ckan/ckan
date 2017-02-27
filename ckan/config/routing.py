@@ -9,10 +9,10 @@ refer to the routes manual at http://routes.groovie.org/docs/
 """
 import re
 
-from pylons import config
 from routes.mapper import SubMapper, Mapper as _Mapper
 
 import ckan.plugins as p
+from ckan.common import config
 
 named_routes = {}
 
@@ -93,6 +93,10 @@ def make_map():
     map.minimization = False
     map.explicit = True
 
+    # CUSTOM ROUTES HERE
+    for plugin in p.PluginImplementations(p.IRoutes):
+        map = plugin.before_map(map)
+
     # The ErrorController route (handles 404/500 error pages); it should
     # likely stay at the top, ensuring it can always be resolved.
     map.connect('/error/{action}', controller='error', ckan_core=True)
@@ -100,10 +104,6 @@ def make_map():
 
     map.connect('*url', controller='home', action='cors_options',
                 conditions=OPTIONS, ckan_core=True)
-
-    # CUSTOM ROUTES HERE
-    for plugin in p.PluginImplementations(p.IRoutes):
-        map = plugin.before_map(map)
 
     # Mark all routes added from extensions on the `before_map` extension point
     # as non-core
@@ -140,7 +140,6 @@ def make_map():
     # /api ver 1, 2, 3 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}',
                    ver='/1') as m:
-        m.connect('', action='get_api')
         m.connect('/search/{register}', action='search')
 
     # /api ver 1, 2 or none
@@ -240,16 +239,16 @@ def make_map():
                       'api_data',
                   ])))
         m.connect('dataset_edit', '/dataset/edit/{id}', action='edit',
-                  ckan_icon='edit')
+                  ckan_icon='pencil-square-o')
         m.connect('dataset_followers', '/dataset/followers/{id}',
-                  action='followers', ckan_icon='group')
+                  action='followers', ckan_icon='users')
         m.connect('dataset_activity', '/dataset/activity/{id}',
-                  action='activity', ckan_icon='time')
+                  action='activity', ckan_icon='clock-o')
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
         m.connect('dataset_groups', '/dataset/groups/{id}',
-                  action='groups', ckan_icon='group')
+                  action='groups', ckan_icon='users')
         m.connect('dataset_resources', '/dataset/resources/{id}',
-                  action='resources', ckan_icon='reorder')
+                  action='resources', ckan_icon='bars')
         m.connect('dataset_read', '/dataset/{id}', action='read',
                   ckan_icon='sitemap')
         m.connect('/dataset/{id}/resource/{resource_id}',
@@ -257,7 +256,7 @@ def make_map():
         m.connect('/dataset/{id}/resource_delete/{resource_id}',
                   action='resource_delete')
         m.connect('resource_edit', '/dataset/{id}/resource_edit/{resource_id}',
-                  action='resource_edit', ckan_icon='edit')
+                  action='resource_edit', ckan_icon='pencil-square-o')
         m.connect('/dataset/{id}/resource/{resource_id}/download',
                   action='resource_download')
         m.connect('/dataset/{id}/resource/{resource_id}/download/{filename}',
@@ -270,12 +269,12 @@ def make_map():
         m.connect('/dataset/{id}/resource/{resource_id}/preview',
                   action='resource_datapreview')
         m.connect('views', '/dataset/{id}/resource/{resource_id}/views',
-                  action='resource_views', ckan_icon='reorder')
+                  action='resource_views', ckan_icon='bars')
         m.connect('new_view', '/dataset/{id}/resource/{resource_id}/new_view',
-                  action='edit_view', ckan_icon='edit')
+                  action='edit_view', ckan_icon='pencil-square-o')
         m.connect('edit_view',
                   '/dataset/{id}/resource/{resource_id}/edit_view/{view_id}',
-                  action='edit_view', ckan_icon='edit')
+                  action='edit_view', ckan_icon='pencil-square-o')
         m.connect('resource_view',
                   '/dataset/{id}/resource/{resource_id}/view/{view_id}',
                   action='resource_view')
@@ -307,13 +306,13 @@ def make_map():
                       'activity',
                   ])))
         m.connect('group_about', '/group/about/{id}', action='about',
-                  ckan_icon='info-sign'),
+                  ckan_icon='info-circle'),
         m.connect('group_edit', '/group/edit/{id}', action='edit',
-                  ckan_icon='edit')
+                  ckan_icon='pencil-square-o')
         m.connect('group_members', '/group/members/{id}', action='members',
-                  ckan_icon='group'),
+                  ckan_icon='users'),
         m.connect('group_activity', '/group/activity/{id}/{offset}',
-                  action='activity', ckan_icon='time'),
+                  action='activity', ckan_icon='clock-o'),
         m.connect('group_read', '/group/{id}', action='read',
                   ckan_icon='sitemap')
 
@@ -331,16 +330,16 @@ def make_map():
                       'history'
                   ])))
         m.connect('organization_activity', '/organization/activity/{id}/{offset}',
-                  action='activity', ckan_icon='time')
+                  action='activity', ckan_icon='clock-o')
         m.connect('organization_read', '/organization/{id}', action='read')
         m.connect('organization_about', '/organization/about/{id}',
-                  action='about', ckan_icon='info-sign')
+                  action='about', ckan_icon='info-circle')
         m.connect('organization_read', '/organization/{id}', action='read',
                   ckan_icon='sitemap')
         m.connect('organization_edit', '/organization/edit/{id}',
-                  action='edit', ckan_icon='edit')
+                  action='edit', ckan_icon='pencil-square-o')
         m.connect('organization_members', '/organization/members/{id}',
-                  action='members', ckan_icon='group')
+                  action='members', ckan_icon='users')
         m.connect('organization_bulk_process',
                   '/organization/bulk_process/{id}',
                   action='bulk_process', ckan_icon='sitemap')
@@ -364,20 +363,20 @@ def make_map():
         m.connect('user_generate_apikey', '/user/generate_key/{id}', action='generate_apikey')
         m.connect('/user/activity/{id}/{offset}', action='activity')
         m.connect('user_activity_stream', '/user/activity/{id}',
-                  action='activity', ckan_icon='time')
+                  action='activity', ckan_icon='clock-o')
         m.connect('user_dashboard', '/dashboard', action='dashboard',
                   ckan_icon='list')
         m.connect('user_dashboard_datasets', '/dashboard/datasets',
                   action='dashboard_datasets', ckan_icon='sitemap')
         m.connect('user_dashboard_groups', '/dashboard/groups',
-                  action='dashboard_groups', ckan_icon='group')
+                  action='dashboard_groups', ckan_icon='users')
         m.connect('user_dashboard_organizations', '/dashboard/organizations',
-                  action='dashboard_organizations', ckan_icon='building')
+                  action='dashboard_organizations', ckan_icon='building-o')
         m.connect('/dashboard/{offset}', action='dashboard')
         m.connect('user_follow', '/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')
         m.connect('user_followers', '/user/followers/{id:.*}',
-                  action='followers', ckan_icon='group')
+                  action='followers', ckan_icon='users')
         m.connect('user_edit', '/user/edit/{id:.*}', action='edit',
                   ckan_icon='cog')
         m.connect('user_delete', '/user/delete/{id}', action='delete')
@@ -411,11 +410,11 @@ def make_map():
         m.connect('/feeds/custom.atom', action='custom')
 
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin',
-                action='index', ckan_icon='legal')
+                action='index', ckan_icon='gavel')
     map.connect('ckanadmin_config', '/ckan-admin/config', controller='admin',
-                action='config', ckan_icon='check')
+                action='config', ckan_icon='check-square-o')
     map.connect('ckanadmin_trash', '/ckan-admin/trash', controller='admin',
-                action='trash', ckan_icon='trash')
+                action='trash', ckan_icon='trash-o')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
 
     with SubMapper(map, controller='ckan.controllers.storage:StorageController') as m:
@@ -427,6 +426,9 @@ def make_map():
         m.connect('/util/redirect', action='redirect')
         m.connect('/testing/primer', action='primer')
         m.connect('/testing/markup', action='markup')
+
+    # robots.txt
+    map.connect('/(robots.txt)', controller='template', action='view')
 
     # Mark all unmarked routes added up until now as core routes
     for route in map.matchlist:

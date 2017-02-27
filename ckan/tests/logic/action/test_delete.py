@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+import re
+
 import nose.tools
 
 import ckan.tests.helpers as helpers
@@ -7,10 +9,15 @@ import ckan.tests.factories as factories
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
+import ckan.lib.jobs as jobs
 import ckan.lib.search as search
+
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+eq = nose.tools.eq_
+ok = nose.tools.ok_
+raises = nose.tools.raises
 
 
 class TestDelete:
@@ -482,3 +489,134 @@ class TestDatasetPurge(object):
     def test_bad_id_returns_404(self):
         assert_raises(logic.NotFound,
                       helpers.call_action, 'dataset_purge', id='123')
+
+
+class TestUserDelete(object):
+    def setup(self):
+        helpers.reset_db()
+
+    def test_user_delete(self):
+        user = factories.User()
+        context = {}
+        params = {u'id': user[u'id']}
+
+        helpers.call_action(u'user_delete', context, **params)
+
+        # It is still there but with state=deleted
+        user_obj = model.User.get(user[u'id'])
+        assert_equals(user_obj.state, u'deleted')
+
+    def test_user_delete_but_user_doesnt_exist(self):
+        context = {}
+        params = {u'id': 'unknown'}
+
+        assert_raises(
+            logic.NotFound,
+            helpers.call_action,
+            u'user_delete', context, **params)
+
+    def test_user_delete_removes_memberships(self):
+        user = factories.User()
+        factories.Organization(
+            users=[{u'name': user[u'id'], u'capacity': u'admin'}])
+
+        factories.Group(
+            users=[{u'name': user[u'id'], u'capacity': u'admin'}])
+
+        user_memberships = model.Session.query(model.Member).filter(
+            model.Member.table_id == user[u'id']).all()
+
+        assert_equals(len(user_memberships), 2)
+
+        assert_equals([m.state for m in user_memberships],
+                      [u'active', u'active'])
+
+        context = {}
+        params = {u'id': user[u'id']}
+
+        helpers.call_action(u'user_delete', context, **params)
+
+        user_memberships = model.Session.query(model.Member).filter(
+            model.Member.table_id == user[u'id']).all()
+
+        # Member objects are still there, but flagged as deleted
+        assert_equals(len(user_memberships), 2)
+
+        assert_equals([m.state for m in user_memberships],
+                      [u'deleted', u'deleted'])
+
+    def test_user_delete_removes_memberships_when_using_name(self):
+        user = factories.User()
+        factories.Organization(
+            users=[{u'name': user[u'id'], u'capacity': u'admin'}])
+
+        factories.Group(
+            users=[{u'name': user[u'id'], u'capacity': u'admin'}])
+
+        context = {}
+        params = {u'id': user[u'name']}
+
+        helpers.call_action(u'user_delete', context, **params)
+
+        user_memberships = model.Session.query(model.Member).filter(
+            model.Member.table_id == user[u'id']).all()
+
+        # Member objects are still there, but flagged as deleted
+        assert_equals(len(user_memberships), 2)
+
+        assert_equals([m.state for m in user_memberships],
+                      [u'deleted', u'deleted'])
+
+
+class TestJobClear(helpers.FunctionalRQTestBase):
+
+    def test_all_queues(self):
+        '''
+        Test clearing all queues.
+        '''
+        self.enqueue()
+        self.enqueue(queue=u'q')
+        self.enqueue(queue=u'q')
+        self.enqueue(queue=u'q')
+        queues = helpers.call_action(u'job_clear')
+        eq({jobs.DEFAULT_QUEUE_NAME, u'q'}, set(queues))
+        all_jobs = self.all_jobs()
+        eq(len(all_jobs), 0)
+
+    def test_specific_queues(self):
+        '''
+        Test clearing specific queues.
+        '''
+        job1 = self.enqueue()
+        job2 = self.enqueue(queue=u'q1')
+        job3 = self.enqueue(queue=u'q1')
+        job4 = self.enqueue(queue=u'q2')
+        with helpers.recorded_logs(u'ckan.logic') as logs:
+            queues = helpers.call_action(u'job_clear', queues=[u'q1', u'q2'])
+        eq({u'q1', u'q2'}, set(queues))
+        all_jobs = self.all_jobs()
+        eq(len(all_jobs), 1)
+        eq(all_jobs[0], job1)
+        logs.assert_log(u'info', u'q1')
+        logs.assert_log(u'info', u'q2')
+
+
+class TestJobCancel(helpers.FunctionalRQTestBase):
+
+    def test_existing_job(self):
+        '''
+        Test cancelling an existing job.
+        '''
+        job1 = self.enqueue(queue=u'q')
+        job2 = self.enqueue(queue=u'q')
+        with helpers.recorded_logs(u'ckan.logic') as logs:
+            helpers.call_action(u'job_cancel', id=job1.id)
+        all_jobs = self.all_jobs()
+        eq(len(all_jobs), 1)
+        eq(all_jobs[0], job2)
+        assert_raises(KeyError, jobs.job_from_id, job1.id)
+        logs.assert_log(u'info', re.escape(job1.id))
+
+    @raises(logic.NotFound)
+    def test_not_existing_job(self):
+        helpers.call_action(u'job_cancel', id=u'does-not-exist')

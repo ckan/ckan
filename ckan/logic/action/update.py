@@ -6,10 +6,12 @@ import logging
 import datetime
 import time
 import json
+import mimetypes
 
 from ckan.common import config
 import paste.deploy.converters as converters
 
+import ckan.lib.helpers as h
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema as schema_
@@ -93,6 +95,14 @@ def resource_update(context, data_dict):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
     upload = uploader.get_resource_uploader(data_dict)
+
+    if 'mimetype' not in data_dict:
+        if hasattr(upload, 'mimetype'):
+            data_dict['mimetype'] = upload.mimetype
+
+    if 'size' not in data_dict and 'url_type' in data_dict:
+        if hasattr(upload, 'filesize'):
+            data_dict['size'] = upload.filesize
 
     pkg_dict['resources'][n] = data_dict
 
@@ -233,7 +243,9 @@ def package_update(context, data_dict):
     '''
     model = context['model']
     user = context['user']
-    name_or_id = data_dict.get("id") or data_dict['name']
+    name_or_id = data_dict.get('id') or data_dict.get('name')
+    if name_or_id is None:
+        raise ValidationError({'id': _('Missing value')})
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:
@@ -985,7 +997,7 @@ def dashboard_mark_activities_old(context, data_dict):
     model = context['model']
     user_id = model.User.get(context['user']).id
     model.Dashboard.get(user_id).activity_stream_last_viewed = (
-            datetime.datetime.now())
+            datetime.datetime.utcnow())
     if not context.get('defer_commit'):
         model.repo.commit()
 
@@ -1238,12 +1250,20 @@ def config_option_update(context, data_dict):
 
         raise ValidationError(msg, error_summary={'message': msg})
 
+    upload = uploader.get_uploader('admin')
+    upload.update_data_dict(data_dict, 'ckan.site_logo',
+                            'logo_upload', 'clear_logo_upload')
+    upload.upload(uploader.get_max_image_size())
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
 
     for key, value in data.iteritems():
+
+        # Set full Logo url
+        if key =='ckan.site_logo' and value and not value.startswith('http'):
+            value = h.url_for_static('uploads/admin/{0}'.format(value))
 
         # Save value in database
         model.set_system_info(key, value)

@@ -4,7 +4,7 @@
  *
  * See the snippets/custom_form_fields.html for an example.
  */
-this.ckan.module('custom-fields', function (jQuery, _) {
+this.ckan.module('custom-fields', function (jQuery) {
   return {
     options: {
       /* The selector used for each custom field wrapper */
@@ -17,16 +17,14 @@ this.ckan.module('custom-fields', function (jQuery, _) {
      * Returns nothing.
      */
     initialize: function () {
-      if (!jQuery('html').hasClass('ie7')) {
-        jQuery.proxyAll(this, /_on/);
+      jQuery.proxyAll(this, /_on/);
 
-        var delegated = this.options.fieldSelector + ':last input:first';
-        this.el.on('change', delegated, this._onChange);
-        this.el.on('change', ':checkbox', this._onRemove);
+      var delegated = this.options.fieldSelector + ':last input:first';
+      this.el.on('change', delegated, this._onChange);
+      this.el.on('change', ':checkbox', this._onRemove);
 
-        // Style the remove checkbox like a button.
-        this.$('.checkbox').addClass("btn btn-danger icon-remove");
-      }
+      // Style the remove checkbox like a button.
+      this.$('.checkbox').addClass("btn btn-danger fa fa-times");
     },
 
     /* Creates a new field and appends it to the list. This currently works by

@@ -9,6 +9,7 @@ import sqlalchemy.engine.url as sa_url
 import ckan.plugins as p
 import ckan.logic as logic
 import ckan.model as model
+from ckan.model.core import State
 from ckan.common import config
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
@@ -48,6 +49,7 @@ class DatastoreException(Exception):
 
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
+    p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
     p.implements(p.IResourceUrlChange)
@@ -70,6 +72,9 @@ class DatastorePlugin(p.SingletonPlugin):
             raise DatastoreException(msg)
 
         return super(cls, cls).__new__(cls, *args, **kwargs)
+
+    def update_config(self, config):
+        p.toolkit.add_template_directory(config, 'templates')
 
     def configure(self, config):
         self.config = config
@@ -120,7 +125,6 @@ class DatastorePlugin(p.SingletonPlugin):
                      'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
-            self._create_alias_table()
 
     def notify(self, entity, operation=None):
         if not isinstance(entity, model.Package) or self.legacy_mode:
@@ -216,34 +220,6 @@ class DatastorePlugin(p.SingletonPlugin):
             write_connection.close()
         return True
 
-    def _create_alias_table(self):
-        mapping_sql = '''
-            SELECT DISTINCT
-                substr(md5(dependee.relname || COALESCE(dependent.relname, '')), 0, 17) AS "_id",
-                dependee.relname AS name,
-                dependee.oid AS oid,
-                dependent.relname AS alias_of
-                -- dependent.oid AS oid
-            FROM
-                pg_class AS dependee
-                LEFT OUTER JOIN pg_rewrite AS r ON r.ev_class = dependee.oid
-                LEFT OUTER JOIN pg_depend AS d ON d.objid = r.oid
-                LEFT OUTER JOIN pg_class AS dependent ON d.refobjid = dependent.oid
-            WHERE
-                (dependee.oid != dependent.oid OR dependent.oid IS NULL) AND
-                (dependee.relname IN (SELECT tablename FROM pg_catalog.pg_tables)
-                    OR dependee.relname IN (SELECT viewname FROM pg_catalog.pg_views)) AND
-                dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
-            ORDER BY dependee.oid DESC;
-        '''
-        create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
-        try:
-            connection = db._get_engine(
-                {'connection_url': self.write_url}).connect()
-            connection.execute(create_alias_table_sql)
-        finally:
-            connection.close()
-
     def get_actions(self):
         actions = {'datastore_create': action.datastore_create,
                    'datastore_upsert': action.datastore_upsert,
@@ -276,18 +252,42 @@ class DatastorePlugin(p.SingletonPlugin):
                   action='dump')
         return m
 
+    # IResourceController
+
     def before_show(self, resource_dict):
         # Modify the resource url of datastore resources so that
         # they link to the datastore dumps.
         if resource_dict.get('url_type') == 'datastore':
             resource_dict['url'] = p.toolkit.url_for(
                 controller='ckanext.datastore.controller:DatastoreController',
-                action='dump', resource_id=resource_dict['id'])
+                action='dump', resource_id=resource_dict['id'],
+                qualified=True)
 
         if 'datastore_active' not in resource_dict:
             resource_dict[u'datastore_active'] = False
 
         return resource_dict
+
+    def after_delete(self, context, resources):
+        model = context['model']
+        pkg = context['package']
+        res_query = model.Session.query(model.Resource)
+        query = res_query.filter(
+            model.Resource.package_id == pkg.id,
+            model.Resource.state == State.DELETED
+        )
+        deleted = [
+            res for res in query.all()
+            if res.extras.get('datastore_active') is True]
+
+        for res in deleted:
+            db.delete(context, {
+                'resource_id': res.id,
+                'connection_url': self.write_url
+            })
+            res.extras['datastore_active'] = False
+            res_query.update(
+                {'extras': res.extras}, synchronize_session=False)
 
     def datastore_validate(self, context, data_dict, fields_types):
         column_names = fields_types.keys()

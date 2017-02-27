@@ -1,11 +1,11 @@
 "use strict";
 
-ckan.module('example_theme_popover', function ($, _) {
+ckan.module('example_theme_popover', function ($) {
   return {
     initialize: function () {
       $.proxyAll(this, /_on/);
       this.el.popover({title: this.options.title, html: true,
-                       content: 'Loading...', placement: 'left'});
+                       content: this._('Loading...'), placement: 'left'});
       this.el.on('click', this._onClick);
       this.sandbox.subscribe('dataset_popover_clicked',
                              this._onPopoverClicked);
