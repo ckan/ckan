@@ -24,7 +24,8 @@ def clear_db(Session):
 
     drop_functions_sql = u'''
         SELECT 'drop function ' || quote_ident(proname) || '();'
-        FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid)
+        FROM pg_proc
+        INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid)
         WHERE ns.nspname = 'public'
         '''
     drop_functions = u''.join(r[0] for r in c.execute(drop_functions_sql))

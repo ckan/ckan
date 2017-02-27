@@ -1431,8 +1431,10 @@ def create_trigger_function(name, definition, or_replace):
     try:
         _write_engine_execute(sql)
     except ProgrammingError as pe:
-        raise ValidationError({
-            u'definition': [pe.args[0].split('\n')[0].decode('utf8')]})
+        message = pe.args[0].split('\n')[0].decode('utf8')
+        key = u'name' if message.startswith(
+            u'(ProgrammingError) function') else u'definition'
+        raise ValidationError({key: [message.split(u') ', 1)[-1]]})
 
 
 def drop_function(name, if_exists):
