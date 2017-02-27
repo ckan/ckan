@@ -926,5 +926,38 @@ class TestDatastoreFunctionCreateTests(DatastoreFunctionalTestBase):
                 definition=u'HELLO WORLD')
         except ValidationError as ve:
             assert_equal(
-                ve.error_dict['definition'],
-                [u'(ProgrammingError) syntax error at or near "HELLO"'])
+                ve.error_dict,
+                {u'definition':
+                    [u'syntax error at or near "HELLO"']})
+
+    def test_redefined_trigger(self):
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'test_redefined',
+            rettype=u'trigger',
+            definition=u'BEGIN RETURN NEW; END;')
+        try:
+            helpers.call_action(
+                u'datastore_function_create',
+                name=u'test_redefined',
+                rettype=u'trigger',
+                definition=u'BEGIN RETURN NEW; END;')
+        except ValidationError as ve:
+            assert_equal(
+                ve.error_dict,
+                {u'name':[
+                    u'function "test_redefined" already exists '
+                    u'with same argument types']})
+
+    def test_redefined_with_or_replace_trigger(self):
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'test_replaceme',
+            rettype=u'trigger',
+            definition=u'BEGIN RETURN NEW; END;')
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'test_replaceme',
+            or_replace=True,
+            rettype=u'trigger',
+            definition=u'BEGIN RETURN NEW; END;')
