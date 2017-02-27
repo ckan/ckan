@@ -5,7 +5,7 @@ import ckan.tests.helpers as helpers
 from bs4 import BeautifulSoup
 from ckan import model
 from ckan.lib.mailer import create_reset_key
-from nose.tools import assert_true, assert_false, assert_equal, assert_contains
+from nose.tools import assert_true, assert_false, assert_equal, assert_in
 from routes import url_for
 
 webtest_submit = helpers.webtest_submit
@@ -496,7 +496,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
                              action='follow',
                              id='not-here')
         response = app.post(follow_url, extra_environ=env, status=302)
-        assert_contains(response['headers']['location'], 'user/login')
+        assert_in('user/login', response['headers']['location'])
 
     def test_user_unfollow(self):
         app = self._get_test_app()
@@ -548,7 +548,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
                                id='not-here')
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
-        assert_contains(unfollow_response['headers']['location'], 'user/login')
+        assert_in('user/login', unfollow_response['headers']['location'])
 
     def test_user_follower_list(self):
         '''Following users appear on followers list page.'''
