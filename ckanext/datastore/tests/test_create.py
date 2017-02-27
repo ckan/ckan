@@ -18,7 +18,8 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
+from ckanext.datastore.tests.helpers import (
+    rebuild_all_dbs, set_url_type, DatastoreFunctionalTestBase)
 from ckan.plugins.toolkit import ValidationError
 
 
@@ -908,14 +909,11 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert res_dict['error']['message'].startswith('The data was invalid')
 
 
-class TestDatastoreFunctionCreateTests(helpers.FunctionalTestBase):
-    _load_plugins = [u'datastore']
-
+class TestDatastoreFunctionCreateTests(DatastoreFunctionalTestBase):
     def test_nop_trigger(self):
         helpers.call_action(
             u'datastore_function_create',
             name=u'test_nop',
-            or_replace=True,
             rettype=u'trigger',
             definition=u'BEGIN RETURN NEW; END;')
 
