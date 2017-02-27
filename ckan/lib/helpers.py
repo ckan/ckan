@@ -1080,7 +1080,6 @@ class Page(paginate.Page):
     # our custom layout set as default.
 
     def pager(self, *args, **kwargs):
-        print(kwargs)
         prev_link = kwargs.get('symbol_previous', u'«')
         next_link = kwargs.get('symbol_next', u'»')
         pager_item_text = kwargs.get('pager_item_text', None)
@@ -1101,8 +1100,8 @@ class Page(paginate.Page):
 
     def _pagerlink(self, page, text, extra_attributes=None, pager_text=None):
 
-        if text.isdigit() and page_alt_text:
-            text = literal(page_alt_text + text)
+        if text.isdigit() and page_text:
+            text = literal(page_text + text)
         anchor = super(Page, self)._pagerlink(page, text)
         extra_attributes = extra_attributes or {}
         return HTML.li(anchor, **extra_attributes)
