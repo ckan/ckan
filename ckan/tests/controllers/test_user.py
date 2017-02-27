@@ -497,7 +497,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
                              id='not-here')
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow(status=302)
-        assert_true('Not authorized to see this page' in response)
+        assert_true('User not found' in response)
 
     def test_user_unfollow(self):
         app = self._get_test_app()
@@ -551,7 +551,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
                                      status=302)
         unfollow_response = unfollow_response.follow(status=302)
 
-        assert_true('Not authorized to see this page' in unfollow_response)
+        assert_true('User not found' in unfollow_response)
 
     def test_user_follower_list(self):
         '''Following users appear on followers list page.'''
