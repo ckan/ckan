@@ -1,4 +1,4 @@
-{% if page.page_count > 1 %}
+{% if  page|attr('page_count') > 1 %}
     <div class='pagination pagination-centered'>
         {{ page.pager(q=q) }}
     </div>
