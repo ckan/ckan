@@ -179,4 +179,5 @@ def datastore_function_create_schema():
 def datastore_function_delete_schema():
     return {
         'name': [unicode_only, not_empty],
+        'if_exists': [default(False), boolean_validator],
     }

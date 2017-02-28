@@ -1,5 +1,6 @@
 import json
 import nose
+from nose.tools import assert_equal
 
 import pylons
 import sqlalchemy
@@ -9,9 +10,11 @@ import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
+from ckan.plugins.toolkit import ValidationError
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
+from ckanext.datastore.tests.helpers import (
+    rebuild_all_dbs, set_url_type, DatastoreFunctionalTestBase)
 
 
 class TestDatastoreDelete(tests.WsgiAppCase):
@@ -234,3 +237,33 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert(len(results['result']['records']) == 0)
 
         self._delete()
+
+
+class TestDatastoreFunctionDelete(DatastoreFunctionalTestBase):
+    def test_create_delete(self):
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'test_nop',
+            rettype=u'trigger',
+            definition=u'BEGIN RETURN NEW; END;')
+        helpers.call_action(
+            u'datastore_function_delete',
+            name=u'test_nop')
+
+    def test_delete_nonexistant(self):
+        try:
+            helpers.call_action(
+                u'datastore_function_delete',
+                name=u'test_not_there')
+        except ValidationError as ve:
+            assert_equal(
+                ve.error_dict,
+                {u'name': [u'function test_not_there() does not exist']})
+        else:
+            assert 0, u'no validation error'
+
+    def test_delete_if_exitst(self):
+        helpers.call_action(
+            u'datastore_function_delete',
+            name=u'test_not_there_either',
+            if_exists=True)
