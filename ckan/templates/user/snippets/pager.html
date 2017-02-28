@@ -1,14 +1,16 @@
 {% extends "snippets/pager.html" %}
 
-{% if page.page_count > 1 %}
-    <div class='pagination pagination-centered'>
-        {{ page.pager(
-            q=q,
-            order_by=order_by,
-            symbol_previous=symbol_previous,
-            symbol_next=symbol_next,
-            pager_item_text=pager_item_text
-            )
-        }}
-    </div>
-{% endif %}
+{% block pager %}
+    {% if page.page_count > 1 %}
+        <div class='pagination pagination-centered'>
+            {{ page.pager(
+                q=q,
+                order_by=order_by,
+                symbol_previous=symbol_previous,
+                symbol_next=symbol_next,
+                pager_item_text=pager_item_text
+                )
+            }}
+        </div>
+    {% endif %}
+{% endblock %}

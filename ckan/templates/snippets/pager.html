@@ -2,14 +2,16 @@
 {% set symbol_previous = symbol_previous or None %}
 {% set symbol_next = symbol_next or None %}
 
-{% if page.page_count > 1 %}
-    <div class='pagination pagination-centered'>
-        {{ page.pager(
-            q=q,
-            symbol_previous=symbol_previous,
-            symbol_next=symbol_next,
-            pager_item_text=pager_item_text
-            )
-        }}
-    </div>
-{% endif %}
+{% block pager %}
+    {% if page.page_count > 1 %}
+        <div class='pagination pagination-centered'>
+            {{ page.pager(
+                q=q,
+                symbol_previous=symbol_previous,
+                symbol_next=symbol_next,
+                pager_item_text=pager_item_text
+                )
+            }}
+        </div>
+    {% endif %}
+{% endblock %}
