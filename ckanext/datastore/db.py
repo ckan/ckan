@@ -715,6 +715,9 @@ def upsert_data(context, data_dict):
                 toolkit._("The data was invalid (for example: a numeric value "
                           "is out of range or was inserted into a text field)."
                           ))
+        except sqlalchemy.exc.InternalError as err:
+            message = err.args[0].split('\n')[0].decode('utf8')
+            raise ValidationError({u'records': [message.split(u') ', 1)[-1]]})
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
@@ -1453,6 +1456,8 @@ def drop_function(name, if_exists):
 
 def _write_engine_execute(sql):
     connection = get_write_engine().connect()
+    # No special meaning for '%' in sql parameter:
+    connection = connection.execution_options(no_parameters=True)
     trans = connection.begin()
     try:
         connection.execute(sql)
