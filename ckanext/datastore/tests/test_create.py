@@ -985,3 +985,57 @@ class TestDatastoreCreateTriggers(DatastoreFunctionalTestBase):
                     u'function no_such_trigger_function() does not exist']})
         else:
             assert 0, u'no validation error'
+
+    def test_create_trigger_applies_to_records(self):
+        ds = factories.Dataset()
+
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'spamify_trigger',
+            rettype=u'trigger',
+            definition=u'''
+                BEGIN
+                NEW.spam := 'spam spam ' || NEW.spam || ' spam';
+                RETURN NEW;
+                END;''')
+        res = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[{u'id': u'spam', u'type': u'text'}],
+            records=[{u'spam': u'SPAM'}, {u'spam': u'EGGS'}],
+            triggers=[{u'function': u'spamify_trigger'}])
+        assert_equal(
+            helpers.call_action(
+                u'datastore_search',
+                fields=[u'spam'],
+                resource_id=res['resource_id'])['records'],
+            [{u'spam': u'spam spam SPAM spam'}, {u'spam': u'spam spam EGGS spam'}])
+
+    def test_upsert_trigger_applies_to_records(self):
+        ds = factories.Dataset()
+
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'more_spam_trigger',
+            rettype=u'trigger',
+            definition=u'''
+                BEGIN
+                NEW.spam := 'spam spam ' || NEW.spam || ' spam';
+                RETURN NEW;
+                END;''')
+        res = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[{u'id': u'spam', u'type': u'text'}],
+            triggers=[{u'function': u'more_spam_trigger'}])
+        helpers.call_action(
+            u'datastore_upsert',
+            method=u'insert',
+            resource_id=res['resource_id'],
+            records=[{u'spam': u'BEANS'}, {u'spam': u'SPAM'}])
+        assert_equal(
+            helpers.call_action(
+                u'datastore_search',
+                fields=[u'spam'],
+                resource_id=res['resource_id'])['records'],
+            [{u'spam': u'spam spam BEANS spam'}, {u'spam': u'spam spam SPAM spam'}])
