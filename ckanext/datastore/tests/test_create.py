@@ -909,7 +909,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert res_dict['error']['message'].startswith('The data was invalid')
 
 
-class TestDatastoreFunctionCreateTests(DatastoreFunctionalTestBase):
+class TestDatastoreFunctionCreate(DatastoreFunctionalTestBase):
     def test_nop_trigger(self):
         helpers.call_action(
             u'datastore_function_create',
@@ -929,6 +929,8 @@ class TestDatastoreFunctionCreateTests(DatastoreFunctionalTestBase):
                 ve.error_dict,
                 {u'definition':
                     [u'syntax error at or near "HELLO"']})
+        else:
+            assert 0, u'no validation error'
 
     def test_redefined_trigger(self):
         helpers.call_action(
@@ -948,6 +950,8 @@ class TestDatastoreFunctionCreateTests(DatastoreFunctionalTestBase):
                 {u'name':[
                     u'function "test_redefined" already exists '
                     u'with same argument types']})
+        else:
+            assert 0, u'no validation error'
 
     def test_redefined_with_or_replace_trigger(self):
         helpers.call_action(
@@ -961,3 +965,23 @@ class TestDatastoreFunctionCreateTests(DatastoreFunctionalTestBase):
             or_replace=True,
             rettype=u'trigger',
             definition=u'BEGIN RETURN NEW; END;')
+
+
+class TestDatastoreCreateTriggers(DatastoreFunctionalTestBase):
+    def test_create_with_missing_trigger(self):
+        ds = factories.Dataset()
+
+        try:
+            helpers.call_action(
+                u'datastore_create',
+                resource={u'package_id': ds['id']},
+                fields=[{u'id': u'spam', u'type': u'text'}],
+                records=[{u'spam': u'SPAM'}, {u'spam': u'EGGS'}],
+                triggers=[{u'function': u'no_such_trigger_function'}])
+        except ValidationError as ve:
+            assert_equal(
+                ve.error_dict,
+                {u'triggers':[
+                    u'function no_such_trigger_function() does not exist']})
+        else:
+            assert 0, u'no validation error'

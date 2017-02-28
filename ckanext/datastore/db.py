@@ -1196,8 +1196,12 @@ def _create_triggers(connection, resource_id, triggers):
                 table=datastore_helpers.identifier(resource_id),
                 function=datastore_helpers.identifier(t['function']))
             for i, t in enumerate(triggers)])
-    if sql_list:
-        connection.execute(u';\n'.join(sql_list))
+    try:
+        if sql_list:
+            connection.execute(u';\n'.join(sql_list))
+    except ProgrammingError as pe:
+        message = pe.args[0].split('\n')[0].decode('utf8')
+        raise ValidationError({u'triggers': [message.split(u') ', 1)[-1]]})
 
 
 def upsert(context, data_dict):
