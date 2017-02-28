@@ -1681,13 +1681,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             real_id = results.fetchone()[0]
         return res_exists, real_id
 
-    # def resource_fields(self, id):
-    #     pass
-
     # def resource_info(self, id):
     #     pass
 
-    def datastore_info(self, id):
+    def resource_fields(self, id):
         def _type_lookup(t):
             if t in ['numeric', 'integer']:
                 return 'number'

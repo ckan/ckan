@@ -101,9 +101,6 @@ class DatastoreBackend:
     def resource_info(self, id):
         raise NotImplementedError()
 
-    def datastore_info(self, id):
-        raise NotImplementedError()
-
     def resource_id_from_alias(self, alias):
         raise NotImplementedError()
 

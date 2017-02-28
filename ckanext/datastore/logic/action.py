@@ -281,7 +281,7 @@ def datastore_info(context, data_dict):
             u'Resource "{0}" was not found.'.format(resource_id)
         ))
 
-    info = backend.datastore_info(resource_id)
+    info = backend.resource_fields(resource_id)
 
     return info
 
