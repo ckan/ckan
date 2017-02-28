@@ -645,4 +645,4 @@ def datastore_function_delete(context, data_dict):
     '''
     p.toolkit.check_access('datastore_function_delete', context, data_dict)
 
-    db.drop_function(data_dict['name'])
+    db.drop_function(data_dict['name'], data_dict['if_exists'])

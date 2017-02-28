@@ -1450,12 +1450,16 @@ def create_trigger_function(name, definition, or_replace):
 
 def drop_function(name, if_exists):
     sql = u'''
-        DROP FUNCTION {if_exists} {name};
+        DROP FUNCTION {if_exists} {name}();
         '''.format(
         if_exists=u'IF EXISTS' if if_exists else u'',
         name=datastore_helpers.identifier(name))
 
-    _write_engine_execute(sql)
+    try:
+        _write_engine_execute(sql)
+    except ProgrammingError as pe:
+        message = pe.args[0].split('\n')[0].decode('utf8')
+        raise ValidationError({u'name': [message.split(u') ', 1)[-1]]})
 
 
 def _write_engine_execute(sql):
