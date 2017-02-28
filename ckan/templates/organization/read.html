@@ -30,7 +30,7 @@
     {% endif %}
   {% endblock %}
   {% block page_pagination %}
-    {% snippet 'organization/snippets/pager.html', q=c.q or '', page=c.page %}
+    {% snippet 'snippets/pager.html', q=c.q or '', page=c.page %}
   {% endblock %}
 {% endblock %}
 
