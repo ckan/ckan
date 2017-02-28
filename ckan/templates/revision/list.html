@@ -9,11 +9,11 @@
 {% block primary_content_inner %}
   <h1>{{ _('Revision History') }}</h1>
 
-  {{ c.page.pager() }}
+  {% snippet "revision/snippets/pager.html", page=c.page %}
 
   {% block revisions_list %}
     {% snippet "revision/snippets/revisions_list.html", revisions=c.page.items %}
   {% endblock %}
 
-  {{ c.page.pager() }}
+  {% snippet "revision/snippets/pager.html", page=c.page %}
 {% endblock %}

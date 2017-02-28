@@ -108,5 +108,5 @@
       {% endblock %}
     </aside>
   </div>
-  {{ c.page.pager() }}
+  {% snippet 'organization/snippets/pager.html', q=c.q or '', page=c.page %}
 {% endblock %}

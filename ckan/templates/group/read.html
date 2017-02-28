@@ -26,7 +26,7 @@
     {% endif %}
   {% endblock %}
   {% block page_pagination %}
-    {% snippet 'snippets/pager.html', q=c.q, page=c.page %}
+     {% snippet 'group/snippets/pager.html', q=c.q or '', page=c.page %}
   {% endblock %}
 {% endblock %}
 
