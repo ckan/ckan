@@ -15,6 +15,7 @@ import ckanext.datastore.backend.postgres as backend
 postgres_backend = backend.DatastorePostgresqlBackend()
 postgres_backend.configure(config)
 
+
 class TestTypeGetters(unittest.TestCase):
     def test_is_valid_field_name(self):
         assert helpers.is_valid_field_name("foo")
@@ -76,7 +77,6 @@ class TestLegacyModeSetting():
             'ckan.datastore.read_url': 'some_test_read_url',
         }
         assert postgres_backend.is_legacy_mode(test_config)
-
 
     @mock.patch('ckanext.datastore.backend.postgres._pg_version_is_at_least')
     def test_legacy_mode_not_set_if_read_url_and_pg_9(self, pgv):
