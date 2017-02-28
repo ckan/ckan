@@ -18,7 +18,7 @@ import ckan.tests.legacy as tests
 import ckan.config.middleware as middleware
 
 import ckanext.datapusher.interfaces as interfaces
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs
 
 
@@ -61,8 +61,7 @@ class TestInterace(object):
 
         cls.sysadmin_user = factories.User(name='testsysadmin', sysadmin=True)
         cls.normal_user = factories.User(name='annafan')
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db._get_engine(config['ckan.datastore.write_url'])
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod

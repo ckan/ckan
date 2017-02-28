@@ -17,7 +17,7 @@ import ckan.config.middleware as middleware
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
@@ -193,8 +193,7 @@ class TestDatastoreCreateNewTests(object):
         return [result[0] for result in results]
 
     def _execute_sql(self, sql, *args):
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db._get_engine(config['ckan.datastore.write_url'])
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
         return session.connection().execute(sql, *args)
 
@@ -255,8 +254,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db._get_engine(config['ckan.datastore.write_url'])
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)

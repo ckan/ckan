@@ -15,7 +15,7 @@ import ckan.tests.factories as factories
 
 from ckan.common import config
 
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 assert_equal = nose.tools.assert_equal
@@ -113,8 +113,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db._get_engine(config['ckan.datastore.write_url'])
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -365,8 +364,7 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db._get_engine(config['ckan.datastore.write_url'])
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -472,8 +470,7 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db._get_engine(config['ckan.datastore.write_url'])
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod

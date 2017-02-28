@@ -8,7 +8,7 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.legacy as tests
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 import httpretty
 import httpretty.core
 import nose
@@ -68,8 +68,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db._get_engine(config['ckan.datastore.write_url'])
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)

@@ -12,7 +12,7 @@ import ckan.model as model
 import ckan.tests.legacy as tests
 
 from ckan.common import config
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
 
 import ckan.tests.helpers as helpers
@@ -165,9 +165,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                                  u'characters': None,
                                  u'rating with %': u'99%'}]
 
-        engine = db._get_engine(
-                {'connection_url': config['ckan.datastore.write_url']}
-            )
+        engine = db._get_engine(config['ckan.datastore.write_url'])
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -838,8 +836,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                                  u'published': None}]
         cls.expected_join_results = [{u'first': 1, u'second': 1}, {u'first': 1, u'second': 2}]
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db._get_engine(config['ckan.datastore.write_url'])
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod

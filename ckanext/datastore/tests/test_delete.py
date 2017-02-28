@@ -15,7 +15,7 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.logic import NotFound
 
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 assert_raises = nose.tools.assert_raises
@@ -48,7 +48,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         }
 
         engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+            config['ckan.datastore.write_url'])
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)

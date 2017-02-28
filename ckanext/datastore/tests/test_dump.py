@@ -7,7 +7,7 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.legacy as tests
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 import ckanext.datastore.tests.helpers as helpers
 import nose
 import paste.fixture
@@ -80,8 +80,7 @@ class TestDatastoreDump(object):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine({
-            'connection_url': config['ckan.datastore.write_url']})
+        engine = db._get_engine(config['ckan.datastore.write_url'])
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod

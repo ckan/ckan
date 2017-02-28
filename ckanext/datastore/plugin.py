@@ -64,8 +64,7 @@ class DatastorePlugin(p.SingletonPlugin):
     # IConfigurer
 
     def update_config(self, config):
-        for plugin in p.PluginImplementations(interfaces.IDatastoreBackend):
-            DatastoreBackend.register_backend(plugin.register_backends())
+        DatastoreBackend.register_backends()
         DatastoreBackend.set_active_backend(config)
 
         p.toolkit.add_template_directory(config, 'templates')
@@ -76,14 +75,14 @@ class DatastorePlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
 
+        self.backend.configure(config)
+
         # Legacy mode means that we have no read url. Consequently sql search
         # is not available and permissions do not have to be changed. In
         # legacy mode, the datastore runs on PG prior to 9.0 (for
         # example 8.4).
         if hasattr(self.backend, 'is_legacy_mode'):
             self.legacy_mode = self.backend.is_legacy_mode(self.config)
-
-        self.backend.configure(config)
 
     # IDomainObjectModification
     # IResourceUrlChange

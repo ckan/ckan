@@ -4,8 +4,18 @@ import re
 import logging
 
 import ckan.plugins as plugins
+from ckan.common import config
+from ckanext.datastore.interfaces import IDatastoreBackend
 
 log = logging.getLogger(__name__)
+
+
+def get_all_resources_ids_in_datastore():
+    DatastoreBackend.register_backends()
+    DatastoreBackend.set_active_backend(config)
+    backend = DatastoreBackend.get_active_backend()
+    backend.configure(config)
+    return backend.get_all_ids()
 
 
 def _parse_sort_clause(clause, fields_types):
@@ -29,14 +39,25 @@ class DatastoreException(Exception):
     pass
 
 
+class InvalidDataError(Exception):
+    """Exception that's raised if you try to add invalid data to the datastore.
+
+    For example if you have a column with type "numeric" and then you try to
+    add a non-numeric value like "foo" to it, this exception should be raised.
+
+    """
+    pass
+
+
 class DatastoreBackend:
 
     _backends = {}
     _active_backend = None
 
     @classmethod
-    def register_backend(cls, backends_dict):
-        cls._backends.update(backends_dict)
+    def register_backends(cls):
+        for plugin in plugins.PluginImplementations(IDatastoreBackend):
+            cls._backends.update(plugin.register_backends())
 
     @classmethod
     def set_active_backend(cls, config):
@@ -84,4 +105,7 @@ class DatastoreBackend:
         raise NotImplementedError()
 
     def resource_id_from_alias(self, alias):
+        raise NotImplementedError()
+
+    def get_all_ids(self):
         raise NotImplementedError()

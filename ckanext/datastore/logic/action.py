@@ -190,7 +190,7 @@ def datastore_create(context, data_dict):
 
     result.pop('id', None)
     result.pop('private', None)
-    result.pop('connection_url')
+    result.pop('connection_url', None)
     return result
 
 
@@ -255,7 +255,7 @@ def datastore_upsert(context, data_dict):
 
     result = backend.upsert(context, data_dict)
     result.pop('id', None)
-    result.pop('connection_url')
+    result.pop('connection_url', None)
     return result
 
 
@@ -353,7 +353,7 @@ def datastore_delete(context, data_dict):
                       'datastore_active': False})
 
     result.pop('id', None)
-    result.pop('connection_url')
+    result.pop('connection_url', None)
     return result
 
 
@@ -442,7 +442,7 @@ def datastore_search(context, data_dict):
 
     result = backend.search(context, data_dict)
     result.pop('id', None)
-    result.pop('connection_url')
+    result.pop('connection_url', None)
     return result
 
 
@@ -483,7 +483,7 @@ def datastore_search_sql(context, data_dict):
 
     result = backend.search_sql(context, data_dict)
     result.pop('id', None)
-    result.pop('connection_url')
+    result.pop('connection_url', None)
     return result
 
 
