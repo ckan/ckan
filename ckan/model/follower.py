@@ -115,7 +115,7 @@ class ModelFollowingModel(domain_object.DomainObject):
                 cls.object_id == object_alias.id,
                 follower_alias.state != core.State.DELETED,
                 object_alias.state != core.State.DELETED,
-                object_alias.type == 'organization',
+                object_alias.is_organization == True,
                 object_alias.id == object_id))
 
         return query
