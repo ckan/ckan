@@ -148,11 +148,22 @@ class IDatastore(interfaces.Interface):
 
 
 class IDatastoreBackend(interfaces.Interface):
-
+    """Allow custom implementations of datastore backend"""
     def register_backends(self):
         """
-        Initial configuration and any assertions based on config.
+        Register classes that inherits from DatastoreBackend.
 
-        Takes `config` object from IConfigurable.configure method
+        Every registered class provides implementations of DatastoreBackend
+        and, depending on `datastore.write_url`, one of them will be used
+        inside actions.
+
+        `ckanext.datastore.DatastoreBackend` has method `set_active_backend`
+        which will define most suitable backend depending on schema of
+        `ckan.datastore.write_url` config directive. eg. 'postgresql://a:b@x'
+        will use 'postgresql' backend, but 'mongodb://a:b@c' will try to use
+        'mongodb' backend(if such backend has been registered, of course).
+
+        :returns: the dictonary with backend name as key and backend class as
+                  value
         """
         return {}
