@@ -58,6 +58,10 @@ class InvalidDataError(Exception):
 class DatastoreBackend:
     """Base class for all datastore backends.
 
+    Very simple example of implementation based on SQLite can be found in
+    `ckanext.datastore.backend.example`. In order to use it, set datastore.write_url
+    to 'example-sqlite:////tmp/database-name-on-your-choice'
+
     :prop _backend: mapping(schema, class) of all registered backends
     :type _backend: dictonary
     :prop _active_backend: current active backend

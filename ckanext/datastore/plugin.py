@@ -18,6 +18,7 @@ from ckanext.datastore.backend import (
     DatastoreBackend
 )
 from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
+from ckanext.datastore.backend.example import DatastoreExampleSqliteBackend
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -58,7 +59,8 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def register_backends(self):
         return {
-            'postgresql': DatastorePostgresqlBackend
+            'postgresql': DatastorePostgresqlBackend,
+            'example-sqlite': DatastoreExampleSqliteBackend
         }
 
     # IConfigurer
