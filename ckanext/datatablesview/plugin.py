@@ -6,6 +6,9 @@ from ckan.common import json
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 
+default = toolkit.get_validator(u'default')
+boolean_validator = toolkit.get_validator(u'boolean_validator')
+
 
 class DataTablesView(p.SingletonPlugin):
     '''
@@ -29,14 +32,21 @@ class DataTablesView(p.SingletonPlugin):
     def view_template(self, context, data_dict):
         return u'datatables/datatables_view.html'
 
+    def form_template(self, context, data_dict):
+        return u'datatables/datatables_form.html'
+
     def info(self):
-        return {u'name': u'datatables_view',
-                u'title': u'Table',
-                u'filterable': True,
-                u'icon': u'table',
-                u'requires_datastore': True,
-                u'default_title': p.toolkit._(u'Table'),
-                }
+        return {
+            u'name': u'datatables_view',
+            u'title': u'Table',
+            u'filterable': True,
+            u'icon': u'table',
+            u'requires_datastore': True,
+            u'default_title': p.toolkit._(u'Table'),
+            u'schema': {
+                u'responsive': [default(False), boolean_validator],
+            }
+        }
 
     def before_map(self, m):
         m.connect(

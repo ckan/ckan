@@ -1,0 +1,9 @@
+{% import 'macros/form.html' as form %}
+
+{{ form.checkbox(
+  'responsive',
+  id='field-responsive',
+  label=_('Responsive display'),
+  value='True',
+  checked=data.responsive,
+  ) }}
