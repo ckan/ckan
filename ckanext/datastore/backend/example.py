@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import re
 import logging
 from sqlalchemy import create_engine
 
@@ -32,7 +31,6 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
                 )
             pass
 
-
     def configure(self, config):
         self.write_url = config.get(
             'ckan.datastore.write_url').replace('example-', '')
@@ -56,7 +54,7 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
     def delete(self, context, data_dict):
         engine = self._get_engine()
-        result = engine.execute('DROP TABLE IF EXISTS "{0}"'.format(
+        engine.execute('DROP TABLE IF EXISTS "{0}"'.format(
             data_dict['resource_id']
         ))
         return data_dict
@@ -70,7 +68,15 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
         data_dict['records'] = map(dict, result.fetchall())
         data_dict['total'] = len(data_dict['records'])
-        data_dict['fields'] = self.resource_fields(data_dict['resource_id'])
+
+        fields_info = []
+        for name, type in self.resource_fields(
+                data_dict['resource_id'])['schema'].items():
+            fields_info.append({
+                'type': type,
+                'id': name
+            })
+        data_dict['fields'] = fields_info
         return data_dict
 
     def search_sql(self, context, data_dict):
@@ -91,19 +97,13 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
         ).fetchone()
 
     def resource_fields(self, id):
-        result = []
         engine = self._get_engine()
         info = engine.execute('PRAGMA table_info("{0}")'.format(id)).fetchall()
 
+        schema = {}
         for col in info:
-            result.append({
-                'type': col.type,
-                'id': col.name
-            })
-        return result
-
-    def resource_info(self, id):
-        raise NotImplementedError()
+            schema[col.name] = col.type
+        return {'schema': schema, 'meta': {}}
 
     def resource_id_from_alias(self, alias):
         if self.resource_exists(alias):

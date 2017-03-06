@@ -108,14 +108,21 @@ class DatastoreBackend:
         """Create new resourct inside datastore.
 
         Called by `datastore_create`.
-        """
 
+        :param data_dict: See `ckanext.datastore.logic.action.datastore_create`
+        :returns: The newly created data object
+        :rtype: dictonary
+        """
         raise NotImplementedError()
 
     def upsert(self, context, data_dict):
         """Update or create resource depending on data_dict param.
 
         Called by `datastore_upsert`.
+
+        :param data_dict: See `ckanext.datastore.logic.action.datastore_upsert`
+        :returns: The modified data object
+        :rtype: dictonary
         """
         raise NotImplementedError()
 
@@ -123,6 +130,10 @@ class DatastoreBackend:
         """Remove resource from datastore.
 
         Called by `datastore_delete`.
+
+        :param data_dict: See `ckanext.datastore.logic.action.datastore_delete`
+        :returns: Original filters sent.
+        :rtype: dictonary
         """
         raise NotImplementedError()
 
@@ -130,6 +141,23 @@ class DatastoreBackend:
         """Base search.
 
         Called by `datastore_search`.
+
+        :param data_dict: See `ckanext.datastore.logic.action.datastore_search`
+        :rtype: dictonary with following keys
+
+        :param fields: fields/columns and their extra metadata
+        :type fields: list of dictionaries
+        :param offset: query offset value
+        :type offset: int
+        :param limit: query limit value
+        :type limit: int
+        :param filters: query filters
+        :type filters: list of dictionaries
+        :param total: number of total matching records
+        :type total: int
+        :param records: list of matching results
+        :type records: list of dictionaries
+
         """
         raise NotImplementedError()
 
@@ -137,6 +165,14 @@ class DatastoreBackend:
         """Advanced search.
 
         Called by `datastore_search_sql`.
+        :param sql: a single seach statement
+        :type sql: string
+
+        :rtype: dictonary
+        :param fields: fields/columns and their extra metadata
+        :type fields: list of dictionaries
+        :param records: list of matching results
+        :type records: list of dictionaries
         """
         raise NotImplementedError()
 
@@ -144,6 +180,8 @@ class DatastoreBackend:
         """Do not display resource in search results.
 
         Called by `datastore_make_private`.
+        :param resource_id: id of resource that should become private
+        :type resource_id: string
         """
         raise NotImplementedError()
 
@@ -151,6 +189,8 @@ class DatastoreBackend:
         """Enable serch for resource.
 
         Called by `datastore_make_public`.
+        :param resource_id: id of resource that should become public
+        :type resource_id: string
         """
         raise NotImplementedError()
 
@@ -163,7 +203,7 @@ class DatastoreBackend:
         """Return dictonary with resource description.
 
         Called by `datastore_info`.
-        :returns: dictonary with nested dicts `schema` and `meta`
+        :returns: A dictionary describing the columns and their types.
         """
         raise NotImplementedError()
 
@@ -174,10 +214,19 @@ class DatastoreBackend:
 
     def resource_id_from_alias(self, alias):
         """Convert resource's alias to real id.
+
+        :param alias: resource's alias or id
+        :type alias: string
+        :returns: real id of resource
+        :rtype: string
+
         """
         raise NotImplementedError()
 
     def get_all_ids(self):
         """Return id of all resource registered in datastore.
+
+        :returns: all resources ids
+        :rtype: list of strings
         """
         raise NotImplementedError()
