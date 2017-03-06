@@ -924,6 +924,7 @@ def validate(context, data_dict):
     del data_dict_copy['connection_url']
     del data_dict_copy['resource_id']
     data_dict_copy.pop('id', None)
+    data_dict_copy.pop('include_total', None)
 
     for key, values in data_dict_copy.iteritems():
         if not values:
@@ -993,7 +994,20 @@ def search_data(context, data_dict):
     results = _execute_single_statement(context, sql_string, where_values)
 
     _insert_links(data_dict, limit, offset)
-    return format_results(context, results, data_dict)
+    r = format_results(context, results, data_dict)
+
+    if data_dict.get('include_total', True):
+        count_sql_string = u'''SELECT {distinct} count(*)
+            FROM "{resource}" {ts_query} {where};'''.format(
+            distinct=distinct,
+            resource=resource_id,
+            ts_query=ts_query,
+            where=where_clause)
+        count_result = _execute_single_statement(
+            context, count_sql_string, where_values)
+        data_dict['total'] = count_result.fetchall()[0][0]
+
+    return r
 
 
 def _execute_single_statement(context, sql_string, where_values):
@@ -1014,14 +1028,10 @@ def format_results(context, results, data_dict):
             'id': field[0].decode('utf-8'),
             'type': _get_type(context, field[1])
         })
-    if len(result_fields) and result_fields[-1]['id'] == '_full_count':
-        result_fields.pop()  # remove _full_count
 
     records = []
     for row in results:
         converted_row = {}
-        if '_full_count' in row:
-            data_dict['total'] = row['_full_count']
         for field in result_fields:
             converted_row[field['id']] = convert(row[field['id']],
                                                  field['type'])
