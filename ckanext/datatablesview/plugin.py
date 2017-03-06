@@ -50,7 +50,7 @@ class DataTablesView(p.SingletonPlugin):
 
     def before_map(self, m):
         m.connect(
-            u'/datatables/ajax/{resource_id}',
+            u'/datatables/ajax/{resource_view_id}',
             controller=u'ckanext.datatablesview.controller'
                        u':DataTablesController',
             action=u'ajax')

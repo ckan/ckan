@@ -33,8 +33,8 @@ $(document).ready(function() {
       serverSide: true,
       processing: true,
       ajax: {
-        url: "/datatables/ajax/{{ resource.id }}",
-        type: "POST"
+        url: "/datatables/ajax/{{ resource_view.id }}",
+        type: "GET"
       },
       responsive: {{
         'true' if resource_view.get('responsive') else 'false' }},

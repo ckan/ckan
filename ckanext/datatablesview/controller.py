@@ -6,7 +6,10 @@ from ckan.plugins.toolkit import BaseController, request, get_action
 
 
 class DataTablesController(BaseController):
-    def ajax(self, resource_id):
+    def ajax(self, resource_view_id):
+        resource_view = get_action(u'resource_view_show')(
+            None, {u'id': resource_view_id})
+
         draw = int(request.params['draw'])
         search_text = unicode(request.params['search[value]'])
         offset = int(request.params['start'])
@@ -18,8 +21,9 @@ class DataTablesController(BaseController):
 
         datastore_search = get_action(u'datastore_search')
         unfiltered_response = datastore_search(None, {
-            u"resource_id": resource_id,
-            u"limit": 1,
+            u"resource_id": resource_view[u'resource_id'],
+            u"limit": 0,
+            u"filters": resource_view.get(u'filters', {}),
         })
 
         cols = [f['id'] for f in unfiltered_response['fields']]
@@ -27,10 +31,11 @@ class DataTablesController(BaseController):
 
         response = datastore_search(None, {
             u"q": search_text,
-            u"resource_id": resource_id,
+            u"resource_id": resource_view[u'resource_id'],
             u"offset": offset,
             u"limit": limit,
             u"sort": sort_str,
+            u"filters": resource_view.get(u'filters', {}),
         })
 
         return json.dumps({
