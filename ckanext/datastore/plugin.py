@@ -364,8 +364,10 @@ class DatastorePlugin(p.SingletonPlugin):
         sort = self._sort(data_dict, fields_types)
         where = self._where(data_dict, fields_types)
 
-        select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
-                      [u'count(*) over() as "_full_count" %s' % rank_column]
+        select_cols = [
+            datastore_helpers.identifier(field_id) for field_id in field_ids]
+        if rank_column:
+            select_cols.append(rank_column)
 
         query_dict['distinct'] = data_dict.get('distinct', False)
         query_dict['select'] += select_cols
@@ -472,7 +474,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 rank_columns.append(rank)
 
         statements_str = ', ' + ', '.join(statements)
-        rank_columns_str = ', ' + ', '.join(rank_columns)
+        rank_columns_str = ', '.join(rank_columns)
         return statements_str, rank_columns_str
 
     def _fts_lang(self, lang=None):
