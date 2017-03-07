@@ -10,6 +10,7 @@ from sqlalchemy import (
     ForeignKey,
     desc,
     or_,
+    and_,
     union_all
 )
 
@@ -192,25 +193,29 @@ def _group_activity_query(group_id):
 
     q = model.Session.query(
         model.Activity
-    ).join(
+    ).outerjoin(
         model.Member,
-        model.Activity.object_id == model.Member.table_id
-    ).join(
+        and_(
+            model.Activity.object_id == model.Member.table_id,
+            model.Member.state == 'active'
+        )
+    ).outerjoin(
         model.Package,
-        model.Package.id == model.Member.table_id
+        and_(
+            model.Package.id == model.Member.table_id,
+            model.Package.private == False,
+            model.Package.state == 'active'
+        )
     ).filter(
         # We only care about activity either on the the group itself or on
         # packages within that group.
         # FIXME: This means that activity that occured while a package belonged
         # to a group but was then removed will not show up. This may not be
-        # desired.
+        # desired but is consistent with legacy behaviour.
         or_(
             model.Member.group_id == group_id,
             model.Activity.object_id == group_id
         ),
-        model.Member.state == 'active',
-        model.Member.table_name == 'package',
-        model.Package.private == False
     )
 
     return q
