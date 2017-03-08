@@ -829,7 +829,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                                  u'b\xfck': u'annakarenina',
                                  u'nested': [u'b', {u'moo': u'moo'}],
                                  u'published': u'2005-03-01T00:00:00'},
-                                {u'_full_text': [u"'tolstoy'", u"'warandpeac'",
+                                {u'_full_text': [u"'tolstoy'", u"'warandpeace'",
                                                  u"'b'"],
                                  u'_id': 2,
                                  u'author': u'tolstoy',
