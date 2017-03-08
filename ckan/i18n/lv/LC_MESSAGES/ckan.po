@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-10-18 10:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2016\n"
+"Last-Translator: Gatis Zeiris <gatis@dsistemas.lv>, 2016\n"
 "Language-Team: Latvian (https://www.transifex.com/okfn/teams/11162/lv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -26,15 +26,15 @@ msgstr "Autorizācijas grupa nav atrasta: %s"
 
 #: ckan/authz.py:191 ckan/templates/header.html:14
 msgid "Admin"
-msgstr ""
+msgstr "Administrators"
 
 #: ckan/authz.py:195
 msgid "Editor"
-msgstr ""
+msgstr "Redaktors"
 
 #: ckan/authz.py:199
 msgid "Member"
-msgstr ""
+msgstr "Biedrs"
 
 #: ckan/controllers/admin.py:34
 msgid "Need to be system administrator to administer"
@@ -42,19 +42,19 @@ msgstr "Jābūt sistēmas administratoram, lai to pārvaldītu"
 
 #: ckan/controllers/admin.py:50
 msgid "Site Title"
-msgstr ""
+msgstr "Lapas nosaukums"
 
 #: ckan/controllers/admin.py:51
 msgid "Style"
-msgstr ""
+msgstr "Stils"
 
 #: ckan/controllers/admin.py:52
 msgid "Site Tag Line"
-msgstr ""
+msgstr "Lapas birkas līnija"
 
 #: ckan/controllers/admin.py:53
 msgid "Site Tag Logo"
-msgstr ""
+msgstr "Lapas birkas logo"
 
 #: ckan/controllers/admin.py:54 ckan/templates/group/about.html:3
 #: ckan/templates/group/read_base.html:19 ckan/templates/header.html:106
@@ -67,27 +67,27 @@ msgstr "Par"
 
 #: ckan/controllers/admin.py:54
 msgid "About page text"
-msgstr ""
+msgstr "Par lapas tekstu"
 
 #: ckan/controllers/admin.py:55
 msgid "Intro Text"
-msgstr ""
+msgstr "Ievadteksts"
 
 #: ckan/controllers/admin.py:55
 msgid "Text on home page"
-msgstr ""
+msgstr "Teksts sākuma lapā"
 
 #: ckan/controllers/admin.py:56
 msgid "Custom CSS"
-msgstr ""
+msgstr "Pielāgots CSS"
 
 #: ckan/controllers/admin.py:56
 msgid "Customisable css inserted into the page header"
-msgstr ""
+msgstr "Pielāgojams css ievietots lappuses galvenē"
 
 #: ckan/controllers/admin.py:57
 msgid "Homepage"
-msgstr ""
+msgstr "Sākumlapa"
 
 #: ckan/controllers/admin.py:160
 #, python-format
@@ -95,21 +95,21 @@ msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
 msgstr ""
-"Nevar iztīrīg paketi %s, jo saistītās izmaiņas %s iekļauj neizdzēstas "
+"Nevar iztīrīt paketi %s, jo saistītās izmaiņas %s iekļauj neizdzēstas "
 "paketes %s"
 
 #: ckan/controllers/admin.py:182
 #, python-format
 msgid "Problem purging revision %s: %s"
-msgstr ""
+msgstr "Problēmas attīrot izmaiņas %s: %s"
 
 #: ckan/controllers/admin.py:184
 msgid "Purge complete"
-msgstr "Tīrīšana pabeigta"
+msgstr "Attīrīšana pabeigta"
 
 #: ckan/controllers/admin.py:186
 msgid "Action not implemented."
-msgstr "Darbība nav veikta."
+msgstr "Darbība nav ieviesta."
 
 #: ckan/controllers/api.py:62 ckan/controllers/group.py:166
 #: ckan/controllers/home.py:28 ckan/controllers/package.py:144
@@ -153,7 +153,7 @@ msgstr "JSON kļūda: %s"
 #: ckan/controllers/api.py:195
 #, python-format
 msgid "Bad request data: %s"
-msgstr ""
+msgstr "Slikti pieprasījuma dati: %s"
 
 #: ckan/controllers/api.py:298
 #, python-format
@@ -168,7 +168,7 @@ msgstr "Nevar nolasīt šāda tipa vienību: %s"
 #: ckan/controllers/api.py:365
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
-msgstr ""
+msgstr "Nevar izveidot šāda tipa vienību: %s %s"
 
 #: ckan/controllers/api.py:398
 msgid "Unable to add package to search index"
@@ -200,6 +200,7 @@ msgstr "Nav izmaiņu ar šādu identifikatoru: %s"
 #: ckan/controllers/api.py:512
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
 msgstr ""
+"Trūkst meklēšanas termins ('since_id=UUID' vai 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:524
 #, python-format
@@ -209,7 +210,7 @@ msgstr "Nevarēja nolasīt parametrus: %r"
 #: ckan/controllers/api.py:585
 #, python-format
 msgid "Bad search option: %s"
-msgstr ""
+msgstr "Slikts meklēšanas parametrs: %s"
 
 #: ckan/controllers/api.py:588
 #, python-format
@@ -219,11 +220,11 @@ msgstr "Nezināms reģistrs: %s"
 #: ckan/controllers/api.py:597
 #, python-format
 msgid "Malformed qjson value: %r"
-msgstr ""
+msgstr "Izkropļota qjson vērtība: %r"
 
 #: ckan/controllers/api.py:607
 msgid "Request params must be in form of a json encoded dictionary."
-msgstr ""
+msgstr "Pieprasījuma parametriem ir jābūt json kodētās vārdnīcas formā."
 
 #: ckan/controllers/feed.py:227 ckan/controllers/group.py:138
 #: ckan/controllers/group.py:225 ckan/controllers/group.py:401
@@ -235,15 +236,15 @@ msgstr ""
 #: ckan/controllers/group.py:925 ckan/controllers/package.py:1251
 #: ckan/controllers/package.py:1266 ckan/logic/action/create.py:1384
 msgid "Group not found"
-msgstr "Grupa nav atrasta"
+msgstr "Tēma nav atrasta"
 
 #: ckan/controllers/feed.py:238 ckan/logic/action/create.py:1384
 msgid "Organization not found"
-msgstr ""
+msgstr "Organizācija nav atrasta"
 
 #: ckan/controllers/group.py:140 ckan/controllers/group.py:586
 msgid "Incorrect group type"
-msgstr ""
+msgstr "Nepareizs tēmas tips"
 
 #: ckan/controllers/group.py:306 ckan/controllers/home.py:69
 #: ckan/controllers/package.py:241 ckan/lib/helpers.py:803
@@ -256,7 +257,7 @@ msgstr ""
 #: ckan/templates/organization/read_base.html:6
 #: ckan/templates/package/base.html:14
 msgid "Organizations"
-msgstr ""
+msgstr "Organizācijas"
 
 #: ckan/controllers/group.py:307 ckan/controllers/home.py:70
 #: ckan/controllers/package.py:242 ckan/lib/helpers.py:804
@@ -269,7 +270,7 @@ msgstr ""
 #: ckan/templates/package/read_base.html:20
 #: ckan/templates/revision/diff.html:16 ckan/templates/revision/read.html:84
 msgid "Groups"
-msgstr ""
+msgstr "Tēmas"
 
 #: ckan/controllers/group.py:308 ckan/controllers/home.py:71
 #: ckan/controllers/package.py:243 ckan/lib/helpers.py:805
@@ -279,32 +280,32 @@ msgstr ""
 #: ckan/templates/tag/index.html:3 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:12
 msgid "Tags"
-msgstr ""
+msgstr "Birkas"
 
 #: ckan/controllers/group.py:309 ckan/controllers/home.py:72
 #: ckan/controllers/package.py:244 ckan/lib/helpers.py:806
 msgid "Formats"
-msgstr ""
+msgstr "Formāti"
 
 #: ckan/controllers/group.py:310 ckan/controllers/home.py:73
 #: ckan/controllers/package.py:245 ckan/lib/helpers.py:807
 msgid "Licenses"
-msgstr ""
+msgstr "Licences"
 
 #: ckan/controllers/group.py:448
 msgid "Not authorized to perform bulk update"
-msgstr ""
+msgstr "Nav atļauts veikt masu atjaunošanu"
 
 #: ckan/controllers/group.py:466
 msgid "Unauthorized to create a group"
-msgstr "Nav tiesību izveidot grupu"
+msgstr "Nav tiesību izveidot tēmu"
 
 #: ckan/controllers/group.py:518 ckan/controllers/package.py:333
 #: ckan/controllers/package.py:780 ckan/controllers/package.py:1396
 #: ckan/controllers/package.py:1430
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr "Lietotājs %r nav tiesīgs mainīt %s"
+msgstr "Lietotājs %r nav tiesīgs rediģēt %s"
 
 #: ckan/controllers/group.py:544 ckan/controllers/group.py:574
 #: ckan/controllers/package.py:935 ckan/controllers/package.py:983
@@ -316,39 +317,39 @@ msgstr "Viengabalainības kļūda"
 #: ckan/controllers/group.py:600
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
-msgstr "Lietotājam %r nav tiesību mainīt %s autorizācijas"
+msgstr "Lietotājam %r nav tiesību rediģēt %s autorizācijas"
 
 #: ckan/controllers/group.py:620 ckan/controllers/group.py:635
 #, python-format
 msgid "Unauthorized to delete group %s"
-msgstr ""
+msgstr "Nav tiesību dzēst tēmu %s"
 
 #: ckan/controllers/group.py:626
 msgid "Organization has been deleted."
-msgstr ""
+msgstr "Organizācija ir izdzēsta."
 
 #: ckan/controllers/group.py:628
 msgid "Group has been deleted."
-msgstr ""
+msgstr "Tēma ir izdzēsta."
 
 #: ckan/controllers/group.py:630
 #, python-format
 msgid "%s has been deleted."
-msgstr ""
+msgstr "%s ir izdzēsta."
 
 #: ckan/controllers/group.py:704
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr ""
+msgstr "Nav tiesību pievienot biedru tēmai %s"
 
 #: ckan/controllers/group.py:723 ckan/controllers/group.py:736
 #, python-format
 msgid "Unauthorized to delete group %s members"
-msgstr ""
+msgstr "Nav tiesību dzēst tēmas %s biedrus"
 
 #: ckan/controllers/group.py:730
 msgid "Group member has been deleted."
-msgstr ""
+msgstr "Tēmas biedrs ir izdzēsta."
 
 #: ckan/controllers/group.py:754 ckan/controllers/package.py:421
 msgid "Select two revisions before doing the comparison."
@@ -356,11 +357,11 @@ msgstr "Atzīmē divas izmaiņas pirms salīdzināšanas."
 
 #: ckan/controllers/group.py:778
 msgid "CKAN Group Revision History"
-msgstr "CKAN Grupas izmaiņu vēsture"
+msgstr "CKAN tēmas izmaiņu vēsture"
 
 #: ckan/controllers/group.py:782
 msgid "Recent changes to CKAN Group: "
-msgstr "Nesenas izmaiņas CKAN grupā:"
+msgstr "Nesenās izmaiņas CKAN tēmā:"
 
 #: ckan/controllers/group.py:803 ckan/controllers/package.py:472
 msgid "Log message: "
@@ -369,39 +370,41 @@ msgstr "Žurnāla ieraksts:"
 #: ckan/controllers/group.py:853 ckan/controllers/package.py:1179
 #: ckan/controllers/user.py:715
 msgid "You are now following {0}"
-msgstr ""
+msgstr "Tagad jūs sekojat {0}"
 
 #: ckan/controllers/group.py:873 ckan/controllers/package.py:1198
 #: ckan/controllers/user.py:735
 msgid "You are no longer following {0}"
-msgstr ""
+msgstr "Tagad jūs vairs nesekojat {0}"
 
 #: ckan/controllers/group.py:893 ckan/controllers/user.py:580
 #, python-format
 msgid "Unauthorized to view followers %s"
-msgstr ""
+msgstr "Nav tiesību skatīties sekjotājus %s"
 
 #: ckan/controllers/home.py:36
 msgid "This site is currently off-line. Database is not initialised."
-msgstr ""
+msgstr "Šī vietne pašlaik atrodas bezsaistē. Notiek databāzes inicializācija."
 
 #: ckan/controllers/home.py:81
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr ""
+"Lūdzu <a href=\"%s\">atjaunojiet savu profilu</a> un pievienojiet savu "
+"epasta adresi."
 
 #: ckan/controllers/home.py:83
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr "%s izmanto tavu epastu, ja nepieciešams atiestatīt tavu paroli."
+msgstr "%s izmanto savu epastu, ja nepieciešams atiestatīt savu paroli."
 
 #: ckan/controllers/package.py:290
 msgid "Invalid search query: {error_message}"
-msgstr ""
+msgstr "Nederīgs meklēšanas vaicājums: {error_message}"
 
 #: ckan/controllers/package.py:307
 msgid "Parameter \"{parameter_name}\" is not an integer"
-msgstr ""
+msgstr "Parametrs \"{parameter_name}\" nav vesels skaitlis"
 
 #: ckan/controllers/package.py:331 ckan/controllers/package.py:339
 #: ckan/controllers/package.py:377 ckan/controllers/package.py:441
@@ -419,20 +422,22 @@ msgstr "Datu kopa nav atrasta"
 #: ckan/controllers/package.py:369
 #, python-format
 msgid "Invalid revision format: %r"
-msgstr "Nederīgs pārmaiņu formāts: %r"
+msgstr "Nederīgs izmaiņu formāts: %r"
 
 #: ckan/controllers/package.py:402
 msgid ""
 "Viewing {package_type} datasets in {format} format is not supported "
 "(template file {file} not found)."
 msgstr ""
+"Datu kopu {package_type} apskate datu formātā {format} netiek atbalstīta "
+"(veidnes fails {file} nav atrasts)."
 
 #: ckan/controllers/package.py:439 ckan/controllers/package.py:830
 #: ckan/controllers/package.py:931 ckan/controllers/package.py:979
 #: ckan/controllers/package.py:1225
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr "Lietotājs %s nav tiesīgs izveidot autorizācijas grupu"
+msgstr "Nav tiesības lasīt paketi %s"
 
 #: ckan/controllers/package.py:448
 msgid "CKAN Dataset Revision History"
@@ -440,15 +445,15 @@ msgstr "CKAN datu kopas izmaiņu vēsture"
 
 #: ckan/controllers/package.py:451
 msgid "Recent changes to CKAN Dataset: "
-msgstr "Nesenas izmaiņas CKAN datu kopā:"
+msgstr "Nesenās izmaiņas CKAN datu kopā:"
 
 #: ckan/controllers/package.py:507
 msgid "Unauthorized to create a package"
-msgstr "Lietotājs nav tiesīgs mainīt autorizācijas grupas tiesības"
+msgstr "Nav tiesības izveidot paketi"
 
 #: ckan/controllers/package.py:577
 msgid "Unauthorized to edit this resource"
-msgstr ""
+msgstr "Nav tiesības rediģēt šo resursu"
 
 #: ckan/controllers/package.py:600 ckan/controllers/package.py:1062
 #: ckan/controllers/package.py:1082 ckan/controllers/package.py:1149
@@ -461,28 +466,28 @@ msgstr "Resurss nav atrasts"
 
 #: ckan/controllers/package.py:654
 msgid "Unauthorized to update dataset"
-msgstr ""
+msgstr "Nav tiesības atjaunot datu kopu"
 
 #: ckan/controllers/package.py:656 ckan/controllers/package.py:693
 #: ckan/controllers/package.py:722
 msgid "The dataset {id} could not be found."
-msgstr ""
+msgstr "Nevar atrast datu kopu {id}."
 
 #: ckan/controllers/package.py:660
 msgid "You must add at least one data resource"
-msgstr ""
+msgstr "Jums ir jāpievieno vismaz viens datu resurss."
 
 #: ckan/controllers/package.py:668 ckanext/datapusher/helpers.py:24
 msgid "Error"
-msgstr ""
+msgstr "Kļūda"
 
 #: ckan/controllers/package.py:691
 msgid "Unauthorized to create a resource"
-msgstr ""
+msgstr "Nav tiesību izveidot resursu"
 
 #: ckan/controllers/package.py:727
 msgid "Unauthorized to create a resource for this package"
-msgstr ""
+msgstr "Nav tiesību izveidot resursu šai paketei"
 
 #: ckan/controllers/package.py:941
 msgid "Unable to add package to search index."
@@ -490,88 +495,88 @@ msgstr "Nevar pievienot paketi meklēšanas indeksam."
 
 #: ckan/controllers/package.py:989
 msgid "Unable to update search index."
-msgstr ""
+msgstr "Nevar atjaunot meklēšanas indeksu."
 
 #: ckan/controllers/package.py:1026
 msgid "Dataset has been deleted."
-msgstr ""
+msgstr "Datu kopa ir izdzēsta."
 
 #: ckan/controllers/package.py:1031 ckan/controllers/package.py:1049
 #, python-format
 msgid "Unauthorized to delete package %s"
-msgstr ""
+msgstr "Nav tiesību dzēst paketi %s"
 
 #: ckan/controllers/package.py:1054
 msgid "Resource has been deleted."
-msgstr ""
+msgstr "Resurss tika izdzēsts."
 
 #: ckan/controllers/package.py:1060
 #, python-format
 msgid "Unauthorized to delete resource %s"
-msgstr ""
+msgstr "Nav tiesību dzēst resursu %s"
 
 #: ckan/controllers/package.py:1119 ckan/controllers/package.py:1563
 msgid "Resource view not found"
-msgstr ""
+msgstr "Resursa skats nav atrasts"
 
 #: ckan/controllers/package.py:1158
 msgid "Resource data not found"
-msgstr ""
+msgstr "Resursa dati nav atrasti"
 
 #: ckan/controllers/package.py:1167
 msgid "No download is available"
-msgstr ""
+msgstr "Lejupielāde nav pieejama"
 
 #: ckan/controllers/package.py:1305
 #, python-format
 msgid "Unauthorized to read dataset %s"
-msgstr ""
+msgstr "Nav tiesību lasīt datu kopu %s"
 
 #: ckan/controllers/package.py:1413
 #, python-format
 msgid "Unauthorized to read resource %s"
-msgstr ""
+msgstr "Nav tiesību lasīt resursu %s"
 
 #: ckan/controllers/package.py:1477
 msgid "Unauthorized to edit resource"
-msgstr ""
+msgstr "Nav tiesību rediģēt resursu"
 
 #: ckan/controllers/package.py:1495
 msgid "View not found"
-msgstr ""
+msgstr "Skats nav atrasts"
 
 #: ckan/controllers/package.py:1501
 msgid "View Type Not found"
-msgstr ""
+msgstr "Skata tips nav atrasts"
 
 #: ckan/controllers/package.py:1557
 msgid "Bad resource view data"
-msgstr ""
+msgstr "Slikti skata resursa dati "
 
 #: ckan/controllers/package.py:1566
 msgid "Resource view not supplied"
-msgstr ""
+msgstr "Resursu skats nav pieejams"
 
 #: ckan/controllers/package.py:1595
 msgid "No preview has been defined."
-msgstr ""
+msgstr "Priekšskatījums nav definēts."
 
 #: ckan/controllers/revision.py:44
 msgid "CKAN Repository Revision History"
-msgstr ""
+msgstr "CKAN repozitorija izmaiņu vēsture"
 
 #: ckan/controllers/revision.py:46
 msgid "Recent changes to the CKAN repository."
-msgstr "Nesenas izmaiņas CKAN repositārijā."
+msgstr "Nesenās izmaiņas CKAN repozitorijā."
 
 #: ckan/controllers/revision.py:110
 #, python-format
 msgid "Datasets affected: %s.\n"
-msgstr ""
+msgstr "Ietekmētās datu kopas: %s.\n"
 
 #: ckan/controllers/revision.py:190
 msgid "Revision updated"
-msgstr "Izmaiņu atjaunināšana"
+msgstr "Izmaiņas atjaunotas"
 
 #: ckan/controllers/tag.py:60
 msgid "Other"
@@ -579,7 +584,7 @@ msgstr "Cits"
 
 #: ckan/controllers/tag.py:74
 msgid "Tag not found"
-msgstr "Atzīme nav atrasta"
+msgstr "Birka nav atrasta"
 
 #: ckan/controllers/user.py:83 ckan/controllers/user.py:232
 #: ckan/controllers/user.py:247 ckan/controllers/user.py:314
@@ -590,7 +595,7 @@ msgstr "Lietotājs nav atrasts"
 
 #: ckan/controllers/user.py:161
 msgid "Unauthorized to register as a user."
-msgstr ""
+msgstr "Nav tiesību reģistrēties kā lietotājam."
 
 #: ckan/controllers/user.py:179
 msgid "Unauthorized to create a user"
@@ -598,7 +603,7 @@ msgstr "Nav tiesību izveidot lietotāju"
 
 #: ckan/controllers/user.py:210
 msgid "Unauthorized to delete user with id \"{user_id}\"."
-msgstr ""
+msgstr "Nav tiesības dzēst lietotāju ar id \"{user_id}\"."
 
 #: ckan/controllers/user.py:224 ckan/controllers/user.py:287
 msgid "No user specified"
@@ -608,7 +613,7 @@ msgstr "Nav norādīts neviens lietotājs"
 #: ckan/controllers/user.py:375 ckan/controllers/user.py:544
 #, python-format
 msgid "Unauthorized to edit user %s"
-msgstr "Nav tiesību mainīt lietotāju %s"
+msgstr "Nav tiesību rediģēt lietotāju %s"
 
 #: ckan/controllers/user.py:234 ckan/controllers/user.py:367
 msgid "Profile updated"
@@ -621,7 +626,7 @@ msgstr "Nav tiesību izveidot lietotāju %s"
 
 #: ckan/controllers/user.py:251
 msgid "Bad Captcha. Please try again."
-msgstr ""
+msgstr "Nepareizi norādīta \"Captcha\". Lūdzu mēģiniet vēlreiz."
 
 #: ckan/controllers/user.py:265
 #, python-format
@@ -629,42 +634,42 @@ msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
 msgstr ""
-"Lietotājs \"%s\" ir reģistrēts, bet tu vēljoprojām esi ienācis tāpat kā "
-"iepriekš kā \"%s\""
+"Lietotājs \"%s\" ir reģistrēts, bet joprojām lietotājs pieteicies sistēmā ar"
+" iepriekšējo lietotāju \"%s\""
 
 #: ckan/controllers/user.py:293
 msgid "Unauthorized to edit a user."
-msgstr ""
+msgstr "Nav tiesību rediģēt lietotāju."
 
 #: ckan/controllers/user.py:320
 #, python-format
 msgid "User %s not authorized to edit %s"
-msgstr "Lietotājam %s nav tiesību mainīt %s"
+msgstr "Lietotājam %s nav tiesību rediģēt %s"
 
 #: ckan/controllers/user.py:385
 msgid "Password entered was incorrect"
-msgstr ""
+msgstr "Ievadītā parole nav pareiza."
 
 #: ckan/controllers/user.py:386 ckan/templates/user/edit_user_form.html:29
 msgid "Old Password"
-msgstr ""
+msgstr "Iepriekšējā parole"
 
 #: ckan/controllers/user.py:386
 msgid "incorrect password"
-msgstr ""
+msgstr "nederīga parole"
 
 #: ckan/controllers/user.py:427
 msgid "Login failed. Bad username or password."
-msgstr ""
+msgstr "Autorizācija neveiksmīga. Nepareizs lietotājvārds vai parole."
 
 #: ckan/controllers/user.py:461
 msgid "Unauthorized to request reset password."
-msgstr ""
+msgstr "Nav tiesību lai pieprasītu paroles atjaunošanu."
 
 #: ckan/controllers/user.py:490
 #, python-format
 msgid "\"%s\" matched several users"
-msgstr "\"%s\" sakrīt ar vairākiem lietotājiem"
+msgstr "\"%s\" sakrīt ar citiem lietotājiem"
 
 #: ckan/controllers/user.py:492 ckan/controllers/user.py:494
 #, python-format
@@ -673,364 +678,364 @@ msgstr "Nav šāda lietotāja: %s"
 
 #: ckan/controllers/user.py:499
 msgid "Please check your inbox for a reset code."
-msgstr ""
+msgstr "Lūdzu, pārbaudiet savu iesūtni, lai atstatītu kodu."
 
 #: ckan/controllers/user.py:503
 #, python-format
 msgid "Could not send reset link: %s"
-msgstr ""
+msgstr "Neizdevās nosūtīt atiestatīšanas saiti: %s"
 
 #: ckan/controllers/user.py:516
 msgid "Unauthorized to reset password."
-msgstr ""
+msgstr "Nav tiesību, lai atjaunotu paroli."
 
 #: ckan/controllers/user.py:528
 msgid "Invalid reset key. Please try again."
-msgstr ""
+msgstr "Nederīga atiestatīšanas atslēga. Lūdzu mēģiniet vēlreiz."
 
 #: ckan/controllers/user.py:541
 msgid "Your password has been reset."
-msgstr ""
+msgstr "Jūsu parole ir nomainīta."
 
 #: ckan/controllers/user.py:562
 msgid "Your password must be 4 characters or longer."
-msgstr ""
+msgstr "Jūsu parolei ir jābūt vismaz 4 vai vairāk simbolus garai. "
 
 #: ckan/controllers/user.py:565
 msgid "The passwords you entered do not match."
-msgstr ""
+msgstr "Jūsu ievadītās paroles nesakrīt."
 
 #: ckan/controllers/user.py:568
 msgid "You must provide a password"
-msgstr ""
+msgstr "Jums ir jānorāda parole"
 
 #: ckan/controllers/user.py:636
 msgid "Follow item not found"
-msgstr ""
+msgstr "Sekošanas vienums nav atrasts"
 
 #: ckan/controllers/user.py:640
 msgid "{0} not found"
-msgstr ""
+msgstr "{0} nav atrasts"
 
 #: ckan/controllers/user.py:654
 msgid "Everything"
-msgstr ""
+msgstr "Viss"
 
 #: ckan/controllers/util.py:18 ckan/logic/action/__init__.py:62
 msgid "Missing Value"
-msgstr ""
+msgstr "Trūkstošā vērtība"
 
 #: ckan/controllers/util.py:23
 msgid "Redirecting to external site is not allowed."
-msgstr ""
+msgstr "Pārvietošanās uz ārēju vietni nav atļauta."
 
 #: ckan/lib/activity_streams.py:60
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} pievienota birka {tag} datu kopai {dataset}"
 
 #: ckan/lib/activity_streams.py:63
 msgid "{actor} updated the group {group}"
-msgstr ""
+msgstr "{actor} atjaunoja tēmu {group}"
 
 #: ckan/lib/activity_streams.py:66
 msgid "{actor} updated the organization {organization}"
-msgstr ""
+msgstr "{actor} atjaunoja organizāciju {organization}"
 
 #: ckan/lib/activity_streams.py:69
 msgid "{actor} updated the dataset {dataset}"
-msgstr ""
+msgstr "{actor} atjaunoja datu kopu {dataset}"
 
 #: ckan/lib/activity_streams.py:72
 msgid "{actor} changed the extra {extra} of the dataset {dataset}"
-msgstr ""
+msgstr "{actor} mainīja papildinājumu {extra} datu kopai {dataset}"
 
 #: ckan/lib/activity_streams.py:75
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
-msgstr ""
+msgstr "{actor} atjaunoja resursu {resource} datu kopā {dataset}"
 
 #: ckan/lib/activity_streams.py:78
 msgid "{actor} updated their profile"
-msgstr ""
+msgstr "{actor} atjaunoja savu profilu"
 
 #: ckan/lib/activity_streams.py:81
 msgid "{actor} deleted the group {group}"
-msgstr ""
+msgstr "{actor} izdzēsa tēmu {group}"
 
 #: ckan/lib/activity_streams.py:84
 msgid "{actor} deleted the organization {organization}"
-msgstr ""
+msgstr "{actor} izdzēsa organizāciju {organization}"
 
 #: ckan/lib/activity_streams.py:87
 msgid "{actor} deleted the dataset {dataset}"
-msgstr ""
+msgstr "{actor} izdzēsa datu kopu {dataset}"
 
 #: ckan/lib/activity_streams.py:90
 msgid "{actor} deleted the extra {extra} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} izdzēsa papildinājumu {extra} no datu kopas {dataset}"
 
 #: ckan/lib/activity_streams.py:93
 msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} izdzēsa resursu {resource} no datu kopas {dataset}"
 
 #: ckan/lib/activity_streams.py:97
 msgid "{actor} created the group {group}"
-msgstr ""
+msgstr "{actor} izveidoja tēmu {group}"
 
 #: ckan/lib/activity_streams.py:100
 msgid "{actor} created the organization {organization}"
-msgstr ""
+msgstr "{actor} izveidoja organizāciju {organization}"
 
 #: ckan/lib/activity_streams.py:103
 msgid "{actor} created the dataset {dataset}"
-msgstr ""
+msgstr "{actor} izveidoja datu kopu {dataset}"
 
 #: ckan/lib/activity_streams.py:106
 msgid "{actor} added the extra {extra} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} pievienoja papildinājumu {extra} datu kopai {dataset}"
 
 #: ckan/lib/activity_streams.py:109
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} pievienoja resursu {resource} datu kopai {dataset}"
 
 #: ckan/lib/activity_streams.py:112
 msgid "{actor} signed up"
-msgstr ""
+msgstr "{actor} pieteicās"
 
 #: ckan/lib/activity_streams.py:115
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} noņēma birku {tag} no datu kopas {dataset}"
 
 #: ckan/lib/activity_streams.py:118
 msgid "{actor} started following {dataset}"
-msgstr ""
+msgstr "{actor} uzsāka sakot {dataset}"
 
 #: ckan/lib/activity_streams.py:121
 msgid "{actor} started following {user}"
-msgstr ""
+msgstr "{actor} uzsāka sekot {user}"
 
 #: ckan/lib/activity_streams.py:124
 msgid "{actor} started following {group}"
-msgstr ""
+msgstr "{actor} uzsāka sekot {group}"
 
 #: ckan/lib/datapreview.py:265 ckan/templates/group/edit_base.html:16
 #: ckan/templates/organization/edit_base.html:17
 #: ckan/templates/package/resource_read.html:37
 #: ckan/templates/package/resource_views.html:4
 msgid "View"
-msgstr ""
+msgstr "Skats"
 
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{n} jaunas aktivitātes no {site_title}"
+msgstr[1] "{n} jauna aktivitāte no {site_title}"
+msgstr[2] "{n} jaunas aktivitātes no {site_title}"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
-msgstr ""
+msgstr "Janvāris"
 
 #: ckan/lib/formatters.py:23
 msgid "February"
-msgstr ""
+msgstr "Februāris"
 
 #: ckan/lib/formatters.py:27
 msgid "March"
-msgstr ""
+msgstr "Marts"
 
 #: ckan/lib/formatters.py:31
 msgid "April"
-msgstr ""
+msgstr "Aprīlis"
 
 #: ckan/lib/formatters.py:35
 msgid "May"
-msgstr ""
+msgstr "Maijs"
 
 #: ckan/lib/formatters.py:39
 msgid "June"
-msgstr ""
+msgstr "Jūnijs"
 
 #: ckan/lib/formatters.py:43
 msgid "July"
-msgstr ""
+msgstr "Jūlijs"
 
 #: ckan/lib/formatters.py:47
 msgid "August"
-msgstr ""
+msgstr "Augusts"
 
 #: ckan/lib/formatters.py:51
 msgid "September"
-msgstr ""
+msgstr "Septembris"
 
 #: ckan/lib/formatters.py:55
 msgid "October"
-msgstr ""
+msgstr "Oktobris"
 
 #: ckan/lib/formatters.py:59
 msgid "November"
-msgstr ""
+msgstr "Novembris"
 
 #: ckan/lib/formatters.py:63
 msgid "December"
-msgstr ""
+msgstr "Decembris"
 
 #: ckan/lib/formatters.py:116
 msgid "Just now"
-msgstr ""
+msgstr "Pašreiz"
 
 #: ckan/lib/formatters.py:118
 msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pirms {mins} minūtēm"
+msgstr[1] "pirms {mins} minūtēs"
+msgstr[2] "pirms {mins} minūtēm"
 
 #: ckan/lib/formatters.py:121
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pirms {hours} stundām"
+msgstr[1] "pirms {hours} stundas"
+msgstr[2] "pirms {hours} stundām"
 
 #: ckan/lib/formatters.py:127
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pirms {days} dienām"
+msgstr[1] "pirms {days} dienas"
+msgstr[2] "pirms {days} dienām"
 
 #: ckan/lib/formatters.py:130
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pirms {months} mēnešiem"
+msgstr[1] "pirms {months} mēneša"
+msgstr[2] "pirms {months} mēnešiem"
 
 #: ckan/lib/formatters.py:132
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pims {years} gadiem"
+msgstr[1] "pims {years} gada"
+msgstr[2] "pims {years} gadiem"
 
 #: ckan/lib/formatters.py:148
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr ""
+msgstr "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:153
 msgid "{month} {day}, {year}"
-msgstr ""
+msgstr "{month} {day}, {year}"
 
 #: ckan/lib/formatters.py:169
 msgid "{bytes} bytes"
-msgstr ""
+msgstr "{bytes} baiti"
 
 #: ckan/lib/formatters.py:171
 msgid "{kibibytes} KiB"
-msgstr ""
+msgstr "{kibibytes} KiB"
 
 #: ckan/lib/formatters.py:173
 msgid "{mebibytes} MiB"
-msgstr ""
+msgstr "{mebibytes} MiB"
 
 #: ckan/lib/formatters.py:175
 msgid "{gibibytes} GiB"
-msgstr ""
+msgstr "{gibibytes} GiB"
 
 #: ckan/lib/formatters.py:177
 msgid "{tebibytes} TiB"
-msgstr ""
+msgstr "{tebibytes} TiB"
 
 #: ckan/lib/formatters.py:189
 msgid "{n}"
-msgstr ""
+msgstr "{n}"
 
 #: ckan/lib/formatters.py:191
 msgid "{k}k"
-msgstr ""
+msgstr "{k}k"
 
 #: ckan/lib/formatters.py:193
 msgid "{m}M"
-msgstr ""
+msgstr "{m}M"
 
 #: ckan/lib/formatters.py:195
 msgid "{g}G"
-msgstr ""
+msgstr "{g}G"
 
 #: ckan/lib/formatters.py:197
 msgid "{t}T"
-msgstr ""
+msgstr "{t}T"
 
 #: ckan/lib/formatters.py:199
 msgid "{p}P"
-msgstr ""
+msgstr "{p}P"
 
 #: ckan/lib/formatters.py:201
 msgid "{e}E"
-msgstr ""
+msgstr "{e}E"
 
 #: ckan/lib/formatters.py:203
 msgid "{z}Z"
-msgstr ""
+msgstr "{z}Z"
 
 #: ckan/lib/formatters.py:205
 msgid "{y}Y"
-msgstr ""
+msgstr "{y}Y"
 
 #: ckan/lib/helpers.py:1018
 msgid "Update your avatar at gravatar.com"
-msgstr ""
+msgstr "Atjaunojiet savu avatāru gravatar.com"
 
 #: ckan/lib/helpers.py:1266 ckan/lib/helpers.py:1279
 msgid "Unknown"
-msgstr ""
+msgstr "Nezināms"
 
 #: ckan/lib/helpers.py:1330
 msgid "Unnamed resource"
-msgstr ""
+msgstr "Nenosaukts resurss"
 
 #: ckan/lib/helpers.py:1370
 msgid "Created new dataset."
-msgstr ""
+msgstr "Izveidota jauna datu kopa."
 
 #: ckan/lib/helpers.py:1372
 msgid "Edited resources."
-msgstr ""
+msgstr "Rediģētie resursi."
 
 #: ckan/lib/helpers.py:1374
 msgid "Edited settings."
-msgstr ""
+msgstr "Rediģētie iestatījumi."
 
 #: ckan/lib/helpers.py:1616
 msgid "{number} view"
 msgid_plural "{number} views"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} skatījumi"
+msgstr[1] "{number} skatījumi"
+msgstr[2] "{number} skatījums"
 
 #: ckan/lib/helpers.py:1618
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} nesenie skatījumi"
+msgstr[1] "{number} nesenie skatījumi"
+msgstr[2] "{number} nesenais skatījums"
 
 #: ckan/lib/mailer.py:39
 #, python-format
 msgid "%s <%s>"
-msgstr ""
+msgstr "%s <%s>"
 
 #: ckan/lib/mailer.py:109
 msgid "No recipient email address available!"
-msgstr ""
+msgstr "Nav pieejama saņēmēja epasta adrese!"
 
 #: ckan/lib/mailer.py:127 ckan/templates/home/snippets/stats.html:17
 msgid "organization"
-msgstr ""
+msgstr "organizācija"
 
 #: ckan/lib/mailer.py:128 ckan/templates/home/snippets/stats.html:23
 msgid "group"
-msgstr ""
+msgstr "tēma"
 
 #: ckan/lib/navl/dictization_functions.py:14
 #: ckan/lib/navl/dictization_functions.py:17
@@ -1043,16 +1048,16 @@ msgstr ""
 #: ckan/lib/navl/validators.py:32 ckan/lib/navl/validators.py:52
 #: ckan/logic/action/get.py:2045 ckan/logic/validators.py:606
 msgid "Missing value"
-msgstr ""
+msgstr "Trūkstoša vērtība"
 
 #: ckan/lib/navl/validators.py:66
 #, python-format
 msgid "The input field %(name)s was not expected."
-msgstr ""
+msgstr "Ievades lauks %(name)s netika gaidīts."
 
 #: ckan/lib/navl/validators.py:118
 msgid "Please enter an integer value"
-msgstr ""
+msgstr "Lūdzu ievadiet veselu skaitli"
 
 #: ckan/logic/__init__.py:97 ckan/logic/action/__init__.py:60
 #: ckan/templates/package/edit_base.html:21
@@ -1062,7 +1067,7 @@ msgstr ""
 #: ckan/templates/snippets/context/dataset.html:13
 #: ckanext/example_theme/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:15
 msgid "Resources"
-msgstr ""
+msgstr "Resursi"
 
 #: ckan/logic/__init__.py:97 ckan/logic/action/__init__.py:60
 msgid "Package resource(s) invalid"
@@ -1071,12 +1076,12 @@ msgstr "Paketes resurss(i) ir nederīgi"
 #: ckan/logic/__init__.py:104 ckan/logic/__init__.py:106
 #: ckan/logic/action/__init__.py:62 ckan/logic/action/__init__.py:64
 msgid "Extras"
-msgstr ""
+msgstr "Papildinājumi"
 
 #: ckan/logic/converters.py:74 ckan/logic/converters.py:89
 #, python-format
 msgid "Tag vocabulary \"%s\" does not exist"
-msgstr ""
+msgstr "Birkas vārdnīca \"%s\" neekistē"
 
 #: ckan/logic/converters.py:121 ckan/logic/validators.py:213
 #: ckan/logic/validators.py:230 ckan/logic/validators.py:705
@@ -1095,135 +1100,136 @@ msgstr "Datu kopa"
 #: ckan/logic/converters.py:171 ckan/logic/validators.py:243
 #: ckanext/stats/templates/ckanext/stats/index.html:113
 msgid "Group"
-msgstr "Grupa"
+msgstr "Tēma"
 
 #: ckan/logic/converters.py:180
 msgid "Could not parse as valid JSON"
-msgstr ""
+msgstr "Neizdevās parsēt kā derīgu JSON"
 
 #: ckan/logic/validators.py:32 ckan/logic/validators.py:41
 msgid "An organization must be provided"
-msgstr ""
+msgstr "Nepieciešams norādīt organizāciju"
 
 #: ckan/logic/validators.py:46
 msgid "Organization does not exist"
-msgstr ""
+msgstr "Organizācija neekistē"
 
 #: ckan/logic/validators.py:51
 msgid "You cannot add a dataset to this organization"
-msgstr ""
+msgstr "Jūs nevarat pievienot datu kopu šai organizācijai"
 
 #: ckan/logic/validators.py:91
 msgid "Invalid integer"
-msgstr ""
+msgstr "Nederīgs vesels skaitlis"
 
 #: ckan/logic/validators.py:96
 msgid "Must be a natural number"
-msgstr ""
+msgstr "Jābūt naturālam skaitlim"
 
 #: ckan/logic/validators.py:102
 msgid "Must be a postive integer"
-msgstr ""
+msgstr "Jābūt pozitīvam veselam skaitlim"
 
 #: ckan/logic/validators.py:129
 msgid "Date format incorrect"
-msgstr ""
+msgstr "Nederīgs datuma formāts"
 
 #: ckan/logic/validators.py:138
 msgid "No links are allowed in the log_message."
-msgstr "log_message tiešsaites nav atļautas"
+msgstr "Saites nav atļautas log_message."
 
 #: ckan/logic/validators.py:158
 msgid "Dataset id already exists"
-msgstr ""
+msgstr "Datu kopas id jau eksistē"
 
 #: ckan/logic/validators.py:199
 msgid "Resource"
-msgstr ""
+msgstr "Resurss"
 
 #: ckan/logic/validators.py:253
 msgid "That group name or ID does not exist."
-msgstr ""
+msgstr "Tēmas nosaukums vai ID neeksistē."
 
 #: ckan/logic/validators.py:267
 msgid "Activity type"
-msgstr ""
+msgstr "Darbības tips"
 
 #: ckan/logic/validators.py:330
 msgid "Names must be strings"
-msgstr ""
+msgstr "Nosaukumiem jābūt tekstam"
 
 #: ckan/logic/validators.py:334
 msgid "That name cannot be used"
-msgstr ""
+msgstr "Šāds nosaukums nevar tikt izmantots"
 
 #: ckan/logic/validators.py:337
 #, python-format
 msgid "Must be at least %s characters long"
-msgstr ""
+msgstr "Jābūt vismaz %s simbolus garam"
 
 #: ckan/logic/validators.py:339 ckan/logic/validators.py:622
 #, python-format
 msgid "Name must be a maximum of %i characters long"
-msgstr ""
+msgstr "Nosaukumam jābūt maksimāli %i simbolus garam"
 
 #: ckan/logic/validators.py:342
 msgid ""
 "Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
 "-_"
 msgstr ""
+"Jābūt tikai mazo burtu un ciparu (ASCII) simboliem un šādiem simboliem: -_"
 
 #: ckan/logic/validators.py:360
 msgid "That URL is already in use."
-msgstr ""
+msgstr "Šāds URL jau tiek izmantots"
 
 #: ckan/logic/validators.py:365
 #, python-format
 msgid "Name \"%s\" length is less than minimum %s"
-msgstr ""
+msgstr "Nosaukuma \"%s\" garums ir mazāks par minimālo garumu %s"
 
 #: ckan/logic/validators.py:369
 #, python-format
 msgid "Name \"%s\" length is more than maximum %s"
-msgstr ""
+msgstr "Nosaukuma \"%s\" garums ir lielāks par maksimālo garumu %s"
 
 #: ckan/logic/validators.py:375
 #, python-format
 msgid "Version must be a maximum of %i characters long"
-msgstr ""
+msgstr "Versijas garumam jabūt vismaz %i simbolus garam"
 
 #: ckan/logic/validators.py:393
 #, python-format
 msgid "Duplicate key \"%s\""
-msgstr ""
+msgstr "Atslēgas dublikāts \"%s\""
 
 #: ckan/logic/validators.py:409
 msgid "Group name already exists in database"
-msgstr ""
+msgstr "Šāds tēmas nosaukums jau eksistē datubāzē"
 
 #: ckan/logic/validators.py:415
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
-msgstr ""
+msgstr "Birkas \"%s\" garums ir mazāks par minimālo garumu %s"
 
 #: ckan/logic/validators.py:419
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
-msgstr ""
+msgstr "Birkas \"%s\" garums ir lielāks par maksimālo garumu %i"
 
 #: ckan/logic/validators.py:427
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr ""
+msgstr "Birka \"%s\" var saturēt burtu un ciparu simbolus vai simbolus: -_."
 
 #: ckan/logic/validators.py:435
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
-msgstr ""
+msgstr "Birka \"%s\" nevar būt ar lielajiem burtiem"
 
 #: ckan/logic/validators.py:544
 msgid "User names must be strings"
-msgstr ""
+msgstr "Lietotājvārdiem jābūt tekstam"
 
 #: ckan/logic/validators.py:560
 msgid "That login name is not available."
@@ -1231,124 +1237,127 @@ msgstr "Šis lietotājvārds nav pieejams."
 
 #: ckan/logic/validators.py:569
 msgid "Please enter both passwords"
-msgstr ""
+msgstr "Lūdzu ievadiet abas paroles"
 
 #: ckan/logic/validators.py:577
 msgid "Passwords must be strings"
-msgstr ""
+msgstr "Parolēm jābūt tekstam"
 
 #: ckan/logic/validators.py:581
 msgid "Your password must be 4 characters or longer"
-msgstr ""
+msgstr "Jūsu parolei ir jābūt vismaz 4 vai vairāk simbolus garai. "
 
 #: ckan/logic/validators.py:589
 msgid "The passwords you entered do not match"
-msgstr ""
+msgstr "Jūsu ievadītās paroles nesakrīt."
 
 #: ckan/logic/validators.py:610
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
 msgstr ""
+"Rediģēšana nav atļauta, jo tas izskatās pēc suragātteksta. Izvairieties no "
+"saitēm jūsu aprakstā."
 
 #: ckan/logic/validators.py:619
 #, python-format
 msgid "Name must be at least %s characters long"
-msgstr ""
+msgstr "Nosaukumam jābūt vismaz %s simbolus garam"
 
 #: ckan/logic/validators.py:627
 msgid "That vocabulary name is already in use."
-msgstr ""
+msgstr "Šāds vārdnīcas teksts jau tiek izmantots."
 
 #: ckan/logic/validators.py:633
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr ""
+msgstr "Nevar mainīt atslēgas vērtību no %s uz %s. Šī atslēga ir tikai lasāma"
 
 #: ckan/logic/validators.py:642
 msgid "Tag vocabulary was not found."
-msgstr ""
+msgstr "Birku vārdnīca nav atrasta"
 
 #: ckan/logic/validators.py:655
 #, python-format
 msgid "Tag %s does not belong to vocabulary %s"
-msgstr ""
+msgstr "Birka %s nepieder vārdnīcai %s"
 
 #: ckan/logic/validators.py:661
 msgid "No tag name"
-msgstr ""
+msgstr "Nav birkas nosaukuma"
 
 #: ckan/logic/validators.py:674
 #, python-format
 msgid "Tag %s already belongs to vocabulary %s"
-msgstr ""
+msgstr "Birka %s jau pieder vārdnīcai %s"
 
 #: ckan/logic/validators.py:697
 msgid "Please provide a valid URL"
-msgstr ""
+msgstr "Lūdzu norādiet derīgu URL"
 
 #: ckan/logic/validators.py:711
 msgid "role does not exist."
-msgstr ""
+msgstr "loma neeksistē."
 
 #: ckan/logic/validators.py:740
 msgid "Datasets with no organization can't be private."
-msgstr ""
+msgstr "Datu kopa bez organizācijas nevar būt privāta."
 
 #: ckan/logic/validators.py:746
 msgid "Not a list"
-msgstr ""
+msgstr "Nav saraksts"
 
 #: ckan/logic/validators.py:749
 msgid "Not a string"
-msgstr ""
+msgstr "Nav teksts"
 
 #: ckan/logic/validators.py:781
 msgid "This parent would create a loop in the hierarchy"
-msgstr ""
+msgstr "Šāds vienības vecāks radīs cilpu hierarhijā"
 
 #: ckan/logic/validators.py:791
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
-msgstr ""
+msgstr "\"filter_fields\" un \"filter_values\" jābūt ar vienādu garumu"
 
 #: ckan/logic/validators.py:802
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
-msgstr ""
+msgstr "\"filter_fields\" ir nepieciešamas, ja \"filter_values\" ir aizpildītas"
 
 #: ckan/logic/validators.py:805
 msgid "\"filter_values\" is required when \"filter_fields\" is filled"
-msgstr ""
+msgstr "\"filter_values\" ir nepieciešamas, ja \"filter_fields\" ir aizpildītas"
 
 #: ckan/logic/validators.py:819
 msgid "There is a schema field with the same name"
-msgstr ""
+msgstr "Pastāv shēmas lauks ar tādu pašu nosaukumu"
 
 #: ckan/logic/action/create.py:180 ckan/logic/action/create.py:653
 #, python-format
 msgid "REST API: Create object %s"
-msgstr ""
+msgstr "REST API: Izveidot objektu %s"
 
 #: ckan/logic/action/create.py:532
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
-msgstr "REST API: Izveido paketes attiecības: %s %s %s"
+msgstr "REST API: Izveidot paketes attiecības: %s %s %s"
 
 #: ckan/logic/action/create.py:573
 #, python-format
 msgid "REST API: Create member object %s"
-msgstr ""
+msgstr "REST API: Izveidot biedra objektu %s"
 
 #: ckan/logic/action/create.py:792
 msgid "Trying to create an organization as a group"
-msgstr ""
+msgstr "Mēģina izveidot organizāciju kā tēmu"
 
 #: ckan/logic/action/create.py:881
 msgid "You must supply a package id or name (parameter \"package\")."
-msgstr "Jānorāda paketes identifikators vai nosaukums (rādītājs \"pakete\")."
+msgstr ""
+"Jums ir jānorāda paketes identifikators vai nosaukums (rādītājs \"pakete\")."
 
 #: ckan/logic/action/create.py:884
 msgid "You must supply a rating (parameter \"rating\")."
-msgstr ""
+msgstr "Jums ir jānorāda vērtējums (parametrs \"vērtējums\")."
 
 #: ckan/logic/action/create.py:889
 msgid "Rating must be an integer value."
@@ -1357,40 +1366,40 @@ msgstr "Vērtējumam jābūt ciparam."
 #: ckan/logic/action/create.py:893
 #, python-format
 msgid "Rating must be between %i and %i."
-msgstr ""
+msgstr "Vērtējumam jābūt starp %i un %i."
 
 #: ckan/logic/action/create.py:1052
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr ""
+msgstr "Kļūda nosūtot uzaicinājuma epastu. Lietotājs netika izveidots: {0}"
 
 #: ckan/logic/action/create.py:1265 ckan/logic/action/create.py:1272
 msgid "You must be logged in to follow users"
-msgstr ""
+msgstr "Jums jābūt autorizētam, lai sekotu lietotājam"
 
 #: ckan/logic/action/create.py:1285
 msgid "You cannot follow yourself"
-msgstr ""
+msgstr "Jūs nevarat sekot pats sev"
 
 #: ckan/logic/action/create.py:1293 ckan/logic/action/create.py:1350
 #: ckan/logic/action/create.py:1489
 msgid "You are already following {0}"
-msgstr ""
+msgstr "Jūs jau sekojat {0}"
 
 #: ckan/logic/action/create.py:1324 ckan/logic/action/create.py:1332
 msgid "You must be logged in to follow a dataset."
-msgstr ""
+msgstr "Jums jābūt autorizētam, lai sekotu datu kopai."
 
 #: ckan/logic/action/create.py:1390
 msgid "User {username} does not exist."
-msgstr ""
+msgstr "Lietotājs {username} neeksistē."
 
 #: ckan/logic/action/create.py:1465 ckan/logic/action/create.py:1473
 msgid "You must be logged in to follow a group."
-msgstr ""
+msgstr "Jums jābūt autorizētam, lai sekotu tēmai."
 
 #: ckan/logic/action/delete.py:45
 msgid " Delete User: {0}"
-msgstr ""
+msgstr "Dzēst lietotāju: {0}"
 
 #: ckan/logic/action/delete.py:86
 #, python-format
@@ -1400,36 +1409,36 @@ msgstr "REST API: Izdzēst paketi: %s"
 #: ckan/logic/action/delete.py:270 ckan/logic/action/delete.py:352
 #, python-format
 msgid "REST API: Delete %s"
-msgstr ""
+msgstr "REST API: Dzēst %s"
 
 #: ckan/logic/action/delete.py:312
 #, python-format
 msgid "REST API: Delete Member: %s"
-msgstr ""
+msgstr "REST API: Dzēst biedru: %s"
 
 #: ckan/logic/action/delete.py:538 ckan/logic/action/delete.py:564
 #: ckan/logic/action/get.py:2444 ckan/logic/action/update.py:932
 msgid "id not in data"
-msgstr ""
+msgstr "id nav datos"
 
 #: ckan/logic/action/delete.py:542 ckan/logic/action/get.py:2447
 #: ckan/logic/action/update.py:936
 #, python-format
 msgid "Could not find vocabulary \"%s\""
-msgstr ""
+msgstr "Nav iespējams atrast vārdnīcu \"%s\""
 
 #: ckan/logic/action/delete.py:572
 #, python-format
 msgid "Could not find tag \"%s\""
-msgstr ""
+msgstr "Nav iespējams atrast birku \"%s\""
 
 #: ckan/logic/action/delete.py:598 ckan/logic/action/delete.py:602
 msgid "You must be logged in to unfollow something."
-msgstr ""
+msgstr "Jums jābūt autorizētam, lai atspējotu sekošanu."
 
 #: ckan/logic/action/delete.py:613
 msgid "You are not following {0}."
-msgstr ""
+msgstr "Jūs nesekojat {0}."
 
 #: ckan/logic/action/get.py:1058 ckan/logic/action/update.py:71
 #: ckan/logic/action/update.py:85
@@ -1438,15 +1447,15 @@ msgstr "Resurss netika atrasts."
 
 #: ckan/logic/action/get.py:2049
 msgid "Do not specify if using \"query\" parameter"
-msgstr ""
+msgstr "Nav jānorāda, ja tiek izmantots \"vaicājuma\" parametrs"
 
 #: ckan/logic/action/get.py:2058
 msgid "Must be <field>:<value> pair(s)"
-msgstr ""
+msgstr "Jābūt <field>:<value> pāris(i)"
 
 #: ckan/logic/action/get.py:2090
 msgid "Field \"{field}\" not recognised in resource_search."
-msgstr ""
+msgstr "Lauks \"{field}\" nav atpazīts resource_search."
 
 #: ckan/logic/action/update.py:240 ckan/logic/action/update.py:1034
 msgid "Package was not found."
@@ -1456,7 +1465,7 @@ msgstr "Pakete nav atrasta."
 #: ckan/logic/action/update.py:1052
 #, python-format
 msgid "REST API: Update object %s"
-msgstr ""
+msgstr "REST API: Atjaunot objektu %s"
 
 #: ckan/logic/action/update.py:380
 #, python-format
@@ -1465,11 +1474,11 @@ msgstr "REST API: Atjaunot pakešu attiecības: %s %s %s"
 
 #: ckan/logic/action/update.py:740
 msgid "TaskStatus was not found."
-msgstr ""
+msgstr "Uzdevuma statuss nav atrasts."
 
 #: ckan/logic/action/update.py:1038
 msgid "Organization was not found."
-msgstr ""
+msgstr "Organizācija nav atrasta."
 
 #: ckan/logic/auth/create.py:27 ckan/logic/auth/create.py:45
 #, python-format
@@ -1479,114 +1488,115 @@ msgstr "Lietotājs %s nav tiesīgs izveidot paketes"
 #: ckan/logic/auth/create.py:31 ckan/logic/auth/update.py:45
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr ""
+msgstr "Lietotājam %s nav tiesības lai rediģētu šīs tēmas"
 
 #: ckan/logic/auth/create.py:38
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
 msgstr ""
+"Lietotājam %s nav tiesību, lai pievienotu datu kopas šai organizācijai"
 
 #: ckan/logic/auth/create.py:61
 msgid "No dataset id provided, cannot check auth."
-msgstr ""
+msgstr "Nav norādīts datu kopas id. Nav iespējams pārbaudīt īstumu."
 
 #: ckan/logic/auth/create.py:68 ckan/logic/auth/delete.py:34
 #: ckan/logic/auth/get.py:143 ckan/logic/auth/update.py:63
 msgid "No package found for this resource, cannot check auth."
-msgstr "Paketes šim resursam nav atrasta, nav iespējams pārbaudīt īstumu."
+msgstr "Pakete šim resursam nav atrasta, nav iespējams pārbaudīt īstumu."
 
 #: ckan/logic/auth/create.py:76
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
-msgstr ""
+msgstr "Lietotājam %s nav tiesību izveidot resursu datu kopai %s"
 
 #: ckan/logic/auth/create.py:108
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr "Lietotājs %s nav tiesīgs mainīt šīs paketes"
+msgstr "Lietotājs %s nav tiesīgs rediģēt šīs paketes"
 
 #: ckan/logic/auth/create.py:119
 #, python-format
 msgid "User %s not authorized to create groups"
-msgstr "Lietotājs %s nav tiesīgs veidot grupas"
+msgstr "Lietotājs %s nav tiesīgs veidot tēmas"
 
 #: ckan/logic/auth/create.py:129
 #, python-format
 msgid "User %s not authorized to create organizations"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs veidot organizāciju"
 
 #: ckan/logic/auth/create.py:145
 msgid "User {user} not authorized to create users via the API"
-msgstr ""
+msgstr "Lietotājs {user} nav tiesīgs veidot lietotājus izmantojot API"
 
 #: ckan/logic/auth/create.py:148
 msgid "Not authorized to create users"
-msgstr ""
+msgstr "Nav tiesību veidot lietotājus"
 
 #: ckan/logic/auth/create.py:191
 msgid "Group was not found."
-msgstr "Grupa netika atrasta."
+msgstr "Tēma netika atrasta."
 
 #: ckan/logic/auth/create.py:211
 msgid "Valid API key needed to create a package"
-msgstr "Derīgia API atslēga nepiecišama, lai izveidotu paketi"
+msgstr "Nepieciešama derīga API atslēga, lai izveidotu paketi"
 
 #: ckan/logic/auth/create.py:219
 msgid "Valid API key needed to create a group"
-msgstr ""
+msgstr "Nepieciešama derīga API atslēga, lai izveidotu tēmu"
 
 #: ckan/logic/auth/create.py:239
 #, python-format
 msgid "User %s not authorized to add members"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs pievienot biedrus"
 
 #: ckan/logic/auth/create.py:263 ckan/logic/auth/update.py:115
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr ""
+msgstr "Lietotājam %s nav tiesību rediģēt tēmu %s"
 
 #: ckan/logic/auth/delete.py:40
 #, python-format
 msgid "User %s not authorized to delete resource %s"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs dzēst resursu %s"
 
 #: ckan/logic/auth/delete.py:56
 msgid "Resource view not found, cannot check auth."
-msgstr ""
+msgstr "Resursu skats netika atrasts. Nav iespējams pārbaudīt īstenumu."
 
 #: ckan/logic/auth/delete.py:73
 #, python-format
 msgid "User %s not authorized to delete relationship %s"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs dzēst attiecības %s"
 
 #: ckan/logic/auth/delete.py:82
 #, python-format
 msgid "User %s not authorized to delete groups"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs dzēst tēmas"
 
 #: ckan/logic/auth/delete.py:86
 #, python-format
 msgid "User %s not authorized to delete group %s"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs dzēst tēmu %s"
 
 #: ckan/logic/auth/delete.py:103
 #, python-format
 msgid "User %s not authorized to delete organizations"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs dzēst organizācijas"
 
 #: ckan/logic/auth/delete.py:107
 #, python-format
 msgid "User %s not authorized to delete organization %s"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs dzēst organizāciju %s"
 
 #: ckan/logic/auth/delete.py:120
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs dzēst task_status"
 
 #: ckan/logic/auth/get.py:12 ckan/logic/auth/get.py:291
 msgid "Not authorized"
-msgstr ""
+msgstr "Nav tiesību"
 
 #: ckan/logic/auth/get.py:108
 #, python-format
@@ -1601,26 +1611,26 @@ msgstr "Lietotājs %s nav tiesīgs lasīt paketi %s"
 #: ckan/logic/auth/get.py:149
 #, python-format
 msgid "User %s not authorized to read resource %s"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs lasīt resursu %s"
 
 #: ckan/logic/auth/get.py:176
 #, python-format
 msgid "User %s not authorized to read group %s"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs lasīt tēmu %s"
 
 #: ckan/logic/auth/get.py:258
 msgid "You must be logged in to access your dashboard."
-msgstr ""
+msgstr "Jums jābūt autorizētam, lai piekļūtu savai darbavirsmai"
 
 #: ckan/logic/auth/update.py:39
 #, python-format
 msgid "User %s not authorized to edit package %s"
-msgstr "Lietotājs %s nav tiesīgs mainīt paketi %s"
+msgstr "Lietotājs %s nav tiesīgs rediģēt paketi %s"
 
 #: ckan/logic/auth/update.py:71
 #, python-format
 msgid "User %s not authorized to edit resource %s"
-msgstr ""
+msgstr "Lietotājam %s nav tiesību rediģēt resursu %s"
 
 #: ckan/logic/auth/update.py:100
 #, python-format
@@ -1630,158 +1640,158 @@ msgstr "Lietotājs %s nav tiesīgs mainīt paketes %s stāvokli"
 #: ckan/logic/auth/update.py:128
 #, python-format
 msgid "User %s not authorized to edit organization %s"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs rediģēt organizāciju %s"
 
 #: ckan/logic/auth/update.py:145
 #, python-format
 msgid "User %s not authorized to change state of group %s"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs mainīt tēmas %s stāvokli"
 
 #: ckan/logic/auth/update.py:162
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
-msgstr ""
+msgstr "Lietotājam %s nav tiesību rediģēt tēmas %s tiesības"
 
 #: ckan/logic/auth/update.py:189
 msgid "Have to be logged in to edit user"
-msgstr ""
+msgstr "Jums jābūt autorizētam, lai rediģēt lietotāju"
 
 #: ckan/logic/auth/update.py:197
 #, python-format
 msgid "User %s not authorized to edit user %s"
-msgstr ""
+msgstr "Lietotājam %s nav tiesību rediģēt lietotāju %s"
 
 #: ckan/logic/auth/update.py:208
 msgid "User {0} not authorized to update user {1}"
-msgstr ""
+msgstr "Lietotājs {0} nav tiesīgs atjaunot lietotāju {1}"
 
 #: ckan/logic/auth/update.py:216
 #, python-format
 msgid "User %s not authorized to change state of revision"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs mainīt izmaiņu stāvokli"
 
 #: ckan/logic/auth/update.py:225
 #, python-format
 msgid "User %s not authorized to update task_status table"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs atjaunot task_status tabulu"
 
 #: ckan/logic/auth/update.py:239
 #, python-format
 msgid "User %s not authorized to update term_translation table"
-msgstr ""
+msgstr "Lietotājs %s nav tiesīgs atjaunot term_translation tabulu"
 
 #: ckan/logic/auth/update.py:261
 msgid "Valid API key needed to edit a package"
-msgstr "Nepieciešama derīga API atslēga, lai mainītu paketi"
+msgstr "Nepieciešama derīga API atslēga, lai rediģētu paketi"
 
 #: ckan/logic/auth/update.py:271
 msgid "Valid API key needed to edit a group"
-msgstr ""
+msgstr "Nepieciešama derīga API atslēga, lai rediģētu tēmu"
 
 #: ckan/model/license.py:222
 msgid "License not specified"
-msgstr ""
+msgstr "Nav norādīta licence"
 
 #: ckan/model/license.py:232
 msgid "Open Data Commons Public Domain Dedication and License (PDDL)"
-msgstr ""
+msgstr "Open Data Commons Public Domain Dedication and License (PDDL)"
 
 #: ckan/model/license.py:242
 msgid "Open Data Commons Open Database License (ODbL)"
-msgstr ""
+msgstr "Open Data Commons Open Database License (ODbL)"
 
 #: ckan/model/license.py:252
 msgid "Open Data Commons Attribution License"
-msgstr ""
+msgstr "Open Data Commons Attribution License"
 
 #: ckan/model/license.py:263
 msgid "Creative Commons CCZero"
-msgstr ""
+msgstr "Creative Commons CCZero"
 
 #: ckan/model/license.py:272
 msgid "Creative Commons Attribution"
-msgstr ""
+msgstr "Creative Commons Attribution"
 
 #: ckan/model/license.py:282
 msgid "Creative Commons Attribution Share-Alike"
-msgstr ""
+msgstr "Creative Commons Attribution Share-Alike"
 
 #: ckan/model/license.py:291
 msgid "GNU Free Documentation License"
-msgstr ""
+msgstr "GNU Free Documentation License"
 
 #: ckan/model/license.py:301
 msgid "Other (Open)"
-msgstr ""
+msgstr "Cita (Atvērta)"
 
 #: ckan/model/license.py:311
 msgid "Other (Public Domain)"
-msgstr ""
+msgstr "Cita (Publiskais sektors)"
 
 #: ckan/model/license.py:321
 msgid "Other (Attribution)"
-msgstr ""
+msgstr "Cita (Attiecinājums)"
 
 #: ckan/model/license.py:333
 msgid "UK Open Government Licence (OGL)"
-msgstr ""
+msgstr "UK Open Government Licence (OGL)"
 
 #: ckan/model/license.py:341
 msgid "Creative Commons Non-Commercial (Any)"
-msgstr ""
+msgstr "Creative Commons Non-Commercial (Jebkura)"
 
 #: ckan/model/license.py:349
 msgid "Other (Non-Commercial)"
-msgstr ""
+msgstr "Cita (Nekomerciāla)"
 
 #: ckan/model/license.py:357
 msgid "Other (Not Open)"
-msgstr ""
+msgstr "Cita (Nav atvērta)"
 
 #: ckan/model/package_relationship.py:54
 #, python-format
 msgid "depends on %s"
-msgstr ""
+msgstr "atkarīgs no %s"
 
 #: ckan/model/package_relationship.py:54
 #, python-format
 msgid "is a dependency of %s"
-msgstr ""
+msgstr "ir atkarība no %s"
 
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "derives from %s"
-msgstr ""
+msgstr "izriet no %s"
 
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "has derivation %s"
-msgstr ""
+msgstr "ir atvasinājums %s"
 
 #: ckan/model/package_relationship.py:56
 #, python-format
 msgid "links to %s"
-msgstr ""
+msgstr "saite uz %s"
 
 #: ckan/model/package_relationship.py:56
 #, python-format
 msgid "is linked from %s"
-msgstr ""
+msgstr "ir saistīta no %s"
 
 #: ckan/model/package_relationship.py:57
 #, python-format
 msgid "is a child of %s"
-msgstr ""
+msgstr "ir bērns no %s"
 
 #: ckan/model/package_relationship.py:57
 #, python-format
 msgid "is a parent of %s"
-msgstr ""
+msgstr "ir vecāks no %s"
 
 #: ckan/model/package_relationship.py:61
 #, python-format
 msgid "has sibling %s"
-msgstr ""
+msgstr "ir brālis %s"
 
 #: ckan/public/base/javascript/modules/activity-stream.js:20
 #: ckan/public/base/javascript/modules/popover-context.js:45
@@ -1791,45 +1801,45 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_view.html:14
 #: ckanext/textview/theme/templates/text_view.html:9
 msgid "Loading..."
-msgstr ""
+msgstr "Notiek ielāde..."
 
 #: ckan/public/base/javascript/modules/api-info.js:20
 msgid "There is no API data to load for this resource"
-msgstr ""
+msgstr "Nav API datu, lai ielādētu šo resursu"
 
 #: ckan/public/base/javascript/modules/api-info.js:21
 msgid "Failed to load data API information"
-msgstr ""
+msgstr "Neizdevās ielādēt API datu informāciju"
 
 #: ckan/public/base/javascript/modules/autocomplete.js:31
 msgid "No matches found"
-msgstr ""
+msgstr "Nav atrastas sakritības"
 
 #: ckan/public/base/javascript/modules/autocomplete.js:32
 msgid "Start typing…"
-msgstr ""
+msgstr "Sāciet rakstīt ..."
 
 #: ckan/public/base/javascript/modules/autocomplete.js:34
 msgid "Input is too short, must be at least one character"
-msgstr ""
+msgstr "Ievadītais teksts ir pārāk īss, jābūt vismaz vienam simbolam"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
-msgstr ""
+msgstr "Šajā formā ir nesaglabātas izmaiņas"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:7
 msgid "Please Confirm Action"
-msgstr ""
+msgstr "Lūdzu, apstipriniet darbību"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:8
 msgid "Are you sure you want to perform this action?"
-msgstr ""
+msgstr "Vai esat pārliecināts, ka vēlaties veikt šo darbību?"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:9
 #: ckan/templates/user/new_user_form.html:9
 #: ckan/templates/user/perform_reset.html:21
 msgid "Confirm"
-msgstr ""
+msgstr "Apstiprināt"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:10
 #: ckan/public/base/javascript/modules/resource-reorder.js:11
@@ -1842,38 +1852,38 @@ msgstr ""
 #: ckan/templates/package/confirm_delete.html:15
 #: ckan/templates/package/confirm_delete_resource.html:14
 msgid "Cancel"
-msgstr ""
+msgstr "Atcelt"
 
 #: ckan/public/base/javascript/modules/follow.js:23
 #: ckan/templates/snippets/follow_button.html:14
 msgid "Follow"
-msgstr ""
+msgstr "Sekot"
 
 #: ckan/public/base/javascript/modules/follow.js:24
 #: ckan/templates/snippets/follow_button.html:9
 msgid "Unfollow"
-msgstr ""
+msgstr "Atspējot sekošanu"
 
 #: ckan/public/base/javascript/modules/image-upload.js:16
 msgid "Upload"
-msgstr ""
+msgstr "Augšuplādēt"
 
 #: ckan/public/base/javascript/modules/image-upload.js:17
 msgid "Link"
-msgstr ""
+msgstr "Saite"
 
 #: ckan/public/base/javascript/modules/image-upload.js:18
 #: ckan/templates/group/snippets/group_item.html:43
 #: ckan/templates/macros/form.html:235
 #: ckan/templates/snippets/search_form.html:68
 msgid "Remove"
-msgstr ""
+msgstr "Dzēst"
 
 #: ckan/public/base/javascript/modules/image-upload.js:19
 #: ckan/templates/macros/form.html:412 ckanext/imageview/plugin.py:23
 #: ckanext/imageview/plugin.py:28
 msgid "Image"
-msgstr ""
+msgstr "Attēls"
 
 #: ckan/public/base/javascript/modules/image-upload.js:20
 #: ckan/public/base/javascript/modules/slug-preview.js:35
@@ -1882,67 +1892,69 @@ msgstr ""
 #: ckan/templates/package/snippets/package_basic_fields.html:13
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ckan/public/base/javascript/modules/image-upload.js:21
 msgid "File"
-msgstr ""
+msgstr "Fails"
 
 #: ckan/public/base/javascript/modules/image-upload.js:22
 msgid "Upload a file on your computer"
-msgstr ""
+msgstr "Augšupielādēt failu uz jūsu datora"
 
 #: ckan/public/base/javascript/modules/image-upload.js:23
 msgid "Link to a URL on the internet (you can also link to an API)"
-msgstr ""
+msgstr "Saite uz URL internetā (jūs varat arī norādīt saiti uz API)"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:8
 msgid "Reorder resources"
-msgstr ""
+msgstr "Pārkārtot resursus"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:9
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:9
 msgid "Save order"
-msgstr ""
+msgstr "Saglabāt secību"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:10
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:10
 msgid "Saving..."
-msgstr ""
+msgstr "Saglabā..."
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:25
 msgid "Upload a file"
-msgstr ""
+msgstr "Augšupielādēt failu "
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:26
 msgid "An Error Occurred"
-msgstr ""
+msgstr "Notika kļūda"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:27
 msgid "Resource uploaded"
-msgstr ""
+msgstr "Resurss augšupielādēts"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:28
 msgid "Unable to upload file"
-msgstr ""
+msgstr "Nevar augšupielādēt failu"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:29
 msgid "Unable to authenticate upload"
-msgstr ""
+msgstr "Neizdevās autentificēt augšupielādi"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:30
 msgid "Unable to get data for uploaded file"
-msgstr ""
+msgstr "Nevar iegūt datus par augšupielādēto failu"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
 "You are uploading a file. Are you sure you want to navigate away and stop "
 "this upload?"
 msgstr ""
+"Jūs augšupielādējat failu. Vai tiešām vēlaties doties prom, un apturēt šo "
+"augšupielādi?"
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:8
 msgid "Reorder resource view"
-msgstr ""
+msgstr "Pārkārtot resursa skatu"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:36
 #: ckan/templates/group/edit_base.html:20 ckan/templates/group/members.html:32
@@ -1955,66 +1967,68 @@ msgstr ""
 #: ckan/templates/package/resource_edit_base.html:12
 #: ckan/templates/package/snippets/resource_item.html:57
 msgid "Edit"
-msgstr ""
+msgstr "Rediģēt"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:9
 msgid "Show more"
-msgstr ""
+msgstr "Rādīt vairāk"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:10
 msgid "Hide"
-msgstr ""
+msgstr "Slēpt"
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
-msgstr ""
+msgstr "Kļuda %(error_code)s"
 
 #: ckan/templates/footer.html:9
 msgid "About {0}"
-msgstr ""
+msgstr "Par {0}"
 
 #: ckan/templates/footer.html:15
 msgid "CKAN API"
-msgstr ""
+msgstr "CKAN API"
 
 #: ckan/templates/footer.html:16
 msgid "CKAN Association"
-msgstr ""
+msgstr "CKAN asociācija"
 
 #: ckan/templates/footer.html:24
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
+"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
-msgstr ""
+msgstr "Sistēmas administratora iestatījumi"
 
 #: ckan/templates/header.html:19
 msgid "View profile"
-msgstr ""
+msgstr "Skatīt profilu"
 
 #: ckan/templates/header.html:26
 #, python-format
 msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Darbavirsma (%(num)d jaunas vienības)"
+msgstr[1] "Darbavirsma (%(num)d jauna vienība)"
+msgstr[2] "Darbavirsma (%(num)d jaunas vienības)"
 
 #: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
-msgstr ""
+msgstr "Darbavirsma"
 
 #: ckan/templates/header.html:35 ckan/templates/user/dashboard.html:16
 msgid "Edit settings"
-msgstr ""
+msgstr "Rediģēt iestatījumus"
 
 #: ckan/templates/header.html:37
 msgid "Settings"
-msgstr ""
+msgstr "Iestatījumi"
 
 #: ckan/templates/header.html:43 ckan/templates/header.html:45
 msgid "Log out"
@@ -2022,7 +2036,7 @@ msgstr "Iziet"
 
 #: ckan/templates/header.html:56 ckan/templates/user/logout_first.html:15
 msgid "Log in"
-msgstr ""
+msgstr "Pieslēgties"
 
 #: ckan/templates/header.html:58 ckan/templates/user/new.html:3
 msgid "Register"
@@ -2044,11 +2058,11 @@ msgstr "Reģistrēties"
 #: ckan/templates/user/read.html:5 ckan/templates/user/read_base.html:19
 #: ckan/templates/user/read_base.html:53
 msgid "Datasets"
-msgstr ""
+msgstr "Datu kopas"
 
 #: ckan/templates/header.html:116
 msgid "Search Datasets"
-msgstr ""
+msgstr "Meklēt datu kopas"
 
 #: ckan/templates/header.html:117 ckan/templates/home/snippets/search.html:11
 #: ckan/templates/snippets/simple_search.html:5
@@ -2058,31 +2072,31 @@ msgstr "Meklēt"
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
-msgstr ""
+msgstr "Pāriet uz saturu"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
-msgstr ""
+msgstr "Ielādēt mazāk"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:17
 msgid "Load more"
-msgstr ""
+msgstr "Ielādēt vairāk"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:23
 msgid "No activities are within this activity stream"
-msgstr ""
+msgstr "Nav aktivitātes šajā darbību straumē"
 
 #: ckan/templates/admin/base.html:3
 msgid "Administration"
-msgstr ""
+msgstr "Administrācija"
 
 #: ckan/templates/admin/base.html:8
 msgid "Sysadmins"
-msgstr ""
+msgstr "Sistēmas administrators"
 
 #: ckan/templates/admin/base.html:9
 msgid "Config"
-msgstr ""
+msgstr "Konfigurācija"
 
 #: ckan/templates/admin/base.html:10 ckan/templates/admin/trash.html:29
 msgid "Trash"
@@ -2091,19 +2105,19 @@ msgstr "Atkritne"
 #: ckan/templates/admin/config.html:16
 #: ckan/templates/admin/confirm_reset.html:7
 msgid "Are you sure you want to reset the config?"
-msgstr ""
+msgstr "Vai esat pārliecināts, ka jūs vēlaties atjaunot iestatījumus?"
 
 #: ckan/templates/admin/config.html:17
 msgid "Reset"
-msgstr ""
+msgstr "Atiestatīt"
 
 #: ckan/templates/admin/config.html:18
 msgid "Update Config"
-msgstr ""
+msgstr "Atjaunot iestatījumus"
 
 #: ckan/templates/admin/config.html:27
 msgid "CKAN config options"
-msgstr ""
+msgstr "CKAN iestatījumu iespējas"
 
 #: ckan/templates/admin/config.html:34
 #, python-format
@@ -2124,15 +2138,29 @@ msgid ""
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p> "
 msgstr ""
+"<p><strong>Lapas virsraksts:</strong> Šis CKAN instances nosaukums parādās "
+"vairākās vietās CKAN risinājumā.</p> <p><strong>Stils:</strong> Izvēlieties "
+"no saraksta dažādu krāsu tēmas, lai ātri un vienkārši iegūtu pielāgotu "
+"tēmu.</p> <p><strong>Site Tag Logo:</strong> Šis ir logo, kas parādās CKAN "
+"instances galvenē.</p> <p><strong>Par:</strong> Teksts, kas parādīsies CKAN "
+"instances <a href=\"%(about_url)s\">”Par” lapā</a>.</p> "
+"<p><strong>Ievadteksts:</strong> Teksts, kas parādīsies CKAN instances <a "
+"href=\"%(home_url)s\">sākumlapā</a> kā sveiciens lapas apmeklētājiem.</p> "
+"<p><strong>Pielāgots CSS:</strong> Šis ir CSS bloks, kas parādīsies "
+"<code>&lt;head&gt;</code> tagā katrā lapā. Ja jūs vēlaties plašāku "
+"risinājuma izskata pielāgojumu mēs rekomendējam lasīt dokumentāciju <a "
+"href=\"%(docs_url)s\" target=\"_blank\"></a>.</p> "
+"<p><strong>Sākumlapa:</strong> Paredzēts, lai veiktu sākumlapas "
+"iepriekšdefinēto moduļu izkārtojumu sākumlapā.</p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
 msgid "Confirm Reset"
-msgstr ""
+msgstr "Apstiprināt atiestatīšanu"
 
 #: ckan/templates/admin/index.html:15
 msgid "Administer CKAN"
-msgstr ""
+msgstr "Administrēt CKAN"
 
 #: ckan/templates/admin/index.html:20
 #, python-format
@@ -2141,22 +2169,27 @@ msgid ""
 "Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
 "CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
 msgstr ""
+"<p>Kā sistēmas administratora lietotājam, Jums ir pilnīga kontrole pār šo "
+"CKAN instanci. Rīkojieties uzmanīgi! </p> <p>Lai skaidrotu izmantojamās "
+"sistēmas administratora iespējas, lasiet CKAN <a href=\"%(docs_url)s\" "
+"target=\"_blank\"> sistēmas administratora rokasgrāmatu </a> </ p>"
 
 #: ckan/templates/admin/trash.html:20
 msgid "Purge"
-msgstr ""
+msgstr "Tīrīt"
 
 #: ckan/templates/admin/trash.html:32
 msgid " <p>Purge deleted datasets forever and irreversibly.</p> "
-msgstr ""
+msgstr "<p>Iztīrīt dzēstās datu kopas neatgriezeniski</p>"
 
 #: ckan/templates/ajax_snippets/api_info.html:19
 msgid "CKAN Data API"
-msgstr ""
+msgstr "CKAN datu API"
 
 #: ckan/templates/ajax_snippets/api_info.html:23
 msgid "Access resource data via a web API with powerful query support"
 msgstr ""
+"Piekļut resursu datiem izmantojot tīmekļa API ar spēcīgu vaicājumu atbalstu"
 
 #: ckan/templates/ajax_snippets/api_info.html:24
 msgid ""
@@ -2164,138 +2197,142 @@ msgid ""
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
+"Sīkāka informācija <a "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\"> galvenā CKAN datu API un DataStore dokumentācija </a>.</p"
+" >"
 
 #: ckan/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
-msgstr ""
+msgstr "Galapunkts"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
 "The Data API can be accessed via the following actions of the CKAN action "
 "API."
-msgstr ""
+msgstr "Data API var piekļūt, izmantojot sekojošas CKAN API darbības."
 
 #: ckan/templates/ajax_snippets/api_info.html:42
 msgid "Create"
-msgstr ""
+msgstr "Izveidot"
 
 #: ckan/templates/ajax_snippets/api_info.html:46
 msgid "Update / Insert"
-msgstr ""
+msgstr "Atjaunināt / Ievietot"
 
 #: ckan/templates/ajax_snippets/api_info.html:50
 msgid "Query"
-msgstr ""
+msgstr "Vaicājums"
 
 #: ckan/templates/ajax_snippets/api_info.html:54
 msgid "Query (via SQL)"
-msgstr ""
+msgstr "Vaicājums (caur SQL)"
 
 #: ckan/templates/ajax_snippets/api_info.html:66
 msgid "Querying"
-msgstr ""
+msgstr "Vaicājumu izpilde"
 
 #: ckan/templates/ajax_snippets/api_info.html:70
 msgid "Query example (first 5 results)"
-msgstr ""
+msgstr "Vaicājumu piemērs (pirmie 5 rezultāti)"
 
 #: ckan/templates/ajax_snippets/api_info.html:75
 msgid "Query example (results containing 'jones')"
-msgstr ""
+msgstr "Vaicājumu piemērs (rezultāti, kas satur \"Jones\")"
 
 #: ckan/templates/ajax_snippets/api_info.html:81
 msgid "Query example (via SQL statement)"
-msgstr ""
+msgstr "Vaicājumu piemērs (caur SQL apgalvojumu)"
 
 #: ckan/templates/ajax_snippets/api_info.html:93
 msgid "Example: Javascript"
-msgstr ""
+msgstr "Piemērs: Javascript"
 
 #: ckan/templates/ajax_snippets/api_info.html:97
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr ""
+msgstr "Vienkāršs ajax (JSONP) API datu pieprasījums, izmantojot jQuery."
 
 #: ckan/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
-msgstr ""
+msgstr "Piemērs: Python"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
-msgstr ""
+msgstr "Šobrīd šo resursu nav iespējams priekšskatīt."
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:11
 #: ckan/templates/package/resource_read.html:118
 #: ckan/templates/package/snippets/resource_view.html:26
 msgid "Click here for more information."
-msgstr ""
+msgstr "Nospiediet šeit, lai iegūtu vairāk informācijas."
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:18
 #: ckan/templates/package/snippets/resource_view.html:33
 msgid "Download resource"
-msgstr ""
+msgstr "Lejupielādēt resursu"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:23
 #: ckan/templates/package/snippets/resource_view.html:56
 #: ckanext/webpageview/theme/templates/webpage_view.html:2
 msgid "Your browser does not support iframes."
-msgstr ""
+msgstr "Jūsu pārlūkprogramma neatbalsta iframes."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "No preview available."
-msgstr ""
+msgstr "Priekšskatījums nav pieejams."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:5
 msgid "More details..."
-msgstr ""
+msgstr "Skatīt vairāk..."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:12
 #, python-format
 msgid "No handler defined for data type: %(type)s."
-msgstr ""
+msgstr "Nav definēts apdarinātājs datu tipam :%(type)s."
 
 #: ckan/templates/development/snippets/form.html:5
 msgid "Standard"
-msgstr ""
+msgstr "Standarts"
 
 #: ckan/templates/development/snippets/form.html:5
 msgid "Standard Input"
-msgstr ""
+msgstr "Standarta ievade"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium"
-msgstr ""
+msgstr "Vidējs"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium Width Input"
-msgstr ""
+msgstr "Vidējs ievades platums"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full"
-msgstr ""
+msgstr "Pilns"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full Width Input"
-msgstr ""
+msgstr "Pilns ievades platums"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large"
-msgstr ""
+msgstr "Liels"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large Input"
-msgstr ""
+msgstr "Liels ievades lauks"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend"
-msgstr ""
+msgstr "Pievienot sākumā"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend Input"
-msgstr ""
+msgstr "Pievienot sākumā"
 
 #: ckan/templates/development/snippets/form.html:13
 msgid "Custom Field (empty)"
-msgstr ""
+msgstr "Pielāgots lauks (tukšs)"
 
 #: ckan/templates/development/snippets/form.html:19
 #: ckan/templates/group/snippets/group_form.html:35
@@ -2305,19 +2342,19 @@ msgstr ""
 #: ckan/templates/snippets/custom_form_fields.html:20
 #: ckan/templates/snippets/custom_form_fields.html:37
 msgid "Custom Field"
-msgstr ""
+msgstr "Pielāgots lauks"
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
-msgstr ""
+msgstr "Atzīmēt"
 
 #: ckan/templates/development/snippets/form.html:23
 msgid "Textarea"
-msgstr ""
+msgstr "Teksta aprakstošais lauks"
 
 #: ckan/templates/development/snippets/form.html:24
 msgid "Select"
-msgstr ""
+msgstr "Iezīmēt"
 
 #: ckan/templates/group/activity_stream.html:3
 #: ckan/templates/group/activity_stream.html:6
@@ -2332,21 +2369,21 @@ msgstr ""
 #: ckan/templates/user/activity_stream.html:6
 #: ckan/templates/user/read_base.html:20
 msgid "Activity Stream"
-msgstr ""
+msgstr "Darbību plūsma"
 
 #: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:6
 #: ckan/templates/organization/admins.html:3
 #: ckan/templates/organization/admins.html:6
 msgid "Administrators"
-msgstr ""
+msgstr "Administrators"
 
 #: ckan/templates/group/base_form_page.html:7
 msgid "Add a Group"
-msgstr ""
+msgstr "Pievienot tēmu"
 
 #: ckan/templates/group/base_form_page.html:11
 msgid "Group Form"
-msgstr ""
+msgstr "Tēmas forma"
 
 #: ckan/templates/group/confirm_delete.html:3
 #: ckan/templates/group/confirm_delete.html:15
@@ -2361,16 +2398,16 @@ msgstr ""
 #: ckan/templates/package/confirm_delete_resource.html:3
 #: ckan/templates/package/confirm_delete_resource.html:15
 msgid "Confirm Delete"
-msgstr ""
+msgstr "Apstiprināt dzēšanu"
 
 #: ckan/templates/group/confirm_delete.html:11
 msgid "Are you sure you want to delete group - {name}?"
-msgstr ""
+msgstr "Vai tiešām vēlaties dzēst tēmu - {name}?"
 
 #: ckan/templates/group/confirm_delete_member.html:11
 #: ckan/templates/organization/confirm_delete_member.html:11
 msgid "Are you sure you want to delete member - {name}?"
-msgstr ""
+msgstr "Vai tiešām vēlaties dzēst biedru - {name}?"
 
 #: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:3
 #: ckan/templates/group/edit_base.html:11
@@ -2382,17 +2419,17 @@ msgstr ""
 #: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/read_base.html:14
 msgid "Manage"
-msgstr ""
+msgstr "Pārvaldīt"
 
 #: ckan/templates/group/edit.html:12
 msgid "Edit Group"
-msgstr ""
+msgstr "Rediģēt tēmu"
 
 #: ckan/templates/group/edit_base.html:21 ckan/templates/group/members.html:3
 #: ckan/templates/organization/edit_base.html:24
 #: ckan/templates/organization/members.html:3
 msgid "Members"
-msgstr ""
+msgstr "Biedrs"
 
 #: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
 #: ckan/templates/group/snippets/info.html:32
@@ -2406,21 +2443,21 @@ msgstr ""
 #: ckan/templates/user/read_base.html:49
 #: ckanext/example_theme/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:12
 msgid "Followers"
-msgstr ""
+msgstr "Sekotāji"
 
 #: ckan/templates/group/history.html:3 ckan/templates/group/history.html:6
 #: ckan/templates/package/history.html:3 ckan/templates/package/history.html:6
 msgid "History"
-msgstr ""
+msgstr "Vēsture"
 
 #: ckan/templates/group/index.html:13
 #: ckan/templates/user/dashboard_groups.html:7
 msgid "Add Group"
-msgstr ""
+msgstr "Pievienot tēmu"
 
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
-msgstr ""
+msgstr "Meklē tēmas..."
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:16
 #: ckan/templates/organization/bulk_process.html:97
@@ -2431,7 +2468,7 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:15
 #: ckanext/example_idatasetform/templates/package/search.html:13
 msgid "Name Ascending"
-msgstr ""
+msgstr "Nosaukums augošā secībā"
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:17
 #: ckan/templates/organization/bulk_process.html:98
@@ -2442,27 +2479,27 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:16
 #: ckanext/example_idatasetform/templates/package/search.html:14
 msgid "Name Descending"
-msgstr ""
+msgstr "Nosaukums dilstošā secībā"
 
 #: ckan/templates/group/index.html:29
 msgid "There are currently no groups for this site"
-msgstr ""
+msgstr "Pašlaik nav tēmas šajā vietnē"
 
 #: ckan/templates/group/index.html:31
 #: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
-msgstr ""
+msgstr "Kā būtu ar izveidošanu?"
 
 #: ckan/templates/group/member_new.html:8
 #: ckan/templates/organization/member_new.html:10
 msgid "Back to all members"
-msgstr ""
+msgstr "Atpakaļ pie visiem biedriem"
 
 #: ckan/templates/group/member_new.html:10
 #: ckan/templates/organization/member_new.html:7
 #: ckan/templates/organization/member_new.html:12
 msgid "Edit Member"
-msgstr ""
+msgstr "Rediģēt biedru"
 
 #: ckan/templates/group/member_new.html:10
 #: ckan/templates/group/member_new.html:65 ckan/templates/group/members.html:6
@@ -2471,46 +2508,47 @@ msgstr ""
 #: ckan/templates/organization/member_new.html:66
 #: ckan/templates/organization/members.html:6
 msgid "Add Member"
-msgstr ""
+msgstr "Pievienot biedru"
 
 #: ckan/templates/group/member_new.html:18
 #: ckan/templates/organization/member_new.html:20
 msgid "Existing User"
-msgstr ""
+msgstr "Eksistējošs lietotājs"
 
 #: ckan/templates/group/member_new.html:21
 #: ckan/templates/organization/member_new.html:23
 msgid "If you wish to add an existing user, search for their username below."
 msgstr ""
+"Ja vēlaties pievienot esošu lietotāju, meklējiet tā lietotājvārdu zemāk."
 
 #: ckan/templates/group/member_new.html:38
 #: ckan/templates/organization/member_new.html:40
 msgid "or"
-msgstr ""
+msgstr "vai"
 
 #: ckan/templates/group/member_new.html:42
 #: ckan/templates/organization/member_new.html:44
 msgid "New User"
-msgstr ""
+msgstr "Jauns lietotājs"
 
 #: ckan/templates/group/member_new.html:45
 #: ckan/templates/organization/member_new.html:47
 msgid "If you wish to invite a new user, enter their email address."
-msgstr ""
+msgstr "Ja vēlaties uzaicināt jaunu lietotāju, ievadiet tā epasta adresi."
 
 #: ckan/templates/group/member_new.html:55
 #: ckan/templates/group/members.html:18
 #: ckan/templates/organization/member_new.html:56
 #: ckan/templates/organization/members.html:18
 msgid "Role"
-msgstr ""
+msgstr "Loma"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:30
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
-msgstr ""
+msgstr "Vai tiešām vēlaties dzēst šo biedru?"
 
 #: ckan/templates/group/member_new.html:59
 #: ckan/templates/group/members.html:35
@@ -2525,7 +2563,7 @@ msgstr ""
 #: ckan/templates/revision/read.html:24
 #: ckan/templates/user/edit_user_form.html:46
 msgid "Delete"
-msgstr ""
+msgstr "Dzēst"
 
 #: ckan/templates/group/member_new.html:61
 msgid "Save"
@@ -2534,7 +2572,7 @@ msgstr "Saglabāt"
 #: ckan/templates/group/member_new.html:78
 #: ckan/templates/organization/member_new.html:79
 msgid "What are roles?"
-msgstr ""
+msgstr "Kas ir lomas?"
 
 #: ckan/templates/group/member_new.html:81
 msgid ""
@@ -2542,26 +2580,29 @@ msgid ""
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
 msgstr ""
+"<P> <strong> Admin: </ strong>, var rediģēt tēmas informāciju, kā arī "
+"pārvaldīt organizācijas biedrus </ p> <p> <strong> Biedrs. </ Strong> Var "
+"pievienot/noņemt datu kopas no grupām </ p >"
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
 msgid "Create a Group"
-msgstr ""
+msgstr "Izveidot tēmu"
 
 #: ckan/templates/group/new_group_form.html:17
 msgid "Update Group"
-msgstr ""
+msgstr "Atjaunot tēmu"
 
 #: ckan/templates/group/new_group_form.html:19
 msgid "Create Group"
-msgstr ""
+msgstr "Izveidot tēmu"
 
 #: ckan/templates/group/read.html:15 ckan/templates/organization/read.html:19
 #: ckan/templates/package/search.html:29
 #: ckan/templates/snippets/sort_by.html:14
 #: ckanext/example_idatasetform/templates/package/search.html:12
 msgid "Relevance"
-msgstr ""
+msgstr "Būtiskums"
 
 #: ckan/templates/group/read.html:18
 #: ckan/templates/organization/bulk_process.html:99
@@ -2571,7 +2612,7 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:17
 #: ckanext/example_idatasetform/templates/package/search.html:15
 msgid "Last Modified"
-msgstr ""
+msgstr "Pēdējo reizi mainīts"
 
 #: ckan/templates/group/read.html:19 ckan/templates/organization/read.html:23
 #: ckan/templates/package/search.html:33
@@ -2580,35 +2621,35 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:19
 #: ckanext/example_idatasetform/templates/package/search.html:18
 msgid "Popular"
-msgstr ""
+msgstr "Populārs"
 
 #: ckan/templates/group/read.html:21 ckan/templates/organization/read.html:25
 #: ckan/templates/snippets/search_form.html:3
 msgid "Search datasets..."
-msgstr ""
+msgstr "Meklē datu kopas..."
 
 #: ckan/templates/group/snippets/feeds.html:3
 msgid "Datasets in group: {group}"
-msgstr ""
+msgstr "Datu kopas tēmā: {group}"
 
 #: ckan/templates/group/snippets/feeds.html:4
 #: ckan/templates/organization/snippets/feeds.html:4
 msgid "Recent Revision History"
-msgstr ""
+msgstr "Nesenā izmaiņu vēsture"
 
 #: ckan/templates/group/snippets/group_form.html:10
 #: ckan/templates/organization/snippets/organization_form.html:10
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "Name"
-msgstr ""
+msgstr "Nosaukums"
 
 #: ckan/templates/group/snippets/group_form.html:10
 msgid "My Group"
-msgstr ""
+msgstr "Mana tēma"
 
 #: ckan/templates/group/snippets/group_form.html:18
 msgid "my-group"
-msgstr ""
+msgstr "my-group"
 
 #: ckan/templates/group/snippets/group_form.html:20
 #: ckan/templates/organization/snippets/organization_form.html:20
@@ -2616,19 +2657,19 @@ msgstr ""
 #: ckan/templates/package/snippets/resource_form.html:32
 #: ckan/templates/package/snippets/view_form.html:9
 msgid "Description"
-msgstr ""
+msgstr "Apraksts"
 
 #: ckan/templates/group/snippets/group_form.html:20
 msgid "A little information about my group..."
-msgstr ""
+msgstr "Nedaudz informācijas par manu tēmu..."
 
 #: ckan/templates/group/snippets/group_form.html:60
 msgid "Are you sure you want to delete this Group?"
-msgstr ""
+msgstr "Vai tiešām vēlaties dzēst šo tēmu?"
 
 #: ckan/templates/group/snippets/group_form.html:64
 msgid "Save Group"
-msgstr ""
+msgstr "Saglabāt tēmu"
 
 #: ckan/templates/group/snippets/group_item.html:32
 #: ckan/templates/organization/snippets/organization_item.html:31
@@ -2636,29 +2677,29 @@ msgstr ""
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{num} Datu kopas"
+msgstr[1] "{num} Datu kopa"
+msgstr[2] "{num} Datu kopas"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
 msgid "0 Datasets"
-msgstr ""
+msgstr "0 Datu kopas"
 
 #: ckan/templates/group/snippets/group_item.html:38
 #: ckan/templates/group/snippets/group_item.html:39
 msgid "View {name}"
-msgstr ""
+msgstr "Sakatīt {name}"
 
 #: ckan/templates/group/snippets/group_item.html:43
 msgid "Remove dataset from this group"
-msgstr ""
+msgstr "Noņemt datu kopu no šīs tēmas"
 
 #: ckan/templates/group/snippets/helper.html:4
 msgid "What are Groups?"
-msgstr ""
+msgstr "Kas ir tēmas?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
@@ -2667,11 +2708,15 @@ msgid ""
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets. "
 msgstr ""
+"Jūs varat izmantot CKAN tēmas, lai izveidotu un pārvaldītu kolekcijas datu "
+"kopām. Tās var būt katalogu datu kopas par konkrētu projektu vai komandu, "
+"vai par konkrētu tēmu, vai arī kā ļoti vienkāršs veids, kā palīdzēt "
+"cilvēkiem atrast un meklēt savas publicētās datu kopas."
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
 msgid "Compare"
-msgstr ""
+msgstr "Salīdzināt"
 
 #: ckan/templates/group/snippets/info.html:16
 #: ckan/templates/organization/bulk_process.html:72
@@ -2680,13 +2725,13 @@ msgstr ""
 #: ckan/templates/snippets/organization.html:37
 #: ckan/templates/snippets/package_item.html:42
 msgid "Deleted"
-msgstr ""
+msgstr "Dzēsts"
 
 #: ckan/templates/group/snippets/info.html:24
 #: ckan/templates/package/snippets/package_context.html:7
 #: ckan/templates/snippets/organization.html:45
 msgid "read more"
-msgstr ""
+msgstr "lasīt vairāk"
 
 #: ckan/templates/group/snippets/revisions_table.html:7
 #: ckan/templates/package/snippets/revisions_table.html:7
@@ -2694,14 +2739,14 @@ msgstr ""
 #: ckan/templates/revision/read.html:39
 #: ckan/templates/revision/snippets/revisions_list.html:4
 msgid "Revision"
-msgstr ""
+msgstr "Izmaiņas"
 
 #: ckan/templates/group/snippets/revisions_table.html:8
 #: ckan/templates/package/snippets/revisions_table.html:8
 #: ckan/templates/revision/read.html:53
 #: ckan/templates/revision/snippets/revisions_list.html:5
 msgid "Timestamp"
-msgstr ""
+msgstr "Datums un laiks"
 
 #: ckan/templates/group/snippets/revisions_table.html:9
 #: ckan/templates/package/snippets/additional_info.html:25
@@ -2711,7 +2756,7 @@ msgstr ""
 #: ckan/templates/revision/read.html:50
 #: ckan/templates/revision/snippets/revisions_list.html:6
 msgid "Author"
-msgstr ""
+msgstr "Autors"
 
 #: ckan/templates/group/snippets/revisions_table.html:10
 #: ckan/templates/package/snippets/revisions_table.html:10
@@ -2722,7 +2767,7 @@ msgstr "Žurnāla ieraksts"
 
 #: ckan/templates/home/index.html:4
 msgid "Welcome"
-msgstr ""
+msgstr "Laipni lūgti"
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
@@ -2745,52 +2790,67 @@ msgid ""
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 msgstr ""
+"<p>CKAN ir pasaulē vadošais atvērtā koda datu publicēšanas portāls.</p> "
+"<p>CKAN ir pilnīgs out-of-the-box programmatūras risinājums, kas padara "
+"pieejamus un izmantojamus datus - nodrošinot instrumentus, lai racionalizētu"
+" publicēšanu, koplietošanu, meklēšanu un datu izmantošanu (ieskaitot datu "
+"uzglabāšanu un spēcīgu datu API).</p> "
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
-msgstr ""
+msgstr "Laipni lūgti CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will "
 msgstr ""
+"Lorem Ipsum – tas ir teksta salikums, kuru izmanto poligrāfijā un "
+"maketēšanas darbos. Lorem Ipsum ir kļuvis par vispārpieņemtu teksta "
+"aizvietotāju kopš 16. gadsimta sākuma. Tajā laikā kāds nezināms iespiedējs "
+"izveidoja teksta fragmentu, lai nodrukātu grāmatu ar burtu paraugiem. Tas ir"
+" ne tikai pārdzīvojis piecus gadsimtus, bet bez ievērojamām izmaiņām "
+"saglabājies arī mūsdienās, pārejot uz datorizētu teksta apstrādi. Tā "
+"popularizēšanai 60-tajos gados kalpoja Letraset burtu paraugu publicēšana ar"
+" Lorem Ipsum teksta fragmentiem un, nesenā pagātnē, tādas maketēšanas "
+"programmas kā Aldus PageMaker, kuras šablonu paraugos ir izmantots Lorem "
+"Ipsum teksts."
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
-msgstr ""
+msgstr "Šī ir iespēju sadaļa"
 
 #: ckan/templates/home/snippets/search.html:2
 msgid "E.g. environment"
-msgstr ""
+msgstr "Piem. vide"
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
-msgstr ""
+msgstr "Meklēt datus"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
-msgstr ""
+msgstr "Populāras birkas"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
-msgstr ""
+msgstr "{0} statistika"
 
 #: ckan/templates/home/snippets/stats.html:11
 msgid "dataset"
-msgstr ""
+msgstr "datu kopa"
 
 #: ckan/templates/home/snippets/stats.html:11
 msgid "datasets"
-msgstr ""
+msgstr "datu kopas"
 
 #: ckan/templates/home/snippets/stats.html:17
 msgid "organizations"
-msgstr ""
+msgstr "organizācijas"
 
 #: ckan/templates/home/snippets/stats.html:23
 msgid "groups"
-msgstr ""
+msgstr "tēmas"
 
 #: ckan/templates/macros/form.html:126
 #, python-format
@@ -2799,69 +2859,72 @@ msgid ""
 "target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
+"Šeit jūs varat izmantot <a href=\"#markdown\" title=\"Markdown quick "
+"reference\" data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" "
+"data-html=\"true\">samazināto formatējumu</a>"
 
 #: ckan/templates/macros/form.html:265
 msgid "This field is required"
-msgstr ""
+msgstr "Šis lauks ir obligāts"
 
 #: ckan/templates/macros/form.html:265
 msgid "Custom"
-msgstr ""
+msgstr "Pielāgots"
 
 #: ckan/templates/macros/form.html:290
 msgid "The form contains invalid entries:"
-msgstr ""
+msgstr "Forma satur nederīgus ierakstus"
 
 #: ckan/templates/macros/form.html:395
 msgid "Required field"
-msgstr ""
+msgstr "Obligātais lauks"
 
 #: ckan/templates/macros/form.html:410
 msgid "http://example.com/my-image.jpg"
-msgstr ""
+msgstr "http://example.com/my-image.jpg"
 
 #: ckan/templates/macros/form.html:411
 msgid "Image URL"
-msgstr ""
+msgstr "Attēla URL"
 
 #: ckan/templates/macros/form.html:424
 msgid "Clear Upload"
-msgstr ""
+msgstr "Attīrīt augšupielādi"
 
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Organization Form"
-msgstr ""
+msgstr "Organizācijas forma"
 
 #: ckan/templates/organization/bulk_process.html:3
 #: ckan/templates/organization/bulk_process.html:11
 msgid "Edit datasets"
-msgstr ""
+msgstr "Rediģēt datu kopu"
 
 #: ckan/templates/organization/bulk_process.html:6
 msgid "Add dataset"
-msgstr ""
+msgstr "Pievienot datu kopu"
 
 #: ckan/templates/organization/bulk_process.html:16
 msgid " found for \"{query}\""
-msgstr ""
+msgstr "meklējot \"{query}\" tika atrasts"
 
 #: ckan/templates/organization/bulk_process.html:18
 msgid "Sorry no datasets found for \"{query}\""
-msgstr ""
+msgstr "Atvainojiet, netika atrasta neviena datu kopa meklējot \"{query}\""
 
 #: ckan/templates/organization/bulk_process.html:37
 msgid "Make public"
-msgstr ""
+msgstr "Padarīt pieejamu publiski"
 
 #: ckan/templates/organization/bulk_process.html:41
 msgid "Make private"
-msgstr ""
+msgstr "Padarīt pieejamu privāti"
 
 #: ckan/templates/organization/bulk_process.html:70
 #: ckan/templates/package/read.html:18
 #: ckan/templates/snippets/package_item.html:40
 msgid "Draft"
-msgstr ""
+msgstr "Sagatave"
 
 #: ckan/templates/organization/bulk_process.html:75
 #: ckan/templates/package/read.html:11
@@ -2870,34 +2933,34 @@ msgstr ""
 #: ckan/templates/snippets/private.html:2
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "Private"
-msgstr ""
+msgstr "Privāts"
 
 #: ckan/templates/organization/bulk_process.html:88
 msgid "This organization has no datasets associated to it"
-msgstr ""
+msgstr "Šai organizācija nav datu kopas, kas saistītas ar to"
 
 #: ckan/templates/organization/confirm_delete.html:11
 msgid "Are you sure you want to delete organization - {name}?"
-msgstr ""
+msgstr "Vai tiešām vēlaties dzēst organizāciju - {name}?"
 
 #: ckan/templates/organization/edit.html:6
 #: ckan/templates/organization/snippets/info.html:13
 #: ckan/templates/organization/snippets/info.html:16
 msgid "Edit Organization"
-msgstr ""
+msgstr "Rediģēt organizāciju"
 
 #: ckan/templates/organization/index.html:13
 #: ckan/templates/user/dashboard_organizations.html:7
 msgid "Add Organization"
-msgstr ""
+msgstr "Pievienot organizāciju"
 
 #: ckan/templates/organization/index.html:20
 msgid "Search organizations..."
-msgstr ""
+msgstr "Meklē organizācijas..."
 
 #: ckan/templates/organization/index.html:29
 msgid "There are currently no organizations for this site"
-msgstr ""
+msgstr "Pašlaik nav organizācijas, šajā vietnē"
 
 #: ckan/templates/organization/member_new.html:32
 #: ckan/templates/user/edit_user_form.html:8
@@ -2907,15 +2970,15 @@ msgstr ""
 #: ckan/templates/user/request_reset.html:16
 #: ckan/templates/user/snippets/login_form.html:20
 msgid "Username"
-msgstr ""
+msgstr "Lietotājvārds"
 
 #: ckan/templates/organization/member_new.html:50
 msgid "Email address"
-msgstr ""
+msgstr "Epasta adrese"
 
 #: ckan/templates/organization/member_new.html:62
 msgid "Update Member"
-msgstr ""
+msgstr "Atjaunot biedru"
 
 #: ckan/templates/organization/member_new.html:82
 msgid ""
@@ -2925,36 +2988,44 @@ msgid ""
 "<p><strong>Member:</strong> Can view the organization's private datasets, "
 "but not add new datasets.</p> "
 msgstr ""
+"<p><strong>Admin:</strong> Var pievienot, mainīt un dzēst datu kopas, "
+"pārvaldīt (pievienot, mainīt, dzēst) organizācijas biedru, skatīt un "
+"lejupielādēt datu kopas, sekot datu kopām, organizācijām, datu kopu "
+"grupām</p> <p><strong>Editor:</strong>−\tpievienot un mainīt datu kopas, "
+"skatīt un lejupielādēt datu kopas, sekot datu kopām, organizācijām, datu "
+"kopu grupām</p> <p><strong>Member:</strong>\tskatīt organizācijas privātās "
+"datu kopas, skatīt un lejupielādēt datu kopas, sekot datu kopām, "
+"organizācijām, datu kopu grupām.</p>"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
 #: ckan/templates/organization/new.html:7
 #: ckan/templates/organization/new.html:12
 msgid "Create an Organization"
-msgstr ""
+msgstr "Izveidot organizāciju"
 
 #: ckan/templates/organization/new_organization_form.html:17
 msgid "Update Organization"
-msgstr ""
+msgstr "Atjaunot organizāciju"
 
 #: ckan/templates/organization/new_organization_form.html:19
 msgid "Create Organization"
-msgstr ""
+msgstr "Izveidot organizāciju"
 
 #: ckan/templates/organization/read.html:5
 #: ckan/templates/package/search.html:16
 #: ckan/templates/user/dashboard_datasets.html:7
 msgid "Add Dataset"
-msgstr ""
+msgstr "Pievienot datu kopu"
 
 #: ckan/templates/organization/snippets/feeds.html:3
 msgid "Datasets in organization: {group}"
-msgstr ""
+msgstr "Datu kopas organizācijā: {group}"
 
 #: ckan/templates/organization/snippets/help.html:4
 #: ckan/templates/organization/snippets/helper.html:4
 msgid "What are Organizations?"
-msgstr ""
+msgstr "Kas ir organizācijas?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
@@ -2965,6 +3036,12 @@ msgid ""
 "individual users the right to publish datasets from that particular "
 "organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
+"<p>Organizācija darbojās, kā datu kopu publicēšanas departaments (piem, "
+"veselības departaments). Tas nozīmē ka datu kopas var tik publicētas zem "
+"kāda departamenta nevis zem individuāla lietotāja.</p> <p>Organizācijās, "
+"administratori var piešķirt lomas un atļaut tās biedriem, piešķirt citiem "
+"lietotājiem tiesības publicēt datu kopu no konkrētās organizācijas "
+"(piemēram, Valsts statistikas birojs).</p>"
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
@@ -2972,42 +3049,47 @@ msgid ""
 "datasets. Users can have different roles within an Organization, depending "
 "on their level of authorisation to create, edit and publish. "
 msgstr ""
+"CKAN organizācijas tiek izmantoti, lai izveidotu, pārvaldītu un publicētu "
+"datu kopu kolekcijas. Lietotāji var būt ar dažādām lomām organizācijā, "
+"atkarībā piešķirtajām tiesībām tie var izveidot, rediģēt un publicēt datus."
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
-msgstr ""
+msgstr "Mana organizācija"
 
 #: ckan/templates/organization/snippets/organization_form.html:18
 msgid "my-organization"
-msgstr ""
+msgstr "my-organization"
 
 #: ckan/templates/organization/snippets/organization_form.html:20
 msgid "A little information about my organization..."
-msgstr ""
+msgstr "Nedaudz informācijas par manu organizāciju ..."
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
 "Are you sure you want to delete this Organization? This will delete all the "
 "public and private datasets belonging to this organization."
 msgstr ""
+"Vai tiešām vēlaties dzēst šo organizāciju? Tas izdzēsīs visas publiskās un "
+"privātās datu kopas, kas pieder šai organizācijai."
 
 #: ckan/templates/organization/snippets/organization_form.html:64
 msgid "Save Organization"
-msgstr ""
+msgstr "Saglabāt organizāciju"
 
 #: ckan/templates/organization/snippets/organization_item.html:37
 #: ckan/templates/organization/snippets/organization_item.html:38
 msgid "View {organization_name}"
-msgstr ""
+msgstr "Skatīt {organization_name}"
 
 #: ckan/templates/package/base.html:22 ckan/templates/package/new.html:9
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
 msgid "Create Dataset"
-msgstr ""
+msgstr "Izveidot datu kopu"
 
 #: ckan/templates/package/base_form_page.html:22
 msgid "What are datasets?"
-msgstr ""
+msgstr "Kas ir datu kopas?"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
@@ -3015,29 +3097,31 @@ msgid ""
 "with a description and other information, at a fixed URL. Datasets are what "
 "users see when searching for data. "
 msgstr ""
+"CKAN datu kopa ir datu resursu kolekcija (piemēram, faili), kopā ar aprakstu"
+" un citu informāciju. Datu kopas ir tas, ko lietotāji redz, meklējot datus."
 
 #: ckan/templates/package/confirm_delete.html:12
 msgid "Are you sure you want to delete dataset - {name}?"
-msgstr ""
+msgstr "Vai tiešām vēlaties dzēst datu kopumu - {name}?"
 
 #: ckan/templates/package/confirm_delete_resource.html:11
 msgid "Are you sure you want to delete resource - {name}?"
-msgstr ""
+msgstr "Vai tiešām vēlaties dzēst resursu - {name}?"
 
 #: ckan/templates/package/edit_base.html:16
 msgid "View dataset"
-msgstr ""
+msgstr "Skatīt datu kopu"
 
 #: ckan/templates/package/edit_base.html:20
 msgid "Edit metadata"
-msgstr ""
+msgstr "Rediģēt metadatus"
 
 #: ckan/templates/package/edit_view.html:3
 #: ckan/templates/package/edit_view.html:4
 #: ckan/templates/package/edit_view.html:8
 #: ckan/templates/package/edit_view.html:12
 msgid "Edit view"
-msgstr ""
+msgstr "Rediģēt skatu"
 
 #: ckan/templates/package/edit_view.html:20
 #: ckan/templates/package/new_view.html:28
@@ -3048,48 +3132,48 @@ msgstr "Priekšskats"
 
 #: ckan/templates/package/edit_view.html:21
 msgid "Update"
-msgstr ""
+msgstr "Atjaunot"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Associate this group with this dataset"
-msgstr ""
+msgstr "Saistīt šo tēmu ar šo datu kopu"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Add to group"
-msgstr ""
+msgstr "Pievienot tēmai"
 
 #: ckan/templates/package/group_list.html:23
 msgid "There are no groups associated with this dataset"
-msgstr ""
+msgstr "Nav tēmas, kas saistītas ar šo datu kopu"
 
 #: ckan/templates/package/new_package_form.html:15
 msgid "Update Dataset"
-msgstr ""
+msgstr "Atjaunot datu kopu"
 
 #: ckan/templates/package/new_resource.html:5
 msgid "Add data to the dataset"
-msgstr ""
+msgstr "Pievienot datus datu kopai"
 
 #: ckan/templates/package/new_resource.html:11
 #: ckan/templates/package/new_resource_not_draft.html:8
 msgid "Add New Resource"
-msgstr ""
+msgstr "Pievienot jaunu resursu"
 
 #: ckan/templates/package/new_resource_not_draft.html:3
 #: ckan/templates/package/new_resource_not_draft.html:4
 msgid "Add resource"
-msgstr ""
+msgstr "Pievienot resursu"
 
 #: ckan/templates/package/new_resource_not_draft.html:16
 msgid "New resource"
-msgstr ""
+msgstr "Jauns resurss"
 
 #: ckan/templates/package/new_view.html:3
 #: ckan/templates/package/new_view.html:4
 #: ckan/templates/package/new_view.html:8
 #: ckan/templates/package/new_view.html:12
 msgid "Add view"
-msgstr ""
+msgstr "Pievienot skatu"
 
 #: ckan/templates/package/new_view.html:19
 msgid ""
@@ -3099,11 +3183,16 @@ msgid ""
 "structured-data-the-data-explorer' target='_blank'>Data Explorer "
 "documentation</a>. "
 msgstr ""
+"Datu pārlūka skats var būt lēns un neuzticams kamēr nav pieslēgts DataStore "
+"paplašinājums. Lai iegūtu vairāk informācijas, lūdzu, skatīt<a "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'> Data Explorer "
+"dokumentāciju </a>."
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:82
 msgid "Add"
-msgstr ""
+msgstr "Pievienot"
 
 #: ckan/templates/package/read_base.html:32
 #, python-format
@@ -3111,117 +3200,121 @@ msgid ""
 "This is an old revision of this dataset, as edited at %(timestamp)s. It may "
 "differ significantly from the <a href=\"%(url)s\">current revision</a>."
 msgstr ""
+"Šīs ir vecas datu kopas izmaiņas, kas tika rediģētas %(timestamp)s. Tās var "
+"būtiski atšķirties no <a href=\"%(url)s\"> pašreizējām izmaiņām</a>."
 
 #: ckan/templates/package/resource_data.html:12
 msgid "Upload to DataStore"
-msgstr ""
+msgstr "Augšupielādēt datu glabātuvē"
 
 #: ckan/templates/package/resource_data.html:19
 msgid "Upload error:"
-msgstr ""
+msgstr "Augšupielādes kļūda:"
 
 #: ckan/templates/package/resource_data.html:25
 #: ckan/templates/package/resource_data.html:27
 msgid "Error:"
-msgstr ""
+msgstr "Kļūda:"
 
 #: ckan/templates/package/resource_data.html:36
 msgid "Error traceback:"
-msgstr ""
+msgstr "Kļūdas izpildes izsekojamība:"
 
 #: ckan/templates/package/resource_data.html:48
 msgid "Status"
-msgstr ""
+msgstr "Statuss"
 
 #: ckan/templates/package/resource_data.html:52
 #: ckan/templates/package/resource_read.html:157
 msgid "Last updated"
-msgstr ""
+msgstr "Pēdējo reizi mainīts"
 
 #: ckan/templates/package/resource_data.html:56
 msgid "Never"
-msgstr ""
+msgstr "Nekad"
 
 #: ckan/templates/package/resource_data.html:62
 msgid "Upload Log"
-msgstr ""
+msgstr "Augšupielādes žurnālieraksts"
 
 #: ckan/templates/package/resource_data.html:74
 msgid "Details"
-msgstr ""
+msgstr "Detaļas"
 
 #: ckan/templates/package/resource_data.html:81
 msgid "End of log"
-msgstr ""
+msgstr "Žurnālieraksta beigas"
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
-msgstr ""
+msgstr "Visi resursi"
 
 #: ckan/templates/package/resource_edit_base.html:19
 msgid "View resource"
-msgstr ""
+msgstr "Skatīt resursu"
 
 #: ckan/templates/package/resource_edit_base.html:24
 #: ckan/templates/package/resource_edit_base.html:32
 msgid "Edit resource"
-msgstr ""
+msgstr "Rediģēt resursu"
 
 #: ckan/templates/package/resource_edit_base.html:26
 msgid "DataStore"
-msgstr ""
+msgstr "Datu glabātuve"
 
 #: ckan/templates/package/resource_edit_base.html:28
 msgid "Views"
-msgstr ""
+msgstr "Skati"
 
 #: ckan/templates/package/resource_read.html:39
 msgid "API Endpoint"
-msgstr ""
+msgstr "API Endpoint"
 
 #: ckan/templates/package/resource_read.html:41
 #: ckan/templates/package/snippets/resource_item.html:48
 msgid "Go to resource"
-msgstr ""
+msgstr "Doties uz resursu"
 
 #: ckan/templates/package/resource_read.html:43
 #: ckan/templates/package/snippets/resource_item.html:45
 msgid "Download"
-msgstr ""
+msgstr "Lejupielādēt"
 
 #: ckan/templates/package/resource_read.html:59
 #: ckan/templates/package/resource_read.html:61
 msgid "URL:"
-msgstr ""
+msgstr "URL:"
 
 #: ckan/templates/package/resource_read.html:69
 msgid "From the dataset abstract"
-msgstr ""
+msgstr "No datu kopas abstrakcijas"
 
 #: ckan/templates/package/resource_read.html:71
 #, python-format
 msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
-msgstr ""
+msgstr "Avots: <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckan/templates/package/resource_read.html:112
 msgid "There are no views created for this resource yet."
-msgstr ""
+msgstr "Šim resursam pašreiz vēl nav izveidots skats."
 
 #: ckan/templates/package/resource_read.html:116
 msgid "Not seeing the views you were expecting?"
-msgstr ""
+msgstr "Neredzat skatu kādu sagaidījāt?"
 
 #: ckan/templates/package/resource_read.html:121
 msgid "Here are some reasons you may not be seeing expected views:"
-msgstr ""
+msgstr "Lūk, daži iemesli, kāpēc jūs nevar redzēt sagaidāmo skatu:"
 
 #: ckan/templates/package/resource_read.html:123
 msgid "No view has been created that is suitable for this resource"
-msgstr ""
+msgstr "Nav izveidots skats, kas ir piemērots šim resursam"
 
 #: ckan/templates/package/resource_read.html:124
 msgid "The site administrators may not have enabled the relevant view plugins"
 msgstr ""
+"Šīs vietnes administrators, iespējams, nav iespējojis attiecīgos apskates "
+"spraudni"
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
@@ -3229,58 +3322,61 @@ msgid ""
 "or the data may not have been pushed to the DataStore, or the DataStore "
 "hasn't finished processing the data yet"
 msgstr ""
+"Ja skatam nepieciešama datu glabātuve, datu glabātuves spraudnis nav "
+"iespējots vai dati nevar būt nogadāti datu glabātuvē, vai datu glabātuve vēl"
+" nav pabeigusi datu apstrādi"
 
 #: ckan/templates/package/resource_read.html:147
 msgid "Additional Information"
-msgstr ""
+msgstr "Papildus informācija"
 
 #: ckan/templates/package/resource_read.html:151
 #: ckan/templates/package/snippets/additional_info.html:6
 #: ckan/templates/revision/diff.html:43
 #: ckan/templates/snippets/additional_info.html:11
 msgid "Field"
-msgstr ""
+msgstr "Lauks"
 
 #: ckan/templates/package/resource_read.html:152
 #: ckan/templates/package/snippets/additional_info.html:7
 #: ckan/templates/snippets/additional_info.html:12
 msgid "Value"
-msgstr ""
+msgstr "Vērtība"
 
 #: ckan/templates/package/resource_read.html:158
 #: ckan/templates/package/resource_read.html:162
 #: ckan/templates/package/resource_read.html:166
 msgid "unknown"
-msgstr ""
+msgstr "nezināms"
 
 #: ckan/templates/package/resource_read.html:161
 #: ckan/templates/package/snippets/additional_info.html:70
 msgid "Created"
-msgstr ""
+msgstr "Izveidots"
 
 #: ckan/templates/package/resource_read.html:165
 #: ckan/templates/package/snippets/resource_form.html:37
 #: ckan/templates/package/snippets/resource_info.html:16
 msgid "Format"
-msgstr ""
+msgstr "Formāts"
 
 #: ckan/templates/package/resource_read.html:169
 #: ckan/templates/package/snippets/package_basic_fields.html:30
 #: ckan/templates/snippets/license.html:21
 msgid "License"
-msgstr ""
+msgstr "Licence"
 
 #: ckan/templates/package/resource_views.html:10
 msgid "New view"
-msgstr ""
+msgstr "Jauns skats"
 
 #: ckan/templates/package/resource_views.html:28
 msgid "This resource has no views"
-msgstr ""
+msgstr "Šim resursam nav skata"
 
 #: ckan/templates/package/resources.html:8
 msgid "Add new resource"
-msgstr ""
+msgstr "Pievienot jaunu resursu"
 
 #: ckan/templates/package/resources.html:19
 #: ckan/templates/package/snippets/resources_list.html:25
@@ -3289,18 +3385,20 @@ msgid ""
 " <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
 "add some?</a></p> "
 msgstr ""
+"<p class=\"empty\">Šai datu kopai nav datu, <a href=\"%(url)s\">kādēļ gan "
+"nepievienot?</a></p>"
 
 #: ckan/templates/package/search.html:52
 msgid "API"
-msgstr ""
+msgstr "API"
 
 #: ckan/templates/package/search.html:53
 msgid "API Docs"
-msgstr ""
+msgstr "API Docs"
 
 #: ckan/templates/package/search.html:55
 msgid "full {format} dump"
-msgstr ""
+msgstr "pilnā {format} izmete"
 
 #: ckan/templates/package/search.html:56
 #, python-format
@@ -3308,6 +3406,8 @@ msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
 msgstr ""
+"Jūs varat piekļūt šim reģistram izmantojot šo saiti %(api_link)s (skatīt "
+"%(api_doc_link)s) vai lejupielādēt %(dump_link)s."
 
 #: ckan/templates/package/search.html:60
 #, python-format
@@ -3315,67 +3415,69 @@ msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
 msgstr ""
+"Jūs varat piekļūt šim reģistram izmantojot šo saiti %(api_link)s (skatīt "
+"%(api_doc_link)s)."
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
-msgstr ""
+msgstr "Visi skati"
 
 #: ckan/templates/package/view_edit_base.html:12
 msgid "View view"
-msgstr ""
+msgstr "Skatu skati"
 
 #: ckan/templates/package/view_edit_base.html:37
 msgid "View preview"
-msgstr ""
+msgstr "Skata priekšskats"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
 msgid "Additional Info"
-msgstr ""
+msgstr "Papildus informācija"
 
 #: ckan/templates/package/snippets/additional_info.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "Source"
-msgstr ""
+msgstr "Avots"
 
 #: ckan/templates/package/snippets/additional_info.html:37
 #: ckan/templates/package/snippets/additional_info.html:42
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
 msgid "Maintainer"
-msgstr ""
+msgstr "Uzturētājs"
 
 #: ckan/templates/package/snippets/additional_info.html:49
 #: ckan/templates/package/snippets/package_metadata_fields.html:10
 msgid "Version"
-msgstr ""
+msgstr "Versija"
 
 #: ckan/templates/package/snippets/additional_info.html:56
 #: ckan/templates/package/snippets/package_basic_fields.html:108
 #: ckan/templates/user/read_base.html:91
 msgid "State"
-msgstr ""
+msgstr "Stāvoklis"
 
 #: ckan/templates/package/snippets/additional_info.html:62
 msgid "Last Updated"
-msgstr ""
+msgstr "Pēdējā atjaunināšana"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
-msgstr ""
+msgstr "Pirms izveidot datu kopu jums ir nepieciešams izveidotu organizāciju."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
-msgstr ""
+msgstr "Izveidot jaunu organizāciju"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:18
 msgid "There are no organizations to which you can assign this dataset."
-msgstr ""
+msgstr "Nav organizācijas, kurai jūs varat piešķirt šo datu kopu."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:19
 msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
-msgstr ""
+msgstr "Lai turpinātu pieprasiet adinistratoram izveidot organizāciju."
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 msgid "Data API"
@@ -3384,50 +3486,52 @@ msgstr "Datu API"
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 #: ckan/templates/package/snippets/view_form.html:8
 msgid "Title"
-msgstr ""
+msgstr "Virsraksts"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 msgid "eg. A descriptive title"
-msgstr ""
+msgstr "piem. Aprakstošs virsraksts"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:13
 msgid "eg. my-dataset"
-msgstr ""
+msgstr "piem. my-dataset"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:19
 msgid "eg. Some useful notes about the data"
-msgstr ""
+msgstr "piem. Dažas noderīgas piezīmes par datiem"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:24
 msgid "eg. economy, mental health, government"
-msgstr ""
+msgstr "piem. ekonomika, garīgā veselība, valdība"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:41
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
 msgstr ""
+"Licence definīcijas un papildus informāciju var atrast <a "
+"href=\"http://opendefinition.org/licenses/\"> opendefinition.org </a>"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:70
 #: ckan/templates/snippets/organization.html:23
 msgid "Organization"
-msgstr ""
+msgstr "Organizācija"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:74
 msgid "No organization"
-msgstr ""
+msgstr "Nav organizācijas"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:89
 msgid "Visibility"
-msgstr ""
+msgstr "Redzamība"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:92
 msgid "Public"
-msgstr ""
+msgstr "Publisks"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:111
 msgid "Active"
-msgstr ""
+msgstr "Aktīvs"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
@@ -3437,232 +3541,241 @@ msgid ""
 "under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
 "Database License</a>."
 msgstr ""
+"Izvēlētā <i>datu licence</i> attiecas tikai uz resursu failu saturu, kuru "
+"Jūs pievienojat šai datu kopai. Iesniedzot šo formu, Jūs piekrītat publicēt "
+"<i>metadatu</ i> vērtības, kuras Jūs ievadijāt šajā formā zem <a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Atvērto datubāzu "
+"licences</a>."
 
 #: ckan/templates/package/snippets/package_form.html:39
 msgid "Are you sure you want to delete this dataset?"
-msgstr ""
+msgstr "Vai tiešām vēlaties dzēst šo datu kopu?"
 
 #: ckan/templates/package/snippets/package_form.html:44
 msgid "Next: Add Data"
-msgstr ""
+msgstr "Nākamais: Pievienot datus"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "http://example.com/dataset.json"
-msgstr ""
+msgstr "http://example.com/dataset.json"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:10
 msgid "1.0"
-msgstr ""
+msgstr "1.0"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
 #: ckan/templates/user/new_user_form.html:6
 msgid "Joe Bloggs"
-msgstr ""
+msgstr "Joe Bloggs"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 msgid "Author Email"
-msgstr ""
+msgstr "Autora epasts"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 #: ckan/templates/user/new_user_form.html:7
 msgid "joe@example.com"
-msgstr ""
+msgstr "joe@example.com"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 msgid "Maintainer Email"
-msgstr ""
+msgstr "Uzturētāja epasts"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
-msgstr ""
+msgstr "Atjaunot resursu"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "Data"
-msgstr ""
+msgstr "Dati"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "http://example.com/external-data.csv"
-msgstr ""
+msgstr "http://example.com/external-data.csv"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
-msgstr ""
+msgstr "piem. 2011. gada janvāris Zelta Cenas"
 
 #: ckan/templates/package/snippets/resource_form.html:32
 msgid "Some useful notes about the data"
-msgstr ""
+msgstr "Dažas noderīgas piezīmes par datiem"
 
 #: ckan/templates/package/snippets/resource_form.html:37
 msgid "eg. CSV, XML or JSON"
-msgstr ""
+msgstr "piem. CSV, XML vai JSON"
 
 #: ckan/templates/package/snippets/resource_form.html:40
 msgid "This will be guessed automatically. Leave blank if you wish"
-msgstr ""
+msgstr "Tas tiks uzminēts automātiski. Atstājiet tukšu, ja vēlaties"
 
 #: ckan/templates/package/snippets/resource_form.html:51
 msgid "eg. 2012-06-05"
-msgstr ""
+msgstr "piem. 2012-06-05"
 
 #: ckan/templates/package/snippets/resource_form.html:53
 msgid "File Size"
-msgstr ""
+msgstr "Faila izmērs"
 
 #: ckan/templates/package/snippets/resource_form.html:53
 msgid "eg. 1024"
-msgstr ""
+msgstr "piem. 1024"
 
 #: ckan/templates/package/snippets/resource_form.html:55
 #: ckan/templates/package/snippets/resource_form.html:57
 msgid "MIME Type"
-msgstr ""
+msgstr "MIME tips"
 
 #: ckan/templates/package/snippets/resource_form.html:55
 #: ckan/templates/package/snippets/resource_form.html:57
 msgid "eg. application/json"
-msgstr ""
+msgstr "piem. application/json"
 
 #: ckan/templates/package/snippets/resource_form.html:65
 msgid "Are you sure you want to delete this resource?"
-msgstr ""
+msgstr "Vai tiešām vēlaties dzēst šo resursu?"
 
 #: ckan/templates/package/snippets/resource_form.html:72
 msgid "Previous"
-msgstr ""
+msgstr "Iepriekšējais"
 
 #: ckan/templates/package/snippets/resource_form.html:75
 msgid "Save & add another"
-msgstr ""
+msgstr "Saglabāt un pievienot citu"
 
 #: ckan/templates/package/snippets/resource_form.html:78
 msgid "Finish"
-msgstr ""
+msgstr "Pabeigt"
 
 #: ckan/templates/package/snippets/resource_help.html:2
 msgid "What's a resource?"
-msgstr ""
+msgstr "Kas ir resurss?"
 
 #: ckan/templates/package/snippets/resource_help.html:4
 msgid "A resource can be any file or link to a file containing useful data."
 msgstr ""
+"Resurss var būt jebkurš fails vai saite uz failu, kas satur noderīgu "
+"informāciju."
 
 #: ckan/templates/package/snippets/resource_item.html:24
 msgid "Explore"
-msgstr ""
+msgstr "Izpētīt"
 
 #: ckan/templates/package/snippets/resource_item.html:36
 msgid "More information"
-msgstr ""
+msgstr "Vairāk informācijas"
 
 #: ckan/templates/package/snippets/resource_view.html:11
 msgid "Embed"
-msgstr ""
+msgstr "Iekļaut"
 
 #: ckan/templates/package/snippets/resource_view.html:24
 msgid "This resource view is not available at the moment."
-msgstr ""
+msgstr "Šī resursa skats pašreiz nav pieejams."
 
 #: ckan/templates/package/snippets/resource_view.html:63
 msgid "Embed resource view"
-msgstr ""
+msgstr "Iekļaut resursa skatu"
 
 #: ckan/templates/package/snippets/resource_view.html:66
 msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
 msgstr ""
+"Jūs varat kopēt un ielīmēt iegultu kodu CMS vai blog programmatūrā, kas "
+"nodrošina neapstrādātu HTML"
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
-msgstr ""
+msgstr "Platums"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Height"
-msgstr ""
+msgstr "Augstums"
 
 #: ckan/templates/package/snippets/resource_view.html:75
 msgid "Code"
-msgstr ""
+msgstr "Kods"
 
 #: ckan/templates/package/snippets/resource_views_list.html:8
 msgid "Resource Preview"
-msgstr ""
+msgstr "Resursa pirmskats"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
-msgstr ""
+msgstr "Dati un resursi"
 
 #: ckan/templates/package/snippets/resources_list.html:29
 msgid "This dataset has no data"
-msgstr ""
+msgstr "Šai datu kopai nav datu"
 
 #: ckan/templates/package/snippets/revisions_table.html:24
 #, python-format
 msgid "Read dataset as of %s"
-msgstr ""
+msgstr "Lasīt datu kopu kā %s"
 
 #: ckan/templates/package/snippets/stages.html:23
 #: ckan/templates/package/snippets/stages.html:25
 msgid "Create dataset"
-msgstr ""
+msgstr "Izveidot datu kopu"
 
 #: ckan/templates/package/snippets/stages.html:30
 #: ckan/templates/package/snippets/stages.html:34
 #: ckan/templates/package/snippets/stages.html:36
 msgid "Add data"
-msgstr ""
+msgstr "Pievienot datus"
 
 #: ckan/templates/package/snippets/view_form.html:8
 msgid "eg. My View"
-msgstr ""
+msgstr "piem. Mans skats"
 
 #: ckan/templates/package/snippets/view_form.html:9
 msgid "eg. Information about my view"
-msgstr ""
+msgstr "piem. Informācija par manu skatu"
 
 #: ckan/templates/package/snippets/view_form_filters.html:16
 msgid "Add Filter"
-msgstr ""
+msgstr "Pievienot filtru"
 
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
-msgstr ""
+msgstr "Noņemt filtru"
 
 #: ckan/templates/package/snippets/view_form_filters.html:46
 msgid "Filters"
-msgstr ""
+msgstr "Filtri"
 
 #: ckan/templates/package/snippets/view_help.html:2
 msgid "What's a view?"
-msgstr ""
+msgstr "Kas ir skats?"
 
 #: ckan/templates/package/snippets/view_help.html:4
 msgid "A view is a representation of the data held against a resource"
-msgstr ""
+msgstr "Skats ir datu reprezentācija attiecībā pret resursiem"
 
 #: ckan/templates/revision/diff.html:6
 msgid "Differences"
-msgstr ""
+msgstr "Atšķirības"
 
 #: ckan/templates/revision/diff.html:13 ckan/templates/revision/diff.html:18
 #: ckan/templates/revision/diff.html:23
 msgid "Revision Differences"
-msgstr ""
+msgstr "izmaiņu atšķirības"
 
 #: ckan/templates/revision/diff.html:44
 msgid "Difference"
-msgstr ""
+msgstr "Atšķirība"
 
 #: ckan/templates/revision/diff.html:54
 msgid "No Differences"
-msgstr ""
+msgstr "Nav atšķirības"
 
 #: ckan/templates/revision/list.html:3 ckan/templates/revision/list.html:6
 #: ckan/templates/revision/list.html:10
 msgid "Revision History"
-msgstr ""
+msgstr "Izmaiņu vēsture"
 
 #: ckan/templates/revision/list.html:6 ckan/templates/revision/read.html:8
 msgid "Revisions"
@@ -3670,63 +3783,63 @@ msgstr "Izmaiņas"
 
 #: ckan/templates/revision/read.html:30
 msgid "Undelete"
-msgstr ""
+msgstr "Atcelt dzēšanu"
 
 #: ckan/templates/revision/read.html:64
 msgid "Changes"
-msgstr ""
+msgstr "Izmaiņas"
 
 #: ckan/templates/revision/read.html:74
 msgid "Datasets' Tags"
-msgstr ""
+msgstr "Datu kopas birkas"
 
 #: ckan/templates/revision/snippets/revisions_list.html:7
 msgid "Entity"
-msgstr ""
+msgstr "Entīte"
 
 #: ckan/templates/snippets/activity_item.html:3
 msgid "New activity item"
-msgstr ""
+msgstr "Jauna aktivitāte"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:4
 msgid "Embed Data Viewer"
-msgstr ""
+msgstr "Iekļaut datu skatītāju"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:8
 msgid "Embed this view by copying this into your webpage:"
-msgstr ""
+msgstr "Iekļaut šo skatu, kopējot to savā mājas lapā:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:10
 msgid "Choose width and height in pixels:"
-msgstr ""
+msgstr "Izvēlieties platumu un augstumu pikseļos:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:11
 msgid "Width:"
-msgstr ""
+msgstr "Platums:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:13
 msgid "Height:"
-msgstr ""
+msgstr "Augstums:"
 
 #: ckan/templates/snippets/datapusher_status.html:8
 msgid "Datapusher status: {status}."
-msgstr ""
+msgstr "Datapusher statuss: {status}."
 
 #: ckan/templates/snippets/disqus_trackback.html:2
 msgid "Trackback URL"
-msgstr ""
+msgstr "Atsekojamības URL"
 
 #: ckan/templates/snippets/facet_list.html:80
 msgid "Show More {facet_type}"
-msgstr ""
+msgstr "Rādīt vairāk {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:83
 msgid "Show Only Popular {facet_type}"
-msgstr ""
+msgstr "Rādīt tikai populāros {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:87
 msgid "There are no {facet_type} that match this search"
-msgstr ""
+msgstr "Nav {facet_type}, kas atbilst šai meklēšanai"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 msgid "Home"
@@ -3734,191 +3847,193 @@ msgstr "Sākumlapa"
 
 #: ckan/templates/snippets/language_selector.html:4
 msgid "Language"
-msgstr ""
+msgstr "Valoda"
 
 #: ckan/templates/snippets/language_selector.html:12
 #: ckan/templates/snippets/search_form.html:41
 #: ckan/templates/snippets/simple_search.html:15
 #: ckan/templates/snippets/sort_by.html:22
 msgid "Go"
-msgstr ""
+msgstr "Iet"
 
 #: ckan/templates/snippets/license.html:14
 msgid "No License Provided"
-msgstr ""
+msgstr "Nav norādīta licence"
 
 #: ckan/templates/snippets/license.html:28
 msgid "This dataset satisfies the Open Definition."
-msgstr ""
+msgstr "Šī datu kopa atbilst atvērtajai definīcija."
 
 #: ckan/templates/snippets/organization.html:48
 msgid "There is no description for this organization"
-msgstr ""
+msgstr "Nav apraksta šai organizācijai"
 
 #: ckan/templates/snippets/package_item.html:57
 msgid "This dataset has no description"
-msgstr ""
+msgstr "Šai datu kopai nav apraksta"
 
 #: ckan/templates/snippets/search_form.html:17
 msgid "Submit"
-msgstr ""
+msgstr "Iesniegt"
 
 #: ckan/templates/snippets/search_form.html:32
 #: ckan/templates/snippets/simple_search.html:8
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr ""
+msgstr "Kārtot pēc"
 
 #: ckan/templates/snippets/search_form.html:73
 msgid "Filter Results"
-msgstr ""
+msgstr "Filtra rezultāts"
 
 #: ckan/templates/snippets/search_form.html:80
 msgid " <p class=\"extra\">Please try another search.</p> "
-msgstr ""
+msgstr "<p class=\"extra\">Lūdzu, mēģiniet citu meklēšanu.</p>"
 
 #: ckan/templates/snippets/search_form.html:86
 msgid ""
 " <p id=\"search-error\"><strong>There was an error while searching.</strong>"
 " Please try again.</p> "
 msgstr ""
+" <p id=\"search-error\"><strong>Radās kļūda meklējot.</strong> Lūdzu "
+"mēģiniet vēlreiz.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} datu kopas meklējot \"{query}\""
+msgstr[1] "{number} datu kopas meklējot \"{query}\""
+msgstr[2] "{number} datu kopa meklējot \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
-msgstr ""
+msgstr "Nav atrastas datu kopas meklējot \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "atrastas {number} datu kopas"
+msgstr[1] "atrastas {number} datu kopas"
+msgstr[2] "atrasta {number} datu kopa"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
-msgstr ""
+msgstr "Nav atrastas datu kopas"
 
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} tēmas meklējot \"{query}\""
+msgstr[1] "{number} tēmas meklējot \"{query}\""
+msgstr[2] "{number} tēma meklējot \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
-msgstr ""
+msgstr "Nav atrastas tēmas meklējot \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:23
 msgid "{number} group found"
 msgid_plural "{number} groups found"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "atrastas {number} tēmas"
+msgstr[1] "atrastas {number} tēmas"
+msgstr[2] "atrastas {number} tēmas"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
-msgstr ""
+msgstr "Tēmas nav atrastas"
 
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} organizācijas meklējot \"{query}\""
+msgstr[1] "{number} organizācijas meklējot \"{query}\""
+msgstr[2] "{number} organizācija meklējot \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
-msgstr ""
+msgstr "Nav atrastas organizācijas meklējot \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "atrastas {number} organizācijas"
+msgstr[1] "atrastas {number} organizācijas"
+msgstr[2] "atrasta {number} organizācija"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
-msgstr ""
+msgstr "Organizācijas nav atrastas"
 
 #: ckan/templates/snippets/social.html:5
 msgid "Social"
-msgstr ""
+msgstr "Sociālie tīkli"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
-msgstr ""
+msgstr "Pierakstīties"
 
 #: ckan/templates/snippets/subscribe.html:4
 #: ckan/templates/user/edit_user_form.html:12
 #: ckan/templates/user/new_user_form.html:7
 #: ckan/templates/user/read_base.html:82
 msgid "Email"
-msgstr ""
+msgstr "Epasts"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
-msgstr ""
+msgstr "RSS"
 
 #: ckan/templates/snippets/context/user.html:23
 #: ckan/templates/user/read_base.html:57
 msgid "Edits"
-msgstr ""
+msgstr "Labojumi"
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
 msgid "Search Tags"
-msgstr ""
+msgstr "Meklēt birkas"
 
 #: ckan/templates/user/dashboard.html:19 ckan/templates/user/dashboard.html:37
 msgid "News feed"
-msgstr ""
+msgstr "Jaunumi"
 
 #: ckan/templates/user/dashboard.html:20
 #: ckan/templates/user/dashboard_datasets.html:12
 msgid "My Datasets"
-msgstr ""
+msgstr "Manas datu kopas"
 
 #: ckan/templates/user/dashboard.html:21
 #: ckan/templates/user/dashboard_organizations.html:12
 msgid "My Organizations"
-msgstr ""
+msgstr "Manas organizācijas"
 
 #: ckan/templates/user/dashboard.html:22
 #: ckan/templates/user/dashboard_groups.html:12
 msgid "My Groups"
-msgstr ""
+msgstr "Manas tēmas"
 
 #: ckan/templates/user/dashboard.html:39
 msgid "Activity from items that I'm following"
-msgstr ""
+msgstr "Aktivitātes no vienumiem, kuriem es sekoju"
 
 #: ckan/templates/user/dashboard_datasets.html:17
 #: ckan/templates/user/read.html:14
 msgid "You haven't created any datasets."
-msgstr ""
+msgstr "Jūs neesat izveidojis nevienu datu kopu."
 
 #: ckan/templates/user/dashboard_datasets.html:19
 #: ckan/templates/user/dashboard_groups.html:22
 #: ckan/templates/user/dashboard_organizations.html:22
 #: ckan/templates/user/read.html:16
 msgid "Create one now?"
-msgstr ""
+msgstr "Izveidot vienu tagad?"
 
 #: ckan/templates/user/dashboard_groups.html:20
 msgid "You are not a member of any groups."
-msgstr ""
+msgstr "Jūs neesat nevienas tēmas biedrs."
 
 #: ckan/templates/user/dashboard_organizations.html:20
 msgid "You are not a member of any organizations."
-msgstr ""
+msgstr "Jūs neesat nevienas organizācijas biedrs."
 
 #: ckan/templates/user/edit.html:6 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/list.html:6 ckan/templates/user/list.html:13
@@ -3929,44 +4044,46 @@ msgstr "Lietotāji"
 
 #: ckan/templates/user/edit.html:17
 msgid "Account Info"
-msgstr ""
+msgstr "Konta informācija"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
 " Your profile lets other CKAN users know about who you are and what you do. "
 msgstr ""
+"Jūsu profils ļauj citiem CKAN lietotājiem uzzināt par to, kas jūs esat un ko"
+" jūs darāt."
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
-msgstr ""
+msgstr "Mainīt detaļas"
 
 #: ckan/templates/user/edit_user_form.html:10
 msgid "Full name"
-msgstr ""
+msgstr "Pilnais vārds"
 
 #: ckan/templates/user/edit_user_form.html:10
 msgid "eg. Joe Bloggs"
-msgstr ""
+msgstr "piem. Jānis Bērziņš"
 
 #: ckan/templates/user/edit_user_form.html:12
 msgid "eg. joe@example.com"
-msgstr ""
+msgstr "piem. joe@example.com"
 
 #: ckan/templates/user/edit_user_form.html:14
 msgid "A little information about yourself"
-msgstr ""
+msgstr "Nedaudz informācijas par sevi"
 
 #: ckan/templates/user/edit_user_form.html:17
 msgid "Subscribe to notification emails"
-msgstr ""
+msgstr "Abonēt epasta paziņojumus"
 
 #: ckan/templates/user/edit_user_form.html:26
 msgid "Change password"
-msgstr ""
+msgstr "Mainīt paroli"
 
 #: ckan/templates/user/edit_user_form.html:29
 msgid "Sysadmin Password"
-msgstr ""
+msgstr "Sistēmas administratora parole"
 
 #: ckan/templates/user/edit_user_form.html:37
 #: ckan/templates/user/logout_first.html:12
@@ -3974,74 +4091,75 @@ msgstr ""
 #: ckan/templates/user/perform_reset.html:20
 #: ckan/templates/user/snippets/login_form.html:22
 msgid "Password"
-msgstr ""
+msgstr "Parole"
 
 #: ckan/templates/user/edit_user_form.html:39
 msgid "Confirm Password"
-msgstr ""
+msgstr "Apstiprināt paroli"
 
 #: ckan/templates/user/edit_user_form.html:45
 msgid "Are you sure you want to delete this User?"
-msgstr ""
+msgstr "Vai tiešām vēlaties dzēst šo lietotāju?"
 
 #: ckan/templates/user/edit_user_form.html:51
 msgid "Are you sure you want to regenerate the API key?"
-msgstr ""
+msgstr "Vai jūs tiešām vēlaties pārģenerēt API atslēgu?"
 
 #: ckan/templates/user/edit_user_form.html:52
 msgid "Regenerate API Key"
-msgstr ""
+msgstr "Pārģenerēt API astlēgu"
 
 #: ckan/templates/user/edit_user_form.html:56
 msgid "Update Profile"
-msgstr ""
+msgstr "Atjaunot profilu"
 
 #: ckan/templates/user/list.html:3
 #: ckan/templates/user/snippets/user_search.html:11
 msgid "All Users"
-msgstr ""
+msgstr "Visi lietotāji"
 
 #: ckan/templates/user/login.html:3 ckan/templates/user/login.html:6
 #: ckan/templates/user/login.html:12
 #: ckan/templates/user/snippets/login_form.html:28
 msgid "Login"
-msgstr "Ieiet"
+msgstr "Pieslēgties"
 
 #: ckan/templates/user/login.html:25
 msgid "Need an Account?"
-msgstr ""
+msgstr "Nepieciešams konts?"
 
 #: ckan/templates/user/login.html:27
 msgid "Then sign right up, it only takes a minute."
-msgstr ""
+msgstr "Reģistrējaties, tas aizņems tikai minūti."
 
 #: ckan/templates/user/login.html:30
 msgid "Create an Account"
-msgstr ""
+msgstr "Izveidot kontu"
 
 #: ckan/templates/user/login.html:42
 msgid "Forgotten your password?"
-msgstr ""
+msgstr "Aizmirsi savu paroli?"
 
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
 msgstr ""
+"Nav problēmu, izmantojiet mūsu paroles atjaunošanas formu, lai atjaunotu to."
 
 #: ckan/templates/user/login.html:47
 msgid "Forgot your password?"
-msgstr ""
+msgstr "Aizmirsi savu paroli?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
 msgid "Logged Out"
-msgstr ""
+msgstr "Atteicies"
 
 #: ckan/templates/user/logout.html:11
 msgid "You are now logged out."
-msgstr ""
+msgstr "Jūs esiet atteicies no sistēmas"
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr ""
+msgstr "Jūs esat jau pieteicies kā {lietotājs}."
 
 #: ckan/templates/user/logout_first.html:9
 msgid "Logout"
@@ -4050,304 +4168,309 @@ msgstr "Iziet"
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr ""
+msgstr "Atcerēties mani"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
-msgstr ""
+msgstr "Jūs esat jau pieteicies"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
 msgstr ""
+"Jums ir nepieciešams atteikties no sistēmas, lai pieteiktos ar citu kontu."
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
-msgstr ""
+msgstr "Atteikties tagad"
 
 #: ckan/templates/user/new.html:6
 msgid "Registration"
-msgstr ""
+msgstr "Reģistrācija"
 
 #: ckan/templates/user/new.html:14
 msgid "Register for an Account"
-msgstr ""
+msgstr "Konta reģistrācija"
 
 #: ckan/templates/user/new.html:26
 msgid "Why Sign Up?"
-msgstr ""
+msgstr "Kāpēc reģistrēties?"
 
 #: ckan/templates/user/new.html:28
 msgid "Create datasets, groups and other exciting things"
-msgstr ""
+msgstr "Izveidot datu kopas, tēmas un citas aizraujošas lietas"
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
-msgstr ""
+msgstr "lietotājvārds"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr ""
+msgstr "PIlns vārds"
 
 #: ckan/templates/user/new_user_form.html:17
 msgid "Create Account"
-msgstr ""
+msgstr "Izveidot kontu"
 
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:14
 msgid "Reset Your Password"
-msgstr ""
+msgstr "Atjaunot jūsu paroli"
 
 #: ckan/templates/user/perform_reset.html:7
 msgid "Password Reset"
-msgstr ""
+msgstr "Paroles atiestatīšana"
 
 #: ckan/templates/user/perform_reset.html:24
 msgid "Update Password"
-msgstr ""
+msgstr "Atjaunot paroli"
 
 #: ckan/templates/user/perform_reset.html:38
 #: ckan/templates/user/request_reset.html:32
 msgid "How does this work?"
-msgstr ""
+msgstr "Kā tas strādā?"
 
 #: ckan/templates/user/perform_reset.html:40
 msgid "Simply enter a new password and we'll update your account"
-msgstr ""
+msgstr "Vienkārši ievadiet jauno paroli un mēs atjaunosim jūsu kontu"
 
 #: ckan/templates/user/read.html:21
 msgid "User hasn't created any datasets."
-msgstr ""
+msgstr "Lietotājs vēl nav izveidojis nevienu datu kopu."
 
 #: ckan/templates/user/read_base.html:39
 msgid "You have not provided a biography."
-msgstr ""
+msgstr "Jūs neesat norādijis biogrāfiju."
 
 #: ckan/templates/user/read_base.html:41
 msgid "This user has no biography."
-msgstr ""
+msgstr "Šim lietotājam nav biogrāfijas."
 
 #: ckan/templates/user/read_base.html:73
 msgid "Open ID"
-msgstr ""
+msgstr "Open ID"
 
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "This means only you can see this"
-msgstr ""
+msgstr "Tas nozīmē, ka tikai jūs varat redzēt šo"
 
 #: ckan/templates/user/read_base.html:87
 msgid "Member Since"
-msgstr ""
+msgstr "Biedrs kopš"
 
 #: ckan/templates/user/read_base.html:96
 msgid "API Key"
-msgstr ""
+msgstr "API atslēga"
 
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:13
 msgid "Reset your password"
-msgstr ""
+msgstr "Attiestatīt jūsu paroli"
 
 #: ckan/templates/user/request_reset.html:6
 msgid "Password reset"
-msgstr ""
+msgstr "Paroles attiestatīšana"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "Request reset"
-msgstr ""
+msgstr "Pieprasīt atiestatīšanu"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
 msgstr ""
+"Ievadiet savu lietotājvārdu lodziņā, un mēs nosūtīsim jums e-pastu ar saiti,"
+" lai ievadītu jaunu paroli."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
 #: ckan/templates/user/snippets/followee_dropdown.html:15
 msgid "Activity from:"
-msgstr ""
+msgstr "Aktivitāte no:"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:23
 msgid "Search list..."
-msgstr ""
+msgstr "Meklē sarakstu..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:44
 msgid "You are not following anything"
-msgstr ""
+msgstr "Jūs nekam nesekojat"
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
-msgstr ""
+msgstr "Nav sekotāju"
 
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
-msgstr ""
+msgstr "Meklēt lietotājus"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
-msgstr ""
+msgstr "Pabeigts"
 
 #: ckanext/datapusher/helpers.py:22
 msgid "Pending"
-msgstr ""
+msgstr "Gaida"
 
 #: ckanext/datapusher/helpers.py:23
 msgid "Submitting"
-msgstr ""
+msgstr "Iesniedz"
 
 #: ckanext/datapusher/helpers.py:29
 msgid "Not Uploaded Yet"
-msgstr ""
+msgstr "Pagaidām nav augšupielādēts"
 
 #: ckanext/datastore/controller.py:33
 msgid "DataStore resource not found"
-msgstr ""
+msgstr "Datu glabātuves resurss nav atrasts"
 
 #: ckanext/datastore/db.py:663
 msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
 msgstr ""
+"Dati bija nederīgi (piemēram: skaitliska vērtība ir ārpus diapazona vai tika"
+" ievietots teksta laukā)."
 
 #: ckanext/datastore/logic/action.py:221 ckanext/datastore/logic/action.py:261
 #: ckanext/datastore/logic/action.py:348 ckanext/datastore/logic/action.py:446
 #: ckanext/datastore/logic/action.py:528 ckanext/datastore/logic/action.py:554
 msgid "Resource \"{0}\" was not found."
-msgstr ""
+msgstr "Nav atrasti \"{0}\"  resursi."
 
 #: ckanext/datastore/logic/auth.py:18
 msgid "User {0} not authorized to update resource {1}"
-msgstr ""
+msgstr "Lietotājam {0} nav atļauts atjaunināt resursu {1}"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
-msgstr ""
+msgstr "Datu kopas viena lapā"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:13
 msgid "Test conf"
-msgstr ""
+msgstr "Testa iestatījumi"
 
 #: ckanext/example_idatasetform/templates/package/search.html:16
 msgid "Custom Field Ascending"
-msgstr ""
+msgstr "Pielāgotie lauki augošā secībā"
 
 #: ckanext/example_idatasetform/templates/package/search.html:17
 msgid "Custom Field Descending"
-msgstr ""
+msgstr "Pielāgotie lauki dilstošā secībā"
 
 #: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 #: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
 msgid "Custom Text"
-msgstr ""
+msgstr "Pielāgots teksts"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 msgid "custom text"
-msgstr ""
+msgstr "pielāgots teksts"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
 msgid "Country Code"
-msgstr ""
+msgstr "Valsts kods"
 
 #: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
 msgid "custom resource text"
-msgstr ""
+msgstr "pielāgots resursa teksts"
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr ""
+msgstr "Šis ir netulkots teksts"
 
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
 msgid "This group has no description"
-msgstr ""
+msgstr "Šai tēmai nav apraksta"
 
 #: ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
-msgstr ""
+msgstr "CKAN datu priekšskatījuma rīkam ir daudz spēcīgu iespēju"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "Image url"
-msgstr ""
+msgstr "Attēla url"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
-msgstr ""
+msgstr "piem. http://example.com/image.jpg (ja tukšs izmanto resursu url)"
 
 #: ckanext/reclineview/plugin.py:101
 msgid "Data Explorer"
-msgstr ""
+msgstr "Datu pārlūks"
 
 #: ckanext/reclineview/plugin.py:128
 msgid "Table"
-msgstr ""
+msgstr "Tabula"
 
 #: ckanext/reclineview/plugin.py:171
 msgid "Graph"
-msgstr ""
+msgstr "Grafiks"
 
 #: ckanext/reclineview/plugin.py:231
 msgid "Map"
-msgstr ""
+msgstr "Karte"
 
 #: ckanext/reclineview/theme/public/recline_view.js:34
 msgid "error loading view"
-msgstr ""
+msgstr "kļūda ielādējot skatu"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "Row offset"
-msgstr ""
+msgstr "Rindas iznesums"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "eg: 0"
-msgstr ""
+msgstr "piem,: 0"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "Rindu skaits"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "eg: 100"
-msgstr ""
+msgstr "piem.:100"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:6
 msgid "Graph type"
-msgstr ""
+msgstr "Grafika tips"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:7
 msgid "Group (Axis 1)"
-msgstr ""
+msgstr "Grupa (ass 1)"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:8
 msgid "Series (Axis 2)"
-msgstr ""
+msgstr "Sērija (ass 2)"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:6
 msgid "Field type"
-msgstr ""
+msgstr "Lauka tips"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:7
 msgid "Latitude field"
-msgstr ""
+msgstr "Latitude lauks"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:8
 msgid "Longitude field"
-msgstr ""
+msgstr "Longitude lauks"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:9
 msgid "GeoJSON field"
-msgstr ""
+msgstr "GeoJSON lauks"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:10
 msgid "Auto zoom to features"
-msgstr ""
+msgstr "Automātiskā tuvināšana"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:11
 msgid "Cluster markers"
-msgstr ""
+msgstr "Klastera mārķieri"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 msgid "Total number of Datasets"
@@ -4356,24 +4479,24 @@ msgstr "Kopējais datu kopu skaits"
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
 msgid "Date"
-msgstr ""
+msgstr "Datums"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr ""
+msgstr "Datu kopas kopā"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "Datu kopu izmaiņas nedēļā"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr ""
+msgstr "Visu datu kopu izmaiņas"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr ""
+msgstr "Jaunās datu kopas"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:180
@@ -4403,12 +4526,12 @@ msgstr "Pārmaiņu skaits"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:103
 msgid "No edited datasets"
-msgstr ""
+msgstr "Nemainītas datu kopas"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:108
 #: ckanext/stats/templates/ckanext/stats/index.html:182
 msgid "Largest Groups"
-msgstr "Lielākās grupas"
+msgstr "Lielākās tēmas"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:114
 msgid "Number of datasets"
@@ -4416,52 +4539,52 @@ msgstr "Datu kopumu skaits"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:127
 msgid "No groups"
-msgstr ""
+msgstr "Nav tēmu"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:132
 #: ckanext/stats/templates/ckanext/stats/index.html:183
 msgid "Top Tags"
-msgstr "Populārākās etiķetes"
+msgstr "Populārākās birkas"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:136
 msgid "Tag Name"
-msgstr ""
+msgstr "Birkas nosaukums"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:137
 #: ckanext/stats/templates/ckanext/stats/index.html:157
 msgid "Number of Datasets"
-msgstr ""
+msgstr "Datu kopu skaits"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "Lietotāju biežāk izveidotās datu kopas"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
-msgstr ""
+msgstr "Satistikas izvēlne"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:178
 msgid "Total Number of Datasets"
-msgstr ""
+msgstr "Datu kopu kopējais skaits"
 
 #: ckanext/textview/plugin.py:67 ckanext/textview/plugin.py:69
 msgid "Text"
-msgstr ""
+msgstr "Teksts"
 
 #: ckanext/textview/theme/public/text_view.js:5
 #, python-format
 msgid "An error occurred: %(text)s %(error)s"
-msgstr ""
+msgstr "Radās kļūda: %(text)s %(error)s"
 
 #: ckanext/webpageview/plugin.py:21 ckanext/webpageview/plugin.py:26
 msgid "Website"
-msgstr ""
+msgstr "Mājas lapa"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "Web Page url"
-msgstr ""
+msgstr "Tīmekļa vietnes url"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
-msgstr ""
+msgstr "piem. http://example.com (ja tukšs izmanto resursu url)"

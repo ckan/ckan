@@ -3,7 +3,7 @@
 {% block subtitle %}{{ _('Edit datasets') }} - {{ super() }}{% endblock %}
 
 {% block page_primary_action %}
-  {% link_for _('Add dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
+  {% link_for _('Add dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-square' %}
 {% endblock %}
 
 {% block primary_content_inner %}
@@ -33,17 +33,17 @@
                   <th class="table-actions">
                     <div class="btn-group">
                       <button name="bulk_action.public" value="public" class="btn" type="submit">
-                        <i class="icon-eye-open"></i>
+                        <i class="fa fa-eye"></i>
                         {{ _('Make public') }}
                       </button>
                       <button name="bulk_action.private" value="private" class="btn" type="submit">
-                        <i class="icon-eye-close"></i>
+                        <i class="fa fa-eye-slash"></i>
                         {{ _('Make private') }}
                       </button>
                     </div>
                     <div class="btn-group">
                       <button name="bulk_action.delete" value="delete" class="btn btn-danger" type="submit">
-                        <i class="icon-remove"></i>
+                        <i class="fa fa-times"></i>
                         {{ _('Delete') }}
                       </button>
                     </div>

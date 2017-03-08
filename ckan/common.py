@@ -20,7 +20,8 @@ from flask_babel import (gettext as flask_ugettext,
 from pylons.i18n import (ugettext as pylons_ugettext,
                          ungettext as pylons_ungettext)
 
-from pylons import session, response
+from pylons import response
+
 import simplejson as json
 
 try:
@@ -167,6 +168,13 @@ def _get_c():
         return pylons.c
 
 
+def _get_session():
+    if is_flask_request():
+        return flask.session
+    else:
+        return pylons.session
+
+
 local = Local()
 
 # This a proxy to the bounded config object
@@ -179,3 +187,4 @@ config = local.config = CKANConfig()
 request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
 g = c = LocalProxy(_get_c)
+session = LocalProxy(_get_session)

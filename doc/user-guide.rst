@@ -465,8 +465,7 @@ The dataset page also has two other tabs:
 
 * *Activity stream* -- see the history of recent changes to the dataset
 
-* *Related items* -- see any links to web pages related to this dataset, or add
-  your own links.
+* *Groups* -- see any group associated with this dataset.
 
 If the dataset is of interest, you can opt to be notified of changes to it by
 using the "Follow" button on the dataset page. See the section

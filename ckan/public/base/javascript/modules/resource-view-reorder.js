@@ -10,7 +10,7 @@ this.ckan.module('resource-view-reorder', function($) {
       title: '<h1></h1>',
       button: [
         '<a href="javascript:;" class="btn">',
-        '<i class="icon-reorder"></i>',
+        '<i class="fa fa-bars"></i>',
         '<span></span>',
         '</a>'
       ].join('\n'),
@@ -22,7 +22,7 @@ this.ckan.module('resource-view-reorder', function($) {
       ].join('\n'),
       saving: [
         '<span class="saving muted m-right">',
-        '<i class="icon-spinner icon-spin"></i>',
+        '<i class="fa fa-spinner fa-spin"></i>',
         '<span></span>',
         '</span>'
       ].join('\n')
