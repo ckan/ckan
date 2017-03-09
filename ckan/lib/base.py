@@ -238,9 +238,6 @@ class BaseController(WSGIController):
         url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
         log.info(' %s render time %.3f seconds' % (url, r_time))
 
-        if asbool(config.get(u'debug', config.get(u'DEBUG'))):
-            response.headers[u'X-CKAN-APP'] = u'Pylons'
-
 
 # Include the '_' function in the public names
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_')
