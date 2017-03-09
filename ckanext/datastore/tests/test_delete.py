@@ -118,9 +118,11 @@ class TestDatastoreDelete(tests.WsgiAppCase):
                 'package_id': package['id']
             },
         }
-        result = helpers.call_action('datastore_create', **data)
-        resource_id = result['resource_id']
-        helpers.call_action('resource_delete', id=resource_id)
+
+        with self.app.flask_app.test_request_context():
+            result = helpers.call_action('datastore_create', **data)
+            resource_id = result['resource_id']
+            helpers.call_action('resource_delete', id=resource_id)
 
         assert_raises(
             NotFound, helpers.call_action, 'datastore_search',
