@@ -11,10 +11,15 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
 from ckan.common import config
+import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
+from ckan.logic import NotFound
 
 import ckan.tests.helpers as helpers
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
+
+assert_raises = nose.tools.assert_raises
 
 
 class TestDatastoreDelete(tests.WsgiAppCase):
@@ -103,6 +108,23 @@ class TestDatastoreDelete(tests.WsgiAppCase):
             assert expected_msg in str(e)
 
         self.Session.remove()
+
+    def test_datastore_deleted_during_resource_deletion(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'boo%k': 'crime',
+                'author': ['tolstoy', 'dostoevsky'],
+                'package_id': package['id']
+            },
+        }
+        result = helpers.call_action('datastore_create', **data)
+        resource_id = result['resource_id']
+        helpers.call_action('resource_delete', id=resource_id)
+
+        assert_raises(
+            NotFound, helpers.call_action, 'datastore_search',
+            resource_id=resource_id)
 
     def test_delete_invalid_resource_id(self):
         postparams = '%s=1' % json.dumps({'resource_id': 'bad'})

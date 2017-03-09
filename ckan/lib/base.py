@@ -7,7 +7,6 @@ Provides the BaseController class for subclassing.
 import logging
 import time
 
-from paste.deploy.converters import asbool
 from pylons import cache
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
