@@ -290,8 +290,6 @@ def package_dict_save(pkg_dict, context):
 
     if 'metadata_created' in pkg_dict:
         del pkg_dict['metadata_created']
-    if 'metadata_modified' in pkg_dict:
-        del pkg_dict['metadata_modified']
 
     pkg = d.table_dict_save(pkg_dict, Package, context)
 

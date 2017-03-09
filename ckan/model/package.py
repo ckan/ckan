@@ -1,13 +1,9 @@
 # encoding: utf-8
-
 import datetime
-from calendar import timegm
 import logging
-logger = logging.getLogger(__name__)
 
-from sqlalchemy.sql import select, and_, union, or_
-from sqlalchemy import orm
-from sqlalchemy import types, Column, Table
+from sqlalchemy import types, Column, Table, orm, text
+from sqlalchemy.sql import and_, or_
 from ckan.common import config
 import vdm.sqlalchemy
 
@@ -24,9 +20,10 @@ import ckan.lib.dictization as dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTag', 'PackageTagRevision',
+           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision',
            'PackageRevision']
 
+logger = logging.getLogger(__name__)
 
 PACKAGE_NAME_MAX_LENGTH = 100
 PACKAGE_NAME_MIN_LENGTH = 2
@@ -50,7 +47,15 @@ package_table = Table('package', meta.metadata,
         Column('owner_org', types.UnicodeText),
         Column('creator_user_id', types.UnicodeText),
         Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
-        Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
+        Column(
+            'metadata_modified',
+            types.DateTime,
+            default=datetime.datetime.utcnow,
+            # Postgres-specific extension to get the time of row insertion
+            # instead of the time of transactions start (which utcnow() would
+            # return) since our transactions can last for very long times.
+            server_default=text('statement_timestamp() at timezone \'utc\'')
+        ),
         Column('private', types.Boolean, default=False),
 )
 
