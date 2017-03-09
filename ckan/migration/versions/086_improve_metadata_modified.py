@@ -5,11 +5,11 @@
 
 def upgrade(migrate_engine):
     update_default_q = (
-        'ALTER TABLE ONLY package ALTER COLUMN metadata_modified '
-        'SET DEFAULT (statement_timestamp() at time zone \'utc\');'
+        u'ALTER TABLE ONLY package ALTER COLUMN metadata_modified '
+        u'SET DEFAULT (statement_timestamp() at time zone \'utc\');'
     )
 
-    add_trigger_q = """
+    add_trigger_q = u"""
 CREATE OR REPLACE FUNCTION update_metadata_modified() RETURNS TRIGGER
 LANGUAGE plpgsql
 AS
@@ -28,7 +28,7 @@ CREATE TRIGGER update_metadata_modified_t
   EXECUTE PROCEDURE update_metadata_modified();
 """
 
-    add_extras_trigger_q = """
+    add_extras_trigger_q = u"""
 CREATE OR REPLACE FUNCTION update_extras_metadata_modified() RETURNS TRIGGER
 LANGUAGE plpgsql
 AS
