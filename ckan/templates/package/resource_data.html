@@ -9,7 +9,7 @@
 
   <form method="post" action="{{ action }}" >
     <button class="btn btn-primary" name="save" type="submit">
-      <i class="icon-cloud-upload"></i> {{ _('Upload to DataStore') }}
+      <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
     </button>
   </form>
 
@@ -66,7 +66,7 @@
         {% set class = ' failure' if icon == 'exclamation' else ' success' %}
         {% set popover_content = 'test' %}
         <li class="item no-avatar{{ class }}">
-          <i class="icon icon-{{ icon }}"></i>
+          <i class="fa icon fa-{{ icon }}"></i>
           <p>
             {{ item.message | urlize }}<br>
             <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
@@ -77,7 +77,7 @@
         </li>
       {% endfor %}
       <li class="item no-avatar">
-        <i class="icon icon-info"></i>
+        <i class="fa icon fa-info"></i>
         <p class="muted">{{ _('End of log') }}</p>
       </li>
     </ul>

@@ -13,7 +13,7 @@
       <input type="text" class="search" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
       {% block search_input_button %}
       <button type="submit" value="search">
-        <i class="icon-search"></i>
+        <i class="fa fa-search"></i>
         <span>{{ _('Submit') }}</span>
       </button>
       {% endblock %}
@@ -65,7 +65,7 @@
               {%- else -%}
                 {{ h.list_dict_filter(search_facets_items, 'name', 'display_name', value) }}
               {%- endif %}
-              <a href="{{ facets.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="icon-remove"></i></a>
+              <a href="{{ facets.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="fa fa-times"></i></a>
             </span>
           {% endfor %}
         {% endfor %}

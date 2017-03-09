@@ -1883,7 +1883,7 @@ def package_search(context, data_dict):
         include_drafts = asbool(data_dict.pop('include_drafts', False))
         data_dict.setdefault('fq', '')
         if not include_private:
-            data_dict['fq'] += ' +capacity:public'
+            data_dict['fq'] = '+capacity:public ' + data_dict['fq']
         if include_drafts:
             data_dict['fq'] += ' +state:(active OR draft)'
 
