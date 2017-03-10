@@ -740,7 +740,7 @@ class PackageController(base.BaseController):
                 else:
                     get_action('resource_create')(context, data)
                     if not data['resource_type']:
-                        h.flash_success(_('A related resource has been added'))
+                        h.flash_success(_('A related item has been added'))
                     else:
                         h.flash_success(_('A resource has been added'))
             except ValidationError, e:
