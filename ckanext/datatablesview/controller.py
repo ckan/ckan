@@ -14,11 +14,6 @@ class DataTablesController(BaseController):
         search_text = unicode(request.params['search[value]'])
         offset = int(request.params['start'])
         limit = int(request.params['length'])
-        sort_by_num = int(request.params['order[0][column]'])
-        sort_order = (
-            u'desc' if request.params['order[0][dir]'] == u'desc'
-            else u'asc')
-
         view_filters = resource_view.get(u'filters', {})
         user_filters = unicode(request.params['filters'])
         filters = merge_filters(view_filters, user_filters)
@@ -31,14 +26,25 @@ class DataTablesController(BaseController):
         })
 
         cols = [f['id'] for f in unfiltered_response['fields']]
-        sort_str = cols[sort_by_num] + u' ' + sort_order
+
+        sort_list = []
+        i = 0
+        while True:
+            if u'order[%d][column]' % i not in request.params:
+                break
+            sort_by_num = int(request.params[u'order[%d][column]' % i])
+            sort_order = (
+                u'desc' if request.params[u'order[%d][dir]' % i] == u'desc'
+                else u'asc')
+            sort_list.append(cols[sort_by_num] + u' ' + sort_order)
+            i += 1
 
         response = datastore_search(None, {
             u"q": search_text,
             u"resource_id": resource_view[u'resource_id'],
             u"offset": offset,
             u"limit": limit,
-            u"sort": sort_str,
+            u"sort": u', '.join(sort_list),
             u"filters": filters,
         })
 
