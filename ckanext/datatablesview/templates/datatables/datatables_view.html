@@ -34,7 +34,8 @@ $(document).ready(function() {
       processing: true,
       ajax: {
         url: "/datatables/ajax/{{ resource_view.id }}",
-        type: "GET"
+        type: "GET",
+        data: { filters: "{{ request.params.get('filters', '')|e }}" }
       },
       responsive: {{
         'true' if resource_view.get('responsive') else 'false' }},

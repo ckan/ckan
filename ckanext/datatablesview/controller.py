@@ -19,11 +19,15 @@ class DataTablesController(BaseController):
             u'desc' if request.params['order[0][dir]'] == u'desc'
             else u'asc')
 
+        view_filters = resource_view.get(u'filters', {})
+        user_filters = unicode(request.params['filters'])
+        filters = merge_filters(view_filters, user_filters)
+
         datastore_search = get_action(u'datastore_search')
         unfiltered_response = datastore_search(None, {
             u"resource_id": resource_view[u'resource_id'],
             u"limit": 0,
-            u"filters": resource_view.get(u'filters', {}),
+            u"filters": view_filters,
         })
 
         cols = [f['id'] for f in unfiltered_response['fields']]
@@ -35,7 +39,7 @@ class DataTablesController(BaseController):
             u"offset": offset,
             u"limit": limit,
             u"sort": sort_str,
-            u"filters": resource_view.get(u'filters', {}),
+            u"filters": filters,
         })
 
         return json.dumps({
@@ -47,3 +51,30 @@ class DataTablesController(BaseController):
                 for row in response['records']
             ],
         })
+
+
+def merge_filters(view_filters, user_filters_str):
+    u'''
+    view filters are built as part of the view, user filters
+    are selected by the user interacting with the view. Any filters
+    selected by user may only tighten filters set in the view,
+    others are ignored.
+
+    >>> merge_filters({
+    ...    u'Department': [u'BTDT'], u'OnTime_Status': [u'ONTIME']},
+    ...    u'CASE_STATUS:Open|CASE_STATUS:Closed|Department:INFO')
+    {u'Department': [u'BTDT'],
+     u'OnTime_Status': [u'ONTIME'],
+     u'CASE_STATUS': [u'Open', u'Closed']}
+    '''
+    filters = dict(view_filters)
+    if not user_filters_str:
+        return filters
+    user_filters = {}
+    for k_v in user_filters_str.split(u'|'):
+        k, sep, v = k_v.partition(u':')
+        if k not in view_filters or v in view_filters[k]:
+            user_filters.setdefault(k, []).append(v)
+    for k in user_filters:
+        filters[k] = user_filters[k]
+    return filters
