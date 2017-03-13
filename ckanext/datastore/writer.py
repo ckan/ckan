@@ -8,7 +8,8 @@ from xml.etree.cElementTree import Element, SubElement, ElementTree
 import unicodecsv
 
 UTF8_BOM = u'\uFEFF'.encode(u'utf-8')
-
+# Element names can contain letters, digits, hyphens, underscores, and periods
+SPECIAL_CHARS = u'#$%&!?\/@'
 
 @contextmanager
 def csv_writer(response, fields, name=None, bom=False):
@@ -161,9 +162,21 @@ class XMLWriter(object):
             root.attrib[u'_id'] = unicode(row[0])
             row = row[1:]
         for k, v in zip(self.columns, row):
+            k = get_xml_element(k)
             if v is None:
                 SubElement(root, k).attrib[u'xsi:nil'] = u'true'
                 continue
             SubElement(root, k).text = unicode(v)
         ElementTree(root).write(self.response, encoding=u'utf-8')
         self.response.write(b'\n')
+
+
+def get_xml_element(element_name):
+    u'''Return element name according XML naming standards
+        Capitalize every word and remove special characters
+       '''
+    clean_word = u''.join(c.strip(SPECIAL_CHARS) for c in element_name)
+    if unicode(clean_word).isnumeric():
+        return u'_' + unicode(element_name)
+    first, rest = clean_word.split(u' ')[0], clean_word.split(u' ')[1:]
+    return first + u''.join(w.capitalize()for w in rest)
