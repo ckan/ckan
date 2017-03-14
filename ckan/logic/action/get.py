@@ -336,7 +336,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
             data_dict, logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or 'name'
+    sort = data_dict.get('sort') or 'title'
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
