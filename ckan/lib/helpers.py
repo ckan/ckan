@@ -45,6 +45,7 @@ import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
 import ckan.authz as authz
+from ckan.plugins.core import plugin_loaded
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -2281,4 +2282,5 @@ __allowed_functions__ = [
     'check_config_permission',
     'view_resource_url',
     'license_options',
+    'plugin_loaded'
 ]

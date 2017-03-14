@@ -642,12 +642,7 @@ class PackageController(base.BaseController):
             # dataset has not yet been fully created
             resource_dict = get_action('resource_show')(context,
                                                         {'id': resource_id})
-            fields = ['url', 'resource_type', 'format', 'name', 'description',
-                      'id']
-            data = {}
-            for field in fields:
-                data[field] = resource_dict[field]
-            return self.new_resource(id, data=data)
+            return self.new_resource(id, data=resource_dict)
         # resource is fully created
         try:
             resource_dict = get_action('resource_show')(context,
@@ -739,7 +734,10 @@ class PackageController(base.BaseController):
                     get_action('resource_update')(context, data)
                 else:
                     get_action('resource_create')(context, data)
-                    h.flash_success(_('A resource has been added'))
+                    if not data['resource_type']:
+                        h.flash_success(_('A related item has been added'))
+                    else:
+                        h.flash_success(_('A resource has been added'))
             except ValidationError, e:
                 errors = e.error_dict
                 error_summary = e.error_summary
