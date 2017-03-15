@@ -1,0 +1,13 @@
+<li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
+  <i class="fa icon fa-users"></i>
+  <p>
+    {{ _('{actor} deleted the group {group}').format(
+      actor=ah.actor(activity),
+      group=ah.group(activity)
+    )|safe }}
+    <br />
+    <span class="date">
+      {{ h.time_ago_from_timestamp(activity.timestamp) }}
+    </span>
+  </p>
+</li>

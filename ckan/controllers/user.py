@@ -135,13 +135,6 @@ class UserController(base.BaseController):
         context['with_related'] = True
 
         self._setup_template_variables(context, data_dict)
-
-        # The legacy templates have the user's activity stream on the user
-        # profile page, new templates do not.
-        if h.asbool(config.get('ckan.legacy_templates', False)):
-            c.user_activity_stream = get_action('user_activity_list_html')(
-                context, {'id': c.user_dict['id']})
-
         return render('user/read.html')
 
     def me(self, locale=None):
@@ -583,10 +576,18 @@ class UserController(base.BaseController):
 
         self._setup_template_variables(context, data_dict)
 
-        c.user_activity_stream = get_action('user_activity_list_html')(
-            context, {'id': c.user_dict['id'], 'offset': offset})
-
-        return render('user/activity_stream.html')
+        return render(
+            'user/activity_stream.html',
+            extra_vars={
+                'activity_stream': get_action('user_activity_list')(
+                    context,
+                    {
+                        'id': id,
+                        'offset': offset
+                    }
+                )
+            }
+        )
 
     def _get_dashboard_context(self, filter_type=None, filter_id=None, q=None):
         '''Return a dict needed by the dashboard view to determine context.'''
@@ -656,10 +657,19 @@ class UserController(base.BaseController):
         filter_id = request.params.get('name', u'')
 
         c.followee_list = get_action('followee_list')(
-            context, {'id': c.userobj.id, 'q': q})
+            context,
+            {
+                'id': c.userobj.id,
+                'q': q
+            }
+        )
+
         c.dashboard_activity_stream_context = self._get_dashboard_context(
-            filter_type, filter_id, q)
-        c.dashboard_activity_stream = h.dashboard_activity_stream(
+            filter_type,
+            filter_id,
+            q
+        )
+        dashboard_activity_stream = h.dashboard_activity_stream(
             c.userobj.id, filter_type, filter_id, offset
         )
 
@@ -667,7 +677,9 @@ class UserController(base.BaseController):
         # dashboard page.
         get_action('dashboard_mark_activities_old')(context, {})
 
-        return render('user/dashboard.html')
+        return render('user/dashboard.html', extra_vars={
+            'activity_stream': dashboard_activity_stream
+        })
 
     def dashboard_datasets(self):
         context = {'for_view': True, 'user': c.user or c.author,
