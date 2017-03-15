@@ -813,7 +813,9 @@ def upsert_data(context, data_dict):
                         (used_values + [full_text] + unique_values) * 2)
                 except sqlalchemy.exc.DatabaseError as err:
                     message = err.args[0].split('\n')[0].decode('utf8')
-                    raise ValidationError({u'records': [message.split(u') ', 1)[-1]]})
+                    raise ValidationError({
+                        u'records': [message.split(u') ', 1)[-1]],
+                        u'_records_row': num})
 
 
 def _get_unique_key(context, data_dict):
