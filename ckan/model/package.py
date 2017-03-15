@@ -1,11 +1,10 @@
 # encoding: utf-8
 
 import datetime
-from calendar import timegm
 import logging
 logger = logging.getLogger(__name__)
 
-from sqlalchemy.sql import select, and_, union, or_
+from sqlalchemy.sql import and_, or_
 from sqlalchemy import orm
 from sqlalchemy import types, Column, Table
 from ckan.common import config
@@ -24,7 +23,7 @@ import ckan.lib.dictization as dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTag', 'PackageTagRevision',
+           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision',
            'PackageRevision']
 
 
@@ -508,6 +507,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def activity_stream_item(self, activity_type, revision, user_id):
         import ckan.model
         import ckan.logic
+
         assert activity_type in ("new", "changed"), (
             str(activity_type))
 
@@ -527,16 +527,39 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 activity_type = 'deleted'
 
         try:
-            d = {'package': dictization.table_dictize(self,
-                context={'model': ckan.model})}
-            return activity.Activity(user_id, self.id, revision.id,
-                    "%s package" % activity_type, d)
+            # We save the entire rendered package dict so we can support
+            # viewing the past packages from the activity feed.
+            dictized_package = ckan.logic.get_action('package_show')({
+                'model': ckan.model,
+                'session': ckan.model.Session,
+                'for_view': True,
+                'ignore_auth': True
+            }, {
+                'id': self.id,
+                'include_tracking': True
+            })
         except ckan.logic.NotFound:
             # This happens if this package is being purged and therefore has no
             # current revision.
             # TODO: Purge all related activity stream items when a model object
             # is purged.
             return None
+
+        actor = meta.Session.query(ckan.model.User).get(user_id)
+
+        return activity.Activity(
+            user_id,
+            self.id,
+            revision.id,
+            "%s package" % activity_type,
+            {
+                'package': dictized_package,
+                # We keep the acting user name around so that actions can be
+                # properly displayed even if the user is deleted in the future.
+                # Legacy tests do not include valid users :(
+                'actor': actor.name if actor else None
+            }
+        )
 
     def activity_stream_detail(self, activity_id, activity_type):
         import ckan.model
