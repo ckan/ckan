@@ -10,6 +10,14 @@ import unicodecsv
 UTF8_BOM = u'\uFEFF'.encode(u'utf-8')
 
 
+def _json_dump_nested(value):
+    is_nested = isinstance(value, (list, dict))
+
+    if is_nested:
+        return json.dumps(value)
+    return value
+
+
 @contextmanager
 def csv_writer(response, fields, name=None, bom=False):
     u'''Context manager for writing UTF-8 CSV data to response
@@ -31,7 +39,7 @@ def csv_writer(response, fields, name=None, bom=False):
             response.headers['Content-disposition'] = (
                 b'attachment; filename="{name}.csv"'.format(
                     name=encode_rfc2231(name)))
-    wr = unicodecsv.writer(response, encoding=u'utf-8')
+    wr = CSVWriter(response, fields, encoding=u'utf-8')
     if bom:
         response.write(UTF8_BOM)
     wr.writerow(f['id'] for f in fields)
@@ -60,12 +68,23 @@ def tsv_writer(response, fields, name=None, bom=False):
             response.headers['Content-disposition'] = (
                 b'attachment; filename="{name}.tsv"'.format(
                     name=encode_rfc2231(name)))
-    wr = unicodecsv.writer(
-        response, encoding=u'utf-8', dialect=unicodecsv.excel_tab)
+    wr = CSVWriter(
+        response, fields, encoding=u'utf-8', dialect=unicodecsv.excel_tab,
+    )
     if bom:
         response.write(UTF8_BOM)
     wr.writerow(f['id'] for f in fields)
     yield wr
+
+
+class CSVWriter(object):
+    def __init__(self, response, columns, *args, **kwargs):
+        self._wr = unicodecsv.writer(response, *args, **kwargs)
+        self.columns = columns
+
+    def writerow(self, row):
+        return self._wr.writerow([
+            _json_dump_nested(val) for val in row])
 
 
 @contextmanager
@@ -148,6 +167,9 @@ def xml_writer(response, fields, name=None, bom=False):
 
 
 class XMLWriter(object):
+    _key_attr = 'key'
+    _value_tag = 'value'
+
     def __init__(self, response, columns):
         self.response = response
         self.id_col = columns[0] == u'_id'
@@ -155,15 +177,29 @@ class XMLWriter(object):
             columns = columns[1:]
         self.columns = columns
 
+    def _insert_node(self, root, k, v, key_attr=None):
+        element = SubElement(root, k)
+        if v is None:
+            element.attrib[u'xsi:nil'] = u'true'
+        elif not isinstance(v, (list, dict)):
+            element.text = unicode(v)
+        else:
+            if isinstance(v, list):
+                it = enumerate(v)
+            else:
+                it = v.items()
+            for key, value in it:
+                self._insert_node(element, self._value_tag, value, key)
+
+        if key_attr is not None:
+            element.attrib[self._key_attr] = unicode(key_attr)
+
     def writerow(self, row):
         root = Element(u'row')
         if self.id_col:
             root.attrib[u'_id'] = unicode(row[0])
             row = row[1:]
         for k, v in zip(self.columns, row):
-            if v is None:
-                SubElement(root, k).attrib[u'xsi:nil'] = u'true'
-                continue
-            SubElement(root, k).text = unicode(v)
+            self._insert_node(root, k, v)
         ElementTree(root).write(self.response, encoding=u'utf-8')
         self.response.write(b'\n')

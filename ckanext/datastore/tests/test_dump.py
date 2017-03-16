@@ -125,9 +125,6 @@ class TestDatastoreDump(object):
         res = self.app.get('/datastore/dump/{0}?limit=1'.format(str(
             self.data['resource_id'])), extra_environ=auth)
         content = res.body.decode('utf-8')
-        expected = (u'_id,b\xfck,author,published'
-                    u',characters,random_letters,nested')
-        assert_equals(content[:len(expected)], expected)
 
         expected_content = (
             u'_id,b\xfck,author,published,characters,random_letters,'
@@ -135,4 +132,65 @@ class TestDatastoreDump(object):
             u'"[""Princess Anna"", ""Sergius""]",'
             u'"[""a"", ""e"", ""x""]","[""b"", '
             u'{""moo"": ""moo""}]"\r\n')
+        assert_equals(content, expected_content)
+
+    def test_dump_tsv(self):
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.get('/datastore/dump/{0}?limit=1&format=tsv'.format(str(
+            self.data['resource_id'])), extra_environ=auth)
+        content = res.body.decode('utf-8')
+
+        expected_content = (
+            u'_id\tb\xfck\tauthor\tpublished\tcharacters\trandom_letters\t'
+            u'nested\r\n1\tannakarenina\ttolstoy\t2005-03-01T00:00:00\t'
+            u'"[""Princess Anna"", ""Sergius""]"\t'
+            u'"[""a"", ""e"", ""x""]"\t"[""b"", '
+            u'{""moo"": ""moo""}]"\r\n')
+        assert_equals(content, expected_content)
+
+    def test_dump_json(self):
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.get('/datastore/dump/{0}?limit=1&format=json'.format(
+            str(self.data['resource_id'])), extra_environ=auth)
+        content = res.body.decode('utf-8')
+        expected_content = (
+            u'{\n  "fields": [{"type":"int4","id":"_id"},{"type":"text",'
+            u'"id":"b\xfck"},{"type":"text","id":"author"},{"type":"timestamp"'
+            u',"id":"published"},{"type":"_text","id":"characters"},'
+            u'{"type":"_text","id":"random_letters"},{"type":"json",'
+            u'"id":"nested"}],\n  "records": [\n    '
+            u'[1,"annakarenina","tolstoy","2005-03-01T00:00:00",'
+            u'["Princess Anna","Sergius"],["a","e","x"],["b",'
+            u'{"moo":"moo"}]]\n]}\n')
+        assert_equals(content, expected_content)
+
+    def test_dump_xml(self):
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.get('/datastore/dump/{0}?limit=1&format=xml'.format(str(
+            self.data['resource_id'])), extra_environ=auth)
+        content = res.body.decode('utf-8')
+        expected_content = (
+            u'<data>\n'
+            r'<row _id="1">'
+            u'<b\xfck>annakarenina</b\xfck>'
+            u'<author>tolstoy</author>'
+            u'<published>2005-03-01T00:00:00</published>'
+            u'<characters>'
+            u'<value key="0">Princess Anna</value>'
+            u'<value key="1">Sergius</value>'
+            u'</characters>'
+            u'<random_letters>'
+            u'<value key="0">a</value>'
+            u'<value key="1">e</value>'
+            u'<value key="2">x</value>'
+            u'</random_letters>'
+            u'<nested>'
+            u'<value key="0">b</value>'
+            u'<value key="1">'
+            u'<value key="moo">moo</value>'
+            u'</value>'
+            u'</nested>'
+            u'</row>\n'
+            u'</data>\n'
+        )
         assert_equals(content, expected_content)
