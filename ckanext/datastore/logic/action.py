@@ -562,6 +562,9 @@ def set_datastore_active_flag(model, data_dict, flag):
 
     Called after creation or deletion of DataStore table.
     '''
+    # We're modifying the resource extra directly here to avoid a
+    # race condition, see issue #3245 for details and plan for a
+    # better fix
     update_dict = {'datastore_active': flag}
 
     # get extras(for entity update) and package_id(for search index update)
