@@ -167,8 +167,8 @@ def xml_writer(response, fields, name=None, bom=False):
 
 
 class XMLWriter(object):
-    _key_attr = 'key'
-    _value_tag = 'value'
+    _key_attr = u'key'
+    _value_tag = u'value'
 
     def __init__(self, response, columns):
         self.response = response
