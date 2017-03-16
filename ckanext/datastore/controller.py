@@ -1,9 +1,6 @@
 # encoding: utf-8
 
-import StringIO
-import md5
-
-import pylons
+import json
 
 from ckan.plugins.toolkit import (
     Invalid,
@@ -32,6 +29,20 @@ boolean_validator = get_validator('boolean_validator')
 
 DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
 PAGINATE_BY = 10000
+
+
+def _dump_nested(column, record):
+    name, ctype = column
+    value = record[name]
+
+    is_nested = (
+        ctype == 'json' or
+        ctype.startswith('_') or
+        ctype.endswith(']')
+    )
+    if is_nested:
+        return json.dumps(value)
+    return value
 
 
 class DatastoreController(BaseController):
@@ -72,7 +83,9 @@ class DatastoreController(BaseController):
                 abort(404, _('DataStore resource not found'))
 
         result = result_page(offset, limit)
-        columns = [x['id'] for x in result['fields']]
+        columns = [
+            (x['id'], x['type'])
+            for x in result['fields']]
 
         with start_writer(result['fields']) as wr:
             while True:
@@ -80,7 +93,10 @@ class DatastoreController(BaseController):
                     break
 
                 for record in result['records']:
-                    wr.writerow([record[column] for column in columns])
+
+                    wr.writerow([
+                        _dump_nested(column, record)
+                        for column in columns])
 
                 if len(result['records']) < PAGINATE_BY:
                     break
