@@ -1036,7 +1036,12 @@ class PackageController(base.BaseController):
             if request.method == 'POST':
                 get_action('resource_delete')(context, {'id': resource_id})
                 h.flash_notice(_('Resource has been deleted.'))
-                h.redirect_to(controller='package', action='read', id=id)
+                pkg_dict = get_action('package_show')(None, {'id': id})
+                if pkg_dict['state'].startswith('draft'):
+                    h.redirect_to(controller='package', action='new_resource',
+                                  id=id)
+                else:
+                    h.redirect_to(controller='package', action='read', id=id)
             c.resource_dict = get_action('resource_show')(
                 context, {'id': resource_id})
             c.pkg_id = id
