@@ -163,6 +163,7 @@ entry_points = {
         'test_resource_preview = tests.legacy.ckantestplugins:MockResourcePreviewExtension',
         'test_json_resource_preview = tests.legacy.ckantestplugins:JsonMockResourcePreviewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
+        'chained_datastore_plugin = ckanext.datastore.tests.test_chained_action:ChainedDataStorePlugin',
         'test_datastore_view = ckan.tests.lib.test_datapreview:MockDatastoreBasedResourceView',
         'test_datapusher_plugin = ckanext.datapusher.tests.test_interfaces:FakeDataPusherPlugin',
         'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
