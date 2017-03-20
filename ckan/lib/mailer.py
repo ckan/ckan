@@ -148,7 +148,8 @@ def get_reset_link(user):
                    h.url_for(controller='user',
                              action='perform_reset',
                              id=user.id,
-                             key=user.reset_key))
+                             key=user.reset_key,
+                             qualified=True))
 
 
 def send_reset_link(user):
