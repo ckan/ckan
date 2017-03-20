@@ -9,7 +9,8 @@ import unicodecsv
 
 UTF8_BOM = u'\uFEFF'.encode(u'utf-8')
 # Element names can contain letters, digits, hyphens, underscores, and periods
-SPECIAL_CHARS = u'#$%&!?\/@'
+SPECIAL_CHARS = u'#$%&!?\/@}{[]'
+
 
 @contextmanager
 def csv_writer(response, fields, name=None, bom=False):
