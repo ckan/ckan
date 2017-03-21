@@ -610,7 +610,8 @@ def default_resource_search_schema():
         'fields': [ignore_missing],  # dict of fields
         'order_by': [ignore_missing, unicode],
         'offset': [ignore_missing, natural_number_validator],
-        'limit': [ignore_missing, natural_number_validator]
+        'limit': [ignore_missing, natural_number_validator],
+        'include_private': [ignore_missing, boolean_validator],
     }
     return schema
 
