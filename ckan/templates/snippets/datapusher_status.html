@@ -7,8 +7,8 @@ resource: the resource
   {% set job = h.datapusher_status(resource.id) %}
   {% set title =  _('Datapusher status: {status}.').format(status=job.status) %}
   {% if job.status == 'unknown' %}
-    <i title="{{ _(title) }}" class="datapusher-status status-{{ job.status }} icon-circle icon-large"></i>
+    <i title="{{ _(title) }}" class="fa datapusher-status status-{{ job.status }} fa-circle fa-lg"></i>
   {% else %}
-    <a href="{{ job.job_url }}" class="datapusher-status-link" title="{{ _(title) }}"><i class="datapusher-status status-{{ job.status }} icon-circle icon-large"></i></a>
+    <a href="{{ job.job_url }}" class="datapusher-status-link" title="{{ _(title) }}"><i class="fa datapusher-status status-{{ job.status }} fa-circle fa-lg"></i></a>
   {% endif %}
 {% endif %}

@@ -165,7 +165,7 @@ class ReclineGraphView(ReclineViewBase):
         return {'name': 'recline_graph_view',
                 'title': 'Graph',
                 'filterable': True,
-                'icon': 'bar-chart',
+                'icon': 'bar-chart-o',
                 'requires_datastore': True,
                 'schema': schema,
                 'default_title': p.toolkit._('Graph'),

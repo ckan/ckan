@@ -33,6 +33,7 @@ __all__ = [
     u'IAuthenticator',
     u'ITranslation',
     u'IUploader',
+    u'IBlueprint',
     u'IPermissionLabels',
 ]
 
@@ -57,15 +58,40 @@ class Interface(_pca_Interface):
 
 
 class IMiddleware(Interface):
-    u'''Hook into Pylons middleware stack
+    u'''Hook into CKAN middleware stack
+
+    Note that methods on this interface will be called two times,
+    one for the Pylons stack and one for the Flask stack (eventually
+    there will be only the Flask stack).
     '''
     def make_middleware(self, app, config):
         u'''Return an app configured with this middleware
+
+        When called on the Flask stack, this method will get the actual Flask
+        app so plugins wanting to install Flask extensions can do it like
+        this::
+
+            import ckan.plugins as p
+            from flask_mail import Mail
+
+            class MyPlugin(p.SingletonPlugin):
+
+                p.implements(p.I18nMiddleware)
+
+                def make_middleware(app, config):
+
+                    mail = Mail(app)
+
+                    return app
         '''
         return app
 
     def make_error_log_middleware(self, app, config):
         u'''Return an app configured with this error log middleware
+
+        Note that both on the Flask and Pylons middleware stacks, this
+        method will receive a wrapped WSGI app, not the actual Flask or
+        Pylons app.
         '''
         return app
 
@@ -286,7 +312,7 @@ class IResourceView(Interface):
         :param default_description: default description that will be used if
             the view is created automatically (optional, defaults to '').
         :param icon: icon for the view type. Should be one of the
-            `Font Awesome`_ types without the `icon-` prefix eg. `compass`
+            `Font Awesome`_ types without the `fa fa-` prefix eg. `compass`
             (optional, defaults to 'picture').
         :param always_available: the view type should be always available when
             creating new views regardless of the format of the resource
@@ -317,7 +343,7 @@ class IResourceView(Interface):
              'schema': {
                 'image_url': [ignore_empty, unicode]
              },
-             'icon': 'picture',
+             'icon': 'picture-o',
              'always_available': True,
              'iframed': False,
              }
@@ -1646,6 +1672,14 @@ class IUploader(Interface):
         :type id: string
 
         '''
+
+
+class IBlueprint(Interface):
+
+    u'''Register an extension as a Flask Blueprint.'''
+
+    def get_blueprint(self):
+        u'''Return a Flask Blueprint object to be registered by the app.'''
 
 
 class IPermissionLabels(Interface):

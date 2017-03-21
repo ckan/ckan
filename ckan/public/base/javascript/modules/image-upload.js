@@ -1,4 +1,4 @@
-/* Image Upload
+ /* Image Upload
  *
  */
 this.ckan.module('image-upload', function($) {
@@ -51,12 +51,12 @@ this.ckan.module('image-upload', function($) {
       }
 
       // Adds the hidden clear input to the form
-      this.field_clear = $('<input type="hidden" name="clear_upload">')
+      this.field_clear = $('<input type="hidden" name="' + options.field_clear +'">')
         .appendTo(this.el);
 
       // Button to set the field to be a URL
       this.button_url = $('<a href="javascript:;" class="btn">' +
-                          '<i class="icon-globe"></i>' +
+                          '<i class="fa fa-globe"></i>' +
                           this._('Link') + '</a>')
         .prop('title', this._('Link to a URL on the internet (you can also link to an API)'))
         .on('click', this._onFromWeb)
@@ -64,7 +64,7 @@ this.ckan.module('image-upload', function($) {
 
       // Button to attach local file to the form
       this.button_upload = $('<a href="javascript:;" class="btn">' +
-                             '<i class="icon-cloud-upload"></i>' +
+                             '<i class="fa fa-cloud-upload"></i>' +
                              this._('Upload') + '</a>')
         .insertAfter(this.input);
 

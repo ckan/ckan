@@ -336,7 +336,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
             data_dict, logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or 'name'
+    sort = data_dict.get('sort') or 'title'
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -454,6 +454,9 @@ def group_list(context, data_dict):
         packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
+    :param include_dataset_count: if all_fields, include the full package_count
+        (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: if all_fields, include the group extra fields
         (optional, default: ``False``)
     :type include_extras: boolean
@@ -467,9 +470,7 @@ def group_list(context, data_dict):
         (optional, default: ``False``).
     :type include_users: boolean
 
-
     :rtype: list of strings
-
     '''
     _check_access('group_list', context, data_dict)
     return _group_or_org_list(context, data_dict)
@@ -503,6 +504,9 @@ def organization_list(context, data_dict):
         packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
+    :param include_dataset_count: if all_fields, include the full package_count
+        (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: if all_fields, include the organization extra fields
         (optional, default: ``False``)
     :type include_extras: boolean
@@ -624,6 +628,9 @@ def organization_list_for_user(context, data_dict):
         returned organizations, for example ``"read"`` or ``"create_dataset"``
         (optional, default: ``"manage_group"``)
     :type permission: string
+    :param include_dataset_count: include the package_count in each org
+        (optional, default: ``False``)
+    :type include_dataset_count: boolean
 
     :returns: list of organizations that the user has the given permission for
     :rtype: list of dicts
@@ -692,7 +699,8 @@ def organization_list_for_user(context, data_dict):
             (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()]
 
     context['with_capacity'] = True
-    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context)
+    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
+        with_package_counts=asbool(data_dict.get('include_dataset_count')))
     return orgs_list
 
 
@@ -1210,8 +1218,12 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
 
-    include_datasets = asbool(data_dict.get('include_datasets', False))
-    packages_field = 'datasets' if include_datasets else 'dataset_count'
+    if asbool(data_dict.get('include_datasets', False)):
+        packages_field = 'datasets'
+    elif asbool(data_dict.get('include_dataset_count', True)):
+        packages_field = 'dataset_count'
+    else:
+        packages_field = None
 
     include_tags = asbool(data_dict.get('include_tags', True))
     include_users = asbool(data_dict.get('include_users', True))
@@ -1275,9 +1287,12 @@ def group_show(context, data_dict):
 
     :param id: the id or name of the group
     :type id: string
-    :param include_datasets: include a list of the group's datasets
+    :param include_datasets: include a truncated list of the group's datasets
          (optional, default: ``False``)
-    :type id: boolean
+    :type include_datasets: boolean
+    :param include_dataset_count: include the full package_count
+         (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: include the group's extra fields
          (optional, default: ``True``)
     :type id: boolean
@@ -1307,9 +1322,12 @@ def organization_show(context, data_dict):
 
     :param id: the id or name of the organization
     :type id: string
-    :param include_datasets: include a list of the organization's datasets
+    :param include_datasets: include a truncated list of the org's datasets
          (optional, default: ``False``)
-    :type id: boolean
+    :type include_datasets: boolean
+    :param include_dataset_count: include the full package_count
+         (optional, default: ``True``)
+    :type include_dataset_count: boolean
     :param include_extras: include the organization's extra fields
          (optional, default: ``True``)
     :type id: boolean
@@ -1813,8 +1831,9 @@ def package_search(context, data_dict):
 
     fl
         The parameter that controls which fields are returned in the solr
-        query cannot be changed.  CKAN always returns the matched datasets as
-        dictionary objects.
+        query.
+        fl can be  None or a list of result fields, such as ['id', 'extras_custom_field'].
+        if fl = None, datasets are returned as a list of full dictionary.
     '''
     # sometimes context['schema'] is None
     schema = (context.get('schema') or
@@ -1857,15 +1876,19 @@ def package_search(context, data_dict):
         else:
             data_source = 'validated_data_dict'
         data_dict.pop('use_default_schema', None)
-        # return a list of package ids
-        data_dict['fl'] = 'id {0}'.format(data_source)
+
+        result_fl = data_dict.get('fl')
+        if not result_fl:
+            data_dict['fl'] = 'id {0}'.format(data_source)
+        else:
+            data_dict['fl'] = ' '.join(result_fl)
 
         # Remove before these hit solr FIXME: whitelist instead
         include_private = asbool(data_dict.pop('include_private', False))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
         data_dict.setdefault('fq', '')
         if not include_private:
-            data_dict['fq'] += ' +capacity:public'
+            data_dict['fq'] = '+capacity:public ' + data_dict['fq']
         if include_drafts:
             data_dict['fq'] += ' +state:(active OR draft)'
 
@@ -1885,21 +1908,28 @@ def package_search(context, data_dict):
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
 
-        for package in query.results:
-            # get the package object
-            package_dict = package.get(data_source)
-            ## use data in search index if there
-            if package_dict:
-                # the package_dict still needs translating when being viewed
-                package_dict = json.loads(package_dict)
-                if context.get('for_view'):
-                    for item in plugins.PluginImplementations(
-                            plugins.IPackageController):
-                        package_dict = item.before_view(package_dict)
-                results.append(package_dict)
-            else:
-                log.error('No package_dict is coming from solr for package '
-                          'id %s', package['id'])
+        if result_fl:
+            for package in query.results:
+                if package.get('extras'):
+                    package.update(package['extras'] )
+                    package.pop('extras')
+                results.append(package)
+        else:
+            for package in query.results:
+                # get the package object
+                package_dict = package.get(data_source)
+                ## use data in search index if there
+                if package_dict:
+                    # the package_dict still needs translating when being viewed
+                    package_dict = json.loads(package_dict)
+                    if context.get('for_view'):
+                        for item in plugins.PluginImplementations(
+                                plugins.IPackageController):
+                            package_dict = item.before_view(package_dict)
+                    results.append(package_dict)
+                else:
+                    log.error('No package_dict is coming from solr for package '
+                              'id %s', package['id'])
 
         count = query.count
         facets = query.facets
