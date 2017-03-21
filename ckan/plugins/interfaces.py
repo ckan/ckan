@@ -795,6 +795,11 @@ class IActions(Interface):
         By decorating a function with the `ckan.logic.side_effect_free`
         decorator, the associated action will be made available by a GET
         request (as well as the usual POST request) through the action API.
+
+        By decrorating a function with the 'ckan.plugins.toolkit.chained_action,
+        the action will be chained to another function defined in plugins with a
+        "first plugin wins" pattern, which means the first plugin declaring a
+        chained action should be called first.
         """
 
 
