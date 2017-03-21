@@ -19,7 +19,7 @@ from pylons.i18n import _, ungettext
 # Backwards compatibility for Pylons 0.9.7 -> 1.0.0, which renamed this global.
 from pylons import app_globals as g
 # Backwards compatibility for Pylons 0.9.7 -> 1.0.0, which renamed this global.
-from pylons import tmpl_context as c
+from pylons import tmpl_context as pylons_c
 from pylons import request, session, response
 import simplejson as json
 
@@ -147,7 +147,7 @@ def _get_c():
     if is_flask_request():
         return flask.g
     else:
-        return pylons.c
+        return pylons_c
 
 
 def _get_session():
@@ -168,5 +168,5 @@ config = local.config = CKANConfig()
 # Proxies to already thread-local safe objects
 request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
-g = c = LocalProxy(_get_c)
+c = LocalProxy(_get_c)
 session = LocalProxy(_get_session)
