@@ -7,6 +7,14 @@
 Changelog
 ---------
 
+v2.6.2 2017-03-22
+=================
+
+* Use fully qualified urls for reset emails (#3486)
+* Fix edit_resource for resource with draft state (#3480)
+* Tag fix for group/organization pages (#3460)
+* Setting of datastore_active flag moved to separate function (#3481)
+
 v2.6.1 2017-02-22
 =================
 
@@ -394,8 +402,8 @@ Changes and deprecations
   Custom templates or users of this API call will need to pass
   ``include_datasets=True`` to include datasets in the response.
 
-* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the 
-  ``packages`` key - i.e. datasets that use the vocabulary or tag. 
+* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the
+  ``packages`` key - i.e. datasets that use the vocabulary or tag.
   However ``tag_show`` now has an ``include_datasets`` option. (#1886)
 
 * Config option ``site_url`` is now required - CKAN will not abort during
