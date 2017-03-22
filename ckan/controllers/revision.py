@@ -157,6 +157,15 @@ class RevisionController(base.BaseController):
 
         c.diff_entity = request.params.get('diff_entity')
         if c.diff_entity == 'package':
+            try:
+                logic.check_access('package_show',  {
+                    'model': model,
+                    'user': c.user or c.author,
+                    'auth_user_obj': c.userobj
+                }, {'id': id})
+            except logic.NotAuthorized:
+                base.abort(401)
+
             c.pkg = model.Package.by_name(id)
             diff = c.pkg.diff(c.revision_to, c.revision_from)
         elif c.diff_entity == 'group':
