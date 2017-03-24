@@ -167,6 +167,7 @@ entry_points = {
         'test_datastore_view = ckan.tests.lib.test_datapreview:MockDatastoreBasedResourceView',
         'test_datapusher_plugin = ckanext.datapusher.tests.test_interfaces:FakeDataPusherPlugin',
         'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
+        'test_flash_plugin = ckan.tests.config.test_sessions:FlashMessagePlugin',
         'test_helpers_plugin = ckan.tests.lib.test_helpers:TestHelpersPlugin',
         'test_feed_plugin = ckan.tests.controllers.test_feed:MockFeedPlugin',
         'test_js_translations_plugin = ckan.tests.lib.test_i18n:TestJSTranslationsPlugin',

@@ -60,6 +60,8 @@ def package_create(context, data_dict):
     :param title: the title of the dataset (optional, default: same as
         ``name``)
     :type title: string
+    :param private: If ``True`` creates a private dataset
+    :type private: bool
     :param author: the name of the dataset's author (optional)
     :type author: string
     :param author_email: the email address of the dataset's author (optional)
