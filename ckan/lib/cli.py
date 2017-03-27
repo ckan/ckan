@@ -85,6 +85,54 @@ def parse_db_config(config_key='sqlalchemy.url'):
     return db_details
 
 
+def user_add(args):
+    '''Add new user if we use paster sysadmin add
+    or paster user add
+    '''
+    if len(args) < 2:
+        error('Need name and email of the user.')
+    username = args[0]
+
+    # parse args into data_dict
+    data_dict = {'name': username}
+    for arg in args[1:]:
+        try:
+            field, value = arg.split('=', 1)
+            data_dict[field] = value
+        except ValueError:
+            raise ValueError(
+                'Could not parse arg: %r (expected "<option>=<value>)"' % arg
+            )
+
+    if 'password' not in data_dict:
+        data_dict['password'] = UserCmd.password_prompt()
+
+    if 'fullname' in data_dict:
+        data_dict['fullname'] = data_dict['fullname'].decode(
+            sys.getfilesystemencoding()
+        )
+
+    print('Creating user: %r' % username)
+
+    try:
+        import ckan.logic as logic
+        import ckan.model as model
+        site_user = logic.get_action('get_site_user')({
+            'model': model,
+            'ignore_auth': True},
+            {}
+        )
+        context = {
+            'model': model,
+            'session': model.Session,
+            'ignore_auth': True,
+            'user': site_user['name'],
+        }
+        user_dict = logic.get_action('user_create')(context, data_dict)
+        pprint(user_dict)
+    except logic.ValidationError, e:
+        error(traceback.format_exc())
+
 ## from http://code.activestate.com/recipes/577058/ MIT licence.
 ## Written by Trent Mick
 def query_yes_no(question, default="yes"):
@@ -643,12 +691,11 @@ class Sysadmin(CkanCommand):
 
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 2
+    max_args = None
     min_args = 0
 
     def command(self):
         self._load_config()
-        import ckan.model as model
 
         cmd = self.args[0] if self.args else None
         if cmd is None or cmd == 'list':
@@ -684,15 +731,8 @@ class Sysadmin(CkanCommand):
             print 'User "%s" not found' % username
             makeuser = raw_input('Create new user: %s? [y/n]' % username)
             if makeuser == 'y':
-                useremail = raw_input('Please input %s email: ' % username)
-                if not useremail:
-                    print 'Need email to create new user'
-                    return
-                password = UserCmd.password_prompt()
-                print('Creating %s user' % username)
-                user = model.User(name=unicode(username),
-                                  email=unicode(useremail),
-                                  password=password)
+                user_add(self.args[1:])
+                user = model.User.by_name(unicode(username))
             else:
                 print 'Exiting ...'
                 return
@@ -742,7 +782,6 @@ class UserCmd(CkanCommand):
 
     def command(self):
         self._load_config()
-        import ckan.model as model
 
         if not self.args:
             self.list()
@@ -822,42 +861,7 @@ class UserCmd(CkanCommand):
         return password1
 
     def add(self):
-        import ckan.model as model
-
-        if len(self.args) < 2:
-            error('Need name of the user.')
-        username = self.args[1]
-
-        # parse args into data_dict
-        data_dict = {'name': username}
-        for arg in self.args[2:]:
-            try:
-                field, value = arg.split('=', 1)
-                data_dict[field] = value
-            except ValueError:
-                raise ValueError('Could not parse arg: %r (expected "<option>=<value>)"' % arg)
-
-        if 'password' not in data_dict:
-            data_dict['password'] = self.password_prompt()
-
-        if 'fullname' in data_dict:
-            data_dict['fullname'] = data_dict['fullname'].decode(sys.getfilesystemencoding())
-
-        print('Creating user: %r' % username)
-
-        try:
-            import ckan.logic as logic
-            site_user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-            context = {
-                'model': model,
-                'session': model.Session,
-                'ignore_auth': True,
-                'user': site_user['name'],
-            }
-            user_dict = logic.get_action('user_create')(context, data_dict)
-            pprint(user_dict)
-        except logic.ValidationError, e:
-            error(traceback.format_exc())
+        user_add(self.args[1:])
 
     def remove(self):
         import ckan.model as model
