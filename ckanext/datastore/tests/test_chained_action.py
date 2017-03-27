@@ -13,7 +13,7 @@ deleted_count = 0
 
 
 @p.toolkit.chained_action
-def datastore_delete(up_func, context, data_dict):
+def ExampleDataStoreDeletedWithCountPlugin(up_func, context, data_dict):
     global deleted_count
     res = helpers.call_action(u"datastore_search",
                               resource_id=data_dict[u'resource_id'],
@@ -36,11 +36,11 @@ class TestChainedAction(object):
     @classmethod
     def setup_class(cls):
         p.load(u'datastore')
-        p.load(u'chained_datastore_plugin')
+        p.load(u'example_datastore_deleted_with_count_plugin')
 
     @classmethod
     def teardown_class(cls):
-        p.unload(u'chained_datastore_plugin')
+        p.unload(u'example_datastore_deleted_with_count_plugin')
         p.unload(u'datastore')
 
     def setup(self):
