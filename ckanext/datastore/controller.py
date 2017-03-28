@@ -1,9 +1,6 @@
 # encoding: utf-8
 
-import StringIO
-import md5
-
-import pylons
+import json
 
 from ckan.plugins.toolkit import (
     Invalid,
