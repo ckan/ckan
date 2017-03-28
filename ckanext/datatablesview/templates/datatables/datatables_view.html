@@ -49,10 +49,9 @@ $(document).ready(function() {
         {
           extend: 'colvis',
           text: '{{ _('Hide/Unhide Columns') }}',
-        },
-        'copy',
-        'excel',
-        'print'],
+        }{{ ", 'copy', 'excel', 'print'" | safe
+          if resource_view.get('export_buttons') else ''}}
+      ],
       keys: true
     }
   );
