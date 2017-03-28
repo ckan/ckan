@@ -1,12 +1,14 @@
 # encoding: utf-8
 
 import StringIO
+import md5
 
 import pylons
 
 from ckan.plugins.toolkit import (
     Invalid,
     ObjectNotFound,
+    NotAuthorized,
     get_action,
     get_validator,
     _,
@@ -14,6 +16,9 @@ from ckan.plugins.toolkit import (
     response,
     BaseController,
     abort,
+    render,
+    c,
+    h,
 )
 from ckanext.datastore.writer import (
     csv_writer,
@@ -84,3 +89,42 @@ class DatastoreController(BaseController):
                     limit -= PAGINATE_BY
 
                 result = result_page(offset, limit)
+
+    def dictionary(self, id, resource_id):
+        u'''data dictionary view: show/edit field labels and descriptions'''
+
+        try:
+            # resource_edit_base template uses these
+            c.pkg_dict = get_action('package_show')(
+                None, {'id': id})
+            c.resource = get_action('resource_show')(
+                None, {'id': resource_id})
+            rec = get_action('datastore_search')(None, {
+                'resource_id': resource_id,
+                'limit': 0})
+        except (ObjectNotFound, NotAuthorized):
+            abort(404, _('Resource not found'))
+
+        fields = [f for f in rec['fields'] if not f['id'].startswith('_')]
+
+        if request.method == 'POST':
+            get_action('datastore_create')(None, {
+                'resource_id': resource_id,
+                'force': True,
+                'fields': [{
+                    'id': f['id'],
+                    'type': f['type'],
+                    'info': {
+                        'label': request.POST.get('f{0}label'.format(i)),
+                        'notes': request.POST.get('f{0}notes'.format(i)),
+                        }} for i, f in enumerate(fields, 1)]})
+
+            h.redirect_to(
+                controller='ckanext.datastore.controller:DatastoreController',
+                action='dictionary',
+                id=id,
+                resource_id=resource_id)
+
+        return render(
+            'datastore/dictionary.html',
+            extra_vars={'fields': fields})
