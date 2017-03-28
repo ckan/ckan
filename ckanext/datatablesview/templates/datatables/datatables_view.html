@@ -7,9 +7,11 @@
       data-mode="columntoggle" >
     <thead>
       <tr>
-        <th scope="col">_id</th>
-        {% for field in h.datastore_dictionary(resource.id) %}
-          <th scope="col">{{ field.id }}</th>
+        {% for field in [{'id': '_id'}] + h.datastore_dictionary(resource.id) %}
+          {% if 'show_fields' not in resource_view
+            or field.id in resource_view.show_fields %}
+            <th scope="col">{{ field.id }}</th>
+          {% endif %}
         {% endfor %}
       </tr>
     </thead>

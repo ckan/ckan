@@ -26,6 +26,8 @@ class DataTablesController(BaseController):
         })
 
         cols = [f['id'] for f in unfiltered_response['fields']]
+        if 'show_fields' in resource_view:
+            cols = [c for c in cols if c in resource_view['show_fields']]
 
         sort_list = []
         i = 0
