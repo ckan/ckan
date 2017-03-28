@@ -40,7 +40,7 @@ pip                    `A tool for installing and managing Python packages <http
 virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
 Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
 Apache Solr            `A search platform <http://lucene.apache.org/solr>`_
-Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr).
+Jetty                  `An HTTP server <http://www.eclipse.org/jetty/>`_ (used for Solr).
 OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
 Redis                  `An in-memory data structure store <http://redis.io/>`_
 =====================  ===============================================
