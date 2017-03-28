@@ -6,16 +6,23 @@ if os.environ.get('USER', '') == 'vagrant':
     del os.link
 
 try:
-    from setuptools import setup, find_packages, __version__
+    from setuptools import (setup, find_packages,
+                            __version__ as setuptools_version)
 except ImportError:
     from ez_setup import use_setuptools
     use_setuptools()
-    from setuptools import setup, find_packages, __version__
+    from setuptools import (setup, find_packages,
+                            __version__ as setuptools_version)
 
-assert __version__ >= '18.5', 'setuptools version error'\
-    '\nYou need a newer version of setuptools. Do this:\n' \
-    '    pip install -U setuptools\n' \
-    'before installing ckan into your python environment again.'
+MIN_SETUPTOOLS_VERSION = 18.5
+assert setuptools_version >= str(MIN_SETUPTOOLS_VERSION) and \
+    int(setuptools_version.split('.')[0]) >= int(MIN_SETUPTOOLS_VERSION),\
+    ('setuptools version error'
+     '\nYou need a newer version of setuptools.\n'
+     'You have %s and you need at least %s.\nDo this:\n'
+     '    pip install -U setuptools\n' \
+     'and then try again to install ckan into your python environment.' %
+     (setuptools_version, MIN_SETUPTOOLS_VERSION))
     
 from ckan import (__version__, __description__, __long_description__,
                   __license__)
