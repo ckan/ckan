@@ -9,23 +9,18 @@ assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
 
 
-deleted_count = 0
-
-
 @p.toolkit.chained_action
 def datastore_delete(up_func, context, data_dict):
-    global deleted_count
     res = helpers.call_action(u"datastore_search",
                               resource_id=data_dict[u'resource_id'],
                               filters=data_dict[u'filters'],
                               limit=10,)
     result = up_func(context, data_dict)
-    deleted_count = res.get(u'total', 0)
-
+    result['deleted_count'] = res.get(u'total', 0)
     return result
 
 
-class ChainedDataStorePlugin(p.SingletonPlugin):
+class ExampleDataStoreDeletedWithCountPlugin(p.SingletonPlugin):
     p.implements(p.IActions)
 
     def get_actions(self):
@@ -36,11 +31,11 @@ class TestChainedAction(object):
     @classmethod
     def setup_class(cls):
         p.load(u'datastore')
-        p.load(u'chained_datastore_plugin')
+        p.load(u'example_datastore_deleted_with_count_plugin')
 
     @classmethod
     def teardown_class(cls):
-        p.unload(u'chained_datastore_plugin')
+        p.unload(u'example_datastore_deleted_with_count_plugin')
         p.unload(u'datastore')
 
     def setup(self):
@@ -53,10 +48,10 @@ class TestChainedAction(object):
         resource = self._create_datastore_resource(records)
         filters = {u'age': 30}
 
-        helpers.call_action(u'datastore_delete',
-                            resource_id=resource[u'id'],
-                            force=True,
-                            filters=filters)
+        response = helpers.call_action(u'datastore_delete',
+                                       resource_id=resource[u'id'],
+                                       force=True,
+                                       filters=filters)
 
         result = helpers.call_action(u'datastore_search',
                                      resource_id=resource[u'id'])
@@ -64,7 +59,7 @@ class TestChainedAction(object):
         new_records_ages = [r[u'age'] for r in result[u'records']]
         new_records_ages.sort()
         assert_equals(new_records_ages, [20, 40])
-        assert_equals(deleted_count, 1)
+        assert_equals(response['deleted_count'], 1)
 
     def _create_datastore_resource(self, records):
         dataset = factories.Dataset()
