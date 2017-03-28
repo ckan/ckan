@@ -45,7 +45,14 @@ $(document).ready(function() {
       fixedColumns: true,
       scrollX: true,
       dom: 'Blifrtip',
-      buttons: ['colvis', 'copy', 'excel', 'print'],
+      buttons: [
+        {
+          extend: 'colvis',
+          text: '{{ _('Hide/Unhide Columns') }}',
+        },
+        'copy',
+        'excel',
+        'print'],
       keys: true
     }
   );
