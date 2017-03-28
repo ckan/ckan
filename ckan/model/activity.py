@@ -1,7 +1,16 @@
 import datetime
 
 from sqlalchemy import (
-    orm, types, Column, Table, ForeignKey, desc, or_, union_all)
+    orm,
+    types,
+    Column,
+    Table,
+    ForeignKey,
+    desc,
+    or_,
+    and_,
+    union_all
+)
 
 import ckan.model
 import meta
@@ -180,14 +189,33 @@ def _group_activity_query(group_id):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter("0=1")
 
-    dataset_ids = [dataset.id for dataset in group.packages()]
+    q = model.Session.query(
+        model.Activity
+    ).outerjoin(
+        model.Member,
+        and_(
+            model.Activity.object_id == model.Member.table_id,
+            model.Member.state == 'active'
+        )
+    ).outerjoin(
+        model.Package,
+        and_(
+            model.Package.id == model.Member.table_id,
+            model.Package.private == False,
+            model.Package.state == 'active'
+        )
+    ).filter(
+        # We only care about activity either on the the group itself or on
+        # packages within that group.
+        # FIXME: This means that activity that occured while a package belonged
+        # to a group but was then removed will not show up. This may not be
+        # desired but is consistent with legacy behaviour.
+        or_(
+            model.Member.group_id == group_id,
+            model.Activity.object_id == group_id
+        ),
+    )
 
-    q = model.Session.query(model.Activity)
-    if dataset_ids:
-        q = q.filter(or_(model.Activity.object_id == group_id,
-            model.Activity.object_id.in_(dataset_ids)))
-    else:
-        q = q.filter(model.Activity.object_id == group_id)
     return q
 
 

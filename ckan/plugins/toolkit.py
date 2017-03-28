@@ -29,6 +29,7 @@ class _Toolkit(object):
         'aslist',               # converts an object to a list
         'literal',              # stop tags in a string being escaped
         'get_action',           # get logic action function
+        'chained_action',       # decorator for chained action
         'get_converter',        # get navl schema converter
         'get_validator',        # get navl schema validator
         'check_access',         # check logic function authorisation
@@ -172,6 +173,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['literal'] = webhelpers.html.tags.literal
 
         t['get_action'] = logic.get_action
+        t['chained_action'] = logic.chained_action
         t['get_converter'] = logic.get_validator  # For backwards compatibility
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
