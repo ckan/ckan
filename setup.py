@@ -14,18 +14,22 @@ except ImportError:
     from setuptools import (setup, find_packages,
                             __version__ as setuptools_version)
 
+from ckan import (__version__, __description__, __long_description__,
+                  __license__)
+
 MIN_SETUPTOOLS_VERSION = 18.5
+SUGGESTED_SETUPTOOLS_VERSION = 18.5
 assert setuptools_version >= str(MIN_SETUPTOOLS_VERSION) and \
     int(setuptools_version.split('.')[0]) >= int(MIN_SETUPTOOLS_VERSION),\
     ('setuptools version error'
      '\nYou need a newer version of setuptools.\n'
-     'You have %s and you need at least %s.\nDo this:\n'
-     '    pip install -U setuptools\n' \
-     'and then try again to install ckan into your python environment.' %
-     (setuptools_version, MIN_SETUPTOOLS_VERSION))
-    
-from ckan import (__version__, __description__, __long_description__,
-                  __license__)
+     'You have {current}, you need at least {minimum} and the suggested '
+     'version is {suggested}.\nDo this:\n'
+     '    pip install setuptools=={suggested}\n'
+     'and then try again to install ckan into your python environment.'.format(
+         current=setuptools_version, minimum=MIN_SETUPTOOLS_VERSION,
+         suggested=SUGGESTED_SETUPTOOLS_VERSION))
+
 
 entry_points = {
     'nose.plugins.0.10': [
