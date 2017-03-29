@@ -17,18 +17,18 @@ except ImportError:
 from ckan import (__version__, __description__, __long_description__,
                   __license__)
 
-MIN_SETUPTOOLS_VERSION = 18.5
-SUGGESTED_SETUPTOOLS_VERSION = 18.5
+MIN_SETUPTOOLS_VERSION = 20.4
 assert setuptools_version >= str(MIN_SETUPTOOLS_VERSION) and \
     int(setuptools_version.split('.')[0]) >= int(MIN_SETUPTOOLS_VERSION),\
     ('setuptools version error'
      '\nYou need a newer version of setuptools.\n'
-     'You have {current}, you need at least {minimum} and the suggested '
-     'version is {suggested}.\nDo this:\n'
-     '    pip install setuptools=={suggested}\n'
+     'You have {current}, you need at least {minimum}'
+     '\nInstall the recommended version:\n'
+     '    pip install -r requirement-setuptools.txt\n'
      'and then try again to install ckan into your python environment.'.format(
-         current=setuptools_version, minimum=MIN_SETUPTOOLS_VERSION,
-         suggested=SUGGESTED_SETUPTOOLS_VERSION))
+         current=setuptools_version,
+         minimum=MIN_SETUPTOOLS_VERSION
+         ))
 
 
 entry_points = {
