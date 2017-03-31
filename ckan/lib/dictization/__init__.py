@@ -4,6 +4,7 @@ import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
 from ckan.common import config
+from ckan.model.core import State
 
 try:
     RowProxy = sqlalchemy.engine.result.RowProxy
@@ -119,8 +120,6 @@ def table_dict_save(table_dict, ModelClass, context):
 
     obj = None
 
-    unique_constraints = get_unique_constraints(table, context)
-
     id = table_dict.get("id")
 
     if id:
@@ -132,7 +131,11 @@ def table_dict_save(table_dict, ModelClass, context):
             params = dict((key, table_dict.get(key)) for key in constraint)
             obj = session.query(ModelClass).filter_by(**params).first()
             if obj:
-                break
+                if 'name' in params and getattr(obj, 'state', None) == State.DELETED:
+                    obj.name = obj.id
+                    obj = None
+                else:
+                    break
 
     if not obj:
         obj = ModelClass()

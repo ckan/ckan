@@ -66,10 +66,10 @@ this.ckan.module('follow', function($) {
 			this.el.removeClass('disabled');
 			if (options.action == 'follow') {
 				options.action = 'unfollow';
-				this.el.html('<i class="icon-remove-sign"></i> ' + this._('Unfollow')).removeClass('btn-success').addClass('btn-danger');
+				this.el.html('<i class="fa fa-times-circle"></i> ' + this._('Unfollow')).removeClass('btn-success').addClass('btn-danger');
 			} else {
 				options.action = 'follow';
-				this.el.html('<i class="icon-plus-sign"></i> ' + this._('Follow')).removeClass('btn-danger').addClass('btn-success');
+				this.el.html('<i class="fa fa-plus-circle"></i> ' + this._('Follow')).removeClass('btn-danger').addClass('btn-success');
 			}
 			sandbox.publish('follow-' + options.action + '-' + options.id);
 		}

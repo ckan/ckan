@@ -587,6 +587,7 @@ def default_autocomplete_schema():
 def default_package_search_schema():
     schema = {
         'q': [ignore_missing, unicode],
+        'fl': [ignore_missing, list_of_strings],
         'fq': [ignore_missing, unicode],
         'rows': [ignore_missing, natural_number_validator],
         'sort': [ignore_missing, unicode],
@@ -665,6 +666,8 @@ def default_update_configuration_schema():
         'ckan.site_custom_css': [unicode],
         'ckan.main_css': [unicode],
         'ckan.homepage_style': [is_positive_integer],
+        'logo_upload': [ignore_missing, unicode],
+        'clear_logo_upload': [ignore_missing, unicode],
     }
 
     # Add ignore_missing to all fields, otherwise you need to provide them all

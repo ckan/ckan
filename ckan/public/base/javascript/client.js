@@ -309,7 +309,6 @@
      * Returns an object of dataset keys.
      */
     convertStorageMetadataToResource: function (meta) {
-      // TODO: Check this is supported by IE7. U believe that the IE
       // Date constructor chokes on hyphens and timezones.
       var modified = new Date(this.normalizeTimestamp(meta._last_modified));
       var created  = new Date(this.normalizeTimestamp(meta._creation_date));

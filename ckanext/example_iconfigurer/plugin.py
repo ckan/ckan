@@ -56,10 +56,10 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
         with SubMapper(map, controller=controller) as m:
             m.connect('ckanext_myext_config_one',
                       '/ckan-admin/myext_config_one', action='config_one',
-                      ckan_icon='picture'),
+                      ckan_icon='picture-o'),
             m.connect('ckanext_myext_config_two',
                       '/ckan-admin/myext_config_two', action='config_two',
-                      ckan_icon='picture'),
+                      ckan_icon='picture-o'),
 
             # route used for testing helper method
             m.connect('build_extra_admin_nav', '/build_extra_admin_nav',

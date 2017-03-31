@@ -9,6 +9,7 @@ import sqlalchemy.engine.url as sa_url
 import ckan.plugins as p
 import ckan.logic as logic
 import ckan.model as model
+from ckan.model.core import State
 from ckan.common import config
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
@@ -55,6 +56,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
+    p.implements(p.ITemplateHelpers)
     p.implements(interfaces.IDatastore, inherit=True)
 
     legacy_mode = False
@@ -246,10 +248,17 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
-        m.connect('/datastore/dump/{resource_id}',
-                  controller='ckanext.datastore.controller:DatastoreController',
-                  action='dump')
+        m.connect(
+            '/datastore/dump/{resource_id}',
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='dump')
+        m.connect(
+            'resource_dictionary', '/dataset/{id}/dictionary/{resource_id}',
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='dictionary', ckan_icon='book')
         return m
+
+    # IResourceController
 
     def before_show(self, resource_dict):
         # Modify the resource url of datastore resources so that
@@ -264,6 +273,27 @@ class DatastorePlugin(p.SingletonPlugin):
             resource_dict[u'datastore_active'] = False
 
         return resource_dict
+
+    def after_delete(self, context, resources):
+        model = context['model']
+        pkg = context['package']
+        res_query = model.Session.query(model.Resource)
+        query = res_query.filter(
+            model.Resource.package_id == pkg.id,
+            model.Resource.state == State.DELETED
+        )
+        deleted = [
+            res for res in query.all()
+            if res.extras.get('datastore_active') is True]
+
+        for res in deleted:
+            db.delete(context, {
+                'resource_id': res.id,
+                'connection_url': self.write_url
+            })
+            res.extras['datastore_active'] = False
+            res_query.update(
+                {'extras': res.extras}, synchronize_session=False)
 
     def datastore_validate(self, context, data_dict, fields_types):
         column_names = fields_types.keys()
@@ -358,8 +388,10 @@ class DatastorePlugin(p.SingletonPlugin):
         sort = self._sort(data_dict, fields_types)
         where = self._where(data_dict, fields_types)
 
-        select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
-                      [u'count(*) over() as "_full_count" %s' % rank_column]
+        select_cols = [
+            datastore_helpers.identifier(field_id) for field_id in field_ids]
+        if rank_column:
+            select_cols.append(rank_column)
 
         query_dict['distinct'] = data_dict.get('distinct', False)
         query_dict['select'] += select_cols
@@ -466,7 +498,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 rank_columns.append(rank)
 
         statements_str = ', ' + ', '.join(statements)
-        rank_columns_str = ', ' + ', '.join(rank_columns)
+        rank_columns_str = ', '.join(rank_columns)
         return statements_str, rank_columns_str
 
     def _fts_lang(self, lang=None):
@@ -508,3 +540,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if field:
             rank_alias += u' ' + field
         return u'"{0}"'.format(rank_alias)
+
+    def get_helpers(self):
+        return {
+            'datastore_dictionary': datastore_helpers.datastore_dictionary}

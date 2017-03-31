@@ -10,9 +10,13 @@ import ConfigParser
 import logging
 import os
 
-from celery import Celery
 from ckan.common import config as ckan_config
 from pkg_resources import iter_entry_points, VersionConflict
+
+from celery import __version__ as celery_version, Celery
+if not celery_version.startswith(u'3.'):
+    raise ImportError(u'Only Celery version 3.x is supported.')
+
 
 log = logging.getLogger(__name__)
 

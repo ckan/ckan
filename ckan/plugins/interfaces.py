@@ -312,7 +312,7 @@ class IResourceView(Interface):
         :param default_description: default description that will be used if
             the view is created automatically (optional, defaults to '').
         :param icon: icon for the view type. Should be one of the
-            `Font Awesome`_ types without the `icon-` prefix eg. `compass`
+            `Font Awesome`_ types without the `fa fa-` prefix eg. `compass`
             (optional, defaults to 'picture').
         :param always_available: the view type should be always available when
             creating new views regardless of the format of the resource
@@ -343,7 +343,7 @@ class IResourceView(Interface):
              'schema': {
                 'image_url': [ignore_empty, unicode]
              },
-             'icon': 'picture',
+             'icon': 'picture-o',
              'always_available': True,
              'iframed': False,
              }
@@ -892,6 +892,17 @@ class IActions(Interface):
         By decorating a function with the `ckan.logic.side_effect_free`
         decorator, the associated action will be made available by a GET
         request (as well as the usual POST request) through the action API.
+
+        By decrorating a function with the 'ckan.plugins.toolkit.chained_action,
+        the action will be chained to another function defined in plugins with a
+        "first plugin wins" pattern, which means the first plugin declaring a
+        chained action should be called first. Chained actions must be
+        defined as action_function(original_action, context, data_dict)
+        where the first parameter will be set to the action function in
+        the next plugin or in core ckan. The chained action may call the
+        original_action function, optionally passing different values,
+        handling exceptions, returning different values and/or raising
+        different exceptions to the caller.
         '''
 
 

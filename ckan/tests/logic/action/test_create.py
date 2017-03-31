@@ -18,6 +18,7 @@ from pyfakefs import fake_filesystem
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+assert_not_equals = nose.tools.assert_not_equals
 
 real_open = open
 fs = fake_filesystem.FakeFilesystem()
@@ -639,6 +640,29 @@ class TestResourceCreate(object):
         size = int(result.pop('size'))
         assert_equals(size, 500)
 
+    def test_extras(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        resource = helpers.call_action(
+            'resource_create',
+            package_id=dataset['id'],
+            somekey='somevalue',  # this is how to do resource extras
+            extras={u'someotherkey': u'alt234'},  # this isnt
+            format=u'plain text',
+            url=u'http://datahub.io/download/',
+        )
+
+        assert_equals(resource['somekey'], 'somevalue')
+        assert 'extras' not in resource
+        assert 'someotherkey' not in resource
+        resource = helpers.call_action(
+            'package_show', id=dataset['id'])['resources'][0]
+        assert_equals(resource['somekey'], 'somevalue')
+        assert 'extras' not in resource
+        assert 'someotherkey' not in resource
+
 
 class TestMemberCreate(object):
     @classmethod
@@ -764,6 +788,173 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             id=dataset['id'],
             name='test-dataset',
         )
+
+    def test_name_not_changed_during_deletion(self):
+        dataset = factories.Dataset()
+        helpers.call_action('package_delete', id=dataset['id'])
+        deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(deleted_dataset['name'], dataset['name'])
+
+    def test_name_not_changed_after_restoring(self):
+        dataset = factories.Dataset()
+        context = {
+            'user': factories.Sysadmin()['name']
+        }
+        helpers.call_action('package_delete', id=dataset['id'])
+        deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
+        restored_dataset = helpers.call_action(
+            'package_patch', context=context, id=dataset['id'], state='active')
+        assert_equals(deleted_dataset['name'], restored_dataset['name'])
+        assert_equals(deleted_dataset['id'], restored_dataset['id'])
+
+    def test_creation_of_dataset_with_name_same_as_of_previously_removed(self):
+        dataset = factories.Dataset()
+        initial_name = dataset['name']
+        helpers.call_action('package_delete', id=dataset['id'])
+        new_dataset = helpers.call_action(
+            'package_create',
+            name=initial_name
+        )
+        assert_equals(new_dataset['name'], initial_name)
+        deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
+
+        assert_not_equals(new_dataset['id'], deleted_dataset['id'])
+        assert_equals(deleted_dataset['name'], deleted_dataset['id'])
+
+    def test_missing_id(self):
+        assert_raises(
+            logic.ValidationError, helpers.call_action,
+            'package_create'
+        )
+
+    def test_name(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='some-name',
+        )
+
+        assert_equals(dataset['name'], 'some-name')
+        assert_equals(
+            helpers.call_action('package_show', id=dataset['id'])['name'],
+            'some-name')
+
+    def test_title(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test_title',
+            title='New Title',
+        )
+
+        assert_equals(dataset['title'], 'New Title')
+        assert_equals(
+            helpers.call_action('package_show', id=dataset['id'])['title'],
+            'New Title')
+
+    def test_extras(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-extras',
+            title='Test Extras',
+            extras=[{'key': u'original media',
+                     'value': u'"book"'}],
+        )
+
+        assert_equals(dataset['extras'][0]['key'], 'original media')
+        assert_equals(dataset['extras'][0]['value'], '"book"')
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(dataset['extras'][0]['key'], 'original media')
+        assert_equals(dataset['extras'][0]['value'], '"book"')
+
+    def test_license(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-license',
+            title='Test License',
+            license_id='other-open',
+        )
+
+        assert_equals(dataset['license_id'], 'other-open')
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(dataset['license_id'], 'other-open')
+
+    def test_notes(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-notes',
+            title='Test Notes',
+            notes='some notes',
+        )
+
+        assert_equals(dataset['notes'], 'some notes')
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(dataset['notes'], 'some notes')
+
+    def test_resources(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-resources',
+            title='Test Resources',
+            resources=[
+                {'alt_url': u'alt123',
+                 'description': u'Full text.',
+                 'somekey': 'somevalue',  # this is how to do resource extras
+                 'extras': {u'someotherkey': u'alt234'},  # this isnt
+                 'format': u'plain text',
+                 'hash': u'abc123',
+                 'position': 0,
+                 'url': u'http://datahub.io/download/'},
+                {'description': u'Index of the novel',
+                 'format': u'JSON',
+                 'position': 1,
+                 'url': u'http://datahub.io/index.json'}
+            ],
+        )
+
+        resources = dataset['resources']
+        assert_equals(resources[0]['alt_url'], 'alt123')
+        assert_equals(resources[0]['description'], 'Full text.')
+        assert_equals(resources[0]['somekey'], 'somevalue')
+        assert 'extras' not in resources[0]
+        assert 'someotherkey' not in resources[0]
+        assert_equals(resources[0]['format'], 'plain text')
+        assert_equals(resources[0]['hash'], 'abc123')
+        assert_equals(resources[0]['position'], 0)
+        assert_equals(resources[0]['url'], 'http://datahub.io/download/')
+        assert_equals(resources[1]['description'], 'Index of the novel')
+        assert_equals(resources[1]['format'], 'JSON')
+        assert_equals(resources[1]['url'], 'http://datahub.io/index.json')
+        assert_equals(resources[1]['position'], 1)
+        resources = helpers.call_action(
+            'package_show', id=dataset['id'])['resources']
+        assert_equals(resources[0]['alt_url'], 'alt123')
+        assert_equals(resources[0]['description'], 'Full text.')
+        assert_equals(resources[0]['somekey'], 'somevalue')
+        assert 'extras' not in resources[0]
+        assert 'someotherkey' not in resources[0]
+        assert_equals(resources[0]['format'], 'plain text')
+        assert_equals(resources[0]['hash'], 'abc123')
+        assert_equals(resources[0]['position'], 0)
+        assert_equals(resources[0]['url'], 'http://datahub.io/download/')
+        assert_equals(resources[1]['description'], 'Index of the novel')
+        assert_equals(resources[1]['format'], 'JSON')
+        assert_equals(resources[1]['url'], 'http://datahub.io/index.json')
+        assert_equals(resources[1]['position'], 1)
+
+    def test_tags(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-tags',
+            title='Test Tags',
+            tags=[{'name': u'russian'}, {'name': u'tolstoy'}],
+        )
+
+        tag_names = sorted([tag_dict['name']
+                            for tag_dict in dataset['tags']])
+        assert_equals(tag_names, ['russian', 'tolstoy'])
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        tag_names = sorted([tag_dict['name']
+                            for tag_dict in dataset['tags']])
+        assert_equals(tag_names, ['russian', 'tolstoy'])
 
 
 class TestGroupCreate(helpers.FunctionalTestBase):
