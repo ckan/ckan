@@ -13,7 +13,7 @@
       {{ autoform.generate(form_items, data, errors) }}
     {% endblock %}
     <div class="form-actions">
-      <a href="{% url_for controller='admin', action='reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to reset the config?') }}">{{ _('Reset') }}</a>
+      <a href="{% url_for controller='admin', action='reset_config' %}" class="btn btn-default btn-danger pull-left" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to reset the config?') }}">{{ _('Reset') }}</a>
       <button type="submit" class="btn btn-primary" name="save">{{ _('Update Config') }}</button>
     </div>
   </form>

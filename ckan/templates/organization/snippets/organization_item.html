@@ -16,7 +16,7 @@ Example:
 <li class="media-item">
   {% block item_inner %}
   {% block image %}
-    <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="media-image">
+    <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="img-responsive media-image">
   {% endblock %}
   {% block title %}
     <h3 class="media-heading">{{ organization.display_name }}</h3>
@@ -35,7 +35,7 @@ Example:
   {% endblock %}
   {% block capacity %}
     {% if show_capacity and organization.capacity %}
-    <p><span class="label">{{ h.roles_translated().get(organization.capacity, organization.capacity) }}</span></p>
+    <p><span class="label label-default">{{ h.roles_translated().get(organization.capacity, organization.capacity) }}</span></p>
     {% endif %}
   {% endblock %}
   {% block link %}

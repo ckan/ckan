@@ -69,10 +69,10 @@
                         {% if package.get('state', '').startswith('draft') %}
                           <span class="label label-info">{{ _('Draft') }}</span>
                         {% elif package.get('state', '').startswith('deleted') %}
-                          <span class="label label-important">{{ _('Deleted') }}</span>
+                          <span class="label label-danger">{{ _('Deleted') }}</span>
                         {% endif %}
                         {% if package.private %}
-                          <span class="label label-important">{{ _('Private') }}</span>
+                          <span class="label label-danger">{{ _('Private') }}</span>
                         {% endif %}
                       </h3>
                       {% if notes %}
