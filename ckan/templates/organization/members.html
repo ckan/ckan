@@ -10,7 +10,9 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h3 class="page-heading">{{ _('{0} members'.format(c.members|length)) }}</h3>
+  {% set count = c.members|length %}
+  {% set members_count = _(ungettext('{0} member', '{0} members', count)).format(count) %}
+  <h3 class="page-heading">{{ members_count }}</h3>
   <table class="table table-header table-hover table-bordered">
     <col width="70" />
     <col width="40" />
