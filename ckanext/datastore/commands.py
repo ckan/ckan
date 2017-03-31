@@ -10,6 +10,7 @@ from ckan.lib.cli import (
     click_config_option,
 )
 from ckanext.datastore.helpers import identifier
+from ckanext.datastore.controller import DUMP_FORMATS, dump_to
 
 import click
 
@@ -60,3 +61,30 @@ def permissions_sql(maindb, datastoredb, mainuser, writeuser, readuser):
         mainuser=identifier(mainuser),
         writeuser=identifier(writeuser),
         readuser=identifier(readuser))
+
+
+@datastore_group.command(
+    u'dump',
+    help=u'Dump a datastore resource in one of the supported formats.')
+@click.argument(u'resource-id', nargs=1)
+@click.argument(
+    u'output-file',
+    type=click.File(u'wb'),
+    default=click.get_binary_stream(u'stdout'))
+@click.help_option(u'-h', u'--help')
+@click_config_option
+@click.option(u'--format', default=u'csv', type=click.Choice(DUMP_FORMATS))
+@click.option(u'--offset', type=click.IntRange(0, None), default=0)
+@click.option(u'--limit', type=click.IntRange(0))
+@click.option(u'--bom', is_flag=True)  # FIXME: options based on format
+@click.pass_context
+def dump(ctx, resource_id, output_file, config, format, offset, limit, bom):
+    load_config(config or ctx.obj['config'])
+
+    dump_to(
+        resource_id,
+        output_file,
+        fmt=format,
+        offset=offset,
+        limit=limit,
+        options={u'bom': bom})
