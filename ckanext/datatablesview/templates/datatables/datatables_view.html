@@ -45,7 +45,8 @@ $(document).ready(function() {
         'true' if resource_view.get('responsive') else 'false' }},
       fixedHeader: true,
       fixedColumns: true,
-      scrollX: true,
+      scrollX: {{
+        'false' if resource_view.get('responsive') else 'true' }},
       dom: 'Blifrtip',
       buttons: [
         {
