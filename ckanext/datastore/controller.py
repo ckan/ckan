@@ -13,15 +13,9 @@ import ckan.model as model
 from ckan.common import request
 
 
-def _dump_nested(column, record):
-    name, ctype = column
-    value = record[name]
+def _json_dump_nested(value):
+    is_nested = isinstance(value, (list, dict))
 
-    is_nested = (
-        ctype == 'json' or
-        ctype.startswith('_') or
-        ctype.endswith(']')
-    )
     if is_nested:
         return json.dumps(value)
     return value
@@ -56,13 +50,9 @@ class DatastoreController(base.BaseController):
         header = [x['id'] for x in result['fields']]
         wr.writerow(header)
 
-        columns = [
-            (x['id'], x['type'])
-            for x in result['fields']]
-
         for record in result['records']:
             wr.writerow([
-                _dump_nested(column, record)
-                for column in columns])
+                _json_dump_nested(record[column])
+                for column in header])
 
         return f.getvalue()
