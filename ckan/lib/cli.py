@@ -137,7 +137,7 @@ class CkanCommand(paste.script.command.Command):
     '''Base class for classes that implement CKAN paster commands to inherit.'''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
-                      default='development.ini', help='Config file to use.')
+                      help='Config file to use.')
     parser.add_option('-f', '--file',
                       action='store',
                       dest='file_path',
@@ -155,8 +155,16 @@ class CkanCommand(paste.script.command.Command):
             self.filename = os.environ.get('CKAN_INI')
             config_source = '$CKAN_INI'
         else:
-            self.filename = os.path.join(os.getcwd(), 'development.ini')
-            config_source = 'default value'
+            default_filename = 'development.ini'
+            self.filename = os.path.join(os.getcwd(), default_filename)
+            if not os.path.exists(self.filename):
+                # give really clear error message for this common situation
+                msg = 'ERROR: You need to specify the CKAN config (.ini) '\
+                    'file path.'\
+                    '\nUse the --config parameter or set environment ' \
+                    'variable CKAN_INI or have {}\nin the current directory.' \
+                    .format(default_filename)
+                raise self.BadCommand(msg)
 
         if not os.path.exists(self.filename):
             msg = 'Config file not found: %s' % self.filename
