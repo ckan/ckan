@@ -192,6 +192,7 @@ class CkanCommand(paste.script.command.Command):
 
             pylons.c.user = self.site_user['name']
             pylons.c.userobj = model.User.get(self.site_user['name'])
+            model.Session.commit()
 
         ## give routes enough information to run url_for
         parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
