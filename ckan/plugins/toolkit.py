@@ -68,9 +68,9 @@ class _Toolkit(object):
         'StopOnError',
         # validation invalid exception
         'Invalid',
-        # old class for providing cli interfaces
+        # old class for providing CLI interfaces
         'CkanCommand',
-        # new funtion for initializing cli interfaces
+        # function for initializing CLI interfaces
         'load_config',
         # base class for IDatasetForm plugins
         'DefaultDatasetForm',
