@@ -96,7 +96,11 @@ To enable multi-core:
 
        curl 'http://localhost:8983/solr/admin/cores?action=CREATE&name=ckan&instanceDir=/etc/solr/ckan'
 
-If successful the status should be 0 - some XML containing: ``<int name="status">0</int>``
+   If successful the status should be 0 - some XML containing: ``<int name="status">0</int>``
+
+4. Edit your main ckan config (e.g. |development.ini|) and adjust the solr_url to match::
+
+       solr_url = http://127.0.0.1:8983/solr/ckan
 
 
 ~~~~~~~~~~~~~
