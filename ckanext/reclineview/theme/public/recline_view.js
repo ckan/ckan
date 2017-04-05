@@ -11,7 +11,7 @@ this.ckan.module('recline_view', function (jQuery) {
       this.options.resourceView = JSON.parse(this.options.resourceView);
       this.el.ready(this._onReady);
       // hack to make leaflet use a particular location to look for images
-      L.Icon.Default.imagePath = this.options.site_url + 'vendor/leaflet/0.7.3/images';
+      L.Icon.Default.imagePath = this.options.site_url + 'vendor/leaflet/0.7.7/images';
     },
 
     _onReady: function() {
