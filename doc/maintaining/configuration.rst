@@ -1425,6 +1425,22 @@ running on port 8800. If you want to manually install the DataPusher, follow
 the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
 
 
+.. _ckan.datapusher.assume_task_stale_after:
+
+ckan.datapusher.assume_task_stale_after
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.datapusher.assume_task_stale_after = 86400
+
+Default value:  ``3600`` (one hour)
+
+In case a DataPusher task gets stuck and fails to recover, this is the minimum
+amount of time (in seconds) after a resource is submitted to DataPusher that the
+resource can be submitted again.
+
+
 User Settings
 -------------------------
 
