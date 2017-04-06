@@ -349,14 +349,6 @@ class UserController(base.BaseController):
 
             email_changed = data_dict['email'] != c.userobj.email
 
-            if id != data_dict['name']:
-                old_user = model.User.get(id)
-                if old_user.name != data_dict['name']:
-                    errors = {'username': [_('Can not modify username')]}
-                    error_summary = {_('Username'):
-                                     _('Can not modify username')}
-                    return self.edit(id, data_dict, errors, error_summary)
-
             if (data_dict['password1'] and data_dict['password2']) \
                     or email_changed:
                 identity = {'login': c.user,
