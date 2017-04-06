@@ -7,6 +7,14 @@
 Changelog
 ---------
 
+v2.5.5 2017-03-22
+=================
+
+* Use fully qualified urls for reset emails (#3486)
+* Fix edit_resource for resource with draft state (#3480)
+* Tag fix for group/organization pages (#3460)
+* Setting of datastore_active flag moved to separate function (#3481)
+
 v2.5.4 2017-02-22
 =================
 

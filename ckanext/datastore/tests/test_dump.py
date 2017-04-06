@@ -2,6 +2,7 @@ import json
 
 import nose
 from nose.tools import assert_equals
+from ckan.tests.helpers import assert_in
 from pylons import config
 import sqlalchemy.orm as orm
 import paste.fixture
@@ -37,14 +38,16 @@ class TestDatastoreDump(object):
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
                        {'id': 'published'},
-                       {'id': u'characters', u'type': u'_text'}],
+                       {'id': u'characters', u'type': u'_text'},
+                       {'id': 'random_letters', 'type': 'text[]'}],
             'records': [{u'b\xfck': 'annakarenina',
-                        'author': 'tolstoy',
-                        'published': '2005-03-01',
-                        'nested': ['b', {'moo': 'moo'}],
-                        u'characters': [u'Princess Anna', u'Sergius']},
+                         'author': 'tolstoy',
+                         'published': '2005-03-01',
+                         'nested': ['b', {'moo': 'moo'}],
+                         u'characters': [u'Princess Anna', u'Sergius'],
+                         'random_letters': ['a', 'e', 'x']},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                         'nested': {'a': 'b'}}]
+                         'nested': {'a': 'b'}, 'random_letters': []}]
         }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
@@ -67,10 +70,13 @@ class TestDatastoreDump(object):
         res = self.app.get('/datastore/dump/{0}'.format(str(
             self.data['resource_id'])), extra_environ=auth)
         content = res.body.decode('utf-8')
-        expected = u'_id,b\xfck,author,published,characters,nested'
+
+        expected = (
+            u'_id,b\xfck,author,published'
+            u',characters,random_letters,nested')
         assert_equals(content[:len(expected)], expected)
-        assert 'warandpeace' in content
-        assert "[u'Princess Anna', u'Sergius']" in content
+        assert_in('warandpeace', content)
+        assert_in('"[""Princess Anna"", ""Sergius""]"', content)
 
         # get with alias instead of id
         res = self.app.get('/datastore/dump/{0}'.format(str(
@@ -86,6 +92,15 @@ class TestDatastoreDump(object):
         res = self.app.get('/datastore/dump/{0}?limit=1'.format(str(
             self.data['resource_id'])), extra_environ=auth)
         content = res.body.decode('utf-8')
-        expected = u'_id,b\xfck,author,published,characters,nested'
+
+        expected = (u'_id,b\xfck,author,published'
+                    u',characters,random_letters,nested')
         assert_equals(content[:len(expected)], expected)
-        assert_equals(len(content), 148)
+
+        expected_content = (
+            u'_id,b\xfck,author,published,characters,random_letters,'
+            u'nested\r\n1,annakarenina,tolstoy,2005-03-01T00:00:00,'
+            u'"[""Princess Anna"", ""Sergius""]",'
+            u'"[""a"", ""e"", ""x""]","[""b"", '
+            u'{""moo"": ""moo""}]"\r\n')
+        assert_equals(content, expected_content)

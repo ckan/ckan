@@ -274,8 +274,9 @@ class GroupController(base.BaseController):
         c.drill_down_url = drill_down_url
 
         def remove_field(key, value=None, replace=None):
+            controller = lookup_group_controller(group_type)
             return h.remove_url_param(key, value=value, replace=replace,
-                                      controller='group', action='read',
+                                      controller=controller, action='read',
                                       extras=dict(id=c.group_dict.get('name')))
 
         c.remove_field = remove_field
@@ -287,6 +288,7 @@ class GroupController(base.BaseController):
 
         try:
             c.fields = []
+            c.fields_grouped = {}
             search_extras = {}
             for (param, value) in request.params.items():
                 if not param in ['q', 'page', 'sort'] \
@@ -294,6 +296,10 @@ class GroupController(base.BaseController):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
                         q += ' %s: "%s"' % (param, value)
+                        if param not in c.fields_grouped:
+                            c.fields_grouped[param] = [value]
+                        else:
+                            c.fields_grouped[param].append(value)
                     else:
                         search_extras[param] = value
 

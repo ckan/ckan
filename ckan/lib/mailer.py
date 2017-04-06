@@ -133,11 +133,12 @@ def get_invite_body(user):
     return invite_message.format(**d)
 
 def get_reset_link(user):
-    return urljoin(g.site_url,
-                   h.url_for(controller='user',
-                           action='perform_reset',
-                           id=user.id,
-                           key=user.reset_key))
+    return h.url_for(controller='user',
+                     action='perform_reset',
+                     id=user.id,
+                     key=user.reset_key,
+                     qualified=True)
+
 
 def send_reset_link(user):
     create_reset_key(user)
@@ -164,6 +165,3 @@ def verify_reset_link(user, key):
     if not user.reset_key or len(user.reset_key) < 5:
         return False
     return key.strip() == user.reset_key
-
-
-
