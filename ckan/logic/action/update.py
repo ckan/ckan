@@ -294,12 +294,11 @@ def package_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    #avoid revisioning by updating directly
-    model.Session.query(model.Package).filter_by(id=pkg.id).update(
-        {"metadata_modified": datetime.datetime.utcnow()})
-    model.Session.refresh(pkg)
-
     pkg = model_save.package_dict_save(data, context)
+
+    # Update metadata modified ONLY when pkg metadata was changed.
+    if model.Session.is_modified(pkg):
+        pkg.metadata_modified = datetime.datetime.utcnow()
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
