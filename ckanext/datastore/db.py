@@ -15,6 +15,8 @@ import urlparse
 import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
+from ckan.lib.lazyjson import LazyJSONObject
+
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
 import psycopg2.extras
@@ -1029,9 +1031,12 @@ def search_data(context, data_dict):
     else:
         sort_clause = ''
 
-    sql_string = u'''SELECT {distinct} {select}
-                    FROM "{resource}" {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
+    sql_string = u'''
+            SELECT row_to_json(j)::text from (
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) AS j'''.format(
         distinct=distinct,
         select=select_columns,
         resource=resource_id,
@@ -1041,11 +1046,23 @@ def search_data(context, data_dict):
         limit=limit,
         offset=offset)
 
-    results = _execute_single_statement(context, sql_string, where_values)
+    records = [
+        LazyJSONObject(r[0]) for r in
+        _execute_single_statement(context, sql_string, where_values)]
+    data_dict['records'] = records
+
+    field_info = _get_field_info(
+        context['connection'], data_dict['resource_id'])
+    result_fields = []
+    for field_id, field_type in fields_types.iteritems():
+        f = {u'id': field_id, u'type': field_type}
+        if field_id in field_info:
+            f['info'] = field_info[f['id']]
+        result_fields.append(f)
+    data_dict['fields'] = result_fields
+    _unrename_json_field(data_dict)
 
     _insert_links(data_dict, limit, offset)
-    r = format_results(context, results, data_dict, _get_field_info(
-        context['connection'], data_dict['resource_id']))
 
     if data_dict.get('include_total', True):
         count_sql_string = u'''SELECT {distinct} count(*)
@@ -1058,7 +1075,7 @@ def search_data(context, data_dict):
             context, count_sql_string, where_values)
         data_dict['total'] = count_result.fetchall()[0][0]
 
-    return r
+    return data_dict
 
 
 def _execute_single_statement(context, sql_string, where_values):
@@ -1072,16 +1089,13 @@ def _execute_single_statement(context, sql_string, where_values):
     return results
 
 
-def format_results(context, results, data_dict, field_info=None):
+def format_results(context, results, data_dict):
     result_fields = []
     for field in results.cursor.description:
-        f = {
+        result_fields.append({
             'id': field[0].decode('utf-8'),
             'type': _get_type(context, field[1])
-        }
-        if field_info and f['id'] in field_info:
-            f['info'] = field_info[f['id']]
-        result_fields.append(f)
+        })
 
     records = []
     for row in results:

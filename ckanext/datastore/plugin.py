@@ -383,8 +383,15 @@ class DatastorePlugin(p.SingletonPlugin):
         sort = self._sort(data_dict, fields_types)
         where = self._where(data_dict, fields_types)
 
-        select_cols = [
-            datastore_helpers.identifier(field_id) for field_id in field_ids]
+        select_cols = []
+        for field_id in field_ids:
+            fmt = u'{0}'
+            if fields_types.get(field_id) == u'nested':
+                fmt = u'({0}).json as {0}'
+            elif fields_types.get(field_id) == u'timestamp':
+                fmt = u"to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS') as {0}"
+            select_cols.append(fmt.format(
+                datastore_helpers.identifier(field_id)))
         if rank_column:
             select_cols.append(rank_column)
 
