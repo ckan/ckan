@@ -559,7 +559,7 @@ def user_name_validator(key, data, errors, context):
             errors[key].append(_('That login name is not available.'))
     elif user_obj_from_context:
         old_user = model.User.get(user_obj_from_context.id)
-        if old_user is not None:
+        if old_user is not None and old_user.state != model.State.PENDING:
             errors[key].append(_('That login name can not be modified.'))
         else:
             return
