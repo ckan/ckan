@@ -108,7 +108,7 @@ class TestDatastoreDump(object):
             u',characters,random_letters,nested')
         assert_equals(content[:len(expected)], expected)
         assert_in('warandpeace', content)
-        assert_in('"[""Princess Anna"", ""Sergius""]"', content)
+        assert_in('"[""Princess Anna"",""Sergius""]"', content)
 
         # get with alias instead of id
         res = self.app.get('/datastore/dump/{0}'.format(str(
@@ -128,9 +128,9 @@ class TestDatastoreDump(object):
         expected_content = (
             u'_id,b\xfck,author,published,characters,random_letters,'
             u'nested\r\n1,annakarenina,tolstoy,2005-03-01T00:00:00,'
-            u'"[""Princess Anna"", ""Sergius""]",'
-            u'"[""a"", ""e"", ""x""]","[""b"", '
-            u'{""moo"": ""moo""}]"\r\n')
+            u'"[""Princess Anna"",""Sergius""]",'
+            u'"[""a"",""e"",""x""]","[""b"", '
+            u'{""moo"": ""moo""}]"\n')
         assert_equals(content, expected_content)
 
     def test_dump_tsv(self):
@@ -142,9 +142,9 @@ class TestDatastoreDump(object):
         expected_content = (
             u'_id\tb\xfck\tauthor\tpublished\tcharacters\trandom_letters\t'
             u'nested\r\n1\tannakarenina\ttolstoy\t2005-03-01T00:00:00\t'
-            u'"[""Princess Anna"", ""Sergius""]"\t'
-            u'"[""a"", ""e"", ""x""]"\t"[""b"", '
-            u'{""moo"": ""moo""}]"\r\n')
+            u'"[""Princess Anna"",""Sergius""]"\t'
+            u'"[""a"",""e"",""x""]"\t"[""b"", '
+            u'{""moo"": ""moo""}]"\n')
         assert_equals(content, expected_content)
 
     def test_dump_json(self):
@@ -159,8 +159,8 @@ class TestDatastoreDump(object):
             u'{"type":"_text","id":"random_letters"},{"type":"json",'
             u'"id":"nested"}],\n  "records": [\n    '
             u'[1,"annakarenina","tolstoy","2005-03-01T00:00:00",'
-            u'["Princess Anna","Sergius"],["a","e","x"],["b",'
-            u'{"moo":"moo"}]]\n]}\n')
+            u'["Princess Anna","Sergius"],["a","e","x"],["b", '
+            u'{"moo": "moo"}]]\n]}\n')
         assert_equals(content, expected_content)
 
     def test_dump_xml(self):

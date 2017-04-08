@@ -386,6 +386,16 @@ def datastore_search(context, data_dict):
     :param sort: comma separated field names with ordering
                  e.g.: "fieldname1, fieldname2 desc"
     :type sort: string
+    :param include_total: True to return total matching record count
+                          (optional, default: true)
+    :type include_total: bool
+    :param records_format: the format for the records return value:
+        'objects' (default) list of {fieldname1: value1, ...} dicts,
+        'lists' list of [value1, value2, ...] lists,
+        'csv' string containing comma-separated values with no header,
+        'tsv' string containing tab-separated values with no header
+    :type records_format: controlled list
+
 
     Setting the ``plain`` flag to false enables the entire PostgreSQL `full text search query language`_.
 
@@ -411,7 +421,7 @@ def datastore_search(context, data_dict):
     :param total: number of total matching records
     :type total: int
     :param records: list of matching results
-    :type records: list of dictionaries
+    :type records: depends on records_format value passed
 
     '''
     schema = context.get('schema', dsschema.datastore_search_schema())

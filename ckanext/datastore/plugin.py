@@ -384,12 +384,21 @@ class DatastorePlugin(p.SingletonPlugin):
         where = self._where(data_dict, fields_types)
 
         select_cols = []
+        records_format = data_dict.get(u'records_format')
+        json_values = records_format in (u'objects', u'lists')
         for field_id in field_ids:
-            fmt = u'{0}'
-            if fields_types.get(field_id) == u'nested':
-                fmt = u'({0}).json as {0}'
-            elif fields_types.get(field_id) == u'timestamp':
-                fmt = u"to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS') as {0}"
+            fmt = u'to_json({0})' if records_format == u'lists' else u'{0}'
+            typ = fields_types.get(field_id)
+            if typ == u'nested':
+                fmt = u'({0}).json'
+            elif typ == u'timestamp':
+                fmt = u"to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
+                if json_values:
+                    fmt = u"to_json({0})".format(fmt)
+            elif typ.startswith(u'_') or typ.endswith(u'[]'):
+                fmt = u'array_to_json({0})'
+            if records_format == u'objects':
+                fmt += u' as {0}'
             select_cols.append(fmt.format(
                 datastore_helpers.identifier(field_id)))
         if rank_column:
