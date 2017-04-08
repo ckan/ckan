@@ -125,6 +125,7 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
                 else min(PAGINATE_BY, lim),
             'offset': offs,
             'records_format': records_format,
+            'include_total': 'false',  # XXX: default() is broken
             })
 
     result = result_page(offset, limit)
