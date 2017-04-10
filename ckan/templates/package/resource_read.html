@@ -151,8 +151,12 @@
             </thead>
             <tbody>
               <tr>
-                <th scope="row">{{ _('Last updated') }}</th>
-                <td>{{ h.render_datetime(res.last_modified) or h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
+                <th scope="row">{{ _('Data last updated') }}</th>
+                <td>{{ h.render_datetime(res.last_modified) or h.render_datetime(res.created) or _('unknown') }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{{ _('Metadata last updated') }}</th>
+                <td>{{ h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
               </tr>
               <tr>
                 <th scope="row">{{ _('Created') }}</th>
