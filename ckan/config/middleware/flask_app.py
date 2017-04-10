@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import os
-import importlib
 import inspect
 import itertools
 import pkgutil
@@ -14,7 +13,6 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Rule
 
 from flask_babel import Babel
-from flask_debugtoolbar import DebugToolbarExtension
 
 from beaker.middleware import SessionMiddleware
 from paste.deploy.converters import asbool
@@ -71,6 +69,7 @@ def make_flask_stack(conf, **app_conf):
                            ' with the SECRET_KEY config option')
 
     if debug:
+        from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
         DebugToolbarExtension(app)
 
@@ -155,9 +154,6 @@ def make_flask_stack(conf, **app_conf):
             app.register_extension_blueprint(plugin.get_blueprint())
 
     # Start other middleware
-
-    for plugin in PluginImplementations(IMiddleware):
-        app = plugin.make_middleware(app, config)
 
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)

@@ -3,6 +3,7 @@
 import datetime
 
 from nose.tools import eq_
+import mock
 
 import ckan.plugins as p
 from ckan.tests import helpers, factories
@@ -278,3 +279,21 @@ class TestDataPusherAction(object):
 
         # Not called
         eq_(len(mock_datapusher_submit.mock_calls), 1)
+
+    def test_duplicated_tasks(self):
+        def submit(res, user):
+            return helpers.call_action(
+                'datapusher_submit', context=dict(user=user['name']),
+                resource_id=res['id'])
+
+        user = factories.User()
+        res = factories.Resource(user=user)
+        with mock.patch('requests.post') as r_mock:
+            r_mock().json = mock.Mock(
+                side_effect=lambda: dict.fromkeys(
+                    ['job_id', 'job_key']))
+            r_mock.reset_mock()
+            submit(res, user)
+            submit(res, user)
+
+            eq_(1, r_mock.call_count)
