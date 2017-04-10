@@ -37,6 +37,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
+    p.implements(p.ITemplateHelpers)
     p.implements(interfaces.IDatastore, inherit=True)
     p.implements(interfaces.IDatastoreBackend, inherit=True)
 
@@ -148,6 +149,10 @@ class DatastorePlugin(p.SingletonPlugin):
             '/datastore/dump/{resource_id}',
             controller='ckanext.datastore.controller:DatastoreController',
             action='dump')
+        m.connect(
+            'resource_dictionary', '/dataset/{id}/dictionary/{resource_id}',
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='dictionary', ckan_icon='book')
         return m
 
     # IResourceController
@@ -258,3 +263,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if hook:
             query_dict = hook(context, data_dict, fields_types, query_dict)
         return query_dict
+
+    def get_helpers(self):
+        return {
+            'datastore_dictionary': datastore_helpers.datastore_dictionary}

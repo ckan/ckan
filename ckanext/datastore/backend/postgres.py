@@ -114,20 +114,6 @@ def _rename_field(data_dict, term, replace):
     return data_dict
 
 
-def _get_fields(context, data_dict):
-    fields = []
-    all_fields = context['connection'].execute(
-        u'SELECT * FROM "{0}" LIMIT 1'.format(data_dict['resource_id'])
-    )
-    for field in all_fields.cursor.description:
-        if not field[0].startswith('_'):
-            fields.append({
-                'id': field[0].decode('utf-8'),
-                'type': _get_type(context, field[1])
-            })
-    return fields
-
-
 def _get_fields_types(context, data_dict):
     all_fields = _get_fields(context, data_dict)
     all_fields.insert(0, {'id': '_id', 'type': 'int'})
@@ -192,6 +178,38 @@ def _get_unique_key(context, data_dict):
     key_parts = context['connection'].execute(sql_get_unique_key,
                                               data_dict['resource_id'])
     return [x[0] for x in key_parts]
+
+
+def _get_field_info(connection, resource_id):
+    u'''return a dictionary mapping column names to their info data,
+    when present'''
+    qtext = sqlalchemy.text(u'''
+        select pa.attname as name, pd.description as info
+        from pg_class pc, pg_attribute pa, pg_description pd
+        where pa.attrelid = pc.oid and pd.objoid = pc.oid
+            and pd.objsubid = pa.attnum and pc.relname = :res_id
+            and pa.attnum > 0
+    ''')
+    try:
+        return dict(
+            (n, json.loads(v)) for (n, v) in
+            connection.execute(qtext, res_id=resource_id).fetchall())
+    except ValueError:  # don't die on non-json comments
+        return {}
+
+
+def _get_fields(context, data_dict):
+    fields = []
+    all_fields = context['connection'].execute(
+        u'SELECT * FROM "{0}" LIMIT 1'.format(data_dict['resource_id'])
+    )
+    for field in all_fields.cursor.description:
+        if not field[0].startswith('_'):
+            fields.append({
+                'id': field[0].decode('utf-8'),
+                'type': _get_type(context, field[1])
+            })
+    return fields
 
 
 def _cache_types(context):
@@ -839,15 +857,26 @@ def create_table(context, data_dict):
                 })
 
     fields = datastore_fields + supplied_fields + extra_fields
-    sql_fields = u", ".join([u'"{0}" {1}'.format(
-        f['id'], f['type']) for f in fields])
+    sql_fields = u", ".join([u'{0} {1}'.format(
+        datastore_helpers.identifier(f['id']), f['type']) for f in fields])
 
-    sql_string = u'CREATE TABLE "{0}" ({1});'.format(
-        data_dict['resource_id'],
+    sql_string = u'CREATE TABLE {0} ({1});'.format(
+        datastore_helpers.identifier(data_dict['resource_id']),
         sql_fields
     )
 
-    context['connection'].execute(sql_string.replace('%', '%%'))
+    info_sql = []
+    for f in supplied_fields:
+        info = f.get(u'info')
+        if isinstance(info, dict):
+            info_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
+                datastore_helpers.identifier(data_dict['resource_id']),
+                datastore_helpers.identifier(f['id']),
+                datastore_helpers.literal_string(
+                    json.dumps(info, ensure_ascii=False))))
+
+    context['connection'].execute(
+        (sql_string + u';'.join(info_sql)).replace(u'%', u'%%'))
 
 
 def alter_table(context, data_dict):
@@ -902,12 +931,29 @@ def alter_table(context, data_dict):
                     'type': _guess_type(records[0][field_id])
                 })
 
-    for field in new_fields:
-        sql = 'ALTER TABLE "{0}" ADD "{1}" {2}'.format(
-            data_dict['resource_id'],
-            field['id'],
-            field['type'])
-        context['connection'].execute(sql.replace('%', '%%'))
+    alter_sql = []
+    for f in new_fields:
+        alter_sql.append(u'ALTER TABLE {0} ADD {1} {2};'.format(
+            datastore_helpers.identifier(data_dict['resource_id']),
+            datastore_helpers.identifier(f['id']),
+            f['type']))
+
+    for f in supplied_fields:
+        if u'info' in f:
+            info = f.get(u'info')
+            if isinstance(info, dict):
+                info_sql = datastore_helpers.literal_string(
+                    json.dumps(info, ensure_ascii=False))
+            else:
+                info_sql = 'NULL'
+            alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
+                datastore_helpers.identifier(data_dict['resource_id']),
+                datastore_helpers.identifier(f['id']),
+                info_sql))
+
+    if alter_sql:
+        context['connection'].execute(
+            u';'.join(alter_sql).replace(u'%', u'%%'))
 
 
 def insert_data(context, data_dict):
@@ -1079,6 +1125,7 @@ def validate(context, data_dict):
     data_dict_copy.pop('connection_url', None)
     data_dict_copy.pop('resource_id', None)
     data_dict_copy.pop('id', None)
+    data_dict_copy.pop('include_total', None)
 
     for key, values in data_dict_copy.iteritems():
         if not values:
@@ -1171,21 +1218,20 @@ def upsert(context, data_dict):
         context['connection'].close()
 
 
-def format_results(context, results, data_dict):
+def format_results(context, results, data_dict, field_info=None):
     result_fields = []
     for field in results.cursor.description:
-        result_fields.append({
+        f = {
             'id': field[0].decode('utf-8'),
             'type': _get_type(context, field[1])
-        })
-    if len(result_fields) and result_fields[-1]['id'] == '_full_count':
-        result_fields.pop()  # remove _full_count
+        }
+        if field_info and f['id'] in field_info:
+            f['info'] = field_info[f['id']]
+        result_fields.append(f)
 
     records = []
     for row in results:
         converted_row = {}
-        if '_full_count' in row:
-            data_dict['total'] = row['_full_count']
         for field in result_fields:
             converted_row[field['id']] = convert(row[field['id']],
                                                  field['type'])
@@ -1245,7 +1291,21 @@ def search_data(context, data_dict):
     results = _execute_single_statement(context, sql_string, where_values)
 
     _insert_links(data_dict, limit, offset)
-    return format_results(context, results, data_dict)
+    r = format_results(context, results, data_dict, _get_field_info(
+        context['connection'], data_dict['resource_id']))
+
+    if data_dict.get('include_total', True):
+        count_sql_string = u'''SELECT {distinct} count(*)
+            FROM "{resource}" {ts_query} {where};'''.format(
+            distinct=distinct,
+            resource=resource_id,
+            ts_query=ts_query,
+            where=where_clause)
+        count_result = _execute_single_statement(
+            context, count_sql_string, where_values)
+        data_dict['total'] = count_result.fetchall()[0][0]
+
+    return r
 
 
 def search(context, data_dict):

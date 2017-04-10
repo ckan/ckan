@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import os
-import importlib
 import inspect
 import itertools
 import pkgutil
@@ -13,7 +12,6 @@ from flask.sessions import SessionInterface
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Rule
 
-from flask_debugtoolbar import DebugToolbarExtension
 
 from beaker.middleware import SessionMiddleware
 from paste.deploy.converters import asbool
@@ -70,6 +68,7 @@ def make_flask_stack(conf, **app_conf):
                            ' with the SECRET_KEY config option')
 
     if debug:
+        from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
         DebugToolbarExtension(app)
 

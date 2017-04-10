@@ -24,19 +24,29 @@ class DatapusherCommand(cli.CkanCommand):
     summary = __doc__.split('\n')[0]
     usage = __doc__
 
+    def __init__(self, name):
+        super(DatapusherCommand, self).__init__(name)
+
+        self.parser.add_option('-y', dest='yes',
+                               action='store_true', default=False,
+                               help='Always answer yes to questions')
+
     def command(self):
         if self.args and self.args[0] == 'resubmit':
-            self._confirm_or_abort()
+            if not self.options.yes:
+                self._confirm_or_abort()
 
             self._load_config()
             self._resubmit_all()
         elif self.args and self.args[0] == 'submit_all':
-            self._confirm_or_abort()
+            if not self.options.yes:
+                self._confirm_or_abort()
 
             self._load_config()
             self._submit_all_packages()
         elif self.args and self.args[0] == 'submit':
-            self._confirm_or_abort()
+            if not self.options.yes:
+                self._confirm_or_abort()
 
             if len(self.args) != 2:
                 print "This command requires an argument\n"
