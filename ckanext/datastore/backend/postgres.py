@@ -396,7 +396,7 @@ def _textsearch_query(data_dict):
             rank_columns.append(rank)
 
     statements_str = ', ' + ', '.join(statements)
-    rank_columns_str = ', ' + ', '.join(rank_columns)
+    rank_columns_str = ', '.join(rank_columns)
     return statements_str, rank_columns_str
 
 
@@ -1550,14 +1550,17 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             field_ids = fields_types.keys()
 
         ts_query, rank_column = _textsearch_query(data_dict)
+
         limit = data_dict.get('limit', 100)
         offset = data_dict.get('offset', 0)
 
         sort = _sort(data_dict, fields_types)
         where = _where_clauses(data_dict, fields_types)
 
-        select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
-                      [u'count(*) over() as "_full_count" %s' % rank_column]
+        select_cols = [
+            datastore_helpers.identifier(field_id) for field_id in field_ids]
+        if rank_column:
+            select_cols.append(rank_column)
 
         query_dict['distinct'] = data_dict.get('distinct', False)
         query_dict['select'] += select_cols

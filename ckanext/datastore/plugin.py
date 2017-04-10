@@ -18,7 +18,7 @@ from ckanext.datastore.backend import (
     DatastoreBackend
 )
 from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
-from ckanext.datastore.backend.example import DatastoreExampleSqliteBackend
+from ckanext.datastore.backend.example_sqlite import DatastoreExampleSqliteBackend
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -230,9 +230,12 @@ class DatastorePlugin(p.SingletonPlugin):
 
         sort_clauses = data_dict.get('sort')
         if sort_clauses:
-            invalid_clauses = [c for c in sort_clauses
-                               if not _parse_sort_clause(
-                                       c, fields_types)]
+            invalid_clauses = [
+                c for c in sort_clauses
+                if not _parse_sort_clause(
+                    c, fields_types
+                )
+            ]
             data_dict['sort'] = invalid_clauses
 
         limit = data_dict.get('limit')

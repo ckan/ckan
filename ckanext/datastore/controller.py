@@ -86,7 +86,7 @@ class DatastoreController(BaseController):
                     'info': {
                         'label': request.POST.get('f{0}label'.format(i)),
                         'notes': request.POST.get('f{0}notes'.format(i)),
-                        }} for i, f in enumerate(fields, 1)]})
+                    }} for i, f in enumerate(fields, 1)]})
 
             h.redirect_to(
                 controller='ckanext.datastore.controller:DatastoreController',
@@ -118,7 +118,7 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
                 PAGINATE_BY if limit is None
                 else min(PAGINATE_BY, lim),
             'offset': offs,
-            })
+        })
 
     result = result_page(offset, limit)
     columns = [x['id'] for x in result['fields']]

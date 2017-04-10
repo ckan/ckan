@@ -59,8 +59,9 @@ class DatastoreBackend:
     """Base class for all datastore backends.
 
     Very simple example of implementation based on SQLite can be found in
-    `ckanext.datastore.backend.example`. In order to use it, set datastore.write_url
-    to 'example-sqlite:////tmp/database-name-on-your-choice'
+    `ckanext.datastore.backend.example_sqlite`. In order to use it, set
+    datastore.write_url to
+    'example-sqlite:////tmp/database-name-on-your-choice'
 
     :prop _backend: mapping(schema, class) of all registered backends
     :type _backend: dictonary
@@ -86,6 +87,8 @@ class DatastoreBackend:
 
         """
         schema = config.get('ckan.datastore.write_url').split(':')[0]
+        read_schema = config.get('ckan.datastore.read_url').split(':')[0]
+        assert read_schema == schema, u'Read and write engines are different'
         cls._active_backend = cls._backends[schema]()
 
     @classmethod

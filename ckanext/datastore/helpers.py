@@ -24,9 +24,9 @@ def is_valid_field_name(name):
     * can't contain double quote (")
     * can't be empty
     '''
-    return (name and name == name.strip()
-            and not name.startswith('_')
-            and '"' not in name)
+    return (name and name == name.strip() and
+            not name.startswith('_') and
+            '"' not in name)
 
 
 def is_valid_table_name(name):

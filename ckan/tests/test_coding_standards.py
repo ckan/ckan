@@ -587,6 +587,7 @@ _STRING_LITERALS_WHITELIST = [
     u'ckanext/datastore/controller.py',
     u'ckanext/datastore/db.py',
     u'ckanext/datastore/backend/postgres.py',
+    u'ckanext/datastore/backend/example_sqlite.py',
     u'ckanext/datastore/backend/__init__.py',
     u'ckanext/datastore/helpers.py',
     u'ckanext/datastore/interfaces.py',

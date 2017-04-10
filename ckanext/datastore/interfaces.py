@@ -162,6 +162,9 @@ class IDatastoreBackend(interfaces.Interface):
         `ckan.datastore.write_url` config directive. eg. 'postgresql://a:b@x'
         will use 'postgresql' backend, but 'mongodb://a:b@c' will try to use
         'mongodb' backend(if such backend has been registered, of course).
+        If read and write urls use different engines, `set_active_backend`
+        will raise assertion error.
+
 
         :returns: the dictonary with backend name as key and backend class as
                   value
