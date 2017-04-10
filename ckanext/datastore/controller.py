@@ -44,48 +44,20 @@ class DatastoreController(BaseController):
         bom = boolean_validator(request.GET.get('bom'), {})
         fmt = request.GET.get('format', 'csv')
 
-        def start_writer(fields):
-            if fmt == 'csv':
-                return csv_writer(response, fields, resource_id, bom)
-            if fmt == 'tsv':
-                return tsv_writer(response, fields, resource_id, bom)
-            if fmt == 'json':
-                return json_writer(response, fields, resource_id, bom)
-            if fmt == 'xml':
-                return xml_writer(response, fields, resource_id, bom)
+        if fmt not in DUMP_FORMATS:
             abort(400, _(
                 u'format: must be one of %s') % u', '.join(DUMP_FORMATS))
 
-        def result_page(offset, limit):
-            try:
-                return get_action('datastore_search')(None, {
-                    'resource_id': resource_id,
-                    'limit':
-                        PAGINATE_BY if limit is None
-                        else min(PAGINATE_BY, limit),
-                    'offset': offset,
-                    })
-            except ObjectNotFound:
-                abort(404, _('DataStore resource not found'))
-
-        result = result_page(offset, limit)
-        columns = [x['id'] for x in result['fields']]
-
-        with start_writer(result['fields']) as wr:
-            while True:
-                if limit is not None and limit <= 0:
-                    break
-
-                for record in result['records']:
-                    wr.writerow([record[column] for column in columns])
-
-                if len(result['records']) < PAGINATE_BY:
-                    break
-                offset += PAGINATE_BY
-                if limit is not None:
-                    limit -= PAGINATE_BY
-
-                result = result_page(offset, limit)
+        try:
+            dump_to(
+                resource_id,
+                response,
+                fmt=fmt,
+                offset=offset,
+                limit=limit,
+                options={u'bom': bom})
+        except ObjectNotFound:
+            abort(404, _('DataStore resource not found'))
 
     def dictionary(self, id, resource_id):
         u'''data dictionary view: show/edit field labels and descriptions'''
@@ -125,3 +97,44 @@ class DatastoreController(BaseController):
         return render(
             'datastore/dictionary.html',
             extra_vars={'fields': fields})
+
+
+def dump_to(resource_id, output, fmt, offset, limit, options):
+    def start_writer(fields):
+        bom = options.get(u'bom', False)
+        if fmt == 'csv':
+            return csv_writer(output, fields, resource_id, bom)
+        if fmt == 'tsv':
+            return tsv_writer(output, fields, resource_id, bom)
+        if fmt == 'json':
+            return json_writer(output, fields, resource_id, bom)
+        if fmt == 'xml':
+            return xml_writer(output, fields, resource_id, bom)
+
+    def result_page(offs, lim):
+        return get_action('datastore_search')(None, {
+            'resource_id': resource_id,
+            'limit':
+                PAGINATE_BY if limit is None
+                else min(PAGINATE_BY, lim),
+            'offset': offs,
+            })
+
+    result = result_page(offset, limit)
+    columns = [x['id'] for x in result['fields']]
+
+    with start_writer(result['fields']) as wr:
+        while True:
+            if limit is not None and limit <= 0:
+                break
+
+            for record in result['records']:
+                wr.writerow([record[column] for column in columns])
+
+            if len(result['records']) < PAGINATE_BY:
+                break
+            offset += PAGINATE_BY
+            if limit is not None:
+                limit -= PAGINATE_BY
+
+            result = result_page(offset, limit)
