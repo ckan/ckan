@@ -18,7 +18,9 @@ from ckanext.datastore.backend import (
     DatastoreBackend
 )
 from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
-from ckanext.datastore.backend.example_sqlite import DatastoreExampleSqliteBackend
+from ckanext.datastore.backend.example_sqlite import (
+    DatastoreExampleSqliteBackend
+)
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
