@@ -64,13 +64,14 @@ def package_resource_list_save(res_dicts, package, context):
 
     resource_list = package.resources_all
     old_list = package.resources_all[:]
-
+    modified = None
     obj_list = []
     for res_dict in res_dicts or []:
         if not u'package_id' in res_dict or not res_dict[u'package_id']:
             res_dict[u'package_id'] = package.id
         obj = resource_dict_save(res_dict, context)
         obj_list.append(obj)
+        modified = True
 
     # Set the package's resources. resource_list is an ORM relation - the
     # package's resources. If we didn't have the slice operator "[:]" then it
@@ -87,6 +88,9 @@ def package_resource_list_save(res_dicts, package, context):
     for resource in set(old_list) - set(obj_list):
         resource.state = 'deleted'
         resource_list.append(resource)
+        modified = True
+
+    return modified
 
 
 def package_extras_save(extra_dicts, obj, context):
@@ -97,6 +101,7 @@ def package_extras_save(extra_dicts, obj, context):
     model = context["model"]
     session = context["session"]
 
+    modified = False
     extras_list = obj.extras_list
     old_extras = dict((extra.key, extra) for extra in extras_list)
 
@@ -115,6 +120,7 @@ def package_extras_save(extra_dicts, obj, context):
         extra = model.PackageExtra(state=state, key=key, value=new_extras[key])
         session.add(extra)
         extras_list.append(extra)
+        modified = True
     #changed
     for key in set(new_extras.keys()) & set(old_extras.keys()):
         extra = old_extras[key]
@@ -124,6 +130,7 @@ def package_extras_save(extra_dicts, obj, context):
         extra.value = new_extras[key]
         extra.state = state
         session.add(extra)
+        modified = True
     #deleted
     for key in set(old_extras.keys()) - set(new_extras.keys()):
         extra = old_extras[key]
@@ -131,6 +138,9 @@ def package_extras_save(extra_dicts, obj, context):
             continue
         state = 'deleted'
         extra.state = state
+        modified = True
+
+    return modified
 
 def group_extras_save(extras_dicts, context):
 
@@ -298,7 +308,7 @@ def package_dict_save(pkg_dict, context):
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
 
-    package_resource_list_save(pkg_dict.get("resources"), pkg, context)
+    resources = package_resource_list_save(pkg_dict.get("resources"), pkg, context)
     package_tag_list_save(pkg_dict.get("tags"), pkg, context)
     package_membership_list_save(pkg_dict.get("groups"), pkg, context)
 
@@ -312,6 +322,9 @@ def package_dict_save(pkg_dict, context):
         relationship_list_save(objects, pkg, 'relationships_as_object', context)
 
     extras = package_extras_save(pkg_dict.get("extras"), pkg, context)
+
+    if model.Session.is_modified(pkg) or extras or resources:
+        pkg.metadata_modified = datetime.datetime.utcnow()
 
     return pkg
 
