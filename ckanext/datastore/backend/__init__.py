@@ -74,7 +74,8 @@ class DatastoreBackend:
 
     @classmethod
     def register_backends(cls):
-        """Register all backend implementations inside extensions."""
+        """Register all backend implementations inside extensions.
+        """
         for plugin in plugins.PluginImplementations(IDatastoreBackend):
             cls._backends.update(plugin.register_backends())
 
@@ -86,14 +87,15 @@ class DatastoreBackend:
         :rtype: ckan.common.CKANConfig
 
         """
-        schema = config.get('ckan.datastore.write_url').split(':')[0]
-        read_schema = config.get('ckan.datastore.read_url').split(':')[0]
+        schema = config.get(u'ckan.datastore.write_url').split(u':')[0]
+        read_schema = config.get(u'ckan.datastore.read_url').split(u':')[0]
         assert read_schema == schema, u'Read and write engines are different'
         cls._active_backend = cls._backends[schema]()
 
     @classmethod
     def get_active_backend(cls):
-        """Return currently used backend"""
+        """Return currently used backend
+        """
         return cls._active_backend
 
     def configure(self, config):
