@@ -94,7 +94,7 @@ def datapusher_submit(context, data_dict):
         if existing_task.get('state') == 'pending':
             updated = datetime.datetime.strptime(
                 existing_task['last_updated'], '%Y-%m-%dT%H:%M:%S.%f')
-            time_since_last_updated = datetime.datetime.now() - updated
+            time_since_last_updated = datetime.datetime.utcnow() - updated
             if time_since_last_updated > assume_task_stale_after:
                 # it's been a while since the job was last updated - it's more
                 # likely something went wrong with it and the state wasn't
