@@ -650,6 +650,11 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
+        details = list(filter(
+            lambda x: x['object_type'] == "PackageExtra",
+            details
+        ))
+
         assert len(details) == 1, (
                 "There should be 1 activity detail but found %s"
                 % len(details))
@@ -742,6 +747,11 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
+        details = list(filter(
+            lambda x: x['object_type'] == "PackageExtra",
+            details
+        ))
+
         assert len(details) == 1, (
                 "There should be 1 activity detail but found %s"
                 % len(details))
@@ -958,6 +968,11 @@ class TestActivity:
 
         # Test for the presence of correct activity detail items.
         details = self.activity_details(activity)
+        details = list(filter(
+            lambda x: x['object_type'] == "Resource",
+            details
+        ))
+
         assert len(details) == num_resources
         for detail in details:
             assert detail['activity_id'] == activity['id'], (
