@@ -135,16 +135,7 @@ def make_flask_stack(conf, **app_conf):
 
     babel = Babel(app)
 
-    @babel.localeselector
-    def get_locale():
-        u'''
-        Return the value of the `CKAN_LANG` key of the WSGI environ,
-        set by the I18nMiddleware based on the URL.
-        If no value is defined, it defaults to `ckan.locale_default` or `en`.
-        '''
-        return request.environ.get(
-            u'CKAN_LANG',
-            config.get(u'ckan.locale_default', u'en'))
+    babel.localeselector(get_locale)
 
     @app.route('/hello', methods=['GET'])
     def hello_world():
@@ -203,6 +194,17 @@ def make_flask_stack(conf, **app_conf):
     app._wsgi_app = flask_app
 
     return app
+
+
+def get_locale():
+    u'''
+    Return the value of the `CKAN_LANG` key of the WSGI environ,
+    set by the I18nMiddleware based on the URL.
+    If no value is defined, it defaults to `ckan.locale_default` or `en`.
+    '''
+    return request.environ.get(
+        u'CKAN_LANG',
+        config.get(u'ckan.locale_default', u'en'))
 
 
 def ckan_before_request():
