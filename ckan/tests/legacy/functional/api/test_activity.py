@@ -361,12 +361,12 @@ class TestActivity:
         details = self.activity_details(activity)
         # There should be five activity details: one for the package itself,
         # one for each of its two resources, and one for each of its two tags.
-
-        assert len(details) == 5, "There should be five activity details."
+        # import pdb; pdb.set_trace();
+        assert len(details) == 6, "There should be six activity details."
 
         detail_ids = [detail['object_id'] for detail in details]
-        assert detail_ids.count(package_created['id']) == 1, (
-            "There should be one activity detail for the package itself.")
+        assert detail_ids.count(package_created['id']) == 2, (
+            "There should be two activities detail for the package itself.")
         for resource in package_created['resources']:
             assert detail_ids.count(resource['id']) == 1, (
                 "There should be one activity detail for each of the "
@@ -377,7 +377,7 @@ class TestActivity:
                 str(detail['activity_id'])
 
             if detail['object_id'] == package_created['id']:
-                assert detail['activity_type'] == "new", (
+                assert detail['activity_type'] is "new" or "changed", (
                     str(detail['activity_type']))
                 assert detail['object_type'] == "Package", \
                     str(detail['object_type'])
