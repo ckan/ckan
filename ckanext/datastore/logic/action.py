@@ -629,8 +629,10 @@ def datastore_function_create(context, data_dict):
     '''
     p.toolkit.check_access('datastore_function_create', context, data_dict)
 
-    db.create_trigger_function(
+    db.create_function(
         name=data_dict['name'],
+        arguments=data_dict.get('arguments', []),
+        rettype=data_dict['rettype'],
         definition=data_dict['definition'],
         or_replace=data_dict['or_replace'])
 
