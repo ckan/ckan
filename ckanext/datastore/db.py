@@ -1432,13 +1432,19 @@ def get_all_resources_ids_in_datastore():
     return [q[0] for q in query.fetchall()]
 
 
-def create_trigger_function(name, definition, or_replace):
+def create_function(name, arguments, rettype, definition, or_replace):
     sql = u'''
         CREATE {or_replace} FUNCTION
-            {name}() RETURNS trigger AS {definition}
+            {name}({args}) RETURNS {rettype} AS {definition}
             LANGUAGE plpgsql;'''.format(
         or_replace=u'OR REPLACE' if or_replace else u'',
         name=datastore_helpers.identifier(name),
+        args=u', '.join(
+            u'{argname} {argtype}'.format(
+                argname=datastore_helpers.identifier(a['argname']),
+                argtype=datastore_helpers.identifier(a['argtype']))
+            for a in arguments),
+        rettype=datastore_helpers.identifier(rettype),
         definition=datastore_helpers.literal_string(definition))
 
     try:

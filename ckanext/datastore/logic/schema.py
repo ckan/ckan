@@ -171,7 +171,11 @@ def datastore_function_create_schema():
         'name': [unicode_only, not_empty],
         'or_replace': [default(False), boolean_validator],
         # we're only exposing functions for triggers at the moment
-        'rettype': [unicode_only, OneOf(['trigger'])],
+        'arguments': {
+            'argname': [unicode_only, not_empty],
+            'argtype': [unicode_only, not_empty],
+        },
+        'rettype': [default(u'void'), unicode_only],
         'definition': [unicode_only],
     }
 
