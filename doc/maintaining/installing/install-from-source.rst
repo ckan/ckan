@@ -5,11 +5,11 @@ Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 14.04 64-bit or
-Ubuntu 12.04 64-bit. Installing CKAN from source works with other versions of
-Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X).
-If you install CKAN from source on your own operating system, please share your
-experiences on our
+:doc:`install-from-package` is simpler, it requires Ubuntu 16.04 64-bit, Ubuntu
+14.04 64-bit or Ubuntu 12.04 64-bit. Installing CKAN from source works with
+other versions of Ubuntu and with other operating systems (e.g. RedHat, Fedora,
+CentOS, OS X). If you install CKAN from source on your own operating system,
+please share your experiences on our
 `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
@@ -21,7 +21,11 @@ work on CKAN.
 --------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
-required packages with this command::
+required packages with this command for Ubuntu 16.04::
+
+    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
+
+or for Ubuntu 14.04/12.04::
 
     sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk redis-server
 
@@ -41,7 +45,7 @@ virtualenv             `The virtual Python environment builder <http://www.virtu
 Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
 Apache Solr            `A search platform <http://lucene.apache.org/solr>`_
 Jetty                  `An HTTP server <http://www.eclipse.org/jetty/>`_ (used for Solr).
-OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
+OpenJDK JDK            `The Java Development Kit <http://openjdk.java.net/install/>`_ (used by Jetty)
 Redis                  `An in-memory data structure store <http://redis.io/>`_
 =====================  ===============================================
 
@@ -321,9 +325,13 @@ If ``javac`` isn't installed, do::
 
 and then restart Solr:
 
-.. parsed-literal::
+For Ubuntu 16.04::
 
-   |restart_solr|
+     sudo service jetty8 restart
+
+or for Ubuntu 14.04/12.04::
+
+     sudo service jetty restart
 
 AttributeError: 'module' object has no attribute 'css/main.debug.css'
 ---------------------------------------------------------------------
@@ -331,11 +339,11 @@ AttributeError: 'module' object has no attribute 'css/main.debug.css'
 This error is likely to show up when `debug` is set to `True`. To fix this
 error, install frontend dependencies. See :doc:`/contributing/frontend/index`.
 
-After installing the dependencies, run `bin/less` and then start paster server
+After installing the dependencies, run ``bin/less`` and then start paster server
 again.
 
 If you do not want to compile CSS, you can also copy the main.css to
-main.debug.css to get CKAN running.
+main.debug.css to get CKAN running::
 
     cp /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.css \
     /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.debug.css
