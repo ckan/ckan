@@ -1602,6 +1602,10 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
+        details = list(filter(
+            lambda x: x['object_type'] == "tag",
+            details
+        ))
         assert len(details) == 1
         detail = details[0]
         assert detail['activity_id'] == activity['id'], \
