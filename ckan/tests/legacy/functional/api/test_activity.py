@@ -361,7 +361,6 @@ class TestActivity:
         details = self.activity_details(activity)
         # There should be five activity details: one for the package itself,
         # one for each of its two resources, and one for each of its two tags.
-        # import pdb; pdb.set_trace();
         assert len(details) == 6, "There should be six activity details."
 
         detail_ids = [detail['object_id'] for detail in details]
@@ -466,6 +465,10 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
+        details = list(filter(
+            lambda x: x['object_type'] == "Resource",
+            details
+        ))
         assert len(details) == 1, [(detail['activity_type'],
             detail['object_type']) for detail in details]
         detail = details[0]
@@ -556,6 +559,10 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
+        details = list(filter(
+            lambda x: x['object_type'] == "PackageExtra",
+            details
+        ))
         assert len(details) == 1, (
                 "There should be 1 activity detail but found %s"
                 % len(details))
