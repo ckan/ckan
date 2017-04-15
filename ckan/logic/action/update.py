@@ -715,22 +715,26 @@ def task_status_update(context, data_dict):
 
     :param id: the id of the task status to update
     :type id: string
-    :param entity_id:
+    :param entity_id: the id of the domain model object that this key/value
+        pair relates to
     :type entity_id: string
-    :param entity_type:
+    :param entity_type: the type of domain model object that this key/value
+        pair relates to (eg: 'resource')
     :type entity_type: string
-    :param task_type:
+    :param task_type: the type of task that is creating this key/value pair
+        (eg: 'datapusher')
     :type task_type: string
-    :param key:
+    :param key: the key to store
     :type key: string
     :param value: (optional)
-    :type value:
+    :type value: the value associated with this key
     :param state: (optional)
-    :type state:
+    :type state: the task state associated with the last update of this
+        key/value pair (eg: 'success', 'pending', 'failed')
     :param last_updated: (optional)
-    :type last_updated:
+    :type last_updated: the time when this key/value pair was last updated
     :param error: (optional)
-    :type error:
+    :type error: an error message associated with this key/value pair
 
     :returns: the updated task status
     :rtype: dictionary
