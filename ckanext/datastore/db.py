@@ -1130,7 +1130,7 @@ def _execute_single_statement_copy_to(context, sql_string, where_values, buf):
         })
 
     cursor = context['connection'].connection.cursor()
-    cursor.copy_expert(sql_string, buf)
+    cursor.copy_expert(cursor.mogrify(sql_string, where_values), buf)
     cursor.close()
 
 
