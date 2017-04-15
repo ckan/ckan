@@ -208,7 +208,13 @@ appropriate choice at the top of the screen:
 
 * If the data to be added to CKAN is in a file on your computer, select "Upload
   a file". CKAN will give you a file browser to select it.
+  
+.. note::
 
+    If your resource is a GeoJSON file, make sure to set the file extension to 
+    .json rather than to .geojson before you upload it.
+
+  
 **Step 5**. Add the other information on the page. CKAN does not require this
 information, but it is good practice to add it:
 
@@ -218,7 +224,11 @@ information, but it is good practice to add it:
 * *Description* -- a short description of the resource.
 
 * *Format* -- the file format of the resource, e.g. CSV (comma-separated
-  values), XLS, JSON, PDF, etc.
+  values), XLS, JSON, PDF, geojson, etc.
+  
+.. note::
+
+    GeoJSON files (remember to upload as .json) will require the format "geojson".
 
 **Step 6**. If you have more resources (files or links) to add to the dataset, select
 the "Save & add another" button. When you have finished adding resources,
