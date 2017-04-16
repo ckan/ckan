@@ -1036,11 +1036,13 @@ def search_data(context, data_dict):
     records_format = data_dict['records_format']
     if records_format == u'objects':
         sql_fmt = u'''
-            SELECT row_to_json(j)::text from (
-                SELECT {distinct} {select}
-                FROM "{resource}" {ts_query}
-                {where} {sort} LIMIT {limit} OFFSET {offset}
-            ) AS j'''
+            SELECT array_to_json(array(
+                SELECT row_to_json(j) from (
+                    SELECT {distinct} {select}
+                    FROM "{resource}" {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}
+                ) AS j
+            ))::text'''
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
             s for s in query_dict['select']
@@ -1079,6 +1081,10 @@ def search_data(context, data_dict):
         _execute_single_statement_copy_to(
             context, sql_string, where_values, buf)
         records = buf.getvalue()
+    elif records_format == u'objects':
+        records = LazyJSONObject(
+            list(_execute_single_statement(
+                context, sql_string, where_values))[0][0])
     else:
         records = [
             LazyJSONObject(r[0]) for r in
