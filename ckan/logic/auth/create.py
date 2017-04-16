@@ -53,8 +53,11 @@ def resource_create(context, data_dict):
     package_id = data_dict.get('package_id')
     if not package_id and data_dict.get('id'):
         # This can happen when auth is deferred, eg from `resource_view_create`
-        resource = logic_auth.get_resource_object(context, data_dict)
-        package_id = resource.package_id
+        try:
+            resource = logic_auth.get_resource_object(context, data_dict)
+            package_id = resource.package_id
+        except logic.NotFound:    
+            package_id = data_dict.get('id')
 
     if not package_id:
         raise logic.NotFound(
