@@ -159,8 +159,8 @@ class TestDatastoreDump(object):
             u'{"type":"_text","id":"random_letters"},{"type":"json",'
             u'"id":"nested"}],\n  "records": [\n    '
             u'[1,"annakarenina","tolstoy","2005-03-01T00:00:00",'
-            u'["Princess Anna","Sergius"],["a","e","x"],["b", '
-            u'{"moo": "moo"}]]\n]}\n')
+            u'["Princess Anna","Sergius"],["a","e","x"],["b",'
+            u'{"moo":"moo"}]]\n]}\n')
         assert_equals(content, expected_content)
 
     def test_dump_xml(self):

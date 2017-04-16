@@ -1036,21 +1036,21 @@ def search_data(context, data_dict):
     records_format = data_dict['records_format']
     if records_format == u'objects':
         sql_fmt = u'''
-            SELECT array_to_json(array(
-                SELECT row_to_json(j) from (
-                    SELECT {distinct} {select}
-                    FROM "{resource}" {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}
-                ) AS j
-            ))::text'''
+            SELECT array_to_json(array_agg(j))::text FROM (
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) AS j'''
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
             s for s in query_dict['select']
             ).replace('%', '%%')
         sql_fmt = u'''
-            SELECT {distinct} '[' || {select} || ']'
-            FROM "{resource}" {ts_query}
-            {where} {sort} LIMIT {limit} OFFSET {offset}'''
+            SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
+                SELECT {distinct} '[' || {select} || ']' v
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) AS j'''
     elif records_format == u'csv':
         sql_fmt = u'''
             COPY (
@@ -1081,14 +1081,13 @@ def search_data(context, data_dict):
         _execute_single_statement_copy_to(
             context, sql_string, where_values, buf)
         records = buf.getvalue()
-    elif records_format == u'objects':
-        records = LazyJSONObject(
-            list(_execute_single_statement(
-                context, sql_string, where_values))[0][0])
     else:
-        records = [
-            LazyJSONObject(r[0]) for r in
-            _execute_single_statement(context, sql_string, where_values)]
+        v = list(_execute_single_statement(
+                context, sql_string, where_values))[0][0]
+        if v is None:
+            records = []
+        else:
+            records = LazyJSONObject(v)
     data_dict['records'] = records
 
     field_info = _get_field_info(

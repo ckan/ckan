@@ -12,7 +12,7 @@ class LazyJSONObject(RawJSON):
     unicode strings containing a single JSON object.
     '''
     def __init__(self, json_string):
-        assert isinstance(json_string, unicode)
+        assert isinstance(json_string, unicode), json_string
         self._json_string = json_string
         self._json_dict = None
 
