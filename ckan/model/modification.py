@@ -8,6 +8,7 @@ import ckan.plugins as plugins
 import domain_object
 import package as _package
 import resource
+import package_relationship
 
 log = logging.getLogger(__name__)
 
@@ -68,6 +69,9 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                            if isinstance(obj, _package.Package))
 
         for obj in new | changed | deleted:
+            if isinstance(obj, package_relationship.PackageRelationship):
+                changed_pkgs.add(obj.subject)
+                changed_pkgs.add(obj.object)
             if not isinstance(obj, _package.Package):
                 try:
                     related_packages = obj.related_packages()
