@@ -141,7 +141,7 @@ class GroupController(base.BaseController):
                    'with_private': False}
 
         q = c.q = request.params.get('q', '')
-        data_dict = {'all_fields': True, 'q': q}
+        data_dict = {'all_fields': True, 'q': q, 'type': group_type}
         sort_by = c.sort_by_selected = request.params.get('sort')
         if sort_by:
             data_dict['sort'] = sort_by
