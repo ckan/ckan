@@ -256,7 +256,7 @@ same directory as your CKAN config file, so create a symlink to it:
 9. You're done!
 ---------------
 
-You can now use the Paste development server to serve CKAN from the
+You can now use the Paster development server to serve CKAN from the
 command-line.  This is a simple and lightweight way to serve CKAN that is
 useful for development and testing:
 
