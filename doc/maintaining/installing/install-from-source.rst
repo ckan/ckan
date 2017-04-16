@@ -5,11 +5,11 @@ Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 16.04 64-bit, Ubuntu
-14.04 64-bit or Ubuntu 12.04 64-bit. Installing CKAN from source works with
-other versions of Ubuntu and with other operating systems (e.g. RedHat, Fedora,
-CentOS, OS X). If you install CKAN from source on your own operating system,
-please share your experiences on our
+:doc:`install-from-package` is simpler, it requires Ubuntu 16.04 64-bit or
+Ubuntu 14.04 64-bit. Installing CKAN from source works with other versions of
+Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
+you install CKAN from source on your own operating system, please share your
+experiences on our
 `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
@@ -25,7 +25,7 @@ required packages with this command for Ubuntu 16.04::
 
     sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
 
-or for Ubuntu 14.04/12.04::
+or for Ubuntu 14.04::
 
     sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk redis-server
 
@@ -329,7 +329,7 @@ For Ubuntu 16.04::
 
      sudo service jetty8 restart
 
-or for Ubuntu 14.04/12.04::
+or for Ubuntu 14.04::
 
      sudo service jetty restart
 

@@ -32,7 +32,7 @@ installed, we need to install and configure Solr.
 
     sudo service jetty8 restart
 
-   Or for Ubuntu 14.04/12.04::
+   Or for Ubuntu 14.04::
 
     sudo service jetty restart
 
@@ -72,7 +72,7 @@ installed, we need to install and configure Solr.
 
     sudo service jetty8 restart
 
-   or for Ubuntu 14.04/12.04::
+   or for Ubuntu 14.04::
 
     sudo service jetty restart
 
