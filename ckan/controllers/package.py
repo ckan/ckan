@@ -390,11 +390,14 @@ class PackageController(base.BaseController):
         try:
             return render(template,
                           extra_vars={'dataset_type': package_type})
-        except ckan.lib.render.TemplateNotFound:
-            msg = _("Viewing {package_type} datasets in {format} format is "
-                    "not supported (template file {file} not found).".format(
-                        package_type=package_type, format=format,
-                        file=template))
+        except ckan.lib.render.TemplateNotFound as e:
+            msg = _(
+                "Viewing datasets of type \"{package_type}\" is "
+                "not supported ({file_!r}).".format(
+                    package_type=package_type,
+                    file_=e.message
+                )
+            )
             abort(404, msg)
 
         assert False, "We should never get here"
@@ -579,12 +582,7 @@ class PackageController(base.BaseController):
             # dataset has not yet been fully created
             resource_dict = get_action('resource_show')(context,
                                                         {'id': resource_id})
-            fields = ['url', 'resource_type', 'format', 'name', 'description',
-                      'id']
-            data = {}
-            for field in fields:
-                data[field] = resource_dict[field]
-            return self.new_resource(id, data=data)
+            return self.new_resource(id, data=resource_dict)
         # resource is fully created
         try:
             resource_dict = get_action('resource_show')(context,
@@ -1041,7 +1039,12 @@ class PackageController(base.BaseController):
             if request.method == 'POST':
                 get_action('resource_delete')(context, {'id': resource_id})
                 h.flash_notice(_('Resource has been deleted.'))
-                h.redirect_to(controller='package', action='read', id=id)
+                pkg_dict = get_action('package_show')(None, {'id': id})
+                if pkg_dict['state'].startswith('draft'):
+                    h.redirect_to(controller='package', action='new_resource',
+                                  id=id)
+                else:
+                    h.redirect_to(controller='package', action='read', id=id)
             c.resource_dict = get_action('resource_show')(
                 context, {'id': resource_id})
             c.pkg_id = id
