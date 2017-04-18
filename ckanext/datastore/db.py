@@ -720,8 +720,8 @@ def upsert_data(context, data_dict):
                           "is out of range or was inserted into a text field)."
                           ))
         except sqlalchemy.exc.InternalError as err:
-            message = err.args[0].split('\n')[0].decode('utf8')
-            raise ValidationError({u'records': [message.split(u') ', 1)[-1]]})
+            raise ValidationError(
+                {u'records': [_programming_error_summary(err)]})
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
@@ -1203,8 +1203,7 @@ def _create_triggers(connection, resource_id, triggers):
         if sql_list:
             connection.execute(u';\n'.join(sql_list))
     except ProgrammingError as pe:
-        message = pe.args[0].split('\n')[0].decode('utf8')
-        raise ValidationError({u'triggers': [message.split(u') ', 1)[-1]]})
+        raise ValidationError({u'triggers': [_programming_error_summary(pe)]})
 
 
 def upsert(context, data_dict):
@@ -1448,10 +1447,10 @@ def create_function(name, arguments, rettype, definition, or_replace):
     try:
         _write_engine_execute(sql)
     except ProgrammingError as pe:
-        message = pe.args[0].split('\n')[0].decode('utf8')
-        key = u'name' if message.startswith(
-            u'(ProgrammingError) function') else u'definition'
-        raise ValidationError({key: [message.split(u') ', 1)[-1]]})
+        key = (
+            u'name' if pe.args[0].startswith('(ProgrammingError) function')
+            else u'definition')
+        raise ValidationError({key: [_programming_error_summary(pe)]})
 
 
 def drop_function(name, if_exists):
@@ -1464,8 +1463,7 @@ def drop_function(name, if_exists):
     try:
         _write_engine_execute(sql)
     except ProgrammingError as pe:
-        message = pe.args[0].split('\n')[0].decode('utf8')
-        raise ValidationError({u'name': [message.split(u') ', 1)[-1]]})
+        raise ValidationError({u'name': [_programming_error_summary(pe)]})
 
 
 def _write_engine_execute(sql):
@@ -1481,3 +1479,14 @@ def _write_engine_execute(sql):
         raise
     finally:
         connection.close()
+
+
+def _programming_error_summary(pe):
+    u'''
+    return the text description of e sqlalchemy ProgrammingError or
+    InternalError without the actual SQL included, for raising as a
+    ValidationError to send back to API users
+    '''
+    # first line only, after the '(ProgrammingError)' text
+    message = pe.args[0].split('\n')[0].decode('utf8')
+    raise message.split(u') ', 1)[-1]
