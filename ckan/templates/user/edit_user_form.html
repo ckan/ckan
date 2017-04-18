@@ -1,6 +1,6 @@
 {% import 'macros/form.html' as form %}
 
-<form id="user-edit-form" class="dataset-form form-horizontal" method="post" action="{{ action }}">
+<form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}">
   {{ form.errors(error_summary) }}
 
   <fieldset>
@@ -31,12 +31,12 @@
                   value=data.oldpassword,
                   error=errors.oldpassword,
                   classes=['control-medium'],
-                  attrs={'autocomplete': 'off'}
+                  attrs={'autocomplete': 'off', 'class': 'form-control'}
                   ) }}
 
-    {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off'} ) }}
+    {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'} ) }}
 
-    {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off'}) }}
+    {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'}) }}
   </fieldset>
 
   <div class="form-actions">

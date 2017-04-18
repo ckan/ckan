@@ -64,31 +64,24 @@
   <div class="debug">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
   {% endif %} {% endblock %}
   <div class="container">
-    <div class="navbar-left">
-
-      <hgroup class="{{ g.header_class }} navbar-left">
-
-        {% block header_logo %} {% if g.site_logo %}
-        <a class="logo" href="{{ h.url_for('home') }}"><img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}" title="{{ g.site_title }}" /></a>
-        {% else %}
-        <h1>
-          <a href="{{ h.url_for('home') }}">{{ g.site_title }}</a>
-        </h1>
-        {% if g.site_description %}
-        <h2>{{ g.site_description }}</h2>{% endif %} {% endif %} {% endblock %}
-
-      </hgroup>
-    </div>
-
     <div class="navbar-right">
-      <button data-target=".navbar-collapse" data-toggle="collapse" class="btn btn-default navbar-toggle collapsed" type="button">
-        <span class="fa-bar"></span>
-        <span class="fa-bar"></span>
-        <span class="fa-bar"></span>
-      </button> {# The .header-image class hides the main text and uses image replacement for the title #}
+      <button data-target="#main-navigation-toggle" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+        <span class="fa fa-bars"></span>
+      </button>
     </div>
-    <div class="navbar-collapse collapse">
 
+    <hgroup class="{{ g.header_class }} navbar-left">
+      {% block header_logo %} {% if g.site_logo %}
+      <a class="logo" href="{{ h.url_for('home') }}"><img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}" title="{{ g.site_title }}" /></a>
+      {% else %}
+      <h1>
+        <a href="{{ h.url_for('home') }}">{{ g.site_title }}</a>
+      </h1>
+      {% if g.site_description %}
+      <h2>{{ g.site_description }}</h2>{% endif %} {% endif %} {% endblock %}
+    </hgroup>
+
+    <div class="collapse navbar-collapse" id="main-navigation-toggle">
       {% block header_site_navigation %}
       <nav class="section navigation">
         <ul class="nav nav-pills">
@@ -105,7 +98,6 @@
         </div>
       </form>
       {% endblock %}
-
     </div>
   </div>
 </header>

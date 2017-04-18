@@ -11,7 +11,7 @@
 
 {% block content_action %}
   {% if h.check_access('user_update', user) %}
-    {% link_for _('Manage'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}
+    {% link_for _('Manage'), controller='user', action='edit', id=user.name, class_='btn btn-default', icon='wrench' %}
   {% endif %}
 {% endblock %}
 

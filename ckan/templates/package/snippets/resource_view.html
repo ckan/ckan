@@ -2,7 +2,7 @@
 
 {% block resource_view %}
   <div id="view-{{ resource_view['id'] }}" class="resource-view" data-id="{{ resource_view['id'] }}" data-title="{{ resource_view['title'] }}" data-description="{{ resource_view['descripion'] }}">
-    <a class="btn pull-right"
+    <a class="btn btn-default pull-right"
        href="#embed-{{ resource_view['id'] }}"
        data-module="resource-view-embed"
        data-module-id="{{ resource_view['id'] }}"
@@ -57,7 +57,10 @@
         </iframe>
       {% endif %}
     </div>
-    <div id="embed-{{ resource_view['id'] }}" class="modal resource-view-embed hide">
+    <div id="embed-{{ resource_view['id'] }}" class="modal fade resource-view-embed">
+      <div class="modal-dialog">
+    <div class="modal-content">
+
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h3>{{ _("Embed resource view") }}</h3>
@@ -73,6 +76,8 @@
           </div>
         </div>
         {{ form.textarea("code", label=_("Code"), value="", classes=["pre"], rows=3) }}
+      </div>
+      </div>
       </div>
     </div>
   </div>
