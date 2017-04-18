@@ -719,7 +719,7 @@ def upsert_data(context, data_dict):
                 toolkit._("The data was invalid (for example: a numeric value "
                           "is out of range or was inserted into a text field)."
                           ))
-        except sqlalchemy.exc.InternalError as err:
+        except sqlalchemy.exc.DatabaseError as err:
             raise ValidationError(
                 {u'records': [_programming_error_summary(err)]})
 
@@ -782,8 +782,13 @@ def upsert_data(context, data_dict):
                         [u'"{0}"'.format(part) for part in unique_keys]),
                     primary_value=u','.join(["%s"] * len(unique_keys))
                 )
-                results = context['connection'].execute(
-                    sql_string, used_values + [full_text] + unique_values)
+                try:
+                    results = context['connection'].execute(
+                        sql_string, used_values + [full_text] + unique_values)
+                except sqlalchemy.exc.DatabaseError as err:
+                    raise ValidationError({
+                        u'records': [_programming_error_summary(err)],
+                        u'_records_row': num})
 
                 # validate that exactly one row has been updated
                 if results.rowcount != 1:
@@ -811,9 +816,14 @@ def upsert_data(context, data_dict):
                                            for part in unique_keys]),
                     primary_value=u','.join(["%s"] * len(unique_keys))
                 )
-                context['connection'].execute(
-                    sql_string,
-                    (used_values + [full_text] + unique_values) * 2)
+                try:
+                    context['connection'].execute(
+                        sql_string,
+                        (used_values + [full_text] + unique_values) * 2)
+                except sqlalchemy.exc.DatabaseError as err:
+                    raise ValidationError({
+                        u'records': [_programming_error_summary(err)],
+                        u'_records_row': num})
 
 
 def _get_unique_key(context, data_dict):
@@ -1483,8 +1493,8 @@ def _write_engine_execute(sql):
 
 def _programming_error_summary(pe):
     u'''
-    return the text description of e sqlalchemy ProgrammingError or
-    InternalError without the actual SQL included, for raising as a
+    return the text description of a sqlalchemy DatabaseError
+    without the actual SQL included, for raising as a
     ValidationError to send back to API users
     '''
     # first line only, after the '(ProgrammingError)' text
