@@ -1499,4 +1499,4 @@ def _programming_error_summary(pe):
     '''
     # first line only, after the '(ProgrammingError)' text
     message = pe.args[0].split('\n')[0].decode('utf8')
-    raise message.split(u') ', 1)[-1]
+    return message.split(u') ', 1)[-1]
