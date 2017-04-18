@@ -720,14 +720,15 @@ def default_group_type():
 
 
 @core_helper
-def get_facet_items_dict(facet, limit=None, exclude_active=False):
+def get_facet_items_dict(facet, limit=None, exclude_active=False,
+                         int_sort=False):
     '''Return the list of unselected facet items for the given facet, sorted
-    by count.
+    by count (default) or name.
 
     Returns the list of unselected facet contraints or facet items (e.g. tag
     names like "russian" or "tolstoy") for the given search facet (e.g.
     "tags"), sorted by facet item count (i.e. the number of search results that
-    match each facet item).
+    match each facet item; this is default) or by name.
 
     Reads the complete list of facet items for the given facet from
     c.search_facets, and filters out the facet items that the user has already
@@ -737,28 +738,39 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
     facet -- the name of the facet to filter.
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
-
+    int_sort -- sort facets with int literals in 'display_name' numerically
     '''
-    if not c.search_facets or \
-            not c.search_facets.get(facet) or \
-            not c.search_facets.get(facet).get('items'):
+
+    def sort(f):
+        if int_sort:
+            try:
+                return sorted(f, key=lambda it: -int(it['display_name']))
+            except ValueError:
+                pass
+        return sorted(f, key=lambda it: (-it['count'],
+                                         it['display_name'].lower()))
+
+    try:
+        facet_items = c.search_facets.get(facet)['items']
+    except:
         return []
+
     facets = []
-    for facet_item in c.search_facets.get(facet)['items']:
+    for facet_item in facet_items:
         if not len(facet_item['name'].strip()):
             continue
         if not (facet, facet_item['name']) in request.params.items():
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
-    # Sort descendingly by count and ascendingly by case-sensitive display name
-    facets.sort(key=lambda it: (-it['count'], it['display_name'].lower()))
+
     if c.search_facets_limits and limit is None:
         limit = c.search_facets_limits.get(facet)
     # zero treated as infinite for hysterical raisins
     if limit is not None and limit > 0:
-        return facets[:limit]
-    return facets
+        return sort(facets)[:limit]
+
+    return sort(facets)
 
 
 @core_helper
