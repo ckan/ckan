@@ -81,13 +81,13 @@ textarea {
 
 .control-large input,
 .control-large .control-label {
-    font-size: @font-size-base * 1.25;
-    line-height: @line-height-base * 1.5;
+    font-size: @font-size-large;
+    line-height: @line-height-large;
 }
 
-.control-large input {
-    height: (@line-height-base*2)+1;
-}
+// .control-large input {
+//     height: (@line-height-base*2)+1;
+// }
 
 .control-required {
     color: @errorBorder;
@@ -104,11 +104,12 @@ textarea {
 }
 
 .form-actions {
-    background: none;
-    margin-left: -@gutterX;
-    margin-right: -@gutterX;
-    margin-bottom: 0; // Prevents reduces the padding when included in a module.
-    padding-bottom: 0;
+    // background: none;
+    overflow: auto;
+    // margin-left: -@gutterX;
+    // margin-right: -@gutterX;
+    // margin-bottom: 0; // Prevents reduces the padding when included in a module.
+    // padding-bottom: 0;
 }
 
 @media (min-width: @screen-sm-min) {
@@ -143,17 +144,17 @@ textarea {
 }
 
 // Override the default form widths.
-.form-horizontal .control-label {
-    width: 120px;
-}
+// .form-horizontal .control-label {
+//     width: 120px;
+// }
 
-@media (min-width: @screen-sm-min) {
-    .form-horizontal .controls {
-        margin-left: 130px;
-    }
-}
+// @media (min-width: @screen-sm-min) {
+//     .form-horizontal .controls {
+//         margin-left: 130px;
+//     }
+// }
 
-.form-horizontal .info-block {
+.form-group .info-block {
     position: relative;
     display: block;
     font-size: 11px;
@@ -162,22 +163,22 @@ textarea {
     margin-top: 6px;
 }
 
-.form-horizontal .info-help {
+.form-group .info-help {
     padding: 6px 0;
     &:before {
         display: none;
     }
 }
 
-.form-horizontal .info-help-tight {
+.form-group .info-help-tight {
     margin-top: -10px;
 }
 
 @media (min-width: @screen-md-min) {
-    .form-horizontal .info-block {
-        padding: 6px 0 6px 25px;
+    .form-group .info-block {
+        padding: @grid-gutter-width/6 0 @grid-gutter-width/6 @grid-gutter-width/3;
     }
-    .form-horizontal .info-inline {
+    .form-group .info-inline {
         float: right;
         width: 265px;
         margin-top: 0;
@@ -185,18 +186,18 @@ textarea {
     }
 }
 
-.form-horizontal .control-medium .info-block.info-inline {
+form .control-medium .info-block.info-inline {
     width: 165px;
 }
 
-.form-horizontal .info-block:before {
+.form-group .info-block:before {
     font-size: 2.2em;
     position: absolute;
     left: 0;
     top: 2px;
 }
 
-.form-horizontal .info-inline:before {
+.form-group .info-inline:before {
     top: 8px;
 }
 
@@ -209,15 +210,15 @@ textarea {
     }
 }
 
-.form-horizontal .info-block a {
+.form-group .info-block a {
     color: @emptyTextColor;
     text-decoration: underline;
 }
 
-.form-horizontal .form-actions {
-    padding-left: @gutterX;
-    padding-right: @gutterX;
-}
+// form .form-actions {
+//     padding-left: @gutterX;
+//     padding-right: @gutterX;
+// }
 
 .form-inline input {
     padding-bottom: 9px;
@@ -268,8 +269,8 @@ textarea {
 .simple-input .field input {
     width: 100%;
     height: auto;
-    margin: 0 -7px; // Pull input out into gutter
-    padding: 7px 5px;
+    // margin: 0 -7px; // Pull input out into gutter
+    // padding: 7px 5px;
 }
 
 .simple-input .field .btn-search {
@@ -279,7 +280,7 @@ textarea {
     width: 17px;
     padding: 0;
     top: 50%;
-    right: 0;
+    right: @grid-gutter-width/3;
     margin-top: -10px;
     background-color: transparent;
     border: none;
@@ -474,8 +475,9 @@ textarea {
     .clearfix;
     color: @stagesTextColor;
     counter-reset: stage;
-    margin: -@gutterY -@gutterX @gutterY;
+    // margin: -@gutterY -@gutterX @gutterY;
     overflow: hidden;
+    margin-bottom: @grid-gutter-width;
 }
 
 .stages li {
@@ -779,10 +781,10 @@ textarea {
 }
 
 .add-member-or {
-    float: left;
-    margin-top: 75px;
-    width: 7%;
-    text-align: center;
+    // float: left;
+    // margin-top: 75px;
+    // width: 7%;
+    // text-align: center;
     text-transform: uppercase;
     color: @gray-light;
     font-weight: bold;

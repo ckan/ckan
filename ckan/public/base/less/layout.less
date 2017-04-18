@@ -2,28 +2,40 @@
     .clearfix();
     .box();
     position: relative;
+    min-height: 300px;
     background-color: #fff;
-    margin-bottom: 20px;
-    margin-left: 0;
-    margin-right: 0;
+    @media (min-width: @screen-md-min) {
+        &:before {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 25%;
+            border-right: 1px solid @genericBorderColor;
+        }
+        &.no-nav {
+            &:before {
+                display: none;
+            }
+            .module {
+                >.page-header {
+                    margin-top: 0;
+                }
+            }
+        }
+    }
 }
 
-// @media (min-width: @screen-sm-min) {
-//   .wrapper {
-//     background-image:url("@{imagePath}/nav.png");
-//     background-repeat:repeat-y;
-//     background-position:-54px 0px;
-//   }
-// }
 // @media (min-width: @screen-md-min) {
 //   .wrapper {
 //     background-position:0px 0px;
 //   }
 // }
-.wrapper.no-nav {
-    background-image: none;
-}
-
+// .wrapper.no-nav {
+//     background-image: none;
+// }
 [role=main],
 .main {
     position: relative;
@@ -49,12 +61,14 @@
 }
 
 [role=main] .primary {
+    position: relative;
     float: right;
     margin-left: 0; // Remove grid margin.
 }
 
 [role=main] .secondary {
-    margin-left: 0; // Remove grid margin.
+    padding-top: @grid-gutter-width/2;
+    padding-bottom: @grid-gutter-width/2;
 }
 
 
@@ -121,11 +135,10 @@
     }
 }
 
-.primary> :last-child,
-.secondary> :last-child {
-    margin-bottom: 0;
-}
-
+// .primary> :last-child,
+// .secondary> :last-child {
+//     margin-bottom: 0;
+// }
 .primary {
     .primary {
         float: left;
@@ -254,7 +267,7 @@
         }
     }
     .follow_button {
-        margin-top: 15px;
+        margin: @grid-gutter-width/2 0;
     }
     &.editing {
         .module-heading {}
