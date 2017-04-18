@@ -151,4 +151,4 @@ class TestConvertToExtras(object):
 
         assert 'extras' in errors
         eq_(errors['extras'],
-            [{'key': [u'There is a schema field with the same name']}])
+            [{'key': [u'There is a schema field with the same name:field_name=custom_text']}])
