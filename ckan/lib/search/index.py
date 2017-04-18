@@ -247,8 +247,9 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict = new_dict
 
         for k in ('title', 'notes', 'title_string'):
-            if k in pkg_dict and pkg_dict[k]:
-                pkg_dict[k] = escape_xml_illegal_chars(pkg_dict[k])
+            value = pkg_dict.get(k, None)
+            if value:
+                pkg_dict[k] = escape_xml_illegal_chars(value)
 
         # modify dates (SOLR is quite picky with dates, and only accepts ISO dates
         # with UTC time (i.e trailing Z)
@@ -262,13 +263,10 @@ class PackageSearchIndex(SearchIndex):
         # Strip a selection of the fields.
         # These fields are possible candidates for sorting search results on,
         # so we strip leading spaces because solr will sort " " before "a" or "A".
-        for field_name in ['title']:
-            try:
-                value = pkg_dict.get(field_name)
-                if value:
-                    pkg_dict[field_name] = value.lstrip()
-            except KeyError:
-                pass
+        for field_name in ['title', 'title_string']:
+            value = pkg_dict.get(field_name)
+            if value:
+                pkg_dict[field_name] = value.lstrip()
 
         # add a unique index_id to avoid conflicts
         import hashlib
