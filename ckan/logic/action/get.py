@@ -1045,7 +1045,7 @@ def package_show(context, data_dict):
             package_dict, errors = lib_plugins.plugin_validate(
                 package_plugin, context, package_dict, schema,
                 'package_show')
-
+ 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
 

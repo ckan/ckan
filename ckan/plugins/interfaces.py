@@ -803,7 +803,6 @@ class IResourceController(Interface):
         '''
         return resource_dict
 
-
 class IPluginObserver(Interface):
     u'''
     Plugin to the plugin loading mechanism
