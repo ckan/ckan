@@ -811,10 +811,6 @@ def organization_create(context, data_dict):
 
     You must be authorized to create organizations.
 
-    Plugins may change the parameters of this function depending on the value
-    of the ``type`` parameter, see the
-    :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
-
     :param name: the name of the organization, a string between 2 and
         100 characters long, containing only lowercase alphanumeric
         characters, ``-`` and ``_``
