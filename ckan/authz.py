@@ -13,6 +13,8 @@ from ckan.common import OrderedDict, _, c
 
 import ckan.lib.maintain as maintain
 
+from sqlalchemy.orm.exc import DetachedInstanceError
+
 log = getLogger(__name__)
 
 
@@ -123,6 +125,8 @@ def _get_user(username):
         pass
     except TypeError:
         # c is not available
+        pass
+    except DetachedInstanceError:
         pass
     # Get user from the DB
     return model.User.get(username)
