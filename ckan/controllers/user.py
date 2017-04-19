@@ -136,13 +136,6 @@ class UserController(base.BaseController):
                      'include_num_followers': True}
 
         self._setup_template_variables(context, data_dict)
-
-        # The legacy templates have the user's activity stream on the user
-        # profile page, new templates do not.
-        if asbool(config.get('ckan.legacy_templates', False)):
-            c.user_activity_stream = get_action('user_activity_list_html')(
-                context, {'id': c.user_dict['id']})
-
         return render('user/read.html')
 
     def me(self, locale=None):
