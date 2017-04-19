@@ -9,7 +9,9 @@
     <span class="date">
       {{ h.time_ago_from_timestamp(activity.timestamp) }}
       &nbsp;|&nbsp;
-      <a href="#">{{ _('View this version') }}</a>
+      <a href="{{ h.url_for(controller='package', action='read', id=activity.object_id, activity_id=activity.id) }}">
+        {{ _('View this version') }}
+      </a>
     </span>
   </p>
 </li>
