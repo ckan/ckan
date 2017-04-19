@@ -817,11 +817,15 @@ class GroupController(base.BaseController):
         except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
 
+        activity_action = 'group_activity_list'
+        if 'organization' in self.group_types:
+            activity_action = 'organization_activity_list'
+
         return render(
             self._activity_template(group_type),
             extra_vars={
                 'group_type': group_type,
-                'activity_stream': get_action('organization_activity_list')(
+                'activity_stream': get_action(activity_action)(
                     context,
                     {
                         'id': c.group_dict['id'],
