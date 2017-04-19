@@ -2637,10 +2637,12 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(org_id,
+    activity_objects = model.activity.group_activity_list(org_id,
             limit=limit, offset=offset)
+    """
     activity_objects = _filter_activity_by_user(_activity_objects,
             _activity_stream_get_filtered_users())
+    """
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2717,123 +2719,6 @@ def user_activity_list_html(context, data_dict):
         'controller': 'user',
         'action': 'activity',
         'id': data_dict['id'],
-        'offset': offset,
-    }
-    return activity_streams.activity_list_to_html(
-        context, activity_stream, extra_vars)
-
-
-def package_activity_list_html(context, data_dict):
-    '''Return a package's activity stream as HTML.
-
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param id: the id or name of the package
-    :type id: string
-    :param offset: where to start getting activity items from
-        (optional, default: 0)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
-    :type limit: int
-
-    :rtype: string
-
-    '''
-    activity_stream = package_activity_list(context, data_dict)
-    offset = int(data_dict.get('offset', 0))
-    extra_vars = {
-        'controller': 'package',
-        'action': 'activity',
-        'id': data_dict['id'],
-        'offset': offset,
-    }
-    return activity_streams.activity_list_to_html(
-        context, activity_stream, extra_vars)
-
-
-def group_activity_list_html(context, data_dict):
-    '''Return a group's activity stream as HTML.
-
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param id: the id or name of the group
-    :type id: string
-    :param offset: where to start getting activity items from
-        (optional, default: 0)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
-    :type limit: int
-
-    :rtype: string
-
-    '''
-    activity_stream = group_activity_list(context, data_dict)
-    offset = int(data_dict.get('offset', 0))
-    extra_vars = {
-        'controller': 'group',
-        'action': 'activity',
-        'id': data_dict['id'],
-        'offset': offset,
-    }
-    return activity_streams.activity_list_to_html(
-        context, activity_stream, extra_vars)
-
-
-def organization_activity_list_html(context, data_dict):
-    '''Return a organization's activity stream as HTML.
-
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param id: the id or name of the organization
-    :type id: string
-
-    :rtype: string
-
-    '''
-    activity_stream = organization_activity_list(context, data_dict)
-    offset = int(data_dict.get('offset', 0))
-    extra_vars = {
-        'controller': 'organization',
-        'action': 'activity',
-        'id': data_dict['id'],
-        'offset': offset,
-    }
-
-    return activity_streams.activity_list_to_html(
-        context, activity_stream, extra_vars)
-
-
-def recently_changed_packages_activity_list_html(context, data_dict):
-    '''Return the activity stream of all recently changed packages as HTML.
-
-    The activity stream includes all recently added or changed packages. It is
-    rendered as a snippet of HTML meant to be included in an HTML page, i.e. it
-    doesn't have any HTML header or footer.
-
-    :param offset: where to start getting activity items from
-        (optional, default: 0)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
-    :type limit: int
-
-    :rtype: string
-
-    '''
-    activity_stream = recently_changed_packages_activity_list(
-        context, data_dict)
-    offset = int(data_dict.get('offset', 0))
-    extra_vars = {
-        'controller': 'package',
-        'action': 'activity',
         'offset': offset,
     }
     return activity_streams.activity_list_to_html(

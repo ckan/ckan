@@ -1277,18 +1277,24 @@ class PackageController(base.BaseController):
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
-            c.pkg = context['package']
-            c.package_activity_stream = get_action(
-                'package_activity_list_html')(
-                context, {'id': c.pkg_dict['id']})
             dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(403, _('Unauthorized to read dataset %s') % id)
 
-        return render('package/activity.html',
-                      {'dataset_type': dataset_type})
+        return render(
+            'package/activity.html',
+            extra_vars={
+                'dataset_type': dataset_type,
+                'activity_stream': get_action('package_activity_list')(
+                    context,
+                    {
+                        'id': id
+                    }
+                )
+            }
+        )
 
     def resource_embedded_dataviewer(self, id, resource_id,
                                      width=500, height=500):
