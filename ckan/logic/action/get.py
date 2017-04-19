@@ -24,7 +24,6 @@ import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
-import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
 
@@ -2694,37 +2693,6 @@ def activity_detail_list(context, data_dict):
         activity_detail_objects, context)
 
 
-def user_activity_list_html(context, data_dict):
-    '''Return a user's public activity stream as HTML.
-
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param id: The id or name of the user.
-    :type id: string
-    :param offset: where to start getting activity items from
-        (optional, default: 0)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
-    :type limit: int
-
-    :rtype: string
-
-    '''
-    activity_stream = user_activity_list(context, data_dict)
-    offset = int(data_dict.get('offset', 0))
-    extra_vars = {
-        'controller': 'user',
-        'action': 'activity',
-        'id': data_dict['id'],
-        'offset': offset,
-    }
-    return activity_streams.activity_list_to_html(
-        context, activity_stream, extra_vars)
-
-
 def _follower_count(context, data_dict, default_schema, ModelClass):
     schema = context.get('schema', default_schema)
     data_dict, errors = _validate(data_dict, schema, context)
@@ -3251,39 +3219,6 @@ def dashboard_activity_list(context, data_dict):
                 strptime(activity['timestamp'], fmt) > last_viewed)
 
     return activity_dicts
-
-
-@logic.validate(ckan.logic.schema.default_pagination_schema)
-def dashboard_activity_list_html(context, data_dict):
-    '''Return the authorized (via login or API key) user's dashboard activity
-       stream as HTML.
-
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param offset: where to start getting activity items from
-        (optional, default: 0)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
-    :type limit: int
-
-    :rtype: string
-
-    '''
-    activity_stream = dashboard_activity_list(context, data_dict)
-    model = context['model']
-    user_id = context['user']
-    offset = data_dict.get('offset', 0)
-    extra_vars = {
-        'controller': 'user',
-        'action': 'dashboard',
-        'offset': offset,
-        'id': user_id
-    }
-    return activity_streams.activity_list_to_html(context, activity_stream,
-                                                  extra_vars)
 
 
 def dashboard_new_activities_count(context, data_dict):
