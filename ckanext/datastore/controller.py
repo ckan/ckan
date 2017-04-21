@@ -28,7 +28,7 @@ int_validator = get_validator('int_validator')
 boolean_validator = get_validator('boolean_validator')
 
 DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
-PAGINATE_BY = 10000
+PAGINATE_BY = 32000
 
 
 class DatastoreController(BaseController):
