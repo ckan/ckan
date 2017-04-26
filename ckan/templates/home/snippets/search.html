@@ -4,8 +4,8 @@
 <div class="module module-search module-narrow module-shallow box">
   <form class="module-content search-form" method="get" action="{% url_for controller='package', action='search' %}">
     <h3 class="heading">{{ _("Search data") }}</h3>
-    <div class="search-input control-group search-giant">
-      <input type="text" class="search" name="q" value="" autocomplete="off" placeholder="{% block search_placeholder %}{{ placeholder }}{% endblock %}" />
+    <div class="search-input form-group search-giant">
+      <input type="text" class="search form-control" name="q" value="" autocomplete="off" placeholder="{% block search_placeholder %}{{ placeholder }}{% endblock %}" />
       <button type="submit">
         <i class="fa fa-search"></i>
         <span>{{ _('Search') }}</span>

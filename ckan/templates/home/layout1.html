@@ -1,12 +1,12 @@
 <div role="main" class="hero">
   <div class="container">
     <div class="row row1">
-      <div class="span6 col1">
+      <div class="col-md-6 col1">
         {% block promoted %}
           {% snippet 'home/snippets/promoted.html' %}
         {% endblock %}
       </div>
-      <div class="span6 col2">
+      <div class="col-md-6 col2">
         {% block search %}
           {% snippet 'home/snippets/search.html' %}
         {% endblock %}
@@ -17,7 +17,7 @@
 <div role="main">
   <div class="container">
     <div class="row row2">
-      <div class="span6 col1">
+      <div class="col-md-6 col1">
         {# Note: this featured_group block is used as an example in the theming
            tutorial in the docs! If you change this code, be sure to check
            whether you need to update the docs. #}
@@ -27,7 +27,7 @@
         {% endblock %}
         {# End template block example. #}
       </div>
-      <div class="span6 col2">
+      <div class="col-md-6 col2">
         {% block featured_organization %}
           {% snippet 'home/snippets/featured_organization.html' %}
         {% endblock %}

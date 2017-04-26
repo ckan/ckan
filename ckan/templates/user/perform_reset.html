@@ -15,7 +15,7 @@
     </h1>
     <div class="module-content">
       {% block form %}
-        <form class="form-horizontal" action="" method="post">
+        <form action="" method="post">
           {{ form.errors(error_summary) }}
           {{ form.input("password1", id="field-password", label=_("Password"), type="password", value='', error='', attrs={'autocomplete': 'no'}, classes=["control-medium"]) }}
           {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", value='', error='', attrs={'autocomplete': 'no'}, classes=["control-medium"]) }}
