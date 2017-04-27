@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import nose
-from ckan.lib.navl.dictization_functions import validate
+from ckan.lib.navl.dictization_functions import validate, Invalid
 
 
 eq_ = nose.tools.eq_
@@ -49,3 +49,44 @@ class TestValidate(object):
         context = {}
 
         data, errors = validate(data_dict, schema, context)
+
+
+class TestDictizationError(object):
+
+    def test_str_error(self):
+        err_obj = Invalid('Some ascii error')
+        eq_(str(err_obj), "Invalid: 'Some ascii error'")
+
+    def test_unicode_error(self):
+        err_obj = Invalid('Some ascii error')
+        eq_(unicode(err_obj), u"Invalid: 'Some ascii error'")
+
+    def test_repr_error(self):
+        err_obj = Invalid('Some ascii error')
+        eq_(repr(err_obj), "<Invalid 'Some ascii error'>")
+
+    # Error msgs should be ascii, but let's just see what happens for unicode
+
+    def test_str_unicode_error(self):
+        err_obj = Invalid(u'Some unicode \xa3 error')
+        eq_(str(err_obj), "Invalid: u'Some unicode \\xa3 error'")
+
+    def test_unicode_unicode_error(self):
+        err_obj = Invalid(u'Some unicode \xa3 error')
+        eq_(unicode(err_obj), "Invalid: u'Some unicode \\xa3 error'")
+
+    def test_repr_unicode_error(self):
+        err_obj = Invalid(u'Some unicode \xa3 error')
+        eq_(repr(err_obj), "<Invalid u'Some unicode \\xa3 error'>")
+
+    def test_str_blank(self):
+        err_obj = Invalid('')
+        eq_(str(err_obj), "Invalid")
+
+    def test_unicode_blank(self):
+        err_obj = Invalid('')
+        eq_(unicode(err_obj), u"Invalid")
+
+    def test_repr_blank(self):
+        err_obj = Invalid('')
+        eq_(repr(err_obj), "<Invalid>")
