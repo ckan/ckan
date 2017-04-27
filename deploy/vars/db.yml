@@ -4,5 +4,5 @@ create_rds: no
 db_name: ''
 db_user: ''
 # db_password lives in vault/secrets.yml
-db_host: ''
+db_host: 'localhost'
 postgresql_version: 9.3

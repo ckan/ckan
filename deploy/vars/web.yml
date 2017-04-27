@@ -4,7 +4,6 @@
 update_apt_cache: yes
 set_up_application_user: yes
 application_log_dir: "{{ virtualenv_path }}/logs"
-application_user_password_hash: $6$rounds=100000$cX6mI1mKXR4jyRCE$u4Z/S12NpMTTSJlf4SVpAVc7uNennnk4tuB.aerRtCswv6qxS3ibgJXUuIfrv14./.E8s/KmQvg.88/VAQ0SZ/
 
 # Gunicorn
 gunicorn_user: "{{ application_user }}"
@@ -19,7 +18,7 @@ run_django_migrate: yes
 # Git
 git_root: "{{ virtualenv_path }}/{{ application_name }}"
 setup_git_repo: yes
-git_repo: ''
+git_repo: 'git@github.com:smallmedia/iod-ckan.git'
 
 # Nginx
 nginx_server_name: localhost

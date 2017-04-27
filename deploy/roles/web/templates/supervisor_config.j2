@@ -1,5 +1,6 @@
 [program:{{ application_name }}]
-command = {{ virtualenv_path }}/bin/gunicorn_start
+directory = {{ git_root }}
+command = {{ virtualenv_path }}/bin/paster serve /etc/ckan/default/ckan.ini
 user = {{ gunicorn_user }}
 stdout_logfile = {{ application_log_dir }}/supervisord/gunicorn_supervisor.log
 redirect_stderr = true

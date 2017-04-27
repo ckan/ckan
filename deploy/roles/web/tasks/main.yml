@@ -43,11 +43,28 @@
 # Set up git repo
 
 - name: Setup/pull the Git repo
-  git: repo={{ git_repo }} dest={{ git_root }} update=yes accept_hostkey=yes force=yes branch={{ git_branch }}
+  git: repo={{ git_repo }} dest={{ git_root }} update=yes accept_hostkey=yes force=yes version={{ git_branch }}
   when: setup_git_repo
   tags:
     - git
     - deploy
+
+
+- name: Install missing polib package.
+  shell: >
+    {{ virtualenv_path }}/bin/pip install polib
+
+
+- name: Install the Git repo package in editable mode.
+  shell: >
+    {{ virtualenv_path }}/bin/pip install -e {{ git_root }}
+
+
+- name: Ensure media dir exists
+  file:
+    path: "{{virtualenv_path}}/media"
+    state: directory
+
 
 - name: Reset perms back to application user
   file: path={{ virtualenv_path }}
@@ -59,6 +76,13 @@
   tags:
     - deploy
 
+
+- name: Symlink who.ini
+  file:
+    path: /etc/ckan/default/who.ini
+    src: "{{ git_root }}/who.ini"
+    state: link
+    force: true
 
 # - include: setup_supervisor.yml
 
@@ -95,25 +119,13 @@
     - requirements
 
 - name: Run Migrations
-  shell: . {{ virtualenv_path }}/bin/activate
-         && . {{ virtualenv_path }}/bin/postactivate
-         && cd {{ django_dir }}
-         && python manage.py migrate --noinput --settings={{ django_settings_file }}
+  shell: >
+    cd {{ git_root }}; 
+    {{ virtualenv_path }}/bin/paster db init -c /etc/ckan/default/ckan.ini
   when: run_django_migrate
   tags:
     - django
     - migrate
-
-- name: Run Django collectstatic
-  shell: . {{ virtualenv_path }}/bin/activate
-         && . {{ virtualenv_path }}/bin/postactivate
-         && cd {{ django_dir }}
-         && python manage.py collectstatic --noinput --settings={{ django_settings_file }}
-  when: run_django_collectstatic
-  tags:
-    - django
-    - collectstatic
-
 
 # - include: set_file_permissions.yml
 

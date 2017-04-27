@@ -41,7 +41,7 @@
 
 - name: Create the application user
   when: set_up_application_user
-  user: name={{ application_user }} password={{ application_user_password_hash }} state=present shell="/bin/bash"
+  user: name={{ application_user }} state=present shell="/bin/bash"
 
 - name: Create the application group
   group: name={{ application_group }} system=yes state=present

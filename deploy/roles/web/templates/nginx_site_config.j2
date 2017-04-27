@@ -3,7 +3,8 @@ upstream wsgi_server_{{ application_name }} {
   # to return a good HTTP response (in case the Unicorn master nukes a
   # single worker for timing out).
 
-  server unix:{{ virtualenv_path }}/run/gunicorn.sock fail_timeout=0;
+  server 127.0.0.1:5000 fail_timeout=0;
+  #server unix:{{ virtualenv_path }}/run/gunicorn.sock fail_timeout=0;
 }
 
 proxy_next_upstream off;

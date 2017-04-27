@@ -8,7 +8,7 @@
 
   vars:
     - deploy_env: vagrant
-    - git_branch: master
+    - git_branch: iod-v2.6
     - application_user: vagrant
     - application_group: vagrant
     - application_name: ''
@@ -17,7 +17,6 @@
     - django_dir: '/vagrant' #  Location of manage.py
     - django_settings_file: 'app.core.settings.local'
     - run_django_collectstatic: no
-    - js_directory: '{{ django_dir }}'
 
   vars_files:
     - vault/secrets.yml

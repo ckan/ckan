@@ -1,0 +1,7 @@
+---
+
+db_name: 'iod-ckan-site'
+db_user: 'iod-ckan-site'
+db_password: '{{db_live_password}}'
+# db_live_password lives in vault/secrets.yml
+db_host: 'postgresql-prod.aws.smallmedia.org.uk'

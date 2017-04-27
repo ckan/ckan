@@ -1,16 +1,16 @@
 ---
 
 - name: 'Provision {{ application_name }} staging'
-  hosts: staging
+  hosts: iod-ckan-live
   gather_facts: no
   become: true
 
   vars:
     - deploy_env: staging
-    - git_branch: master
-    - application_name: ''
+    - git_branch: iod-v2.6
+    - application_name: 'iod-ckan'
     - set_up_application_user: yes
-    - application_user: ''
+    - application_user: 'iod-ckan'
     - application_group: webapps
     - update_apt_cache: yes
     - django_settings_file: 'app.core.settings.staging'
@@ -18,15 +18,13 @@
     - virtualenv_path: '/webapps/{{ application_name }}'
     - django_dir: "{{ git_root }}" #  Location of manage.py
     - run_django_collectstatic: yes
-    - js_directory: '{{ django_dir }}'
 
   vars_files:
     - vault/secrets.yml
-    - vars/db.yml
+    - vars/db_live.yml
     - vars/web.yml
 
   roles:
     - base
-    - db
+    - ckan-deps
     - web
-    - nodejs
