@@ -1,0 +1,31 @@
+# for password, ie python -c "from passlib.hash import sha512_crypt; print sha512_crypt.encrypt('your-password')"
+---
+
+update_apt_cache: yes
+set_up_application_user: yes
+application_log_dir: "{{ virtualenv_path }}/logs"
+application_user_password_hash: $6$rounds=100000$cX6mI1mKXR4jyRCE$u4Z/S12NpMTTSJlf4SVpAVc7uNennnk4tuB.aerRtCswv6qxS3ibgJXUuIfrv14./.E8s/KmQvg.88/VAQ0SZ/
+
+# Gunicorn
+gunicorn_user: "{{ application_user }}"
+gunicorn_group: "{{ application_group }}"
+gunicorn_num_workers: 1
+gunicorn_max_requests: 0
+
+# Django
+django_secret_key: ''
+run_django_migrate: yes
+
+# Git
+git_root: "{{ virtualenv_path }}/{{ application_name }}"
+setup_git_repo: yes
+git_repo: ''
+
+# Nginx
+nginx_server_name: localhost
+nginx_http_port: 80
+nginx_https_port: 443
+nginx_access_log_file: "{{ application_log_dir }}/nginx/nginx_access.log"
+nginx_error_log_file: "{{ application_log_dir }}/nginx/nginx_error.log"
+nginx_static_dir: "{{ git_root }}/static/"
+nginx_media_dir: "{{ git_root }}/media/"

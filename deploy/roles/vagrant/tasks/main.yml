@@ -1,0 +1,7 @@
+---
+
+- include: setup_venv_and_logs.yml
+
+- include: setup_supervisor_log.yml
+
+- include: setup_django_app.yml

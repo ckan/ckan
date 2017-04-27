@@ -1,0 +1,196 @@
+---
+
+# Set up venv and logs
+
+- name: Update .bashrc for convenience
+  lineinfile: >
+    dest='/home/{{ application_user }}/.bashrc'
+    owner={{ application_user }}
+    line='{{ item }}'
+    state=present
+    insertafter=EOF
+  with_items:     
+    - '#Added by Ansible deloyment script for {{ application_name }}'
+    - 'source {{ virtualenv_path }}/bin/activate'
+    - 'source {{ virtualenv_path }}/bin/postactivate'
+    - 'cd {{ virtualenv_path }}'
+
+- name: Create the virtualenv
+  command: virtualenv {{ virtualenv_path }} --no-site-packages
+           creates={{ virtualenv_path }}/bin/activate
+
+- name: Create the application log folder
+  file: path={{ application_log_dir }}
+        owner={{ application_user }}
+        group={{ application_group }}
+        mode=0774
+        state=directory
+
+- name: Create the virtualenv postactivate script to set environment variables
+  template: src=virtualenv_postactivate.j2
+            dest={{ virtualenv_path }}/bin/postactivate
+            owner={{ application_user }}
+            group={{ application_group }}
+            mode=0640
+            backup=yes
+
+- name: Create the maintenance page
+  template: src=maintenance_off.html
+            dest={{ virtualenv_path }}/maintenance_off.html
+            mode=0664
+
+
+# Set up git repo
+
+- name: Setup/pull the Git repo
+  git: repo={{ git_repo }} dest={{ git_root }} update=yes accept_hostkey=yes force=yes branch={{ git_branch }}
+  when: setup_git_repo
+  tags:
+    - git
+    - deploy
+
+- name: Reset perms back to application user
+  file: path={{ virtualenv_path }}
+        recurse=yes
+        owner={{ application_user }}
+        group={{ application_group }}
+        state=directory
+  notify: Restart application
+  tags:
+    - deploy
+
+
+# - include: setup_supervisor.yml
+
+- name: Create a log directory for Supervisor
+  file: path={{ application_log_dir }}/supervisord
+        owner={{ application_user }}
+        mode=0700
+        state=directory
+
+- name: Create the Supervisor config file
+  template: src=supervisor_config.j2
+            dest=/etc/supervisor/conf.d/{{ application_name }}.conf
+            backup=yes
+
+- name: Re-read the Supervisor config files
+  command: supervisorctl reread
+
+- name: Update Supervisor to add the app in the process group
+  command: supervisorctl update
+
+- name: Initialise log rotation for Supervisord
+  template: src=supervisor_log.j2
+            dest='/etc/logrotate.d/{{ application_name }}-supervisor.log'
+            owner=root
+            group=root
+            mode=0644
+
+
+# - include: setup_django_app.yml
+
+- name: Install packages required by the Django app inside virtualenv
+  pip: virtualenv={{ virtualenv_path }} requirements={{ requirements_file }}
+  tags:
+    - requirements
+
+- name: Run Migrations
+  shell: . {{ virtualenv_path }}/bin/activate
+         && . {{ virtualenv_path }}/bin/postactivate
+         && cd {{ django_dir }}
+         && python manage.py migrate --noinput --settings={{ django_settings_file }}
+  when: run_django_migrate
+  tags:
+    - django
+    - migrate
+
+- name: Run Django collectstatic
+  shell: . {{ virtualenv_path }}/bin/activate
+         && . {{ virtualenv_path }}/bin/postactivate
+         && cd {{ django_dir }}
+         && python manage.py collectstatic --noinput --settings={{ django_settings_file }}
+  when: run_django_collectstatic
+  tags:
+    - django
+    - collectstatic
+
+
+# - include: set_file_permissions.yml
+
+- name: Ensure that the application file permissions are set properly
+  file: path={{ virtualenv_path }}
+        recurse=yes
+        owner={{ gunicorn_user }}
+        group={{ gunicorn_group }}
+        state=directory
+  notify: Restart application
+
+
+# - include: setup_gunicorn.yml
+
+- name: Install Gunicorn
+  pip: name=gunicorn virtualenv={{ virtualenv_path }}
+
+- name: Create a directory for logs
+  file: path={{ application_log_dir }}/gunicorn
+        owner={{ application_user }}
+        mode=0700
+        state=directory
+
+- name: Create the Gunicorn script file
+  template: src=gunicorn_start.j2
+            dest={{ virtualenv_path }}/bin/gunicorn_start
+            owner={{ gunicorn_user }}
+            group={{ gunicorn_group }}
+            mode=0755
+            backup=yes
+
+- name: Initialise log rotation for Gunicorn
+  template: src=gunicorn_log.j2
+            dest='/etc/logrotate.d/{{ application_name }}-gunicorn.log'
+            owner=root
+            group=root
+            mode=0644
+
+
+# - include: setup_nginx.yml
+
+- name: Install Nginx
+  apt: name=nginx update_cache={{ update_apt_cache }} state=installed
+  tags: packages
+
+- name: Ensure that the Nginx service is stopped
+  service: name=nginx state=stopped
+
+- name: Create a directory for nginx logs
+  file: path={{ application_log_dir }}/nginx
+        owner={{ application_user }}
+        mode=0700
+        state=directory
+
+- name: Create the Nginx configuration file
+  template: src=nginx_site_config.j2
+            dest=/etc/nginx/sites-available/{{ application_name }}
+            backup=yes
+
+- name: Ensure that the default site is disabled
+  command: rm /etc/nginx/sites-enabled/default
+           removes=/etc/nginx/sites-enabled/default
+
+- name: Ensure that the application site is enabled
+  command: ln -s /etc/nginx/sites-available/{{ application_name }}
+           /etc/nginx/sites-enabled/{{ application_name }}
+           creates=/etc/nginx/sites-enabled/{{ application_name }}
+
+- name: Ensure Nginx service is started
+  service: name=nginx state=started enabled=yes
+
+- name: Initialise log rotation for nginx
+  template: src=nginx_log.j2
+            dest='/etc/logrotate.d/{{ application_name }}-nginx.log'
+            owner=root
+            group=root
+            mode=0644
+  tags: backup
+
+# - include: redis.yml

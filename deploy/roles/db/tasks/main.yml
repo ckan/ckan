@@ -1,0 +1,51 @@
+---
+
+- name: Install PostgreSQL
+  apt: name={{ item }} update_cache={{ update_apt_cache }} state=installed
+  with_items:
+    - postgresql-{{ postgresql_version }}
+    - postgresql-contrib
+    - libpq-dev
+    - python-psycopg2
+  tags: packages
+
+- name: Ensure the PostgreSQL service is running
+  service: name=postgresql state=started enabled=yes
+
+- name: Ensure database is created
+  become: true
+  become_user: postgres
+  postgresql_db: db={{ db_name }} state=present
+
+- name: Ensure user has access to the database
+  become: true
+  become_user: postgres
+  postgresql_user: db={{ db_name }}
+                   name={{ db_user }}
+                   password={{ db_password }}
+                   priv=ALL
+                   state=present
+
+- name: Ensure user does not have unnecessary privileges
+  become: true
+  become_user: postgres
+  postgresql_user: name={{ db_user }}
+                   role_attr_flags=NOSUPERUSER,NOCREATEDB
+                   state=present
+
+- name: Allow md5 authentication for local connections
+  lineinfile: >
+    dest='/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf'
+    regexp='^local.+all.+all.+peer$' backrefs=yes
+    line='local all all md5'
+  tags: packages
+
+- name: Restart Postgresql
+  service: name=postgresql state=restarted enabled=yes
+
+- name: Install Postgres client components
+  apt: name={{ item }} update_cache={{ update_apt_cache }} state=installed
+  with_items:
+    - libpq-dev
+    - python-psycopg2
+  tags: packages

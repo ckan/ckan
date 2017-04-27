@@ -1,0 +1,50 @@
+---
+
+- name: Ensure OpenSSl and libssl are the latest versions
+  apt: name={{ item }} update_cache={{ update_apt_cache }} state=latest
+  with_items:
+    - openssl
+    - libssl-dev
+    - libssl-doc
+  tags: packages
+
+- name: Install base packages
+  apt: name={{ item }} update_cache={{ update_apt_cache }} force=yes state=installed
+  with_items:
+    - build-essential
+    - git
+    - gettext
+    - libxml2-dev
+    - libxslt1-dev
+    - python-dev
+    - python-pip
+    - python-pycurl
+    - supervisor
+    - vim
+  tags: packages
+
+- name: Install image libaries for Pillow
+  apt: name={{ item }} update_cache={{ update_apt_cache }} force=yes state=installed
+  with_items:
+    - libjpeg62
+    - libjpeg-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+  tags: packages
+
+- name: Install virtualenv
+  pip: name={{ item }}
+  with_items:
+    - virtualenv
+  tags: packages
+
+- name: Create the application user
+  when: set_up_application_user
+  user: name={{ application_user }} password={{ application_user_password_hash }} state=present shell="/bin/bash"
+
+- name: Create the application group
+  group: name={{ application_group }} system=yes state=present
+
+- name: Add the application user to the application group
+  user: name={{ application_user }} group={{ application_group }} state=present

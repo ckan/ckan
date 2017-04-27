@@ -1,0 +1,8 @@
+---
+
+- name: Create a log directory for Supervisor
+  file: path={{ application_log_dir }}/supervisord
+        owner={{ application_user }}
+        group={{ application_group }}
+        mode=0755
+        state=directory

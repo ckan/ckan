@@ -1,0 +1,37 @@
+---
+
+- name: Install packages required by the Django app inside virtualenv
+  sudo: no
+  pip: virtualenv={{ virtualenv_path }} requirements={{ requirements_file }}
+  tags:
+    - requirements
+
+- name: Allow postgres user to make db (for testing purposes)
+  become_user: postgres
+  postgresql_user: name={{ db_user }}
+                   role_attr_flags=SUPERUSER
+                   state=present
+
+- name: Run the Django migrate command
+  sudo: no
+  shell: . {{ virtualenv_path }}/bin/activate
+         && . {{ virtualenv_path }}/bin/postactivate
+         && cd {{ django_dir }}
+         && python manage.py migrate --noinput --settings={{ django_settings_file }}
+  when: run_django_migrate
+  tags:
+    - django
+    - migrate
+
+- name: Run Django collectstatic
+  sudo: no
+  shell: . {{ virtualenv_path }}/bin/activate
+         && . {{ virtualenv_path }}/bin/postactivate
+         && cd {{ django_dir }}
+         && python manage.py collectstatic --noinput --settings={{ django_settings_file }}
+  when: run_django_collectstatic
+  tags:
+    - django
+    - collectstatic
+    - deploy
+

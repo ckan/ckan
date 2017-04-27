@@ -1,0 +1,59 @@
+---
+
+- name: Update .bashrc for convenience
+  lineinfile: >
+    dest='/home/vagrant/.bashrc'
+    owner={{ application_user }}
+    line='{{ item }}'
+    state=present
+    insertafter=EOF
+  with_items:
+    - '#Added by Ansible deloyment script for {{ application_name }}'
+    - 'source {{ virtualenv_path }}/bin/activate'
+    - 'source {{ virtualenv_path }}/bin/postactivate'
+    - 'cd {{ django_dir }}'
+
+- name: Create the virtualenv
+  sudo: no
+  command: virtualenv {{ virtualenv_path }} --no-site-packages
+           creates={{ virtualenv_path }}/bin/activate
+
+- name: Create the application log folder
+  file: path={{ application_log_dir }}
+        owner={{ application_user }}
+        group={{ application_group }}
+        mode=0774
+        state=directory
+
+- name: Create the application log folder for Django log
+  file: path={{ application_log_dir }}/django
+        owner={{ application_user }}
+        group={{ application_group }}
+        mode=0777
+        state=directory
+
+- name: Create the virtualenv postactivate script to set environment variables
+  template: src=virtualenv_postactivate.j2
+            dest={{ virtualenv_path }}/bin/postactivate
+            owner='vagrant'
+            group='vagrant'
+            mode=0777
+            backup=yes
+
+- name: Create the maintenance page
+  template: src=maintenance_off.html
+            dest={{ virtualenv_path }}/maintenance_off.html
+            mode=0664
+
+- name: Add motd file
+  file: path=/etc/motd
+        state=touch
+
+- name: Custom motd
+  lineinfile: >
+    dest='/etc/motd'
+    line='{{ item }}'
+    state=present
+    insertafter=EOF
+  with_items:
+    - 'Hello! Run Django dev server -> python manage.py runserver 192.168.33.10:8080'

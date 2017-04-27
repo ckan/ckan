@@ -1,0 +1,10 @@
+{{ application_log_dir }}/supervisord/*.log {
+    monthly
+    rotate 2
+    missingok
+    compress
+    delaycompress
+    notifempty
+    create 0640 {{ application_user }} {{ application_group }}
+    sharedscripts
+}

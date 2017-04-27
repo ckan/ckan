@@ -1,0 +1,11 @@
+---
+
+- name: Add server alias for vagrant user
+  lineinfile: >
+    dest=/home/vagrant/.bashrc
+    line="{{ python_serve }}"
+    owner=vagrant
+    regexp='^'"{{ python_serve }}"'$'
+    state=present
+    insertafter=EOF
+    create=True

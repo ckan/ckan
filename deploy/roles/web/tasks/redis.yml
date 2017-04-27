@@ -1,0 +1,17 @@
+---
+
+- name: Install redis server
+  apt: name=redis-server update_cache={{ update_apt_cache }} state=installed
+  tags: redis
+
+- name: Switch to using upstart
+  template: src=redis_conf.j2 dest="/etc/init/redis-server.conf" mode=644
+  tags: redis
+
+- name: Append 'daemonizie=no' to config (https://gist.github.com/bdotdub/714533)
+  lineinfile: >
+    dest='/etc/redis/redis.conf'
+    line='daemonize no'
+    insertafter=EOF
+    backup='yes'
+  tags: redis

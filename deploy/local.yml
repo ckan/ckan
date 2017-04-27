@@ -1,0 +1,33 @@
+---
+
+- name: 'Provision {{ application_name }} Vagrant'
+  hosts: vagrant
+  gather_facts: no
+  become: true
+  remote_user: vagrant
+
+  vars:
+    - deploy_env: vagrant
+    - git_branch: master
+    - application_user: vagrant
+    - application_group: vagrant
+    - application_name: ''
+    - virtualenv_path: '/home/vagrant/{{ application_name }}'
+    - requirements_file: '/vagrant/requirements.txt'
+    - django_dir: '/vagrant' #  Location of manage.py
+    - django_settings_file: 'app.core.settings.local'
+    - run_django_collectstatic: no
+    - js_directory: '{{ django_dir }}'
+
+  vars_files:
+    - vault/secrets.yml
+    - vars/aliases.yml
+    - vars/db.yml
+    - vars/web.yml
+
+  roles:
+    - base
+    - db
+    - vagrant
+    - nodejs
+    - aliases
