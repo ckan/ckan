@@ -385,6 +385,15 @@ class PackageController(base.BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
+
+            if activity_id:
+                c.pkg_dict = context['session'].query(model.Activity).get(
+                    activity_id
+                ).data['package']
+                # Don't crash on old activity records, which do not include
+                # resources or extras.
+                c.pkg_dict.setdefault('resources', [])
+                c.is_activity_archive = True
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
@@ -402,15 +411,6 @@ class PackageController(base.BaseController):
                     'organization': pkg.get('organization', {}).get('title'),
                     'site_url': config.get('ckan.site_url')
                 })
-
-            if activity_id:
-                c.pkg_dict = context['session'].query(model.Activity).get(
-                    activity_id
-                ).data['package']
-                # Don't crash on old activity records, which do not include
-                # resources or extras.
-                c.pkg_dict.setdefault('resources', [])
-                c.is_activity_archive = True
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
