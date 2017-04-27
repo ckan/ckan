@@ -25,7 +25,7 @@
 - name: Install Solr schema
   file:
     path: /etc/solr/conf/schema.xml
-    src: "{{ git_root }}/ckan/config/solr/schema.xml"
+    src: "{{ django_dir }}/ckan/config/solr/schema.xml"
     state: link
     force: true
 
@@ -35,6 +35,15 @@
     name: jetty
     enabled: true
     state: restarted
+
+
+- name: Install ckan dir exists
+  file:
+    path: "{{item}}"
+    state: directory
+  with_items:
+  - /etc/ckan
+  - /etc/ckan/default
 
 
 - name: Install cKan paster config file

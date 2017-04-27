@@ -1,5 +1,21 @@
 ---
 
+- name: Ensure media dir exists
+  file:
+    path: "{{virtualenv_path}}/media"
+    state: directory
+
+- name: Symlink who.ini
+  file:
+    path: /etc/ckan/default/who.ini
+    src: "{{ git_root }}/who.ini"
+    state: link
+    force: true
+
+- name: Install the Git repo package in editable mode.
+  shell: >
+    {{ virtualenv_path }}/bin/pip install -e {{ django_dir }}
+
 - name: Install packages required by the Django app inside virtualenv
   sudo: no
   pip: virtualenv={{ virtualenv_path }} requirements={{ requirements_file }}
@@ -12,26 +28,11 @@
                    role_attr_flags=SUPERUSER
                    state=present
 
-- name: Run the Django migrate command
-  sudo: no
-  shell: . {{ virtualenv_path }}/bin/activate
-         && . {{ virtualenv_path }}/bin/postactivate
-         && cd {{ django_dir }}
-         && python manage.py migrate --noinput --settings={{ django_settings_file }}
+- name: Run Migrations
+  shell: >
+    cd {{ django_dir }};
+    {{ virtualenv_path }}/bin/paster db init -c /etc/ckan/default/ckan.ini
   when: run_django_migrate
   tags:
     - django
     - migrate
-
-- name: Run Django collectstatic
-  sudo: no
-  shell: . {{ virtualenv_path }}/bin/activate
-         && . {{ virtualenv_path }}/bin/postactivate
-         && cd {{ django_dir }}
-         && python manage.py collectstatic --noinput --settings={{ django_settings_file }}
-  when: run_django_collectstatic
-  tags:
-    - django
-    - collectstatic
-    - deploy
-
