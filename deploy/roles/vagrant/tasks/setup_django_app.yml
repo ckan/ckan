@@ -4,11 +4,13 @@
   file:
     path: "{{virtualenv_path}}/media"
     state: directory
+    owner: vagrant
+
 
 - name: Symlink who.ini
   file:
     path: /etc/ckan/default/who.ini
-    src: "{{ git_root }}/who.ini"
+    src: "{{ django_dir }}/who.ini"
     state: link
     force: true
 

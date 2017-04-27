@@ -1,3 +1,9 @@
+SMALL MEDIA NOTES
+================
+
+See `README-smallmedia.md <README-smallmedia.md>_`
+
+
 CKAN: The Open Source Data Portal Software
 ==========================================
 
