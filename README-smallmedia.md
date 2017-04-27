@@ -8,3 +8,10 @@
 1. Visit the app at http://192.168.33.10:5000/
 
 To create a sysadmin account, run: `paster sysadmin myusername`
+
+
+
+## Deploy to iod-ckan-live
+
+`cd deploy ; ansible-playbook live.yml`
+
