@@ -212,9 +212,13 @@ def activity_list_to_html(context, activity_stream, extra_vars):
         if activity_type in activity_stream_actions_with_detail:
             details = logic.get_action('activity_detail_list')(context=context,
                 data_dict={'id': activity['id']})
+            package_related = ['Resource', 'tag', 'PackageExtra']
+            related_details = [x for x in details if x['object_type'] in package_related]
+            if len(related_details) == 1:
+              details = related_details
             # If an activity has just one activity detail then render the
             # detail instead of the activity.
-            if len(details) == 1:
+            if len(details) == 1 or len(related_details) == 1:
                 detail = details[0]
                 object_type = detail['object_type']
 
