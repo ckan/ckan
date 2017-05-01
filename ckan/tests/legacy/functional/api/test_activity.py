@@ -465,10 +465,8 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
-        details = list(filter(
-            lambda x: x['object_type'] == "Resource",
-            details
-        ))
+        details = [x for x in details if x['object_type'] == 'Resource']
+
         assert len(details) == 1, [(detail['activity_type'],
             detail['object_type']) for detail in details]
         detail = details[0]
@@ -559,10 +557,8 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
-        details = list(filter(
-            lambda x: x['object_type'] == "PackageExtra",
-            details
-        ))
+        details = [x for x in details if x['object_type'] == 'PackageExtra']
+
         assert len(details) == 1, (
                 "There should be 1 activity detail but found %s"
                 % len(details))
@@ -657,10 +653,7 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
-        details = list(filter(
-            lambda x: x['object_type'] == "PackageExtra",
-            details
-        ))
+        details = [x for x in details if x['object_type'] == 'PackageExtra']
 
         assert len(details) == 1, (
                 "There should be 1 activity detail but found %s"
@@ -754,10 +747,7 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
-        details = list(filter(
-            lambda x: x['object_type'] == "PackageExtra",
-            details
-        ))
+        details = [x for x in details if x['object_type'] == 'PackageExtra']
 
         assert len(details) == 1, (
                 "There should be 1 activity detail but found %s"
@@ -975,10 +965,7 @@ class TestActivity:
 
         # Test for the presence of correct activity detail items.
         details = self.activity_details(activity)
-        details = list(filter(
-            lambda x: x['object_type'] == "Resource",
-            details
-        ))
+        details = [x for x in details if x['object_type'] == 'Resource']
 
         assert len(details) == num_resources
         for detail in details:
@@ -1602,10 +1589,8 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
-        details = list(filter(
-            lambda x: x['object_type'] == "tag",
-            details
-        ))
+        details = [x for x in details if x['object_type'] == 'tag']
+
         assert len(details) == 1
         detail = details[0]
         assert detail['activity_id'] == activity['id'], \
