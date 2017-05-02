@@ -41,6 +41,21 @@ def is_flask_request():
              not pylons_request_available))
 
 
+def streaming_response(data):
+    iter_data = iter(data)
+    if is_flask_request():
+        # Removal of context variables for pylon's app prevented
+        # inside `pylons_app.py`, but flask requires special treating.
+        # Otherwice we are going to constantly receive errors about
+        # usage of unregistered values from context.
+        resp = flask.Response(
+            flask.stream_with_context(iter_data))
+    else:
+        response.app_iter = iter_data
+        resp = response
+    return resp
+
+
 class CKANConfig(MutableMapping):
     u'''Main CKAN configuration object
 
