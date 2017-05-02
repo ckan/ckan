@@ -382,7 +382,7 @@ class GroupController(base.BaseController):
         data_dict = {'id': id, 'type': group_type}
 
         try:
-            self._check_access('bulk_update_public', context, data_dict)
+            self._check_access('bulk_update_public', context, {'org_id': id})
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
@@ -638,7 +638,7 @@ class GroupController(base.BaseController):
 
         try:
             data_dict = {'id': id}
-            self._check_access('group_edit_permissions', context, data_dict)
+            check_access('group_edit_permissions', context, data_dict)
             c.members = self._action('member_list')(
                 context, {'id': id, 'object_type': 'user'}
             )
