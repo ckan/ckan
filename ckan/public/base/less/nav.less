@@ -48,6 +48,13 @@
     }
 }
 
+.nav-pills>li {
+    float: none;
+    @media (min-width: @grid-float-breakpoint) {
+        float: left;
+    }
+}
+
 .nav-item.active>a span,
 .nav-aside li.active a span {
     white-space: nowrap;
