@@ -24,6 +24,7 @@ class DataTablesView(p.SingletonPlugin):
         template directory for the view
         '''
         toolkit.add_template_directory(config, u'templates')
+        toolkit.add_resource(u'public', u'ckanext-datatablesview')
 
     def can_view(self, data_dict):
         resource = data_dict['resource']
