@@ -47,8 +47,8 @@ who.log_file = %(cache_dir)s/who_log.ini
 ## Database Settings
 sqlalchemy.url = postgresql://{{db_user}}:{{db_password}}@{{db_host}}/{{db_name}}
 
-#ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
-#ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
+ckan.datastore.write_url = postgresql://{{db_user}}:{{db_password}}@{{db_host}}/{{db_name}}-datastore
+ckan.datastore.read_url = postgresql://{{db_user}}-readonly:{{db_password}}@{{db_host}}/{{db_name}}-datastore
 
 # PostgreSQL' full-text search parameters
 ckan.datastore.default_fts_lang = english
@@ -56,7 +56,7 @@ ckan.datastore.default_fts_index_method = gist
 
 ## Site Settings
 
-ckan.site_url = http://iod-ckan-live.aws.smallmedia.org.uk/
+ckan.site_url = {{ckan_site_url}}
 #ckan.use_pylons_response_cleanup_middleware = true
 
 ## Authorization Settings
@@ -96,7 +96,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view
+ckan.plugins = stats text_view image_view recline_view datastore
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)

@@ -8,6 +8,7 @@
 
   vars:
     - deploy_env: vagrant
+    - ckan_site_url: http://192.168.33.10:5000/
     - git_branch: iod-v2.6
     - application_user: vagrant
     - application_group: vagrant

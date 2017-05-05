@@ -2,6 +2,7 @@
 
 create_rds: no
 db_name: 'iod-ckan'
+datastore_db_name: 'iod-ckan-datastore'
 db_user: 'iod-ckan'
 # db_password lives in vault/secrets.yml
 db_host: 'localhost'

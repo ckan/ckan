@@ -120,12 +120,16 @@
 
 - name: Run Migrations
   shell: >
-    cd {{ git_root }}; 
+    cd {{ git_root }};
     {{ virtualenv_path }}/bin/paster db init -c /etc/ckan/default/ckan.ini
   when: run_django_migrate
   tags:
     - django
     - migrate
+
+- name: Reset permissions for Datastore readonly user.
+  shell: >
+    paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/ckan.ini | sudo -u postgres psql template1
 
 # - include: set_file_permissions.yml
 

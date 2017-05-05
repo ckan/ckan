@@ -15,16 +15,28 @@
 - name: Ensure database is created
   become: true
   become_user: postgres
-  postgresql_db: db={{ db_name }} state=present
+  postgresql_db: db={{ item }} encoding=UTF-8 state=present
+  with_items:
+  - "{{ db_name }}"
+  - "{{ datastore_db_name }}"
 
 - name: Ensure user has access to the database
   become: true
   become_user: postgres
-  postgresql_user: db={{ db_name }}
-                   name={{ db_user }}
+  postgresql_user: db={{ item[1] }}
+                   name={{ item[0] }}
                    password={{ db_password }}
                    priv=ALL
                    state=present
+  with_nested:
+  - [
+    "{{ db_user }}",
+    "{{ db_user }}-readonly"
+  ]
+  - [
+    "{{ db_name }}",
+    "{{ datastore_db_name }}"
+  ]
 
 - name: Ensure user does not have unnecessary privileges
   become: true
