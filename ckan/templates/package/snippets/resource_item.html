@@ -39,7 +39,7 @@
       {% if res.url and h.is_url(res.url) %}
       <li>
         <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
-          {% if res.has_views %}
+          {% if res.has_views or res.url_type == 'upload' %}
             <i class="fa fa-arrow-circle-o-down"></i>
             {{ _('Download') }}
           {% else %}

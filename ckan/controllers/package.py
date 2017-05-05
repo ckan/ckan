@@ -390,11 +390,14 @@ class PackageController(base.BaseController):
         try:
             return render(template,
                           extra_vars={'dataset_type': package_type})
-        except ckan.lib.render.TemplateNotFound:
-            msg = _("Viewing {package_type} datasets in {format} format is "
-                    "not supported (template file {file} not found).".format(
-                        package_type=package_type, format=format,
-                        file=template))
+        except ckan.lib.render.TemplateNotFound as e:
+            msg = _(
+                "Viewing datasets of type \"{package_type}\" is "
+                "not supported ({file_!r}).".format(
+                    package_type=package_type,
+                    file_=e.message
+                )
+            )
             abort(404, msg)
 
         assert False, "We should never get here"
