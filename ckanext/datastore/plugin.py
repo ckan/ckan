@@ -347,7 +347,10 @@ class DatastorePlugin(p.SingletonPlugin):
         return data_dict
 
     def _parse_sort_clause(self, clause, fields_types):
-        clause_match = re.match(u'^(.+?)( +(asc|desc) *)?$', clause, re.I)
+        clause_match = re.match(
+            u'^(.+?)( +(asc|desc)( +nulls +(first|last))? *)?$',
+            clause,
+            re.I)
 
         if not clause_match:
             return False
