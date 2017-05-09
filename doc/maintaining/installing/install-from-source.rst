@@ -98,7 +98,13 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the CKAN source code into your virtualenv.
+b. Install the recommended version of 'setuptools':
+
+   .. parsed-literal::
+
+       pip install -r |virtualenv|/src/ckan/requirement-setuptools.txt
+
+c. Install the CKAN source code into your virtualenv.
    To install the latest stable release of CKAN (CKAN |latest_release_version|),
    run:
 
@@ -120,7 +126,7 @@ b. Install the CKAN source code into your virtualenv.
       production websites! Only install this version if you're doing CKAN
       development.
 
-c. Install the Python modules that CKAN requires into your virtualenv:
+d. Install the Python modules that CKAN requires into your virtualenv:
 
    .. versionchanged:: 2.1
       In CKAN 2.0 and earlier the requirement file was called
@@ -130,7 +136,7 @@ c. Install the Python modules that CKAN requires into your virtualenv:
 
        pip install -r |virtualenv|/src/ckan/requirements.txt
 
-d. Deactivate and reactivate your virtualenv, to make sure you're using the
+e. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
    installed copies:
 
