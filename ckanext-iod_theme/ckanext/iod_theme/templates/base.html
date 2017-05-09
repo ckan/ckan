@@ -1,0 +1,12 @@
+{% ckan_extends %}
+
+{% block styles %}
+  {{ super() }}
+
+  {# Import iod_theme.css using Fanstatic.
+     'iod_theme/' is the name that the iod_theme/fanstatic directory
+     was registered with when the toolkit.add_resource() function was called.
+     'iod_theme.css' is the path to the CSS file, relative to the root of
+     the fanstatic directory. #}
+  {% resource 'iod_theme/iod_theme.css' %}
+{% endblock %}
