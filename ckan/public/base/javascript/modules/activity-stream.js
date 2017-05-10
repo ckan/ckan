@@ -110,7 +110,10 @@ this.ckan.module('activity-stream', function($) {
 			options.offset += 30;
 			$('.load-less', result).remove();
 			$('.load-more', this.el).remove();
-			$('li', result).appendTo(this.el);
+			var items = $('li', result).appendTo(this.el);
+			$('[data-module="popover-context"]', items).each(function() {
+				ckan.module.initializeElement(this);
+			});
 			this._onBuildLoadMore();
 			options.loading = false;
 		}
