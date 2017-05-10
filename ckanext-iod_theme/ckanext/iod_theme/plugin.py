@@ -10,7 +10,7 @@ def show_most_popular_groups():
     To enable showing the most popular groups, add this line to the
     [app:main] section of your CKAN config file::
 
-      ckan.iod_theme.show_most_popular_groups = True
+    ckan.iod_theme.show_most_popular_groups = True
 
     Returns ``False`` by default, if the setting is not in the config file.
 
