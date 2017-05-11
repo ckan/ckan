@@ -215,6 +215,7 @@ site_url
 
 .. include:: solr.rst
 
+
 .. _postgres-init:
 
 -------------------------
