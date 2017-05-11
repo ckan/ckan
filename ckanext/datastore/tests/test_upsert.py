@@ -113,8 +113,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -365,8 +364,7 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -472,8 +470,7 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
