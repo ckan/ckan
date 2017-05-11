@@ -55,7 +55,10 @@ def datastore_create(context, data_dict):
     :type primary_key: list or comma separated string
     :param indexes: indexes on table (optional)
     :type indexes: list or comma separated string
-    :param triggers: triggers to apply to this table, eg: [
+    :param triggers: trigger functions to apply to this table on update/insert.
+        functions may be created with
+        :meth:`~ckanext.datastore.logic.action.datastore_function_create`.
+        eg: [
         {"function": "trigger_clean_reference"},
         {"function": "trigger_check_codes"}]
     :type triggers: list of dictionaries
