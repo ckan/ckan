@@ -215,7 +215,6 @@ site_url
 
 .. include:: solr.rst
 
-
 .. _postgres-init:
 
 -------------------------
@@ -353,3 +352,14 @@ main.debug.css to get CKAN running::
 
     cp /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.css \
     /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.debug.css
+
+JSP support not configured
+--------------------------
+
+This is seen occasionally with Jetty and Ubuntu 14.04. It requires a solr-jetty fix::
+
+    cd /tmp
+    wget https://launchpad.net/~vshn/+archive/ubuntu/solr/+files/solr-jetty-jsp-fix_1.0.2_all.deb
+    sudo dpkg -i solr-jetty-jsp-fix_1.0.2_all.deb
+    sudo service jetty restart
+
