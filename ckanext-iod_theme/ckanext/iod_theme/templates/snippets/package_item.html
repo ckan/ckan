@@ -3,19 +3,18 @@
 {% block content %}
   {{ super() }}
 
-  {# Use Fanstatic to include our custom JavaScript module.
-     A <script> tag for the module will be inserted in the right place at the
-     bottom of the page. #}
   {% resource 'iod_theme/iod_theme_popover.js' %}
+  {% resource 'iod_theme/iod_theme_popover.css' %}
+  {% resource 'iod_theme/jquery.greenify.js' %}
 
-  {# Apply our JavaScript module to an HTML element. The data-module attribute,
-     which can be applied to any HTML element, tells CKAN to initialize an
-     instance of the named JavaScript module for the element.
-     The initialize() method of our module will be called with this HTML
-     element as its this.el object. #}
   <button data-module="iod_theme_popover"
-          class="btn"
-          href="#">
+          data-module-id="{{ package.id }}"
+          data-module-title="{{ package.title }}"
+          data-module-license_title="{{ package.license_title }}"
+          data-module-num_resources="{{ package.num_resources }}">
     <i class="fa fa-info-circle"></i>
   </button>
+
+  {% resource 'iod_theme/test-module.js' %}
+  <button data-module="test-module">Test module</button>
 {% endblock %}
