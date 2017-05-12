@@ -121,7 +121,6 @@ def make_flask_stack(conf, **app_conf):
 
     # Babel
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(root, u'i18n')
-    # TODO: this relies on unpublished changes in flask-babel
     app.config[u'BABEL_DOMAIN'] = 'ckan'
 
     babel = Babel(app)
