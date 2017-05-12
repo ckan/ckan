@@ -10,11 +10,13 @@ import os.path
 import shutil
 import tempfile
 
-from nose.tools import eq_, ok_, raises
+from nose.tools import eq_, ok_
 
 from ckan.lib import i18n
+import ckan.plugins as p
 from ckan import plugins
 from ckan.lib.plugins import DefaultTranslation
+from ckan.tests import helpers
 
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -139,3 +141,37 @@ class TestBuildJSTranslations(object):
 
         # Check that non-JS strings are not exported
         ok_(u'Test JS Translations 2' not in de)
+
+
+class TestI18nFlaskAndPylons(object):
+
+    def test_translation_works_on_flask_and_pylons(self):
+
+        app = helpers._get_test_app()
+        if not p.plugin_loaded(u'test_routing_plugin'):
+            p.load(u'test_routing_plugin')
+        try:
+            plugin = p.get_plugin(u'test_routing_plugin')
+            app.flask_app.register_extension_blueprint(
+                plugin.get_blueprint())
+
+            resp = app.get(u'/flask_translated')
+
+            eq_(resp.body, u'Dataset')
+
+            resp = app.get(u'/es/flask_translated')
+
+            eq_(resp.body, u'Conjunto de datos')
+
+            resp = app.get(u'/pylons_translated')
+
+            eq_(resp.body, u'Groups')
+
+            resp = app.get(u'/es/pylons_translated')
+
+            eq_(resp.body, u'Grupos')
+
+        finally:
+
+            if p.plugin_loaded(u'test_routing_plugin'):
+                p.unload(u'test_routing_plugin')

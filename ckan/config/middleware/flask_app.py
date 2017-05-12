@@ -20,7 +20,7 @@ from fanstatic import Fanstatic
 
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
-from ckan.common import config, g
+from ckan.common import config, g, request
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware
