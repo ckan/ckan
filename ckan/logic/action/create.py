@@ -237,6 +237,7 @@ def package_create(context, data_dict):
     return output
 
 
+@logic.atomic_action('package_id')
 def resource_create(context, data_dict):
     '''Appends a new resource to a datasets list of resources.
 

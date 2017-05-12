@@ -43,6 +43,7 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 
+@logic.atomic_action('id')
 def resource_update(context, data_dict):
     '''Update a resource.
 
@@ -214,7 +215,7 @@ def resource_view_reorder(context, data_dict):
     model.Session.commit()
     return {'id': id, 'order': new_order}
 
-
+@logic.atomic_action(['id', 'package_id'])
 def package_update(context, data_dict):
     '''Update a dataset (package).
 

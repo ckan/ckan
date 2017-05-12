@@ -6,6 +6,9 @@ import re
 import sys
 from collections import defaultdict
 
+from threading import Condition
+from collections import Iterable
+
 import formencode.validators
 
 import ckan.model as model
@@ -17,6 +20,9 @@ from ckan.common import _, c
 
 log = logging.getLogger(__name__)
 _validate = df.validate
+
+global_progress_set = set()
+atomic_action_lock = Condition()
 
 
 class NameConflict(Exception):
@@ -720,3 +726,63 @@ def _import_module_functions(module_path):
         except AttributeError:
             pass
     return functions_dict
+
+
+def atomic_action(param, global_lock=False):
+    '''A decorator that marks the given action function as atomic.
+
+    Action functions decorated with this decorator will wait if there is
+    another call with the same `param` in progress. By default, actions
+    are waiting for the same actions, but global queue can be used as
+    well by specifying `global_lock` as True. In that case all
+    indentifiers(param) will be placed in one set and another calls will
+    wait until previous call will be finished.
+
+    Using of `global_lock` should be avoided, because it does not
+    handle recursive locks yet.
+
+    Example::
+        import ckan.logic as logic
+        @logic.atomic_action
+        def my_custom_action_function(context, data_dict):
+            ...
+
+    '''
+    if not global_lock:
+        progress_set = set()
+        lock = Condition()
+    else:
+        progress_set = global_progress_set
+        lock = atomic_action_lock
+
+    def outer(action):
+        @functools.wraps(action)
+        def wrapper(context, data_dict):
+            if isinstance(param, Iterable):
+                for key in param:
+                    flag = data_dict.get(key)
+                    if flag:
+                        break
+            else:
+                flag = data_dict.get(param)
+
+            if not flag:
+                return action(context, data_dict)
+            lock.acquire()
+            while flag in wrapper._in_progress:
+                lock.wait(.5)
+            wrapper._in_progress.add(flag)
+
+            try:
+                result = action(context, data_dict)
+            except Exception as e:
+                raise e
+            finally:
+                wrapper._in_progress.remove(flag)
+                lock.notifyAll()
+                lock.release()
+            return result
+
+        wrapper._in_progress = progress_set
+        return wrapper
+    return outer

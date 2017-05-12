@@ -7,6 +7,7 @@ from ckan.logic import (
     get_action as _get_action,
     check_access as _check_access,
     get_or_bust as _get_or_bust,
+    atomic_action
 )
 
 
@@ -43,6 +44,7 @@ def package_patch(context, data_dict):
     return _update.package_update(context, patched)
 
 
+@atomic_action('id')
 def resource_patch(context, data_dict):
     '''Patch a resource
 
