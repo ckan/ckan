@@ -58,8 +58,7 @@ class TestInterface(object):
 
         cls.sysadmin_user = factories.User(name='testsysadmin', sysadmin=True)
         cls.normal_user = factories.User(name='annafan')
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod

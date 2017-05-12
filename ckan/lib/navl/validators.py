@@ -117,3 +117,9 @@ def convert_int(value, context):
     except ValueError:
         raise Invalid(_('Please enter an integer value'))
 
+def unicode_only(value):
+    '''Accept only unicode values'''
+
+    if not isinstance(value, unicode):
+        raise Invalid(_('Must be a Unicode string value'))
+    return value
