@@ -324,7 +324,11 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         with app.flask_app.test_request_context():
             member_list_url = url_for(controller='group', action='members',
                                       id=group['id'])
-        member_list_response = app.get(member_list_url)
+
+            env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+
+            member_list_response = app.get(
+                member_list_url, extra_environ=env)
 
         assert_true('2 members' in member_list_response)
 
@@ -416,7 +420,7 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
         remove_response = app.post(remove_url, extra_environ=env, status=302)
         # redirected to member list after removal
-        remove_response = remove_response.follow()
+        remove_response = remove_response.follow(extra_environ=env)
 
         assert_true('Group member has been deleted.' in remove_response)
         assert_true('1 members' in remove_response)
