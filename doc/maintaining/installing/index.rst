@@ -21,7 +21,7 @@ See :doc:`install-from-package`.
 * You want to install CKAN on a 32-bit computer, *or*
 * You want to install CKAN on a different version of Ubuntu, not 14.04 or 12.04, *or*
 * You want to install CKAN on another operating system
-  (eg. RedHat, CentOS, OS X), *or*
+  (eg. RHEL, CentOS, OS X), *or*
 * You want to run multiple CKAN websites on the same server, *or*
 * You want to install CKAN for development
 

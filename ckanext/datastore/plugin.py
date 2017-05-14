@@ -217,12 +217,15 @@ class DatastorePlugin(p.SingletonPlugin):
         return True
 
     def get_actions(self):
-        actions = {'datastore_create': action.datastore_create,
-                   'datastore_upsert': action.datastore_upsert,
-                   'datastore_delete': action.datastore_delete,
-                   'datastore_search': action.datastore_search,
-                   'datastore_info': action.datastore_info,
-                  }
+        actions = {
+            'datastore_create': action.datastore_create,
+            'datastore_upsert': action.datastore_upsert,
+            'datastore_delete': action.datastore_delete,
+            'datastore_search': action.datastore_search,
+            'datastore_info': action.datastore_info,
+            'datastore_function_create': action.datastore_function_create,
+            'datastore_function_delete': action.datastore_function_delete,
+        }
         if not self.legacy_mode:
             if self.enable_sql_search:
                 # Only enable search_sql if the config does not disable it
@@ -234,13 +237,17 @@ class DatastorePlugin(p.SingletonPlugin):
         return actions
 
     def get_auth_functions(self):
-        return {'datastore_create': auth.datastore_create,
-                'datastore_upsert': auth.datastore_upsert,
-                'datastore_delete': auth.datastore_delete,
-                'datastore_info': auth.datastore_info,
-                'datastore_search': auth.datastore_search,
-                'datastore_search_sql': auth.datastore_search_sql,
-                'datastore_change_permissions': auth.datastore_change_permissions}
+        return {
+            'datastore_create': auth.datastore_create,
+            'datastore_upsert': auth.datastore_upsert,
+            'datastore_delete': auth.datastore_delete,
+            'datastore_info': auth.datastore_info,
+            'datastore_search': auth.datastore_search,
+            'datastore_search_sql': auth.datastore_search_sql,
+            'datastore_change_permissions': auth.datastore_change_permissions,
+            'datastore_function_create': auth.datastore_function_create,
+            'datastore_function_delete': auth.datastore_function_delete,
+        }
 
     def before_map(self, m):
         m.connect(

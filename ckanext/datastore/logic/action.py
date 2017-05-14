@@ -55,6 +55,13 @@ def datastore_create(context, data_dict):
     :type primary_key: list or comma separated string
     :param indexes: indexes on table (optional)
     :type indexes: list or comma separated string
+    :param triggers: trigger functions to apply to this table on update/insert.
+        functions may be created with
+        :meth:`~ckanext.datastore.logic.action.datastore_function_create`.
+        eg: [
+        {"function": "trigger_clean_reference"},
+        {"function": "trigger_check_codes"}]
+    :type triggers: list of dictionaries
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key`` replaces the exising
     aliases or constraints. Setting ``records`` appends the provided records to the resource.
@@ -623,3 +630,42 @@ def _check_read_only(context, resource_id):
             'read-only': ['Cannot edit read-only resource. Either pass'
                           '"force=True" or change url-type to "datastore"']
         })
+
+
+@logic.validate(dsschema.datastore_function_create_schema)
+def datastore_function_create(context, data_dict):
+    u'''
+    Create a trigger function for use with datastore_create
+
+    :param name: function name
+    :type name: string
+    :param or_replace: True to replace if function already exists
+        (default: False)
+    :type or_replace: bool
+    :param rettype: set to 'trigger'
+        (only trigger functions may be created at this time)
+    :type rettype: string
+    :param definition: PL/pgSQL function body for trigger function
+    :type definition: string
+    '''
+    p.toolkit.check_access('datastore_function_create', context, data_dict)
+
+    db.create_function(
+        name=data_dict['name'],
+        arguments=data_dict.get('arguments', []),
+        rettype=data_dict['rettype'],
+        definition=data_dict['definition'],
+        or_replace=data_dict['or_replace'])
+
+
+@logic.validate(dsschema.datastore_function_delete_schema)
+def datastore_function_delete(context, data_dict):
+    u'''
+    Delete a trigger function
+
+    :param name: function name
+    :type name: string
+    '''
+    p.toolkit.check_access('datastore_function_delete', context, data_dict)
+
+    db.drop_function(data_dict['name'], data_dict['if_exists'])

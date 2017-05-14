@@ -382,13 +382,16 @@ class GroupController(base.BaseController):
         data_dict = {'id': id, 'type': group_type}
 
         try:
+            self._check_access('bulk_update_public', context, {'org_id': id})
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
-        except (NotFound, NotAuthorized):
+        except NotFound:
             abort(404, _('Group not found'))
+        except NotAuthorized:
+            abort(403, _('User %r not authorized to edit %s') % (c.user, id))
 
         if not c.group_dict['is_organization']:
             # FIXME: better error
@@ -634,14 +637,21 @@ class GroupController(base.BaseController):
                    'user': c.user}
 
         try:
+            data_dict = {'id': id}
+            check_access('group_edit_permissions', context, data_dict)
             c.members = self._action('member_list')(
                 context, {'id': id, 'object_type': 'user'}
             )
-            data_dict = {'id': id}
             data_dict['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
-        except (NotFound, NotAuthorized):
+        except NotFound:
             abort(404, _('Group not found'))
+        except NotAuthorized:
+            abort(
+                403,
+                _('User %r not authorized to edit members of %s') % (
+                    c.user, id))
+
         return self._render_template('group/members.html', group_type)
 
     def member_new(self, id):
