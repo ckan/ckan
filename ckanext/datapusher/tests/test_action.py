@@ -288,12 +288,14 @@ class TestDataPusherAction(object):
 
         user = factories.User()
         res = factories.Resource(user=user)
-        with mock.patch('requests.post') as r_mock:
-            r_mock().json = mock.Mock(
-                side_effect=lambda: dict.fromkeys(
-                    ['job_id', 'job_key']))
-            r_mock.reset_mock()
-            submit(res, user)
-            submit(res, user)
 
-            eq_(1, r_mock.call_count)
+        with self.app.flask_app.test_request_context():
+            with mock.patch('requests.post') as r_mock:
+                r_mock().json = mock.Mock(
+                    side_effect=lambda: dict.fromkeys(
+                        ['job_id', 'job_key']))
+                r_mock.reset_mock()
+                submit(res, user)
+                submit(res, user)
+
+                eq_(1, r_mock.call_count)
