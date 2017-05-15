@@ -13,6 +13,9 @@ class TestDataPusherAction(object):
 
     @classmethod
     def setup_class(cls):
+
+        cls.app = helpers._get_test_app()
+
         if not p.plugin_loaded('datastore'):
             p.load('datastore')
         if not p.plugin_loaded('datapusher'):
