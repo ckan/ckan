@@ -268,6 +268,7 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_change_permissions': auth.datastore_change_permissions,
             'datastore_function_create': auth.datastore_function_create,
             'datastore_function_delete': auth.datastore_function_delete,
+            'datastore_trigger_each_row': action.datastore_trigger_each_row,
         }
 
     def before_map(self, m):

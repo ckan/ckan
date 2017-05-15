@@ -174,6 +174,8 @@ def datastore_trigger_each_row(context, data_dict):
 
     '''
     res_id = data_dict['resource_id']
+    p.toolkit.check_access('datastore_trigger_each_row', context, data_dict)
+
     connection = db.get_write_engine().connect()
 
     sql = sqlalchemy.text(u'''update "{0}" set _id=_id '''.format(res_id))
