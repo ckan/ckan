@@ -179,7 +179,11 @@ def datastore_trigger_each_row(context, data_dict):
     connection = db.get_write_engine().connect()
 
     sql = sqlalchemy.text(u'''update "{0}" set _id=_id '''.format(res_id))
-    results = connection.execute(sql)
+    try:
+        results = connection.execute(sql)
+    except sqlalchemy.exc.DatabaseError as err:
+        raise ValidationError({
+            u'records': [_programming_error_summary(err)]})
     return results.rowcount
 
 
