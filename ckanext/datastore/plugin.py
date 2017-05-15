@@ -225,6 +225,7 @@ class DatastorePlugin(p.SingletonPlugin):
                    'datastore_delete': action.datastore_delete,
                    'datastore_search': action.datastore_search,
                    'datastore_info': action.datastore_info,
+                   'datastore_trigger_each_row': action.datastore_trigger_each_row,
                   }
         if not self.legacy_mode:
             if self.enable_sql_search:
@@ -243,6 +244,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_info': auth.datastore_info,
                 'datastore_search': auth.datastore_search,
                 'datastore_search_sql': auth.datastore_search_sql,
+                'datastore_trigger_each_row': auth.datastore_trigger_each_row,
                 'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):

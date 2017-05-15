@@ -58,3 +58,8 @@ def datastore_search_sql(context, data_dict):
 
 def datastore_change_permissions(context, data_dict):
     return datastore_auth(context, data_dict)
+
+
+def datastore_trigger_each_row(context, data_dict):
+    '''sysadmin-only: functions can be used to skip access checks'''
+    return {'success': False}
