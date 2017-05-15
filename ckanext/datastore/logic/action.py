@@ -158,6 +158,29 @@ def datastore_create(context, data_dict):
     return result
 
 
+def datastore_trigger_each_row(context, data_dict):
+    ''' update each record with trigger
+
+    The datastore_trigger_each_row API action allows you to apply triggers to
+    an existing DataStore resource.
+
+    :param resource_id: resource id that the data is going to be stored under.
+    :type resource_id: string
+
+    **Results:**
+
+    :returns: The rowcount in the table.
+    :rtype: int
+
+    '''
+    res_id = data_dict['resource_id']
+    connection = db.get_write_engine().connect()
+
+    sql = sqlalchemy.text(u'''update "{0}" set _id=_id '''.format(res_id))
+    results = connection.execute(sql)
+    return results.rowcount
+
+
 def datastore_upsert(context, data_dict):
     '''Updates or inserts into a table in the DataStore
 
