@@ -1,4 +1,4 @@
-/* Image Upload
+ /* Image Upload
  *
  */
 this.ckan.module('image-upload', function($) {
@@ -51,7 +51,7 @@ this.ckan.module('image-upload', function($) {
       }
 
       // Adds the hidden clear input to the form
-      this.field_clear = $('<input type="hidden" name="clear_upload">')
+      this.field_clear = $('<input type="hidden" name="' + options.field_clear +'">')
         .appendTo(this.el);
 
       // Button to set the field to be a URL

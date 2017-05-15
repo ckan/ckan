@@ -11,8 +11,9 @@
 {% block primary_content_inner %}
   {% if pkg.resources %}
     <ul class="resource-list"{% if has_reorder %} data-module="resource-reorder" data-module-id="{{ pkg.id }}"{% endif %}>
+      {% set can_edit = h.check_access('package_update', {'id':pkg.id }) %}
       {% for resource in pkg.resources %}
-        {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, url_is_edit=true %}
+        {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, url_is_edit=true, can_edit=can_edit %}
       {% endfor %}
     </ul>
   {% else %}

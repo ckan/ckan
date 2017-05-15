@@ -37,7 +37,7 @@
                     <i class="fa fa-eye"></i> {{ _('View') }}
                   {% elif  res.resource_type == 'api' %}
                     <i class="fa fa-key"></i> {{ _('API Endpoint') }}
-                  {% elif not res.has_views or not res.can_be_previewed %}
+                  {% elif (not res.has_views or not res.can_be_previewed) and not res.url_type == 'upload' %}
                     <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
                   {% else %}
                     <i class="fa fa-arrow-circle-o-down"></i> {{ _('Download') }}
@@ -55,7 +55,7 @@
             {% if res.url and h.is_url(res.url) %}
               <p class="muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
             {% elif res.url %}
-              <p class="muted ellipsis">{{ _('URL:') }} {{ res.url }}</p>
+              <p class="muted break-word">{{ _('URL:') }} {{ res.url }}</p>
             {% endif %}
           {% endblock %}
           <div class="prose notes" property="rdfs:label">
@@ -151,8 +151,12 @@
             </thead>
             <tbody>
               <tr>
-                <th scope="row">{{ _('Last updated') }}</th>
-                <td>{{ h.render_datetime(res.last_modified) or h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
+                <th scope="row">{{ _('Data last updated') }}</th>
+                <td>{{ h.render_datetime(res.last_modified) or h.render_datetime(res.created) or _('unknown') }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{{ _('Metadata last updated') }}</th>
+                <td>{{ h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
               </tr>
               <tr>
                 <th scope="row">{{ _('Created') }}</th>

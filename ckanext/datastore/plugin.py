@@ -9,6 +9,7 @@ import sqlalchemy.engine.url as sa_url
 import ckan.plugins as p
 import ckan.logic as logic
 import ckan.model as model
+from ckan.model.core import State
 from ckan.common import config
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
@@ -33,9 +34,7 @@ def _is_legacy_mode(config):
         Returns True if `ckan.datastore.read_url` is not set in the provided
         config object or CKAN is running on Postgres < 9.x
     '''
-    write_url = config.get('ckan.datastore.write_url')
-
-    engine = db._get_engine({'connection_url': write_url})
+    engine = db.get_write_engine()
     connection = engine.connect()
 
     return (not config.get('ckan.datastore.read_url') or
@@ -55,6 +54,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
+    p.implements(p.ITemplateHelpers)
     p.implements(interfaces.IDatastore, inherit=True)
 
     legacy_mode = False
@@ -110,8 +110,7 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
-        self.read_engine = db._get_engine(
-            {'connection_url': self.read_url})
+        self.read_engine = db.get_read_engine()
         if not model.engine_is_pg(self.read_engine):
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
@@ -138,7 +137,6 @@ class DatastorePlugin(p.SingletonPlugin):
             for resource in entity.resources:
                 try:
                     func(context, {
-                        'connection_url': self.write_url,
                         'resource_id': resource.id})
                 except p.toolkit.ObjectNotFound:
                     pass
@@ -172,7 +170,7 @@ class DatastorePlugin(p.SingletonPlugin):
         ''' Returns True if no connection has CREATE privileges on the public
         schema. This is the case if replication is enabled.'''
         for url in [self.ckan_url, self.write_url, self.read_url]:
-            connection = db._get_engine({'connection_url': url}).connect()
+            connection = db._get_engine_from_url(url).connect()
             try:
                 sql = u"SELECT has_schema_privilege('public', 'CREATE')"
                 is_writable = connection.execute(sql).first()[0]
@@ -198,8 +196,7 @@ class DatastorePlugin(p.SingletonPlugin):
         only user. A table is created by the write user to test the
         read only user.
         '''
-        write_connection = db._get_engine(
-            {'connection_url': self.write_url}).connect()
+        write_connection = db.get_write_engine().connect()
         read_connection_user = sa_url.make_url(self.read_url).username
 
         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
@@ -220,13 +217,16 @@ class DatastorePlugin(p.SingletonPlugin):
         return True
 
     def get_actions(self):
-        actions = {'datastore_create': action.datastore_create,
-                   'datastore_upsert': action.datastore_upsert,
-                   'datastore_delete': action.datastore_delete,
-                   'datastore_search': action.datastore_search,
-                   'datastore_info': action.datastore_info,
-                   'datastore_trigger_each_row': action.datastore_trigger_each_row,
-                  }
+        actions = {
+            'datastore_create': action.datastore_create,
+            'datastore_upsert': action.datastore_upsert,
+            'datastore_delete': action.datastore_delete,
+            'datastore_search': action.datastore_search,
+            'datastore_info': action.datastore_info,
+            'datastore_function_create': action.datastore_function_create,
+            'datastore_function_delete': action.datastore_function_delete,
+            'datastore_trigger_each_row': action.datastore_trigger_each_row,
+        }
         if not self.legacy_mode:
             if self.enable_sql_search:
                 # Only enable search_sql if the config does not disable it
@@ -238,20 +238,31 @@ class DatastorePlugin(p.SingletonPlugin):
         return actions
 
     def get_auth_functions(self):
-        return {'datastore_create': auth.datastore_create,
-                'datastore_upsert': auth.datastore_upsert,
-                'datastore_delete': auth.datastore_delete,
-                'datastore_info': auth.datastore_info,
-                'datastore_search': auth.datastore_search,
-                'datastore_search_sql': auth.datastore_search_sql,
-                'datastore_trigger_each_row': auth.datastore_trigger_each_row,
-                'datastore_change_permissions': auth.datastore_change_permissions}
+        return {
+            'datastore_create': auth.datastore_create,
+            'datastore_upsert': auth.datastore_upsert,
+            'datastore_delete': auth.datastore_delete,
+            'datastore_info': auth.datastore_info,
+            'datastore_search': auth.datastore_search,
+            'datastore_search_sql': auth.datastore_search_sql,
+            'datastore_change_permissions': auth.datastore_change_permissions,
+            'datastore_function_create': auth.datastore_function_create,
+            'datastore_function_delete': auth.datastore_function_delete,
+            'datastore_trigger_each_row': auth.datastore_trigger_each_row,
+        }
 
     def before_map(self, m):
-        m.connect('/datastore/dump/{resource_id}',
-                  controller='ckanext.datastore.controller:DatastoreController',
-                  action='dump')
+        m.connect(
+            '/datastore/dump/{resource_id}',
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='dump')
+        m.connect(
+            'resource_dictionary', '/dataset/{id}/dictionary/{resource_id}',
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='dictionary', ckan_icon='book')
         return m
+
+    # IResourceController
 
     def before_show(self, resource_dict):
         # Modify the resource url of datastore resources so that
@@ -266,6 +277,27 @@ class DatastorePlugin(p.SingletonPlugin):
             resource_dict[u'datastore_active'] = False
 
         return resource_dict
+
+    def after_delete(self, context, resources):
+        model = context['model']
+        pkg = context['package']
+        res_query = model.Session.query(model.Resource)
+        query = res_query.filter(
+            model.Resource.package_id == pkg.id,
+            model.Resource.state == State.DELETED
+        )
+        deleted = [
+            res for res in query.all()
+            if res.extras.get('datastore_active') is True]
+
+        for res in deleted:
+            db.delete(context, {
+                'resource_id': res.id,
+                'connection_url': self.write_url
+            })
+            res.extras['datastore_active'] = False
+            res_query.update(
+                {'extras': res.extras}, synchronize_session=False)
 
     def datastore_validate(self, context, data_dict, fields_types):
         column_names = fields_types.keys()
@@ -360,8 +392,10 @@ class DatastorePlugin(p.SingletonPlugin):
         sort = self._sort(data_dict, fields_types)
         where = self._where(data_dict, fields_types)
 
-        select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
-                      [u'count(*) over() as "_full_count" %s' % rank_column]
+        select_cols = [
+            datastore_helpers.identifier(field_id) for field_id in field_ids]
+        if rank_column:
+            select_cols.append(rank_column)
 
         query_dict['distinct'] = data_dict.get('distinct', False)
         query_dict['select'] += select_cols
@@ -468,7 +502,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 rank_columns.append(rank)
 
         statements_str = ', ' + ', '.join(statements)
-        rank_columns_str = ', ' + ', '.join(rank_columns)
+        rank_columns_str = ', '.join(rank_columns)
         return statements_str, rank_columns_str
 
     def _fts_lang(self, lang=None):
@@ -510,3 +544,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if field:
             rank_alias += u' ' + field
         return u'"{0}"'.format(rank_alias)
+
+    def get_helpers(self):
+        return {
+            'datastore_dictionary': datastore_helpers.datastore_dictionary}

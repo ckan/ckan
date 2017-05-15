@@ -47,9 +47,17 @@ class State(object):
 
 class DictizationError(Exception):
     def __str__(self):
+        return unicode(self).encode('utf8')
+
+    def __unicode__(self):
         if hasattr(self, 'error') and self.error:
-            return repr(self.error)
-        return ''
+            return u'{}: {}'.format(self.__class__.__name__, repr(self.error))
+        return self.__class__.__name__
+
+    def __repr__(self):
+        if hasattr(self, 'error') and self.error:
+            return '<{} {}>'.format(self.__class__.__name__, repr(self.error))
+        return '<{}>'.format(self.__class__.__name__)
 
 
 class Invalid(DictizationError):

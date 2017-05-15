@@ -1,19 +1,19 @@
 # encoding: utf-8
 
 import os
-import importlib
 import inspect
 import itertools
 import pkgutil
 
 from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
+from flask.sessions import SessionInterface
 
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Rule
 
-from flask_debugtoolbar import DebugToolbarExtension
 
+from beaker.middleware import SessionMiddleware
 from paste.deploy.converters import asbool
 from fanstatic import Fanstatic
 
@@ -68,8 +68,31 @@ def make_flask_stack(conf, **app_conf):
                            ' with the SECRET_KEY config option')
 
     if debug:
+        from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
         DebugToolbarExtension(app)
+
+    # Use Beaker as the Flask session interface
+    class BeakerSessionInterface(SessionInterface):
+        def open_session(self, app, request):
+            if 'beaker.session' in request.environ:
+                return request.environ['beaker.session']
+
+        def save_session(self, app, session, response):
+            session.save()
+
+    namespace = 'beaker.session.'
+    session_opts = dict([(k.replace('beaker.', ''), v)
+                        for k, v in config.iteritems()
+                        if k.startswith(namespace)])
+    if (not session_opts.get('session.data_dir') and
+            session_opts.get('session.type', 'file') == 'file'):
+        cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
+        session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
+                data_dir=cache_dir)
+
+    app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
+    app.session_interface = BeakerSessionInterface()
 
     # Add Jinja2 extensions and filters
     extensions = [
@@ -86,7 +109,6 @@ def make_flask_stack(conf, **app_conf):
         app.jinja_env.add_extension(extension)
     app.jinja_env.filters['empty_and_escape'] = \
         jinja_extensions.empty_and_escape
-    app.jinja_env.filters['truncate'] = jinja_extensions.truncate
 
     # Common handlers for all requests
     app.before_request(ckan_before_request)
@@ -113,6 +135,7 @@ def make_flask_stack(conf, **app_conf):
             app.register_extension_blueprint(plugin.get_blueprint())
 
     # Start other middleware
+
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
 

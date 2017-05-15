@@ -6,14 +6,30 @@ if os.environ.get('USER', '') == 'vagrant':
     del os.link
 
 try:
-    from setuptools import setup, find_packages
+    from setuptools import (setup, find_packages,
+                            __version__ as setuptools_version)
 except ImportError:
     from ez_setup import use_setuptools
     use_setuptools()
-    from setuptools import setup, find_packages
+    from setuptools import (setup, find_packages,
+                            __version__ as setuptools_version)
 
 from ckan import (__version__, __description__, __long_description__,
                   __license__)
+
+MIN_SETUPTOOLS_VERSION = 20.4
+assert setuptools_version >= str(MIN_SETUPTOOLS_VERSION) and \
+    int(setuptools_version.split('.')[0]) >= int(MIN_SETUPTOOLS_VERSION),\
+    ('setuptools version error'
+     '\nYou need a newer version of setuptools.\n'
+     'You have {current}, you need at least {minimum}'
+     '\nInstall the recommended version:\n'
+     '    pip install -r requirement-setuptools.txt\n'
+     'and then try again to install ckan into your python environment.'.format(
+         current=setuptools_version,
+         minimum=MIN_SETUPTOOLS_VERSION
+         ))
+
 
 entry_points = {
     'nose.plugins.0.10': [
@@ -44,7 +60,7 @@ entry_points = {
         'trans = ckan.lib.cli:TranslationsCommand',
         'minify = ckan.lib.cli:MinifyCommand',
         'less = ckan.lib.cli:LessCommand',
-        'datastore = ckanext.datastore.commands:SetupDatastoreCommand',
+        'datastore = ckanext.datastore.commands:datastore_group',
         'datapusher = ckanext.datapusher.cli:DatapusherCommand',
         'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
         'views = ckan.lib.cli:ViewsCommand',
@@ -163,9 +179,11 @@ entry_points = {
         'test_resource_preview = tests.legacy.ckantestplugins:MockResourcePreviewExtension',
         'test_json_resource_preview = tests.legacy.ckantestplugins:JsonMockResourcePreviewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
+        'example_datastore_deleted_with_count_plugin = ckanext.datastore.tests.test_chained_action:ExampleDataStoreDeletedWithCountPlugin',
         'test_datastore_view = ckan.tests.lib.test_datapreview:MockDatastoreBasedResourceView',
         'test_datapusher_plugin = ckanext.datapusher.tests.test_interfaces:FakeDataPusherPlugin',
         'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
+        'test_flash_plugin = ckan.tests.config.test_sessions:FlashMessagePlugin',
         'test_helpers_plugin = ckan.tests.lib.test_helpers:TestHelpersPlugin',
         'test_feed_plugin = ckan.tests.controllers.test_feed:MockFeedPlugin',
         'test_js_translations_plugin = ckan.tests.lib.test_i18n:TestJSTranslationsPlugin',

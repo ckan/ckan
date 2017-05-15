@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-10-18 10:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2016\n"
+"Last-Translator: Augusto Herrmann <augusto.herrmann@gmail.com>, 2016\n"
 "Language-Team: Portuguese (Brazil) (https://www.transifex.com/okfn/teams/11162/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -403,7 +403,7 @@ msgstr ""
 
 #: ckan/controllers/package.py:290
 msgid "Invalid search query: {error_message}"
-msgstr ""
+msgstr "Consulta de pesquisa inválida: {error_message}"
 
 #: ckan/controllers/package.py:307
 msgid "Parameter \"{parameter_name}\" is not an integer"
@@ -831,8 +831,8 @@ msgstr "Ver"
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} nova atividade em {site_title}"
+msgstr[1] "{n} novas atividades em {site_title}"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -918,7 +918,7 @@ msgstr[1] "há mais de {years} anos"
 
 #: ckan/lib/formatters.py:148
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr ""
+msgstr "{day} de {month} de {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:153
 msgid "{month} {day}, {year}"
@@ -1104,7 +1104,7 @@ msgstr "Não foi possível interpretar como JSON válido"
 
 #: ckan/logic/validators.py:32 ckan/logic/validators.py:41
 msgid "An organization must be provided"
-msgstr ""
+msgstr "É necessário informar uma organização"
 
 #: ckan/logic/validators.py:46
 msgid "Organization does not exist"
@@ -1369,6 +1369,7 @@ msgstr "Avaliação deve ser entre %i e %i."
 #: ckan/logic/action/create.py:1052
 msgid "Error sending the invite email, the user was not created: {0}"
 msgstr ""
+"Houve um erro ao enviar o e-mail de convite, o usuário não foi criado: {0}"
 
 #: ckan/logic/action/create.py:1265 ckan/logic/action/create.py:1272
 msgid "You must be logged in to follow users"
@@ -1397,7 +1398,7 @@ msgstr "Você precisa estar autenticado para seguir um grupo."
 
 #: ckan/logic/action/delete.py:45
 msgid " Delete User: {0}"
-msgstr ""
+msgstr "Excluir Usuário: {0}"
 
 #: ckan/logic/action/delete.py:86
 #, python-format
@@ -2000,7 +2001,7 @@ msgstr "API do CKAN"
 
 #: ckan/templates/footer.html:16
 msgid "CKAN Association"
-msgstr ""
+msgstr "Associação CKAN"
 
 #: ckan/templates/footer.html:24
 msgid ""
@@ -3241,7 +3242,7 @@ msgstr "Erro:"
 
 #: ckan/templates/package/resource_data.html:36
 msgid "Error traceback:"
-msgstr ""
+msgstr "Rastreamento do erro:"
 
 #: ckan/templates/package/resource_data.html:48
 msgid "Status"
@@ -3488,20 +3489,26 @@ msgstr "Última Atualização"
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
 msgstr ""
+"Antes que você possa criar um conjunto de dados, você precisa criar uma "
+"organização."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
-msgstr ""
+msgstr "Criar uma nova organização"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:18
 msgid "There are no organizations to which you can assign this dataset."
 msgstr ""
+"Não há organizações para as quais você possa atribuir este conjunto de "
+"dados."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:19
 msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
 msgstr ""
+"Peça a um administrador do sistema para criar uma organização antes que você"
+" possa continuar."
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 msgid "Data API"
@@ -3614,11 +3621,11 @@ msgstr "Atualizar Recurso"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "Data"
-msgstr ""
+msgstr "Dados"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "http://example.com/external-data.csv"
-msgstr ""
+msgstr "http://exemplo.com.br/dados-externos.csv"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
@@ -3921,6 +3928,8 @@ msgid ""
 " <p id=\"search-error\"><strong>There was an error while searching.</strong>"
 " Please try again.</p> "
 msgstr ""
+" <p id=\"search-error\"><strong>Houve um erro ao pesquisar.</strong> Por "
+"favor tente novamente.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4101,7 +4110,7 @@ msgstr "Mudar a senha"
 
 #: ckan/templates/user/edit_user_form.html:29
 msgid "Sysadmin Password"
-msgstr ""
+msgstr "Senha do Administrador do Sistema"
 
 #: ckan/templates/user/edit_user_form.html:37
 #: ckan/templates/user/logout_first.html:12
@@ -4394,7 +4403,7 @@ msgstr "texto personalizado de recurso"
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr ""
+msgstr "Este é um texto não traduzido"
 
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
@@ -4435,7 +4444,7 @@ msgstr "Mapa"
 
 #: ckanext/reclineview/theme/public/recline_view.js:34
 msgid "error loading view"
-msgstr ""
+msgstr "erro ao carregar visualização"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -4579,7 +4588,7 @@ msgstr "Número de conjuntos de dados"
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "Usuários que Mais Criaram Conjuntos de Dados"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
@@ -4596,7 +4605,7 @@ msgstr "Texto"
 #: ckanext/textview/theme/public/text_view.js:5
 #, python-format
 msgid "An error occurred: %(text)s %(error)s"
-msgstr ""
+msgstr "Ocorreu um erro: %(text)s %(error)s"
 
 #: ckanext/webpageview/plugin.py:21 ckanext/webpageview/plugin.py:26
 msgid "Website"

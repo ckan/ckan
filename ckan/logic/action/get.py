@@ -336,7 +336,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
             data_dict, logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or 'name'
+    sort = data_dict.get('sort') or 'title'
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -1888,7 +1888,7 @@ def package_search(context, data_dict):
         include_drafts = asbool(data_dict.pop('include_drafts', False))
         data_dict.setdefault('fq', '')
         if not include_private:
-            data_dict['fq'] += ' +capacity:public'
+            data_dict['fq'] = '+capacity:public ' + data_dict['fq']
         if include_drafts:
             data_dict['fq'] += ' +state:(active OR draft)'
 
