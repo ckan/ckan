@@ -161,10 +161,10 @@ def datastore_create(context, data_dict):
     return result
 
 
-def datastore_trigger_each_row(context, data_dict):
+def datastore_run_triggers(context, data_dict):
     ''' update each record with trigger
 
-    The datastore_trigger_each_row API action allows you to apply triggers to
+    The datastore_run_triggers API action allows you to re-apply exisitng triggers to
     an existing DataStore resource.
 
     :param resource_id: resource id that the data is going to be stored under.
