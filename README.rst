@@ -71,6 +71,16 @@ others, make a new page on the `CKAN wiki`_, and tell us about it on
 .. _CKAN Wiki: https://github.com/ckan/ckan/wiki
 
 
+Testing
+-------------------
+.. image:: https://d98b8t1nnulk5.cloudfront.net/production/images/static/header/header-logo.svg
+    :target: https://www.browserstack.com
+    :width: 150px
+    :alt: Tested using Browserstack
+    
+Tested using Browserstack. 
+
+
 Copying and License
 -------------------
 
