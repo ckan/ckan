@@ -156,6 +156,7 @@ def redirect_to(*args, **kw):
     # Routes router doesn't like unicode args
     uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
                 args)
+    kw['__ckan_no_root'] = True
     _url = url_for(*uargs, **kw)
     if _url.startswith('/'):
         _url = str(config['ckan.site_url'].rstrip('/') + _url)
@@ -352,8 +353,6 @@ def _local_url(url_to_amend, **kw):
     # stop the root being added twice in redirects
     if no_root and url_to_amend.startswith(root):
         url = url_to_amend[len(root):]
-        if not default_locale:
-            url = '/%s%s' % (locale, url)
 
     if url == '/packages':
         error = 'There is a broken url being created %s' % kw
