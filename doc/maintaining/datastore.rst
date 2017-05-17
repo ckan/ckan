@@ -245,6 +245,10 @@ Data can be written incrementally to the DataStore through the API. New data can
 inserted, existing data can be updated or deleted. You can also add a new column to
 an existing table even if the DataStore resource already contains some data.
 
+Triggers may be added to enforce validation, clean data as it is loaded or
+even record record histories. Triggers are PL/pgSQL functions that must be
+created by a sysadmin.
+
 You will notice that we tried to keep the layer between the underlying PostgreSQL
 database and the API as thin as possible to allow you to use the features you would
 expect from a powerful database management system.
