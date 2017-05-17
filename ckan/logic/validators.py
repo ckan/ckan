@@ -409,26 +409,6 @@ def group_name_validator(key, data, errors, context):
     if result:
         errors[key].append(_('Group name already exists in database'))
 
-def tag_length_validator(value, context):
-
-    if len(value) < MIN_TAG_LENGTH:
-        raise Invalid(
-            _('Tag "%s" length is less than minimum %s') % (value, MIN_TAG_LENGTH)
-        )
-    if len(value) > MAX_TAG_LENGTH:
-        raise Invalid(
-            _('Tag "%s" length is more than maximum %i') % (value, MAX_TAG_LENGTH)
-        )
-    return value
-
-def tag_name_validator(value, context):
-
-    tagname_match = re.compile('[\w \-.]*$', re.UNICODE)
-    if not tagname_match.match(value):
-        raise Invalid(_('Tag "%s" must be alphanumeric '
-                        'characters or symbols: -_.') % (value))
-    return value
-
 def tag_not_uppercase(value, context):
 
     tagname_uppercase = re.compile('[A-Z]')
@@ -452,10 +432,6 @@ def tag_string_convert(key, data, errors, context):
 
     for num, tag in zip(count(current_index+1), tags):
         data[('tags', num, 'name')] = tag
-
-    for tag in tags:
-        tag_length_validator(tag, context)
-        tag_name_validator(tag, context)
 
 def ignore_not_admin(key, data, errors, context):
     # Deprecated in favour of ignore_not_package_admin
