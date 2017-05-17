@@ -543,6 +543,18 @@ def user_name_validator(key, data, errors, context):
 
     if not isinstance(new_user_name, basestring):
         raise Invalid(_('User names must be strings'))
+    # check basic textual rules
+    if new_user_name in ['new', 'edit', 'search']:
+        raise Invalid(_('That name cannot be used'))
+
+    if len(new_user_name) < 2:
+        raise Invalid(_('Name must be at least %s characters long') % 2)
+    if len(new_user_name) > PACKAGE_NAME_MAX_LENGTH:
+        raise Invalid(_('Name must be a maximum of %i characters long') % \
+                      PACKAGE_NAME_MAX_LENGTH)
+    if not name_match.match(new_user_name):
+        raise Invalid(_('Username must be purely lowercase alphanumeric '
+                        '(ascii) characters and these symbols: -_'))
 
     user = model.User.get(new_user_name)
     if user is not None:
