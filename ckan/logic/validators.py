@@ -831,3 +831,10 @@ def empty_if_not_sysadmin(key, data, errors, context):
         return
 
     empty(key, data, errors, context)
+
+def email_validator(value, context):
+    '''Validate email input '''
+    if value:
+        if not re.match("\A(?P<name>[\w\-_]+)@(?P<domain>[\w\-_]+).(?P<toplevel>[\w]+)\Z",value,re.IGNORECASE):
+            raise Invalid(_('Email "%s" is not valid format' % (value)))
+    return value
