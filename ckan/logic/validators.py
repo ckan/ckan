@@ -832,9 +832,16 @@ def empty_if_not_sysadmin(key, data, errors, context):
 
     empty(key, data, errors, context)
 
+#pattern from https://html.spec.whatwg.org/#e-mail-state-(type=email)
+email_pattern = re.compile(r"^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]"\
+                       "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]"\
+                       "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+
 def email_validator(value, context):
     '''Validate email input '''
+
     if value:
-        if not re.match("\A(?P<name>[\w\-_]+)@(?P<domain>[\w\-_]+).(?P<toplevel>[\w]+)\Z",value,re.IGNORECASE):
-            raise Invalid(_('Email "%s" is not valid format' % (value)))
+        if not email_pattern.match(value):
+            raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
