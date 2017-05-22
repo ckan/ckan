@@ -369,7 +369,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
                      .filter(model.Member.state == 'active') \
                      .filter(model.Member.table_name == 'package') \
                      .filter(model.Package.state == 'active') \
-                     .filter(model.Package.private == 'FALSE')
+                     .filter(model.Package.private == False)
     else:
         query = model.Session.query(model.Group.id,
                                     model.Group.name)
