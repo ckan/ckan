@@ -31,17 +31,35 @@ label.checkbox:after {
     content: "";
 }
 
-input[type=radio],
-input[type=checkbox] {
+.cr-controls-reset {
     position: relative;
-    top: 7px;
-    padding: 0;
-    margin: 0;
-    &.checkbox-onown {
-        top: 0;
+    margin-left: initial;
+    margin-right: @grid-gutter-width/6;
+    top: 2px;
+}
+
+.checkbox {
+    input[type=checkbox] {
+        .cr-controls-reset;
     }
 }
 
+.radio {
+    input[type=radio] {
+        .cr-controls-reset;
+    }
+}
+
+// input[type=radio],
+// input[type=checkbox] {
+//     position: relative;
+//     top: 7px;
+//     padding: 0;
+//     margin: 0;
+//     &.checkbox-onown {
+//         top: 0;
+//     }
+// }
 select {
     padding: 4px;
 }
@@ -55,6 +73,18 @@ textarea {
     top: -2px;
 }
 
+.unselectable {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.checkbox,
+.radio {
+    .unselectable;
+}
+
 .control-full input,
 .control-full select,
 .control-full textarea {
@@ -63,31 +93,20 @@ textarea {
     width: 100%;
 }
 
-.control-medium input,
-.control-medium select,
-.control-medium textarea {
-    width: 320px;
-}
-
-@media (max-width: @screen-sm-max) {
-    .control-medium input,
-    .control-medium select,
-    .control-medium textarea {
-        width: 100%;
-        .box-sizing(border-box);
-        min-height: 28px;
+.control-medium {
+    @media (min-width: @screen-md-min) {
+        width: calc(~"50% - " @grid-gutter-width/2);
     }
 }
 
-.control-large input,
-.control-large .control-label {
-    font-size: @font-size-large;
-    line-height: @line-height-large;
+.control-large {
+    input {
+        .input-lg;
+    }
+    .control-label {
+        font-size: @font-size-large;
+    }
 }
-
-// .control-large input {
-//     height: (@line-height-base*2)+1;
-// }
 
 .control-required {
     color: @errorBorder;
@@ -105,8 +124,7 @@ textarea {
 
 .form-actions {
     // background: none;
-    overflow: auto;
-    // margin-left: -@gutterX;
+    overflow: auto; // margin-left: -@gutterX;
     // margin-right: -@gutterX;
     // margin-bottom: 0; // Prevents reduces the padding when included in a module.
     // padding-bottom: 0;
@@ -147,13 +165,11 @@ textarea {
 // .form-horizontal .control-label {
 //     width: 120px;
 // }
-
 // @media (min-width: @screen-sm-min) {
 //     .form-horizontal .controls {
 //         margin-left: 130px;
 //     }
 // }
-
 .form-group .info-block {
     position: relative;
     display: block;
@@ -179,8 +195,6 @@ textarea {
         padding: @grid-gutter-width/6 0 @grid-gutter-width/6 @grid-gutter-width/3;
     }
     .form-group .info-inline {
-        float: right;
-        width: 265px;
         margin-top: 0;
         padding-bottom: 0;
     }
@@ -219,7 +233,6 @@ form .control-medium .info-block.info-inline {
 //     padding-left: @gutterX;
 //     padding-right: @gutterX;
 // }
-
 .form-inline input {
     padding-bottom: 9px;
 }
@@ -247,6 +260,10 @@ form .control-medium .info-block.info-inline {
     padding: 10px @gutterSmallX 0;
 }
 
+input[data-module="autocomplete"] {
+    width: 100%;
+}
+
 // Inline Select Forms
 .form-select label {
     margin-right: 5px;
@@ -268,8 +285,7 @@ form .control-medium .info-block.info-inline {
 
 .simple-input .field input {
     width: 100%;
-    height: auto;
-    // margin: 0 -7px; // Pull input out into gutter
+    height: auto; // margin: 0 -7px; // Pull input out into gutter
     // padding: 7px 5px;
 }
 
@@ -314,50 +330,17 @@ form .control-medium .info-block.info-inline {
     text-decoration: none;
 }
 
-// Custom Fields
-@media (max-width: @screen-sm-max) {
-    [data-module="custom-fields"] {
-        .input-group .input-group-addon {
-            display: block;
-        }
-    }
-}
-
-@media (max-width: @screen-xs-max) {
-    [data-module="custom-fields"] {
-        .input-group {
-            width: 100%;
-        }
-        .control-custom input {
-            width: 100%;
-            .box-sizing(border-box);
-            min-height: 28px;
-        }
-    }
-}
-
-// Controls
 // Custom Key/Value input
 .control-custom {
     font-size: 0; // Remove whitespace between fields.
-}
-
-.control-custom label {
-    margin-bottom: 0;
-}
-
-.control-custom input {
-    .border-radius(0);
-    width: 140px;
-}
-
-.control-custom input:last-of-type {
-    .border-radius(0 3px 3px 0);
+    .input-group {
+        margin-bottom: @grid-gutter-width/3;
+    }
 }
 
 .control-custom .checkbox {
     display: inline-block;
-    margin-left: 5px;
+    margin: 2px 0 2px @grid-gutter-width/3;
 }
 
 .control-custom .checkbox input {
@@ -405,12 +388,12 @@ form .control-medium .info-block.info-inline {
     color: #fff;
 }
 
-.control-custom .checkbox.btn input {
+.control-custom .checkbox input {
     display: none;
 }
 
 .control-custom.disabled .checkbox.btn {
-    .btn-primary;
+    .btn-danger;
 }
 
 // Errors
@@ -426,27 +409,34 @@ form .control-medium .info-block.info-inline {
     border-color: @errorBorder;
 }
 
+.form-group {
+    select,
+    .select2-container {
+        max-width: 100%;
+    }
+}
+
 .error-inline {
     color: @errorText;
+    margin: @grid-gutter-width/3;
 }
 
 .error-block,
 .error-inline {
-    font-size: 12px;
+    font-size: @font-size-small;
 }
 
 .error-block {
     .border-radius(0 0 @inputBorderRadius @inputBorderRadius);
     display: block;
     padding: 6px 8px 3px;
-    background: @errorBorder;
-    margin: -@inputBorderRadius 0 0;
+    background: @errorBorder; // margin: -@inputBorderRadius 0 0;
     color: @inputBackground;
-    width: 208px;
+    width: auto;
 }
 
 .control-medium .error-block {
-    width: 318px;
+    width: auto;
 }
 
 .control-full .error-block {
@@ -459,11 +449,12 @@ form .control-medium .info-block.info-inline {
 }
 
 .control-custom.error .error-block {
-    width: 401px;
+    width: auto;
+    .border-radius(@border-radius-small);
 }
 
 .control-select.error .error-block {
-    width: 196px;
+    width: auto;
 }
 
 // Stages
@@ -474,8 +465,7 @@ form .control-medium .info-block.info-inline {
     .list-unstyled;
     .clearfix;
     color: @stagesTextColor;
-    counter-reset: stage;
-    // margin: -@gutterY -@gutterX @gutterY;
+    counter-reset: stage; // margin: -@gutterY -@gutterX @gutterY;
     overflow: hidden;
     margin-bottom: @grid-gutter-width;
 }
