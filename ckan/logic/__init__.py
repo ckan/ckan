@@ -4,6 +4,7 @@ import functools
 import logging
 import re
 import sys
+from collections import defaultdict
 
 import formencode.validators
 
@@ -221,6 +222,9 @@ def _prepopulate_context(context):
     context.setdefault('session', model.Session)
     try:
         context.setdefault('user', c.user)
+    except AttributeError:
+        # c.user not set
+        pass
     except TypeError:
         # c not registered
         pass
@@ -309,6 +313,15 @@ def clear_actions_cache():
     _actions.clear()
 
 
+def chained_action(func):
+    func.chained_action = True
+    return func
+
+
+def _is_chained_action(func):
+    return getattr(func, 'chained_action', False)
+
+
 def get_action(action):
     '''Return the named :py:mod:`ckan.logic.action` function.
 
@@ -391,20 +404,32 @@ def get_action(action):
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
     fetched_actions = {}
+    chained_actions = defaultdict(list)
     for plugin in p.PluginImplementations(p.IActions):
         for name, auth_function in plugin.get_actions().items():
-            if name in resolved_action_plugins:
+            if _is_chained_action(auth_function):
+                chained_actions[name].append(auth_function)
+            elif name in resolved_action_plugins:
                 raise NameConflict(
                     'The action %r is already implemented in %r' % (
                         name,
                         resolved_action_plugins[name]
                     )
                 )
-            resolved_action_plugins[name] = plugin.name
-            # Extensions are exempted from the auth audit for now
-            # This needs to be resolved later
-            auth_function.auth_audit_exempt = True
-            fetched_actions[name] = auth_function
+            else:
+                resolved_action_plugins[name] = plugin.name
+                # Extensions are exempted from the auth audit for now
+                # This needs to be resolved later
+                auth_function.auth_audit_exempt = True
+                fetched_actions[name] = auth_function
+    for name, func_list in chained_actions.iteritems():
+        if name not in fetched_actions:
+            raise NotFound('The action %r is not found for chained action' % (
+                name))
+        for func in reversed(func_list):
+            prev_func = fetched_actions[name]
+            fetched_actions[name] = functools.partial(func, prev_func)
+
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
 

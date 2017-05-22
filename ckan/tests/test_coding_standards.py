@@ -584,7 +584,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckanext/datapusher/tests/test_action.py',
     u'ckanext/datapusher/tests/test_default_views.py',
     u'ckanext/datapusher/tests/test_interfaces.py',
-    u'ckanext/datastore/commands.py',
     u'ckanext/datastore/controller.py',
     u'ckanext/datastore/db.py',
     u'ckanext/datastore/helpers.py',

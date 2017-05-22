@@ -55,6 +55,13 @@ def datastore_create(context, data_dict):
     :type primary_key: list or comma separated string
     :param indexes: indexes on table (optional)
     :type indexes: list or comma separated string
+    :param triggers: trigger functions to apply to this table on update/insert.
+        functions may be created with
+        :meth:`~ckanext.datastore.logic.action.datastore_function_create`.
+        eg: [
+        {"function": "trigger_clean_reference"},
+        {"function": "trigger_check_codes"}]
+    :type triggers: list of dictionaries
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key`` replaces the exising
     aliases or constraints. Setting ``records`` appends the provided records to the resource.
@@ -122,8 +129,6 @@ def datastore_create(context, data_dict):
             resource_id = data_dict['resource_id']
             _check_read_only(context, resource_id)
 
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
-
     # validate aliases
     aliases = datastore_helpers.get_list(data_dict.get('aliases', []))
     for alias in aliases:
@@ -149,52 +154,42 @@ def datastore_create(context, data_dict):
         log.debug(
             'Setting datastore_active=True on resource {0}'.format(resource.id)
         )
-        # issue #3245: race condition
-        update_dict = {'datastore_active': True}
-
-        # get extras(for entity update) and package_id(for search index update)
-        res_query = model.Session.query(
-            model.resource_table.c.extras,
-            model.resource_table.c.package_id
-        ).filter(
-            model.Resource.id == data_dict['resource_id']
-        )
-        extras, package_id = res_query.one()
-
-        # update extras in database for record and its revision
-        extras.update(update_dict)
-        res_query.update({'extras': extras}, synchronize_session=False)
-
-        model.Session.query(model.resource_revision_table).filter(
-            model.ResourceRevision.id == data_dict['resource_id'],
-            model.ResourceRevision.current is True
-        ).update({'extras': extras}, synchronize_session=False)
-
-        model.Session.commit()
-
-        # get package with  updated resource from solr
-        # find changed resource, patch it and reindex package
-        psi = search.PackageSearchIndex()
-        solr_query = search.PackageSearchQuery()
-        q = {
-            'q': 'id:"{0}"'.format(package_id),
-            'fl': 'data_dict',
-            'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
-            'rows': 1
-        }
-        for record in solr_query.run(q)['results']:
-            solr_data_dict = json.loads(record['data_dict'])
-            for resource in solr_data_dict['resources']:
-                if resource['id'] == data_dict['resource_id']:
-                    resource.update(update_dict)
-                    psi.index_package(solr_data_dict)
-                    break
+        set_datastore_active_flag(model, data_dict, True)
 
     result.pop('id', None)
     result.pop('private', None)
-    result.pop('connection_url')
     return result
+
+
+def datastore_run_triggers(context, data_dict):
+    ''' update each record with trigger
+
+    The datastore_run_triggers API action allows you to re-apply exisitng triggers to
+    an existing DataStore resource.
+
+    :param resource_id: resource id that the data is going to be stored under.
+    :type resource_id: string
+
+    **Results:**
+
+    :returns: The rowcount in the table.
+    :rtype: int
+
+    '''
+    res_id = data_dict['resource_id']
+    p.toolkit.check_access('datastore_trigger_each_row', context, data_dict)
+
+    connection = db.get_write_engine().connect()
+
+    sql = sqlalchemy.text(u'''update {0} set _id=_id '''.format(
+                          datastore_helpers.identifier(res_id)))
+    try:
+        results = connection.execute(sql)
+    except sqlalchemy.exc.DatabaseError as err:
+        message = err.args[0].split('\n')[0].decode('utf8')
+        raise p.toolkit.ValidationError({
+                u'records': [message.split(u') ', 1)[-1]]})
+    return results.rowcount
 
 
 def datastore_upsert(context, data_dict):
@@ -247,12 +242,10 @@ def datastore_upsert(context, data_dict):
         resource_id = data_dict['resource_id']
         _check_read_only(context, resource_id)
 
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
-
     res_id = data_dict['resource_id']
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
+    results = db.get_write_engine().execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 
     if not res_exists:
@@ -262,7 +255,6 @@ def datastore_upsert(context, data_dict):
 
     result = db.upsert(context, data_dict)
     result.pop('id', None)
-    result.pop('connection_url')
     return result
 
 
@@ -289,11 +281,9 @@ def datastore_info(context, data_dict):
     resource_id = _get_or_bust(data_dict, 'id')
     resource = p.toolkit.get_action('resource_show')(context, {'id':resource_id})
 
-    data_dict['connection_url'] = config['ckan.datastore.read_url']
-
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(data_dict).execute(resources_sql, id=resource_id)
+    results = db.get_read_engine().execute(resources_sql, id=resource_id)
     res_exists = results.rowcount > 0
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
@@ -309,7 +299,7 @@ def datastore_info(context, data_dict):
             SELECT column_name, data_type
             FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = :resource_id;
         ''')
-        schema_results = db._get_engine(data_dict).execute(schema_sql, resource_id=resource_id)
+        schema_results = db.get_read_engine().execute(schema_sql, resource_id=resource_id)
         for row in schema_results.fetchall():
             k = row[0]
             v = row[1]
@@ -322,7 +312,7 @@ def datastore_info(context, data_dict):
         meta_sql = sqlalchemy.text(u'''
             SELECT count(_id) FROM "{0}";
         '''.format(resource_id))
-        meta_results = db._get_engine(data_dict).execute(meta_sql, resource_id=resource_id)
+        meta_results = db.get_read_engine().execute(meta_sql, resource_id=resource_id)
         info['meta']['count'] = meta_results.fetchone()[0]
     finally:
         if schema_results:
@@ -374,12 +364,10 @@ def datastore_delete(context, data_dict):
         resource_id = data_dict['resource_id']
         _check_read_only(context, resource_id)
 
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
-
     res_id = data_dict['resource_id']
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
+    results = db.get_read_engine().execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 
     if not res_exists:
@@ -396,14 +384,11 @@ def datastore_delete(context, data_dict):
     if (not data_dict.get('filters') and
             resource.extras.get('datastore_active') is True):
         log.debug(
-            'Setting datastore_active=True on resource {0}'.format(resource.id)
+            'Setting datastore_active=False on resource {0}'.format(resource.id)
         )
-        p.toolkit.get_action('resource_patch')(
-            context, {'id': data_dict['resource_id'],
-                      'datastore_active': False})
+        set_datastore_active_flag(model, data_dict, False)
 
     result.pop('id', None)
-    result.pop('connection_url')
     return result
 
 
@@ -439,6 +424,16 @@ def datastore_search(context, data_dict):
     :param sort: comma separated field names with ordering
                  e.g.: "fieldname1, fieldname2 desc"
     :type sort: string
+    :param include_total: True to return total matching record count
+                          (optional, default: true)
+    :type include_total: bool
+    :param records_format: the format for the records return value:
+        'objects' (default) list of {fieldname1: value1, ...} dicts,
+        'lists' list of [value1, value2, ...] lists,
+        'csv' string containing comma-separated values with no header,
+        'tsv' string containing tab-separated values with no header
+    :type records_format: controlled list
+
 
     Setting the ``plain`` flag to false enables the entire PostgreSQL `full text search query language`_.
 
@@ -464,7 +459,7 @@ def datastore_search(context, data_dict):
     :param total: number of total matching records
     :type total: int
     :param records: list of matching results
-    :type records: list of dictionaries
+    :type records: depends on records_format value passed
 
     '''
     schema = context.get('schema', dsschema.datastore_search_schema())
@@ -473,11 +468,13 @@ def datastore_search(context, data_dict):
         raise p.toolkit.ValidationError(errors)
 
     res_id = data_dict['resource_id']
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
     resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
                                         WHERE name = :id''')
-    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
+    # XXX: write connection because of private tables, we
+    # should be able to make this read once we stop using pg
+    # permissions enforcement
+    results = db.get_write_engine().execute(resources_sql, id=res_id)
 
     # Resource only has to exist in the datastore (because it could be an alias)
     if not results.rowcount > 0:
@@ -495,7 +492,6 @@ def datastore_search(context, data_dict):
 
     result = db.search(context, data_dict)
     result.pop('id', None)
-    result.pop('connection_url')
     return result
 
 
@@ -537,11 +533,8 @@ def datastore_search_sql(context, data_dict):
 
     p.toolkit.check_access('datastore_search_sql', context, data_dict)
 
-    data_dict['connection_url'] = config['ckan.datastore.read_url']
-
     result = db.search_sql(context, data_dict)
     result.pop('id', None)
-    result.pop('connection_url')
     return result
 
 
@@ -559,8 +552,6 @@ def datastore_make_private(context, data_dict):
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
-
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
@@ -586,8 +577,6 @@ def datastore_make_public(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
-
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             u'Resource "{0}" was not found.'.format(res_id)
@@ -596,6 +585,56 @@ def datastore_make_public(context, data_dict):
     p.toolkit.check_access('datastore_change_permissions', context, data_dict)
 
     db.make_public(context, data_dict)
+
+
+def set_datastore_active_flag(model, data_dict, flag):
+    '''
+    Set appropriate datastore_active flag on CKAN resource.
+
+    Called after creation or deletion of DataStore table.
+    '''
+    # We're modifying the resource extra directly here to avoid a
+    # race condition, see issue #3245 for details and plan for a
+    # better fix
+    update_dict = {'datastore_active': flag}
+
+    # get extras(for entity update) and package_id(for search index update)
+    res_query = model.Session.query(
+        model.resource_table.c.extras,
+        model.resource_table.c.package_id
+    ).filter(
+        model.Resource.id == data_dict['resource_id']
+    )
+    extras, package_id = res_query.one()
+
+    # update extras in database for record and its revision
+    extras.update(update_dict)
+    res_query.update({'extras': extras}, synchronize_session=False)
+    model.Session.query(model.resource_revision_table).filter(
+        model.ResourceRevision.id == data_dict['resource_id'],
+        model.ResourceRevision.current is True
+    ).update({'extras': extras}, synchronize_session=False)
+
+    model.Session.commit()
+
+    # get package with  updated resource from solr
+    # find changed resource, patch it and reindex package
+    psi = search.PackageSearchIndex()
+    solr_query = search.PackageSearchQuery()
+    q = {
+        'q': 'id:"{0}"'.format(package_id),
+        'fl': 'data_dict',
+        'wt': 'json',
+        'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+        'rows': 1
+    }
+    for record in solr_query.run(q)['results']:
+        solr_data_dict = json.loads(record['data_dict'])
+        for resource in solr_data_dict['resources']:
+            if resource['id'] == data_dict['resource_id']:
+                resource.update(update_dict)
+                psi.index_package(solr_data_dict)
+                break
 
 
 def _resource_exists(context, data_dict):
@@ -607,7 +646,7 @@ def _resource_exists(context, data_dict):
 
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
+    results = db.get_read_engine().execute(resources_sql, id=res_id)
     return results.rowcount > 0
 
 
@@ -622,3 +661,42 @@ def _check_read_only(context, resource_id):
             'read-only': ['Cannot edit read-only resource. Either pass'
                           '"force=True" or change url-type to "datastore"']
         })
+
+
+@logic.validate(dsschema.datastore_function_create_schema)
+def datastore_function_create(context, data_dict):
+    u'''
+    Create a trigger function for use with datastore_create
+
+    :param name: function name
+    :type name: string
+    :param or_replace: True to replace if function already exists
+        (default: False)
+    :type or_replace: bool
+    :param rettype: set to 'trigger'
+        (only trigger functions may be created at this time)
+    :type rettype: string
+    :param definition: PL/pgSQL function body for trigger function
+    :type definition: string
+    '''
+    p.toolkit.check_access('datastore_function_create', context, data_dict)
+
+    db.create_function(
+        name=data_dict['name'],
+        arguments=data_dict.get('arguments', []),
+        rettype=data_dict['rettype'],
+        definition=data_dict['definition'],
+        or_replace=data_dict['or_replace'])
+
+
+@logic.validate(dsschema.datastore_function_delete_schema)
+def datastore_function_delete(context, data_dict):
+    u'''
+    Delete a trigger function
+
+    :param name: function name
+    :type name: string
+    '''
+    p.toolkit.check_access('datastore_function_delete', context, data_dict)
+
+    db.drop_function(data_dict['name'], data_dict['if_exists'])

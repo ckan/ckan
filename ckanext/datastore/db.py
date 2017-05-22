@@ -11,10 +11,13 @@ import pprint
 import urllib
 import urllib2
 import urlparse
+from cStringIO import StringIO
 
 import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
+from ckan.lib.lazyjson import LazyJSONObject
+
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
 import psycopg2.extras
@@ -98,9 +101,16 @@ def _is_valid_table_name(name):
     return _is_valid_field_name(name)
 
 
-def _get_engine(data_dict):
+def get_read_engine():
+    return _get_engine_from_url(config['ckan.datastore.read_url'])
+
+
+def get_write_engine():
+    return _get_engine_from_url(config['ckan.datastore.write_url'])
+
+
+def _get_engine_from_url(connection_url):
     '''Get either read or write engine.'''
-    connection_url = data_dict['connection_url']
     engine = _engines.get(connection_url)
 
     if not engine:
@@ -127,9 +137,7 @@ def _cache_types(context):
             log.info("Create nested type. Native JSON: {0!r}".format(
                 native_json))
 
-            data_dict = {
-                'connection_url': config['ckan.datastore.write_url']}
-            engine = _get_engine(data_dict)
+            engine = get_write_engine()
             with engine.begin() as connection:
                 connection.execute(
                     'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
@@ -224,6 +232,24 @@ def _guess_type(field):
         except (ValueError, TypeError):
             continue
     return 'text'
+
+
+def _get_field_info(connection, resource_id):
+    u'''return a dictionary mapping column names to their info data,
+    when present'''
+    qtext = sqlalchemy.text(u'''
+        select pa.attname as name, pd.description as info
+        from pg_class pc, pg_attribute pa, pg_description pd
+        where pa.attrelid = pc.oid and pd.objoid = pc.oid
+            and pd.objsubid = pa.attnum and pc.relname = :res_id
+            and pa.attnum > 0
+    ''')
+    try:
+        return dict(
+            (n, json.loads(v)) for (n, v) in
+            connection.execute(qtext, res_id=resource_id).fetchall())
+    except ValueError:  # don't die on non-json comments
+        return {}
 
 
 def _get_fields(context, data_dict):
@@ -339,15 +365,26 @@ def create_table(context, data_dict):
                 })
 
     fields = datastore_fields + supplied_fields + extra_fields
-    sql_fields = u", ".join([u'"{0}" {1}'.format(
-        f['id'], f['type']) for f in fields])
+    sql_fields = u", ".join([u'{0} {1}'.format(
+        datastore_helpers.identifier(f['id']), f['type']) for f in fields])
 
-    sql_string = u'CREATE TABLE "{0}" ({1});'.format(
-        data_dict['resource_id'],
+    sql_string = u'CREATE TABLE {0} ({1});'.format(
+        datastore_helpers.identifier(data_dict['resource_id']),
         sql_fields
     )
 
-    context['connection'].execute(sql_string.replace('%', '%%'))
+    info_sql = []
+    for f in supplied_fields:
+        info = f.get(u'info')
+        if isinstance(info, dict):
+            info_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
+                datastore_helpers.identifier(data_dict['resource_id']),
+                datastore_helpers.identifier(f['id']),
+                datastore_helpers.literal_string(
+                    json.dumps(info, ensure_ascii=False))))
+
+    context['connection'].execute(
+        (sql_string + u';'.join(info_sql)).replace(u'%', u'%%'))
 
 
 def _get_aliases(context, data_dict):
@@ -607,12 +644,29 @@ def alter_table(context, data_dict):
                     'type': _guess_type(records[0][field_id])
                 })
 
-    for field in new_fields:
-        sql = 'ALTER TABLE "{0}" ADD "{1}" {2}'.format(
-            data_dict['resource_id'],
-            field['id'],
-            field['type'])
-        context['connection'].execute(sql.replace('%', '%%'))
+    alter_sql = []
+    for f in new_fields:
+        alter_sql.append(u'ALTER TABLE {0} ADD {1} {2};'.format(
+            datastore_helpers.identifier(data_dict['resource_id']),
+            datastore_helpers.identifier(f['id']),
+            f['type']))
+
+    for f in supplied_fields:
+        if u'info' in f:
+            info = f.get(u'info')
+            if isinstance(info, dict):
+                info_sql = datastore_helpers.literal_string(
+                    json.dumps(info, ensure_ascii=False))
+            else:
+                info_sql = 'NULL'
+            alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
+                datastore_helpers.identifier(data_dict['resource_id']),
+                datastore_helpers.identifier(f['id']),
+                info_sql))
+
+    if alter_sql:
+        context['connection'].execute(
+            u';'.join(alter_sql).replace(u'%', u'%%'))
 
 
 def insert_data(context, data_dict):
@@ -668,6 +722,9 @@ def upsert_data(context, data_dict):
                 toolkit._("The data was invalid (for example: a numeric value "
                           "is out of range or was inserted into a text field)."
                           ))
+        except sqlalchemy.exc.DatabaseError as err:
+            raise ValidationError(
+                {u'records': [_programming_error_summary(err)]})
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
@@ -728,8 +785,13 @@ def upsert_data(context, data_dict):
                         [u'"{0}"'.format(part) for part in unique_keys]),
                     primary_value=u','.join(["%s"] * len(unique_keys))
                 )
-                results = context['connection'].execute(
-                    sql_string, used_values + [full_text] + unique_values)
+                try:
+                    results = context['connection'].execute(
+                        sql_string, used_values + [full_text] + unique_values)
+                except sqlalchemy.exc.DatabaseError as err:
+                    raise ValidationError({
+                        u'records': [_programming_error_summary(err)],
+                        u'_records_row': num})
 
                 # validate that exactly one row has been updated
                 if results.rowcount != 1:
@@ -757,9 +819,14 @@ def upsert_data(context, data_dict):
                                            for part in unique_keys]),
                     primary_value=u','.join(["%s"] * len(unique_keys))
                 )
-                context['connection'].execute(
-                    sql_string,
-                    (used_values + [full_text] + unique_values) * 2)
+                try:
+                    context['connection'].execute(
+                        sql_string,
+                        (used_values + [full_text] + unique_values) * 2)
+                except sqlalchemy.exc.DatabaseError as err:
+                    raise ValidationError({
+                        u'records': [_programming_error_summary(err)],
+                        u'_records_row': num})
 
 
 def _get_unique_key(context, data_dict):
@@ -921,9 +988,10 @@ def validate(context, data_dict):
                                                    fields_types)
 
     # Remove default elements in data_dict
-    del data_dict_copy['connection_url']
     del data_dict_copy['resource_id']
     data_dict_copy.pop('id', None)
+    data_dict_copy.pop('include_total', None)
+    data_dict_copy.pop('records_format', None)
 
     for key, values in data_dict_copy.iteritems():
         if not values:
@@ -978,9 +1046,41 @@ def search_data(context, data_dict):
     else:
         sort_clause = ''
 
-    sql_string = u'''SELECT {distinct} {select}
-                    FROM "{resource}" {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
+    records_format = data_dict['records_format']
+    if records_format == u'objects':
+        sql_fmt = u'''
+            SELECT array_to_json(array_agg(j))::text FROM (
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) AS j'''
+    elif records_format == u'lists':
+        select_columns = u" || ',' || ".join(
+            s for s in query_dict['select']
+            ).replace('%', '%%')
+        sql_fmt = u'''
+            SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
+                SELECT '[' || {select} || ']' v
+                FROM (
+                    SELECT {distinct} * FROM "{resource}" {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}) as z
+            ) AS j'''
+    elif records_format == u'csv':
+        sql_fmt = u'''
+            COPY (
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) TO STDOUT csv DELIMITER ',' '''
+    elif records_format == u'tsv':
+        sql_fmt = u'''
+            COPY (
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) TO STDOUT csv DELIMITER '\t' '''
+
+    sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
         resource=resource_id,
@@ -990,10 +1090,45 @@ def search_data(context, data_dict):
         limit=limit,
         offset=offset)
 
-    results = _execute_single_statement(context, sql_string, where_values)
+    if records_format == u'csv' or records_format == u'tsv':
+        buf = StringIO()
+        _execute_single_statement_copy_to(
+            context, sql_string, where_values, buf)
+        records = buf.getvalue()
+    else:
+        v = list(_execute_single_statement(
+                context, sql_string, where_values))[0][0]
+        if v is None:
+            records = []
+        else:
+            records = LazyJSONObject(v)
+    data_dict['records'] = records
+
+    field_info = _get_field_info(
+        context['connection'], data_dict['resource_id'])
+    result_fields = []
+    for field_id, field_type in fields_types.iteritems():
+        f = {u'id': field_id, u'type': field_type}
+        if field_id in field_info:
+            f['info'] = field_info[f['id']]
+        result_fields.append(f)
+    data_dict['fields'] = result_fields
+    _unrename_json_field(data_dict)
 
     _insert_links(data_dict, limit, offset)
-    return format_results(context, results, data_dict)
+
+    if data_dict.get('include_total', True):
+        count_sql_string = u'''SELECT {distinct} count(*)
+            FROM "{resource}" {ts_query} {where};'''.format(
+            distinct=distinct,
+            resource=resource_id,
+            ts_query=ts_query,
+            where=where_clause)
+        count_result = _execute_single_statement(
+            context, count_sql_string, where_values)
+        data_dict['total'] = count_result.fetchall()[0][0]
+
+    return data_dict
 
 
 def _execute_single_statement(context, sql_string, where_values):
@@ -1007,6 +1142,17 @@ def _execute_single_statement(context, sql_string, where_values):
     return results
 
 
+def _execute_single_statement_copy_to(context, sql_string, where_values, buf):
+    if not datastore_helpers.is_single_statement(sql_string):
+        raise ValidationError({
+            'query': ['Query is not a single statement.']
+        })
+
+    cursor = context['connection'].connection.cursor()
+    cursor.copy_expert(cursor.mogrify(sql_string, where_values), buf)
+    cursor.close()
+
+
 def format_results(context, results, data_dict):
     result_fields = []
     for field in results.cursor.description:
@@ -1014,14 +1160,10 @@ def format_results(context, results, data_dict):
             'id': field[0].decode('utf-8'),
             'type': _get_type(context, field[1])
         })
-    if len(result_fields) and result_fields[-1]['id'] == '_full_count':
-        result_fields.pop()  # remove _full_count
 
     records = []
     for row in results:
         converted_row = {}
-        if '_full_count' in row:
-            data_dict['total'] = row['_full_count']
         for field in result_fields:
             converted_row[field['id']] = convert(row[field['id']],
                                                  field['type'])
@@ -1056,7 +1198,7 @@ def create(context, data_dict):
     :raises InvalidDataError: if there is an invalid value in the given data
 
     '''
-    engine = _get_engine(data_dict)
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1076,6 +1218,11 @@ def create(context, data_dict):
             create_table(context, data_dict)
         else:
             alter_table(context, data_dict)
+        if 'triggers' in data_dict:
+            _create_triggers(
+                context['connection'],
+                data_dict['resource_id'],
+                data_dict['triggers'])
         insert_data(context, data_dict)
         create_indexes(context, data_dict)
         create_alias(context, data_dict)
@@ -1113,6 +1260,37 @@ def create(context, data_dict):
         context['connection'].close()
 
 
+def _create_triggers(connection, resource_id, triggers):
+    u'''
+    Delete existing triggers on table then create triggers
+
+    Currently our schema requires "before insert or update"
+    triggers run on each row, so we're not reading "when"
+    or "for_each" parameters from triggers list.
+    '''
+    existing = connection.execute(
+        u'SELECT tgname FROM pg_trigger WHERE tgrelid = %s::regclass',
+        resource_id)
+    sql_list = (
+        [u'DROP TRIGGER {name} ON {table}'.format(
+                name=datastore_helpers.identifier(r[0]),
+                table=datastore_helpers.identifier(resource_id))
+            for r in existing] +
+        [u'''CREATE TRIGGER {name}
+            BEFORE INSERT OR UPDATE ON {table}
+            FOR EACH ROW EXECUTE PROCEDURE {function}()'''.format(
+                # 1000 triggers per table should be plenty
+                name=datastore_helpers.identifier(u't%03d' % i),
+                table=datastore_helpers.identifier(resource_id),
+                function=datastore_helpers.identifier(t['function']))
+            for i, t in enumerate(triggers)])
+    try:
+        if sql_list:
+            connection.execute(u';\n'.join(sql_list))
+    except ProgrammingError as pe:
+        raise ValidationError({u'triggers': [_programming_error_summary(pe)]})
+
+
 def upsert(context, data_dict):
     '''
     This method combines upsert insert and update on the datastore. The method
@@ -1121,7 +1299,7 @@ def upsert(context, data_dict):
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
     '''
-    engine = _get_engine(data_dict)
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
 
@@ -1164,7 +1342,7 @@ def upsert(context, data_dict):
 
 
 def delete(context, data_dict):
-    engine = _get_engine(data_dict)
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     _cache_types(context)
 
@@ -1188,7 +1366,7 @@ def delete(context, data_dict):
 
 
 def search(context, data_dict):
-    engine = _get_engine(data_dict)
+    engine = get_read_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1215,7 +1393,7 @@ def search(context, data_dict):
 
 
 def search_sql(context, data_dict):
-    engine = _get_engine(data_dict)
+    engine = get_read_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1307,7 +1485,7 @@ def _change_privilege(context, data_dict, what):
 
 def make_private(context, data_dict):
     log.info('Making resource {resource_id!r} private'.format(**data_dict))
-    engine = _get_engine(data_dict)
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
     try:
@@ -1319,7 +1497,7 @@ def make_private(context, data_dict):
 
 def make_public(context, data_dict):
     log.info('Making resource {resource_id!r} public'.format(**data_dict))
-    engine = _get_engine(data_dict)
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
     try:
@@ -1330,12 +1508,70 @@ def make_public(context, data_dict):
 
 
 def get_all_resources_ids_in_datastore():
-    read_url = config.get('ckan.datastore.read_url')
-    write_url = config.get('ckan.datastore.write_url')
-    data_dict = {
-        'connection_url': read_url or write_url
-    }
     resources_sql = sqlalchemy.text(u'''SELECT name FROM "_table_metadata"
                                         WHERE alias_of IS NULL''')
-    query = _get_engine(data_dict).execute(resources_sql)
+    query = get_read_engine().execute(resources_sql)
     return [q[0] for q in query.fetchall()]
+
+
+def create_function(name, arguments, rettype, definition, or_replace):
+    sql = u'''
+        CREATE {or_replace} FUNCTION
+            {name}({args}) RETURNS {rettype} AS {definition}
+            LANGUAGE plpgsql;'''.format(
+        or_replace=u'OR REPLACE' if or_replace else u'',
+        name=datastore_helpers.identifier(name),
+        args=u', '.join(
+            u'{argname} {argtype}'.format(
+                argname=datastore_helpers.identifier(a['argname']),
+                argtype=datastore_helpers.identifier(a['argtype']))
+            for a in arguments),
+        rettype=datastore_helpers.identifier(rettype),
+        definition=datastore_helpers.literal_string(definition))
+
+    try:
+        _write_engine_execute(sql)
+    except ProgrammingError as pe:
+        key = (
+            u'name' if pe.args[0].startswith('(ProgrammingError) function')
+            else u'definition')
+        raise ValidationError({key: [_programming_error_summary(pe)]})
+
+
+def drop_function(name, if_exists):
+    sql = u'''
+        DROP FUNCTION {if_exists} {name}();
+        '''.format(
+        if_exists=u'IF EXISTS' if if_exists else u'',
+        name=datastore_helpers.identifier(name))
+
+    try:
+        _write_engine_execute(sql)
+    except ProgrammingError as pe:
+        raise ValidationError({u'name': [_programming_error_summary(pe)]})
+
+
+def _write_engine_execute(sql):
+    connection = get_write_engine().connect()
+    # No special meaning for '%' in sql parameter:
+    connection = connection.execution_options(no_parameters=True)
+    trans = connection.begin()
+    try:
+        connection.execute(sql)
+        trans.commit()
+    except Exception:
+        trans.rollback()
+        raise
+    finally:
+        connection.close()
+
+
+def _programming_error_summary(pe):
+    u'''
+    return the text description of a sqlalchemy DatabaseError
+    without the actual SQL included, for raising as a
+    ValidationError to send back to API users
+    '''
+    # first line only, after the '(ProgrammingError)' text
+    message = pe.args[0].split('\n')[0].decode('utf8')
+    return message.split(u') ', 1)[-1]

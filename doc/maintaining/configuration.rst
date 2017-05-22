@@ -1186,7 +1186,7 @@ Example::
 
 Default value: ``json``
 
-JSON based resource formats that will be rendered by the Text view plugin (``text_view``)
+Space-delimited list of JSON based resource formats that will be rendered by the Text view plugin (``text_view``)
 
 .. _ckan.preview.xml_formats:
 
@@ -1199,7 +1199,7 @@ Example::
 
 Default value: ``xml rdf rdf+xml owl+xml atom rss``
 
-XML based resource formats that will be rendered by the Text view plugin (``text_view``)
+Space-delimited list of XML based resource formats that will be rendered by the Text view plugin (``text_view``)
 
 .. _ckan.preview.text_formats:
 
@@ -1212,7 +1212,20 @@ Example::
 
 Default value: ``text plain text/plain``
 
-Plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
+Space-delimited list of plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
+
+.. _ckan.preview.image_formats:
+
+ckan.preview.image_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.image_formats = png jpeg jpg gif
+
+Default value: ``png jpeg jpg gif``
+
+Space-delimited list of image-based resource formats that will be rendered by the Image view plugin (``image_view``)
 
 .. end_resource-views
 
@@ -1410,6 +1423,22 @@ DataPusher endpoint to use when enabling the ``datapusher`` extension. If you
 installed CKAN via :doc:`/maintaining/installing/install-from-package`, the DataPusher was installed for you
 running on port 8800. If you want to manually install the DataPusher, follow
 the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
+
+
+.. _ckan.datapusher.assume_task_stale_after:
+
+ckan.datapusher.assume_task_stale_after
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.datapusher.assume_task_stale_after = 86400
+
+Default value:  ``3600`` (one hour)
+
+In case a DataPusher task gets stuck and fails to recover, this is the minimum
+amount of time (in seconds) after a resource is submitted to DataPusher that the
+resource can be submitted again.
 
 
 User Settings

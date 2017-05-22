@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import logging
-from urllib import quote
 
 from ckan.common import config
 from paste.deploy.converters import asbool
@@ -18,7 +17,7 @@ import ckan.lib.navl.dictization_functions as dictization_functions
 import ckan.lib.authenticator as authenticator
 import ckan.plugins as p
 
-from ckan.common import _, c, g, request, response
+from ckan.common import _, c, request, response
 
 log = logging.getLogger(__name__)
 
@@ -80,7 +79,8 @@ class UserController(base.BaseController):
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
-            abort(404, _('User not found'))
+            h.flash_error(_('Not authorized to see this page'))
+            h.redirect_to(controller='user', action='login')
         except NotAuthorized:
             abort(403, _('Not authorized to see this page'))
 

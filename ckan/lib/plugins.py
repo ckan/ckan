@@ -4,9 +4,8 @@ import logging
 import os
 import sys
 
-from pylons import c
+from ckan.common import c
 from ckan.lib import base
-import ckan.lib.maintain as maintain
 from ckan import logic
 import logic.schema
 from ckan import plugins
@@ -185,19 +184,19 @@ def register_group_plugins(map):
                              'unfollow', 'admins', 'activity'])))
             map.connect('%s_edit' % group_type, '/%s/edit/{id}' % group_type,
                         controller=group_controller, action='edit',
-                        ckan_icon='edit')
+                        ckan_icon='pencil-square-o')
             map.connect('%s_members' % group_type,
                         '/%s/members/{id}' % group_type,
                         controller=group_controller,
                         action='members',
-                        ckan_icon='group')
+                        ckan_icon='users')
             map.connect('%s_activity' % group_type,
                         '/%s/activity/{id}/{offset}' % group_type,
                         controller=group_controller,
-                        action='activity', ckan_icon='time'),
+                        action='activity', ckan_icon='clock-o'),
             map.connect('%s_about' % group_type, '/%s/about/{id}' % group_type,
                         controller=group_controller,
-                        action='about', ckan_icon='info-sign')
+                        action='about', ckan_icon='info-circle')
             map.connect('%s_bulk_process' % group_type,
                         '/%s/bulk_process/{id}' % group_type,
                         controller=group_controller,
@@ -290,9 +289,6 @@ class DefaultDatasetForm(object):
         c.groups_available = authz_fn(context, data_dict)
 
         c.licenses = [('', '')] + base.model.Package.get_license_options()
-        # CS: bad_spelling ignore 2 lines
-        c.licences = c.licenses
-        maintain.deprecate_context_item('licences', 'Use `c.licenses` instead')
         c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
 
         if context.get('revision_id') or context.get('revision_date'):

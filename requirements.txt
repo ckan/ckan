@@ -8,7 +8,7 @@ argparse==1.4.0           # via ofs
 Babel==2.3.4
 Beaker==1.8.1             # via pylons
 bleach==1.5.0
-click==6.6                # via rq
+click==6.7
 decorator==4.0.6          # via pylons, sqlalchemy-migrate
 fanstatic==0.12
 Flask==0.11.1
@@ -45,7 +45,7 @@ repoze.who==2.3
 requests==2.11.1
 Routes==1.13              # via pylons
 rq==0.6.0
-simplejson==3.8.2         # via pylons
+simplejson==3.10.0
 six==1.10.0               # via bleach, html5lib, pastescript, pyutilib.component.core, sqlalchemy-migrate
 sqlalchemy-migrate==0.10.0
 SQLAlchemy==0.9.6         # via sqlalchemy-migrate

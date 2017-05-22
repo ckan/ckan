@@ -4,6 +4,9 @@ u'''A collection of interfaces that CKAN plugins can implement to customize and
 extend CKAN.
 
 '''
+from inspect import isclass
+from pyutilib.component.core import Interface as _pca_Interface
+
 __all__ = [
     u'Interface',
     u'IRoutes',
@@ -33,21 +36,30 @@ __all__ = [
     u'IAuthenticator',
     u'ITranslation',
     u'IUploader',
+    u'IBlueprint',
     u'IPermissionLabels',
 ]
 
-from inspect import isclass
-from pyutilib.component.core import Interface as _pca_Interface
-
 
 class Interface(_pca_Interface):
+    u'''Base class for custom interfaces.
+
+    Marker base class for extension point interfaces.  This class
+    is not intended to be instantiated.  Instead, the declaration
+    of subclasses of Interface are recorded, and these
+    classes are used to define extension points.
+    '''
 
     @classmethod
     def provided_by(cls, instance):
+        u'''Check that object is an instance of class that implements interface.
+        '''
         return cls.implemented_by(instance.__class__)
 
     @classmethod
     def implemented_by(cls, other):
+        u'''Check wheter class implements current interface.
+        '''
         if not isclass(other):
             raise TypeError(u'Class expected', other)
         try:
@@ -57,15 +69,40 @@ class Interface(_pca_Interface):
 
 
 class IMiddleware(Interface):
-    u'''Hook into Pylons middleware stack
+    u'''Hook into CKAN middleware stack
+
+    Note that methods on this interface will be called two times,
+    one for the Pylons stack and one for the Flask stack (eventually
+    there will be only the Flask stack).
     '''
     def make_middleware(self, app, config):
         u'''Return an app configured with this middleware
+
+        When called on the Flask stack, this method will get the actual Flask
+        app so plugins wanting to install Flask extensions can do it like
+        this::
+
+            import ckan.plugins as p
+            from flask_mail import Mail
+
+            class MyPlugin(p.SingletonPlugin):
+
+                p.implements(p.I18nMiddleware)
+
+                def make_middleware(app, config):
+
+                    mail = Mail(app)
+
+                    return app
         '''
         return app
 
     def make_error_log_middleware(self, app, config):
         u'''Return an app configured with this error log middleware
+
+        Note that both on the Flask and Pylons middleware stacks, this
+        method will receive a wrapped WSGI app, not the actual Flask or
+        Pylons app.
         '''
         return app
 
@@ -99,7 +136,7 @@ class IRoutes(Interface):
 class IMapper(Interface):
     u'''
     A subset of the SQLAlchemy mapper extension hooks.
-    See http://docs.sqlalchemy.org/en/rel_0_9/orm/deprecated.html#sqlalchemy.orm.interfaces.MapperExtension
+    See `sqlalchemy MapperExtension`_
 
     Example::
 
@@ -109,6 +146,9 @@ class IMapper(Interface):
         ...
         ...     def after_update(self, mapper, connection, instance):
         ...         log(u'Updated: %r', instance)
+
+    .. _sqlalchemy MapperExtension:\
+    http://docs.sqlalchemy.org/en/rel_0_9/orm/deprecated.html#sqlalchemy.orm.interfaces.MapperExtension
     '''
 
     def before_insert(self, mapper, connection, instance):
@@ -286,7 +326,7 @@ class IResourceView(Interface):
         :param default_description: default description that will be used if
             the view is created automatically (optional, defaults to '').
         :param icon: icon for the view type. Should be one of the
-            `Font Awesome`_ types without the `icon-` prefix eg. `compass`
+            `Font Awesome`_ types without the `fa fa-` prefix eg. `compass`
             (optional, defaults to 'picture').
         :param always_available: the view type should be always available when
             creating new views regardless of the format of the resource
@@ -317,7 +357,7 @@ class IResourceView(Interface):
              'schema': {
                 'image_url': [ignore_empty, unicode]
              },
-             'icon': 'picture',
+             'icon': 'picture-o',
              'always_available': True,
              'iframed': False,
              }
@@ -480,21 +520,23 @@ class IGroupController(Interface):
     '''
 
     def read(self, entity):
+        u'''Called after IGroupController.before_view inside group_read.
+        '''
         pass
 
     def create(self, entity):
+        u'''Called after group had been created inside group_create.
+        '''
         pass
 
     def edit(self, entity):
-        pass
-
-    def authz_add_role(self, object_role):
-        pass
-
-    def authz_remove_role(self, object_role):
+        u'''Called after group had been updated inside group_update.
+        '''
         pass
 
     def delete(self, entity):
+        u'''Called before commit inside group_delete.
+        '''
         pass
 
     def before_view(self, pkg_dict):
@@ -515,21 +557,24 @@ class IOrganizationController(Interface):
     '''
 
     def read(self, entity):
+        u'''Called after IOrganizationController.before_view inside
+        organization_read.
+        '''
         pass
 
     def create(self, entity):
+        u'''Called after organization had been created inside organization_create.
+        '''
         pass
 
     def edit(self, entity):
-        pass
-
-    def authz_add_role(self, object_role):
-        pass
-
-    def authz_remove_role(self, object_role):
+        u'''Called after organization had been updated inside organization_update.
+        '''
         pass
 
     def delete(self, entity):
+        u'''Called before commit inside organization_delete.
+        '''
         pass
 
     def before_view(self, pkg_dict):
@@ -548,21 +593,23 @@ class IPackageController(Interface):
     '''
 
     def read(self, entity):
+        u'''Called after IGroupController.before_view inside package_read.
+        '''
         pass
 
     def create(self, entity):
+        u'''Called after group had been created inside package_create.
+        '''
         pass
 
     def edit(self, entity):
-        pass
-
-    def authz_add_role(self, object_role):
-        pass
-
-    def authz_remove_role(self, object_role):
+        u'''Called after group had been updated inside package_update.
+        '''
         pass
 
     def delete(self, entity):
+        u'''Called before commit inside package_delete.
+        '''
         pass
 
     def after_create(self, context, pkg_dict):
@@ -866,6 +913,17 @@ class IActions(Interface):
         By decorating a function with the `ckan.logic.side_effect_free`
         decorator, the associated action will be made available by a GET
         request (as well as the usual POST request) through the action API.
+
+        By decrorating a function with the 'ckan.plugins.toolkit.chained_action,
+        the action will be chained to another function defined in plugins with a
+        "first plugin wins" pattern, which means the first plugin declaring a
+        chained action should be called first. Chained actions must be
+        defined as action_function(original_action, context, data_dict)
+        where the first parameter will be set to the action function in
+        the next plugin or in core ckan. The chained action may call the
+        original_action function, optionally passing different values,
+        handling exceptions, returning different values and/or raising
+        different exceptions to the caller.
         '''
 
 
@@ -1623,7 +1681,7 @@ class IUploader(Interface):
 
         Optionally, this method can set the following two attributes
         on the class instance so they are set in the resource object:
-            
+
             filesize (int):  Uploaded file filesize.
             mimetype (str):  Uploaded file mimetype.
 
@@ -1646,6 +1704,14 @@ class IUploader(Interface):
         :type id: string
 
         '''
+
+
+class IBlueprint(Interface):
+
+    u'''Register an extension as a Flask Blueprint.'''
+
+    def get_blueprint(self):
+        u'''Return a Flask Blueprint object to be registered by the app.'''
 
 
 class IPermissionLabels(Interface):

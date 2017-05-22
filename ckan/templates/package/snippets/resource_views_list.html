@@ -4,7 +4,7 @@
     {% if resource_preview %}
       <li{% if not view_id %} class="active"{% endif %}>
         <a href="{{ h.url_for(controller='package', action='resource_read', id=pkg.name, resource_id=resource.id) }}" >
-          <i class="icon icon-eye-open"></i>
+          <i class="fa icon fa-eye-open"></i>
           {{ _("Resource Preview") }}
         </a>
       </li>
