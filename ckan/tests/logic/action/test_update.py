@@ -723,6 +723,102 @@ class TestResourceUpdate(object):
         assert_equals(res_returned['anotherfield'], 'second')
         assert 'newfield' not in res_returned
 
+    def test_resource_format_update(self):
+        dataset = factories.Dataset()
+
+        # Create resource without format
+        resource = factories.Resource(package=dataset,
+                                      url='http://localhost',
+                                      name='Test')
+        res_views = helpers.call_action(
+            'resource_view_list',
+            id=resource['id'])
+
+        assert_equals(len(res_views), 0)
+
+        # Update resource with format
+        resource = helpers.call_action(
+            'resource_update',
+            id=resource['id'],
+            format='CSV')
+
+        # Format changed
+        assert_equals(resource['format'], 'CSV')
+
+        res_views = helpers.call_action(
+            'resource_view_list',
+            id=resource['id'])
+
+        # View for resource is created
+        assert_equals(len(res_views), 1)
+
+        second_resource = factories.Resource(
+            package=dataset,
+            url='http://localhost',
+            name='Test2',
+            format='CSV')
+
+        res_views = helpers.call_action(
+            'resource_view_list',
+            id=second_resource['id'])
+
+        assert_equals(len(res_views), 1)
+
+        second_resource = helpers.call_action(
+            'resource_update',
+            id=second_resource['id'],
+            format='PNG')
+
+        # Format changed
+        assert_equals(second_resource['format'], 'PNG')
+
+        res_views = helpers.call_action(
+            'resource_view_list',
+            id=second_resource['id'])
+
+        assert_equals(len(res_views), 2)
+
+        third_resource = factories.Resource(
+            package=dataset,
+            url='http://localhost',
+            name='Test2')
+
+        res_views = helpers.call_action(
+            'resource_view_list',
+            id=third_resource['id'])
+
+        assert_equals(len(res_views), 0)
+
+        third_resource = helpers.call_action(
+            'resource_update',
+            id=third_resource['id'],
+            format='Test format')
+
+        # Format added
+        assert_equals(third_resource['format'], 'Test format')
+
+        res_views = helpers.call_action(
+            'resource_view_list',
+            id=third_resource['id'])
+
+        # No view created, cause no such format
+        assert_equals(len(res_views), 0)
+
+        third_resource = helpers.call_action(
+            'resource_update',
+            id=third_resource['id'],
+            format='CSV')
+
+        # Format changed
+        assert_equals(third_resource['format'], 'CSV')
+
+        res_views = helpers.call_action(
+            'resource_view_list',
+            id=third_resource['id'])
+
+        # View is created
+        assert_equals(len(res_views), 1)
+
 
 class TestConfigOptionUpdate(object):
 
