@@ -632,7 +632,16 @@ class TestResourceUpdate(object):
         model.repo.rebuild_db()
 
     @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+        if not p.plugin_loaded('recline_view'):
+            p.load('recline_view')
+
+    @classmethod
     def teardown_class(cls):
+        p.unload('image_view')
+        p.unload('recline_view')
         helpers.reset_db()
 
     def test_url_only(self):
@@ -794,6 +803,8 @@ class TestResourceUpdate(object):
 
         assert 'datastore_active' not in res_returned
 
+
+    @helpers.change_config('ckan.views.default_views', 'image_view recline_view')
     def test_resource_format_update(self):
         dataset = factories.Dataset()
 
