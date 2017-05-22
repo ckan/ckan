@@ -79,7 +79,6 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def configure(self, config):
         self.config = config
-
         self.backend.configure(config)
 
         # Legacy mode means that we have no read url. Consequently sql search
@@ -119,6 +118,9 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_delete': action.datastore_delete,
             'datastore_search': action.datastore_search,
             'datastore_info': action.datastore_info,
+            'datastore_function_create': action.datastore_function_create,
+            'datastore_function_delete': action.datastore_function_delete,
+            'datastore_run_triggers': action.datastore_run_triggers,
         }
         if not self.legacy_mode:
             if getattr(self.backend, 'enable_sql_search', False):
@@ -141,7 +143,10 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_info': auth.datastore_info,
             'datastore_search': auth.datastore_search,
             'datastore_search_sql': auth.datastore_search_sql,
-            'datastore_change_permissions': auth.datastore_change_permissions
+            'datastore_change_permissions': auth.datastore_change_permissions,
+            'datastore_function_create': auth.datastore_function_create,
+            'datastore_function_delete': auth.datastore_function_delete,
+            'datastore_run_triggers': auth.datastore_run_triggers,
         }
 
     # IRoutes

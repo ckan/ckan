@@ -20,6 +20,7 @@ import ckan.tests.factories as factories
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+assert_in = nose.tools.assert_in
 
 
 class TestDatastoreSearchNewTest(object):
@@ -66,6 +67,7 @@ class TestDatastoreSearchNewTest(object):
             ],
         }
         result = helpers.call_action('datastore_create', **data)
+
         search_data = {
             'resource_id': resource['id'],
             'fields': 'year',
@@ -165,7 +167,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                                  u'characters': None,
                                  u'rating with %': u'99%'}]
 
-        engine = db._get_engine(config['ckan.datastore.write_url'])
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -510,14 +512,13 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         ) for record in result['records']]
         assert results == self.expected_records, result['records']
 
-        expected_fields = [{u'type': u'int4', u'id': u'_id'},
+        expected_fields = [{u'type': u'int', u'id': u'_id'},
                         {u'type': u'text', u'id': u'b\xfck'},
                         {u'type': u'text', u'id': u'author'},
                         {u'type': u'timestamp', u'id': u'published'},
-                        {u'type': u'json', u'id': u'nested'},
-                        {u'type': u'float4', u'id': u'rank'}]
+                        {u'type': u'json', u'id': u'nested'}]
         for field in expected_fields:
-            assert field in result['fields'], field
+            assert_in(field, result['fields'])
 
         # test multiple word queries (connected with and)
         data = {'resource_id': self.data['resource_id'],
@@ -836,7 +837,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                                  u'published': None}]
         cls.expected_join_results = [{u'first': 1, u'second': 1}, {u'first': 1, u'second': 2}]
 
-        engine = db._get_engine(config['ckan.datastore.write_url'])
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -938,8 +939,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             'user': self.sysadmin_user.name,
             'model': model}
         data_dict = {
-            'resource_id': self.data['resource_id'],
-            'connection_url': config['ckan.datastore.write_url']}
+            'resource_id': self.data['resource_id']}
         p.toolkit.get_action('datastore_make_private')(context, data_dict)
         query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
         data = {'sql': query}

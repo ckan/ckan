@@ -12,8 +12,8 @@ installed, we need to install and configure Solr.
    server, but CKAN doesn't require Jetty - you can deploy Solr to another web
    server, such as Tomcat, if that's convenient on your operating system.
 
-#. Edit the Jetty configuration file (``/etc/default/jetty``) and change the
-   following variables::
+#. Edit the Jetty configuration file (``/etc/default/jetty8`` or
+   ``/etc/default/jetty``) and change the following variables::
 
     NO_START=0            # (line 4)
     JETTY_HOST=127.0.0.1  # (line 16)
@@ -26,9 +26,20 @@ installed, we need to install and configure Solr.
     change it to the relevant host or to 0.0.0.0 (and probably set up your firewall
     accordingly).
 
-   Start the Jetty server::
+   Start or restart the Jetty server.
 
-    sudo service jetty start
+   For Ubuntu 16.04::
+
+    sudo service jetty8 restart
+
+   Or for Ubuntu 14.04::
+
+    sudo service jetty restart
+
+   .. note::
+
+    Ignore any warning that it wasn't already running - some Ubuntu
+    distributions choose not to start Jetty on install, but it's not important.
 
    You should now see a welcome page from Solr if you open
    http://localhost:8983/solr/ in your web browser (replace localhost with
@@ -57,11 +68,15 @@ installed, we need to install and configure Solr.
 
    Now restart Solr:
 
-   .. parsed-literal::
+   For Ubuntu 16.04::
 
-      |restart_solr|
+    sudo service jetty8 restart
 
-   and check that Solr is running by opening http://localhost:8983/solr/.
+   or for Ubuntu 14.04::
+
+    sudo service jetty restart
+
+   Check that Solr is running by opening http://localhost:8983/solr/.
 
 
 #. Finally, change the :ref:`solr_url` setting in your :ref:`config_file` (|production.ini|) to
