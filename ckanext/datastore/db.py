@@ -11,10 +11,13 @@ import pprint
 import urllib
 import urllib2
 import urlparse
+from cStringIO import StringIO
 
 import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
+from ckan.lib.lazyjson import LazyJSONObject
+
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
 import psycopg2.extras
@@ -988,6 +991,7 @@ def validate(context, data_dict):
     del data_dict_copy['resource_id']
     data_dict_copy.pop('id', None)
     data_dict_copy.pop('include_total', None)
+    data_dict_copy.pop('records_format', None)
 
     for key, values in data_dict_copy.iteritems():
         if not values:
@@ -1042,9 +1046,41 @@ def search_data(context, data_dict):
     else:
         sort_clause = ''
 
-    sql_string = u'''SELECT {distinct} {select}
-                    FROM "{resource}" {ts_query}
-                    {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
+    records_format = data_dict['records_format']
+    if records_format == u'objects':
+        sql_fmt = u'''
+            SELECT array_to_json(array_agg(j))::text FROM (
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) AS j'''
+    elif records_format == u'lists':
+        select_columns = u" || ',' || ".join(
+            s for s in query_dict['select']
+            ).replace('%', '%%')
+        sql_fmt = u'''
+            SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
+                SELECT '[' || {select} || ']' v
+                FROM (
+                    SELECT {distinct} * FROM "{resource}" {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}) as z
+            ) AS j'''
+    elif records_format == u'csv':
+        sql_fmt = u'''
+            COPY (
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) TO STDOUT csv DELIMITER ',' '''
+    elif records_format == u'tsv':
+        sql_fmt = u'''
+            COPY (
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) TO STDOUT csv DELIMITER '\t' '''
+
+    sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
         resource=resource_id,
@@ -1054,11 +1090,32 @@ def search_data(context, data_dict):
         limit=limit,
         offset=offset)
 
-    results = _execute_single_statement(context, sql_string, where_values)
+    if records_format == u'csv' or records_format == u'tsv':
+        buf = StringIO()
+        _execute_single_statement_copy_to(
+            context, sql_string, where_values, buf)
+        records = buf.getvalue()
+    else:
+        v = list(_execute_single_statement(
+                context, sql_string, where_values))[0][0]
+        if v is None:
+            records = []
+        else:
+            records = LazyJSONObject(v)
+    data_dict['records'] = records
+
+    field_info = _get_field_info(
+        context['connection'], data_dict['resource_id'])
+    result_fields = []
+    for field_id, field_type in fields_types.iteritems():
+        f = {u'id': field_id, u'type': field_type}
+        if field_id in field_info:
+            f['info'] = field_info[f['id']]
+        result_fields.append(f)
+    data_dict['fields'] = result_fields
+    _unrename_json_field(data_dict)
 
     _insert_links(data_dict, limit, offset)
-    r = format_results(context, results, data_dict, _get_field_info(
-        context['connection'], data_dict['resource_id']))
 
     if data_dict.get('include_total', True):
         count_sql_string = u'''SELECT {distinct} count(*)
@@ -1071,7 +1128,7 @@ def search_data(context, data_dict):
             context, count_sql_string, where_values)
         data_dict['total'] = count_result.fetchall()[0][0]
 
-    return r
+    return data_dict
 
 
 def _execute_single_statement(context, sql_string, where_values):
@@ -1085,16 +1142,24 @@ def _execute_single_statement(context, sql_string, where_values):
     return results
 
 
-def format_results(context, results, data_dict, field_info=None):
+def _execute_single_statement_copy_to(context, sql_string, where_values, buf):
+    if not datastore_helpers.is_single_statement(sql_string):
+        raise ValidationError({
+            'query': ['Query is not a single statement.']
+        })
+
+    cursor = context['connection'].connection.cursor()
+    cursor.copy_expert(cursor.mogrify(sql_string, where_values), buf)
+    cursor.close()
+
+
+def format_results(context, results, data_dict):
     result_fields = []
     for field in results.cursor.description:
-        f = {
+        result_fields.append({
             'id': field[0].decode('utf-8'),
             'type': _get_type(context, field[1])
-        }
-        if field_info and f['id'] in field_info:
-            f['info'] = field_info[f['id']]
-        result_fields.append(f)
+        })
 
     records = []
     for row in results:

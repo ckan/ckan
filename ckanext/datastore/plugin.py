@@ -225,6 +225,7 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_info': action.datastore_info,
             'datastore_function_create': action.datastore_function_create,
             'datastore_function_delete': action.datastore_function_delete,
+            'datastore_run_triggers': action.datastore_run_triggers,
         }
         if not self.legacy_mode:
             if self.enable_sql_search:
@@ -247,6 +248,7 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_change_permissions': auth.datastore_change_permissions,
             'datastore_function_create': auth.datastore_function_create,
             'datastore_function_delete': auth.datastore_function_delete,
+            'datastore_run_triggers': auth.datastore_run_triggers,
         }
 
     def before_map(self, m):
@@ -390,8 +392,24 @@ class DatastorePlugin(p.SingletonPlugin):
         sort = self._sort(data_dict, fields_types)
         where = self._where(data_dict, fields_types)
 
-        select_cols = [
-            datastore_helpers.identifier(field_id) for field_id in field_ids]
+        select_cols = []
+        records_format = data_dict.get(u'records_format')
+        json_values = records_format in (u'objects', u'lists')
+        for field_id in field_ids:
+            fmt = u'to_json({0})' if records_format == u'lists' else u'{0}'
+            typ = fields_types.get(field_id)
+            if typ == u'nested':
+                fmt = u'({0}).json'
+            elif typ == u'timestamp':
+                fmt = u"to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
+                if json_values:
+                    fmt = u"to_json({0})".format(fmt)
+            elif typ.startswith(u'_') or typ.endswith(u'[]'):
+                fmt = u'array_to_json({0})'
+            if records_format == u'objects':
+                fmt += u' as {0}'
+            select_cols.append(fmt.format(
+                datastore_helpers.identifier(field_id)))
         if rank_column:
             select_cols.append(rank_column)
 
