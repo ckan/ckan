@@ -235,3 +235,13 @@ class DatastoreBackend:
         :rtype: list of strings
         """
         raise NotImplementedError()
+
+    def create_function(self, *args, **kwargs):
+        """Called by `datastore_function_create` action.
+        """
+        raise NotImplementedError()
+
+    def drop_function(self, *args, **kwargs):
+        """Called by `datastore_function_delete` action.
+        """
+        raise NotImplementedError()

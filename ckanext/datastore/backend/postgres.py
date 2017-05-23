@@ -1221,7 +1221,7 @@ def search_data(context, data_dict):
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
             s for s in query_dict['select']
-            ).replace('%', '%%')
+        ).replace('%', '%%')
         sql_fmt = u'''
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
                 SELECT '[' || {select} || ']' v
@@ -1260,7 +1260,7 @@ def search_data(context, data_dict):
         records = buf.getvalue()
     else:
         v = list(_execute_single_statement(
-                context, sql_string, where_values))[0][0]
+            context, sql_string, where_values))[0][0]
         if v is None:
             records = []
         else:
@@ -1360,17 +1360,17 @@ def _create_triggers(connection, resource_id, triggers):
         resource_id)
     sql_list = (
         [u'DROP TRIGGER {name} ON {table}'.format(
-                name=datastore_helpers.identifier(r[0]),
-                table=datastore_helpers.identifier(resource_id))
-            for r in existing] +
+            name=datastore_helpers.identifier(r[0]),
+            table=datastore_helpers.identifier(resource_id))
+         for r in existing] +
         [u'''CREATE TRIGGER {name}
             BEFORE INSERT OR UPDATE ON {table}
             FOR EACH ROW EXECUTE PROCEDURE {function}()'''.format(
-                # 1000 triggers per table should be plenty
-                name=datastore_helpers.identifier(u't%03d' % i),
-                table=datastore_helpers.identifier(resource_id),
-                function=datastore_helpers.identifier(t['function']))
-            for i, t in enumerate(triggers)])
+                    # 1000 triggers per table should be plenty
+                    name=datastore_helpers.identifier(u't%03d' % i),
+                    table=datastore_helpers.identifier(resource_id),
+                    function=datastore_helpers.identifier(t['function']))
+         for i, t in enumerate(triggers)])
     try:
         if sql_list:
             connection.execute(u';\n'.join(sql_list))
@@ -1748,7 +1748,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         nor can the ordering of them be changed. They can be extended though.
         Any error results in total failure! For now pass back the actual error.
         Should be transactional.
-        :raises InvalidDataError: if there is an invalid value in the given data
+        :raises InvalidDataError: if there is an invalid value in the given
+                                  data
         '''
         engine = get_write_engine()
         context['connection'] = engine.connect()
@@ -1785,8 +1786,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         except IntegrityError, e:
             if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
                 raise ValidationError({
-                    'constraints': ['Cannot insert records or create index because'
-                                    ' of uniqueness constraint'],
+                    'constraints': ['Cannot insert records or create index'
+                                    'because of uniqueness constraint'],
                     'info': {
                         'orig': str(e.orig),
                         'pgcode': e.orig.pgcode
@@ -1922,6 +1923,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             WHERE alias_of IS NULL''')
         query = self._get_write_engine().execute(resources_sql)
         return [q[0] for q in query.fetchall()]
+
+    def create_function(self, *args, **kwargs):
+        return create_function(*args, **kwargs)
+
+    def drop_function(self, *args, **kwargs):
+        return drop_function(*args, **kwargs)
 
 
 def create_function(name, arguments, rettype, definition, or_replace):

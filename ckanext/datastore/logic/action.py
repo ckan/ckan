@@ -15,9 +15,6 @@ import ckanext.datastore.helpers as datastore_helpers
 from ckanext.datastore.backend import (
     DatastoreBackend, InvalidDataError
 )
-from ckanext.datastore.backend.postgres import (
-    create_function, drop_function
-)
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -658,8 +655,8 @@ def datastore_function_create(context, data_dict):
     :type definition: string
     '''
     p.toolkit.check_access('datastore_function_create', context, data_dict)
-
-    create_function(
+    backend = DatastoreBackend.get_active_backend()
+    backend.create_function(
         name=data_dict['name'],
         arguments=data_dict.get('arguments', []),
         rettype=data_dict['rettype'],
@@ -676,5 +673,5 @@ def datastore_function_delete(context, data_dict):
     :type name: string
     '''
     p.toolkit.check_access('datastore_function_delete', context, data_dict)
-
-    drop_function(data_dict['name'], data_dict['if_exists'])
+    backend = DatastoreBackend.get_active_backend()
+    backend.drop_function(data_dict['name'], data_dict['if_exists'])
