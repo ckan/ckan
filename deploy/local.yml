@@ -9,6 +9,8 @@
   vars:
     - deploy_env: vagrant
     - ckan_site_url: http://192.168.33.10:5000/
+    - datapusher_tgz: https://github.com/ckan/datapusher/archive/0.0.10.tar.gz
+    - datapusher_root: /usr/lib/ckan/datapusher
     - git_branch: iod-v2.6
     - application_user: vagrant
     - application_group: vagrant

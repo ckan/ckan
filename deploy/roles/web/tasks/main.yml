@@ -130,6 +130,7 @@
 - name: Reset permissions for Datastore readonly user.
   shell: >
     paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/ckan.ini | sudo -u postgres psql template1
+  when: db_host == "localhost"
 
 # - include: set_file_permissions.yml
 
@@ -169,14 +170,10 @@
             mode=0644
 
 
-# - include: setup_nginx.yml
-
 - name: Install Nginx
   apt: name=nginx update_cache={{ update_apt_cache }} state=installed
   tags: packages
 
-- name: Ensure that the Nginx service is stopped
-  service: name=nginx state=stopped
 
 - name: Create a directory for nginx logs
   file: path={{ application_log_dir }}/nginx
@@ -184,22 +181,27 @@
         mode=0700
         state=directory
 
+
 - name: Create the Nginx configuration file
   template: src=nginx_site_config.j2
             dest=/etc/nginx/sites-available/{{ application_name }}
             backup=yes
 
+
 - name: Ensure that the default site is disabled
   command: rm /etc/nginx/sites-enabled/default
            removes=/etc/nginx/sites-enabled/default
+
 
 - name: Ensure that the application site is enabled
   command: ln -s /etc/nginx/sites-available/{{ application_name }}
            /etc/nginx/sites-enabled/{{ application_name }}
            creates=/etc/nginx/sites-enabled/{{ application_name }}
 
-- name: Ensure Nginx service is started
-  service: name=nginx state=started enabled=yes
+
+- name: Ensure Nginx service is restarted
+  service: name=nginx state=restarted enabled=yes
+
 
 - name: Initialise log rotation for nginx
   template: src=nginx_log.j2
@@ -209,4 +211,5 @@
             mode=0644
   tags: backup
 
-# - include: redis.yml
+
+- include: datapusher.yml

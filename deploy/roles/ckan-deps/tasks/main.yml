@@ -9,6 +9,7 @@
     - build-essential
     - git
     - git-core
+    - libffi-dev
     - libpq-dev
     - libxml2-dev
     - libxslt1-dev

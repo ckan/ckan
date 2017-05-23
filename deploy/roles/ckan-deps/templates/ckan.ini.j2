@@ -96,7 +96,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore
+ckan.plugins = stats text_view image_view recline_view datastore datapusher
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -139,15 +139,15 @@ ckan.feeds.author_link =
 ## Storage Settings
 
 ckan.storage_path = {{ git_root }}/media
-#ckan.max_resource_size = 10
-#ckan.max_image_size = 2
+ckan.max_resource_size = 100
+ckan.max_image_size = 20
 
 ## Datapusher settings
 
 # Make sure you have set up the DataStore
 
-#ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-#ckan.datapusher.url = http://127.0.0.1:8800/
+ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+ckan.datapusher.url = http://127.0.0.1:8800/
 
 # Resource Proxy settings
 # Preview size limit, default: 1MB

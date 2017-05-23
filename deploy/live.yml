@@ -8,6 +8,8 @@
   vars:
     - deploy_env: staging
     - ckan_site_url: http://iod-ckan-live.aws.smallmedia.org.uk/
+    - datapusher_tgz: https://github.com/ckan/datapusher/archive/0.0.10.tar.gz
+    - datapusher_root: /usr/lib/ckan/datapusher
     - git_branch: iod-v2.6
     - application_name: 'iod-ckan'
     - set_up_application_user: yes

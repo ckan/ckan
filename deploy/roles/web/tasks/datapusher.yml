@@ -1,0 +1,63 @@
+---
+
+- name: Create DP directories
+  file:
+    name: "{{item}}"
+    state: directory
+    owner: "{{application_user}}"
+    group: "{{application_group}}"
+  with_items:
+    - "{{datapusher_root}}/src"
+    - "{{datapusher_root}}/log"
+
+
+- name: Create DP virtualenv
+  command: virtualenv "{{datapusher_root}}"
+  args:
+    creates: "{{datapusher_root}}/bin"
+
+
+- name: Download DP tarball
+  get_url:
+    dest: "{{datapusher_root}}/datapusher.tar.gz"
+    url: "{{datapusher_tgz}}"
+
+
+- name: Extract DP tarball
+  command: tar zxf datapusher.tar.gz -C src --strip-components=1
+  args:
+    chdir: "{{datapusher_root}}"
+    creates: "{{datapusher_root}}/src/deployment"
+
+
+- name: Install DP requirements.txt
+  pip:
+    virtualenv: "{{datapusher_root}}"
+    requirements: "{{datapusher_root}}/src/requirements.txt"
+
+
+- name: Symlink WSGI file to a sensible Python module name for use with gunicorn.
+  file:
+    dest: "{{datapusher_root}}/src/wsgi.py"
+    src: "{{datapusher_root}}/src/deployment/datapusher.wsgi"
+    state: link
+    force: true
+
+
+- name: Install DP config file
+  template:
+    dest: "/etc/ckan/datapusher_settings.py"
+    src: "datapusher_settings.py.j2"
+
+
+- name: Install DP gunicorn
+  pip:
+    virtualenv: "{{datapusher_root}}"
+    name: gunicorn
+
+
+- name: Install DP datapusher into virtualenv
+  pip:
+    virtualenv: "{{datapusher_root}}"
+    editable: true
+    name: "{{datapusher_root}}/src"
