@@ -1,3 +1,4 @@
+import time
 import logging
 from urllib import urlencode
 import mimetypes
@@ -10,7 +11,6 @@ import paste.fileapp
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.lib.maintain as maintain
-import ckan.lib.i18n as i18n
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.helpers as h
 import ckan.model as model
@@ -1276,20 +1276,29 @@ class PackageController(base.BaseController):
         return render('package/group_list.html',
                       {'dataset_type': dataset_type})
 
-    def activity(self, id):
+    def activity(self, id, offset=None):
         '''Render this package's public activity stream page.'''
 
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True,
-                   'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user or c.author,
+            'for_view': True,
+            'auth_user_obj': c.userobj
+        }
+
         try:
-            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg_dict = get_action('package_show')(context, {
+                'id': id
+            })
             dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read dataset %s') % id)
+
+        # FIXME: Temporary patch until activity refactor.
+        limit = int(config.get('ckan.activity_list_limit', 31))
 
         return render(
             'package/activity.html',
@@ -1298,9 +1307,14 @@ class PackageController(base.BaseController):
                 'activity_stream': get_action('package_activity_list')(
                     context,
                     {
-                        'id': id
+                        'id': id,
+                        'offset': offset,
+                        'limit': limit
                     }
-                )
+                ),
+                'limit': limit,
+                'ts': lambda t: int(time.mktime(t.timetuple())),
+                'offset': offset
             }
         )
 

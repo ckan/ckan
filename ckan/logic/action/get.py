@@ -2599,17 +2599,27 @@ def package_activity_list(context, data_dict):
 
     package_ref = data_dict.get('id')  # May be name or ID.
     package = model.Package.get(package_ref)
+
     if package is None:
         raise logic.NotFound
 
     offset = int(data_dict.get('offset', 0))
     limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+        data_dict.get(
+            'limit',
+            config.get('ckan.activity_list_limit', 31)
+        )
+    )
 
-    _activity_objects = model.activity.package_activity_list(package.id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_objects = model.activity.package_activity_list(
+        package.id,
+        limit=limit,
+        offset=offset
+    )
+    activity_objects = _filter_activity_by_user(
+        _activity_objects,
+        _activity_stream_get_filtered_users()
+    )
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 

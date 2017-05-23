@@ -9,7 +9,8 @@ from sqlalchemy import (
     desc,
     or_,
     and_,
-    union_all
+    union_all,
+    func
 )
 
 import ckan.model
@@ -150,16 +151,6 @@ def user_activity_list(user_id, limit, offset):
     return _activities_at_offset(q, limit, offset)
 
 
-def _package_activity_query(package_id):
-    '''Return an SQLAlchemy query for all activities about package_id.
-
-    '''
-    import ckan.model as model
-    q = model.Session.query(model.Activity)
-    q = q.filter_by(object_id=package_id)
-    return q
-
-
 def package_activity_list(package_id, limit, offset):
     '''Return the given dataset (package)'s public activity stream.
 
@@ -171,8 +162,26 @@ def package_activity_list(package_id, limit, offset):
     etc.
 
     '''
-    q = _package_activity_query(package_id)
-    return _activities_at_offset(q, limit, offset)
+    import ckan.model as model
+
+    q = model.Session.query(
+        model.Activity
+    ).filter_by(
+        object_id=package_id
+    )
+
+    if offset:
+        q = q.filter(
+            model.Activity.timestamp < func.to_timestamp(offset)
+        )
+
+    q = q.order_by(
+        model.Activity.timestamp.desc()
+    ).limit(
+        limit
+    )
+
+    return q
 
 
 def _group_activity_query(group_id):
