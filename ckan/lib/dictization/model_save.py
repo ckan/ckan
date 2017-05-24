@@ -297,6 +297,8 @@ def package_dict_save(pkg_dict, context):
 
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
+    if not pkg.name:
+        pkg.name = pkg.id
 
     package_resource_list_save(pkg_dict.get("resources"), pkg, context)
     package_tag_list_save(pkg_dict.get("tags"), pkg, context)
