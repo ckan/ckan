@@ -18,7 +18,9 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
+from ckanext.datastore.tests.helpers import (
+    rebuild_all_dbs, set_url_type, DatastoreFunctionalTestBase)
+from ckan.plugins.toolkit import ValidationError
 
 
 class TestDatastoreCreateNewTests(object):
@@ -193,8 +195,7 @@ class TestDatastoreCreateNewTests(object):
         return [result[0] for result in results]
 
     def _execute_sql(self, sql, *args):
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
         return session.connection().execute(sql, *args)
 
@@ -255,8 +256,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
@@ -907,3 +907,201 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert res_dict['success'] is False
         assert res_dict['error']['__type'] == 'Validation Error'
         assert res_dict['error']['message'].startswith('The data was invalid')
+
+
+class TestDatastoreFunctionCreate(DatastoreFunctionalTestBase):
+    def test_nop_trigger(self):
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'test_nop',
+            rettype=u'trigger',
+            definition=u'BEGIN RETURN NEW; END;')
+
+    def test_invalid_definition(self):
+        try:
+            helpers.call_action(
+                u'datastore_function_create',
+                name=u'test_invalid_def',
+                rettype=u'trigger',
+                definition=u'HELLO WORLD')
+        except ValidationError as ve:
+            assert_equal(
+                ve.error_dict,
+                {u'definition':
+                    [u'syntax error at or near "HELLO"']})
+        else:
+            assert 0, u'no validation error'
+
+    def test_redefined_trigger(self):
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'test_redefined',
+            rettype=u'trigger',
+            definition=u'BEGIN RETURN NEW; END;')
+        try:
+            helpers.call_action(
+                u'datastore_function_create',
+                name=u'test_redefined',
+                rettype=u'trigger',
+                definition=u'BEGIN RETURN NEW; END;')
+        except ValidationError as ve:
+            assert_equal(
+                ve.error_dict,
+                {u'name':[
+                    u'function "test_redefined" already exists '
+                    u'with same argument types']})
+        else:
+            assert 0, u'no validation error'
+
+    def test_redefined_with_or_replace_trigger(self):
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'test_replaceme',
+            rettype=u'trigger',
+            definition=u'BEGIN RETURN NEW; END;')
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'test_replaceme',
+            or_replace=True,
+            rettype=u'trigger',
+            definition=u'BEGIN RETURN NEW; END;')
+
+
+class TestDatastoreCreateTriggers(DatastoreFunctionalTestBase):
+    def test_create_with_missing_trigger(self):
+        ds = factories.Dataset()
+
+        try:
+            helpers.call_action(
+                u'datastore_create',
+                resource={u'package_id': ds['id']},
+                fields=[{u'id': u'spam', u'type': u'text'}],
+                records=[{u'spam': u'SPAM'}, {u'spam': u'EGGS'}],
+                triggers=[{u'function': u'no_such_trigger_function'}])
+        except ValidationError as ve:
+            assert_equal(
+                ve.error_dict,
+                {u'triggers':[
+                    u'function no_such_trigger_function() does not exist']})
+        else:
+            assert 0, u'no validation error'
+
+    def test_create_trigger_applies_to_records(self):
+        ds = factories.Dataset()
+
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'spamify_trigger',
+            rettype=u'trigger',
+            definition=u'''
+                BEGIN
+                NEW.spam := 'spam spam ' || NEW.spam || ' spam';
+                RETURN NEW;
+                END;''')
+        res = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[{u'id': u'spam', u'type': u'text'}],
+            records=[{u'spam': u'SPAM'}, {u'spam': u'EGGS'}],
+            triggers=[{u'function': u'spamify_trigger'}])
+        assert_equal(
+            helpers.call_action(
+                u'datastore_search',
+                fields=[u'spam'],
+                resource_id=res['resource_id'])['records'],
+            [
+                {u'spam': u'spam spam SPAM spam'},
+                {u'spam': u'spam spam EGGS spam'}])
+
+    def test_upsert_trigger_applies_to_records(self):
+        ds = factories.Dataset()
+
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'more_spam_trigger',
+            rettype=u'trigger',
+            definition=u'''
+                BEGIN
+                NEW.spam := 'spam spam ' || NEW.spam || ' spam';
+                RETURN NEW;
+                END;''')
+        res = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[{u'id': u'spam', u'type': u'text'}],
+            triggers=[{u'function': u'more_spam_trigger'}])
+        helpers.call_action(
+            u'datastore_upsert',
+            method=u'insert',
+            resource_id=res['resource_id'],
+            records=[{u'spam': u'BEANS'}, {u'spam': u'SPAM'}])
+        assert_equal(
+            helpers.call_action(
+                u'datastore_search',
+                fields=[u'spam'],
+                resource_id=res['resource_id'])['records'],
+            [
+                {u'spam': u'spam spam BEANS spam'},
+                {u'spam': u'spam spam SPAM spam'}])
+
+    def test_create_trigger_exception(self):
+        ds = factories.Dataset()
+
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'spamexception_trigger',
+            rettype=u'trigger',
+            definition=u'''
+                BEGIN
+                IF NEW.spam != 'spam' THEN
+                    RAISE EXCEPTION '"%"? Yeeeeccch!', NEW.spam;
+                END IF;
+                RETURN NEW;
+                END;''')
+        try:
+            res = helpers.call_action(
+                u'datastore_create',
+                resource={u'package_id': ds['id']},
+                fields=[{u'id': u'spam', u'type': u'text'}],
+                records=[{u'spam': u'spam'}, {u'spam': u'EGGS'}],
+                triggers=[{u'function': u'spamexception_trigger'}])
+        except ValidationError as ve:
+            assert_equal(
+                ve.error_dict,
+                {u'records':[
+                    u'"EGGS"? Yeeeeccch!']})
+        else:
+            assert 0, u'no validation error'
+    
+    def test_upsert_trigger_exception(self):
+        ds = factories.Dataset()
+
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'spamonly_trigger',
+            rettype=u'trigger',
+            definition=u'''
+                BEGIN
+                IF NEW.spam != 'spam' THEN
+                    RAISE EXCEPTION '"%"? Yeeeeccch!', NEW.spam;
+                END IF;
+                RETURN NEW;
+                END;''')
+        res = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[{u'id': u'spam', u'type': u'text'}],
+            triggers=[{u'function': u'spamonly_trigger'}])
+        try:
+            helpers.call_action(
+                u'datastore_upsert',
+                method=u'insert',
+                resource_id=res['resource_id'],
+                records=[{u'spam': u'spam'}, {u'spam': u'BEANS'}])
+        except ValidationError as ve:
+            assert_equal(
+                ve.error_dict,
+                {u'records':[
+                    u'"BEANS"? Yeeeeccch!']})
+        else:
+            assert 0, u'no validation error'
