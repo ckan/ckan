@@ -161,6 +161,37 @@ def datastore_create(context, data_dict):
     return result
 
 
+def datastore_run_triggers(context, data_dict):
+    ''' update each record with trigger
+
+    The datastore_run_triggers API action allows you to re-apply exisitng triggers to
+    an existing DataStore resource.
+
+    :param resource_id: resource id that the data is going to be stored under.
+    :type resource_id: string
+
+    **Results:**
+
+    :returns: The rowcount in the table.
+    :rtype: int
+
+    '''
+    res_id = data_dict['resource_id']
+    p.toolkit.check_access('datastore_trigger_each_row', context, data_dict)
+
+    connection = db.get_write_engine().connect()
+
+    sql = sqlalchemy.text(u'''update {0} set _id=_id '''.format(
+                          datastore_helpers.identifier(res_id)))
+    try:
+        results = connection.execute(sql)
+    except sqlalchemy.exc.DatabaseError as err:
+        message = err.args[0].split('\n')[0].decode('utf8')
+        raise p.toolkit.ValidationError({
+                u'records': [message.split(u') ', 1)[-1]]})
+    return results.rowcount
+
+
 def datastore_upsert(context, data_dict):
     '''Updates or inserts into a table in the DataStore
 
@@ -393,6 +424,16 @@ def datastore_search(context, data_dict):
     :param sort: comma separated field names with ordering
                  e.g.: "fieldname1, fieldname2 desc"
     :type sort: string
+    :param include_total: True to return total matching record count
+                          (optional, default: true)
+    :type include_total: bool
+    :param records_format: the format for the records return value:
+        'objects' (default) list of {fieldname1: value1, ...} dicts,
+        'lists' list of [value1, value2, ...] lists,
+        'csv' string containing comma-separated values with no header,
+        'tsv' string containing tab-separated values with no header
+    :type records_format: controlled list
+
 
     Setting the ``plain`` flag to false enables the entire PostgreSQL `full text search query language`_.
 
@@ -418,7 +459,7 @@ def datastore_search(context, data_dict):
     :param total: number of total matching records
     :type total: int
     :param records: list of matching results
-    :type records: list of dictionaries
+    :type records: depends on records_format value passed
 
     '''
     schema = context.get('schema', dsschema.datastore_search_schema())
