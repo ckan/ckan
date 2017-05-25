@@ -1,5 +1,12 @@
-[program:{{ application_name }}]
-command = {{ virtualenv_path }}/bin/gunicorn_start
+[program:datapusher]
+directory = {{datapusher_root}}/src
 user = {{ gunicorn_user }}
-stdout_logfile = {{ application_log_dir }}/supervisord/gunicorn_supervisor.log
+stdout_logfile = {{ application_log_dir }}/supervisord/datapusher.log
 redirect_stderr = true
+command = bash -c "
+  set -ex;
+  source {{datapusher_root}}/bin/activate;
+  exec {{datapusher_root}}/bin/gunicorn wsgi:application \
+        --workers 1 \
+        --bind=127.0.0.1:8800
+  "

@@ -111,6 +111,9 @@
             mode=0644
 
 
+
+- include: roles/web/tasks/datapusher.yml
+
 # - include: setup_django_app.yml
 
 - name: Install packages required by the Django app inside virtualenv

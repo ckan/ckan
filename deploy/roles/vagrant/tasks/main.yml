@@ -5,3 +5,22 @@
 - include: setup_supervisor_log.yml
 
 - include: setup_django_app.yml
+
+- include: roles/web/tasks/datapusher.yml
+
+- name: Create a log directory for Supervisor
+  file: path={{ application_log_dir }}/supervisord
+        owner={{ application_user }}
+        mode=0700
+        state=directory
+
+- name: Create the Supervisor config file
+  template: src=supervisor_config.j2
+            dest=/etc/supervisor/conf.d/vagrant.conf
+            backup=yes
+
+- name: Re-read the Supervisor config files
+  command: supervisorctl reread
+
+- name: Update Supervisor to add the app in the process group
+  command: supervisorctl update
