@@ -42,7 +42,7 @@ def is_flask_request():
 
 
 def streaming_response(
-        data, mimetype='application/octet-stream', with_context=False):
+        data, mimetype=u'application/octet-stream', with_context=False):
     iter_data = iter(data)
     if is_flask_request():
         # Removal of context variables for pylon's app is prevented

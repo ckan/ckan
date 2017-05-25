@@ -19,7 +19,7 @@ def stream_string():
 
 def stream_template(**kwargs):
     u'''A simple replacement for the pylons About page.'''
-    tpl = flask.current_app.jinja_env.get_template('stream.html')
+    tpl = flask.current_app.jinja_env.get_template(u'stream.html')
     gen = tpl.stream(kwargs)
     gen.enable_buffering()
     return streaming_response(gen)
@@ -28,7 +28,7 @@ def stream_template(**kwargs):
 def stream_file():
     u'''A simple replacement for the flash Hello view function.'''
     f_path = path.join(
-        path.dirname(path.abspath(__file__)), 'tests/10lines.txt')
+        path.dirname(path.abspath(__file__)), u'tests/10lines.txt')
 
     def gen():
         with open(f_path) as test_file:
@@ -40,7 +40,7 @@ def stream_file():
 
 def stream_context():
     u'''A simple replacement for the flash Hello view function.'''
-    html = '''{{ request.args.var }}'''
+    html = u'''{{ request.args.var }}'''
 
     def gen():
         yield flask.render_template_string(html)
@@ -50,7 +50,7 @@ def stream_context():
 
 def stream_without_context():
     u'''A simple replacement for the flash Hello view function.'''
-    html = '''{{ request.args.var }}'''
+    html = u'''{{ request.args.var }}'''
 
     def gen():
         yield flask.render_template_string(html)

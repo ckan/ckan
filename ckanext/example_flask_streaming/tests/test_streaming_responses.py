@@ -29,7 +29,7 @@ class TestFlaskStreaming(helpers.FunctionalTestBase):
 
     def test_accordance_of_chunks(self):
         u'''Test extension sets up a unique route.'''
-        url = '/stream/string'
+        url = str(u'/stream/string')
         resp = self._get_resp(url)
         eq_(
             u'Hello World, this is served from an extension'.split(),
@@ -38,20 +38,20 @@ class TestFlaskStreaming(helpers.FunctionalTestBase):
 
     def test_template_streaming(self):
         u'''Test extension sets up a unique route.'''
-        url = '/stream/template'
+        url = str(u'/stream/template')
         resp = self._get_resp(url)
         eq_(1, len(list(resp.app_iter)))
 
-        url = '/stream/template/7'
+        url = str(u'/stream/template/7')
         resp = self._get_resp(url)
         eq_(2, len(list(resp.app_iter)))
         resp._app_iter.close()
 
     def test_file_streaming(self):
         u'''Test extension sets up a unique route.'''
-        url = '/stream/file'
+        url = str(u'/stream/file')
         resp = self._get_resp(url)
-        f_path = path.join(path.dirname(path.abspath(__file__)), '10lines.txt')
+        f_path = path.join(path.dirname(path.abspath(__file__)), u'10lines.txt')
         with open(f_path) as test_file:
             content = test_file.readlines()
             eq_(content, list(resp.app_iter))
@@ -59,13 +59,13 @@ class TestFlaskStreaming(helpers.FunctionalTestBase):
 
     def test_render_with_context(self):
         u'''Test extension sets up a unique route.'''
-        url = '/stream/context?var=10'
+        url = str(u'/stream/context?var=10')
         resp = self._get_resp(url)
-        eq_('10', resp.body)
+        eq_(u'10', resp.body)
 
     def test_render_without_context(self):
         u'''Test extension sets up a unique route.'''
-        url = '/stream/without_context?var=10'
+        url = str(u'/stream/without_context?var=10')
         resp = self._get_resp(url)
-        assert_raises(AttributeError, str.join, '', resp.app_iter)
+        assert_raises(AttributeError, u''.join, resp.app_iter)
         resp.app_iter.close()
