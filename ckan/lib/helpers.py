@@ -2158,7 +2158,7 @@ def get_translated(data_dict, field):
     try:
         return data_dict[field+'_translated'][language]
     except KeyError:
-        return data_dict.get(field, '')
+        return _(data_dict.get(field, ''))
 
 
 
