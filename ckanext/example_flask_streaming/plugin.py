@@ -10,7 +10,7 @@ from ckan.common import streaming_response
 
 
 def stream_string():
-    u'''A simple view function'''
+    u'''Stream may consist of any common content, like words'''
     def generate():
         for w in u'Hello World, this is served from an extension'.split():
             yield w
@@ -18,15 +18,17 @@ def stream_string():
 
 
 def stream_template(**kwargs):
-    u'''A simple replacement for the pylons About page.'''
+    u'''You can stream big templates as well.'''
     tpl = flask.current_app.jinja_env.get_template(u'stream.html')
     gen = tpl.stream(kwargs)
+    # pass integer into `enable_buffering` to control, how many 
+    # tokens will consist in every response chunk. 
     gen.enable_buffering()
     return streaming_response(gen)
 
 
 def stream_file():
-    u'''A simple replacement for the flash Hello view function.'''
+    u'''File stream. Just do not close it until response finished'''
     f_path = path.join(
         path.dirname(path.abspath(__file__)), u'tests/10lines.txt')
 
@@ -39,7 +41,7 @@ def stream_file():
 
 
 def stream_context():
-    u'''A simple replacement for the flash Hello view function.'''
+    u'''Additional argument keep request context from destroying'''
     html = u'''{{ request.args.var }}'''
 
     def gen():
@@ -49,12 +51,14 @@ def stream_context():
 
 
 def stream_without_context():
-    u'''A simple replacement for the flash Hello view function.'''
+    u'''You'll definitely get error attempting to get request info.'''
     html = u'''{{ request.args.var }}'''
 
     def gen():
         yield flask.render_template_string(html)
 
+    # `with_context` set to False by default. Thus, you cannot use
+    # request context in this case.
     return streaming_response(gen())
 
 
