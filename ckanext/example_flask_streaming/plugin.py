@@ -21,8 +21,8 @@ def stream_template(**kwargs):
     u'''You can stream big templates as well.'''
     tpl = flask.current_app.jinja_env.get_template(u'stream.html')
     gen = tpl.stream(kwargs)
-    # pass integer into `enable_buffering` to control, how many 
-    # tokens will consist in every response chunk. 
+    # pass integer into `enable_buffering` to control, how many
+    # tokens will consist in every response chunk.
     gen.enable_buffering()
     return streaming_response(gen)
 
