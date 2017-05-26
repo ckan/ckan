@@ -402,6 +402,52 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org1, org2]]))
 
+    def test_organization_list_package_count(self):
+
+        user = factories.Sysadmin()
+        factories.Organization(name='aa')
+        factories.Organization(name='bb')
+        dataset_one = factories.Dataset(name='change_org', owner_org='aa')
+        factories.Dataset(owner_org='aa')
+        factories.Dataset(owner_org='aa')
+        factories.Dataset(owner_org='bb')
+        factories.Dataset(owner_org='bb')
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count desc')
+        eq(group_list, ['aa', 'bb'])
+
+        dataset_one['owner_org'] = 'bb'
+        helpers.call_action('package_update',
+                            context={'user': user['name']},
+                            **dataset_one)
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count desc')
+        eq(group_list, ['bb', 'aa'])
+
+        factories.Dataset(owner_org='aa')
+
+        dataset_one['private'] = True
+        helpers.call_action('package_update',
+                            context={'user': user['name']},
+                            **dataset_one)
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count asc')
+
+        eq(group_list, ['bb', 'aa'])
+
+        dataset_one['private'] = False
+        helpers.call_action('package_update',
+                            context={'user': user['name']},
+                            **dataset_one)
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count asc')
+
+        eq(group_list, ['aa', 'bb'])
+
     def test_organization_list_in_presence_of_groups(self):
         '''
         Getting the organization_list only returns organization group
