@@ -448,6 +448,7 @@ class TestOrganizationList(helpers.FunctionalTestBase):
 
         eq(group_list, ['aa', 'bb'])
 
+
     def test_organization_list_in_presence_of_groups(self):
         '''
         Getting the organization_list only returns organization group
