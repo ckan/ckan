@@ -402,6 +402,72 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org1, org2]]))
 
+    def test_organization_list_package_count(self):
+
+        sysadmin = factories.Sysadmin()
+        user_in_org = factories.User()
+        user = factories.User()
+        factories.Organization(
+            name='aa',
+            users=[{
+                'name': user_in_org['name'],
+                'capacity': 'member'}]
+        )
+        factories.Organization(name='bb')
+        factories.Dataset(owner_org='aa')
+        factories.Dataset(owner_org='aa')
+        factories.Dataset(owner_org='aa')
+        factories.Dataset(owner_org='bb')
+        factories.Dataset(owner_org='bb')
+        factories.Dataset(owner_org='bb', private=True)
+        factories.Dataset(owner_org='bb', private=True)
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count desc', context={
+                'user': sysadmin['name'],
+                'user_id': sysadmin['id'],
+                'user_is_admin': sysadmin['sysadmin']})
+        eq(group_list, ['bb', 'aa'])
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count desc', context={
+                'user': user_in_org['name'],
+                'user_id': user_in_org['id']})
+        eq(group_list, ['bb', 'aa'])
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count desc', context={
+                'user': user['name'],
+                'user_id': user['id']})
+        eq(group_list, ['aa', 'bb'])
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count desc')
+        eq(group_list, ['aa', 'bb'])
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count asc', context={
+                'user': sysadmin['name'],
+                'user_id': sysadmin['id'],
+                'user_is_admin': sysadmin['sysadmin']})
+        eq(group_list, ['aa', 'bb'])
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count asc', context={
+                'user': user_in_org['name'],
+                'user_id': user_in_org['id']})
+        eq(group_list, ['aa', 'bb'])
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count asc', context={
+                'user': user['name'],
+                'user_id': user['id']})
+        eq(group_list, ['bb', 'aa'])
+
+        group_list = helpers.call_action(
+            'organization_list', sort='package_count asc')
+        eq(group_list, ['bb', 'aa'])
+
     def test_organization_list_in_presence_of_groups(self):
         '''
         Getting the organization_list only returns organization group

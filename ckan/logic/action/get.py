@@ -320,6 +320,7 @@ def member_list(context, data_dict=None):
 
 def _group_or_org_list(context, data_dict, is_org=False):
     model = context['model']
+    user = context.get('user_id')
     api = context.get('api_version')
     groups = data_dict.get('groups')
     group_type = data_dict.get('type', 'group')
@@ -366,8 +367,19 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
         query = query.filter(model.Member.group_id == model.Group.id) \
                      .filter(model.Member.table_id == model.Package.id) \
+                     .filter(model.Member.state == 'active') \
                      .filter(model.Member.table_name == 'package') \
                      .filter(model.Package.state == 'active')
+        if user:
+            user_in_org = model.Session.query(model.Member.group_id) \
+                .join(model.Group) \
+                .filter(model.Group.id == model.Member.group_id) \
+                .filter(model.Group.type == 'organization') \
+                .filter(model.Member.table_id == user).first()
+            if not user_in_org and not context.get('user_is_admin'):
+                query = query.filter(model.Package.private == False)
+        else:
+            query = query.filter(model.Package.private == False)
     else:
         query = model.Session.query(model.Group.id,
                                     model.Group.name)
