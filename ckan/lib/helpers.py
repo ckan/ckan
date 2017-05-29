@@ -2299,7 +2299,8 @@ def get_translated(data_dict, field):
     try:
         return data_dict[field+'_translated'][language]
     except KeyError:
-        return _(data_dict.get(field, ''))
+        val = data_dict.get(field, '')
+        return _(val) if isinstance(val, basestring) else val
 
 
 @core_helper
