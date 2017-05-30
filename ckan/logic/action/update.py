@@ -294,6 +294,9 @@ def package_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
+    # Refresh the package to update data of the packge and it's resources
+    model.Session.refresh(pkg)
+
     pkg = model_save.package_dict_save(data, context)
 
     # Update metadata modified ONLY when pkg metadata was changed.
