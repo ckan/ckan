@@ -14,6 +14,7 @@
             left: 0;
             width: 25%;
             border-right: 1px solid @genericBorderColor;
+            z-index: 1; // Fixes overlapping .secondary on the Resource view page
         }
         &.no-nav {
             &:before {
@@ -67,8 +68,7 @@
 }
 
 [role=main] .secondary {
-    padding-top: @grid-gutter-width/2;
-    padding-bottom: @grid-gutter-width/2;
+    padding: 0;
 }
 
 
