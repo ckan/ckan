@@ -6788,6 +6788,8 @@ a.tag:hover {
   margin-bottom: 10px;
 }
 .module-resource {
+  z-index: 5;
+  position: relative;
   background-color: #fff;
   border-bottom: 1px solid #ddd;
   margin-top: 0;
@@ -8956,6 +8958,7 @@ h4 small {
     left: 0;
     width: 25%;
     border-right: 1px solid #ddd;
+    z-index: 1;
   }
   .wrapper.no-nav:before {
     display: none;
@@ -8990,8 +8993,7 @@ h4 small {
   margin-left: 0;
 }
 [role=main] .secondary {
-  padding-top: 15px;
-  padding-bottom: 15px;
+  padding: 0;
 }
 /* Filters modal */
 .no-text .text {
