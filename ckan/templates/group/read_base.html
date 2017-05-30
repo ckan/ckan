@@ -1,10 +1,10 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ c.group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
+{% block subtitle %}{{ h.get_translated(c.group_dict, 'title') or c.group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
-  <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='group', action='read', id=c.group_dict.name %}</li>
+  <li class="active">{% link_for h.get_translated(c.group_dict, 'title') or c.group_dict.display_name |truncate(35), controller='group', action='read', id=c.group_dict.name %}</li>
 {% endblock %}
 
 {% block content_action %}
