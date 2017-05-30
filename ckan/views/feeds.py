@@ -9,6 +9,7 @@ from werkzeug.contrib.atom import AtomFeed
 
 from ckan.common import _, config, g, request, response, json
 import ckan.lib.helpers as h
+import ckan.lib.base as base
 import ckan.model as model
 import ckan.logic as logic
 import ckan.plugins as plugins
@@ -51,7 +52,6 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
     author_link = config.get(u'ckan.feeds.author_link', u'').strip() or \
         config.get(u'ckan.site_url', u'').strip()
 
-    print navigation_urls
     # TODO: language
     feed_class = None
     for plugin in plugins.PluginImplementations(plugins.IFeed):
@@ -83,14 +83,52 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                                           id=pkg['id']),
                  decription=pkg.get(u'notes', u''),
                  updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
-                 published=h.date_str_to_datetime(pkg.get(u'metadata_created')),
+                 published=h.date_str_to_datetime(
+                     pkg.get(u'metadata_created')),
                  unique_id=_create_atom_id(u'/dataset%s' % pkg['id']),
                  author_name=pkg.get(u'author', u''),
                  author_email=pkg.get(u'author_email', u''),
                  **additional_fields)
 
-        # response.content_type = feed.get_response()
-        return feed.get_response()
+    # response.content_type = feed.get_response()
+    return feed.get_response()
+
+
+def group(id):
+    try:
+        context = {u'model': model, u'session': model.Session,
+                   u'user': g.user, u'auth_user_obj': g.userobj}
+        group_dict = logic.get_action(u'group_show')(context, {u'id': id})
+    except logic.NotFound:
+        base.abort(404, _(u'Organization not found'))
+
+    return group_or_organization(group_dict, is_org=False)
+
+
+def group_or_organization(obj_dict, is_org):
+    data_dict, params = _parse_url_params()
+
+
+def _parse_url_params(self):
+    """
+    Constructs a search-query dict from the URL query parameters.
+
+    Returns the constructed search-query dict, and the valid URL
+    query parameters.
+    """
+    page = h.get_page_number(request.params)
+
+    limit = ITEMS_LIMIT
+    data_dict = {
+        'start': (page - 1) * limit,
+        'rows': limit
+    }
+
+    # Filter ignored query parameters
+    valid_params = ['page']
+    params = dict((p, request.params.get(p)) for p in valid_params
+                  if p in request.params)
+    return data_dict, params
 
 
 def custom():
@@ -307,7 +345,6 @@ class _FixedAtomFeed(AtomFeed):
         """
         Drop the pubdate field from the new item.
         """
-        print args
         if u'pubdate' in kwargs:
             kwargs.pop(u'pubdate')
         if u'generator' in kwargs:
@@ -329,5 +366,5 @@ class _FixedAtomFeed(AtomFeed):
 
 
 # Routing
-#feeds.add_url_rule(u'/custom.atom', methods=[u'GET', u'POST'],
-#                  view_func=custom)
+feeds.add_url_rule(u'/custom.atom', methods=[u'GET', u'POST'],
+                   view_func=custom)
