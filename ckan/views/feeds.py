@@ -329,5 +329,5 @@ class _FixedAtomFeed(AtomFeed):
 
 
 # Routing
-feeds.add_url_rule(u'/custom.atom', methods=[u'GET', u'POST'],
-                   view_func=custom)
+#feeds.add_url_rule(u'/custom.atom', methods=[u'GET', u'POST'],
+#                  view_func=custom)
