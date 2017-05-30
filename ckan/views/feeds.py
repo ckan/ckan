@@ -95,7 +95,6 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
 
 def custom():
     '''Custom atom feed'''
-    print 'Helo'
     q = request.params.get('q', u'')
     fq = ''
     search_params = {}
@@ -177,7 +176,7 @@ def _navigation_urls(query, controller, action, item_count, limit, **kwargs):
     first_query.pop('page', None)
     href = _feed_url(first_query, controller,
                      action, **kwargs)
-    urls.append({'rel': 'first', 'href': href})
+    urls.append({u'rel': 'first', u'href': href})
 
     # last: add last page parameter
     last_page = (item_count / limit) + min(1, item_count % limit)
@@ -185,7 +184,7 @@ def _navigation_urls(query, controller, action, item_count, limit, **kwargs):
     last_query['page'] = last_page
     href = _feed_url(last_query, controller,
                      action, **kwargs)
-    urls.append({'rel': 'last', 'href': href})
+    urls.append({u'rel': u'last', u'href': href})
     # previous
     if page > 1:
         previous_query = query.copy()
@@ -194,7 +193,7 @@ def _navigation_urls(query, controller, action, item_count, limit, **kwargs):
                          action, **kwargs)
     else:
         href = None
-    urls.append({'rel': 'previous', 'href': href})
+    urls.append({u'rel': u'previous', u'href': href})
 
     # next
     if page < last_page:
@@ -205,7 +204,7 @@ def _navigation_urls(query, controller, action, item_count, limit, **kwargs):
     else:
         href = None
 
-    urls.append({'rel': 'last', 'href': href})
+    urls.append({u'rel': u'next', u'href': href})
     return urls
 
 
@@ -305,8 +304,11 @@ class _FixedAtomFeed(AtomFeed):
         """
         Drop the pubdate field from the new item.
         """
+        print args
         if 'pubdate' in kwargs:
             kwargs.pop('pubdate')
+        if 'generator' in kwargs:
+            kwargs.pop('generator')
         defaults = {'updated': None, 'published': None}
         defaults.update(kwargs)
         super(_FixedAtomFeed, self).add(*args, **defaults)
