@@ -729,8 +729,11 @@ def _group_or_org_create(context, data_dict, is_org=False):
     return_id_only = context.get('return_id_only', False)
     action = 'organization_show' if is_org else 'group_show'
 
-    output = context['id'] if return_id_only \
-        else _get_action(action)(context, {'id': group.id})
+    if return_id_only:
+        return context['id']
+    
+    logic.check_access(action, context, {'id': group.id})
+    output = _get_action(action)(context, {'id': group.id})
 
     return output
 
