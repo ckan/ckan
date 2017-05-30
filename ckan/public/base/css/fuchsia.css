@@ -6614,7 +6614,7 @@ a.tag:hover {
   box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
 }
 .module > .page-header {
-  margin-top: 15px;
+  margin-top: 0;
 }
 .module > .module-content:nth-child(2n) {
   padding-top: 15px;
