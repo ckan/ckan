@@ -51,7 +51,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
         config.get(u'ckan.site_id', u'').strip()
     author_link = config.get(u'ckan.feeds.author_link', u'').strip() or \
         config.get(u'ckan.site_url', u'').strip()
-    print author_name
+
     # TODO: language
     feed_class = None
     for plugin in plugins.PluginImplementations(plugins.IFeed):
@@ -64,7 +64,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
     feed = feed_class(title=feed_title,
                       url=feed_link,
                       language=u'en',
-                      author={'name': author_name},
+                      author={u'name': author_name},
                       author_link=author_link,
                       id=feed_guid,
                       feed_url=feed_url,
@@ -79,9 +79,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                 additional_fields = plugin.get_item_additional_fields(pkg)
 
         feed.add(title=pkg.get(u'title', u''),
-                 url=BASE_URL + h.url_for(controller=u'package',
-                                          action=u'read',
-                                          id=pkg['id']),
+                 url=BASE_URL + h.url_for('package.read', id=pkg['id']),
                  decription=pkg.get(u'notes', u''),
                  updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
                  published=h.date_str_to_datetime(
@@ -101,9 +99,50 @@ def group(id):
                    u'user': g.user, u'auth_user_obj': g.userobj}
         group_dict = logic.get_action(u'group_show')(context, {u'id': id})
     except logic.NotFound:
-        base.abort(404, _(u'Organization not found'))
+        base.abort(404, _(u'Group not found'))
 
     return group_or_organization(group_dict, is_org=False)
+
+
+def organization(id):
+    try:
+        context = {u'model': model, u'session': model.Session,
+                   u'user': g.user, u'auth_user_obj': g.userobj}
+        group_dict = logic.get_action(u'organization_show')(context,
+                                                            {u'id': id})
+    except logic.NotFound:
+        base.abort(404, _(u'Organization not found'))
+
+    return group_or_organization(group_dict, is_org=True)
+
+
+def tag(id):
+    data_dict, params = _parse_url_params()
+    data_dict['fq'] = u'tags: "%s"' % id
+
+    item_count, results = _package_search(data_dict)
+
+    navigation_urls = _navigation_urls(params, item_count=item_count,
+                                       limit=data_dict['rows'],
+                                       controller=u'feeds',
+                                       action=u'tag',
+                                       id=id)
+
+    feed_url = _feed_url(params,
+                         controller=u'feeds',
+                         action=u'tag',
+                         id=id)
+
+    alternate_url = _alternate_url(params, tags=id)
+
+    title = u'%s - Tag: "%s"' % (SITE_TITLE, id)
+    desc = u'Recently created or updated datasets on %s by tag: "%s"' % \
+           (SITE_TITLE, id)
+    guid = _create_atom_id(u'/feeds/tag/%s.atom' % id)
+
+    return output_feed(results, feed_title=title, feed_description=desc,
+                       feed_link=alternate_url, feed_guid=guid,
+                       feed_url=feed_url, navigation_urls=navigation_urls)
 
 
 def group_or_organization(obj_dict, is_org):
@@ -122,10 +161,10 @@ def group_or_organization(obj_dict, is_org):
 
     navigation_urls = _navigation_urls(params, item_count=item_count,
                                        limit=data_dict['rows'],
-                                       controller='feed',
+                                       controller=u'feed',
                                        action=group_type,
                                        id=obj_dict['name'])
-    feed_url = _feed_url(params, controller='feed', action=group_type,
+    feed_url = _feed_url(params, controller=u'feed', action=group_type,
                          id=obj_dict['name'])
     # site_title = SITE_TITLE
     if is_org:
@@ -134,7 +173,7 @@ def group_or_organization(obj_dict, is_org):
         alternate_url = _alternate_url(params, organization=obj_dict['name'])
         desc = u'Recently created or updated datasets on %s '\
                'by organization: "%s"' % (SITE_TITLE, obj_dict['title'])
-        title = u'%s - Organization: "%s"' & (SITE_TITLE, obj_dict['title'])
+        title = u'%s - Organization: "%s"' % (SITE_TITLE, obj_dict['title'])
 
     else:
         guid = _create_atom_id(u'/feeds/group/%s.atom' %
@@ -142,14 +181,14 @@ def group_or_organization(obj_dict, is_org):
         alternate_url = _alternate_url(params, groups=obj_dict['name'])
         desc = u'Recently created or updated datasets on %s '\
                'by group: "%s"' % (SITE_TITLE, obj_dict['title'])
-        title = u'%s - Group: "%s"' & (SITE_TITLE, obj_dict['title'])
+        title = u'%s - Group: "%s"' % (SITE_TITLE, obj_dict['title'])
 
     return output_feed(results, feed_title=title, feed_description=desc,
                        feed_link=alternate_url, feed_guid=guid,
                        feed_url=feed_url, navigation_urls=navigation_urls)
 
 
-def _parse_url_params(self):
+def _parse_url_params():
     """
     Constructs a search-query dict from the URL query parameters.
 
@@ -160,8 +199,8 @@ def _parse_url_params(self):
 
     limit = ITEMS_LIMIT
     data_dict = {
-        'start': (page - 1) * limit,
-        'rows': limit
+        u'start': (page - 1) * limit,
+        u'rows': limit
     }
 
     # Filter ignored query parameters
@@ -214,8 +253,7 @@ def custom():
     return output_feed(results,
                        feed_title=u'%s - Custom query' % site_title,
                        feed_description=u'Recently created or updated'
-                       ' datasets on %s. Custom query: \'%s\''
-                       % (site_title, q),
+                       ' datasets on %s. Custom query: \'%s\'' % (site_title, q),
                        feed_link=alternate_url,
                        feed_guid=_create_atom_id(atom_url),
                        feed_url=feed_url,
@@ -238,8 +276,8 @@ def _feed_url(query, controller, action, **kwargs):
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
+    # endpoint = controller + '.' + action
     path = h.url_for(controller=controller, action=action, **kwargs)
-    # path = h.url_for('/feeds', action, **kwargs)
     return h._url_with_params(BASE_URL + path, query.items())
 
 
@@ -408,3 +446,10 @@ class _FixedAtomFeed(AtomFeed):
 # Routing
 feeds.add_url_rule(u'/custom.atom', methods=[u'GET', u'POST'],
                    view_func=custom)
+feeds.add_url_rule(u'/tag/<string:id>.atom', methods=[u'GET', u'POST'],
+                   view_func=tag)
+feeds.add_url_rule(u'/group/<string:id>.atom', methods=[u'GET', u'POST'],
+                   view_func=group)
+feeds.add_url_rule(u'/organization/<string:id>.atom', methods=[u'GET', u'POST'],
+                   view_func=organization)
+

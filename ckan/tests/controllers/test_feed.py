@@ -20,8 +20,10 @@ class TestFeedNew(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         with app.flask_app.test_request_context():
-            offset = url_for(controller='feed', action='group',
-                             id=group['name']) + '?page=0'
+            # offset = url_for(controller='feed', action='group',
+            #                  id=group['name']) + '?page=0'
+            offset = url_for(u'feeds.group', id=group['name']) + u'?page=0'
+
         res = app.get(offset, status=400)
         assert '"page" parameter must be a positive integer' in res, res
 
