@@ -19,9 +19,9 @@ log = logging.getLogger(__name__)
 
 feeds = Blueprint(u'feeds', __name__, url_prefix=u'/feeds')
 
-ITEMS_LIMIT = 20
-
-base_url = config.get(u'ckan.site_url')
+ITEMS_LIMIT = config.get(u'ckan.feeds.limit', 20)
+BASE_URL = config.get(u'ckan.site_url')
+SITE_TITLE = config.get(u'ckan.site_title', u'CKAN')
 
 
 def _package_search(data_dict):
@@ -51,7 +51,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
         config.get(u'ckan.site_id', u'').strip()
     author_link = config.get(u'ckan.feeds.author_link', u'').strip() or \
         config.get(u'ckan.site_url', u'').strip()
-
+    print author_name
     # TODO: language
     feed_class = None
     for plugin in plugins.PluginImplementations(plugins.IFeed):
@@ -64,11 +64,12 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
     feed = feed_class(title=feed_title,
                       url=feed_link,
                       language=u'en',
-                      author_name=author_name,
+                      author={'name': author_name},
                       author_link=author_link,
                       id=feed_guid,
                       feed_url=feed_url,
-                      links=navigation_urls)
+                      links=navigation_urls,
+                      generator=(None, None, None))
 
     for pkg in results:
         additional_fields = {}
@@ -78,7 +79,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                 additional_fields = plugin.get_item_additional_fields(pkg)
 
         feed.add(title=pkg.get(u'title', u''),
-                 url=base_url + h.url_for(controller=u'package',
+                 url=BASE_URL + h.url_for(controller=u'package',
                                           action=u'read',
                                           id=pkg['id']),
                  decription=pkg.get(u'notes', u''),
@@ -86,7 +87,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                  published=h.date_str_to_datetime(
                      pkg.get(u'metadata_created')),
                  unique_id=_create_atom_id(u'/dataset%s' % pkg['id']),
-                 author_name=pkg.get(u'author', u''),
+                 author=pkg.get(u'author', u''),
                  author_email=pkg.get(u'author_email', u''),
                  **additional_fields)
 
@@ -107,6 +108,45 @@ def group(id):
 
 def group_or_organization(obj_dict, is_org):
     data_dict, params = _parse_url_params()
+    if is_org:
+        key = u'owner_org'
+        value = obj_dict['id']
+        group_type = u'organization'
+    else:
+        key = u'groups'
+        value = obj_dict['name']
+        group_type = u'group'
+
+    data_dict['fq'] = u'{0}: "{1}"'.format(key, value)
+    item_count, results = _package_search(data_dict)
+
+    navigation_urls = _navigation_urls(params, item_count=item_count,
+                                       limit=data_dict['rows'],
+                                       controller='feed',
+                                       action=group_type,
+                                       id=obj_dict['name'])
+    feed_url = _feed_url(params, controller='feed', action=group_type,
+                         id=obj_dict['name'])
+    # site_title = SITE_TITLE
+    if is_org:
+        guid = _create_atom_id(u'/feeds/organization/%s.atom' %
+                               obj_dict['name'])
+        alternate_url = _alternate_url(params, organization=obj_dict['name'])
+        desc = u'Recently created or updated datasets on %s '\
+               'by organization: "%s"' % (SITE_TITLE, obj_dict['title'])
+        title = u'%s - Organization: "%s"' & (SITE_TITLE, obj_dict['title'])
+
+    else:
+        guid = _create_atom_id(u'/feeds/group/%s.atom' %
+                               obj_dict['name'])
+        alternate_url = _alternate_url(params, groups=obj_dict['name'])
+        desc = u'Recently created or updated datasets on %s '\
+               'by group: "%s"' % (SITE_TITLE, obj_dict['title'])
+        title = u'%s - Group: "%s"' & (SITE_TITLE, obj_dict['title'])
+
+    return output_feed(results, feed_title=title, feed_description=desc,
+                       feed_link=alternate_url, feed_guid=guid,
+                       feed_url=feed_url, navigation_urls=navigation_urls)
 
 
 def _parse_url_params(self):
@@ -200,7 +240,7 @@ def _feed_url(query, controller, action, **kwargs):
     """
     path = h.url_for(controller=controller, action=action, **kwargs)
     # path = h.url_for('/feeds', action, **kwargs)
-    return h._url_with_params(base_url + path, query.items())
+    return h._url_with_params(BASE_URL + path, query.items())
 
 
 def _navigation_urls(query, controller, action, item_count, limit, **kwargs):
