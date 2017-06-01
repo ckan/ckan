@@ -210,6 +210,33 @@ def _parse_url_params():
     return data_dict, params
 
 
+def general():
+    data_dict, params = _parse_url_params()
+    data_dict['q'] = u'*:*'
+
+    item_count, results = _package_search(data_dict)
+
+    navigation_urls = _navigation_urls(params, item_count=item_count,
+                                       limit=data_dict['rows'],
+                                       controller=u'feeds',
+                                       action=u'general')
+
+    feed_url = _feed_url(params, controller=u'feeds', action=u'general')
+
+    alternate_url = _alternate_url(params)
+
+    guid = _create_atom_id(u'/feeds/dataset.atom')
+
+    desc = u'Recently created or updated datasets on %s' % SITE_TITLE
+
+    return output_feed(results, feed_title=SITE_TITLE,
+                       feed_description=desc,
+                       feed_link=alternate_url,
+                       feed_guid=guid,
+                       feed_url=feed_url,
+                       navigation_urls=navigation_urls)
+
+
 def custom():
     """
     Custom atom feed
@@ -444,6 +471,8 @@ class _FixedAtomFeed(AtomFeed):
 
 
 # Routing
+feeds.add_url_rule(u'/dataset.atom', methods=[u'GET', u'POST'],
+                   view_func=general)
 feeds.add_url_rule(u'/custom.atom', methods=[u'GET', u'POST'],
                    view_func=custom)
 feeds.add_url_rule(u'/tag/<string:id>.atom', methods=[u'GET', u'POST'],
