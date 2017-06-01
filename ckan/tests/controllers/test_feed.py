@@ -32,8 +32,7 @@ class TestFeedNew(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         with app.flask_app.test_request_context():
-            offset = url_for(controller='feed', action='group',
-                             id=group['name']) + '?page=-2'
+            offset = url_for(u'feeds.group', id=group['name']) + '?page=-2'
         res = app.get(offset, status=400)
         assert '"page" parameter must be a positive integer' in res, res
 
@@ -42,8 +41,7 @@ class TestFeedNew(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         with app.flask_app.test_request_context():
-            offset = url_for(controller='feed', action='group',
-                             id=group['name']) + '?page=abc'
+            offset = url_for(u'feeds.group', id=group['name']) + '?page=abc'
         res = app.get(offset, status=400)
         assert '"page" parameter must be a positive integer' in res, res
 
@@ -52,10 +50,10 @@ class TestFeedNew(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         with app.flask_app.test_request_context():
-            offset = url_for(controller='feed', action='general')
+            offset = url_for(u'feeds.general')
         res = app.get(offset)
 
-        assert '<title>{0}</title>'.format(dataset['title']) in res.body
+        assert u'<title type="text">{0}</title>'.format(dataset['title']) in res.body
 
     def test_group_atom_feed_works(self):
         group = factories.Group()
@@ -63,11 +61,10 @@ class TestFeedNew(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         with app.flask_app.test_request_context():
-            offset = url_for(controller='feed', action='group',
-                             id=group['name'])
+            offset = url_for(u'feeds.group', id=group['name'])
         res = app.get(offset)
 
-        assert '<title>{0}</title>'.format(dataset['title']) in res.body
+        assert u'<title type="text">{0}</title>'.format(dataset['title']) in res.body
 
     def test_organization_atom_feed_works(self):
         group = factories.Organization()
@@ -75,31 +72,30 @@ class TestFeedNew(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         with app.flask_app.test_request_context():
-            offset = url_for(controller='feed', action='organization',
-                             id=group['name'])
+            offset = url_for(u'feeds.organization', id=group['name'])
         res = app.get(offset)
 
-        assert '<title>{0}</title>'.format(dataset['title']) in res.body
+        assert u'<title type="text">{0}</title>'.format(dataset['title']) in res.body
 
     def test_custom_atom_feed_works(self):
         dataset1 = factories.Dataset(
-            title='Test weekly',
+            title=u'Test weekly',
             extras=[{'key': 'frequency', 'value': 'weekly'}])
         dataset2 = factories.Dataset(
-            title='Test daily',
+            title=u'Test daily',
             extras=[{'key': 'frequency', 'value': 'daily'}])
 
         app = self._get_test_app()
         with app.flask_app.test_request_context():
-            offset = url_for(controller='feed', action='custom')
+            offset = url_for('feeds.custom')
         params = {
             'q': 'frequency:weekly'
         }
         res = app.get(offset, params=params)
 
-        assert '<title>{0}</title>'.format(dataset1['title']) in res.body
+        assert u'<title type="text">{0}</title>'.format(dataset1['title']) in res.body
 
-        assert '<title>{0}</title>'.format(dataset2['title']) not in res.body
+        assert u'<title type="text">{0}</title>'.format(dataset2['title']) not in res.body
 
 
 class TestFeedInterface(helpers.FunctionalTestBase):
