@@ -341,7 +341,7 @@ class PackageController(base.BaseController):
     def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user, 'for_view': True,
-                   'auth_user_obj': c.userobj}
+                   'auth_user_obj': c.userobj, 'validate': False}
         data_dict = {'id': id, 'include_tracking': True}
 
         # interpret @<revision_id> or @<date> suffix
@@ -1059,7 +1059,8 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user,
                    'auth_user_obj': c.userobj,
-                   'for_view': True}
+                   'for_view': True,
+                   'validate': False}
 
         try:
             c.package = get_action('package_show')(context, {'id': id})
