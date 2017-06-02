@@ -72,7 +72,7 @@
               {{ line | urlize }}<br>
             {% endfor %}
             <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
-              {{ h.time_ago_from_timestamp(item.timestamp) }}
+              {{ h.time_ago_from_timestamp(status.last_updated) }}
               <a href="#" data-target="popover" data-content="<dl>{% for key, value in item.iteritems() %}<dt>{{ key }}</dt><dd>{{ value }}</dd>{% endfor %}</dl>" data-html="true">{{ _('Details') }}</a>
             </span>
           </p>
