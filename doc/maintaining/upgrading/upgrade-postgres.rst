@@ -212,7 +212,7 @@ Upgrading
         sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis.sql
         sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/spatial_ref_sys.sql
         sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
-        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
+        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE spatial_ref_sys OWNER TO ckan_default;'
 
    To check if PostGIS was properly installed:
 

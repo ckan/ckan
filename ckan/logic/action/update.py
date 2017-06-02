@@ -62,11 +62,13 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
+
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
     resource = model.Resource.get(id)
     context["resource"] = resource
+    old_resource_format = resource.format
 
     if not resource:
         log.debug('Could not find resource %s', id)
@@ -119,6 +121,13 @@ def resource_update(context, data_dict):
     model.repo.commit()
 
     resource = _get_action('resource_show')(context, {'id': id})
+
+    if old_resource_format != resource['format']:
+        _get_action('resource_create_default_resource_views')(
+            {'model': context['model'], 'user': context['user'],
+             'ignore_auth': True},
+            {'package': updated_pkg_dict,
+             'resource': resource})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_update(context, resource)
