@@ -48,6 +48,7 @@ class DataTablesView(p.SingletonPlugin):
                 u'responsive': [default(False), boolean_validator],
                 u'export_buttons': [default(False), boolean_validator],
                 u'show_fields': [],
+                u'filterable': [default(True), boolean_validator],
             }
         }
 
