@@ -28,7 +28,7 @@ int_validator = get_validator('int_validator')
 boolean_validator = get_validator('boolean_validator')
 
 DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
-PAGINATE_BY = 10000
+PAGINATE_BY = 32000
 
 
 class DatastoreController(BaseController):
@@ -100,16 +100,22 @@ class DatastoreController(BaseController):
 
 
 def dump_to(resource_id, output, fmt, offset, limit, options):
+    if fmt == 'csv':
+        writer_factory = csv_writer
+        records_format = 'csv'
+    elif fmt == 'tsv':
+        writer_factory = tsv_writer
+        records_format = 'tsv'
+    elif fmt == 'json':
+        writer_factory = json_writer
+        records_format = 'lists'
+    elif fmt == 'xml':
+        writer_factory = xml_writer
+        records_format = 'objects'
+
     def start_writer(fields):
         bom = options.get(u'bom', False)
-        if fmt == 'csv':
-            return csv_writer(output, fields, resource_id, bom)
-        if fmt == 'tsv':
-            return tsv_writer(output, fields, resource_id, bom)
-        if fmt == 'json':
-            return json_writer(output, fields, resource_id, bom)
-        if fmt == 'xml':
-            return xml_writer(output, fields, resource_id, bom)
+        return writer_factory(output, fields, resource_id, bom)
 
     def result_page(offs, lim):
         return get_action('datastore_search')(None, {
@@ -118,6 +124,8 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
                 PAGINATE_BY if limit is None
                 else min(PAGINATE_BY, lim),
             'offset': offs,
+            'records_format': records_format,
+            'include_total': 'false',  # XXX: default() is broken
             })
 
     result = result_page(offset, limit)
@@ -128,13 +136,20 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
             if limit is not None and limit <= 0:
                 break
 
-            for record in result['records']:
-                wr.writerow([record[column] for column in columns])
+            records = result['records']
 
-            if len(result['records']) < PAGINATE_BY:
+            wr.write_records(records)
+
+            if records_format == 'objects' or records_format == 'lists':
+                if len(records) < PAGINATE_BY:
+                    break
+            elif not records:
                 break
+
             offset += PAGINATE_BY
             if limit is not None:
                 limit -= PAGINATE_BY
+                if limit <= 0:
+                    break
 
             result = result_page(offset, limit)

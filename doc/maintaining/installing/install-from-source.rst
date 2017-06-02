@@ -5,8 +5,8 @@ Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 16.04 64-bit or
-Ubuntu 14.04 64-bit. Installing CKAN from source works with other versions of
+:doc:`install-from-package` is simpler, it requires Ubuntu 14.04 64-bit or
+Ubuntu 12.04 64-bit. Installing CKAN from source works with other versions of
 Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
 you install CKAN from source on your own operating system, please share your
 experiences on our
@@ -98,7 +98,13 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the CKAN source code into your virtualenv.
+b. Install the recommended version of 'setuptools':
+
+   .. parsed-literal::
+
+       pip install -r |virtualenv|/src/ckan/requirement-setuptools.txt
+
+c. Install the CKAN source code into your virtualenv.
    To install the latest stable release of CKAN (CKAN |latest_release_version|),
    run:
 
@@ -120,7 +126,7 @@ b. Install the CKAN source code into your virtualenv.
       production websites! Only install this version if you're doing CKAN
       development.
 
-c. Install the Python modules that CKAN requires into your virtualenv:
+d. Install the Python modules that CKAN requires into your virtualenv:
 
    .. versionchanged:: 2.1
       In CKAN 2.0 and earlier the requirement file was called
@@ -130,7 +136,7 @@ c. Install the Python modules that CKAN requires into your virtualenv:
 
        pip install -r |virtualenv|/src/ckan/requirements.txt
 
-d. Deactivate and reactivate your virtualenv, to make sure you're using the
+e. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
    installed copies:
 
@@ -347,3 +353,14 @@ main.debug.css to get CKAN running::
 
     cp /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.css \
     /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.debug.css
+
+JSP support not configured
+--------------------------
+
+This is seen occasionally with Jetty and Ubuntu 14.04. It requires a solr-jetty fix::
+
+    cd /tmp
+    wget https://launchpad.net/~vshn/+archive/ubuntu/solr/+files/solr-jetty-jsp-fix_1.0.2_all.deb
+    sudo dpkg -i solr-jetty-jsp-fix_1.0.2_all.deb
+    sudo service jetty restart
+

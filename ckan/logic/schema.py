@@ -70,6 +70,7 @@ from ckan.logic.validators import (
     extra_key_not_in_root_schema,
     empty_if_not_sysadmin,
     package_id_does_not_exist,
+    email_validator
     )
 
 
@@ -146,9 +147,9 @@ def default_create_package_schema():
         'name': [not_empty, unicode, name_validator, package_name_validator],
         'title': [if_empty_same_as("name"), unicode],
         'author': [ignore_missing, unicode],
-        'author_email': [ignore_missing, unicode],
+        'author_email': [ignore_missing, unicode, email_validator],
         'maintainer': [ignore_missing, unicode],
-        'maintainer_email': [ignore_missing, unicode],
+        'maintainer_email': [ignore_missing, unicode, email_validator],
         'license_id': [ignore_missing, unicode],
         'notes': [ignore_missing, unicode],
         'url': [ignore_missing, unicode],  # , URL(add_http=False)],

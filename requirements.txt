@@ -45,7 +45,7 @@ repoze.who==2.3
 requests==2.11.1
 Routes==1.13              # via pylons
 rq==0.6.0
-simplejson==3.8.2         # via pylons
+simplejson==3.10.0
 six==1.10.0               # via bleach, html5lib, pastescript, pyutilib.component.core, sqlalchemy-migrate
 sqlalchemy-migrate==0.10.0
 SQLAlchemy==0.9.6         # via sqlalchemy-migrate
