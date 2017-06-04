@@ -1,4 +1,4 @@
-FROM solr:6.2
+FROM solr:6.3
 MAINTAINER Open Knowledge
 
 # Enviroment
@@ -26,3 +26,5 @@ RUN echo name=$SOLR_CORE > /opt/solr/server/solr/$SOLR_CORE/core.properties
 
 # Giving ownership to Solr
 RUN chown -R $SOLR_USER:$SOLR_USER /opt/solr/server/solr/$SOLR_CORE
+
+USER $SOLR_USER
