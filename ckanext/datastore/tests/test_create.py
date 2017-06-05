@@ -17,7 +17,7 @@ import ckan.config.middleware as middleware
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
     rebuild_all_dbs, set_url_type, DatastoreFunctionalTestBase)
 from ckan.plugins.toolkit import ValidationError
@@ -1072,7 +1072,7 @@ class TestDatastoreCreateTriggers(DatastoreFunctionalTestBase):
                     u'"EGGS"? Yeeeeccch!']})
         else:
             assert 0, u'no validation error'
-    
+
     def test_upsert_trigger_exception(self):
         ds = factories.Dataset()
 
