@@ -8,7 +8,7 @@ from ckan.lib.cli import (
     paster_click_group,
     click_config_option,
 )
-from ckanext.datastore.helpers import identifier
+from ckanext.datastore.backend.postgres import identifier
 from ckanext.datastore.controller import DUMP_FORMATS, dump_to
 
 import click

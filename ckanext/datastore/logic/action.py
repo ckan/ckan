@@ -15,6 +15,7 @@ import ckanext.datastore.helpers as datastore_helpers
 from ckanext.datastore.backend import (
     DatastoreBackend, InvalidDataError
 )
+from ckanext.datastore.backend.postgres import identifier
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -191,7 +192,7 @@ def datastore_run_triggers(context, data_dict):
     connection = backend._get_write_engine().connect()
 
     sql = sqlalchemy.text(u'''update {0} set _id=_id '''.format(
-                          datastore_helpers.identifier(res_id)))
+                          identifier(res_id)))
     try:
         results = connection.execute(sql)
     except sqlalchemy.exc.DatabaseError as err:

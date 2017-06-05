@@ -59,7 +59,7 @@ class DatastoreBackend:
     """Base class for all datastore backends.
 
     Very simple example of implementation based on SQLite can be found in
-    `ckanext.datastore.backend.example_sqlite`. In order to use it, set
+    `ckanext.example_idatastorebackend`. In order to use it, set
     datastore.write_url to
     'example-sqlite:////tmp/database-name-on-your-choice'
 

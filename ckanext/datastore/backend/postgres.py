@@ -86,6 +86,20 @@ is_single_statement = datastore_helpers.is_single_statement
 _engines = {}
 
 
+def literal_string(s):
+    """
+    Return s as a postgres literal string
+    """
+    return u"'" + s.replace(u"'", u"''").replace(u'\0', '') + u"'"
+
+
+def identifier(s):
+    """
+    Return s as a quoted postgres identifier
+    """
+    return u'"' + s.replace(u'"', u'""').replace(u'\0', '') + u'"'
+
+
 def get_read_engine():
     return _get_engine_from_url(config['ckan.datastore.read_url'])
 
@@ -381,7 +395,7 @@ def _where_clauses(data_dict, fields_types):
 
                 clause_str = (u'to_tsvector({0}, cast("{1}" as text)) '
                               u'@@ {2}').format(
-                                  datastore_helpers.literal_string(lang),
+                                  literal_string(lang),
                                   field, query_field)
                 clauses.append((clause_str,))
 
@@ -418,8 +432,8 @@ def _textsearch_query(data_dict):
 def _build_query_and_rank_statements(lang, query, plain, field=None):
     query_alias = _ts_query_alias(field)
     rank_alias = _ts_rank_alias(field)
-    lang_literal = datastore_helpers.literal_string(lang)
-    query_literal = datastore_helpers.literal_string(query)
+    lang_literal = literal_string(lang)
+    query_literal = literal_string(query)
     if plain:
         statement = u"plainto_tsquery({lang_literal}, {literal}) {alias}"
     else:
@@ -473,7 +487,7 @@ def _sort(data_dict, fields_types):
     for clause in clauses:
         field, sort = _parse_sort_clause(clause, fields_types)
         clause_parsed.append(
-            u'{0} {1}'.format(datastore_helpers.identifier(field), sort))
+            u'{0} {1}'.format(identifier(field), sort))
 
     return clause_parsed
 
@@ -873,10 +887,10 @@ def create_table(context, data_dict):
 
     fields = datastore_fields + supplied_fields + extra_fields
     sql_fields = u", ".join([u'{0} {1}'.format(
-        datastore_helpers.identifier(f['id']), f['type']) for f in fields])
+        identifier(f['id']), f['type']) for f in fields])
 
     sql_string = u'CREATE TABLE {0} ({1});'.format(
-        datastore_helpers.identifier(data_dict['resource_id']),
+        identifier(data_dict['resource_id']),
         sql_fields
     )
 
@@ -885,9 +899,9 @@ def create_table(context, data_dict):
         info = f.get(u'info')
         if isinstance(info, dict):
             info_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
-                datastore_helpers.identifier(data_dict['resource_id']),
-                datastore_helpers.identifier(f['id']),
-                datastore_helpers.literal_string(
+                identifier(data_dict['resource_id']),
+                identifier(f['id']),
+                literal_string(
                     json.dumps(info, ensure_ascii=False))))
 
     context['connection'].execute(
@@ -949,21 +963,21 @@ def alter_table(context, data_dict):
     alter_sql = []
     for f in new_fields:
         alter_sql.append(u'ALTER TABLE {0} ADD {1} {2};'.format(
-            datastore_helpers.identifier(data_dict['resource_id']),
-            datastore_helpers.identifier(f['id']),
+            identifier(data_dict['resource_id']),
+            identifier(f['id']),
             f['type']))
 
     for f in supplied_fields:
         if u'info' in f:
             info = f.get(u'info')
             if isinstance(info, dict):
-                info_sql = datastore_helpers.literal_string(
+                info_sql = literal_string(
                     json.dumps(info, ensure_ascii=False))
             else:
                 info_sql = 'NULL'
             alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
-                datastore_helpers.identifier(data_dict['resource_id']),
-                datastore_helpers.identifier(f['id']),
+                identifier(data_dict['resource_id']),
+                identifier(f['id']),
                 info_sql))
 
     if alter_sql:
@@ -1360,16 +1374,16 @@ def _create_triggers(connection, resource_id, triggers):
         resource_id)
     sql_list = (
         [u'DROP TRIGGER {name} ON {table}'.format(
-            name=datastore_helpers.identifier(r[0]),
-            table=datastore_helpers.identifier(resource_id))
+            name=identifier(r[0]),
+            table=identifier(resource_id))
          for r in existing] +
         [u'''CREATE TRIGGER {name}
-            BEFORE INSERT OR UPDATE ON {table}
-            FOR EACH ROW EXECUTE PROCEDURE {function}()'''.format(
-                    # 1000 triggers per table should be plenty
-                    name=datastore_helpers.identifier(u't%03d' % i),
-                    table=datastore_helpers.identifier(resource_id),
-                    function=datastore_helpers.identifier(t['function']))
+        BEFORE INSERT OR UPDATE ON {table}
+        FOR EACH ROW EXECUTE PROCEDURE {function}()'''.format(
+            # 1000 triggers per table should be plenty
+            name=identifier(u't%03d' % i),
+            table=identifier(resource_id),
+            function=identifier(t['function']))
          for i, t in enumerate(triggers)])
     try:
         if sql_list:
@@ -1695,7 +1709,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             if records_format == u'objects':
                 fmt += u' as {0}'
             select_cols.append(fmt.format(
-                datastore_helpers.identifier(field_id)))
+                identifier(field_id)))
         if rank_column:
             select_cols.append(rank_column)
 
@@ -1937,14 +1951,14 @@ def create_function(name, arguments, rettype, definition, or_replace):
             {name}({args}) RETURNS {rettype} AS {definition}
             LANGUAGE plpgsql;'''.format(
         or_replace=u'OR REPLACE' if or_replace else u'',
-        name=datastore_helpers.identifier(name),
+        name=identifier(name),
         args=u', '.join(
             u'{argname} {argtype}'.format(
-                argname=datastore_helpers.identifier(a['argname']),
-                argtype=datastore_helpers.identifier(a['argtype']))
+                argname=identifier(a['argname']),
+                argtype=identifier(a['argtype']))
             for a in arguments),
-        rettype=datastore_helpers.identifier(rettype),
-        definition=datastore_helpers.literal_string(definition))
+        rettype=identifier(rettype),
+        definition=literal_string(definition))
 
     try:
         _write_engine_execute(sql)
@@ -1960,7 +1974,7 @@ def drop_function(name, if_exists):
         DROP FUNCTION {if_exists} {name}();
         '''.format(
         if_exists=u'IF EXISTS' if if_exists else u'',
-        name=datastore_helpers.identifier(name))
+        name=identifier(name))
 
     try:
         _write_engine_execute(sql)
