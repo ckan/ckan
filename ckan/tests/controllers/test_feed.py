@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 from ckan.lib.helpers import url_for
-from webhelpers.feedgenerator import GeoAtom1Feed
 
 import ckan.plugins as plugins
 
@@ -115,8 +114,8 @@ class TestFeedInterface(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         with app.flask_app.test_request_context():
-            offset = url_for(controller='feed', action='general')
-        app = self._get_test_app()
+            offset = url_for(u'feeds.general')
+        # app = self._get_test_app()
         res = app.get(offset)
 
         assert 'xmlns:georss="http://www.georss.org/georss"' in res.body, res.body
@@ -138,8 +137,8 @@ class TestFeedInterface(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         with app.flask_app.test_request_context():
-            offset = url_for(controller='feed', action='general')
-        app = self._get_test_app()
+            offset = url_for(u'feeds.general')
+        # app = self._get_test_app()
         res = app.get(offset)
 
         assert '<georss:box>-2373790.000000 2937940.000000 -1681290.000000 3567770.000000</georss:box>' in res.body, res.body
@@ -148,8 +147,8 @@ class TestFeedInterface(helpers.FunctionalTestBase):
 class MockFeedPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IFeed)
 
-    def get_feed_class(self):
-        return GeoAtom1Feed
+    # def get_feed_class(self):
+    #     return GeoAtom1Feed
 
     def get_item_additional_fields(self, dataset_dict):
         extras = {e['key']: e['value'] for e in dataset_dict['extras']}
