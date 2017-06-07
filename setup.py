@@ -103,6 +103,7 @@ entry_points = {
         'recline_grid_view = ckanext.reclineview.plugin:ReclineGridView',
         'recline_graph_view = ckanext.reclineview.plugin:ReclineGraphView',
         'recline_map_view = ckanext.reclineview.plugin:ReclineMapView',
+        'datatables_view = ckanext.datatablesview.plugin:DataTablesView',
         'image_view = ckanext.imageview.plugin:ImageView',
         'webpage_view = ckanext.webpageview.plugin:WebPageView',
         # FIXME: Remove deprecated resource previews below. You should use the
