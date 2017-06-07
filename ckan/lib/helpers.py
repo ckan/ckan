@@ -347,6 +347,11 @@ def full_current_url():
     return (url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
 
 
+def current_url():
+    ''' Returns current url unquoted'''
+    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
+
+
 def lang():
     ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
