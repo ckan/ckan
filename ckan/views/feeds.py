@@ -280,7 +280,8 @@ def custom():
     return output_feed(results,
                        feed_title=u'%s - Custom query' % site_title,
                        feed_description=u'Recently created or updated'
-                       ' datasets on %s. Custom query: \'%s\'' % (site_title, q),
+                       ' datasets on %s. Custom query: \'%s\'' % (site_title,
+                                                                  q),
                        feed_link=alternate_url,
                        feed_guid=_create_atom_id(atom_url),
                        feed_url=feed_url,
@@ -479,6 +480,5 @@ feeds.add_url_rule(u'/tag/<string:id>.atom', methods=[u'GET', u'POST'],
                    view_func=tag)
 feeds.add_url_rule(u'/group/<string:id>.atom', methods=[u'GET', u'POST'],
                    view_func=group)
-feeds.add_url_rule(u'/organization/<string:id>.atom', methods=[u'GET', u'POST'],
-                   view_func=organization)
-
+feeds.add_url_rule(u'/organization/<string:id>.atom',
+                   methods=[u'GET', u'POST'], view_func=organization)
