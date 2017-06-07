@@ -357,6 +357,9 @@ def full_current_url():
     for sharing etc '''
     return (url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
 
+def current_url():
+    ''' Returns current url unquoted'''
+    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
 
 def lang():
     ''' Return the language code for the current locale eg `en` '''
@@ -2224,6 +2227,7 @@ __allowed_functions__ = [
     'debug_inspect',
     'dict_list_reduce',
     'full_current_url',
+    'current_url',
     'popular',
     'debug_full_info_as_list',
     'get_facet_title',
