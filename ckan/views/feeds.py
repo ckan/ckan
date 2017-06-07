@@ -79,7 +79,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                 additional_fields = plugin.get_item_additional_fields(pkg)
 
         feed.add(title=pkg.get(u'title', u''),
-                 url=BASE_URL + h.url_for(u'package.read', id=pkg['id']),
+                 url=BASE_URL + h.url_for(str(u'package.read'), id=pkg['id']),
                  decription=pkg.get(u'notes', u''),
                  updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
                  published=h.date_str_to_datetime(
