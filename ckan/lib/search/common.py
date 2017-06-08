@@ -62,6 +62,9 @@ def is_available():
 
 
 def make_connection(decode_dates=True):
+    SolrSettings.init(config.get('solr_url'),
+                      config.get('solr_user'),
+                      config.get('solr_password'))
     solr_url, solr_user, solr_password = SolrSettings.get()
     if decode_dates:
         decoder = simplejson.JSONDecoder(object_hook=solr_datetime_decoder)
