@@ -272,6 +272,9 @@ def package_update(context, data_dict):
     else:
         schema = package_plugin.update_package_schema()
 
+    for item in plugins.PluginImplementations(plugins.IPackageController):
+        item.before_package_update(context, data_dict)
+
     if 'api_version' not in context:
         # check_data_dict() is deprecated. If the package_plugin has a
         # check_data_dict() we'll call it, if it doesn't have the method we'll

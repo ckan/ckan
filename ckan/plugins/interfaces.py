@@ -612,12 +612,26 @@ class IPackageController(Interface):
         '''
         pass
 
+    def before_package_create(self, context, pkg_dict):
+        u'''
+            Extensions will receive the data dict before the package
+            will be validated and created.
+        '''
+        pass
+
     def after_create(self, context, pkg_dict):
         u'''
             Extensions will receive the validated data dict after the package
             has been created (Note that the create method will return a package
             domain object, which may not include all fields). Also the newly
             created package id will be added to the dict.
+        '''
+        pass
+
+    def before_package_update(self, context, pkg_dict):
+        u'''
+            Extensions will receive the data dict before the package
+            will be validated and updated.
         '''
         pass
 

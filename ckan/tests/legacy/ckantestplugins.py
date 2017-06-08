@@ -129,10 +129,17 @@ class MockPackageControllerPlugin(p.SingletonPlugin):
         self.calls['before_view'] += 1
         return data_dict
 
+    def before_package_create(self, context, data_dict):
+        self.calls['before_package_create'] += 1
+        return data_dict
+
     def after_create(self, context, data_dict):
         self.calls['after_create'] += 1
         self.id_in_dict = 'id' in data_dict
+        return data_dict
 
+    def before_package_update(self, context, data_dict):
+        self.calls['before_package_update'] += 1
         return data_dict
 
     def after_update(self, context, data_dict):
