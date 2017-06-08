@@ -95,12 +95,12 @@ def load_environment(global_conf, app_conf):
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
+    # load all CKAN plugins
+    p.load_all()
+
     # Check Redis availability
     if not is_redis_available():
         log.critical('Could not connect to Redis.')
-
-    # load all CKAN plugins
-    p.load_all()
 
     app_globals.reset()
 
