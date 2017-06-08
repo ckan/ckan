@@ -172,7 +172,6 @@ def reset():
         get_config_value(key)
 
     # custom styling
-    import pdb; pdb.set_trace()  # breakpoint d045dc4b //
     main_css = get_config_value('ckan.main_css', '/base/css/main.css')
     set_main_css(main_css)
 
