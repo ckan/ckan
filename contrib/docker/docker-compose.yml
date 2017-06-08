@@ -1,4 +1,8 @@
 # docker-compose build && docker-compose up
+# If you experience problems with the CKAN container not being
+# able to connect to the DB, then most likely the DB has not
+# started up quickly enough. Just do "docker-compose up ckan"
+# again to retry
 ckan:
   container_name: ckan
   # Note, if you are working on CKAN core, change this to
