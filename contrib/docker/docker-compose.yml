@@ -1,6 +1,8 @@
 # docker-compose build && docker-compose up
 ckan:
   container_name: ckan
+  # Note, if you are working on CKAN core, change this to
+  # build ../../
   image: ckan/ckan:latest
   links:
       - db
@@ -21,7 +23,7 @@ ckan:
 
 db:
   container_name: db
-  image: ckan/postgresql:latest
+  build: postgresql/
   
 solr:
   container_name: solr
