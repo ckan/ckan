@@ -79,6 +79,7 @@ this.ckan.module('confirm-action', function (jQuery) {
         action: this.el.attr('href'),
         method: 'POST'
       });
+      $(this.el).closest('form').find('input[data-module-confirm-action]').appendTo(form);
       form.appendTo('body').submit();
     },
 
