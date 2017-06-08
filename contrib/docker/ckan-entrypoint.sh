@@ -26,13 +26,13 @@ write_config () {
 
   ckan-paster make-config ckan "$CONFIG"
 
-  # In case want to use the config from ckan.ini use this
-  #ckan-paster --plugin=ckan config-tool "$CONFIG" -e \
-  #    "sqlalchemy.url = ${CKAN_SQLALCHEMY_URL}" \
-  #    "solr_url = ${CKAN_SOLR_URL}" \
-  #    "ckan.redis.url = ${CKAN_REDIS_URL}" \
-  #    "ckan.storage_path = ${CKAN_STORAGE_PATH}" \
-  #    "ckan.site_url = ${CKAN_SITE_URL}"
+  # Apply config
+  ckan-paster --plugin=ckan config-tool "$CONFIG" -e \
+      "sqlalchemy.url = ${CKAN_SQLALCHEMY_URL}" \
+      "solr_url = ${CKAN_SOLR_URL}" \
+      "ckan.redis.url = ${CKAN_REDIS_URL}" \
+      "ckan.storage_path = ${CKAN_STORAGE_PATH}" \
+      "ckan.site_url = ${CKAN_SITE_URL}"
 }
 
 link_postgres_url () {
