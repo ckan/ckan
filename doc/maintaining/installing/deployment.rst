@@ -274,6 +274,18 @@ file (both use port 80), so disable it and restart Apache:
 
     sudo a2dissite default
     |reload_apache|
+    
+Default Nginx welcome page
+===========================
+
+If you see a default Nginx welcome page, it may be because the default Nginx config file
+is overriding your CKAN config, so disable it and restart Nginx (i.e. remove
+the soft link to the /etc/nginx/sites-available/default file):
+
+.. parsed-literal::
+
+    rm /etc/nginx/sites-enabled/default
+    |reload_nginx|
 
 403 Forbidden and 500 Internal Server Error
 ===========================================
