@@ -10,6 +10,47 @@ Changelog
 v2.7.0 TBA
 ==========
 
+Major:
+ * datatables_view resource view plugin (#3444)
+ * IDatastoreBackend plugins for replacing default postgres backend (#3437)
+ * datastore_search new result formats and performance improvements (#3523)
+ * PL/PGSQL triggers for datastore tables (#3428)
+ * Datastore dump CLI commands (#3384)
+ * Wrap/override actions defined in other plugins (#3494)
+ * Datastore table data dictionary stored as postgres comments (#3414)
+ * Common session object for Flask and Pylons (#3208)
+ * Rename deleted datasets when they conflict with new ones (#3370)
+ * Datastore dump more formats: CSV, TSV, XML, JSON; BOM option (#3390)
+ * Common requests code for Flask and Pylons (#3212)
+ * Generate complete datastore dump files (#3344)
+
+Minor:
+ * Renamed example theme plugin (#3576)
+ * Localization support for groups (#3559)
+ * Create new resource views when format changes (#3515)
+ * Email field validation (#3568)
+ * datastore_run_triggers sysadmin-only action to apply triggers to existing data (#3565)
+ * Docs updated for Ubuntu 16.04 (#3544)
+ * Upgrade leaflet to 0.7.7 (#3534)
+ * Datapusher CLI always-answer-yes option (#3524)
+ * Added docs for all plugin interfaces (#3519)
+ * Datastore dumps nested columns as JSON (#3487)
+ * Faster/optional datastore_search total calculation (#3467)
+ * Faster group_activity_query (#3466)
+ * Faster query performance (#3430)
+ * Marked remaining JS strings translatable (#3423)
+ * Upgrade font-awesome to 4.0.3 (#3400)
+ * group/organization_show include_dataset_count option (#3385)
+ * image_formats config option for image viewer (#3380)
+ * click may now be used for CLI interfaces: use load_config instead of CkanCommand (#3384)
+ * package_search option to return only names/ids (#3427)
+ * user_list all_fields option (#3353)
+ * Error controller may now be overridden (#3340)
+ * Plural translations in JS (#3211)
+ * Support JS translations in extensions (#3272)
+ * Requirements upgraded (#3305)
+ * Dockerfile updates (#3295)
+
 API changes and deprecations:
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
    helper) now return all organizations a user belongs to regardless of
