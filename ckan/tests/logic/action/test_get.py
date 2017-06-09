@@ -671,7 +671,7 @@ class TestUserShow(helpers.FunctionalTestBase):
 
     def test_user_show_sysadmin_password_hash(self):
 
-        user = factories.User(password='test')
+        user = factories.User(password='TestPassword1')
 
         sysadmin = factories.User(sysadmin=True)
 
