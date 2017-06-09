@@ -91,7 +91,7 @@ def user_add(args):
     or paster user add
     '''
     if len(args) < 1:
-        error('You need to specify the user name.')
+        error('Error: you need to specify the user name.')
     username = args[0]
 
     # parse args into data_dict
