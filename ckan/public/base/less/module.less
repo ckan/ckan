@@ -17,12 +17,16 @@
     font-size: @font-size-base;
     line-height: 1.3;
     background-color: @moduleHeadingBackgroundColor;
-    border-top: 1px solid @moduleHeadingBorderColor;
-    border-bottom: 1px solid @moduleHeadingBorderColor;
+    border: 1px solid @moduleHeadingBorderColor;
+    border-left: 0;
 }
 
 .module-content {
     padding: @grid-gutter-width;
+
+    img{
+        max-width: 100%;
+    }
 }
 
 // @media (min-width: @screen-sm-min) {
