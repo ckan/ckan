@@ -15,3 +15,10 @@ To create a sysadmin account, run: `paster sysadmin add myusername`
 
 `cd deploy ; ansible-playbook live.yml`
 
+
+
+## Working with paster on iod-ckan-live
+
+* Login to `iod-ckan-live`:  `ssh iod-ckan-live.aws.smallmedia.org.uk`
+* Switch to the CKAN user: `sudo su - iod-ckan`
+* `paster ... /etc/ckan/default/ckan.ini`
