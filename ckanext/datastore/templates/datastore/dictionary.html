@@ -14,10 +14,10 @@
     {% block dictionary_form %}
       {% for f in fields %}
         <h3>{{ _( "Field {num}.").format(num=loop.index) }} {{ f.id }} ({{ f.type }})</h3>
-        {{ form.input('f' ~ loop.index ~ 'label',
+        {{ form.input('info__' ~ loop.index ~ '__label',
           label=_('Label'), id='field-f' ~ loop.index ~ 'label',
           value=f.get('info', {}).get('label', ''), classes=['control-full']) }}
-        {{ form.markdown('f' ~ loop.index ~ 'notes',
+        {{ form.markdown('info__' ~ loop.index ~ '__notes',
           label=_('Description'), id='field-d' ~ loop.index ~ 'notes',
           value=f.get('info', {}).get('notes', '')) }}
       {% endfor %}
