@@ -13,6 +13,7 @@ redirect_stderr = true
 command = bash -c "
   set -ex;
   source {{datapusher_root}}/bin/activate;
+  export LANG=C LC_ALL=C;
   exec {{datapusher_root}}/bin/gunicorn wsgi:application \
         --workers 1 \
         --bind=127.0.0.1:5001
