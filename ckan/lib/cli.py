@@ -886,7 +886,7 @@ class UserCmd(CkanCommand):
     def show(self):
         import ckan.model as model
 
-        username = self.args[0]
+        username = self.args[1]
         user = model.User.get(unicode(username))
         print 'User: \n', user
 
