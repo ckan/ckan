@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import ckan.plugins
+from ckan.tests.legacy.pylons_controller import PylonsTestCase
 import ckanext.multilingual.plugin as mulilingual_plugin
 import ckan.lib.helpers
 import ckan.lib.create_test_data
@@ -15,15 +16,17 @@ import pylons.test
 _create_test_data = ckan.lib.create_test_data
 
 
-class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
+class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods, PylonsTestCase):
     'Test the translation of datasets by the multilingual_dataset plugin.'
     @classmethod
     def setup(cls):
+        PylonsTestCase.setup_class()
         cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
         ckan.plugins.load('multilingual_dataset')
         ckan.plugins.load('multilingual_group')
         ckan.plugins.load('multilingual_tag')
         ckan.tests.legacy.setup_test_search_index()
+        pylons.request.environ['CKAN_LANG'] = 'en'
         _create_test_data.CreateTestData.create_translations_test_data()
 
         cls.sysadmin_user = model.User.get('testsysadmin')

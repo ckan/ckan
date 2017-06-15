@@ -348,7 +348,7 @@ class TestDashboard(object):
             extra_environ={'Authorization': str(self.annafan['apikey'])})
         assert response.json['success'] is True
 
-        res = self.app.get('/api/3/action/dashboard_activity_list_html',
+        res = self.app.get('/api/3/action/dashboard_activity_list',
                 extra_environ={'Authorization':
                     str(self.annafan['apikey'])})
         assert res.json['success'] is True

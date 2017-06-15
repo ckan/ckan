@@ -11,6 +11,7 @@ import paste.fileapp
 from ckan.common import config
 import ckan.logic as logic
 import ckan.lib.base as base
+import ckan.lib.i18n as i18n
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.helpers as h
@@ -394,7 +395,8 @@ class PackageController(base.BaseController):
         assert False, "We should never get here"
 
     def history(self, id):
-        h.redirect_to(controller='pacakge', action='activities', id=id)
+        h.redirect_to(controller='package', action='activity', id=id,
+                      **request.params)
 
     def new(self, data=None, errors=None, error_summary=None):
         if data and 'type' in data:
@@ -1196,6 +1198,57 @@ class PackageController(base.BaseController):
             abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(403, _('Unauthorized to read dataset %s') % id)
+
+        # FIXME: Temporary patch until activity refactor.
+        limit = int(config.get('ckan.activity_list_limit', 31))
+        format = request.params.get('format', '')
+        if format == 'atom':
+            # Generate and return Atom 1.0 document.
+            from webhelpers.feedgenerator import Atom1Feed
+            feed = Atom1Feed(
+                title=_(u'CKAN Dataset Revision History'),
+                link=h.url_for(controller='package',
+                               action='read', id=id),
+                description=_(u'Recent changes to CKAN Dataset: ') +
+                h.get_translated(c.pkg_dict, 'title'),
+                language=u'en',
+            )
+            activity_stream = get_action('package_activity_list')(
+                context,
+                {
+                    'id': id,
+                    'offset': 0,
+                    'limit': limit
+                }
+            )
+            descriptions = {
+                'changed package': '{actor} updated the dataset {dataset}',
+                'new package': '{actor} created the dataset {dataset}',
+                'deleted package': '{actor} deleted the dataset {dataset}'
+            }
+            for activity in activity_stream:
+                act_desc = descriptions.get(activity['activity_type'], None)
+                if not act_desc:
+                    continue
+                act_desc = _(act_desc)
+                item_description = act_desc.format(
+                      actor=h.linked_user(activity['user_id'], 0, 30),
+                      dataset=h.dataset_link(activity['data']['package']))
+                revision_date = h.date_str_to_datetime(activity['timestamp'])
+                item_title = ' '.join(act_desc.split()[1:-1])
+                item_link = h.url_for(controller='package', action='read',
+                                      id=id, activity_id=activity['id'])
+                item_author_name = h.linked_user(activity['user_id'], 0, 30)
+                item_pubdate = revision_date
+                feed.add_item(
+                    title=item_title,
+                    link=item_link,
+                    description=item_description,
+                    author_name=item_author_name,
+                    pubdate=item_pubdate,
+                )
+            feed.content_type = 'application/atom+xml'
+            return feed.writeString('utf-8')
 
         return render(
             'package/activity.html',
