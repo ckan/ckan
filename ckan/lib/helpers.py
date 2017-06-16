@@ -1176,6 +1176,20 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
 
     # if date_format was supplied we use it
     if date_format:
+
+        # See http://bugs.python.org/issue1777412
+        if datetime_.year < 1900:
+            date_format = date_format.replace('%y', str(datetime_.year)[-2:])
+            date_format = date_format.replace('%Y', str(datetime_.year))
+
+            # "2017" can be any year, since it will be replaced with the one
+            # provided in "date_format"
+            datetime_ = datetime.datetime(2017, datetime_.month, datetime_.day,
+                                          datetime_.hour, datetime_.minute,
+                                          datetime_.second)
+
+            return datetime_.strftime(date_format)
+
         return datetime_.strftime(date_format)
     # the localised date
     return formatters.localised_nice_date(datetime_, show_date=True,
