@@ -4,7 +4,7 @@ import sys
 
 import ckan.lib.cli as cli
 import ckan.plugins as p
-import ckanext.datastore.db as datastore_db
+import ckanext.datastore.backend as datastore_backend
 
 
 class DatapusherCommand(cli.CkanCommand):
@@ -70,7 +70,7 @@ class DatapusherCommand(cli.CkanCommand):
             sys.exit(0)
 
     def _resubmit_all(self):
-        resource_ids = datastore_db.get_all_resources_ids_in_datastore()
+        resource_ids = datastore_backend.get_all_resources_ids_in_datastore()
         self._submit(resource_ids)
 
     def _submit_all_packages(self):

@@ -7,7 +7,7 @@ import ckan.lib.cli as cli
 
 import ckan.plugins as p
 from ckan.tests.helpers import FunctionalTestBase
-from ckanext.datastore import db
+import ckanext.datastore.backend.postgres as db
 
 
 def extract(d, keys):

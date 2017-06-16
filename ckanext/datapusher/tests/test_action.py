@@ -295,5 +295,4 @@ class TestDataPusherAction(object):
             r_mock.reset_mock()
             submit(res, user)
             submit(res, user)
-
             eq_(1, r_mock.call_count)

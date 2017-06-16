@@ -186,6 +186,7 @@ class GroupController(base.BaseController):
             'type': group_type or 'group',
             'limit': items_per_page,
             'offset': items_per_page * (page - 1),
+            'include_extras': True
         }
         page_results = self._action('group_list')(context,
                                                   data_dict_page_results)
