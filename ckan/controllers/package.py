@@ -393,7 +393,7 @@ class PackageController(base.BaseController):
         assert False, "We should never get here"
 
     def history(self, id):
-        h.redirect_to(controller='pacakge', action='activities',
+        h.redirect_to(controller='pacakge', action='activity',
                       id=id, **request.params)
 
     def new(self, data=None, errors=None, error_summary=None):
