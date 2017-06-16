@@ -22,7 +22,6 @@ from ckanext.datastore.writer import (
     xml_writer,
 )
 from ckan.logic import (
-    clean_dict,
     tuplize_dict,
     parse_params,
 )
@@ -83,8 +82,8 @@ class DatastoreController(BaseController):
         fields = [f for f in rec['fields'] if not f['id'].startswith('_')]
 
         if request.method == 'POST':
-            data = clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
-                request.params))))
+            data = dict_fns.unflatten(tuplize_dict(parse_params(
+                request.params)))
             info = data.get(u'info')
             if not isinstance(info, list):
                 info = []
