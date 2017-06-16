@@ -1,0 +1,13 @@
+<li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
+  <i class="fa icon fa-briefcase"></i>
+  <p>
+    {{ _('{actor} created the organization {organization}').format(
+      actor=ah.actor(activity),
+      organization=ah.organization(activity)
+    )|safe }}
+    <br />
+    <span class="date">
+      {{ h.time_ago_from_timestamp(activity.timestamp) }}
+    </span>
+  </p>
+</li>

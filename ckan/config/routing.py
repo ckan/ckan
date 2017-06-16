@@ -394,13 +394,6 @@ def make_map():
                   ckan_icon='sitemap')
         m.connect('user_index', '/user', action='index')
 
-    with SubMapper(map, controller='revision') as m:
-        m.connect('/revision', action='index')
-        m.connect('/revision/edit/{id}', action='edit')
-        m.connect('/revision/diff/{id}', action='diff')
-        m.connect('/revision/list', action='list')
-        m.connect('/revision/{id}', action='read')
-
     # feeds
     with SubMapper(map, controller='feed') as m:
         m.connect('/feeds/group/{id}.atom', action='group')

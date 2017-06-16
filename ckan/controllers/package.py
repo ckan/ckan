@@ -2,17 +2,15 @@
 
 import logging
 from urllib import urlencode
-import datetime
 import mimetypes
 import cgi
 
-from ckan.common import config
 from paste.deploy.converters import asbool
 import paste.fileapp
 
+from ckan.common import config
 import ckan.logic as logic
 import ckan.lib.base as base
-import ckan.lib.i18n as i18n
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.helpers as h
@@ -343,29 +341,21 @@ class PackageController(base.BaseController):
                    'user': c.user, 'for_view': True,
                    'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'include_tracking': True}
-
-        # interpret @<revision_id> or @<date> suffix
-        split = id.split('@')
-        if len(split) == 2:
-            data_dict['id'], revision_ref = split
-            if model.is_id(revision_ref):
-                context['revision_id'] = revision_ref
-            else:
-                try:
-                    date = h.date_str_to_datetime(revision_ref)
-                    context['revision_date'] = date
-                except TypeError, e:
-                    abort(400, _('Invalid revision format: %r') % e.args)
-                except ValueError, e:
-                    abort(400, _('Invalid revision format: %r') % e.args)
-        elif len(split) > 2:
-            abort(400, _('Invalid revision format: %r') %
-                  'Too many "@" symbols')
+        activity_id = request.params.get('activity_id')
 
         # check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
+
+            if activity_id:
+                c.pkg_dict = context['session'].query(model.Activity).get(
+                    activity_id
+                ).data['package']
+                # Don't crash on old activity records, which do not include
+                # resources or extras.
+                c.pkg_dict.setdefault('resources', [])
+                c.is_activity_archive = True
         except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
 
@@ -403,87 +393,8 @@ class PackageController(base.BaseController):
         assert False, "We should never get here"
 
     def history(self, id):
-
-        if 'diff' in request.params or 'selected1' in request.params:
-            try:
-                params = {'id': request.params.getone('pkg_name'),
-                          'diff': request.params.getone('selected1'),
-                          'oldid': request.params.getone('selected2'),
-                          }
-            except KeyError:
-                if 'pkg_name' in dict(request.params):
-                    id = request.params.getone('pkg_name')
-                c.error = \
-                    _('Select two revisions before doing the comparison.')
-            else:
-                params['diff_entity'] = 'package'
-                h.redirect_to(controller='revision', action='diff', **params)
-
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'auth_user_obj': c.userobj,
-                   'for_view': True}
-        data_dict = {'id': id}
-        try:
-            c.pkg_dict = get_action('package_show')(context, data_dict)
-            c.pkg_revisions = get_action('package_revision_list')(context,
-                                                                  data_dict)
-            # TODO: remove
-            # Still necessary for the authz check in group/layout.html
-            c.pkg = context['package']
-
-        except NotAuthorized:
-            abort(403, _('Unauthorized to read package %s') % '')
-        except NotFound:
-            abort(404, _('Dataset not found'))
-
-        format = request.params.get('format', '')
-        if format == 'atom':
-            # Generate and return Atom 1.0 document.
-            from webhelpers.feedgenerator import Atom1Feed
-            feed = Atom1Feed(
-                title=_(u'CKAN Dataset Revision History'),
-                link=h.url_for(controller='revision', action='read',
-                               id=c.pkg_dict['name']),
-                description=_(u'Recent changes to CKAN Dataset: ') +
-                (c.pkg_dict['title'] or ''),
-                language=unicode(i18n.get_lang()),
-            )
-            for revision_dict in c.pkg_revisions:
-                revision_date = h.date_str_to_datetime(
-                    revision_dict['timestamp'])
-                try:
-                    dayHorizon = int(request.params.get('days'))
-                except:
-                    dayHorizon = 30
-                dayAge = (datetime.datetime.now() - revision_date).days
-                if dayAge >= dayHorizon:
-                    break
-                if revision_dict['message']:
-                    item_title = u'%s' % revision_dict['message'].\
-                        split('\n')[0]
-                else:
-                    item_title = u'%s' % revision_dict['id']
-                item_link = h.url_for(controller='revision', action='read',
-                                      id=revision_dict['id'])
-                item_description = _('Log message: ')
-                item_description += '%s' % (revision_dict['message'] or '')
-                item_author_name = revision_dict['author']
-                item_pubdate = revision_date
-                feed.add_item(
-                    title=item_title,
-                    link=item_link,
-                    description=item_description,
-                    author_name=item_author_name,
-                    pubdate=item_pubdate,
-                )
-            response.headers['Content-Type'] = 'application/atom+xml'
-            return feed.writeString('utf-8')
-
-        package_type = c.pkg_dict['type'] or 'dataset'
-
-        return render(
-            self._history_template(c.pkg_dict.get('type', package_type)),
-            extra_vars={'dataset_type': package_type})
+        h.redirect_to(controller='pacakge', action='activity',
+                      id=id, **request.params)
 
     def new(self, data=None, errors=None, error_summary=None):
         if data and 'type' in data:
@@ -1285,18 +1196,74 @@ class PackageController(base.BaseController):
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
-            c.pkg = context['package']
-            c.package_activity_stream = get_action(
-                'package_activity_list_html')(
-                context, {'id': c.pkg_dict['id']})
             dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(403, _('Unauthorized to read dataset %s') % id)
 
-        return render('package/activity.html',
-                      {'dataset_type': dataset_type})
+        limit = int(config.get('ckan.activity_list_limit', 30))
+        format = request.params.get('format', '')
+        if format == 'atom':
+            # Generate and return Atom 1.0 document.
+            from webhelpers.feedgenerator import Atom1Feed
+            feed = Atom1Feed(
+                title=_(u'CKAN Dataset Revision History'),
+                link= h.url_for(controller='package',
+                    action='read', id=id),
+                description=_(u'Recent changes to CKAN Dataset: ') +
+                h.get_translated(c.pkg_dict, 'title'),
+                language=u'en',
+            )
+            activity_stream = get_action('package_activity_list')(
+                context,
+                {
+                    'id': id,
+                    'offset': 0,
+                    'limit': limit
+                }
+            )
+            descriptions = {
+                'changed package': '{actor} updated the dataset {dataset}',
+                'new package': '{actor} created the dataset {dataset}',
+                'deleted package': '{actor} deleted the dataset {dataset}'
+            }
+            for activity in activity_stream:
+                act_desc = descriptions.get(activity['activity_type'], None)
+                if not act_desc:
+                    continue
+                act_desc = _(act_desc)
+                item_description = act_desc.format(
+                      actor=h.linked_user(activity['user_id'], 0, 30),
+                      dataset=h.dataset_link(activity['data']['package']))
+                revision_date = h.date_str_to_datetime(activity['timestamp'])
+                item_title =' '.join(act_desc.split()[1:-1])
+                item_link = h.url_for(controller='package', action='read',
+                                      id=id, activity_id=activity['id'])
+                item_author_name = h.linked_user(activity['user_id'], 0, 30)
+                item_pubdate = revision_date
+                feed.add_item(
+                    title=item_title,
+                    link=item_link,
+                    description=item_description,
+                    author_name=item_author_name,
+                    pubdate=item_pubdate,
+                )
+            feed.content_type = 'application/atom+xml'
+            return feed.writeString('utf-8')
+
+        return render(
+            'package/activity.html',
+            extra_vars={
+                'dataset_type': dataset_type,
+                'activity_stream': get_action('package_activity_list')(
+                    context,
+                    {
+                        'id': id
+                    }
+                )
+            }
+        )
 
     def resource_embedded_dataviewer(self, id, resource_id,
                                      width=500, height=500):
