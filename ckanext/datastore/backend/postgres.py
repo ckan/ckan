@@ -855,6 +855,20 @@ def create_table(context, data_dict):
     field_ids = _pluck('id', supplied_fields)
     records = data_dict.get('records')
 
+    fields_errors = []
+
+    for field_id in field_ids:
+        # Postgres has a limit of 63 characters for a column name
+        if len(field_id) > 63:
+            message = 'Column heading "{0}" exceeds limit of 63 '\
+                'characters.'.format(field_id)
+            fields_errors.append(message)
+
+    if fields_errors:
+        raise ValidationError({
+            'fields': fields_errors
+        })
+
     # if type is field is not given try and guess or throw an error
     for field in supplied_fields:
         if 'type' not in field:
