@@ -506,10 +506,10 @@ class DatastorePlugin(p.SingletonPlugin):
         lang_literal = literal_string(lang)
         query_literal = literal_string(query)
         if plain:
-            statement = u"plainto_tsquery({lang_literal}, {query_literal}) {query_alias}"
+            statement = u"plainto_tsquery({query_literal}) {query_alias}".format(
+            query_literal=query_literal, query_alias=query_alias)
         else:
-            statement = u"to_tsquery({lang_literal}, {query_literal}) {query_alias}"
-        statement = statement.format(lang_literal=lang_literal,
+            statement = u"to_tsquery({lang_literal}, {query_literal}) {query_alias}".format(lang_literal=lang_literal,
             query_literal=query_literal, query_alias=query_alias)
         if field is None:
             rank_field = '_full_text'
