@@ -992,6 +992,54 @@ class TestGroupCreate(helpers.FunctionalTestBase):
             name='',
         )
 
+    @nose.tools.raises(logic.ValidationError)
+    def test_create_group_validation_fail_same_id_or_name(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        group = helpers.call_action(
+            'group_create',
+            context=context,
+            name='test-group',
+        )
+
+        group1 = helpers.call_action(
+            'group_create',
+            context=context,
+            name='test-group1',
+            id='test-group',
+        )
+
+        group2 = helpers.call_action(
+            'group_create',
+            context=context,
+            name='test-group',
+        )
+
+        group3 = helpers.call_action(
+            'group_create',
+            context=context,
+            name=group2['id'],
+        )
+
+    @nose.tools.raises(logic.ValidationError)
+    def test_create_group_validation_fail_same_id_and_name(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        group = helpers.call_action(
+            'group_create',
+            context=context,
+            name='test-group',
+            id='test-group'
+        )
+
     def test_create_group_return_id(self):
         import re
 
@@ -1068,6 +1116,54 @@ class TestOrganizationCreate(helpers.FunctionalTestBase):
             'organization_create',
             context=context,
             name='',
+        )
+
+    @nose.tools.raises(logic.ValidationError)
+    def test_create_organization_validation_fail_same_id_or_name(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        org = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='test-organization',
+        )
+
+        org1 = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='test-organization1',
+            id='test-organization',
+        )
+
+        org2 = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='test-organization',
+        )
+
+        org3 = helpers.call_action(
+            'organization_create',
+            context=context,
+            name=org2['id'],
+        )
+
+    @nose.tools.raises(logic.ValidationError)
+    def test_create_organization_validation_fail_same_id_and_name(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        org = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='test-organization',
+            id='test-organization'
         )
 
     def test_create_organization_return_id(self):

@@ -29,6 +29,7 @@ import ckan.lib.app_globals as app_globals
 
 
 from ckan.common import _, request
+from sqlalchemy import or_
 
 log = logging.getLogger(__name__)
 
@@ -507,6 +508,20 @@ def _group_or_org_update(context, data_dict, is_org=False):
               errors, context.get('user'),
               context.get('group').name if context.get('group') else '',
               data_dict)
+
+    # Check if name exists in DB
+    name = data_dict.get('name')
+    if group.id == name:
+        errors['name'] = ['ID and Name values must be unique']
+    group_by_id = model.Session.query(model.Group).filter(
+                model.Group.id == name).first()
+    group_by_name = model.Session.query(model.Group).filter(
+                model.Group.name == name).first()
+    if group_by_id and group.id != group_by_id.id:
+        errors['name'] = ['Group id already exists in database']
+    if group_by_name and group.id != group_by_name.id:
+        if not errors.get('name', None):
+            errors['name'] = ['Group name already exists in database']
 
     if errors:
         session.rollback()

@@ -9,7 +9,7 @@ import re
 from socket import error as socket_error
 
 import paste.deploy.converters
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
@@ -651,6 +651,26 @@ def _group_or_org_create(context, data_dict, is_org=False):
         'organization_create' if is_org else 'group_create')
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'), data_dict.get('name'), data_dict)
+
+    # Check for exist id or name in DB
+    group_by_id = group_by_name = None
+    id = data_dict.get('id')
+    name = data_dict.get('name')
+    if id == name:
+        errors['name'] = ['ID and Name values must be unique']
+    query_id = model.Session.query(model.Group).filter(or_(
+                model.Group.id == id,
+                model.Group.id == name))
+    group_by_id = query_id.first()
+    query_name = model.Session.query(model.Group).filter(or_(
+            model.Group.name == id,
+            model.Group.name == name))
+    group_by_name = query_name.first()
+    if group_by_id:
+            errors['id'] = ['Group id already exists in database']
+    if group_by_name:
+        if not errors.get('id', None) and not errors.get('name', None):
+            errors['id'] = ['Group name already exists in database']
 
     if errors:
         session.rollback()
