@@ -610,7 +610,7 @@ def member_create(context, data_dict=None):
                               table_id=obj.id,
                               group_id=group.id,
                               state='active')
-
+        member.group = group
     member.capacity = capacity
 
     model.Session.add(member)
