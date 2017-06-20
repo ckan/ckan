@@ -240,6 +240,21 @@ class TestDatastoreCreateNewTests(object):
 
         assert_equal(resource['datastore_active'], False)
 
+    @raises(p.toolkit.ValidationError)
+    def test_create_exceeds_column_name_limit(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'package_id': package['id']
+            },
+            'fields': [{
+                'id': 'This is a really long name for a column. Column names '
+                'in Postgres have a limit of 63 characters',
+                'type': 'text'
+            }]
+        }
+        result = helpers.call_action('datastore_create', **data)
+
 
 class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
