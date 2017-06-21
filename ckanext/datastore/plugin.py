@@ -37,6 +37,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
     p.implements(p.ITemplateHelpers)
+    p.implements(p.IForkObserver, inherit=True)
     p.implements(interfaces.IDatastore, inherit=True)
     p.implements(interfaces.IDatastoreBackend, inherit=True)
 
@@ -273,3 +274,11 @@ class DatastorePlugin(p.SingletonPlugin):
     def get_helpers(self):
         return {
             'datastore_dictionary': datastore_helpers.datastore_dictionary}
+
+    # IForkObserver
+
+    def before_fork(self):
+        self.backend.before_fork()
+
+    def after_fork(self, pid):
+        self.backend.after_fork(pid)
