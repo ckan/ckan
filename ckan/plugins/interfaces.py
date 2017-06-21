@@ -38,6 +38,7 @@ __all__ = [
     u'IUploader',
     u'IBlueprint',
     u'IPermissionLabels',
+    u'IForkObserver',
 ]
 
 
@@ -1751,4 +1752,23 @@ class IPermissionLabels(Interface):
 
         :returns: permission labels
         :rtype: list of unicode strings
+        '''
+
+
+class IForkObserver(Interface):
+    u'''
+    Observe forks of the CKAN process.
+    '''
+    def before_fork(self):
+        u'''
+        Called shortly before the CKAN process is forked.
+        '''
+
+    def after_fork(self, pid):
+        u'''
+        Called shortly after the CKAN process is forked.
+
+        :param pid: ``0`` when running in the child, otherwise the
+                    child's PID.
+        :type pid: int
         '''
