@@ -2200,6 +2200,7 @@ __allowed_functions__ = [
     'debug_inspect',
     'dict_list_reduce',
     'full_current_url',
+    'current_url',
     'popular',
     'debug_full_info_as_list',
     'get_facet_title',
