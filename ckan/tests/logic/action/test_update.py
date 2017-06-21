@@ -750,6 +750,7 @@ class TestResourceUpdate(object):
         resource = helpers.call_action(
             'resource_update',
             id=resource['id'],
+            url='http://localhost',
             format='CSV')
 
         # Format changed
@@ -777,6 +778,7 @@ class TestResourceUpdate(object):
         second_resource = helpers.call_action(
             'resource_update',
             id=second_resource['id'],
+            url='http://localhost',
             format='PNG')
 
         # Format changed
@@ -802,6 +804,7 @@ class TestResourceUpdate(object):
         third_resource = helpers.call_action(
             'resource_update',
             id=third_resource['id'],
+            url='http://localhost',
             format='Test format')
 
         # Format added
@@ -817,6 +820,7 @@ class TestResourceUpdate(object):
         third_resource = helpers.call_action(
             'resource_update',
             id=third_resource['id'],
+            url='http://localhost',
             format='CSV')
 
         # Format changed
