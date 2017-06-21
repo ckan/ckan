@@ -803,7 +803,6 @@ class TestResourceUpdate(object):
 
         assert 'datastore_active' not in res_returned
 
-
     @helpers.change_config('ckan.views.default_views', 'image_view recline_view')
     def test_resource_format_update(self):
         dataset = factories.Dataset()
