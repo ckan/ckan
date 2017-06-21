@@ -68,6 +68,20 @@ fi
 if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
   if ! CKAN_SQLALCHEMY_URL=$(link_postgres_url); then
     abort "ERROR: no CKAN_SQLALCHEMY_URL specified and linked container called 'db' was not found"
+  else
+    #If that worked, use the DB details to wait for the DB
+    export PGHOST=${DB_PORT_5432_TCP_ADDR}
+    export PGPORT=${DB_PORT_5432_TCP_PORT}
+    export PGDATABASE=${DB_ENV_POSTGRES_DB}
+    export PGUSER=${DB_ENV_POSTGRES_USER}
+    export PGPASSWORD=${DB_ENV_POSTGRES_PASSWORD}
+
+    # wait for postgres db to be available, immediately after creation
+    # its entrypoint creates the cluster and dbs and this can take a moment
+    for tries in $(seq 30); do
+      psql -c 'SELECT 1;' 2> /dev/null && break
+      sleep 0.3
+    done
   fi
 fi
 
