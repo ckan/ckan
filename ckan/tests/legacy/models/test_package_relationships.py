@@ -8,7 +8,7 @@ class TestCreation:
     @classmethod
     def teardown(self):
         model.repo.rebuild_db()
-        
+
     def test_normal_creation(self):
         create = CreateTestData
         create.create_arbitrary([{'name':u'the-parent', 'title':u'The Parent'},
@@ -55,7 +55,7 @@ class TestCreation:
         assert pr.comment == u'Some comment', pr.comment
         assert pr.subject == thechild
         assert pr.object == theparent
-        
+
     def test_types(self):
         create = CreateTestData
         create.create_arbitrary([{'name':u'pkga', 'title':u'The Parent'},
@@ -73,7 +73,7 @@ class TestCreation:
         #       pkga derives_from pkgb
         #       pkgb child_of pkga
         #       pkgb depends_on pkga
-        
+
         pkga = model.Package.by_name(u'pkga')
         pkgb = model.Package.by_name(u'pkgb')
         assert len(pkga.relationships_as_subject) == 2, pkga.relationships_as_subject
@@ -130,12 +130,12 @@ class TestSimple:
         assert pkga_subject_query.count() == 2
         for rel in pkga_subject_query:
             assert rel.subject == self.pkga
-            
+
         pkgb_object_query = model.PackageRelationship.by_object(self.pkgb)
         assert pkgb_object_query.count() == 3, pkgb_object_query.count()
         for rel in pkgb_object_query:
             assert rel.object == self.pkgb
-        
+
 class TestComplicated:
     @classmethod
     def setup_class(self):
@@ -200,24 +200,26 @@ class TestComplicated:
     def teardown_class(self):
         model.repo.rebuild_db()
 
+    def _check(self, rels, subject, type, object):
+        for rel in rels:
+            if rel.subject.name == subject and rel.type == type and rel.object.name == object:
+                return
+        assert 0, 'Could not find relationship in: %r' % rels
+
     def test_01_rels(self):
         "audit the simpsons family relationships"
         rels = model.Package.by_name(u'homer').get_relationships()
         assert len(rels) == 5, '%i: %s' % (len(rels), [rel for rel in rels])
-        def check(rels, subject, type, object):
-            for rel in rels:
-                if rel.subject.name == subject and rel.type == type and rel.object.name == object:
-                    return
-            assert 0, 'Could not find relationship in: %r' % rels
-        check(rels, 'homer', 'child_of', 'abraham')
-        check(rels, 'bart', 'child_of', 'homer')
-        check(rels, 'lisa', 'child_of', 'homer')
-        check(rels, 'homer_derived', 'derives_from', 'homer')
-        check(rels, 'homer', 'depends_on', 'beer')
+
+        self._check(rels, 'homer', 'child_of', 'abraham')
+        self._check(rels, 'bart', 'child_of', 'homer')
+        self._check(rels, 'lisa', 'child_of', 'homer')
+        self._check(rels, 'homer_derived', 'derives_from', 'homer')
+        self._check(rels, 'homer', 'depends_on', 'beer')
         rels = model.Package.by_name(u'bart').get_relationships()
         assert len(rels) == 2, len(rels)
-        check(rels, 'bart', 'child_of', 'homer')
-        check(rels, 'bart', 'child_of', 'marge')
+        self._check(rels, 'bart', 'child_of', 'homer')
+        self._check(rels, 'bart', 'child_of', 'marge')
 
     def test_02_deletion(self):
         "delete bart is child of homer"
@@ -225,12 +227,12 @@ class TestComplicated:
         assert len(rels) == 2
         assert rels[0].state == model.State.ACTIVE
 
-    
+
         model.repo.new_revision()
         rels[0].delete()
         rels[1].delete()
         model.repo.commit_and_remove()
-        
+
         rels = model.Package.by_name(u'bart').get_relationships()
         assert len(rels) == 0
 
@@ -279,7 +281,34 @@ class TestComplicated:
         bart = model.Package.by_name(u"bart")
         assert len(bart.get_relationships_printable()) == 2, len(bart.get_relationships_printable())
 
+    def test_05_revers_recreation(self):
+        homer = model.Package.by_name(u"homer")
+        homer_derived = model.Package.by_name(u"homer_derived")
+        rels = homer.get_relationships(with_package=homer_derived)
+        self._check(rels, 'homer_derived', 'derives_from', 'homer')
 
+        model.repo.new_revision()
+        rels[0].delete()
+        model.repo.commit_and_remove()
+        rels = homer.get_relationships(with_package=homer_derived)
+        assert len(homer.get_relationships(with_package=homer_derived)) == 0, \
+            'expectiong homer to have no relationships'
 
+        model.repo.new_revision()
+        homer.add_relationship(u"derives_from", homer_derived)
+        model.repo.commit_and_remove()
+        rels = homer.get_relationships(with_package=homer_derived)
+        assert len(homer.get_relationships(with_package=homer_derived)) == 1, \
+            'expectiong homer to have newly created relationship'
+        self._check(rels, 'homer', 'derives_from', 'homer_derived')
 
-
+        model.repo.new_revision()
+        rels[0].delete()
+        model.repo.commit_and_remove()
+        model.repo.new_revision()
+        homer.add_relationship(u"has_derivation", homer_derived)
+        model.repo.commit_and_remove()
+        rels = homer.get_relationships(with_package=homer_derived)
+        assert len(homer.get_relationships(with_package=homer_derived)) == 1, \
+            'expectiong homer to have recreated initial relationship'
+        self._check(rels, 'homer_derived', 'derives_from', 'homer')
