@@ -2083,6 +2083,7 @@ class LessCommand(CkanCommand):
 
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
+        print output
 
 
 class FrontEndBuildCommand(CkanCommand):

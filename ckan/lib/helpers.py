@@ -33,7 +33,6 @@ from routes import url_for as _routes_default_url_for
 import i18n
 
 import ckan.exceptions
-import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
@@ -1595,6 +1594,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
 
 @core_helper
 def include_resource(resource):
+    import ckan.lib.fanstatic_resources as fanstatic_resources
     r = getattr(fanstatic_resources, resource)
     r.need()
 
@@ -1606,6 +1606,8 @@ def urls_for_resource(resource):
 
     NOTE: This is for special situations only and is not the way to generally
     include resources.  It is advised not to use this function.'''
+    import ckan.lib.fanstatic_resources as fanstatic_resources
+
     r = getattr(fanstatic_resources, resource)
     resources = list(r.resources)
     core = fanstatic_resources.fanstatic_extensions.core
