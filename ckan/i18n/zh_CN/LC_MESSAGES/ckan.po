@@ -899,7 +899,7 @@ msgstr[0] "{years}年前"
 
 #: ckan/lib/formatters.py:148
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
+msgstr ""
 
 #: ckan/lib/formatters.py:153
 msgid "{month} {day}, {year}"
