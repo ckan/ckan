@@ -210,13 +210,13 @@ setup(
     namespace_packages=['ckanext', 'ckanext.stats'],
     message_extractors={
         'ckan': [
-            ('**.py', 'python', None),
-            ('**.js', 'javascript', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'ckan', None),
             ('templates/**.txt', 'ckan', None),
             ('templates_legacy/**.html', 'ckan', None),
-            ('public/**', 'ignore', None),
+            ('public/base/test/**', 'ignore', None),
+            ('**.py', 'python', None),
+            ('**.js', 'javascript', None),
         ],
         'ckanext': [
             ('**.py', 'python', None),
