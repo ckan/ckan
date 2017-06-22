@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import os
+import re
 import inspect
 import itertools
 import pkgutil
@@ -156,6 +157,10 @@ def make_flask_stack(conf, **app_conf):
             'bottom': True,
             'bundle': True,
         }
+    root_path = config.get('ckan.root_path', None)
+    if root_path:
+        root_path = re.sub('/{{LANG}}', '', root_path)
+        fanstatic_config['base_url'] = root_path
     app = Fanstatic(app, **fanstatic_config)
 
     for plugin in PluginImplementations(IMiddleware):
