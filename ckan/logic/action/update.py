@@ -114,8 +114,10 @@ def resource_update(context, data_dict):
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError, e:
-        errors = e.error_dict['resources'][n]
-        raise ValidationError(errors)
+        try:
+            raise ValidationError(e.error_dict['resources'][-1])
+        except (KeyError, IndexError):
+            raise ValidationError(e.error_dict)
 
     upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
