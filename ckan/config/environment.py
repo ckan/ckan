@@ -225,7 +225,7 @@ def update_config():
     config['pylons.h'] = helpers.helper_functions
 
     # Templates and CSS loading from configuration
-    templates = config.get('ckan.templates', '')
+    templates = config.get('ckan.templates', 'templates')
     jinja2_templates_path = os.path.join(root, templates)
     log.info('Loading templates from %s' % jinja2_templates_path)
     template_paths = [jinja2_templates_path]
