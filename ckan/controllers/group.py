@@ -178,8 +178,8 @@ class GroupController(base.BaseController):
                 'sort': sort_by,
                 'type': group_type or 'group',
             }
-            global_results = self._action('group_list')(context,
-                                                        data_dict_global_results)
+            global_results = self._action('group_list')(
+                context, data_dict_global_results)
         except ValidationError as e:
             if e.error_dict and e.error_dict.get('message'):
                 msg = e.error_dict['message']
