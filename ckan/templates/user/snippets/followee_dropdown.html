@@ -11,16 +11,16 @@
 {%- endmacro %}
 
 <div id="followee-filter" class="pull-right">
-  <a href="#followee-popover" class="btn" title="{{ _('Activity from:') }} {{ context.context }}">
-    <span>{{ _('Activity from:') }}</span>
-    <strong>{{ context.context }}</strong>
-    <span class="caret"></span>
-  </a>
+  <div class="btn-group">
+    <a href="#followee-popover" class="btn btn-default dropdown-toggle" title="{{ _('Activity from:') }} {{ context.context }}">
+    <span>{{ _('Activity from:') }}</span> <strong>{{ context.context }}</strong> <span class="caret"></span>
+    </a>
+  </div>
   <form id="followee-popover" action="/dashboard" class="dropdown js-hide">
     <div class="popover-header">
-      <div class="input-prepend">
-        <span class="add-on"><i class="fa fa-search"></i></span>
-        <input type="text" name="q" placeholder="{{ _('Search list...') }}" value="{{context.q}}" autocomplete="off">
+      <div class="input-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input type="text" class="form-control" name="q" placeholder="{{ _('Search list...') }}" value="{{context.q}}" autocomplete="off">
       </div>
     </div>
     {% if followees %}

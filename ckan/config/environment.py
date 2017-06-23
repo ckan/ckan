@@ -30,8 +30,6 @@ from ckan.exceptions import CkanConfigurationException
 log = logging.getLogger(__name__)
 
 
-
-
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
 

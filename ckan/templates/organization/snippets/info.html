@@ -11,7 +11,7 @@ Example:
 {% if organization and h.check_access('organization_update', {'id':organization.id }) %}
   <section class="module module-narrow package-info">
     <h2 class="module-heading"><i class="fa fa-sitemap"></i> {{ _("Edit Organization") }}</h2>
-    <ul class="unstyled nav nav-simple">
+    <ul class="list-unstyled nav nav-simple">
       <li class="nav-item{% if action == 'edit' %} active{% endif %}">
         {% link_for _("Edit Organization"), controller='organization', action='edit', id=organization.name %}
       </li>
