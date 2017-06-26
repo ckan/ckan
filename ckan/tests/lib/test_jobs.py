@@ -13,7 +13,6 @@ import ckan.lib.jobs as jobs
 from ckan.common import config
 from ckan.logic import NotFound
 from ckan import model
-import ckan.plugins as p
 
 from ckan.tests.helpers import (call_action, changed_config, recorded_logs,
                                 RQTestBase)
@@ -216,6 +215,27 @@ class TestWorker(RQTestBase):
         assert_equal(jobs.remove_queue_name_prefix(all_jobs[0].origin),
                      jobs.DEFAULT_QUEUE_NAME)
 
+    def test_worker_database_access(self):
+        u'''
+        Test database access from within the worker.
+        '''
+        # See https://github.com/ckan/ckan/issues/3243
+        pkg_name = u'test-worker-database-access'
+        try:
+            pkg_dict = call_action(u'package_show', id=pkg_name)
+        except NotFound:
+            pkg_dict = call_action(u'package_create', name=pkg_name)
+        pkg_dict[u'title'] = u'foo'
+        pkg_dict = call_action(u'package_update', **pkg_dict)
+        titles = u'1 2 3'.split()
+        for title in titles:
+            self.enqueue(database_job, args=[pkg_dict[u'id'], title])
+        jobs.Worker().work(burst=True)
+        # Aside from ensuring that the jobs succeeded, this also checks
+        # that database access still works in the main process.
+        pkg_dict = call_action(u'package_show', id=pkg_name)
+        assert_equal(pkg_dict[u'title'], u'foo' + u''.join(titles))
+
     def test_fork_within_a_transaction(self):
         u'''
         Test forking a worker horse within a database transaction.
@@ -239,31 +259,3 @@ class TestWorker(RQTestBase):
         assert_false(pkg in pkg.Session)
         pkg = model.Package.get(pkg.id)  # Get instance from new session
         assert_equal(pkg.title, u'foofoo')  # Worker only saw committed changes
-
-
-class TestWorker2(RQTestBase):
-
-    def test_worker_database_access(self):
-        u'''
-        Test database access from within the worker.
-        '''
-        if not p.plugin_loaded('datastore'):
-            p.load('datastore')
-        # See https://github.com/ckan/ckan/issues/3243
-        pkg_name = u'test-worker-database-access'
-        try:
-            pkg_dict = call_action(u'package_show', id=pkg_name)
-        except NotFound:
-            pkg_dict = call_action(u'package_create', name=pkg_name)
-        pkg_dict[u'title'] = u'foo'
-        pkg_dict = call_action(u'package_update', **pkg_dict)
-        titles = u'1 2 3'.split()
-        for title in titles:
-            self.enqueue(database_job, args=[pkg_dict[u'id'], title])
-        jobs.Worker().work(burst=True)
-        # Aside from ensuring that the jobs succeeded, this also checks
-        # that database access still works in the main process.
-        pkg_dict = call_action(u'package_show', id=pkg_name)
-        assert_equal(pkg_dict[u'title'], u'foo' + u''.join(titles))
-
-        p.unload('datastore')

@@ -65,7 +65,6 @@ class DatastorePlugin(p.SingletonPlugin):
     # IConfigurer
 
     def update_config(self, config):
-#        assert 0
         DatastoreBackend.register_backends()
         DatastoreBackend.set_active_backend(config)
 
