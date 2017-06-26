@@ -98,11 +98,11 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the recommended version of 'setuptools':
+b. Make sure ``setuptools`` is up-to-date:
 
    .. parsed-literal::
 
-       pip install -r |virtualenv|/src/ckan/requirement-setuptools.txt
+       pip install --upgrade setuptools
 
 c. Install the CKAN source code into your virtualenv.
    To install the latest stable release of CKAN (CKAN |latest_release_version|),
