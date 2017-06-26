@@ -1,7 +1,9 @@
 # encoding: utf-8
 
-# Avoid problem releasing to pypi from vagrant
 import os
+import os.path
+
+# Avoid problem releasing to pypi from vagrant
 if os.environ.get('USER', '') == 'vagrant':
     del os.link
 
@@ -17,18 +19,26 @@ except ImportError:
 from ckan import (__version__, __description__, __long_description__,
                   __license__)
 
-MIN_SETUPTOOLS_VERSION = 20.4
-assert setuptools_version >= str(MIN_SETUPTOOLS_VERSION) and \
-    int(setuptools_version.split('.')[0]) >= int(MIN_SETUPTOOLS_VERSION),\
-    ('setuptools version error'
-     '\nYou need a newer version of setuptools.\n'
-     'You have {current}, you need at least {minimum}'
-     '\nInstall the recommended version:\n'
-     '    pip install -r requirement-setuptools.txt\n'
-     'and then try again to install ckan into your python environment.'.format(
-         current=setuptools_version,
-         minimum=MIN_SETUPTOOLS_VERSION
-         ))
+
+#
+# Check setuptools version
+#
+
+def parse_version(s):
+    return map(int, s.split('.'))
+
+HERE = os.path.dirname(__file__)
+with open(os.path.join(HERE, 'requirement-setuptools.txt')) as f:
+        setuptools_requirement = f.read().strip()
+min_setuptools_version = parse_version(setuptools_requirement.split('==')[1])
+if parse_version(setuptools_version) < min_setuptools_version:
+    raise AssertionError(
+        'setuptools version error\n'
+        'You need a newer version of setuptools.\n'
+        'Install the recommended version:\n'
+        '    pip install -r requirement-setuptools.txt\n'
+        'and then try again to install ckan into your python environment.'
+    )
 
 
 entry_points = {
