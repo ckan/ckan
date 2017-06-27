@@ -1963,9 +1963,10 @@ def create_function(name, arguments, rettype, definition, or_replace):
     try:
         _write_engine_execute(sql)
     except ProgrammingError as pe:
-        key = (
-            u'name' if pe.args[0].startswith('(ProgrammingError) function')
-            else u'definition')
+        already_exists = (
+          u'function "{}" already exists with same argument types'.format(name)
+          in pe.args[0])
+        key = u'name' if already_exists else u'definition'
         raise ValidationError({key: [_programming_error_summary(pe)]})
 
 
