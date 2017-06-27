@@ -9,7 +9,8 @@ import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
+import ckanext.datastore.backend as backend
 
 assert_equal = nose.tools.assert_equal
 
@@ -48,7 +49,7 @@ class TestCreateIndexes(object):
                                       method='gin')
 
     @helpers.change_config('ckan.datastore.default_fts_lang', None)
-    @mock.patch('ckanext.datastore.db._get_fields')
+    @mock.patch('ckanext.datastore.backend.postgres._get_fields')
     def test_creates_fts_index_on_all_fields_except_dates_nested_and_arrays_with_english_as_default(self, _get_fields):
         _get_fields.return_value = [
             {'id': 'text', 'type': 'text'},
@@ -73,7 +74,7 @@ class TestCreateIndexes(object):
         self._assert_created_index_on('number', connection, resource_id, 'english', cast=True)
 
     @helpers.change_config('ckan.datastore.default_fts_lang', 'simple')
-    @mock.patch('ckanext.datastore.db._get_fields')
+    @mock.patch('ckanext.datastore.backend.postgres._get_fields')
     def test_creates_fts_index_on_textual_fields_can_overwrite_lang_with_config_var(self, _get_fields):
         _get_fields.return_value = [
             {'id': 'foo', 'type': 'text'},
@@ -92,7 +93,7 @@ class TestCreateIndexes(object):
         self._assert_created_index_on('foo', connection, resource_id, 'simple')
 
     @helpers.change_config('ckan.datastore.default_fts_lang', 'simple')
-    @mock.patch('ckanext.datastore.db._get_fields')
+    @mock.patch('ckanext.datastore.backend.postgres._get_fields')
     def test_creates_fts_index_on_textual_fields_can_overwrite_lang_using_lang_param(self, _get_fields):
         _get_fields.return_value = [
             {'id': 'foo', 'type': 'text'},
@@ -131,7 +132,7 @@ class TestCreateIndexes(object):
                             "called with a string containing '%s'" % sql_str)
 
 
-@mock.patch("ckanext.datastore.db._get_fields")
+@mock.patch("ckanext.datastore.backend.postgres._get_fields")
 def test_upsert_with_insert_method_and_invalid_data(
         mock_get_fields_function):
     """upsert_data() should raise InvalidDataError if given invalid data.
@@ -168,7 +169,7 @@ def test_upsert_with_insert_method_and_invalid_data(
     mock_get_fields_function.return_value = data_dict["fields"]
 
     nose.tools.assert_raises(
-        db.InvalidDataError, db.upsert_data, context, data_dict)
+        backend.InvalidDataError, db.upsert_data, context, data_dict)
 
 
 class TestJsonGetValues(object):
@@ -210,7 +211,7 @@ class TestGetAllResourcesIdsInDatastore(object):
         }
         helpers.call_action('datastore_create', **data)
 
-        resource_ids = db.get_all_resources_ids_in_datastore()
+        resource_ids = backend.get_all_resources_ids_in_datastore()
 
         assert resource_in_datastore['id'] in resource_ids
         assert resource_not_in_datastore['id'] not in resource_ids

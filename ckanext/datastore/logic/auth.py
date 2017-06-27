@@ -67,3 +67,8 @@ def datastore_function_create(context, data_dict):
 
 def datastore_function_delete(context, data_dict):
     return {'success': False}
+
+
+def datastore_run_triggers(context, data_dict):
+    '''sysadmin-only: functions can be used to skip access checks'''
+    return {'success': False}

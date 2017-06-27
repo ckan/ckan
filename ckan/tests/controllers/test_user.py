@@ -389,12 +389,9 @@ class TestUserEdit(helpers.FunctionalTestBase):
 
         # new values
         form['name'] = 'new-name'
-        response = submit_and_follow(app, form, name='save')
-        response = helpers.webtest_maybe_follow(response)
-
-        with app.flask_app.test_request_context():
-            expected_url = url_for(controller='user', action='read', id='new-name')
-        assert response.request.path == expected_url
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = webtest_submit(form, 'save', status=200, extra_environ=env)
+        assert_true('That login name can not be modified' in response)
 
     def test_edit_user_logged_in_username_change_by_name(self):
         user_pass = 'pass'
@@ -425,12 +422,9 @@ class TestUserEdit(helpers.FunctionalTestBase):
 
         # new values
         form['name'] = 'new-name'
-        response = submit_and_follow(app, form, name='save')
-        response = helpers.webtest_maybe_follow(response)
-
-        with app.flask_app.test_request_context():
-            expected_url = url_for(controller='user', action='read', id='new-name')
-        assert response.request.path == expected_url
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = webtest_submit(form, 'save', status=200, extra_environ=env)
+        assert_true('That login name can not be modified' in response)
 
     def test_edit_user_logged_in_username_change_by_id(self):
         user_pass = 'pass'
@@ -461,12 +455,9 @@ class TestUserEdit(helpers.FunctionalTestBase):
 
         # new values
         form['name'] = 'new-name'
-        response = submit_and_follow(app, form, name='save')
-        response = helpers.webtest_maybe_follow(response)
-
-        with app.flask_app.test_request_context():
-            expected_url = url_for(controller='user', action='read', id='new-name')
-        assert response.request.path == expected_url
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = webtest_submit(form, 'save', status=200, extra_environ=env)
+        assert_true('That login name can not be modified' in response)
 
     def test_perform_reset_for_key_change(self):
         password = 'password'

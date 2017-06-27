@@ -2,7 +2,7 @@
 
 import ckan.logic as logic
 import ckan.authz as authz
-from ckan.lib.base import _
+from ckan.common import _
 from ckan.logic.auth import (get_package_object, get_group_object,
                             get_resource_object)
 from ckan.lib.plugins import get_permission_labels
