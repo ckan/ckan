@@ -247,7 +247,7 @@ class TestUpdate(object):
         '''Test that the right activity is emitted when updating a user.'''
 
         user = factories.User()
-        before = datetime.datetime.now()
+        before = datetime.datetime.utcnow()
 
         # FIXME we have to pass the email address and password to user_update
         # even though we're not updating those fields, otherwise validation
@@ -264,7 +264,7 @@ class TestUpdate(object):
         assert latest_activity['activity_type'] == 'changed user'
         assert latest_activity['object_id'] == user['id']
         assert latest_activity['user_id'] == user['id']
-        after = datetime.datetime.now()
+        after = datetime.datetime.utcnow()
         timestamp = datetime_from_string(latest_activity['timestamp'])
         assert timestamp >= before and timestamp <= after
 
