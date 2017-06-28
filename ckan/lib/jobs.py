@@ -19,7 +19,6 @@ prefixed names. Use the functions ``add_queue_name_prefix`` and
 '''
 
 import logging
-import os
 
 import rq
 from rq.connections import push_connection
@@ -206,23 +205,6 @@ def test_job(*args):
     print(args)
 
 
-_os_fork = os.fork
-
-
-def _fork():
-    u'''Variant of os.fork that notifies IForkObserver implementations.
-
-    Works the same as ``os.fork`` does, but notifies implementations of
-    :py:class:`ckan.plugins.IForkObserver` according to its protocol.
-    '''
-    for plugin in plugins.PluginImplementations(plugins.IForkObserver):
-        plugin.before_fork()
-    result = _os_fork()
-    for plugin in plugins.PluginImplementations(plugins.IForkObserver):
-        plugin.after_fork(result)
-    return result
-
-
 class Worker(rq.Worker):
     u'''
     CKAN-specific worker.
@@ -278,13 +260,9 @@ class Worker(rq.Worker):
         queue = remove_queue_name_prefix(job.origin)
         log.info(u'Worker {} starts job {} from queue "{}"'.format(
                  self.key, job.id, queue))
-        try:
-            # Monkey patch os.fork to make sure IForkObserver
-            # notifications are sent.
-            os.fork = _fork
-            result = super(Worker, self).execute_job(job, *args, **kwargs)
-        finally:
-            os.fork = _os_fork
+        for plugin in plugins.PluginImplementations(plugins.IForkObserver):
+            plugin.before_fork()
+        result = super(Worker, self).execute_job(job, *args, **kwargs)
         log.info(u'Worker {} has finished job {} from queue "{}"'.format(
                  self.key, job.id, queue))
 

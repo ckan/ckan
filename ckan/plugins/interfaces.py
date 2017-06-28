@@ -1763,12 +1763,3 @@ class IForkObserver(Interface):
         u'''
         Called shortly before the CKAN process is forked.
         '''
-
-    def after_fork(self, pid):
-        u'''
-        Called shortly after the CKAN process is forked.
-
-        :param pid: ``0`` when running in the child, otherwise the
-                    child's PID.
-        :type pid: int
-        '''
