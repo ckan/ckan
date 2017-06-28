@@ -6,6 +6,7 @@ import nose
 import sqlalchemy.exc
 
 import ckan.plugins as p
+import ckan.lib.jobs as jobs
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
@@ -215,3 +216,51 @@ class TestGetAllResourcesIdsInDatastore(object):
 
         assert resource_in_datastore['id'] in resource_ids
         assert resource_not_in_datastore['id'] not in resource_ids
+
+
+def datastore_job(res_id, value):
+    '''
+    A background job that uses the Datastore.
+    '''
+    p.load('datastore')
+    data = {
+        'resource_id': res_id,
+        'method': 'insert',
+        'records': [{'value': value}],
+    }
+    helpers.call_action('datastore_upsert', **data)
+
+
+class TestBackgroundJobs(helpers.RQTestBase):
+    '''
+    Test correct interaction with the background jobs system.
+    '''
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('datastore')
+        helpers.reset_db()
+
+    def test_worker_datastore_access(self):
+        '''
+        Test DataStore access from within a worker.
+        '''
+        pkg = factories.Dataset()
+        data = {
+            'resource': {
+                'package_id': pkg['id'],
+            },
+            'fields': [{'id': 'value', 'type': 'int'}],
+        }
+        table = helpers.call_action('datastore_create', **data)
+        res_id = table['resource_id']
+        for i in range(3):
+            self.enqueue(datastore_job, args=[res_id, i])
+        jobs.Worker().work(burst=True)
+        # Aside from ensuring that the job succeeded, this also checks
+        # that accessing the Datastore still works in the main process.
+        result = helpers.call_action('datastore_search', resource_id=res_id)
+        assert_equal([0, 1, 2], [r['value'] for r in result['records']])
