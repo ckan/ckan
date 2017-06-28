@@ -278,4 +278,9 @@ class DatastorePlugin(p.SingletonPlugin):
     # IForkObserver
 
     def before_fork(self):
-        self.backend.before_fork()
+        try:
+            before_fork = self.backend.before_fork
+        except AttributeError:
+            pass
+        else:
+            before_fork()

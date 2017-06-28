@@ -245,7 +245,3 @@ class DatastoreBackend:
         """Called by `datastore_function_delete` action.
         """
         raise NotImplementedError()
-
-    def before_fork(self):
-        """Called before the CKAN process is forked.
-        """
