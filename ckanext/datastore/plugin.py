@@ -279,6 +279,3 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def before_fork(self):
         self.backend.before_fork()
-
-    def after_fork(self, pid):
-        self.backend.after_fork(pid)
