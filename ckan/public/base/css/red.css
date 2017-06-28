@@ -7430,7 +7430,8 @@ input[data-module="autocomplete"] {
   margin-right: 5px;
 }
 .simple-input label,
-.simple-input button {
+.simple-input button,
+.search-giant label {
   display: none;
 }
 .simple-input .field {
