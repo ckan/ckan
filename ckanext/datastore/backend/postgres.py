@@ -1966,8 +1966,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return drop_function(*args, **kwargs)
 
     def before_fork(self):
-        # Dispose SQLAlchemy engines to avoid sharing them between
-        # parent and child processes.
+        # Called by DatastorePlugin.before_fork. Dispose SQLAlchemy engines
+        # to avoid sharing them between parent and child processes.
         _dispose_engines()
 
 
