@@ -11,7 +11,7 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-from ckan.common import config
+from ckan.common import config, _
 
 from ckan.config.middleware import AskAppDispatcherMiddleware
 from ckan.config.middleware.flask_app import CKANFlask
@@ -570,6 +570,9 @@ class MockRoutingPlugin(p.SingletonPlugin):
         _map.connect('/hello',
                      controller=self.controller, action='view')
 
+        _map.connect('/pylons_translated',
+                     controller=self.controller, action='test_translation')
+
         return _map
 
     def after_map(self, _map):
@@ -589,6 +592,9 @@ class MockRoutingPlugin(p.SingletonPlugin):
         blueprint.add_url_rule('/simple_flask', 'flask_plugin_view',
                                flask_plugin_view)
 
+        blueprint.add_url_rule('/flask_translated', 'flask_translated',
+                               flask_translated_view)
+
         return blueprint
 
 
@@ -596,10 +602,17 @@ def flask_plugin_view():
     return 'Hello World, this is served from a Flask extension'
 
 
+def flask_translated_view():
+    return _('Dataset')
+
+
 class MockPylonsController(p.toolkit.BaseController):
 
     def view(self):
         return 'Hello World, this is served from a Pylons extension'
+
+    def test_translation(self):
+        return _('Groups')
 
 
 class TestSecretKey(object):

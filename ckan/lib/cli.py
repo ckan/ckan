@@ -90,8 +90,8 @@ def user_add(args):
     '''Add new user if we use paster sysadmin add
     or paster user add
     '''
-    if len(args) < 2:
-        error('Need name and email of the user.')
+    if len(args) < 1:
+        error('Error: you need to specify the user name.')
     username = args[0]
 
     # parse args into data_dict
@@ -105,9 +105,14 @@ def user_add(args):
                 'Could not parse arg: %r (expected "<option>=<value>)"' % arg
             )
 
+    # Required
+    while not data_dict.get('email'):
+        data_dict['email'] = raw_input('Email address: ')
+
     if 'password' not in data_dict:
         data_dict['password'] = UserCmd.password_prompt()
 
+    # Optional
     if 'fullname' in data_dict:
         data_dict['fullname'] = data_dict['fullname'].decode(
             sys.getfilesystemencoding()
@@ -740,7 +745,14 @@ class Sysadmin(CkanCommand):
     Usage:
       sysadmin                      - lists sysadmins
       sysadmin list                 - lists sysadmins
-      sysadmin add USERNAME         - add a user as a sysadmin
+      sysadmin add USERNAME         - make an existing user into a sysadmin
+      sysadmin add USERNAME [FIELD1=VALUE1 FIELD2=VALUE2 ...]
+                                    - creates a new user that is a sysadmin
+                                      (prompts for password and email if not
+                                      supplied).
+                                      Field can be: apikey
+                                                    password
+                                                    email
       sysadmin remove USERNAME      - removes user from sysadmins
     '''
 
@@ -769,9 +781,11 @@ class Sysadmin(CkanCommand):
                                                               state='active')
         print 'count = %i' % sysadmins.count()
         for sysadmin in sysadmins:
-            print '%s name=%s id=%s' % (sysadmin.__class__.__name__,
-                                        sysadmin.name,
-                                        sysadmin.id)
+            print '%s name=%s email=%s id=%s' % (
+                sysadmin.__class__.__name__,
+                sysadmin.name,
+                sysadmin.email,
+                sysadmin.id)
 
     def add(self):
         import ckan.model as model
@@ -821,8 +835,8 @@ class UserCmd(CkanCommand):
       user list                       - lists users
       user USERNAME                   - shows user properties
       user add USERNAME [FIELD1=VALUE1 FIELD2=VALUE2 ...]
-                                      - add a user (prompts for password
-                                        if not supplied).
+                                      - add a user (prompts for email and
+                                        password if not supplied).
                                         Field can be: apikey
                                                       password
                                                       email

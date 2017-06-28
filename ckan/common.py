@@ -15,8 +15,13 @@ import pylons
 
 from werkzeug.local import Local, LocalProxy
 
-from pylons.i18n import _, ungettext
+from flask_babel import (gettext as flask_ugettext,
+                         ngettext as flask_ungettext)
+from pylons.i18n import (ugettext as pylons_ugettext,
+                         ungettext as pylons_ungettext)
+
 from pylons import response
+
 import simplejson as json
 
 try:
@@ -39,6 +44,23 @@ def is_flask_request():
     return (flask.request and
             (flask.request.environ.get(u'ckan.app') == u'flask_app' or
              not pylons_request_available))
+
+
+def ugettext(*args, **kwargs):
+    if is_flask_request():
+        return flask_ugettext(*args, **kwargs)
+    else:
+        return pylons_ugettext(*args, **kwargs)
+
+
+_ = ugettext
+
+
+def ungettext(*args, **kwargs):
+    if is_flask_request():
+        return flask_ungettext(*args, **kwargs)
+    else:
+        return pylons_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):

@@ -11,7 +11,8 @@ this.ckan.module('resource-view-filters', function (jQuery) {
 
     var filters = ckan.views.filters.get();
     _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fields, filters);
-    var addFilterButton = _buildAddFilterButton(filtersDiv, addFilterTemplate, fields, filters, function (evt) {
+    var addFilterButton = _buildAddFilterButton(self, filtersDiv, addFilterTemplate,
+                                                fields, filters, function (evt) {
       // Build filters object with this element's val as key and a placeholder
       // value so _appendDropdowns() will create its dropdown
       var filters = {};
@@ -25,9 +26,8 @@ this.ckan.module('resource-view-filters', function (jQuery) {
     self.el.append(addFilterButton);
   }
 
-  function _buildAddFilterButton(el, template, fields, filters, onChangeCallback) {
-    var self = this,
-        addFilterButton = $(template),
+  function _buildAddFilterButton(self, el, template, fields, filters, onChangeCallback) {
+    var addFilterButton = $(template),
         currentFilters = Object.keys(filters),
         fieldsNotFiltered = $.grep(fields, function (field) {
           return !filters.hasOwnProperty(field);

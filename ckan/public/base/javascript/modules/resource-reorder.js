@@ -38,7 +38,7 @@ this.ckan.module('resource-reorder', function($) {
     initialize: function() {
       jQuery.proxyAll(this, /_on/);
 
-      var labelText = this._(this.labelText);
+      var labelText = this._(this.options.labelText);
 
       this.html_title = $(this.template.title)
         .text(labelText)

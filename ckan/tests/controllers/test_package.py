@@ -1312,6 +1312,16 @@ class TestSearch(helpers.FunctionalTestBase):
 
         assert dataset1['name'] in page.body.decode('utf8')
 
+    def test_search_language_toggle(self):
+        dataset1 = factories.Dataset()
+
+        offset = url_for(controller='package', action='search', q=dataset1['name'])
+        app = self._get_test_app()
+        page = app.get(offset)
+
+        assert dataset1['name'] in page.body.decode('utf8')
+        assert ('q=' + dataset1['name']) in page.body.decode('utf8')
+
     def test_search_sort_by_blank(self):
         factories.Dataset()
 
