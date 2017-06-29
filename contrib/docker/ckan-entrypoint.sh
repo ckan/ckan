@@ -79,6 +79,7 @@ if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
     # wait for postgres db to be available, immediately after creation
     # its entrypoint creates the cluster and dbs and this can take a moment
     for tries in $(seq 30); do
+      echo "${tries} try from 30"
       psql -c 'SELECT 1;' 2> /dev/null && break
       sleep 0.3
     done
@@ -90,7 +91,7 @@ if [ -z "$CKAN_SOLR_URL" ]; then
     abort "ERROR: no CKAN_SOLR_URL specified and linked container called 'solr' was not found"
   fi
 fi
-    
+
 if [ -z "$CKAN_REDIS_URL" ]; then
   if ! CKAN_REDIS_URL=$(link_redis_url); then
     abort "ERROR: no CKAN_REDIS_URL specified and linked container called 'redis' was not found"
