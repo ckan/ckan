@@ -4,7 +4,8 @@
 {% block subtitle %}{{ _("Datasets") }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
+  {% set type_text = dataset_type.title() %}
+  <li class="active"><a href="{{ dataset_type }}">{{ _(type_text) }}</a></li>
 {% endblock %}
 
 {% block primary_content %}
@@ -13,7 +14,9 @@
       {% block page_primary_action %}
         {% if h.check_access('package_create') %}
           <div class="page_primary_action">
-            {% link_for _('Add Dataset'), controller='package', action='new', class_='btn btn-primary', icon='plus-square' %}
+            {% set add_type_text = 'Add ' + dataset_type.title() %}
+            {% set add_link = h.url_for(controller='package', action='new') | replace('dataset', dataset_type) %}
+            <a href="{{ add_link }}" class="btn btn-primary"><i class="fa fa-plus-square"></i>  {{ _(add_type_text) }}</a>
           </div>
         {% endif %}
       {% endblock %}
