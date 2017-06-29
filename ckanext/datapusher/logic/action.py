@@ -290,10 +290,10 @@ def datapusher_status(context, data_dict):
             job_detail = r.json()
             for log in job_detail['logs']:
                 if 'timestamp' in log:
-                    date = datetime.datetime.strptime(
+                    date = time.strptime(
                         log['timestamp'], "%Y-%m-%dT%H:%M:%S.%f")
                     date = datetime.datetime.utcfromtimestamp(
-                        time.mktime(date.timetuple()))
+                        time.mktime(date))
                     log['timestamp'] = date
         except (requests.exceptions.ConnectionError,
                 requests.exceptions.HTTPError):
