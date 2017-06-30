@@ -7,6 +7,7 @@ describe('ckan.module.FollowersCounterModule()', function() {
     this.el = jQuery('<dd><span>' + this.initialCounter + '</span></dd>');
     this.sandbox = ckan.sandbox();
     this.module = new FollowersCounterModule(this.el, {}, this.sandbox);
+    this.module.options.num_followers = this.initialCounter;
   });
 
   afterEach(function() {
@@ -23,19 +24,6 @@ describe('ckan.module.FollowersCounterModule()', function() {
       assert.calledWith(target, this.module, /_on/);
 
       target.restore();
-    });
-
-    it('should set this.counterVal to the current counter value in the DOM converted to number', function() {
-      this.module.initialize();
-
-      assert.equal(this.module.counterVal, this.initialCounter);
-    });
-
-    it('should set this.objId to the one on this.options.id', function() {
-      this.module.options = {id: 'some-id'};
-      this.module.initialize();
-
-      assert.equal(this.module.objId, this.module.options.id);
     });
 
     it('should subscribe to the "follow-follow-some-id" event', function() {
@@ -103,23 +91,16 @@ describe('ckan.module.FollowersCounterModule()', function() {
       assert.called(target);
     });
 
-    it('should increment this.counterVal on calling _onFollow', function() {
+    it('should call _updateCounter when ._onFollow is called', function() {
+      var target = sinon.stub(this.module, '_updateCounter');
+
+      this.module.options = {id: 'some-id'};
       this.module.initialize();
+
       this.module._onFollow();
 
-      assert.equal(this.module.counterVal, ++this.initialCounter);
-    });
-
-    it('should increment the counter value in the DOM on calling _onFollow', function() {
-      var counterVal;
-
-      this.module.initialize();
-      this.module._onFollow();
-
-      counterVal = this.module.counterEl.text();
-      counterVal = parseInt(counterVal, 10);
-
-      assert.equal(counterVal, ++this.initialCounter);
+      assert.called(target);
+      assert.calledWith(target, {action: 'follow'});
     });
   });
 
@@ -135,11 +116,44 @@ describe('ckan.module.FollowersCounterModule()', function() {
       assert.called(target);
     });
 
-    it('should decrement this.counterVal on calling _onUnfollow', function() {
+    it('should call _updateCounter when ._onUnfollow is called', function() {
+      var target = sinon.stub(this.module, '_updateCounter');
+
+      this.module.options = {id: 'some-id'};
+      this.module.initialize();
+
+      this.module._onUnfollow();
+
+      assert.called(target);
+      assert.calledWith(target, {action: 'unfollow'});
+    });
+  });
+
+  describe('._updateCounter', function() {
+    it('should increment this.options.num_followers on calling _onFollow', function() {
+      this.module.initialize();
+      this.module._onFollow();
+
+      assert.equal(this.module.options.num_followers, ++this.initialCounter);
+    });
+
+    it('should increment the counter value in the DOM on calling _onFollow', function() {
+      var counterVal;
+
+      this.module.initialize();
+      this.module._onFollow();
+
+      counterVal = this.module.counterEl.text();
+      counterVal = parseInt(counterVal, 10);
+
+      assert.equal(counterVal, ++this.initialCounter);
+    });
+
+    it('should decrement this.options.num_followers on calling _onUnfollow', function() {
       this.module.initialize();
       this.module._onUnfollow();
 
-      assert.equal(this.module.counterVal, --this.initialCounter);
+      assert.equal(this.module.options.num_followers, --this.initialCounter);
     });
 
     it('should decrement the counter value in the DOM on calling _onUnfollow', function() {
@@ -152,6 +166,21 @@ describe('ckan.module.FollowersCounterModule()', function() {
       counterVal = parseInt(counterVal, 10);
 
       assert.equal(counterVal, --this.initialCounter);
+    });
+
+    it('should not change the counter value in the DOM when the value is greater than 1000', function() {
+      var beforeCounterVal = 1536;
+      var afterCounterVal;
+
+      this.module.options = {num_followers: beforeCounterVal};
+      this.module.initialize();
+      this.module.counterEl.text(this.module.options.num_followers);
+      this.module._onFollow();
+
+      afterCounterVal = this.module.counterEl.text();
+      afterCounterVal = parseInt(afterCounterVal, 10);
+
+      assert.equal(beforeCounterVal, afterCounterVal);
     });
   });
 });
