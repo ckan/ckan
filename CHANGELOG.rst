@@ -50,6 +50,15 @@ Minor:
  * Support JS translations in extensions (#3272)
  * Requirements upgraded (#3305)
  * Dockerfile updates (#3295)
+ * Fix activity test to use utcnow (#3644)
+ * Changed required permission from 'update' to 'manage_group' (#3631)
+ * Catch invalid sort param exception (#3630)
+ * Choose direction of recreated package relationship depending on its type (#3626)
+ * Fix render_datetime for dates before year 1900 (#3611)
+ * Fix KeyError in 'package_create' (#3027)
+ * Allow slug preview to work with autocomplete fields (#2501)
+ * Fix filter results button not working for organization/group (#3620)
+ * Allow underscores in URL slug preview on create dataset (#3612)
 
 API changes and deprecations:
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
@@ -452,8 +461,8 @@ Changes and deprecations
   Custom templates or users of this API call will need to pass
   ``include_datasets=True`` to include datasets in the response.
 
-* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the 
-  ``packages`` key - i.e. datasets that use the vocabulary or tag. 
+* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the
+  ``packages`` key - i.e. datasets that use the vocabulary or tag.
   However ``tag_show`` now has an ``include_datasets`` option. (#1886)
 
 * Config option ``site_url`` is now required - CKAN will not abort during
