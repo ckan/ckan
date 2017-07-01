@@ -1276,8 +1276,10 @@ def config_option_update(context, data_dict):
         raise ValidationError(errors)
 
     image_in_ckan = False
+    public_path = config.get('ckan.static_files', 'public')
     ckan_images_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                       '..', '..', 'public', 'base', 'images'))
+                                       '..', '..', public_path, 'base',
+                                                    'images'))
 
     for key, value in data.iteritems():
 
