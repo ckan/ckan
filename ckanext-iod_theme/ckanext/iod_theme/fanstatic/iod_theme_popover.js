@@ -1,11 +1,11 @@
 "use strict";
 
-ckan.module('iod_theme_popover', function ($) {
+ckan.module('iod_theme_popover', function ($, _) {
   return {
     initialize: function () {
       $.proxyAll(this, /_on/);
       this.el.popover({title: this.options.title, html: true,
-                       content: this._('Loading...'), placement: 'left'});
+                       content: 'Loading...', placement: 'left'});
       this.el.on('click', this._onClick);
 
       // Subscribe to 'dataset_popover_clicked' events.
