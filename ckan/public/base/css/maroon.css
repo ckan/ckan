@@ -10090,7 +10090,6 @@ h4 small {
 }
 .popover-followee .popover-header .input-group-addon,
 .popover-followee .popover-header input {
-  float: left;
   margin: 0;
 }
 .popover-followee .popover-header .input-group-addon {
@@ -10101,7 +10100,7 @@ h4 small {
 .popover-followee .popover-header input {
   padding: 4px 12px 4px 8px;
   font-size: 13px;
-  width: 207px;
+  width: 227px;
   border-radius: 0 100px 100px 0;
 }
 .popover-followee .nav {
@@ -10136,6 +10135,9 @@ h4 small {
 .popover-followee .nav li.active a i {
   color: #810606;
   background-color: #fff;
+}
+.popover-followee .nav li {
+  float: none;
 }
 .dashboard-me {
   padding: 15px 15px 0 15px;
