@@ -8995,6 +8995,7 @@ h4 small {
 }
 [role=main] .secondary {
   padding: 0;
+  z-index: 1;
 }
 /* Filters modal */
 .no-text .text {
@@ -10110,6 +10111,9 @@ h4 small {
   overflow: auto;
   border-radius: 0 0 3px 3px;
 }
+.popover-followee .nav li {
+  float: none;
+}
 .popover-followee .nav li a {
   display: block;
   overflow: hidden;
@@ -10135,9 +10139,6 @@ h4 small {
 .popover-followee .nav li.active a i {
   color: #187794;
   background-color: #fff;
-}
-.popover-followee .nav li {
-  float: none;
 }
 .dashboard-me {
   padding: 15px 15px 0 15px;
