@@ -2330,6 +2330,7 @@ core_helper(whtext.truncate)
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
+core_helper(clean_html)
 
 
 def load_plugin_helpers():

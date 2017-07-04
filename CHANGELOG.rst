@@ -20,6 +20,7 @@ v2.6.3 2017-06-29
 * Fix filter results button not working for organization/group (#3620)
 * Allow underscores in URL slug preview on create dataset (#3612)
 * Create new resource view if resource format changed (#3515)
+* Fixed escaping issues with `helpers.mail_to` and datapusher logs
 
 v2.6.2 2017-03-22
 =================
