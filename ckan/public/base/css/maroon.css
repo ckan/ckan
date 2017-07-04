@@ -10202,6 +10202,9 @@ h4 small {
 .datapusher-status.status-complete {
   color: #009900;
 }
+.datapusher-form {
+  margin-bottom: 20px;
+}
 body {
   background: #810606 url("../../../base/images/bg.png");
 }
