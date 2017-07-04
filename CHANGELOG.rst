@@ -59,6 +59,7 @@ Minor:
  * Allow slug preview to work with autocomplete fields (#2501)
  * Fix filter results button not working for organization/group (#3620)
  * Allow underscores in URL slug preview on create dataset (#3612)
+ * Fixed escaping issues with `helpers.mail_to` and datapusher logs
 
 API changes and deprecations:
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
