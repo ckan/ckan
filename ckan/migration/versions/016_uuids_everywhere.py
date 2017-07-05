@@ -170,18 +170,25 @@ def create_uuids(migrate_engine, primary_table_name, revision_table_name):
         q = revision_table.update().values(id=revision_table.c.continuity_id)
         migrate_engine.execute(q)
 
+
 def drop_sequencies(migrate_engine):
 
-    sequencies = ['package_extra', 'package',
-                  'package_resource',
-                  'package_tag',
-                  'revision', 'tag']
+    sequences = ['package_extra', 'package_extra_revision', 'package',
+                 'package_resource', 'package_resource_revision',
+                 'package_revision', ' package_tag', 'package_tag_revision',
+                 'revision', 'tag']
 
-    for sequence in sequencies:
+    for sequence in sequences:
         migrate_engine.execute('ALTER TABLE %s ALTER COLUMN id DROP DEFAULT;' % sequence)
 
-    for sequence in sequencies:
-        migrate_engine.execute('drop sequence %s_id_seq;' % sequence)
+    for sequence in sequences:
+        try:
+            migrate_engine.execute('drop sequence %s_id_seq;' % sequence)
+        except sqlalchemy.exc.ProgrammingError as e:
+            if 'sequence "{}_id_seq" does not exist'.format(sequence) in str(e):
+                pass
+            else:
+                raise
 
 
 
