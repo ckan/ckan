@@ -65,24 +65,12 @@ class TestUpdate(object):
 
         # 1. Setup.
         user = factories.User()
+        user['name'] = 'updated'
 
-        # 2. Call the function that's being tested, once only.
-        # FIXME we have to pass the email address and password to user_update
-        # even though we're not updating those fields, otherwise validation
-        # fails.
-        helpers.call_action('user_update', id=user['name'],
-                            email=user['email'],
-                            password=factories.User.attributes()['password'],
-                            name='updated',
-                            )
-
-        # 3. Make assertions about the return value and/or side-effects.
-        updated_user = helpers.call_action('user_show', id=user['id'])
-        # Note that we check just the field we were trying to update, not the
-        # entire dict, only assert what we're actually testing.
-        assert updated_user['name'] == 'updated'
-
-        # 4. Do nothing else!
+        # 2. Make assertions about the return value and/or side-effects.
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'user_update',
+                      **user)
 
     ## END-BEFORE
 
@@ -249,7 +237,7 @@ class TestUpdate(object):
         helpers.call_action('user_update', id=user['name'],
                             email=user['email'],
                             password=factories.User.attributes()['password'],
-                            name='updated',
+                            fullname='updated full name',
                             )
 
         activity_stream = helpers.call_action('user_activity_list',
@@ -292,7 +280,7 @@ class TestUpdate(object):
         helpers.call_action('user_update', context={'schema': schema},
                             id=user['name'], email=user['email'],
                             password=factories.User.attributes()['password'],
-                            name='updated',
+                            fullname='updated full name',
                             )
 
         # Since we passed user['name'] to user_update as the 'id' param,
@@ -307,7 +295,6 @@ class TestUpdate(object):
 
         params = {
             'id': user['id'],
-            'name': 'updated_name',
             'fullname': 'updated full name',
             'about': 'updated about',
             # FIXME: We shouldn't have to put email here since we're not
@@ -321,7 +308,6 @@ class TestUpdate(object):
         helpers.call_action('user_update', **params)
 
         updated_user = helpers.call_action('user_show', id=user['id'])
-        assert updated_user['name'] == 'updated_name'
         assert updated_user['fullname'] == 'updated full name'
         assert updated_user['about'] == 'updated about'
 
@@ -333,7 +319,6 @@ class TestUpdate(object):
 
         params = {
             'id': user['id'],
-            'name': 'updated_name',
             'fullname': 'updated full name',
             'about': 'updated about',
             'email': user['email'],
@@ -351,7 +336,6 @@ class TestUpdate(object):
 
         params = {
             'id': user['id'],
-            'name': 'updated_name',
             'fullname': 'updated full name',
             'about': 'updated about',
             'email': user['email'],
@@ -373,7 +357,6 @@ class TestUpdate(object):
 
         params = {
             'id': user['id'],
-            'name': 'updated_name',
             'fullname': 'updated full name',
             'about': 'updated about',
             'email': user['email'],
