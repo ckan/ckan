@@ -1285,10 +1285,8 @@ def config_option_update(context, data_dict):
 
         # Set full Logo url
         if key == 'ckan.site_logo' and value and not value.startswith('http'):
-            for f in os.listdir(ckan_images_path):
-                if f == value:
-                    image_in_ckan = True
-                    break
+            if os.path.isfile('{0}/{1}'.format(ckan_images_path, value)):
+                image_in_ckan = True
 
             if image_in_ckan:
                 image_path = 'base/images/'
