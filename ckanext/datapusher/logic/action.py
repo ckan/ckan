@@ -4,6 +4,7 @@ import logging
 import json
 import urlparse
 import datetime
+import time
 
 from dateutil.parser import parse as parse_date
 
@@ -287,6 +288,13 @@ def datapusher_status(context, data_dict):
                                            'Authorization': job_key})
             r.raise_for_status()
             job_detail = r.json()
+            for log in job_detail['logs']:
+                if 'timestamp' in log:
+                    date = time.strptime(
+                        log['timestamp'], "%Y-%m-%dT%H:%M:%S.%f")
+                    date = datetime.datetime.utcfromtimestamp(
+                        time.mktime(date))
+                    log['timestamp'] = date
         except (requests.exceptions.ConnectionError,
                 requests.exceptions.HTTPError):
             job_detail = {'error': 'cannot connect to datapusher'}

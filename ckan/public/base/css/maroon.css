@@ -7430,8 +7430,7 @@ input[data-module="autocomplete"] {
   margin-right: 5px;
 }
 .simple-input label,
-.simple-input button,
-.search-giant label {
+.simple-input button {
   display: none;
 }
 .simple-input .field {
@@ -8282,7 +8281,7 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
   padding: 15px;
 }
 .search-form .search-input.search-giant button {
-  margin-top: -15px;
+  margin-top: -4px;
   right: 15px;
   height: 30px;
 }
