@@ -17,8 +17,7 @@ import urlparse
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
-from webhelpers.html import escape, HTML, literal, url_escape
-from webhelpers.html.tools import mail_to
+from webhelpers.html import HTML, literal, url_escape
 from webhelpers.html.tags import *
 from lib.markdown import markdown
 from webhelpers import paginate
@@ -45,6 +44,7 @@ import ckan.authz as authz
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
 )
+from markupsafe import Markup, escape
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -2097,6 +2097,13 @@ def license_options(existing_license_id=None):
         (license_id,
          register[license_id].title if license_id in register else license_id)
         for license_id in license_ids]
+
+
+def mail_to(email_address, name):
+    email = escape(email_address)
+    author = escape(name)
+    html = Markup(u'<a href=mailto:{0}>{1}</a>'.format(email, author))
+    return html
 
 
 # these are the functions that will end up in `h` template helpers
