@@ -50,7 +50,7 @@
         </div>
       </div>
     {% endif %}
-    {% set format_attrs = {'data-module': 'autocomplete'} %}
+    {% set format_attrs = {'data-module': 'autocomplete', 'style': 'width: 100px'} %}
     {{ form.select('role', label=_('Role'), options=c.roles, selected=c.user_role, error='', attrs=format_attrs) }}
     <div class="form-actions">
       {% if user %}
