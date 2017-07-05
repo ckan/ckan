@@ -85,7 +85,8 @@ class DatapusherPlugin(p.SingletonPlugin):
     resource_show_action = None
 
     def update_config(self, config):
-        p.toolkit.add_template_directory(config, 'templates')
+        templates_dir_name = config.get('ckan.templates', 'templates')
+        p.toolkit.add_template_directory(config, templates_dir_name)
 
     def configure(self, config):
         self.config = config
