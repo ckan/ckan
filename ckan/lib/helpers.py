@@ -251,18 +251,12 @@ def url_for(*args, **kw):
         ver = kw.get('ver')
         if not ver:
             raise Exception('API URLs must specify the version (eg ver=3)')
-
     try:
-        # First try to build the URL with the Flask router, making a copy of
-        # the params in case they are modified
-        flask_args = tuple(args)
-        flask_kw = kw.copy()
-
-        my_url = _url_for_flask(*flask_args, **flask_kw)
+        # First try to build the URL with the Flask router
+        my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
-        # If it doesn't succeed, fallback to the Pylons router, using the
-        # original parameters
+        # If it doesn't succeed, fallback to the Pylons router
         my_url = _url_for_pylons(*args, **kw)
 
     # Add back internal params
