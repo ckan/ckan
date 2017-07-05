@@ -28,14 +28,14 @@ Example
             href="http://docs.ckan.org/en/latest/maintaining/datastore.html" target="_blank">main
             CKAN Data API and DataStore documentation</a>.</p>
           {% endtrans %}
-          <div class="accordion" id="accordion2">
-          <div class="accordion-group">
-            <div class="accordion-heading">
+          <div class="panel-group" id="accordion2">
+          <div class="panel panel-default">
+            <div class="panel-heading">
 
               <a class="accordion-toggle" data-toggle="collapse" data-parent="accordion2" href="#collapse-endpoints">{{ _('Endpoints') }} &raquo;</a>
             </div>
-            <div id="collapse-endpoints" class="in accordion-body collapse">
-              <div class="accordion-inner">
+            <div id="collapse-endpoints" class="in panel-collapse collapse">
+              <div class="panel-body">
                 <p>{{ _('The Data API can be accessed via the following actions of the CKAN action API.') }}</p>
                 <table class="table-condensed table-striped table-bordered">
                   <thead></thead>
@@ -63,12 +63,12 @@ Example
             </div>
           </div>
 
-          <div class="accordion-group">
-            <div class="accordion-heading">
+          <div class="panel panel-default">
+            <div class="panel-heading">
               <a class="accordion-toggle" data-toggle="collapse" data-parent="accordion2" href="#collapse-querying">{{ _('Querying') }} &raquo;</a>
             </div>
-            <div id="collapse-querying" class="collapse accordion-body in">
-              <div class="accordion-inner">
+            <div id="collapse-querying" class="collapse panel-collapse in">
+              <div class="panel-body">
                 <strong>{{ _('Query example (first 5 results)') }}</strong>
                 <p>
                 <code>{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&limit=5</code>
@@ -88,12 +88,12 @@ Example
             </div>
           </div>
 
-          <div class="accordion-group">
-            <div class="accordion-heading">
+          <div class="panel panel-default">
+            <div class="panel-heading">
              <a class="accordion-toggle" data-toggle="collapse" data-parent="accordion2" href="#collapse-javascript">{{ _('Example: Javascript') }} &raquo;</a>
             </div>
-            <div id="collapse-javascript" class="accordion-body collapse">
-              <div class="accordion-inner">
+            <div id="collapse-javascript" class="panel-collapse collapse">
+              <div class="panel-body">
                 <p>{{ _('A simple ajax (JSONP) request to the data API using jQuery.') }}</p>
                 <pre>
         var data = {
@@ -113,12 +113,12 @@ Example
             </div>
           </div>
 
-          <div class="accordion-group">
-            <div class="accordion-heading">
+          <div class="panel panel-default">
+            <div class="panel-heading">
               <a class="accordion-toggle" data-toggle="collapse" data-parent="accordion2" href="#collapse-python">{{ _('Example: Python') }} &raquo;</a>
             </div>
-            <div id="collapse-python" class="accordion-body collapse">
-              <div class="accordion-inner">
+            <div id="collapse-python" class="panel-collapse collapse">
+              <div class="panel-body">
                 <pre>
       import urllib
       url = '{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&amp;limit=5&amp;q=title:jones'
