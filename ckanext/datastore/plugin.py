@@ -68,7 +68,9 @@ class DatastorePlugin(p.SingletonPlugin):
         DatastoreBackend.register_backends()
         DatastoreBackend.set_active_backend(config)
 
-        p.toolkit.add_template_directory(config, 'templates')
+        templates_dir_name = config.get('ckan.templates', 'templates')
+
+        p.toolkit.add_template_directory(config, templates_dir_name)
         self.backend = DatastoreBackend.get_active_backend()
 
     # IConfigurable
