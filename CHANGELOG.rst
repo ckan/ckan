@@ -7,9 +7,10 @@
 Changelog
 ---------
 
-v2.5.5 2017-06-29
-=================
+v2.5.6 TBD
+==========
 
+* Fix in organization / group form image URL field (#3661)
 * Fix activity test to use utcnow (#3644)
 * Changed required permission from 'update' to 'manage_group' (#3631)
 * Catch invalid sort param exception (#3630)
