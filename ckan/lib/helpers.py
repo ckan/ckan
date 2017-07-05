@@ -19,8 +19,7 @@ import urlparse
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
-from webhelpers.html import escape, HTML, literal, url_escape
-from webhelpers.html.tools import mail_to
+from webhelpers.html import HTML, literal, url_escape
 from webhelpers.html.tags import *
 from webhelpers import paginate
 from webhelpers.text import truncate
@@ -47,6 +46,7 @@ import ckan.authz as authz
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
 )
+from markupsafe import Markup, escape
 
 
 MARKDOWN_TAGS = set([
@@ -2157,6 +2157,13 @@ def license_options(existing_license_id=None):
         for license_id in license_ids]
 
 
+def mail_to(email_address, name):
+    email = escape(email_address)
+    author = escape(name)
+    html = Markup(u'<a href=mailto:{0}>{1}</a>'.format(email, author))
+    return html
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -2277,4 +2284,5 @@ __allowed_functions__ = [
     'check_config_permission',
     'view_resource_url',
     'license_options',
+    'clean_html',
 ]
