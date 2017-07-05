@@ -1173,7 +1173,7 @@ def gravatar(email_hash, size=100, default=None):
         default = urllib.quote(default, safe='')
 
     return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
-        class="gravatar" width="%s" height="%s" alt="" />'''
+        class="gravatar" width="%s" height="%s" alt="Gravatar" />'''
                    % (email_hash, size, default, size, size)
                    )
 
@@ -1285,6 +1285,24 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
 
     # if date_format was supplied we use it
     if date_format:
+
+        # See http://bugs.python.org/issue1777412
+        if datetime_.year < 1900:
+            year = str(datetime_.year)
+
+            date_format = re.sub('(?<!%)((%%)*)%y',
+                                 r'\g<1>{year}'.format(year=year[-2:]),
+                                 date_format)
+            date_format = re.sub('(?<!%)((%%)*)%Y',
+                                 r'\g<1>{year}'.format(year=year),
+                                 date_format)
+
+            datetime_ = datetime.datetime(2016, datetime_.month, datetime_.day,
+                                          datetime_.hour, datetime_.minute,
+                                          datetime_.second)
+
+            return datetime_.strftime(date_format)
+
         return datetime_.strftime(date_format)
     # the localised date
     return formatters.localised_nice_date(datetime_, show_date=True,

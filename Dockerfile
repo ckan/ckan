@@ -31,6 +31,9 @@ RUN ckan-pip install --upgrade -r $CKAN_HOME/src/ckan/requirements.txt
 ADD ./dev-requirements.txt $CKAN_HOME/src/ckan/dev-requirements.txt
 RUN ckan-pip install --upgrade -r $CKAN_HOME/src/ckan/dev-requirements.txt
 
+# TMP-BUGFIX https://github.com/ckan/ckan/issues/3594
+RUN ckan-pip install --upgrade urllib3
+
 # SetUp CKAN
 ADD . $CKAN_HOME/src/ckan/
 RUN ckan-pip install -e $CKAN_HOME/src/ckan/
@@ -45,5 +48,4 @@ ENTRYPOINT ["/ckan-entrypoint.sh"]
 VOLUME ["/etc/ckan/default"]
 VOLUME ["/var/lib/ckan"]
 EXPOSE 5000
-
 CMD ["ckan-paster","serve","/etc/ckan/default/ckan.ini"]

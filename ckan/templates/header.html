@@ -72,7 +72,7 @@
     {% endif %}
   {% endblock %}
   <div class="container">
-    <button data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar" type="button">
+    <button data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar" type="button" value="navbar">
       <span class="fa-bar"></span>
       <span class="fa-bar"></span>
       <span class="fa-bar"></span>
@@ -115,7 +115,7 @@
           <div class="field">
             <label for="field-sitewide-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
             <input id="field-sitewide-search" type="text" name="q" placeholder="{{ _('Search') }}" />
-            <button class="btn-search" type="submit"><i class="fa fa-search"></i></button>
+            <button class="btn-search" type="submit" value="search"><i class="fa fa-search"></i></button>
           </div>
         </form>
       {% endblock %}

@@ -30,7 +30,7 @@
       <div class="nums">
         <dl>
           <dt>{{ _('Followers') }}</dt>
-          <dd>{{ h.SI_number_span(group.num_followers) }}</dd>
+          <dd data-module="followers-counter" data-module-id="{{ group.id }}" data-module-num_followers="{{ group.num_followers }}">{{ h.SI_number_span(group.num_followers) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>

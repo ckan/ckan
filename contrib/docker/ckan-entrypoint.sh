@@ -16,17 +16,20 @@ abort () {
   exit 1
 }
 
-write_config () {
-
+set_environment () {
   export CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL}
   export CKAN_SOLR_URL=${CKAN_SOLR_URL}
   export CKAN_REDIS_URL=${CKAN_REDIS_URL}
   export CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
+}
 
-  ckan-paster make-config ckan "$CONFIG"
+write_config () {
+  # Note that this only gets called if there is no config, see below!
+  ckan-paster make-config --no-interactive ckan "$CONFIG"
 
-  # In case want to use the config from ckan.ini use this
+  # The variables above will be used by CKAN, but
+  # in case want to use the config from ckan.ini use this
   #ckan-paster --plugin=ckan config-tool "$CONFIG" -e \
   #    "sqlalchemy.url = ${CKAN_SQLALCHEMY_URL}" \
   #    "solr_url = ${CKAN_SOLR_URL}" \
@@ -58,28 +61,43 @@ link_redis_url () {
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
-
-  if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
-    if ! CKAN_SQLALCHEMY_URL=$(link_postgres_url); then
-      abort "ERROR: no CKAN_SQLALCHEMY_URL specified and linked container called 'db' was not found"
-    fi
-  fi
-
-  if [ -z "$CKAN_SOLR_URL" ]; then
-    if ! CKAN_SOLR_URL=$(link_solr_url); then
-      abort "ERROR: no CKAN_SOLR_URL specified and linked container called 'solr' was not found"
-    fi
-  fi
-    
-  if [ -z "$CKAN_REDIS_URL" ]; then
-    if ! CKAN_REDIS_URL=$(link_redis_url); then
-      abort "ERROR: no CKAN_REDIS_URL specified and linked container called 'redis' was not found"
-    fi
-  fi
-
   write_config
-
 fi
+
+# Set environment variables
+if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
+  if ! CKAN_SQLALCHEMY_URL=$(link_postgres_url); then
+    abort "ERROR: no CKAN_SQLALCHEMY_URL specified and linked container called 'db' was not found"
+  else
+    #If that worked, use the DB details to wait for the DB
+    export PGHOST=${DB_PORT_5432_TCP_ADDR}
+    export PGPORT=${DB_PORT_5432_TCP_PORT}
+    export PGDATABASE=${DB_ENV_POSTGRES_DB}
+    export PGUSER=${DB_ENV_POSTGRES_USER}
+    export PGPASSWORD=${DB_ENV_POSTGRES_PASSWORD}
+
+    # wait for postgres db to be available, immediately after creation
+    # its entrypoint creates the cluster and dbs and this can take a moment
+    for tries in $(seq 30); do
+      psql -c 'SELECT 1;' 2> /dev/null && break
+      sleep 0.3
+    done
+  fi
+fi
+
+if [ -z "$CKAN_SOLR_URL" ]; then
+  if ! CKAN_SOLR_URL=$(link_solr_url); then
+    abort "ERROR: no CKAN_SOLR_URL specified and linked container called 'solr' was not found"
+  fi
+fi
+    
+if [ -z "$CKAN_REDIS_URL" ]; then
+  if ! CKAN_REDIS_URL=$(link_redis_url); then
+    abort "ERROR: no CKAN_REDIS_URL specified and linked container called 'redis' was not found"
+  fi
+fi
+
+set_environment
 
 # Initializes the Database
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"

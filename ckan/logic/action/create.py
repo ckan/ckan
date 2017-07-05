@@ -120,7 +120,8 @@ def package_create(context, data_dict):
     :param owner_org: the id of the dataset's owning organization, see
         :py:func:`~ckan.logic.action.get.organization_list` or
         :py:func:`~ckan.logic.action.get.organization_list_for_user` for
-        available values (optional)
+        available values. This parameter can be made optional if the config
+        option :ref:`ckan.auth.create_unowned_dataset` is set to ``True``.
     :type owner_org: string
 
     :returns: the newly created dataset (unless 'return_id_only' is set to True
