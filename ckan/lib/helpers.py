@@ -19,7 +19,7 @@ import urlparse
 from urllib import urlencode
 
 from paste.deploy import converters
-from webhelpers.html import escape, HTML, literal, tags, tools
+from webhelpers.html import HTML, literal, tags, tools
 from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
@@ -45,6 +45,8 @@ import ckan.plugins as p
 import ckan
 
 from ckan.common import _, ungettext, c, request, session, json
+from markupsafe import Markup, escape
+
 
 log = logging.getLogger(__name__)
 
@@ -2321,7 +2323,7 @@ def license_options(existing_license_id=None):
 def get_translated(data_dict, field):
     language = i18n.get_lang()
     try:
-        return data_dict[field+'_translated'][language]
+        return data_dict[field + u'_translated'][language]
     except KeyError:
         return data_dict.get(field, '')
 
@@ -2330,6 +2332,14 @@ def get_translated(data_dict, field):
 def facets():
     u'''Returns a list of the current facet names'''
     return config.get(u'search.facets', DEFAULT_FACET_NAMES).split()
+
+
+@core_helper
+def mail_to(email_address, name):
+    email = escape(email_address)
+    author = escape(name)
+    html = Markup(u'<a href=mailto:{0}>{1}</a>'.format(email, author))
+    return html
 
 
 core_helper(flash, name='flash')
@@ -2345,13 +2355,12 @@ core_helper(tags.literal)
 core_helper(tags.link_to)
 core_helper(tags.file)
 core_helper(tags.submit)
-core_helper(tools.mail_to)
 core_helper(whtext.truncate)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
-
+core_helper(clean_html, name='clean_html')
 
 def load_plugin_helpers():
     """
