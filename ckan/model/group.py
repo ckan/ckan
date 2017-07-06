@@ -2,7 +2,7 @@
 
 import datetime
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_
+from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_, text
 import vdm.sqlalchemy
 
 import meta
@@ -198,7 +198,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         '''
         results = meta.Session.query(Group.id, Group.name, Group.title,
                                      'parent_id').\
-            from_statement(HIERARCHY_DOWNWARDS_CTE).\
+            from_statement(text(HIERARCHY_DOWNWARDS_CTE)).\
             params(id=self.id, type=type).all()
         return results
 
@@ -221,7 +221,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Returns this group's parent, parent's parent, parent's parent's
         parent etc.. Sorted with the top level parent first.'''
         return meta.Session.query(Group).\
-            from_statement(HIERARCHY_UPWARDS_CTE).\
+            from_statement(text(HIERARCHY_UPWARDS_CTE)).\
             params(id=self.id, type=type).all()
 
     @classmethod
