@@ -62,17 +62,19 @@ class TestGroupController(helpers.FunctionalTestBase):
 
     def test_invalid_sort_param_does_not_crash(self):
         app = self._get_test_app()
-        group_url = url_for(controller='group',
-                            action='index',
-                            sort='title desc nope')
 
-        app.get(url=group_url)
+        with app.flask_app.test_request_context():
+            group_url = url_for(controller='group',
+                                action='index',
+                                sort='title desc nope')
 
-        group_url = url_for(controller='group',
-                            action='index',
-                            sort='title nope desc nope')
+            app.get(url=group_url)
 
-        app.get(url=group_url)
+            group_url = url_for(controller='group',
+                                action='index',
+                                sort='title nope desc nope')
+
+            app.get(url=group_url)
 
 
 def _get_group_new_page(app):

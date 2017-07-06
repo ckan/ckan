@@ -222,13 +222,16 @@ def datastore_job(res_id, value):
     '''
     A background job that uses the Datastore.
     '''
+    app = helpers._get_test_app()
     p.load('datastore')
     data = {
         'resource_id': res_id,
         'method': 'insert',
         'records': [{'value': value}],
     }
-    helpers.call_action('datastore_upsert', **data)
+
+    with app.flask_app.test_request_context():
+        helpers.call_action('datastore_upsert', **data)
 
 
 class TestBackgroundJobs(helpers.RQTestBase):
@@ -237,6 +240,8 @@ class TestBackgroundJobs(helpers.RQTestBase):
     '''
     @classmethod
     def setup_class(cls):
+
+        cls.app = helpers._get_test_app()
         p.load('datastore')
 
     @classmethod
@@ -255,7 +260,9 @@ class TestBackgroundJobs(helpers.RQTestBase):
             },
             'fields': [{'id': 'value', 'type': 'int'}],
         }
-        table = helpers.call_action('datastore_create', **data)
+
+        with self.app.flask_app.test_request_context():
+            table = helpers.call_action('datastore_create', **data)
         res_id = table['resource_id']
         for i in range(3):
             self.enqueue(datastore_job, args=[res_id, i])
