@@ -2364,6 +2364,7 @@ core_helper(converters.asbool)
 core_helper(urlencode)
 core_helper(clean_html, name='clean_html')
 
+
 def load_plugin_helpers():
     """
     (Re)loads the list of helpers provided by plugins.
