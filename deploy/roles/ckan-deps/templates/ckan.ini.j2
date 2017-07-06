@@ -166,13 +166,13 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 
 ## Email settings
 
-#email_to = errors@example.com
-#error_email_from = ckan-errors@example.com
-#smtp.server = localhost
-#smtp.starttls = False
-#smtp.user = username@example.com
-#smtp.password = your_password
-#smtp.mail_from =
+email_to = support@smallmedia.org.uk
+error_email_from = noreply@iranopendata.org
+smtp.server = smtp.sendgrid.com
+smtp.starttls = True
+smtp.user = iod-ckan
+smtp.password = {{smtp_password}}
+smtp.mail_from = noreply@iranopendata.org
 
 
 ## Logging configuration
