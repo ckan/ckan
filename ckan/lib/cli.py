@@ -118,22 +118,29 @@ def user_add(args):
             sys.getfilesystemencoding()
         )
 
+    context = {
+        'ignore_auth': True,
+    }
+
+    if 'apikey' in data_dict:
+        from ckan.logic.schema import default_user_schema
+        schema = default_user_schema()
+        schema.update({
+            'apikey': [unicode],
+        })
+        context['schema'] = schema
+
     print('Creating user: %r' % username)
 
     try:
-        import ckan.logic as logic
-        import ckan.model as model
         site_user = logic.get_action('get_site_user')({
             'model': model,
             'ignore_auth': True},
             {}
         )
-        context = {
-            'model': model,
-            'session': model.Session,
-            'ignore_auth': True,
-            'user': site_user['name'],
-        }
+        context['model'] = model
+        context['session'] = model.Session
+        context['user'] = site_user['name']
         user_dict = logic.get_action('user_create')(context, data_dict)
         pprint(user_dict)
     except logic.ValidationError, e:

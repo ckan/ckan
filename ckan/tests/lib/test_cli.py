@@ -78,6 +78,7 @@ class TestUserAdd(object):
     def test_cli_user_add_valid_args(self):
         '''Command shouldn't raise SystemExit when valid args are provided.'''
         self.user_cmd.args = ['add', 'berty', 'password=password123',
+                              'apikey=c64cd2fa-f8cb-4f39-bca2-e4ec4d6e5520',
                               'fullname=Berty Guffball',
                               'email=berty@example.com']
         try:
@@ -93,6 +94,7 @@ class TestUserAdd(object):
     def test_cli_user_add_no_fullname(self):
         '''Command shouldn't raise SystemExit when fullname arg not present.'''
         self.user_cmd.args = ['add', 'berty', 'password=password123',
+                              'apikey=c64cd2fa-f8cb-4f39-bca2-e4ec4d6e5520',
                               'email=berty@example.com']
         try:
             self.user_cmd.add()
@@ -106,6 +108,7 @@ class TestUserAdd(object):
         '''
         self.user_cmd.args = ['add', 'berty', 'password=password123',
                               'fullname=Harold Müffintøp',
+                              'apikey=c64cd2fa-f8cb-4f39-bca2-e4ec4d6e5520',
                               'email=berty@example.com']
         try:
             self.user_cmd.add()
@@ -118,6 +121,7 @@ class TestUserAdd(object):
         characters outside of the ascii characterset.
         '''
         self.user_cmd.args = ['add', 'berty', 'password=password123',
+                              'apikey=c64cd2fa-f8cb-4f39-bca2-e4ec4d6e5520',
                               'fullname=Harold Müffintøp',
                               'email=berty@example.com']
         try:
