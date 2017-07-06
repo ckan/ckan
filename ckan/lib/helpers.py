@@ -2342,6 +2342,15 @@ def mail_to(email_address, name):
     return html
 
 
+@core_helper
+def radio(selected, id, checked):
+    if checked:
+        return literal((u'<input checked="checked" id="%s_%s" name="%s" \
+            value="%s" type="radio">') % (selected, id, selected, id))
+    return literal(('<input id="%s_%s" name="%s" \
+        value="%s" type="radio">') % (selected, id, selected, id))
+
+
 core_helper(flash, name='flash')
 core_helper(localised_number)
 core_helper(localised_SI_number)
@@ -2361,6 +2370,7 @@ core_helper(converters.asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
 core_helper(clean_html, name='clean_html')
+
 
 def load_plugin_helpers():
     """
