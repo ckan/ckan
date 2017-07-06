@@ -416,7 +416,7 @@ Example
        data-module-field_url="{{ field_url }}" data-module-field_upload="{{ field_upload }}" data-module-field_clear="{{ field_clear }}" data-module-upload_label="{{ upload_label }}" data-module-field_name="{{ field_name }}">
   {% endif %}
 
-  {{ input(field_url, label=url_label, id='field-image-url', placeholder=placeholder, value=data.get(field_url), error=errors.get(field_url), classes=['control-full']) }}
+  {{ input(field_url, label=url_label, id='field-image-url', type='url', placeholder=placeholder, value=data.get(field_url), error=errors.get(field_url), classes=['control-full']) }}
 
   {% if is_upload_enabled %}
     {{ input(field_upload, label=upload_label, id='field-image-upload', type='file', placeholder='', value='', error='', classes=['control-full']) }}
