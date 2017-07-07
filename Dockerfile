@@ -4,7 +4,7 @@
 FROM debian:jessie
 MAINTAINER Open Knowledge
 
-# Install required packages
+# Install required system packages
 RUN apt-get -q -y update && apt-get -q -y upgrade && \
         DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
 		python-dev \
@@ -25,16 +25,16 @@ ENV CKAN_STORAGE_PATH /var/lib/ckan
 # docker build . -t ckan --build-arg CKAN_SITE_URL=http://localhost:5000
 ARG CKAN_SITE_URL
 
-# add ckan user which runs all the ckan related stuff
-RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
-
-# SetUp Virtual Environment CKAN
+# Setup virtual environment for CKAN
 RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
     virtualenv $CKAN_VENV && \
     ln -s $CKAN_VENV/bin/pip /usr/local/bin/ckan-pip &&\
     ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster
 
-# SetUp CKAN
+# Create ckan user
+RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
+
+# Setup CKAN
 ADD . $CKAN_VENV/src/ckan/
 RUN ckan-pip install --upgrade -r $CKAN_VENV/src/ckan/requirements.txt && \
     ckan-pip install -e $CKAN_VENV/src/ckan/ && \

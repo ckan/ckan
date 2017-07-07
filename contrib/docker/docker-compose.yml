@@ -25,6 +25,7 @@ services:
       - SOLR_PORT_8983_TCP_ADDR=solr
       - SOLR_PORT_8983_TCP_PORT=8983
       - REDIS_PORT_6379_TCP_ADDR=redis
+      - REDIS_PORT_6379_TCP_PORT=6379
   db:
     container_name: db
     build:
