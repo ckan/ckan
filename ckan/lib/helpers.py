@@ -2344,6 +2344,35 @@ def mail_to(email_address, name):
     return html
 
 
+@core_helper
+def get_base_public_folder(app_conf):
+    valid_base_public_folder_names = ['public', 'public-bs2']
+    base_public_folder = app_conf.get('ckan.base_public_folder', 'public')
+
+    if base_public_folder in valid_base_public_folder_names:
+        return base_public_folder
+    else:
+        raise ckan.exceptions.CkanConfigurationException(
+            'You provided an invalid value for ckan.base_public_folder. '
+            'Possible values are: "public" and "public-bs2".'
+        )
+
+
+@core_helper
+def get_base_templates_folder(app_conf):
+    valid_base_templates_folder_names = ['templates', 'templates-bs2']
+    base_templates_folder = app_conf.get('ckan.base_templates_folder',
+                                         'templates')
+
+    if base_templates_folder in valid_base_templates_folder_names:
+        return base_templates_folder
+    else:
+        raise ckan.exceptions.CkanConfigurationException(
+            'You provided an invalid value for ckan.base_templates_folder. '
+            'Possible values are: "templates" and "templates-bs2".'
+        )
+
+
 core_helper(flash, name='flash')
 core_helper(localised_number)
 core_helper(localised_SI_number)
