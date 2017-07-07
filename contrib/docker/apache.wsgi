@@ -1,5 +1,5 @@
 import os
-ckan_home = os.environ.get('CKAN_HOME', '/usr/lib/ckan/default')
+ckan_home = os.environ.get('CKAN_VENV', '/usr/lib/ckan/default')
 activate_this = os.path.join(ckan_home, 'bin/activate_this.py')
 execfile(activate_this, dict(__file__=activate_this))
 
