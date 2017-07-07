@@ -5,7 +5,6 @@ import sys
 import logging
 import ConfigParser
 from ckan.common import config
-from ckan.lib import helpers
 
 from fanstatic import Library, Resource, Group, get_library_registry
 import fanstatic.core as core
@@ -231,7 +230,7 @@ def create_library(name, path, depend_base=True):
     registry.add(library)
 
 
-public = helpers.get_base_public_folder(config)
+public = config.get('ckan.base_public_folder')
 
 base_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', public, 'base'))
