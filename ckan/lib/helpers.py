@@ -2352,7 +2352,7 @@ def radio(selected, id, checked):
     return literal(('<input id="%s_%s" name="%s" \
         value="%s" type="radio">') % (selected, id, selected, id))
 
-  
+
 @core_helper
 def get_base_public_folder(app_conf):
     valid_base_public_folder_names = ['public', 'public-bs2']
