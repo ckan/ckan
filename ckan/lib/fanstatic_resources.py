@@ -4,6 +4,7 @@ import os.path
 import sys
 import logging
 import ConfigParser
+from ckan.common import config
 
 from fanstatic import Library, Resource, Group, get_library_registry
 import fanstatic.core as core
@@ -228,8 +229,6 @@ def create_library(name, path, depend_base=True):
     registry = get_library_registry()
     registry.add(library)
 
-
-from ckan.common import config
 
 public = config.get('ckan.static_files', 'public')
 
