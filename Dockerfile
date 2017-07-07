@@ -16,7 +16,7 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && \
 	&& apt-get -q clean
 
 # Define environment variables
-ENV CKAN_HOME /usr/lib/ckan/default
+ENV CKAN_HOME /usr/lib/ckan
 ENV CKAN_VENV $CKAN_HOME/default
 ENV CKAN_CONFIG /etc/ckan/default
 ENV CKAN_STORAGE_PATH /var/lib/ckan
@@ -25,14 +25,14 @@ ENV CKAN_STORAGE_PATH /var/lib/ckan
 # docker build . -t ckan --build-arg CKAN_SITE_URL=http://localhost:5000
 ARG CKAN_SITE_URL
 
+# Create ckan user
+RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
+
 # Setup virtual environment for CKAN
 RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
     virtualenv $CKAN_VENV && \
     ln -s $CKAN_VENV/bin/pip /usr/local/bin/ckan-pip &&\
     ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster
-
-# Create ckan user
-RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
 
 # Setup CKAN
 ADD . $CKAN_VENV/src/ckan/
