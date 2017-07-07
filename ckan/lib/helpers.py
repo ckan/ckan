@@ -2345,6 +2345,15 @@ def mail_to(email_address, name):
 
 
 @core_helper
+def radio(selected, id, checked):
+    if checked:
+        return literal((u'<input checked="checked" id="%s_%s" name="%s" \
+            value="%s" type="radio">') % (selected, id, selected, id))
+    return literal(('<input id="%s_%s" name="%s" \
+        value="%s" type="radio">') % (selected, id, selected, id))
+
+  
+@core_helper
 def get_base_public_folder(app_conf):
     valid_base_public_folder_names = ['public', 'public-bs2']
     base_public_folder = app_conf.get('ckan.base_public_folder', 'public')
