@@ -3,11 +3,6 @@
 FROM debian:jessie
 MAINTAINER Open Knowledge
 
-ENV CKAN_HOME /usr/lib/ckan/default
-ENV CKAN_CONFIG /etc/ckan/default
-ENV CKAN_STORAGE_PATH /var/lib/ckan
-ENV CKAN_SITE_URL http://localhost:5000
-
 # Install required packages
 RUN apt-get -q -y update && apt-get -q -y upgrade && DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
 		python-dev \
@@ -16,6 +11,15 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && DEBIAN_FRONTEND=noninteract
         libpq-dev \
         git-core \
 	&& apt-get -q clean
+
+# Define environment variables
+ENV CKAN_HOME /usr/lib/ckan/default
+ENV CKAN_CONFIG /etc/ckan/default
+ENV CKAN_STORAGE_PATH /var/lib/ckan
+
+# Build-time variables specified by docker-compose.yml / .env or
+# docker build . -t chan --build-arg CKAN_SITE_URL=http://localhost:5000
+ARG CKAN_SITE_URL
 
 # SetUp Virtual Environment CKAN
 RUN mkdir -p $CKAN_HOME $CKAN_CONFIG $CKAN_STORAGE_PATH

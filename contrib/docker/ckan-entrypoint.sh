@@ -65,6 +65,9 @@ if [ ! -e "$CONFIG" ]; then
 fi
 
 # Set environment variables
+echo "SQL_ALCHEMY_URL is provided to entrypoint as $CKAN_SQLALCHEMY_URL"
+
+
 if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
   if ! CKAN_SQLALCHEMY_URL=$(link_postgres_url); then
     abort "ERROR: no CKAN_SQLALCHEMY_URL specified and linked container called 'db' was not found"
@@ -75,6 +78,7 @@ if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
     export PGDATABASE=${DB_ENV_POSTGRES_DB}
     export PGUSER=${DB_ENV_POSTGRES_USER}
     export PGPASSWORD=${DB_ENV_POSTGRES_PASSWORD}
+    echo "PG password is $PGPASSWORD"
 
     # wait for postgres db to be available, immediately after creation
     # its entrypoint creates the cluster and dbs and this can take a moment
@@ -90,7 +94,7 @@ if [ -z "$CKAN_SOLR_URL" ]; then
     abort "ERROR: no CKAN_SOLR_URL specified and linked container called 'solr' was not found"
   fi
 fi
-    
+
 if [ -z "$CKAN_REDIS_URL" ]; then
   if ! CKAN_REDIS_URL=$(link_redis_url); then
     abort "ERROR: no CKAN_REDIS_URL specified and linked container called 'redis' was not found"

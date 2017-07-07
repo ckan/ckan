@@ -6,5 +6,7 @@ RUN echo "host all  all    0.0.0.0/0  md5" >> /var/lib/postgresql/data/pg_hba.co
 
 # Customize default user/pass/db
 ENV POSTGRES_USER ckan
-ENV POSTGRES_PASSWORD ckan
+ARG POSTGRES_PASSWORD
 ENV POSTGRES_DB ckan
+
+RUN echo "Building postgres:9.6 with user $POSTGRES_USER, pw $POSTGRES_PASSWORD, db $POSTGRES_DB"
