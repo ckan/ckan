@@ -7,6 +7,7 @@ import ckan.plugins as p
 import ckan.logic as logic
 import ckan.model as model
 from ckan.model.core import State
+import ckan.lib.helpers as core_helpers
 
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.logic.action as action
@@ -69,9 +70,9 @@ class DatastorePlugin(p.SingletonPlugin):
         DatastoreBackend.register_backends()
         DatastoreBackend.set_active_backend(config)
 
-        templates_dir_name = config.get('ckan.templates', 'templates')
+        templates_base = core_helpers.get_base_templates_folder(config)
 
-        p.toolkit.add_template_directory(config, templates_dir_name)
+        p.toolkit.add_template_directory(config, templates_base)
         self.backend = DatastoreBackend.get_active_backend()
 
     # IConfigurable

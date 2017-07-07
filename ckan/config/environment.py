@@ -69,7 +69,7 @@ def load_environment(global_conf, app_conf):
 
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    static_files = app_conf.get('ckan.static_files', 'public')
+    static_files = helpers.get_base_public_folder(app_conf)
     log.info('Loading static files from %s' % static_files)
     paths = dict(root=root,
                  controllers=os.path.join(root, 'controllers'),
@@ -223,7 +223,7 @@ def update_config():
     config['pylons.h'] = helpers.helper_functions
 
     # Templates and CSS loading from configuration
-    templates = config.get('ckan.templates', 'templates')
+    templates = helpers.get_base_templates_folder(config)
     jinja2_templates_path = os.path.join(root, templates)
     log.info('Loading templates from %s' % jinja2_templates_path)
     template_paths = [jinja2_templates_path]

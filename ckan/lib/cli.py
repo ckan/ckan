@@ -29,6 +29,7 @@ import ckan.include.rcssmin as rcssmin
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.plugins as p
 from ckan.common import config
+from ckan.lib import helpers
 
 
 #NB No CKAN imports are allowed until after the config file is loaded.
@@ -1795,7 +1796,7 @@ class CreateColorSchemeCommand(CkanCommand):
         saturation = None
         lightness = None
 
-        public = config.get(u'ckan.static_files', u'public')
+        public = helpers.get_base_public_folder(config)
         path = os.path.dirname(__file__)
         path = os.path.join(path, '..', public, 'base', 'less', 'custom.less')
 
@@ -2072,7 +2073,7 @@ class LessCommand(CkanCommand):
         directory = output[0].strip()
         less_bin = os.path.join(directory, 'lessc')
 
-        public = config.get(u'ckan.static_files', u'public')
+        public = helpers.get_base_public_folder(config)
 
         root = os.path.join(os.path.dirname(__file__), '..', public, 'base')
         root = os.path.abspath(root)
@@ -2128,7 +2129,7 @@ class FrontEndBuildCommand(CkanCommand):
         # minification
         cmd = MinifyCommand('minify')
         cmd.options = self.options
-        public = config.get(u'ckan.static_files', u'public')
+        public = helpers.get_base_public_folder(config)
         root = os.path.join(os.path.dirname(__file__), '..', public, 'base')
         root = os.path.abspath(root)
         ckanext = os.path.join(os.path.dirname(__file__), '..', '..', 'ckanext')
