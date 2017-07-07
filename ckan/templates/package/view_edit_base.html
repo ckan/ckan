@@ -6,10 +6,10 @@
 {% block breadcrumb_edit_selected %}{% endblock %}
 
 {% block content_action %}
-  {% link_for _('All views'), controller='package', action='resource_views', id=pkg.name, resource_id=res.id, class_='btn', icon='arrow-left' %}
+  {% link_for _('All views'), controller='package', action='resource_views', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='arrow-left' %}
   {% if res %}
     {% set url = h.url_for(controller='package', action='resource_read', id=pkg.name, resource_id=res.id) ~ '?view_id=' ~ resource_view.id %}
-    <a href="{{ url }}" class="btn"><i class="fa fa-eye"></i> {{ _('View view') }}</a>
+    <a href="{{ url }}" class="btn btn-default"><i class="fa fa-eye"></i> {{ _('View view') }}</a>
   {% endif %}
 {% endblock %}
 
@@ -31,7 +31,7 @@
   {% endif %}
 
   {% if to_preview and h.resource_view_display_preview(resource_view) %}
-    <div class="wrapper no-nav">
+    <div class="row wrapper no-nav view-preview-container">
       <section class="module module-narrow module-shallow">
         <h2 class="module-heading">
           <i class="fa fa-picture-o"></i> {{ _('View preview') }}

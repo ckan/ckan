@@ -1795,8 +1795,9 @@ class CreateColorSchemeCommand(CkanCommand):
         saturation = None
         lightness = None
 
+        public = config.get(u'ckan.static_files', u'public')
         path = os.path.dirname(__file__)
-        path = os.path.join(path, '..', 'public', 'base', 'less', 'custom.less')
+        path = os.path.join(path, '..', public, 'base', 'less', 'custom.less')
 
         if self.args:
             arg = self.args[0]
@@ -2071,7 +2072,9 @@ class LessCommand(CkanCommand):
         directory = output[0].strip()
         less_bin = os.path.join(directory, 'lessc')
 
-        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        public = config.get(u'ckan.static_files', u'public')
+
+        root = os.path.join(os.path.dirname(__file__), '..', public, 'base')
         root = os.path.abspath(root)
         custom_less = os.path.join(root, 'less', 'custom.less')
         for color in self.custom_css:
@@ -2094,6 +2097,7 @@ class LessCommand(CkanCommand):
 
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
+        print output
 
 
 class FrontEndBuildCommand(CkanCommand):
@@ -2124,7 +2128,8 @@ class FrontEndBuildCommand(CkanCommand):
         # minification
         cmd = MinifyCommand('minify')
         cmd.options = self.options
-        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        public = config.get(u'ckan.static_files', u'public')
+        root = os.path.join(os.path.dirname(__file__), '..', public, 'base')
         root = os.path.abspath(root)
         ckanext = os.path.join(os.path.dirname(__file__), '..', '..', 'ckanext')
         ckanext = os.path.abspath(ckanext)
