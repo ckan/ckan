@@ -133,8 +133,6 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
     # so we need to prevent this with `streaming` set to True.
     app = RegistryManager(app, streaming=True)
 
-    app = common_middleware.I18nMiddleware(app, config)
-
     if asbool(static_files):
         # Serve static files
         static_max_age = None if not asbool(

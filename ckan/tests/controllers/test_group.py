@@ -53,6 +53,20 @@ class TestGroupController(helpers.FunctionalTestBase):
         assert groups[-1]['title'] not in response2
         assert groups[0]['title'] in response2
 
+    def test_invalid_sort_param_does_not_crash(self):
+        app = self._get_test_app()
+        group_url = url_for(controller='group',
+                            action='index',
+                            sort='title desc nope')
+
+        app.get(url=group_url)
+
+        group_url = url_for(controller='group',
+                            action='index',
+                            sort='title nope desc nope')
+
+        app.get(url=group_url)
+
 
 def _get_group_new_page(app):
     user = factories.User()

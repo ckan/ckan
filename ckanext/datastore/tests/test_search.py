@@ -12,7 +12,7 @@ import ckan.model as model
 import ckan.tests.legacy as tests
 
 from ckan.common import config
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
 
 import ckan.tests.helpers as helpers
@@ -67,6 +67,7 @@ class TestDatastoreSearchNewTest(object):
             ],
         }
         result = helpers.call_action('datastore_create', **data)
+
         search_data = {
             'resource_id': resource['id'],
             'fields': 'year',

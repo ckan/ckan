@@ -170,14 +170,24 @@ class GroupController(base.BaseController):
             context['user_id'] = c.userobj.id
             context['user_is_admin'] = c.userobj.sysadmin
 
-        data_dict_global_results = {
-            'all_fields': False,
-            'q': q,
-            'sort': sort_by,
-            'type': group_type or 'group',
-        }
-        global_results = self._action('group_list')(context,
-                                                    data_dict_global_results)
+        try:
+            data_dict_global_results = {
+                'all_fields': False,
+                'q': q,
+                'sort': sort_by,
+                'type': group_type or 'group',
+            }
+            global_results = self._action('group_list')(
+                context, data_dict_global_results)
+        except ValidationError as e:
+            if e.error_dict and e.error_dict.get('message'):
+                msg = e.error_dict['message']
+            else:
+                msg = str(e)
+            h.flash_error(msg)
+            c.page = h.Page([], 0)
+            return render(self._index_template(group_type),
+                          extra_vars={'group_type': group_type})
 
         data_dict_page_results = {
             'all_fields': True,
@@ -186,6 +196,7 @@ class GroupController(base.BaseController):
             'type': group_type or 'group',
             'limit': items_per_page,
             'offset': items_per_page * (page - 1),
+            'include_extras': True
         }
         page_results = self._action('group_list')(context,
                                                   data_dict_page_results)

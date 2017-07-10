@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-import json
-
 from ckan.plugins.toolkit import (
     Invalid,
     ObjectNotFound,
@@ -23,6 +21,13 @@ from ckanext.datastore.writer import (
     json_writer,
     xml_writer,
 )
+from ckan.logic import (
+    tuplize_dict,
+    parse_params,
+)
+import ckan.lib.navl.dictization_functions as dict_fns
+
+from itertools import izip_longest
 
 int_validator = get_validator('int_validator')
 boolean_validator = get_validator('boolean_validator')
@@ -77,16 +82,21 @@ class DatastoreController(BaseController):
         fields = [f for f in rec['fields'] if not f['id'].startswith('_')]
 
         if request.method == 'POST':
+            data = dict_fns.unflatten(tuplize_dict(parse_params(
+                request.params)))
+            info = data.get(u'info')
+            if not isinstance(info, list):
+                info = []
+            info = info[:len(fields)]
+
             get_action('datastore_create')(None, {
                 'resource_id': resource_id,
                 'force': True,
                 'fields': [{
                     'id': f['id'],
                     'type': f['type'],
-                    'info': {
-                        'label': request.POST.get('f{0}label'.format(i)),
-                        'notes': request.POST.get('f{0}notes'.format(i)),
-                        }} for i, f in enumerate(fields, 1)]})
+                    'info': fi if isinstance(fi, dict) else {}
+                    } for f, fi in izip_longest(fields, info)]})
 
             h.redirect_to(
                 controller='ckanext.datastore.controller:DatastoreController',
@@ -126,10 +136,9 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
             'offset': offs,
             'records_format': records_format,
             'include_total': 'false',  # XXX: default() is broken
-            })
+        })
 
     result = result_page(offset, limit)
-    columns = [x['id'] for x in result['fields']]
 
     with start_writer(result['fields']) as wr:
         while True:

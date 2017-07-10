@@ -6355,7 +6355,7 @@ textarea {
 }
 @media (min-width: 980px) {
   .form-horizontal .info-block {
-    padding: 6px 0 6px 25px;
+    padding: 6px 0 6px 0;
   }
   .form-horizontal .info-inline {
     float: right;
@@ -7292,7 +7292,7 @@ textarea {
   padding: 15px;
 }
 .search-form .search-input.search-giant button {
-  margin-top: -15px;
+  margin-top: -4px;
   right: 15px;
   height: 30px;
 }
