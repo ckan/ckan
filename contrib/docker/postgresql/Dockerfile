@@ -9,5 +9,5 @@ ENV POSTGRES_USER ckan
 ARG POSTGRES_PASSWORD
 ENV POSTGRES_DB ckan
 
-# Output variables when building for the first time, will not run if using cached image
+# Output variables when building for the first time. Will not run if using cached image.
 RUN echo "Building postgres:9.6 with user $POSTGRES_USER, pw $POSTGRES_PASSWORD, db $POSTGRES_DB"
