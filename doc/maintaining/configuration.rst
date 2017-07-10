@@ -1329,8 +1329,8 @@ Default value:  ``public``
 
 This config option is used to configure the base folder for static files used
 by CKAN core. It's used to determine which version of Bootstrap to be used.
-It accepts two values: ``public`` and ``public-bs2``. By default it's used
-Bootstrap 3. For Bootstrap 2 set it to ``public-bs2``.
+It accepts two values: ``public`` (Bootstrap 3, the default value from CKAN
+2.8 onwards) and ``public-bs2`` (Bootstrap 2, used until CKAN 2.7).
 
 It must be used in conjunction with :ref:`ckan.base_templates_folder` in order
 for it to properly function. Also, you can't use for example Bootstrap 3 for
@@ -1351,8 +1351,8 @@ Default value:  ``templates``
 
 This config option is used to configure the base folder for templates used
 by CKAN core. It's used to determine which version of Bootstrap to be used.
-It accepts two values: ``templates`` and ``templates-bs2``. By default it's
-used Bootstrap 3. For Bootstrap 2 set it to ``templates-bs2``.
+It accepts two values: ``templates`` (Bootstrap 3, the default value from CKAN
+2.8 onwards) and ``templates-bs2`` (Bootstrap 2, used until CKAN 2.7).
 
 It must be used in conjunction with :ref:`ckan.base_public_folder` in order
 for it to properly function. Also, you can't use for example Bootstrap 3 for

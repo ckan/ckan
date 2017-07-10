@@ -43,14 +43,14 @@ appearance of CKAN pages by developing your own CKAN themes.
 
 .. note::
 
-   Following version 2.8 migration to Bootstrap 3 is introduced. For backward
-   compatibility, Bootstrap 2 will be preserved and templates and static
-   files will be in separate folders. Selection for which Bootstrap version
-   will be used will be set using configuration options within the production.ini
-   file
+    Starting from CKAN version 2.8 the Bootstrap version used in the default
+    CKAN theme is Bootstrap 3. For backwards compatibility, Bootstrap 2 templates
+    will be included in CKAN core for a few versions, but they will be eventually
+    removed so you are encouraged to update your custom theme to use Bootstrap 3.
+    You can select wich set of templates to use (Bootstrap 3 or 2) by using the 
+    :ref:`ckan.base_public_folder` and :ref:`ckan.base_templates_folder`
+    configuration options.
 
-   * ckan.base_templates_folder = templates
-   * ckan.base_public)folder = folder
 
 .. toctree::
    :maxdepth: 2
