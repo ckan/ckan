@@ -1316,6 +1316,50 @@ To customise the display of CKAN you can supply replacements for static files su
 
 For more information on theming, see :doc:`/theming/index`.
 
+.. _ckan.base_public_folder:
+
+ckan.base_public_folder
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.base_public_folder = public
+
+Default value:  ``public``
+
+This config option is used to configure the base folder for static files used
+by CKAN core. It's used to determine which version of Bootstrap to be used.
+It accepts two values: ``public`` and ``public-bs2``. By default it's used
+Bootstrap 3. For Bootstrap 2 set it to ``public-bs2``.
+
+It must be used in conjunction with :ref:`ckan.base_templates_folder` in order
+for it to properly function. Also, you can't use for example Bootstrap 3 for
+static files and Bootstrap 2 for templates or vice versa.
+
+.. note:: Starting with CKAN 2.8, Bootstrap 3 will be used as a default.
+
+.. _ckan.base_templates_folder:
+
+ckan.base_templates_folder
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.base_templates_folder = templates
+
+Default value:  ``templates``
+
+This config option is used to configure the base folder for templates used
+by CKAN core. It's used to determine which version of Bootstrap to be used.
+It accepts two values: ``templates`` and ``templates-bs2``. By default it's
+used Bootstrap 3. For Bootstrap 2 set it to ``templates-bs2``.
+
+It must be used in conjunction with :ref:`ckan.base_public_folder` in order
+for it to properly function. Also, you can't use for example Bootstrap 3 for
+templates and Bootstrap 2 for static files or vice versa.
+
+.. note:: Starting with CKAN 2.8, Bootstrap 3 will be used as a default.
+
 .. end_config-theming
 
 Storage Settings

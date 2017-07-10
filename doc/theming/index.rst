@@ -41,6 +41,17 @@ appearance of CKAN pages by developing your own CKAN themes.
    * `Bootstrap <http://getbootstrap.com/2.3.2/>`_
    * `jQuery <http://jquery.com/>`_
 
+.. note::
+
+   Following version 2.8 migration to Bootstrap 3 is introduced. For backward
+   compatibility, Bootstrap 2 will be preserved and templates and static
+   files will be in separate folders. Selection for which Bootstrap version
+   will be used will be set using configuration options within the production.ini
+   file
+
+   * ckan.base_templates_folder = templates
+   * ckan.base_public)folder = folder
+
 .. toctree::
    :maxdepth: 2
 
