@@ -3,7 +3,7 @@
 {% block breadcrumb_content %}
   <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
   {% block breadcrumb_content_inner %}
-    <li>{% link_for h.get_translated(group, 'title') or group.display_name |truncate(35), controller='group', action='read', id=group.name %}</li>
+    <li>{% link_for group.display_name|truncate(35), controller='group', action='read', id=group.name %}</li>
     <li class="active">{% link_for _('Manage'), controller='group', action='edit', id=group.name %}</li>
   {% endblock %}
 {% endblock %}

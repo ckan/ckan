@@ -6,7 +6,7 @@
     <ul class="activity" data-module="activity-stream" data-module-more="{{ has_more }}" data-module-context="{{ controller }}" data-module-id="{{ id }}" data-module-offset="{{ offset }}">
       {% block activity_stream_inner %}
         {% if offset > 0 %}
-          <li class="load-less"><a href="{{ h.url_for(controller=controller, action=action, id=id, offset=(offset-30 if offset-30 > 0 else 0)) }}" class="btn btn-rounded">{{ _('Load less') }}</a></li>
+          <li class="load-less"><a href="{{ h.url_for(controller=controller, action=action, id=id, offset=(offset-30 if offset-30 > 0 else 0)) }}" class="btn btn-default btn-rounded">{{ _('Load less') }}</a></li>
         {% endif %}
         {% for activity in activities %}
           {% if loop.index <= has_more_length %}
@@ -14,7 +14,7 @@
           {% endif %}
         {% endfor %}
         {% if has_more %}
-          <li class="load-more"><a href="{{ h.url_for(controller=controller, action=action, id=id, offset=offset+30) }}" class="btn btn-rounded">{{ _('Load more') }}</a></li>
+          <li class="load-more"><a href="{{ h.url_for(controller=controller, action=action, id=id, offset=offset+30) }}" class="btn btn-default btn-rounded">{{ _('Load more') }}</a></li>
         {% endif %}
       {% endblock %}
     </ul>

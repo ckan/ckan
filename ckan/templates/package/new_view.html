@@ -22,10 +22,10 @@
     </p>
   {% endif %}
 
-  <form class="dataset-form dataset-resource-form form-horizontal" method="post" data-module="basic-form resource-form">
+  <form class="dataset-form dataset-resource-form" method="post" data-module="basic-form resource-form">
     {% include 'package/snippets/view_form.html' %}
     <div class="form-actions">
-        <button class="btn {% if not h.resource_view_display_preview(data) %}hide{%endif%}" name="preview" value="True" type="submit">{{ _('Preview') }}</button>
+        <button class="btn btn-default {% if not h.resource_view_display_preview(data) %}hide{%endif%}" name="preview" value="True" type="submit">{{ _('Preview') }}</button>
         <button class="btn btn-primary" name="save" value="Save" type="submit">{% block save_button_text %}{{ _('Add') }}{% endblock %}</button>
     </div>
   </form>

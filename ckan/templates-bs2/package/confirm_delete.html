@@ -1,0 +1,22 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _("Confirm Delete") }}{% endblock %}
+
+{% block maintag %}<div class="row" role="main">{% endblock %}
+
+{% block main_content %}
+  <section class="module span6 offset3">
+    <div class="module-content">
+      {% block form %}
+        {% set dataset = h.dataset_display_name(c.pkg_dict) %}
+        <p>{{ _('Are you sure you want to delete dataset - {name}?').format(name=dataset) }}</p>
+        <p class="form-actions">
+          <form id='confirm-dataset-delete-form' action="{% url_for controller='package', action='delete', id=c.pkg_dict.name %}" method="post">
+            <button class="btn" type="submit" name="cancel" >{{ _('Cancel') }}</button>
+            <button class="btn btn-primary" type="submit" name="delete" >{{ _('Confirm Delete') }}</button>
+          </form>
+        </p>
+      {% endblock %}
+    </div>
+  </section>
+{% endblock %}

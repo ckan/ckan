@@ -28,7 +28,7 @@
           <ul>
             {% block resource_actions_inner %}
             {% if h.check_access('package_update', {'id':pkg.id }) %}
-              <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
+              <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
             {% endif %}
             {% if res.url and h.is_url(res.url) %}
               <li>
@@ -53,9 +53,9 @@
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
-              <p class="muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+              <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
             {% elif res.url %}
-              <p class="muted break-word">{{ _('URL:') }} {{ res.url }}</p>
+              <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
             {% endif %}
           {% endblock %}
           <div class="prose notes" property="rdfs:label">
@@ -69,7 +69,6 @@
             {% endif %}
           </div>
         {% endblock %}
-      </div>
       {% block data_preview %}
       {% block resource_view %}
         {% block resource_view_nav %}
@@ -84,7 +83,6 @@
              extra_class="nav-tabs-plain"
            %}
         {% endblock %}
-        <div class="module-content">
           {% block resource_view_content %}
             <div class="resource-view">
               {% set resource_preview = h.resource_preview(c.resource, c.package) %}
@@ -105,10 +103,10 @@
                 {% endif %}
               {% else %}
                 {# Views not created #}
-                <div class="module-content data-viewer-info">
+                <div class="data-viewer-info">
                   <p>{{ _("There are no views created for this resource yet.") }}</p>
                   {% if h.check_access('resource_view_create', {'resource_id': c.resource.id}) %}
-                    <p class="muted">
+                    <p class="text-muted">
                       <i class="fa fa-info-circle"></i>
                       {{ _("Not seeing the views you were expecting?")}}
                       <a href="javascript:void(0);" data-toggle="collapse" data-target="#data-view-info">

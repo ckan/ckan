@@ -20,7 +20,7 @@ Example:
           <h2 class="module-heading"><i class="fa fa-files-o"></i> {{ _("Resources") }}</h2>
         {% endblock %}
         {% block resources_list %}
-          <ul class="unstyled nav nav-simple">
+          <ul class="list-unstyled nav nav-simple">
             {% for resource in resources %}
               <li class="nav-item{{ ' active' if active == resource.id }}">
                 {% link_for h.resource_display_name(resource)|truncate(25), controller='package', action=action or 'resource_read', id=pkg.name, resource_id=resource.id, inner_span=true %}

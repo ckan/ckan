@@ -26,7 +26,6 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
-import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.plugins as p
 from ckan.common import config
 
@@ -1795,8 +1794,9 @@ class CreateColorSchemeCommand(CkanCommand):
         saturation = None
         lightness = None
 
+        public = config.get(u'ckan.base_public_folder')
         path = os.path.dirname(__file__)
-        path = os.path.join(path, '..', 'public', 'base', 'less', 'custom.less')
+        path = os.path.join(path, '..', public, 'base', 'less', 'custom.less')
 
         if self.args:
             arg = self.args[0]
@@ -1987,6 +1987,8 @@ class MinifyCommand(CkanCommand):
         :param path: The path to the .js or .css file to minify
 
         '''
+        import ckan.lib.fanstatic_resources as fanstatic_resources
+
         path_only, extension = os.path.splitext(path)
 
         if path_only.endswith('.min'):
@@ -2022,6 +2024,7 @@ class LessCommand(CkanCommand):
     min_args = 0
 
     def command(self):
+        self._load_config()
         self.less()
 
     custom_css = {
@@ -2071,7 +2074,9 @@ class LessCommand(CkanCommand):
         directory = output[0].strip()
         less_bin = os.path.join(directory, 'lessc')
 
-        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        public = config.get(u'ckan.base_public_folder')
+
+        root = os.path.join(os.path.dirname(__file__), '..', public, 'base')
         root = os.path.abspath(root)
         custom_less = os.path.join(root, 'less', 'custom.less')
         for color in self.custom_css:
@@ -2094,6 +2099,7 @@ class LessCommand(CkanCommand):
 
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
+        print output
 
 
 class FrontEndBuildCommand(CkanCommand):
@@ -2124,7 +2130,8 @@ class FrontEndBuildCommand(CkanCommand):
         # minification
         cmd = MinifyCommand('minify')
         cmd.options = self.options
-        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        public = config.get(u'ckan.base_public_folder')
+        root = os.path.join(os.path.dirname(__file__), '..', public, 'base')
         root = os.path.abspath(root)
         ckanext = os.path.join(os.path.dirname(__file__), '..', '..', 'ckanext')
         ckanext = os.path.abspath(ckanext)
