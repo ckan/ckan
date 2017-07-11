@@ -7,7 +7,7 @@
 1. From the `/vagrant` directory (which is the default), run `paster serve /etc/ckan/default/ckan.ini`
 1. Visit the app at http://192.168.33.10:5000/
 
-To create a sysadmin account, run: `paster sysadmin add myusername`
+To create a sysadmin account, run: `paster sysadmin add myusername -c /etc/ckan/default/ckan.ini`
 
 
 
