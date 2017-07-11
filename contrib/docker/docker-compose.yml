@@ -6,6 +6,7 @@
 version: "3"
 volumes:
   ckan_config:
+  ckan_lib:
 services:
   ckan:
     container_name: ckan
@@ -30,6 +31,7 @@ services:
       - REDIS_PORT_6379_TCP_PORT=6379
     volumes:
       - ckan_config:/etc/ckan/default
+      - ckan_lib:/var/lib/ckan
   db:
     container_name: db
     build:
