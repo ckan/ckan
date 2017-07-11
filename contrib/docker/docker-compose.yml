@@ -1,6 +1,12 @@
 # docker-compose build && docker-compose up
+# If you experience problems with the CKAN container not being
+# able to connect to the DB, then most likely the DB has not
+# started up quickly enough. Just do "docker-compose up ckan"
+# again to retry
 ckan:
   container_name: ckan
+  # Note, if you are working on CKAN core, change this to
+  # build ../../
   image: ckan/ckan:latest
   links:
       - db
@@ -8,10 +14,14 @@ ckan:
       - redis
   ports:
       - "80:5000"
+  environment:
+      - DB_PORT_5432_TCP_ADDR=db
+      - SOLR_PORT_8983_TCP_ADDR=solr
+      - REDIS_PORT_6379_TCP_ADDR=redis
 
 db:
   container_name: db
-  image: ckan/postgresql:latest
+  build: postgresql/
   
 solr:
   container_name: solr

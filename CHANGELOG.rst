@@ -10,15 +10,56 @@ Changelog
 v2.7.0 TBA
 ==========
 
+Major:
+ * datatables_view resource view plugin (`#3444 <https://github.com/ckan/ckan/pull/3444>`_)
+ * IDatastoreBackend plugins for replacing default postgres backend (`#3437 <https://github.com/ckan/ckan/pull/3437>`_)
+ * datastore_search new result formats and performance improvements (`#3523 <https://github.com/ckan/ckan/pull/3523>`_)
+ * PL/PGSQL triggers for datastore tables (`#3428 <https://github.com/ckan/ckan/pull/3428>`_)
+ * Datastore dump CLI commands (`#3384 <https://github.com/ckan/ckan/pull/3384>`_)
+ * Wrap/override actions defined in other plugins (`#3494 <https://github.com/ckan/ckan/pull/3494>`_)
+ * Datastore table data dictionary stored as postgres comments (`#3414 <https://github.com/ckan/ckan/pull/3414>`_)
+ * Common session object for Flask and Pylons (`#3208 <https://github.com/ckan/ckan/pull/3208>`_)
+ * Rename deleted datasets when they conflict with new ones (`#3370 <https://github.com/ckan/ckan/pull/3370>`_)
+ * Datastore dump more formats: CSV, TSV, XML, JSON; BOM option (`#3390 <https://github.com/ckan/ckan/pull/3390>`_)
+ * Common requests code for Flask and Pylons (`#3212 <https://github.com/ckan/ckan/pull/3212>`_)
+ * Generate complete datastore dump files (`#3344 <https://github.com/ckan/ckan/pull/3344>`_)
+
+Minor:
+ * Renamed example theme plugin (`#3576 <https://github.com/ckan/ckan/pull/3576>`_)
+ * Localization support for groups (`#3559 <https://github.com/ckan/ckan/pull/3559>`_)
+ * Create new resource views when format changes (`#3515 <https://github.com/ckan/ckan/pull/3515>`_)
+ * Email field validation (`#3568 <https://github.com/ckan/ckan/pull/3568>`_)
+ * datastore_run_triggers sysadmin-only action to apply triggers to existing data (`#3565 <https://github.com/ckan/ckan/pull/3565>`_)
+ * Docs updated for Ubuntu 16.04 (`#3544 <https://github.com/ckan/ckan/pull/3544>`_)
+ * Upgrade leaflet to 0.7.7 (`#3534 <https://github.com/ckan/ckan/pull/3534>`_)
+ * Datapusher CLI always-answer-yes option (`#3524 <https://github.com/ckan/ckan/pull/3524>`_)
+ * Added docs for all plugin interfaces (`#3519 <https://github.com/ckan/ckan/pull/3519>`_)
+ * Datastore dumps nested columns as JSON (`#3487 <https://github.com/ckan/ckan/pull/3487>`_)
+ * Faster/optional datastore_search total calculation (`#3467 <https://github.com/ckan/ckan/pull/3467>`_)
+ * Faster group_activity_query (`#3466 <https://github.com/ckan/ckan/pull/3466>`_)
+ * Faster query performance (`#3430 <https://github.com/ckan/ckan/pull/3430>`_)
+ * Marked remaining JS strings translatable (`#3423 <https://github.com/ckan/ckan/pull/3423>`_)
+ * Upgrade font-awesome to 4.0.3 (`#3400 <https://github.com/ckan/ckan/pull/3400>`_)
+ * group/organization_show include_dataset_count option (`#3385 <https://github.com/ckan/ckan/pull/3385>`_)
+ * image_formats config option for image viewer (`#3380 <https://github.com/ckan/ckan/pull/3380>`_)
+ * click may now be used for CLI interfaces: use load_config instead of CkanCommand (`#3384 <https://github.com/ckan/ckan/pull/3384>`_)
+ * package_search option to return only names/ids (`#3427 <https://github.com/ckan/ckan/pull/3427>`_)
+ * user_list all_fields option (`#3353 <https://github.com/ckan/ckan/pull/3353>`_)
+ * Error controller may now be overridden (`#3340 <https://github.com/ckan/ckan/pull/3340>`_)
+ * Plural translations in JS (`#3211 <https://github.com/ckan/ckan/pull/3211>`_)
+ * Support JS translations in extensions (`#3272 <https://github.com/ckan/ckan/pull/3272>`_)
+ * Requirements upgraded (`#3305 <https://github.com/ckan/ckan/pull/3305>`_)
+ * Dockerfile updates (`#3295 <https://github.com/ckan/ckan/pull/3295>`_)
+
 API changes and deprecations:
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
    helper) now return all organizations a user belongs to regardless of
    capacity (Admin, Editor or Member), not just the ones where she is an
-   administrator (#2457)
+   administrator (`#2457 <https://github.com/ckan/ckan/pull/2457>`_)
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
    helper) now default to not include package_count. Pass
    include_dataset_count=True if you need the package_count values.
- * ``resource['size']`` will change from string to long integer (#3205)
+ * ``resource['size']`` will change from string to long integer (`#3205 <https://github.com/ckan/ckan/pull/3205>`_)
  * upgrade Font-Awesome from version 3.2.1 to 4.0.3
    please refer to
    https://github.com/FortAwesome/Font-Awesome/wiki/Upgrading-from-3.2.1-to-4
@@ -27,19 +68,19 @@ API changes and deprecations:
 v2.6.1 2017-02-22
 =================
 
- * Fix DataPusher being fired multiple times (#3245)
- * Use the url_for() helper for datapusher URLs (#2866)
- * Resource creation date use datetime.utcnow() (#3447)
+ * Fix DataPusher being fired multiple times (`#3245 <https://github.com/ckan/ckan/issues/3245>`_)
+ * Use the url_for() helper for datapusher URLs (`#2866 <https://github.com/ckan/ckan/issues/2866>`_)
+ * Resource creation date use datetime.utcnow() (`#3447 <https://github.com/ckan/ckan/issues/3447>`_)
  * Fix locale error when using fix ckan.root_path
  * `render_markdown` breaks links with ampersands
  * Check group name and id during package creation
- * Use utcnow() on dashboard_mark_activities_old (#3373)
+ * Use utcnow() on dashboard_mark_activities_old (`#3373 <https://github.com/ckan/ckan/issues/3373>`_)
  * Fix encoding error on DataStore exception
- * Datastore doesn't add site_url to resource created via API (#3189)
- * Fix memberships after user deletion (#3265)
- * Remove idle database connection (#3260)
- * Fix package_owner_org_update action when called via the API (#2661)
- * Fix French locale (#3327)
+ * Datastore doesn't add site_url to resource created via API (`#3189 <https://github.com/ckan/ckan/issues/3189>`_)
+ * Fix memberships after user deletion (`#3265 <https://github.com/ckan/ckan/issues/3265>`_)
+ * Remove idle database connection (`#3260 <https://github.com/ckan/ckan/issues/3260>`_)
+ * Fix package_owner_org_update action when called via the API (`#2661 <https://github.com/ckan/ckan/issues/2661>`_)
+ * Fix French locale (`#3327 <https://github.com/ckan/ckan/issues/3327>`_)
  * Updated translations
 
 v2.6.0 2016-11-02
@@ -52,92 +93,92 @@ Note: This version requires a requirements upgrade on source installations
 Note: This version requires a database upgrade
 
 Note: This version does not require a Solr schema upgrade (You may want to
-         upgrade the schema if you want to target Solr>=5, see #2914)
+         upgrade the schema if you want to target Solr>=5, see `#2914 <https://github.com/ckan/ckan/issues/2914>`_)
 
 Major:
- * Private datasets are now included in the default dataset search results (#3191)
- * package_search API action now has an include_private parameter (#3191)
+ * Private datasets are now included in the default dataset search results (`#3191 <https://github.com/ckan/ckan/pull/3191>`_)
+ * package_search API action now has an include_private parameter (`#3191 <https://github.com/ckan/ckan/pull/3191>`_)
 
 Minor:
- * Make resource name default to file name (#1372)
- * Customizable email templates  (#1527)
- * Change solrpy library to pysolr (#2352)
- * Cache SQL query results (#2353)
- * File Upload UX improvements (#2604)
- * Helpers for multilingual fields (#2678)
- * Improve Extension translation docs (#2783)
- * Decouple configuration from Pylons (#3163)
- * toolkit: add h, StopOnError, DefaultOrganizationForm (#2835)
- * Remove Genshi support (#2833)
- * Make resource URLs optional (#2844)
- * Use 403 when actions are forbidden, not 401  (#2846)
- * Upgrade requirements version (#3004, #3005)
- * Add icons sources (#3048)
- * Remove lib/dumper (#2879)
- * ckan.__version__ available as template helper (#3103)
- * Remove `site_url_nice` from app_globals (#3117)
- * Remove `e.message` deprecation warning when running tests (#3121)
- * Drop Python 2.6 support (#3126)
- * Update Recline version (#3184)
- * Refactor config/middleware.py to more closely match poc-flask-views (#3116)
- * Creation of datasets sources with no organization specified (#3046)
+ * Make resource name default to file name (`#1372 <https://github.com/ckan/ckan/issues/1372>`_)
+ * Customizable email templates  (`#1527 <https://github.com/ckan/ckan/issues/1527>`_)
+ * Change solrpy library to pysolr (`#2352 <https://github.com/ckan/ckan/pull/2352>`_)
+ * Cache SQL query results (`#2353 <https://github.com/ckan/ckan/issues/2353>`_)
+ * File Upload UX improvements (`#2604 <https://github.com/ckan/ckan/issues/2604>`_)
+ * Helpers for multilingual fields (`#2678 <https://github.com/ckan/ckan/issues/2678>`_)
+ * Improve Extension translation docs (`#2783 <https://github.com/ckan/ckan/pull/2783>`_)
+ * Decouple configuration from Pylons (`#3163 <https://github.com/ckan/ckan/pull/3163>`_)
+ * toolkit: add h, StopOnError, DefaultOrganizationForm (`#2835 <https://github.com/ckan/ckan/pull/2835>`_)
+ * Remove Genshi support (`#2833 <https://github.com/ckan/ckan/issues/2833>`_)
+ * Make resource URLs optional (`#2844 <https://github.com/ckan/ckan/pull/2844>`_)
+ * Use 403 when actions are forbidden, not 401  (`#2846 <https://github.com/ckan/ckan/pull/2846>`_)
+ * Upgrade requirements version (`#3004 <https://github.com/ckan/ckan/pull/3004>`_, `#3005 <https://github.com/ckan/ckan/pull/3005>`_)
+ * Add icons sources (`#3048 <https://github.com/ckan/ckan/pull/3048>`_)
+ * Remove lib/dumper (`#2879 <https://github.com/ckan/ckan/pull/2879>`_)
+ * ckan.__version__ available as template helper (`#3103 <https://github.com/ckan/ckan/pull/3103>`_)
+ * Remove `site_url_nice` from app_globals (`#3117 <https://github.com/ckan/ckan/pull/3117>`_)
+ * Remove `e.message` deprecation warning when running tests (`#3121 <https://github.com/ckan/ckan/pull/3121>`_)
+ * Drop Python 2.6 support (`#3126 <https://github.com/ckan/ckan/issues/3126>`_)
+ * Update Recline version (`#3184 <https://github.com/ckan/ckan/pull/3184>`_)
+ * Refactor config/middleware.py to more closely match poc-flask-views (`#3116 <https://github.com/ckan/ckan/pull/3116>`_)
+ * Creation of datasets sources with no organization specified (`#3046 <https://github.com/ckan/ckan/issues/3046>`_)
 
 Bug fixes:
- * DataPusher called multiple times when creating a dataset (#2856)
- * Default view is re-added when removed before DataStore upload is complete (#3011)
- * "Data API" button disappears on resource page after empty update (#3012)
- * Uncaught email exceptions on user invite (#3077)
- * Resource view description is not rendered as Markdown (#3128)
- * Fix broken html5lib dependency (#3180)
- * ZH_cn translation formatter fix (#3238)
- * Incorrect i18n-paths in extension's setup.cfg (#3275)
- * Changing your user name produces an error and logs you out (#2394)
- * Fix "Load more" functionality in the dashboard (#2346)
- * Fix filters not working when embedding a resource view (#2657)
- * Proper sanitation of header name on SlickGrid view (#2923)
- * Fix unicode error when indexing field of type JSON (#2969)
- * Fix group feeds returning no datasets (#2955)
- * Replace MapQuest tiles in Recline with Stamen Terrain (#3162)
- * Fix bulk operations not taking effect (#3199)
- * Raise validation errors on group/org_member_create (#3108)
- * Incorrect warnings when ckan.views.default_views is empty (#3093)
- * Don't show deleted users/datasets on member_list (#3078)
- * Fix Tag pagination widget styling (#2399)
- * Fix package_owner_org_update standalone (#2661)
- * Don't template fanstatic error pages (#2770)
- * group_controller() on IGroupForm not in interface (#2771)
- * Fix assert_true to test for message in response (#2802)
- * Add user parameter to paster profile command (#2815)
- * make context['user'] always username or None (#2817)
- * remove some deprecated compatibility hacks (#2818)
- * Param use_default_schema does not work on package_search (#2848)
- * Sanitize offset when listing group activity (#2859)
- * Incorrect 'download resource' hyperlink when a resource is unable to upload to datastore  (#2873)
- * Resolve datastore_delete erasing the database when filters was blank. (#2885)
- * DomainObject.count() doesn't return count (#2919)
- * Fix response code test failures (#2931)
- * Fixed the url_for_* helpers when both SCRIPT_NAME and ckan.root_path are defined (#2936)
- * Escape special characters in password while db loading (#2952)
- * Fix redirect not working with non-root (#2968)
- * Group pagination does not preserve sort order (#2981)
- * Remove LazyJSONObject (#2983)
- * Deleted users appear in sysadmin user lists (#2988)
- * Server error at /organization if not authorized to list organizations (#2990)
- * Slow page rendering when using lots of snippets (#3000)
- * Only allow JSONP callbacks on GET requests (#3002)
- * Attempting to access non-existing helpers should raise HelperException (#3041)
- * Deprecate h.url, make it use h.url_for internally (#3055)
- * Tests fail when LANG environment variable is set to German (#3060)
- * Fix pagination style (CSS) (#3067)
- * Login fails with 404 when using root_path (#3089)
- * Resource view description is not rendered as Markdown (#3128)
- * Clarify package_relationship_update documentation (#3132)
- * `q` parameter in followee_list action has no effect (#3167)
- * Zh cn translation formatter fix (#3238)
- * Users are not removed in related tables if the main user entry is deleted (#3265)
+ * DataPusher called multiple times when creating a dataset (`#2856 <https://github.com/ckan/ckan/issues/2856>`_)
+ * Default view is re-added when removed before DataStore upload is complete (`#3011 <https://github.com/ckan/ckan/issues/3011>`_)
+ * "Data API" button disappears on resource page after empty update (`#3012 <https://github.com/ckan/ckan/issues/3012>`_)
+ * Uncaught email exceptions on user invite (`#3077 <https://github.com/ckan/ckan/pull/3077>`_)
+ * Resource view description is not rendered as Markdown (`#3128 <https://github.com/ckan/ckan/issues/3128>`_)
+ * Fix broken html5lib dependency (`#3180 <https://github.com/ckan/ckan/pull/3180>`_)
+ * ZH_cn translation formatter fix (`#3238 <https://github.com/ckan/ckan/pull/3238>`_)
+ * Incorrect i18n-paths in extension's setup.cfg (`#3275 <https://github.com/ckan/ckan/issues/3275>`_)
+ * Changing your user name produces an error and logs you out (`#2394 <https://github.com/ckan/ckan/issues/2394>`_)
+ * Fix "Load more" functionality in the dashboard (`#2346 <https://github.com/ckan/ckan/issues/2346>`_)
+ * Fix filters not working when embedding a resource view (`#2657 <https://github.com/ckan/ckan/issues/2657>`_)
+ * Proper sanitation of header name on SlickGrid view (`#2923 <https://github.com/ckan/ckan/issues/2923>`_)
+ * Fix unicode error when indexing field of type JSON (`#2969 <https://github.com/ckan/ckan/issues/2969>`_)
+ * Fix group feeds returning no datasets (`#2955 <https://github.com/ckan/ckan/issues/2955>`_)
+ * Replace MapQuest tiles in Recline with Stamen Terrain (`#3162 <https://github.com/ckan/ckan/issues/3162>`_)
+ * Fix bulk operations not taking effect (`#3199 <https://github.com/ckan/ckan/pull/3199>`_)
+ * Raise validation errors on group/org_member_create (`#3108 <https://github.com/ckan/ckan/pull/3108>`_)
+ * Incorrect warnings when ckan.views.default_views is empty (`#3093 <https://github.com/ckan/ckan/issues/3093>`_)
+ * Don't show deleted users/datasets on member_list (`#3078 <https://github.com/ckan/ckan/pull/3078>`_)
+ * Fix Tag pagination widget styling (`#2399 <https://github.com/ckan/ckan/issues/2399>`_)
+ * Fix package_owner_org_update standalone (`#2661 <https://github.com/ckan/ckan/issues/2661>`_)
+ * Don't template fanstatic error pages (`#2770 <https://github.com/ckan/ckan/pull/2770>`_)
+ * group_controller() on IGroupForm not in interface (`#2771 <https://github.com/ckan/ckan/issues/2771>`_)
+ * Fix assert_true to test for message in response (`#2802 <https://github.com/ckan/ckan/pull/2802>`_)
+ * Add user parameter to paster profile command (`#2815 <https://github.com/ckan/ckan/pull/2815>`_)
+ * make context['user'] always username or None (`#2817 <https://github.com/ckan/ckan/pull/2817>`_)
+ * remove some deprecated compatibility hacks (`#2818 <https://github.com/ckan/ckan/pull/2818>`_)
+ * Param use_default_schema does not work on package_search (`#2848 <https://github.com/ckan/ckan/pull/2848>`_)
+ * Sanitize offset when listing group activity (`#2859 <https://github.com/ckan/ckan/issues/2859>`_)
+ * Incorrect 'download resource' hyperlink when a resource is unable to upload to datastore  (`#2873 <https://github.com/ckan/ckan/issues/2873>`_)
+ * Resolve datastore_delete erasing the database when filters was blank. (`#2885 <https://github.com/ckan/ckan/pull/2885>`_)
+ * DomainObject.count() doesn't return count (`#2919 <https://github.com/ckan/ckan/pull/2919>`_)
+ * Fix response code test failures (`#2931 <https://github.com/ckan/ckan/pull/2931>`_)
+ * Fixed the url_for_* helpers when both SCRIPT_NAME and ckan.root_path are defined (`#2936 <https://github.com/ckan/ckan/pull/2936>`_)
+ * Escape special characters in password while db loading (`#2952 <https://github.com/ckan/ckan/issues/2952>`_)
+ * Fix redirect not working with non-root (`#2968 <https://github.com/ckan/ckan/pull/2968>`_)
+ * Group pagination does not preserve sort order (`#2981 <https://github.com/ckan/ckan/issues/2981>`_)
+ * Remove LazyJSONObject (`#2983 <https://github.com/ckan/ckan/pull/2983>`_)
+ * Deleted users appear in sysadmin user lists (`#2988 <https://github.com/ckan/ckan/issues/2988>`_)
+ * Server error at /organization if not authorized to list organizations (`#2990 <https://github.com/ckan/ckan/issues/2990>`_)
+ * Slow page rendering when using lots of snippets (`#3000 <https://github.com/ckan/ckan/pull/3000>`_)
+ * Only allow JSONP callbacks on GET requests (`#3002 <https://github.com/ckan/ckan/pull/3002>`_)
+ * Attempting to access non-existing helpers should raise HelperException (`#3041 <https://github.com/ckan/ckan/issues/3041>`_)
+ * Deprecate h.url, make it use h.url_for internally (`#3055 <https://github.com/ckan/ckan/pull/3055>`_)
+ * Tests fail when LANG environment variable is set to German (`#3060 <https://github.com/ckan/ckan/issues/3060>`_)
+ * Fix pagination style (CSS) (`#3067 <https://github.com/ckan/ckan/pull/3067>`_)
+ * Login fails with 404 when using root_path (`#3089 <https://github.com/ckan/ckan/issues/3089>`_)
+ * Resource view description is not rendered as Markdown (`#3128 <https://github.com/ckan/ckan/issues/3128>`_)
+ * Clarify package_relationship_update documentation (`#3132 <https://github.com/ckan/ckan/pull/3132>`_)
+ * `q` parameter in followee_list action has no effect (`#3167 <https://github.com/ckan/ckan/pull/3167>`_)
+ * Zh cn translation formatter fix (`#3238 <https://github.com/ckan/ckan/pull/3238>`_)
+ * Users are not removed in related tables if the main user entry is deleted (`#3265 <https://github.com/ckan/ckan/issues/3265>`_)
 
 API changes and deprecations:
- * Replace `c.__version__` with new helper `h.ckan_version()` (#3103)
+ * Replace `c.__version__` with new helper `h.ckan_version()` (`#3103 <https://github.com/ckan/ckan/pull/3103>`_)
 
 v2.5.4 2017-02-22
 =================
@@ -411,8 +452,8 @@ Changes and deprecations
   Custom templates or users of this API call will need to pass
   ``include_datasets=True`` to include datasets in the response.
 
-* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the 
-  ``packages`` key - i.e. datasets that use the vocabulary or tag. 
+* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the
+  ``packages`` key - i.e. datasets that use the vocabulary or tag.
   However ``tag_show`` now has an ``include_datasets`` option. (#1886)
 
 * Config option ``site_url`` is now required - CKAN will not abort during

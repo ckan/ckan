@@ -1,0 +1,33 @@
+<table class="table table-striped table-bordered table-condensed">
+  <thead>
+    <tr>
+      <th>{{ _('Revision') }}</th>
+      <th>{{ _('Timestamp') }}</th>
+      <th>{{ _('Author') }}</th>
+      <th>{{ _('Entity') }}</th>
+      <th>{{ _('Log Message') }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for rev in revisions %}
+      <tr>
+        <td class="dataset-label">
+          <a href="{{ h.url_for(controller='revision', action='read', id=rev.id) }}">{{rev.id | truncate(6)}}</a>
+        </td>
+        <td class="dataset-details">
+          {{ h.render_datetime(rev.timestamp, with_hours=True) }}
+        </td>
+        <td class="dataset-details">{{ h.linked_user(rev.author) }}</td>
+        <td>
+          {% for pkg in rev.packages %}
+            <a href="{{ h.url_for(controller='package', action='read', id=pkg.name) }}">{{ pkg.title }}</a>
+          {% endfor %}
+          {% for group in rev.groups %}
+            <a href="{{ h.url_for(controller='group', action='read', id=group.name) }}">{{ group.display_name }}</a>
+          {% endfor %}
+        </td>
+        <td class="dataset-details">{{ rev.message }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -32,11 +32,11 @@
                   <th></th>
                   <th class="table-actions">
                     <div class="btn-group">
-                      <button name="bulk_action.public" value="public" class="btn" type="submit">
+                      <button name="bulk_action.public" value="public" class="btn btn-default" type="submit">
                         <i class="fa fa-eye"></i>
                         {{ _('Make public') }}
                       </button>
-                      <button name="bulk_action.private" value="private" class="btn" type="submit">
+                      <button name="bulk_action.private" value="private" class="btn btn-default" type="submit">
                         <i class="fa fa-eye-slash"></i>
                         {{ _('Make private') }}
                       </button>
@@ -69,10 +69,10 @@
                         {% if package.get('state', '').startswith('draft') %}
                           <span class="label label-info">{{ _('Draft') }}</span>
                         {% elif package.get('state', '').startswith('deleted') %}
-                          <span class="label label-important">{{ _('Deleted') }}</span>
+                          <span class="label label-danger">{{ _('Deleted') }}</span>
                         {% endif %}
                         {% if package.private %}
-                          <span class="label label-important">{{ _('Private') }}</span>
+                          <span class="label label-danger">{{ _('Private') }}</span>
                         {% endif %}
                       </h3>
                       {% if notes %}

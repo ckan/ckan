@@ -1,8 +1,8 @@
 <section class="module module-narrow">
   {% with items=(("First", true), ("Second", false), ("Third", true), ("Fourth", false), ("Last", false)) %}
-    <h2 class="module-heading"><i class="fa fa-medium fa-filter"></i>  Facet List</h2>
+    <h2 class="module-heading"><i class="fa fa-filter"></i>  Facet List</h2>
     <nav>
-      <ul class="unstyled nav nav-simple nav-facet">
+      <ul class="list-unstyled nav nav-simple nav-facet">
         {% for value, active in items %}
           <li class="nav-item{{ ' active' if active }}"><a href="#">{{ value }}</a></li>
         {% endfor %}

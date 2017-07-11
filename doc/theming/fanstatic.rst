@@ -39,14 +39,14 @@ to serve the CSS file with Fanstatic.
    register your fanstatic directory with CKAN. Edit the ``update_config()``
    method in your ``plugin.py`` file:
 
-   .. literalinclude:: /../ckanext/example_theme/v15_fanstatic/plugin.py
+   .. literalinclude:: /../ckanext/example_theme_docs/v15_fanstatic/plugin.py
       :pyobject: ExampleThemePlugin.update_config
 
 3. Finally, edit your extension's ``templates/base.html`` file and use CKAN's
    custom Jinja2 tag ``{% resource %}`` instead of the normal ``<link>`` tag to
    import the file:
 
-   .. literalinclude:: /../ckanext/example_theme/v15_fanstatic/templates/base.html
+   .. literalinclude:: /../ckanext/example_theme_docs/v15_fanstatic/templates/base.html
       :language: django
 
 .. note::

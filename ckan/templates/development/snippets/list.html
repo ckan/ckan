@@ -2,7 +2,7 @@
   {% with items=(("First", false), ("Second", true), ("Third", true), ("Fourth", false), ("Last", false)) %}
     <h1 class="module-heading">{{ heading }}</h1>
     <nav>
-      <ul class="unstyled simple-list">
+      <ul class="list-unstyled simple-list">
         {% for value, active in items %}
           <li>
             {% if show_icons %}<i class="fa fa-cog"></i> {% endif %}{{ value }}

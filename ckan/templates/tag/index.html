@@ -11,7 +11,7 @@
     <div class="module-content">
       <h1 class="page-heading">{% block page_heading %}{{ _('Tags') }}{% endblock %}</h1>
       {% block tags_list %}
-        <ul class="unstyled">
+        <ul class="list-unstyled">
           {% block tags_list_inner %}
             {% for tag in c.page.items %}
               <li>{{ h.link_to(tag.display_name, h.url_for(controller='package', action='search', tags=tag.name), class_='tag') }}</li>
@@ -31,7 +31,7 @@
     <form class="module-content field-bordered" action="{% url_for controller='tag', action='index' %}" method="get">
       <div class="field">
         <label for="field-tag-search">{{ _('Search Tags') }}</label>
-        <input id="field-tag-search" type="text" class="field" name="q" placeholder="{{ _('Search Tags') }}" />
+        <input id="field-tag-search" type="text" class="field form-control" name="q" placeholder="{{ _('Search Tags') }}" />
         <button class="btn-search" type="submit"><i class="fa fa-search"></i></button>
       </div>
     </form>

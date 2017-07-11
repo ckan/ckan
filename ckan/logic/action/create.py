@@ -120,7 +120,8 @@ def package_create(context, data_dict):
     :param owner_org: the id of the dataset's owning organization, see
         :py:func:`~ckan.logic.action.get.organization_list` or
         :py:func:`~ckan.logic.action.get.organization_list_for_user` for
-        available values (optional)
+        available values. This parameter can be made optional if the config
+        option :ref:`ckan.auth.create_unowned_dataset` is set to ``True``.
     :type owner_org: string
 
     :returns: the newly created dataset (unless 'return_id_only' is set to True
@@ -315,8 +316,10 @@ def resource_create(context, data_dict):
         _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError, e:
-        errors = e.error_dict['resources'][-1]
-        raise ValidationError(errors)
+        try:
+            raise ValidationError(e.error_dict['resources'][-1])
+        except (KeyError, IndexError):
+            raise ValidationError(e.error_dict)
 
     # Get out resource_id resource from model as it will not appear in
     # package_show until after commit
@@ -610,7 +613,7 @@ def member_create(context, data_dict=None):
                               table_id=obj.id,
                               group_id=group.id,
                               state='active')
-
+        member.group = group
     member.capacity = capacity
 
     model.Session.add(member)

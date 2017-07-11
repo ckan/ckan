@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block page %}
+  <table id="dtprv"
+      class="table table-striped table-bordered"
+      data-module="datatables_view"
+      data-paging="true"
+      data-server-side="true"
+      data-processing="true"
+      data-ajax='{
+          "url": "/datatables/ajax/{{ resource_view.id }}",
+          "type": "POST",
+          "data": { "filters": "{{ request.params.get('filters', '')|e }}" }
+        }'
+      {% if resource_view.get('responsive') %}
+        data-responsive="true"
+        data-scroll-x="false"
+      {% else %}
+        data-responsive="false"
+        data-scroll-x="true"
+      {% endif %}
+      data-fixed-header="true"
+      data-fixed-columns="true"
+      data-dom='"Blifrtip"'
+      data-buttons='[
+        {
+          "extend": "colvis",
+          "text": "{{ _('Hide/Unhide Columns') }}"
+        }{{ ', "copy", "excel", "print"' | safe
+          if resource_view.get('export_buttons') else ''}}
+        ]'
+      data-keys='true'>
+    <thead>
+      <tr>
+        {% for field in [{'id': '_id'}] + h.datastore_dictionary(resource.id) %}
+          {% if 'show_fields' not in resource_view
+            or field.id in resource_view.show_fields %}
+            <th scope="col">{{ field.id }}</th>
+          {% endif %}
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  {% resource 'ckanext-datatablesview/main' %}
+{% endblock %}
+
+{% block styles %}{% endblock %}
+{% block custom_styles %}{% endblock %}

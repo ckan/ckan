@@ -4,7 +4,9 @@
 {% set errors = errors or {} %}
 {% set action = form_action or h.url_for(controller='package', action='new_resource', id=pkg_name) %}
 
-<form id="resource-edit" class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data" novalidate>
+
+<form id="resource-edit" class="dataset-form dataset-resource-form" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
+
   {% block stages %}
     {# An empty stages variable will not show the stages #}
     {% if stage %}
@@ -68,10 +70,10 @@
     {% endblock %}
     {% if stage %}
       {% block previous_button %}
-        <button class="btn" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
+        <button class="btn btn-default" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
       {% endblock %}
       {% block again_button %}
-        <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
+        <button class="btn btn-default" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
         {% endblock %}
       {% block save_button %}
       <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Finish') }}{% endblock %}</button>

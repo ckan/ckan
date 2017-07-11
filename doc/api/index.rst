@@ -184,6 +184,7 @@ to import datasets into CKAN.
     dataset_dict = {
         'name': 'my_dataset_name',
         'notes': 'A long description of my dataset',
+        'owner_org': 'org_id_or_name'
     }
 
     # Use the json module to dump the dictionary to a string for posting.
@@ -336,7 +337,7 @@ A list of all tags:
 * browser: http://demo.ckan.org/api/3/action/tag_list
 * curl: ``curl http://demo.ckan.org/api/3/action/tag_list``
 * ckanapi: ``ckanapi -r http://demo.ckan.org action tag_list``
-    
+
 Top 10 tags used by datasets:
 
 * browser: http://demo.ckan.org/api/action/package_search?facet.field=[%22tags%22]&facet.limit=10&rows=0

@@ -1,7 +1,7 @@
 {% import 'macros/form.html' as form %}
 
 <section class="module">
-  <form class="module-content form-horizontal">
+  <form class="module-content">
     {{ form.input('standard', label=_('Standard'), placeholder=_('Standard Input'), value='', error=error, classes=[]) }}
     {{ form.input('standard', label=_('Medium'), placeholder=_('Medium Width Input'), value='', error=error, classes=['control-medium']) }}
     {{ form.input('standard', label=_('Full'), placeholder=_('Full Width Input'), value='', error=error, classes=['control-full']) }}
