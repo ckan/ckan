@@ -8995,6 +8995,7 @@ h4 small {
 [role=main] .secondary {
   padding: 0;
   z-index: 1;
+  padding-right: 1px;
 }
 /* Filters modal */
 .no-text .text {
