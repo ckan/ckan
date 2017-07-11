@@ -4,9 +4,13 @@
 # started up quickly enough. Just do "docker-compose up ckan"
 # again to retry
 version: "3"
+
 volumes:
   ckan_config:
-  ckan_lib:
+  ckan_home:
+  ckan_storage:
+  pg_data:
+
 services:
   ckan:
     container_name: ckan
@@ -31,7 +35,9 @@ services:
       - REDIS_PORT_6379_TCP_PORT=6379
     volumes:
       - ckan_config:/etc/ckan/default
-      - ckan_lib:/var/lib/ckan
+      - ckan_home:/usr/lib/ckan/default
+      - ckan_storage:/var/lib/ckan
+
   db:
     container_name: db
     build:
@@ -42,11 +48,15 @@ services:
       - "127.0.0.1:${POSTGRES_PORT}:5432"
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
   solr:
     container_name: solr
     image: ckan/solr:latest
     ports:
-      - "8983:8983"
+        - "0.0.0.0:8983:8983"
+
   redis:
     container_name: redis
     image: redis:latest
