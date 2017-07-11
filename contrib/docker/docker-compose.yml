@@ -4,6 +4,8 @@
 # started up quickly enough. Just do "docker-compose up ckan"
 # again to retry
 version: "3"
+volumes:
+  ckan_config:
 services:
   ckan:
     container_name: ckan
@@ -26,6 +28,8 @@ services:
       - SOLR_PORT_8983_TCP_PORT=8983
       - REDIS_PORT_6379_TCP_ADDR=redis
       - REDIS_PORT_6379_TCP_PORT=6379
+    volumes:
+      - ckan_config:/etc/ckan/default
   db:
     container_name: db
     build:
@@ -40,7 +44,7 @@ services:
     container_name: solr
     image: ckan/solr:latest
     ports:
-      - "127.0.0.1:8983:8983"
+      - "8983:8983"
   redis:
     container_name: redis
     image: redis:latest
