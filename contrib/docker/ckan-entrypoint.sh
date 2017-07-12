@@ -22,7 +22,12 @@ set_environment () {
   export CKAN_REDIS_URL=${CKAN_REDIS_URL}
   export CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
+  #ckan.datastore.write_url = postgresql://ckan:ckan@db/datastore
+  #ckan.datastore.read_url = postgresql://datastore:datastore@db/datastore
+  export CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
+  export CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DS_RO_PASS}@db/datastore
 }
+
 
 write_config () {
   # Note that this only gets called if there is no config, see below!
