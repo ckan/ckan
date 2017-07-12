@@ -229,6 +229,7 @@ def load_config(config, load_site_user=True):
     import pylons
     registry.register(pylons.translator, MockTranslator())
 
+    site_user = None
     if model.user_table.exists() and load_site_user:
         # If the DB has already been initialized, create and register
         # a pylons context object, and add the site user to it, so the
@@ -247,6 +248,8 @@ def load_config(config, load_site_user=True):
     request_config = routes.request_config()
     request_config.host = parsed.netloc + parsed.path
     request_config.protocol = parsed.scheme
+
+    return site_user
 
 
 def paster_click_group(summary):
@@ -304,7 +307,7 @@ class CkanCommand(paste.script.command.Command):
     group_name = 'ckan'
 
     def _load_config(self, load_site_user=True):
-        load_config(self.options.config, load_site_user)
+        self.site_user = load_config(self.options.config, load_site_user)
 
     def _setup_app(self):
         cmd = paste.script.appinstall.SetupCommand('setup-app')
