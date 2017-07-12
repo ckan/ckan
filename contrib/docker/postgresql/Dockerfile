@@ -5,12 +5,10 @@ MAINTAINER Open Knowledge
 RUN echo "host all  all    0.0.0.0/0  md5" >> /var/lib/postgresql/data/pg_hba.conf
 
 # Customize default user/pass/db
+ENV POSTGRES_DB ckan
 ENV POSTGRES_USER ckan
 ARG POSTGRES_PASSWORD
 ARG DS_RO_PASS
-ENV POSTGRES_DB ckan
 
-# Output variables when building for the first time. Will not run if using cached image.
-RUN echo "Building postgres:9.6 with user $POSTGRES_USER, pw $POSTGRES_PASSWORD, db $POSTGRES_DB"
-
-ADD /docker-entrypoint-initdb.d/00_create_datastore.sh ./00_create_datastore.sh
+ADD /docker-entrypoint-initdb.d/00_create_datastore.sql ./00_create_datastore.sql
+ADD /docker-entrypoint-initdb.d/10_set_permissions.sql ./10_set_permissions.sql
