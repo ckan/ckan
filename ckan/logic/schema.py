@@ -409,7 +409,6 @@ def default_user_schema():
         'email': [not_empty, unicode],
         'about': [ignore_missing, user_about_validator, unicode],
         'created': [ignore],
-        'openid': [ignore_missing],
         'sysadmin': [ignore_missing, ignore_not_sysadmin],
         'apikey': [ignore],
         'reset_key': [ignore],

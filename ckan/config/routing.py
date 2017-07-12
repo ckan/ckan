@@ -358,8 +358,6 @@ def make_map():
     map.redirect('/user/', '/user')
     with SubMapper(map, controller='user') as m:
         m.connect('/user/edit', action='edit')
-        # Note: openid users have slashes in their ids, so need the wildcard
-        # in the route.
         m.connect('user_generate_apikey', '/user/generate_key/{id}', action='generate_apikey')
         m.connect('/user/activity/{id}/{offset}', action='activity')
         m.connect('user_activity_stream', '/user/activity/{id}',
