@@ -670,8 +670,11 @@ class GroupController(base.BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user}
+        try:
+            self._check_access('group_member_create', context, {'id': id})
+        except NotAuthorized:
+            abort(403, _('Unauthorized to create group %s members') % '')
 
-        # self._check_access('group_delete', context, {'id': id})
         try:
             data_dict = {'id': id}
             data_dict['include_datasets'] = False
