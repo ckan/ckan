@@ -1327,7 +1327,7 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         # cancelling sends us back to the resource edit page
         form = response.forms['confirm-resource-delete-form']
         response = form.submit('cancel')
-        response = response.follow()
+        response = response.follow(extra_environ=env)
         assert_equal(200, response.status_int)
 
 
