@@ -413,7 +413,7 @@ class TestGroupMembership(helpers.FunctionalTestBase):
 
         user = factories.User()
         group = factories.Group(
-                users=[{'name': user['name'], 'capacity': 'member'}]
+            users=[{'name': user['name'], 'capacity': 'member'}]
         )
 
         app = helpers._get_test_app()
