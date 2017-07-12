@@ -1,4 +1,8 @@
+# encoding: utf-8
+
+from nose import SkipTest
 from nose.tools import assert_equal
+
 
 from ckan.tests.legacy import *
 import ckan.model as model
@@ -12,8 +16,8 @@ class TestUser:
     def setup_class(self):
         CreateTestData.create_user('brian', password='pass',
                                    fullname='Brian', email='brian@brian.com')
-        CreateTestData.create_user(openid='http://sandra.owndomain.com/',
-                                   fullname='Sandra')
+        CreateTestData.create_user('sandra', password='pass',
+                                   fullname='Sandra', email='sandra@sandra.com')
 
     @classmethod
     def teardown_class(self):
@@ -26,7 +30,7 @@ class TestUser:
         assert_equal(out.fullname, 'Brian')
         assert_equal(out.email, u'brian@brian.com')
 
-        out = model.User.by_openid(u'http://sandra.owndomain.com/')
+        out = model.User.by_name(u'sandra')
         assert_equal(out.fullname, u'Sandra')
 
     def test_1_timestamp_any_existing(self):
@@ -35,24 +39,25 @@ class TestUser:
 
     def test_2_timestamp_new(self):
         user = model.User()
-        openid = u'http://xyz.com'
-        user.name = openid
+        name = u'xyz'
+        user.name = name
         model.Session.add(user)
         model.repo.commit_and_remove()
 
-        out = model.User.by_name(openid)
+        out = model.User.by_name(name)
         assert len(str(out.created)) > 5, out.created
 
     def test_3_get(self):
         out = model.User.get(u'brian')
         assert out.fullname == u'Brian'
 
-        out = model.User.get(u'http://sandra.owndomain.com/')
+        out = model.User.get(u'sandra')
         assert out.fullname == u'Sandra'
 
     def test_4_get_openid_missing_slash(self):
+        raise SkipTest(u'OpenID is not used anymore')
         # browsers seem to lose the double slash
-        out = model.User.get(u'http:/sandra.owndomain.com/')
+        out = model.User.get(u'sandra')
         assert out
         assert out.fullname == u'Sandra'
 
@@ -184,4 +189,3 @@ class TestUser2(object):
                  'tester' in test_names and
                  'testsysadmin' in test_names ), \
                  "Search for test should find tester and testsysadmin (only)"
-
