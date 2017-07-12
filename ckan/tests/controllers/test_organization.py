@@ -452,7 +452,7 @@ class TestOrganizationMembership(helpers.FunctionalTestBase):
 
         user = factories.User()
         organization = factories.Organization(
-                users=[{'name': user['name'], 'capacity': 'editor'}]
+            users=[{'name': user['name'], 'capacity': 'editor'}]
         )
 
         app = helpers._get_test_app()
@@ -484,7 +484,7 @@ class TestOrganizationMembership(helpers.FunctionalTestBase):
 
         user = factories.User()
         organization = factories.Organization(
-                users=[{'name': user['name'], 'capacity': 'member'}]
+            users=[{'name': user['name'], 'capacity': 'member'}]
         )
 
         app = helpers._get_test_app()
