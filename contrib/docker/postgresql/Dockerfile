@@ -12,3 +12,5 @@ ENV POSTGRES_DB ckan
 
 # Output variables when building for the first time. Will not run if using cached image.
 RUN echo "Building postgres:9.6 with user $POSTGRES_USER, pw $POSTGRES_PASSWORD, db $POSTGRES_DB"
+
+ADD /docker-entrypoint-initdb.d/00_create_datastore.sh ./00_create_datastore.sh
