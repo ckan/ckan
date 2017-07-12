@@ -82,7 +82,7 @@ if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
 
     # wait for postgres db to be available, immediately after creation
     # its entrypoint creates the cluster and dbs and this can take a moment
-    for tries in $(seq 30); do
+    for tries in $(seq 60); do
       psql -c 'SELECT 1;' 2> /dev/null && break
       sleep 0.3
     done

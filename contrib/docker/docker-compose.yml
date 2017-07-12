@@ -1,8 +1,5 @@
-# docker-compose build && docker-compose up
-# If you experience problems with the CKAN container not being
-# able to connect to the DB, then most likely the DB has not
-# started up quickly enough. Just do "docker-compose up ckan"
-# again to retry
+# docker-compose build && docker-compose up -d
+# If "docker-compose logs ckan" shows DB not ready, run "docker-compose restart ckan" a few times.
 version: "3"
 
 volumes:
@@ -44,8 +41,6 @@ services:
       context: postgresql/
       args:
         - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - "127.0.0.1:${POSTGRES_PORT}:5432"
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
@@ -54,11 +49,7 @@ services:
   solr:
     container_name: solr
     image: ckan/solr:latest
-    ports:
-        - "0.0.0.0:8983:8983"
 
   redis:
     container_name: redis
     image: redis:latest
-    ports:
-      - "127.0.0.1:6379:6379"
