@@ -1,7 +1,6 @@
 # encoding: utf-8
 
-from sqlalchemy import *
-from migrate import *
+from sqlalchemy import MetaData
 
 
 def upgrade(migrate_engine):
