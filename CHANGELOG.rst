@@ -72,7 +72,9 @@ Minor:
  * Allow slug preview to work with autocomplete fields (#2501)
  * Fix filter results button not working for organization/group (#3620)
  * Allow underscores in URL slug preview on create dataset (#3612)
- * Fixed escaping issues with `helpers.mail_to` and datapusher logs
+ * Fallback to po file translations on ``h.get_translated()`` (#3577)
+ * Fix Fanstatic URL on non-root installs (#3618)
+ * Fixed escaping issues with ``helpers.mail_to`` and datapusher logs
 
 API changes:
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
