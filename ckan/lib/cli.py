@@ -309,10 +309,6 @@ class CkanCommand(paste.script.command.Command):
     def _load_config(self, load_site_user=True):
         self.site_user = load_config(self.options.config, load_site_user)
 
-    def _setup_app(self):
-        cmd = paste.script.appinstall.SetupCommand('setup-app')
-        cmd.run([self.filename])
-
 
 class ManageDb(CkanCommand):
     '''Perform various tasks on the database.
@@ -1480,7 +1476,6 @@ class CreateTestDataCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        self._setup_app()
         from ckan import plugins
         from create_test_data import CreateTestData
 
