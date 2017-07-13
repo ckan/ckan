@@ -165,7 +165,11 @@ Edit the ``ckan.ini`` (note: requires sudo)::
 
     sudo vim /var/lib/docker/volumes/docker_ckan_config/_data/ckan.ini
 
-    # With your own POSTGRES_PASSWORD and DATASTORE_READONLY_USER
+    # filestore
+    ckan.storage_path = /var/lib/ckan
+
+    # datastore and datapusher
+    # With your own POSTGRES_PASSWORD and DATASTORE_READONLY_USER:
     ckan.datastore.write_url = postgresql://ckan:POSTGRES_PASSWORD@db/datastore
     ckan.datastore.read_url = postgresql://datastore:DATASTORE_READONLY_PASSWORD@db/datastore
     # add datastore and datapusher to plugins
@@ -174,6 +178,13 @@ Edit the ``ckan.ini`` (note: requires sudo)::
 Restart the ``ckan`` container to apply changes to the ``ckan.ini``::
 
     docker-compose restart ckan
+
+Now the datastore API should return content when visiting::
+
+    CKAN_SITE_URL/api/3/action/datastore_search?resource_id=_table_metadata
+
+TODO datapusher setup - own service / Dockerfile?
+
 
 -------------------------
 5. Create CKAN admin user
