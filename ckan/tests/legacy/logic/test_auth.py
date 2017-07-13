@@ -60,7 +60,7 @@ class TestAuth(tests.WsgiAppCase):
     @classmethod
     def create_user(cls, name):
         user = {'name': name,
-                'password': 'pass',
+                'password': 'TestPassword1',
                 'email': 'moo@moo.com'}
         res = cls._call_api('user_create', user, 'sysadmin', 200)
         cls.apikeys[name] = str(json.loads(res.body)['result']['apikey'])
@@ -105,7 +105,7 @@ class TestAuthOrgs(TestAuth):
 
     def test_01_create_users(self):
         user = {'name': 'user_no_auth',
-                'password': 'pass',
+                'password': 'TestPassword1',
                 'email': 'moo@moo.com'}
 
         self._call_api('user_create', user, 'random_key', 403)
