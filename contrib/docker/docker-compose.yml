@@ -37,6 +37,12 @@ services:
       - ckan_home:/usr/lib/ckan/default
       - ckan_storage:/var/lib/ckan
 
+  datapusher:
+    container_name: datapusher
+    image: clementmouchet/datapusher
+    ports:
+        - "0.0.0.0:8800:8800"
+
   db:
     container_name: db
     build:
