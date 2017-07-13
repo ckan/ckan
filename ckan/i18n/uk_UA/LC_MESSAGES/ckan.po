@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-10-18 10:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2016\n"
+"Last-Translator: Zoriana Zaiats <sorenabell@quintagroup.com>, 2017\n"
 "Language-Team: Ukrainian (Ukraine) (https://www.transifex.com/okfn/teams/11162/uk_UA/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -401,7 +401,7 @@ msgstr ""
 
 #: ckan/controllers/package.py:290
 msgid "Invalid search query: {error_message}"
-msgstr ""
+msgstr "Неправильний пошуковий запит: {error_message}"
 
 #: ckan/controllers/package.py:307
 msgid "Parameter \"{parameter_name}\" is not an integer"
@@ -831,9 +831,9 @@ msgstr "Переглянути"
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{n} нова активність від {site_title}"
+msgstr[1] "{n} нові активності від {site_title}"
+msgstr[2] "{n} нових активностей від {site_title}"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -924,7 +924,7 @@ msgstr[2] "більше {years} років назад"
 
 #: ckan/lib/formatters.py:148
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr ""
+msgstr "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:153
 msgid "{month} {day}, {year}"
@@ -1112,7 +1112,7 @@ msgstr "Не вдалося проаналізувати як дійсний JSO
 
 #: ckan/logic/validators.py:32 ckan/logic/validators.py:41
 msgid "An organization must be provided"
-msgstr ""
+msgstr "Вкажіть організацію"
 
 #: ckan/logic/validators.py:46
 msgid "Organization does not exist"
@@ -1381,6 +1381,8 @@ msgstr "Значення рейтингу має бути між %i та %i."
 #: ckan/logic/action/create.py:1052
 msgid "Error sending the invite email, the user was not created: {0}"
 msgstr ""
+"Помилка під час надсилання листа-запрошення, користувача не було створено: "
+"{0}"
 
 #: ckan/logic/action/create.py:1265 ckan/logic/action/create.py:1272
 msgid "You must be logged in to follow users"
@@ -1409,7 +1411,7 @@ msgstr "Увійдіть, щоб мати можливість стежити з
 
 #: ckan/logic/action/delete.py:45
 msgid " Delete User: {0}"
-msgstr ""
+msgstr "Видалити користувача: {0}"
 
 #: ckan/logic/action/delete.py:86
 #, python-format
@@ -2009,7 +2011,7 @@ msgstr "CKAN API"
 
 #: ckan/templates/footer.html:16
 msgid "CKAN Association"
-msgstr ""
+msgstr "Асоціація CKAN"
 
 #: ckan/templates/footer.html:24
 msgid ""
@@ -3226,7 +3228,7 @@ msgstr "Помилка:"
 
 #: ckan/templates/package/resource_data.html:36
 msgid "Error traceback:"
-msgstr ""
+msgstr "Відстеження помилки:"
 
 #: ckan/templates/package/resource_data.html:48
 msgid "Status"
@@ -3469,21 +3471,23 @@ msgstr "Останнє оновлення"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
-msgstr ""
+msgstr "Перед тим як створити набір даних ви повинні створити організацію."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
-msgstr ""
+msgstr "Створити нову організацію"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:18
 msgid "There are no organizations to which you can assign this dataset."
-msgstr ""
+msgstr "Нема організацій до яких ви можете долучити цей набір даних."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:19
 msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
 msgstr ""
+"Зверніться до системного адміністратора з проханням створити організацію "
+"перед тим як продовжити."
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 msgid "Data API"
@@ -3596,11 +3600,11 @@ msgstr "Оновити ресурс"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "Data"
-msgstr ""
+msgstr "Дані"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "http://example.com/external-data.csv"
-msgstr ""
+msgstr "http://example.com/external-data.csv"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
@@ -3902,6 +3906,8 @@ msgid ""
 " <p id=\"search-error\"><strong>There was an error while searching.</strong>"
 " Please try again.</p> "
 msgstr ""
+"<p id=\"search-error\"><strong>Виникла помилка під час "
+"пошуку.</strong>Спробуйте ще раз.</p>"
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4088,7 +4094,7 @@ msgstr "Змінити пароль"
 
 #: ckan/templates/user/edit_user_form.html:29
 msgid "Sysadmin Password"
-msgstr ""
+msgstr "Пароль системного адміністратора"
 
 #: ckan/templates/user/edit_user_form.html:37
 #: ckan/templates/user/logout_first.html:12
@@ -4383,7 +4389,7 @@ msgstr "користувацький текст ресурсу"
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr ""
+msgstr "Це неперекладена строка"
 
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
@@ -4423,7 +4429,7 @@ msgstr "Карта"
 
 #: ckanext/reclineview/theme/public/recline_view.js:34
 msgid "error loading view"
-msgstr ""
+msgstr "помилка при завантаженні представлення"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -4567,7 +4573,7 @@ msgstr "Кількість наборів даних"
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "Користувачі, що створили найбільшу кількість наборів даних"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
@@ -4584,7 +4590,7 @@ msgstr "Текст"
 #: ckanext/textview/theme/public/text_view.js:5
 #, python-format
 msgid "An error occurred: %(text)s %(error)s"
-msgstr ""
+msgstr "Виникла помилка: %(text)s %(error)s"
 
 #: ckanext/webpageview/plugin.py:21 ckanext/webpageview/plugin.py:26
 msgid "Website"

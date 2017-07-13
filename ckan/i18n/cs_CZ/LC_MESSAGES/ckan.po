@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-10-18 10:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2016\n"
+"Last-Translator: Jakub Klímek <klimek@ksi.mff.cuni.cz>, 2017\n"
 "Language-Team: Czech (Czech Republic) (https://www.transifex.com/okfn/teams/11162/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -401,7 +401,7 @@ msgstr ""
 
 #: ckan/controllers/package.py:290
 msgid "Invalid search query: {error_message}"
-msgstr ""
+msgstr "Chybný dotaz: {error_message}"
 
 #: ckan/controllers/package.py:307
 msgid "Parameter \"{parameter_name}\" is not an integer"
@@ -831,9 +831,9 @@ msgstr "Zobrazení"
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Jedna nová aktivita z {site_title}"
+msgstr[1] "{n} nové aktivity z {site_title}"
+msgstr[2] "{n} nových aktivit z {site_title}"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -924,7 +924,7 @@ msgstr[2] "před více než {years} roky"
 
 #: ckan/lib/formatters.py:148
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr ""
+msgstr "{day} {month} {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:153
 msgid "{month} {day}, {year}"
@@ -1112,7 +1112,7 @@ msgstr "Vstup není platný JSON"
 
 #: ckan/logic/validators.py:32 ckan/logic/validators.py:41
 msgid "An organization must be provided"
-msgstr ""
+msgstr "Organizace musí být zadána"
 
 #: ckan/logic/validators.py:46
 msgid "Organization does not exist"
@@ -1377,7 +1377,7 @@ msgstr "Hodnocení musí být číslo mezi %i a %i."
 
 #: ckan/logic/action/create.py:1052
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr ""
+msgstr "Chyba při posílání pozvánky emailem, uživatel nebyl vytvořen: {0}"
 
 #: ckan/logic/action/create.py:1265 ckan/logic/action/create.py:1272
 msgid "You must be logged in to follow users"
@@ -1406,7 +1406,7 @@ msgstr "Abyste mohl(-a) sledovat skupinu, musíte se přihlásit."
 
 #: ckan/logic/action/delete.py:45
 msgid " Delete User: {0}"
-msgstr ""
+msgstr "Smazat uživatele: {0}"
 
 #: ckan/logic/action/delete.py:86
 #, python-format
@@ -2002,7 +2002,7 @@ msgstr "CKAN API"
 
 #: ckan/templates/footer.html:16
 msgid "CKAN Association"
-msgstr ""
+msgstr "Asociace CKAN"
 
 #: ckan/templates/footer.html:24
 msgid ""
@@ -3240,7 +3240,7 @@ msgstr "Chyba:"
 
 #: ckan/templates/package/resource_data.html:36
 msgid "Error traceback:"
-msgstr ""
+msgstr "Výpis chyby:"
 
 #: ckan/templates/package/resource_data.html:48
 msgid "Status"
@@ -3484,21 +3484,23 @@ msgstr "Naposledy aktualizováno"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
-msgstr ""
+msgstr "Před vytvořením datové sady musíte vytvořit organizaci."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
-msgstr ""
+msgstr "Vytvořit organizaci"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:18
 msgid "There are no organizations to which you can assign this dataset."
 msgstr ""
+"Neexistují organizace, do kterých byste mohli přiřadit tuto datovou sadu."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:19
 msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
 msgstr ""
+"Před pokračováním požádejte systémového správce o vytvoření organizace."
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 msgid "Data API"
@@ -3611,11 +3613,11 @@ msgstr "Aktualizovat datový zdroj"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "Data"
-msgstr ""
+msgstr "Data"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "http://example.com/external-data.csv"
-msgstr ""
+msgstr "https://priklad.cz/externí-data.csv"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
@@ -3919,6 +3921,8 @@ msgid ""
 " <p id=\"search-error\"><strong>There was an error while searching.</strong>"
 " Please try again.</p> "
 msgstr ""
+" <p id=\"search-error\"><strong>Při hledání se vyskytla chyba.</strong> "
+"Zkuste to prosím znovu.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4105,7 +4109,7 @@ msgstr "Změnit heslo"
 
 #: ckan/templates/user/edit_user_form.html:29
 msgid "Sysadmin Password"
-msgstr ""
+msgstr "Heslo systémového správce"
 
 #: ckan/templates/user/edit_user_form.html:37
 #: ckan/templates/user/logout_first.html:12
@@ -4399,7 +4403,7 @@ msgstr "vlastní text zdroje"
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr ""
+msgstr "Toto je nepřeložený řetězec"
 
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
@@ -4437,7 +4441,7 @@ msgstr "Mapa"
 
 #: ckanext/reclineview/theme/public/recline_view.js:34
 msgid "error loading view"
-msgstr ""
+msgstr "Chyba při načítání zobrazení"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -4581,7 +4585,7 @@ msgstr "Počet Datových sad"
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "Uživatelé, kteří tvoří nejvíce datových sad"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
@@ -4598,7 +4602,7 @@ msgstr "Text"
 #: ckanext/textview/theme/public/text_view.js:5
 #, python-format
 msgid "An error occurred: %(text)s %(error)s"
-msgstr ""
+msgstr "Stala se chyba: %(text)s %(error)s"
 
 #: ckanext/webpageview/plugin.py:21 ckanext/webpageview/plugin.py:26
 msgid "Website"
