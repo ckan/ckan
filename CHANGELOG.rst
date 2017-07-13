@@ -10,17 +10,30 @@ Changelog
 v2.7.0 TBA
 ==========
 
+Note: Starting from this version, CKAN requires at least Postgres 9.3
+
+Note: This version requires a requirements upgrade on source installations
+
+Note: This version requires a database upgrade
+
+Note: This version does not require a Solr schema upgrade (You may want to
+         upgrade the schema if you want to target Solr>=5, see #2914)
+
+Note: There are several old features being officially deprecated starting from
+        this version. Check the *Deprecations* section to be prepared.
+
+
 Major:
- * datatables_view resource view plugin (#3444)
- * IDatastoreBackend plugins for replacing default postgres backend (#3437)
+ * New datatables_view resource view plugin for tabular data (#3444)
+ * IDataStoreBackend plugins for replacing the default DataStore Postgres backend (#3437)
  * datastore_search new result formats and performance improvements (#3523)
- * PL/PGSQL triggers for datastore tables (#3428)
- * Datastore dump CLI commands (#3384)
+ * PL/PGSQL triggers for DataStore tables (#3428)
+ * DataStore dump CLI commands (#3384)
  * Wrap/override actions defined in other plugins (#3494)
- * Datastore table data dictionary stored as postgres comments (#3414)
+ * DataStore table data dictionary stored as postgres comments (#3414)
  * Common session object for Flask and Pylons (#3208)
  * Rename deleted datasets when they conflict with new ones (#3370)
- * Datastore dump more formats: CSV, TSV, XML, JSON; BOM option (#3390)
+ * DataStore dump more formats: CSV, TSV, XML, JSON; BOM option (#3390)
  * Common requests code for Flask and Pylons (#3212)
  * Generate complete datastore dump files (#3344)
 
@@ -34,7 +47,7 @@ Minor:
  * Upgrade leaflet to 0.7.7 (#3534)
  * Datapusher CLI always-answer-yes option (#3524)
  * Added docs for all plugin interfaces (#3519)
- * Datastore dumps nested columns as JSON (#3487)
+ * DataStore dumps nested columns as JSON (#3487)
  * Faster/optional datastore_search total calculation (#3467)
  * Faster group_activity_query (#3466)
  * Faster query performance (#3430)
@@ -61,7 +74,7 @@ Minor:
  * Allow underscores in URL slug preview on create dataset (#3612)
  * Fixed escaping issues with `helpers.mail_to` and datapusher logs
 
-API changes and deprecations:
+API changes:
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
    helper) now return all organizations a user belongs to regardless of
    capacity (Admin, Editor or Member), not just the ones where she is an
@@ -70,10 +83,34 @@ API changes and deprecations:
    helper) now default to not include package_count. Pass
    include_dataset_count=True if you need the package_count values.
  * ``resource['size']`` will change from string to long integer (#3205)
- * upgrade Font-Awesome from version 3.2.1 to 4.0.3
-   please refer to
+ * Font Awesome has been upgraded from version 3.2.1 to 4.0.3 .Please refer to
    https://github.com/FortAwesome/Font-Awesome/wiki/Upgrading-from-3.2.1-to-4
-   to upgrade your code accordingly.
+   to upgrade your code accordingly if you are using custom themes.
+
+Deprecations:
+
+ * The API versions 1 and 2 (also known as the REST API, ie ``/api/rest/*`` will removed
+   in favour of the version 3 (action API, ``/api/action/*``), which was introduced in
+   CKAN 2.0. The REST API will be removed on CKAN 2.8.
+ * The default theme included in CKAN core will switch to use Bootstrap 3 instead of
+   Bootstrap 2 in CKAN 2.8. The current Bootstrap 2 based templates will still be included
+   in the next CKAN versions, so existing themes will still work. Bootstrap 2 templates will
+   be eventually removed though, so instances are encouraged to update their themes using
+   the available documentation (https://getbootstrap.com/migration/)
+ * The activity stream related actions ending with ``*_list`` (eg ``package_activity_list``)
+   and ``*_html`` (eg ``package_activity_list_html``) will be removed in CKAN 2.8 in favour of
+   more efficient alternatives and are now deprecated.
+ * The legacy revisions controller (ie ``/revisions/*``) will be completely removed in CKAN 2.8.
+
+
+v2.6.2 2017-03-22
+=================
+
+* Use fully qualified urls for reset emails (#3486)
+* Fix edit_resource for resource with draft state (#3480)
+* Tag fix for group/organization pages (#3460)
+* Setting of datastore_active flag moved to separate function (#3481)
+
 
 v2.6.1 2017-02-22
 =================
@@ -86,7 +123,7 @@ v2.6.1 2017-02-22
  * Check group name and id during package creation
  * Use utcnow() on dashboard_mark_activities_old (#3373)
  * Fix encoding error on DataStore exception
- * Datastore doesn't add site_url to resource created via API (#3189)
+ * DataStore doesn't add site_url to resource created via API (#3189)
  * Fix memberships after user deletion (#3265)
  * Remove idle database connection (#3260)
  * Fix package_owner_org_update action when called via the API (#2661)
@@ -201,7 +238,7 @@ v2.5.4 2017-02-22
  * Check group name and id during package creation
  * Use utcnow() on dashboard_mark_activities_old (#3373)
  * Fix encoding error on DataStore exception
- * Datastore doesn't add site_url to resource created via API (#3189)
+ * DataStore doesn't add site_url to resource created via API (#3189)
  * Fix memberships after user deletion (#3265)
  * Remove idle database connection (#3260)
  * Fix package_owner_org_update action when called via the API (#2661)
@@ -317,7 +354,7 @@ v2.4.6 2017-02-22
  * Check group name and id during package creation
  * Use utcnow() on dashboard_mark_activities_old (#3373)
  * Fix encoding error on DataStore exception
- * Datastore doesn't add site_url to resource created via API (#3189)
+ * DataStore doesn't add site_url to resource created via API (#3189)
  * Fix memberships after user deletion (#3265)
  * Remove idle database connection (#3260)
  * Fix package_owner_org_update action when called via the API (#2661)
@@ -418,7 +455,7 @@ Bug fixes:
  * Command line ``paster user`` failed for non-ascii characters (#1244)
  * Memory leak fixed in datastore API (#1847)
  * Modifying resource didn't update it's last updated timestamp (#1874)
- * Datastore didn't update if you uploaded a new file of the same name as the
+ * DataStore didn't update if you uploaded a new file of the same name as the
    existing file (#2147)
  * Files with really long file were skipped by datapusher (#2057)
  * Multi-lingual Solr schema is now updated so it works again (#2161)
@@ -632,7 +669,7 @@ Bug fixes:
  * num_followers and package_count not in default_group_schema (#1434)
  * Fix extras deletion (#1449)
  * Fix resource reordering (#1450)
- * Datastore callback fails when browser url is different from site_url (#1451)
+ * DataStore callback fails when browser url is different from site_url (#1451)
  * sysadmins should not create datasets wihout org when config is set (#1453)
  * Member Editing Fixes (#1454)
  * Bulk editing broken on IE7 (#1455)
@@ -1544,7 +1581,7 @@ Major
    datasets (#2304)
  * New user dashboard that shows an activity stream of all the datasets and
    users you are following. Thanks to Sven R. Kunze for his work on this (#2305)
- * New version of the Datastore. It has been completely rewritten to use
+ * New version of the DataStore. It has been completely rewritten to use
    PostgreSQL as backend, it is more stable and fast and supports SQL queries
    (#2733)
  * Clean up and simplifyng of CKAN's dependencies and source install
