@@ -101,7 +101,7 @@ With an activated virtualenv::
 For the remainder of this chapter, we assume that docker-compose commands are all run inside
 ``contrib/docker`` with the ``ckan`` virtualenv activated.
 
-On first runs, the postgres container could need longer to initialise the database cluster than
+On first runs, the postgres container could need longer to initialize the database cluster than
 the ckan container will wait for. In this case, simply restart the ckan container a few times::
 
     docker-compose restart ckan
@@ -203,7 +203,7 @@ The admin user's API key will be instrumental in tranferring data from other ins
 -----------------
 6. Migrating data
 -----------------
-.. todo:: This section is a stub.
+.. todo:: This section requires testing.
 
 Pending testing, and presuming same dataset schema (ckanext-scheming) on
 source and target CKANs, the process should be as simple as:
@@ -221,7 +221,8 @@ There are two use cases how to add extensions:
 
 * Developers will want to have access to the extensions' source.
 * Maintainers of production instances will want extensions to be part of the ``ckan`` image and an
-  easy way to enable them in the ``ckan.ini``.
+  easy way to enable them in the ``ckan.ini``. This requires customizing CKAN's ``Dockerfile`` and
+  scripted post-processing of the ``ckan.ini``.
 
 For developers, the process is:
 
