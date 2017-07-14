@@ -238,9 +238,8 @@ on the host machine in step 2.
 
 The downloaded and installed files will be persisted in the named volume ``docker_ckan_home``.
 
-In this example we'll install `ckanext-geoview <https://github.com/ckan/ckanext-geoview>`_.
+In this example we'll install `ckanext-geoview <https://github.com/ckan/ckanext-geoview>`_::
 
-::
     # Enter the running ckan container:
     docker exec -it ckan bash
 
