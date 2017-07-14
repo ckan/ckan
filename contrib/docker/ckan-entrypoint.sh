@@ -8,6 +8,8 @@ set -e
 : ${CKAN_SOLR_URL:=}
 # URL for redis (required unless linked to a container called 'redis')
 : ${CKAN_REDIS_URL:=}
+# URL for datapusher (required unless linked to a container called 'datapusher')
+: ${CKAN_DATAPUSHER_URL:=}
 
 CONFIG="${CKAN_CONFIG}/ckan.ini"
 
@@ -17,15 +19,20 @@ abort () {
 }
 
 set_environment () {
+  export CKAN_SITE_ID=${CKAN_SITE_ID}
+  export CKAN_SITE_URL=${CKAN_SITE_URL}
   export CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL}
   export CKAN_SOLR_URL=${CKAN_SOLR_URL}
   export CKAN_REDIS_URL=${CKAN_REDIS_URL}
-  export CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
-  export CKAN_SITE_URL=${CKAN_SITE_URL}
-  #ckan.datastore.write_url = postgresql://ckan:ckan@db/datastore
-  #ckan.datastore.read_url = postgresql://datastore:datastore@db/datastore
+  export CKAN_STORAGE_PATH=/var/lib/ckan
+  export CKAN_DATAPUSHER_URL=${CKAN_DATAPUSHER_URL}
   export CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
   export CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DS_RO_PASS}@db/datastore
+  export CKAN_SMTP_SERVER=${CKAN_SMTP_SERVER}
+  export CKAN_SMTP_STARTTLS=${CKAN_SMTP_STARTTLS}
+  export CKAN_SMTP_USER=${CKAN_SMTP_USER}
+  export CKAN_SMTP_PASSWORD=${CKAN_SMTP_PASSWORD}
+  export CKAN_SMTP_MAIL_FROM=${CKAN_SMTP_MAIL_FROM}
 }
 
 
@@ -64,15 +71,19 @@ link_redis_url () {
   echo "redis://${host}:${port}/1"
 }
 
+link_datapusher_url() {
+  local host=$DATAPUSHER_PORT_8800_ADDR
+  local port=$DATAPUSHER_PORT_8800_PORT
+  echo "http://${host}:${port}"
+
+}
+
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
   write_config
 fi
 
-# Set environment variables
-echo "SQL_ALCHEMY_URL is provided to entrypoint as $CKAN_SQLALCHEMY_URL"
-
-
+# Get or create CKAN_SQLALCHEMY_URL
 if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
   if ! CKAN_SQLALCHEMY_URL=$(link_postgres_url); then
     abort "ERROR: no CKAN_SQLALCHEMY_URL specified and linked container called 'db' was not found"
@@ -83,10 +94,9 @@ if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
     export PGDATABASE=${DB_ENV_POSTGRES_DB}
     export PGUSER=${DB_ENV_POSTGRES_USER}
     export PGPASSWORD=${DB_ENV_POSTGRES_PASSWORD}
-    echo "PG password is $PGPASSWORD"
+    echo "CKAN_SQLALCHEMY_URL: $CKAN_SQLALCHEMY_URL"
 
-    # wait for postgres db to be available, immediately after creation
-    # its entrypoint creates the cluster and dbs and this can take a moment
+    # Give the db container time to initialize the db cluster (if first run)
     for tries in $(seq 60); do
       psql -c 'SELECT 1;' 2> /dev/null && break
       sleep 0.3
@@ -96,13 +106,19 @@ fi
 
 if [ -z "$CKAN_SOLR_URL" ]; then
   if ! CKAN_SOLR_URL=$(link_solr_url); then
-    abort "ERROR: no CKAN_SOLR_URL specified and linked container called 'solr' was not found"
+    abort "ERROR: no CKAN_SOLR_URL specified and no linked container called 'solr' found"
   fi
 fi
 
 if [ -z "$CKAN_REDIS_URL" ]; then
   if ! CKAN_REDIS_URL=$(link_redis_url); then
-    abort "ERROR: no CKAN_REDIS_URL specified and linked container called 'redis' was not found"
+    abort "ERROR: no CKAN_REDIS_URL specified and no linked container called 'redis' found"
+  fi
+fi
+
+if [ -z "$CKAN_DATAPUSHER_URL" ]; then
+  if ! CKAN_DATAPUSHER_URL=$(link_datapusher_url); then
+    abort "ERROR: no CKAN_DATAPUSHER_URL specified and no linked container called 'datapusher' found"
   fi
 fi
 

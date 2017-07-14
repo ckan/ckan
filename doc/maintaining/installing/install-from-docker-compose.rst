@@ -81,11 +81,11 @@ In the  activated virtualenv, install and verify docker-compose using pip::
 In this step we will build the Docker images and create Docker data volumes with user-defined,
 sensitive settings (e.g. for database passwords).
 
-a. Sensitive settings
+a. Sensitive settings and environment variables
 
 In a production environment, copy ``contrib/docker/.env.template`` to ``contrib/docker/.env``
 and follow instructions within to set passwords and other sensitive or user-defined variables.
-The very unimaginative defaults will work fine in a development environment.
+The defaults will work fine in a development environment.
 
 b. Build the images
 

@@ -1,5 +1,6 @@
 # docker build . -t ckan --build-arg CKAN_SITE_URL=http://localhost:5000
-# docker run -d -p 80:5000 --link db:db --link redis:redis --link solr:solr ckan
+# docker run -d -p 80:5000 --link db:db --link redis:redis --link solr:solr ckan \
+# -v ckan_config:/etc.ckan/default -v ckan_storage:/var/lib/ckan
 
 FROM debian:jessie
 MAINTAINER Open Knowledge
@@ -19,10 +20,9 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && \
 ENV CKAN_HOME /usr/lib/ckan
 ENV CKAN_VENV $CKAN_HOME/default
 ENV CKAN_CONFIG /etc/ckan/default
-ENV CKAN_STORAGE_PATH /var/lib/ckan
+ENV CKAN_STORAGE_PATH=/var/lib/ckan
 
-# Build-time variables specified by docker-compose.yml / .env or
-# docker build . -t ckan --build-arg CKAN_SITE_URL=http://localhost:5000
+# Build-time variables specified by docker-compose.yml / .env
 ARG CKAN_SITE_URL
 
 # Create ckan user
@@ -44,10 +44,6 @@ RUN ckan-pip install --upgrade -r $CKAN_VENV/src/ckan/requirements.txt && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
-
-# Volumes
-VOLUME ["/etc/ckan/default"]
-VOLUME ["/var/lib/ckan"]
 
 USER ckan
 EXPOSE 5000
