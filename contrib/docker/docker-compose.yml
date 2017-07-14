@@ -14,7 +14,7 @@ services:
     build:
       context: ../../
       args:
-          - CKAN_SITE_URL=${CKAN_SITE_URL}:${CKAN_PORT}
+          - CKAN_SITE_URL=${CKAN_SITE_URL}
     links:
       - db
       - solr
@@ -22,23 +22,16 @@ services:
     ports:
       - "0.0.0.0:${CKAN_PORT}:5000"
     environment:
-      # Using linked services:
+      # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
       - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
+      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
+      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
       - CKAN_SOLR_URL=http://solr:8983/solr/ckan
       - CKAN_REDIS_URL=redis://redis:6379/1
       - CKAN_DATAPUSHER_URL=http://datapusher:8800
       - CKAN_SITE_URL=${CKAN_SITE_URL}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
-      # Ingredients to interpolate service _URL
-      #- DB_PORT_5432_TCP_ADDR=db
-      #- DB_PORT_5432_TCP_PORT=${POSTGRES_PORT}
-      #- SOLR_PORT_8983_TCP_ADDR=solr
-      #- SOLR_PORT_8983_TCP_PORT=8983
-      #- REDIS_PORT_6379_TCP_ADDR=redis
-      #- REDIS_PORT_6379_TCP_PORT=6379
-      #- DATAPUSHER_PORT_8800_ADDR=datapusher
-      #- DATAPUSHER_PORT_8800_PORT=8800
 
     volumes:
       - ckan_config:/etc/ckan
