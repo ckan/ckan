@@ -33,7 +33,6 @@ from routes import url_for as _routes_default_url_for
 import i18n
 
 import ckan.exceptions
-import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
@@ -1088,7 +1087,7 @@ class Page(paginate.Page):
 
     def pager(self, *args, **kwargs):
         kwargs.update(
-            format=u"<div class='pagination pagination-centered'><ul>"
+            format=u"<div class='pagination-wrapper'><ul class='pagination'>"
             "$link_previous ~2~ $link_next</ul></div>",
             symbol_previous=u'«', symbol_next=u'»',
             curpage_attr={'class': 'active'}, link_attr={}
@@ -1621,6 +1620,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
 
 @core_helper
 def include_resource(resource):
+    import ckan.lib.fanstatic_resources as fanstatic_resources
     r = getattr(fanstatic_resources, resource)
     r.need()
 
@@ -1632,6 +1632,8 @@ def urls_for_resource(resource):
 
     NOTE: This is for special situations only and is not the way to generally
     include resources.  It is advised not to use this function.'''
+    import ckan.lib.fanstatic_resources as fanstatic_resources
+
     r = getattr(fanstatic_resources, resource)
     resources = list(r.resources)
     core = fanstatic_resources.fanstatic_extensions.core
@@ -2325,7 +2327,8 @@ def get_translated(data_dict, field):
     try:
         return data_dict[field + u'_translated'][language]
     except KeyError:
-        return data_dict.get(field, '')
+        val = data_dict.get(field, '')
+        return _(val) if val and isinstance(val, basestring) else val
 
 
 @core_helper

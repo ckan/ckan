@@ -1,15 +1,15 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ h.get_translated(c.group_dict, 'title') or c.group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
+{% block subtitle %}{{ c.group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
-  <li class="active">{% link_for h.get_translated(c.group_dict, 'title') or c.group_dict.display_name |truncate(35), controller='group', action='read', id=c.group_dict.name %}</li>
+  <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='group', action='read', id=c.group_dict.name %}</li>
 {% endblock %}
 
 {% block content_action %}
   {% if h.check_access('group_update', {'id': c.group_dict.id}) %}
-    {% link_for _('Manage'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='wrench' %}
+    {% link_for _('Manage'), controller='group', action='edit', id=c.group_dict.name, class_='btn btn-default', icon='wrench' %}
   {% endif %}
 {% endblock %}
 

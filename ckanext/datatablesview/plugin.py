@@ -8,6 +8,7 @@ import ckan.plugins.toolkit as toolkit
 
 default = toolkit.get_validator(u'default')
 boolean_validator = toolkit.get_validator(u'boolean_validator')
+ignore_missing = toolkit.get_validator(u'ignore_missing')
 
 
 class DataTablesView(p.SingletonPlugin):
@@ -46,7 +47,7 @@ class DataTablesView(p.SingletonPlugin):
             u'default_title': p.toolkit._(u'Table'),
             u'schema': {
                 u'responsive': [default(False), boolean_validator],
-                u'show_fields': [],
+                u'show_fields': [ignore_missing],
                 u'filterable': [default(True), boolean_validator],
             }
         }

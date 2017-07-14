@@ -409,6 +409,62 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         assert_equal(len(user_roles.keys()), 1)
         assert_equal(user_roles['User One'], 'Admin')
 
+    def test_member_users_cannot_add_members(self):
+
+        user = factories.User()
+        group = factories.Group(
+            users=[{'name': user['name'], 'capacity': 'member'}]
+        )
+
+        app = helpers._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        app.get(
+            url_for(
+                controller='group',
+                action='member_new',
+                id=group['id'],
+            ),
+            extra_environ=env,
+            status=403,
+        )
+
+        app.post(
+            url_for(
+                controller='group',
+                action='member_new',
+                id=group['id'],
+            ),
+            {'id': 'test', 'username': 'test', 'save': 'save', 'role': 'test'},
+            extra_environ=env,
+            status=403,
+        )
+
+    def test_anonymous_users_cannot_add_members(self):
+        group = factories.Group()
+
+        app = helpers._get_test_app()
+
+        app.get(
+            url_for(
+                controller='group',
+                action='member_new',
+                id=group['id'],
+            ),
+            status=403,
+        )
+
+        app.post(
+            url_for(
+                controller='group',
+                action='member_new',
+                id=group['id'],
+            ),
+            {'id': 'test', 'username': 'test', 'save': 'save', 'role': 'test'},
+            status=403,
+        )
+
 
 class TestGroupFollow(helpers.FunctionalTestBase):
 

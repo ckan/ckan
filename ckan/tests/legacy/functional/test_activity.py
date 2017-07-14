@@ -44,7 +44,7 @@ class TestActivity(HtmlCheckMethods):
                 'fullname': 'Billy Beane',
                 'about': 'General Manager, Oakland Athletics',
                 'email': 'billy@beane.org',
-                'password': 'b1lly'}
+                'password': 'TestPassword1'}
         context = {
             'model': ckan.model,
             'session': ckan.model.Session,

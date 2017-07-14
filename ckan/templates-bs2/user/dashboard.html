@@ -1,0 +1,48 @@
+{% extends "user/edit_base.html" %}
+
+{% set user = c.userobj %}
+
+{% block breadcrumb_content %}
+  <li class="active"><a href="{{ h.url_for(controller='user', action='dashboard') }}">{{ _('Dashboard') }}</a></li>
+{% endblock %}
+
+{% block secondary %}{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    {% block page_header %}
+      <header class="module-content page-header hug">
+        <div class="content_action">
+          {% link_for _('Edit settings'), controller='user', action='edit', id=user.name, class_='btn', icon='cog' %}
+        </div>
+        <ul class="nav nav-tabs">
+          {{ h.build_nav_icon('user_dashboard', _('News feed')) }}
+          {{ h.build_nav_icon('user_dashboard_datasets', _('My Datasets')) }}
+          {{ h.build_nav_icon('user_dashboard_organizations', _('My Organizations')) }}
+          {{ h.build_nav_icon('user_dashboard_groups', _('My Groups')) }}
+        </ul>
+      </header>
+    {% endblock %}
+    <div class="module-content">
+      {% if self.page_primary_action() | trim %}
+        <div class="page_primary_action">
+          {% block page_primary_action %}{% endblock %}
+        </div>
+      {% endif %}
+      {% block primary_content_inner %}
+        <div data-module="dashboard">
+          {% snippet 'user/snippets/followee_dropdown.html', context=c.dashboard_activity_stream_context, followees=c.followee_list %}
+          <h2 class="page-heading">
+            {% block page_heading %}
+              {{ _('News feed') }}
+            {% endblock %}
+            <small>{{ _("Activity from items that I'm following") }}</small>
+          </h2>
+          {% block activity_stream %}
+            {{ c.dashboard_activity_stream }}
+          {% endblock %}
+        </div>
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}

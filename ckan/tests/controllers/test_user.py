@@ -31,8 +31,8 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         form['name'] = 'newuser'
         form['fullname'] = 'New User'
         form['email'] = 'test@test.com'
-        form['password1'] = 'testpassword'
-        form['password2'] = 'testpassword'
+        form['password1'] = 'TestPassword1'
+        form['password2'] = 'TestPassword1'
         response = submit_and_follow(app, form, name='save')
         response = response.follow()
         assert_equal(200, response.status_int)
@@ -50,14 +50,14 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         form['name'] = 'newuser'
         form['fullname'] = 'New User'
         form['email'] = 'test@test.com'
-        form['password1'] = 'testpassword'
+        form['password1'] = 'TestPassword1'
         form['password2'] = ''
 
         response = form.submit('save')
         assert_true('The passwords you entered do not match' in response)
 
     def test_create_user_as_sysadmin(self):
-        admin_pass = 'pass'
+        admin_pass = 'RandomPassword123'
         sysadmin = factories.Sysadmin(password=admin_pass)
         app = self._get_test_app()
 
@@ -82,8 +82,8 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         form['name'] = 'newestuser'
         form['fullname'] = 'Newest User'
         form['email'] = 'test@test.com'
-        form['password1'] = 'testpassword'
-        form['password2'] = 'testpassword'
+        form['password1'] = 'NewPassword1'
+        form['password2'] = 'NewPassword1'
         response2 = form.submit('save')
         assert '/user/activity' in response2.location
 
@@ -106,7 +106,7 @@ class TestLoginView(helpers.FunctionalTestBase):
 
         # fill it in
         login_form['login'] = user['name']
-        login_form['password'] = 'pass'
+        login_form['password'] = 'RandomPassword123'
 
         # submit it
         submit_response = login_form.submit()
@@ -137,7 +137,7 @@ class TestLoginView(helpers.FunctionalTestBase):
 
         # fill it in
         login_form['login'] = user['name']
-        login_form['password'] = 'badpass'
+        login_form['password'] = 'BadPass1'
 
         # submit it
         submit_response = login_form.submit()
@@ -253,7 +253,7 @@ class TestUserEdit(helpers.FunctionalTestBase):
         )
 
     def test_edit_user(self):
-        user = factories.User(password='pass')
+        user = factories.User(password='TestPassword1')
         app = self._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         response = app.get(
@@ -276,9 +276,9 @@ class TestUserEdit(helpers.FunctionalTestBase):
         form['email'] = 'new@example.com'
         form['about'] = 'new about'
         form['activity_streams_email_notifications'] = True
-        form['old_password'] = 'pass'
-        form['password1'] = 'newpass'
-        form['password2'] = 'newpass'
+        form['old_password'] = 'TestPassword1'
+        form['password1'] = 'NewPass1'
+        form['password2'] = 'NewPass1'
         response = submit_and_follow(app, form, env, 'save')
 
         user = model.Session.query(model.User).get(user['id'])
@@ -299,7 +299,7 @@ class TestUserEdit(helpers.FunctionalTestBase):
         form['email'] = 'new@example.com'
 
         # factory returns user with password 'pass'
-        form.fields['old_password'][0].value = 'wrong-pass'
+        form.fields['old_password'][0].value = 'Wrong-pass1'
 
         response = webtest_submit(form, 'save', status=200, extra_environ=env)
         assert_true('Old Password: incorrect password' in response)
@@ -314,14 +314,14 @@ class TestUserEdit(helpers.FunctionalTestBase):
         form['email'] = 'new@example.com'
 
         # factory returns user with password 'pass'
-        form.fields['old_password'][0].value = 'pass'
+        form.fields['old_password'][0].value = 'RandomPassword123'
 
         response = submit_and_follow(app, form, env, 'save')
         assert_true('Profile updated' in response)
 
     def test_edit_user_logged_in_username_change(self):
 
-        user_pass = 'pass'
+        user_pass = 'TestPassword1'
         user = factories.User(password=user_pass)
         app = self._get_test_app()
 
@@ -350,7 +350,7 @@ class TestUserEdit(helpers.FunctionalTestBase):
         assert_true('That login name can not be modified' in response)
 
     def test_edit_user_logged_in_username_change_by_name(self):
-        user_pass = 'pass'
+        user_pass = 'TestPassword1'
         user = factories.User(password=user_pass)
         app = self._get_test_app()
 
@@ -379,7 +379,7 @@ class TestUserEdit(helpers.FunctionalTestBase):
         assert_true('That login name can not be modified' in response)
 
     def test_edit_user_logged_in_username_change_by_id(self):
-        user_pass = 'pass'
+        user_pass = 'TestPassword1'
         user = factories.User(password=user_pass)
         app = self._get_test_app()
 
@@ -408,7 +408,7 @@ class TestUserEdit(helpers.FunctionalTestBase):
         assert_true('That login name can not be modified' in response)
 
     def test_perform_reset_for_key_change(self):
-        password = 'password'
+        password = 'TestPassword1'
         params = {'password1': password, 'password2': password}
         user = factories.User()
         user_obj = helpers.model.User.by_name(user['name'])
@@ -434,10 +434,10 @@ class TestUserEdit(helpers.FunctionalTestBase):
 
         form = response.forms['user-edit-form']
 
-        # factory returns user with password 'pass'
-        form.fields['old_password'][0].value = 'pass'
-        form.fields['password1'][0].value = 'newpass'
-        form.fields['password2'][0].value = 'newpass'
+        # factory returns user with password 'RandomPassword123'
+        form.fields['old_password'][0].value = 'RandomPassword123'
+        form.fields['password1'][0].value = 'NewPassword1'
+        form.fields['password2'][0].value = 'NewPassword1'
 
         response = submit_and_follow(app, form, env, 'save')
         assert_true('Profile updated' in response)
@@ -452,10 +452,10 @@ class TestUserEdit(helpers.FunctionalTestBase):
 
         form = response.forms['user-edit-form']
 
-        # factory returns user with password 'pass'
-        form.fields['old_password'][0].value = 'wrong-pass'
-        form.fields['password1'][0].value = 'newpass'
-        form.fields['password2'][0].value = 'newpass'
+        # factory returns user with password 'RandomPassword123'
+        form.fields['old_password'][0].value = 'Wrong-Pass1'
+        form.fields['password1'][0].value = 'NewPassword1'
+        form.fields['password2'][0].value = 'NewPassword1'
 
         response = webtest_submit(form, 'save', status=200, extra_environ=env)
         assert_true('Old Password: incorrect password' in response)

@@ -3,10 +3,10 @@
 '''API functions for adding data to CKAN.'''
 
 import logging
-import mimetypes
 import random
 import re
 from socket import error as socket_error
+import string
 
 import paste.deploy.converters
 from sqlalchemy import func
@@ -1023,6 +1023,7 @@ def user_invite(context, data_dict):
     :returns: the newly created user
     :rtype: dictionary
     '''
+    import string
     _check_access('user_invite', context, data_dict)
 
     schema = context.get('schema',
@@ -1037,7 +1038,19 @@ def user_invite(context, data_dict):
         raise NotFound()
 
     name = _get_random_username_from_email(data['email'])
-    password = str(random.SystemRandom().random())
+    # Choose a password. However it will not be used - the invitee will not be
+    # told it - they will need to reset it
+    while True:
+        password = ''.join(random.SystemRandom().choice(
+            string.ascii_lowercase + string.ascii_uppercase + string.digits)
+            for _ in range(12))
+        # Occasionally it won't meet the constraints, so check
+        errors = {}
+        logic.validators.user_password_validator(
+            'password', {'password': password}, errors, None)
+        if not errors:
+            break
+
     data['name'] = name
     data['password'] = password
     data['state'] = ckan.model.State.PENDING
