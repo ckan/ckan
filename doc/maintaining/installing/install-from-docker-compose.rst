@@ -289,8 +289,8 @@ The flow of variable substitution is as follows:
 * ``ckan-entrypoint.sh`` injects environment variables (e.g. ``CKAN_SQLALCHEMY_URL``) into the
   running ``ckan`` container, overriding the CKAN config variables from ``ckan.ini``.
 
-See :doc:`configuration` for a list of environment variables (e.g. ``CKAN_SQLALCHEMY_URL``) which
-CKAN will accept to override ``ckan.ini``.
+See :doc:`/maintaining/configuration` for a list of environment variables
+(e.g. ``CKAN_SQLALCHEMY_URL``) which CKAN will accept to override ``ckan.ini``.
 
 After adding new or changing existing ``.env`` variables, locally built images and volumes may
 need to be dropped and rebuilt. Otherwise, docker will re-use cached images with old or without
