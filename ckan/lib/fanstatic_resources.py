@@ -235,7 +235,7 @@ public = config.get('ckan.base_public_folder')
 base_path = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', public, 'base'))
 
-log.info('Base path {0}'.format(base_path))
+log.debug('Base path {0}'.format(base_path))
 create_library('vendor', os.path.join(base_path, 'vendor'), depend_base=False)
 
 create_library('base', os.path.join(base_path, 'javascript'),
