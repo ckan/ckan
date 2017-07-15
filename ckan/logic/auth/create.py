@@ -104,7 +104,7 @@ def package_relationship_create(context, data_dict):
     authorized2 = authz.is_authorized_boolean(
         'package_update', context, {'id': id2})
 
-    if not authorized1 and authorized2:
+    if not (authorized1 and authorized2):
         return {'success': False, 'msg': _('User %s not authorized to edit these packages') % user}
     else:
         return {'success': True}
