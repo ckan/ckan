@@ -86,6 +86,7 @@ AS $body$
         RETURN NEW;
     END;
 $body$ LANGUAGE plpgsql;
+ALTER FUNCTION populate_full_text_trigger() OWNER TO {writeuser};
 
 -- migrate existing tables that don't have full text trigger applied
 DO $body$
