@@ -1275,23 +1275,12 @@ def config_option_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    image_in_ckan = False
-    public_path = config.get('ckan.static_files', 'public')
-    ckan_images_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                       '..', '..', public_path, 'base',
-                                                    'images'))
-
     for key, value in data.iteritems():
 
         # Set full Logo url
-        if key == 'ckan.site_logo' and value and not value.startswith('http'):
-            if os.path.isfile('{0}/{1}'.format(ckan_images_path, value)):
-                image_in_ckan = True
-
-            if image_in_ckan:
-                image_path = 'base/images/'
-            else:
-                image_path = 'uploads/admin/'
+        if key == 'ckan.site_logo' and value and not value.startswith('http')\
+                and not value.startswith('/'):
+            image_path = 'uploads/admin/'
 
             value = h.url_for_static('{0}{1}'.format(image_path, value))
 
