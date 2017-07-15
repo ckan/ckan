@@ -55,7 +55,6 @@ CREATE OR REPLACE VIEW "_table_metadata" AS
         dependee.relname AS name,
         dependee.oid AS oid,
         dependent.relname AS alias_of
-        -- dependent.oid AS oid
     FROM
         pg_class AS dependee
         LEFT OUTER JOIN pg_rewrite AS r ON r.ev_class = dependee.oid
@@ -63,9 +62,11 @@ CREATE OR REPLACE VIEW "_table_metadata" AS
         LEFT OUTER JOIN pg_class AS dependent ON d.refobjid = dependent.oid
     WHERE
         (dependee.oid != dependent.oid OR dependent.oid IS NULL) AND
-        (dependee.relname IN (SELECT tablename FROM pg_catalog.pg_tables)
-            OR dependee.relname IN (SELECT viewname FROM pg_catalog.pg_views)) AND
-        dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
+	-- is a table (from pg_tables view definition)
+	-- or is a view (from pg_views view definition)
+        (dependee.relkind = 'r'::"char" OR dependee.relkind = 'v'::"char")
+	AND dependee.relnamespace = (
+	    SELECT oid FROM pg_namespace WHERE nspname='public')
     ORDER BY dependee.oid DESC;
 ALTER VIEW "_table_metadata" OWNER TO {writeuser};
 GRANT SELECT ON "_table_metadata" TO {readuser};
