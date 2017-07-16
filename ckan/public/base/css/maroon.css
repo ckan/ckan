@@ -8257,7 +8257,7 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
   display: block;
   position: absolute;
   top: 50%;
-  margin-top: -10px;
+  margin-top: 1px;
   right: 10px;
   height: 20px;
   padding: 0;
