@@ -8315,6 +8315,12 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
   border-bottom-width: 0;
   margin-bottom: 0;
 }
+.search-form .search-input-group {
+  margin-bottom: 12px;
+}
+.search-form .search-input-group .input-group-btn .btn {
+  margin-top: 25px;
+}
 .tertiary .control-order-by {
   float: none;
   margin: 0;
@@ -9058,7 +9064,6 @@ h4 small {
 }
 .primary .primary {
   float: left;
-  width: 467px;
   margin-left: 0;
   margin-bottom: 20px;
 }
@@ -9069,9 +9074,6 @@ h4 small {
   margin-top: 0;
 }
 .primary .tertiary {
-  float: left;
-  width: 180px;
-  margin-left: 18px;
   margin-bottom: 20px;
 }
 @media (min-width: 768px) {
