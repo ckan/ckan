@@ -251,7 +251,30 @@ In this example we'll install `ckanext-geoview <https://github.com/ckan/ckanext-
 Some extensions require database upgrades, often through paster scripts.
 E.g., ``ckanext-spatial``::
 
+
+    # Enter the running ckan container:
+    docker exec -it ckan bash
+
+    # Inside the running ckan container
+    source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/
+    git clone https://github.com/ckan/ckanext-spatial.git
+    cd ckanext-spatial
+    pip install -r pip-requirements.txt
+    python setup.py install && python setup.py develop
+    exit
+
+    docker exec -it db psql -U ckan -f 20_postgis_permissions.sql
     docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial spatial initdb -c /etc/ckan/ckan.ini
+
+    sudo vim /var/lib/docker/volumes/docker_ckan_config/_data/ckan.ini
+
+    # in plugins, add:
+    spatial_metadata spatial_query
+
+    ckanext.spatial.search_backend = solr
+
+.. note:: In order to work on your own forks of CKAN extensions, the container's
+  ssh publickey must be added to the respective repository's authorized keys.
 
 b. Modify CKAN config
 

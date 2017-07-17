@@ -14,6 +14,10 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && \
         libpq-dev \
         git-core \
         postgresql-client \
+        python-dev \
+        libxml2-dev \
+        libxslt-dev \
+        libgeos-dev \
 	&& apt-get -q clean
 
 # Define environment variables
