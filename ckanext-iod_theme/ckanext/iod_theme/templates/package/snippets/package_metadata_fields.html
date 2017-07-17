@@ -1,0 +1,64 @@
+{% ckan_extends %}
+
+{% import 'macros/form.html' as form %}
+
+{% block package_metadata_fields %}
+
+  {% block package_metadata_fields_url %}
+  {% endblock %}
+
+  {% block package_metadata_fields_version %}
+  {% endblock %}
+
+  {% block package_metadata_author %}
+  {% endblock %}
+
+  {% block package_metadata_fields_maintainer %}
+  {% endblock %}
+
+  {% block package_metadata_fields_custom %}
+  {% endblock %}
+
+  {% block dataset_fields %}
+  {% endblock %}
+
+  {{ form.input('date_start_gregorian', label=_('Start Date (Gregorian)'), id='field-date_start_gregorian', placeholder=_('01-01-1901'), value=data.date_start_gregorian, error=errors.date_start_gregorian, classes=['control-medium']) }}
+
+  {{ form.input('date_end_gregorian', label=_('End Date (Gregorian)'), id='field-_end_gregorian', placeholder=_('01-01-1901'), value=data._end_gregorian, error=errors._end_gregorian, classes=['control-medium']) }}
+
+  {{ form.input('date_start_iranian', label=_('Start Date (Iranian)'), id='field-date_start_iranian', placeholder=_('1396-04-26'), value=data.date_start_iranian, error=errors.date_start_iranian, classes=['control-medium']) }}
+
+  {{ form.input('date_end_iranian', label=_('End Date (Iranian)'), id='field-date_end_iranian', placeholder=_('1396-04-26'), value=data.date_end_iranian, error=errors.date_end_iranian, classes=['control-medium']) }}
+
+  {{ form.markdown('publisher', id='field-publisher', label=_('Publisher'), placeholder=_('eg. The government or other organisation that published this orginally'), value=data.publisher, error=errors.publisher) }}
+
+  {{ form.input('publisher_url', label=_('Publisher URL'), id='field-publisher_url', placeholder=_('https://publisherhomepage.com'), value=data.publisher_url, error=errors.publisher_url, classes=['control-medium']) }}
+
+  {{ form.markdown('geographic', id='field-geographic', label=_('Geographic Scope'), placeholder=_('eg. If data is applicable to sub-national level include tags here for geographic/administrative regions'), value=data.geographic, error=errors.geographic) }}
+
+  {{ form.markdown('methodology', id='field-methodology', label=_('IOD Methodology'), placeholder=_('eg. Specify the process used to acquire, aggregate and clean data in any of the resources.'), value=data.methodology, error=errors.methodology) }}
+
+  {% block package_basic_fields_license %}
+  <div class="control-group">
+    {% set error = errors.license_id %}
+    <label class="control-label" for="field-license">{{ _("License") }}</label>
+    <div class="controls">
+      <select id="field-license" name="license_id" data-module="autocomplete">
+        {% set existing_license_id = data.get('license_id') %}
+        {% for license_id, license_desc in h.license_options(existing_license_id) %}
+          <option value="{{ license_id }}" {% if existing_license_id == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
+        {% endfor %}
+      </select>
+      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
+      <span class="info-block info-inline">
+        <i class="icon-info-sign"></i>
+        {% trans %}
+          License definitions and additional information can be found
+          at <a href="http://opendefinition.org/licenses/">opendefinition.org</a>
+        {% endtrans %}
+      </span>
+    </div>
+  </div>
+  {% endblock %}
+
+{% endblock %}
