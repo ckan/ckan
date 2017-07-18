@@ -14,7 +14,7 @@
   1. `. /home/vagrant/bin/activate`
   2. `cd ckanext-nameofextension/`
   3. `python setup.py develop`
-* To edit your local config fiel: `sudo vi /etc/ckan/default/ckan.ini`
+* To edit your local config file: `sudo vi /etc/ckan/default/ckan.ini`
 
 
 ## Deploy to iod-ckan-live
