@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  <div class="clearfix">
+  <div class="row">
     <h1 class="hide-heading">{{ _('Edit datasets') }}</h1>
-    <div class="primary">
+    <div class="primary col-md-8">
       <h3 class="page-heading">
         {% block page_heading %}
           {%- if c.page.item_count -%}
@@ -89,7 +89,7 @@
         {% endif %}
       {% endblock %}
     </div>
-    <aside class="tertiary">
+    <aside class="tertiary col-md-4">
       {% block tertiary_content %}
 
         {% block search_form %}
