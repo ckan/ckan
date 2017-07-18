@@ -3,17 +3,17 @@
 
 
 1. `vagrant up` should get you a working local install.
-1. `vagrant ssh` to login to the vagrant machine.
-1. From the `/vagrant` directory (which is the default), run `paster serve /etc/ckan/default/ckan.ini`
-1. Visit the app at http://192.168.33.10:5000/
+2. `vagrant ssh` to login to the vagrant machine.
+3. From the `/vagrant` directory (which is the default), run `paster serve /etc/ckan/default/ckan.ini`
+4. Visit the app at http://192.168.33.10:5000/
 
 To create a sysadmin account, run: `paster sysadmin add myusername -c /etc/ckan/default/ckan.ini`
 
 
 ## Deploy to iod-ckan-live
 
-`cd deploy ; ansible-playbook live.yml`
-
+1. Go to the deploy folder: `cd deploy`
+2. Run the deploy script: `ansible-playbook live.yml`
 
 ## Working with paster on iod-ckan-live
 
