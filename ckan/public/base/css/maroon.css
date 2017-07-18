@@ -7326,9 +7326,6 @@ select[multiple].control-large input {
 .form-actions .control-required-message:first-child {
   margin-left: 0;
 }
-.form-actions {
-  overflow: auto;
-}
 @media (min-width: 768px) {
   .form-actions {
     text-align: right;
