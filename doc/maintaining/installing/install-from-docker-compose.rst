@@ -316,8 +316,11 @@ In this example we'll install `ckanext-geoview <https://github.com/ckan/ckanext-
     python setup.py install
     python setup.py develop
 
-    # Option 2: From pip
+    # Option 2: Pip install from GitHub
     pip install -e "git+https://github.com/ckan/ckanext-showcase.git#egg=ckanext-showcase"
+
+    # Option 3: Pip install from PyPi
+    pip install ckanext-envvars
 
     # exit the ckan container:
     exit
