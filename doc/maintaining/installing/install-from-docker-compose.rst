@@ -4,16 +4,21 @@
 Installing CKAN with docker-compose
 ===================================
 
-This chapter describes how to install the latest CKAN master with docker-compose.
-The scenario shown here is one of many possibile scenarios and environments in which CKAN can be
+This chapter describes how to install the latest CKAN master with Docker Compose.
+The scenario shown here is one of many possible scenarios and environments in which CKAN can be
 used with Docker.
 
 This chapter aims to provide a simple, yet fully customizable deployment - easier to configure than
 a source install, more customizable than a package install.
 
+The discussed setup can be useful as a development / staging environment; additional care has to be
+taken to use the results in production.
+
 .. note:: Some design decisions are opinionated (see notes), which does not mean that the
-  alternatives are worse.
+  alternatives are any worse.
   Some decisions may or may not be suitable for production scenarios, e.g. the use of CKAN master.
+  Notably, this tutorial does not use Docker Swarm; additional steps may need to be taken to adapt
+  the setup to use Docker Swarm.
 
 --------------
 1. Environment
@@ -377,7 +382,7 @@ file.
 This section is targeted at CKAN maintainers seeking a deeper understanding of variables,
 and at CKAN developers seeking to factor out settings as new ``.env`` variables.
 
-The flow of variable substitution is as follows:
+Variable substitution propagates as follows:
 
 * ``.env.template`` holds the defaults and the usage instructions for variables.
 * The maintainer copies ``.env`` from ``.env.template`` and modifies it following the instructions.
@@ -409,4 +414,21 @@ variables::
 
 .. warning:: Removing named volumes will destroy data.
     Backup all data when doing this in a production setting.
+
+---------------------------
+8. Steps towards production
+---------------------------
+
+As mentioned above, some design decisions may not be suitable for a production setup.
+
+A possible path towards a production-ready environment is:
+
+* Use the above setup to build docker images.
+* Add and configure extensions.
+* Make sure that no sensitive settings are hard-coded inside the images.
+* Push the images to a docker repository.
+* Build a separate "production" ``docker-compose.yml`` which uses the custom built images.
+* Run the "production" ``docker-compose.yml`` on the production server with appropriate settings.
+* Transfer production data into the new server as described above.
+* Bonus: contribute a write-up of working production setups to the CKAN documentation.
 
