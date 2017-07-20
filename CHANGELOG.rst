@@ -24,6 +24,7 @@ Note: There are several old features being officially deprecated starting from
 
 
 Major:
+<<<<<<< HEAD
  * New datatables_view resource view plugin for tabular data (#3444)
  * IDataStoreBackend plugins for replacing the default DataStore Postgres backend (#3437)
  * datastore_search new result formats and performance improvements (#3523)
@@ -36,6 +37,7 @@ Major:
  * DataStore dump more formats: CSV, TSV, XML, JSON; BOM option (#3390)
  * Common requests code for Flask and Pylons (#3212)
  * Generate complete datastore dump files (#3344)
+ * A new system for asynchronous background jobs (#3165)
 
 Minor:
  * Renamed example theme plugin (#3576)
