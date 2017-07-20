@@ -1,5 +1,5 @@
 
-# Small Media cKan Notes
+# Small Media CKAN Notes
 
 
 1. `vagrant up` should get you a working local install.
