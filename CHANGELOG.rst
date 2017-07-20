@@ -103,6 +103,9 @@ Deprecations:
    and ``*_html`` (eg ``package_activity_list_html``) will be removed in CKAN 2.8 in favour of
    more efficient alternatives and are now deprecated.
  * The legacy revisions controller (ie ``/revisions/*``) will be completely removed in CKAN 2.8.
+ * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
+   jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
+   of course use Celery but they will need to handle the management themselves.
 
 
 v2.6.2 2017-03-22
