@@ -72,8 +72,12 @@ Clone CKAN into a directory of your choice::
 
     cd /path/to/my/projects
     git clone git@github.com:ckan/ckan.git .
+    # This will use the latest CKAN master.
 
-.. note:: This example uses CKAN master, which may not be stable enough for production use.
+    # To use a stable version, checkout the respective tag, e.g.:
+    git checkout tags/ckan-2.6.2
+
+.. note:: Using master may not be stable enough for production use.
 
 ----------------------
 2. Build Docker images
@@ -87,7 +91,14 @@ In a production environment, copy ``contrib/docker/.env.template`` to ``contrib/
 and follow instructions within to set passwords and other sensitive or user-defined variables.
 The defaults will work fine in a development environment.
 
-.. note:: Related reading: `Docker-compose .env file <https://docs.docker.com/compose/env-file/>`_
+.. note:: Related reading:
+
+   `Docker-compose .env file <https://docs.docker.com/compose/env-file/>`_
+
+   `Environment variables in Compose <https://docs.docker.com/compose/environment-variables/>`_
+
+   Newcomers to Docker should read the excellent write-up on
+   `Docker variables <http://vsupalov.com/docker-env-vars/>`_ by Vladislav Supalov (GitHub @th4t).
 
 b. Build the images
 
@@ -180,10 +191,7 @@ Find the path to the ``ckan.ini`` within the named volume::
     echo $VOL_CKAN_CONFIG
 
 .. note:: We export the folder locations of data inside named volumes as environment variables.
-  We use a prefix ``VOL_`` to avoid overriding variables in ``docker-compose.yml``.
-
-  Related reading: `Environment variables in Compose
-  <https://docs.docker.com/compose/environment-variables/>`_.
+   We use a prefix ``VOL_`` to avoid overriding variables in ``docker-compose.yml``.
 
 Edit the ``ckan.ini`` (note: requires sudo)::
 
@@ -223,8 +231,8 @@ The admin user's API key will be instrumental in tranferring data from other ins
 ---------------
 5. Migrate data
 ---------------
-This section illustrates the data migration from an existing CKAN instance.
-
+This section illustrates the data migration from an existing CKAN instance assuming direct access
+to the target host.
 
 a. Transfer resource files
 
@@ -237,8 +245,9 @@ those into the named volume ``docker_ckan_storage``::
 
 b. Transfer users
 
-Users can be exported using ``ckanapi``, but their password hashes will be excluded.
-To transfer users preserving their passwords, we need to dump and restore the ``user`` table.
+Users could be exported using the python package ``ckanapi``, but their password hashes will be
+excluded. To transfer users preserving their passwords, we need to dump and restore the ``user``
+table.
 
 On source CKAN host with access to source db ``ckan_default``, export the ``user`` table::
 
@@ -249,11 +258,11 @@ Transfer user.sql into the named volume ``$CKAN_HOME`` and chown it to the docke
 
     rsync -Pavvr user@ckan-source-host:/path/to/user.sql $VOL_CKAN_HOME/venv/src
 
-    # Find owner of $VOL_CKAN_HOME
+    # $VOL_CKAN_HOME is owned by the user "ckan" (UID 900) created in the CKAN Dockerfile
     sudo ls -l $VOL_CKAN_HOME
     # drwxr-xr-x 1 900 900 62 Jul 17 16:13 venv
 
-    # Chown user.sql to the owner of $CKAN_HOME (here: 900)
+    # Chown user.sql to the owner of $CKAN_HOME (ckan, UID 900)
     sudo chown 900:900 $VOL_CKAN_HOME/venv/src/user.sql
 
 Now the file ``user.sql`` is accessible from within the ``ckan`` container::
@@ -279,25 +288,21 @@ Trigger a Solr index rebuild::
 -----------------
 There are two scenarios to add extensions:
 
-* Developers need to read, modify and use version control on the extensions' source.
 * Maintainers of production instances need extensions to be part of the ``ckan`` image and an
-  easy way to enable them in the ``ckan.ini``. This requires customizing CKAN's ``Dockerfile`` and
-  scripted post-processing of the ``ckan.ini``.
+  easy way to enable them in the ``ckan.ini``.
+  Automating the installation of existing extensions (without needing to change their source)
+  requires customizing CKAN's ``Dockerfile`` and scripted post-processing of the ``ckan.ini``.
+* Developers need to read, modify and use version control on the extensions' source.
 
-For developers, the process is:
+For maintainers, the process is:
 
-* Run a bash shell inside the running ``ckan`` image, download and install extension.
-* Edit ``ckan.ini``
+* Run a bash shell inside the running ``ckan`` container, download and install extension.
+  Alternative: Insert the ``pip install`` step into a custom CKAN Dockerfile.
+* Edit ``ckan.ini``. Alternative: use ``ckanext-envvars`` to configure the ``ckan.ini`` using
+  environment variables, which can be inserted into ``docker-compose`` via ``.env``.
 * Restart ``ckan`` service, read logs.
 
-.. todo:: How to use git from inside the container, ssh keys, write access.
-
-For maintainers, the process is not fully documented yet.
-
-.. todo:: How to automate adding extensions.
-  Script installation steps, possibly use ckanext-envvars to programmatically configure .ini.
-
-a. Download and install extension inside ``ckan`` image
+a. Download and install extension from inside ``ckan`` container into ``docker_ckan_home`` volume
 
 The process is very similar to installing extensions in a source install. The only difference is
 that the installation steps happen inside the running container, using the virtualenv created
@@ -306,7 +311,10 @@ on the host machine in step 2.
 
 The downloaded and installed files will be persisted in the named volume ``docker_ckan_home``.
 
-In this example we'll install `ckanext-geoview <https://github.com/ckan/ckanext-geoview>`_::
+In this example we'll enter the running ``ckan`` container to install
+`ckanext-geoview <https://github.com/ckan/ckanext-geoview>`_ from source,
+`ckanext-showcase <https://github.com/ckan/ckanext-showcase>`_ from GitHub,
+and `ckanext-envvars <https://github.com/okfn/ckanext-envvars>`_ from PyPi::
 
     # Enter the running ckan container:
     docker exec -it ckan bash
@@ -331,7 +339,7 @@ In this example we'll install `ckanext-geoview <https://github.com/ckan/ckanext-
     exit
 
 Some extensions require database upgrades, often through paster scripts.
-E.g., ``ckanext-spatial``::
+E.g., `ckanext-spatial <https://github.com/ckan/ckanext-spatial.git>`_::
 
 
     # Enter the running ckan container:
@@ -345,18 +353,16 @@ E.g., ``ckanext-spatial``::
     python setup.py install && python setup.py develop
     exit
 
+    # On the host
     docker exec -it db psql -U ckan -f 20_postgis_permissions.sql
     docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial spatial initdb -c /etc/ckan/ckan.ini
 
-    sudo vim /var/lib/docker/volumes/docker_ckan_config/_data/ckan.ini
+    sudo vim $VOL_CKAN_CONFIG/ckan.ini
 
-    # in plugins, add:
+    # Inside ckan.ini, add to [plugins]:
     spatial_metadata spatial_query
 
     ckanext.spatial.search_backend = solr
-
-.. note:: In order to work on your own forks of CKAN extensions, the container's
-  ssh publickey must be added to the respective repository's authorized keys.
 
 b. Modify CKAN config
 
@@ -364,12 +370,35 @@ Follow the respective extension's instructions to set CKAN config variables::
 
     sudo vim $VOL_CKAN_CONFIG/ckan.ini
 
+.. todo:: Demonstrate how to set ``ckan.ini`` settings from environment variables using
+   ``ckanext-envvars``.
+
 c. Reload and debug
 
 ::
 
     docker-compose restart ckan
     docker-compose logs ckan
+
+d. Develop extensions: modify source, install, use version control
+
+While maintainers will prefer to use stable versions of existing extensions, developers of
+extensions will need access to the extensions' source, and be able to use version control.
+
+Using SSH from inside running Docker images requires the presence of sensitive data (SSH keys)
+inside the running container.
+
+The two simplest approaches here are to either use HTTPS (and type GitHub username and password
+with every ``git`` command) from inside the running container, or work on the files in the named
+volumes.
+
+The CKAN Docker image is run by an internal user as defined in the Dockerfile (username ``ckan``,
+UID 900). Named volumes are owned by this user (900:900). We have to carefully update the
+permissions and ownership of the volumes to be able to access and modify files from the host.
+
+.. todo:: Add worked example to give a host user access to $VOL_CKAN_HOME, work on extensions,
+   use version control
+
 
 ------------------------
 7. Environment variables
