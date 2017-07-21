@@ -23,6 +23,7 @@ Major:
  * Datastore dump more formats: CSV, TSV, XML, JSON; BOM option (`#3390 <https://github.com/ckan/ckan/pull/3390>`_)
  * Common requests code for Flask and Pylons (`#3212 <https://github.com/ckan/ckan/pull/3212>`_)
  * Generate complete datastore dump files (`#3344 <https://github.com/ckan/ckan/pull/3344>`_)
+ * A new system for asynchronous background jobs (`#3165 <https://github.com/ckan/ckan/pull/3165>`_). The old Celery-based system is still available but deprecated. Please refer to the `documentation <http://docs.ckan.org/en/ckan-2.7.0/maintaining/background-tasks.html>`_ for details.
 
 Minor:
  * Renamed example theme plugin (`#3576 <https://github.com/ckan/ckan/pull/3576>`_)
