@@ -24,7 +24,6 @@ Note: There are several old features being officially deprecated starting from
 
 
 Major:
-<<<<<<< HEAD
  * New datatables_view resource view plugin for tabular data (#3444)
  * IDataStoreBackend plugins for replacing the default DataStore Postgres backend (#3437)
  * datastore_search new result formats and performance improvements (#3523)
