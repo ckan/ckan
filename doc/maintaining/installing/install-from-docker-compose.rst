@@ -385,20 +385,37 @@ d. Develop extensions: modify source, install, use version control
 While maintainers will prefer to use stable versions of existing extensions, developers of
 extensions will need access to the extensions' source, and be able to use version control.
 
-Using SSH from inside running Docker images requires the presence of sensitive data (SSH keys)
-inside the running container.
+The use of Docker and the inherent encapsulation of files and processes makes the development of
+extensions harder than a CKAN source install.
 
-The two simplest approaches here are to either use HTTPS (and type GitHub username and password
-with every ``git`` command) from inside the running container, or work on the files in the named
-volumes.
+Since we have chosen to use named volumes instead of mounted host folders, we have to make the
+write-protected volumes accessible to a system user. The Ubuntu package ``bindfs`` helps here::
 
-The CKAN Docker image is run by an internal user as defined in the Dockerfile (username ``ckan``,
-UID 900). Named volumes are owned by this user (900:900). We have to carefully update the
-permissions and ownership of the volumes to be able to access and modify files from the host.
+    sudo apt-get install bindfs
+    mkdir ~/VOL_CKAN_HOME
+    sudo chown -R `whoami`:docker $VOL_CKAN_HOME
+    sudo bindfs --map=900/`whoami` $VOL_CKAN_HOME ~/VOL_CKAN_HOME
 
-.. todo:: Add worked example to give a host user access to $VOL_CKAN_HOME, work on extensions,
-   use version control
+    cd ~/VOL_CKAN_HOME/venv/src
 
+    # Do this with your own extension fork
+    # Assumption: the host user running git clone (you) has write access to the repository
+    git clone git@github.com:parksandwildlife/ckanext-datawagovautheme.git
+
+    # ... change files, use version control...
+
+Changes in templates and CSS will be visible right away.
+For changes in code, we'll need to unmount the directory, change ownership back to the ``ckan``
+user, and follow the previous steps to ``python setup.py install`` and
+``pip install -r requirements.txt`` from within the running container, modify the ``ckan.ini``
+and restart the container::
+
+    sudo umount ~/VOL_CKAN_HOME
+    sudo chown -R 900:900 $VOL_CKAN_HOME
+    # Follow steps a-c
+
+.. note:: Mounting host folders as volumes instead of using named volumes may result in a simpler
+   development workflow.
 
 ------------------------
 7. Environment variables
