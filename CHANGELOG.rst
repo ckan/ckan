@@ -22,6 +22,9 @@ v2.6.3 TBD
 * Allow underscores in URL slug preview on create dataset (#3612)
 * Create new resource view if resource format changed (#3515)
 * Fixed escaping issues with `helpers.mail_to` and datapusher logs
+* Autocomplete fields are more responsive - 300ms timeout instead of 1s (#3693)
+* Fixed dataset count display for groups (#3711)
+* Restrict access to form pages (#3684)
 
 v2.6.2 2017-03-22
 =================
