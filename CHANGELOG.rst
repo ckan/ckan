@@ -75,6 +75,9 @@ Minor:
  * Fallback to po file translations on ``h.get_translated()`` (#3577)
  * Fix Fanstatic URL on non-root installs (#3618)
  * Fixed escaping issues with ``helpers.mail_to`` and datapusher logs
+ * Autocomplete fields are more responsive - 300ms timeout instead of 1s (#3693)
+ * Fixed dataset count display for groups (#3711)
+ * Restrict access to form pages (#3684)
 
 API changes:
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
