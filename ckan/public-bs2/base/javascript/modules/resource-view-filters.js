@@ -6,7 +6,7 @@ this.ckan.module('resource-view-filters', function (jQuery) {
         resourceId = self.options.resourceId,
         fields = self.options.fields,
         dropdownTemplate = self.options.dropdownTemplate,
-        addFilterTemplate = '<a href="#">' + self._('Add Filter') + '</a>',
+        addFilterTemplate = '<a class="btn btn-primary" href="#">' + self._('Add Filter') + '</a>',
         filtersDiv = $('<div></div>');
 
     var filters = ckan.views.filters.get();
