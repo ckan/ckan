@@ -141,6 +141,29 @@ The location of these named volumes needs to be backed up in a production enviro
 To migrate CKAN data between different hosts, simply transfer the content of the named volumes.
 A detailed use case of data transfer will be discussed in step 5.
 
+c. Convenience: paths to named volumes
+
+The files inside named volumes reside on a long-ish path on the host. 
+Purely for convenience, we'll define environment variables for these paths.
+We'll use a prefix ``VOL_`` to avoid overriding variables in ``docker-compose.yml``.::
+
+    # Find the path to a named volume
+    docker volume inspect docker_ckan_home | jq -c '.[] | .Mountpoint'
+    # "/var/lib/docker/volumes/docker_ckan_config/_data"
+
+    export VOL_CKAN_HOME=`docker volume inspect docker_ckan_home | jq -r -c '.[] | .Mountpoint'`
+    echo $VOL_CKAN_HOME
+
+    export VOL_CKAN_CONFIG=`docker volume inspect docker_ckan_config | jq -r -c '.[] | .Mountpoint'`
+    echo $VOL_CKAN_CONFIG
+
+    export VOL_CKAN_STORAGE=`docker volume inspect docker_ckan_storage | jq -r -c '.[] | .Mountpoint'`
+    echo $VOL_CKAN_STORAGE
+
+We won't need to access files inside ``docker_pg_data`` directly, therefore we'll skip the shortcut.
+As shown further below, we can use ``psql`` from inside the ``ckan`` container to run commands
+against the database and import / export files from ``$VOL_CKAN_HOME``.
+
 ---------------------------
 3. Datastore and datapusher
 ---------------------------
@@ -170,25 +193,9 @@ After this step, the datastore database is ready to be enabled in the ``ckan.ini
 
 b. Enable datastore and datapusher in ``ckan.ini``
 
-Find the path to the ``ckan.ini`` within the named volume::
-
-    docker volume inspect docker_ckan_home | jq -c '.[] | .Mountpoint'
-
-    # "/var/lib/docker/volumes/docker_ckan_config/_data"
-
-    # Convenience: set named volumes as env variables on host.
-    export VOL_CKAN_HOME=`docker volume inspect docker_ckan_home | jq -r -c '.[] | .Mountpoint'`
-    echo $VOL_CKAN_HOME
-
-    export VOL_CKAN_CONFIG=`docker volume inspect docker_ckan_config | jq -r -c '.[] | .Mountpoint'`
-    echo $VOL_CKAN_CONFIG
-
-.. note:: We export the folder locations of data inside named volumes as environment variables.
-   We use a prefix ``VOL_`` to avoid overriding variables in ``docker-compose.yml``.
-
 Edit the ``ckan.ini`` (note: requires sudo)::
 
-    sudo vim /var/lib/docker/volumes/docker_ckan_config/_data/ckan.ini
+    sudo vim $VOL_CKAN_CONFIG/ckan.ini
 
 Add ``datastore datapusher`` to ``ckan.plugins`` and enable the datapusher option
 ``ckan.datapusher.formats``.
@@ -201,7 +208,6 @@ The remaining settings required for datastore and datapusher are already taken c
 * ``ckan.datastore.write_url = postgresql://ckan:POSTGRES_PASSWORD@db/datastore`` and
   ``ckan.datastore.read_url = postgresql://datastore:DATASTORE_READONLY_PASSWORD@db/datastore``
   are provided by ``docker-compose.yml``.
-
 
 Restart the ``ckan`` container to apply changes to the ``ckan.ini``::
 
@@ -233,7 +239,6 @@ Assuming the CKAN storage directory on ``SOURCE_CKAN`` is located at ``/path/to/
 resource files and uploaded images in ``resources`` and ``storage``), we'll simply ``rsync``
 those into the named volume ``docker_ckan_storage``::
 
-    export VOL_CKAN_STORAGE=`docker volume inspect docker_ckan_storage | jq -r -c '.[] | .Mountpoint'`
     sudo rsync -Pavvr USER@SOURCE_CKAN:/path/to/files/ $VOL_CKAN_STORAGE
 
 b. Transfer users
@@ -247,7 +252,7 @@ On source CKAN host with access to source db ``ckan_default``, export the ``user
     pg_dump -h CKAN_DBHOST -P CKAN_DBPORT -U CKAN_DBUSER -a -O -t user -f user.sql ckan_default
 
 On the target host, make ``user.sql`` accessible to the source CKAN container.
-Transfer user.sql into the named volume ``$CKAN_HOME`` and chown it to the docker user::
+Transfer user.sql into the named volume ``docker_ckan_home`` and chown it to the docker user::
 
     rsync -Pavvr user@ckan-source-host:/path/to/user.sql $VOL_CKAN_HOME/venv/src
 
