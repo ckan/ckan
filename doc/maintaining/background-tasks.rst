@@ -331,8 +331,14 @@ therefore make sense for you to support both the new and the old job system.
 That way you are ready when the old system is removed but can continue to
 support older CKAN installations.
 
-Such a setup might look as follows. First split your Celery-based job
-functions into the job itself and its Celery handler. That is, change
+The easiest way to do that is to use `ckanext-rq
+<https://github.com/davidread/ckanext-rq>`_, which provides a back-port of the
+new system to older CKAN versions.
+
+If you are unable to use *ckanext-rq* then you will need to write your code in
+such a way that it works on both systems. This could looks as follows. First
+split your Celery-based job functions into the job itself and its Celery
+handler. That is, change
 
 ::
 
@@ -362,8 +368,8 @@ Then use the new system if it is available and fall back to Celery otherwise::
         '''
         try:
             # Try to use RQ
-            from ckan.lib.jobs import enqueue
-            enqueue(fn, args=args)
+            from ckan.plugins.toolkit import enqueue_job
+            enqueue_job(fn, args=args)
         except ImportError:
             # Fallback to Celery
             import uuid
