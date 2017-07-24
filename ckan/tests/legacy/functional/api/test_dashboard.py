@@ -24,7 +24,7 @@ class TestDashboard(object):
         params = json.dumps({
             'name': 'mr_new_user',
             'email': 'mr@newuser.com',
-            'password': 'iammrnew',
+            'password': 'TestPassword1',
             })
         response = cls.app.post('/api/action/user_create', params=params,
                 extra_environ={'Authorization': str(cls.testsysadmin['apikey'])})
@@ -34,6 +34,7 @@ class TestDashboard(object):
 
     @classmethod
     def setup_class(cls):
+        ckan.model.repo.rebuild_db()
         ckan.lib.search.clear_all()
         CreateTestData.create()
         cls.app = helpers._get_test_app()

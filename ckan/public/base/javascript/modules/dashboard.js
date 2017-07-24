@@ -29,7 +29,7 @@ this.ckan.module('dashboard', function ($) {
           content: $('#followee-popover').html()
         });
       this.button.prop('title', title);
-      this.popover = this.button.data('popover').tip().addClass('popover-followee');
+      this.popover = this.button.data('bs.popover').tip().addClass('popover-followee');
     },
 
     /* Handles click event on the 'show me:' dropdown button
@@ -44,7 +44,7 @@ this.ckan.module('dashboard', function ($) {
       return false;
     },
 
-    /* Handles focusing on the input and making sure that the keyup 
+    /* Handles focusing on the input and making sure that the keyup
      * even is applied to the input
      *
      * Returns nothing.

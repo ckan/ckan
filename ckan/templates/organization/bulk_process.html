@@ -3,13 +3,13 @@
 {% block subtitle %}{{ _('Edit datasets') }} - {{ super() }}{% endblock %}
 
 {% block page_primary_action %}
-  {% link_for _('Add dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-square' %}
+  {% snippet 'snippets/add_dataset.html', group=c.group_dict.id %}
 {% endblock %}
 
 {% block primary_content_inner %}
-  <div class="clearfix">
+  <div class="row">
     <h1 class="hide-heading">{{ _('Edit datasets') }}</h1>
-    <div class="primary">
+    <div class="primary col-md-8">
       <h3 class="page-heading">
         {% block page_heading %}
           {%- if c.page.item_count -%}
@@ -32,11 +32,11 @@
                   <th></th>
                   <th class="table-actions">
                     <div class="btn-group">
-                      <button name="bulk_action.public" value="public" class="btn" type="submit">
+                      <button name="bulk_action.public" value="public" class="btn btn-default" type="submit">
                         <i class="fa fa-eye"></i>
                         {{ _('Make public') }}
                       </button>
-                      <button name="bulk_action.private" value="private" class="btn" type="submit">
+                      <button name="bulk_action.private" value="private" class="btn btn-default" type="submit">
                         <i class="fa fa-eye-slash"></i>
                         {{ _('Make private') }}
                       </button>
@@ -69,10 +69,10 @@
                         {% if package.get('state', '').startswith('draft') %}
                           <span class="label label-info">{{ _('Draft') }}</span>
                         {% elif package.get('state', '').startswith('deleted') %}
-                          <span class="label label-important">{{ _('Deleted') }}</span>
+                          <span class="label label-danger">{{ _('Deleted') }}</span>
                         {% endif %}
                         {% if package.private %}
-                          <span class="label label-important">{{ _('Private') }}</span>
+                          <span class="label label-danger">{{ _('Private') }}</span>
                         {% endif %}
                       </h3>
                       {% if notes %}
@@ -89,7 +89,7 @@
         {% endif %}
       {% endblock %}
     </div>
-    <aside class="tertiary">
+    <aside class="tertiary col-md-4">
       {% block tertiary_content %}
 
         {% block search_form %}
