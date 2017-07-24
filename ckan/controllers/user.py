@@ -519,6 +519,7 @@ class UserController(base.BaseController):
                     user_dict['name'] = username
                 user_dict['reset_key'] = c.reset_key
                 user_dict['state'] = model.State.ACTIVE
+                user_dict['password'] = new_password
                 user = get_action('user_update')(context, user_dict)
                 mailer.create_reset_key(user_obj)
 
