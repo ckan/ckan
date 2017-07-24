@@ -61,6 +61,7 @@ class DatastorePlugin(p.SingletonPlugin):
     def register_backends(self):
         return {
             'postgresql': DatastorePostgresqlBackend,
+            'postgres': DatastorePostgresqlBackend,
         }
 
     # IConfigurer

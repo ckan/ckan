@@ -7951,6 +7951,11 @@ h4 small {
   width: 14px;
   margin-top: 1px;
 }
+.nav-tabs .fa:last-child,
+.module-heading .fa:last-child,
+.btn .fa:last-child {
+  margin-right: 3px;
+}
 .wrapper {
   *zoom: 1;
   background-color: #FFF;
