@@ -3,16 +3,15 @@
 ===================================
 Installing CKAN with docker-compose
 ===================================
-
-This chapter describes how to install the latest CKAN master with Docker Compose.
-The scenario shown here is one of many possible scenarios and environments in which CKAN can be
-used with Docker.
+This chapter is a tutorial on how to install the latest CKAN (master or any stable version) 
+with Docker Compose. The scenario shown here is one of many possible scenarios and environments 
+in which CKAN can be used with Docker.
 
 This chapter aims to provide a simple, yet fully customizable deployment - easier to configure than
 a source install, more customizable than a package install.
 
 The discussed setup can be useful as a development / staging environment; additional care has to be
-taken to use the results in production.
+taken to use this setup in production.
 
 .. note:: Some design decisions are opinionated (see notes), which does not mean that the
   alternatives are any worse.
@@ -23,26 +22,19 @@ taken to use the results in production.
 --------------
 1. Environment
 --------------
-In this tutorial, we will use a Ubuntu environment, which has been tested on:
-
-* Amazon AWS EC2 Ubuntu 14.04 LTS
-* Ubuntu 16.04 LTS (desktop)
-
-The choice of cloud provider and operating system is arbitrary and shall by no means bias the
-reader.
-
-.. todo:: Include specific instructions for other cloud providers and operating systems.
-  Contributions welcome!
+This tutorial was tested on Ubuntu 14.04 LTS and Ubuntu 16.04 LTS, respectively. 
+The hosts can be local environments or cloud VMs. It is assumed that the user has direct access
+(via terminal / ssh) to the systems and root permissions.
 
 a. Storage
 
 Using a cloud based VM, external storage volumes are cheaper than VMs and easy to backup.
-In our use case, we use an AWS EC2 with 16 GB storage, have mounted a 100 GB btrfs-formatted
+In our use case, we use a cloud based VM with 16 GB storage, have mounted a 100 GB btrfs-formatted
 external storage volume, and symlinked ``/var/lib/docker`` to the external volume.
-This allows us to store the bulky and precious cargo -- Docker images, Docker data volumes
+This allows us to store the bulky and/or precious cargo -- Docker images, Docker data volumes
 containing the CKAN databases, filestore, and config -- on a cheaper service.
 On the other hand, a snapshotting filesystem like btrfs is ideal for rolling backups.
-The same cost consideration might apply to other cloud-based providers.
+The same cost consideration might apply to any cloud-based providers.
 
 .. note:: This setup stores data in named volumes, mapped to folder locations which can be
   networked or local storage.
@@ -63,6 +55,9 @@ c. Docker Compose
 
 Docker Compose is installed system-wide following the official `Docker Compose installation
 guidelines <https://docs.docker.com/compose/install/>`_.
+Alternatively, Docker Compose can be installed inside a virtualenv, 
+which would be entirely separate from the virtualenv used inside the CKAN container, and
+would need to be activated before runningn Docker Compose commands.
 
 To verify a successful Docker Compose installation, run ``docker-compose version``.
 
@@ -74,30 +69,28 @@ Clone CKAN into a directory of your choice::
     git clone git@github.com:ckan/ckan.git .
     # This will use the latest CKAN master.
 
-    # To use a stable version, checkout the respective tag, e.g.:
-    git checkout tags/ckan-2.6.2
+Using master may not be stable enough for production use.
+To use a stable version, checkout the respective tag, e.g.::
 
-.. note:: Using master may not be stable enough for production use.
+    git checkout tags/ckan-2.6.2
 
 ----------------------
 2. Build Docker images
 ----------------------
 In this step we will build the Docker images and create Docker data volumes with user-defined,
-sensitive settings (e.g. for database passwords).
+sensitive settings (e.g. database passwords).
 
 a. Sensitive settings and environment variables
 
-In a production environment, copy ``contrib/docker/.env.template`` to ``contrib/docker/.env``
-and follow instructions within to set passwords and other sensitive or user-defined variables.
+Copy ``contrib/docker/.env.template`` to ``contrib/docker/.env`` and follow instructions 
+within to set passwords and other sensitive or user-defined variables.
 The defaults will work fine in a development environment.
 
 .. note:: Related reading:
 
-   `Docker-compose .env file <https://docs.docker.com/compose/env-file/>`_
-
-   `Environment variables in Compose <https://docs.docker.com/compose/environment-variables/>`_
-
-   Newcomers to Docker should read the excellent write-up on
+   * `Docker-compose .env file <https://docs.docker.com/compose/env-file/>`_
+   * `Environment variables in Compose <https://docs.docker.com/compose/environment-variables/>`_
+   * Newcomers to Docker should read the excellent write-up on
    `Docker variables <http://vsupalov.com/docker-env-vars/>`_ by Vladislav Supalov (GitHub @th4t).
 
 b. Build the images
@@ -107,7 +100,7 @@ Inside the CKAN directory::
     cd contrib/docker
     docker-compose up -d --build
 
-For the remainder of this chapter, we assume that docker-compose commands are all run inside
+For the remainder of this chapter, we assume that ``docker-compose`` commands are all run inside
 ``contrib/docker``, where ``docker-compose.yml`` and ``.env`` are located.
 
 On first runs, the postgres container could need longer to initialize the database cluster than
@@ -221,7 +214,7 @@ Now the datastore API should return content when visiting::
 -------------------------
 4. Create CKAN admin user
 -------------------------
-With all four Docker images up and running, create the CKAN admin user (johndoe in this example)::
+With all images up and running, create the CKAN admin user (johndoe in this example)::
 
     docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/ckan.ini add johndoe
 
@@ -292,22 +285,20 @@ There are two scenarios to add extensions:
   easy way to enable them in the ``ckan.ini``.
   Automating the installation of existing extensions (without needing to change their source)
   requires customizing CKAN's ``Dockerfile`` and scripted post-processing of the ``ckan.ini``.
-* Developers need to read, modify and use version control on the extensions' source.
+* Developers need to read, modify and use version control on the extensions' source. This adds
+  additional steps to the maintainers' workflow.
 
 For maintainers, the process is:
 
 * Run a bash shell inside the running ``ckan`` container, download and install extension.
   Alternative: Insert the ``pip install`` step into a custom CKAN Dockerfile.
-* Edit ``ckan.ini``. Alternative: use ``ckanext-envvars`` to configure the ``ckan.ini`` using
-  environment variables, which can be inserted into ``docker-compose`` via ``.env``.
 * Restart ``ckan`` service, read logs.
 
 a. Download and install extension from inside ``ckan`` container into ``docker_ckan_home`` volume
 
 The process is very similar to installing extensions in a source install. The only difference is
 that the installation steps happen inside the running container, using the virtualenv created
-inside the ckan image by CKAN's Dockerfile, which is different from the virtualenv we have created
-on the host machine in step 2.
+inside the ckan image by CKAN's Dockerfile.
 
 The downloaded and installed files will be persisted in the named volume ``docker_ckan_home``.
 
@@ -328,6 +319,7 @@ and `ckanext-envvars <https://github.com/okfn/ckanext-envvars>`_ from PyPi::
     pip install -r pip-requirements.txt
     python setup.py install
     python setup.py develop
+    cd ..
 
     # Option 2: Pip install from GitHub
     pip install -e "git+https://github.com/ckan/ckanext-showcase.git#egg=ckanext-showcase"
@@ -415,7 +407,7 @@ and restart the container::
     # Follow steps a-c
 
 .. note:: Mounting host folders as volumes instead of using named volumes may result in a simpler
-   development workflow.
+   development workflow. However, named volumes are Docker's canonical way to persist data.
 
 ------------------------
 7. Environment variables
@@ -450,16 +442,17 @@ variables::
     docker-compose up -d --build
 
     # if that didn't work, try:
-    docker rmi $(docker images -f dangling=true -q)
+    docker rmi $(docker images -q -f dangling=true)
     docker-compose up -d --build
 
     # if that didn't work, try:
-    docker rmi $(docker images -f dangling=true -q)
-    docker volume rm $(docker volume ls -f dangling=true -q)
+    docker rmi $(docker images -q -f dangling=true)
+    docker volume prune
     docker-compose up -d --build
 
 .. warning:: Removing named volumes will destroy data.
-    Backup all data when doing this in a production setting.
+    ``docker volume prune`` will delete any volumes not attached to a running(!) container.
+    Backup all data before doing this in a production setting.
 
 ---------------------------
 8. Steps towards production
@@ -473,8 +466,9 @@ A possible path towards a production-ready environment is:
 * Add and configure extensions.
 * Make sure that no sensitive settings are hard-coded inside the images.
 * Push the images to a docker repository.
-* Build a separate "production" ``docker-compose.yml`` which uses the custom built images.
+* Create a separate "production" ``docker-compose.yml`` which uses the custom built images.
 * Run the "production" ``docker-compose.yml`` on the production server with appropriate settings.
-* Transfer production data into the new server as described above.
+* Transfer production data into the new server as described above using volume orchestration 
+  tools or transferring files directly.
 * Bonus: contribute a write-up of working production setups to the CKAN documentation.
 

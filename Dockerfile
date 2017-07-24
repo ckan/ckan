@@ -1,7 +1,4 @@
-# docker build . -t ckan --build-arg CKAN_SITE_URL=http://localhost:5000
-# docker run -d -p 80:5000 --link db:db --link redis:redis --link solr:solr ckan \
-# -v ckan_config:/etc.ckan/default -v ckan_storage:/var/lib/ckan
-
+# See CKAN docs on installation from Docker Compose on usage
 FROM debian:jessie
 MAINTAINER Open Knowledge
 
@@ -14,7 +11,6 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && \
         libpq-dev \
         git-core \
         postgresql-client \
-        python-dev \
         libxml2-dev \
         libxslt-dev \
         libgeos-dev \
