@@ -382,8 +382,7 @@ def update_config():
         # The pre-2.8 default was only 50, the post-2.8 default is 400.
         cache_size=400,
 
-        # causing translation issue
-        #bytecode_cache=jinja2.FileSystemBytecodeCache()
+        bytecode_cache=jinja2.FileSystemBytecodeCache()
     )
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
