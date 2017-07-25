@@ -39,7 +39,7 @@ on who is handling the request. For instance in the ``config`` case, if you use
 only be applied to the Pylons application, and the Flask application will be
 misconfigured.
 
-.. note:: ``conf`` was added to the plugins toolkit on CKAN 2.6. If your
+.. note:: ``config`` was added to the plugins toolkit on CKAN 2.6. If your
     extension needs to target CKAN versions lower and greater than CKAN 2.6 you
     can use `ckantoolkit <https://github.com/ckan/ckantoolkit>`, a separate
     package that provides wrappers for cross-version CKAN compatibility::
