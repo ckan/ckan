@@ -5,7 +5,6 @@ import logging
 import warnings
 from urlparse import urlparse
 
-import jinja2
 import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
@@ -371,14 +370,16 @@ def update_config():
         loader=jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
         auto_reload=False,
-        extensions=['jinja2.ext.do', 'jinja2.ext.with_', 'jinja2.ext.InternationalizationExtension',
-                    jinja_extensions.SnippetExtension,
-                    jinja_extensions.CkanExtend,
-                    # jinja_extensions.CkanInternationalizationExtension,
-                    jinja_extensions.LinkForExtension,
-                    jinja_extensions.ResourceExtension,
-                    jinja_extensions.UrlForStaticExtension,
-                    jinja_extensions.UrlForExtension
+        extensions=[
+            'jinja2.ext.do',
+            'jinja2.ext.with_',
+            'jinja2.ext.InternationalizationExtension',
+            jinja_extensions.SnippetExtension,
+            jinja_extensions.CkanExtend,
+            jinja_extensions.LinkForExtension,
+            jinja_extensions.ResourceExtension,
+            jinja_extensions.UrlForStaticExtension,
+            jinja_extensions.UrlForExtension
         ],
         # The pre-2.8 default was only 50, the post-2.8 default is 400.
         cache_size=400,
