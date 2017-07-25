@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """Pylons environment configuration"""
 import os
+import tempfile
+import atexit
+import shutil
+from functools import partial
 import logging
 import warnings
 from urlparse import urlparse
@@ -367,9 +371,11 @@ def update_config():
         template_paths, auto_reload=True, callback=template_loaded)
 
     # Create Jinja2 environment
-    cache_dir = config.get('jinja2_cache_dir', '/tmp/jinja_cache')
-    if not os.path.exists(cache_dir):
-        os.makedirs(cache_dir)
+    cache_dir = config.get('jinja2_cache_dir', None)
+    if not cache_dir:
+        cache_dir = tempfile.mkdtemp()
+        config['jinja2_cache_dir'] = cache_dir
+        atexit.register(partial(shutil.rmtree, cache_dir))
     env = jinja_extensions.Environment(
         loader=jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
