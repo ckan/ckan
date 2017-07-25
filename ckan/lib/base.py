@@ -107,48 +107,16 @@ def render_jinja2(template_name, extra_vars):
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
            cache_force=None, renderer=None):
-    '''Render a template and return the output.
+    env = config['pylons.app_globals'].jinja_env
+    template = env.get_template(template_name)
 
-    This is CKAN's main template rendering function.
+    extras = extra_vars or {}
+    extras.update(pylons_globals())
 
-    :param cache_expire: DEPRECATED
-    :param cache_force: DEPRECATED
-    :param method: DEPRECATED
-    :param loader_class: DEPRECATED
-    :param renderer: DEPRECATED
-    :param cache_type: DEPRECATED
-    :param cache_key: DEPRECATED
+    del extras['url']
+    del extras['config']
 
-    .. todo::
-
-       Document the parameters of :py:func:`ckan.plugins.toolkit.render`.
-
-    '''
-    globs = extra_vars or {}
-    globs.update(pylons_globals())
-
-    # Using pylons.url() directly destroys the localisation stuff so
-    # we remove it so any bad templates crash and burn
-    del globs['url']
-
-    try:
-        template_path, template_type = render_.template_info(template_name)
-    except render_.TemplateNotFound:
-        raise
-
-    log.debug('rendering %s [%s]' % (template_path, template_type))
-
-    # Jinja2 templates
-    if template_type != 'jinja2':
-        # FIXME: Needs a proper error.
-        raise RuntimeError(u'Attempted to render a legacy template type.')
-
-    # We don't want to have the config in templates it should be
-    # accessed via g (app_globals) as this gives us flexability such
-    # as changing via database settings.
-    del globs['config']
-
-    return render_jinja2(template_name, globs)
+    return template.render(**extras)
 
 
 class ValidationException(Exception):
