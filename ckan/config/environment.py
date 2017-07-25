@@ -366,6 +366,9 @@ def update_config():
         template_paths, auto_reload=True, callback=template_loaded)
 
     # Create Jinja2 environment
+    cache_dir = config.get('jinja2_cache_dir', '/tmp/jinja_cache')
+    if not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
     env = jinja_extensions.Environment(
         loader=jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
@@ -384,8 +387,7 @@ def update_config():
         # The pre-2.8 default was only 50, the post-2.8 default is 400.
         cache_size=400,
 
-        # causing translation issue
-        #bytecode_cache=jinja2.FileSystemBytecodeCache()
+        bytecode_cache=jinja2.FileSystemBytecodeCache(cache_dir)
     )
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
