@@ -370,10 +370,11 @@ def update_config():
     env = jinja_extensions.Environment(
         loader=jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
-        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
+        auto_reload=False,
+        extensions=['jinja2.ext.do', 'jinja2.ext.with_', 'jinja2.ext.InternationalizationExtension',
                     jinja_extensions.SnippetExtension,
                     jinja_extensions.CkanExtend,
-                    jinja_extensions.CkanInternationalizationExtension,
+                    # jinja_extensions.CkanInternationalizationExtension,
                     jinja_extensions.LinkForExtension,
                     jinja_extensions.ResourceExtension,
                     jinja_extensions.UrlForStaticExtension,
