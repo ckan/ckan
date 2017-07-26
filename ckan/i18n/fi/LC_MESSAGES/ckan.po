@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2017\n"
+"Last-Translator: Zharktas <jari-pekka.voutilainen@gofore.com>, 2017\n"
 "Language-Team: Finnish (https://www.transifex.com/okfn/teams/11162/fi/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -72,7 +72,7 @@ msgstr "Virhe:"
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:36
 msgid "Error traceback:"
-msgstr ""
+msgstr "Virhetulostus:"
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:48
 msgid "Status"
@@ -105,7 +105,7 @@ msgstr "DataStore"
 #: ckanext/datastore/controller.py:46
 #, python-format
 msgid "format: must be one of %s"
-msgstr ""
+msgstr "Tietostomuoto pitää olla tyyppiä: %s"
 
 #: ckanext/datastore/controller.py:58
 msgid "DataStore resource not found"
@@ -143,9 +143,10 @@ msgid ""
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
-"Lisäinformaatiota löydät <a "
+"Lisätietoa löydät <a "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+"target=\"_blank\"> CKAN informaatio API:sta ja DataStore "
+"dokumentaatiosta</a>.</p> "
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
@@ -204,13 +205,13 @@ msgstr "Esimerkki: Python"
 
 #: ckanext/datastore/templates/datastore/dictionary.html:16
 msgid "Field {num}."
-msgstr ""
+msgstr "tietokenttä {num}."
 
 #: ckanext/datastore/templates/datastore/dictionary.html:18
 #: ckanext/datastore/templates/package/resource_read.html:20
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:18
 msgid "Label"
-msgstr ""
+msgstr "Otsikko"
 
 #: ckan/templates/group/snippets/group_form.html:20
 #: ckan/templates/organization/snippets/organization_form.html:20
@@ -230,16 +231,16 @@ msgstr "Tallenna"
 #: ckanext/datastore/templates/package/resource_edit_base.html:6
 #: ckanext/datastore/templates/package/resource_read.html:14
 msgid "Data Dictionary"
-msgstr ""
+msgstr "Sanakirja"
 
 #: ckanext/datastore/templates/package/resource_read.html:18
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:17
 msgid "Column"
-msgstr ""
+msgstr "Sarake"
 
 #: ckanext/datastore/templates/package/resource_read.html:19
 msgid "Type"
-msgstr ""
+msgstr "Tyyppi"
 
 #: ckan/public/base/javascript/modules/activity-stream.js:97
 #: ckan/public/base/javascript/modules/popover-context.js:62
@@ -266,15 +267,15 @@ msgstr "Taulu"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:6
 msgid "Responsive display"
-msgstr ""
+msgstr "Responsiivinen näyttö"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:12
 msgid "Show Columns"
-msgstr ""
+msgstr "Näytä sarakkeet"
 
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:28
 msgid "Hide/Unhide Columns"
-msgstr ""
+msgstr "Piilota/näytä sarakkeet"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
@@ -362,7 +363,7 @@ msgstr "muokattu resurssi teksti"
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr ""
+msgstr "Tämä on kääntämätön teksti"
 
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
@@ -445,23 +446,23 @@ msgstr "Kartta"
 
 #: ckanext/reclineview/theme/public/recline_view.js:28
 msgid "error loading view"
-msgstr ""
+msgstr "virhe ladattaessa näkymää"
 
 #: ckanext/reclineview/theme/public/recline_view.js:75
 msgid "Could not load view"
-msgstr ""
+msgstr "Näkymää ei pystytty lataamaan"
 
 #: ckanext/reclineview/theme/public/recline_view.js:77
 msgid "DataStore returned an error"
-msgstr ""
+msgstr "DataStore palautti virheen"
 
 #: ckanext/reclineview/theme/public/recline_view.js:79
 msgid "DataProxy returned an error"
-msgstr ""
+msgstr "Dataproxy palautti virheen"
 
 #: ckanext/reclineview/theme/public/recline_view.js:193
 msgid "Grid"
-msgstr ""
+msgstr "Taulokku"
 
 #: ckan/templates/package/snippets/view_form_filters.html:46
 #: ckanext/reclineview/theme/public/recline_view.js:215
@@ -621,7 +622,7 @@ msgstr "Tietoaineistojen lukumäärä"
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "Eniten tietoaineistoja luovat käyttäjät"
 
 #: ckan/logic/converters.py:121 ckan/logic/validators.py:214
 #: ckan/logic/validators.py:231 ckan/logic/validators.py:706
@@ -973,7 +974,7 @@ msgstr "%s on poistettu."
 #: ckan/controllers/group.py:653
 #, python-format
 msgid "User %r not authorized to edit members of %s"
-msgstr ""
+msgstr "Käyttäjällä %r ei oikeutta muokata %s jäseniä"
 
 #: ckan/controllers/group.py:705
 #, python-format
@@ -1039,7 +1040,7 @@ msgstr "%s käyttää sähköpostiosoitettasi, jos sinun täytyy uusia salasanas
 
 #: ckan/controllers/package.py:288
 msgid "Invalid search query: {error_message}"
-msgstr ""
+msgstr "Virheellinen haku: {error_message}"
 
 #: ckan/controllers/package.py:304
 msgid "Parameter \"{parameter_name}\" is not an integer"
@@ -1066,6 +1067,7 @@ msgstr "Väärä revision muoto: %r"
 #: ckan/controllers/package.py:396
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
 msgstr ""
+"Tietoaineston, jonka tyyppi on \"{package_type}\" ei ole tuettu ({file_!r}."
 
 #: ckan/controllers/package.py:435 ckan/controllers/package.py:817
 #: ckan/controllers/package.py:918 ckan/controllers/package.py:966
@@ -1449,8 +1451,8 @@ msgstr "Näytä"
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} uusi tapahtuma sivulla {site_title}"
+msgstr[1] "{n} uutta tapahtumaa sivulla {site_title}"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -1536,7 +1538,7 @@ msgstr[1] "yli {years} vuotta sitten"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr ""
+msgstr "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
@@ -1676,7 +1678,7 @@ msgstr "Ole hyvä ja syötä kokonaislukuarvo"
 
 #: ckan/lib/navl/validators.py:124
 msgid "Must be a Unicode string value"
-msgstr ""
+msgstr "Arvon tulee olla Unicode merkkijono"
 
 #: ckan/logic/__init__.py:98 ckan/logic/action/__init__.py:60
 msgid "Package resource(s) invalid"
@@ -1698,7 +1700,7 @@ msgstr "Ei pystytty parseroimaan JSON-muotoa."
 
 #: ckan/logic/validators.py:33 ckan/logic/validators.py:42
 msgid "An organization must be provided"
-msgstr ""
+msgstr "Organisaatio pitää antaa"
 
 #: ckan/logic/validators.py:47
 msgid "Organization does not exist"
@@ -1928,7 +1930,7 @@ msgstr "Saman niminen skeematieto on jo olemassa"
 
 #: ckan/logic/validators.py:846
 msgid "Email {email} is not a valid format"
-msgstr ""
+msgstr "Sähköposti {email} ei ole oikeellisessa muodossa"
 
 #: ckan/logic/action/create.py:183 ckan/logic/action/create.py:665
 #, python-format
@@ -1968,7 +1970,7 @@ msgstr "Luokituksen tulee olla väliltä %i ja %i."
 
 #: ckan/logic/action/create.py:1064
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr ""
+msgstr "Virhe lähettäessä kutsusähköpostia, ei luotu käyttäjää: {0}"
 
 #: ckan/logic/action/create.py:1277 ckan/logic/action/create.py:1284
 msgid "You must be logged in to follow users"
@@ -1997,7 +1999,7 @@ msgstr "Sinun tulee olla kirjautunut seurataksesi ryhmää."
 
 #: ckan/logic/action/delete.py:54
 msgid " Delete User: {0}"
-msgstr ""
+msgstr "Poista käyttäjä: {0}"
 
 #: ckan/logic/action/delete.py:92
 #, python-format
@@ -2414,8 +2416,8 @@ msgstr "Ei yhtään osumaa"
 #, python-format
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Syöte on liian lyhyt, pitää olla vähintään yksi merkki"
+msgstr[1] "Syöte on liian lyhyt, tulee olla vähintään %(num)dmerkkiä"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
@@ -2545,7 +2547,7 @@ msgstr "Lisää suodatin"
 
 #: ckan/public/base/javascript/modules/resource-view-filters.js:52
 msgid "Select a field"
-msgstr ""
+msgstr "Valitse tietokenttä"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:57
 #: ckan/templates/group/edit_base.html:22 ckan/templates/group/members.html:28
@@ -2583,7 +2585,7 @@ msgstr "CKAN ohjelmointirajapinta (API)"
 
 #: ckan/templates/footer.html:16
 msgid "CKAN Association"
-msgstr ""
+msgstr "CKAN Association"
 
 #: ckan/templates/footer.html:24
 msgid ""
@@ -3282,7 +3284,7 @@ msgstr "ryhmät"
 
 #: ckan/templates/macros/autoform.html:62
 msgid "Site logo"
-msgstr ""
+msgstr "Sivun logo"
 
 #: ckan/templates/macros/form.html:126
 #, python-format
@@ -3429,8 +3431,8 @@ msgstr ""
 #: ckan/templates/organization/members.html:14
 msgid "{count} member"
 msgid_plural "{count} members"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} jäsen"
+msgstr[1] "{count} jäsentä"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3736,7 +3738,7 @@ msgstr "Arvo"
 
 #: ckan/templates/package/resource_read.html:154
 msgid "Data last updated"
-msgstr ""
+msgstr "Data viimeksi päivitetty"
 
 #: ckan/templates/package/resource_read.html:155
 #: ckan/templates/package/resource_read.html:159
@@ -3747,7 +3749,7 @@ msgstr "tuntematon"
 
 #: ckan/templates/package/resource_read.html:158
 msgid "Metadata last updated"
-msgstr ""
+msgstr "Metatieto viimeksi päivitetty"
 
 #: ckan/templates/package/resource_read.html:162
 #: ckan/templates/package/snippets/additional_info.html:70
@@ -3864,20 +3866,22 @@ msgstr "Viimeksi päivitetty"
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
 msgstr ""
+"Ennen kuin voit luoda tietoaineiston, sinun täytyy luoda organisaatio."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
-msgstr ""
+msgstr "Luo uusi organisaatio"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:18
 msgid "There are no organizations to which you can assign this dataset."
-msgstr ""
+msgstr "Organisaatioita ei ole, mihin voit sijoittaa tämän tietiaineston."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:19
 msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
 msgstr ""
+"Pyydä järjestelmän ylläpitäjää luomaan organisaatio ennen kuin voit jatkaa."
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 #: ckan/templates/package/snippets/view_form.html:8
@@ -3985,11 +3989,11 @@ msgstr "Päivitä resurssi"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "Data"
-msgstr ""
+msgstr "Data"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "http://example.com/external-data.csv"
-msgstr ""
+msgstr "http://example.com/external-data.csv"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
@@ -4283,6 +4287,8 @@ msgid ""
 " <p id=\"search-error\"><strong>There was an error while searching.</strong>"
 " Please try again.</p> "
 msgstr ""
+" <p id=\"search-error\"><strong>Haussa tapahtui virhe.</strong> Yritä "
+"uudelleen.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4462,7 +4468,7 @@ msgstr "Vaihda salasana"
 
 #: ckan/templates/user/edit_user_form.html:29
 msgid "Sysadmin Password"
-msgstr ""
+msgstr "Ylläpitäjän salasana"
 
 #: ckan/templates/user/edit_user_form.html:37
 #: ckan/templates/user/logout_first.html:12
@@ -4568,7 +4574,7 @@ msgstr "Rekisteröinti"
 
 #: ckan/templates/user/new.html:14
 msgid "Register for an Account"
-msgstr "Rekisteröi uusi käyttäjätili"
+msgstr "Luo uusi käyttäjätili"
 
 #: ckan/templates/user/new.html:26
 msgid "Why Sign Up?"
