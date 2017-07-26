@@ -391,12 +391,12 @@ msgstr "Šī vietne pašlaik atrodas bezsaistē. Notiek databāzes inicializāci
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr ""
 "Lūdzu <a href=\"%s\">atjaunojiet savu profilu</a> un pievienojiet savu "
-"epasta adresi."
+"e-pasta adresi."
 
 #: ckan/controllers/home.py:83
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr "%s izmanto savu epastu, ja nepieciešams atiestatīt savu paroli."
+msgstr "%s izmanto savu e-pastu, ja nepieciešams atiestatīt savu paroli."
 
 #: ckan/controllers/package.py:290
 msgid "Invalid search query: {error_message}"
@@ -1027,7 +1027,7 @@ msgstr "%s <%s>"
 
 #: ckan/lib/mailer.py:109
 msgid "No recipient email address available!"
-msgstr "Nav pieejama saņēmēja epasta adrese!"
+msgstr "Nav pieejama saņēmēja e-pasta adrese!"
 
 #: ckan/lib/mailer.py:127 ckan/templates/home/snippets/stats.html:17
 msgid "organization"
@@ -1370,7 +1370,7 @@ msgstr "Vērtējumam jābūt starp %i un %i."
 
 #: ckan/logic/action/create.py:1052
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr "Kļūda nosūtot uzaicinājuma epastu. Lietotājs netika izveidots: {0}"
+msgstr "Kļūda nosūtot uzaicinājuma e-pastu. Lietotājs netika izveidots: {0}"
 
 #: ckan/logic/action/create.py:1265 ckan/logic/action/create.py:1272
 msgid "You must be logged in to follow users"
@@ -2534,7 +2534,7 @@ msgstr "Jauns lietotājs"
 #: ckan/templates/group/member_new.html:45
 #: ckan/templates/organization/member_new.html:47
 msgid "If you wish to invite a new user, enter their email address."
-msgstr "Ja vēlaties uzaicināt jaunu lietotāju, ievadiet tā epasta adresi."
+msgstr "Ja vēlaties uzaicināt jaunu lietotāju, ievadiet tā e-pasta adresi."
 
 #: ckan/templates/group/member_new.html:55
 #: ckan/templates/group/members.html:18
@@ -2974,7 +2974,7 @@ msgstr "Lietotājvārds"
 
 #: ckan/templates/organization/member_new.html:50
 msgid "Email address"
-msgstr "Epasta adrese"
+msgstr "E-pasta adrese"
 
 #: ckan/templates/organization/member_new.html:62
 msgid "Update Member"
@@ -3049,9 +3049,10 @@ msgid ""
 "datasets. Users can have different roles within an Organization, depending "
 "on their level of authorisation to create, edit and publish. "
 msgstr ""
-"CKAN organizācijas tiek izmantoti, lai izveidotu, pārvaldītu un publicētu "
-"datu kopu kolekcijas. Lietotāji var būt ar dažādām lomām organizācijā, "
-"atkarībā piešķirtajām tiesībām tie var izveidot, rediģēt un publicēt datus."
+"Organizācijas, kas atbilst Informācijas atklātības likuma 1. pantā "
+"noteiktajai iestādes definīcijai (ikviena iestāde, kā arī persona, kas "
+"īsteno pārvaldes funkcijas un uzdevumus, ja šī persona informācijas apritē "
+"ir saistīta ar attiecīgo funkciju un uzdevumu izpildi)."
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3571,7 +3572,7 @@ msgstr "Joe Bloggs"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 msgid "Author Email"
-msgstr "Autora epasts"
+msgstr "Autora e-pasts"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
@@ -3581,7 +3582,7 @@ msgstr "joe@example.com"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 msgid "Maintainer Email"
-msgstr "Uzturētāja epasts"
+msgstr "Uzturētāja e-pasts"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
@@ -3901,9 +3902,9 @@ msgstr ""
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] "{number} datu kopas meklējot \"{query}\""
+msgstr[0] "{number} datu kopa meklējot \"{query}\""
 msgstr[1] "{number} datu kopas meklējot \"{query}\""
-msgstr[2] "{number} datu kopa meklējot \"{query}\""
+msgstr[2] "{number} datu kopas meklējot \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -3912,9 +3913,9 @@ msgstr "Nav atrastas datu kopas meklējot \"{query}\""
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] "atrastas {number} datu kopas"
+msgstr[0] "atrasta {number} datu kopa"
 msgstr[1] "atrastas {number} datu kopas"
-msgstr[2] "atrasta {number} datu kopa"
+msgstr[2] "atrastas {number} datu kopas"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -3977,7 +3978,7 @@ msgstr "Pierakstīties"
 #: ckan/templates/user/new_user_form.html:7
 #: ckan/templates/user/read_base.html:82
 msgid "Email"
-msgstr "Epasts"
+msgstr "E-pasts"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
@@ -4059,7 +4060,7 @@ msgstr "Mainīt detaļas"
 
 #: ckan/templates/user/edit_user_form.html:10
 msgid "Full name"
-msgstr "Pilnais vārds"
+msgstr "Attēlojamais vārds (alias)"
 
 #: ckan/templates/user/edit_user_form.html:10
 msgid "eg. Joe Bloggs"
@@ -4075,7 +4076,7 @@ msgstr "Nedaudz informācijas par sevi"
 
 #: ckan/templates/user/edit_user_form.html:17
 msgid "Subscribe to notification emails"
-msgstr "Abonēt epasta paziņojumus"
+msgstr "Abonēt e-pasta paziņojumus"
 
 #: ckan/templates/user/edit_user_form.html:26
 msgid "Change password"
@@ -4193,11 +4194,15 @@ msgstr "Konta reģistrācija"
 
 #: ckan/templates/user/new.html:26
 msgid "Why Sign Up?"
-msgstr "Kāpēc reģistrēties?"
+msgstr "Iespējas un ierobežojumi"
 
 #: ckan/templates/user/new.html:28
 msgid "Create datasets, groups and other exciting things"
-msgstr "Izveidot datu kopas, kategorijas un citas aizraujošas lietas"
+msgstr ""
+"Reģistrēti lietotāji var sekot līdzi konkrētam datu kopām. Publicēt datu "
+"kopas ir iespējams tikai pēc tam, kad administrators ir piešķīris lietotājam"
+" šādas tiesības. Lai publicētu datu kopas lūdzam iepazīties ar informāciju "
+"portāla sadaļā “Publicētājiem\"."
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
@@ -4205,7 +4210,7 @@ msgstr "lietotājvārds"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr "PIlns vārds"
+msgstr "Attēlojamais vārds (alias)"
 
 #: ckan/templates/user/new_user_form.html:17
 msgid "Create Account"
