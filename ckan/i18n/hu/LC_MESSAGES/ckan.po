@@ -4,7 +4,7 @@
 # 
 # Translators:
 # <internet@davidread.org>, 2011
-# kitzinger <kitzinger@gmail.com>, 2012
+# David Kitzinger <kitzinger@gmail.com>, 2012
 # Open Knowledge Foundation <translations@okfn.org>, 2011
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 # stf <stefan.marsiske@gmail.com>, 2011
@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2015-11-26 14:21+0000\n"
+"PO-Revision-Date: 2017-07-26 08:22+0000\n"
 "Last-Translator: dread <david.read@hackneyworkshop.com>\n"
 "Language-Team: Hungarian (http://www.transifex.com/okfn/ckan/language/hu/)\n"
 "MIME-Version: 1.0\n"
