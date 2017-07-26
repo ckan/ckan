@@ -5,6 +5,7 @@ import logging
 import warnings
 from urlparse import urlparse
 
+import jinja2
 import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
