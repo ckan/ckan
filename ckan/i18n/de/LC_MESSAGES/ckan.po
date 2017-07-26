@@ -25,7 +25,7 @@ msgstr "Fertig"
 
 #: ckanext/datapusher/helpers.py:22
 msgid "Pending"
-msgstr "läuft noch"
+msgstr "Läuft noch"
 
 #: ckanext/datapusher/helpers.py:23
 msgid "Submitting"
@@ -55,7 +55,7 @@ msgstr "Ressource nicht gefunden"
 #: ckan/controllers/user.py:85 ckan/controllers/user.py:116
 #: ckan/controllers/user.py:594 ckanext/datapusher/plugin.py:68
 msgid "Not authorized to see this page"
-msgstr "Sie haben keine Autorisierung seite zu sehen"
+msgstr "Keine Berechtigung zum Anzeigen dieser Seite"
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:12
 msgid "Upload to DataStore"
@@ -105,7 +105,7 @@ msgstr "DataStore"
 #: ckanext/datastore/controller.py:46
 #, python-format
 msgid "format: must be one of %s"
-msgstr "Das Format muss eines dieser entsprechen: %s"
+msgstr "Das Format muss eines der folgenden sein: %s"
 
 #: ckanext/datastore/controller.py:58
 msgid "DataStore resource not found"
@@ -116,14 +116,14 @@ msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
 msgstr ""
-"Die Daten waren ungültig (z.m Beispiel: ein numerischer Wert ist außerhalb "
-"eines Bereichs oder wurde in ein Textfeld eingefügt)"
+"Die Daten waren ungültig (evtl. ist ein numerischer Wert außerhalb des "
+"gültigen Bereichs oder wurde in ein Feld vom Typ \"Text\" eingefügt)."
 
 #: ckanext/datastore/logic/action.py:262 ckanext/datastore/logic/action.py:290
 #: ckanext/datastore/logic/action.py:348 ckanext/datastore/logic/action.py:459
 #: ckanext/datastore/logic/action.py:534 ckanext/datastore/logic/action.py:559
 msgid "Resource \"{0}\" was not found."
-msgstr "Ressource  \"{0}\" nicht gefunden."
+msgstr "Ressource \"{0}\" wurde nicht gefunden."
 
 #: ckanext/datastore/logic/auth.py:19
 msgid "User {0} not authorized to update resource {1}"
@@ -152,7 +152,7 @@ msgstr ""
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
-msgstr "Endpunkt, engl. Endpoint"
+msgstr "API-Schnittstelle"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:37
 msgid ""
@@ -188,7 +188,7 @@ msgstr "Abfragebeispiel (erste 5 Ergebnisse)"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:75
 msgid "Query example (results containing 'jones')"
-msgstr "Abfragebeispiel (Ergebnisse enthalten 'jones')"
+msgstr "Abfragebeispiel (Ergebnisse die 'jones' enthalten)"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:80
 msgid "Query example (via SQL statement)"
@@ -208,7 +208,7 @@ msgstr "Beispiel: Python"
 
 #: ckanext/datastore/templates/datastore/dictionary.html:16
 msgid "Field {num}."
-msgstr "Feld {num}. Save "
+msgstr "Feld {num}."
 
 #: ckanext/datastore/templates/datastore/dictionary.html:18
 #: ckanext/datastore/templates/package/resource_read.html:20
@@ -266,7 +266,7 @@ msgstr "Daten-API"
 
 #: ckanext/datatablesview/plugin.py:46 ckanext/reclineview/plugin.py:128
 msgid "Table"
-msgstr "tabelle"
+msgstr "Tabelle"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:6
 msgid "Responsive display"
@@ -391,7 +391,7 @@ msgstr "Keine Datensätze"
 
 #: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
-msgstr "Das CKAN's Tool zur Datenvoransicht hat viele mächtige Funktionen"
+msgstr "Die Datenvorschau von CKAN hat viele mächtige Funktionen"
 
 #: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
 #: ckan/templates/group/snippets/info.html:32
@@ -452,7 +452,7 @@ msgstr "Fehler beim Laden der Ansicht"
 
 #: ckanext/reclineview/theme/public/recline_view.js:75
 msgid "Could not load view"
-msgstr "Konnte Voransicht nicht laden"
+msgstr "Ansicht konnte nicht geladen werden"
 
 #: ckanext/reclineview/theme/public/recline_view.js:77
 msgid "DataStore returned an error"
@@ -521,7 +521,7 @@ msgstr "GeoJSON-Feld"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:10
 msgid "Auto zoom to features"
-msgstr "Autozoom zu Eigenschaften"
+msgstr "Autozoom auf Merkmale"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:11
 msgid "Cluster markers"
@@ -614,7 +614,7 @@ msgstr "Beliebteste Tags"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:136
 msgid "Tag Name"
-msgstr "Schlagwort-Name"
+msgstr "Tag-Name"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:137
 #: ckanext/stats/templates/ckanext/stats/index.html:157
@@ -656,13 +656,13 @@ msgstr "Webseiten-URL"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
-msgstr "z.B. http://example.com (wenn leer, verwenden der Ressourcen-URL)"
+msgstr "z.B. http://example.com (wenn leer wird die Ressourcen-URL verwendet)"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:23
 #: ckan/templates/package/snippets/resource_view.html:56
 #: ckanext/webpageview/theme/templates/webpage_view.html:2
 msgid "Your browser does not support iframes."
-msgstr "Dein Browser unterstützt keine Iframes."
+msgstr "Ihr Browser unterstützt keine IFrames."
 
 #: ckan/authz.py:182
 #, python-format
@@ -675,7 +675,7 @@ msgstr "Administrator"
 
 #: ckan/authz.py:198
 msgid "Editor"
-msgstr "Bearbeiter"
+msgstr "Redakteur"
 
 #: ckan/authz.py:202
 msgid "Member"
@@ -691,7 +691,7 @@ msgstr "Seitentitel"
 
 #: ckan/controllers/admin.py:51
 msgid "Style"
-msgstr "Style"
+msgstr "Stil"
 
 #: ckan/controllers/admin.py:52
 msgid "Site Tag Line"
@@ -699,7 +699,7 @@ msgstr "Seitenslogan"
 
 #: ckan/controllers/admin.py:53
 msgid "Site Tag Logo"
-msgstr "Seiten-Slogan-Logo"
+msgstr "Seitenslogan-Logo"
 
 #: ckan/controllers/admin.py:55 ckan/templates/group/about.html:3
 #: ckan/templates/group/read_base.html:19 ckan/templates/header.html:106
@@ -778,7 +778,7 @@ msgstr "Fehlerhafte Anfrage"
 #: ckan/controllers/api.py:170
 #, python-format
 msgid "Action name not known: %s"
-msgstr "Aktionsname ist nicht bekannt: %s"
+msgstr "Befehl ist nicht bekannt: %s"
 
 #: ckan/controllers/api.py:191 ckan/controllers/api.py:362
 #: ckan/controllers/api.py:425
@@ -794,26 +794,26 @@ msgstr "Fehlerhafte Daten in der Anforderung: %s"
 #: ckan/controllers/api.py:300
 #, python-format
 msgid "Cannot list entity of this type: %s"
-msgstr "Kann keine Entitäten dieses Typs auflisten: %s"
+msgstr "Kann Objekte vom Typ %s nicht auflisten"
 
 #: ckan/controllers/api.py:329
 #, python-format
 msgid "Cannot read entity of this type: %s"
-msgstr "Kann keine Entiät dieses Typs lesen: %s"
+msgstr "Kann Objekte vom Typ %s nicht lesen"
 
 #: ckan/controllers/api.py:367
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
-msgstr "Eine neue Entität des Typs %s %s konnte nicht angelegt werden"
+msgstr "Eine neues Objekt des Typs %s %s konnte nicht angelegt werden"
 
 #: ckan/controllers/api.py:400
 msgid "Unable to add package to search index"
-msgstr "Das Paket konnte dem Index nicht hinzugefügt werden"
+msgstr "Das Paket konnte dem Suchindex nicht hinzugefügt werden"
 
 #: ckan/controllers/api.py:430
 #, python-format
 msgid "Cannot update entity of this type: %s"
-msgstr "Ein Update der Entität des Typs %s ist nicht möglich"
+msgstr "Das Objekt des Typs %s kann nicht aktualisiert werden"
 
 #: ckan/controllers/api.py:454
 msgid "Unable to update search index"
@@ -822,20 +822,20 @@ msgstr "Der Suchindex konnte nicht aktualisiert werden"
 #: ckan/controllers/api.py:477
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
-msgstr "Eine Entität des Typs %s %s konnte nicht entfernt werden"
+msgstr "Das Objekt des Typs %s %s kann nicht entfernt werden"
 
 #: ckan/controllers/api.py:500
 msgid "No revision specified"
-msgstr "Keine Revisions spezifiziert"
+msgstr "Keine Revision angegeben"
 
 #: ckan/controllers/api.py:504
 #, python-format
 msgid "There is no revision with id: %s"
-msgstr "Es gibt keine Revision mit der ID: %s"
+msgstr "Es gibt keine Revision mit der ID %s"
 
 #: ckan/controllers/api.py:514
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
-msgstr "Fehlender Suchbegriff ('since_id=UUID' or  'since_time=TIMESTAMP')"
+msgstr "Fehlender Suchbegriff ('since_id=UUID' oder 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:526
 #, python-format
@@ -850,7 +850,7 @@ msgstr "Falsche Suchoption: %s"
 #: ckan/controllers/api.py:590
 #, python-format
 msgid "Unknown register: %s"
-msgstr "Unbekannter Benutzer: %s"
+msgstr "Unbekanntes Register: %s"
 
 #: ckan/controllers/api.py:599
 #, python-format
@@ -860,8 +860,7 @@ msgstr "qjson Wert hat falsche Struktur: %r"
 #: ckan/controllers/api.py:609
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr ""
-"Die Anfrageparameter müssen in der Form eines JASON-kodiertem-Wörterbuch "
-"sein."
+"Die Anfrageparameter müssen in der Form eines JSON-kodierten Objekts sein."
 
 #: ckan/controllers/feed.py:233 ckan/controllers/group.py:137
 #: ckan/controllers/group.py:225 ckan/controllers/group.py:393
@@ -979,12 +978,13 @@ msgstr "%s wurde gelöscht."
 #: ckan/controllers/group.py:653
 #, python-format
 msgid "User %r not authorized to edit members of %s"
-msgstr "Benutzer %r hat keine Berechtigung %s zu bearbeiten"
+msgstr ""
+"Benutzer %r hat keine Berechtigung die Mitglieder von %s zu bearbeiten"
 
 #: ckan/controllers/group.py:705
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr "Keine Berichtigung Mitglied zur Gruppe %s hinzuzufügen"
+msgstr "Keine Berichtigung Mitglieder zur Gruppe %s hinzuzufügen"
 
 #: ckan/controllers/group.py:724 ckan/controllers/group.py:737
 #, python-format
@@ -1019,7 +1019,7 @@ msgstr "Sie folgen nun {0}"
 #: ckan/controllers/group.py:874 ckan/controllers/package.py:1190
 #: ckan/controllers/user.py:735
 msgid "You are no longer following {0}"
-msgstr "Sie folgen nicht mehr {0}"
+msgstr "Sie folgen {0} nicht mehr"
 
 #: ckan/controllers/group.py:894 ckan/controllers/user.py:580
 #, python-format
@@ -1034,15 +1034,14 @@ msgstr "Die Seite ist aktuell inaktiv. Die Datenbank ist nicht initialisiert."
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr ""
-"Bitte <a href=\"%s\">aktualisiere Dein Profil</a> und füge Deine "
+"Bitte <a href=\"%s\">aktualisieren Sie Ihr Profil</a> und fügen Sie Ihre "
 "Emailadresse hinzu."
 
 #: ckan/controllers/home.py:75
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
 msgstr ""
-"%s verwendet Deine Emailadresse für den Fall, daß Du Dein Paßwort "
-"zurücksetzen mußt."
+"%s verwendet Ihre Emailadresse falls Sie Ihr Passwort zurücksetzen müssen."
 
 #: ckan/controllers/package.py:288
 msgid "Invalid search query: {error_message}"
@@ -1081,7 +1080,7 @@ msgstr ""
 #: ckan/controllers/package.py:1217
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr "Keine Berechtigung Paket %s zu lesen"
+msgstr "Keine Berechtigung zum Lesen von Paket %s"
 
 #: ckan/controllers/package.py:444
 msgid "CKAN Dataset Revision History"
@@ -1110,7 +1109,7 @@ msgstr "Der Datensatz {id} konnte nicht gefunden werden."
 
 #: ckan/controllers/package.py:650
 msgid "You must add at least one data resource"
-msgstr "Du musst mindestens eine Daten-Ressource hinzufügen"
+msgstr "Sie müsssen mindestens eine Daten-Ressource hinzufügen"
 
 #: ckan/controllers/package.py:681
 msgid "Unauthorized to create a resource"
@@ -1266,7 +1265,7 @@ msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
 msgstr ""
-"Benutzer \"%s\" ist jetzt registriert, aber Du bist noch als \"%s\" "
+"Benutzer \"%s\" ist jetzt registriert, aber Sie sind noch als \"%s\" "
 "angemeldet."
 
 #: ckan/controllers/user.py:293
@@ -1340,7 +1339,7 @@ msgstr "Die eingegebenen Passwörter stimmen nicht überein."
 
 #: ckan/controllers/user.py:568
 msgid "You must provide a password"
-msgstr "Du musst ein Passwort angeben"
+msgstr "Sie müssen ein Passwort angeben"
 
 #: ckan/controllers/user.py:636
 msgid "Follow item not found"
@@ -1439,7 +1438,7 @@ msgstr "{actor} hat sich registriert"
 
 #: ckan/lib/activity_streams.py:115
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
-msgstr "{actor} hat das Tag {tag} vom Datensatz {dataset} entfernt"
+msgstr "{actor} hat den Tag {tag} vom Datensatz {dataset} entfernt"
 
 #: ckan/lib/activity_streams.py:118
 msgid "{actor} started following {dataset}"
@@ -1614,7 +1613,7 @@ msgstr "{y} Qio."
 
 #: ckan/lib/helpers.py:1048
 msgid "Update your avatar at gravatar.com"
-msgstr "Aktualisiere Deinen Avatar auf gravatar.com"
+msgstr "Aktualisieren Sie Ihren Avatar auf gravatar.com"
 
 #: ckan/lib/helpers.py:1297 ckan/lib/helpers.py:1310
 msgid "Unknown"
@@ -1704,7 +1703,7 @@ msgstr "Extras"
 #: ckan/logic/converters.py:74 ckan/logic/converters.py:89
 #, python-format
 msgid "Tag vocabulary \"%s\" does not exist"
-msgstr "Tag-Vokabular \"%s\" existiert nicht"
+msgstr "Das Tag-Vokabular \"%s\" existiert nicht"
 
 #: ckan/logic/converters.py:180
 msgid "Could not parse as valid JSON"
@@ -1813,24 +1812,24 @@ msgstr "Gruppenname exisitiert bereits in der Datenbank"
 #: ckan/logic/validators.py:416
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
-msgstr "Die Länge des Tag \"%s\" ist kürzer als das Minimum von %s"
+msgstr "Der Tag \"%s\" muss mindestens %s Zeichen lang sein"
 
 #: ckan/logic/validators.py:420
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
-msgstr "Tag \"%s\" ist länger als maximal %i Zeichen"
+msgstr "Der Tag \"%s\" darf nicht länger als %i Zeichen sein"
 
 #: ckan/logic/validators.py:428
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
 msgstr ""
-"Tag \"%s\" muss aus alphnummerischen Zeichen oder diesen Symbolen bestehen: "
-"-_. "
+"Der Tag \"%s\" muss aus alphnummerischen Zeichen oder diesen Symbolen "
+"bestehen: -_. "
 
 #: ckan/logic/validators.py:436
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
-msgstr "Schlagwort \"%s\" darf keine Buchstaben in Großschrift enthalten"
+msgstr "Der Tag \"%s\" darf keine Großbuchstaben enthalten"
 
 #: ckan/logic/validators.py:545
 msgid "User names must be strings"
@@ -1887,7 +1886,7 @@ msgstr "Tag-Vokabular wurde nicht gefunden."
 #: ckan/logic/validators.py:656
 #, python-format
 msgid "Tag %s does not belong to vocabulary %s"
-msgstr "Tag %s gehört nicht zu Vokabular %s."
+msgstr "Der Tag %s gehört nicht zum Vokabular %s."
 
 #: ckan/logic/validators.py:662
 msgid "No tag name"
@@ -1896,7 +1895,7 @@ msgstr "Kein Tag-Name"
 #: ckan/logic/validators.py:675
 #, python-format
 msgid "Tag %s already belongs to vocabulary %s"
-msgstr "Tag %s gehört bereits zu Vokabular %s"
+msgstr "Der Tag %s gehört bereits zum Vokabular %s"
 
 #: ckan/logic/validators.py:698
 msgid "Please provide a valid URL"
@@ -2043,7 +2042,7 @@ msgstr "Vokabular \"%s\" konnte nicht gefunden werden"
 #: ckan/logic/action/delete.py:578
 #, python-format
 msgid "Could not find tag \"%s\""
-msgstr "Tag \"%s\" konnte nicht gefunden werden"
+msgstr "Der Tag \"%s\" konnte nicht gefunden werden"
 
 #: ckan/logic/action/delete.py:604 ckan/logic/action/delete.py:608
 msgid "You must be logged in to unfollow something."
@@ -2239,7 +2238,7 @@ msgstr "Benutzer %s hat keine Berechtigung die Gruppe %s anzusehen"
 
 #: ckan/logic/auth/get.py:252
 msgid "You must be logged in to access your dashboard."
-msgstr "Du musst angemeldet sein, um die Übersichtsseite sehen zu können."
+msgstr "Sie müssen angemeldet sein, um die Übersichtsseite sehen zu können."
 
 #: ckan/logic/auth/update.py:39
 #, python-format
@@ -2440,8 +2439,8 @@ msgstr "Keine Treffer"
 #, python-format
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Die Eingabe muss mindestens ein Zeichen lang sein"
+msgstr[1] "Die Eingabe muss mindestens %(num)d Zeichen lang sein"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
@@ -2453,7 +2452,7 @@ msgstr "Bestätige bitte die Aktion"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:100
 msgid "Are you sure you want to perform this action?"
-msgstr "Bist du sicher, dass du diese Aktion ausführen willst?"
+msgstr "Sind Sie sicher, dass Sie diese Aktion ausführen wollen?"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:102
 #: ckan/templates/user/new_user_form.html:9
@@ -2721,7 +2720,7 @@ msgstr "Papierkorb"
 #: ckan/templates/admin/config.html:16
 #: ckan/templates/admin/confirm_reset.html:7
 msgid "Are you sure you want to reset the config?"
-msgstr "Bist du sicher, dass du die Konfiguration zurücksetzen willst?"
+msgstr "Sind Sie sicher, dass Sie die Konfiguration zurücksetzen wollen?"
 
 #: ckan/templates/admin/config.html:16
 msgid "Reset"
@@ -2764,8 +2763,8 @@ msgstr ""
 "Dieser text erscheint in dieser CKAN Instanz <a "
 "href=\"%(home_url)s\">Startseite</a> als Willkommensseite für Besucher.</p> "
 "<p><strong>Individuelles CSS:</strong> Dieser CSS-Block wird eingebunden in "
-"<code>&lt;head&gt;</code> Schlagwort jeder Seite. Wenn Sie die Templates "
-"noch besser anpassen wollen, lesen Sie die <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> Tag jeder Seite. Wenn Sie die Templates noch "
+"besser anpassen wollen, lesen Sie die <a href=\"%(docs_url)s\" "
 "target=\"_blank\">Dokumentation</a>.</p> <p><strong>Startseite:</strong> "
 "Hier können Sie ein vorbereitetes Layout für die Module auf Ihrer Startseite"
 " auswählen.</p> "
@@ -2939,12 +2938,12 @@ msgstr "Bestätige das Löschen"
 
 #: ckan/templates/group/confirm_delete.html:11
 msgid "Are you sure you want to delete group - {name}?"
-msgstr "Bist du sicher, dass du die Gruppe {name} löschen willst?"
+msgstr "Sind Sie sicher, dass Sie die Gruppe {name} löschen wollen?"
 
 #: ckan/templates/group/confirm_delete_member.html:11
 #: ckan/templates/organization/confirm_delete_member.html:11
 msgid "Are you sure you want to delete member - {name}?"
-msgstr "Bist du sicher, dass du das Mitglied {name} löschen willst?"
+msgstr "Sind Sie sicher, dass Sie das Mitglied {name} löschen wollen?"
 
 #: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:4
 #: ckan/templates/group/edit_base.html:13
@@ -2989,7 +2988,7 @@ msgstr "Es gibt momentan keine Gruppen für diese Seite"
 #: ckan/templates/group/index.html:31
 #: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
-msgstr "Wie wäre es, wenn du eine erstellst?"
+msgstr "Wie wäre es, wenn Sie eine erstellen?"
 
 #: ckan/templates/group/member_new.html:8
 #: ckan/templates/organization/member_new.html:10
@@ -3051,7 +3050,7 @@ msgstr "Rolle"
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
-msgstr "Bist du sicher, dass du dieses Mitglied löschen willst?"
+msgstr "Sind Sie sicher, dass Sie dieses Mitglied löschen wollen?"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
@@ -3130,7 +3129,7 @@ msgstr "Ein paar Informationen zu meiner Gruppe..."
 
 #: ckan/templates/group/snippets/group_form.html:60
 msgid "Are you sure you want to delete this Group?"
-msgstr "Bist du sicher, dass du diese Gruppe löschen willst?"
+msgstr "Sind Sie sicher, dass Sie diese Gruppe löschen wollen?"
 
 #: ckan/templates/group/snippets/group_form.html:63
 msgid "Save Group"
@@ -3285,7 +3284,7 @@ msgstr "Suchdaten"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
-msgstr "Beliebte Schlagworte"
+msgstr "Beliebte Tags"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
@@ -3400,7 +3399,7 @@ msgstr "Diese Organisation hat keine ihr zugeordneten Datensätze"
 
 #: ckan/templates/organization/confirm_delete.html:11
 msgid "Are you sure you want to delete organization - {name}?"
-msgstr "Bist du sicher, dass du die Organisation {name} löschen willst?"
+msgstr "Sind Sie sicher, dass Sie die Organisation {name} löschen wollen?"
 
 #: ckan/templates/organization/edit.html:6
 #: ckan/templates/organization/snippets/info.html:13
@@ -3456,8 +3455,8 @@ msgstr ""
 #: ckan/templates/organization/members.html:14
 msgid "{count} member"
 msgid_plural "{count} members"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} Mitglied"
+msgstr[1] "{count} Mitglieder"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3567,11 +3566,11 @@ msgstr ""
 
 #: ckan/templates/package/confirm_delete.html:12
 msgid "Are you sure you want to delete dataset - {name}?"
-msgstr "Bist du sicher, dass du den Datensatz {name} löschen willst?"
+msgstr "Sind Sie sicher, dass Sie den Datensatz {name} löschen wollen?"
 
 #: ckan/templates/package/confirm_delete_resource.html:11
 msgid "Are you sure you want to delete resource - {name}?"
-msgstr "Bist du sicher, dass du die Ressource {name} löschen willst?"
+msgstr "Sind Sie sicher, dass Sie die Ressource {name} löschen wollen?"
 
 #: ckan/templates/package/edit_base.html:16
 msgid "View dataset"
@@ -3836,7 +3835,7 @@ msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
 msgstr ""
-" Du kannst dieses Register auch über die %(api_link)s (siehe "
+" Sie können dieses Register auch über die %(api_link)s (siehe "
 "%(api_doc_link)s) oder über einen %(dump_link)s abrufen. "
 
 #: ckan/templates/package/search.html:60
@@ -3845,7 +3844,7 @@ msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
 msgstr ""
-"Du kannst dieses Register auch über der %(api_link)s (siehe "
+"Sie können dieses Register auch über die %(api_link)s (siehe "
 "%(api_doc_link)s) abrufen. "
 
 #: ckan/templates/package/view_edit_base.html:9
@@ -3981,7 +3980,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:39
 msgid "Are you sure you want to delete this dataset?"
-msgstr "Bist du sicher, dass du diesen Datensatz löschen willst?"
+msgstr "Sind Sie sicher, dass Sie diesen Datensatz löschen wollen?"
 
 #: ckan/templates/package/snippets/package_form.html:43
 msgid "Next: Add Data"
@@ -4067,7 +4066,7 @@ msgstr "z.B. application/json"
 
 #: ckan/templates/package/snippets/resource_form.html:65
 msgid "Are you sure you want to delete this resource?"
-msgstr "Bist du sicher, dass du diese Ressource löschen willst?"
+msgstr "Sind Sie sicher, dass Sie diese Ressource löschen wollen?"
 
 #: ckan/templates/package/snippets/resource_form.html:71
 msgid "Previous"
@@ -4221,7 +4220,7 @@ msgstr "Tags des Datensatzes"
 
 #: ckan/templates/revision/snippets/revisions_list.html:7
 msgid "Entity"
-msgstr "Entität"
+msgstr "Objekt"
 
 #: ckan/templates/snippets/activity_item.html:3
 msgid "New activity item"
@@ -4233,7 +4232,8 @@ msgstr "Datenansicht einbetten"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:8
 msgid "Embed this view by copying this into your webpage:"
-msgstr "Bette diese Ansicht ein, indem du dies in deine Webseite kopierst:"
+msgstr ""
+"Kopieren Sie folgendes in Ihre Webseite um diese Ansicht dort einzubetten:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:10
 msgid "Choose width and height in pixels:"
@@ -4410,7 +4410,7 @@ msgstr "Änderungen"
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
 msgid "Search Tags"
-msgstr "Tags / Schlagworte durchsuchen"
+msgstr "Tags durchsuchen"
 
 #: ckan/templates/user/dashboard.html:19 ckan/templates/user/dashboard.html:37
 msgid "News feed"
@@ -4438,7 +4438,7 @@ msgstr "Aktivitäten von Elementen, denen ich folge"
 #: ckan/templates/user/dashboard_datasets.html:17
 #: ckan/templates/user/read.html:14
 msgid "You haven't created any datasets."
-msgstr "Du hast noch keine Datensätze erstellt."
+msgstr "Sie haben noch keine Datensätze erstellt."
 
 #: ckan/templates/user/dashboard_datasets.html:19
 #: ckan/templates/user/dashboard_groups.html:22
@@ -4470,7 +4470,7 @@ msgstr "Informationen zum Benutzerkonto"
 msgid ""
 " Your profile lets other CKAN users know about who you are and what you do. "
 msgstr ""
-"Dein Profil teil anderen CKAN-Nutzern mit, wer du bist und was du machst."
+"Ihr Profil teilt anderen CKAN-Nutzern mit, wer Sie sind und was Sie tun."
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
@@ -4545,11 +4545,11 @@ msgstr "Anmeldung"
 
 #: ckan/templates/user/login.html:25
 msgid "Need an Account?"
-msgstr "Brauchst du ein Benutzerkonto?"
+msgstr "Benötigen Sie ein Benutzerkonto?"
 
 #: ckan/templates/user/login.html:27
 msgid "Then sign right up, it only takes a minute."
-msgstr "Dann registrier dich, dauert nur eine Minute."
+msgstr "Dann registrieren Sie sich, es dauert nur eine Minute."
 
 #: ckan/templates/user/login.html:30
 msgid "Create an Account"
@@ -4561,7 +4561,8 @@ msgstr "Haben Sie Ihr Kennwort vergessen?"
 
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
-msgstr "Kein Problem, nutze unser Formular, um dein Passwort zurückzusetzen."
+msgstr ""
+"Kein Problem, nutzen Sie unser Formular um Ihr Passwort zurückzusetzen."
 
 #: ckan/templates/user/login.html:47
 msgid "Forgot your password?"
@@ -4573,11 +4574,11 @@ msgstr "Abgemeldet"
 
 #: ckan/templates/user/logout.html:11
 msgid "You are now logged out."
-msgstr "Du bist jetzt abgemeldet."
+msgstr "Sie sind jetzt abgemeldet."
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr "Du bist schon als {user} angemeldet."
+msgstr "Sie sind schon als {user} angemeldet."
 
 #: ckan/templates/user/logout_first.html:9
 msgid "Logout"
@@ -4590,17 +4591,17 @@ msgstr "Passwort merken"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
-msgstr "Du bist schon angemeldet"
+msgstr "Sie sind schon angemeldet"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
 msgstr ""
-"Du musst dich abmelden, bevor du dich mit einem anderen Benutzerkonto "
-"anmelden kannst."
+"Sie müssen sich abmelden, bevor Sie sich mit einem anderen Benutzerkonto "
+"anmelden können."
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
-msgstr "Melde dich jetzt ab."
+msgstr "Jetzt abmelden"
 
 #: ckan/templates/user/new.html:6
 msgid "Registration"
@@ -4633,7 +4634,7 @@ msgstr "Erstelle Benutzerkonto"
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:14
 msgid "Reset Your Password"
-msgstr "Setze dein Passwort zurück"
+msgstr "Passwort zurücksetzen"
 
 #: ckan/templates/user/perform_reset.html:7
 msgid "Password Reset"
@@ -4651,7 +4652,8 @@ msgstr "Wie funktioniert das?"
 #: ckan/templates/user/perform_reset.html:40
 msgid "Simply enter a new password and we'll update your account"
 msgstr ""
-"Gib einfach dein neues Passwort ein und wir aktualisieren dein Benutzerkonto"
+"Geben Sie einfach Ihr neues Passwort ein und wir aktualisieren Ihr "
+"Benutzerkonto"
 
 #: ckan/templates/user/read.html:21
 msgid "User hasn't created any datasets."
@@ -4659,7 +4661,7 @@ msgstr "Benutzer hat keine Datensätze erstellt."
 
 #: ckan/templates/user/read_base.html:39
 msgid "You have not provided a biography."
-msgstr "Du hast keine Biographie angegeben."
+msgstr "Sie haben keine Biographie angegeben."
 
 #: ckan/templates/user/read_base.html:41
 msgid "This user has no biography."
@@ -4671,7 +4673,7 @@ msgstr "Open ID"
 
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "This means only you can see this"
-msgstr "Das heißt, nur du kannst dies sehen"
+msgstr "Das heißt, nur Sie können dies sehen"
 
 #: ckan/templates/user/read_base.html:87
 msgid "Member Since"
@@ -4699,8 +4701,8 @@ msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
 msgstr ""
-"Gibt deinen Nutzernamen in das Feld ein und wir senden dir eine E-Mail mit "
-"einem Link um ein neues Passwort zu setzen."
+"Geben Sie Ihren Nutzernamen in das Feld ein und wir senden Ihnen eine E-Mail"
+" mit einem Link um ein neues Passwort zu setzen."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
 #: ckan/templates/user/snippets/followee_dropdown.html:15
@@ -4713,7 +4715,7 @@ msgstr "Suche Liste..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:44
 msgid "You are not following anything"
-msgstr "Du folgst keinen Inhalten"
+msgstr "Sie folgen keinen Inhalten"
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"

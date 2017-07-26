@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2017\n"
+"Last-Translator: Hilde Austlid <hilde.austlid@vegvesen.no>, 2017\n"
 "Language-Team: Norwegian (https://www.transifex.com/okfn/teams/11162/no/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
-msgstr "Fullfør"
+msgstr "Fullførstikkorauthori"
 
 #: ckanext/datapusher/helpers.py:22
 msgid "Pending"
@@ -55,7 +55,7 @@ msgstr "Ressursen ikke funnet"
 #: ckan/controllers/user.py:85 ckan/controllers/user.py:116
 #: ckan/controllers/user.py:594 ckanext/datapusher/plugin.py:68
 msgid "Not authorized to see this page"
-msgstr "Ikke autorisert til å se denne siden"
+msgstr "Ikke tilgang til å se denne siden"
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:12
 msgid "Upload to DataStore"
@@ -72,7 +72,7 @@ msgstr "Feil:"
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:36
 msgid "Error traceback:"
-msgstr ""
+msgstr "Sporing av feil: "
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:48
 msgid "Status"
@@ -105,7 +105,7 @@ msgstr "DataStore"
 #: ckanext/datastore/controller.py:46
 #, python-format
 msgid "format: must be one of %s"
-msgstr ""
+msgstr "format: må være en av %s"
 
 #: ckanext/datastore/controller.py:58
 msgid "DataStore resource not found"
@@ -203,13 +203,13 @@ msgstr "Eksempel: Python"
 
 #: ckanext/datastore/templates/datastore/dictionary.html:16
 msgid "Field {num}."
-msgstr ""
+msgstr "Felt {num}."
 
 #: ckanext/datastore/templates/datastore/dictionary.html:18
 #: ckanext/datastore/templates/package/resource_read.html:20
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:18
 msgid "Label"
-msgstr ""
+msgstr "Merkelapp"
 
 #: ckan/templates/group/snippets/group_form.html:20
 #: ckan/templates/organization/snippets/organization_form.html:20
@@ -229,16 +229,16 @@ msgstr "Lagre"
 #: ckanext/datastore/templates/package/resource_edit_base.html:6
 #: ckanext/datastore/templates/package/resource_read.html:14
 msgid "Data Dictionary"
-msgstr ""
+msgstr "Dataordbok"
 
 #: ckanext/datastore/templates/package/resource_read.html:18
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:17
 msgid "Column"
-msgstr ""
+msgstr "Kolonne"
 
 #: ckanext/datastore/templates/package/resource_read.html:19
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #: ckan/public/base/javascript/modules/activity-stream.js:97
 #: ckan/public/base/javascript/modules/popover-context.js:62
@@ -265,15 +265,15 @@ msgstr "Tabell"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:6
 msgid "Responsive display"
-msgstr ""
+msgstr "Responsiv visning"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:12
 msgid "Show Columns"
-msgstr ""
+msgstr "Vis kolonner"
 
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:28
 msgid "Hide/Unhide Columns"
-msgstr ""
+msgstr "Skjul/vis kolonner"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
@@ -300,7 +300,7 @@ msgstr "Relevans"
 #: ckan/templates/snippets/sort_by.html:15
 #: ckanext/example_idatasetform/templates/package/search.html:13
 msgid "Name Ascending"
-msgstr "Navn nedenfra og opp"
+msgstr "Navn stigende alfabetisk"
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:17
 #: ckan/templates/organization/bulk_process.html:98
@@ -312,7 +312,7 @@ msgstr "Navn nedenfra og opp"
 #: ckan/templates/snippets/sort_by.html:16
 #: ckanext/example_idatasetform/templates/package/search.html:14
 msgid "Name Descending"
-msgstr "Navn ovenfra og ned"
+msgstr "Navn synkende alfabetisk"
 
 #: ckan/templates/group/read.html:18
 #: ckan/templates/organization/bulk_process.html:99
@@ -361,7 +361,7 @@ msgstr "egendefinert ressurstekst"
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr ""
+msgstr "Denne teksten er ikke oversatt"
 
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
@@ -444,23 +444,23 @@ msgstr "Kart"
 
 #: ckanext/reclineview/theme/public/recline_view.js:28
 msgid "error loading view"
-msgstr ""
+msgstr "feil ved lasting av visning"
 
 #: ckanext/reclineview/theme/public/recline_view.js:75
 msgid "Could not load view"
-msgstr ""
+msgstr "Klarte ikke å laste visning"
 
 #: ckanext/reclineview/theme/public/recline_view.js:77
 msgid "DataStore returned an error"
-msgstr ""
+msgstr "Feilmelding fra DataStore"
 
 #: ckanext/reclineview/theme/public/recline_view.js:79
 msgid "DataProxy returned an error"
-msgstr ""
+msgstr "Feilmelding fra DataProxy"
 
 #: ckanext/reclineview/theme/public/recline_view.js:193
 msgid "Grid"
-msgstr ""
+msgstr "Rutenett"
 
 #: ckan/templates/package/snippets/view_form_filters.html:46
 #: ckanext/reclineview/theme/public/recline_view.js:215
@@ -620,7 +620,7 @@ msgstr "Antall datasett"
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "Brukere som har opprettet flest datasett"
 
 #: ckan/logic/converters.py:121 ckan/logic/validators.py:214
 #: ckan/logic/validators.py:231 ckan/logic/validators.py:706
@@ -913,7 +913,7 @@ msgstr "Grupper"
 #: ckan/templates/tag/index.html:3 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:12
 msgid "Tags"
-msgstr "Stikkord (tags)"
+msgstr "Stikkord"
 
 #: ckan/controllers/group.py:308 ckan/controllers/home.py:64
 #: ckan/controllers/package.py:243 ckan/lib/helpers.py:836
@@ -930,15 +930,15 @@ msgstr "Lisenser"
 #: ckan/controllers/package.py:1387 ckan/controllers/package.py:1421
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr "Bruker %r ikke autorisert til å redigere %s"
+msgstr "Bruker %r har ikke tillatelse til å redigere %s"
 
 #: ckan/controllers/group.py:442
 msgid "Not authorized to perform bulk update"
-msgstr "Ikke autorisert til å utføre bulk-oppdatering"
+msgstr "Ikke tilgang til å utføre bulk-oppdatering"
 
 #: ckan/controllers/group.py:460
 msgid "Unauthorized to create a group"
-msgstr "Ikke autorisert til å opprette en ny gruppe"
+msgstr "Ikke tilgang til å opprette en ny gruppe"
 
 #: ckan/controllers/group.py:538 ckan/controllers/group.py:568
 #: ckan/controllers/package.py:922 ckan/controllers/package.py:970
@@ -950,12 +950,12 @@ msgstr "Integritetsfeil"
 #: ckan/controllers/group.py:594
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
-msgstr "Bruker %r ikke autorisert til å redigere rettighetene til %s"
+msgstr "Bruker %r har ikke tilgang til å redigere rettighetene til %s"
 
 #: ckan/controllers/group.py:614 ckan/controllers/group.py:629
 #, python-format
 msgid "Unauthorized to delete group %s"
-msgstr "Ikke autorisert til å slette gruppen %s"
+msgstr "Ikke tillatelse til å slette gruppen %s"
 
 #: ckan/controllers/group.py:620
 msgid "Organization has been deleted."
@@ -973,17 +973,17 @@ msgstr "%s har blitt slettet."
 #: ckan/controllers/group.py:653
 #, python-format
 msgid "User %r not authorized to edit members of %s"
-msgstr ""
+msgstr "Brukeren %r har ikke tilgang til å redigere medlemmer av %s"
 
 #: ckan/controllers/group.py:705
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr "Ikke autorisert til å legge medlem til gruppen %s"
+msgstr "Ikke tilgang til å legge medlem til gruppen %s"
 
 #: ckan/controllers/group.py:724 ckan/controllers/group.py:737
 #, python-format
 msgid "Unauthorized to delete group %s members"
-msgstr "Ikke autorisert til å slette medlemmer fra gruppen %s"
+msgstr "Ikke tilgang til å slette medlemmer fra gruppen %s"
 
 #: ckan/controllers/group.py:731
 msgid "Group member has been deleted."
@@ -1018,7 +1018,7 @@ msgstr "Du følger ikke lenger {0}"
 #: ckan/controllers/group.py:894 ckan/controllers/user.py:580
 #, python-format
 msgid "Unauthorized to view followers %s"
-msgstr "Ikke autorisert til å se følgere %s"
+msgstr "Ikke tilgang til å se følgere %s"
 
 #: ckan/controllers/home.py:35
 msgid "This site is currently off-line. Database is not initialised."
@@ -1038,7 +1038,7 @@ msgstr ""
 
 #: ckan/controllers/package.py:288
 msgid "Invalid search query: {error_message}"
-msgstr ""
+msgstr "Ugyldig søk: {error_message}"
 
 #: ckan/controllers/package.py:304
 msgid "Parameter \"{parameter_name}\" is not an integer"
@@ -1065,13 +1065,14 @@ msgstr "Ugyldig versjonsformat: %r"
 #: ckan/controllers/package.py:396
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
 msgstr ""
+"Støtter ikke visning av datasett av typen  \"{package_type}\" ({file_!r})."
 
 #: ckan/controllers/package.py:435 ckan/controllers/package.py:817
 #: ckan/controllers/package.py:918 ckan/controllers/package.py:966
 #: ckan/controllers/package.py:1217
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr "Har ikke rettigheten til å lese datakilden %s"
+msgstr "Har ikke tilgang til å lese datakilden %s"
 
 #: ckan/controllers/package.py:444
 msgid "CKAN Dataset Revision History"
@@ -1083,15 +1084,15 @@ msgstr "Siste endringer i CKAN-datasettet:"
 
 #: ckan/controllers/package.py:503
 msgid "Unauthorized to create a package"
-msgstr "Ikke autorisert til å opprette en datakilde"
+msgstr "Ikke tilgang til å opprette en datakilde"
 
 #: ckan/controllers/package.py:573
 msgid "Unauthorized to edit this resource"
-msgstr "Ikke autorisert til å redigere denne ressursen"
+msgstr "Ikke tilgang til å redigere denne ressursen"
 
 #: ckan/controllers/package.py:644
 msgid "Unauthorized to update dataset"
-msgstr "Ikke autorisert til å oppdatere datasettet"
+msgstr "Ikke tilgang til å oppdatere datasettet"
 
 #: ckan/controllers/package.py:646 ckan/controllers/package.py:683
 #: ckan/controllers/package.py:709
@@ -1104,7 +1105,7 @@ msgstr "Du må legge til minst en dataressurs"
 
 #: ckan/controllers/package.py:681
 msgid "Unauthorized to create a resource"
-msgstr "Ikke autorisert til å opprette en ressurs"
+msgstr "Ikke tilgang til å opprette en ressurs"
 
 #: ckan/controllers/package.py:714
 msgid "Unauthorized to create a resource for this package"
@@ -1125,7 +1126,7 @@ msgstr "Datasettet har blitt slettet."
 #: ckan/controllers/package.py:1018 ckan/controllers/package.py:1036
 #, python-format
 msgid "Unauthorized to delete package %s"
-msgstr "Ikke autorisert til å slette datakilde %s"
+msgstr "Ikke tilgang til å slette datakilde %s"
 
 #: ckan/controllers/package.py:1041
 msgid "Resource has been deleted."
@@ -1134,7 +1135,7 @@ msgstr "Ressursen har blitt slettet."
 #: ckan/controllers/package.py:1052
 #, python-format
 msgid "Unauthorized to delete resource %s"
-msgstr "Ikke autorisert til å slette ressursen %s"
+msgstr "Ikke tilgang til å slette ressursen %s"
 
 #: ckan/controllers/package.py:1111 ckan/controllers/package.py:1554
 msgid "Resource view not found"
@@ -1151,12 +1152,12 @@ msgstr "Materiale til nedlasting ikke tilgjengelig."
 #: ckan/controllers/package.py:1296
 #, python-format
 msgid "Unauthorized to read dataset %s"
-msgstr "Ikke autorisert til å lese datasettet %s"
+msgstr "Ikke tilgang til å lese datasettet %s"
 
 #: ckan/controllers/package.py:1404
 #, python-format
 msgid "Unauthorized to read resource %s"
-msgstr "Ingen tillatelse å lese ressursen %s"
+msgstr "Ikke tilgang til å lese ressursen %s"
 
 #: ckan/controllers/package.py:1468
 msgid "Unauthorized to edit resource"
@@ -1209,11 +1210,11 @@ msgstr "Stikkord ikke funnet"
 
 #: ckan/controllers/user.py:161
 msgid "Unauthorized to register as a user."
-msgstr "Ikke autorisert til å registrere som bruker."
+msgstr "Ikke tilgang til å registrere som bruker."
 
 #: ckan/controllers/user.py:179
 msgid "Unauthorized to create a user"
-msgstr "Ikke autorisert til å opprette en brukerkonto"
+msgstr "Ikke tilgang til å opprette en brukerkonto"
 
 #: ckan/controllers/user.py:210
 msgid "Unauthorized to delete user with id \"{user_id}\"."
@@ -1227,7 +1228,7 @@ msgstr "Ingen bruker spesifisert"
 #: ckan/controllers/user.py:375 ckan/controllers/user.py:544
 #, python-format
 msgid "Unauthorized to edit user %s"
-msgstr "Ikke autorisert til å redigere brukeren %s"
+msgstr "Ikke tilgang til å redigere brukeren %s"
 
 #: ckan/controllers/user.py:232 ckan/controllers/user.py:247
 #: ckan/controllers/user.py:314 ckan/controllers/user.py:377
@@ -1243,7 +1244,7 @@ msgstr "Profil oppdatert"
 #: ckan/controllers/user.py:245
 #, python-format
 msgid "Unauthorized to create user %s"
-msgstr "Ikke autorisert til å opprette bruker %s"
+msgstr "Ikke tilgang til å opprette bruker %s"
 
 #: ckan/controllers/user.py:251
 msgid "Bad Captcha. Please try again."
@@ -1260,12 +1261,12 @@ msgstr ""
 
 #: ckan/controllers/user.py:293
 msgid "Unauthorized to edit a user."
-msgstr "Ikke autorisert til å redigere en bruker."
+msgstr "Ikke tilgang til å redigere en bruker."
 
 #: ckan/controllers/user.py:320
 #, python-format
 msgid "User %s not authorized to edit %s"
-msgstr "Bruker %s ikke autorisert til å redigere %s"
+msgstr "Bruker %s ikke tilgang til å redigere %s"
 
 #: ckan/controllers/user.py:385
 msgid "Password entered was incorrect"
@@ -1285,7 +1286,7 @@ msgstr "Innlogging mislyktes. Galt brukernavn eller passord."
 
 #: ckan/controllers/user.py:461
 msgid "Unauthorized to request reset password."
-msgstr "Ikke autorisert til å be om tilbakestilling av passord."
+msgstr "Ikke tilgang til å be om tilbakestilling av passord."
 
 #: ckan/controllers/user.py:490
 #, python-format
@@ -1308,7 +1309,7 @@ msgstr "Kunne ikke sende tilbakestillings-lenke: %s"
 
 #: ckan/controllers/user.py:516
 msgid "Unauthorized to reset password."
-msgstr "Ikke autorisert til å tilbakestille passord."
+msgstr "Ikke tilgang til å tilbakestille passord."
 
 #: ckan/controllers/user.py:528
 msgid "Invalid reset key. Please try again."
@@ -1448,8 +1449,8 @@ msgstr "Se"
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} ny aktivitet fra {site_title}"
+msgstr[1] "{n} nye aktiviteter fra {site_title}"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -1535,7 +1536,7 @@ msgstr[1] "mer enn {years} år siden"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr ""
+msgstr "{day}. {month} {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
@@ -1675,7 +1676,7 @@ msgstr "Oppgi et heltall"
 
 #: ckan/lib/navl/validators.py:124
 msgid "Must be a Unicode string value"
-msgstr ""
+msgstr "Må være en unicode-streng"
 
 #: ckan/logic/__init__.py:98 ckan/logic/action/__init__.py:60
 msgid "Package resource(s) invalid"
@@ -1697,7 +1698,7 @@ msgstr "Klarte ikke å tolke som gyldig JSON"
 
 #: ckan/logic/validators.py:33 ckan/logic/validators.py:42
 msgid "An organization must be provided"
-msgstr ""
+msgstr "Du må oppgi en organisasjon"
 
 #: ckan/logic/validators.py:47
 msgid "Organization does not exist"
@@ -1814,7 +1815,7 @@ msgstr ""
 #: ckan/logic/validators.py:436
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
-msgstr "Stikkordet \"%s\" kan ikke skrives med store bokstaver"
+msgstr "Stikkordet \"%s\" kan ikke inneholde store bokstaver"
 
 #: ckan/logic/validators.py:545
 msgid "User names must be strings"
@@ -1924,7 +1925,7 @@ msgstr "Det finnes et skjema-felt med samme navn"
 
 #: ckan/logic/validators.py:846
 msgid "Email {email} is not a valid format"
-msgstr ""
+msgstr "E-post-adressa {email} har ikke gyldig format."
 
 #: ckan/logic/action/create.py:183 ckan/logic/action/create.py:665
 #, python-format
@@ -1965,6 +1966,7 @@ msgstr "Rangeringen må være mellom %i og %i."
 #: ckan/logic/action/create.py:1064
 msgid "Error sending the invite email, the user was not created: {0}"
 msgstr ""
+"Klarte ikke å sende invitasjons-e-post, brukeren ble ikke opprettet: {0}"
 
 #: ckan/logic/action/create.py:1277 ckan/logic/action/create.py:1284
 msgid "You must be logged in to follow users"
@@ -1993,7 +1995,7 @@ msgstr "Du må være logget inn for å følge en gruppe."
 
 #: ckan/logic/action/delete.py:54
 msgid " Delete User: {0}"
-msgstr ""
+msgstr "Slett bruker: {0}"
 
 #: ckan/logic/action/delete.py:92
 #, python-format
@@ -2077,18 +2079,17 @@ msgstr "Fant ikke organisasjon."
 #: ckan/logic/auth/create.py:27 ckan/logic/auth/create.py:45
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr "Bruker %s ikke autorisert til å registrere datakilder"
+msgstr "Bruker %s ikke tilgang til å registrere datakilder"
 
 #: ckan/logic/auth/create.py:31 ckan/logic/auth/update.py:45
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr "Bruker %s ikke autorisert til å redigere disse gruppene"
+msgstr "Bruker %s ikke tilgang til å redigere disse gruppene"
 
 #: ckan/logic/auth/create.py:38
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
-msgstr ""
-"Bruker %s ikke autorisert til å legge datasett til denne organisasjonen"
+msgstr "Bruker %s ikke tilgang til å legge datasett til denne organisasjonen"
 
 #: ckan/logic/auth/create.py:61
 msgid "No dataset id provided, cannot check auth."
@@ -2108,17 +2109,17 @@ msgstr ""
 #: ckan/logic/auth/create.py:108
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr "Bruker %s ikke autorisert til å redigere disse datakildene"
+msgstr "Bruker %s ikke tilgang til å redigere disse datakildene"
 
 #: ckan/logic/auth/create.py:119
 #, python-format
 msgid "User %s not authorized to create groups"
-msgstr "Bruker %s ikke autorisert til å opprette grupper"
+msgstr "Bruker %s ikke tilgang til å opprette grupper"
 
 #: ckan/logic/auth/create.py:129
 #, python-format
 msgid "User %s not authorized to create organizations"
-msgstr "Bruker %s ikke autorisert til å opprette organisasjoner"
+msgstr "Bruker %s har ikke tilgang til å opprette organisasjoner"
 
 #: ckan/logic/auth/create.py:145
 msgid "User {user} not authorized to create users via the API"
@@ -2143,17 +2144,17 @@ msgstr "Gyldig API-nøkkel påkrevet for å opprette en gruppe"
 #: ckan/logic/auth/create.py:237
 #, python-format
 msgid "User %s not authorized to add members"
-msgstr "Bruker %s ikke autorisert til å legge til medlemmer"
+msgstr "Bruker %s har ikke tilgang til å legge til medlemmer"
 
 #: ckan/logic/auth/create.py:261 ckan/logic/auth/update.py:115
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr "Bruker %s ikke autorisert til å redigere gruppen %s"
+msgstr "Bruker %s har ikke tilgang til å redigere gruppen %s"
 
 #: ckan/logic/auth/delete.py:40
 #, python-format
 msgid "User %s not authorized to delete resource %s"
-msgstr "Bruker %s ikke autorisert til å slette ressursen %s"
+msgstr "Bruker %s har ikke tilgang til å slette ressursen %s"
 
 #: ckan/logic/auth/delete.py:56
 msgid "Resource view not found, cannot check auth."
@@ -2162,51 +2163,51 @@ msgstr "Fant ikke ressursvisning, kan ikke sjekke autentisering."
 #: ckan/logic/auth/delete.py:73
 #, python-format
 msgid "User %s not authorized to delete relationship %s"
-msgstr "Bruker %s ikke autorisert til å slette forhold %s"
+msgstr "Bruker %s har ikke tilgang til å slette forhold %s"
 
 #: ckan/logic/auth/delete.py:82
 #, python-format
 msgid "User %s not authorized to delete groups"
-msgstr "Bruker %s ikke autorisert til å slette grupper"
+msgstr "Bruker %s har ikke tilgang til å slette grupper"
 
 #: ckan/logic/auth/delete.py:86
 #, python-format
 msgid "User %s not authorized to delete group %s"
-msgstr "Bruker %s ikke autorisert til å slette gruppen %s"
+msgstr "Bruker %s har ikke tilgang til å slette gruppen %s"
 
 #: ckan/logic/auth/delete.py:103
 #, python-format
 msgid "User %s not authorized to delete organizations"
-msgstr "Bruker %s ikke autorisert til å slette organisasjoner"
+msgstr "Bruker %s har ikke tilgang til å slette organisasjoner"
 
 #: ckan/logic/auth/delete.py:107
 #, python-format
 msgid "User %s not authorized to delete organization %s"
-msgstr "Bruker %s ikke autorisert til å slette organisasjonen %s"
+msgstr "Bruker %s har ikke tilgang til å slette organisasjonen %s"
 
 #: ckan/logic/auth/delete.py:120
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr "Bruker %s ikke autorisert til å slette task_status"
+msgstr "Bruker %s har ikke tilgang til å slette task_status"
 
 #: ckan/logic/auth/get.py:13 ckan/logic/auth/get.py:285
 msgid "Not authorized"
-msgstr "Ikke autorisert"
+msgstr "Ikke tilgang"
 
 #: ckan/logic/auth/get.py:109
 #, python-format
 msgid "User %s not authorized to read these packages"
-msgstr "Bruker %s ikke autorisert til å lese disse datakildene"
+msgstr "Bruker %s har ikke tilgang til å lese disse datakildene"
 
 #: ckan/logic/auth/get.py:124
 #, python-format
 msgid "User %s not authorized to read package %s"
-msgstr "Bruker %s ikke autorisert til å lese datakilden %s"
+msgstr "Bruker %s har ikke tilgang il å lese datakilden %s"
 
 #: ckan/logic/auth/get.py:143
 #, python-format
 msgid "User %s not authorized to read resource %s"
-msgstr "Bruker %s ikke autorisert til å lese ressurs %s"
+msgstr "Bruker %s har ikke tilgang til å lese ressurs %s"
 
 #: ckan/logic/auth/get.py:170
 #, python-format
@@ -2220,32 +2221,32 @@ msgstr "Du må være innlogget for å få tilgang til kontrollpanelet ditt."
 #: ckan/logic/auth/update.py:39
 #, python-format
 msgid "User %s not authorized to edit package %s"
-msgstr "Bruker %s ikke autorisert til å redigere datakilden %s"
+msgstr "Bruker %s har ikke tilgang til å redigere datakilden %s"
 
 #: ckan/logic/auth/update.py:71
 #, python-format
 msgid "User %s not authorized to edit resource %s"
-msgstr "Bruker %s ikke autorisert til å redigere ressursen %s"
+msgstr "Bruker %s har ikke tilgang til å redigere ressursen %s"
 
 #: ckan/logic/auth/update.py:100
 #, python-format
 msgid "User %s not authorized to change state of package %s"
-msgstr "Bruker %s ikke autorisert til å endre status for datakilden %s"
+msgstr "Bruker %s har ikke tilgang til å endre status for datakilden %s"
 
 #: ckan/logic/auth/update.py:128
 #, python-format
 msgid "User %s not authorized to edit organization %s"
-msgstr "Bruker %s ikke autorisert til å redigere organisasjonen %s"
+msgstr "Bruker %s har ikke tilgang til å redigere organisasjonen %s"
 
 #: ckan/logic/auth/update.py:145
 #, python-format
 msgid "User %s not authorized to change state of group %s"
-msgstr "Bruker %s ikke autorisert til å endre status for gruppen %s"
+msgstr "Bruker %s har ikke tilgang til å endre status for gruppen %s"
 
 #: ckan/logic/auth/update.py:162
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
-msgstr "Bruker %s ikke autorisert til å redigere tillatelsene for gruppen %s"
+msgstr "Bruker %s har ikke tilgang til å redigere tillatelsene for gruppen %s"
 
 #: ckan/logic/auth/update.py:190
 msgid "Have to be logged in to edit user"
@@ -2254,7 +2255,7 @@ msgstr "Må være logget inn for å redigere bruker"
 #: ckan/logic/auth/update.py:198
 #, python-format
 msgid "User %s not authorized to edit user %s"
-msgstr "Bruker %s ikke autorisert til å redigere bruker %s"
+msgstr "Bruker %s har ikke tilgang til å redigere bruker %s"
 
 #: ckan/logic/auth/update.py:209
 msgid "User {0} not authorized to update user {1}"
@@ -2263,17 +2264,17 @@ msgstr "Bruker {0} har ikke tilgang til å oppdatere bruker {1}"
 #: ckan/logic/auth/update.py:217
 #, python-format
 msgid "User %s not authorized to change state of revision"
-msgstr "Bruker %s ikke autorisert til å endre status for versjonen"
+msgstr "Bruker %s har ikke tilgang til å endre status for versjonen"
 
 #: ckan/logic/auth/update.py:226
 #, python-format
 msgid "User %s not authorized to update task_status table"
-msgstr "Bruker %s ikke autorisert til å oppdatere tabellen task_status"
+msgstr "Bruker %s har ikke tilgang til å oppdatere tabellen task_status"
 
 #: ckan/logic/auth/update.py:240
 #, python-format
 msgid "User %s not authorized to update term_translation table"
-msgstr "Bruker %s ikke autorisert til å oppdatere term_translation table"
+msgstr "Bruker %s har ikke tilgang til å oppdatere term_translation table"
 
 #: ckan/logic/auth/update.py:262
 msgid "Valid API key needed to edit a package"
@@ -2408,8 +2409,8 @@ msgstr "Ingen treff"
 #, python-format
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "For kort, må være minst ett tegn"
+msgstr[1] "For kort, må være minst %(num)d tegn"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
@@ -2539,7 +2540,7 @@ msgstr "Opprett filter"
 
 #: ckan/public/base/javascript/modules/resource-view-filters.js:52
 msgid "Select a field"
-msgstr ""
+msgstr "Velg et felt"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:57
 #: ckan/templates/group/edit_base.html:22 ckan/templates/group/members.html:28
@@ -2577,7 +2578,7 @@ msgstr "CKAN API"
 
 #: ckan/templates/footer.html:16
 msgid "CKAN Association"
-msgstr ""
+msgstr "CKAN Association"
 
 #: ckan/templates/footer.html:24
 msgid ""
@@ -3271,7 +3272,7 @@ msgstr "grupper"
 
 #: ckan/templates/macros/autoform.html:62
 msgid "Site logo"
-msgstr ""
+msgstr "Logo for nettstedet"
 
 #: ckan/templates/macros/form.html:126
 #, python-format
@@ -3418,8 +3419,8 @@ msgstr ""
 #: ckan/templates/organization/members.html:14
 msgid "{count} member"
 msgid_plural "{count} members"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} medlem"
+msgstr[1] "{count} medlemmer"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3726,7 +3727,7 @@ msgstr "Verdi"
 
 #: ckan/templates/package/resource_read.html:154
 msgid "Data last updated"
-msgstr ""
+msgstr "Data sist oppdatert"
 
 #: ckan/templates/package/resource_read.html:155
 #: ckan/templates/package/resource_read.html:159
@@ -3737,7 +3738,7 @@ msgstr "ukjent"
 
 #: ckan/templates/package/resource_read.html:158
 msgid "Metadata last updated"
-msgstr ""
+msgstr "Metadata sist oppdatert"
 
 #: ckan/templates/package/resource_read.html:162
 #: ckan/templates/package/snippets/additional_info.html:70
@@ -3853,21 +3854,22 @@ msgstr "Sist oppdatert"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
-msgstr ""
+msgstr "Før du kan opprette et datasett må du opprette en organisasjon"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
-msgstr ""
+msgstr "Opprett ny organisasjon"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:18
 msgid "There are no organizations to which you can assign this dataset."
 msgstr ""
+"Det finnes ikke noen organisasjoner som du kan knytte dette datasettet til"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:19
 msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
-msgstr ""
+msgstr "Be en administrator om å opprette en organisasjon før du fortsetter."
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 #: ckan/templates/package/snippets/view_form.html:8
@@ -3975,11 +3977,11 @@ msgstr "Oppdater ressurs"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "Data"
-msgstr ""
+msgstr "Data"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "http://example.com/external-data.csv"
-msgstr ""
+msgstr "http://example.com/eksterne-data.csv"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
@@ -4059,7 +4061,7 @@ msgstr "Inkluder (embed)"
 
 #: ckan/templates/package/snippets/resource_view.html:24
 msgid "This resource view is not available at the moment."
-msgstr "Denne ressurvisninger er ikke tilgjengelig nå."
+msgstr "Denne ressurvisningen er ikke tilgjengelig nå."
 
 #: ckan/templates/package/snippets/resource_view.html:63
 msgid "Embed resource view"
@@ -4209,7 +4211,7 @@ msgstr "Tilbakesporings-URL"
 
 #: ckan/templates/snippets/facet_list.html:80
 msgid "Show More {facet_type}"
-msgstr "Vis mer {facet_type}"
+msgstr "Vis flere {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:83
 msgid "Show Only Popular {facet_type}"
@@ -4275,6 +4277,8 @@ msgid ""
 " <p id=\"search-error\"><strong>There was an error while searching.</strong>"
 " Please try again.</p> "
 msgstr ""
+"<p id=\"search-error\"><strong>Det oppstod en feil under søkinga.</strong> "
+"Prøv igjen.</p>"
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4454,7 +4458,7 @@ msgstr "Endre passord"
 
 #: ckan/templates/user/edit_user_form.html:29
 msgid "Sysadmin Password"
-msgstr ""
+msgstr "Passord for systemadministrator"
 
 #: ckan/templates/user/edit_user_form.html:37
 #: ckan/templates/user/logout_first.html:12
