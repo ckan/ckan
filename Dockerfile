@@ -14,6 +14,7 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && \
         libxml2-dev \
         libxslt-dev \
         libgeos-dev \
+        vim \
 	&& apt-get -q clean
 
 # Define environment variables
