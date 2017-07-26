@@ -11,6 +11,7 @@ this.ckan.module('image-upload', function($) {
       field_url: 'image_url',
       field_clear: 'clear_upload',
       field_name: 'name',
+      field_query: 'query',
       upload_label: ''
     },
 
@@ -33,6 +34,7 @@ this.ckan.module('image-upload', function($) {
       var field_url = 'input[name="' + options.field_url + '"]';
       var field_clear = 'input[name="' + options.field_clear + '"]';
       var field_name = 'input[name="' + options.field_name + '"]';
+      var field_query = 'textarea[name="' + options.field_query + '"]';
 
       this.input = $(field_upload, this.el);
       this.field_url = $(field_url, this.el).parents('.form-group');
@@ -43,6 +45,8 @@ this.ckan.module('image-upload', function($) {
       this.label_location = $('label[for="field-image-url"]');
       // determines if the resource is a data resource
       this.is_data_resource = (this.options.field_url === 'url') && (this.options.field_upload === 'upload');
+      this.field_query = $(field_query).parents('.control-group');
+      this.field_query_input = $(field_query)[0];
 
       // Is there a clear checkbox on the form already?
       var checkbox = $(field_clear, this.el);
@@ -53,6 +57,16 @@ this.ckan.module('image-upload', function($) {
       // Adds the hidden clear input to the form
       this.field_clear = $('<input type="hidden" name="' + options.field_clear +'">')
         .appendTo(this.el);
+
+      // Button to use a query for this resource
+      if (this.field_query_input) {
+        this.button_query = $('<a href="javascript:;" class="btn">' +
+                           '<i class="fa fa-filter"></i>' +
+                           this._('Query') + '</a>')
+          .prop('title', this._('Query data from other resources'))
+          .on('click', this._onQuery)
+          .insertAfter(this.input);
+      }
 
       // Button to set the field to be a URL
       this.button_url = $('<a href="javascript:;" class="btn btn-default">' +
@@ -93,7 +107,8 @@ this.ckan.module('image-upload', function($) {
         .add(this.button_url)
         .add(this.input)
         .add(this.field_url)
-        .add(this.field_image);
+        .add(this.field_image)
+        .add(this.field_query);
 
       // Disables autoName if user modifies name field
       this.field_name
@@ -117,6 +132,8 @@ this.ckan.module('image-upload', function($) {
         this.field_url_input.val(filename);
 
         this._updateUrlLabel(this._('File'));
+      } else if (this.field_query_input && this.field_query_input.value) {
+        this._showOnlyQuery();
       } else {
         this._showOnlyButtons();
       }
@@ -178,6 +195,12 @@ this.ckan.module('image-upload', function($) {
       this._updateUrlLabel(this._('URL'));
     },
 
+    _onQuery: function() {
+      this._showOnlyQuery();
+      this.field_query_input.focus()
+        .on('blur', this._onQueryBlur);
+    },
+
     /* Event listener for resetting the field back to the blank state
      *
      * Returns nothing.
@@ -231,6 +254,10 @@ this.ckan.module('image-upload', function($) {
       this.field_url.show();
     },
 
+    _showOnlyQuery: function() {
+      this.fields.hide();
+      this.field_query.show();
+    },
     /* Event listener for when a user mouseovers the hidden file input
      *
      * Returns nothing.

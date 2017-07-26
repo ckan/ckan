@@ -418,7 +418,7 @@ options     - A list/tuple of fields to be used as <options>.
   #}
 {% macro image_upload(data, errors, field_url='image_url', field_upload='image_upload', field_clear='clear_upload',
                       is_url=false, is_upload=false, is_upload_enabled=false, placeholder=false,
-                      url_label='', upload_label='', field_name='image_url')  %}
+                      url_label='', upload_label='', field_name='image_url', query=false)  %}
   {% set placeholder = placeholder if placeholder else _('http://example.com/my-image.jpg') %}
   {% set url_label = url_label or _('Image URL')  %}
   {% set upload_label = upload_label or _('Image')  %}
@@ -428,8 +428,7 @@ options     - A list/tuple of fields to be used as <options>.
        data-module-field_url="{{ field_url }}" data-module-field_upload="{{ field_upload }}" data-module-field_clear="{{ field_clear }}" data-module-upload_label="{{ upload_label }}" data-module-field_name="{{ field_name }}">
   {% endif %}
 
-
-   {{ input(field_url, label=url_label, id='field-image-url', type='url', placeholder=placeholder, value=data.get(field_url), error=errors.get(field_url), classes=['control-full']) }}
+  {{ input(field_url, label=url_label, id='field-image-url', type='url', placeholder=placeholder, value=data.get(field_url), error=errors.get(field_url), classes=['control-full']) }}
 
 
     {% if is_upload_enabled %}
@@ -439,6 +438,10 @@ options     - A list/tuple of fields to be used as <options>.
     {% endif %}
     {% endif %}
 
-    {% if is_upload_enabled %}</div>{% endif %}
+  {% if query %}
+    {{ textarea('query', label=_('Query'), id='field-query', value=data.get('query'), placeholder="SELECT * FROM ...", rows=5, cols=20) }}
+  {% endif %}
+
+  {% if is_upload_enabled %}</div>{% endif %}
 
   {% endmacro %}
