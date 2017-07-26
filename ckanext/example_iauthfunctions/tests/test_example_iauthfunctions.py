@@ -109,7 +109,6 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
         }
         helpers.call_action('group_create', context, name='test-group')
 
-
     @helpers.change_config('ckan.iauthfunctions.users_can_create_groups', False)
     def test_user_cannot_create_group_when_config_is_False(self):
         user = factories.User()
