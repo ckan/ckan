@@ -580,9 +580,6 @@ class MockRoutingPlugin(p.SingletonPlugin):
         _map.connect('/pylons_translated',
                      controller=self.controller, action='test_translation')
 
-        _map.connect('/pylons_translated',
-                     controller=self.controller, action='test_translation')
-
         return _map
 
     def after_map(self, _map):
