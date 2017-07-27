@@ -12,12 +12,9 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
 from ckan.tests import helpers
-from ckan.common import config
 from ckan.plugins.toolkit import ValidationError
 import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
 from ckan.logic import NotFound
-
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
     rebuild_all_dbs, set_url_type, DatastoreFunctionalTestBase)
@@ -32,6 +29,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+
+        cls.app = helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
@@ -54,8 +53,10 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         engine = db.get_write_engine()
 
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        set_url_type(
-            model.Package.get('annakarenina').resources, cls.sysadmin_user)
+
+        with cls.app.flask_app.test_request_context():
+            set_url_type(
+                model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):
@@ -117,9 +118,11 @@ class TestDatastoreDelete(tests.WsgiAppCase):
                 'package_id': package['id']
             },
         }
-        result = helpers.call_action('datastore_create', **data)
-        resource_id = result['resource_id']
-        helpers.call_action('resource_delete', id=resource_id)
+
+        with self.app.flask_app.test_request_context():
+            result = helpers.call_action('datastore_create', **data)
+            resource_id = result['resource_id']
+            helpers.call_action('resource_delete', id=resource_id)
 
         assert_raises(
             NotFound, helpers.call_action, 'datastore_search',

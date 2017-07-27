@@ -154,7 +154,6 @@ def make_flask_stack(conf, **app_conf):
             app.register_extension_blueprint(plugin.get_blueprint())
 
     # Start other middleware
-
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
 

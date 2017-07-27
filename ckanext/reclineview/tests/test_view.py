@@ -14,15 +14,14 @@ import ckan.config.middleware as middleware
 from ckan.tests import helpers, factories
 
 
-class BaseTestReclineViewBase(tests.WsgiAppCase):
+class BaseTestReclineViewBase(object):
     @classmethod
     def setup_class(cls):
-        cls.config_templates = config['ckan.legacy_templates']
-        config['ckan.legacy_templates'] = 'false'
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
+
+        cls.app = helpers._get_test_app()
+
         p.load(cls.view_type)
 
-        cls.app = paste.fixture.TestApp(wsgiapp)
         cls.p = cls.view_class()
 
         create_test_data.CreateTestData.create()
@@ -32,7 +31,6 @@ class BaseTestReclineViewBase(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        config['ckan.legacy_templates'] = cls.config_templates
         p.unload(cls.view_type)
         model.repo.rebuild_db()
 
@@ -44,8 +42,10 @@ class BaseTestReclineViewBase(tests.WsgiAppCase):
         assert not self.p.can_view(data_dict)
 
     def test_title_description_iframe_shown(self):
-        url = h.url_for(controller='package', action='resource_read',
-                        id=self.package.name, resource_id=self.resource_id)
+
+        with self.app.flask_app.test_request_context():
+            url = h.url_for(controller='package', action='resource_read',
+                            id=self.package.name, resource_id=self.resource_id)
         result = self.app.get(url)
         assert self.resource_view['title'] in result
         assert self.resource_view['description'] in result
@@ -86,16 +86,12 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
 
     @classmethod
     def setup_class(cls):
+
+        cls.app = helpers._get_test_app()
         if not p.plugin_loaded('recline_view'):
             p.load('recline_view')
         if not p.plugin_loaded('datastore'):
             p.load('datastore')
-        app_config = config.copy()
-        app_config['ckan.legacy_templates'] = 'false'
-        app_config['ckan.plugins'] = 'recline_view datastore'
-        app_config['ckan.views.default_views'] = 'recline_view'
-        wsgiapp = middleware.make_app(config['global_conf'], **app_config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
     def teardown_class(cls):
@@ -111,12 +107,16 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
             'fields': [{'id': 'a'}, {'id': 'b'}],
             'records': [{'a': 1, 'b': 'xyz'}, {'a': 2, 'b': 'zzz'}]
         }
-        result = helpers.call_action('datastore_create', **data)
 
-        resource_id = result['resource_id']
+        # datastore_create will call internally (or trigger something that
+        # calls it) so we need a Flask app context
+        with self.app.flask_app.test_request_context():
+            result = helpers.call_action('datastore_create', **data)
 
-        url = h.url_for(controller='package', action='resource_read',
-                        id=dataset['id'], resource_id=resource_id)
+            resource_id = result['resource_id']
+
+            url = h.url_for(controller='package', action='resource_read',
+                            id=dataset['id'], resource_id=resource_id)
 
         result = self.app.get(url)
 
