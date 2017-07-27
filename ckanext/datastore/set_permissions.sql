@@ -62,9 +62,9 @@ CREATE OR REPLACE VIEW "_table_metadata" AS
         LEFT OUTER JOIN pg_depend AS d ON d.objid = r.oid
         LEFT OUTER JOIN pg_class AS dependent ON d.refobjid = dependent.oid
     WHERE
-        (dependee.oid != dependent.oid OR dependent.oid IS NULL) AND
+        ((dependee.oid != dependent.oid OR dependent.oid IS NULL) AND
         -- is a table, view or materialized view
-        (dependee.relkind = 'r'::"char" OR dependee.relkind = 'v'::"char"
+        (dependee.relkind = 'r'::"char" OR dependee.relkind = 'v'::"char")
             OR dependee.relkind = 'm'::"char")
         AND dependee.relnamespace = (
             SELECT oid FROM pg_namespace WHERE nspname='public')

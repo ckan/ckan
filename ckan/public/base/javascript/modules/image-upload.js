@@ -119,7 +119,9 @@ this.ckan.module('image-upload', function($) {
         this._nameIsDirty = true;
       }
 
-      if (options.is_url) {
+      if (this.field_query_input && this.field_query_input.value) {
+        this._showOnlyQuery();
+      } else if (options.is_url) {
         this._showOnlyFieldUrl();
 
         this._updateUrlLabel(this._('URL'));
@@ -132,8 +134,6 @@ this.ckan.module('image-upload', function($) {
         this.field_url_input.val(filename);
 
         this._updateUrlLabel(this._('File'));
-      } else if (this.field_query_input && this.field_query_input.value) {
-        this._showOnlyQuery();
       } else {
         this._showOnlyButtons();
       }
