@@ -151,8 +151,7 @@ def _rename_field(data_dict, term, replace):
 
 
 def _get_fields_types(context, data_dict):
-    all_fields = _get_fields(context, data_dict)
-    all_fields.insert(0, {'id': '_id', 'type': 'int'})
+    all_fields = _get_fields(context, data_dict, include_id=True)
     field_types = OrderedDict([(f['id'], f['type']) for f in all_fields])
     return field_types
 
@@ -234,13 +233,13 @@ def _get_field_info(connection, resource_id):
         return {}
 
 
-def _get_fields(context, data_dict):
+def _get_fields(context, data_dict, include_id=False):
     fields = []
     all_fields = context['connection'].execute(
         u'SELECT * FROM "{0}" LIMIT 1'.format(data_dict['resource_id'])
     )
     for field in all_fields.cursor.description:
-        if not field[0].startswith('_'):
+        if (include_id and field[0].decode('utf-8') == '_id') or not field[0].startswith('_'):
             fields.append({
                 'id': field[0].decode('utf-8'),
                 'type': _get_type(context, field[1])
