@@ -171,6 +171,13 @@ def datastore_create(context, data_dict):
     return result
 
 
+def datastore_mv_create(context, data_dict):
+    backend = DatastoreBackend.get_active_backend()
+    resource_id = data_dict['resource_id']
+    p.toolkit.check_access('datastore_create', context, data_dict)
+    backend.mv_create(resource_id, data_dict['query'])
+
+
 def datastore_run_triggers(context, data_dict):
     ''' update each record with trigger
 

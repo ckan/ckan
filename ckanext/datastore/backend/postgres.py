@@ -1770,6 +1770,20 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         finally:
             context['connection'].close()
 
+    def mv_create(self, resource_id, query):
+        # XXX
+        # XXX not even pretending to be safe
+        # XXX
+        sql = u'''
+            DROP MATERIALIZED VIEW IF EXISTS {resource_id};
+            '''.format(resource_id=identifier(resource_id))
+        _write_engine_execute(sql)
+        sql = u'''
+            CREATE MATERIALIZED VIEW {resource_id} AS {query};
+            '''.format(resource_id=identifier(resource_id), query=query)
+        _write_engine_execute(sql)
+
+
     def create(self, context, data_dict):
         '''
         The first row will be used to guess types not in the fields and the

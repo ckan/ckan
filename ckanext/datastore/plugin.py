@@ -92,6 +92,12 @@ class DatastorePlugin(p.SingletonPlugin):
     # IResourceUrlChange
 
     def notify(self, entity, operation=None):
+        # XXX: hack
+        if isinstance(entity, model.Resource) and 'query' in entity.extras:
+            p.toolkit.get_action('datastore_mv_create')(
+                {'model': model, 'ignore_auth': True},
+                {'resource_id': entity.id, 'query': entity.extras['query']})
+            return
         if not isinstance(entity, model.Package) or self.legacy_mode:
             return
         # if a resource is new, it cannot have a datastore resource, yet
@@ -121,6 +127,7 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_function_create': action.datastore_function_create,
             'datastore_function_delete': action.datastore_function_delete,
             'datastore_run_triggers': action.datastore_run_triggers,
+            'datastore_mv_create': action.datastore_mv_create,
         }
         if not self.legacy_mode:
             if getattr(self.backend, 'enable_sql_search', False):
