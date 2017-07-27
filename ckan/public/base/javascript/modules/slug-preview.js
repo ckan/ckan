@@ -18,7 +18,7 @@ this.ckan.module('slug-preview-target', {
 
       // Watch for updates to the target field and update the hidden slug field
       // triggering the "change" event manually.
-      el.on('keyup.slug-preview', function (event) {
+      el.on('keyup.slug-preview input.slug-preview', function (event) {
         sandbox.publish('slug-target-changed', this.value);
         //slug.val(this.value).trigger('change');
       });
@@ -40,7 +40,7 @@ this.ckan.module('slug-preview-slug', function (jQuery) {
       var _ = sandbox.translate;
 
       var slug = el.slug();
-      var parent = slug.parents('.control-group');
+      var parent = slug.parents('.form-group');
       var preview;
 
       if (!(parent.length)) {

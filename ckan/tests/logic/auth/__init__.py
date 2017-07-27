@@ -13,7 +13,7 @@ Tests for auth functions should use the
 Here's an example of a simple :py:mod:`ckan.logic.auth` test:
 
 .. literalinclude:: ../../ckan/tests/logic/auth/test_update.py
-   :start-after: ## START-AFTER
-   :end-before: ## END-BEFORE
+   :start-after: # START-AFTER
+   :end-before: # END-BEFORE
 
 '''

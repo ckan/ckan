@@ -13,7 +13,7 @@ import ckan.model as model
 import ckan.tests.legacy as tests
 
 from ckan.common import config
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
 
 import ckan.tests.helpers as helpers
@@ -21,6 +21,7 @@ import ckan.tests.factories as factories
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+assert_in = nose.tools.assert_in
 
 
 class TestDatastoreSearchNewTest(object):
@@ -67,6 +68,7 @@ class TestDatastoreSearchNewTest(object):
             ],
         }
         result = helpers.call_action('datastore_create', **data)
+
         search_data = {
             'resource_id': resource['id'],
             'fields': 'year',
@@ -511,14 +513,13 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         ) for record in result['records']]
         assert results == self.expected_records, result['records']
 
-        expected_fields = [{u'type': u'int4', u'id': u'_id'},
+        expected_fields = [{u'type': u'int', u'id': u'_id'},
                         {u'type': u'text', u'id': u'b\xfck'},
                         {u'type': u'text', u'id': u'author'},
                         {u'type': u'timestamp', u'id': u'published'},
-                        {u'type': u'json', u'id': u'nested'},
-                        {u'type': u'float4', u'id': u'rank'}]
+                        {u'type': u'json', u'id': u'nested'}]
         for field in expected_fields:
-            assert field in result['fields'], field
+            assert_in(field, result['fields'])
 
         # test multiple word queries (connected with and)
         data = {'resource_id': self.data['resource_id'],

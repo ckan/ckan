@@ -41,6 +41,17 @@ appearance of CKAN pages by developing your own CKAN themes.
    * `Bootstrap <http://getbootstrap.com/2.3.2/>`_
    * `jQuery <http://jquery.com/>`_
 
+.. note::
+
+    Starting from CKAN version 2.8 the Bootstrap version used in the default
+    CKAN theme is Bootstrap 3. For backwards compatibility, Bootstrap 2 templates
+    will be included in CKAN core for a few versions, but they will be eventually
+    removed so you are encouraged to update your custom theme to use Bootstrap 3.
+    You can select wich set of templates to use (Bootstrap 3 or 2) by using the 
+    :ref:`ckan.base_public_folder` and :ref:`ckan.base_templates_folder`
+    configuration options.
+
+
 .. toctree::
    :maxdepth: 2
 

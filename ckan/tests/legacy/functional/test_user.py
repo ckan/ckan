@@ -117,7 +117,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert user.apikey in res, res
 
     def test_perform_reset_user_password_link_key_incorrect(self):
-        CreateTestData.create_user(name='jack', password='test1')
+        CreateTestData.create_user(name='jack', password='TestPassword1')
         # Make up a key - i.e. trying to hack this
         user = model.User.by_name(u'jack')
 
@@ -129,7 +129,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=403) # error
 
     def test_perform_reset_user_password_link_key_missing(self):
-        CreateTestData.create_user(name='jack', password='test1')
+        CreateTestData.create_user(name='jack', password='TestPassword1')
         user = model.User.by_name(u'jack')
 
         with self.app.flask_app.test_request_context():
@@ -151,7 +151,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, status=404)
 
     def test_perform_reset_activates_pending_user(self):
-        password = 'password'
+        password = 'TestPassword1'
         params = { 'password1': password, 'password2': password }
         user = CreateTestData.create_user(name='pending_user',
                                           email='user@email.com')
@@ -171,7 +171,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert user.is_active(), user
 
     def test_perform_reset_doesnt_activate_deleted_user(self):
-        password = 'password'
+        password = 'TestPassword1'
         params = { 'password1': password, 'password2': password }
         user = CreateTestData.create_user(name='deleted_user',
                                           email='user@email.com')

@@ -15,8 +15,13 @@
     </h1>
     <div class="module-content">
       {% block form %}
-        <form class="form-horizontal" action="" method="post">
+        <form action="" method="post">
           {{ form.errors(error_summary) }}
+          {% if c.user_dict['state'] == 'pending' %}
+            <p>{{ _('You can also change username. It can not be modified later.') }}</p>
+            {{ form.input("name", id="field-name", label=_("Username"), type="text", value=c.user_dict["name"],
+               error='', attrs={'autocomplete': 'no'}, classes=["control-medium"]) }}
+          {% endif %}
           {{ form.input("password1", id="field-password", label=_("Password"), type="password", value='', error='', attrs={'autocomplete': 'no'}, classes=["control-medium"]) }}
           {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", value='', error='', attrs={'autocomplete': 'no'}, classes=["control-medium"]) }}
           <div class="form-actions">

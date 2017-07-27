@@ -69,10 +69,10 @@ Initializing a JavaScript module
 To get CKAN to call some custom JavaScript code, we need to:
 
 1. Implement a |javascript| module, and register it with CKAN.
-   Create the file ``ckanext-example_theme/ckanext/example_theme/fanstatic/example_theme_popover.js``, with these
+   Create the file ``ckanext-example_theme/ckanext/example_theme_docs/fanstatic/example_theme_popover.js``, with these
    contents:
 
-   .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
+   .. literalinclude:: /../ckanext/example_theme_docs/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
       :language: javascript
 
    This bit of |javascript| calls the ``ckan.module()`` function to register a
@@ -100,10 +100,10 @@ To get CKAN to call some custom JavaScript code, we need to:
    ``package_item.html`` template snippet to insert our module whenever a
    package is rendered as part of a list of packages (for example, on the
    dataset search page). Create the file
-   ``ckanext-example_theme/ckanext/example_theme/templates/snippets/package_item.html`` with these
+   ``ckanext-example_theme/ckanext/example_theme_docs/templates/snippets/package_item.html`` with these
    contents:
 
-   .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/templates/snippets/package_item.html
+   .. literalinclude:: /../ckanext/example_theme_docs/v16_initialize_a_javascript_module/templates/snippets/package_item.html
       :language: django
 
    .. seealso::
@@ -156,7 +156,7 @@ First, we need our Jinja template to pass some of the dataset's fields to our
 |javascript| module as *options*. Change ``package_item.html`` to look like
 this:
 
-.. literalinclude:: /../ckanext/example_theme/v17_popover/templates/snippets/package_item.html
+.. literalinclude:: /../ckanext/example_theme_docs/v17_popover/templates/snippets/package_item.html
    :language: django
 
 This adds some ``data-module-*`` attributes to our ``<button>`` element, e.g.
@@ -175,7 +175,7 @@ template).
 Now let's make use of these options in our |javascript| module. Change
 ``example_theme_popover.js`` to look like this:
 
-.. literalinclude:: /../ckanext/example_theme/v17_popover/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v17_popover/fanstatic/example_theme_popover.js
    :language: javascript
 
 .. note::
@@ -187,7 +187,7 @@ Now let's make use of these options in our |javascript| module. Change
 Any ``data-module-*`` attributes on the HTML element are passed into the
 |javascript| module in the object ``this.options``:
 
-.. literalinclude:: /../ckanext/example_theme/v17_popover/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v17_popover/fanstatic/example_theme_popover.js
    :language: javascript
    :start-after: // template.
    :end-before: // Format
@@ -240,7 +240,7 @@ plugin to use a Jinja2 template to render the contents of the popups nicely.
 First, edit ``package_item.html`` to make it pass a few more parameters to the
 JavaScript module using ``data-module-*`` attributes:
 
-.. literalinclude:: /../ckanext/example_theme/v18_snippet_api/templates/snippets/package_item.html
+.. literalinclude:: /../ckanext/example_theme_docs/v18_snippet_api/templates/snippets/package_item.html
    :language: django
 
 We've also added a second ``{% resource %}`` tag to the snippet above, to
@@ -259,7 +259,7 @@ to render the contents of the popovers. Create this
 
 and put these contents in it:
 
-.. literalinclude:: /../ckanext/example_theme/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html
+.. literalinclude:: /../ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html
    :language: django
 
 This is a Jinja2 template that renders some nice looking contents for a
@@ -304,7 +304,7 @@ There's a lot going on in this new |javascript| code, including:
 Hopefully the liberal commenting in the code below makes it clear enough what's
 going on:
 
-.. literalinclude:: /../ckanext/example_theme/v18_snippet_api/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v18_snippet_api/fanstatic/example_theme_popover.js
    :language: javascript
 
 Finally, we need some custom CSS to make the HTML from our new snippet look
@@ -312,7 +312,7 @@ nice. In ``package_item.html`` above we added a ``{% resource %}`` tag to
 include a custom CSS file. Now we need to create that file,
 ``ckanext-example_theme/ckanext/example_theme/fanstatic/example_theme_popover.css``:
 
-.. literalinclude:: /../ckanext/example_theme/v18_snippet_api/fanstatic/example_theme_popover.css
+.. literalinclude:: /../ckanext/example_theme_docs/v18_snippet_api/fanstatic/example_theme_popover.css
    :language: css
 
 Restart CKAN, and your dataset popovers should be looking much better.
@@ -327,7 +327,7 @@ What if our JavaScript makes an Ajax request to CKAN, such as our
 response? We can simulate this by changing the name of the requested template
 file to one that doesn't exist:
 
-.. literalinclude:: /../ckanext/example_theme/v19_01_error/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v19_01_error/fanstatic/example_theme_popover.js
    :language: javascript
    :start-after: if (!this._snippetReceived) {
    :end-before: this._snippetReceived = true;
@@ -343,14 +343,14 @@ request gets a successful response from CKAN.
 function parameter that will be called when CKAN sends an error response.
 Add this parameter to the :js:func:`~this.sandbox.client.getTemplate` call:
 
-.. literalinclude:: /../ckanext/example_theme/v19_02_error_handling/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v19_02_error_handling/fanstatic/example_theme_popover.js
    :language: javascript
    :start-after: if (!this._snippetReceived) {
    :end-before: _onReceiveSnippet: function(html) {
 
 Now add the new error function to the JavaScript module:
 
-.. literalinclude:: /../ckanext/example_theme/v19_02_error_handling/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v19_02_error_handling/fanstatic/example_theme_popover.js
    :language: javascript
    :start-after: // This function is called when CKAN responds with an error.
    :end-before: // End of _onReceiveSnippetError
@@ -419,7 +419,7 @@ another object shows its popover, is by using pubsub.
 Here's a modified version of our ``example_theme_popover.js`` file that uses
 pubsub to make the dataset popovers disappear whenever a new popover appears:
 
-.. literalinclude:: /../ckanext/example_theme/v20_pubsub/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v20_pubsub/fanstatic/example_theme_popover.js
    :language: javascript
 
 
@@ -456,7 +456,7 @@ First we need to write the jQuery plugin itself. Create the file
 ``ckanext-example_theme/ckanext/example_theme/fanstatic/jquery.greenify.js``
 with the following contents:
 
-.. literalinclude:: /../ckanext/example_theme/v21_custom_jquery_plugin/fanstatic/jquery.greenify.js
+.. literalinclude:: /../ckanext/example_theme_docs/v21_custom_jquery_plugin/fanstatic/jquery.greenify.js
    :language: javascript
 
 If this JavaScript code looks a little confusing at first, it's probably
@@ -474,7 +474,7 @@ pollute the global namespace.
 In the body of our jQuery plugin, we add a new function called ``greenify()``
 to the ``jQuery`` object:
 
-.. literalinclude:: /../ckanext/example_theme/v21_custom_jquery_plugin/fanstatic/jquery.greenify.js
+.. literalinclude:: /../ckanext/example_theme_docs/v21_custom_jquery_plugin/fanstatic/jquery.greenify.js
    :language: javascript
    :start-after: (function (jQuery) {
    :end-before: })(this.jQuery);
@@ -503,7 +503,7 @@ Before we can use our ``greenify()`` method in CKAN, we need to import the
 ``{% resource %}`` tag to a template file, just as you would do to include any
 other JavaScript or CSS file in CKAN. Edit the ``package_item.html`` file:
 
-.. literalinclude:: /../ckanext/example_theme/v21_custom_jquery_plugin/templates/snippets/package_item.html
+.. literalinclude:: /../ckanext/example_theme_docs/v21_custom_jquery_plugin/templates/snippets/package_item.html
    :language: django
 
 Now we can call the ``greenify()`` method from our ``example_theme_popover``
@@ -511,7 +511,7 @@ JavaScript module. For example, we could add a line to the ``_onClick()``
 method in ``example_theme_popover.js`` so that when a dataset info button is
 clicked it turns green:
 
-.. literalinclude:: /../ckanext/example_theme/v21_custom_jquery_plugin/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v21_custom_jquery_plugin/fanstatic/example_theme_popover.js
    :language: javascript
    :start-after: // Start of _onClick method.
    :end-before: // End of _onClick method.

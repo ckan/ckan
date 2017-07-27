@@ -1,12 +1,12 @@
-.. include:: /_latest_release.rst
+.. include:: /_substitutions.rst
 
 ===========================
 Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 16.04 64-bit or
-Ubuntu 14.04 64-bit. Installing CKAN from source works with other versions of
+:doc:`install-from-package` is simpler, it requires Ubuntu 14.04 64-bit or
+Ubuntu 12.04 64-bit. Installing CKAN from source works with other versions of
 Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
 you install CKAN from source on your own operating system, please share your
 experiences on our
@@ -98,11 +98,11 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the recommended version of 'setuptools':
+b. Install the recommended ``setuptools`` version:
 
    .. parsed-literal::
 
-       pip install -r |virtualenv|/src/ckan/requirement-setuptools.txt
+       pip install setuptools==\ |min_setuptools_version|
 
 c. Install the CKAN source code into your virtualenv.
    To install the latest stable release of CKAN (CKAN |latest_release_version|),

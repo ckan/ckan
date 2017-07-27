@@ -1,0 +1,126 @@
+.activity {
+	margin: 10px 0;
+	padding: 0;
+	list-style-type: none;
+	background: transparent url('@{imagePath}/dotted.png') 14px 0 repeat-y;
+	.item {
+		position: relative;
+		margin: 0 0 15px 0;
+		padding: 0;
+		.clearfix;
+		.icon {
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 30px;
+			height: 30px;
+			line-height: 30px;
+			text-align: center;
+			color: @activityColorText;
+			text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+			font-weight: normal;
+			margin-right: 10px;
+			.border-radius(100px);
+			.box-shadow(inset 0 1px 2px rgba(0, 0, 0, 0.2));
+		}
+		.gravatar {
+			.border-radius(100px);
+		}
+		.actor .gravatar {
+			position: absolute;
+			top: 0;
+			left: 40px;
+		}
+		p {
+			font-size: 14px;
+			line-height: 1.5;
+			margin: 5px 0 0 80px;
+		}
+		.date {
+			color: #999;
+			font-size: 12px;
+			white-space: nowrap;
+		}
+		.new {
+			display: block;
+			position: absolute;
+			overflow: hidden;
+			top: -3px;
+			left: -3px;
+			width: 10px;
+			height: 10px;
+			background-color: #A35647;
+			border: 1px solid #FFF;
+			text-indent: -1000px;
+			.border-radius(100px);
+			.box-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+		}
+		&.no-avatar p {
+			margin-left: 40px;
+		}
+	}
+	.load-less {
+		margin-bottom: 15px;
+	}
+}
+
+// For profile information that appears in the popover
+.popover {
+	width: 300px;
+	.popover-title {
+		font-weight: bold;
+		margin-bottom: 0;
+	}
+	p.about {
+		margin: 0 0 10px 0;
+	}
+	.popover-close {
+		float: right;
+		text-decoration: none;
+	}
+	.popover-content {
+		font-size: @baseFontSize;
+		line-height: @baseLineHeight;
+		color: @layoutTextColor;
+		word-break: break-all;
+		dl {
+			margin: 0;
+			dd {
+				margin-left: 0;
+				margin-bottom: 10px;
+			}
+		}
+	}
+}
+
+// colors
+.activity .item {
+	& .icon { background-color: @activityColorBlank; } // Non defined
+	&.failure .icon { background-color: @activityColorDelete; }
+	&.success .icon { background-color: @activityColorNew; }
+	&.added-tag .icon { background-color: spin(@activityColorNew, 60); }
+	&.changed-group .icon { background-color: @activityColorModify; }
+	&.changed-package .icon { background-color: spin(@activityColorModify, 20); }
+	&.changed-package_extra .icon { background-color: spin(@activityColorModify, -20); }
+	&.changed-resource .icon { background-color: spin(@activityColorModify, 40); }
+	&.changed-user .icon { background-color: spin(@activityColorModify, -40); }
+	&.changed-organization .icon { background-color: spin(@activityColorNew, 50); }
+	&.deleted-group .icon { background-color: @activityColorDelete; }
+	&.deleted-package .icon { background-color: spin(@activityColorDelete, 20); }
+	&.deleted-package_extra .icon { background-color: spin(@activityColorDelete, -20); }
+	&.deleted-resource .icon { background-color: spin(@activityColorDelete, 40); }
+	&.deleted-organization .icon { background-color: spin(@activityColorDelete, -40); }
+	&.new-group .icon { background-color: @activityColorNew; }
+	&.new-package .icon { background-color: spin(@activityColorNew, 20); }
+	&.new-package_extra .icon { background-color: spin(@activityColorNew, -20); }
+	&.new-resource .icon { background-color: spin(@activityColorNew, -40); }
+	&.new-user .icon { background-color: spin(@activityColorNew, 40); }
+	&.new-organization .icon { background-color: spin(@activityColorNew, -40); }
+	&.removed-tag .icon { background-color: spin(@activityColorDelete, -40); }
+	&.deleted-related-item .icon { background-color: spin(@activityColorDelete, 60); }
+	&.follow-dataset .icon { background-color: @activityColorNeutral; }
+	&.follow-user .icon { background-color: spin(@activityColorNeutral, 20); }
+	&.new-related-item .icon { background-color: spin(@activityColorNew, -60); }
+	&.follow-group .icon { background-color: spin(@activityColorNew, -50); }
+}

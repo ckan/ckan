@@ -15,7 +15,7 @@ import ckan.plugins as p
 import ckan.tests.legacy as tests
 
 import ckanext.datapusher.interfaces as interfaces
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs
 
 

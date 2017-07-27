@@ -53,7 +53,7 @@ Example:
         <div class="nums">
           <dl>
             <dt>{{ _('Followers') }}</dt>
-            <dd>{{ h.SI_number_span(organization.num_followers) }}</dd>
+            <dd data-module="followers-counter" data-module-id="{{ organization.id }}" data-module-num_followers="{{ organization.num_followers }}">{{ h.SI_number_span(organization.num_followers) }}</dd>
           </dl>
           <dl>
             <dt>{{ _('Datasets') }}</dt>

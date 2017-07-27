@@ -107,7 +107,7 @@ class User(factory.Factory):
 
     # These are the default params that will be used to create new users.
     fullname = 'Mr. Test User'
-    password = 'pass'
+    password = 'RandomPassword123'
     about = 'Just another test user.'
 
     # Generate a different user name param for each user that gets created.
@@ -211,7 +211,7 @@ class Sysadmin(factory.Factory):
     FACTORY_FOR = ckan.model.User
 
     fullname = 'Mr. Test Sysadmin'
-    password = 'pass'
+    password = 'RandomPassword123'
     about = 'Just another test sysadmin.'
 
     name = factory.Sequence(lambda n: 'test_sysadmin_{0:02d}'.format(n))

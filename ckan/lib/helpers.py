@@ -19,7 +19,7 @@ import urlparse
 from urllib import urlencode
 
 from paste.deploy import converters
-from webhelpers.html import escape, HTML, literal, tags, tools
+from webhelpers.html import HTML, literal, tags, tools
 from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
@@ -35,7 +35,6 @@ from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
 
 import ckan.exceptions
-import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
@@ -47,6 +46,8 @@ import ckan.plugins as p
 import ckan
 
 from ckan.common import _, ungettext, c, request, session, json
+from markupsafe import Markup, escape
+
 
 log = logging.getLogger(__name__)
 
@@ -251,18 +252,12 @@ def url_for(*args, **kw):
         ver = kw.get('ver')
         if not ver:
             raise Exception('API URLs must specify the version (eg ver=3)')
-
     try:
-        # First try to build the URL with the Flask router, making a copy of
-        # the params in case they are modified
-        flask_args = tuple(args)
-        flask_kw = kw.copy()
-
-        my_url = _url_for_flask(*flask_args, **flask_kw)
+        # First try to build the URL with the Flask router
+        my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
-        # If it doesn't succeed, fallback to the Pylons router, using the
-        # original parameters
+        # If it doesn't succeed, fallback to the Pylons router
         my_url = _url_for_pylons(*args, **kw)
 
     # Add back internal params
@@ -495,6 +490,12 @@ def full_current_url():
     ''' Returns the fully qualified current url (eg http://...) useful
     for sharing etc '''
     return (url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
+
+
+@core_helper
+def current_url():
+    ''' Returns current url unquoted'''
+    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
 
 
 @core_helper
@@ -1173,7 +1174,7 @@ def gravatar(email_hash, size=100, default=None):
         default = urllib.quote(default, safe='')
 
     return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
-        class="gravatar" width="%s" height="%s" alt="" />'''
+        class="gravatar" width="%s" height="%s" alt="Gravatar" />'''
                    % (email_hash, size, default, size, size)
                    )
 
@@ -1195,7 +1196,7 @@ class Page(paginate.Page):
 
     def pager(self, *args, **kwargs):
         kwargs.update(
-            format=u"<div class='pagination pagination-centered'><ul>"
+            format=u"<div class='pagination-wrapper'><ul class='pagination'>"
             "$link_previous ~2~ $link_next</ul></div>",
             symbol_previous=u'«', symbol_next=u'»',
             curpage_attr={'class': 'active'}, link_attr={}
@@ -1285,6 +1286,24 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
 
     # if date_format was supplied we use it
     if date_format:
+
+        # See http://bugs.python.org/issue1777412
+        if datetime_.year < 1900:
+            year = str(datetime_.year)
+
+            date_format = re.sub('(?<!%)((%%)*)%y',
+                                 r'\g<1>{year}'.format(year=year[-2:]),
+                                 date_format)
+            date_format = re.sub('(?<!%)((%%)*)%Y',
+                                 r'\g<1>{year}'.format(year=year),
+                                 date_format)
+
+            datetime_ = datetime.datetime(2016, datetime_.month, datetime_.day,
+                                          datetime_.hour, datetime_.minute,
+                                          datetime_.second)
+
+            return datetime_.strftime(date_format)
+
         return datetime_.strftime(date_format)
     # the localised date
     return formatters.localised_nice_date(datetime_, show_date=True,
@@ -1710,6 +1729,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
 
 @core_helper
 def include_resource(resource):
+    import ckan.lib.fanstatic_resources as fanstatic_resources
     r = getattr(fanstatic_resources, resource)
     r.need()
 
@@ -1721,6 +1741,8 @@ def urls_for_resource(resource):
 
     NOTE: This is for special situations only and is not the way to generally
     include resources.  It is advised not to use this function.'''
+    import ckan.lib.fanstatic_resources as fanstatic_resources
+
     r = getattr(fanstatic_resources, resource)
     resources = list(r.resources)
     core = fanstatic_resources.fanstatic_extensions.core
@@ -2412,15 +2434,33 @@ def license_options(existing_license_id=None):
 def get_translated(data_dict, field):
     language = i18n.get_lang()
     try:
-        return data_dict[field+'_translated'][language]
+        return data_dict[field + u'_translated'][language]
     except KeyError:
-        return data_dict.get(field, '')
+        val = data_dict.get(field, '')
+        return _(val) if val and isinstance(val, basestring) else val
 
 
 @core_helper
 def facets():
     u'''Returns a list of the current facet names'''
     return config.get(u'search.facets', DEFAULT_FACET_NAMES).split()
+
+
+@core_helper
+def mail_to(email_address, name):
+    email = escape(email_address)
+    author = escape(name)
+    html = Markup(u'<a href=mailto:{0}>{1}</a>'.format(email, author))
+    return html
+
+
+@core_helper
+def radio(selected, id, checked):
+    if checked:
+        return literal((u'<input checked="checked" id="%s_%s" name="%s" \
+            value="%s" type="radio">') % (selected, id, selected, id))
+    return literal(('<input id="%s_%s" name="%s" \
+        value="%s" type="radio">') % (selected, id, selected, id))
 
 
 core_helper(flash, name='flash')
@@ -2436,12 +2476,12 @@ core_helper(tags.literal)
 core_helper(tags.link_to)
 core_helper(tags.file)
 core_helper(tags.submit)
-core_helper(tools.mail_to)
 core_helper(whtext.truncate)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
+core_helper(clean_html, name='clean_html')
 
 
 def load_plugin_helpers():

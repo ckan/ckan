@@ -298,7 +298,6 @@ class TestDataPusherAction(object):
                     side_effect=lambda: dict.fromkeys(
                         ['job_id', 'job_key']))
                 r_mock.reset_mock()
-
                 submit(res, user)
                 submit(res, user)
 
