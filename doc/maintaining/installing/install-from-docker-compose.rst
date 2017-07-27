@@ -3,8 +3,8 @@
 ===================================
 Installing CKAN with docker-compose
 ===================================
-This chapter is a tutorial on how to install the latest CKAN (master or any stable version) 
-with Docker Compose. The scenario shown here is one of many possible scenarios and environments 
+This chapter is a tutorial on how to install the latest CKAN (master or any stable version)
+with Docker Compose. The scenario shown here is one of many possible scenarios and environments
 in which CKAN can be used with Docker.
 
 This chapter aims to provide a simple, yet fully customizable deployment - easier to configure than
@@ -22,7 +22,7 @@ taken to use this setup in production.
 --------------
 1. Environment
 --------------
-This tutorial was tested on Ubuntu 14.04 LTS and Ubuntu 16.04 LTS, respectively. 
+This tutorial was tested on Ubuntu 14.04 LTS and Ubuntu 16.04 LTS, respectively.
 The hosts can be local environments or cloud VMs. It is assumed that the user has direct access
 (via terminal / ssh) to the systems and root permissions.
 
@@ -55,7 +55,7 @@ c. Docker Compose
 
 Docker Compose is installed system-wide following the official `Docker Compose installation
 guidelines <https://docs.docker.com/compose/install/>`_.
-Alternatively, Docker Compose can be installed inside a virtualenv, 
+Alternatively, Docker Compose can be installed inside a virtualenv,
 which would be entirely separate from the virtualenv used inside the CKAN container, and
 would need to be activated before runningn Docker Compose commands.
 
@@ -82,7 +82,7 @@ sensitive settings (e.g. database passwords).
 
 a. Sensitive settings and environment variables
 
-Copy ``contrib/docker/.env.template`` to ``contrib/docker/.env`` and follow instructions 
+Copy ``contrib/docker/.env.template`` to ``contrib/docker/.env`` and follow instructions
 within to set passwords and other sensitive or user-defined variables.
 The defaults will work fine in a development environment.
 
@@ -91,7 +91,7 @@ The defaults will work fine in a development environment.
    * `Docker-compose .env file <https://docs.docker.com/compose/env-file/>`_
    * `Environment variables in Compose <https://docs.docker.com/compose/environment-variables/>`_
    * Newcomers to Docker should read the excellent write-up on
-   `Docker variables <http://vsupalov.com/docker-env-vars/>`_ by Vladislav Supalov (GitHub @th4t).
+     `Docker variables <http://vsupalov.com/docker-env-vars/>`_ by Vladislav Supalov (GitHub @th4t)
 
 b. Build the images
 
@@ -143,7 +143,7 @@ A detailed use case of data transfer will be discussed in step 5.
 
 c. Convenience: paths to named volumes
 
-The files inside named volumes reside on a long-ish path on the host. 
+The files inside named volumes reside on a long-ish path on the host.
 Purely for convenience, we'll define environment variables for these paths.
 We'll use a prefix ``VOL_`` to avoid overriding variables in ``docker-compose.yml``.::
 
@@ -473,7 +473,7 @@ A possible path towards a production-ready environment is:
 * Push the images to a docker repository.
 * Create a separate "production" ``docker-compose.yml`` which uses the custom built images.
 * Run the "production" ``docker-compose.yml`` on the production server with appropriate settings.
-* Transfer production data into the new server as described above using volume orchestration 
+* Transfer production data into the new server as described above using volume orchestration
   tools or transferring files directly.
 * Bonus: contribute a write-up of working production setups to the CKAN documentation.
 
