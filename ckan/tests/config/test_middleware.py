@@ -577,6 +577,8 @@ class MockRoutingPlugin(p.SingletonPlugin):
 
         _map.connect('/pylons_route_flask_url_for',
                      controller=self.controller, action='test_flask_url_for')
+        _map.connect('/pylons_translated',
+                     controller=self.controller, action='test_translation')
 
         _map.connect('/pylons_translated',
                      controller=self.controller, action='test_translation')

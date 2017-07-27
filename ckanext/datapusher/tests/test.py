@@ -8,7 +8,7 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.legacy as tests
 from ckan.tests import helpers
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 import httpretty
 import httpretty.core
 import nose

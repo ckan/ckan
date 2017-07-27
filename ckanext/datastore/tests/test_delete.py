@@ -12,14 +12,10 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
 from ckan.tests import helpers
-from ckan.common import config
 from ckan.plugins.toolkit import ValidationError
 import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
 from ckan.logic import NotFound
-
-import ckan.tests.helpers as helpers
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
     rebuild_all_dbs, set_url_type, DatastoreFunctionalTestBase)
 
@@ -55,6 +51,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         }
 
         engine = db.get_write_engine()
+
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
         with cls.app.flask_app.test_request_context():

@@ -4,6 +4,7 @@ import os.path
 import sys
 import logging
 import ConfigParser
+from ckan.common import config
 
 from fanstatic import Library, Resource, Group, get_library_registry
 import fanstatic.core as core
@@ -78,10 +79,10 @@ def create_library(name, path, depend_base=True):
             condition = IE_conditionals[path][0]
         if inline or condition:
             kw['renderer'] = fanstatic_extensions.CkanCustomRenderer(
-                                        condition=condition,
-                                        script=inline,
-                                        renderer=renderer,
-                                        other_browsers=other_browsers)
+                condition=condition,
+                script=inline,
+                renderer=renderer,
+                other_browsers=other_browsers)
         resource = Resource(library, path, **kw)
 
         # Add our customised ordering
@@ -161,7 +162,8 @@ def create_library(name, path, depend_base=True):
                         dep_resources = [dep]
                     else:
                         dep_resources = groups[dep]
-                    diff = [res for res in dep_resources if res not in depends[resource]]
+                    diff = [
+                        res for res in dep_resources if res not in depends[resource]]
                     depends[resource].extend(diff)
 
     # process each .js/.css file found
@@ -174,8 +176,8 @@ def create_library(name, path, depend_base=True):
             filepath = os.path.join(rel_path, f)
             filename_only, extension = os.path.splitext(f)
             if extension in ('.css', '.js') and (
-                not filename_only.endswith('.min')):
-              resource_list.append(filepath)
+                    not filename_only.endswith('.min')):
+                resource_list.append(filepath)
 
     # if groups are defined make sure the order supplied there is honored
     for group in groups:
@@ -227,9 +229,13 @@ def create_library(name, path, depend_base=True):
     registry = get_library_registry()
     registry.add(library)
 
-base_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                         '..', 'public', 'base'))
 
+public = config.get('ckan.base_public_folder')
+
+base_path = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', public, 'base'))
+
+log.debug('Base path {0}'.format(base_path))
 create_library('vendor', os.path.join(base_path, 'vendor'), depend_base=False)
 
 create_library('base', os.path.join(base_path, 'javascript'),

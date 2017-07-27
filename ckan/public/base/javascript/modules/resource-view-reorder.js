@@ -9,19 +9,19 @@ this.ckan.module('resource-view-reorder', function($) {
     template: {
       title: '<h1></h1>',
       button: [
-        '<a href="javascript:;" class="btn">',
+        '<a href="javascript:;" class="btn btn-default">',
         '<i class="fa fa-bars"></i>',
         '<span></span>',
         '</a>'
       ].join('\n'),
       form_actions: [
         '<div class="form-actions">',
-        '<a href="javascript:;" class="cancel btn pull-left"></a>',
+        '<a href="javascript:;" class="cancel btn btn-danger pull-left"></a>',
         '<a href="javascript:;" class="save btn btn-primary"></a>',
         '</div>'
       ].join('\n'),
       saving: [
-        '<span class="saving muted m-right">',
+        '<span class="saving text-muted m-right">',
         '<i class="fa fa-spinner fa-spin"></i>',
         '<span></span>',
         '</span>'
@@ -33,7 +33,7 @@ this.ckan.module('resource-view-reorder', function($) {
     initialize: function() {
       jQuery.proxyAll(this, /_on/);
 
-      var labelText = this._(this.labelText);
+      var labelText = this._(this.options.labelText);
       this.html_title = $(this.template.title)
         .text(labelText)
         .insertBefore(this.el)

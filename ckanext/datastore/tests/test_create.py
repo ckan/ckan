@@ -14,7 +14,7 @@ import ckan.tests.legacy as tests
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
     rebuild_all_dbs, set_url_type, DatastoreFunctionalTestBase)
 from ckan.plugins.toolkit import ValidationError
@@ -246,6 +246,21 @@ class TestDatastoreCreateNewTests(object):
         resource = helpers.call_action('resource_show', id=resource['id'])
 
         assert_equal(resource['datastore_active'], False)
+
+    @raises(p.toolkit.ValidationError)
+    def test_create_exceeds_column_name_limit(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'package_id': package['id']
+            },
+            'fields': [{
+                'id': 'This is a really long name for a column. Column names '
+                'in Postgres have a limit of 63 characters',
+                'type': 'text'
+            }]
+        }
+        result = helpers.call_action('datastore_create', **data)
 
 
 class TestDatastoreCreate(tests.WsgiAppCase):

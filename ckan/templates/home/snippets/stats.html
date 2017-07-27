@@ -7,19 +7,19 @@
       {% block stats_group %}
       <li>
         <a href="{{ h.url_for(controller='package', action='search') }}">
-          <b>{{ h.SI_number_span(stats.dataset_count) }}</b>
+          <strong>{{ h.SI_number_span(stats.dataset_count) }}</strong>
           {{ _('dataset') if stats.dataset_count == 1 else _('datasets') }}
         </a>
       </li>
       <li>
         <a href="{{ h.url_for(controller='organization', action='index') }}">
-          <b>{{ h.SI_number_span(stats.organization_count) }}</b>
+          <strong>{{ h.SI_number_span(stats.organization_count) }}</strong>
           {{ _('organization') if stats.organization_count == 1 else _('organizations') }}
         </a>
       </li>
       <li>
         <a href="{{ h.url_for(controller='group', action='index') }}">
-          <b>{{ h.SI_number_span(stats.group_count) }}</b>
+          <strong>{{ h.SI_number_span(stats.group_count) }}</strong>
           {{ _('group') if stats.group_count == 1 else _('groups') }}
         </a>
       </li>

@@ -33,7 +33,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
 2. Create the file |plugin.py| with the following contents:
 
-   .. literalinclude:: /../ckanext/example_theme/v01_empty_extension/plugin.py
+   .. literalinclude:: /../ckanext/example_theme_docs/v01_empty_extension/plugin.py
 
 3. Edit the ``entry_points`` in |setup.py| to look like this::
 
@@ -89,14 +89,14 @@ directory containing template files that override the default ones.
 Edit the |plugin.py| file that we created earlier, so that it looks like
 this:
 
-.. literalinclude:: /../ckanext/example_theme/v02_empty_template/plugin.py
+.. literalinclude:: /../ckanext/example_theme_docs/v02_empty_template/plugin.py
 
 This new code does a few things:
 
 1. It imports CKAN's :doc:`plugins toolkit </extensions/plugins-toolkit>`
    module:
 
-   .. literalinclude:: /../ckanext/example_theme/v02_empty_template/plugin.py
+   .. literalinclude:: /../ckanext/example_theme_docs/v02_empty_template/plugin.py
       :start-after: import ckan.plugins as plugins
       :end-before: class ExampleThemePlugin(plugins.SingletonPlugin):
 
@@ -108,7 +108,7 @@ This new code does a few things:
    implements the :py:class:`~ckan.plugins.interfaces.IConfigurer` plugin
    interface:
 
-   .. literalinclude:: /../ckanext/example_theme/v02_empty_template/plugin.py
+   .. literalinclude:: /../ckanext/example_theme_docs/v02_empty_template/plugin.py
       :start-after: # Declare that this class implements IConfigurer.
       :end-before: def update_config(
 
@@ -124,7 +124,7 @@ This new code does a few things:
    is the only method declared in the
    :py:class:`~ckan.plugins.interfaces.IConfigurer` interface:
 
-   .. literalinclude:: /../ckanext/example_theme/v02_empty_template/plugin.py
+   .. literalinclude:: /../ckanext/example_theme_docs/v02_empty_template/plugin.py
       :pyobject: ExampleThemePlugin.update_config
 
    CKAN will call this method when it starts up, to give our plugin a chance to
@@ -242,7 +242,7 @@ attributes including some of the settings from your CKAN config file. For
 example, to display the value of the :ref:`ckan.site_title` setting from your
 config file you would put this code in any template file:
 
-.. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme_docs/v03_jinja/templates/home/index.html
    :language: django
    :start-after: Jinja variable example
    :end-before: End example
@@ -312,7 +312,7 @@ Jinja *tags* are snippets of code between ``{% ... %}`` delimiters that control
 the logic of the template. For example, we can output a list of the currently
 enabled plugins with this code in any template file:
 
-.. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme_docs/v03_jinja/templates/home/index.html
    :language: django
    :start-after: Jinja for-loop example
    :end-before: End example
@@ -320,7 +320,7 @@ enabled plugins with this code in any template file:
 Other variables, such as :ref:`ckan.tracking_enabled`, are booleans, and can be
 tested using Jinja's ``{% if %}`` tag:
 
-.. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme_docs/v03_jinja/templates/home/index.html
    :language: django
    :start-after: Jinja if example
    :end-before: End example
@@ -332,7 +332,7 @@ Comments
 Finally, any text between ``{# ... #}`` delimiters in a Jinja2 template is a
 *comment*, and will not be output when the template is rendered:
 
-.. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme_docs/v03_jinja/templates/home/index.html
    :language: django
    :start-after: Jinja comment example
    :end-before: End example
@@ -347,7 +347,7 @@ declare that our ``home/index.html`` template extends the default
 ``home/index.html`` template, instead of completely replacing it.
 Edit the empty ``index.html`` file you just created, and add one line:
 
-.. literalinclude:: /../ckanext/example_theme/v04_ckan_extends/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme_docs/v04_ckan_extends/templates/home/index.html
    :language: django
 
 If you now reload the `CKAN front page`_ in your browser, you should see the
@@ -387,7 +387,7 @@ When a custom template file extends one of CKAN's default template files using
 template with its own code by using ``{% block %}``. Create the file
 |layout1.html| with these contents:
 
-.. literalinclude:: /../ckanext/example_theme/v05_block/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v05_block/templates/home/layout1.html
    :language: django
 
 This file extends the default ``layout1.html`` template, and overrides the
@@ -410,7 +410,7 @@ Extending parent blocks with Jinja's ``{{ super() }}``
 If you want to add some code to a block but don't want to replace the entire
 block, you can use Jinja's ``{{ super() }}`` tag:
 
-.. literalinclude:: /../ckanext/example_theme/v06_super/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v06_super/templates/home/layout1.html
    :language: django
 
 When the child block above is rendered, Jinja will replace the
@@ -432,7 +432,7 @@ For example, let's replace the featured group on the front page with an
 activity stream of the site's recently created, updated and deleted datasets.
 Change the code in |layout1.html| to this:
 
-.. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v07_helper_function/templates/home/layout1.html
    :language: django
 
 Reload the `CKAN front page`_ in your browser and you should see a new activity
@@ -445,7 +445,7 @@ To call a template helper function we use a Jinja2 *expression* (code wrapped
 in ``{{ ... }}`` brackets), and we use the global variable :py:data:`h`
 (available to all templates) to access the helper:
 
-.. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v07_helper_function/templates/home/layout1.html
    :language: django
    :start-after: {% block featured_group %}
    :end-before: {% endblock %}
@@ -472,12 +472,12 @@ template helper function to select the groups to be shown.  First, in our
 :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` and provide our helper
 function. Change the contents of ``plugin.py`` to look like this:
 
-.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/plugin.py
+.. literalinclude:: /../ckanext/example_theme_docs/v08_custom_helper_function/plugin.py
 
 We've added a number of new features to ``plugin.py``. First, we defined a
 function to get the most popular groups from CKAN:
 
-.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/plugin.py
+.. literalinclude:: /../ckanext/example_theme_docs/v08_custom_helper_function/plugin.py
    :pyobject: most_popular_groups
 
 This function calls one of CKAN's *action functions* to get the groups from
@@ -486,7 +486,7 @@ CKAN.  See :doc:`/extensions/tutorial` for more about action functions.
 Next, we called :py:func:`~ckan.plugins.implements` to declare that our class
 now implements :py:class:`~ckan.plugins.interfaces.ITemplateHelpers`:
 
-.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/plugin.py
+.. literalinclude:: /../ckanext/example_theme_docs/v08_custom_helper_function/plugin.py
    :start-after: # Declare that this plugin will implement ITemplateHelpers.
    :end-before: def update_config(self, config):
 
@@ -495,7 +495,7 @@ Finally, we implemented the
 :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` to register our function
 as a template helper:
 
-.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/plugin.py
+.. literalinclude:: /../ckanext/example_theme_docs/v08_custom_helper_function/plugin.py
    :pyobject: ExampleThemePlugin.get_helpers
 
 Now that we've registered our helper function, we need to call it from our
@@ -503,7 +503,7 @@ template. As with CKAN's default template helpers, templates access custom
 helpers via the global variable :py:data:`h`.
 Edit |layout1.html| to look like this:
 
-.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v08_custom_helper_function/templates/home/layout1.html
    :language: django
 
 Now reload your `CKAN front page`_ in your browser. You should see the featured
@@ -545,12 +545,12 @@ render each individual group.)
 
 Let's change our |layout1.html| file to call this snippet:
 
-.. literalinclude:: /../ckanext/example_theme/v09_snippet/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v09_snippet/templates/home/layout1.html
    :language: django
 
 Here we pass two arguments to the ``{% snippet %}`` tag:
 
-.. literalinclude:: /../ckanext/example_theme/v09_snippet/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v09_snippet/templates/home/layout1.html
    :language: django
    :start-after: {# Call the group_list.html snippet. #}
    :end-before: {% endblock %}
@@ -596,7 +596,7 @@ site if we want to.
 Create a new directory |snippets_dir| containing a file named
 ``example_theme_most_popular_groups.html`` with these contents:
 
-.. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
+.. literalinclude:: /../ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
    :language: django
 
 .. note::
@@ -636,7 +636,7 @@ function.
 Now edit your |layout1.html| file and change it to use our new snippet instead
 of the default one:
 
-.. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v10_custom_snippet/templates/home/layout1.html
    :language: django
 
 Restart the development web server and reload the `CKAN front page`_ and you
@@ -692,7 +692,7 @@ There are two places to look for CSS classes available in CKAN:
 
 Edit your ``example_theme_most_popular_groups.html`` file to look like this:
 
-.. literalinclude:: /../ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html
+.. literalinclude:: /../ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html
    :language: django
 
 This simply wraps the code in a ``<div class="box">``,
@@ -705,7 +705,7 @@ better.
 To wrap your activity stream in a similar box, edit ``layout1.html`` to look
 like this:
 
-.. literalinclude:: /../ckanext/example_theme/v11_HTML_and_CSS/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/v11_HTML_and_CSS/templates/home/layout1.html
    :language: django
 
 Reload the `CKAN front page`_, and you should see your activity stream and
@@ -742,10 +742,10 @@ Let's add a config setting, ``show_most_popular_groups``, to enable or disable
 the most popular groups on the front page. First, add a new helper function to
 ``plugin.py`` to wrap the config setting.
 
-.. literalinclude:: /../ckanext/example_theme/custom_config_setting/plugin.py
+.. literalinclude:: /../ckanext/example_theme_docs/custom_config_setting/plugin.py
    :language: python
 
-.. literalinclude:: /../ckanext/example_theme/custom_config_setting/plugin.py
+.. literalinclude:: /../ckanext/example_theme_docs/custom_config_setting/plugin.py
    :language: python
    :pyobject: show_most_popular_groups
 
@@ -757,7 +757,7 @@ the most popular groups on the front page. First, add a new helper function to
 
 Now we can call this helper function from our ``layout1.html`` template:
 
-.. literalinclude:: /../ckanext/example_theme/custom_config_setting/templates/home/layout1.html
+.. literalinclude:: /../ckanext/example_theme_docs/custom_config_setting/templates/home/layout1.html
    :language: django
    :start-after: is True, otherwise call the super block. #}
 

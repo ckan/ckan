@@ -14,7 +14,7 @@ Example:
   <section class="module module-narrow module-shallow group">
     <div class="module-content media media-vertical">
       <a class="media-image" href="{{ url }}">
-        <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="200" height="125" alt="{{ group.name }}" />
+        <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" class="img-responsive" width="200" height="125" alt="{{ group.name }}" />
       </a>
       <div class="media-content">
         <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>
