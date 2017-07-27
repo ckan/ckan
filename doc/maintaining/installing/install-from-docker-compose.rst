@@ -414,6 +414,13 @@ and restart the container::
 .. note:: Mounting host folders as volumes instead of using named volumes may result in a simpler
    development workflow. However, named volumes are Docker's canonical way to persist data.
 
+Alternatively, the files in ``VOL_CKAN_HOME`` are editable by the host's superuser::
+
+    sudo vim $VOL_CKAN_HOME/venv/src/ckanext-datawagovautheme/ckanext/datawagovautheme/templates/package/search.html
+
+A change to HTML templates in docker volumes by the host superuser applies to the CKAN instance
+right away.
+
 ------------------------
 7. Environment variables
 ------------------------
