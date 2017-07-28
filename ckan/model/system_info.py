@@ -53,11 +53,14 @@ SystemInfoRevision = vdm.sqlalchemy.create_object_version(meta.mapper,
 
 def get_system_info(key, default=None):
     ''' get data from system_info table '''
-    obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
-    if obj:
-        return obj.value
-    else:
-        return default
+    from sqlalchemy.exc import ProgrammingError
+    try:
+        obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
+        if obj:
+            return obj.value
+    except ProgrammingError:
+        meta.Session.rollback()
+    return default
 
 
 def delete_system_info(key, default=None):
