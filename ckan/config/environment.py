@@ -9,6 +9,7 @@ import pytz
 
 import sqlalchemy
 from pylons import config as pylons_config
+from flask import config as flask_config
 import formencode
 
 import ckan.config.routing as routing
@@ -218,6 +219,7 @@ def update_config():
                              config.get('solr_password'))
     search.check_solr_schema_version()
 
+    import pdb; pdb.set_trace()
     routes_map = routing.make_map()
     config['routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists

@@ -813,6 +813,7 @@ def _make_menu_item(menu_item, title, **kw):
 
     This function is called by wrapper functions.
     '''
+    import pdb; pdb.set_trace()
     _menu_items = config['routes.named_routes']
     if menu_item not in _menu_items:
         raise Exception('menu item `%s` cannot be found' % menu_item)
