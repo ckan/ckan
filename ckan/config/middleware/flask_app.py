@@ -19,9 +19,10 @@ from beaker.middleware import SessionMiddleware
 from paste.deploy.converters import asbool
 from fanstatic import Fanstatic
 
+import ckan.model as model
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
-from ckan.common import config, g, request
+from ckan.common import config, g, request, ungettext
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware
@@ -120,22 +121,21 @@ def make_flask_stack(conf, **app_conf):
     app.context_processor(helper_functions)
     app.context_processor(c_object)
 
+    @app.context_processor
+    def ungettext_alias():
+        u'''
+        Provide `ungettext` as an alias of `ngettext` for backwards
+        compatibility
+        '''
+        return dict(ungettext=ungettext)
+
     # Babel
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(root, u'i18n')
     app.config[u'BABEL_DOMAIN'] = 'ckan'
 
     babel = Babel(app)
 
-    @babel.localeselector
-    def get_locale():
-        u'''
-        Return the value of the `CKAN_LANG` key of the WSGI environ,
-        set by the I18nMiddleware based on the URL.
-        If no value is defined, it defaults to `ckan.locale_default` or `en`.
-        '''
-        return request.environ.get(
-            u'CKAN_LANG',
-            config.get(u'ckan.locale_default', u'en'))
+    babel.localeselector(get_locale)
 
     @app.route('/hello', methods=['GET'])
     def hello_world():
@@ -200,6 +200,17 @@ def make_flask_stack(conf, **app_conf):
     return app
 
 
+def get_locale():
+    u'''
+    Return the value of the `CKAN_LANG` key of the WSGI environ,
+    set by the I18nMiddleware based on the URL.
+    If no value is defined, it defaults to `ckan.locale_default` or `en`.
+    '''
+    return request.environ.get(
+        u'CKAN_LANG',
+        config.get(u'ckan.locale_default', u'en'))
+
+
 def ckan_before_request():
     u'''Common handler executed before all Flask requests'''
 
@@ -213,6 +224,9 @@ def ckan_before_request():
 
 def ckan_after_request(response):
     u'''Common handler executed after all Flask requests'''
+
+    # Dispose of the SQLALchemy session
+    model.Session.remove()
 
     # Check session cookie
     response = check_session_cookie(response)
