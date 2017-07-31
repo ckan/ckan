@@ -15,6 +15,7 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && \
         libxslt-dev \
         libgeos-dev \
         vim \
+        wget \
 	&& apt-get -q clean
 
 # Define environment variables
