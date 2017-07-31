@@ -1,7 +1,7 @@
 .. include:: /_substitutions.rst
 
 ===================================
-Installing CKAN with docker-compose
+Installing CKAN with Docker Compose
 ===================================
 This chapter is a tutorial on how to install the latest CKAN (master or any stable version)
 with Docker Compose. The scenario shown here is one of many possible scenarios and environments
@@ -382,11 +382,43 @@ d. Develop extensions: modify source, install, use version control
 While maintainers will prefer to use stable versions of existing extensions, developers of
 extensions will need access to the extensions' source, and be able to use version control.
 
-The use of Docker and the inherent encapsulation of files and processes makes the development of
+The use of Docker and the inherent encapsulation of files and permissions makes the development of
 extensions harder than a CKAN source install.
 
-Since we have chosen to use named volumes instead of mounted host folders, we have to make the
-write-protected volumes accessible to a system user. The Ubuntu package ``bindfs`` helps here::
+Firstly, the absence of private SSH keys inside Docker containers will make interacting with
+GitHub a lot harder. On the other hand, two-factor authentication on GitHub breaks BasicAuth
+(HTTPS, username and password) and requires a "personal access token" in place of the password.
+
+To use version control from inside the Docker container:
+
+* Clone the HTTPS version of the GitHub repo.
+* On GitHub, create a personal access token with "full control of private repositories".
+* Copy the token code and use as password when running ``git push``.
+
+Secondly, the persisted extension source at ``VOL_CKAN_HOME`` is owned by the CKAN container's
+``docker`` user (UID 900) and therefore not writeable to the developer's host user account by
+default. There are various workarounds. The extension source can be accessed from both outside and
+inside the container.
+
+Option 1: Accessing the source from inside the container::
+
+    docker exec -it ckan bash
+    source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/
+    # ... work on extensions, use version control ...
+    # in extension folder:
+    python setup.py install
+    exit
+    # ... edit extension settings in ckan.ini and restart ckan container
+    sudo vim $VOL_CKAN_CONFIG/ckan.ini
+    docker-compose restart ckan
+
+Option 2: Accessing the source from outside the container using ``sudo``::
+
+    sudo vim $VOL_CKAN_CONFIG/ckan.ini
+    sudo vim $VOL_CKAN_HOME/venv/src/ckanext-datawagovautheme/ckanext/datawagovautheme/templates/package/search.html
+
+Option 3:: The Ubuntu package ``bindfs`` makes the write-protected volumes accessible to a system
+user::
 
     sudo apt-get install bindfs
     mkdir ~/VOL_CKAN_HOME
@@ -397,11 +429,11 @@ write-protected volumes accessible to a system user. The Ubuntu package ``bindfs
 
     # Do this with your own extension fork
     # Assumption: the host user running git clone (you) has write access to the repository
-    git clone git@github.com:parksandwildlife/ckanext-datawagovautheme.git
+    git clone https://github.com/parksandwildlife/ckanext-datawagovautheme.git
 
     # ... change files, use version control...
 
-Changes in templates and CSS will be visible right away.
+Changes in HTML templates and CSS will be visible right away.
 For changes in code, we'll need to unmount the directory, change ownership back to the ``ckan``
 user, and follow the previous steps to ``python setup.py install`` and
 ``pip install -r requirements.txt`` from within the running container, modify the ``ckan.ini``
@@ -413,20 +445,14 @@ and restart the container::
 
 .. note:: Mounting host folders as volumes instead of using named volumes may result in a simpler
    development workflow. However, named volumes are Docker's canonical way to persist data.
-
-Alternatively, the files in ``VOL_CKAN_HOME`` are editable by the host's superuser::
-
-    sudo vim $VOL_CKAN_HOME/venv/src/ckanext-datawagovautheme/ckanext/datawagovautheme/templates/package/search.html
-
-A change to HTML templates in docker volumes by the host superuser applies to the CKAN instance
-right away.
+   The steps shown above are only some of several possible approaches.
 
 ------------------------
 7. Environment variables
 ------------------------
 Sensitive settings can be managed in (at least) two ways, either as environment variables, or as
 `Docker secrets <https://docs.docker.com/engine/swarm/secrets/>`_.
-This section illustrates the use of environment variables provided by the docker-compose ``.env``
+This section illustrates the use of environment variables provided by the Docker Compose ``.env``
 file.
 
 This section is targeted at CKAN maintainers seeking a deeper understanding of variables,
