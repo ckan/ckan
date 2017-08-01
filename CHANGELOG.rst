@@ -8,7 +8,7 @@ Changelog
 ---------
 
 v2.7.0 2017-08-02
-==========
+=================
 
 Note: Starting from this version, CKAN requires at least Postgres 9.3
 
