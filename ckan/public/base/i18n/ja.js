@@ -8,6 +8,10 @@
     null,
     "エラーが発生しました"
   ],
+  "An error occurred: %(text)s %(error)s": [
+    null,
+    "エラー発生: %(text)s %(error)s"
+  ],
   "Are you sure you want to perform this action?": [
     null,
     "このアクションを実行してよろしいですか？"
@@ -143,5 +147,9 @@
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
     "ファイルをアップロードしています。ナビゲートを離れてこのアップロードを終了しても良いですか？"
+  ],
+  "error loading view": [
+    null,
+    "エラーローディングビュー"
   ]
 }

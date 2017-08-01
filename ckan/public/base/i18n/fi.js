@@ -86,7 +86,7 @@
   ],
   "Save order": [
     null,
-    "Tallenna tilaus"
+    "Tallenna järjestys"
   ],
   "Saving...": [
     null,
