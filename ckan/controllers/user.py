@@ -1,5 +1,4 @@
 import logging
-from urllib import quote
 
 from pylons import config
 
@@ -15,7 +14,7 @@ import ckan.lib.navl.dictization_functions as dictization_functions
 import ckan.lib.authenticator as authenticator
 import ckan.plugins as p
 
-from ckan.common import _, c, g, request, response
+from ckan.common import _, c, request, response
 
 log = logging.getLogger(__name__)
 
@@ -54,7 +53,6 @@ class UserController(base.BaseController):
             if c.action not in ('login', 'request_reset', 'perform_reset',):
                 abort(401, _('Not authorized to see this page'))
 
-    ## hooks for subclasses
     new_user_form = 'user/new_user_form.html'
     edit_user_form = 'user/edit_user_form.html'
 
@@ -84,8 +82,6 @@ class UserController(base.BaseController):
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
         c.about_formatted = h.render_markdown(user_dict['about'])
-
-    ## end hooks
 
     def _get_repoze_handler(self, handler_name):
         '''Returns the URL that repoze.who will respond to and perform a
@@ -141,7 +137,7 @@ class UserController(base.BaseController):
         if not c.user:
             h.redirect_to(locale=locale, controller='user', action='login',
                           id=None)
-        user_ref = c.userobj.get_reference_preferred_for_uri()
+
         h.redirect_to(locale=locale, controller='user', action='dashboard')
 
     def register(self, data=None, errors=None, error_summary=None):
@@ -231,7 +227,7 @@ class UserController(base.BaseController):
                 logic.tuplize_dict(logic.parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             captcha.check_recaptcha(request)
-            user = get_action('user_create')(context, data_dict)
+            get_action('user_create')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to create user %s') % '')
         except NotFound, e:
@@ -259,16 +255,21 @@ class UserController(base.BaseController):
             return render('user/logout_first.html')
 
     def edit(self, id=None, data=None, errors=None, error_summary=None):
-        context = {'save': 'save' in request.params,
-                   'schema': self._edit_form_to_db_schema(),
-                   'model': model, 'session': model.Session,
-                   'user': c.user, 'auth_user_obj': c.userobj
-                   }
+        context = {
+            'save': 'save' in request.params,
+            'schema': self._edit_form_to_db_schema(),
+            'model': model,
+            'session': model.Session,
+            'user': c.user,
+            'auth_user_obj': c.userobj
+        }
+
         if id is None:
             if c.userobj:
                 id = c.userobj.id
             else:
                 abort(400, _('No user specified'))
+
         data_dict = {'id': id}
 
         try:
@@ -299,8 +300,7 @@ class UserController(base.BaseController):
 
         user_obj = context.get('user_obj')
 
-        if not (authz.is_sysadmin(c.user)
-                or c.user == user_obj.name):
+        if not (authz.is_sysadmin(c.user) or c.user == user_obj.name):
             abort(401, _('User %s not authorized to edit %s') %
                   (str(c.user), id))
 
@@ -401,7 +401,7 @@ class UserController(base.BaseController):
             context = None
             data_dict = {'id': c.user}
 
-            user_dict = get_action('user_show')(context, data_dict)
+            get_action('user_show')(context, data_dict)
 
             return self.me()
         else:
@@ -450,7 +450,7 @@ class UserController(base.BaseController):
             data_dict = {'id': id}
             user_obj = None
             try:
-                user_dict = get_action('user_show')(context, data_dict)
+                get_action('user_show')(context, data_dict)
                 user_obj = context['user_obj']
             except NotFound:
                 # Try searching the user
@@ -465,7 +465,7 @@ class UserController(base.BaseController):
                         # and user_list does not return them
                         del data_dict['q']
                         data_dict['id'] = user_list[0]['id']
-                        user_dict = get_action('user_show')(context, data_dict)
+                        get_action('user_show')(context, data_dict)
                         user_obj = context['user_obj']
                     elif len(user_list) > 1:
                         h.flash_error(_('"%s" matched several users') % (id))
@@ -520,7 +520,7 @@ class UserController(base.BaseController):
                 user_dict['reset_key'] = c.reset_key
                 user_dict['state'] = model.State.ACTIVE
                 user_dict['password'] = new_password
-                user = get_action('user_update')(context, user_dict)
+                get_action('user_update')(context, user_dict)
                 mailer.create_reset_key(user_obj)
 
                 h.flash_success(_("Your password has been reset."))
@@ -720,8 +720,7 @@ class UserController(base.BaseController):
             h.flash_success(_("You are now following {0}").format(
                 user_dict['display_name']))
         except ValidationError as e:
-            error_message = (e.message or e.error_summary
-                             or e.error_dict)
+            error_message = (e.message or e.error_summary or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
             h.flash_error(e.message)
@@ -743,7 +742,6 @@ class UserController(base.BaseController):
             error_message = e.message
             h.flash_error(error_message)
         except ValidationError as e:
-            error_message = (e.error_summary or e.message
-                             or e.error_dict)
+            error_message = (e.error_summary or e.message or e.error_dict)
             h.flash_error(error_message)
         h.redirect_to(controller='user', action='read', id=id)
