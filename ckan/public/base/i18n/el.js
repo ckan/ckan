@@ -8,6 +8,10 @@
     null,
     "Παρουσιάστε ένα λάθος"
   ],
+  "An error occurred: %(text)s %(error)s": [
+    null,
+    "Παρουσιάστηκε σφάλμα: %(text)s %(error)s"
+  ],
   "Are you sure you want to perform this action?": [
     null,
     "Είστε βέβαιοι ότι θέλετε να εκτελέσετε αυτή την ενέργεια;"
@@ -52,6 +56,10 @@
     null,
     "Σύνδεσμος"
   ],
+  "Link to a URL on the internet (you can also link to an API)": [
+    null,
+    "Σύνδεσμος σε URL (μπορείτε να παρέχετε σύνδεσμο σε προγραμματιστικη διεπαφή - API)"
+  ],
   "Loading...": [
     null,
     "Φορτώνει...."
@@ -67,6 +75,10 @@
   "Remove": [
     null,
     "Αφαίρεση"
+  ],
+  "Reorder resource view": [
+    null,
+    "Επαναταξινόμηση προβολής πόρων"
   ],
   "Reorder resources": [
     null,
@@ -131,5 +143,9 @@
   "Upload a file on your computer": [
     null,
     "Μεταφόρτωση αρχείου στον υπολογιστή σας"
+  ],
+  "error loading view": [
+    null,
+    "Σφάλμα κατά τη φόρτωση της προβολής"
   ]
 }

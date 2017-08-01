@@ -7,8 +7,8 @@
 Changelog
 ---------
 
-v2.6.3 TBD
-==========
+v2.6.3 2017-08-02
+=================
 
 * Fix in organization / group form image URL field (#3661)
 * Fix activity test to use utcnow (#3644)
