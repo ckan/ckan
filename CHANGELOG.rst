@@ -7,7 +7,7 @@
 Changelog
 ---------
 
-v2.7.0 TBA
+v2.7.0 2017-08-02
 ==========
 
 Note: Starting from this version, CKAN requires at least Postgres 9.3
@@ -79,6 +79,7 @@ Minor:
  * Autocomplete fields are more responsive - 300ms timeout instead of 1s (#3693)
  * Fixed dataset count display for groups (#3711)
  * Restrict access to form pages (#3684)
+ * Render_datetime can handle dates before year 1900 (#2228)
 
 API changes:
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
