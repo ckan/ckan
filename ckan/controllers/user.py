@@ -1,3 +1,4 @@
+# =*- coding: utf-8 -*-
 import logging
 
 from pylons import config
@@ -31,6 +32,10 @@ UsernamePasswordError = logic.UsernamePasswordError
 
 DataError = dictization_functions.DataError
 unflatten = dictization_functions.unflatten
+
+
+def require_sudo_mode():
+    pass
 
 
 def set_repoze_user(user_id):
@@ -277,6 +282,8 @@ class UserController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to edit a user.'))
 
+        require_sudo_mode()
+
         if (context['save']) and not data:
             return self._save_edit(id, context)
 
@@ -305,12 +312,18 @@ class UserController(base.BaseController):
                   (str(c.user), id))
 
         errors = errors or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {
+            'data': data,
+            'errors': errors,
+            'error_summary': error_summary,
+            'is_sysadmin': authz.is_sysadmin(c.user)
+        }
 
-        self._setup_template_variables({'model': model,
-                                        'session': model.Session,
-                                        'user': c.user or c.author},
-                                       data_dict)
+        self._setup_template_variables({
+            'model': model,
+            'session': model.Session,
+            'user': c.user or c.author
+        }, data_dict)
 
         c.is_myself = True
         c.show_email_notifications = h.asbool(
@@ -332,9 +345,11 @@ class UserController(base.BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
 
-            if data_dict['password1'] and data_dict['password2']:
-                identity = {'login': c.user,
-                            'password': data_dict['old_password']}
+            if not c.userobj.sysadmin:
+                identity = {
+                    'login': c.user,
+                    'password': data_dict['old_password']
+                }
                 auth = authenticator.UsernamePasswordAuthenticator()
 
                 if auth.authenticate(request.environ, identity) != c.user:

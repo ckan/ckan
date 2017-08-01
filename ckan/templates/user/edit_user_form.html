@@ -24,7 +24,9 @@
 
   <fieldset>
     <legend>{{ _('Change password') }}</legend>
+    {% if not is_sysadmin %}
     {{ form.input('old_password', type='password', label=_('Old Password'), id='field-password', value=data.oldpassword, error=errors.oldpassword, classes=['control-medium'], attrs={'autocomplete': 'off'} ) }}
+    {% endif %}
 
     {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off'} ) }}
 
