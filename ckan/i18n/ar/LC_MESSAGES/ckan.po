@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-10-18 10:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2016\n"
+"Last-Translator: Mireille Raad <mir.mir@gmail.com>, 2017\n"
 "Language-Team: Arabic (https://www.transifex.com/okfn/teams/11162/ar/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -87,7 +87,7 @@ msgstr "لقد تم إدراج CSS مخصصة في رأس الصفحة"
 
 #: ckan/controllers/admin.py:57
 msgid "Homepage"
-msgstr ""
+msgstr "الصفحة الرئيسية"
 
 #: ckan/controllers/admin.py:160
 #, python-format
@@ -289,7 +289,7 @@ msgstr "صيغ"
 #: ckan/controllers/group.py:310 ckan/controllers/home.py:73
 #: ckan/controllers/package.py:245 ckan/lib/helpers.py:807
 msgid "Licenses"
-msgstr ""
+msgstr "تراخيص"
 
 #: ckan/controllers/group.py:448
 msgid "Not authorized to perform bulk update"
@@ -476,7 +476,7 @@ msgstr "يجب إضافة مورد بيانات واحدة على الأقل"
 
 #: ckan/controllers/package.py:668 ckanext/datapusher/helpers.py:24
 msgid "Error"
-msgstr ""
+msgstr "خطأ"
 
 #: ckan/controllers/package.py:691
 msgid "Unauthorized to create a resource"
@@ -577,18 +577,18 @@ msgstr ""
 
 #: ckan/controllers/tag.py:60
 msgid "Other"
-msgstr ""
+msgstr "آخر"
 
 #: ckan/controllers/tag.py:74
 msgid "Tag not found"
-msgstr ""
+msgstr "وسم المصطلح غير موجود"
 
 #: ckan/controllers/user.py:83 ckan/controllers/user.py:232
 #: ckan/controllers/user.py:247 ckan/controllers/user.py:314
 #: ckan/controllers/user.py:377 ckan/controllers/user.py:524
 #: ckan/controllers/user.py:546 ckan/logic/auth/update.py:178
 msgid "User not found"
-msgstr ""
+msgstr "المستخدم ليس موجود"
 
 #: ckan/controllers/user.py:161
 msgid "Unauthorized to register as a user."
@@ -647,11 +647,11 @@ msgstr ""
 
 #: ckan/controllers/user.py:386 ckan/templates/user/edit_user_form.html:29
 msgid "Old Password"
-msgstr ""
+msgstr "كلمة المرور القديمة"
 
 #: ckan/controllers/user.py:386
 msgid "incorrect password"
-msgstr ""
+msgstr "كلمة سر خاطئة"
 
 #: ckan/controllers/user.py:427
 msgid "Login failed. Bad username or password."
@@ -690,11 +690,11 @@ msgstr ""
 
 #: ckan/controllers/user.py:541
 msgid "Your password has been reset."
-msgstr ""
+msgstr "تم إعادة تعيين كلمة المرور الخاصة بك."
 
 #: ckan/controllers/user.py:562
 msgid "Your password must be 4 characters or longer."
-msgstr ""
+msgstr "يجب أن تكون كلمة المرور الخاصة بك 4 أحرف أو أكثر."
 
 #: ckan/controllers/user.py:565
 msgid "The passwords you entered do not match."
@@ -718,7 +718,7 @@ msgstr ""
 
 #: ckan/controllers/util.py:18 ckan/logic/action/__init__.py:62
 msgid "Missing Value"
-msgstr ""
+msgstr "قيمة مفقودة"
 
 #: ckan/controllers/util.py:23
 msgid "Redirecting to external site is not allowed."
@@ -831,15 +831,15 @@ msgstr[5] ""
 
 #: ckan/lib/formatters.py:19
 msgid "January"
-msgstr ""
+msgstr "كانون الثاني"
 
 #: ckan/lib/formatters.py:23
 msgid "February"
-msgstr ""
+msgstr "شباط"
 
 #: ckan/lib/formatters.py:27
 msgid "March"
-msgstr ""
+msgstr "آذار"
 
 #: ckan/lib/formatters.py:31
 msgid "April"
@@ -4495,7 +4495,7 @@ msgstr ""
 
 #: ckanext/textview/plugin.py:67 ckanext/textview/plugin.py:69
 msgid "Text"
-msgstr ""
+msgstr "نص"
 
 #: ckanext/textview/theme/public/text_view.js:5
 #, python-format
@@ -4504,7 +4504,7 @@ msgstr ""
 
 #: ckanext/webpageview/plugin.py:21 ckanext/webpageview/plugin.py:26
 msgid "Website"
-msgstr ""
+msgstr "موقع الكتروني"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "Web Page url"

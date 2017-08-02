@@ -8,6 +8,10 @@
     null,
     "Nastala chyba"
   ],
+  "An error occurred: %(text)s %(error)s": [
+    null,
+    "Stala se chyba: %(text)s %(error)s"
+  ],
   "Are you sure you want to perform this action?": [
     null,
     "Jste si jistí, že chcete provést tuto akci?"
@@ -143,5 +147,9 @@
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
     "Právě nahráváte soubor. Jste si opravdu jistí, že chcete tuto stránku opustit a ukončit tak nahrávání?"
+  ],
+  "error loading view": [
+    null,
+    "Chyba při načítání zobrazení"
   ]
 }

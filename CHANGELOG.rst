@@ -7,6 +7,25 @@
 Changelog
 ---------
 
+v2.6.3 2017-08-02
+=================
+
+* Fix in organization / group form image URL field (#3661)
+* Fix activity test to use utcnow (#3644)
+* Changed required permission from 'update' to 'manage_group' (#3631)
+* Catch invalid sort param exception (#3630)
+* Choose direction of recreated package relationship depending on its type (#3626)
+* Fix render_datetime for dates before year 1900 (#3611)
+* Fix KeyError in 'package_create' (#3027)
+* Allow slug preview to work with autocomplete fields (#2501)
+* Fix filter results button not working for organization/group (#3620)
+* Allow underscores in URL slug preview on create dataset (#3612)
+* Create new resource view if resource format changed (#3515)
+* Fixed escaping issues with `helpers.mail_to` and datapusher logs
+* Autocomplete fields are more responsive - 300ms timeout instead of 1s (#3693)
+* Fixed dataset count display for groups (#3711)
+* Restrict access to form pages (#3684)
+
 v2.6.2 2017-03-22
 =================
 

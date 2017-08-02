@@ -236,7 +236,7 @@ msgstr "Pieprasījuma parametriem ir jābūt json kodētās vārdnīcas formā."
 #: ckan/controllers/group.py:925 ckan/controllers/package.py:1251
 #: ckan/controllers/package.py:1266 ckan/logic/action/create.py:1384
 msgid "Group not found"
-msgstr "Tēma nav atrasta"
+msgstr "Kategorija nav atrasta"
 
 #: ckan/controllers/feed.py:238 ckan/logic/action/create.py:1384
 msgid "Organization not found"
@@ -244,7 +244,7 @@ msgstr "Organizācija nav atrasta"
 
 #: ckan/controllers/group.py:140 ckan/controllers/group.py:586
 msgid "Incorrect group type"
-msgstr "Nepareizs tēmas tips"
+msgstr "Nepareizs kategorijas tips"
 
 #: ckan/controllers/group.py:306 ckan/controllers/home.py:69
 #: ckan/controllers/package.py:241 ckan/lib/helpers.py:803
@@ -270,7 +270,7 @@ msgstr "Organizācijas"
 #: ckan/templates/package/read_base.html:20
 #: ckan/templates/revision/diff.html:16 ckan/templates/revision/read.html:84
 msgid "Groups"
-msgstr "Tēmas"
+msgstr "Kategorijas"
 
 #: ckan/controllers/group.py:308 ckan/controllers/home.py:71
 #: ckan/controllers/package.py:243 ckan/lib/helpers.py:805
@@ -298,7 +298,7 @@ msgstr "Nav atļauts veikt masu atjaunošanu"
 
 #: ckan/controllers/group.py:466
 msgid "Unauthorized to create a group"
-msgstr "Nav tiesību izveidot tēmu"
+msgstr "Nav tiesību izveidot kategoriju"
 
 #: ckan/controllers/group.py:518 ckan/controllers/package.py:333
 #: ckan/controllers/package.py:780 ckan/controllers/package.py:1396
@@ -322,7 +322,7 @@ msgstr "Lietotājam %r nav tiesību rediģēt %s autorizācijas"
 #: ckan/controllers/group.py:620 ckan/controllers/group.py:635
 #, python-format
 msgid "Unauthorized to delete group %s"
-msgstr "Nav tiesību dzēst tēmu %s"
+msgstr "Nav tiesību dzēst kategoriju %s"
 
 #: ckan/controllers/group.py:626
 msgid "Organization has been deleted."
@@ -330,7 +330,7 @@ msgstr "Organizācija ir izdzēsta."
 
 #: ckan/controllers/group.py:628
 msgid "Group has been deleted."
-msgstr "Tēma ir izdzēsta."
+msgstr "Kategorija ir izdzēsta."
 
 #: ckan/controllers/group.py:630
 #, python-format
@@ -340,16 +340,16 @@ msgstr "%s ir izdzēsta."
 #: ckan/controllers/group.py:704
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr "Nav tiesību pievienot biedru tēmai %s"
+msgstr "Nav tiesību pievienot biedru kategorijai %s"
 
 #: ckan/controllers/group.py:723 ckan/controllers/group.py:736
 #, python-format
 msgid "Unauthorized to delete group %s members"
-msgstr "Nav tiesību dzēst tēmas %s biedrus"
+msgstr "Nav tiesību dzēst kategorijas %s biedrus"
 
 #: ckan/controllers/group.py:730
 msgid "Group member has been deleted."
-msgstr "Tēmas biedrs ir izdzēsta."
+msgstr "Kategorijas biedrs ir izdzēsta."
 
 #: ckan/controllers/group.py:754 ckan/controllers/package.py:421
 msgid "Select two revisions before doing the comparison."
@@ -357,11 +357,11 @@ msgstr "Atzīmē divas izmaiņas pirms salīdzināšanas."
 
 #: ckan/controllers/group.py:778
 msgid "CKAN Group Revision History"
-msgstr "CKAN tēmas izmaiņu vēsture"
+msgstr "Kategorijas izmaiņu vēsture"
 
 #: ckan/controllers/group.py:782
 msgid "Recent changes to CKAN Group: "
-msgstr "Nesenās izmaiņas CKAN tēmā:"
+msgstr "Nesenās izmaiņas kategorijā:"
 
 #: ckan/controllers/group.py:803 ckan/controllers/package.py:472
 msgid "Log message: "
@@ -391,12 +391,12 @@ msgstr "Šī vietne pašlaik atrodas bezsaistē. Notiek databāzes inicializāci
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr ""
 "Lūdzu <a href=\"%s\">atjaunojiet savu profilu</a> un pievienojiet savu "
-"epasta adresi."
+"e-pasta adresi."
 
 #: ckan/controllers/home.py:83
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr "%s izmanto savu epastu, ja nepieciešams atiestatīt savu paroli."
+msgstr "%s izmanto savu e-pastu, ja nepieciešams atiestatīt savu paroli."
 
 #: ckan/controllers/package.py:290
 msgid "Invalid search query: {error_message}"
@@ -735,7 +735,7 @@ msgstr "{actor} pievienota birka {tag} datu kopai {dataset}"
 
 #: ckan/lib/activity_streams.py:63
 msgid "{actor} updated the group {group}"
-msgstr "{actor} atjaunoja tēmu {group}"
+msgstr "{actor} atjaunoja kategoriju {group}"
 
 #: ckan/lib/activity_streams.py:66
 msgid "{actor} updated the organization {organization}"
@@ -759,7 +759,7 @@ msgstr "{actor} atjaunoja savu profilu"
 
 #: ckan/lib/activity_streams.py:81
 msgid "{actor} deleted the group {group}"
-msgstr "{actor} izdzēsa tēmu {group}"
+msgstr "{actor} izdzēsa kategoriju {group}"
 
 #: ckan/lib/activity_streams.py:84
 msgid "{actor} deleted the organization {organization}"
@@ -779,7 +779,7 @@ msgstr "{actor} izdzēsa resursu {resource} no datu kopas {dataset}"
 
 #: ckan/lib/activity_streams.py:97
 msgid "{actor} created the group {group}"
-msgstr "{actor} izveidoja tēmu {group}"
+msgstr "{actor} izveidoja kategoriju {group}"
 
 #: ckan/lib/activity_streams.py:100
 msgid "{actor} created the organization {organization}"
@@ -1027,7 +1027,7 @@ msgstr "%s <%s>"
 
 #: ckan/lib/mailer.py:109
 msgid "No recipient email address available!"
-msgstr "Nav pieejama saņēmēja epasta adrese!"
+msgstr "Nav pieejama saņēmēja e-pasta adrese!"
 
 #: ckan/lib/mailer.py:127 ckan/templates/home/snippets/stats.html:17
 msgid "organization"
@@ -1035,7 +1035,7 @@ msgstr "organizācija"
 
 #: ckan/lib/mailer.py:128 ckan/templates/home/snippets/stats.html:23
 msgid "group"
-msgstr "tēma"
+msgstr "kategorija"
 
 #: ckan/lib/navl/dictization_functions.py:14
 #: ckan/lib/navl/dictization_functions.py:17
@@ -1100,7 +1100,7 @@ msgstr "Datu kopa"
 #: ckan/logic/converters.py:171 ckan/logic/validators.py:243
 #: ckanext/stats/templates/ckanext/stats/index.html:113
 msgid "Group"
-msgstr "Tēma"
+msgstr "Kategorija"
 
 #: ckan/logic/converters.py:180
 msgid "Could not parse as valid JSON"
@@ -1148,7 +1148,7 @@ msgstr "Resurss"
 
 #: ckan/logic/validators.py:253
 msgid "That group name or ID does not exist."
-msgstr "Tēmas nosaukums vai ID neeksistē."
+msgstr "Kategorijas nosaukums vai ID neeksistē."
 
 #: ckan/logic/validators.py:267
 msgid "Activity type"
@@ -1205,7 +1205,7 @@ msgstr "Atslēgas dublikāts \"%s\""
 
 #: ckan/logic/validators.py:409
 msgid "Group name already exists in database"
-msgstr "Šāds tēmas nosaukums jau eksistē datubāzē"
+msgstr "Šāds kategorijas nosaukums jau eksistē datubāzē"
 
 #: ckan/logic/validators.py:415
 #, python-format
@@ -1348,7 +1348,7 @@ msgstr "REST API: Izveidot biedra objektu %s"
 
 #: ckan/logic/action/create.py:792
 msgid "Trying to create an organization as a group"
-msgstr "Mēģina izveidot organizāciju kā tēmu"
+msgstr "Mēģina izveidot organizāciju kā kategoriju"
 
 #: ckan/logic/action/create.py:881
 msgid "You must supply a package id or name (parameter \"package\")."
@@ -1370,7 +1370,7 @@ msgstr "Vērtējumam jābūt starp %i un %i."
 
 #: ckan/logic/action/create.py:1052
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr "Kļūda nosūtot uzaicinājuma epastu. Lietotājs netika izveidots: {0}"
+msgstr "Kļūda nosūtot uzaicinājuma e-pastu. Lietotājs netika izveidots: {0}"
 
 #: ckan/logic/action/create.py:1265 ckan/logic/action/create.py:1272
 msgid "You must be logged in to follow users"
@@ -1395,7 +1395,7 @@ msgstr "Lietotājs {username} neeksistē."
 
 #: ckan/logic/action/create.py:1465 ckan/logic/action/create.py:1473
 msgid "You must be logged in to follow a group."
-msgstr "Jums jābūt autorizētam, lai sekotu tēmai."
+msgstr "Jums jābūt autorizētam, lai sekotu kategorijai."
 
 #: ckan/logic/action/delete.py:45
 msgid " Delete User: {0}"
@@ -1488,7 +1488,7 @@ msgstr "Lietotājs %s nav tiesīgs izveidot paketes"
 #: ckan/logic/auth/create.py:31 ckan/logic/auth/update.py:45
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr "Lietotājam %s nav tiesības lai rediģētu šīs tēmas"
+msgstr "Lietotājam %s nav tiesības lai rediģētu šīs kategorijas"
 
 #: ckan/logic/auth/create.py:38
 #, python-format
@@ -1518,7 +1518,7 @@ msgstr "Lietotājs %s nav tiesīgs rediģēt šīs paketes"
 #: ckan/logic/auth/create.py:119
 #, python-format
 msgid "User %s not authorized to create groups"
-msgstr "Lietotājs %s nav tiesīgs veidot tēmas"
+msgstr "Lietotājs %s nav tiesīgs veidot kategorijas"
 
 #: ckan/logic/auth/create.py:129
 #, python-format
@@ -1535,7 +1535,7 @@ msgstr "Nav tiesību veidot lietotājus"
 
 #: ckan/logic/auth/create.py:191
 msgid "Group was not found."
-msgstr "Tēma netika atrasta."
+msgstr "Kategorija netika atrasta."
 
 #: ckan/logic/auth/create.py:211
 msgid "Valid API key needed to create a package"
@@ -1543,7 +1543,7 @@ msgstr "Nepieciešama derīga API atslēga, lai izveidotu paketi"
 
 #: ckan/logic/auth/create.py:219
 msgid "Valid API key needed to create a group"
-msgstr "Nepieciešama derīga API atslēga, lai izveidotu tēmu"
+msgstr "Nepieciešama derīga API atslēga, lai izveidotu kategoriju"
 
 #: ckan/logic/auth/create.py:239
 #, python-format
@@ -1553,7 +1553,7 @@ msgstr "Lietotājs %s nav tiesīgs pievienot biedrus"
 #: ckan/logic/auth/create.py:263 ckan/logic/auth/update.py:115
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr "Lietotājam %s nav tiesību rediģēt tēmu %s"
+msgstr "Lietotājam %s nav tiesību rediģēt kategoriju %s"
 
 #: ckan/logic/auth/delete.py:40
 #, python-format
@@ -1572,12 +1572,12 @@ msgstr "Lietotājs %s nav tiesīgs dzēst attiecības %s"
 #: ckan/logic/auth/delete.py:82
 #, python-format
 msgid "User %s not authorized to delete groups"
-msgstr "Lietotājs %s nav tiesīgs dzēst tēmas"
+msgstr "Lietotājs %s nav tiesīgs dzēst kategorijas"
 
 #: ckan/logic/auth/delete.py:86
 #, python-format
 msgid "User %s not authorized to delete group %s"
-msgstr "Lietotājs %s nav tiesīgs dzēst tēmu %s"
+msgstr "Lietotājs %s nav tiesīgs dzēst kategoriju %s"
 
 #: ckan/logic/auth/delete.py:103
 #, python-format
@@ -1616,7 +1616,7 @@ msgstr "Lietotājs %s nav tiesīgs lasīt resursu %s"
 #: ckan/logic/auth/get.py:176
 #, python-format
 msgid "User %s not authorized to read group %s"
-msgstr "Lietotājs %s nav tiesīgs lasīt tēmu %s"
+msgstr "Lietotājs %s nav tiesīgs lasīt kategoriju %s"
 
 #: ckan/logic/auth/get.py:258
 msgid "You must be logged in to access your dashboard."
@@ -1645,12 +1645,12 @@ msgstr "Lietotājs %s nav tiesīgs rediģēt organizāciju %s"
 #: ckan/logic/auth/update.py:145
 #, python-format
 msgid "User %s not authorized to change state of group %s"
-msgstr "Lietotājs %s nav tiesīgs mainīt tēmas %s stāvokli"
+msgstr "Lietotājs %s nav tiesīgs mainīt kategorijas %s stāvokli"
 
 #: ckan/logic/auth/update.py:162
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
-msgstr "Lietotājam %s nav tiesību rediģēt tēmas %s tiesības"
+msgstr "Lietotājam %s nav tiesību rediģēt kategorijas %s tiesības"
 
 #: ckan/logic/auth/update.py:189
 msgid "Have to be logged in to edit user"
@@ -1686,7 +1686,7 @@ msgstr "Nepieciešama derīga API atslēga, lai rediģētu paketi"
 
 #: ckan/logic/auth/update.py:271
 msgid "Valid API key needed to edit a group"
-msgstr "Nepieciešama derīga API atslēga, lai rediģētu tēmu"
+msgstr "Nepieciešama derīga API atslēga, lai rediģētu kategoriju"
 
 #: ckan/model/license.py:222
 msgid "License not specified"
@@ -2379,11 +2379,11 @@ msgstr "Administrators"
 
 #: ckan/templates/group/base_form_page.html:7
 msgid "Add a Group"
-msgstr "Pievienot tēmu"
+msgstr "Pievienot kategoriju"
 
 #: ckan/templates/group/base_form_page.html:11
 msgid "Group Form"
-msgstr "Tēmas forma"
+msgstr "Kategorijas forma"
 
 #: ckan/templates/group/confirm_delete.html:3
 #: ckan/templates/group/confirm_delete.html:15
@@ -2402,7 +2402,7 @@ msgstr "Apstiprināt dzēšanu"
 
 #: ckan/templates/group/confirm_delete.html:11
 msgid "Are you sure you want to delete group - {name}?"
-msgstr "Vai tiešām vēlaties dzēst tēmu - {name}?"
+msgstr "Vai tiešām vēlaties dzēst kategoriju - {name}?"
 
 #: ckan/templates/group/confirm_delete_member.html:11
 #: ckan/templates/organization/confirm_delete_member.html:11
@@ -2423,7 +2423,7 @@ msgstr "Pārvaldīt"
 
 #: ckan/templates/group/edit.html:12
 msgid "Edit Group"
-msgstr "Rediģēt tēmu"
+msgstr "Rediģēt kategoriju"
 
 #: ckan/templates/group/edit_base.html:21 ckan/templates/group/members.html:3
 #: ckan/templates/organization/edit_base.html:24
@@ -2453,11 +2453,11 @@ msgstr "Vēsture"
 #: ckan/templates/group/index.html:13
 #: ckan/templates/user/dashboard_groups.html:7
 msgid "Add Group"
-msgstr "Pievienot tēmu"
+msgstr "Pievienot kategoriju"
 
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
-msgstr "Meklē tēmas..."
+msgstr "Meklē kategorijas..."
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:16
 #: ckan/templates/organization/bulk_process.html:97
@@ -2483,7 +2483,7 @@ msgstr "Nosaukums dilstošā secībā"
 
 #: ckan/templates/group/index.html:29
 msgid "There are currently no groups for this site"
-msgstr "Pašlaik nav tēmas šajā vietnē"
+msgstr "Pašlaik nav kategorijas šajā vietnē"
 
 #: ckan/templates/group/index.html:31
 #: ckan/templates/organization/index.html:31
@@ -2534,7 +2534,7 @@ msgstr "Jauns lietotājs"
 #: ckan/templates/group/member_new.html:45
 #: ckan/templates/organization/member_new.html:47
 msgid "If you wish to invite a new user, enter their email address."
-msgstr "Ja vēlaties uzaicināt jaunu lietotāju, ievadiet tā epasta adresi."
+msgstr "Ja vēlaties uzaicināt jaunu lietotāju, ievadiet tā e-pasta adresi."
 
 #: ckan/templates/group/member_new.html:55
 #: ckan/templates/group/members.html:18
@@ -2580,22 +2580,22 @@ msgid ""
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
 msgstr ""
-"<P> <strong> Admin: </ strong>, var rediģēt tēmas informāciju, kā arī "
+"<P> <strong> Admin: </ strong>, var rediģēt kategorijas informāciju, kā arī "
 "pārvaldīt organizācijas biedrus </ p> <p> <strong> Biedrs. </ Strong> Var "
-"pievienot/noņemt datu kopas no grupām </ p >"
+"pievienot/noņemt datu kopas no kategorijām </ p >"
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
 msgid "Create a Group"
-msgstr "Izveidot tēmu"
+msgstr "Izveidot kategoriju"
 
 #: ckan/templates/group/new_group_form.html:17
 msgid "Update Group"
-msgstr "Atjaunot tēmu"
+msgstr "Atjaunot kategoriju"
 
 #: ckan/templates/group/new_group_form.html:19
 msgid "Create Group"
-msgstr "Izveidot tēmu"
+msgstr "Izveidot kategoriju"
 
 #: ckan/templates/group/read.html:15 ckan/templates/organization/read.html:19
 #: ckan/templates/package/search.html:29
@@ -2630,7 +2630,7 @@ msgstr "Meklē datu kopas..."
 
 #: ckan/templates/group/snippets/feeds.html:3
 msgid "Datasets in group: {group}"
-msgstr "Datu kopas tēmā: {group}"
+msgstr "Datu kopas kategorija: {group}"
 
 #: ckan/templates/group/snippets/feeds.html:4
 #: ckan/templates/organization/snippets/feeds.html:4
@@ -2645,7 +2645,7 @@ msgstr "Nosaukums"
 
 #: ckan/templates/group/snippets/group_form.html:10
 msgid "My Group"
-msgstr "Mana tēma"
+msgstr "Mana kategorija"
 
 #: ckan/templates/group/snippets/group_form.html:18
 msgid "my-group"
@@ -2661,15 +2661,15 @@ msgstr "Apraksts"
 
 #: ckan/templates/group/snippets/group_form.html:20
 msgid "A little information about my group..."
-msgstr "Nedaudz informācijas par manu tēmu..."
+msgstr "Nedaudz informācijas par manu kategoriju..."
 
 #: ckan/templates/group/snippets/group_form.html:60
 msgid "Are you sure you want to delete this Group?"
-msgstr "Vai tiešām vēlaties dzēst šo tēmu?"
+msgstr "Vai tiešām vēlaties dzēst šo kategoriju?"
 
 #: ckan/templates/group/snippets/group_form.html:64
 msgid "Save Group"
-msgstr "Saglabāt tēmu"
+msgstr "Saglabāt kategoriju"
 
 #: ckan/templates/group/snippets/group_item.html:32
 #: ckan/templates/organization/snippets/organization_item.html:31
@@ -2695,11 +2695,11 @@ msgstr "Sakatīt {name}"
 
 #: ckan/templates/group/snippets/group_item.html:43
 msgid "Remove dataset from this group"
-msgstr "Noņemt datu kopu no šīs tēmas"
+msgstr "Noņemt datu kopu no šīs kategorijas"
 
 #: ckan/templates/group/snippets/helper.html:4
 msgid "What are Groups?"
-msgstr "Kas ir tēmas?"
+msgstr "Kas ir kategorija?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
@@ -2708,8 +2708,8 @@ msgid ""
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets. "
 msgstr ""
-"Jūs varat izmantot CKAN tēmas, lai izveidotu un pārvaldītu kolekcijas datu "
-"kopām. Tās var būt katalogu datu kopas par konkrētu projektu vai komandu, "
+"Jūs varat izmantot kategorijas, lai izveidotu un pārvaldītu kolekcijas datu "
+"kopām. Tās var būt katalogs datu kopām par konkrētu projektu vai komandu, "
 "vai par konkrētu tēmu, vai arī kā ļoti vienkāršs veids, kā palīdzēt "
 "cilvēkiem atrast un meklēt savas publicētās datu kopas."
 
@@ -2850,7 +2850,7 @@ msgstr "organizācijas"
 
 #: ckan/templates/home/snippets/stats.html:23
 msgid "groups"
-msgstr "tēmas"
+msgstr "kategorijas"
 
 #: ckan/templates/macros/form.html:126
 #, python-format
@@ -2974,7 +2974,7 @@ msgstr "Lietotājvārds"
 
 #: ckan/templates/organization/member_new.html:50
 msgid "Email address"
-msgstr "Epasta adrese"
+msgstr "E-pasta adrese"
 
 #: ckan/templates/organization/member_new.html:62
 msgid "Update Member"
@@ -3049,9 +3049,10 @@ msgid ""
 "datasets. Users can have different roles within an Organization, depending "
 "on their level of authorisation to create, edit and publish. "
 msgstr ""
-"CKAN organizācijas tiek izmantoti, lai izveidotu, pārvaldītu un publicētu "
-"datu kopu kolekcijas. Lietotāji var būt ar dažādām lomām organizācijā, "
-"atkarībā piešķirtajām tiesībām tie var izveidot, rediģēt un publicēt datus."
+"Organizācijas, kas atbilst Informācijas atklātības likuma 1. pantā "
+"noteiktajai iestādes definīcijai (ikviena iestāde, kā arī persona, kas "
+"īsteno pārvaldes funkcijas un uzdevumus, ja šī persona informācijas apritē "
+"ir saistīta ar attiecīgo funkciju un uzdevumu izpildi)."
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3136,15 +3137,15 @@ msgstr "Atjaunot"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Associate this group with this dataset"
-msgstr "Saistīt šo tēmu ar šo datu kopu"
+msgstr "Saistīt šo kategoriju ar šo datu kopu"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Add to group"
-msgstr "Pievienot tēmai"
+msgstr "Pievienot kategorijai"
 
 #: ckan/templates/package/group_list.html:23
 msgid "There are no groups associated with this dataset"
-msgstr "Nav tēmas, kas saistītas ar šo datu kopu"
+msgstr "Nav kategorijas, kas saistītas ar šo datu kopu"
 
 #: ckan/templates/package/new_package_form.html:15
 msgid "Update Dataset"
@@ -3571,7 +3572,7 @@ msgstr "Joe Bloggs"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 msgid "Author Email"
-msgstr "Autora epasts"
+msgstr "Autora e-pasts"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
@@ -3581,7 +3582,7 @@ msgstr "joe@example.com"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 msgid "Maintainer Email"
-msgstr "Uzturētāja epasts"
+msgstr "Uzturētāja e-pasts"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
@@ -3901,9 +3902,9 @@ msgstr ""
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] "{number} datu kopas meklējot \"{query}\""
+msgstr[0] "{number} datu kopa meklējot \"{query}\""
 msgstr[1] "{number} datu kopas meklējot \"{query}\""
-msgstr[2] "{number} datu kopa meklējot \"{query}\""
+msgstr[2] "{number} datu kopas meklējot \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -3912,9 +3913,9 @@ msgstr "Nav atrastas datu kopas meklējot \"{query}\""
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] "atrastas {number} datu kopas"
+msgstr[0] "atrasta {number} datu kopa"
 msgstr[1] "atrastas {number} datu kopas"
-msgstr[2] "atrasta {number} datu kopa"
+msgstr[2] "atrastas {number} datu kopas"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -3923,24 +3924,24 @@ msgstr "Nav atrastas datu kopas"
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
-msgstr[0] "{number} tēmas meklējot \"{query}\""
-msgstr[1] "{number} tēmas meklējot \"{query}\""
-msgstr[2] "{number} tēma meklējot \"{query}\""
+msgstr[0] "{number} kategorijas meklējot \"{query}\""
+msgstr[1] "{number} kategorijas meklējot \"{query}\""
+msgstr[2] "{number} kategorija meklējot \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
-msgstr "Nav atrastas tēmas meklējot \"{query}\""
+msgstr "Nav atrastas kategorijas meklējot \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:23
 msgid "{number} group found"
 msgid_plural "{number} groups found"
-msgstr[0] "atrastas {number} tēmas"
-msgstr[1] "atrastas {number} tēmas"
-msgstr[2] "atrastas {number} tēmas"
+msgstr[0] "atrastas {number} kategorijas"
+msgstr[1] "atrastas {number} kategorijas"
+msgstr[2] "atrastas {number} kategorijas"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
-msgstr "Tēmas nav atrastas"
+msgstr "Kategorijas nav atrastas"
 
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
@@ -3977,7 +3978,7 @@ msgstr "Pierakstīties"
 #: ckan/templates/user/new_user_form.html:7
 #: ckan/templates/user/read_base.html:82
 msgid "Email"
-msgstr "Epasts"
+msgstr "E-pasts"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
@@ -4009,7 +4010,7 @@ msgstr "Manas organizācijas"
 #: ckan/templates/user/dashboard.html:22
 #: ckan/templates/user/dashboard_groups.html:12
 msgid "My Groups"
-msgstr "Manas tēmas"
+msgstr "Manas kategorijas"
 
 #: ckan/templates/user/dashboard.html:39
 msgid "Activity from items that I'm following"
@@ -4029,7 +4030,7 @@ msgstr "Izveidot vienu tagad?"
 
 #: ckan/templates/user/dashboard_groups.html:20
 msgid "You are not a member of any groups."
-msgstr "Jūs neesat nevienas tēmas biedrs."
+msgstr "Jūs neesat nevienas kategorijas biedrs."
 
 #: ckan/templates/user/dashboard_organizations.html:20
 msgid "You are not a member of any organizations."
@@ -4059,7 +4060,7 @@ msgstr "Mainīt detaļas"
 
 #: ckan/templates/user/edit_user_form.html:10
 msgid "Full name"
-msgstr "Pilnais vārds"
+msgstr "Attēlojamais vārds (alias)"
 
 #: ckan/templates/user/edit_user_form.html:10
 msgid "eg. Joe Bloggs"
@@ -4075,7 +4076,7 @@ msgstr "Nedaudz informācijas par sevi"
 
 #: ckan/templates/user/edit_user_form.html:17
 msgid "Subscribe to notification emails"
-msgstr "Abonēt epasta paziņojumus"
+msgstr "Abonēt e-pasta paziņojumus"
 
 #: ckan/templates/user/edit_user_form.html:26
 msgid "Change password"
@@ -4193,11 +4194,15 @@ msgstr "Konta reģistrācija"
 
 #: ckan/templates/user/new.html:26
 msgid "Why Sign Up?"
-msgstr "Kāpēc reģistrēties?"
+msgstr "Iespējas un ierobežojumi"
 
 #: ckan/templates/user/new.html:28
 msgid "Create datasets, groups and other exciting things"
-msgstr "Izveidot datu kopas, tēmas un citas aizraujošas lietas"
+msgstr ""
+"Reģistrēti lietotāji var sekot līdzi konkrētam datu kopām. Publicēt datu "
+"kopas ir iespējams tikai pēc tam, kad administrators ir piešķīris lietotājam"
+" šādas tiesības. Lai publicētu datu kopas lūdzam iepazīties ar informāciju "
+"portāla sadaļā “Publicētājiem\"."
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
@@ -4205,7 +4210,7 @@ msgstr "lietotājvārds"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr "PIlns vārds"
+msgstr "Attēlojamais vārds (alias)"
 
 #: ckan/templates/user/new_user_form.html:17
 msgid "Create Account"
@@ -4382,7 +4387,7 @@ msgstr "Šis ir netulkots teksts"
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
 msgid "This group has no description"
-msgstr "Šai tēmai nav apraksta"
+msgstr "Šai kategorijai nav apraksta"
 
 #: ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
@@ -4539,7 +4544,7 @@ msgstr "Datu kopumu skaits"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:127
 msgid "No groups"
-msgstr "Nav tēmu"
+msgstr "Nav kategoriju"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:132
 #: ckanext/stats/templates/ckanext/stats/index.html:183

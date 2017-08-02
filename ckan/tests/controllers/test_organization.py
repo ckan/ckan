@@ -444,3 +444,94 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         ds_titles = [t.string for t in ds_titles]
 
         assert_equal(len(ds_titles), 0)
+
+
+class TestOrganizationMembership(helpers.FunctionalTestBase):
+
+    def test_editor_users_cannot_add_members(self):
+
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'editor'}]
+        )
+
+        app = helpers._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        app.get(
+            url_for(
+                controller='organization',
+                action='member_new',
+                id=organization['id'],
+            ),
+            extra_environ=env,
+            status=403,
+        )
+
+        app.post(
+            url_for(
+                controller='organization',
+                action='member_new',
+                id=organization['id'],
+            ),
+            {'id': 'test', 'username': 'test', 'save': 'save', 'role': 'test'},
+            extra_environ=env,
+            status=403,
+        )
+
+    def test_member_users_cannot_add_members(self):
+
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'member'}]
+        )
+
+        app = helpers._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        app.get(
+            url_for(
+                controller='organization',
+                action='member_new',
+                id=organization['id'],
+            ),
+            extra_environ=env,
+            status=403,
+        )
+
+        app.post(
+            url_for(
+                controller='organization',
+                action='member_new',
+                id=organization['id'],
+            ),
+            {'id': 'test', 'username': 'test', 'save': 'save', 'role': 'test'},
+            extra_environ=env,
+            status=403,
+        )
+
+    def test_anonymous_users_cannot_add_members(self):
+        organization = factories.Organization()
+
+        app = helpers._get_test_app()
+
+        app.get(
+            url_for(
+                controller='organization',
+                action='member_new',
+                id=organization['id'],
+            ),
+            status=403,
+        )
+
+        app.post(
+            url_for(
+                controller='organization',
+                action='member_new',
+                id=organization['id'],
+            ),
+            {'id': 'test', 'username': 'test', 'save': 'save', 'role': 'test'},
+            status=403,
+        )

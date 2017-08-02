@@ -104,7 +104,7 @@ def package_relationship_create(context, data_dict):
     authorized2 = authz.is_authorized_boolean(
         'package_update', context, {'id': id2})
 
-    if not authorized1 and authorized2:
+    if not (authorized1 and authorized2):
         return {'success': False, 'msg': _('User %s not authorized to edit these packages') % user}
     else:
         return {'success': True}
@@ -195,7 +195,7 @@ def _check_group_auth(context, data_dict):
         groups = groups - set(pkg_groups)
 
     for group in groups:
-        if not authz.has_user_permission_for_group_or_org(group.id, user, 'update'):
+        if not authz.has_user_permission_for_group_or_org(group.id, user, 'manage_group'):
             return False
 
     return True
