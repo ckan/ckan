@@ -7,7 +7,7 @@
 Changelog
 ---------
 
-v2.4.8 2017-06-29
+v2.4.8 2017-08-02
 =================
 
 * Fix in organization / group form image URL field (#3661)
