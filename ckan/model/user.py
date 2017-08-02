@@ -53,13 +53,8 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
 
     @classmethod
     def get(cls, user_reference):
-        # double slashes in an openid often get turned into single slashes
-        # by browsers, so correct that for the openid lookup
-        corrected_openid_user_ref = cls.DOUBLE_SLASH.sub('://\\1',
-                                                         user_reference)
         query = meta.Session.query(cls).autoflush(False)
         query = query.filter(or_(cls.name == user_reference,
-                                 cls.openid == corrected_openid_user_ref,
                                  cls.id == user_reference))
         return query.first()
 

@@ -8,7 +8,7 @@
 # Félix Pedrera <felix.pedrera@gmail.com>, 2012
 # <internet@davidread.org>, 2011
 # Isabel Ruiz, 2013
-# javierdcm <javierdcm@gmail.com>, 2012
+# J <javierdcm@gmail.com>, 2012
 # Jesús García <>, 2012
 # Jesus Redondo <jesusredondo@unex.es>, 2013
 # Open Knowledge Foundation <translations@okfn.org>, 2011
@@ -18,7 +18,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2015-12-06 19:52+0000\n"
+"PO-Revision-Date: 2017-07-26 08:22+0000\n"
 "Last-Translator: Carlos Brys <brys@misiones.gov.ar>\n"
 "Language-Team: Spanish (http://www.transifex.com/okfn/ckan/language/es/)\n"
 "MIME-Version: 1.0\n"

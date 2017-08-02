@@ -119,14 +119,14 @@
       '4f0 4f1 4f2 4f3 4f4 4f5 4f6 4f7 4f8 4f9 4fa 4fb 4fc 4fd 4fe 4ff ' +
       '50a 50b 50c 50d 50e 50f 51a 51b 51c 51d 53a 53b 53c 53d 53e 53f ' +
       '54a 54b 54c 54d 54e 54f 56a 56b 56c 56d 56e 56f 57a 57b 57c 57d ' +
-      '57e 57f').split(' ');
+      '57e 57f 5f').split(' ');
 
   var replacement = ('- 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I P Q R S T ' +
       'U V W X Y a b c d e f g h i p q r s t u v w x y A a A a A a C c C c ' +
       'D d E e E e E e E e G g G g H h H h I i I i IJ ij J j K k k L l L l ' +
       'N n N n N n n O o OE oe R r R r R r S s T t T t T t U u U u U u W w ' +
-      'Y y Y Z b B b b b b C C c D E F f G Y h i I K k A a A a E e E e I i ' + 
-      'R r R r U u U u S s n d 8 8 Z z A a E e O o Y y l n t j db qp < ? ? ' + 
+      'Y y Y Z b B b b b b C C c D E F f G Y h i I K k A a A a E e E e I i ' +
+      'R r R r U u U u S s n d 8 8 Z z A a E e O o Y y l n t j db qp < ? ? ' +
       'B U A E e J j a a a b c e d d e e g g g Y x u h h i i w m n n N o oe ' +
       'm o r R R S f f f f t t u Z Z 3 3 ? ? 5 C O B a e i o u c d A ' +
       'E H i A B r A E Z H O I E E T r E S I I J jb A B B r D E X 3 N N P ' +
@@ -154,7 +154,7 @@
       'h H h E e E e I X x K k jt jt H h H h H h M m l A a A a AE ae E e ' +
       'e e E e X X 3 3 3 3 N n N n O o O o O o E e Y y Y y Y y H h R r bI ' +
       'bi F f X x X x H h G g T t Q q W w d r L Iu O y m o N U Y S d h l ' +
-      'lu d y w 2 n u y un').split(' ');
+      'lu d y w 2 n u y un _').split(' ');
 
   // Map the Unicode characters to their counterparts in an object.
   var map = {};

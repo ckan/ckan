@@ -6,7 +6,7 @@
 # andy_pit <andy_pit@ukr.net>, 2013
 # dread <david.read@hackneyworkshop.com>, 2015
 # Gromislav <igromislav@gmail.com>, 2013
-# vanuan <vanuan@gmail.com>, 2015
+# Vanya Yani <vanuan@gmail.com>, 2015
 # Zoriana Zaiats, 2015
 # Zoriana Zaiats, 2015
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2016-01-03 01:34+0000\n"
+"PO-Revision-Date: 2017-07-26 08:22+0000\n"
 "Last-Translator: Zoriana Zaiats\n"
 "Language-Team: Ukrainian (Ukraine) (http://www.transifex.com/okfn/ckan/language/uk_UA/)\n"
 "MIME-Version: 1.0\n"

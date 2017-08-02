@@ -10,7 +10,7 @@
 # groundrace <groundrace@me.com>, 2013,2015
 # <internet@davidread.org>, 2011
 # lafuga2 <lafuga2@gmail.com>, 2012
-# Lorenzo Ruzzene <lorenzo.ruzzene@gmail.com>, 2014
+# Lorenzo Ruzzene <inactive+loruz@transifex.com>, 2014
 # Luca De Santis <lucadex@gmail.com>, 2015
 # M2M <matteo.merlanti@gmail.com>, 2013
 # Maurizio Napolitano <maurizio.napolitano@okfn.org>, 2015
@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2015-11-26 15:06+0000\n"
+"PO-Revision-Date: 2017-07-26 08:22+0000\n"
 "Last-Translator: Maurizio Napolitano <maurizio.napolitano@okfn.org>\n"
 "Language-Team: Italian (http://www.transifex.com/okfn/ckan/language/it/)\n"
 "MIME-Version: 1.0\n"
