@@ -106,6 +106,7 @@ b. Install the recommended ``setuptools`` version:
 
 c. Install the CKAN source code into your virtualenv.
    .. important::
+   
        For the following commands, make sure you are in your CKAN default directory. E.g.
     
       .. parsed-literal::
