@@ -3,16 +3,15 @@
 import datetime
 import json
 
-import ckan.config.middleware as middleware
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.legacy as tests
+from ckan.tests import helpers
 import ckanext.datastore.backend.postgres as db
 import httpretty
 import httpretty.core
 import nose
-import paste.fixture
 import sqlalchemy.orm as orm
 from ckan.common import config
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
@@ -59,8 +58,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
@@ -70,8 +68,10 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         cls.normal_user = model.User.get('annafan')
         engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        set_url_type(
-            model.Package.get('annakarenina').resources, cls.sysadmin_user)
+
+        with cls.app.flask_app.test_request_context():
+            set_url_type(
+                model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):
@@ -175,9 +175,12 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'user': self.sysadmin_user.name
         }
 
-        p.toolkit.get_action('datapusher_submit')(context, {
-            'resource_id': resource.id
-        })
+        # datapusher_submit will call a function further down the line that
+        # relies on url_for so we need a request context
+        with self.app.flask_app.test_request_context():
+            p.toolkit.get_action('datapusher_submit')(context, {
+                'resource_id': resource.id
+            })
 
         context.pop('task_status', None)
 

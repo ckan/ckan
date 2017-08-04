@@ -2,14 +2,16 @@
 
 """WSGI app initialization"""
 import urllib
+import urlparse
 
 import webob
+from routes import request_config as routes_request_config
 
-from ckan.lib.i18n import get_locales_from_config
 from ckan.config.environment import load_environment
 from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.config.middleware.pylons_app import make_pylons_stack
 from ckan.common import config
+from ckan.lib.i18n import get_locales_from_config
 
 import logging
 log = logging.getLogger(__name__)
@@ -177,6 +179,15 @@ class AskAppDispatcherMiddleware(object):
         log.debug('Serving request via {0} app'.format(app_name))
         environ['ckan.app'] = app_name
         if app_name == 'flask_app':
+            # This request will be served by Flask, but we still need the
+            # Pylons URL builder (Routes) to work
+            parts = urlparse.urlparse(config.get('ckan.site_url',
+                                                 'http://0.0.0.0:5000'))
+            request_config = routes_request_config()
+            request_config.host = str(parts.netloc + parts.path)
+            request_config.protocol = str(parts.scheme)
+            request_config.mapper = config['routes.map']
+
             return self.apps[app_name](environ, start_response)
         else:
             # Although this request will be served by Pylons we still
@@ -184,5 +195,5 @@ class AskAppDispatcherMiddleware(object):
             # builder to work and to be able to access the Flask config
             flask_app = self.apps['flask_app']._wsgi_app
 
-            with flask_app.app_context():
+            with flask_app.test_request_context():
                 return self.apps[app_name](environ, start_response)

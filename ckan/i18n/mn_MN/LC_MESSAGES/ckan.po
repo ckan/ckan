@@ -1,38 +1,674 @@
 # Translations template for ckan.
-# Copyright (C) 2016 ORGANIZATION
+# Copyright (C) 2017 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 # 
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 2.6.0b0\n"
+"Project-Id-Version: ckan 2.7.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-10-18 10:37+0100\n"
+"POT-Creation-Date: 2017-06-21 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2016\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2017\n"
 "Language-Team: Mongolian (Mongolia) (https://www.transifex.com/okfn/teams/11162/mn_MN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
+"Generated-By: Babel 2.4.0\n"
 "Language: mn_MN\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ckan/authz.py:179
+#: ckanext/datapusher/helpers.py:21
+msgid "Complete"
+msgstr "Бүрэн дуусах"
+
+#: ckanext/datapusher/helpers.py:22
+msgid "Pending"
+msgstr "Хүлээгдэж байна"
+
+#: ckanext/datapusher/helpers.py:23
+msgid "Submitting"
+msgstr "Илгээж байна"
+
+#: ckan/controllers/package.py:659 ckanext/datapusher/helpers.py:24
+msgid "Error"
+msgstr "Алдаа"
+
+#: ckanext/datapusher/helpers.py:29
+msgid "Not Uploaded Yet"
+msgstr "Хараахан байршуулагдаагүй байна"
+
+#: ckan/controllers/package.py:591 ckan/controllers/package.py:1054
+#: ckan/controllers/package.py:1074 ckan/controllers/package.py:1141
+#: ckan/controllers/package.py:1324 ckan/controllers/package.py:1402
+#: ckan/controllers/package.py:1433 ckan/controllers/package.py:1541
+#: ckan/controllers/package.py:1592 ckanext/datapusher/plugin.py:59
+#: ckanext/datastore/controller.py:73 ckanext/resourceproxy/controller.py:33
+msgid "Resource not found"
+msgstr "Нөөц олдсонгүй"
+
+#: ckan/controllers/api.py:64 ckan/controllers/group.py:165
+#: ckan/controllers/home.py:27 ckan/controllers/package.py:143
+#: ckan/controllers/revision.py:33 ckan/controllers/tag.py:27
+#: ckan/controllers/user.py:57 ckan/controllers/user.py:82
+#: ckan/controllers/user.py:85 ckan/controllers/user.py:116
+#: ckan/controllers/user.py:594 ckanext/datapusher/plugin.py:68
+msgid "Not authorized to see this page"
+msgstr "Энэ хуудсыг үзэх эрхгүй байна "
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:12
+msgid "Upload to DataStore"
+msgstr "Өгөгдлийн нөөцөд байршуулах"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:19
+msgid "Upload error:"
+msgstr "Серверт хуулах үед гарсан алдаа:"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:25
+#: ckanext/datapusher/templates/datapusher/resource_data.html:27
+msgid "Error:"
+msgstr "Алдаа:"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:36
+msgid "Error traceback:"
+msgstr ""
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:48
+msgid "Status"
+msgstr "Төлөв"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:52
+msgid "Last updated"
+msgstr "Сүүлд шинэчлэгдсэн"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:56
+msgid "Never"
+msgstr "Хэзээ ч үгүй"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:62
+msgid "Upload Log"
+msgstr "Бүртгэл оруулах"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:76
+msgid "Details"
+msgstr "Дэлгэрэнгүй байдал"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:83
+msgid "End of log"
+msgstr "Бүртгэлийн төгсгөл"
+
+#: ckanext/datapusher/templates/package/resource_edit_base.html:5
+msgid "DataStore"
+msgstr "Өгөгдлийн агуулах"
+
+#: ckanext/datastore/controller.py:46
+#, python-format
+msgid "format: must be one of %s"
+msgstr ""
+
+#: ckanext/datastore/controller.py:58
+msgid "DataStore resource not found"
+msgstr "Өгөгдлийн  агуулахын нөөц олдсонгүй"
+
+#: ckanext/datastore/backend/postgres.py:1052
+msgid ""
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
+msgstr ""
+
+#: ckanext/datastore/logic/action.py:262 ckanext/datastore/logic/action.py:290
+#: ckanext/datastore/logic/action.py:348 ckanext/datastore/logic/action.py:459
+#: ckanext/datastore/logic/action.py:534 ckanext/datastore/logic/action.py:559
+msgid "Resource \"{0}\" was not found."
+msgstr "Нөөц \"{0}\" олдсонгүй."
+
+#: ckanext/datastore/logic/auth.py:19
+msgid "User {0} not authorized to update resource {1}"
+msgstr "Хэрэглэгч {0} нөөц {1}-г шинэчлэх эрхгүй байна"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:19
+msgid "CKAN Data API"
+msgstr "CKAN өгөгдлийн API"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:23
+msgid "Access resource data via a web API with powerful query support"
+msgstr ""
+"Өндөр түвшний хайлт хийх боломж бүхий веб API-н тусламжтайгаар нөөц өгөгдөлд"
+" хандана"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:24
+msgid ""
+" Further information in the <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr ""
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:33
+msgid "Endpoints"
+msgstr "Төгсгөлийн цэгүүд"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:37
+msgid ""
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
+msgstr "API-н өгөгдөлд CKAN болон API-н үйлдлээр дамжиж хандах боломжтой."
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:42
+msgid "Create"
+msgstr "Үүсгэх"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:46
+msgid "Update / Insert"
+msgstr "Шинэчлэх/ Оруулах"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:50
+msgid "Query"
+msgstr "Хүсэлт"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:54
+msgid "Query (via SQL)"
+msgstr "Хүсэлт (SQL - ээр)"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:66
+msgid "Querying"
+msgstr "Боловсруулж байна"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:70
+msgid "Query example (first 5 results)"
+msgstr "Хүсэлтийн жишээ (эхний 5 үр дүн)"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:75
+msgid "Query example (results containing 'jones')"
+msgstr "Хүсэлтийн жишээ ('jones'-г агуулсан үр дүн)"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:80
+msgid "Query example (via SQL statement)"
+msgstr "Хайлтын агуулгын жишээ (SQL загвараар)"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:91
+msgid "Example: Javascript"
+msgstr "Жишээ нь: Javascript"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:95
+msgid "A simple ajax (JSONP) request to the data API using jQuery."
+msgstr "jQuery ашиглан өгөгдлийн API-д хандах энгийн ajax хүсэлт (JSONP)."
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:116
+msgid "Example: Python"
+msgstr "Жишээ нь: Python"
+
+#: ckanext/datastore/templates/datastore/dictionary.html:16
+msgid "Field {num}."
+msgstr ""
+
+#: ckanext/datastore/templates/datastore/dictionary.html:18
+#: ckanext/datastore/templates/package/resource_read.html:20
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:18
+msgid "Label"
+msgstr ""
+
+#: ckan/templates/group/snippets/group_form.html:20
+#: ckan/templates/organization/snippets/organization_form.html:20
+#: ckan/templates/package/snippets/package_basic_fields.html:19
+#: ckan/templates/package/snippets/resource_form.html:32
+#: ckan/templates/package/snippets/view_form.html:9
+#: ckanext/datastore/templates/datastore/dictionary.html:21
+#: ckanext/datastore/templates/package/resource_read.html:21
+msgid "Description"
+msgstr "Тайлбар"
+
+#: ckan/templates/group/member_new.html:60
+#: ckanext/datastore/templates/datastore/dictionary.html:26
+msgid "Save"
+msgstr "Хадгалах"
+
+#: ckanext/datastore/templates/package/resource_edit_base.html:6
+#: ckanext/datastore/templates/package/resource_read.html:14
+msgid "Data Dictionary"
+msgstr ""
+
+#: ckanext/datastore/templates/package/resource_read.html:18
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:17
+msgid "Column"
+msgstr ""
+
+#: ckanext/datastore/templates/package/resource_read.html:19
+msgid "Type"
+msgstr ""
+
+#: ckan/public/base/javascript/modules/activity-stream.js:97
+#: ckan/public/base/javascript/modules/popover-context.js:62
+#: ckan/templates/tests/mock_json_resource_preview_template.html:7
+#: ckan/templates/tests/mock_resource_preview_template.html:7
+#: ckanext/datastore/templates/package/snippets/data_api_button.html:8
+#: ckanext/example_theme_docs/v18_snippet_api/fanstatic/example_theme_popover.js:21
+#: ckanext/example_theme_docs/v19_01_error/fanstatic/example_theme_popover.js:21
+#: ckanext/example_theme_docs/v19_02_error_handling/fanstatic/example_theme_popover.js:8
+#: ckanext/example_theme_docs/v20_pubsub/fanstatic/example_theme_popover.js:8
+#: ckanext/example_theme_docs/v21_custom_jquery_plugin/fanstatic/example_theme_popover.js:8
+#: ckanext/reclineview/theme/templates/recline_view.html:14
+#: ckanext/textview/theme/templates/text_view.html:9
+msgid "Loading..."
+msgstr "Ачааллаж байна..."
+
+#: ckanext/datastore/templates/package/snippets/data_api_button.html:10
+msgid "Data API"
+msgstr "Өгөгдлийн API"
+
+#: ckanext/datatablesview/plugin.py:46 ckanext/reclineview/plugin.py:128
+msgid "Table"
+msgstr ""
+
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:6
+msgid "Responsive display"
+msgstr ""
+
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:12
+msgid "Show Columns"
+msgstr ""
+
+#: ckanext/datatablesview/templates/datatables/datatables_view.html:28
+msgid "Hide/Unhide Columns"
+msgstr ""
+
+#: ckanext/example_iconfigurer/templates/admin/config.html:11
+msgid "Datasets per page"
+msgstr ""
+
+#: ckanext/example_iconfigurer/templates/admin/config.html:13
+msgid "Test conf"
+msgstr ""
+
+#: ckan/templates/group/read.html:15 ckan/templates/organization/read.html:19
+#: ckan/templates/package/search.html:29
+#: ckan/templates/snippets/sort_by.html:14
+#: ckanext/example_idatasetform/templates/package/search.html:12
+msgid "Relevance"
+msgstr "Хамаарал"
+
+#: ckan/templates/group/index.html:20 ckan/templates/group/read.html:16
+#: ckan/templates/organization/bulk_process.html:97
+#: ckan/templates/organization/index.html:20
+#: ckan/templates/organization/read.html:20
+#: ckan/templates/package/search.html:30
+#: ckan/templates/snippets/search_form.html:4
+#: ckan/templates/snippets/simple_search.html:10
+#: ckan/templates/snippets/sort_by.html:15
+#: ckanext/example_idatasetform/templates/package/search.html:13
+msgid "Name Ascending"
+msgstr "Нэр өсөх дарааллаар"
+
+#: ckan/templates/group/index.html:20 ckan/templates/group/read.html:17
+#: ckan/templates/organization/bulk_process.html:98
+#: ckan/templates/organization/index.html:20
+#: ckan/templates/organization/read.html:21
+#: ckan/templates/package/search.html:31
+#: ckan/templates/snippets/search_form.html:4
+#: ckan/templates/snippets/simple_search.html:10
+#: ckan/templates/snippets/sort_by.html:16
+#: ckanext/example_idatasetform/templates/package/search.html:14
+msgid "Name Descending"
+msgstr "Нэр буурах дарааллаар"
+
+#: ckan/templates/group/read.html:18
+#: ckan/templates/organization/bulk_process.html:99
+#: ckan/templates/organization/read.html:22
+#: ckan/templates/package/search.html:32
+#: ckan/templates/package/snippets/resource_form.html:51
+#: ckan/templates/snippets/sort_by.html:17
+#: ckanext/example_idatasetform/templates/package/search.html:15
+msgid "Last Modified"
+msgstr "Сүүлд өөрчлөгдсөн"
+
+#: ckanext/example_idatasetform/templates/package/search.html:16
+msgid "Custom Field Ascending"
+msgstr ""
+
+#: ckanext/example_idatasetform/templates/package/search.html:17
+msgid "Custom Field Descending"
+msgstr ""
+
+#: ckan/templates/group/read.html:19 ckan/templates/organization/read.html:23
+#: ckan/templates/package/search.html:33
+#: ckan/templates/snippets/package_item.html:50
+#: ckan/templates/snippets/popular.html:3
+#: ckan/templates/snippets/sort_by.html:19
+#: ckanext/example_idatasetform/templates/package/search.html:18
+msgid "Popular"
+msgstr "Түгээмэл"
+
+#: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
+#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
+#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
+msgid "Custom Text"
+msgstr "Дурын текст"
+
+#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
+msgid "custom text"
+msgstr "дурын текст"
+
+#: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
+msgid "Country Code"
+msgstr "Улсын код"
+
+#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
+msgid "custom resource text"
+msgstr ""
+
+#: ckanext/example_itranslation/templates/home/index.html:4
+msgid "This is an untranslated string"
+msgstr ""
+
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
+msgid "This group has no description"
+msgstr "Бүлэг танилцуулгагүй байна"
+
+#: ckan/templates/group/snippets/group_item.html:32
+#: ckan/templates/organization/snippets/organization_item.html:31
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:23
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
+msgid "{num} Dataset"
+msgid_plural "{num} Datasets"
+msgstr[0] "{num} Өгөгдлийн бүрдэл"
+msgstr[1] "{num} Өгөгдлийн бүрдлүүд"
+
+#: ckan/templates/group/snippets/group_item.html:34
+#: ckan/templates/organization/snippets/organization_item.html:33
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
+msgid "0 Datasets"
+msgstr "0 Өгөгдлийн бүрдлүүд"
+
+#: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
+msgid "CKAN's data previewing tool has many powerful features"
+msgstr ""
+
+#: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
+#: ckan/templates/group/snippets/info.html:32
+#: ckan/templates/package/followers.html:3
+#: ckan/templates/package/followers.html:6
+#: ckan/templates/package/snippets/info.html:23
+#: ckan/templates/snippets/context/group.html:13
+#: ckan/templates/snippets/context/user.html:15
+#: ckan/templates/snippets/organization.html:55
+#: ckan/templates/user/followers.html:3 ckan/templates/user/followers.html:7
+#: ckan/templates/user/read_base.html:49
+#: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:12
+msgid "Followers"
+msgstr "Дагагчид"
+
+#: ckan/logic/__init__.py:98 ckan/logic/action/__init__.py:60
+#: ckan/templates/package/edit_base.html:21
+#: ckan/templates/package/resources.html:5
+#: ckan/templates/package/snippets/package_context.html:12
+#: ckan/templates/package/snippets/resources.html:20
+#: ckan/templates/snippets/context/dataset.html:13
+#: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:15
+msgid "Resources"
+msgstr "Материалууд"
+
+#: ckan/public/base/javascript/modules/image-upload.js:80
+#: ckan/templates/macros/form.html:412 ckanext/imageview/plugin.py:26
+#: ckanext/imageview/plugin.py:31
+msgid "Image"
+msgstr "Зураг"
+
+#: ckanext/imageview/theme/templates/image_form.html:3
+msgid "Image url"
+msgstr ""
+
+#: ckanext/imageview/theme/templates/image_form.html:3
+msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
+msgstr ""
+
+#: ckanext/reclineview/plugin.py:101
+msgid "Data Explorer"
+msgstr ""
+
+#: ckanext/reclineview/plugin.py:171
+#: ckanext/reclineview/theme/public/recline_view.js:200
+msgid "Graph"
+msgstr ""
+
+#: ckanext/reclineview/plugin.py:231
+#: ckanext/reclineview/theme/public/recline_view.js:207
+msgid "Map"
+msgstr ""
+
+#: ckanext/reclineview/theme/public/recline_view.js:28
+msgid "error loading view"
+msgstr ""
+
+#: ckanext/reclineview/theme/public/recline_view.js:75
+msgid "Could not load view"
+msgstr ""
+
+#: ckanext/reclineview/theme/public/recline_view.js:77
+msgid "DataStore returned an error"
+msgstr ""
+
+#: ckanext/reclineview/theme/public/recline_view.js:79
+msgid "DataProxy returned an error"
+msgstr ""
+
+#: ckanext/reclineview/theme/public/recline_view.js:193
+msgid "Grid"
+msgstr ""
+
+#: ckan/templates/package/snippets/view_form_filters.html:46
+#: ckanext/reclineview/theme/public/recline_view.js:215
+msgid "Filters"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
+#: ckanext/reclineview/theme/templates/recline_map_form.html:3
+msgid "Row offset"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
+#: ckanext/reclineview/theme/templates/recline_map_form.html:3
+msgid "eg: 0"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
+#: ckanext/reclineview/theme/templates/recline_map_form.html:4
+msgid "Number of rows"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
+#: ckanext/reclineview/theme/templates/recline_map_form.html:4
+msgid "eg: 100"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:6
+msgid "Graph type"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:7
+msgid "Group (Axis 1)"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:8
+msgid "Series (Axis 2)"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:6
+msgid "Field type"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:7
+msgid "Latitude field"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:8
+msgid "Longitude field"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:9
+msgid "GeoJSON field"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:10
+msgid "Auto zoom to features"
+msgstr ""
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:11
+msgid "Cluster markers"
+msgstr ""
+
+#: ckanext/stats/templates/ckanext/stats/index.html:10
+msgid "Total number of Datasets"
+msgstr "Өгөгдлийн бүрдлийн нийт тоо"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:17
+#: ckanext/stats/templates/ckanext/stats/index.html:40
+msgid "Date"
+msgstr "Огноо"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:18
+msgid "Total datasets"
+msgstr "Нийт өгөгдлийн бүрдлүүд"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:33
+#: ckanext/stats/templates/ckanext/stats/index.html:179
+msgid "Dataset Revisions per Week"
+msgstr "7 хоног бүрийн өгөгдлийн бүрдлийн засварууд"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:41
+msgid "All dataset revisions"
+msgstr "Өгөгдлийн нийт засварууд"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:42
+msgid "New datasets"
+msgstr "Шинэ өгөгдлийн бүрдлүүд"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:58
+#: ckanext/stats/templates/ckanext/stats/index.html:180
+msgid "Top Rated Datasets"
+msgstr "Өндөр үнэлгээтэй өгөгдлийн бүрдлүүд"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:64
+msgid "Average rating"
+msgstr "Дундаж үнэлгээ"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:65
+msgid "Number of ratings"
+msgstr "Үнэлгээ хийгдсэн тоо"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:79
+msgid "No ratings"
+msgstr "Үнэлгээ байхгүй"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:84
+#: ckanext/stats/templates/ckanext/stats/index.html:181
+msgid "Most Edited Datasets"
+msgstr "Их засварлагдсан өгөгдлийн бүрдлүүд"
+
+#: ckan/logic/converters.py:146 ckan/logic/validators.py:149
+#: ckan/logic/validators.py:191 ckan/templates/package/read_base.html:19
+#: ckanext/stats/templates/ckanext/stats/index.html:89
+msgid "Dataset"
+msgstr "Өгөгдлийн бүрдэл"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:90
+msgid "Number of edits"
+msgstr "Засварлагдсан тоо"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:103
+msgid "No edited datasets"
+msgstr "Засварлагдаагүй өгөгдлийн бүрдлүүд"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:108
+#: ckanext/stats/templates/ckanext/stats/index.html:182
+msgid "Largest Groups"
+msgstr "Хамгийн том бүлгүүд"
+
+#: ckan/logic/converters.py:171 ckan/logic/validators.py:244
+#: ckanext/stats/templates/ckanext/stats/index.html:113
+msgid "Group"
+msgstr "Бүлэг"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:114
+msgid "Number of datasets"
+msgstr "Өгөгдлийн бүрдлүүд"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:127
+msgid "No groups"
+msgstr "Бүлэг байхгүй"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:132
+#: ckanext/stats/templates/ckanext/stats/index.html:183
+msgid "Top Tags"
+msgstr "Шилдэг шошгууд"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:136
+msgid "Tag Name"
+msgstr "Шошгын нэр"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:137
+#: ckanext/stats/templates/ckanext/stats/index.html:157
+msgid "Number of Datasets"
+msgstr "Өгөгдлийн бүрдлийн тоо"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:152
+#: ckanext/stats/templates/ckanext/stats/index.html:184
+msgid "Users Creating Most Datasets"
+msgstr ""
+
+#: ckan/logic/converters.py:121 ckan/logic/validators.py:214
+#: ckan/logic/validators.py:231 ckan/logic/validators.py:706
+#: ckan/templates/group/members.html:14
+#: ckan/templates/organization/members.html:19
+#: ckanext/stats/templates/ckanext/stats/index.html:156
+msgid "User"
+msgstr "Хэрэглэгч"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:175
+msgid "Statistics Menu"
+msgstr "Статистикийн цэс"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:178
+msgid "Total Number of Datasets"
+msgstr "Нийт өгөгдлийн бүрдлийн тоо"
+
+#: ckanext/textview/plugin.py:67 ckanext/textview/plugin.py:69
+msgid "Text"
+msgstr ""
+
+#: ckanext/webpageview/plugin.py:21 ckanext/webpageview/plugin.py:26
+msgid "Website"
+msgstr ""
+
+#: ckanext/webpageview/theme/templates/webpage_form.html:3
+msgid "Web Page url"
+msgstr ""
+
+#: ckanext/webpageview/theme/templates/webpage_form.html:3
+msgid "eg. http://example.com (if blank uses resource url)"
+msgstr ""
+
+#: ckan/templates/dataviewer/snippets/data_preview.html:23
+#: ckan/templates/package/snippets/resource_view.html:56
+#: ckanext/webpageview/theme/templates/webpage_view.html:2
+msgid "Your browser does not support iframes."
+msgstr "Таны интернет хөтөч iframes -г дэмжих боломжгүй."
+
+#: ckan/authz.py:182
 #, python-format
 msgid "Authorization function not found: %s"
 msgstr "Нэвтрэх үйлдэл олдсонгүй: %s"
 
-#: ckan/authz.py:191 ckan/templates/header.html:14
+#: ckan/authz.py:194 ckan/templates/header.html:14
 msgid "Admin"
 msgstr "Админ"
 
-#: ckan/authz.py:195
+#: ckan/authz.py:198
 msgid "Editor"
 msgstr "Засварлагч"
 
-#: ckan/authz.py:199
+#: ckan/authz.py:202
 msgid "Member"
 msgstr "Гишүүн"
 
@@ -56,7 +692,7 @@ msgstr "Сайтын шошгоны зурвас"
 msgid "Site Tag Logo"
 msgstr "Сайтын шошгоны лого"
 
-#: ckan/controllers/admin.py:54 ckan/templates/group/about.html:3
+#: ckan/controllers/admin.py:55 ckan/templates/group/about.html:3
 #: ckan/templates/group/read_base.html:19 ckan/templates/header.html:106
 #: ckan/templates/home/about.html:3 ckan/templates/home/about.html:6
 #: ckan/templates/home/about.html:16 ckan/templates/organization/about.html:3
@@ -65,31 +701,31 @@ msgstr "Сайтын шошгоны лого"
 msgid "About"
 msgstr "Танилцуулга"
 
-#: ckan/controllers/admin.py:54
+#: ckan/controllers/admin.py:55
 msgid "About page text"
 msgstr "Танилцуулга хуудасны текст"
 
-#: ckan/controllers/admin.py:55
+#: ckan/controllers/admin.py:56
 msgid "Intro Text"
 msgstr "Танилцуулга текст"
 
-#: ckan/controllers/admin.py:55
+#: ckan/controllers/admin.py:56
 msgid "Text on home page"
 msgstr "Нүүр хуудасны текст"
 
-#: ckan/controllers/admin.py:56
+#: ckan/controllers/admin.py:57
 msgid "Custom CSS"
 msgstr "Өөрчилсөн CSS"
 
-#: ckan/controllers/admin.py:56
+#: ckan/controllers/admin.py:57
 msgid "Customisable css inserted into the page header"
 msgstr "Хуудасны толгой хэсэгт ѳѳрчлѳх боломжтой css орсон "
 
-#: ckan/controllers/admin.py:57
+#: ckan/controllers/admin.py:58
 msgid "Homepage"
 msgstr "Нүүр хуудас"
 
-#: ckan/controllers/admin.py:160
+#: ckan/controllers/admin.py:161
 #, python-format
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
@@ -98,156 +734,147 @@ msgstr ""
 "Нэгдсэн хяналт %s устгагдаж болохгүй %s багцууд байна тиймээс %s багцыг "
 "устгаж болохгүй"
 
-#: ckan/controllers/admin.py:182
+#: ckan/controllers/admin.py:183
 #, python-format
 msgid "Problem purging revision %s: %s"
 msgstr "%s-г цэвэрлэхэд гарсан алдаа: %s"
 
-#: ckan/controllers/admin.py:184
+#: ckan/controllers/admin.py:185
 msgid "Purge complete"
 msgstr "Бүрэн цэвэрлэх"
 
-#: ckan/controllers/admin.py:186
+#: ckan/controllers/admin.py:187
 msgid "Action not implemented."
 msgstr "Үйлдлийг гүйцэтгэсэнгүй"
 
-#: ckan/controllers/api.py:62 ckan/controllers/group.py:166
-#: ckan/controllers/home.py:28 ckan/controllers/package.py:144
-#: ckan/controllers/revision.py:33 ckan/controllers/tag.py:27
-#: ckan/controllers/user.py:58 ckan/controllers/user.py:85
-#: ckan/controllers/user.py:116 ckan/controllers/user.py:594
-#: ckanext/datapusher/plugin.py:68
-msgid "Not authorized to see this page"
-msgstr "Энэ хуудсыг үзэх эрхгүй байна "
-
-#: ckan/controllers/api.py:122 ckan/controllers/api.py:219
+#: ckan/controllers/api.py:124 ckan/controllers/api.py:221
 msgid "Access denied"
 msgstr "Нэвтрэх боломжгүй"
 
-#: ckan/controllers/api.py:128 ckan/controllers/api.py:228
-#: ckan/logic/action/create.py:896 ckan/logic/converters.py:121
+#: ckan/controllers/api.py:130 ckan/controllers/api.py:230
+#: ckan/logic/action/create.py:908 ckan/logic/converters.py:121
 #: ckan/logic/converters.py:146 ckan/logic/converters.py:171
-#: ckan/logic/validators.py:148 ckan/logic/validators.py:169
-#: ckan/logic/validators.py:190 ckan/logic/validators.py:199
-#: ckan/logic/validators.py:213 ckan/logic/validators.py:230
-#: ckan/logic/validators.py:243 ckan/logic/validators.py:267
-#: ckan/logic/validators.py:705
+#: ckan/logic/validators.py:149 ckan/logic/validators.py:170
+#: ckan/logic/validators.py:191 ckan/logic/validators.py:200
+#: ckan/logic/validators.py:214 ckan/logic/validators.py:231
+#: ckan/logic/validators.py:244 ckan/logic/validators.py:268
+#: ckan/logic/validators.py:706
 msgid "Not found"
 msgstr "Олдсонгүй"
 
-#: ckan/controllers/api.py:134
+#: ckan/controllers/api.py:136
 msgid "Bad request"
 msgstr "Буруу хүсэлт"
 
-#: ckan/controllers/api.py:168
+#: ckan/controllers/api.py:170
 #, python-format
 msgid "Action name not known: %s"
 msgstr "Үл таних үйлдэл: %s"
 
-#: ckan/controllers/api.py:189 ckan/controllers/api.py:360
-#: ckan/controllers/api.py:423
+#: ckan/controllers/api.py:191 ckan/controllers/api.py:362
+#: ckan/controllers/api.py:425
 #, python-format
 msgid "JSON Error: %s"
 msgstr "JSON Алдаа: %s"
 
-#: ckan/controllers/api.py:195
+#: ckan/controllers/api.py:197
 #, python-format
 msgid "Bad request data: %s"
 msgstr "Өгөгдлийн буруу хүсэлт: %s"
 
-#: ckan/controllers/api.py:298
+#: ckan/controllers/api.py:300
 #, python-format
 msgid "Cannot list entity of this type: %s"
 msgstr "%s төрлийн нэгжийг харуулах боломжгүй."
 
-#: ckan/controllers/api.py:327
+#: ckan/controllers/api.py:329
 #, python-format
 msgid "Cannot read entity of this type: %s"
 msgstr "%s төрлийн өгөгдөлийг уншиж чадахгүй."
 
-#: ckan/controllers/api.py:365
+#: ckan/controllers/api.py:367
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr "%s %s төрлийн өгөгдлийг шинээр үүсгэж чадахгүй "
 
-#: ckan/controllers/api.py:398
+#: ckan/controllers/api.py:400
 msgid "Unable to add package to search index"
 msgstr "Хайлтын индексэд багц нэмэх боломжгүй"
 
-#: ckan/controllers/api.py:428
+#: ckan/controllers/api.py:430
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr "%s төрлийн өгөгдлийг өөрчлөх боломжгүй"
 
-#: ckan/controllers/api.py:452
+#: ckan/controllers/api.py:454
 msgid "Unable to update search index"
 msgstr "Хайлтын индексийг шинэчлэх боломжгүй "
 
-#: ckan/controllers/api.py:475
+#: ckan/controllers/api.py:477
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr "%s %s төрлийн өгөгдлийг устгах боломжгүй."
 
-#: ckan/controllers/api.py:498
+#: ckan/controllers/api.py:500
 msgid "No revision specified"
 msgstr "Залруулга байхгүй байна."
 
-#: ckan/controllers/api.py:502
+#: ckan/controllers/api.py:504
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr "%s гэсэн дугаартай залруулга байхгүй байна."
 
-#: ckan/controllers/api.py:512
+#: ckan/controllers/api.py:514
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
 msgstr "Хайх нөхцөл бүрдээгүй ('since_id=UUID' эсвэл 'since_time=TIMESTAMP')"
 
-#: ckan/controllers/api.py:524
+#: ckan/controllers/api.py:526
 #, python-format
 msgid "Could not read parameters: %r"
 msgstr "%r параметрыг уншиж чадсангүй"
 
-#: ckan/controllers/api.py:585
+#: ckan/controllers/api.py:587
 #, python-format
 msgid "Bad search option: %s"
 msgstr "Муу хайлтын сонголт: %s"
 
-#: ckan/controllers/api.py:588
+#: ckan/controllers/api.py:590
 #, python-format
 msgid "Unknown register: %s"
 msgstr "Үл таних бүртгэл: %s"
 
-#: ckan/controllers/api.py:597
+#: ckan/controllers/api.py:599
 #, python-format
 msgid "Malformed qjson value: %r"
 msgstr "Буруу хэлбэржсэн qjson утга: %r"
 
-#: ckan/controllers/api.py:607
+#: ckan/controllers/api.py:609
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr ""
 "Хүсэлтийн параметр нь json-оор шифрлэгдсэн үгсийн сан хэлбэрт байх ёстой"
 
-#: ckan/controllers/feed.py:227 ckan/controllers/group.py:138
-#: ckan/controllers/group.py:225 ckan/controllers/group.py:401
-#: ckan/controllers/group.py:509 ckan/controllers/group.py:542
-#: ckan/controllers/group.py:572 ckan/controllers/group.py:583
-#: ckan/controllers/group.py:637 ckan/controllers/group.py:654
-#: ckan/controllers/group.py:706 ckan/controllers/group.py:738
-#: ckan/controllers/group.py:771 ckan/controllers/group.py:828
-#: ckan/controllers/group.py:925 ckan/controllers/package.py:1251
-#: ckan/controllers/package.py:1266 ckan/logic/action/create.py:1384
+#: ckan/controllers/feed.py:233 ckan/controllers/group.py:137
+#: ckan/controllers/group.py:225 ckan/controllers/group.py:393
+#: ckan/controllers/group.py:503 ckan/controllers/group.py:536
+#: ckan/controllers/group.py:566 ckan/controllers/group.py:577
+#: ckan/controllers/group.py:631 ckan/controllers/group.py:649
+#: ckan/controllers/group.py:707 ckan/controllers/group.py:739
+#: ckan/controllers/group.py:772 ckan/controllers/group.py:829
+#: ckan/controllers/group.py:926 ckan/controllers/package.py:1243
+#: ckan/controllers/package.py:1258 ckan/logic/action/create.py:1396
 msgid "Group not found"
 msgstr "Бүлэг олдсонгүй"
 
-#: ckan/controllers/feed.py:238 ckan/logic/action/create.py:1384
+#: ckan/controllers/feed.py:244 ckan/logic/action/create.py:1396
 msgid "Organization not found"
 msgstr "Байгууллага олдсонгүй"
 
-#: ckan/controllers/group.py:140 ckan/controllers/group.py:586
+#: ckan/controllers/group.py:139 ckan/controllers/group.py:580
 msgid "Incorrect group type"
 msgstr "Буруу бүлгийн төрөл"
 
-#: ckan/controllers/group.py:306 ckan/controllers/home.py:69
-#: ckan/controllers/package.py:241 ckan/lib/helpers.py:803
+#: ckan/controllers/group.py:305 ckan/controllers/home.py:61
+#: ckan/controllers/package.py:240 ckan/lib/helpers.py:833
 #: ckan/templates/header.html:104 ckan/templates/organization/edit_base.html:5
 #: ckan/templates/organization/edit_base.html:8
 #: ckan/templates/organization/index.html:3
@@ -259,22 +886,23 @@ msgstr "Буруу бүлгийн төрөл"
 msgid "Organizations"
 msgstr "Байгууллагууд"
 
-#: ckan/controllers/group.py:307 ckan/controllers/home.py:70
-#: ckan/controllers/package.py:242 ckan/lib/helpers.py:804
+#: ckan/controllers/group.py:306 ckan/controllers/home.py:62
+#: ckan/controllers/package.py:241 ckan/lib/helpers.py:834
 #: ckan/templates/group/base_form_page.html:6 ckan/templates/group/edit.html:4
-#: ckan/templates/group/edit_base.html:3 ckan/templates/group/edit_base.html:8
-#: ckan/templates/group/index.html:3 ckan/templates/group/index.html:6
-#: ckan/templates/group/index.html:18 ckan/templates/group/members.html:3
-#: ckan/templates/group/read_base.html:3 ckan/templates/group/read_base.html:6
-#: ckan/templates/header.html:105 ckan/templates/package/group_list.html:5
+#: ckan/templates/group/edit_base.html:4
+#: ckan/templates/group/edit_base.html:10 ckan/templates/group/index.html:3
+#: ckan/templates/group/index.html:6 ckan/templates/group/index.html:18
+#: ckan/templates/group/members.html:3 ckan/templates/group/read_base.html:3
+#: ckan/templates/group/read_base.html:6 ckan/templates/header.html:105
+#: ckan/templates/package/group_list.html:5
 #: ckan/templates/package/read_base.html:20
 #: ckan/templates/revision/diff.html:16 ckan/templates/revision/read.html:84
 msgid "Groups"
 msgstr "Бүлгүүд"
 
-#: ckan/controllers/group.py:308 ckan/controllers/home.py:71
-#: ckan/controllers/package.py:243 ckan/lib/helpers.py:805
-#: ckan/logic/__init__.py:108
+#: ckan/controllers/group.py:307 ckan/controllers/home.py:63
+#: ckan/controllers/package.py:242 ckan/lib/helpers.py:835
+#: ckan/logic/__init__.py:109
 #: ckan/templates/package/snippets/package_basic_fields.html:24
 #: ckan/templates/snippets/context/dataset.html:17
 #: ckan/templates/tag/index.html:3 ckan/templates/tag/index.html:6
@@ -282,281 +910,269 @@ msgstr "Бүлгүүд"
 msgid "Tags"
 msgstr "Шошго"
 
-#: ckan/controllers/group.py:309 ckan/controllers/home.py:72
-#: ckan/controllers/package.py:244 ckan/lib/helpers.py:806
+#: ckan/controllers/group.py:308 ckan/controllers/home.py:64
+#: ckan/controllers/package.py:243 ckan/lib/helpers.py:836
 msgid "Formats"
 msgstr "Форматууд"
 
-#: ckan/controllers/group.py:310 ckan/controllers/home.py:73
-#: ckan/controllers/package.py:245 ckan/lib/helpers.py:807
+#: ckan/controllers/group.py:309 ckan/controllers/home.py:65
+#: ckan/controllers/package.py:244 ckan/lib/helpers.py:837
 msgid "Licenses"
 msgstr "Ашиглах зөвшөөрлүүд"
 
-#: ckan/controllers/group.py:448
-msgid "Not authorized to perform bulk update"
-msgstr "Багцаар нь шинэчлэх боломжгүй."
-
-#: ckan/controllers/group.py:466
-msgid "Unauthorized to create a group"
-msgstr "Бүлэг үүсгэх эрхгүй байна"
-
-#: ckan/controllers/group.py:518 ckan/controllers/package.py:333
-#: ckan/controllers/package.py:780 ckan/controllers/package.py:1396
-#: ckan/controllers/package.py:1430
+#: ckan/controllers/group.py:395 ckan/controllers/group.py:512
+#: ckan/controllers/package.py:326 ckan/controllers/package.py:767
+#: ckan/controllers/package.py:1387 ckan/controllers/package.py:1421
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr "%r хэрэглэгч %s -г өөрчлөх эрхгүй байна."
 
-#: ckan/controllers/group.py:544 ckan/controllers/group.py:574
-#: ckan/controllers/package.py:935 ckan/controllers/package.py:983
+#: ckan/controllers/group.py:442
+msgid "Not authorized to perform bulk update"
+msgstr "Багцаар нь шинэчлэх боломжгүй."
+
+#: ckan/controllers/group.py:460
+msgid "Unauthorized to create a group"
+msgstr "Бүлэг үүсгэх эрхгүй байна"
+
+#: ckan/controllers/group.py:538 ckan/controllers/group.py:568
+#: ckan/controllers/package.py:922 ckan/controllers/package.py:970
 #: ckan/controllers/user.py:249 ckan/controllers/user.py:379
 #: ckan/controllers/user.py:548
 msgid "Integrity Error"
 msgstr "Ил тод алдаа"
 
-#: ckan/controllers/group.py:600
+#: ckan/controllers/group.py:594
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
 msgstr "Хэрэглэгч %r %s - ийн эрхийг өөрчлөх эрхгүй байна."
 
-#: ckan/controllers/group.py:620 ckan/controllers/group.py:635
+#: ckan/controllers/group.py:614 ckan/controllers/group.py:629
 #, python-format
 msgid "Unauthorized to delete group %s"
 msgstr "%s  бүлгийг устгах эрх байхгүй"
 
-#: ckan/controllers/group.py:626
+#: ckan/controllers/group.py:620
 msgid "Organization has been deleted."
 msgstr "Байгууллагыг устгасан."
 
-#: ckan/controllers/group.py:628
+#: ckan/controllers/group.py:622
 msgid "Group has been deleted."
 msgstr "Бүлэг устсан байна."
 
-#: ckan/controllers/group.py:630
+#: ckan/controllers/group.py:624
 #, python-format
 msgid "%s has been deleted."
 msgstr "%s утслаа."
 
-#: ckan/controllers/group.py:704
+#: ckan/controllers/group.py:653
+#, python-format
+msgid "User %r not authorized to edit members of %s"
+msgstr ""
+
+#: ckan/controllers/group.py:705
 #, python-format
 msgid "Unauthorized to add member to group %s"
 msgstr "%s бүлэгт шинээр гишүүн нэмэх боломжгүй."
 
-#: ckan/controllers/group.py:723 ckan/controllers/group.py:736
+#: ckan/controllers/group.py:724 ckan/controllers/group.py:737
 #, python-format
 msgid "Unauthorized to delete group %s members"
 msgstr "%s бүлгийн гишүүдийг устгах боломжгүй."
 
-#: ckan/controllers/group.py:730
+#: ckan/controllers/group.py:731
 msgid "Group member has been deleted."
 msgstr "Бүлгийн гишүүн устгагдсан байна"
 
-#: ckan/controllers/group.py:754 ckan/controllers/package.py:421
+#: ckan/controllers/group.py:755 ckan/controllers/package.py:417
 msgid "Select two revisions before doing the comparison."
 msgstr "Харьцуулалт хийх 2 хувилбарыг сонгоно уу."
 
-#: ckan/controllers/group.py:778
+#: ckan/controllers/group.py:779
 msgid "CKAN Group Revision History"
 msgstr "CKAN Group Засвар хийсэн түүх"
 
-#: ckan/controllers/group.py:782
+#: ckan/controllers/group.py:783
 msgid "Recent changes to CKAN Group: "
 msgstr "CKAN бүлэгт шинээр нэмэгдсэн өөрчлөлтүүд:"
 
-#: ckan/controllers/group.py:803 ckan/controllers/package.py:472
+#: ckan/controllers/group.py:804 ckan/controllers/package.py:468
 msgid "Log message: "
 msgstr "Бүртгэлийн зурвас:"
 
-#: ckan/controllers/group.py:853 ckan/controllers/package.py:1179
+#: ckan/controllers/group.py:854 ckan/controllers/package.py:1171
 #: ckan/controllers/user.py:715
 msgid "You are now following {0}"
 msgstr "Та {0} хүн дагаж байгаа  "
 
-#: ckan/controllers/group.py:873 ckan/controllers/package.py:1198
+#: ckan/controllers/group.py:874 ckan/controllers/package.py:1190
 #: ckan/controllers/user.py:735
 msgid "You are no longer following {0}"
 msgstr "Та {0} хүн дагахаа болилоо"
 
-#: ckan/controllers/group.py:893 ckan/controllers/user.py:580
+#: ckan/controllers/group.py:894 ckan/controllers/user.py:580
 #, python-format
 msgid "Unauthorized to view followers %s"
 msgstr "Дагагчдыг харах эрхгүй байна %s"
 
-#: ckan/controllers/home.py:36
+#: ckan/controllers/home.py:35
 msgid "This site is currently off-line. Database is not initialised."
 msgstr ""
 "Тус сайт одоогоор хаалттай байна. Өгөгдлийн сангийн тохиргоо хийгдээгүй."
 
-#: ckan/controllers/home.py:81
+#: ckan/controllers/home.py:73
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr "Та <a href=\"%s\"> өөрийн мэдээлэл </a> болон мэйл хаягаа шинэчилнэ үү."
 
-#: ckan/controllers/home.py:83
+#: ckan/controllers/home.py:75
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
 msgstr "Та нууц үгээ шиэнчлэх хэрэгтэй бол %s таны имэйл хаягийг ашиглана."
 
-#: ckan/controllers/package.py:290
+#: ckan/controllers/package.py:288
 msgid "Invalid search query: {error_message}"
-msgstr ""
+msgstr "буруу хайлтын бичлэг: {алдааны_мэдээлэл}"
 
-#: ckan/controllers/package.py:307
+#: ckan/controllers/package.py:304
 msgid "Parameter \"{parameter_name}\" is not an integer"
 msgstr "Параметр \"{parameter_name}\" нь натурал тоо биш байна."
 
-#: ckan/controllers/package.py:331 ckan/controllers/package.py:339
-#: ckan/controllers/package.py:377 ckan/controllers/package.py:441
-#: ckan/controllers/package.py:766 ckan/controllers/package.py:814
-#: ckan/controllers/package.py:832 ckan/controllers/package.py:933
-#: ckan/controllers/package.py:981 ckan/controllers/package.py:1033
-#: ckan/controllers/package.py:1075 ckan/controllers/package.py:1223
-#: ckan/controllers/package.py:1239 ckan/controllers/package.py:1303
-#: ckan/controllers/package.py:1402 ckan/controllers/package.py:1437
-#: ckan/controllers/package.py:1544
+#: ckan/controllers/package.py:324 ckan/controllers/package.py:332
+#: ckan/controllers/package.py:370 ckan/controllers/package.py:437
+#: ckan/controllers/package.py:753 ckan/controllers/package.py:801
+#: ckan/controllers/package.py:819 ckan/controllers/package.py:920
+#: ckan/controllers/package.py:968 ckan/controllers/package.py:1020
+#: ckan/controllers/package.py:1067 ckan/controllers/package.py:1215
+#: ckan/controllers/package.py:1231 ckan/controllers/package.py:1294
+#: ckan/controllers/package.py:1393 ckan/controllers/package.py:1428
+#: ckan/controllers/package.py:1535
 msgid "Dataset not found"
 msgstr "Өгөгдлийн бүрдэл олдсонгүй"
 
-#: ckan/controllers/package.py:365 ckan/controllers/package.py:367
-#: ckan/controllers/package.py:369
+#: ckan/controllers/package.py:358 ckan/controllers/package.py:360
+#: ckan/controllers/package.py:362
 #, python-format
 msgid "Invalid revision format: %r"
 msgstr "Засварын хэлбэр таарахгүй байна: %r"
 
-#: ckan/controllers/package.py:402
-msgid ""
-"Viewing {package_type} datasets in {format} format is not supported "
-"(template file {file} not found)."
+#: ckan/controllers/package.py:396
+msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
 msgstr ""
-"{format} хэлбэрээр {package_type} өгөгдлийн бүрдлийг харах боломжгүй (загвар"
-" файл {file} олдоогүй)"
 
-#: ckan/controllers/package.py:439 ckan/controllers/package.py:830
-#: ckan/controllers/package.py:931 ckan/controllers/package.py:979
-#: ckan/controllers/package.py:1225
+#: ckan/controllers/package.py:435 ckan/controllers/package.py:817
+#: ckan/controllers/package.py:918 ckan/controllers/package.py:966
+#: ckan/controllers/package.py:1217
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr "%s багцийг унших эрхгүй байна."
 
-#: ckan/controllers/package.py:448
+#: ckan/controllers/package.py:444
 msgid "CKAN Dataset Revision History"
 msgstr "CKAN өгөгдлийн бүрдлийн засварын түүх"
 
-#: ckan/controllers/package.py:451
+#: ckan/controllers/package.py:447
 msgid "Recent changes to CKAN Dataset: "
 msgstr "CKAN өгөгдлийн бүрдэлд сүүлд нэмэгдсэн өөрчлөлтүүд:"
 
-#: ckan/controllers/package.py:507
+#: ckan/controllers/package.py:503
 msgid "Unauthorized to create a package"
 msgstr "Пакет үүсгэх эрх байхгүй байна"
 
-#: ckan/controllers/package.py:577
+#: ckan/controllers/package.py:573
 msgid "Unauthorized to edit this resource"
 msgstr "Энэ нөөцийг өөрчлөх эрх байхгүй байна"
 
-#: ckan/controllers/package.py:600 ckan/controllers/package.py:1062
-#: ckan/controllers/package.py:1082 ckan/controllers/package.py:1149
-#: ckan/controllers/package.py:1333 ckan/controllers/package.py:1411
-#: ckan/controllers/package.py:1442 ckan/controllers/package.py:1550
-#: ckan/controllers/package.py:1601 ckanext/datapusher/plugin.py:59
-#: ckanext/resourceproxy/controller.py:33
-msgid "Resource not found"
-msgstr "Нөөц олдсонгүй"
-
-#: ckan/controllers/package.py:654
+#: ckan/controllers/package.py:644
 msgid "Unauthorized to update dataset"
 msgstr "Өгөгдлийн бүрдлийг шинэчлэх эрхгүй байна."
 
-#: ckan/controllers/package.py:656 ckan/controllers/package.py:693
-#: ckan/controllers/package.py:722
+#: ckan/controllers/package.py:646 ckan/controllers/package.py:683
+#: ckan/controllers/package.py:709
 msgid "The dataset {id} could not be found."
 msgstr "Өгөгдлийн бүрдэл {id} олдсонгүй."
 
-#: ckan/controllers/package.py:660
+#: ckan/controllers/package.py:650
 msgid "You must add at least one data resource"
 msgstr "Та дор хаяж нэг өгөгдлийн нөөц нэмэх хэрэгтэй "
 
-#: ckan/controllers/package.py:668 ckanext/datapusher/helpers.py:24
-msgid "Error"
-msgstr "Алдаа"
-
-#: ckan/controllers/package.py:691
+#: ckan/controllers/package.py:681
 msgid "Unauthorized to create a resource"
 msgstr "Нөөц үүсгэх эрх байхгүй байна"
 
-#: ckan/controllers/package.py:727
+#: ckan/controllers/package.py:714
 msgid "Unauthorized to create a resource for this package"
 msgstr ""
 
-#: ckan/controllers/package.py:941
+#: ckan/controllers/package.py:928
 msgid "Unable to add package to search index."
 msgstr "Хайлтын индексэд багц нэмэх боломжгүй байна."
 
-#: ckan/controllers/package.py:989
+#: ckan/controllers/package.py:976
 msgid "Unable to update search index."
 msgstr "Хайлтын индексийг шинэчилэх боломжгүй байна."
 
-#: ckan/controllers/package.py:1026
+#: ckan/controllers/package.py:1013
 msgid "Dataset has been deleted."
 msgstr "Өгөгдлийн бүрдэл устсан"
 
-#: ckan/controllers/package.py:1031 ckan/controllers/package.py:1049
+#: ckan/controllers/package.py:1018 ckan/controllers/package.py:1036
 #, python-format
 msgid "Unauthorized to delete package %s"
 msgstr "%s энэ багцийг устгах эрхгүй байна"
 
-#: ckan/controllers/package.py:1054
+#: ckan/controllers/package.py:1041
 msgid "Resource has been deleted."
 msgstr "Нөөц устсан байна."
 
-#: ckan/controllers/package.py:1060
+#: ckan/controllers/package.py:1052
 #, python-format
 msgid "Unauthorized to delete resource %s"
 msgstr "%s нөөцийг устгах эрхгүй байна "
 
-#: ckan/controllers/package.py:1119 ckan/controllers/package.py:1563
+#: ckan/controllers/package.py:1111 ckan/controllers/package.py:1554
 msgid "Resource view not found"
-msgstr ""
+msgstr "Нөөцийн харагдац олдсонгүй"
 
-#: ckan/controllers/package.py:1158
+#: ckan/controllers/package.py:1150
 msgid "Resource data not found"
 msgstr "Нөөцийн өгөгдөл олдсонгүй"
 
-#: ckan/controllers/package.py:1167
+#: ckan/controllers/package.py:1159
 msgid "No download is available"
 msgstr "Татаж авах боломжгүй"
 
-#: ckan/controllers/package.py:1305
+#: ckan/controllers/package.py:1296
 #, python-format
 msgid "Unauthorized to read dataset %s"
 msgstr "%s өгөгдлийн бүрдлийг унших эрхгүй байна"
 
-#: ckan/controllers/package.py:1413
+#: ckan/controllers/package.py:1404
 #, python-format
 msgid "Unauthorized to read resource %s"
 msgstr "%s нөөцийг унших эрхгүй байна "
 
-#: ckan/controllers/package.py:1477
+#: ckan/controllers/package.py:1468
 msgid "Unauthorized to edit resource"
-msgstr ""
+msgstr "нөөцийг засварлах эрхгүй байна"
 
-#: ckan/controllers/package.py:1495
+#: ckan/controllers/package.py:1486
 msgid "View not found"
-msgstr ""
+msgstr "Харагдац олдсонгүй"
 
-#: ckan/controllers/package.py:1501
+#: ckan/controllers/package.py:1492
 msgid "View Type Not found"
 msgstr ""
 
-#: ckan/controllers/package.py:1557
+#: ckan/controllers/package.py:1548
 msgid "Bad resource view data"
 msgstr ""
 
-#: ckan/controllers/package.py:1566
+#: ckan/controllers/package.py:1557
 msgid "Resource view not supplied"
 msgstr ""
 
-#: ckan/controllers/package.py:1595
+#: ckan/controllers/package.py:1586
 msgid "No preview has been defined."
 msgstr "Урьдчилж харах боломжгүй."
 
@@ -585,13 +1201,6 @@ msgstr "Бусад"
 msgid "Tag not found"
 msgstr "Шошго олдсонгүй"
 
-#: ckan/controllers/user.py:83 ckan/controllers/user.py:232
-#: ckan/controllers/user.py:247 ckan/controllers/user.py:314
-#: ckan/controllers/user.py:377 ckan/controllers/user.py:524
-#: ckan/controllers/user.py:546 ckan/logic/auth/update.py:178
-msgid "User not found"
-msgstr "Хэрэглэгч олдсонгүй."
-
 #: ckan/controllers/user.py:161
 msgid "Unauthorized to register as a user."
 msgstr "Хэрэглэгчээр бүртгэх эрхгүй байна."
@@ -613,6 +1222,13 @@ msgstr "Хэрэглэгч тодорхойлогдоогүй."
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr "%s хэрэглэгчийг өөрчлөх эрхгүй байна."
+
+#: ckan/controllers/user.py:232 ckan/controllers/user.py:247
+#: ckan/controllers/user.py:314 ckan/controllers/user.py:377
+#: ckan/controllers/user.py:524 ckan/controllers/user.py:546
+#: ckan/logic/auth/update.py:179
+msgid "User not found"
+msgstr "Хэрэглэгч олдсонгүй."
 
 #: ckan/controllers/user.py:234 ckan/controllers/user.py:367
 msgid "Profile updated"
@@ -647,7 +1263,7 @@ msgstr "%s хэрэглэгч %s хэрэглэгчийг өөрчлөх эрх�
 
 #: ckan/controllers/user.py:385
 msgid "Password entered was incorrect"
-msgstr ""
+msgstr "Оруулсан нууц үг буруу байна"
 
 #: ckan/controllers/user.py:386 ckan/templates/user/edit_user_form.html:29
 msgid "Old Password"
@@ -817,7 +1433,7 @@ msgstr "{actor} {user} хэрэглэгчийг дагалаа"
 msgid "{actor} started following {group}"
 msgstr "{actor} {group} бүлгийг дагалаа"
 
-#: ckan/lib/datapreview.py:265 ckan/templates/group/edit_base.html:16
+#: ckan/lib/datapreview.py:265 ckan/templates/group/edit_base.html:18
 #: ckan/templates/organization/edit_base.html:17
 #: ckan/templates/package/resource_read.html:37
 #: ckan/templates/package/resource_views.html:4
@@ -878,135 +1494,135 @@ msgstr "11-р сар"
 msgid "December"
 msgstr "12-р сар"
 
-#: ckan/lib/formatters.py:116
+#: ckan/lib/formatters.py:114
 msgid "Just now"
 msgstr "Дөнгөж сая"
 
-#: ckan/lib/formatters.py:118
+#: ckan/lib/formatters.py:116
 msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
 msgstr[0] "{mins} минутын өмнө"
 msgstr[1] "{mins} минутын өмнө"
 
-#: ckan/lib/formatters.py:121
+#: ckan/lib/formatters.py:119
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
 msgstr[0] "{hours} цагийн өмнө"
 msgstr[1] "{hours} цагийн өмнө"
 
-#: ckan/lib/formatters.py:127
+#: ckan/lib/formatters.py:125
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
 msgstr[0] "{days} өдрийн өмнө"
 msgstr[1] "{days} өдрийн өмнө"
 
-#: ckan/lib/formatters.py:130
+#: ckan/lib/formatters.py:128
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
 msgstr[0] "{months} сарын өмнө"
 msgstr[1] "{months} сарын өмнө"
 
-#: ckan/lib/formatters.py:132
+#: ckan/lib/formatters.py:130
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
 msgstr[0] "{years} жилээс өмнө"
 msgstr[1] "{years} жилээс өмнө"
 
-#: ckan/lib/formatters.py:148
+#: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
 msgstr ""
 
-#: ckan/lib/formatters.py:153
+#: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
 msgstr "{year} {month} {day}"
 
-#: ckan/lib/formatters.py:169
+#: ckan/lib/formatters.py:167
 msgid "{bytes} bytes"
 msgstr "{bytes} байт"
 
-#: ckan/lib/formatters.py:171
+#: ckan/lib/formatters.py:169
 msgid "{kibibytes} KiB"
 msgstr "{kibibytes} килобайт"
 
-#: ckan/lib/formatters.py:173
+#: ckan/lib/formatters.py:171
 msgid "{mebibytes} MiB"
 msgstr "{mebibytes} мегабайт"
 
-#: ckan/lib/formatters.py:175
+#: ckan/lib/formatters.py:173
 msgid "{gibibytes} GiB"
 msgstr "{gibibytes} гигабайт"
 
-#: ckan/lib/formatters.py:177
+#: ckan/lib/formatters.py:175
 msgid "{tebibytes} TiB"
 msgstr "{tebibytes} терабайт"
 
-#: ckan/lib/formatters.py:189
+#: ckan/lib/formatters.py:187
 msgid "{n}"
 msgstr "{n}"
 
-#: ckan/lib/formatters.py:191
+#: ckan/lib/formatters.py:189
 msgid "{k}k"
 msgstr "{k}k"
 
-#: ckan/lib/formatters.py:193
+#: ckan/lib/formatters.py:191
 msgid "{m}M"
 msgstr "{m}M"
 
-#: ckan/lib/formatters.py:195
+#: ckan/lib/formatters.py:193
 msgid "{g}G"
 msgstr "{g}G"
 
-#: ckan/lib/formatters.py:197
+#: ckan/lib/formatters.py:195
 msgid "{t}T"
 msgstr "{t}T"
 
-#: ckan/lib/formatters.py:199
+#: ckan/lib/formatters.py:197
 msgid "{p}P"
 msgstr "{p}P"
 
-#: ckan/lib/formatters.py:201
+#: ckan/lib/formatters.py:199
 msgid "{e}E"
 msgstr "{e}E"
 
-#: ckan/lib/formatters.py:203
+#: ckan/lib/formatters.py:201
 msgid "{z}Z"
 msgstr "{z}Z"
 
-#: ckan/lib/formatters.py:205
+#: ckan/lib/formatters.py:203
 msgid "{y}Y"
 msgstr "{y}Y"
 
-#: ckan/lib/helpers.py:1018
+#: ckan/lib/helpers.py:1048
 msgid "Update your avatar at gravatar.com"
 msgstr "Өөрийн зургаа gravatar.com оос шинэчлэнэ үү"
 
-#: ckan/lib/helpers.py:1266 ckan/lib/helpers.py:1279
+#: ckan/lib/helpers.py:1297 ckan/lib/helpers.py:1310
 msgid "Unknown"
 msgstr "Тодорхой бус"
 
-#: ckan/lib/helpers.py:1330
+#: ckan/lib/helpers.py:1361
 msgid "Unnamed resource"
 msgstr "Нэргүй нөөц"
 
-#: ckan/lib/helpers.py:1370
+#: ckan/lib/helpers.py:1401
 msgid "Created new dataset."
 msgstr "Шинэ өгөгдлийн бүрдэл үүслээ."
 
-#: ckan/lib/helpers.py:1372
+#: ckan/lib/helpers.py:1403
 msgid "Edited resources."
 msgstr "Шинэчлэгдсэн нөөц"
 
-#: ckan/lib/helpers.py:1374
+#: ckan/lib/helpers.py:1405
 msgid "Edited settings."
 msgstr "Засварлах тохиргоо"
 
-#: ckan/lib/helpers.py:1616
+#: ckan/lib/helpers.py:1648
 msgid "{number} view"
 msgid_plural "{number} views"
 msgstr[0] "{number} үзсэн"
 msgstr[1] "{number} үзсэн"
 
-#: ckan/lib/helpers.py:1618
+#: ckan/lib/helpers.py:1650
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
 msgstr[0] "{number} сүүлд үзсэн"
@@ -1038,7 +1654,8 @@ msgstr "бүлэг"
 #: ckan/lib/navl/dictization_functions.py:32
 #: ckan/lib/navl/dictization_functions.py:35 ckan/lib/navl/validators.py:25
 #: ckan/lib/navl/validators.py:32 ckan/lib/navl/validators.py:52
-#: ckan/logic/action/get.py:2045 ckan/logic/validators.py:606
+#: ckan/logic/action/get.py:2083 ckan/logic/action/update.py:257
+#: ckan/logic/validators.py:607
 msgid "Missing value"
 msgstr "Орхигдсон утга"
 
@@ -1051,21 +1668,15 @@ msgstr "%(name)s өгөгдөл нь оролтын талбарт тохиро�
 msgid "Please enter an integer value"
 msgstr "Бүхэл тоон утга оруулна уу"
 
-#: ckan/logic/__init__.py:97 ckan/logic/action/__init__.py:60
-#: ckan/templates/package/edit_base.html:21
-#: ckan/templates/package/resources.html:5
-#: ckan/templates/package/snippets/package_context.html:12
-#: ckan/templates/package/snippets/resources.html:20
-#: ckan/templates/snippets/context/dataset.html:13
-#: ckanext/example_theme/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:15
-msgid "Resources"
-msgstr "Материалууд"
+#: ckan/lib/navl/validators.py:124
+msgid "Must be a Unicode string value"
+msgstr ""
 
-#: ckan/logic/__init__.py:97 ckan/logic/action/__init__.py:60
+#: ckan/logic/__init__.py:98 ckan/logic/action/__init__.py:60
 msgid "Package resource(s) invalid"
 msgstr "Багцын материал(ууд) тохирохгүй байна."
 
-#: ckan/logic/__init__.py:104 ckan/logic/__init__.py:106
+#: ckan/logic/__init__.py:105 ckan/logic/__init__.py:107
 #: ckan/logic/action/__init__.py:62 ckan/logic/action/__init__.py:64
 msgid "Extras"
 msgstr "Нэмэлтүүд"
@@ -1075,174 +1686,155 @@ msgstr "Нэмэлтүүд"
 msgid "Tag vocabulary \"%s\" does not exist"
 msgstr "Шошго үгс \"%s\" байхгүй байна"
 
-#: ckan/logic/converters.py:121 ckan/logic/validators.py:213
-#: ckan/logic/validators.py:230 ckan/logic/validators.py:705
-#: ckan/templates/group/members.html:17
-#: ckan/templates/organization/members.html:17
-#: ckanext/stats/templates/ckanext/stats/index.html:156
-msgid "User"
-msgstr "Хэрэглэгч"
-
-#: ckan/logic/converters.py:146 ckan/logic/validators.py:148
-#: ckan/logic/validators.py:190 ckan/templates/package/read_base.html:19
-#: ckanext/stats/templates/ckanext/stats/index.html:89
-msgid "Dataset"
-msgstr "Өгөгдлийн бүрдэл"
-
-#: ckan/logic/converters.py:171 ckan/logic/validators.py:243
-#: ckanext/stats/templates/ckanext/stats/index.html:113
-msgid "Group"
-msgstr "Бүлэг"
-
 #: ckan/logic/converters.py:180
 msgid "Could not parse as valid JSON"
 msgstr "Тохирох JSON болгон хувиргах боломжгүй"
 
-#: ckan/logic/validators.py:32 ckan/logic/validators.py:41
+#: ckan/logic/validators.py:33 ckan/logic/validators.py:42
 msgid "An organization must be provided"
 msgstr ""
 
-#: ckan/logic/validators.py:46
+#: ckan/logic/validators.py:47
 msgid "Organization does not exist"
 msgstr "Ийм байгууллага байхгүй"
 
-#: ckan/logic/validators.py:51
+#: ckan/logic/validators.py:52
 msgid "You cannot add a dataset to this organization"
 msgstr "Та тус байгууллагад өгөгдлийн бүрдэл нэмэх боломжгүй"
 
-#: ckan/logic/validators.py:91
+#: ckan/logic/validators.py:92
 msgid "Invalid integer"
 msgstr "Тохирохгүй бүхэл тоон утга"
 
-#: ckan/logic/validators.py:96
+#: ckan/logic/validators.py:97
 msgid "Must be a natural number"
 msgstr "Натурал тоо байх ёстой"
 
-#: ckan/logic/validators.py:102
+#: ckan/logic/validators.py:103
 msgid "Must be a postive integer"
 msgstr "Эерэг бүхэл тоо байх ёстой"
 
-#: ckan/logic/validators.py:129
+#: ckan/logic/validators.py:130
 msgid "Date format incorrect"
 msgstr "Огнооны хэлбэр буруу"
 
-#: ckan/logic/validators.py:138
+#: ckan/logic/validators.py:139
 msgid "No links are allowed in the log_message."
 msgstr "Лог мессежэнд холбогдох хаягууд агуулагдах боломжгүй."
 
-#: ckan/logic/validators.py:158
+#: ckan/logic/validators.py:159
 msgid "Dataset id already exists"
 msgstr "Өгөгдлийн бүрдлийн id аль хэдийнэ үүссэн байна"
 
-#: ckan/logic/validators.py:199
+#: ckan/logic/validators.py:200
 msgid "Resource"
 msgstr "Материал"
 
-#: ckan/logic/validators.py:253
+#: ckan/logic/validators.py:254
 msgid "That group name or ID does not exist."
 msgstr "Ийм бүлэг эсвэл ID байхгүй байна."
 
-#: ckan/logic/validators.py:267
+#: ckan/logic/validators.py:268
 msgid "Activity type"
 msgstr "Үйл ажиллагааны төрөл"
 
-#: ckan/logic/validators.py:330
+#: ckan/logic/validators.py:331
 msgid "Names must be strings"
 msgstr "Нэрс нь тэмдэгтээс бүрдэх ёстой"
 
-#: ckan/logic/validators.py:334
+#: ckan/logic/validators.py:335
 msgid "That name cannot be used"
 msgstr "Энэ нэрийг ашиглах боломжгүй"
 
-#: ckan/logic/validators.py:337
+#: ckan/logic/validators.py:338
 #, python-format
 msgid "Must be at least %s characters long"
 msgstr ""
 
-#: ckan/logic/validators.py:339 ckan/logic/validators.py:622
+#: ckan/logic/validators.py:340 ckan/logic/validators.py:623
 #, python-format
 msgid "Name must be a maximum of %i characters long"
 msgstr "Нэрийн урт хамгийн ихдээ %i тэмдэгт байх ёстой"
 
-#: ckan/logic/validators.py:342
+#: ckan/logic/validators.py:343
 msgid ""
 "Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
 "-_"
 msgstr ""
 
-#: ckan/logic/validators.py:360
+#: ckan/logic/validators.py:361
 msgid "That URL is already in use."
 msgstr "Тус URL ашиглагдаж байна."
 
-#: ckan/logic/validators.py:365
+#: ckan/logic/validators.py:366
 #, python-format
 msgid "Name \"%s\" length is less than minimum %s"
 msgstr "\"%s\" нэрийн урт %s - с бага байна."
 
-#: ckan/logic/validators.py:369
+#: ckan/logic/validators.py:370
 #, python-format
 msgid "Name \"%s\" length is more than maximum %s"
 msgstr "\"%s\" нэрийн урт %s -с хэтэрсэн байна."
 
-#: ckan/logic/validators.py:375
+#: ckan/logic/validators.py:376
 #, python-format
 msgid "Version must be a maximum of %i characters long"
 msgstr "Шинэчилсэн хувилбарын урт хамгийн ихдээ %i тэмдэгттэй байх ёстой."
 
-#: ckan/logic/validators.py:393
+#: ckan/logic/validators.py:394
 #, python-format
 msgid "Duplicate key \"%s\""
 msgstr "Давхардсан түлхүүр \"%s\""
 
-#: ckan/logic/validators.py:409
+#: ckan/logic/validators.py:410
 msgid "Group name already exists in database"
 msgstr "  Бүлгийн нэр өгөгдлийн санд өмнө нь үүссэн байна"
 
-#: ckan/logic/validators.py:415
+#: ckan/logic/validators.py:416
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
 msgstr "\"%s\" шошгоны урт нь хамгийн багадаа байх ёстой %s-д хүрэхгүй байна"
 
-#: ckan/logic/validators.py:419
+#: ckan/logic/validators.py:420
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
 msgstr "\"%s\" шошгоны урт нь хамгийн ихдээ байх ёстой %i-с хэтэрсэн байна."
 
-#: ckan/logic/validators.py:427
+#: ckan/logic/validators.py:428
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
 msgstr "\"%s шошго нь тоо, латин үсэг болон -_ тэмдэгтээс бүрдсэн байх ёстой."
 
-#: ckan/logic/validators.py:435
+#: ckan/logic/validators.py:436
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
 msgstr "%s шошго нь том үсэг агуулж болохгүй"
 
-#: ckan/logic/validators.py:544
+#: ckan/logic/validators.py:545
 msgid "User names must be strings"
 msgstr "Хэрэглэгчийн нэр тэмдэгт байх ёстой"
 
-#: ckan/logic/validators.py:560
+#: ckan/logic/validators.py:561
 msgid "That login name is not available."
 msgstr "Тус хэрэглэгчийн холбогдох нэр боломжгүй байна."
 
-#: ckan/logic/validators.py:569
+#: ckan/logic/validators.py:570
 msgid "Please enter both passwords"
 msgstr "Нууц үгийн 2 талбарыг бөглөнө үү"
 
-#: ckan/logic/validators.py:577
+#: ckan/logic/validators.py:578
 msgid "Passwords must be strings"
 msgstr "Нууц үг тэмдэгтээс бүрдсэн байх ёстой."
 
-#: ckan/logic/validators.py:581
+#: ckan/logic/validators.py:582
 msgid "Your password must be 4 characters or longer"
 msgstr "Таны нууц үг 4-н тэмдэгтээс илүү байх ёстой"
 
-#: ckan/logic/validators.py:589
+#: ckan/logic/validators.py:590
 msgid "The passwords you entered do not match"
 msgstr "Таны оруулсан нууц үг хоорондоо тохирохгүй байна"
 
-#: ckan/logic/validators.py:610
+#: ckan/logic/validators.py:611
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
@@ -1250,225 +1842,229 @@ msgstr ""
 "Спэмээр ойлгогдож байгаа тул засварлах боломжгүй. Тайлбартаа хаягуудыг "
 "оруулахгүй байна уу."
 
-#: ckan/logic/validators.py:619
+#: ckan/logic/validators.py:620
 #, python-format
 msgid "Name must be at least %s characters long"
 msgstr "Нэрийн урт хамгийн багадаа %s тэмдэгт байх ёстой"
 
-#: ckan/logic/validators.py:627
+#: ckan/logic/validators.py:628
 msgid "That vocabulary name is already in use."
 msgstr "Тухайн үг ашиглагдаж байна."
 
-#: ckan/logic/validators.py:633
+#: ckan/logic/validators.py:634
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
 msgstr ""
 "%s-н утгыг %s болгон өөрчлөх боломжгүй. Энэ нь зөвхөн унших боломжтой."
 
-#: ckan/logic/validators.py:642
+#: ckan/logic/validators.py:643
 msgid "Tag vocabulary was not found."
 msgstr "Шошго үг олдсонгүй"
 
-#: ckan/logic/validators.py:655
+#: ckan/logic/validators.py:656
 #, python-format
 msgid "Tag %s does not belong to vocabulary %s"
 msgstr "%s шошго %s үгтэй хамааралгүй."
 
-#: ckan/logic/validators.py:661
+#: ckan/logic/validators.py:662
 msgid "No tag name"
 msgstr "Шошгоны нэр байхгүй байна"
 
-#: ckan/logic/validators.py:674
+#: ckan/logic/validators.py:675
 #, python-format
 msgid "Tag %s already belongs to vocabulary %s"
 msgstr "%s шошго %s үгсийн сантай холбоотой"
 
-#: ckan/logic/validators.py:697
+#: ckan/logic/validators.py:698
 msgid "Please provide a valid URL"
 msgstr "Зөв URL оруулна уу."
 
-#: ckan/logic/validators.py:711
+#: ckan/logic/validators.py:712
 msgid "role does not exist."
 msgstr "ийм хэрэглэгчийн төрөл байхгүй байна."
 
-#: ckan/logic/validators.py:740
+#: ckan/logic/validators.py:741
 msgid "Datasets with no organization can't be private."
 msgstr "Байгууллагад хамааралгүй өгөгдлийн бүрдэл хаалттай байх боломжгүй."
 
-#: ckan/logic/validators.py:746
+#: ckan/logic/validators.py:747
 msgid "Not a list"
 msgstr "Жагсаалт биш байна"
 
-#: ckan/logic/validators.py:749
+#: ckan/logic/validators.py:750
 msgid "Not a string"
 msgstr "Тэмдэгт биш байна"
 
-#: ckan/logic/validators.py:781
+#: ckan/logic/validators.py:782
 msgid "This parent would create a loop in the hierarchy"
 msgstr "Энэ эх сурвалж нь давталттай иерархи үүсгэнэ."
 
-#: ckan/logic/validators.py:791
+#: ckan/logic/validators.py:792
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
 msgstr ""
 
-#: ckan/logic/validators.py:802
+#: ckan/logic/validators.py:803
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
 msgstr ""
 
-#: ckan/logic/validators.py:805
+#: ckan/logic/validators.py:806
 msgid "\"filter_values\" is required when \"filter_fields\" is filled"
 msgstr ""
 
-#: ckan/logic/validators.py:819
+#: ckan/logic/validators.py:820
 msgid "There is a schema field with the same name"
 msgstr ""
 
-#: ckan/logic/action/create.py:180 ckan/logic/action/create.py:653
+#: ckan/logic/validators.py:846
+msgid "Email {email} is not a valid format"
+msgstr ""
+
+#: ckan/logic/action/create.py:183 ckan/logic/action/create.py:665
 #, python-format
 msgid "REST API: Create object %s"
 msgstr "REST API: %s объектийг үүсгэх"
 
-#: ckan/logic/action/create.py:532
+#: ckan/logic/action/create.py:544
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
 msgstr "REST API: Багцад хамаарал үүсгэх: %s %s %s"
 
-#: ckan/logic/action/create.py:573
+#: ckan/logic/action/create.py:585
 #, python-format
 msgid "REST API: Create member object %s"
 msgstr "REST API: Гишүүн объект %s -г үүсгэх"
 
-#: ckan/logic/action/create.py:792
+#: ckan/logic/action/create.py:804
 msgid "Trying to create an organization as a group"
 msgstr "Байгууллагыг бүлэг болгон үүсгэх гэж байна."
 
-#: ckan/logic/action/create.py:881
+#: ckan/logic/action/create.py:893
 msgid "You must supply a package id or name (parameter \"package\")."
 msgstr "Та багцын дугаар эсвэл нэрийг оруулах шаардлагатай (параметр \"багц\")"
 
-#: ckan/logic/action/create.py:884
+#: ckan/logic/action/create.py:896
 msgid "You must supply a rating (parameter \"rating\")."
 msgstr "Та үнэлгээ оруулсан байх шаардлагатай (параметр\"үнэлгээ\")"
 
-#: ckan/logic/action/create.py:889
+#: ckan/logic/action/create.py:901
 msgid "Rating must be an integer value."
 msgstr "Үнэлгээ бүхэл тоон утгатай байх ёстой"
 
-#: ckan/logic/action/create.py:893
+#: ckan/logic/action/create.py:905
 #, python-format
 msgid "Rating must be between %i and %i."
 msgstr "Үнэлгээ %i - с %i - н хооронд байх ёстой"
 
-#: ckan/logic/action/create.py:1052
+#: ckan/logic/action/create.py:1064
 msgid "Error sending the invite email, the user was not created: {0}"
 msgstr ""
 
-#: ckan/logic/action/create.py:1265 ckan/logic/action/create.py:1272
+#: ckan/logic/action/create.py:1277 ckan/logic/action/create.py:1284
 msgid "You must be logged in to follow users"
 msgstr "Та хэрэглэгчдийг дагахын тулд нэвтрэх хэрэгтэй."
 
-#: ckan/logic/action/create.py:1285
+#: ckan/logic/action/create.py:1297
 msgid "You cannot follow yourself"
 msgstr "Та өөрийгөө дагаж болохггүй."
 
-#: ckan/logic/action/create.py:1293 ckan/logic/action/create.py:1350
-#: ckan/logic/action/create.py:1489
+#: ckan/logic/action/create.py:1305 ckan/logic/action/create.py:1362
+#: ckan/logic/action/create.py:1501
 msgid "You are already following {0}"
 msgstr "Та аль хэдийн дагаж байна {0}"
 
-#: ckan/logic/action/create.py:1324 ckan/logic/action/create.py:1332
+#: ckan/logic/action/create.py:1336 ckan/logic/action/create.py:1344
 msgid "You must be logged in to follow a dataset."
 msgstr "Өгөгдлийн бүрдлийг дагахын тулд нэвтрэх ёстой."
 
-#: ckan/logic/action/create.py:1390
+#: ckan/logic/action/create.py:1402
 msgid "User {username} does not exist."
 msgstr " {username} нэртэй хэрэглэгч олдсонгүй."
 
-#: ckan/logic/action/create.py:1465 ckan/logic/action/create.py:1473
+#: ckan/logic/action/create.py:1477 ckan/logic/action/create.py:1485
 msgid "You must be logged in to follow a group."
 msgstr "Та бүлэг дагахын тулд нэвтрэх хэрэгтэй."
 
-#: ckan/logic/action/delete.py:45
+#: ckan/logic/action/delete.py:54
 msgid " Delete User: {0}"
 msgstr ""
 
-#: ckan/logic/action/delete.py:86
+#: ckan/logic/action/delete.py:92
 #, python-format
 msgid "REST API: Delete Package: %s"
 msgstr "REST API: %s багцыг устгах."
 
-#: ckan/logic/action/delete.py:270 ckan/logic/action/delete.py:352
+#: ckan/logic/action/delete.py:276 ckan/logic/action/delete.py:358
 #, python-format
 msgid "REST API: Delete %s"
 msgstr "REST API: %s - г устгах"
 
-#: ckan/logic/action/delete.py:312
+#: ckan/logic/action/delete.py:318
 #, python-format
 msgid "REST API: Delete Member: %s"
 msgstr "REST API: Гишүүн устгах: %s"
 
-#: ckan/logic/action/delete.py:538 ckan/logic/action/delete.py:564
-#: ckan/logic/action/get.py:2444 ckan/logic/action/update.py:932
+#: ckan/logic/action/delete.py:544 ckan/logic/action/delete.py:570
+#: ckan/logic/action/get.py:2482 ckan/logic/action/update.py:953
 msgid "id not in data"
 msgstr "өгөгдөлд дугаар байхгүй байна"
 
-#: ckan/logic/action/delete.py:542 ckan/logic/action/get.py:2447
-#: ckan/logic/action/update.py:936
+#: ckan/logic/action/delete.py:548 ckan/logic/action/get.py:2485
+#: ckan/logic/action/update.py:957
 #, python-format
 msgid "Could not find vocabulary \"%s\""
 msgstr "\"%s\" үгсийн сан олдсонгүй."
 
-#: ckan/logic/action/delete.py:572
+#: ckan/logic/action/delete.py:578
 #, python-format
 msgid "Could not find tag \"%s\""
 msgstr "\"%s\" шошго олдсонгүй."
 
-#: ckan/logic/action/delete.py:598 ckan/logic/action/delete.py:602
+#: ckan/logic/action/delete.py:604 ckan/logic/action/delete.py:608
 msgid "You must be logged in to unfollow something."
 msgstr ""
 "Та ямар нэгэн зүйлийг дагахаа болихын тулд нэвтэрсэн байх шаардлагатай."
 
-#: ckan/logic/action/delete.py:613
+#: ckan/logic/action/delete.py:619
 msgid "You are not following {0}."
 msgstr "Та дагаагүй байна {0}."
 
-#: ckan/logic/action/get.py:1058 ckan/logic/action/update.py:71
-#: ckan/logic/action/update.py:85
+#: ckan/logic/action/get.py:1097 ckan/logic/action/update.py:75
+#: ckan/logic/action/update.py:89
 msgid "Resource was not found."
 msgstr "Материал олдсонгүй"
 
-#: ckan/logic/action/get.py:2049
+#: ckan/logic/action/get.py:2087
 msgid "Do not specify if using \"query\" parameter"
 msgstr " \"query\" параметрыг ашиглаж байгаа бол битгий онцлог шинж тодорхойл"
 
-#: ckan/logic/action/get.py:2058
+#: ckan/logic/action/get.py:2096
 msgid "Must be <field>:<value> pair(s)"
 msgstr "<field>:<value> гэсэн  хос(ууд) байх ёстой."
 
-#: ckan/logic/action/get.py:2090
+#: ckan/logic/action/get.py:2128
 msgid "Field \"{field}\" not recognised in resource_search."
 msgstr "\"{field}\" талбар нь нөөцийн хайлтад танигдах боломжгүй."
 
-#: ckan/logic/action/update.py:240 ckan/logic/action/update.py:1034
+#: ckan/logic/action/update.py:261 ckan/logic/action/update.py:1055
 msgid "Package was not found."
 msgstr "Багц олдсонгүй"
 
-#: ckan/logic/action/update.py:283 ckan/logic/action/update.py:500
-#: ckan/logic/action/update.py:1052
+#: ckan/logic/action/update.py:304 ckan/logic/action/update.py:521
+#: ckan/logic/action/update.py:1073
 #, python-format
 msgid "REST API: Update object %s"
 msgstr "REST API: %s объектийг шинэчлэх"
 
-#: ckan/logic/action/update.py:380
+#: ckan/logic/action/update.py:401
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
 msgstr "REST API: Багцын хамаарлыг шинэчлэх: %s %s %s"
 
-#: ckan/logic/action/update.py:740
+#: ckan/logic/action/update.py:761
 msgid "TaskStatus was not found."
 msgstr "Даалгаврын төлөв олдсонгүй"
 
-#: ckan/logic/action/update.py:1038
+#: ckan/logic/action/update.py:1059
 msgid "Organization was not found."
 msgstr "Байгууллага олдсонгүй"
 
@@ -1492,7 +2088,7 @@ msgid "No dataset id provided, cannot check auth."
 msgstr ""
 
 #: ckan/logic/auth/create.py:68 ckan/logic/auth/delete.py:34
-#: ckan/logic/auth/get.py:143 ckan/logic/auth/update.py:63
+#: ckan/logic/auth/get.py:137 ckan/logic/auth/update.py:63
 msgid "No package found for this resource, cannot check auth."
 msgstr "Энэ нөөцөд тохирох багц олдсонгүй, auth -ийг шалгаж чадахгүй байна."
 
@@ -1524,24 +2120,24 @@ msgstr "{user} API-аар хэрэглэгчдийг үүсгэх эрхгүй."
 msgid "Not authorized to create users"
 msgstr "Хэрэглэгч үүсгэх эрхгүй байна."
 
-#: ckan/logic/auth/create.py:191
+#: ckan/logic/auth/create.py:189
 msgid "Group was not found."
 msgstr "Бүлэг олдсонгүй."
 
-#: ckan/logic/auth/create.py:211
+#: ckan/logic/auth/create.py:209
 msgid "Valid API key needed to create a package"
 msgstr "Багц үүсгэхийн тулд хүчин төгөлдөр API түлхүүр хэрэгтэй."
 
-#: ckan/logic/auth/create.py:219
+#: ckan/logic/auth/create.py:217
 msgid "Valid API key needed to create a group"
 msgstr "Бүлэг үүсгэхэд хүчин төгөлдөр API түлхүүр хэрэгтэй."
 
-#: ckan/logic/auth/create.py:239
+#: ckan/logic/auth/create.py:237
 #, python-format
 msgid "User %s not authorized to add members"
 msgstr "%s хэрэглэгч гишүүн нэмэх эрхгүй байна"
 
-#: ckan/logic/auth/create.py:263 ckan/logic/auth/update.py:115
+#: ckan/logic/auth/create.py:261 ckan/logic/auth/update.py:115
 #, python-format
 msgid "User %s not authorized to edit group %s"
 msgstr "%s хэрэглэгч %s бүлгийг өөрчлөх эрхгүй байна"
@@ -1585,31 +2181,31 @@ msgstr "%s хэрэглэгч %s байгууллагыг устгах эрхг�
 msgid "User %s not authorized to delete task_status"
 msgstr "%s хэрэглэгч task_status -г устгах эрхгүй байна"
 
-#: ckan/logic/auth/get.py:12 ckan/logic/auth/get.py:291
+#: ckan/logic/auth/get.py:13 ckan/logic/auth/get.py:285
 msgid "Not authorized"
 msgstr "Зөвшөөрөгдөөгүй байна."
 
-#: ckan/logic/auth/get.py:108
+#: ckan/logic/auth/get.py:109
 #, python-format
 msgid "User %s not authorized to read these packages"
 msgstr "%s хэрэглэгч нь эдгээр багцуудыг унших эрхгүй байна."
 
-#: ckan/logic/auth/get.py:130
+#: ckan/logic/auth/get.py:124
 #, python-format
 msgid "User %s not authorized to read package %s"
 msgstr "Хэрэглэгч %s нь %s багцыг унших эрхгүй байна."
 
-#: ckan/logic/auth/get.py:149
+#: ckan/logic/auth/get.py:143
 #, python-format
 msgid "User %s not authorized to read resource %s"
 msgstr "%s хэрэглэгч %s материалыг унших эрхгүй байна"
 
-#: ckan/logic/auth/get.py:176
+#: ckan/logic/auth/get.py:170
 #, python-format
 msgid "User %s not authorized to read group %s"
 msgstr ""
 
-#: ckan/logic/auth/get.py:258
+#: ckan/logic/auth/get.py:252
 msgid "You must be logged in to access your dashboard."
 msgstr ""
 "Та өөрийн хяналтын самбартаа хандахын тулд нэвтэрсэн байх шаардлагатай."
@@ -1644,39 +2240,39 @@ msgstr "%s хэрэглэгч %s бүлгийн төлвийг өөрчлөх э
 msgid "User %s not authorized to edit permissions of group %s"
 msgstr "%s хэрэглэгч %s бүлэгт хамаарах зөвшөөрлүүдийг өөрчлөх эрхгүй байна"
 
-#: ckan/logic/auth/update.py:189
+#: ckan/logic/auth/update.py:190
 msgid "Have to be logged in to edit user"
 msgstr "Хэрэглэгчийг өөрчлөхийн тулд нэвтэрсэн байх шаардлагатай."
 
-#: ckan/logic/auth/update.py:197
+#: ckan/logic/auth/update.py:198
 #, python-format
 msgid "User %s not authorized to edit user %s"
 msgstr "%s хэрэглэгч %s хэрэглэгчийг өөрчлөх эрхгүй байна"
 
-#: ckan/logic/auth/update.py:208
+#: ckan/logic/auth/update.py:209
 msgid "User {0} not authorized to update user {1}"
 msgstr ""
 
-#: ckan/logic/auth/update.py:216
+#: ckan/logic/auth/update.py:217
 #, python-format
 msgid "User %s not authorized to change state of revision"
 msgstr " %s хэрэглэгч засварын төлвийг өөрчлөх эрхгүй."
 
-#: ckan/logic/auth/update.py:225
+#: ckan/logic/auth/update.py:226
 #, python-format
 msgid "User %s not authorized to update task_status table"
 msgstr " %s хэрэглэгч task_status хүснэгтийг өөрчлөх эрхгүй."
 
-#: ckan/logic/auth/update.py:239
+#: ckan/logic/auth/update.py:240
 #, python-format
 msgid "User %s not authorized to update term_translation table"
 msgstr " %s хэрэглэгч term_translation хүснэгтийг өөрчлөх эрхгүй."
 
-#: ckan/logic/auth/update.py:261
+#: ckan/logic/auth/update.py:262
 msgid "Valid API key needed to edit a package"
 msgstr "Багцыг засварлахын тулд хүчин төгөлдөр API түлхүүр хэрэгтэй."
 
-#: ckan/logic/auth/update.py:271
+#: ckan/logic/auth/update.py:272
 msgid "Valid API key needed to edit a group"
 msgstr "Бүлгийг засварлахад хүчин төгөлдөр API түлхүүр хэрэгтэй."
 
@@ -1785,57 +2381,50 @@ msgstr "%s - ийн эцэг."
 msgid "has sibling %s"
 msgstr "Ах дүү %s байна"
 
-#: ckan/public/base/javascript/modules/activity-stream.js:20
-#: ckan/public/base/javascript/modules/popover-context.js:45
-#: ckan/templates/package/snippets/data_api_button.html:8
-#: ckan/templates/tests/mock_json_resource_preview_template.html:7
-#: ckan/templates/tests/mock_resource_preview_template.html:7
-#: ckanext/reclineview/theme/templates/recline_view.html:14
-#: ckanext/textview/theme/templates/text_view.html:9
-msgid "Loading..."
-msgstr "Ачааллаж байна..."
-
-#: ckan/public/base/javascript/modules/api-info.js:20
+#: ckan/public/base/javascript/modules/api-info.js:96
 msgid "There is no API data to load for this resource"
 msgstr "Тус материалыг ачааллах API өгөгдөл байхгүй байна"
 
-#: ckan/public/base/javascript/modules/api-info.js:21
+#: ckan/public/base/javascript/modules/api-info.js:124
 msgid "Failed to load data API information"
 msgstr "Өгөгдлийн API мэдээллийг ачааллахад алдаа гарлаа"
 
-#: ckan/public/base/javascript/modules/autocomplete.js:31
-msgid "No matches found"
-msgstr "Тохирох зүйл олдсонгүй"
-
-#: ckan/public/base/javascript/modules/autocomplete.js:32
+#: ckan/public/base/javascript/modules/autocomplete.js:195
 msgid "Start typing…"
 msgstr "Бичиж эхлэнэ үү..."
 
-#: ckan/public/base/javascript/modules/autocomplete.js:34
+#: ckan/public/base/javascript/modules/autocomplete.js:195
+msgid "No matches found"
+msgstr "Тохирох зүйл олдсонгүй"
+
+#: ckan/public/base/javascript/modules/autocomplete.js:204
+#, python-format
 msgid "Input is too short, must be at least one character"
-msgstr "Хэт богино! Хамгийн багадаа 1 тэмдэгт оруулах ёстой"
+msgid_plural "Input is too short, must be at least %(num)d characters"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
 msgstr "Энэ маягтанд хадгалагдаагүй өөрчлөлтүүд байна."
 
-#: ckan/public/base/javascript/modules/confirm-action.js:7
+#: ckan/public/base/javascript/modules/confirm-action.js:97
 msgid "Please Confirm Action"
 msgstr "Үйлдлээ баталгаажуулна уу"
 
-#: ckan/public/base/javascript/modules/confirm-action.js:8
+#: ckan/public/base/javascript/modules/confirm-action.js:100
 msgid "Are you sure you want to perform this action?"
 msgstr "Та тус үйлдлийг гүйцэтгэхдээ итгэлтэй байна уу?"
 
-#: ckan/public/base/javascript/modules/confirm-action.js:9
+#: ckan/public/base/javascript/modules/confirm-action.js:102
 #: ckan/templates/user/new_user_form.html:9
 #: ckan/templates/user/perform_reset.html:21
 msgid "Confirm"
 msgstr "Зөвшөөрөх"
 
-#: ckan/public/base/javascript/modules/confirm-action.js:10
-#: ckan/public/base/javascript/modules/resource-reorder.js:11
-#: ckan/public/base/javascript/modules/resource-view-reorder.js:11
+#: ckan/public/base/javascript/modules/confirm-action.js:103
+#: ckan/public/base/javascript/modules/resource-reorder.js:59
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:53
 #: ckan/templates/admin/confirm_reset.html:9
 #: ckan/templates/group/confirm_delete.html:14
 #: ckan/templates/group/confirm_delete_member.html:15
@@ -1846,39 +2435,42 @@ msgstr "Зөвшөөрөх"
 msgid "Cancel"
 msgstr "Цуцлах"
 
-#: ckan/public/base/javascript/modules/follow.js:23
-#: ckan/templates/snippets/follow_button.html:14
-msgid "Follow"
-msgstr "Дагах"
-
-#: ckan/public/base/javascript/modules/follow.js:24
+#: ckan/public/base/javascript/modules/follow.js:69
 #: ckan/templates/snippets/follow_button.html:9
 msgid "Unfollow"
 msgstr "Дагахаа болих"
 
-#: ckan/public/base/javascript/modules/image-upload.js:16
-msgid "Upload"
-msgstr "Хуулах"
+#: ckan/public/base/javascript/modules/follow.js:72
+#: ckan/templates/snippets/follow_button.html:14
+msgid "Follow"
+msgstr "Дагах"
 
-#: ckan/public/base/javascript/modules/image-upload.js:17
+#: ckan/public/base/javascript/modules/image-upload.js:60
 msgid "Link"
 msgstr "Холбоос"
 
-#: ckan/public/base/javascript/modules/image-upload.js:18
+#: ckan/public/base/javascript/modules/image-upload.js:61
+msgid "Link to a URL on the internet (you can also link to an API)"
+msgstr "Интернетэд байрлах замтай холбох (мөн API-тай холбож болно)"
+
+#: ckan/public/base/javascript/modules/image-upload.js:68
+msgid "Upload"
+msgstr "Хуулах"
+
+#: ckan/public/base/javascript/modules/image-upload.js:72
 #: ckan/templates/group/snippets/group_item.html:43
 #: ckan/templates/macros/form.html:235
 #: ckan/templates/snippets/search_form.html:68
 msgid "Remove"
 msgstr "Устгах"
 
-#: ckan/public/base/javascript/modules/image-upload.js:19
-#: ckan/templates/macros/form.html:412 ckanext/imageview/plugin.py:23
-#: ckanext/imageview/plugin.py:28
-msgid "Image"
-msgstr "Зураг"
+#: ckan/public/base/javascript/modules/image-upload.js:87
+msgid "Upload a file on your computer"
+msgstr "Компьютерээс файл хуулах"
 
-#: ckan/public/base/javascript/modules/image-upload.js:20
-#: ckan/public/base/javascript/modules/slug-preview.js:35
+#: ckan/public/base/javascript/modules/image-upload.js:110
+#: ckan/public/base/javascript/modules/image-upload.js:173
+#: ckan/public/base/javascript/modules/slug-preview.js:56
 #: ckan/templates/group/snippets/group_form.html:18
 #: ckan/templates/organization/snippets/organization_form.html:18
 #: ckan/templates/package/snippets/package_basic_fields.html:13
@@ -1886,57 +2478,46 @@ msgstr "Зураг"
 msgid "URL"
 msgstr "URL"
 
-#: ckan/public/base/javascript/modules/image-upload.js:21
+#: ckan/public/base/javascript/modules/image-upload.js:119
+#: ckan/public/base/javascript/modules/image-upload.js:204
 msgid "File"
 msgstr "Файл"
 
-#: ckan/public/base/javascript/modules/image-upload.js:22
-msgid "Upload a file on your computer"
-msgstr "Компьютерээс файл хуулах"
-
-#: ckan/public/base/javascript/modules/image-upload.js:23
-msgid "Link to a URL on the internet (you can also link to an API)"
-msgstr "Интернетэд байрлах замтай холбох (мөн API-тай холбож болно)"
-
-#: ckan/public/base/javascript/modules/resource-reorder.js:8
-msgid "Reorder resources"
-msgstr "Материалыг дахин эрэмбэлэх"
-
-#: ckan/public/base/javascript/modules/resource-reorder.js:9
-#: ckan/public/base/javascript/modules/resource-view-reorder.js:9
+#: ckan/public/base/javascript/modules/resource-reorder.js:56
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:50
 msgid "Save order"
 msgstr "Дарааллыг хадгалах"
 
-#: ckan/public/base/javascript/modules/resource-reorder.js:10
-#: ckan/public/base/javascript/modules/resource-view-reorder.js:10
+#: ckan/public/base/javascript/modules/resource-reorder.js:69
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:59
 msgid "Saving..."
 msgstr "Хадгалж байна.."
 
-#: ckan/public/base/javascript/modules/resource-upload-field.js:25
+#: ckan/public/base/javascript/modules/resource-upload-field.js:57
 msgid "Upload a file"
 msgstr "Файл хуулах"
 
-#: ckan/public/base/javascript/modules/resource-upload-field.js:26
+#: ckan/public/base/javascript/modules/resource-upload-field.js:144
 msgid "An Error Occurred"
 msgstr "Алдаа гарлаа"
 
-#: ckan/public/base/javascript/modules/resource-upload-field.js:27
-msgid "Resource uploaded"
-msgstr "Материал хуулагдлаа"
-
-#: ckan/public/base/javascript/modules/resource-upload-field.js:28
+#: ckan/public/base/javascript/modules/resource-upload-field.js:201
 msgid "Unable to upload file"
 msgstr "Файлыг хуулах боломжгүй байна"
 
-#: ckan/public/base/javascript/modules/resource-upload-field.js:29
+#: ckan/public/base/javascript/modules/resource-upload-field.js:252
 msgid "Unable to authenticate upload"
 msgstr "Хуулах эрхийг баталгаажуулах боломжгүй байна"
 
-#: ckan/public/base/javascript/modules/resource-upload-field.js:30
+#: ckan/public/base/javascript/modules/resource-upload-field.js:260
+msgid "Resource uploaded"
+msgstr "Материал хуулагдлаа"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:266
 msgid "Unable to get data for uploaded file"
 msgstr "Хуулсан файлын мэдээллийг авах боломжгүй"
 
-#: ckan/public/base/javascript/modules/resource-upload-field.js:31
+#: ckan/public/base/javascript/modules/resource-upload-field.js:272
 msgid ""
 "You are uploading a file. Are you sure you want to navigate away and stop "
 "this upload?"
@@ -1944,28 +2525,33 @@ msgstr ""
 "Та яг одоо файл хуулж байна. Хуулж байгаа файлаа зогсоогоод гарахдаа "
 "итгэлтэй байна уу."
 
-#: ckan/public/base/javascript/modules/resource-view-reorder.js:8
-msgid "Reorder resource view"
+#: ckan/public/base/javascript/modules/resource-view-filters.js:9
+#: ckan/templates/package/snippets/view_form_filters.html:16
+msgid "Add Filter"
 msgstr ""
 
-#: ckan/public/base/javascript/modules/slug-preview.js:36
-#: ckan/templates/group/edit_base.html:20 ckan/templates/group/members.html:32
+#: ckan/public/base/javascript/modules/resource-view-filters.js:52
+msgid "Select a field"
+msgstr ""
+
+#: ckan/public/base/javascript/modules/slug-preview.js:57
+#: ckan/templates/group/edit_base.html:22 ckan/templates/group/members.html:28
 #: ckan/templates/organization/bulk_process.html:65
 #: ckan/templates/organization/edit.html:3
 #: ckan/templates/organization/edit_base.html:22
-#: ckan/templates/organization/members.html:32
+#: ckan/templates/organization/members.html:33
 #: ckan/templates/package/edit_base.html:11
 #: ckan/templates/package/resource_edit.html:3
 #: ckan/templates/package/resource_edit_base.html:12
-#: ckan/templates/package/snippets/resource_item.html:57
+#: ckan/templates/package/snippets/resource_item.html:56
 msgid "Edit"
 msgstr "Засварлах"
 
-#: ckan/public/base/javascript/modules/table-toggle-more.js:9
+#: ckan/public/base/javascript/modules/table-toggle-more.js:25
 msgid "Show more"
 msgstr "Дэлгэрэнгүй"
 
-#: ckan/public/base/javascript/modules/table-toggle-more.js:10
+#: ckan/public/base/javascript/modules/table-toggle-more.js:26
 msgid "Hide"
 msgstr "Нуух"
 
@@ -2098,19 +2684,19 @@ msgstr "Хогын сав"
 msgid "Are you sure you want to reset the config?"
 msgstr "Та тохиргоог дахин шинэчлэхдээ итгэлтэй байна уу?"
 
-#: ckan/templates/admin/config.html:17
+#: ckan/templates/admin/config.html:16
 msgid "Reset"
 msgstr "Шинэчлэх"
 
-#: ckan/templates/admin/config.html:18
+#: ckan/templates/admin/config.html:17
 msgid "Update Config"
 msgstr "Тохиргоог шинэчлэх"
 
-#: ckan/templates/admin/config.html:27
+#: ckan/templates/admin/config.html:26
 msgid "CKAN config options"
 msgstr "CKAN тохиргооны сонголтууд"
 
-#: ckan/templates/admin/config.html:34
+#: ckan/templates/admin/config.html:33
 #, python-format
 msgid ""
 " <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
@@ -2170,83 +2756,12 @@ msgstr ""
 msgid " <p>Purge deleted datasets forever and irreversibly.</p> "
 msgstr ""
 
-#: ckan/templates/ajax_snippets/api_info.html:19
-msgid "CKAN Data API"
-msgstr "CKAN өгөгдлийн API"
-
-#: ckan/templates/ajax_snippets/api_info.html:23
-msgid "Access resource data via a web API with powerful query support"
-msgstr ""
-"Өндөр түвшний хайлт хийх боломж бүхий веб API-н тусламжтайгаар нөөц өгөгдөлд"
-" хандана"
-
-#: ckan/templates/ajax_snippets/api_info.html:24
-msgid ""
-" Further information in the <a       "
-"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
-msgstr ""
-
-#: ckan/templates/ajax_snippets/api_info.html:33
-msgid "Endpoints"
-msgstr "Төгсгөлийн цэгүүд"
-
-#: ckan/templates/ajax_snippets/api_info.html:37
-msgid ""
-"The Data API can be accessed via the following actions of the CKAN action "
-"API."
-msgstr "API-н өгөгдөлд CKAN болон API-н үйлдлээр дамжиж хандах боломжтой."
-
-#: ckan/templates/ajax_snippets/api_info.html:42
-msgid "Create"
-msgstr "Үүсгэх"
-
-#: ckan/templates/ajax_snippets/api_info.html:46
-msgid "Update / Insert"
-msgstr "Шинэчлэх/ Оруулах"
-
-#: ckan/templates/ajax_snippets/api_info.html:50
-msgid "Query"
-msgstr "Хүсэлт"
-
-#: ckan/templates/ajax_snippets/api_info.html:54
-msgid "Query (via SQL)"
-msgstr "Хүсэлт (SQL - ээр)"
-
-#: ckan/templates/ajax_snippets/api_info.html:66
-msgid "Querying"
-msgstr "Боловсруулж байна"
-
-#: ckan/templates/ajax_snippets/api_info.html:70
-msgid "Query example (first 5 results)"
-msgstr "Хүсэлтийн жишээ (эхний 5 үр дүн)"
-
-#: ckan/templates/ajax_snippets/api_info.html:75
-msgid "Query example (results containing 'jones')"
-msgstr "Хүсэлтийн жишээ ('jones'-г агуулсан үр дүн)"
-
-#: ckan/templates/ajax_snippets/api_info.html:81
-msgid "Query example (via SQL statement)"
-msgstr "Хайлтын агуулгын жишээ (SQL загвараар)"
-
-#: ckan/templates/ajax_snippets/api_info.html:93
-msgid "Example: Javascript"
-msgstr "Жишээ нь: Javascript"
-
-#: ckan/templates/ajax_snippets/api_info.html:97
-msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr "jQuery ашиглан өгөгдлийн API-д хандах энгийн ajax хүсэлт (JSONP)."
-
-#: ckan/templates/ajax_snippets/api_info.html:118
-msgid "Example: Python"
-msgstr "Жишээ нь: Python"
-
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
 msgstr "Одоогоор тус материалыг харуулах боломжгүй."
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:11
-#: ckan/templates/package/resource_read.html:118
+#: ckan/templates/package/resource_read.html:115
 #: ckan/templates/package/snippets/resource_view.html:26
 msgid "Click here for more information."
 msgstr "Дэлгэрэнгүй мэдээллийг энд дарж үзнэ үү."
@@ -2255,12 +2770,6 @@ msgstr "Дэлгэрэнгүй мэдээллийг энд дарж үзнэ ү�
 #: ckan/templates/package/snippets/resource_view.html:33
 msgid "Download resource"
 msgstr "Материал татах"
-
-#: ckan/templates/dataviewer/snippets/data_preview.html:23
-#: ckan/templates/package/snippets/resource_view.html:56
-#: ckanext/webpageview/theme/templates/webpage_view.html:2
-msgid "Your browser does not support iframes."
-msgstr "Таны интернет хөтөч iframes -г дэмжих боломжгүй."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "No preview available."
@@ -2394,8 +2903,8 @@ msgstr "Та {name} бүлгийг устгахдаа итгэлтэй байн�
 msgid "Are you sure you want to delete member - {name}?"
 msgstr "Та {name} гишүүнийг устгахдаа илтгэлтэй байна уу?"
 
-#: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:3
-#: ckan/templates/group/edit_base.html:11
+#: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:4
+#: ckan/templates/group/edit_base.html:13
 #: ckan/templates/group/read_base.html:12
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
@@ -2410,25 +2919,11 @@ msgstr "Удирдах"
 msgid "Edit Group"
 msgstr "Бүлгийг засварлах"
 
-#: ckan/templates/group/edit_base.html:21 ckan/templates/group/members.html:3
+#: ckan/templates/group/edit_base.html:23 ckan/templates/group/members.html:3
 #: ckan/templates/organization/edit_base.html:24
 #: ckan/templates/organization/members.html:3
 msgid "Members"
 msgstr "Гишүүд"
-
-#: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
-#: ckan/templates/group/snippets/info.html:32
-#: ckan/templates/package/followers.html:3
-#: ckan/templates/package/followers.html:6
-#: ckan/templates/package/snippets/info.html:23
-#: ckan/templates/snippets/context/group.html:13
-#: ckan/templates/snippets/context/user.html:15
-#: ckan/templates/snippets/organization.html:55
-#: ckan/templates/user/followers.html:3 ckan/templates/user/followers.html:7
-#: ckan/templates/user/read_base.html:49
-#: ckanext/example_theme/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:12
-msgid "Followers"
-msgstr "Дагагчид"
 
 #: ckan/templates/group/history.html:3 ckan/templates/group/history.html:6
 #: ckan/templates/package/history.html:3 ckan/templates/package/history.html:6
@@ -2443,28 +2938,6 @@ msgstr "Бүлэг нэмэх"
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
 msgstr "Бүлгүүд хайх..."
-
-#: ckan/templates/group/index.html:20 ckan/templates/group/read.html:16
-#: ckan/templates/organization/bulk_process.html:97
-#: ckan/templates/organization/read.html:20
-#: ckan/templates/package/search.html:30
-#: ckan/templates/snippets/search_form.html:4
-#: ckan/templates/snippets/simple_search.html:10
-#: ckan/templates/snippets/sort_by.html:15
-#: ckanext/example_idatasetform/templates/package/search.html:13
-msgid "Name Ascending"
-msgstr "Нэр өсөх дарааллаар"
-
-#: ckan/templates/group/index.html:20 ckan/templates/group/read.html:17
-#: ckan/templates/organization/bulk_process.html:98
-#: ckan/templates/organization/read.html:21
-#: ckan/templates/package/search.html:31
-#: ckan/templates/snippets/search_form.html:4
-#: ckan/templates/snippets/simple_search.html:10
-#: ckan/templates/snippets/sort_by.html:16
-#: ckanext/example_idatasetform/templates/package/search.html:14
-msgid "Name Descending"
-msgstr "Нэр буурах дарааллаар"
 
 #: ckan/templates/group/index.html:29
 msgid "There are currently no groups for this site"
@@ -2487,11 +2960,11 @@ msgid "Edit Member"
 msgstr "Гишүүний мэдээллийг засварлах"
 
 #: ckan/templates/group/member_new.html:10
-#: ckan/templates/group/member_new.html:65 ckan/templates/group/members.html:6
+#: ckan/templates/group/member_new.html:64 ckan/templates/group/members.html:6
 #: ckan/templates/organization/member_new.html:7
 #: ckan/templates/organization/member_new.html:12
-#: ckan/templates/organization/member_new.html:66
-#: ckan/templates/organization/members.html:6
+#: ckan/templates/organization/member_new.html:65
+#: ckan/templates/organization/members.html:8
 msgid "Add Member"
 msgstr "Гишүүн нэмэх"
 
@@ -2523,44 +2996,40 @@ msgid "If you wish to invite a new user, enter their email address."
 msgstr "Та шинэ хэрэглэгч урих бол имэйл хаягийг нь оруулна уу"
 
 #: ckan/templates/group/member_new.html:55
-#: ckan/templates/group/members.html:18
+#: ckan/templates/group/members.html:15
 #: ckan/templates/organization/member_new.html:56
-#: ckan/templates/organization/members.html:18
+#: ckan/templates/organization/members.html:20
 msgid "Role"
 msgstr "Хэрэглэгчийн төрөл"
 
 #: ckan/templates/group/member_new.html:58
-#: ckan/templates/group/members.html:30
+#: ckan/templates/group/members.html:31
 #: ckan/templates/organization/member_new.html:59
-#: ckan/templates/organization/members.html:30
+#: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
 msgstr "Та энэ гишүүнийг устгахдаа итгэлтэй байна уу?"
 
-#: ckan/templates/group/member_new.html:59
-#: ckan/templates/group/members.html:35
-#: ckan/templates/group/snippets/group_form.html:61
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:31
+#: ckan/templates/group/snippets/group_form.html:60
 #: ckan/templates/organization/bulk_process.html:47
-#: ckan/templates/organization/member_new.html:60
-#: ckan/templates/organization/members.html:35
-#: ckan/templates/organization/snippets/organization_form.html:61
+#: ckan/templates/organization/member_new.html:59
+#: ckan/templates/organization/members.html:36
+#: ckan/templates/organization/snippets/organization_form.html:60
 #: ckan/templates/package/edit_view.html:19
-#: ckan/templates/package/snippets/package_form.html:40
-#: ckan/templates/package/snippets/resource_form.html:66
+#: ckan/templates/package/snippets/package_form.html:39
+#: ckan/templates/package/snippets/resource_form.html:65
 #: ckan/templates/revision/read.html:24
-#: ckan/templates/user/edit_user_form.html:46
+#: ckan/templates/user/edit_user_form.html:45
 msgid "Delete"
 msgstr "Устгах"
 
-#: ckan/templates/group/member_new.html:61
-msgid "Save"
-msgstr "Хадгалах"
-
-#: ckan/templates/group/member_new.html:78
-#: ckan/templates/organization/member_new.html:79
+#: ckan/templates/group/member_new.html:77
+#: ckan/templates/organization/member_new.html:78
 msgid "What are roles?"
 msgstr "Хэрэглэгчийн төрөл гэж юу вэ?"
 
-#: ckan/templates/group/member_new.html:81
+#: ckan/templates/group/member_new.html:80
 msgid ""
 " <p><strong>Admin:</strong> Can edit group information, as well as manage "
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
@@ -2582,32 +3051,6 @@ msgstr "Бүлэг засварлах"
 #: ckan/templates/group/new_group_form.html:19
 msgid "Create Group"
 msgstr "Бүлэг үүсгэх"
-
-#: ckan/templates/group/read.html:15 ckan/templates/organization/read.html:19
-#: ckan/templates/package/search.html:29
-#: ckan/templates/snippets/sort_by.html:14
-#: ckanext/example_idatasetform/templates/package/search.html:12
-msgid "Relevance"
-msgstr "Хамаарал"
-
-#: ckan/templates/group/read.html:18
-#: ckan/templates/organization/bulk_process.html:99
-#: ckan/templates/organization/read.html:22
-#: ckan/templates/package/search.html:32
-#: ckan/templates/package/snippets/resource_form.html:51
-#: ckan/templates/snippets/sort_by.html:17
-#: ckanext/example_idatasetform/templates/package/search.html:15
-msgid "Last Modified"
-msgstr "Сүүлд өөрчлөгдсөн"
-
-#: ckan/templates/group/read.html:19 ckan/templates/organization/read.html:23
-#: ckan/templates/package/search.html:33
-#: ckan/templates/snippets/package_item.html:50
-#: ckan/templates/snippets/popular.html:3
-#: ckan/templates/snippets/sort_by.html:19
-#: ckanext/example_idatasetform/templates/package/search.html:18
-msgid "Popular"
-msgstr "Түгээмэл"
 
 #: ckan/templates/group/read.html:21 ckan/templates/organization/read.html:25
 #: ckan/templates/snippets/search_form.html:3
@@ -2638,14 +3081,6 @@ msgid "my-group"
 msgstr "миний бүлэг"
 
 #: ckan/templates/group/snippets/group_form.html:20
-#: ckan/templates/organization/snippets/organization_form.html:20
-#: ckan/templates/package/snippets/package_basic_fields.html:19
-#: ckan/templates/package/snippets/resource_form.html:32
-#: ckan/templates/package/snippets/view_form.html:9
-msgid "Description"
-msgstr "Тайлбар"
-
-#: ckan/templates/group/snippets/group_form.html:20
 msgid "A little information about my group..."
 msgstr "Миний бүлгийн тухай товч мэдээлэл..."
 
@@ -2653,25 +3088,9 @@ msgstr "Миний бүлгийн тухай товч мэдээлэл..."
 msgid "Are you sure you want to delete this Group?"
 msgstr "Та энэ бүлгийг устгахдаа итгэлтэй байна уу?"
 
-#: ckan/templates/group/snippets/group_form.html:64
+#: ckan/templates/group/snippets/group_form.html:63
 msgid "Save Group"
 msgstr "Бүлэг хадгалах"
-
-#: ckan/templates/group/snippets/group_item.html:32
-#: ckan/templates/organization/snippets/organization_item.html:31
-#: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:23
-#: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
-msgid "{num} Dataset"
-msgid_plural "{num} Datasets"
-msgstr[0] "{num} Өгөгдлийн бүрдэл"
-msgstr[1] "{num} Өгөгдлийн бүрдлүүд"
-
-#: ckan/templates/group/snippets/group_item.html:34
-#: ckan/templates/organization/snippets/organization_item.html:33
-#: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
-#: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
-msgid "0 Datasets"
-msgstr "0 Өгөгдлийн бүрдлүүд"
 
 #: ckan/templates/group/snippets/group_item.html:38
 #: ckan/templates/group/snippets/group_item.html:39
@@ -2841,6 +3260,10 @@ msgstr "байгууллагууд"
 msgid "groups"
 msgstr "бүлгүүд"
 
+#: ckan/templates/macros/autoform.html:62
+msgid "Site logo"
+msgstr ""
+
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
@@ -2962,11 +3385,11 @@ msgstr "Хэрэглэгчийн нэр"
 msgid "Email address"
 msgstr ""
 
-#: ckan/templates/organization/member_new.html:62
+#: ckan/templates/organization/member_new.html:61
 msgid "Update Member"
 msgstr "Гишүүн шинэчлэх"
 
-#: ckan/templates/organization/member_new.html:82
+#: ckan/templates/organization/member_new.html:81
 msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
@@ -2980,6 +3403,12 @@ msgstr ""
 "боломжтой боловч байгууллагын гишүүдийг тохируулах боломжгүй.</p> "
 "<p><strong>Гишүүн нь:</strong> Байгууллагын хаалттай өгөгдлийн бүрдлийг үзэх"
 " боломжтой боловч шинээр нэмэх боломжгүй.</p>"
+
+#: ckan/templates/organization/members.html:14
+msgid "{count} member"
+msgid_plural "{count} members"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3051,12 +3480,12 @@ msgstr ""
 "Та тус байгууллагыг устгахдаа итгэлтэй байна уу? Ингэснээр тухайн "
 "байгууллагад хамааралтай нээлттэй болон хаалттай өгөгдлийн бүрдлүүд устана."
 
-#: ckan/templates/organization/snippets/organization_form.html:64
+#: ckan/templates/organization/snippets/organization_form.html:63
 msgid "Save Organization"
 msgstr "Байгууллага хадгалах"
 
-#: ckan/templates/organization/snippets/organization_item.html:37
-#: ckan/templates/organization/snippets/organization_item.html:38
+#: ckan/templates/organization/snippets/organization_item.html:42
+#: ckan/templates/organization/snippets/organization_item.html:43
 msgid "View {organization_name}"
 msgstr "Харагдац {organization_name}"
 
@@ -3105,7 +3534,7 @@ msgstr ""
 
 #: ckan/templates/package/edit_view.html:20
 #: ckan/templates/package/new_view.html:28
-#: ckan/templates/package/snippets/resource_item.html:33
+#: ckan/templates/package/snippets/resource_item.html:32
 #: ckan/templates/snippets/datapreview_embed_dialog.html:16
 msgid "Preview"
 msgstr "Урьдчилан харах"
@@ -3165,7 +3594,7 @@ msgid ""
 msgstr ""
 
 #: ckan/templates/package/new_view.html:29
-#: ckan/templates/package/snippets/resource_form.html:82
+#: ckan/templates/package/snippets/resource_form.html:81
 msgid "Add"
 msgstr "Нэмэх"
 
@@ -3179,48 +3608,6 @@ msgstr ""
 "засварлагдсан. Иймд <a href=\"%(url)s\">одоогийн хувилбараас</a> зөрүүтэй "
 "байж болно."
 
-#: ckan/templates/package/resource_data.html:12
-msgid "Upload to DataStore"
-msgstr "Өгөгдлийн нөөцөд байршуулах"
-
-#: ckan/templates/package/resource_data.html:19
-msgid "Upload error:"
-msgstr "Серверт хуулах үед гарсан алдаа:"
-
-#: ckan/templates/package/resource_data.html:25
-#: ckan/templates/package/resource_data.html:27
-msgid "Error:"
-msgstr "Алдаа:"
-
-#: ckan/templates/package/resource_data.html:36
-msgid "Error traceback:"
-msgstr ""
-
-#: ckan/templates/package/resource_data.html:48
-msgid "Status"
-msgstr "Төлөв"
-
-#: ckan/templates/package/resource_data.html:52
-#: ckan/templates/package/resource_read.html:157
-msgid "Last updated"
-msgstr "Сүүлд шинэчлэгдсэн"
-
-#: ckan/templates/package/resource_data.html:56
-msgid "Never"
-msgstr "Хэзээ ч үгүй"
-
-#: ckan/templates/package/resource_data.html:62
-msgid "Upload Log"
-msgstr "Бүртгэл оруулах"
-
-#: ckan/templates/package/resource_data.html:74
-msgid "Details"
-msgstr "Дэлгэрэнгүй байдал"
-
-#: ckan/templates/package/resource_data.html:81
-msgid "End of log"
-msgstr "Бүртгэлийн төгсгөл"
-
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
 msgstr "Бүх материалууд"
@@ -3230,15 +3617,11 @@ msgid "View resource"
 msgstr "Материал харах"
 
 #: ckan/templates/package/resource_edit_base.html:24
-#: ckan/templates/package/resource_edit_base.html:32
+#: ckan/templates/package/resource_edit_base.html:30
 msgid "Edit resource"
 msgstr "Материал засварлах"
 
 #: ckan/templates/package/resource_edit_base.html:26
-msgid "DataStore"
-msgstr "Өгөгдлийн агуулах"
-
-#: ckan/templates/package/resource_edit_base.html:28
 msgid "Views"
 msgstr ""
 
@@ -3247,91 +3630,100 @@ msgid "API Endpoint"
 msgstr "API - н төгсгөлийн цэг"
 
 #: ckan/templates/package/resource_read.html:41
-#: ckan/templates/package/snippets/resource_item.html:48
+#: ckan/templates/package/snippets/resource_item.html:47
 msgid "Go to resource"
 msgstr "Материал руу очих"
 
 #: ckan/templates/package/resource_read.html:43
-#: ckan/templates/package/snippets/resource_item.html:45
+#: ckan/templates/package/snippets/resource_item.html:44
 msgid "Download"
 msgstr "Татах"
 
-#: ckan/templates/package/resource_read.html:59
-#: ckan/templates/package/resource_read.html:61
+#: ckan/templates/package/resource_read.html:56
+#: ckan/templates/package/resource_read.html:58
 msgid "URL:"
 msgstr "URL:"
 
-#: ckan/templates/package/resource_read.html:69
+#: ckan/templates/package/resource_read.html:66
 msgid "From the dataset abstract"
 msgstr "Өгөгдлийн бүрдэлийн товчлолоос"
 
-#: ckan/templates/package/resource_read.html:71
+#: ckan/templates/package/resource_read.html:68
 #, python-format
 msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
 msgstr "Эх сурвалж нь: <a href=\"%(url)s\">%(dataset)s</a>"
 
-#: ckan/templates/package/resource_read.html:112
+#: ckan/templates/package/resource_read.html:109
 msgid "There are no views created for this resource yet."
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:116
+#: ckan/templates/package/resource_read.html:113
 msgid "Not seeing the views you were expecting?"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:121
+#: ckan/templates/package/resource_read.html:118
 msgid "Here are some reasons you may not be seeing expected views:"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:123
+#: ckan/templates/package/resource_read.html:120
 msgid "No view has been created that is suitable for this resource"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:124
+#: ckan/templates/package/resource_read.html:121
 msgid "The site administrators may not have enabled the relevant view plugins"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:125
+#: ckan/templates/package/resource_read.html:122
 msgid ""
 "If a view requires the DataStore, the DataStore plugin may not be enabled, "
 "or the data may not have been pushed to the DataStore, or the DataStore "
 "hasn't finished processing the data yet"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:147
+#: ckan/templates/package/resource_read.html:144
 msgid "Additional Information"
 msgstr "Нэмэлт мэдээлэл"
 
-#: ckan/templates/package/resource_read.html:151
+#: ckan/templates/package/resource_read.html:148
 #: ckan/templates/package/snippets/additional_info.html:6
 #: ckan/templates/revision/diff.html:43
 #: ckan/templates/snippets/additional_info.html:11
 msgid "Field"
 msgstr "Талбар"
 
-#: ckan/templates/package/resource_read.html:152
+#: ckan/templates/package/resource_read.html:149
 #: ckan/templates/package/snippets/additional_info.html:7
 #: ckan/templates/snippets/additional_info.html:12
 msgid "Value"
 msgstr "Утга"
 
-#: ckan/templates/package/resource_read.html:158
-#: ckan/templates/package/resource_read.html:162
-#: ckan/templates/package/resource_read.html:166
+#: ckan/templates/package/resource_read.html:154
+msgid "Data last updated"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:155
+#: ckan/templates/package/resource_read.html:159
+#: ckan/templates/package/resource_read.html:163
+#: ckan/templates/package/resource_read.html:167
 msgid "unknown"
 msgstr "Тодорхой бус"
 
-#: ckan/templates/package/resource_read.html:161
+#: ckan/templates/package/resource_read.html:158
+msgid "Metadata last updated"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:162
 #: ckan/templates/package/snippets/additional_info.html:70
 msgid "Created"
 msgstr "Үүссэн"
 
-#: ckan/templates/package/resource_read.html:165
+#: ckan/templates/package/resource_read.html:166
 #: ckan/templates/package/snippets/resource_form.html:37
 #: ckan/templates/package/snippets/resource_info.html:16
 msgid "Format"
 msgstr "Хэлбэр"
 
-#: ckan/templates/package/resource_read.html:169
+#: ckan/templates/package/resource_read.html:170
 #: ckan/templates/package/snippets/package_basic_fields.html:30
 #: ckan/templates/snippets/license.html:21
 msgid "License"
@@ -3349,8 +3741,8 @@ msgstr ""
 msgid "Add new resource"
 msgstr "Шинэ нөөц үүсгэх"
 
-#: ckan/templates/package/resources.html:19
-#: ckan/templates/package/snippets/resources_list.html:25
+#: ckan/templates/package/resources.html:20
+#: ckan/templates/package/snippets/resources_list.html:26
 #, python-format
 msgid ""
 " <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
@@ -3450,10 +3842,6 @@ msgid ""
 "continue."
 msgstr ""
 
-#: ckan/templates/package/snippets/data_api_button.html:10
-msgid "Data API"
-msgstr "Өгөгдлийн API"
-
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 #: ckan/templates/package/snippets/view_form.html:8
 msgid "Title"
@@ -3518,7 +3906,7 @@ msgstr ""
 msgid "Are you sure you want to delete this dataset?"
 msgstr "Та тус өгөгдлийн бүрдлийг устгахдаа итгэлтэй байна уу?"
 
-#: ckan/templates/package/snippets/package_form.html:44
+#: ckan/templates/package/snippets/package_form.html:43
 msgid "Next: Add Data"
 msgstr "Дараагийн: Өгөгдөл нэмэх"
 
@@ -3604,15 +3992,15 @@ msgstr "Ж-нь: application/json"
 msgid "Are you sure you want to delete this resource?"
 msgstr "Тус материалыг устгахдаа итгэлтэй байна уу?"
 
-#: ckan/templates/package/snippets/resource_form.html:72
+#: ckan/templates/package/snippets/resource_form.html:71
 msgid "Previous"
 msgstr "Өмнөх"
 
-#: ckan/templates/package/snippets/resource_form.html:75
+#: ckan/templates/package/snippets/resource_form.html:74
 msgid "Save & add another"
 msgstr "Хадгалах мөн өөрийг нэмэх"
 
-#: ckan/templates/package/snippets/resource_form.html:78
+#: ckan/templates/package/snippets/resource_form.html:77
 msgid "Finish"
 msgstr "Дуусгах"
 
@@ -3626,11 +4014,11 @@ msgstr ""
 "Материал нь хэрэгцээтэй өгөгдөл агуулж буй файл эсвэл файлын холбоосыг "
 "хэлнэ."
 
-#: ckan/templates/package/snippets/resource_item.html:24
+#: ckan/templates/package/snippets/resource_item.html:23
 msgid "Explore"
 msgstr "Шинжих"
 
-#: ckan/templates/package/snippets/resource_item.html:36
+#: ckan/templates/package/snippets/resource_item.html:35
 msgid "More information"
 msgstr "Дэлгэрэнгүй мэдээлэл"
 
@@ -3672,7 +4060,7 @@ msgstr ""
 msgid "Data and Resources"
 msgstr "Өгөгдөл ба материал"
 
-#: ckan/templates/package/snippets/resources_list.html:29
+#: ckan/templates/package/snippets/resources_list.html:30
 msgid "This dataset has no data"
 msgstr ""
 
@@ -3700,16 +4088,8 @@ msgstr ""
 msgid "eg. Information about my view"
 msgstr ""
 
-#: ckan/templates/package/snippets/view_form_filters.html:16
-msgid "Add Filter"
-msgstr ""
-
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
-msgstr ""
-
-#: ckan/templates/package/snippets/view_form_filters.html:46
-msgid "Filters"
 msgstr ""
 
 #: ckan/templates/package/snippets/view_help.html:2
@@ -3810,11 +4190,11 @@ msgstr "Тус хайлтанд таарах {facet_type} байхгүй бай�
 msgid "Home"
 msgstr "Нүүр"
 
-#: ckan/templates/snippets/language_selector.html:4
+#: ckan/templates/snippets/language_selector.html:3
 msgid "Language"
 msgstr "Хэл"
 
-#: ckan/templates/snippets/language_selector.html:12
+#: ckan/templates/snippets/language_selector.html:11
 #: ckan/templates/snippets/search_form.html:41
 #: ckan/templates/snippets/simple_search.html:15
 #: ckan/templates/snippets/sort_by.html:22
@@ -3980,7 +4360,7 @@ msgstr "Та ямар ч өгөгдлийн бүрдэл үүсгээгүй ба
 
 #: ckan/templates/user/dashboard_datasets.html:19
 #: ckan/templates/user/dashboard_groups.html:22
-#: ckan/templates/user/dashboard_organizations.html:22
+#: ckan/templates/user/dashboard_organizations.html:23
 #: ckan/templates/user/read.html:16
 msgid "Create one now?"
 msgstr "Та одоо үүсгэх үү?"
@@ -3989,7 +4369,7 @@ msgstr "Та одоо үүсгэх үү?"
 msgid "You are not a member of any groups."
 msgstr "Та аль ч бүлгийн гишүүн биш. "
 
-#: ckan/templates/user/dashboard_organizations.html:20
+#: ckan/templates/user/dashboard_organizations.html:21
 msgid "You are not a member of any organizations."
 msgstr "Та аль ч байгуулагын гишүүн биш."
 
@@ -4059,15 +4439,15 @@ msgstr "Нууц үгээ баталгаажуулах"
 msgid "Are you sure you want to delete this User?"
 msgstr "Тус хэрэглэгчийг устгахдаа итгэлтэй байна уу?"
 
-#: ckan/templates/user/edit_user_form.html:51
+#: ckan/templates/user/edit_user_form.html:50
 msgid "Are you sure you want to regenerate the API key?"
 msgstr ""
 
-#: ckan/templates/user/edit_user_form.html:52
+#: ckan/templates/user/edit_user_form.html:50
 msgid "Regenerate API Key"
 msgstr ""
 
-#: ckan/templates/user/edit_user_form.html:56
+#: ckan/templates/user/edit_user_form.html:54
 msgid "Update Profile"
 msgstr "Профайл аа шинчлэх"
 
@@ -4258,287 +4638,3 @@ msgstr "Дагагчгүй"
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
 msgstr "Хэрэглэгчид хайх"
-
-#: ckanext/datapusher/helpers.py:21
-msgid "Complete"
-msgstr "Бүрэн дуусах"
-
-#: ckanext/datapusher/helpers.py:22
-msgid "Pending"
-msgstr "Хүлээгдэж байна"
-
-#: ckanext/datapusher/helpers.py:23
-msgid "Submitting"
-msgstr "Илгээж байна"
-
-#: ckanext/datapusher/helpers.py:29
-msgid "Not Uploaded Yet"
-msgstr "Хараахан байршуулагдаагүй байна"
-
-#: ckanext/datastore/controller.py:33
-msgid "DataStore resource not found"
-msgstr "Өгөгдлийн  агуулахын нөөц олдсонгүй"
-
-#: ckanext/datastore/db.py:663
-msgid ""
-"The data was invalid (for example: a numeric value is out of range or was "
-"inserted into a text field)."
-msgstr ""
-
-#: ckanext/datastore/logic/action.py:221 ckanext/datastore/logic/action.py:261
-#: ckanext/datastore/logic/action.py:348 ckanext/datastore/logic/action.py:446
-#: ckanext/datastore/logic/action.py:528 ckanext/datastore/logic/action.py:554
-msgid "Resource \"{0}\" was not found."
-msgstr "Нөөц \"{0}\" олдсонгүй."
-
-#: ckanext/datastore/logic/auth.py:18
-msgid "User {0} not authorized to update resource {1}"
-msgstr "Хэрэглэгч {0} нөөц {1}-г шинэчлэх эрхгүй байна"
-
-#: ckanext/example_iconfigurer/templates/admin/config.html:11
-msgid "Datasets per page"
-msgstr ""
-
-#: ckanext/example_iconfigurer/templates/admin/config.html:13
-msgid "Test conf"
-msgstr ""
-
-#: ckanext/example_idatasetform/templates/package/search.html:16
-msgid "Custom Field Ascending"
-msgstr ""
-
-#: ckanext/example_idatasetform/templates/package/search.html:17
-msgid "Custom Field Descending"
-msgstr ""
-
-#: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
-#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
-#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
-msgid "Custom Text"
-msgstr "Дурын текст"
-
-#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
-msgid "custom text"
-msgstr "дурын текст"
-
-#: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
-msgid "Country Code"
-msgstr "Улсын код"
-
-#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
-msgid "custom resource text"
-msgstr ""
-
-#: ckanext/example_itranslation/templates/home/index.html:4
-msgid "This is an untranslated string"
-msgstr ""
-
-#: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
-#: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
-msgid "This group has no description"
-msgstr "Бүлэг танилцуулгагүй байна"
-
-#: ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html:4
-msgid "CKAN's data previewing tool has many powerful features"
-msgstr ""
-
-#: ckanext/imageview/theme/templates/image_form.html:3
-msgid "Image url"
-msgstr ""
-
-#: ckanext/imageview/theme/templates/image_form.html:3
-msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
-msgstr ""
-
-#: ckanext/reclineview/plugin.py:101
-msgid "Data Explorer"
-msgstr ""
-
-#: ckanext/reclineview/plugin.py:128
-msgid "Table"
-msgstr ""
-
-#: ckanext/reclineview/plugin.py:171
-msgid "Graph"
-msgstr ""
-
-#: ckanext/reclineview/plugin.py:231
-msgid "Map"
-msgstr ""
-
-#: ckanext/reclineview/theme/public/recline_view.js:34
-msgid "error loading view"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
-#: ckanext/reclineview/theme/templates/recline_map_form.html:3
-msgid "Row offset"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
-#: ckanext/reclineview/theme/templates/recline_map_form.html:3
-msgid "eg: 0"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
-#: ckanext/reclineview/theme/templates/recline_map_form.html:4
-msgid "Number of rows"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
-#: ckanext/reclineview/theme/templates/recline_map_form.html:4
-msgid "eg: 100"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:6
-msgid "Graph type"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:7
-msgid "Group (Axis 1)"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:8
-msgid "Series (Axis 2)"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:6
-msgid "Field type"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:7
-msgid "Latitude field"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:8
-msgid "Longitude field"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:9
-msgid "GeoJSON field"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:10
-msgid "Auto zoom to features"
-msgstr ""
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:11
-msgid "Cluster markers"
-msgstr ""
-
-#: ckanext/stats/templates/ckanext/stats/index.html:10
-msgid "Total number of Datasets"
-msgstr "Өгөгдлийн бүрдлийн нийт тоо"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:17
-#: ckanext/stats/templates/ckanext/stats/index.html:40
-msgid "Date"
-msgstr "Огноо"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:18
-msgid "Total datasets"
-msgstr "Нийт өгөгдлийн бүрдлүүд"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:33
-#: ckanext/stats/templates/ckanext/stats/index.html:179
-msgid "Dataset Revisions per Week"
-msgstr "7 хоног бүрийн өгөгдлийн бүрдлийн засварууд"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:41
-msgid "All dataset revisions"
-msgstr "Өгөгдлийн нийт засварууд"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:42
-msgid "New datasets"
-msgstr "Шинэ өгөгдлийн бүрдлүүд"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:58
-#: ckanext/stats/templates/ckanext/stats/index.html:180
-msgid "Top Rated Datasets"
-msgstr "Өндөр үнэлгээтэй өгөгдлийн бүрдлүүд"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:64
-msgid "Average rating"
-msgstr "Дундаж үнэлгээ"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:65
-msgid "Number of ratings"
-msgstr "Үнэлгээ хийгдсэн тоо"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:79
-msgid "No ratings"
-msgstr "Үнэлгээ байхгүй"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:84
-#: ckanext/stats/templates/ckanext/stats/index.html:181
-msgid "Most Edited Datasets"
-msgstr "Их засварлагдсан өгөгдлийн бүрдлүүд"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:90
-msgid "Number of edits"
-msgstr "Засварлагдсан тоо"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:103
-msgid "No edited datasets"
-msgstr "Засварлагдаагүй өгөгдлийн бүрдлүүд"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:108
-#: ckanext/stats/templates/ckanext/stats/index.html:182
-msgid "Largest Groups"
-msgstr "Хамгийн том бүлгүүд"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:114
-msgid "Number of datasets"
-msgstr "Өгөгдлийн бүрдлүүд"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:127
-msgid "No groups"
-msgstr "Бүлэг байхгүй"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:132
-#: ckanext/stats/templates/ckanext/stats/index.html:183
-msgid "Top Tags"
-msgstr "Шилдэг шошгууд"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:136
-msgid "Tag Name"
-msgstr "Шошгын нэр"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:137
-#: ckanext/stats/templates/ckanext/stats/index.html:157
-msgid "Number of Datasets"
-msgstr "Өгөгдлийн бүрдлийн тоо"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:152
-#: ckanext/stats/templates/ckanext/stats/index.html:184
-msgid "Users Creating Most Datasets"
-msgstr ""
-
-#: ckanext/stats/templates/ckanext/stats/index.html:175
-msgid "Statistics Menu"
-msgstr "Статистикийн цэс"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:178
-msgid "Total Number of Datasets"
-msgstr "Нийт өгөгдлийн бүрдлийн тоо"
-
-#: ckanext/textview/plugin.py:67 ckanext/textview/plugin.py:69
-msgid "Text"
-msgstr ""
-
-#: ckanext/textview/theme/public/text_view.js:5
-#, python-format
-msgid "An error occurred: %(text)s %(error)s"
-msgstr ""
-
-#: ckanext/webpageview/plugin.py:21 ckanext/webpageview/plugin.py:26
-msgid "Website"
-msgstr ""
-
-#: ckanext/webpageview/theme/templates/webpage_form.html:3
-msgid "Web Page url"
-msgstr ""
-
-#: ckanext/webpageview/theme/templates/webpage_form.html:3
-msgid "eg. http://example.com (if blank uses resource url)"
-msgstr ""

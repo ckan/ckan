@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from routes import url_for
+from ckan.lib.helpers import url_for
 from webhelpers.feedgenerator import GeoAtom1Feed
 
 import ckan.plugins as plugins
@@ -17,32 +17,40 @@ class TestFeedNew(helpers.FunctionalTestBase):
 
     def test_atom_feed_page_zero_gives_error(self):
         group = factories.Group()
-        offset = url_for(controller='feed', action='group',
-                         id=group['name']) + '?page=0'
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='group',
+                             id=group['name']) + '?page=0'
         res = app.get(offset, status=400)
         assert '"page" parameter must be a positive integer' in res, res
 
     def test_atom_feed_page_negative_gives_error(self):
         group = factories.Group()
-        offset = url_for(controller='feed', action='group',
-                         id=group['name']) + '?page=-2'
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='group',
+                             id=group['name']) + '?page=-2'
         res = app.get(offset, status=400)
         assert '"page" parameter must be a positive integer' in res, res
 
     def test_atom_feed_page_not_int_gives_error(self):
         group = factories.Group()
-        offset = url_for(controller='feed', action='group',
-                         id=group['name']) + '?page=abc'
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='group',
+                             id=group['name']) + '?page=abc'
         res = app.get(offset, status=400)
         assert '"page" parameter must be a positive integer' in res, res
 
     def test_general_atom_feed_works(self):
         dataset = factories.Dataset()
-        offset = url_for(controller='feed', action='general')
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='general')
         res = app.get(offset)
 
         assert '<title>{0}</title>'.format(dataset['title']) in res.body
@@ -50,9 +58,11 @@ class TestFeedNew(helpers.FunctionalTestBase):
     def test_group_atom_feed_works(self):
         group = factories.Group()
         dataset = factories.Dataset(groups=[{'id': group['id']}])
-        offset = url_for(controller='feed', action='group',
-                         id=group['name'])
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='group',
+                             id=group['name'])
         res = app.get(offset)
 
         assert '<title>{0}</title>'.format(dataset['title']) in res.body
@@ -60,9 +70,11 @@ class TestFeedNew(helpers.FunctionalTestBase):
     def test_organization_atom_feed_works(self):
         group = factories.Organization()
         dataset = factories.Dataset(owner_org=group['id'])
-        offset = url_for(controller='feed', action='organization',
-                         id=group['name'])
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='organization',
+                             id=group['name'])
         res = app.get(offset)
 
         assert '<title>{0}</title>'.format(dataset['title']) in res.body
@@ -74,11 +86,13 @@ class TestFeedNew(helpers.FunctionalTestBase):
         dataset2 = factories.Dataset(
             title='Test daily',
             extras=[{'key': 'frequency', 'value': 'daily'}])
-        offset = url_for(controller='feed', action='custom')
+
+        app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='custom')
         params = {
             'q': 'frequency:weekly'
         }
-        app = self._get_test_app()
         res = app.get(offset, params=params)
 
         assert '<title>{0}</title>'.format(dataset1['title']) in res.body
@@ -100,7 +114,10 @@ class TestFeedInterface(helpers.FunctionalTestBase):
         plugins.unload('test_feed_plugin')
 
     def test_custom_class_used(self):
-        offset = url_for(controller='feed', action='general')
+
+        app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='general')
         app = self._get_test_app()
         res = app.get(offset)
 
@@ -120,7 +137,10 @@ class TestFeedInterface(helpers.FunctionalTestBase):
         ]
 
         factories.Dataset(extras=extras)
-        offset = url_for(controller='feed', action='general')
+
+        app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='general')
         app = self._get_test_app()
         res = app.get(offset)
 

@@ -15,6 +15,8 @@ import sqlalchemy.orm as orm
 from ckan.common import config
 from nose.tools import assert_equals, assert_in
 
+import ckan.tests.helpers as test_helpers
+
 
 class TestDatastoreDump(object):
     sysadmin_user = None
@@ -22,8 +24,8 @@ class TestDatastoreDump(object):
 
     @classmethod
     def setup_class(cls):
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        test_helpers.reset_db()
+        cls.app = test_helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')

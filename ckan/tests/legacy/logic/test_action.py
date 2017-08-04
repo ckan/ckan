@@ -25,6 +25,8 @@ from ckan.logic.action import get_domain_object
 from ckan.tests.legacy import call_action_api
 import ckan.lib.search as search
 
+from ckan.tests import helpers
+
 from ckan import plugins
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 
@@ -774,13 +776,10 @@ class TestAction(WsgiAppCase):
             assert "json" in resource['format'].lower()
 
     def test_package_create_duplicate_extras_error(self):
-        import paste.fixture
-        import pylons.test
 
         # Posting a dataset dict to package_create containing two extras dicts
         # with the same key, should return a Validation Error.
-        app = paste.fixture.TestApp(pylons.test.pylonsapp)
-        error = call_action_api(app, 'package_create',
+        error = call_action_api(self.app, 'package_create',
                 apikey=self.sysadmin_user.apikey, status=409,
                 name='foobar', extras=[{'key': 'foo', 'value': 'bar'},
                     {'key': 'foo', 'value': 'gar'}])
@@ -788,35 +787,29 @@ class TestAction(WsgiAppCase):
         assert error['extras_validation'] == ['Duplicate key "foo"']
 
     def test_package_update_remove_org_error(self):
-        import paste.fixture
-        import pylons.test
 
-        app = paste.fixture.TestApp(pylons.test.pylonsapp)
-        org = call_action_api(app, 'organization_create',
+        org = call_action_api(self.app, 'organization_create',
                 apikey=self.sysadmin_user.apikey, name='myorganization')
-        package = call_action_api(app, 'package_create',
+        package = call_action_api(self.app, 'package_create',
                 apikey=self.sysadmin_user.apikey, name='foobarbaz', owner_org=org['id'])
 
         assert package['owner_org']
         package['owner_org'] = ''
-        res = call_action_api(app, 'package_update',
+        res = call_action_api(self.app, 'package_update',
                 apikey=self.sysadmin_user.apikey, **package)
         assert not res['owner_org'], res['owner_org']
 
     def test_package_update_duplicate_extras_error(self):
-        import paste.fixture
-        import pylons.test
 
         # We need to create a package first, so that we can update it.
-        app = paste.fixture.TestApp(pylons.test.pylonsapp)
-        package = call_action_api(app, 'package_create',
+        package = call_action_api(self.app, 'package_create',
                 apikey=self.sysadmin_user.apikey, name='foobar')
 
         # Posting a dataset dict to package_update containing two extras dicts
         # with the same key, should return a Validation Error.
         package['extras'] = [{'key': 'foo', 'value': 'bar'},
                     {'key': 'foo', 'value': 'gar'}]
-        error = call_action_api(app, 'package_update',
+        error = call_action_api(self.app, 'package_update',
                 apikey=self.sysadmin_user.apikey, status=409, **package)
         assert error['__type'] == 'Validation Error'
         assert error['extras_validation'] == ['Duplicate key "foo"']
