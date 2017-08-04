@@ -265,7 +265,7 @@ Transfer user.sql into the named volume ``docker_ckan_home`` and chown it to the
 
 Now the file ``user.sql`` is accessible from within the ``ckan`` container::
 
-    docker exec -it ckan bash
+    docker exec -it ckan /bin/bash -c "export TERM=xterm; exec bash"
 
     ckan@eca111c06788:/$ psql -U ckan -h db -f $CKAN_VENV/src/user.sql
 
@@ -313,7 +313,7 @@ In this example we'll enter the running ``ckan`` container to install
 and `ckanext-envvars <https://github.com/okfn/ckanext-envvars>`_ from PyPi::
 
     # Enter the running ckan container:
-    docker exec -it ckan bash
+    docker exec -it ckan /bin/bash -c "export TERM=xterm; exec bash"
 
     # Inside the running container, activate the virtualenv
     source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/
@@ -340,7 +340,7 @@ E.g., `ckanext-spatial <https://github.com/ckan/ckanext-spatial.git>`_::
 
 
     # Enter the running ckan container:
-    docker exec -it ckan bash
+    docker exec -it ckan /bin/bash -c "export TERM=xterm; exec bash"
 
     # Inside the running ckan container
     source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/
@@ -402,7 +402,7 @@ inside the container.
 
 Option 1: Accessing the source from inside the container::
 
-    docker exec -it ckan bash
+    docker exec -it ckan /bin/bash -c "export TERM=xterm; exec bash"
     source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/
     # ... work on extensions, use version control ...
     # in extension folder:
