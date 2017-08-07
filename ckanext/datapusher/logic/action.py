@@ -101,7 +101,7 @@ def datapusher_submit(context, data_dict):
                 # likely something went wrong with it and the state wasn't
                 # updated than its still in progress. Let it be restarted.
                 log.info('A pending task was found %r, but it is only %s hours'
-                         'old', existing_task['id'], time_since_last_updated)
+                         ' old', existing_task['id'], time_since_last_updated)
             else:
                 log.info('A pending task was found %s for this resource, so '
                          'skipping this duplicate task', existing_task['id'])

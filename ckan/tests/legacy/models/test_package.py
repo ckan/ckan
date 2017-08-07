@@ -3,6 +3,7 @@
 from nose.tools import assert_equal
 
 from ckan.tests.legacy import *
+from ckan.tests import helpers
 import ckan.model as model
 
 # Todo: More domain logic tests e.g. for isopen() and other domain logic.
@@ -99,8 +100,12 @@ class TestPackage:
         model.Session.remove() # forget change
 
     def test_as_dict(self):
-        pkg = model.Package.by_name(self.name)
-        out = pkg.as_dict()
+        # Internally as_dict calls url_for so we need an application context
+        app = helpers._get_test_app()
+        with app.flask_app.test_request_context():
+
+            pkg = model.Package.by_name(self.name)
+            out = pkg.as_dict()
         assert out['name'] == pkg.name
         assert out['license'] == pkg.license.title
         assert out['license_id'] == pkg.license.id

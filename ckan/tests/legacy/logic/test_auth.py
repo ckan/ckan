@@ -8,6 +8,7 @@ from ckan.logic import get_action
 import ckan.model as model
 import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
+from ckan.tests import helpers
 import json
 
 
@@ -35,7 +36,7 @@ class TestAuth(tests.WsgiAppCase):
 
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
 
     @classmethod
     def teardown_class(cls):
@@ -51,7 +52,7 @@ class TestAuth(tests.WsgiAppCase):
                             params=params,
                             extra_environ={'Authorization': cls.apikeys[user]},
                             status=[200, 403, 409])
-        if res.status != (status or 200):
+        if res.status_int != (status or 200):
             error = json.loads(res.body)['error']
             raise AssertionError('Status was %s but should be %s. Error: %s' %
                                  (res.status, status, error))
@@ -60,7 +61,7 @@ class TestAuth(tests.WsgiAppCase):
     @classmethod
     def create_user(cls, name):
         user = {'name': name,
-                'password': 'pass',
+                'password': 'TestPassword1',
                 'email': 'moo@moo.com'}
         res = cls._call_api('user_create', user, 'sysadmin', 200)
         cls.apikeys[name] = str(json.loads(res.body)['result']['apikey'])
@@ -105,7 +106,7 @@ class TestAuthOrgs(TestAuth):
 
     def test_01_create_users(self):
         user = {'name': 'user_no_auth',
-                'password': 'pass',
+                'password': 'TestPassword1',
                 'email': 'moo@moo.com'}
 
         self._call_api('user_create', user, 'random_key', 403)
@@ -257,7 +258,7 @@ class TestAuthOrgHierarchy(TestAuth):
 
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
 
         CreateTestData.create_arbitrary(
             package_dicts= [{'name': 'adataset',

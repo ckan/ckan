@@ -2,15 +2,16 @@
 
 import ckan.plugins
 import ckanext.multilingual.plugin as mulilingual_plugin
-import ckan.lib.helpers
+
+import ckan.plugins as p
+from ckan.lib.helpers import url_for
 import ckan.lib.create_test_data
 import ckan.logic.action.update
 import ckan.model as model
 import ckan.tests.legacy
 import ckan.tests.legacy.html_check
-import routes
-import paste.fixture
-import pylons.test
+from ckan.tests import helpers
+
 
 _create_test_data = ckan.lib.create_test_data
 
@@ -18,11 +19,18 @@ _create_test_data = ckan.lib.create_test_data
 class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
     'Test the translation of datasets by the multilingual_dataset plugin.'
     @classmethod
-    def setup(cls):
-        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
-        ckan.plugins.load('multilingual_dataset')
-        ckan.plugins.load('multilingual_group')
-        ckan.plugins.load('multilingual_tag')
+    def setup_class(cls):
+        cls.app = helpers._get_test_app()
+
+        if not p.plugin_loaded('multilingual_dataset'):
+            p.load('multilingual_dataset')
+
+        if not p.plugin_loaded('multilingual_group'):
+            p.load('multilingual_group')
+
+        if not p.plugin_loaded('multilingual_tag'):
+            p.load('multilingual_tag')
+
         ckan.tests.legacy.setup_test_search_index()
         _create_test_data.CreateTestData.create_translations_test_data()
 
@@ -55,10 +63,10 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
                     context, data_dict)
 
     @classmethod
-    def teardown(cls):
-        ckan.plugins.unload('multilingual_dataset')
-        ckan.plugins.unload('multilingual_group')
-        ckan.plugins.unload('multilingual_tag')
+    def teardown_class(cls):
+        p.unload('multilingual_dataset')
+        p.unload('multilingual_group')
+        p.unload('multilingual_tag')
         ckan.model.repo.rebuild_db()
         ckan.lib.search.clear_all()
 
@@ -70,29 +78,30 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
 
         # It is testsysadmin who created the dataset, so testsysadmin whom
         # we'd expect to see the datasets for.
-        for user_name in ('testsysadmin',):
-            offset = routes.url_for(
-                controller='user', action='read', id=user_name)
-            for (lang_code, translations) in (
-                    ('de', _create_test_data.german_translations),
-                    ('fr', _create_test_data.french_translations),
-                    ('en', _create_test_data.english_translations),
-                    ('pl', {})):
-                response = self.app.get(
-                    offset,
-                    status=200,
-                    extra_environ={'CKAN_LANG': lang_code,
-                                   'CKAN_CURRENT_URL': offset})
-                terms = ('A Novel By Tolstoy')
-                for term in terms:
-                    if term in translations:
-                        assert translations[term] in response, response
-                    elif term in _create_test_data.english_translations:
-                        assert (_create_test_data.english_translations[term]
-                                in response)
-                    else:
-                        assert term in response
-                assert 'this should not be rendered' not in response
+        with self.app.flask_app.test_request_context():
+            for user_name in ('testsysadmin',):
+                offset = url_for(
+                    controller='user', action='read', id=user_name)
+                for (lang_code, translations) in (
+                        ('de', _create_test_data.german_translations),
+                        ('fr', _create_test_data.french_translations),
+                        ('en', _create_test_data.english_translations),
+                        ('pl', {})):
+                    response = self.app.get(
+                        offset,
+                        status=200,
+                        extra_environ={'CKAN_LANG': lang_code,
+                                       'CKAN_CURRENT_URL': offset})
+                    terms = ('A Novel By Tolstoy')
+                    for term in terms:
+                        if term in translations:
+                            assert translations[term] in response, response
+                        elif term in _create_test_data.english_translations:
+                            assert (_create_test_data.english_translations[term]
+                                    in response)
+                        else:
+                            assert term in response
+                    assert 'this should not be rendered' not in response
 
     def test_org_read_translation(self):
         for (lang_code, translations) in (

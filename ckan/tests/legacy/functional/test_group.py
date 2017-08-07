@@ -95,7 +95,9 @@ class TestGroup(FunctionalTestCase):
 
     def test_read_non_existent(self):
         name = u'group_does_not_exist'
-        offset = url_for(controller='group', action='read', id=name)
+
+        with self.app.flask_app.test_request_context():
+            offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, status=404)
 
 
@@ -131,8 +133,10 @@ class TestRevisions(FunctionalTestCase):
         model.repo.rebuild_db()
 
     def test_2_atom_feed(self):
-        offset = url_for(controller='group', action='history',
-                         id=self.grp.name)
+
+        with self.app.flask_app.test_request_context():
+            offset = url_for(controller='group', action='history',
+                             id=self.grp.name)
         offset = "%s?format=atom" % offset
         res = self.app.get(offset)
         assert '<feed' in res, res
@@ -155,7 +159,9 @@ class TestMemberInvite(FunctionalTestCase):
         group_name = 'a_group'
         CreateTestData.create_groups([{'name': group_name}], user.name)
         group = model.Group.get(group_name)
-        url = url_for(controller='group', action='member_new', id=group.id)
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='group', action='member_new', id=group.id)
         email = 'invited_user@mailinator.com'
         role = 'member'
 

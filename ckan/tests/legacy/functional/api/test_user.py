@@ -13,6 +13,7 @@ from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from ckan.tests.legacy import url_for
 import ckan.config.middleware
 from ckan.common import json
+from ckan.tests import helpers
 
 
 class TestUserApi(ControllerTestCase):
@@ -25,8 +26,12 @@ class TestUserApi(ControllerTestCase):
         model.repo.rebuild_db()
 
     def test_autocomplete(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='user_autocomplete', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='user_autocomplete', ver=2),
+            url,
             params={
                'q': u'sysadmin',
             },
@@ -35,11 +40,15 @@ class TestUserApi(ControllerTestCase):
         print response.json
         assert set(response.json[0].keys()) == set(['id', 'name', 'fullname'])
         assert_equal(response.json[0]['name'], u'testsysadmin')
-        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+        assert_equal(response.headers['Content-Type'], 'application/json;charset=utf-8')
 
     def test_autocomplete_multiple(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='user_autocomplete', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='user_autocomplete', ver=2),
+            url,
             params={
                'q': u'tes',
             },
@@ -49,8 +58,12 @@ class TestUserApi(ControllerTestCase):
         assert_equal(len(response.json), 2)
 
     def test_autocomplete_limit(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='user_autocomplete', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='user_autocomplete', ver=2),
+            url,
             params={
                'q': u'tes',
                'limit': 1
@@ -72,7 +85,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
         cls._original_config = config.copy()
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
 
@@ -88,7 +101,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
         params = {
             'name': 'testinganewusersysadmin',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post(
             '/api/3/action/user_create',
@@ -102,7 +115,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
         params = {
             'name': 'testinganewuseranon',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
                             expect_errors=True)
@@ -122,7 +135,7 @@ class TestCreateUserApiEnabled(PylonsTestCase):
         config['ckan.auth.create_user_via_api'] = True
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         PylonsTestCase.setup_class()
         cls.sysadmin_user = model.User.get('testsysadmin')
 
@@ -138,7 +151,7 @@ class TestCreateUserApiEnabled(PylonsTestCase):
         params = {
             'name': 'testinganewusersysadmin',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post(
             '/api/3/action/user_create',
@@ -151,7 +164,7 @@ class TestCreateUserApiEnabled(PylonsTestCase):
         params = {
             'name': 'testinganewuseranon',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params))
         res_dict = res.json
@@ -170,7 +183,7 @@ class TestCreateUserWebDisabled(PylonsTestCase):
         config['ckan.auth.create_user_via_web'] = False
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
 
@@ -186,7 +199,7 @@ class TestCreateUserWebDisabled(PylonsTestCase):
         params = {
             'name': 'testinganewuser',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
                             expect_errors=True)
@@ -206,7 +219,7 @@ class TestCreateUserWebEnabled(PylonsTestCase):
         config['ckan.auth.create_user_via_web'] = True
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
 
@@ -222,7 +235,7 @@ class TestCreateUserWebEnabled(PylonsTestCase):
         params = {
             'name': 'testinganewuser',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
                             expect_errors=True)
@@ -250,7 +263,7 @@ class TestUserActions(object):
         data_dict = {
             'name': 'a-new-user',
             'email': 'a.person@example.com',
-            'password': 'supersecret',
+            'password': 'TestPassword1',
         }
 
         user_dict = logic.get_action('user_create')(context, data_dict)

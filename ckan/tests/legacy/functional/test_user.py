@@ -42,7 +42,11 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
     @classmethod
     def teardown_class(self):
         # clear routes 'id' so that next test to run doesn't get it
-        self.app.get(url_for(controller='user', action='login', id=None))
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='user', action='login', id=None)
+
+        self.app.get(url)
         SmtpServerHarness.teardown_class()
         model.repo.rebuild_db()
 
@@ -52,19 +56,24 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
     def test_user_delete_redirects_to_user_index(self):
         user = CreateTestData.create_user('a_user')
-        url = url_for(controller='user', action='delete', id=user.id)
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='user', action='delete', id=user.id)
+            redirect_url = url_for(controller='user', action='index',
+                                   qualified=True)
+
         extra_environ = {'REMOTE_USER': 'testsysadmin'}
 
-        redirect_url = url_for(controller='user', action='index',
-                qualified=True)
         res = self.app.get(url, status=302, extra_environ=extra_environ)
 
         assert user.is_deleted(), user
-        assert res.header('Location').startswith(redirect_url), res.header('Location')
+        assert res.headers['Location'].startswith(redirect_url), res.headers['Location']
 
     def test_user_delete_by_unauthorized_user(self):
         user = model.User.by_name(u'annafan')
-        url = url_for(controller='user', action='delete', id=user.id)
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='user', action='delete', id=user.id)
         extra_environ = {'REMOTE_USER': 'an_unauthorized_user'}
 
         self.app.get(url, status=403, extra_environ=extra_environ)
@@ -95,28 +104,36 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
             model.Session.remove()
 
         # not logged in
-        offset = url_for(controller='user', action='read', id=username)
+
+        with self.app.flask_app.test_request_context():
+            offset = url_for(controller='user', action='read', id=username)
         res = self.app.get(offset)
         assert not 'API key' in res
 
-        offset = url_for(controller='user', action='read', id='okfntest')
+
+        with self.app.flask_app.test_request_context():
+            offset = url_for(controller='user', action='read', id='okfntest')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'okfntest'})
         assert user.apikey in res, res
 
     def test_perform_reset_user_password_link_key_incorrect(self):
-        CreateTestData.create_user(name='jack', password='test1')
+        CreateTestData.create_user(name='jack', password='TestPassword1')
         # Make up a key - i.e. trying to hack this
         user = model.User.by_name(u'jack')
-        offset = url_for(controller='user',
+
+        with self.app.flask_app.test_request_context():
+            offset = url_for(controller='user',
                          action='perform_reset',
                          id=user.id,
                          key='randomness') # i.e. incorrect
         res = self.app.get(offset, status=403) # error
 
     def test_perform_reset_user_password_link_key_missing(self):
-        CreateTestData.create_user(name='jack', password='test1')
+        CreateTestData.create_user(name='jack', password='TestPassword1')
         user = model.User.by_name(u'jack')
-        offset = url_for(controller='user',
+
+        with self.app.flask_app.test_request_context():
+            offset = url_for(controller='user',
                          action='perform_reset',
                          id=user.id)  # not, no key specified
         res = self.app.get(offset, status=403) # error
@@ -125,14 +142,16 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
     def test_perform_reset_user_password_link_user_incorrect(self):
         # Make up a key - i.e. trying to hack this
         user = model.User.by_name(u'jack')
-        offset = url_for(controller='user',
+
+        with self.app.flask_app.test_request_context():
+            offset = url_for(controller='user',
                          action='perform_reset',
                          id='randomness',  # i.e. incorrect
                          key='randomness')
         res = self.app.get(offset, status=404)
 
     def test_perform_reset_activates_pending_user(self):
-        password = 'password'
+        password = 'TestPassword1'
         params = { 'password1': password, 'password2': password }
         user = CreateTestData.create_user(name='pending_user',
                                           email='user@email.com')
@@ -140,7 +159,9 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         create_reset_key(user)
         assert user.is_pending(), user.state
 
-        offset = url_for(controller='user',
+
+        with self.app.flask_app.test_request_context():
+            offset = url_for(controller='user',
                          action='perform_reset',
                          id=user.id,
                          key=user.reset_key)
@@ -150,7 +171,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert user.is_active(), user
 
     def test_perform_reset_doesnt_activate_deleted_user(self):
-        password = 'password'
+        password = 'TestPassword1'
         params = { 'password1': password, 'password2': password }
         user = CreateTestData.create_user(name='deleted_user',
                                           email='user@email.com')
@@ -158,7 +179,9 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         create_reset_key(user)
         assert user.is_deleted(), user.state
 
-        offset = url_for(controller='user',
+
+        with self.app.flask_app.test_request_context():
+            offset = url_for(controller='user',
                          action='perform_reset',
                          id=user.id,
                          key=user.reset_key)

@@ -7,63 +7,137 @@
 Changelog
 ---------
 
-v2.7.0 TBA
-==========
+v2.7.0 2017-08-02
+=================
+
+Note: Starting from this version, CKAN requires at least Postgres 9.3
+
+Note: This version requires a requirements upgrade on source installations
+
+Note: This version requires a database upgrade
+
+Note: This version does not require a Solr schema upgrade (You may want to
+         upgrade the schema if you want to target Solr>=5, see #2914)
+
+Note: There are several old features being officially deprecated starting from
+        this version. Check the *Deprecations* section to be prepared.
+
 
 Major:
- * datatables_view resource view plugin (`#3444 <https://github.com/ckan/ckan/pull/3444>`_)
- * IDatastoreBackend plugins for replacing default postgres backend (`#3437 <https://github.com/ckan/ckan/pull/3437>`_)
- * datastore_search new result formats and performance improvements (`#3523 <https://github.com/ckan/ckan/pull/3523>`_)
- * PL/PGSQL triggers for datastore tables (`#3428 <https://github.com/ckan/ckan/pull/3428>`_)
- * Datastore dump CLI commands (`#3384 <https://github.com/ckan/ckan/pull/3384>`_)
- * Wrap/override actions defined in other plugins (`#3494 <https://github.com/ckan/ckan/pull/3494>`_)
- * Datastore table data dictionary stored as postgres comments (`#3414 <https://github.com/ckan/ckan/pull/3414>`_)
- * Common session object for Flask and Pylons (`#3208 <https://github.com/ckan/ckan/pull/3208>`_)
- * Rename deleted datasets when they conflict with new ones (`#3370 <https://github.com/ckan/ckan/pull/3370>`_)
- * Datastore dump more formats: CSV, TSV, XML, JSON; BOM option (`#3390 <https://github.com/ckan/ckan/pull/3390>`_)
- * Common requests code for Flask and Pylons (`#3212 <https://github.com/ckan/ckan/pull/3212>`_)
- * Generate complete datastore dump files (`#3344 <https://github.com/ckan/ckan/pull/3344>`_)
+ * New datatables_view resource view plugin for tabular data (#3444)
+ * IDataStoreBackend plugins for replacing the default DataStore Postgres backend (#3437)
+ * datastore_search new result formats and performance improvements (#3523)
+ * PL/PGSQL triggers for DataStore tables (#3428)
+ * DataStore dump CLI commands (#3384)
+ * Wrap/override actions defined in other plugins (#3494)
+ * DataStore table data dictionary stored as postgres comments (#3414)
+ * Common session object for Flask and Pylons (#3208)
+ * Rename deleted datasets when they conflict with new ones (#3370)
+ * DataStore dump more formats: CSV, TSV, XML, JSON; BOM option (#3390)
+ * Common requests code for Flask and Pylons (#3212)
+ * Generate complete datastore dump files (#3344)
+ * A new system for asynchronous background jobs (#3165)
 
 Minor:
- * Renamed example theme plugin (`#3576 <https://github.com/ckan/ckan/pull/3576>`_)
- * Localization support for groups (`#3559 <https://github.com/ckan/ckan/pull/3559>`_)
- * Create new resource views when format changes (`#3515 <https://github.com/ckan/ckan/pull/3515>`_)
- * Email field validation (`#3568 <https://github.com/ckan/ckan/pull/3568>`_)
- * datastore_run_triggers sysadmin-only action to apply triggers to existing data (`#3565 <https://github.com/ckan/ckan/pull/3565>`_)
- * Docs updated for Ubuntu 16.04 (`#3544 <https://github.com/ckan/ckan/pull/3544>`_)
- * Upgrade leaflet to 0.7.7 (`#3534 <https://github.com/ckan/ckan/pull/3534>`_)
- * Datapusher CLI always-answer-yes option (`#3524 <https://github.com/ckan/ckan/pull/3524>`_)
- * Added docs for all plugin interfaces (`#3519 <https://github.com/ckan/ckan/pull/3519>`_)
- * Datastore dumps nested columns as JSON (`#3487 <https://github.com/ckan/ckan/pull/3487>`_)
- * Faster/optional datastore_search total calculation (`#3467 <https://github.com/ckan/ckan/pull/3467>`_)
- * Faster group_activity_query (`#3466 <https://github.com/ckan/ckan/pull/3466>`_)
- * Faster query performance (`#3430 <https://github.com/ckan/ckan/pull/3430>`_)
- * Marked remaining JS strings translatable (`#3423 <https://github.com/ckan/ckan/pull/3423>`_)
- * Upgrade font-awesome to 4.0.3 (`#3400 <https://github.com/ckan/ckan/pull/3400>`_)
- * group/organization_show include_dataset_count option (`#3385 <https://github.com/ckan/ckan/pull/3385>`_)
- * image_formats config option for image viewer (`#3380 <https://github.com/ckan/ckan/pull/3380>`_)
- * click may now be used for CLI interfaces: use load_config instead of CkanCommand (`#3384 <https://github.com/ckan/ckan/pull/3384>`_)
- * package_search option to return only names/ids (`#3427 <https://github.com/ckan/ckan/pull/3427>`_)
- * user_list all_fields option (`#3353 <https://github.com/ckan/ckan/pull/3353>`_)
- * Error controller may now be overridden (`#3340 <https://github.com/ckan/ckan/pull/3340>`_)
- * Plural translations in JS (`#3211 <https://github.com/ckan/ckan/pull/3211>`_)
- * Support JS translations in extensions (`#3272 <https://github.com/ckan/ckan/pull/3272>`_)
- * Requirements upgraded (`#3305 <https://github.com/ckan/ckan/pull/3305>`_)
- * Dockerfile updates (`#3295 <https://github.com/ckan/ckan/pull/3295>`_)
+ * Renamed example theme plugin (#3576)
+ * Localization support for groups (#3559)
+ * Create new resource views when format changes (#3515)
+ * Email field validation (#3568)
+ * datastore_run_triggers sysadmin-only action to apply triggers to existing data (#3565)
+ * Docs updated for Ubuntu 16.04 (#3544)
+ * Upgrade leaflet to 0.7.7 (#3534)
+ * Datapusher CLI always-answer-yes option (#3524)
+ * Added docs for all plugin interfaces (#3519)
+ * DataStore dumps nested columns as JSON (#3487)
+ * Faster/optional datastore_search total calculation (#3467)
+ * Faster group_activity_query (#3466)
+ * Faster query performance (#3430)
+ * Marked remaining JS strings translatable (#3423)
+ * Upgrade font-awesome to 4.0.3 (#3400)
+ * group/organization_show include_dataset_count option (#3385)
+ * image_formats config option for image viewer (#3380)
+ * click may now be used for CLI interfaces: use load_config instead of CkanCommand (#3384)
+ * package_search option to return only names/ids (#3427)
+ * user_list all_fields option (#3353)
+ * Error controller may now be overridden (#3340)
+ * Plural translations in JS (#3211)
+ * Support JS translations in extensions (#3272)
+ * Requirements upgraded (#3305)
+ * Dockerfile updates (#3295)
+ * Fix activity test to use utcnow (#3644)
+ * Changed required permission from 'update' to 'manage_group' (#3631)
+ * Catch invalid sort param exception (#3630)
+ * Choose direction of recreated package relationship depending on its type (#3626)
+ * Fix render_datetime for dates before year 1900 (#3611)
+ * Fix KeyError in 'package_create' (#3027)
+ * Allow slug preview to work with autocomplete fields (#2501)
+ * Fix filter results button not working for organization/group (#3620)
+ * Allow underscores in URL slug preview on create dataset (#3612)
+ * Fallback to po file translations on ``h.get_translated()`` (#3577)
+ * Fix Fanstatic URL on non-root installs (#3618)
+ * Fixed escaping issues with ``helpers.mail_to`` and datapusher logs
+ * Autocomplete fields are more responsive - 300ms timeout instead of 1s (#3693)
+ * Fixed dataset count display for groups (#3711)
+ * Restrict access to form pages (#3684)
+ * Render_datetime can handle dates before year 1900 (#2228)
 
-API changes and deprecations:
+API changes:
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
    helper) now return all organizations a user belongs to regardless of
    capacity (Admin, Editor or Member), not just the ones where she is an
-   administrator (`#2457 <https://github.com/ckan/ckan/pull/2457>`_)
+   administrator (#2457)
  * ``organization_list_for_user`` (and the ``h.organizations_available()``
    helper) now default to not include package_count. Pass
    include_dataset_count=True if you need the package_count values.
- * ``resource['size']`` will change from string to long integer (`#3205 <https://github.com/ckan/ckan/pull/3205>`_)
- * upgrade Font-Awesome from version 3.2.1 to 4.0.3
-   please refer to
+ * ``resource['size']`` will change from string to long integer (#3205)
+ * Font Awesome has been upgraded from version 3.2.1 to 4.0.3 .Please refer to
    https://github.com/FortAwesome/Font-Awesome/wiki/Upgrading-from-3.2.1-to-4
-   to upgrade your code accordingly.
+   to upgrade your code accordingly if you are using custom themes.
+
+Deprecations:
+
+ * The API versions 1 and 2 (also known as the REST API, ie ``/api/rest/*`` will removed
+   in favour of the version 3 (action API, ``/api/action/*``), which was introduced in
+   CKAN 2.0. The REST API will be removed on CKAN 2.8.
+ * The default theme included in CKAN core will switch to use Bootstrap 3 instead of
+   Bootstrap 2 in CKAN 2.8. The current Bootstrap 2 based templates will still be included
+   in the next CKAN versions, so existing themes will still work. Bootstrap 2 templates will
+   be eventually removed though, so instances are encouraged to update their themes using
+   the available documentation (https://getbootstrap.com/migration/)
+ * The activity stream related actions ending with ``*_list`` (eg ``package_activity_list``)
+   and ``*_html`` (eg ``package_activity_list_html``) will be removed in CKAN 2.8 in favour of
+   more efficient alternatives and are now deprecated.
+ * The legacy revisions controller (ie ``/revisions/*``) will be completely removed in CKAN 2.8.
+ * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
+   jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
+   of course use Celery but they will need to handle the management themselves.
+
+v2.6.3 2017-08-02
+=================
+
+* Fix in organization / group form image URL field (#3661)
+* Fix activity test to use utcnow (#3644)
+* Changed required permission from 'update' to 'manage_group' (#3631)
+* Catch invalid sort param exception (#3630)
+* Choose direction of recreated package relationship depending on its type (#3626)
+* Fix render_datetime for dates before year 1900 (#3611)
+* Fix KeyError in 'package_create' (#3027)
+* Allow slug preview to work with autocomplete fields (#2501)
+* Fix filter results button not working for organization/group (#3620)
+* Allow underscores in URL slug preview on create dataset (#3612)
+* Create new resource view if resource format changed (#3515)
+* Fixed escaping issues with `helpers.mail_to` and datapusher logs
+* Autocomplete fields are more responsive - 300ms timeout instead of 1s (#3693)
+* Fixed dataset count display for groups (#3711)
+* Restrict access to form pages (#3684)
+
+v2.6.2 2017-03-22
+=================
+
+* Use fully qualified urls for reset emails (#3486)
+* Fix edit_resource for resource with draft state (#3480)
+* Tag fix for group/organization pages (#3460)
+* Setting of datastore_active flag moved to separate function (#3481)
 
 v2.6.1 2017-02-22
 =================
@@ -179,6 +253,33 @@ Bug fixes:
 
 API changes and deprecations:
  * Replace `c.__version__` with new helper `h.ckan_version()` (`#3103 <https://github.com/ckan/ckan/pull/3103>`_)
+
+v2.5.6 2017-08-02
+=================
+
+* Fix in organization / group form image URL field (#3661)
+* Fix activity test to use utcnow (#3644)
+* Changed required permission from 'update' to 'manage_group' (#3631)
+* Catch invalid sort param exception (#3630)
+* Choose direction of recreated package relationship depending on its type (#3626)
+* Fix render_datetime for dates before year 1900 (#3611)
+* Fix KeyError in 'package_create' (#3027)
+* Allow slug preview to work with autocomplete fields (#2501)
+* Fix filter results button not working for organization/group (#3620)
+* Allow underscores in URL slug preview on create dataset (#3612)
+* Create new resource view if resource format changed (#3515)
+* Fixed incorrect escaping in `mail_to` and datapusher's log
+* Autocomplete fields are more responsive - 300ms timeout instead of 1s (#3693)
+* Fixed dataset count display for groups (#3711)
+* Restrict access to form pages (#3684)
+
+v2.5.5 2017-03-22
+=================
+
+* Use fully qualified urls for reset emails (#3486)
+* Fix edit_resource for resource with draft state (#3480)
+* Tag fix for group/organization pages (#3460)
+* Setting of datastore_active flag moved to separate function (#3481)
 
 v2.5.4 2017-02-22
 =================
@@ -296,6 +397,48 @@ v2.5.0 2015-12-17
 =================
 
 Cancelled release
+
+v2.4.6 2017-02-22
+=================
+
+ * Use the url_for() helper for datapusher URLs (#2866)
+ * Resource creation date use datetime.utcnow() (#3447)
+ * Fix locale error when using fix ckan.root_path
+ * `render_markdown` breaks links with ampersands
+ * Check group name and id during package creation
+ * Use utcnow() on dashboard_mark_activities_old (#3373)
+ * Fix encoding error on DataStore exception
+ * Datastore doesn't add site_url to resource created via API (#3189)
+ * Fix memberships after user deletion (#3265)
+ * Remove idle database connection (#3260)
+ * Fix package_owner_org_update action when called via the API (#2661)
+
+v2.4.8 2017-08-02
+=================
+
+* Fix in organization / group form image URL field (#3661)
+* Fix activity test to use utcnow (#3644)
+* Changed required permission from 'update' to 'manage_group' (#3631)
+* Catch invalid sort param exception (#3630)
+* Choose direction of recreated package relationship depending on its type (#3626)
+* Fix render_datetime for dates before year 1900 (#3611)
+* Fix KeyError in 'package_create' (#3027)
+* Allow slug preview to work with autocomplete fields (#2501)
+* Fix filter results button not working for organization/group (#3620)
+* Allow underscores in URL slug preview on create dataset (#3612)
+* Create new resource view if resource format changed (#3515)
+* Fixed incorrect escaping in `mail_to`
+* Autocomplete fields are more responsive - 300ms timeout instead of 1s (#3693)
+* Fixed dataset count display for groups (#3711)
+* Restrict access to form pages (#3684)
+
+v2.4.7 2017-03-22
+=================
+
+* Use fully qualified urls for reset emails (#3486)
+* Fix edit_resource for resource with draft state (#3480)
+* Tag fix for group/organization pages (#3460)
+* Fix for package_search context (#3489)
 
 v2.4.6 2017-02-22
 =================

@@ -7326,9 +7326,6 @@ select[multiple].control-large input {
 .form-actions .control-required-message:first-child {
   margin-left: 0;
 }
-.form-actions {
-  overflow: auto;
-}
 @media (min-width: 768px) {
   .form-actions {
     text-align: right;
@@ -8315,6 +8312,12 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
   border-bottom-width: 0;
   margin-bottom: 0;
 }
+.search-form .search-input-group {
+  margin-bottom: 12px;
+}
+.search-form .search-input-group .input-group-btn .btn {
+  margin-top: 25px;
+}
 .tertiary .control-order-by {
   float: none;
   margin: 0;
@@ -9058,7 +9061,6 @@ h4 small {
 }
 .primary .primary {
   float: left;
-  width: 467px;
   margin-left: 0;
   margin-bottom: 20px;
 }
@@ -9069,9 +9071,6 @@ h4 small {
   margin-top: 0;
 }
 .primary .tertiary {
-  float: left;
-  width: 180px;
-  margin-left: 18px;
   margin-bottom: 20px;
 }
 @media (min-width: 768px) {
@@ -9109,6 +9108,8 @@ h4 small {
 .context-info .image img,
 .context-info .image a {
   display: block;
+  width: 100%;
+  height: 100%;
   border-radius: 4px;
 }
 .context-info p {

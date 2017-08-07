@@ -533,6 +533,7 @@ class UserController(base.BaseController):
                 context['reset_password'] = True
                 user_state = user_dict['state']
                 new_password = self._get_form_password()
+                user_dict['password'] = new_password
                 username = request.params.get('name')
                 if (username is not None and username != ''):
                     user_dict['name'] = username
