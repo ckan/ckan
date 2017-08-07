@@ -373,12 +373,12 @@ def make_map():
         m.connect('/dashboard/{offset}', action='dashboard')
         m.connect('user_follow', '/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')
-        m.connect('user_followers', '/user/followers/{id:.*}',
+        m.connect('user_followers', '/user/followers/{id}',
                   action='followers', ckan_icon='users')
-        m.connect('user_edit', '/user/edit/{id:.*}', action='edit',
+        m.connect('user_edit', '/user/edit/{id}', action='edit',
                   ckan_icon='cog')
         m.connect('user_delete', '/user/delete/{id}', action='delete')
-        m.connect('/user/reset/{id:.*}', action='perform_reset')
+        m.connect('/user/reset/{id}', action='perform_reset')
         m.connect('register', '/user/register', action='register')
         m.connect('login', '/user/login', action='login')
         m.connect('/user/_logout', action='logout')
@@ -388,7 +388,7 @@ def make_map():
         m.connect('/user/reset', action='request_reset')
         m.connect('/user/me', action='me')
         m.connect('/user/set_lang/{lang}', action='set_lang')
-        m.connect('user_datasets', '/user/{id:.*}', action='read',
+        m.connect('user_datasets', '/user/{id}', action='read',
                   ckan_icon='sitemap')
         m.connect('user_index', '/user', action='index')
 
