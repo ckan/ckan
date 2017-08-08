@@ -1,0 +1,9 @@
+[submodule "ckanapi"]
+    path = ckanapi
+    url = git://github.com/ckan/ckanapi.git
+[submodule "ckanext-scheming"]
+    path = ckanext-scheming
+    url = git://github.com/ckan/ckanext-scheming.git
+[submodule "ckantoolkit"]
+    path = ckantoolkit
+    url = git://github.com/ckan/ckantoolkit.git
