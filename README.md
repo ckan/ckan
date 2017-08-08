@@ -26,4 +26,4 @@
 
 * Login to `iod-ckan-live`:  `ssh iod-ckan-live.aws.smallmedia.org.uk`
 * Switch to the CKAN user: `sudo su - iod-ckan`
-* `paster ... /etc/ckan/default/ckan.ini`
+* `paster <command> /etc/ckan/default/ckan.ini`
