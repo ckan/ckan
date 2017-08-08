@@ -676,6 +676,23 @@ class TestResourceCreate(object):
         assert 'extras' not in resource
         assert 'someotherkey' not in resource
 
+    @mock.patch("ckan.model.Package.get", wraps=model.Package.get)
+    def test_for_update_was_used(self, package_get):
+        '''
+        :param package_get: Mock function that wraps ckan.model.Package.get
+        :type package_get: mock.Mock
+        '''
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+        }
+        package_get.reset_mock()
+
+        resource = helpers.call_action('resource_create', {}, **params)
+
+        package_get.assert_any_call(resource['package_id'], for_update=True)
+
 
 class TestMemberCreate(object):
     @classmethod

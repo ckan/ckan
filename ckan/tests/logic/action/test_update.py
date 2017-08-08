@@ -1332,6 +1332,23 @@ class TestResourceUpdate(object):
         # View is created
         assert_equals(len(res_views), 1)
 
+    @mock.patch("ckan.model.Package.get", wraps=model.Package.get)
+    def test_for_update_was_used(self, package_get):
+        '''
+        :param package_get: Mock function that wraps ckan.model.Package.get
+        :type package_get: mock.Mock
+        '''
+        resource = factories.Resource(url="http://someurl")
+        package_get.reset_mock()
+
+        modified_resource = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://anotherurl')
+        package_get.assert_any_call(resource['package_id'], for_update=True)
+
+        assert_equals(modified_resource['url'], 'http://anotherurl')
+
+
 
 class TestConfigOptionUpdate(object):
     @classmethod

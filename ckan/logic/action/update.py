@@ -78,6 +78,8 @@ def resource_update(context, data_dict):
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
+    # lock the package record in the db when selected via package_show()
+    context['for_update'] = True
     package_id = resource.package.id
     pkg_dict = _get_action('package_show')(dict(context, return_type='dict'),
         {'id': package_id})
@@ -122,6 +124,8 @@ def resource_update(context, data_dict):
 
     upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
+
+    context.pop('for_update')
 
     resource = _get_action('resource_show')(context, {'id': id})
 

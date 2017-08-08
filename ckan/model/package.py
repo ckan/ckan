@@ -77,12 +77,18 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return meta.Session.query(cls).filter(cls.name.contains(text_query.lower()))
 
     @classmethod
-    def get(cls, reference):
+    def get(cls, reference, for_update=False):
         '''Returns a package object referenced by its id or name.'''
         if not reference:
             return None
 
-        pkg = meta.Session.query(cls).get(reference)
+        query = meta.Session.query(cls)
+
+        # "for_update" is used for resource_create(), resource_update(). They use the package id not name.
+        if for_update:
+            query = query.with_for_update()
+        pkg = query.get(reference)
+
         if pkg == None:
             pkg = cls.by_name(reference)
         return pkg
