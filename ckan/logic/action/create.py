@@ -286,7 +286,7 @@ def resource_create(context, data_dict):
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    # using "for_update" to lock the package record in the db when selected via package_show()
+    # using "for_update" to lock the package record in the db
     pkg_dict = _get_action('package_show')(
         dict(context, return_type='dict', for_update=True),
         {'id': package_id})
