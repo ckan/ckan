@@ -11,7 +11,7 @@
 
 * To create a sysadmin account, run: `paster sysadmin add myusername -c /etc/ckan/default/ckan.ini`
 * If you build a new extension remember to run the installation commands before adding it to plugins list in the config file:
-  1. `. /home/vagrant/bin/activate`
+  1. `. /home/vagrant/bin/activate` (local) or `. /webapps/iod-ckan/bin/activate` if (staging/live)
   2. `cd ckanext-nameofextension/`
   3. `python setup.py develop`
 * To edit your local config file: `sudo vi /etc/ckan/default/ckan.ini`
