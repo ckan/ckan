@@ -1,38 +1,42 @@
 {
   "scheming_version": 1,
   "dataset_type": "dataset",
-  "about": "A reimplementation of the default CKAN dataset schema",
-  "about_url": "http://github.com/ckan/ckanext-scheming",
+  "about": "Iran Open Data reimplementation of the default CKAN dataset schema",
+  "about_url": "http://github.com/smallmedia/iod-ckan",
   "dataset_fields": [
     {
       "field_name": "title",
-      "label": "Custom title",
+      "label": {
+        "en": "Title of Dataset in English",
+        "fa_IR": "Title of Dataset in Farsi"
+      },
       "preset": "title",
-      "form_placeholder": "eg. A descriptive title"
+      "form_placeholder": "eg. A descriptive title for the dataset"
     },
     {
       "field_name": "name",
       "label": "URL",
       "preset": "dataset_slug",
-      "form_placeholder": "eg. my-dataset"
+      "form_placeholder": "eg. my-dataset",
+      "required": true
     },
     {
       "field_name": "notes",
-      "label": "Description",
+      "label": {
+        "en": "Description in English",
+        "fa_IR": "Description in Farsi"
+      },
       "form_snippet": "markdown.html",
-      "form_placeholder": "eg. Some useful notes about the data"
+      "form_placeholder": "eg. Some useful notes about the data",
+      "required": true
     },
     {
       "field_name": "tag_string",
       "label": "Tags",
+      "validators": "tag_length_validator",
       "preset": "tag_string_autocomplete",
-      "form_placeholder": "eg. economy, mental health, government"
-    },
-    {
-      "field_name": "license_id",
-      "label": "License",
-      "form_snippet": "license.html",
-      "help_text": "License definitions and additional information can be found at http://opendefinition.org/"
+      "form_placeholder": "eg. economy, mental health, government",
+      "required": true
     },
     {
       "field_name": "owner_org",
@@ -40,45 +44,69 @@
       "preset": "dataset_organization"
     },
     {
-      "field_name": "url",
-      "label": "Source",
-      "form_placeholder": "http://example.com/dataset.json",
+      "field_name": "date_start_gregorian",
+      "label": "Start Date (Gregorian)",
+      "form_placeholder": "2017-01-20",
+      "preset": "date",
+      "form_snippet": "date.html"
+    },
+    {
+      "field_name": "date_end_gregorian",
+      "label": "End Date (Gregorian)",
+      "form_placeholder": "2017-01-20",
+      "preset": "date",
+      "form_snippet": "date.html"
+    },
+    {
+      "field_name": "date_start_iranian",
+      "label": "Start Date (Iranian)",
+      "form_placeholder": "1395-11-01",
+      "preset": "date",
+      "form_snippet": "date.html"
+    },
+    {
+      "field_name": "date_end_iranian",
+      "label": "End Date (Iranian)",
+      "form_placeholder": "1395-11-01",
+      "preset": "date",
+      "form_snippet": "date.html"
+    },
+    {
+      "field_name": "publisher",
+      "label": "Publisher",
+      "form_placeholder": "The government or other organisation that published this orginally",
+      "display_property": "dc:publisher"
+    },
+    {
+      "field_name": "publisher_url",
+      "label": "Publisher URL",
+      "validators": "url_validator",
+      "form_placeholder": "Home page of publisher",
       "display_property": "foaf:homepage",
       "display_snippet": "link.html"
     },
     {
-      "field_name": "version",
-      "label": "Version",
-      "validators": "ignore_missing unicode package_version_validator",
-      "form_placeholder": "1.0"
+      "field_name": "tag_geographic",
+      "label": "Geographic Scope",
+      "validators": "ignore_missing",
+      "preset": "tag_string_autocomplete",
+      "form_placeholder": "If data is applicable to sub-national level include tags here for geographic/administrative regions"
     },
     {
-      "field_name": "author",
-      "label": "Author",
-      "form_placeholder": "Joe Bloggs",
-      "display_property": "dc:creator"
+      "field_name": "methodology",
+      "label": {
+        "en": "Iran Open Data Methodology in English",
+        "fa_IR": "Iran Open Data Methodology in Farsi"
+      },
+      "form_snippet": "markdown.html",
+      "form_placeholder": "Specify the process used to acquire, aggregate and clean data in any of the resources"
     },
     {
-      "field_name": "author_email",
-      "label": "Author Email",
-      "form_placeholder": "joe@example.com",
-      "display_property": "dc:creator",
-      "display_snippet": "email.html",
-      "display_email_name_field": "author"
-    },
-    {
-      "field_name": "maintainer",
-      "label": "Maintainer",
-      "form_placeholder": "Joe Bloggs",
-      "display_property": "dc:contributor"
-    },
-    {
-      "field_name": "maintainer_email",
-      "label": "Maintainer Email",
-      "form_placeholder": "joe@example.com",
-      "display_property": "dc:contributor",
-      "display_snippet": "email.html",
-      "display_email_name_field": "maintainer"
+      "field_name": "license_id",
+      "label": "License",
+      "form_snippet": "license.html",
+      "help_text": "License definitions and additional information can be found at http://opendefinition.org/",
+      "required": true
     }
   ],
   "resource_fields": [
