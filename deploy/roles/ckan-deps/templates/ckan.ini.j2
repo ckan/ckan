@@ -96,7 +96,23 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore datapusher
+ckan.plugins = stats text_view image_view recline_view datastore datapusher iod_theme scheming_datasets
+
+#   module-path:file to schemas being used
+scheming.dataset_schemas = ckanext.iod_theme:iod_dataset.json
+
+#   will try to load "spatialx_schema.json" and "spatialxy_schema.json"
+#   as dataset schemas
+#
+#   URLs may also be used, e.g:
+#
+# scheming.dataset_schemas = http://example.com/spatialx_schema.json
+
+#   Preset files may be included as well. The default preset setting is:
+scheming.presets = ckanext.scheming:presets.json
+
+#   The is_fallback setting may be changed as well. Defaults to false:
+scheming.dataset_fallback = false
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
