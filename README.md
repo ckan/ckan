@@ -2,8 +2,8 @@
 # Small Media CKAN Notes
 
 
-1. `vagrant up` should get you a working local install.
-2. `vagrant ssh` to login to the vagrant machine.
+1. `vagrant up` should get you a working local install
+2. `vagrant ssh` to login to the vagrant machine
 3. From the `/vagrant` directory (which is the default), run `paster serve /etc/ckan/default/ckan.ini`
 4. Visit the app at http://192.168.33.10:5000/
 
@@ -14,8 +14,7 @@
   1. `. /home/vagrant/bin/activate` (local) or `. /webapps/iod-ckan/bin/activate` (staging/live)
   2. `cd ckanext-nameofextension/`
   3. `python setup.py develop`
-* To edit your local config file: `sudo vi /etc/ckan/default/ckan.ini`
-
+* To edit your local config file: `sudo vi /etc/ckan/default/ckan.ini`. On staging/live machine exit from CKAN user first
 
 ## Deploy to iod-ckan-live
 
@@ -27,3 +26,4 @@
 * Login to `iod-ckan-live`:  `ssh iod-ckan-live.aws.smallmedia.org.uk`
 * Switch to the CKAN user: `sudo su - iod-ckan`
 * `paster <command> /etc/ckan/default/ckan.ini`
+* If server not running: `sudo service supervisor restart` (exit from CKAN user first)
