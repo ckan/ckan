@@ -78,10 +78,10 @@ def resource_update(context, data_dict):
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
-    # lock the package record in the db when selected via package_show()
-    context['for_update'] = True
     package_id = resource.package.id
-    pkg_dict = _get_action('package_show')(dict(context, return_type='dict'),
+
+    # using "for_update" to lock the package record in the db when selected via package_show()
+    pkg_dict = _get_action('package_show')(dict(context, return_type='dict', for_update=True),
         {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
@@ -124,8 +124,6 @@ def resource_update(context, data_dict):
 
     upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
-
-    context.pop('for_update')
 
     resource = _get_action('resource_show')(context, {'id': id})
 

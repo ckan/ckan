@@ -286,11 +286,9 @@ def resource_create(context, data_dict):
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    # lock the package record in the db when selected via package_show()
-    context['for_update'] = True
-
+    # using "for_update" to lock the package record in the db when selected via package_show()
     pkg_dict = _get_action('package_show')(
-        dict(context, return_type='dict'),
+        dict(context, return_type='dict', for_update=True),
         {'id': package_id})
 
     _check_access('resource_create', context, data_dict)
@@ -330,7 +328,6 @@ def resource_create(context, data_dict):
                   uploader.get_max_resource_size())
 
     model.repo.commit()
-    context.pop('for_update')
 
     #  Run package show again to get out actual last_resource
     updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
