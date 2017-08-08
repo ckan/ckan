@@ -1342,12 +1342,11 @@ class TestResourceUpdate(object):
         package_get.reset_mock()
 
         modified_resource = helpers.call_action('resource_update',
-                                           id=resource['id'],
-                                           url='http://anotherurl')
+                                                id=resource['id'],
+                                                url='http://anotherurl')
         package_get.assert_any_call(resource['package_id'], for_update=True)
 
         assert_equals(modified_resource['url'], 'http://anotherurl')
-
 
 
 class TestConfigOptionUpdate(object):
