@@ -151,6 +151,12 @@ def redirect_to(*args, **kw):
 
         toolkit.redirect_to('dataset_read', id='changed')
 
+    If given a single string as argument, this redirects without url parsing
+
+        toolkit.redirect_to('http://example.com')
+        toolkit.redirect_to('/dataset')
+        toolkit.redirect_to('/some/other/path')
+
     '''
     if are_there_flash_messages():
         kw['__no_cache__'] = True
@@ -158,7 +164,19 @@ def redirect_to(*args, **kw):
     # Routes router doesn't like unicode args
     uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
                 args)
-    _url = url_for(*uargs, **kw)
+
+    _url = ''
+    skip_url_parsing = False
+    parse_url = kw.pop('parse_url', False)
+    if uargs and len(uargs) is 1 and isinstance(uargs[0], basestring) \
+            and (uargs[0].startswith('/') or is_url(uargs[0])) \
+            and parse_url is False:
+        skip_url_parsing = True
+        _url = uargs[0]
+
+    if skip_url_parsing is False:
+        _url = url_for(*uargs, **kw)
+
     if _url.startswith('/'):
         _url = str(config['ckan.site_url'].rstrip('/') + _url)
 
