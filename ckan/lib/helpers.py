@@ -155,7 +155,7 @@ def redirect_to(*args, **kw):
 
     # If args contain full url eg. http://example.com or url starting with root_path skip url parsing
     if args and (is_url(args[0]) or ( root_path and args[0].startswith(root_path))) :
-        _routes_redirect_to(args[0])
+        return _routes_redirect_to(args[0])
 
     if are_there_flash_messages():
         kw['__no_cache__'] = True
