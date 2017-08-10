@@ -159,14 +159,16 @@ def redirect_to(*args, **kw):
     # Routes router doesn't like unicode args
     uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
                 args)
-    
+
     # Remove LANG from root_path so that we do not need to parse locales
     root_path = config.get('ckan.root_path', None)
     if root_path:
         root_path = re.sub('/{{LANG}}', '', root_path)
 
-    # If args contain full url eg. http://example.com or url starting with root_path skip url parsing
-    if uargs and (is_url(uargs[0]) or ( root_path and uargs[0].startswith(root_path))) :
+    # If args contain full url eg. http://example.com
+    # or url starting with root_path skip url parsing
+    if uargs and (is_url(uargs[0])
+                  or (root_path and uargs[0].startswith(root_path))):
         return _routes_redirect_to(uargs[0])
 
     _url = url_for(*uargs, **kw)
