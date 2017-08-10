@@ -19,16 +19,19 @@ import urlparse
 from urllib import urlencode
 
 from paste.deploy import converters
-from webhelpers.html import HTML, literal, tags
+from webhelpers.html import HTML, literal, tags, tools
 from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
 from markdown import markdown
 from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
-from ckan.common import config
-from routes import redirect_to as _redirect_to
+from ckan.common import config, is_flask_request
+from flask import redirect as _flask_redirect
+from routes import redirect_to as _routes_redirect_to
 from routes import url_for as _routes_default_url_for
+from flask import url_for as _flask_default_url_for
+from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
 
 import ckan.exceptions
@@ -148,18 +151,30 @@ def redirect_to(*args, **kw):
         toolkit.redirect_to('dataset_read', id='changed')
 
     '''
+    if are_there_flash_messages():
+        kw['__no_cache__'] = True
+
+    # Routes router doesn't like unicode args
+    uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
+                args)
+    
     # Remove LANG from root_path so that we do not need to parse locales
     root_path = config.get('ckan.root_path', None)
     if root_path:
         root_path = re.sub('/{{LANG}}', '', root_path)
 
     # If args contain full url eg. http://example.com or url starting with root_path skip url parsing
-    if args and (is_url(args[0]) or ( root_path and args[0].startswith(root_path))) :
-        return _routes_redirect_to(args[0])
+    if uargs and (is_url(uargs[0]) or ( root_path and uargs[0].startswith(root_path))) :
+        return _routes_redirect_to(uargs[0])
 
-    if are_there_flash_messages():
-        kw['__no_cache__'] = True
-    return _redirect_to(url_for(*args, **kw))
+    _url = url_for(*uargs, **kw)
+    if _url.startswith('/'):
+        _url = str(config['ckan.site_url'].rstrip('/') + _url)
+
+    if is_flask_request():
+        return _flask_redirect(_url)
+    else:
+        return _routes_redirect_to(_url)
 
 
 @maintain.deprecated('h.url is deprecated please use h.url_for')
