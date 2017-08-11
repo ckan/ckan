@@ -25,7 +25,7 @@
         </thead>
         {% for f in ddict %}
           <tr>
-            {% block resource_data_dictionary_items %}
+            {% block resource_data_dictionary_list %}
             <td>{{ f.id }}</td>
             <td>{{ f.type }}</td>
             <td>{{ h.get_translated(f.get('info', {}), 'label') }}</td>
