@@ -13,7 +13,6 @@
   <form method="post" action="{{ action }}" >
     {% block dictionary_form %}
       {% for f in fields %}
-        {% block dictionary_fields %}
           <h3>{{ _( "Field {num}.").format(num=loop.index) }} {{ f.id }} ({{ f.type }})</h3>
           {{ form.select('info__' ~ loop.index ~ '__type_override',
             label=_('Type Override'), options=[
@@ -28,7 +27,6 @@
           {{ form.markdown('info__' ~ loop.index ~ '__notes',
             label=_('Description'), id='field-d' ~ loop.index ~ 'notes',
             value=f.get('info', {}).get('notes', '')) }}
-        {% endblock %}
       {% endfor %}
     {% endblock %}
     <button class="btn btn-primary" name="save" type="submit">
