@@ -5,13 +5,30 @@
   "about_url": "http://github.com/smallmedia/iod-ckan",
   "dataset_fields": [
     {
-      "field_name": "title",
+      "field_name": "title_en",
       "label": {
-        "en": "Title of Dataset in English",
-        "fa_IR": "Title of Dataset in Farsi"
+        "en": "Title of Dataset for English in English",
+        "fa_IR": "Title of Dataset for English in Farsi"
       },
-      "preset": "title",
-      "form_placeholder": "eg. A descriptive title for the dataset"
+      "preset": "title_en",
+      "form_placeholder": {
+        "en": "Dataset placeholder for English in English",
+        "fa_IR": "Dataset placeholder for English in Farsi"
+      },
+      "required": true
+    },
+    {
+      "field_name": "title_fa",
+      "label": {
+        "en": "Title of Dataset for Farsi in English",
+        "fa_IR": "Title of Dataset for Farsi in Farsi"
+      },
+      "preset": "title_fa",
+      "form_placeholder": {
+        "en": "Dataset placeholder for Farsi in English",
+        "fa_IR": "Dataset placeholder for Farsi in Farsi"
+      },
+      "required": true
     },
     {
       "field_name": "name",
@@ -21,91 +38,158 @@
       "required": true
     },
     {
-      "field_name": "notes",
+      "field_name": "notes_en",
       "label": {
-        "en": "Description in English",
-        "fa_IR": "Description in Farsi"
+        "en": "Description for English in English",
+        "fa_IR": "Description for English in Farsi"
       },
       "form_snippet": "markdown.html",
-      "form_placeholder": "eg. Some useful notes about the data",
+      "form_placeholder": {
+        "en": "Description placeholder for English in English",
+        "fa_IR": "Description placeholder for English in Farsi"
+      },
       "required": true
+    },
+    {
+      "field_name": "notes_fa",
+      "label": {
+        "en": "Description for Farsi in English",
+        "fa_IR": "Description for Farsi in Farsi"
+      },
+      "form_snippet": "markdown.html",
+      "form_placeholder": {
+        "en": "Description placeholder for Farsi in English",
+        "fa_IR": "Description placeholder for Farsi in Farsi"
+      },
+      "required": true
+    },
+    {
+      "field_name": "theme_string",
+      "label": {
+        "en": "Themes in English",
+        "fa_IR": "Themes in Farsi"
+      },
+      "preset": "tag_required_autocomplete",
+      "validators": "not_empty",
+      "required": true,
+      "form_placeholder": {
+        "en": "eg. Themes placeholder in English",
+        "fa_IR": "eg. Themes placeholder in Farsi"
+      }
     },
     {
       "field_name": "tag_string",
-      "label": "Tags",
-      "preset": "tag_string_autocomplete",
-      "validators": "not_empty",
-      "form_placeholder": "eg. economy, mental health, government",
-      "required": true
+      "label": {
+        "en": "Tags in English",
+        "fa_IR": "Tags in Farsi"
+      },
+      "preset": "tag_required_autocomplete",
+      "required": true,
+      "form_placeholder": {
+        "en": "eg. Tags placeholder in English",
+        "fa_IR": "eg. Tags placeholder in Farsi"
+      }
     },
     {
       "field_name": "owner_org",
-      "label": "Organization",
+      "label": {
+        "en": "Organization in English",
+        "fa_IR": "Organization in Farsi"
+      },
       "preset": "dataset_organization"
     },
     {
       "field_name": "date_start_gregorian",
-      "label": "Start Date (Gregorian)",
+      "label": {
+        "en": "Start Date (Gregorian) in English",
+        "fa_IR": "Start Date (Gregorian) in Farsi"
+      },
       "form_placeholder": "2017-01-20",
-      "preset": "date",
-      "form_snippet": "date.html"
+      "preset": "date"
     },
     {
       "field_name": "date_end_gregorian",
-      "label": "End Date (Gregorian)",
+      "label": {
+        "en": "End Date (Gregorian) in English",
+        "fa_IR": "End Date (Gregorian) in Farsi"
+      },
       "form_placeholder": "2017-01-20",
-      "preset": "date",
-      "form_snippet": "date.html"
+      "preset": "date"
     },
     {
       "field_name": "date_start_iranian",
-      "label": "Start Date (Iranian)",
+      "label": {
+        "en": "Start Date (Iranian) in English",
+        "fa_IR": "Start Date (Iranian) in Farsi"
+      },
       "form_placeholder": "1395-11-01",
-      "preset": "date",
-      "form_snippet": "date.html"
+      "preset": "date"
     },
     {
       "field_name": "date_end_iranian",
-      "label": "End Date (Iranian)",
+      "label": {
+        "en": "End Date (Iranian) in English",
+        "fa_IR": "End Date (Iranian) in Farsi"
+      },
       "form_placeholder": "1395-11-01",
-      "preset": "date",
-      "form_snippet": "date.html"
+      "preset": "date"
     },
     {
       "field_name": "publisher",
-      "label": "Publisher",
-      "form_placeholder": "The government or other organisation that published this orginally",
-      "display_property": "dc:publisher"
+      "label": {
+        "en": "Publisher in English",
+        "fa_IR": "Publisher in Farsi"
+      },
+      "form_placeholder": {
+        "en": "Publisher placeholder in English",
+        "fa_IR": "Publisher placeholder in Farsi"
+      }
     },
     {
       "field_name": "publisher_url",
-      "label": "Publisher URL",
+      "label": {
+        "en": "Publisher URL in English",
+        "fa_IR": "Publisher URL in Farsi"
+      },
       "validators": "url_validator",
-      "form_placeholder": "Home page of publisher",
+      "form_placeholder": {
+        "en": "Publisher URL placeholder in English",
+        "fa_IR": "Publisher URL placeholder in Farsi"
+      },
       "display_property": "foaf:homepage",
       "display_snippet": "link.html"
     },
     {
-      "field_name": "tag_geographic",
+      "field_name": "geographic_string",
       "label": "Geographic Scope",
-      "validators": "ignore_missing",
-      "preset": "tag_string_autocomplete",
-      "form_placeholder": "If data is applicable to sub-national level include tags here for geographic/administrative regions"
+      "label": {
+        "en": "Geographic Scope in English",
+        "fa_IR": "Geographic Scope in Farsi"
+      },
+      "preset": "tag_autocomplete",
+      "form_placeholder": {
+        "en": "Geographic Scope placeholder in English",
+        "fa_IR": "Geographic Scope placeholder in Farsi"
+      }
     },
     {
       "field_name": "methodology",
       "label": {
-        "en": "Iran Open Data Methodology in English",
-        "fa_IR": "Iran Open Data Methodology in Farsi"
-      },
-      "form_snippet": "markdown.html",
-      "form_placeholder": "Specify the process used to acquire, aggregate and clean data in any of the resources"
+        "en": "Methodology in English",
+        "fa_IR": "Methodology in Farsi"
+      }
     },
     {
       "field_name": "license_id",
-      "label": "License",
+      "label": {
+        "en": "License in English",
+        "fa_IR": "License in Farsi"
+      },
       "form_snippet": "license.html",
-      "help_text": "License definitions and additional information can be found at http://opendefinition.org/",
+      "help_text": {
+        "en": "License definitions and additional information can be found at http://opendefinition.org/ in English",
+        "fa_IR": "License definitions and additional information can be found at http://opendefinition.org/ in Farsi"
+      },
       "required": true
     }
   ],

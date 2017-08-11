@@ -1,0 +1,143 @@
+{
+  "scheming_presets_version": 1,
+  "about": "Iran Open Data scheming field presets",
+  "about_url": "http://github.com/smallmedia/iod-ckan",
+  "presets": [
+    {
+      "preset_name": "title_en",
+      "values": {
+        "validators": "if_empty_same_as(name) unicode",
+        "form_snippet": "large_text.html",
+        "form_attrs": {
+          "data-module": "slug-preview-target"
+        }
+      }
+    },
+    {
+      "preset_name": "title_fa",
+      "values": {
+        "validators": "if_empty_same_as(name) unicode",
+        "form_snippet": "large_text.html"
+      }
+    },
+    {
+      "preset_name": "dataset_slug",
+      "values": {
+        "validators": "not_empty unicode name_validator package_name_validator",
+        "form_snippet": "slug.html"
+      }
+    },
+    {
+      "preset_name": "tag_string_autocomplete",
+      "values": {
+        "validators": "not_empty tag_string_convert",
+        "form_attrs": {
+          "data-module": "autocomplete",
+          "data-module-tags": "",
+          "data-module-source": "/api/2/util/tag/autocomplete?incomplete=?"
+        }
+      }
+    },
+    {
+      "preset_name": "tag_required_autocomplete",
+      "values": {
+        "validators": "not_empty tag_string_convert",
+        "form_attrs": {
+          "data-module": "autocomplete",
+          "data-module-tags": "",
+          "data-module-source": "/api/2/util/tag/autocomplete?incomplete=?"
+        }
+      }
+    },
+    {
+      "preset_name": "tag_autocomplete",
+      "values": {
+        "validators": "ignore_missing tag_string_convert",
+        "form_attrs": {
+          "data-module": "autocomplete",
+          "data-module-tags": "",
+          "data-module-source": "/api/2/util/tag/autocomplete?incomplete=?"
+        }
+      }
+    },
+    {
+      "preset_name": "dataset_organization",
+      "values": {
+        "validators": "owner_org_validator unicode",
+        "form_snippet": "organization.html"
+      }
+    },
+    {
+      "preset_name": "resource_url_upload",
+      "values": {
+        "validators": "not_empty unicode remove_whitespace",
+        "form_snippet": "upload.html",
+        "form_placeholder": "http://example.com/my-data.csv",
+        "upload_field": "upload",
+        "upload_clear": "clear_upload",
+        "upload_label": "File"
+      }
+    },
+    {
+      "preset_name": "resource_format_autocomplete",
+      "values": {
+        "validators": "if_empty_guess_format ignore_missing clean_format unicode",
+        "form_placeholder": "eg. CSV, XML or JSON",
+        "form_attrs": {
+          "data-module": "autocomplete",
+          "data-module-source": "/api/2/util/resource/format_autocomplete?incomplete=?"
+        }
+      }
+    },
+    {
+      "preset_name": "select",
+      "values": {
+        "form_snippet": "select.html",
+        "display_snippet": "select.html",
+        "validators": "scheming_required scheming_choices"
+      }
+    },
+    {
+      "preset_name": "multiple_checkbox",
+      "values": {
+        "form_snippet": "multiple_checkbox.html",
+        "display_snippet": "multiple_choice.html",
+        "validators": "scheming_multiple_choice",
+        "output_validators": "scheming_multiple_choice_output"
+      }
+    },
+    {
+      "preset_name": "multiple_select",
+      "values": {
+        "form_snippet": "multiple_select.html",
+        "display_snippet": "multiple_choice.html",
+        "validators": "scheming_multiple_choice",
+        "output_validators": "scheming_multiple_choice_output"
+      }
+    },
+    {
+      "preset_name": "date",
+      "values": {
+        "form_snippet": "date.html",
+        "display_snippet": "date.html",
+        "validators": "scheming_required isodate convert_to_json_if_date"
+      }
+    },
+    {
+      "preset_name": "datetime",
+      "values": {
+        "form_snippet": "datetime.html",
+        "display_snippet": "datetime.html",
+        "validators": "scheming_isodatetime convert_to_json_if_datetime"
+      }
+    },
+    {
+      "preset_name": "datetime_tz",
+      "values": {
+        "form_snippet": "datetime_tz.html",
+        "display_snippet": "datetime_tz.html",
+        "validators": "scheming_isodatetime_tz convert_to_json_if_datetime"
+      }
+    }
+  ]
+}
