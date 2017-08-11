@@ -172,11 +172,16 @@ def redirect_to(*args, **kw):
                    '/user/logged_in']
     matching = [s for s in uargs if any(xs in s for xs in exempt_urls)]
 
+    _url = ''
+    skip_url_parsing = False
     if uargs and len(uargs) is 1 and isinstance(uargs[0], basestring) \
         and uargs[0].startswith('/') and len(matching) is 0:
-        return _routes_redirect_to(uargs[0])
+        skip_url_parsing = True
+        _url = uargs[0]
 
-    _url = url_for(*uargs, **kw)
+    if skip_url_parsing is False:
+        _url = url_for(*uargs, **kw)
+
     if _url.startswith('/'):
         _url = str(config['ckan.site_url'].rstrip('/') + _url)
 
