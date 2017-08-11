@@ -156,6 +156,7 @@ def redirect_to(*args, **kw):
 
         toolkit.redirect_to('http://example.com')
         toolkit.redirect_to('/dataset')
+        toolkit.redirect_to('/some/other/path')
 
     '''
     if are_there_flash_messages():
@@ -172,7 +173,7 @@ def redirect_to(*args, **kw):
     matching = [s for s in uargs if any(xs in s for xs in exempt_urls)]
 
     if uargs and len(uargs) is 1 and isinstance(uargs[0], basestring) \
-        and len(matching) is 0:
+        and uargs[0].startswith('/') and len(matching) is 0:
         return _routes_redirect_to(uargs[0])
 
     _url = url_for(*uargs, **kw)
