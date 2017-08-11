@@ -34,6 +34,7 @@
       "field_name": "tag_string",
       "label": "Tags",
       "preset": "tag_string_autocomplete",
+      "validators": "not_empty",
       "form_placeholder": "eg. economy, mental health, government",
       "required": true
     },
