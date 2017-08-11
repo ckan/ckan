@@ -152,6 +152,11 @@ def redirect_to(*args, **kw):
 
         toolkit.redirect_to('dataset_read', id='changed')
 
+    If given a single string as argument, this redirects without url parsing
+
+        toolkit.redirect_to('http://example.com')
+        toolkit.redirect_to('/dataset')
+
     '''
     if are_there_flash_messages():
         kw['__no_cache__'] = True
@@ -160,15 +165,14 @@ def redirect_to(*args, **kw):
     uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
                 args)
 
-    # Remove LANG from root_path so that we do not need to parse locales
-    root_path = config.get('ckan.root_path', None)
-    if root_path:
-        root_path = re.sub('/{{LANG}}', '', root_path)
+    # Repoze.who redirects with single strings
+    # which need to be parsed by url_for
+    exempt_urls = ['/user/logout', '/user/logged_out_redirect',
+                   '/user/logged_in']
+    matching = [s for s in uargs if any(xs in s for xs in exempt_urls)]
 
-    # If args contain full url eg. http://example.com
-    # or url starting with root_path skip url parsing
-    if uargs and (is_url(uargs[0])
-                  or (root_path and uargs[0].startswith(root_path))):
+    if uargs and len(uargs) is 1 and isinstance(uargs[0], basestring) \
+        and len(matching) is 0:
         return _routes_redirect_to(uargs[0])
 
     _url = url_for(*uargs, **kw)
