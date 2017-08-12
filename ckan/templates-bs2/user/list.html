@@ -1,0 +1,33 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('All Users') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{{ h.nav_link(_('Users'), controller='user', action='index') }}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">
+        {% block page_heading %}{{ _('Users') }}{% endblock %}
+      </h1>
+      {% block users_list %}
+        <ul class="user-list">
+          {% block users_list_inner %}
+            {% for user in c.page.items %}
+              <li>{{ h.linked_user(user['name'], maxlength=20) }}</li>
+            {% endfor %}
+          {% endblock %}
+        </ul>
+      {% endblock %}
+    </div>
+    {% block page_pagination %}
+      {{ c.page.pager(q=c.q, order_by=c.order_by) }}
+    {% endblock %}
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet 'user/snippets/user_search.html' %}
+{% endblock %}

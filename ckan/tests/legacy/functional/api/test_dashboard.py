@@ -12,6 +12,8 @@ from ckan.common import json
 import paste
 import pylons.test
 from ckan.tests.legacy import CreateTestData
+from ckan.tests import helpers
+
 
 class TestDashboard(object):
     '''Tests for the logic action functions related to the user's dashboard.'''
@@ -22,7 +24,7 @@ class TestDashboard(object):
         params = json.dumps({
             'name': 'mr_new_user',
             'email': 'mr@newuser.com',
-            'password': 'iammrnew',
+            'password': 'TestPassword1',
             })
         response = cls.app.post('/api/action/user_create', params=params,
                 extra_environ={'Authorization': str(cls.testsysadmin['apikey'])})
@@ -32,9 +34,10 @@ class TestDashboard(object):
 
     @classmethod
     def setup_class(cls):
+        ckan.model.repo.rebuild_db()
         ckan.lib.search.clear_all()
         CreateTestData.create()
-        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        cls.app = helpers._get_test_app()
         joeadmin = ckan.model.User.get('joeadmin')
         cls.joeadmin = {
                 'id': joeadmin.id,

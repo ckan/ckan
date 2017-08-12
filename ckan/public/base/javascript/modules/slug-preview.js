@@ -40,7 +40,7 @@ this.ckan.module('slug-preview-slug', function (jQuery) {
       var _ = sandbox.translate;
 
       var slug = el.slug();
-      var parent = slug.parents('.control-group');
+      var parent = slug.parents('.form-group');
       var preview;
 
       if (!(parent.length)) {

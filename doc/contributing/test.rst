@@ -71,12 +71,13 @@ Configure Solr Multi-core
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The tests assume that Solr is configured 'multi-core', whereas the default
-Solr set-up is often 'single-core'. You can ask Solr how many cores it has
-configured::
+Solr set-up is often 'single-core'. You can ask Solr for its cores status::
 
     curl -s 'http://127.0.0.1:8983/solr/admin/cores?action=STATUS' |python -c 'import sys;import xml.dom.minidom;s=sys.stdin.read();print xml.dom.minidom.parseString(s).toprettyxml()'
 
-You can also tell from your ckan config::
+Each core will be within a child from the ``<lst name="status"`` element, and contain a ``<str name="instanceDir">`` element.
+
+You can also tell from your ckan config (assuming ckan is working)::
 
     grep solr_url /etc/ckan/default/production.ini
     # single-core: solr_url = http://127.0.0.1:8983/solr
@@ -92,13 +93,22 @@ To enable multi-core:
 
        sudo cp -r /usr/share/solr/ /etc/solr/ckan
 
-3. Configure Solr with the new core::
+3. Find your solr.xml. It is in the Solr Home directory given by this command::
 
-       curl 'http://localhost:8983/solr/admin/cores?action=CREATE&name=ckan&instanceDir=/etc/solr/ckan'
+       curl -s 'http://127.0.0.1:8983/solr/admin/' | grep SolrHome
 
-   If successful the status should be 0 - some XML containing: ``<int name="status">0</int>``
+4. Configure Solr with the new core by editing ``solr.xml``. The 'cores' section will have one 'core' in it already and needs the second one 'ckan' added so it looks like this::
 
-4. Edit your main ckan config (e.g. |development.ini|) and adjust the solr_url to match::
+       <cores adminPath="/admin/cores" defaultCoreName="collection1">
+         <core name="collection1" instanceDir="." />
+         <core name="ckan" instanceDir="/etc/solr/ckan" />
+       </cores>
+
+5. Restart Solr by restarting Jetty (or Tomcat)::
+
+       sudo service jetty restart
+
+6. Edit your main ckan config (e.g. |development.ini|) and adjust the solr_url to match::
 
        solr_url = http://127.0.0.1:8983/solr/ckan
 

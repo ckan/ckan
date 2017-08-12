@@ -39,3 +39,4 @@ features by developing your own CKAN extensions.
    plugins-toolkit
    validators
    translating-extensions
+   flask-migration

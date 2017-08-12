@@ -24,7 +24,7 @@ this.ckan.module('autocomplete', function (jQuery) {
       label: false,
       items: 10,
       source: null,
-      interval: 1000,
+      interval: 300,
       dropdownClass: '',
       containerClass: ''
     },

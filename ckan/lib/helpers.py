@@ -19,7 +19,7 @@ import urlparse
 from urllib import urlencode
 
 from paste.deploy import converters
-from webhelpers.html import escape, HTML, literal, tags, tools
+from webhelpers.html import HTML, literal, tags, tools
 from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
@@ -30,10 +30,11 @@ from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
 from routes import redirect_to as _routes_redirect_to
 from routes import url_for as _routes_default_url_for
+from flask import url_for as _flask_default_url_for
+from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
 
 import ckan.exceptions
-import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
@@ -45,6 +46,8 @@ import ckan.plugins as p
 import ckan
 
 from ckan.common import _, ungettext, c, request, session, json
+from markupsafe import Markup, escape
+
 
 log = logging.getLogger(__name__)
 
@@ -200,41 +203,148 @@ def get_site_protocol_and_host():
 
 @core_helper
 def url_for(*args, **kw):
-    '''Return the URL for the given controller, action, id, etc.
+    '''Return the URL for an endpoint given some parameters.
 
-    Usage::
+    This is a wrapper for :py:func:`flask.url_for`
+    and :py:func:`routes.url_for` that adds some extra features that CKAN
+    needs.
 
-        import ckan.plugins.toolkit as toolkit
+    To build a URL for a Flask view, pass the name of the blueprint and the
+    view function separated by a period ``.``, plus any URL parameters::
 
-        url = toolkit.url_for(controller='package', action='read',
-                              id='my_dataset')
-        => returns '/dataset/my_dataset'
+        url_for('api.action', ver=3, logic_function='status_show')
+        # Returns /api/3/action/status_show
+
+    For a fully qualified URL pass the ``_external=True`` parameter. This
+    takes the ``ckan.site_url`` and ``ckan.root_path`` settings into account::
+
+        url_for('api.action', ver=3, logic_function='status_show',
+                _external=True)
+        # Returns http://example.com/api/3/action/status_show
+
+    URLs built by Pylons use the Routes syntax::
+
+        url_for(controller='package', action='read', id='my_dataset')
+        # Returns '/dataset/my_dataset'
 
     Or, using a named route::
 
-        toolkit.url_for('dataset_read', id='changed')
+        url_for('dataset_read', id='changed')
+        # Returns '/dataset/changed'
 
-    This is a wrapper for :py:func:`routes.url_for` that adds some extra
-    features that CKAN needs.
+    Use ``qualified=True`` for a fully qualified URL when targeting a Pylons
+    endpoint.
 
+    For backwards compatibility, an effort is made to support the Pylons syntax
+    when building a Flask URL, but this support might be dropped in the future,
+    so calls should be updated.
     '''
+    # Get the actual string code for the locale
     locale = kw.pop('locale', None)
     if locale and isinstance(locale, i18n.Locale):
         locale = i18n.get_identifier_from_locale_class(locale)
+
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
-    # routes will get the wrong url for APIs if the ver is not provided
-    if kw.get('controller') == 'api':
+
+    # All API URLs generated should provide the version number
+    if kw.get('controller') == 'api' or args and args[0].startswith('api.'):
         ver = kw.get('ver')
         if not ver:
-            raise Exception('api calls must specify the version! e.g. ver=3')
-        # fix ver to include the slash
-        kw['ver'] = '/%s' % ver
-    if kw.get('qualified', False):
-        kw['protocol'], kw['host'] = get_site_protocol_and_host()
-    my_url = _routes_default_url_for(*args, **kw)
+            raise Exception('API URLs must specify the version (eg ver=3)')
+    try:
+        # First try to build the URL with the Flask router
+        my_url = _url_for_flask(*args, **kw)
+
+    except FlaskRouteBuildError:
+        # If it doesn't succeed, fallback to the Pylons router
+        my_url = _url_for_pylons(*args, **kw)
+
+    # Add back internal params
     kw['__ckan_no_root'] = no_root
+
+    # Rewrite the URL to take the locale and root_path into account
     return _local_url(my_url, locale=locale, **kw)
+
+
+def _url_for_flask(*args, **kw):
+    '''Build a URL using the Flask router
+
+    This function should not be called directly, use ``url_for`` instead
+
+    This function tries to support the Pylons syntax for ``url_for`` and adapt
+    it to the Flask one, eg::
+
+        # Pylons
+        url_for(controller='api', action='action', ver=3, qualified=True)
+
+        # Flask
+        url_for('api.action', ver=3, _external=True)
+
+
+    Raises :py:exception:`werkzeug.routing.BuildError` if it couldn't
+    generate a URL.
+    '''
+    if (len(args) and '_' in args[0]
+            and '.' not in args[0]
+            and not args[0].startswith('/')):
+        # Try to translate Python named routes to Flask endpoints
+        # eg `dataset_new` -> `dataset.new`
+        args = (args[0].replace('_', '.', 1), )
+    elif kw.get('controller') and kw.get('action'):
+        # If `controller` and `action` are passed, build a Flask endpoint
+        # from them
+        # eg controller='user', action='login' -> 'user.login'
+        args = ('{0}.{1}'.format(kw.pop('controller'), kw.pop('action')),)
+
+    # Support Pylons' way of asking for full URLs
+
+    external = kw.pop('_external', False) or kw.pop('qualified', False)
+
+    # The API routes used to require a slash on the version number, make sure
+    # we remove it
+    if (args and args[0].startswith('api.') and
+            isinstance(kw.get('ver'), basestring) and
+            kw['ver'].startswith('/')):
+        kw['ver'] = kw['ver'].replace('/', '')
+
+    # Try to build the URL with flask.url_for
+    my_url = _flask_default_url_for(*args, **kw)
+
+    if external:
+        # Don't rely on the host generated by Flask, as SERVER_NAME might not
+        # be set or might be not be up to date (as in tests changing
+        # `ckan.site_url`). Contrary to the Routes mapper, there is no way in
+        # Flask to pass the host explicitly, so we rebuild the URL manually
+        # based on `ckan.site_url`, which is essentially what we did on Pylons
+        protocol, host = get_site_protocol_and_host()
+        parts = urlparse.urlparse(my_url)
+        my_url = urlparse.urlunparse((protocol, host, parts.path, parts.params,
+                                      parts.query, parts.fragment))
+
+    return my_url
+
+
+def _url_for_pylons(*args, **kw):
+    '''Build a URL using the Pylons (Routes) router
+
+    This function should not be called directly, use ``url_for`` instead
+    '''
+
+    # We need to provide protocol and host to get full URLs, get them from
+    # ckan.site_url
+    if kw.get('qualified', False) or kw.get('_external', False):
+        kw['protocol'], kw['host'] = get_site_protocol_and_host()
+
+    # The Pylons API routes require a slask on the version number for some
+    # reason
+    if kw.get('controller') == 'api' and kw.get('ver'):
+        if (isinstance(kw['ver'], int) or
+                not kw['ver'].startswith('/')):
+            kw['ver'] = '/%s' % kw['ver']
+
+    # Try to build the URL with routes.url_for
+    return _routes_default_url_for(*args, **kw)
 
 
 @core_helper
@@ -1086,7 +1196,7 @@ class Page(paginate.Page):
 
     def pager(self, *args, **kwargs):
         kwargs.update(
-            format=u"<div class='pagination pagination-centered'><ul>"
+            format=u"<div class='pagination-wrapper'><ul class='pagination'>"
             "$link_previous ~2~ $link_next</ul></div>",
             symbol_previous=u'«', symbol_next=u'»',
             curpage_attr={'class': 'active'}, link_attr={}
@@ -1619,6 +1729,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
 
 @core_helper
 def include_resource(resource):
+    import ckan.lib.fanstatic_resources as fanstatic_resources
     r = getattr(fanstatic_resources, resource)
     r.need()
 
@@ -1630,6 +1741,8 @@ def urls_for_resource(resource):
 
     NOTE: This is for special situations only and is not the way to generally
     include resources.  It is advised not to use this function.'''
+    import ckan.lib.fanstatic_resources as fanstatic_resources
+
     r = getattr(fanstatic_resources, resource)
     resources = list(r.resources)
     core = fanstatic_resources.fanstatic_extensions.core
@@ -2321,15 +2434,33 @@ def license_options(existing_license_id=None):
 def get_translated(data_dict, field):
     language = i18n.get_lang()
     try:
-        return data_dict[field+'_translated'][language]
+        return data_dict[field + u'_translated'][language]
     except KeyError:
-        return data_dict.get(field, '')
+        val = data_dict.get(field, '')
+        return _(val) if val and isinstance(val, basestring) else val
 
 
 @core_helper
 def facets():
     u'''Returns a list of the current facet names'''
     return config.get(u'search.facets', DEFAULT_FACET_NAMES).split()
+
+
+@core_helper
+def mail_to(email_address, name):
+    email = escape(email_address)
+    author = escape(name)
+    html = Markup(u'<a href=mailto:{0}>{1}</a>'.format(email, author))
+    return html
+
+
+@core_helper
+def radio(selected, id, checked):
+    if checked:
+        return literal((u'<input checked="checked" id="%s_%s" name="%s" \
+            value="%s" type="radio">') % (selected, id, selected, id))
+    return literal(('<input id="%s_%s" name="%s" \
+        value="%s" type="radio">') % (selected, id, selected, id))
 
 
 core_helper(flash, name='flash')
@@ -2345,12 +2476,12 @@ core_helper(tags.literal)
 core_helper(tags.link_to)
 core_helper(tags.file)
 core_helper(tags.submit)
-core_helper(tools.mail_to)
 core_helper(whtext.truncate)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
+core_helper(clean_html, name='clean_html')
 
 
 def load_plugin_helpers():

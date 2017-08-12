@@ -20,7 +20,7 @@ def make_uuid():
 ##        ('package_tag', ('id', 'package_id', 'tag_id')),
 ##        ('package_extra', ('id', 'package_id')),
 ##        ('package_resource', ('id', 'package_id')),
-##     Versions:  
+##     Versions:
 ##        ('package_revision', 'id'),
 ##        ('package_tag_revision', ('id', 'package_id', 'tag_id')),
 ##        ('package_extra_revision', ('id', 'package_id')),
@@ -108,7 +108,9 @@ def drop_constraints_and_alter_types(primary_table_name, foreign_tables, revisio
                     #print 'CON', dropped_fk_constraints[-1]
 
     # 2 alter type of primary table id and foreign keys
-                    id_col = constraint.table.columns[constraint.columns[0]]
+                    if len(constraint.columns.keys()) != 1:
+                        raise ValueError()
+                    id_col = constraint.table.columns[constraint.columns.keys()[0]]
                     id_col.alter(type=UnicodeText)
 
     primary_table = Table(primary_table_name, metadata, autoload=True)
@@ -134,12 +136,16 @@ def add_fk_constraints(migrate_engine, dropped_fk_constraints, primary_table_nam
 
         # So we create via hand ...
         constraint_columns, foreign_key_cols, constraint_name, table_name = fk_constraint
+        # Sanity check
+        if len(constraint_columns.keys()) != 1:
+            raise ValueError()
+
         oursql = '''ALTER TABLE %(table)s
             ADD CONSTRAINT %(fkeyname)s
             FOREIGN KEY (%(col_name)s)
             REFERENCES %(primary_table_name)s (id)
             ''' % {'table':table_name, 'fkeyname':constraint_name,
-                   'col_name':constraint_columns[0],
+                   'col_name':constraint_columns.keys()[0],
                    'primary_table_name':primary_table_name}
         migrate_engine.execute(oursql)
 
@@ -164,21 +170,27 @@ def create_uuids(migrate_engine, primary_table_name, revision_table_name):
         q = revision_table.update().values(id=revision_table.c.continuity_id)
         migrate_engine.execute(q)
 
+
 def drop_sequencies(migrate_engine):
 
-    sequencies = ['package_extra', 'package_extra_revision', 'package',
-                  'package_resource', 'package_resource_revision',
-                  'package_revision',' package_tag', 'package_tag_revision',
-                  'revision', 'tag']
+    sequences = ['package_extra', 'package_extra_revision', 'package',
+                 'package_resource', 'package_resource_revision',
+                 'package_revision', ' package_tag', 'package_tag_revision',
+                 'revision', 'tag']
 
-
-    for sequence in sequencies:
+    for sequence in sequences:
         migrate_engine.execute('ALTER TABLE %s ALTER COLUMN id DROP DEFAULT;' % sequence)
 
-    for sequence in sequencies:
-        migrate_engine.execute('drop sequence %s_id_seq;' % sequence)
+    for sequence in sequences:
+        try:
+            migrate_engine.execute('drop sequence %s_id_seq;' % sequence)
+        except sqlalchemy.exc.ProgrammingError as e:
+            if 'sequence "{}_id_seq" does not exist'.format(sequence) in str(e):
+                pass
+            else:
+                raise
 
 
-            
+
 def downgrade(migrate_engine):
     raise NotImplementedError()

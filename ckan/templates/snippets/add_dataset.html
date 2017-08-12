@@ -1,0 +1,7 @@
+{# Adds 'Add Dataset' button #}
+
+{% if group %}
+    {% link_for _('Add Dataset'), controller='package', action='new', group=group, class_='btn btn-primary', icon='plus-square' %}
+{% else %}
+    {% link_for _('Add Dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus-square" %}
+{% endif %}

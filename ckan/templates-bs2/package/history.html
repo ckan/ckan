@@ -1,0 +1,10 @@
+{% extends "package/read_base.html" %}
+
+{% block subtitle %}{{ _('History') }} - {{ h.dataset_display_name(c.pkg_dict) }}{% endblock %}
+
+{% block primary_content_inner %}
+  <h1 class="hide-heading">{{ _('History') }}</h1>
+  {% block package_history_revisions %}
+    {% snippet "package/snippets/history_revisions.html", pkg_dict=pkg, pkg_revisions=c.pkg_revisions %}
+  {% endblock %}
+{% endblock %}

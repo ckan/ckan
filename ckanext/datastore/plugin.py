@@ -37,6 +37,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
     p.implements(p.ITemplateHelpers)
+    p.implements(p.IForkObserver, inherit=True)
     p.implements(interfaces.IDatastore, inherit=True)
     p.implements(interfaces.IDatastoreBackend, inherit=True)
 
@@ -60,6 +61,7 @@ class DatastorePlugin(p.SingletonPlugin):
     def register_backends(self):
         return {
             'postgresql': DatastorePostgresqlBackend,
+            'postgres': DatastorePostgresqlBackend,
         }
 
     # IConfigurer
@@ -68,7 +70,9 @@ class DatastorePlugin(p.SingletonPlugin):
         DatastoreBackend.register_backends()
         DatastoreBackend.set_active_backend(config)
 
-        p.toolkit.add_template_directory(config, 'templates')
+        templates_base = config.get('ckan.base_templates_folder')
+
+        p.toolkit.add_template_directory(config, templates_base)
         self.backend = DatastoreBackend.get_active_backend()
 
     # IConfigurable
@@ -273,3 +277,13 @@ class DatastorePlugin(p.SingletonPlugin):
     def get_helpers(self):
         return {
             'datastore_dictionary': datastore_helpers.datastore_dictionary}
+
+    # IForkObserver
+
+    def before_fork(self):
+        try:
+            before_fork = self.backend.before_fork
+        except AttributeError:
+            pass
+        else:
+            before_fork()

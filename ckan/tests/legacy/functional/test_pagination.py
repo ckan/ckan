@@ -59,25 +59,41 @@ class TestPaginationPackage(TestController):
         model.repo.rebuild_db()
 
     def test_package_search_p1(self):
-        res = self.app.get(url_for(controller='package', action='search', q='groups:group_00'))
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='package', action='search', q='groups:group_00')
+
+        res = self.app.get(url)
         assert 'href="/dataset?q=groups%3Agroup_00&amp;page=2"' in res
         pkg_numbers = scrape_search_results(res, 'dataset')
         assert_equal(['50', '49', '48', '47', '46', '45', '44', '43', '42', '41', '40', '39', '38', '37', '36', '35', '34', '33', '32', '31'], pkg_numbers)
 
     def test_package_search_p2(self):
-        res = self.app.get(url_for(controller='package', action='search', q='groups:group_00', page=2))
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='package', action='search', q='groups:group_00', page=2)
+
+        res = self.app.get(url)
         assert 'href="/dataset?q=groups%3Agroup_00&amp;page=1"' in res
         pkg_numbers = scrape_search_results(res, 'dataset')
         assert_equal(['30', '29', '28', '27', '26', '25', '24', '23', '22', '21', '20', '19', '18', '17', '16', '15', '14', '13', '12', '11'], pkg_numbers)
 
     def test_group_datasets_read_p1(self):
-        res = self.app.get(url_for(controller='group', action='read', id='group_00'))
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='group', action='read', id='group_00')
+
+        res = self.app.get(url)
         assert 'href="/group/group_00?page=2' in res, res
         pkg_numbers = scrape_search_results(res, 'group_dataset')
         assert_equal(['50', '49', '48', '47', '46', '45', '44', '43', '42', '41', '40', '39', '38', '37', '36', '35', '34', '33', '32', '31'], pkg_numbers)
 
     def test_group_datasets_read_p2(self):
-        res = self.app.get(url_for(controller='group', action='read', id='group_00', page=2))
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='group', action='read', id='group_00', page=2)
+
+        res = self.app.get(url)
         assert 'href="/group/group_00?page=1' in res, res
         pkg_numbers = scrape_search_results(res, 'group_dataset')
         assert_equal(['30', '29', '28', '27', '26', '25', '24', '23', '22', '21', '20', '19', '18', '17', '16', '15', '14', '13', '12', '11'], pkg_numbers)
@@ -101,12 +117,20 @@ class TestPaginationGroup(TestController):
         model.repo.rebuild_db()
 
     def test_group_index(self):
-        res = self.app.get(url_for(controller='group', action='index'))
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='group', action='index')
+
+        res = self.app.get(url)
         assert 'href="/group?q=&amp;sort=&amp;page=2"' in res, res
         grp_numbers = scrape_search_results(res, 'group')
         assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'], grp_numbers)
 
-        res = self.app.get(url_for(controller='group', action='index', page=2))
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='group', action='index', page=2)
+
+        res = self.app.get(url)
         assert 'href="/group?q=&amp;sort=&amp;page=1"' in res
         grp_numbers = scrape_search_results(res, 'group')
         assert_equal(['21'], grp_numbers)
@@ -130,12 +154,19 @@ class TestPaginationUsers(TestController):
         model.repo.rebuild_db()
 
     def test_users_index(self):
-        res = self.app.get(url_for(controller='user', action='index'))
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='user', action='index')
+
+        res = self.app.get(url)
         assert 'href="/user?q=&amp;order_by=name&amp;page=2"' in res
         user_numbers = scrape_search_results(res, 'user')
         assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'], user_numbers)
 
-        res = self.app.get(url_for(controller='user', action='index', page=2))
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='user', action='index', page=2)
+
+        res = self.app.get(url)
         assert 'href="/user?q=&amp;order_by=name&amp;page=1"' in res
         user_numbers = scrape_search_results(res, 'user')
         assert_equal(['20'], user_numbers)

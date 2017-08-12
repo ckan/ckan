@@ -7,7 +7,7 @@ describe('ckan.modules.ImageUploadModule()', function () {
     this.sandbox = ckan.sandbox();
     this.module = new ImageUploadModule(this.el, {}, this.sandbox);
     this.module.el.html([
-      '<div class="control-group"><input name="image_url" /></div>',
+      '<div class="form-group"><input name="image_url" /></div>',
       '<input name="image_upload" />',
     ]);
     this.module.initialize();

@@ -1,17 +1,17 @@
 # encoding: utf-8
 
 import ckan
-import pylons.test
-import paste.fixture
 import ckan.lib.helpers as helpers
 import ckan.lib.dictization.model_dictize as model_dictize
+
+from ckan.tests import helpers as test_helpers
 
 
 class TestVocabulary(object):
 
     @classmethod
     def setup_class(self):
-        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        self.app = test_helpers._get_test_app()
 
     @classmethod
     def teardown_class(self):

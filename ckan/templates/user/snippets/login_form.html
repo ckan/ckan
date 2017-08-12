@@ -14,7 +14,7 @@ Example:
 {% set username_error = true if error_summary %}
 {% set password_error = true if error_summary %}
 
-<form action="{{ action }}" method="post" class="form-horizontal">
+<form action="{{ action }}" method="post">
   {{ form.errors(errors=error_summary) }}
 
   {{ form.input('login', label=_("Username"), id='field-login', value="", error=username_error, classes=["control-medium"]) }}

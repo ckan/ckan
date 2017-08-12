@@ -7,7 +7,7 @@ controller itself.
 import json
 import re
 
-from routes import url_for
+from ckan.lib.helpers import url_for
 from nose.tools import assert_equal, assert_in, eq_
 
 import ckan.tests.helpers as helpers
@@ -30,9 +30,12 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_dataset_autocomplete_name(self):
         dataset = factories.Dataset(name='rivers')
-        url = url_for(controller='api', action='dataset_autocomplete', ver='/2')
-        assert_equal(url, '/api/2/util/dataset/autocomplete')
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='api', action='dataset_autocomplete',
+                          ver='/2')
+        assert_equal(url, '/api/2/util/dataset/autocomplete')
 
         response = app.get(
             url=url,
@@ -54,7 +57,11 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_dataset_autocomplete_title(self):
         dataset = factories.Dataset(name='test_ri', title='Rivers')
-        url = url_for(controller='api', action='dataset_autocomplete', ver='/2')
+
+        app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='api', action='dataset_autocomplete',
+                          ver='/2')
         assert_equal(url, '/api/2/util/dataset/autocomplete')
         app = self._get_test_app()
 
@@ -78,9 +85,12 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_tag_autocomplete(self):
         factories.Dataset(tags=[{'name': 'rivers'}])
-        url = url_for(controller='api', action='tag_autocomplete', ver='/2')
-        assert_equal(url, '/api/2/util/tag/autocomplete')
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='api', action='tag_autocomplete',
+                          ver='/2')
+        assert_equal(url, '/api/2/util/tag/autocomplete')
 
         response = app.get(
             url=url,
@@ -96,10 +106,12 @@ class TestApiController(helpers.FunctionalTestBase):
                      'application/json;charset=utf-8')
 
     def test_group_autocomplete_by_name(self):
-        org = factories.Group(name='rivers', title='Bridges')
-        url = url_for(controller='api', action='group_autocomplete', ver='/2')
-        assert_equal(url, '/api/2/util/group/autocomplete')
+        factories.Group(name='rivers', title='Bridges')
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='api', action='group_autocomplete',
+                          ver='/2')
+        assert_equal(url, '/api/2/util/group/autocomplete')
 
         response = app.get(
             url=url,
@@ -117,9 +129,11 @@ class TestApiController(helpers.FunctionalTestBase):
                      'application/json;charset=utf-8')
 
     def test_group_autocomplete_by_title(self):
-        org = factories.Group(name='frogs', title='Bugs')
-        url = url_for(controller='api', action='group_autocomplete', ver='/2')
+        factories.Group(name='frogs', title='Bugs')
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='api', action='group_autocomplete',
+                          ver='/2')
 
         response = app.get(
             url=url,
@@ -135,9 +149,12 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_organization_autocomplete_by_name(self):
         org = factories.Organization(name='simple-dummy-org')
-        url = url_for(controller='api', action='organization_autocomplete', ver='/2')
-        assert_equal(url, '/api/2/util/organization/autocomplete')
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='api', action='organization_autocomplete',
+                          ver='/2')
+        assert_equal(url, '/api/2/util/organization/autocomplete')
 
         response = app.get(
             url=url,
@@ -155,9 +172,12 @@ class TestApiController(helpers.FunctionalTestBase):
                      'application/json;charset=utf-8')
 
     def test_organization_autocomplete_by_title(self):
-        org = factories.Organization(title='Simple dummy org')
-        url = url_for(controller='api', action='organization_autocomplete', ver='/2')
+        factories.Organization(title='Simple dummy org')
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='api', action='organization_autocomplete',
+                          ver='/2')
 
         response = app.get(
             url=url,
@@ -173,12 +193,14 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_config_option_list_access_sysadmin(self):
         user = factories.Sysadmin()
-        url = url_for(
-            controller='api',
-            action='action',
-            logic_function='config_option_list',
-            ver='/3')
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(
+                controller='api',
+                action='action',
+                logic_function='config_option_list',
+                ver='/3')
 
         app.get(
             url=url,
@@ -189,12 +211,14 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_config_option_list_access_sysadmin_jsonp(self):
         user = factories.Sysadmin()
-        url = url_for(
-            controller='api',
-            action='action',
-            logic_function='config_option_list',
-            ver='/3')
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(
+                controller='api',
+                action='action',
+                logic_function='config_option_list',
+                ver='/3')
 
         app.get(
             url=url,
@@ -208,12 +232,13 @@ class TestApiController(helpers.FunctionalTestBase):
         dataset1 = factories.Dataset()
         dataset2 = factories.Dataset()
 
-        url = url_for(
-            controller='api',
-            action='action',
-            logic_function='package_list',
-            ver='/3')
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(
+                controller='api',
+                action='action',
+                logic_function='package_list',
+                ver='/3')
         res = app.get(
             url=url,
             params={'callback': 'my_callback'},
@@ -230,15 +255,15 @@ class TestApiController(helpers.FunctionalTestBase):
 
         dataset1 = factories.Dataset()
         dataset2 = factories.Dataset()
-
-        url = url_for(
-            controller='api',
-            action='action',
-            logic_function='package_list',
-            ver='/3',
-            callback='my_callback',
-        )
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(
+                controller='api',
+                action='action',
+                logic_function='package_list',
+                ver='/3',
+                callback='my_callback',
+            )
         res = app.post(
             url=url,
         )

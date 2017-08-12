@@ -11,7 +11,7 @@
 
 {% block content_action %}
   {% if h.check_access('user_update', user) %}
-    {% link_for _('Manage'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}
+    {% link_for _('Manage'), controller='user', action='edit', id=user.name, class_='btn btn-default', icon='wrench' %}
   {% endif %}
 {% endblock %}
 
@@ -47,7 +47,7 @@
       <div class="nums">
         <dl>
           <dt>{{ _('Followers') }}</dt>
-          <dd>{{ h.SI_number_span(user.num_followers) }}</dd>
+          <dd data-module="followers-counter" data-module-id="{{ user.id }}" data-module-num_followers="{{ user.num_followers }}">{{ h.SI_number_span(user.num_followers) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>
@@ -93,7 +93,7 @@
         </dl>
         {% if c.is_myself %}
           <dl>
-            <dt class="key">{{ _('API Key') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+            <dt class="key">{{ _('API Key') }} <span class="label label-default" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
             <dd class="value"><code>{{ user.apikey }}</code></dd>
           </dl>
         {% endif %}

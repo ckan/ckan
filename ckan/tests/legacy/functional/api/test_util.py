@@ -18,8 +18,12 @@ class TestUtil(ControllerTestCase):
         model.repo.rebuild_db()
 
     def test_package_slug_invalid(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='is_slug_valid', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='is_slug_valid', ver=2),
+            url,
             params={
                'type': u'package',
                'slug': u'edit',
@@ -27,10 +31,14 @@ class TestUtil(ControllerTestCase):
             status=200,
         )
         assert_equal(response.body, '{"valid": false}')
-        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+        assert_equal(response.headers['Content-Type'], 'application/json;charset=utf-8')
+
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='is_slug_valid', ver=2)
 
         response = self.app.get(
-            url=url_for(controller='api', action='is_slug_valid', ver=2),
+            url,
             params={
                'type': u'package',
                'slug': u'new',
@@ -38,11 +46,15 @@ class TestUtil(ControllerTestCase):
             status=200,
         )
         assert_equal(response.body, '{"valid": false}')
-        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+        assert_equal(response.headers['Content-Type'], 'application/json;charset=utf-8')
 
     def test_package_slug_valid(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='is_slug_valid', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='is_slug_valid', ver=2),
+            url,
             params={
                'type': u'package',
                'slug': u'A New Title * With & Funny CHARacters',
@@ -50,10 +62,14 @@ class TestUtil(ControllerTestCase):
             status=200,
         )
         assert_equal(response.body, '{"valid": true}')
-        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+        assert_equal(response.headers['Content-Type'], 'application/json;charset=utf-8')
+
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='is_slug_valid', ver=2)
 
         response = self.app.get(
-            url=url_for(controller='api', action='is_slug_valid', ver=2),
+            url,
             params={
                'type': u'package',
                'slug': u'warandpeace',
@@ -61,44 +77,64 @@ class TestUtil(ControllerTestCase):
             status=200,
         )
         assert_equal(response.body, '{"valid": false}')
-        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+        assert_equal(response.headers['Content-Type'], 'application/json;charset=utf-8')
 
     def test_markdown(self):
         markdown = '''##Title'''
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='markdown', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='markdown', ver=2),
+            url,
             params={'q': markdown},
             status=200,
         )
         assert_equal(response.body, '"<h2>Title</h2>"')
 
     def test_munge_package_name(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='munge_package_name', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='munge_package_name', ver=2),
+            url,
             params={'name': 'test name'},
             status=200,
         )
         assert_equal(response.body, '"test-name"')
 
     def test_munge_title_to_package_name(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='munge_title_to_package_name', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='munge_title_to_package_name', ver=2),
+            url,
             params={'name': 'Test title'},
             status=200,
         )
         assert_equal(response.body, '"test-title"')
 
     def test_munge_tag(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='munge_tag', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='munge_tag', ver=2),
+            url,
             params={'name': 'Test subject'},
             status=200,
         )
         assert_equal(response.body, '"test-subject"')
 
     def test_status(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='status', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='status', ver=2),
+            url,
             params={},
             status=200,
         )

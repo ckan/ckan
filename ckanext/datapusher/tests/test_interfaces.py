@@ -9,13 +9,10 @@ import datetime
 from nose.tools import raises
 from ckan.common import config
 import sqlalchemy.orm as orm
-import paste.fixture
 
 from ckan.tests import helpers, factories
 import ckan.plugins as p
-import ckan.model as model
 import ckan.tests.legacy as tests
-import ckan.config.middleware as middleware
 
 import ckanext.datapusher.interfaces as interfaces
 import ckanext.datastore.backend.postgres as db
@@ -42,22 +39,22 @@ class FakeDataPusherPlugin(p.SingletonPlugin):
         self.after_upload_calls += 1
 
 
-class TestInterace(object):
+class TestInterface(object):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         p.load('datapusher')
         p.load('test_datapusher_plugin')
 
-        resource = factories.Resource(url_type='datastore')
-        cls.dataset = factories.Dataset(resources=[resource])
+        with cls.app.flask_app.test_request_context():
+            resource = factories.Resource(url_type='datastore')
+            cls.dataset = factories.Dataset(resources=[resource])
 
         cls.sysadmin_user = factories.User(name='testsysadmin', sysadmin=True)
         cls.normal_user = factories.User(name='annafan')
@@ -88,9 +85,12 @@ class TestInterace(object):
             'user': self.sysadmin_user['name']
         }
 
-        result = p.toolkit.get_action('datapusher_submit')(context, {
-            'resource_id': resource['id']
-        })
+        # datapusher_submit will call a function further down the line that
+        # relies on url_for so we need a request context
+        with self.app.flask_app.test_request_context():
+            result = p.toolkit.get_action('datapusher_submit')(context, {
+                'resource_id': resource['id']
+            })
         assert not result
 
         context.pop('task_status', None)

@@ -111,7 +111,6 @@ def get_write_engine():
 def _get_engine_from_url(connection_url):
     '''Get either read or write engine.'''
     engine = _engines.get(connection_url)
-
     if not engine:
         extras = {'url': connection_url}
         engine = sqlalchemy.engine_from_config(config,
@@ -119,6 +118,14 @@ def _get_engine_from_url(connection_url):
                                                **extras)
         _engines[connection_url] = engine
     return engine
+
+
+def _dispose_engines():
+    '''Dispose all database engines.'''
+    global _engines
+    for url, engine in _engines.items():
+        engine.dispose()
+    _engines = {}
 
 
 def _pluck(field, arr):
@@ -1958,6 +1965,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     def drop_function(self, *args, **kwargs):
         return drop_function(*args, **kwargs)
 
+    def before_fork(self):
+        # Called by DatastorePlugin.before_fork. Dispose SQLAlchemy engines
+        # to avoid sharing them between parent and child processes.
+        _dispose_engines()
+
 
 def create_function(name, arguments, rettype, definition, or_replace):
     sql = u'''
@@ -1977,9 +1989,10 @@ def create_function(name, arguments, rettype, definition, or_replace):
     try:
         _write_engine_execute(sql)
     except ProgrammingError as pe:
-        key = (
-            u'name' if pe.args[0].startswith('(ProgrammingError) function')
-            else u'definition')
+        already_exists = (
+          u'function "{}" already exists with same argument types'.format(name)
+          in pe.args[0])
+        key = u'name' if already_exists else u'definition'
         raise ValidationError({key: [_programming_error_summary(pe)]})
 
 

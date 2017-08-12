@@ -8,6 +8,7 @@ from ckan.lib.alphabet_paginate import AlphaPage
 from ckan.tests.legacy import regex_related
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
+from ckan.tests import helpers
 
 other = 'Other'
 
@@ -54,7 +55,9 @@ class TestPages:
             page='A',
             other_text=other,
         )
-        pager = page.pager()
+        app = helpers._get_test_app()
+        with app.flask_app.test_request_context():
+            pager = page.pager()
         assert_true(
             pager.startswith(
                 '<div class="pagination pagination-alphabet">'
