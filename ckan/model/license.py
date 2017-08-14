@@ -95,6 +95,7 @@ class LicenseRegister(object):
             self.load_licenses(group_url)
         else:
             default_license_list = [
+                LicenseNotSpecified(),
                 LicenseOpenDataCommonsPDDL(),
                 LicenseOpenDataCommonsOpenDatabase(),
                 LicenseOpenDataAttribution(),

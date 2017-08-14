@@ -30,29 +30,18 @@
     {
       "preset_name": "tag_string_autocomplete",
       "values": {
-        "validators": "not_empty tag_string_convert",
-        "form_attrs": {
-          "data-module": "autocomplete",
-          "data-module-tags": "",
-          "data-module-source": "/api/2/util/tag/autocomplete?incomplete=?"
-        }
-      }
-    },
-    {
-      "preset_name": "tag_required_autocomplete",
-      "values": {
-        "validators": "not_empty tag_string_convert",
-        "form_attrs": {
-          "data-module": "autocomplete",
-          "data-module-tags": "",
-          "data-module-source": "/api/2/util/tag/autocomplete?incomplete=?"
-        }
-      }
-    },
-    {
-      "preset_name": "tag_autocomplete",
-      "values": {
         "validators": "ignore_missing tag_string_convert",
+        "form_attrs": {
+          "data-module": "autocomplete",
+          "data-module-tags": "",
+          "data-module-source": "/api/2/util/tag/autocomplete?incomplete=?"
+        }
+      }
+    },
+    {
+      "preset_name": "tag_string_required_autocomplete",
+      "values": {
+        "validators": "not_empty tag_string_convert",
         "form_attrs": {
           "data-module": "autocomplete",
           "data-module-tags": "",

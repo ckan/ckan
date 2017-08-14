@@ -1,7 +1,7 @@
 {
   "scheming_version": 1,
   "dataset_type": "dataset",
-  "about": "Iran Open Data reimplementation of the default CKAN dataset schema",
+  "about": "Iran Open Data CKAN dataset schema",
   "about_url": "http://github.com/smallmedia/iod-ckan",
   "dataset_fields": [
     {
@@ -69,25 +69,22 @@
         "en": "Themes in English",
         "fa_IR": "Themes in Farsi"
       },
-      "preset": "tag_required_autocomplete",
-      "validators": "not_empty",
-      "required": true,
+      "preset": "tag_string_required_autocomplete",
       "form_placeholder": {
-        "en": "eg. Themes placeholder in English",
-        "fa_IR": "eg. Themes placeholder in Farsi"
+        "en": "Themes placeholder in English",
+        "fa_IR": "Themes placeholder in Farsi"
       }
     },
     {
-      "field_name": "tag_string",
+      "field_name": "tags_string",
       "label": {
         "en": "Tags in English",
         "fa_IR": "Tags in Farsi"
       },
-      "preset": "tag_required_autocomplete",
-      "required": true,
+      "preset": "tag_string_required_autocomplete",
       "form_placeholder": {
-        "en": "eg. Tags placeholder in English",
-        "fa_IR": "eg. Tags placeholder in Farsi"
+        "en": "Tags placeholder in English",
+        "fa_IR": "Tags placeholder in Farsi"
       }
     },
     {
@@ -161,12 +158,11 @@
     },
     {
       "field_name": "geographic_string",
-      "label": "Geographic Scope",
       "label": {
         "en": "Geographic Scope in English",
         "fa_IR": "Geographic Scope in Farsi"
       },
-      "preset": "tag_autocomplete",
+      "preset": "tag_string_autocomplete",
       "form_placeholder": {
         "en": "Geographic Scope placeholder in English",
         "fa_IR": "Geographic Scope placeholder in Farsi"
@@ -202,18 +198,115 @@
     {
       "field_name": "name",
       "label": "Name",
-      "form_placeholder": "eg. January 2011 Gold Prices"
-    },
-    {
-      "field_name": "description",
-      "label": "Description",
-      "form_snippet": "markdown.html",
-      "form_placeholder": "Some useful notes about the data"
+      "form_placeholder": {
+        "en": "Name placeholder in English",
+        "fa_IR": "Name placeholder in Farsi"
+      },
+      "required": true,
+      "validators": "not_empty"
     },
     {
       "field_name": "format",
       "label": "Format",
-      "preset": "resource_format_autocomplete"
+      "preset": "resource_format_autocomplete",
+      "required": true
+    },
+    {
+      "field_name": "notes_en",
+      "label": {
+        "en": "Description for English in English",
+        "fa_IR": "Description for English in Farsi"
+      },
+      "form_snippet": "markdown.html",
+      "form_placeholder": {
+        "en": "Description placeholder for English in English",
+        "fa_IR": "Description placeholder for English in Farsi"
+      }
+    },
+    {
+      "field_name": "notes_fa",
+      "label": {
+        "en": "Description for Farsi in English",
+        "fa_IR": "Description for Farsi in Farsi"
+      },
+      "form_snippet": "markdown.html",
+      "form_placeholder": {
+        "en": "Description placeholder for Farsi in English",
+        "fa_IR": "Description placeholder for Farsi in Farsi"
+      }
+    },
+    {
+      "field_name": "publisher",
+      "label": {
+        "en": "Publisher in English",
+        "fa_IR": "Publisher in Farsi"
+      },
+      "form_placeholder": {
+        "en": "Publisher placeholder in English",
+        "fa_IR": "Publisher placeholder in Farsi"
+      }
+    },
+    {
+      "field_name": "publisher_url",
+      "label": {
+        "en": "Publisher URL in English",
+        "fa_IR": "Publisher URL in Farsi"
+      },
+      "validators": "url_validator",
+      "form_placeholder": {
+        "en": "Publisher URL placeholder in English",
+        "fa_IR": "Publisher URL placeholder in Farsi"
+      },
+      "display_property": "foaf:homepage",
+      "display_snippet": "link.html"
+    },
+    {
+      "field_name": "source_en",
+      "label": {
+        "en": "Source for English in English",
+        "fa_IR": "Source for English in Farsi"
+      },
+      "form_snippet": "markdown.html",
+      "form_placeholder": {
+        "en": "Source placeholder for English in English",
+        "fa_IR": "Source placeholder for English in Farsi"
+      }
+    },
+    {
+      "field_name": "source_fa",
+      "label": {
+        "en": "Source for Farsi in English",
+        "fa_IR": "Source for Farsi in Farsi"
+      },
+      "form_snippet": "markdown.html",
+      "form_placeholder": {
+        "en": "Source placeholder for Farsi in English",
+        "fa_IR": "Source placeholder for Farsi in Farsi"
+      }
+    },
+    {
+      "field_name": "language",
+      "label": {
+        "en": "Language in English",
+        "fa_IR": "Language in Farsi"
+      },
+      "form_placeholder": {
+        "en": "Language placeholder in English",
+        "fa_IR": "Language placeholder in Farsi"
+      }
+    },
+    {
+      "field_name": "cleaning_stage",
+      "label": {
+        "en": "Cleaning stage in English",
+        "fa_IR": "Cleaning stage in Farsi"
+      },
+      "form_placeholder": {
+        "en": "Cleaning stage placeholder in English",
+        "fa_IR": "Cleaning stage placeholder in Farsi"
+      },
+      "required": true,
+      "validators": "not_empty"
     }
   ]
 }
