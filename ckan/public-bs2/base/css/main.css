@@ -6361,7 +6361,7 @@ textarea {
 }
 @media (min-width: 980px) {
   .form-horizontal .info-block {
-    padding: 0 0 6px 25px;
+    padding: 6px 0 6px 0;
   }
   .form-horizontal .info-inline {
     float: right;
@@ -7273,7 +7273,7 @@ textarea {
   display: block;
   position: absolute;
   top: 50%;
-  margin-top: -10px;
+  margin-top: 1px;
   right: 10px;
   height: 20px;
   padding: 0;
