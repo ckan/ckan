@@ -96,7 +96,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore datapusher iod_theme scheming_datasets
+ckan.plugins = stats text_view image_view recline_view datastore datapusher iod_theme scheming_datasets resource_proxy webpage_view recline_map_view recline_graph_view recline_grid_view pdf_view
 
 #   module-path:file to schemas being used
 scheming.dataset_schemas = ckanext.iod_theme:iod_dataset.json
@@ -116,7 +116,7 @@ scheming.dataset_fallback = false
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
-ckan.views.default_views = image_view text_view recline_view
+ckan.views.default_views = recline_view recline_grid_view recline_graph_view recline_map_view pdf_view webpage_view image_view text_view
 
 
 ## Front-End Settings

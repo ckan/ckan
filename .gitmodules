@@ -7,3 +7,6 @@
 [submodule "ckantoolkit"]
     path = ckantoolkit
     url = https://github.com/ckan/ckantoolkit.git
+[submodule "ckanext-pdfview"]
+    path = ckanext-pdfview
+    url = https://github.com/ckan/ckanext-pdfview.git
