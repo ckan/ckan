@@ -277,25 +277,25 @@ class ResourceUpload(object):
                 if e.errno != 17:
                     raise
             tmp_filepath = filepath + '~'
-            output_file = open(tmp_filepath, 'wb+')
-            self.upload_file.seek(0)
-            current_size = 0
-            while True:
-                current_size = current_size + 1
-                # MB chunks
-                data = self.upload_file.read(2 ** 20)
+            with open(tmp_filepath, 'wb+') as output_file:
+                self.upload_file.seek(0)
+                current_size = 0
+                while True:
+                    current_size = current_size + 1
+                    # MB chunks
+                    data = self.upload_file.read(2 ** 20)
 
-                if not data:
-                    break
-                output_file.write(data)
-                if current_size > max_size:
-                    os.remove(tmp_filepath)
-                    raise logic.ValidationError(
-                        {'upload': ['File upload too large']}
-                    )
+                    if not data:
+                        break
+                    output_file.write(data)
+                    if current_size > max_size:
+                        os.remove(tmp_filepath)
+                        raise logic.ValidationError(
+                            {'upload': ['File upload too large']}
+                        )
+                self.upload_file.close()
+                os.rename(tmp_filepath, filepath)
 
-            output_file.close()
-            os.rename(tmp_filepath, filepath)
             return
 
         # The resource form only sets self.clear (via the input clear_upload)
