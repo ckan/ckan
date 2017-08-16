@@ -17,7 +17,6 @@ home = Blueprint(
 def before_request():
     try:
         print 'Before Request'
-        print request.params
         context = {
             u'model': model,
             u'user': g.user,
@@ -41,4 +40,4 @@ class AboutView(View):
 
 # home.add_url_rule(u'/', view_func=HomeView.as_view('home'))
 # home.add_url_rule(u'/home', view_func=HomeView.as_view('home'))
-home.add_url_rule('/about', view_func=AboutView.as_view('about'))
+home.add_url_rule('about', view_func=AboutView.as_view('about'))

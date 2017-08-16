@@ -219,7 +219,6 @@ def update_config():
                              config.get('solr_password'))
     search.check_solr_schema_version()
 
-    import pdb; pdb.set_trace()
     routes_map = routing.make_map()
     config['routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists
@@ -227,6 +226,7 @@ def update_config():
         config['routes.middleware'].mapper = routes_map
     # routes.named_routes is a CKAN thing
     config['routes.named_routes'] = routing.named_routes
+    # print config['routes.named_routes']
     config['pylons.app_globals'] = app_globals.app_globals
     # initialise the globals
     app_globals.app_globals._init()

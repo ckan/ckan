@@ -677,6 +677,13 @@ def nav_link(text, *args, **kwargs):
     :param condition: if ``False`` then no link is returned
 
     '''
+    print text
+    print kwargs
+    if is_flask_request():
+        print args
+        link = url_for(str(args))
+        print link
+        return link
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
     if args:
@@ -813,9 +820,12 @@ def _make_menu_item(menu_item, title, **kw):
 
     This function is called by wrapper functions.
     '''
-    import pdb; pdb.set_trace()
+    
+    if '.' in menu_item:
+        link = _link_to(title, menu_item, suppress_active_class=True)
+        return literal('<li>') + link + literal('</li>')
     _menu_items = config['routes.named_routes']
-    if menu_item not in _menu_items:
+    if not is_flask_request() and menu_item not in _menu_items:
         raise Exception('menu item `%s` cannot be found' % menu_item)
     item = copy.copy(_menu_items[menu_item])
     item.update(kw)
@@ -2459,9 +2469,11 @@ def mail_to(email_address, name):
 def radio(selected, id, checked):
     if checked:
         return literal((u'<input checked="checked" id="%s_%s" name="%s" \
-            value="%s" type="radio">') % (selected, id, selected, id))
+            value="%s" type="radio">'
+                                     ) % (selected, id, selected, id))
     return literal(('<input id="%s_%s" name="%s" \
-        value="%s" type="radio">') % (selected, id, selected, id))
+        value="%s" type="radio">'
+                                 ) % (selected, id, selected, id))
 
 
 core_helper(flash, name='flash')
