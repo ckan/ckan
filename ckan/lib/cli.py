@@ -28,6 +28,7 @@ import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.plugins as p
 from ckan.common import config
+from ckan.tests.helpers import _get_test_app
 
 
 #NB No CKAN imports are allowed until after the config file is loaded.
@@ -223,6 +224,11 @@ def load_config(config, load_site_user=True):
     # first time.
     from ckan.config.environment import load_environment
     load_environment(conf.global_conf, conf.local_conf)
+
+    flask_app = _get_test_app().flask_app
+    flask_context = flask_app.test_request_context()
+
+    flask_context.push()
 
     registry = Registry()
     registry.prepare()
