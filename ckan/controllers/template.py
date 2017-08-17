@@ -29,7 +29,6 @@ class TemplateController(base.BaseController):
         By default this controller aborts the request with a 404 (Not
         Found)
         """
-        print 'Flaks calling!'
         if url.endswith(u'.txt'):
             response.headers[u'Content-Type'] = u'text/plain; charset=utf-8'
         # Default content-type is text/html

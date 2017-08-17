@@ -677,12 +677,9 @@ def nav_link(text, *args, **kwargs):
     :param condition: if ``False`` then no link is returned
 
     '''
-    print text
-    print kwargs
     if is_flask_request():
-        print args
+        # checking if its flask request and calling directly 'url_for' for test
         link = url_for(str(args))
-        print link
         return link
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
@@ -820,7 +817,7 @@ def _make_menu_item(menu_item, title, **kw):
 
     This function is called by wrapper functions.
     '''
-    
+    # display the menu item if it comes from flask
     if '.' in menu_item:
         link = _link_to(title, menu_item, suppress_active_class=True)
         return literal('<li>') + link + literal('</li>')
