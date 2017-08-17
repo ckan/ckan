@@ -376,6 +376,8 @@ def update_config():
         cache_dir = tempfile.mkdtemp()
         config['jinja2_cache_dir'] = cache_dir
         atexit.register(partial(shutil.rmtree, cache_dir))
+    elif not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
     env = jinja_extensions.Environment(
         loader=jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
