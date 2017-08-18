@@ -134,13 +134,201 @@
     {
       "field_name": "publisher",
       "label": {
-        "en": "Publisher in English",
-        "fa_IR": "Publisher in Farsi"
+        "en": "Publisher",
+        "fa_IR": "ناشر"
       },
-      "form_placeholder": {
-        "en": "Publisher placeholder in English",
-        "fa_IR": "Publisher placeholder in Farsi"
-      }
+      "preset": "select",
+      "choices": [
+        {
+         "value": "Ministry of Health and Medical Education",
+         "label": {
+           "en": "Ministry of Health and Medical Education",
+           "fa_IR": "وزارت بهداشت، درمان و آموزش پزشکی"
+         }
+        },
+        {
+         "value": "National Organisation for Civil Registration",
+         "label": {
+           "en": "National Organisation for Civil Registration",
+           "fa_IR": "سازمان ثبت احوال کشور"
+         }
+        },
+        {
+         "value": "Statistical Centre of Iran",
+         "label": {
+           "en": "Statistical Centre of Iran",
+           "fa_IR": "مرکز آمار ایران"
+         }
+        },
+        {
+         "value": "Islamic Parliament Research Centre",
+         "label": {
+           "en": "Islamic Parliament Research Centre",
+           "fa_IR": "مرکز تحقیقات مجلس شورای اسلامی"
+         }
+        },
+        {
+         "value": "Central Bank of Iran",
+         "label": {
+           "en": "Central Bank of Iran",
+           "fa_IR": "بانک مرکزی ایران"
+         }
+        },
+        {
+         "value": "Ministry of Agriculture-Jahad",
+         "label": {
+           "en": "Ministry of Agriculture-Jahad",
+           "fa_IR": "وزارت جهاد کشاورزی"
+         }
+        },
+        {
+         "value": "Ministry of Road and Urban Development",
+         "label": {
+           "en": "Ministry of Road and Urban Development",
+           "fa_IR": "وزارت راه و شهرسازی جمهوری اسلامی ایران"
+         }
+        },
+        {
+         "value": "Islamic Republic of Iran Customs Administration",
+         "label": {
+           "en": "Islamic Republic of Iran Customs Administration",
+           "fa_IR": "گمرک جمهوری اسلامی ایران"
+         }
+        },
+        {
+         "value": "President Deputy Strategic Planning and Control",
+         "label": {
+           "en": "President Deputy Strategic Planning and Control",
+           "fa_IR": "معاونت برنامه‌ریزی و نظارت راهبردی رییس جمهور"
+         }
+        },
+        {
+         "value": "Air Quality Control Company",
+         "label": {
+           "en": "Air Quality Control Company",
+           "fa_IR": "شرکت کنترل کیفیت هوا"
+         }
+        },
+        {
+         "value": "Ministry of Cooperatives Labour and Social Welfare",
+         "label": {
+           "en": "Ministry of Cooperatives Labour and Social Welfare",
+           "fa_IR": "وزارت تعاون، کار و رفاه اجتماعی"
+         }
+        },
+        {
+         "value": "Tebyan Cultural and Information Centre",
+         "label": {
+           "en": "Tebyan Cultural and Information Centre",
+           "fa_IR": "موسسه فرهنگی و اطلاع‌رسانی تبیان"
+         }
+        },
+        {
+         "value": "Behnam Ideh Gostar Group",
+         "label": {
+           "en": "Behnam Ideh Gostar Group",
+           "fa_IR": "گروه مهندسی بهنام ایده گستر"
+         }
+        },
+        {
+         "value": "eCommerce Development Centre of Iran",
+         "label": {
+           "en": "eCommerce Development Centre of Iran",
+           "fa_IR": "مرکز توسعه تجارت الکترونیکی ایران"
+         }
+        },
+        {
+         "value": "Ministry Of Interior",
+         "label": {
+           "en": "Ministry Of Interior",
+           "fa_IR": "وزارت کشور"
+         }
+        },
+        {
+         "value": "Dar al-Hadith Scientific Cultural Institute",
+         "label": {
+           "en": "Dar al-Hadith Scientific Cultural Institute",
+           "fa_IR": "موسسه علمی فرهنگی دارالحدیث"
+         }
+        },
+        {
+         "value": "North Khorasan University of Medical Sciences & Health Services",
+         "label": {
+           "en": "North Khorasan University of Medical Sciences & Health Services",
+           "fa_IR": "دانشگاه علوم پزشکی و خدمات بهداشتی درمانی خراسان شمالی"
+         }
+        },
+        {
+         "value": "Management and Planning Organisation of Iran",
+         "label": {
+           "en": "Management and Planning Organisation of Iran",
+           "fa_IR": "سازمان مدیریت و برنامه‌ریزی کشور"
+         }
+        },
+        {
+         "value": "Ministry of Education",
+         "label": {
+           "en": "Ministry of Education",
+           "fa_IR": "وزارت آموزش و پرورش"
+         }
+        },
+        {
+         "value": "Ministry of Science, Research and Technology",
+         "label": {
+           "en": "Ministry of Science, Research and Technology",
+           "fa_IR": "وزارت علوم تحقیقات و فناوری و دانشگاه آزاد اسلامی"
+         }
+        },
+        {
+         "value": "Trade Promotion Organization of Iran",
+         "label": {
+           "en": "Trade Promotion Organization of Iran",
+           "fa_IR": "سازمان توسعه تجارت ایران"
+         }
+        },
+        {
+         "value": "Islamic Revolution Mostazafan Foundation",
+         "label": {
+           "en": "Islamic Revolution Mostazafan Foundation",
+           "fa_IR": "بنیاد مستضعفان انقلاب اسلامی"
+         }
+        },
+        {
+         "value": "Iran Water Resources Management Company",
+         "label": {
+           "en": "Iran Water Resources Management Company",
+           "fa_IR": "شرکت مدیریت منابع آب ایران"
+         }
+        },
+        {
+         "value": "National Organization of Educational Testing",
+         "label": {
+           "en": "National Organization of Educational Testing",
+           "fa_IR": "سازمان سنجش آموزش کشور"
+         }
+        },
+        {
+         "value": "Supreme Audit Court",
+         "label": {
+           "en": "Supreme Audit Court",
+           "fa_IR": "دیوان محاسبات کشور"
+         }
+        },
+        {
+         "value": "Islamic Parliament Research Center Of Iran",
+         "label": {
+           "en": "Islamic Parliament Research Center Of Iran",
+           "fa_IR": "مرکز پژوهش‌های مجلس شورای اسلامی"
+         }
+        },
+        {
+         "value": "The World bank",
+         "label": {
+           "en": "The World bank",
+           "fa_IR": "بانک جهانی"
+         }
+        }
+      ]
     },
     {
       "field_name": "publisher_url",
@@ -171,9 +359,55 @@
     {
       "field_name": "methodology",
       "label": {
-        "en": "Methodology in English",
-        "fa_IR": "Methodology in Farsi"
-      }
+        "en": "Methodology",
+        "fa_IR": "روش تحقیق پایگاه داده باز ایران"
+      },
+      "preset": "select",
+      "choices": [
+        {
+         "value": "Dataset extracted from a PDF table with Tabula.",
+         "label": {
+           "en": "Dataset extracted from a PDF table with Tabula.",
+           "fa_IR": "مجموعه داده‌ از یک جدول در PDF با نرم‌افزار Tabula استخراج شده است."
+         }
+        },
+        {
+         "value": "Dataset extracted from a PDF table manually by copy and pasting each cell.",
+         "label": {
+           "en": "Dataset extracted from a PDF table manually by copy and pasting each cell.",
+           "fa_IR": "مجموعه داده‌ از یک جدول PDF به صورت دستی از طریق کپی و چسباندن هر سلول استخراج شده است."
+         }
+        },
+        {
+         "value": "Dataset manually typed from a scanned PDF table.",
+         "label": {
+           "en": "Dataset manually typed from a scanned PDF table.",
+           "fa_IR": "مجموعه داده‌ها به صورت دستی از یک جدول PDF اسکن شده تایپ شده است."
+         }
+        },
+        {
+         "value": "Dataset extracted from an HTML table with numbers converted from Farsi to English.",
+         "label": {
+           "en": "Dataset extracted from an HTML table with numbers converted from Farsi to English.",
+           "fa_IR": "مجموعه داده‌ها از یک جدول HTML با اعداد تبدیل شده از فارسی به انگلیسی گرفته شده است."
+         }
+        },
+        {
+         "value": "Dataset extracted from an HTML table.",
+         "label": {
+           "en": "Dataset extracted from an HTML table.",
+           "fa_IR": "مجموعه داده‌ها از یک جدول HTML استخراج شده است."
+         }
+        },
+        {
+         "value": "Dataset extracted from and Excel file.",
+         "label": {
+           "en": "Dataset extracted from and Excel file.",
+           "fa_IR": "مجموعه داده ها از یک فایل EXCEL استخراج شده است."
+         }
+        }
+      ],
+      "validators": "not_empty"
     },
     {
       "field_name": "license_id",
@@ -238,13 +472,201 @@
     {
       "field_name": "publisher",
       "label": {
-        "en": "Publisher in English",
-        "fa_IR": "Publisher in Farsi"
+        "en": "Publisher",
+        "fa_IR": "ناشر"
       },
-      "form_placeholder": {
-        "en": "Publisher placeholder in English",
-        "fa_IR": "Publisher placeholder in Farsi"
-      }
+      "preset": "select",
+      "choices": [
+        {
+         "value": "Ministry of Health and Medical Education",
+         "label": {
+           "en": "Ministry of Health and Medical Education",
+           "fa_IR": "وزارت بهداشت، درمان و آموزش پزشکی"
+         }
+        },
+        {
+         "value": "National Organisation for Civil Registration",
+         "label": {
+           "en": "National Organisation for Civil Registration",
+           "fa_IR": "سازمان ثبت احوال کشور"
+         }
+        },
+        {
+         "value": "Statistical Centre of Iran",
+         "label": {
+           "en": "Statistical Centre of Iran",
+           "fa_IR": "مرکز آمار ایران"
+         }
+        },
+        {
+         "value": "Islamic Parliament Research Centre",
+         "label": {
+           "en": "Islamic Parliament Research Centre",
+           "fa_IR": "مرکز تحقیقات مجلس شورای اسلامی"
+         }
+        },
+        {
+         "value": "Central Bank of Iran",
+         "label": {
+           "en": "Central Bank of Iran",
+           "fa_IR": "بانک مرکزی ایران"
+         }
+        },
+        {
+         "value": "Ministry of Agriculture-Jahad",
+         "label": {
+           "en": "Ministry of Agriculture-Jahad",
+           "fa_IR": "وزارت جهاد کشاورزی"
+         }
+        },
+        {
+         "value": "Ministry of Road and Urban Development",
+         "label": {
+           "en": "Ministry of Road and Urban Development",
+           "fa_IR": "وزارت راه و شهرسازی جمهوری اسلامی ایران"
+         }
+        },
+        {
+         "value": "Islamic Republic of Iran Customs Administration",
+         "label": {
+           "en": "Islamic Republic of Iran Customs Administration",
+           "fa_IR": "گمرک جمهوری اسلامی ایران"
+         }
+        },
+        {
+         "value": "President Deputy Strategic Planning and Control",
+         "label": {
+           "en": "President Deputy Strategic Planning and Control",
+           "fa_IR": "معاونت برنامه‌ریزی و نظارت راهبردی رییس جمهور"
+         }
+        },
+        {
+         "value": "Air Quality Control Company",
+         "label": {
+           "en": "Air Quality Control Company",
+           "fa_IR": "شرکت کنترل کیفیت هوا"
+         }
+        },
+        {
+         "value": "Ministry of Cooperatives Labour and Social Welfare",
+         "label": {
+           "en": "Ministry of Cooperatives Labour and Social Welfare",
+           "fa_IR": "وزارت تعاون، کار و رفاه اجتماعی"
+         }
+        },
+        {
+         "value": "Tebyan Cultural and Information Centre",
+         "label": {
+           "en": "Tebyan Cultural and Information Centre",
+           "fa_IR": "موسسه فرهنگی و اطلاع‌رسانی تبیان"
+         }
+        },
+        {
+         "value": "Behnam Ideh Gostar Group",
+         "label": {
+           "en": "Behnam Ideh Gostar Group",
+           "fa_IR": "گروه مهندسی بهنام ایده گستر"
+         }
+        },
+        {
+         "value": "eCommerce Development Centre of Iran",
+         "label": {
+           "en": "eCommerce Development Centre of Iran",
+           "fa_IR": "مرکز توسعه تجارت الکترونیکی ایران"
+         }
+        },
+        {
+         "value": "Ministry Of Interior",
+         "label": {
+           "en": "Ministry Of Interior",
+           "fa_IR": "وزارت کشور"
+         }
+        },
+        {
+         "value": "Dar al-Hadith Scientific Cultural Institute",
+         "label": {
+           "en": "Dar al-Hadith Scientific Cultural Institute",
+           "fa_IR": "موسسه علمی فرهنگی دارالحدیث"
+         }
+        },
+        {
+         "value": "North Khorasan University of Medical Sciences & Health Services",
+         "label": {
+           "en": "North Khorasan University of Medical Sciences & Health Services",
+           "fa_IR": "دانشگاه علوم پزشکی و خدمات بهداشتی درمانی خراسان شمالی"
+         }
+        },
+        {
+         "value": "Management and Planning Organisation of Iran",
+         "label": {
+           "en": "Management and Planning Organisation of Iran",
+           "fa_IR": "سازمان مدیریت و برنامه‌ریزی کشور"
+         }
+        },
+        {
+         "value": "Ministry of Education",
+         "label": {
+           "en": "Ministry of Education",
+           "fa_IR": "وزارت آموزش و پرورش"
+         }
+        },
+        {
+         "value": "Ministry of Science, Research and Technology",
+         "label": {
+           "en": "Ministry of Science, Research and Technology",
+           "fa_IR": "وزارت علوم تحقیقات و فناوری و دانشگاه آزاد اسلامی"
+         }
+        },
+        {
+         "value": "Trade Promotion Organization of Iran",
+         "label": {
+           "en": "Trade Promotion Organization of Iran",
+           "fa_IR": "سازمان توسعه تجارت ایران"
+         }
+        },
+        {
+         "value": "Islamic Revolution Mostazafan Foundation",
+         "label": {
+           "en": "Islamic Revolution Mostazafan Foundation",
+           "fa_IR": "بنیاد مستضعفان انقلاب اسلامی"
+         }
+        },
+        {
+         "value": "Iran Water Resources Management Company",
+         "label": {
+           "en": "Iran Water Resources Management Company",
+           "fa_IR": "شرکت مدیریت منابع آب ایران"
+         }
+        },
+        {
+         "value": "National Organization of Educational Testing",
+         "label": {
+           "en": "National Organization of Educational Testing",
+           "fa_IR": "سازمان سنجش آموزش کشور"
+         }
+        },
+        {
+         "value": "Supreme Audit Court",
+         "label": {
+           "en": "Supreme Audit Court",
+           "fa_IR": "دیوان محاسبات کشور"
+         }
+        },
+        {
+         "value": "Islamic Parliament Research Center Of Iran",
+         "label": {
+           "en": "Islamic Parliament Research Center Of Iran",
+           "fa_IR": "مرکز پژوهش‌های مجلس شورای اسلامی"
+         }
+        },
+        {
+         "value": "The World bank",
+         "label": {
+           "en": "The World bank",
+           "fa_IR": "بانک جهانی"
+         }
+        }
+      ]
     },
     {
       "field_name": "publisher_url",
@@ -287,13 +709,27 @@
     {
       "field_name": "language",
       "label": {
-        "en": "Language in English",
-        "fa_IR": "Language in Farsi"
+        "en": "Language",
+        "fa_IR": "زبان"
       },
-      "form_placeholder": {
-        "en": "Language placeholder in English",
-        "fa_IR": "Language placeholder in Farsi"
-      }
+      "preset": "select",
+      "choices": [
+        {
+         "value": "English",
+         "label": {
+           "en": "English",
+           "fa_IR": "انگلیسی"
+         }
+        },
+        {
+         "value": "Farsi",
+         "label": {
+           "en": "Farsi",
+           "fa_IR": "فارسی"
+         }
+        }
+      ],
+      "validators": "not_empty"
     },
     {
       "field_name": "cleaning_stage",
@@ -301,12 +737,39 @@
         "en": "Cleaning stage in English",
         "fa_IR": "Cleaning stage in Farsi"
       },
-      "form_placeholder": {
-        "en": "Cleaning stage placeholder in English",
-        "fa_IR": "Cleaning stage placeholder in Farsi"
-      },
-      "required": true,
-      "validators": "not_empty"
+      "preset": "select",
+      "choices": [
+        {
+         "value": "Original Source File",
+         "label": {
+           "en": "Original Source File",
+           "fa_IR": "فایل اصلی"
+         }
+        },
+        {
+         "value": "Scraped without modification",
+         "label": {
+           "en": "Scraped without modification",
+           "fa_IR": "استخراج شده بدون اصلاح"
+         }
+        },
+        {
+         "value": "Cleaned",
+         "label": {
+           "en": "Cleaned",
+           "fa_IR": "تمیز شده "
+         }
+        },
+        {
+         "value": "Cleaned and Aggregated",
+         "label": {
+           "en": "Cleaned and Aggregated",
+           "fa_IR": "تمیز و ادغام شده "
+         }
+        }
+      ],
+      "validators": "not_empty",
+      "required": true
     }
   ]
 }
