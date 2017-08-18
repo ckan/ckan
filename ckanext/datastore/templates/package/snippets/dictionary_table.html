@@ -1,0 +1,7 @@
+<tr>
+  <td>sdfasdf {{ f.id }}</td>
+  <td>{{ f.type }}</td>
+  <td>{{ h.get_translated(f.get('info', {}), 'label') }}</td>
+  <td>{{ h.render_markdown(
+    h.get_translated(f.get('info', {}), 'notes')) }}</td>
+</tr>

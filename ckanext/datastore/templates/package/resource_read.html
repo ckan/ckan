@@ -26,13 +26,7 @@
         {% block resource_data_dictionary_data %}
           {% set ddict=h.datastore_dictionary(res.id) %}
           {% for f in ddict %}
-            <tr>
-              <td>{{ f.id }}</td>
-              <td>{{ f.type }}</td>
-              <td>{{ h.get_translated(f.get('info', {}), 'label') }}</td>
-              <td>{{ h.render_markdown(
-                h.get_translated(f.get('info', {}), 'notes')) }}</td>
-            </tr>
+            {% snippet "package/snippets/dictionary_table.html", f=f, h=h %}
           {% endfor %}
         {% endblock %}
       </table>
