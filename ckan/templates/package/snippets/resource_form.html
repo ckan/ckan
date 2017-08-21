@@ -23,7 +23,7 @@
       {% set is_upload = (data.url_type == 'upload') %}
       {{ form.image_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
          is_upload_enabled=h.uploads_enabled(), is_url=data.url and not is_upload, is_upload=is_upload,
-         upload_label=_('Data'), url_label=_('URL'), placeholder=_('http://example.com/external-data.csv')) }}
+         upload_label=_('Data'), url_label=_('URL'), placeholder=_('http://example.com/external-data.csv'), field_name='name') }}
     {% endblock %}
 
     {% block basic_fields_name %}
