@@ -285,6 +285,7 @@ def _url_for_flask(*args, **kw):
     Raises :py:exception:`werkzeug.routing.BuildError` if it couldn't
     generate a URL.
     '''
+
     if (len(args) and '_' in args[0]
             and '.' not in args[0]
             and not args[0].startswith('/')):
@@ -678,8 +679,8 @@ def nav_link(text, *args, **kwargs):
 
     '''
     if is_flask_request():
-        # checking if its flask request and calling directly 'url_for' for test
-        link = url_for(str(args))
+        # checking if its flask request and calling '_link_to' 
+        link = _link_to(text, *args, **kwargs)
         return link
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
@@ -817,10 +818,7 @@ def _make_menu_item(menu_item, title, **kw):
 
     This function is called by wrapper functions.
     '''
-    # display the menu item if it comes from flask
-    # if '.' in menu_item:
-    #     link = _link_to(title, menu_item, suppress_active_class=True)
-    #     return literal('<li>') + link + literal('</li>')
+
     _menu_items = config['routes.named_routes']
     if not is_flask_request() and menu_item not in _menu_items:
         raise Exception('menu item `%s` cannot be found' % menu_item)
