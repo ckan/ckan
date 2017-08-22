@@ -9,7 +9,7 @@ set -e
 # URL for redis (required unless linked to a container called 'redis')
 : ${CKAN_REDIS_URL:=}
 
-CONFIG="${CKAN_CONFIG}/ckan.ini"
+CONFIG="${CKAN_CONFIG}/production.ini"
 
 abort () {
   echo "$@" >&2
@@ -100,6 +100,6 @@ fi
 set_environment
 
 # Initializes the Database
-ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"
+ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 
 exec "$@"

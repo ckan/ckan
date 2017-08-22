@@ -48,4 +48,4 @@ ENTRYPOINT ["/ckan-entrypoint.sh"]
 VOLUME ["/etc/ckan/default"]
 VOLUME ["/var/lib/ckan"]
 EXPOSE 5000
-CMD ["ckan-paster","serve","/etc/ckan/default/ckan.ini"]
+CMD ["ckan-paster","serve","/etc/ckan/default/production.ini"]
