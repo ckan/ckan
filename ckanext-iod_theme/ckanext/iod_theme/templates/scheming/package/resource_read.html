@@ -46,7 +46,8 @@
         {%- block resource_fields -%}
           {%- for field in schema.resource_fields -%}
             {%- if field.field_name not in exclude_fields
-                and field.display_snippet is not none -%}
+                and field.display_snippet is not none
+                and res[field.field_name] or res[field.values] or res[field.choices] is defined -%}
               <tr>
                 <th scope="row">
                   {{- h.scheming_language_text(field.label) -}}
