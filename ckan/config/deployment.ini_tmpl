@@ -54,6 +54,10 @@ sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
 ckan.datastore.default_fts_lang = english
 ckan.datastore.default_fts_index_method = gist
 
+## Theming settings
+ckan.base_public_folder = public
+ckan.base_template_folder = templates
+
 ## Site Settings
 
 ckan.site_url =
