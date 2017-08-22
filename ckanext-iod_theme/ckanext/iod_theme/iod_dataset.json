@@ -7,8 +7,8 @@
     {
       "field_name": "title_en",
       "label": {
-        "en": "Title of Dataset for English in English",
-        "fa_IR": "Title of Dataset for English in Farsi"
+        "en": "Title of Dataset",
+        "fa_IR": "نام فایل"
       },
       "preset": "title_en",
       "form_placeholder": {
@@ -20,8 +20,8 @@
     {
       "field_name": "title_fa",
       "label": {
-        "en": "Title of Dataset for Farsi in English",
-        "fa_IR": "Title of Dataset for Farsi in Farsi"
+        "en": "Title of Dataset",
+        "fa_IR": "نام فایل"
       },
       "preset": "title_fa",
       "form_placeholder": {
@@ -40,8 +40,8 @@
     {
       "field_name": "notes_en",
       "label": {
-        "en": "Description for English in English",
-        "fa_IR": "Description for English in Farsi"
+        "en": "Description",
+        "fa_IR": "توضیح"
       },
       "form_snippet": "markdown.html",
       "form_placeholder": {
@@ -53,8 +53,8 @@
     {
       "field_name": "notes_fa",
       "label": {
-        "en": "Description for Farsi in English",
-        "fa_IR": "Description for Farsi in Farsi"
+        "en": "Description",
+        "fa_IR": "توضیح"
       },
       "form_snippet": "markdown.html",
       "form_placeholder": {
@@ -66,8 +66,8 @@
     {
       "field_name": "theme_string",
       "label": {
-        "en": "Themes in English",
-        "fa_IR": "Themes in Farsi"
+        "en": "Themes",
+        "fa_IR": "موضوع"
       },
       "preset": "tag_string_required_autocomplete",
       "form_placeholder": {
@@ -78,8 +78,8 @@
     {
       "field_name": "tags_string",
       "label": {
-        "en": "Tags in English",
-        "fa_IR": "Tags in Farsi"
+        "en": "Tags",
+        "fa_IR": "برچسب"
       },
       "preset": "tag_string_required_autocomplete",
       "form_placeholder": {
@@ -98,8 +98,8 @@
     {
       "field_name": "date_start_gregorian",
       "label": {
-        "en": "Start Date (Gregorian) in English",
-        "fa_IR": "Start Date (Gregorian) in Farsi"
+        "en": "Start Date (Gregorian)",
+        "fa_IR": "تاریخ شروع (میلادی)"
       },
       "form_placeholder": "2017-01-20",
       "preset": "date"
@@ -107,8 +107,8 @@
     {
       "field_name": "date_end_gregorian",
       "label": {
-        "en": "End Date (Gregorian) in English",
-        "fa_IR": "End Date (Gregorian) in Farsi"
+        "en": "End Date (Gregorian)",
+        "fa_IR": "تاریخ پایان (میلادی)"
       },
       "form_placeholder": "2017-01-20",
       "preset": "date"
@@ -116,8 +116,8 @@
     {
       "field_name": "date_start_iranian",
       "label": {
-        "en": "Start Date (Iranian) in English",
-        "fa_IR": "Start Date (Iranian) in Farsi"
+        "en": "Start Date (Iranian)",
+        "fa_IR": "تاریخ شروع (ایرانی)"
       },
       "form_placeholder": "1395-11-01",
       "preset": "date"
@@ -125,8 +125,8 @@
     {
       "field_name": "date_end_iranian",
       "label": {
-        "en": "End Date (Iranian) in English",
-        "fa_IR": "End Date (Iranian) in Farsi"
+        "en": "End Date (Iranian)",
+        "fa_IR": "تاریخ پایان (ایرانی)"
       },
       "form_placeholder": "1395-11-01",
       "preset": "date"
@@ -333,8 +333,8 @@
     {
       "field_name": "publisher_url",
       "label": {
-        "en": "Publisher URL in English",
-        "fa_IR": "Publisher URL in Farsi"
+        "en": "Publisher URL",
+        "fa_IR": "سایت ناشر"
       },
       "validators": "url_validator",
       "form_placeholder": {
@@ -347,8 +347,8 @@
     {
       "field_name": "geographic_string",
       "label": {
-        "en": "Geographic Scope in English",
-        "fa_IR": "Geographic Scope in Farsi"
+        "en": "Geographic Scope",
+        "fa_IR": "دامنه جغرافیایی"
       },
       "preset": "tag_string_autocomplete",
       "form_placeholder": {
@@ -359,7 +359,7 @@
     {
       "field_name": "methodology",
       "label": {
-        "en": "Methodology",
+        "en": "IOD Methodology",
         "fa_IR": "روش تحقیق پایگاه داده باز ایران"
       },
       "preset": "select",
@@ -412,8 +412,8 @@
     {
       "field_name": "license_id",
       "label": {
-        "en": "License in English",
-        "fa_IR": "License in Farsi"
+        "en": "License",
+        "fa_IR": "مجوز"
       },
       "form_snippet": "license.html",
       "help_text": {
@@ -431,7 +431,10 @@
     },
     {
       "field_name": "name",
-      "label": "Name",
+      "label": {
+        "en": "Name",
+        "fa_IR": "نام فایل"
+      },
       "form_placeholder": {
         "en": "Name placeholder in English",
         "fa_IR": "Name placeholder in Farsi"
@@ -441,15 +444,18 @@
     },
     {
       "field_name": "format",
-      "label": "Format",
+      "label": {
+        "en": "File Type",
+        "fa_IR": "نوع فایل"
+      },
       "preset": "resource_format_autocomplete",
       "required": true
     },
     {
       "field_name": "notes_en",
       "label": {
-        "en": "Description for English in English",
-        "fa_IR": "Description for English in Farsi"
+        "en": "Notes",
+        "fa_IR": "توضیح"
       },
       "form_snippet": "markdown.html",
       "form_placeholder": {
@@ -460,8 +466,8 @@
     {
       "field_name": "notes_fa",
       "label": {
-        "en": "Description for Farsi in English",
-        "fa_IR": "Description for Farsi in Farsi"
+        "en": "Notes",
+        "fa_IR": "توضیح"
       },
       "form_snippet": "markdown.html",
       "form_placeholder": {
@@ -671,8 +677,8 @@
     {
       "field_name": "publisher_url",
       "label": {
-        "en": "Publisher URL in English",
-        "fa_IR": "Publisher URL in Farsi"
+        "en": "Publisher URL",
+        "fa_IR": "سایت ناشر"
       },
       "validators": "url_validator",
       "form_placeholder": {
@@ -685,8 +691,8 @@
     {
       "field_name": "source_en",
       "label": {
-        "en": "Source for English in English",
-        "fa_IR": "Source for English in Farsi"
+        "en": "Source",
+        "fa_IR": "منبع"
       },
       "form_snippet": "markdown.html",
       "form_placeholder": {
@@ -697,8 +703,8 @@
     {
       "field_name": "source_fa",
       "label": {
-        "en": "Source for Farsi in English",
-        "fa_IR": "Source for Farsi in Farsi"
+        "en": "Source",
+        "fa_IR": "منبع"
       },
       "form_snippet": "markdown.html",
       "form_placeholder": {
@@ -734,8 +740,8 @@
     {
       "field_name": "cleaning_stage",
       "label": {
-        "en": "Cleaning stage in English",
-        "fa_IR": "Cleaning stage in Farsi"
+        "en": "Cleaning Stage",
+        "fa_IR": "مرحله تمیز شدن داده"
       },
       "preset": "select",
       "choices": [
