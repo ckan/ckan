@@ -18,6 +18,8 @@ from flask_babel import Babel
 from beaker.middleware import SessionMiddleware
 from paste.deploy.converters import asbool
 from fanstatic import Fanstatic
+from repoze.who.config import WhoConfig
+from repoze.who.middleware import PluggableAuthenticationMiddleware
 
 import ckan.model as model
 from ckan.lib import helpers
@@ -194,6 +196,25 @@ def make_flask_stack(conf, **app_conf):
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
+    who_parser = WhoConfig(config['here'])
+    who_parser.parse(open(app_conf['who.config_file']))
+    # Initialize repoze.who
+    who_parser = WhoConfig(conf['here'])
+    who_parser.parse(open(app_conf['who.config_file']))
+
+    app = PluggableAuthenticationMiddleware(
+        app,
+        who_parser.identifiers,
+        who_parser.authenticators,
+        who_parser.challengers,
+        who_parser.mdproviders,
+        who_parser.request_classifier,
+        who_parser.challenge_decider,
+        logging.getLogger('repoze.who'),
+        logging.WARN,  # ignored
+        who_parser.remote_user_key
+    )
+
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
 
@@ -216,6 +237,8 @@ def ckan_before_request():
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
+
+    g.controller, g.action = request.url_rule.endpoint.split('.')[:2]
 
     # Identify the user from the repoze cookie or the API header
     # Sets g.user and g.userobj
@@ -345,6 +368,15 @@ def _register_core_blueprints(app):
             # building the routes and saving to config
             # need to be improved
             for rule in app.url_map.iter_rules():
-                config['routes.named_routes'].update({
-                    rule.endpoint: rule.rule
-                })
+                if '.' not in rule.endpoint:
+                    continue
+                controller, action = rule.endpoint.split('.')
+                route = {
+                    rule.endpoint: {
+                        'action': action,
+                        'controller': controller,
+                        'highlight_actions': action,
+                        'needed': list(rule.arguments)
+                    }
+                }
+                config['routes.named_routes'].update(route)

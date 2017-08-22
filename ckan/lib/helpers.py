@@ -818,9 +818,9 @@ def _make_menu_item(menu_item, title, **kw):
     This function is called by wrapper functions.
     '''
     # display the menu item if it comes from flask
-    if '.' in menu_item:
-        link = _link_to(title, menu_item, suppress_active_class=True)
-        return literal('<li>') + link + literal('</li>')
+    # if '.' in menu_item:
+    #     link = _link_to(title, menu_item, suppress_active_class=True)
+    #     return literal('<li>') + link + literal('</li>')
     _menu_items = config['routes.named_routes']
     if not is_flask_request() and menu_item not in _menu_items:
         raise Exception('menu item `%s` cannot be found' % menu_item)
