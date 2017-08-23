@@ -204,7 +204,6 @@ class TestHelpersUrlFor(BaseUrlFor):
         eq_(generated_url, url)
 
 
-
 class TestHelpersUrlForFlaskandPylons2(BaseUrlFor):
 
     def test_url_for_flask_route_new_syntax(self):

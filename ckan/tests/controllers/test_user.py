@@ -183,6 +183,8 @@ class TestLogout(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         logout_url = url_for(controller='user', action='logout')
+        # Remove the prefix otherwise the test app won't find the correct route
+        logout_url = logout_url.replace('/my/prefix', '')
         logout_response = app.get(logout_url, status=302)
         assert_equal(logout_response.status_int, 302)
         assert_true('/my/prefix/user/logout' in logout_response.location)
