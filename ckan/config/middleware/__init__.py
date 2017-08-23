@@ -39,6 +39,10 @@ webob.request.BaseRequest.charset = property(
 
 # End of webob.requests.BaseRequest monkey patch
 
+# This is a test Flask request context to be used internally.
+# Do not use it!
+_internal_test_request_context = None
+
 
 def make_app(conf, full_stack=True, static_files=True, **app_conf):
     '''
@@ -54,6 +58,11 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     app = AskAppDispatcherMiddleware({'pylons_app': pylons_app,
                                       'flask_app': flask_app})
+
+    # Set this internal test request context with the configured environment so
+    # it can be used when calling url_for from tests
+    global _internal_test_request_context
+    _internal_test_request_context = flask_app._wsgi_app.test_request_context()
 
     return app
 

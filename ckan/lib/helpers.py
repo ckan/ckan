@@ -28,6 +28,7 @@ from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
+from flask import _request_ctx_stack, current_app
 from routes import redirect_to as _routes_redirect_to
 from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
@@ -201,6 +202,30 @@ def get_site_protocol_and_host():
     return (None, None)
 
 
+def _get_auto_flask_context():
+    '''
+    Provides a Flask test request context if we are outside the context
+    of a web request (tests or CLI)
+    '''
+
+    from ckan.config.middleware import _internal_test_request_context
+    from ckan.lib.cli import _cli_test_request_context
+
+    # This is a normal web request, there is a request context present
+    if _request_ctx_stack.top:
+        return None
+
+    # We are outside a web request. A test web application was created
+    # (and with it a test request context with the relevant configuration)
+    if _internal_test_request_context:
+        return _internal_test_request_context
+
+    # We are outside a web request. This is a CLI command. A test request
+    # context was created when setting it up
+    if _cli_test_request_context:
+        return _cli_test_request_context
+
+
 @core_helper
 def url_for(*args, **kw):
     '''Return the URL for an endpoint given some parameters.
@@ -252,13 +277,23 @@ def url_for(*args, **kw):
         ver = kw.get('ver')
         if not ver:
             raise Exception('API URLs must specify the version (eg ver=3)')
+
+    _auto_flask_context = _get_auto_flask_context()
+
     try:
+        if _auto_flask_context:
+            _auto_flask_context.push()
+
         # First try to build the URL with the Flask router
         my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
+
         # If it doesn't succeed, fallback to the Pylons router
         my_url = _url_for_pylons(*args, **kw)
+    finally:
+        if _auto_flask_context:
+            _auto_flask_context.pop()
 
     # Add back internal params
     kw['__ckan_no_root'] = no_root
