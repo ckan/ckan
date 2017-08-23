@@ -734,7 +734,7 @@ class TestPackageDelete(helpers.FunctionalTestBase):
 
         with app.flask_app.test_request_context():
             url = url_for(controller='package', action='delete',
-                          id='schrodingersdatset')
+                    id='schrodingersdatset')
 
         response = app.post(
             url,
@@ -1857,7 +1857,7 @@ class TestPackageFollow(helpers.FunctionalTestBase):
 
         with app.flask_app.test_request_context():
             follow_url = url_for(controller='package',
-                                 action='follow',
+                                action='follow',
                                  id=package['id'])
         app.post(follow_url, extra_environ=env, status=302)
 
