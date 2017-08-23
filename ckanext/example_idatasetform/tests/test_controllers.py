@@ -14,10 +14,8 @@ submit_and_follow = helpers.submit_and_follow
 def _get_package_edit_page(app, package_name):
     user = factories.User()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
-    with app.flask_app.test_request_context():
-        url = url_for(controller='package', action='edit', id=package_name)
     response = app.get(
-        url,
+        url=url_for(controller='package', action='edit', id=package_name),
         extra_environ=env,
     )
     return env, response

@@ -1,25 +1,24 @@
 # encoding: utf-8
 
-import paste.fixture
+from ckan.tests.helpers import _get_test_app
 from ckan.common import config
 
 import ckan.model as model
-import ckan.tests.legacy as tests
 import ckan.plugins as p
 import ckan.lib.helpers as h
 import ckanext.reclineview.plugin as plugin
 import ckan.lib.create_test_data as create_test_data
-import ckan.config.middleware as middleware
 
 from ckan.tests import helpers, factories
 
 
-class BaseTestReclineViewBase(object):
+class BaseTestReclineViewBase():
     @classmethod
     def setup_class(cls):
+        cls.config_templates = config['ckan.legacy_templates']
+        config['ckan.legacy_templates'] = 'false'
 
-        cls.app = helpers._get_test_app()
-
+        cls.app = _get_test_app()
         p.load(cls.view_type)
 
         cls.p = cls.view_class()
@@ -31,6 +30,7 @@ class BaseTestReclineViewBase(object):
 
     @classmethod
     def teardown_class(cls):
+        config['ckan.legacy_templates'] = cls.config_templates
         p.unload(cls.view_type)
         model.repo.rebuild_db()
 
@@ -42,10 +42,8 @@ class BaseTestReclineViewBase(object):
         assert not self.p.can_view(data_dict)
 
     def test_title_description_iframe_shown(self):
-
-        with self.app.flask_app.test_request_context():
-            url = h.url_for(controller='package', action='resource_read',
-                            id=self.package.name, resource_id=self.resource_id)
+        url = h.url_for(controller='package', action='resource_read',
+                        id=self.package.name, resource_id=self.resource_id)
         result = self.app.get(url)
         assert self.resource_view['title'] in result
         assert self.resource_view['description'] in result
@@ -86,12 +84,15 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
 
     @classmethod
     def setup_class(cls):
-
-        cls.app = helpers._get_test_app()
+        cls.app = _get_test_app()
         if not p.plugin_loaded('recline_view'):
             p.load('recline_view')
         if not p.plugin_loaded('datastore'):
             p.load('datastore')
+        app_config = config.copy()
+        app_config['ckan.legacy_templates'] = 'false'
+        app_config['ckan.plugins'] = 'recline_view datastore'
+        app_config['ckan.views.default_views'] = 'recline_view'
 
     @classmethod
     def teardown_class(cls):
@@ -107,16 +108,12 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
             'fields': [{'id': 'a'}, {'id': 'b'}],
             'records': [{'a': 1, 'b': 'xyz'}, {'a': 2, 'b': 'zzz'}]
         }
+        result = helpers.call_action('datastore_create', **data)
 
-        # datastore_create will call internally (or trigger something that
-        # calls it) so we need a Flask app context
-        with self.app.flask_app.test_request_context():
-            result = helpers.call_action('datastore_create', **data)
+        resource_id = result['resource_id']
 
-            resource_id = result['resource_id']
-
-            url = h.url_for(controller='package', action='resource_read',
-                            id=dataset['id'], resource_id=resource_id)
+        url = h.url_for(controller='package', action='resource_read',
+                        id=dataset['id'], resource_id=resource_id)
 
         result = self.app.get(url)
 
