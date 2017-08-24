@@ -166,17 +166,12 @@ def redirect_to(*args, **kw):
     uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
                 args)
 
-    # Repoze.who redirects with single strings
-    # which need to be parsed by url_for
-    exempt_urls = ['/user/logout', '/user/logged_out_redirect',
-                   '/user/logged_in']
-    matching = [s for s in uargs if any(xs in s for xs in exempt_urls)]
-
     _url = ''
     skip_url_parsing = False
+    parse_url = kw.pop('parse_url', False)
     if uargs and len(uargs) is 1 and isinstance(uargs[0], basestring) \
             and (uargs[0].startswith('/') or is_url(uargs[0])) \
-            and len(matching) is 0:
+            and parse_url is False:
         skip_url_parsing = True
         _url = uargs[0]
 
