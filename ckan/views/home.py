@@ -9,7 +9,7 @@ import ckan.lib.search as search
 from ckan.common import g, c, config, _
 import ckan.lib.helpers as h
 
-CACHE_PARAMETERS = ['__cache', '__no_cache__']
+CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
 
 home = Blueprint(u'home', __name__)
 
@@ -17,11 +17,10 @@ home = Blueprint(u'home', __name__)
 @home.before_request
 def before_request():
     try:
-        print 'Before Request'
         context = {
             u'model': model,
             u'user': g.user,
-            'auth_user_obj': g.userobj
+            u'auth_user_obj': g.userobj
         }
         # views.identify_user()
         logic.check_access(u'site_read', context)
@@ -33,40 +32,40 @@ class HomeView(View):
     def dispatch_request(self):
         try:
             # package search
-            context = {'model': model, 'session': model.Session,
-                       'user': g.user, 'auth_user_obj': g.userobj}
+            context = {u'model': model, u'session': model.Session,
+                       u'user': g.user, u'auth_user_obj': g.userobj}
             data_dict = {
-                'q': '*:*',
-                'facet.field': h.facets(),
-                'rows': 4,
-                'start': 0,
-                'sort': 'views_recent desc',
-                'fq': 'capacity:"public"'
+                u'q': u'*:*',
+                u'facet.field': h.facets(),
+                u'rows': 4,
+                u'start': 0,
+                u'sort': u'views_recent desc',
+                u'fq': u'capacity:"public"'
             }
-            query = logic.get_action('package_search')(
+            query = logic.get_action(u'package_search')(
                 context, data_dict)
             g.search_facets = query['search_facets']
             g.package_count = query['count']
             g.datasets = query['results']
 
             g.facet_titles = {
-                'organization': _('Organizations'),
-                'groups': _('Groups'),
-                'tags': _('Tags'),
-                'res_format': _('Formats'),
-                'license': _('Licenses'),
+                u'organization': _(u'Organizations'),
+                u'groups': _(u'Groups'),
+                u'tags': _(u'Tags'),
+                u'res_format': _(u'Formats'),
+                u'license': _(u'Licenses'),
             }
 
         except search.SearchError:
             g.package_count = 0
 
         if g.userobj and not g.userobj.email:
-            url = h.url_for(controller='user', action='edit')
-            msg = _('Please <a href="%s">update your profile</a>'
-                    ' and add your email address. ') % url + \
-                _('%s uses your email address'
-                    ' if you need to reset your password.') \
-                % config.get('ckan.site_title')
+            url = h.url_for(controller=u'user', action=u'edit')
+            msg = _(u'Please <a href="%s">update your profile</a>'
+                    u' and add your email address. ') % url + \
+                _(u'%s uses your email address'
+                    u' if you need to reset your password.') \
+                % config.get(u'ckan.site_title')
             h.flash_notice(msg, allow_html=True)
 
         return render_template(u'home/index.html')
@@ -78,9 +77,9 @@ class AboutView(View):
 
 
 util_rules = [
-    (u'/', HomeView.as_view('/')), 
-    (u'/home', HomeView.as_view('home')),
-    (u'/about', AboutView.as_view('about'))]
+    (u'/', HomeView.as_view("/")),
+    (u'/home', HomeView.as_view("home")),
+    (u'/about', AboutView.as_view("about"))]
 
 for rule, view_func in util_rules:
     home.add_url_rule(rule, view_func=view_func)
