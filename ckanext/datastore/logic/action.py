@@ -450,16 +450,16 @@ def datastore_search(context, data_dict):
 
     res_id = data_dict['resource_id']
 
-    res_exists, real_id = backend.resource_id_from_alias(res_id)
-    # Resource only has to exist in the datastore (because it could be an
-    # alias)
-
-    if not res_exists:
-        raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(res_id)
-        ))
-
     if data_dict['resource_id'] not in WHITELISTED_RESOURCES:
+        res_exists, real_id = backend.resource_id_from_alias(res_id)
+        # Resource only has to exist in the datastore (because it could be an
+        # alias)
+
+        if not res_exists:
+            raise p.toolkit.ObjectNotFound(p.toolkit._(
+                'Resource "{0}" was not found.'.format(res_id)
+            ))
+
         # Replace potential alias with real id to simplify access checks
         if real_id:
             data_dict['resource_id'] = real_id
