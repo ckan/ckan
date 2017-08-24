@@ -11,8 +11,7 @@ import ckan.lib.helpers as h
 
 CACHE_PARAMETERS = ['__cache', '__no_cache__']
 
-home = Blueprint(
-    u'home', __name__, url_prefix=u'/')
+home = Blueprint(u'home', __name__)
 
 
 @home.before_request
@@ -78,6 +77,10 @@ class AboutView(View):
         return render_template(u'home/about.html')
 
 
-home.add_url_rule(u'/', view_func=HomeView.as_view('home'))
-#home.add_url_rule(u'/home', view_func=HomeView.as_view('home'))
-home.add_url_rule('about', view_func=AboutView.as_view('about'))
+util_rules = [
+    (u'/', HomeView.as_view('/')), 
+    (u'/home', HomeView.as_view('home')),
+    (u'/about', AboutView.as_view('about'))]
+
+for rule, view_func in util_rules:
+    home.add_url_rule(rule, view_func=view_func)
