@@ -111,7 +111,7 @@ def make_map():
         if not hasattr(route, '_ckan_core'):
             route._ckan_core = False
 
-    map.connect('home', '/', controller='home', action='index')
+    # map.connect('home', '/', controller='home', action='index')
     # map.connect('about', '/about', controller='home', action='about')
     # CKAN API versioned.
     register_list = [
