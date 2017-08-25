@@ -24,9 +24,9 @@
           {% endblock %}
         </thead>
         {% block resource_data_dictionary_data %}
-          {% set ddict=h.datastore_dictionary(res.id) %}
-          {% for f in ddict %}
-            {% snippet "package/snippets/dictionary_table.html", f=f, h=h %}
+          {% set dict=h.datastore_dictionary(res.id) %}
+          {% for field in dict %}
+            {% snippet "package/snippets/dictionary_table.html", field=field, h=h %}
           {% endfor %}
         {% endblock %}
       </table>
