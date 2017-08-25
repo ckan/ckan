@@ -1581,9 +1581,7 @@ class IFacets(Interface):
 
 
 class IAuthenticator(Interface):
-    u'''EXPERIMENTAL
-
-    Allows custom authentication methods to be integrated into CKAN.
+    u'''Allows custom authentication methods to be integrated into CKAN.
     Currently it is experimental and the interface may change.'''
 
     def identify(self):
