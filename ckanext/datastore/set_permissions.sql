@@ -94,7 +94,7 @@ DO $body$
         EXECUTE coalesce(
             (SELECT string_agg(
                 'CREATE TRIGGER zfulltext BEFORE INSERT OR UPDATE ON ' ||
-                quote_ident(relname) || 'FOR EACH ROW EXECUTE PROCEDURE ' ||
+                quote_ident(relname) || ' FOR EACH ROW EXECUTE PROCEDURE ' ||
                 'populate_full_text_trigger();', ' ')
             FROM pg_class
             LEFT OUTER JOIN pg_trigger AS t
