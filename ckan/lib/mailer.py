@@ -8,7 +8,6 @@ from time import time
 from email.mime.text import MIMEText
 from email.header import Header
 from email import Utils
-from urlparse import urljoin
 
 from ckan.common import config
 import paste.deploy.converters
