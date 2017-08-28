@@ -848,7 +848,20 @@ def create_indexes(context, data_dict):
 
 
 def create_table(context, data_dict):
-    '''Create table from combination of fields and first row of data.'''
+    '''Creates table, columns and column info (stored as comments).
+
+    :param resource_id: The resource ID (i.e. postgres table name)
+    :type resource_id: string
+    :param fields: details of each field/column, each with properties:
+        id - field/column name
+        type - optional, otherwise it is guessed from the first record
+        info - some field/column properties, saved as a JSON string in postgres
+            as a column comment. e.g. "type_override", "label", "notes"
+    :type fields: list of dicts
+    :param records: records, of which the first is used when a field type needs
+        guessing.
+    :type records: list of dicts
+    '''
 
     datastore_fields = [
         {'id': '_id', 'type': 'serial primary key'},
@@ -930,8 +943,20 @@ def create_table(context, data_dict):
 
 
 def alter_table(context, data_dict):
-    '''alter table from combination of fields and first row of data
-    return: all fields of the resource table'''
+    '''Adds new columns and updates column info (stored as comments).
+
+    :param resource_id: The resource ID (i.e. postgres table name)
+    :type resource_id: string
+    :param fields: details of each field/column, each with properties:
+        id - field/column name
+        type - optional, otherwise it is guessed from the first record
+        info - some field/column properties, saved as a JSON string in postgres
+            as a column comment. e.g. "type_override", "label", "notes"
+    :type fields: list of dicts
+    :param records: records, of which the first is used when a field type needs
+        guessing.
+    :type records: list of dicts
+    '''
     supplied_fields = data_dict.get('fields', [])
     current_fields = _get_fields(context, data_dict)
     if not supplied_fields:
