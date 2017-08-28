@@ -7,20 +7,19 @@
 Changelog
 ---------
 
-vX.X.X (TBA)
-============
+v?? (TBA)
+=========
 
 Note: This version requires re-running the 'datastore set-permissions' command
-   (assuming you run DataStore). See:
-   http://docs.ckan.org/en/ckan-2.7.0/maintaining/datastore.html#set-permissions
+   (assuming you run DataStore). See: :ref:`datastore-set-permissions`
 
    Otherwise new and updated datasets will not be searchable in DataStore and
-   the logs will contain this error:
+   the logs will contain this error::
 
       ProgrammingError: (psycopg2.ProgrammingError) function populate_full_text_trigger() does not exist
 
    CKAN developers should also re-run set-permissions on the test database:
-   http://docs.ckan.org/en/ckan-2.7.0/contributing/test.html#set-up-the-test-databases
+   :ref:`datastore-test-set-permissions`
 
 
 v2.7.0 2017-08-02
