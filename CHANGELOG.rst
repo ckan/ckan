@@ -7,30 +7,20 @@
 Changelog
 ---------
 
-v.X.X (TBA)
-===========
+vX.X.X (TBA)
+============
 
-Note: Those upgrading to this version of CKAN who run the DataStore need to
-   re-run the 'datastore set-permissions' command. For a package install run it
-   like this:
+Note: This version requires re-running the 'datastore set-permissions' command
+   (assuming you run DataStore). See:
+   http://docs.ckan.org/en/ckan-2.7.0/maintaining/datastore.html#set-permissions
 
-      sudo ckan datastore set-permissions | sudo -u postgres psql --set ON_ERROR_STOP=1
-
-   Or for a source install:
-
-      . /usr/lib/ckan/default/bin/activate
-      paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/development.ini
-
-   Developers who run the tests should also do:
-
-      paster datastore set-permissions -c test-core.ini | sudo -u postgres psql
-
-   Failure to run 'datastore set-permissions' will find that new and updated
-   datasets will not be searchable in DataStore and the logs will contain this
-   error:
+   Otherwise new and updated datasets will not be searchable in DataStore and
+   the logs will contain this error:
 
       ProgrammingError: (psycopg2.ProgrammingError) function populate_full_text_trigger() does not exist
-      [SQL: 'CREATE TRIGGER zfulltext\n        BEFORE INSERT OR UPDATE ON "78bf9251-cc2a-4fcf-b761-c2e08b074f18"\n        FOR EACH ROW EXECUTE PROCEDURE populate_full_text_trigger()']
+
+   CKAN developers should also re-run set-permissions on the test database:
+   http://docs.ckan.org/en/ckan-2.7.0/contributing/test.html#set-up-the-test-databases
 
 
 v2.7.0 2017-08-02
