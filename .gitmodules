@@ -10,3 +10,6 @@
 [submodule "ckanext-pdfview"]
     path = ckanext-pdfview
     url = https://github.com/ckan/ckanext-pdfview.git
+[submodule "ckanext-fluent"]
+    path = ckanext-fluent
+    url = https://github.com/ckan/ckanext-fluent.git
