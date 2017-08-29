@@ -3,7 +3,6 @@
   "dataset_type": "dataset",
   "about": "Iran Open Data CKAN dataset schema",
   "about_url": "http://github.com/smallmedia/iod-ckan",
-  "form_languages": ["en", "fa_IR"],
   "dataset_fields": [
     {
       "field_name": "title",
