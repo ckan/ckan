@@ -4,7 +4,7 @@
   "about_url": "http://github.com/smallmedia/iod-ckan",
   "presets": [
     {
-      "preset_name": "title_en",
+      "preset_name": "title",
       "values": {
         "validators": "if_empty_same_as(name) unicode",
         "form_snippet": "large_text.html",
@@ -126,6 +126,16 @@
         "form_snippet": "datetime_tz.html",
         "display_snippet": "datetime_tz.html",
         "validators": "scheming_isodatetime_tz convert_to_json_if_datetime"
+      }
+    },
+    {
+      "preset_name": "fluent_core_markdown_translated",
+      "values": {
+        "form_snippet": "fluent_markdown.html",
+        "display_snippet": "fluent_markdown.html",
+        "error_snippet": "fluent_text.html",
+        "validators": "fluent_text",
+        "output_validators": "fluent_core_translated_output"
       }
     }
   ]

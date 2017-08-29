@@ -3,30 +3,25 @@
   "dataset_type": "dataset",
   "about": "Iran Open Data CKAN dataset schema",
   "about_url": "http://github.com/smallmedia/iod-ckan",
+  "form_languages": ["en", "fa_IR"],
   "dataset_fields": [
     {
-      "field_name": "title_en",
-      "label": {
-        "en": "Title of Dataset",
-        "fa_IR": "نام فایل"
-      },
-      "preset": "title_en",
-      "form_placeholder": {
-        "en": "Dataset placeholder for English in English",
-        "fa_IR": "Dataset placeholder for English in Farsi"
-      },
+      "field_name": "title",
+      "label": "Title of Dataset",
+      "preset": "title",
+      "form_placeholder": "Dataset placeholder",
       "required": true
     },
     {
-      "field_name": "title_fa",
+      "field_name": "title_translated",
       "label": {
         "en": "Title of Dataset",
         "fa_IR": "نام فایل"
       },
-      "preset": "title_fa",
+      "preset": "fluent_core_translated",
       "form_placeholder": {
-        "en": "Dataset placeholder for Farsi in English",
-        "fa_IR": "Dataset placeholder for Farsi in Farsi"
+        "en": "Dataset placeholder for English",
+        "fa_IR": "Dataset placeholder for Farsi"
       },
       "required": true
     },
@@ -38,28 +33,15 @@
       "required": true
     },
     {
-      "field_name": "notes_en",
+      "field_name": "notes_translated",
       "label": {
         "en": "Description",
         "fa_IR": "توضیح"
       },
-      "form_snippet": "markdown.html",
+      "preset": "fluent_core_markdown_translated",
       "form_placeholder": {
-        "en": "Description placeholder for English in English",
-        "fa_IR": "Description placeholder for English in Farsi"
-      },
-      "required": true
-    },
-    {
-      "field_name": "notes_fa",
-      "label": {
-        "en": "Description",
-        "fa_IR": "توضیح"
-      },
-      "form_snippet": "markdown.html",
-      "form_placeholder": {
-        "en": "Description placeholder for Farsi in English",
-        "fa_IR": "Description placeholder for Farsi in Farsi"
+        "en": "Description placeholder for English",
+        "fa_IR": "Description placeholder for Farsi"
       },
       "required": true
     },
