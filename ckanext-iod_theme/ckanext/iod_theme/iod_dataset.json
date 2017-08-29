@@ -437,28 +437,17 @@
       "required": true
     },
     {
-      "field_name": "notes_en",
+      "field_name": "notes_translated",
       "label": {
-        "en": "Notes",
+        "en": "Description",
         "fa_IR": "توضیح"
       },
-      "form_snippet": "markdown.html",
+      "preset": "fluent_core_markdown_translated",
       "form_placeholder": {
-        "en": "Description placeholder for English in English",
-        "fa_IR": "Description placeholder for English in Farsi"
-      }
-    },
-    {
-      "field_name": "notes_fa",
-      "label": {
-        "en": "Notes",
-        "fa_IR": "توضیح"
+        "en": "Description placeholder for English",
+        "fa_IR": "Description placeholder for Farsi"
       },
-      "form_snippet": "markdown.html",
-      "form_placeholder": {
-        "en": "Description placeholder for Farsi in English",
-        "fa_IR": "Description placeholder for Farsi in Farsi"
-      }
+      "required": true
     },
     {
       "field_name": "publisher",
