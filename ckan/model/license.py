@@ -96,8 +96,6 @@ class LicenseRegister(object):
         else:
             default_license_list = [
                 LicenseNotSpecified(),
-                LicenseOpenDataCommonsPDDL(),
-                LicenseOpenDataCommonsOpenDatabase(),
                 LicenseOpenDataAttribution(),
                 LicenseCreativeCommonsZero(),
                 LicenseCreativeCommonsAttribution(),
