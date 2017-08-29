@@ -96,7 +96,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore datapusher iod_theme scheming_datasets resource_proxy webpage_view recline_map_view recline_graph_view recline_grid_view pdf_view
+ckan.plugins = stats text_view image_view recline_view datastore datapusher iod_theme scheming_datasets resource_proxy webpage_view recline_map_view recline_graph_view recline_grid_view pdf_view fluent
 
 #   module-path:file to schemas being used
 scheming.dataset_schemas = ckanext.iod_theme:iod_dataset.json
@@ -110,6 +110,7 @@ scheming.dataset_schemas = ckanext.iod_theme:iod_dataset.json
 
 #   Preset files may be included as well. The default preset setting is:
 scheming.presets = ckanext.iod_theme:iod_presets.json
+                   ckanext.fluent:presets.json
 
 #   The is_fallback setting may be changed as well. Defaults to false:
 scheming.dataset_fallback = false
