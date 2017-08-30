@@ -131,10 +131,8 @@ class TestUserInvite(object):
             'role': 'editor'
         }
 
-        app = helpers._get_test_app()
-        with app.flask_app.test_request_context():
-            assert_raises(logic.ValidationError, helpers.call_action,
-                          'user_invite', context, **params)
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'user_invite', context, **params)
 
         # Check that the pending user was deleted
         user = model.Session.query(model.User).filter(

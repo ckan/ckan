@@ -90,9 +90,7 @@ class TestRevisionController(TestController):
     def test_read(self):
         anna = model.Package.by_name(u'annakarenina')
         rev_id = anna.revision.id
-
-        with self.app.flask_app.test_request_context():
-            offset = url_for(controller='revision', action='read', id='%s' % rev_id)
+        offset = url_for(controller='revision', action='read', id='%s' % rev_id)
         res = self.app.get(offset)
         assert 'Revision %s' % rev_id in res
         assert 'Revision: %s' % rev_id in res
@@ -134,18 +132,14 @@ class TestRevisionController(TestController):
         # Todo: Test for first revision on last page.
         # Todo: Test for last revision minus 50 on second page.
         # Page 1.   (Implied id=1)
-
-        with self.app.flask_app.test_request_context():
-            offset = url_for(controller='revision', action='list', format='atom')
+        offset = url_for(controller='revision', action='list', format='atom')
         res = self.app.get(offset)
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
         # Todo: Better test for 'days' request param.
         #  - fake some older revisions and check they aren't included.
-
-        with self.app.flask_app.test_request_context():
-            offset = url_for(controller='revision', action='list', format='atom',
+        offset = url_for(controller='revision', action='list', format='atom',
                 days=30)
         res = self.app.get(offset)
         assert '<feed' in res, res

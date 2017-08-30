@@ -8,7 +8,6 @@ from ckan.logic import get_action
 import ckan.model as model
 import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
-from ckan.tests import helpers
 import json
 
 
@@ -36,7 +35,7 @@ class TestAuth(tests.WsgiAppCase):
 
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = helpers._get_test_app()
+        cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
     def teardown_class(cls):
@@ -52,7 +51,7 @@ class TestAuth(tests.WsgiAppCase):
                             params=params,
                             extra_environ={'Authorization': cls.apikeys[user]},
                             status=[200, 403, 409])
-        if res.status_int != (status or 200):
+        if res.status != (status or 200):
             error = json.loads(res.body)['error']
             raise AssertionError('Status was %s but should be %s. Error: %s' %
                                  (res.status, status, error))
@@ -258,7 +257,7 @@ class TestAuthOrgHierarchy(TestAuth):
 
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = helpers._get_test_app()
+        cls.app = paste.fixture.TestApp(wsgiapp)
 
         CreateTestData.create_arbitrary(
             package_dicts= [{'name': 'adataset',
