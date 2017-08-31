@@ -1000,9 +1000,6 @@ def upsert_data(context, data_dict):
     records = data_dict['records']
     sql_columns = ", ".join(
         identifier(name) for name in field_names)
-    sql_full_text = " || ' ' || ".join(
-        identifier(name) + "::text"
-        for name in field_names)
 
     if method == _INSERT:
         rows = []
