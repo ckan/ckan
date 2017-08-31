@@ -505,9 +505,21 @@ def datastore_search_sql(context, data_dict):
     '''
     backend = DatastoreBackend.get_active_backend()
 
-    p.toolkit.check_access('datastore_search_sql', context, data_dict)
+    def check_access(table_names):
+        '''
+        Raise NotAuthorized if current user is not allowed to access
+        any of the tables passed
 
-    result = backend.search_sql(context, data_dict)
+        :type table_names: list strings
+        '''
+        p.toolkit.check_access(
+            'datastore_search_sql',
+            dict(context, table_names=table_names),
+            data_dict)
+
+    result = backend.search_sql(
+        dict(context, check_access=check_access),
+        data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
     return result

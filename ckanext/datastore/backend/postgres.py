@@ -1535,11 +1535,11 @@ def search_sql(context, data_dict):
         table_names = datastore_helpers.get_table_names_from_sql(context, sql)
         log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
 
-        system_tables = [t for t in table_names if t.startswith('pg_')]
-        if len(system_tables):
+        if any(t.startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to access system tables']
             })
+        context['check_access'](table_names)
 
         results = context['connection'].execute(sql)
 
