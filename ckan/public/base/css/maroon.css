@@ -4220,7 +4220,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   }
 }
 .navbar-static-top {
-  z-index: 1000;
+  z-index: 1;
   border-width: 0 0 1px;
 }
 @media (min-width: 768px) {
@@ -10219,6 +10219,12 @@ h4 small {
 }
 .alert-error .alert-link {
   color: #843534;
+}
+.input-group .form-control {
+  z-index: 0;
+}
+.input-group-btn:last-child > .btn {
+  z-index: 0;
 }
 body {
   background: #810606 url("../../../base/images/bg.png");

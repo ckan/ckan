@@ -190,7 +190,7 @@ class ApiTestCase(object):
             raise Exception, "Couldn't loads string '%s': %s" % (chars, inst)
 
     def assert_json_response(self, res, expected_in_body=None):
-        content_type = res.headers['Content-Type']
+        content_type = res.header_dict['Content-Type']
         assert 'application/json' in content_type, content_type
         res_json = self.loads(res.body)
         if expected_in_body:
@@ -355,7 +355,7 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
         'description' : u'Great group!',
         'packages' : [u'annakarenina', u'warandpeace'],
     }
-    user_name = u'http://myrandom.openidservice.org/'
+    user_name = u'myrandom'
 
     def setup(self):
         super(BaseModelApiTestCase, self).setup()

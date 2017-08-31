@@ -1,16 +1,12 @@
 # encoding: utf-8
-
-import paste.fixture
 from ckan.common import config
 import urlparse
 
 import ckan.model as model
-import ckan.tests.legacy as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckanext.textview.plugin as plugin
 import ckan.lib.create_test_data as create_test_data
-import ckan.config.middleware as middleware
 from ckan.tests import helpers
 
 

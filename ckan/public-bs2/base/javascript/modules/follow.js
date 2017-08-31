@@ -2,7 +2,7 @@
  * Handles calling the API to follow the current user
  *
  * action - This being the action that the button should perform. Currently: "follow" or "unfollow"
- * type - The being the type of object the user is trying to support. Currently: "user" or "group"
+ * type - The being the type of object the user is trying to support. Currently: "user", "group" or "dataset"
  * id - id of the objec the user is trying to follow
  * loading - State management helper
  *
@@ -62,6 +62,7 @@ this.ckan.module('follow', function($) {
 		_onClickLoaded: function(json) {
 			var options = this.options;
 			var sandbox = this.sandbox;
+			var oldAction = options.action;
 			options.loading = false;
 			this.el.removeClass('disabled');
 			if (options.action == 'follow') {
@@ -71,7 +72,7 @@ this.ckan.module('follow', function($) {
 				options.action = 'follow';
 				this.el.html('<i class="fa fa-plus-circle"></i> ' + this._('Follow')).removeClass('btn-danger').addClass('btn-success');
 			}
-			sandbox.publish('follow-' + options.action + '-' + options.id);
+			sandbox.publish('follow-' + oldAction + '-' + options.id);
 		}
 	};
 });

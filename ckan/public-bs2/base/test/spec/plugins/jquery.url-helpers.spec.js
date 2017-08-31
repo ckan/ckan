@@ -43,5 +43,10 @@ describe('jQuery.url', function () {
       var target = jQuery.url.slugify('éåøç');
       assert.equal(target, 'eaoc');
     });
+
+    it('should allow underscore characters', function() {
+      var target = jQuery.url.slugify('apples_pears');
+      assert.equal(target, 'apples_pears');
+    });
   });
 });

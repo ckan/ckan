@@ -1,10 +1,11 @@
 # encoding: utf-8
 
 import requests
+import unittest
 import json
 import httpretty
-from nose.tools import assert_raises
 
+from ckan.tests.helpers import _get_test_app
 from ckan.common import config
 
 import ckan.model as model
@@ -12,7 +13,6 @@ import ckan.plugins as p
 import ckan.lib.create_test_data as create_test_data
 import ckanext.resourceproxy.controller as controller
 import ckanext.resourceproxy.plugin as proxy
-from ckan.tests import helpers
 
 
 JSON_STRING = json.dumps({
@@ -45,15 +45,17 @@ def set_resource_url(url):
     return {'resource': resource, 'package': package}
 
 
-class TestProxyPrettyfied(object):
+class TestProxyPrettyfied(unittest.TestCase):
 
     serving = False
 
     @classmethod
     def setup_class(cls):
         cls._original_config = config.copy()
+        cls.app = _get_test_app()
+        if not p.plugin_loaded('resource_proxy'):
+            p.load('resource_proxy')
         config['ckan.plugins'] = 'resource_proxy'
-        cls.app = helpers._get_test_app()
         create_test_data.CreateTestData.create()
 
     @classmethod
@@ -62,16 +64,9 @@ class TestProxyPrettyfied(object):
         config.update(cls._original_config)
         model.repo.rebuild_db()
 
-    def setup(self):
+    def setUp(self):
         self.url = 'http://www.ckan.org/static/example.json'
         self.data_dict = set_resource_url(self.url)
-
-        self.request_context = self.app.flask_app.test_request_context()
-        self.request_context.push()
-
-    def teardown(self):
-
-        self.request_context.pop()
 
     def register(self, *args, **kwargs):
         httpretty.HTTPretty.register_uri(httpretty.HTTPretty.GET, *args,
@@ -107,7 +102,7 @@ class TestProxyPrettyfied(object):
         result = self.app.get(proxied_url, status='*')
         # we expect a 409 because the resourceproxy got an error (404)
         # from the server
-        assert result.status_int == 409, result.status_int
+        assert result.status_int == 409, result.status
         assert '404' in result.body
 
     @httpretty.activate
@@ -120,7 +115,7 @@ class TestProxyPrettyfied(object):
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 409, result.status_int
+        assert result.status_int == 409, result.status
         assert 'too large' in result.body, result.body
 
     @httpretty.activate
@@ -133,7 +128,7 @@ class TestProxyPrettyfied(object):
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 409, result.status_int
+        assert result.status_int == 409, result.status
         assert 'too large' in result.body, result.body
 
     @httpretty.activate
@@ -142,7 +137,7 @@ class TestProxyPrettyfied(object):
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 409, result.status_int
+        assert result.status_int == 409, result.status
         assert 'Invalid URL' in result.body, result.body
 
     def test_non_existent_url(self):
@@ -152,11 +147,11 @@ class TestProxyPrettyfied(object):
             url = self.data_dict['resource']['url']
             requests.get(url)
 
-        assert_raises(requests.ConnectionError, f1)
+        self.assertRaises(requests.ConnectionError, f1)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status_int == 502, result.status_int
+        assert result.status_int == 502, result.status
         assert 'connection error' in result.body, result.body
 
     def test_proxied_resource_url_proxies_http_and_https_by_default(self):
