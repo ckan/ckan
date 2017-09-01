@@ -9,29 +9,29 @@
 
 {% block resource_additional_information_inner %}
   {% if res.datastore_active %}
-    {% set ddict=h.datastore_dictionary(res.id) %}
+  {% block resource_data_dictionary %}
     <div class="module-content">
       <h2>{{ _('Data Dictionary') }}</h2>
       <table class="table table-striped table-bordered table-condensed" data-module="table-toggle-more">
         <thead>
+          {% block resouce_data_dictionary_headers %}
           <tr>
             <th scope="col">{{ _('Column') }}</th>
             <th scope="col">{{ _('Type') }}</th>
             <th scope="col">{{ _('Label') }}</th>
             <th scope="col">{{ _('Description') }}</th>
           </tr>
+          {% endblock %}
         </thead>
-        {% for f in ddict %}
-          <tr>
-            <td>{{ f.id }}</td>
-            <td>{{ f.type }}</td>
-            <td>{{ h.get_translated(f.get('info', {}), 'label') }}</td>
-            <td>{{ h.render_markdown(
-              h.get_translated(f.get('info', {}), 'notes')) }}</td>
-          </tr>
-        {% endfor %}
+        {% block resource_data_dictionary_data %}
+          {% set dict=h.datastore_dictionary(res.id) %}
+          {% for field in dict %}
+            {% snippet "package/snippets/dictionary_table.html", field=field %}
+          {% endfor %}
+        {% endblock %}
       </table>
     </div>
+  {% endblock %}
   {% endif %}
   {{ super() }}
 {% endblock %}
