@@ -9,7 +9,6 @@ import pytz
 
 import sqlalchemy
 from pylons import config as pylons_config
-from flask import config as flask_config
 import formencode
 
 import ckan.config.routing as routing
@@ -226,7 +225,6 @@ def update_config():
         config['routes.middleware'].mapper = routes_map
     # routes.named_routes is a CKAN thing
     config['routes.named_routes'] = routing.named_routes
-    # print config['routes.named_routes']
     config['pylons.app_globals'] = app_globals.app_globals
     # initialise the globals
     app_globals.app_globals._init()

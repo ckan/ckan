@@ -364,9 +364,6 @@ def _register_core_blueprints(app):
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
             log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
-            # print app.url_map
-            # building the routes and saving to config
-            # need to be improved
             for rule in app.url_map.iter_rules():
                 if '.' not in rule.endpoint:
                     continue
