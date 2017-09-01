@@ -9,20 +9,7 @@
       "field_name": "title",
       "label": "Title of Dataset",
       "preset": "title",
-      "form_placeholder": "Dataset placeholder",
-      "required": true
-    },
-    {
-      "field_name": "title_translated",
-      "label": {
-        "en": "Title of Dataset",
-        "fa_IR": "نام فایل"
-      },
-      "preset": "fluent_core_translated",
-      "form_placeholder": {
-        "en": "Dataset placeholder for English",
-        "fa_IR": "Dataset placeholder for Farsi"
-      },
+      "form_placeholder": "Name given to the dataset",
       "required": true
     },
     {
@@ -33,6 +20,19 @@
       "required": true
     },
     {
+      "field_name": "title_translated",
+      "label": {
+        "en": "Title of Dataset",
+        "fa_IR": "نام فایل"
+      },
+      "preset": "fluent_core_translated",
+      "form_placeholder": {
+        "en": "Name given to the dataset for English",
+        "fa_IR": "Name given to the dataset for Farsi"
+      },
+      "required": true
+    },
+    {
       "field_name": "notes_translated",
       "label": {
         "en": "Description",
@@ -40,8 +40,8 @@
       },
       "preset": "fluent_core_markdown_translated",
       "form_placeholder": {
-        "en": "Description placeholder for English",
-        "fa_IR": "Description placeholder for Farsi"
+        "en": "Short description explaining the content and its origins for English",
+        "fa_IR": "Short description explaining the content and its origins for Farsi"
       },
       "required": true
     },
@@ -53,8 +53,8 @@
       },
       "preset": "tag_string_required_autocomplete",
       "form_placeholder": {
-        "en": "Themes placeholder in English",
-        "fa_IR": "Themes placeholder in Farsi"
+        "en": "Overall theme that the dataset falls in",
+        "fa_IR": "Overall theme that the dataset falls in"
       }
     },
     {
@@ -65,8 +65,8 @@
       },
       "preset": "tag_string_required_autocomplete",
       "form_placeholder": {
-        "en": "Tags placeholder in English",
-        "fa_IR": "Tags placeholder in Farsi"
+        "en": "Specific topics contained in the dataset",
+        "fa_IR": "Specific topics contained in the dataset"
       }
     },
     {
@@ -83,7 +83,10 @@
         "en": "Start Date (Gregorian)",
         "fa_IR": "تاریخ شروع (میلادی)"
       },
-      "form_placeholder": "2017-01-20",
+      "form_placeholder": {
+        "en": "The beginning of the time period covered in the dataset (in the Gregorian calendar)",
+        "fa_IR": "The beginning of the time period covered in the dataset (in the Gregorian calendar)"
+      },
       "preset": "date"
     },
     {
@@ -92,7 +95,10 @@
         "en": "End Date (Gregorian)",
         "fa_IR": "تاریخ پایان (میلادی)"
       },
-      "form_placeholder": "2017-01-20",
+      "form_placeholder": {
+        "en": "The end of the time period covered in the dataset (in the Gregorian calendar)",
+        "fa_IR": "The end of the time period covered in the dataset (in the Gregorian calendar)"
+      },
       "preset": "date"
     },
     {
@@ -101,7 +107,10 @@
         "en": "Start Date (Iranian)",
         "fa_IR": "تاریخ شروع (ایرانی)"
       },
-      "form_placeholder": "1395-11-01",
+      "form_placeholder": {
+        "en": "The beginning of the time period covered in the dataset (in the Iranian calendar)",
+        "fa_IR": "The beginning of the time period covered in the dataset (in the Iranian calendar)"
+      },
       "preset": "date"
     },
     {
@@ -110,7 +119,10 @@
         "en": "End Date (Iranian)",
         "fa_IR": "تاریخ پایان (ایرانی)"
       },
-      "form_placeholder": "1395-11-01",
+      "form_placeholder": {
+        "en": "The end of the time period covered in the dataset (in the Iranian calendar)",
+        "fa_IR": "The end of the time period covered in the dataset (in the Iranian calendar)"
+      },
       "preset": "date"
     },
     {
@@ -320,8 +332,8 @@
       },
       "validators": "url_validator",
       "form_placeholder": {
-        "en": "Publisher URL placeholder in English",
-        "fa_IR": "Publisher URL placeholder in Farsi"
+        "en": "Home page of publisher",
+        "fa_IR": "Home page of publisher"
       },
       "display_property": "foaf:homepage",
       "display_snippet": "link.html"
@@ -334,8 +346,8 @@
       },
       "preset": "tag_string_autocomplete",
       "form_placeholder": {
-        "en": "Geographic Scope placeholder in English",
-        "fa_IR": "Geographic Scope placeholder in Farsi"
+        "en": "If data is applicable to sub-national level include tags here for level that it applies to (e.g. province, city, etc) and also specific geographic/administrative regions that it applies to",
+        "fa_IR": "If data is applicable to sub-national level include tags here for level that it applies to (e.g. province, city, etc) and also specific geographic/administrative regions that it applies to"
       }
     },
     {
@@ -421,8 +433,8 @@
         "fa_IR": "نام فایل"
       },
       "form_placeholder": {
-        "en": "Name placeholder in English",
-        "fa_IR": "Name placeholder in Farsi"
+        "en": "Name given to the resource",
+        "fa_IR": "Name given to the resource"
       },
       "required": true,
       "validators": "not_empty"
@@ -444,10 +456,9 @@
       },
       "preset": "fluent_core_markdown_translated",
       "form_placeholder": {
-        "en": "Description placeholder for English",
-        "fa_IR": "Description placeholder for Farsi"
-      },
-      "required": true
+        "en": "Provide a concise description of the file for English",
+        "fa_IR": "Provide a concise description of the file for Farsi"
+      }
     },
     {
       "field_name": "publisher",
@@ -656,34 +667,22 @@
       },
       "validators": "url_validator",
       "form_placeholder": {
-        "en": "Publisher URL placeholder in English",
-        "fa_IR": "Publisher URL placeholder in Farsi"
+        "en": "Home page of publisher",
+        "fa_IR": "Home page of publisher"
       },
       "display_property": "foaf:homepage",
       "display_snippet": "link.html"
     },
     {
-      "field_name": "source_en",
+      "field_name": "source_translated",
       "label": {
         "en": "Source",
         "fa_IR": "منبع"
       },
-      "form_snippet": "markdown.html",
+      "preset": "fluent_markdown",
       "form_placeholder": {
-        "en": "Source placeholder for English in English",
-        "fa_IR": "Source placeholder for English in Farsi"
-      }
-    },
-    {
-      "field_name": "source_fa",
-      "label": {
-        "en": "Source",
-        "fa_IR": "منبع"
-      },
-      "form_snippet": "markdown.html",
-      "form_placeholder": {
-        "en": "Source placeholder for Farsi in English",
-        "fa_IR": "Source placeholder for Farsi in Farsi"
+        "en": "Citation of source file that data is extracted from for English",
+        "fa_IR": "Citation of source file that data is extracted from for English"
       }
     },
     {
