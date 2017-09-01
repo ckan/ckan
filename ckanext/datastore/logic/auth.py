@@ -54,8 +54,12 @@ def datastore_search(context, data_dict):
 @p.toolkit.auth_allow_anonymous_access
 def datastore_search_sql(context, data_dict):
     '''need access to view all tables in query'''
+
     for name in context['table_names']:
-        name_auth = datastore_auth(context, {'id': name}, 'resource_show')
+        name_auth = datastore_auth(
+            dict(context), # required because check_access mutates context
+            {'id': name},
+            'resource_show')
         if not name_auth['success']:
             return {
                 'success': False,

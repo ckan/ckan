@@ -13,7 +13,8 @@ import ckan.tests.legacy as tests
 
 from ckan.common import config
 import ckanext.datastore.backend.postgres as db
-from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
+from ckanext.datastore.tests.helpers import (
+    extract, rebuild_all_dbs, DatastoreFunctionalTestBase)
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -999,3 +1000,72 @@ class TestDatastoreSQL():
             res_dict = json.loads(res.body)
             assert res_dict['success'] is False
             assert res_dict['error']['__type'] == 'Authorization Error'
+
+
+class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
+    def test_search_sql_enforces_private(self):
+        user1 = factories.User()
+        user2 = factories.User()
+        user3 = factories.User()
+        ctx1 = {u'user': user1['name'], u'ignore_auth': False}
+        ctx2 = {u'user': user2['name'], u'ignore_auth': False}
+        ctx3 = {u'user': user3['name'], u'ignore_auth': False}
+
+        org1 = factories.Organization(
+            user=user1,
+            users=[{u'name': user3['name'], u'capacity': u'member'}])
+        org2 = factories.Organization(
+            user=user2,
+            users=[{u'name': user3['name'], u'capacity': u'member'}])
+        ds1 = factories.Dataset(owner_org=org1['id'], private=True)
+        ds2 = factories.Dataset(owner_org=org2['id'], private=True)
+        r1 = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds1['id']},
+            fields=[{u'id': u'spam', u'type': u'text'}])
+        r2 = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds2['id']},
+            fields=[{u'id': u'ham', u'type': u'text'}])
+
+        sql1 = 'SELECT spam FROM "{0}"'.format(r1['resource_id'])
+        sql2 = 'SELECT ham FROM "{0}"'.format(r2['resource_id'])
+        sql3 = 'SELECT spam, ham FROM "{0}", "{1}"'.format(
+            r1['resource_id'], r2['resource_id'])
+
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx2,
+            sql=sql1)
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx1,
+            sql=sql2)
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx1,
+            sql=sql3)
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx2,
+            sql=sql3)
+        helpers.call_action(
+            'datastore_search_sql',
+            context=ctx1,
+            sql=sql1)
+        helpers.call_action(
+            'datastore_search_sql',
+            context=ctx2,
+            sql=sql2)
+        helpers.call_action(
+            'datastore_search_sql',
+            context=ctx3,
+            sql=sql3)
