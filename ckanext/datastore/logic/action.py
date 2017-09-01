@@ -525,57 +525,6 @@ def datastore_search_sql(context, data_dict):
     return result
 
 
-def datastore_make_private(context, data_dict):
-    ''' Deny access to the DataStore table through
-    :meth:`~ckanext.datastore.logic.action.datastore_search_sql`.
-
-    This action is called automatically when a CKAN dataset becomes
-    private or a new DataStore table is created for a CKAN resource
-    that belongs to a private dataset.
-
-    :param resource_id: id of resource that should become private
-    :type resource_id: string
-    '''
-    backend = DatastoreBackend.get_active_backend()
-    if 'id' in data_dict:
-        data_dict['resource_id'] = data_dict['id']
-    res_id = _get_or_bust(data_dict, 'resource_id')
-
-    if not _resource_exists(context, data_dict):
-        raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(res_id)
-        ))
-
-    p.toolkit.check_access('datastore_change_permissions', context, data_dict)
-
-    backend.make_private(context, data_dict)
-
-
-def datastore_make_public(context, data_dict):
-    ''' Allow access to the DataStore table through
-    :meth:`~ckanext.datastore.logic.action.datastore_search_sql`.
-
-    This action is called automatically when a CKAN dataset becomes
-    public.
-
-    :param resource_id: if of resource that should become public
-    :type resource_id: string
-    '''
-    backend = DatastoreBackend.get_active_backend()
-    if 'id' in data_dict:
-        data_dict['resource_id'] = data_dict['id']
-    res_id = _get_or_bust(data_dict, 'resource_id')
-
-    if not _resource_exists(context, data_dict):
-        raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(res_id)
-        ))
-
-    p.toolkit.check_access('datastore_change_permissions', context, data_dict)
-
-    backend.make_public(context, data_dict)
-
-
 def set_datastore_active_flag(model, data_dict, flag):
     '''
     Set appropriate datastore_active flag on CKAN resource.

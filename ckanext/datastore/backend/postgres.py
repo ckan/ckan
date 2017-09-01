@@ -295,38 +295,6 @@ def _get_read_only_user(data_dict):
     return parsed['db_user']
 
 
-def _change_privilege(context, data_dict, what):
-    ''' We need a transaction for this code to work '''
-    read_only_user = _get_read_only_user(data_dict)
-    if what == 'REVOKE':
-        sql = u'REVOKE SELECT ON TABLE "{0}" FROM "{1}"'.format(
-            data_dict['resource_id'],
-            read_only_user)
-    elif what == 'GRANT':
-        sql = u'GRANT SELECT ON TABLE "{0}" TO "{1}"'.format(
-            data_dict['resource_id'],
-            read_only_user)
-    else:
-        raise ValidationError({
-            'privileges': [
-                u'Can only GRANT or REVOKE but not {0}'.format(what)
-            ]
-        })
-    try:
-        context['connection'].execute(sql)
-    except ProgrammingError, e:
-        log.critical("Error making resource private. {0!r}".format(e.message))
-        raise ValidationError({
-            'privileges': [
-                u'cannot make "{resource_id}" private'.format(**data_dict)
-            ],
-            'info': {
-                'orig': str(e.orig),
-                'pgcode': e.orig.pgcode
-            }
-        })
-
-
 def _is_array_type(field_type):
     return field_type.startswith('_')
 
@@ -1839,8 +1807,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             insert_data(context, data_dict)
             create_indexes(context, data_dict)
             create_alias(context, data_dict)
-            if data_dict.get('private'):
-                _change_privilege(context, data_dict, 'REVOKE')
             trans.commit()
             return _unrename_json_field(data_dict)
         except IntegrityError, e:
@@ -1889,29 +1855,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 'query': ['Query is not a single statement.']
             })
         return search_sql(context, data_dict)
-
-    def make_private(self, context, data_dict):
-        data_dict['connection_url'] = self.write_url
-        log.info('Making resource {resource_id!r} private'.format(**data_dict))
-        engine = self._get_write_engine()
-        context['connection'] = engine.connect()
-        trans = context['connection'].begin()
-        try:
-            _change_privilege(context, data_dict, 'REVOKE')
-            trans.commit()
-        finally:
-            context['connection'].close()
-
-    def make_public(self, context, data_dict):
-        log.info('Making resource {resource_id!r} public'.format(**data_dict))
-        engine = self._get_write_engine()
-        context['connection'] = engine.connect()
-        trans = context['connection'].begin()
-        try:
-            _change_privilege(context, data_dict, 'GRANT')
-            trans.commit()
-        finally:
-            context['connection'].close()
 
     def resource_exists(self, id):
         resources_sql = sqlalchemy.text(

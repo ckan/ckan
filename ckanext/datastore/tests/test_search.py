@@ -938,26 +938,6 @@ class TestDatastoreSQL():
         result = res_dict['result']
         assert result['records'] == self.expected_join_results
 
-    def test_read_private(self):
-        context = {
-            'user': self.sysadmin_user.name,
-            'model': model}
-        data_dict = {
-            'resource_id': self.data['resource_id']}
-        p.toolkit.get_action('datastore_make_private')(context, data_dict)
-        query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        # make it public for the other tests
-        p.toolkit.get_action('datastore_make_public')(context, data_dict)
-
     def test_new_datastore_table_from_private_resource(self):
         # make a private CKAN resource
         group = self.dataset.get_groups()[0]
@@ -999,86 +979,6 @@ class TestDatastoreSQL():
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
         assert res_dict['error']['__type'] == 'Authorization Error'
-
-    def test_making_resource_private_makes_datastore_private(self):
-        group = self.dataset.get_groups()[0]
-        context = {
-            'user': self.sysadmin_user.name,
-            'ignore_auth': True,
-            'model': model}
-        package = p.toolkit.get_action('package_create')(
-            context,
-            {'name': 'privatedataset2',
-             'private': False,
-             'owner_org': self.organization['id'],
-             'groups': [{
-                 'id': group.id
-             }]})
-        resource = p.toolkit.get_action('resource_create')(
-            context,
-            {'name': 'privateresource2',
-             'url': 'https://www.example.co.uk/',
-             'package_id': package['id']})
-
-        postparams = '%s=1' % json.dumps({
-            'resource_id': resource['id'],
-            'force': True
-        })
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
-        # Test public resource
-        query = 'SELECT * FROM "{0}"'.format(resource['id'])
-        data = {'sql': query}
-        postparams_sql = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
-        # Make resource private
-        package = p.toolkit.get_action('package_show')(
-            context, {'id': package.get('id')})
-        package['private'] = True
-        package = p.toolkit.get_action('package_update')(context, package)
-
-        # Test private
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        postparams = json.dumps({'resource_id': resource['id']})
-        res = self.app.post('/api/action/datastore_search', params=postparams,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        # we should not be able to make the private resource it public
-        postparams = json.dumps({'resource_id': resource['id']})
-        res = self.app.post('/api/action/datastore_make_public', params=postparams,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        # Make resource public
-        package = p.toolkit.get_action('package_show')(
-            context, {'id': package.get('id')})
-        package['private'] = False
-        package = p.toolkit.get_action('package_update')(context, package)
-
-        # Test public again
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
 
     def test_not_authorized_to_access_system_tables(self):
         test_cases = [
