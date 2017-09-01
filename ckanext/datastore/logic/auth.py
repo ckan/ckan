@@ -57,7 +57,7 @@ def datastore_search_sql(context, data_dict):
 
     for name in context['table_names']:
         name_auth = datastore_auth(
-            dict(context), # required because check_access mutates context
+            dict(context),  # required because check_access mutates context
             {'id': name},
             'resource_show')
         if not name_auth['success']:
