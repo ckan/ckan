@@ -23,8 +23,6 @@ from ckan.common import json
 import ckan.tests.legacy as tests
 from ckan.tests.helpers import call_action
 
-from ckan.tests import helpers
-
 
 ##def package_update(context, data_dict):
 ##    # These tests call package_update directly which is really bad
@@ -208,7 +206,7 @@ class TestActivity:
                 'id': annakarenina.id,
                 }
         self.users = [self.sysadmin_user, self.normal_user]
-        self.app = helpers._get_test_app()
+        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
 
     @classmethod
     def teardown_class(self):

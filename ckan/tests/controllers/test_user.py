@@ -1,12 +1,14 @@
 # encoding: utf-8
+from bs4 import BeautifulSoup
+from nose.tools import assert_true, assert_false, assert_equal, assert_in
 
-from ckan.lib.helpers import url_for
+import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from bs4 import BeautifulSoup
+
+from ckan.lib.helpers import url_for
 from ckan import model
 from ckan.lib.mailer import create_reset_key
-from nose.tools import assert_true, assert_false, assert_equal, assert_in
 
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
@@ -15,11 +17,8 @@ submit_and_follow = helpers.submit_and_follow
 def _get_user_edit_page(app):
     user = factories.User()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
-    with app.flask_app.test_request_context():
-        url = url_for(controller='user', action='edit')
-
     response = app.get(
-        url=url,
+        url=url_for(controller='user', action='edit'),
         extra_environ=env,
     )
     return env, response, user
@@ -28,11 +27,7 @@ def _get_user_edit_page(app):
 class TestRegisterUser(helpers.FunctionalTestBase):
     def test_register_a_user(self):
         app = helpers._get_test_app()
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='register')
-
-        response = app.get(url)
+        response = app.get(url=url_for(controller='user', action='register'))
 
         form = response.forms['user-register-form']
         form['name'] = 'newuser'
@@ -51,11 +46,7 @@ class TestRegisterUser(helpers.FunctionalTestBase):
 
     def test_register_user_bad_password(self):
         app = helpers._get_test_app()
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='register')
-
-        response = app.get(url)
+        response = app.get(url=url_for(controller='user', action='register'))
 
         form = response.forms['user-register-form']
         form['name'] = 'newuser'
@@ -85,10 +76,9 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         # submit it
         login_form.submit('save')
 
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='register')
-        response = app.get(url)
-
+        response = app.get(
+            url=url_for(controller='user', action='register'),
+        )
         assert "user-register-form" in response.forms
         form = response.forms['user-register-form']
         form['name'] = 'newestuser'
@@ -175,8 +165,7 @@ class TestLogout(helpers.FunctionalTestBase):
         '''
         app = self._get_test_app()
 
-        with app.flask_app.test_request_context():
-            logout_url = url_for(controller='user', action='logout')
+        logout_url = url_for(controller='user', action='logout')
         logout_response = app.get(logout_url, status=302)
         final_response = helpers.webtest_maybe_follow(logout_response)
 
@@ -193,8 +182,7 @@ class TestLogout(helpers.FunctionalTestBase):
         '''
         app = self._get_test_app()
 
-        with app.flask_app.test_request_context():
-            logout_url = url_for(controller='user', action='logout')
+        logout_url = url_for(controller='user', action='logout')
         # Remove the prefix otherwise the test app won't find the correct route
         logout_url = logout_url.replace('/my/prefix', '')
         logout_response = app.get(logout_url, status=302)
@@ -213,12 +201,8 @@ class TestUser(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='dashboard_datasets')
-
         response = app.get(
-            url,
+            url=url_for(controller='user', action='dashboard_datasets'),
             extra_environ=env,
         )
 
@@ -234,12 +218,8 @@ class TestUser(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         env = {'REMOTE_USER': user2['name'].encode('ascii')}
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='dashboard_datasets')
-
         response = app.get(
-            url,
+            url=url_for(controller='user', action='dashboard_datasets'),
             extra_environ=env,
         )
 
@@ -250,12 +230,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
 
     def test_user_edit_no_user(self):
         app = self._get_test_app()
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='edit', id=None)
-
         response = app.get(
-            url,
+            url_for(controller='user', action='edit', id=None),
             status=400
         )
         assert_true('No user specified' in response)
@@ -264,12 +240,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         '''Attempt to read edit user for an unknown user redirects to login
         page.'''
         app = self._get_test_app()
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='edit', id='unknown_person')
-
         response = app.get(
-            url,
+            url_for(controller='user', action='edit', id='unknown_person'),
             status=403
         )
 
@@ -279,12 +251,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         app = self._get_test_app()
         user = factories.User()
         username = user['name']
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='edit', id=username)
-
         response = app.get(
-            url,
+            url_for(controller='user', action='edit', id=username),
             status=403
         )
 
@@ -292,12 +260,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         user = factories.User(password='TestPassword1')
         app = self._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='edit')
-
         response = app.get(
-            url,
+            url=url_for(controller='user', action='edit'),
             extra_environ=env,
         )
         # existing values in the form
@@ -377,12 +341,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         login_form.submit()
 
         # Now the cookie is set, run the test
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='edit')
-
         response = app.get(
-            url,
+            url=url_for(controller='user', action='edit'),
         )
         # existing values in the form
         form = response.forms['user-edit-form']
@@ -410,12 +370,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         login_form.submit()
 
         # Now the cookie is set, run the test
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='edit', id=user['name'])
-
         response = app.get(
-            url,
+            url=url_for(controller='user', action='edit', id=user['name']),
         )
         # existing values in the form
         form = response.forms['user-edit-form']
@@ -443,12 +399,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         login_form.submit()
 
         # Now the cookie is set, run the test
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='user', action='edit', id=user['id'])
-
         response = app.get(
-            url,
+            url=url_for(controller='user', action='edit', id=user['id']),
         )
         # existing values in the form
         form = response.forms['user-edit-form']
@@ -468,12 +420,10 @@ class TestUserEdit(helpers.FunctionalTestBase):
         key = user_obj.reset_key
 
         app = self._get_test_app()
-
-        with app.flask_app.test_request_context():
-            offset = url_for(controller='user',
-                             action='perform_reset',
-                             id=user_obj.id,
-                             key=user_obj.reset_key)
+        offset = url_for(controller='user',
+                         action='perform_reset',
+                         id=user_obj.id,
+                         key=user_obj.reset_key)
         response = app.post(offset, params=params, status=302)
         user_obj = helpers.model.User.by_name(user['name'])  # Update user_obj
 
@@ -524,10 +474,9 @@ class TestUserFollow(helpers.FunctionalTestBase):
         user_two = factories.User()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            follow_url = url_for(controller='user',
-                                 action='follow',
-                                 id=user_two['id'])
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id=user_two['id'])
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow()
         assert_true('You are now following {0}'
@@ -541,10 +490,9 @@ class TestUserFollow(helpers.FunctionalTestBase):
         user_one = factories.User()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            follow_url = url_for(controller='user',
-                                 action='follow',
-                                 id='not-here')
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id='not-here')
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow(status=302)
         assert_in('user/login', response.headers['location'])
@@ -556,15 +504,13 @@ class TestUserFollow(helpers.FunctionalTestBase):
         user_two = factories.User()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            follow_url = url_for(controller='user',
-                                 action='follow',
-                                 id=user_two['id'])
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id=user_two['id'])
         app.post(follow_url, extra_environ=env, status=302)
 
-        with app.flask_app.test_request_context():
-            unfollow_url = url_for(controller='user', action='unfollow',
-                                   id=user_two['id'])
+        unfollow_url = url_for(controller='user', action='unfollow',
+                               id=user_two['id'])
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow()
@@ -581,9 +527,8 @@ class TestUserFollow(helpers.FunctionalTestBase):
         user_two = factories.User()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            unfollow_url = url_for(controller='user', action='unfollow',
-                                   id=user_two['id'])
+        unfollow_url = url_for(controller='user', action='unfollow',
+                               id=user_two['id'])
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow()
@@ -598,9 +543,8 @@ class TestUserFollow(helpers.FunctionalTestBase):
         user_one = factories.User()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            unfollow_url = url_for(controller='user', action='unfollow',
-                                   id='not-here')
+        unfollow_url = url_for(controller='user', action='unfollow',
+                               id='not-here')
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow(status=302)
@@ -614,15 +558,13 @@ class TestUserFollow(helpers.FunctionalTestBase):
         user_two = factories.User()
 
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            follow_url = url_for(controller='user',
-                                 action='follow',
-                                 id=user_two['id'])
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id=user_two['id'])
         app.post(follow_url, extra_environ=env, status=302)
 
-        with app.flask_app.test_request_context():
-            followers_url = url_for(controller='user', action='followers',
-                                    id=user_two['id'])
+        followers_url = url_for(controller='user', action='followers',
+                                id=user_two['id'])
 
         # Only sysadmins can view the followers list pages
         followers_response = app.get(followers_url, extra_environ=env,
@@ -636,8 +578,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
         '''Anon users can access the user list page'''
         app = self._get_test_app()
 
-        with app.flask_app.test_request_context():
-            user_url = url_for(controller='user', action='index')
+        user_url = url_for(controller='user', action='index')
         user_response = app.get(user_url, status=200)
         assert_true('<title>All Users - CKAN</title>'
                     in user_response)
@@ -649,8 +590,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
         factories.User(fullname='User Two')
         factories.User(fullname='User Three')
 
-        with app.flask_app.test_request_context():
-            user_url = url_for(controller='user', action='index')
+        user_url = url_for(controller='user', action='index')
         user_response = app.get(user_url, status=200)
 
         user_response_html = BeautifulSoup(user_response.body)
@@ -669,8 +609,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
         factories.User(fullname='User Two')
         factories.User(fullname='User Three')
 
-        with app.flask_app.test_request_context():
-            user_url = url_for(controller='user', action='index')
+        user_url = url_for(controller='user', action='index')
         user_response = app.get(user_url, status=200)
 
         user_response_html = BeautifulSoup(user_response.body)
@@ -689,8 +628,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
         factories.User(fullname='Person Two')
         factories.User(fullname='Person Three')
 
-        with app.flask_app.test_request_context():
-            user_url = url_for(controller='user', action='index')
+        user_url = url_for(controller='user', action='index')
         user_response = app.get(user_url, status=200)
         search_form = user_response.forms['user-search-form']
         search_form['q'] = 'Person'
@@ -712,8 +650,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
         factories.User(fullname='Person Two')
         factories.User(fullname='Person Three')
 
-        with app.flask_app.test_request_context():
-            user_url = url_for(controller='user', action='index')
+        user_url = url_for(controller='user', action='index')
         user_response = app.get(user_url, status=200)
         search_form = user_response.forms['user-search-form']
         search_form['q'] = 'useroneemail@example.com'
@@ -733,8 +670,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
         factories.User(fullname='Person Three')
 
         env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            user_url = url_for(controller='user', action='index')
+        user_url = url_for(controller='user', action='index')
         user_response = app.get(user_url, status=200, extra_environ=env)
         search_form = user_response.forms['user-search-form']
         search_form['q'] = 'useroneemail@example.com'

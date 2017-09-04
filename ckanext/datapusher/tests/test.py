@@ -52,7 +52,7 @@ class HTTPrettyFix(httpretty.core.fakesock.socket):
 httpretty.core.fakesock.socket = HTTPrettyFix
 
 
-class TestDatastoreCreate(tests.WsgiAppCase):
+class TestDatastoreCreate():
     sysadmin_user = None
     normal_user = None
 
@@ -68,10 +68,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         cls.normal_user = model.User.get('annafan')
         engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-        with cls.app.flask_app.test_request_context():
-            set_url_type(
-                model.Package.get('annakarenina').resources, cls.sysadmin_user)
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):
@@ -175,12 +173,9 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'user': self.sysadmin_user.name
         }
 
-        # datapusher_submit will call a function further down the line that
-        # relies on url_for so we need a request context
-        with self.app.flask_app.test_request_context():
-            p.toolkit.get_action('datapusher_submit')(context, {
-                'resource_id': resource.id
-            })
+        p.toolkit.get_action('datapusher_submit')(context, {
+            'resource_id': resource.id
+        })
 
         context.pop('task_status', None)
 

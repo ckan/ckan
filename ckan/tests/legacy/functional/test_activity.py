@@ -14,10 +14,9 @@ from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
 from ckan.tests.legacy.html_check import HtmlCheckMethods
-from ckan.tests.legacy import CreateTestData, WsgiAppCase
+from ckan.tests.legacy import CreateTestData
 
-
-class TestActivity(WsgiAppCase, HtmlCheckMethods):
+class TestActivity(HtmlCheckMethods):
     """Test the rendering of activity streams into HTML pages.
 
     Activity streams are tested in detail elsewhere, this class just briefly
@@ -30,6 +29,7 @@ class TestActivity(WsgiAppCase, HtmlCheckMethods):
             raise SkipTest('Activity streams not enabled')
         CreateTestData.create()
         cls.sysadmin_user = ckan.model.User.get('testsysadmin')
+        cls.app = paste.fixture.TestApp(pylonsapp)
 
     @classmethod
     def teardown(cls):
@@ -52,9 +52,7 @@ class TestActivity(WsgiAppCase, HtmlCheckMethods):
             'allow_partial_update': True,
             }
         user = user_create(context, user_dict)
-
-        with self.app.flask_app.test_request_context():
-            offset = url_for(controller='user', action='activity', id=user['id'])
+        offset = url_for(controller='user', action='activity', id=user['id'])
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
         assert '%s signed up' % user['fullname'] in stripped, stripped
@@ -241,9 +239,7 @@ class TestActivity(WsgiAppCase, HtmlCheckMethods):
 
         # The user's dashboard page should load successfully and have the
         # latest 15 activities on it.
-
-        with self.app.flask_app.test_request_context():
-            offset = url_for(controller='user', action='dashboard')
+        offset = url_for(controller='user', action='dashboard')
         extra_environ = {'Authorization':
                 str(ckan.model.User.get('billybeane').apikey)}
         result = self.app.post(offset, extra_environ=extra_environ,
