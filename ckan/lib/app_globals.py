@@ -70,6 +70,8 @@ app_globals_from_config_details = {
     'ckan.user_list_limit': {'default': '20', 'type': 'int'},
     'search.facets.default': {'default': '10', 'type': 'int',
                              'name': 'facets_default_number'},
+    # causing issues on startup if missing                         
+    'search_facets_limits': {'default': 3},
 }
 
 

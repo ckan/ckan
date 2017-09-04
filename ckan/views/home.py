@@ -77,7 +77,7 @@ class AboutView(View):
 
 
 util_rules = [
-    (u'/', HomeView.as_view("/")),
+    (u'/', HomeView.as_view("index")),
     (u'/home', HomeView.as_view("home")),
     (u'/about', AboutView.as_view("about"))]
 
