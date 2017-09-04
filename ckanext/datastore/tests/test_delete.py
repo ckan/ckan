@@ -22,17 +22,16 @@ from ckanext.datastore.tests.helpers import (
 assert_raises = nose.tools.assert_raises
 
 
-class TestDatastoreDelete(tests.WsgiAppCase):
+class TestDatastoreDelete():
     sysadmin_user = None
     normal_user = None
     Session = None
 
     @classmethod
     def setup_class(cls):
-
-        cls.app = helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -53,10 +52,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         engine = db.get_write_engine()
 
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-        with cls.app.flask_app.test_request_context():
-            set_url_type(
-                model.Package.get('annakarenina').resources, cls.sysadmin_user)
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):
@@ -119,10 +116,9 @@ class TestDatastoreDelete(tests.WsgiAppCase):
             },
         }
 
-        with self.app.flask_app.test_request_context():
-            result = helpers.call_action('datastore_create', **data)
-            resource_id = result['resource_id']
-            helpers.call_action('resource_delete', id=resource_id)
+        result = helpers.call_action('datastore_create', **data)
+        resource_id = result['resource_id']
+        helpers.call_action('resource_delete', id=resource_id)
 
         assert_raises(
             NotFound, helpers.call_action, 'datastore_search',

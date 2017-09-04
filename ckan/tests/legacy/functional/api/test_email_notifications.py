@@ -10,10 +10,11 @@ import ckan.tests.legacy.mock_mail_server as mock_mail_server
 import ckan.tests.legacy.pylons_controller as pylons_controller
 import ckan.config.middleware
 
-from ckan.tests import helpers
+import paste
+import paste.deploy
+import pylons.test
 
 from ckan.common import config
-
 
 
 class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
@@ -24,7 +25,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         mock_mail_server.SmtpServerHarness.setup_class()
         pylons_controller.PylonsTestCase.setup_class()
         tests.CreateTestData.create()
-        cls.app = helpers._get_test_app()
+        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
         joeadmin = model.User.get('joeadmin')
         cls.joeadmin = {'id': joeadmin.id,
                 'apikey': joeadmin.apikey,
@@ -197,7 +198,7 @@ class TestEmailNotificationsUserPreference(
         mock_mail_server.SmtpServerHarness.setup_class()
         pylons_controller.PylonsTestCase.setup_class()
         tests.CreateTestData.create()
-        cls.app = helpers._get_test_app()
+        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
         joeadmin = model.User.get('joeadmin')
         cls.joeadmin = {'id': joeadmin.id,
                 'apikey': joeadmin.apikey,
@@ -337,7 +338,7 @@ class TestEmailNotificationsIniSetting(
 
         wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
                 **config)
-        cls.app = helpers._get_test_app()
+        cls.app = paste.fixture.TestApp(wsgiapp)
 
         mock_mail_server.SmtpServerHarness.setup_class()
         pylons_controller.PylonsTestCase.setup_class()
@@ -421,7 +422,7 @@ class TestEmailNotificationsSinceIniSetting(
 
         wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
                 **config)
-        cls.app = helpers._get_test_app()
+        cls.app = paste.fixture.TestApp(wsgiapp)
 
         mock_mail_server.SmtpServerHarness.setup_class()
         pylons_controller.PylonsTestCase.setup_class()

@@ -15,8 +15,7 @@ class TestAdminController(WsgiAppCase):
 
     #test that only sysadmins can access the /ckan-admin page
     def test_index(self):
-        with self.app.flask_app.test_request_context():
-            url = url_for('ckanadmin', action='index')
+        url = url_for('ckanadmin', action='index')
         response = self.app.get(url, status=[403])
         # random username
         response = self.app.get(url, status=[403],

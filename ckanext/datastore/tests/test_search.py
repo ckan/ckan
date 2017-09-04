@@ -109,14 +109,16 @@ class TestDatastoreSearchNewTest(object):
 
 
 
-class TestDatastoreSearch(tests.WsgiAppCase):
+class TestDatastoreSearch():
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
+
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -648,11 +650,12 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['error'].get('fields') is not None, res_dict['error']
 
 
-class TestDatastoreFullTextSearch(tests.WsgiAppCase):
+class TestDatastoreFullTextSearch():
     @classmethod
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -775,7 +778,7 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
         assert res_dict['success'], pprint.pformat(res_dict)
 
 
-class TestDatastoreSQL(tests.WsgiAppCase):
+class TestDatastoreSQL():
     sysadmin_user = None
     normal_user = None
 
@@ -783,6 +786,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         plugin = p.load('datastore')
         if plugin.legacy_mode:
             # make sure we undo adding the plugin

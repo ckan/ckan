@@ -9,6 +9,7 @@ import datetime
 from nose.tools import raises
 from ckan.common import config
 import sqlalchemy.orm as orm
+from ckan.tests.helpers import _get_test_app
 
 from ckan.tests import helpers, factories
 import ckan.plugins as p
@@ -29,7 +30,7 @@ class FakeDataPusherPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(interfaces.IDataPusher, inherit=True)
 
-    def configure(self, config):
+    def configure(self, _config):
         self.after_upload_calls = 0
 
     def can_upload(self, resource_id):
@@ -39,22 +40,21 @@ class FakeDataPusherPlugin(p.SingletonPlugin):
         self.after_upload_calls += 1
 
 
-class TestInterface(object):
+class TestInterace(object):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-        cls.app = helpers._get_test_app()
+        cls.app = _get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         p.load('datapusher')
         p.load('test_datapusher_plugin')
 
-        with cls.app.flask_app.test_request_context():
-            resource = factories.Resource(url_type='datastore')
-            cls.dataset = factories.Dataset(resources=[resource])
+        resource = factories.Resource(url_type='datastore')
+        cls.dataset = factories.Dataset(resources=[resource])
 
         cls.sysadmin_user = factories.User(name='testsysadmin', sysadmin=True)
         cls.normal_user = factories.User(name='annafan')
@@ -85,12 +85,9 @@ class TestInterface(object):
             'user': self.sysadmin_user['name']
         }
 
-        # datapusher_submit will call a function further down the line that
-        # relies on url_for so we need a request context
-        with self.app.flask_app.test_request_context():
-            result = p.toolkit.get_action('datapusher_submit')(context, {
-                'resource_id': resource['id']
-            })
+        result = p.toolkit.get_action('datapusher_submit')(context, {
+            'resource_id': resource['id']
+        })
         assert not result
 
         context.pop('task_status', None)
