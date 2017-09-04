@@ -1,0 +1,13 @@
+{% extends "group/base_form_page.html" %}
+
+{% block subtitle %}{{ _('Create a Theme') }}{% endblock %}
+
+{% block breadcrumb_link %}{{ h.nav_link(_('Create a Theme'), controller='theme', action='edit', id=c.group.name) }}{% endblock %}
+
+{% block page_heading %}{{ _('Create a Theme') }}{% endblock %}
+
+{% block page_header %}{% endblock %}
+
+{% block secondary_content %}
+  {% snippet "group/snippets/helper.html" %}
+{% endblock %}

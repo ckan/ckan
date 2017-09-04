@@ -69,16 +69,16 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IRoutes)
 
     def before_map(self, map):
-        map.redirect('/group', '/topic',
+        map.redirect('/group', '/theme',
                      _redirect_code='301 Moved Permanently')
-        map.redirect('/group/{url:.*}', '/topic/{url}',
+        map.redirect('/group/{url:.*}', '/theme/{url}',
                      _redirect_code='301 Moved Permanently')
         group_controller = 'ckan.controllers.group:GroupController'
-        with mapper(map, controller=group_controller) as m:
-            m.connect('topic_index', '/topic', action='index')
-            m.connect('/topic/list', action='list')
-            m.connect('/topic/new', action='new')
-            m.connect('/topic/{action}/{id}',
+        with mapper.SubMapper(map, controller=group_controller) as m:
+            m.connect('theme_index', '/theme', action='index')
+            m.connect('/theme/list', action='list')
+            m.connect('/theme/new', action='new')
+            m.connect('/theme/{action}/{id}',
                       requirements=dict(action='|'.join([
                           'delete',
                           'admins',
@@ -89,18 +89,21 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
                           'follow',
                           'unfollow',
                       ])))
-            m.connect('topic_activity', '/topic/activity/{id}',
+            m.connect('theme_activity', '/theme/activity/{id}',
                       action='activity', ckan_icon='time')
-            m.connect('topic_read', '/topic/{id}', action='read')
-            m.connect('topic_about', '/topic/about/{id}',
+            m.connect('theme_read', '/theme/{id}', action='read')
+            m.connect('theme_about', '/theme/about/{id}',
                       action='about', ckan_icon='info-sign')
-            m.connect('topic_read', '/topic/{id}', action='read',
+            m.connect('theme_read', '/theme/{id}', action='read',
                       ckan_icon='sitemap')
-            m.connect('topic_edit', '/topic/edit/{id}',
+            m.connect('theme_edit', '/theme/edit/{id}',
                       action='edit', ckan_icon='edit')
-            m.connect('topic_members', '/topic/edit_members/{id}',
+            m.connect('theme_members', '/theme/edit_members/{id}',
                       action='members', ckan_icon='group')
-            m.connect('topic_bulk_process',
-                      '/topic/bulk_process/{id}',
+            m.connect('theme_bulk_process',
+                      '/theme/bulk_process/{id}',
                       action='bulk_process', ckan_icon='sitemap')
+        return map
+
+    def after_map(self, map):
         return map

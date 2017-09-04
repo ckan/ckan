@@ -1,0 +1,12 @@
+{% import 'macros/form.html' as form %}
+
+<form class="dataset-form dataset-resource-form form-horizontal" method="post" data-module="basic-form">
+
+  {{ form.errors(error_summary) }}
+
+  <input type="hidden" name="theme_name" value="{{ theme_dict.name }}"/>
+  {% snippet 'group/snippets/revisions_table.html', theme_dict=theme_dict, theme_revisions=theme_revisions %}
+
+  <button class="btn btn-primary" name="diff" value="go-resources" type="submit">{{ _('Compare') }}</button>
+
+</form>
