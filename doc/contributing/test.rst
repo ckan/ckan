@@ -40,6 +40,7 @@ environment:
 
     pip install -r |virtualenv|/src/ckan/dev-requirements.txt
 
+.. _datastore-test-set-permissions:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 Set up the test databases
@@ -55,6 +56,9 @@ Create test databases:
 
     sudo -u postgres createdb -O |database_user| |test_database| -E utf-8
     sudo -u postgres createdb -O |database_user| |test_datastore| -E utf-8
+
+Set the permissions::
+
     paster datastore set-permissions -c test-core.ini | sudo -u postgres psql
 
 This database connection is specified in the ``test-core.ini`` file by the
