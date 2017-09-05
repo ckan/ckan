@@ -1,0 +1,8 @@
+{
+  "name": "Vocabulary name",
+  "tags":
+    [
+      {"name": "First tag"},
+      {"name": "Second tag"}
+    ]
+}
