@@ -21,7 +21,7 @@
     {% if theme.description %}
       <p>
         {{ h.markdown_extract(theme.description, 180) }}
-        {% link_for _('read more'), controller='theme', action='about', id=group.name %}
+        {% link_for _('read more'), controller='group', action='about', id=group.name %}
       </p>
     {% endif %}
     {% endblock %}

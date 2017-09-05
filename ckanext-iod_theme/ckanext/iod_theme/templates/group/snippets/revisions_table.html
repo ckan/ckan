@@ -11,7 +11,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for rev in theme_revisions %}
+    {% for rev in group_revisions %}
       <tr>
         <td nowrap="nowrap">
           {{ h.radio('selected1', rev.id, checked=(loop.first)) }}

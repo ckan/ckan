@@ -4,8 +4,8 @@
 
   {{ form.errors(error_summary) }}
 
-  <input type="hidden" name="theme_name" value="{{ theme_dict.name }}"/>
-  {% snippet 'group/snippets/revisions_table.html', theme_dict=theme_dict, theme_revisions=theme_revisions %}
+  <input type="hidden" name="group_name" value="{{ group_dict.name }}"/>
+  {% snippet 'group/snippets/revisions_table.html', group_dict=group_dict, group_revisions=group_revisions %}
 
   <button class="btn btn-primary" name="diff" value="go-resources" type="submit">{{ _('Compare') }}</button>
 

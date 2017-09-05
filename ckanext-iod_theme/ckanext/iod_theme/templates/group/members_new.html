@@ -5,7 +5,7 @@
 {% set user = c.user_dict %}
 
 {% block primary_content_inner %}
-  {% link_for _('Back to all members'), controller='theme', action='members', id=group.name, class_='btn pull-right', icon='arrow-left' %}
+  {% link_for _('Back to all members'), controller='group', action='members', id=group.name, class_='btn pull-right', icon='arrow-left' %}
   <h1 class="page-heading">
     {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
   </h1>
