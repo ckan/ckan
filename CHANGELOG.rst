@@ -10,20 +10,20 @@ Changelog
 v2.7.0 2017-08-02
 =================
 
-Note: Starting from this version, CKAN requires at least Postgres 9.3
+General notes:
+ * Starting from this version, CKAN requires at least Postgres 9.3
+ * Starting from this version, CKAN requires a Redis database. Please
+   refer to the new `ckan.redis.url
+   <http://docs.ckan.org/en/ckan-2.7.0/maintaining/configuration.html#ckan-redis-url>`_
+   configuration option.
+ * This version requires a requirements upgrade on source installations
+ * This version requires a database upgrade
+ * This version does not require a Solr schema upgrade (You may want to
+   upgrade the schema if you want to target Solr>=5, see #2914)
+ * There are several old features being officially deprecated starting from
+   this version. Check the *Deprecations* section to be prepared.
 
-Note: This version requires a requirements upgrade on source installations
-
-Note: This version requires a database upgrade
-
-Note: This version does not require a Solr schema upgrade (You may want to
-         upgrade the schema if you want to target Solr>=5, see #2914)
-
-Note: There are several old features being officially deprecated starting from
-        this version. Check the *Deprecations* section to be prepared.
-
-
-Major:
+Major changes:
  * New datatables_view resource view plugin for tabular data (#3444)
  * IDataStoreBackend plugins for replacing the default DataStore Postgres backend (#3437)
  * datastore_search new result formats and performance improvements (#3523)
@@ -38,7 +38,7 @@ Major:
  * Generate complete datastore dump files (#3344)
  * A new system for asynchronous background jobs (#3165)
 
-Minor:
+Minor changes:
  * Renamed example theme plugin (#3576)
  * Localization support for groups (#3559)
  * Create new resource views when format changes (#3515)
@@ -95,7 +95,6 @@ API changes:
    to upgrade your code accordingly if you are using custom themes.
 
 Deprecations:
-
  * The API versions 1 and 2 (also known as the REST API, ie ``/api/rest/*`` will removed
    in favour of the version 3 (action API, ``/api/action/*``), which was introduced in
    CKAN 2.0. The REST API will be removed on CKAN 2.8.
