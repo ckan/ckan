@@ -685,6 +685,10 @@ def are_there_flash_messages():
 
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
+    if is_flask_request():
+        endpoint = request.url_rule.endpoint
+        action = request.url_rule.rule
+        return endpoint.split('.')[1] == action.translate('/')
     highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split()
     return (c.controller == kwargs.get('controller')
@@ -732,7 +736,7 @@ def nav_link(text, *args, **kwargs):
 
     '''
     if is_flask_request():
-        # checking if its flask request and calling '_link_to' 
+        # checking if its flask request and calling '_link_to'
         link = _link_to(text, *args, **kwargs)
         return link
     if len(args) > 1:
@@ -873,8 +877,6 @@ def _make_menu_item(menu_item, title, **kw):
     '''
 
     _menu_items = config['routes.named_routes']
-    if not is_flask_request() and menu_item not in _menu_items:
-        raise Exception('menu item `%s` cannot be found' % menu_item)
     item = copy.copy(_menu_items[menu_item])
     item.update(kw)
     active = _link_active(item)
@@ -928,11 +930,12 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
             facets.append(dict(active=True, **facet_item))
     # Sort descendingly by count and ascendingly by case-sensitive display name
     facets.sort(key=lambda it: (-it['count'], it['display_name'].lower()))
-    if c.search_facets_limits and limit is None:
-        limit = c.search_facets_limits.get(facet)
-    # zero treated as infinite for hysterical raisins
-    if limit is not None and limit > 0:
-        return facets[:limit]
+    if hasattr(c, 'search_facets_limits'):
+        if c.search_facets_limits and limit is None:
+            limit = c.search_facets_limits.get(facet)
+        # zero treated as infinite for hysterical raisins
+        if limit is not None and limit > 0:
+            return facets[:limit]
     return facets
 
 

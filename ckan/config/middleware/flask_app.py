@@ -238,8 +238,6 @@ def ckan_before_request():
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
-    g.controller, g.action = request.url_rule.endpoint.split('.')[:2]
-
     # Identify the user from the repoze cookie or the API header
     # Sets g.user and g.userobj
     identify_user()
