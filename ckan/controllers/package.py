@@ -228,10 +228,12 @@ class PackageController(base.BaseController):
                 # Only show datasets of this particular type
                 fq += ' +dataset_type:{type}'.format(type=package_type)
             else:
-                # Unless changed via config options, don't show non standard
-                # dataset types on the default search page
+                # Unless changed via config options or url parameter,
+                # don't show non standard dataset types on the default
+                # search page
                 if not asbool(
-                        config.get('ckan.search.show_all_types', 'False')):
+                        config.get('ckan.search.show_all_types', 'False')) \
+                        and not request.params.get('_show_all_types', False):
                     fq += ' +dataset_type:dataset'
 
             facets = OrderedDict()
