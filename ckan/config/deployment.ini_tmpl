@@ -119,7 +119,7 @@ ckan.views.default_views = image_view text_view recline_view
 
 # Uncomment following configuration to enable using of Bootstrap 2
 #ckan.base_public_folder = public-bs2
-#ckan.base_template_folder = templates-bs2
+#ckan.base_templates_folder = templates-bs2
 
 ckan.site_title = CKAN
 ckan.site_logo = /base/images/ckan-logo.png
