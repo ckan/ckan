@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import os
+import re
 
 from pylons.wsgiapp import PylonsApp
 
@@ -89,6 +90,10 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
             'bottom': True,
             'bundle': True,
         }
+    root_path = config.get('ckan.root_path', None)
+    if root_path:
+        root_path = re.sub('/{{LANG}}', '', root_path)
+        fanstatic_config['base_url'] = root_path
     app = Fanstatic(app, **fanstatic_config)
 
     for plugin in PluginImplementations(IMiddleware):
@@ -129,8 +134,6 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
 
     # Establish the Registry for this application
     app = RegistryManager(app)
-
-    app = common_middleware.I18nMiddleware(app, config)
 
     if asbool(static_files):
         # Serve static files

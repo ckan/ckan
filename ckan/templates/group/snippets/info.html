@@ -11,16 +11,16 @@
     {% endblock %}
     {% block heading %}
     <h1 class="heading">
-      {{ h.get_translated(group, 'title') or group.display_name }}
+      {{ group.display_name }}
       {% if group.state == 'deleted' %}
         [{{ _('Deleted') }}]
       {% endif %}
     </h1>
     {% endblock %}
     {% block description %}
-    {% if h.get_translated(group, 'description') %}
+    {% if group.description %}
       <p>
-        {{ h.markdown_extract(h.get_translated(group, 'description'), 180) }}
+        {{ h.markdown_extract(group.description, 180) }}
         {% link_for _('read more'), controller='group', action='about', id=group.name %}
       </p>
     {% endif %}
@@ -30,7 +30,7 @@
       <div class="nums">
         <dl>
           <dt>{{ _('Followers') }}</dt>
-          <dd>{{ h.SI_number_span(group.num_followers) }}</dd>
+          <dd data-module="followers-counter" data-module-id="{{ group.id }}" data-module-num_followers="{{ group.num_followers }}">{{ h.SI_number_span(group.num_followers) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>

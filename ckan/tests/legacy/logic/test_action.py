@@ -254,8 +254,8 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert "/api/3/action/help_show?name=user_create" in res_obj['help']
         assert res_obj['success'] is False
-        assert res_obj['error'] == { '__type': 'Validation Error',
-                'password': ['Your password must be 4 characters or longer']}
+        assert_equal(res_obj['error'], { '__type': 'Validation Error',
+                'password': ['Your password must be 8 characters or longer']})
 
     def test_12_user_update(self):
         normal_user_dict = {'id': self.normal_user.id,

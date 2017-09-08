@@ -2,7 +2,7 @@
 
 {% block page_primary_action %}
   {% if h.check_access('package_create', {'owner_org': c.group_dict.id}) %}
-    {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-square' %}
+    {% snippet 'snippets/add_dataset.html', group=c.group_dict.id %}
   {% endif %}
 {% endblock %}
 

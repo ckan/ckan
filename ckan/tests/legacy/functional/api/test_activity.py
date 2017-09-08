@@ -1418,7 +1418,7 @@ class TestActivity:
         # Create a new user.
         user_dict = {'name': 'testuser',
                 'about': 'Just a test user', 'email': 'me@test.org',
-                'password': 'testpass'}
+                'password': 'TestPassword1'}
         response = self.app.post('/api/action/user_create',
             json.dumps(user_dict),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])})

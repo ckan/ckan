@@ -247,7 +247,7 @@ class TestUpdate(object):
         '''Test that the right activity is emitted when updating a user.'''
 
         user = factories.User()
-        before = datetime.datetime.now()
+        before = datetime.datetime.utcnow()
 
         # FIXME we have to pass the email address and password to user_update
         # even though we're not updating those fields, otherwise validation
@@ -264,7 +264,7 @@ class TestUpdate(object):
         assert latest_activity['activity_type'] == 'changed user'
         assert latest_activity['object_id'] == user['id']
         assert latest_activity['user_id'] == user['id']
-        after = datetime.datetime.now()
+        after = datetime.datetime.utcnow()
         timestamp = datetime_from_string(latest_activity['timestamp'])
         assert timestamp >= before and timestamp <= after
 
@@ -1055,10 +1055,12 @@ class TestResourceUpdate(object):
         ''')
         update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test')
 
-        res_update = helpers.call_action('resource_update',
-                                         id=resource['id'],
-                                         url='http://localhost',
-                                         upload=update_resource)
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            res_update = helpers.call_action('resource_update',
+                                             id=resource['id'],
+                                             url='http://localhost',
+                                             upload=update_resource)
 
         org_mimetype = resource.pop('mimetype')
         upd_mimetype = res_update.pop('mimetype')
@@ -1098,10 +1100,13 @@ class TestResourceUpdate(object):
         ''')
         test_resource = TestResourceUpdate.FakeFileStorage(test_file, 'test.json')
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url='http://localhost',
-                                      name='Test',
-                                      upload=test_resource)
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            resource = factories.Resource(package=dataset,
+                                          url='http://localhost',
+                                          name='Test',
+                                          upload=test_resource)
 
         update_file = StringIO.StringIO()
         update_file.write('''
@@ -1112,10 +1117,11 @@ class TestResourceUpdate(object):
         ''')
         update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test.csv')
 
-        res_update = helpers.call_action('resource_update',
-                                         id=resource['id'],
-                                         url='http://localhost',
-                                         upload=update_resource)
+        with mock.patch('ckan.lib.helpers.url_for'):
+            res_update = helpers.call_action('resource_update',
+                                             id=resource['id'],
+                                             url='http://localhost',
+                                             upload=update_resource)
 
         org_mimetype = resource.pop('mimetype')
         upd_mimetype = res_update.pop('mimetype')
@@ -1174,10 +1180,13 @@ class TestResourceUpdate(object):
         ''')
         test_resource = TestResourceUpdate.FakeFileStorage(test_file, 'test.json')
         dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset,
-                                      url='http://localhost',
-                                      name='Test',
-                                      upload=test_resource)
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            resource = factories.Resource(package=dataset,
+                                          url='http://localhost',
+                                          name='Test',
+                                          upload=test_resource)
 
         update_file = StringIO.StringIO()
         update_file.write('''
@@ -1188,10 +1197,11 @@ class TestResourceUpdate(object):
         ''')
         update_resource = TestResourceUpdate.FakeFileStorage(update_file, 'update_test.csv')
 
-        res_update = helpers.call_action('resource_update',
-                                         id=resource['id'],
-                                         url='http://localhost',
-                                         upload=update_resource)
+        with mock.patch('ckan.lib.helpers.url_for'):
+            res_update = helpers.call_action('resource_update',
+                                             id=resource['id'],
+                                             url='http://localhost',
+                                             upload=update_resource)
 
         org_size = int(resource.pop('size'))  # 669 bytes
         upd_size = int(res_update.pop('size'))  # 358 bytes

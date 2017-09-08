@@ -11,7 +11,8 @@ from sqlalchemy import (
     desc,
     or_,
     and_,
-    union_all
+    union_all,
+    text,
 )
 
 import ckan.model
@@ -189,7 +190,7 @@ def _group_activity_query(group_id):
     group = model.Group.get(group_id)
     if not group:
         # Return a query with no results.
-        return model.Session.query(model.Activity).filter("0=1")
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     q = model.Session.query(
         model.Activity
@@ -244,7 +245,7 @@ def _activites_from_users_followed_by_user_query(user_id, limit):
     follower_objects = model.UserFollowingUser.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
-        return model.Session.query(model.Activity).filter("0=1")
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     return _activities_union_all(*[
         _user_activity_query(follower.object_id, limit)
@@ -259,7 +260,7 @@ def _activities_from_datasets_followed_by_user_query(user_id, limit):
     follower_objects = model.UserFollowingDataset.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
-        return model.Session.query(model.Activity).filter("0=1")
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     return _activities_union_all(*[
         _activities_limit(_package_activity_query(follower.object_id), limit)
@@ -280,7 +281,7 @@ def _activities_from_groups_followed_by_user_query(user_id, limit):
     follower_objects = model.UserFollowingGroup.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
-        return model.Session.query(model.Activity).filter("0=1")
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     return _activities_union_all(*[
         _activities_limit(_group_activity_query(follower.object_id), limit)

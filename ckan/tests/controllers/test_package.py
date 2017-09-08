@@ -993,6 +993,36 @@ class TestResourceNew(helpers.FunctionalTestBase):
             status=403,
         )
 
+    def test_anonymous_users_cannot_edit_resource(self):
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+        )
+        resource = factories.Resource(package_id=dataset['id'])
+        app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+            response = app.get(
+                url_for(
+                    controller='package',
+                    action='resource_edit',
+                    id=dataset['id'],
+                    resource_id=resource['id'],
+                ),
+                status=403,
+            )
+
+            response = app.post(
+                url_for(
+                    controller='package',
+                    action='resource_edit',
+                    id=dataset['id'],
+                    resource_id=resource['id'],
+                ),
+                {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
+                status=403,
+            )
+
 
 class TestResourceView(helpers.FunctionalTestBase):
     @classmethod
@@ -1298,7 +1328,7 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         # cancelling sends us back to the resource edit page
         form = response.forms['confirm-resource-delete-form']
         response = form.submit('cancel')
-        response = response.follow()
+        response = response.follow(extra_environ=env)
         assert_equal(200, response.status_int)
 
 
@@ -1315,8 +1345,10 @@ class TestSearch(helpers.FunctionalTestBase):
     def test_search_language_toggle(self):
         dataset1 = factories.Dataset()
 
-        offset = url_for(controller='package', action='search', q=dataset1['name'])
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(
+                controller='package', action='search', q=dataset1['name'])
         page = app.get(offset)
 
         assert dataset1['name'] in page.body.decode('utf8')

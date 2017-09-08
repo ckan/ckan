@@ -4,6 +4,7 @@ import logging
 import json
 import urlparse
 import datetime
+import time
 
 from dateutil.parser import parse as parse_date
 
@@ -100,7 +101,7 @@ def datapusher_submit(context, data_dict):
                 # likely something went wrong with it and the state wasn't
                 # updated than its still in progress. Let it be restarted.
                 log.info('A pending task was found %r, but it is only %s hours'
-                         'old', existing_task['id'], time_since_last_updated)
+                         ' old', existing_task['id'], time_since_last_updated)
             else:
                 log.info('A pending task was found %s for this resource, so '
                          'skipping this duplicate task', existing_task['id'])
@@ -287,6 +288,13 @@ def datapusher_status(context, data_dict):
                                            'Authorization': job_key})
             r.raise_for_status()
             job_detail = r.json()
+            for log in job_detail['logs']:
+                if 'timestamp' in log:
+                    date = time.strptime(
+                        log['timestamp'], "%Y-%m-%dT%H:%M:%S.%f")
+                    date = datetime.datetime.utcfromtimestamp(
+                        time.mktime(date))
+                    log['timestamp'] = date
         except (requests.exceptions.ConnectionError,
                 requests.exceptions.HTTPError):
             job_detail = {'error': 'cannot connect to datapusher'}

@@ -3,16 +3,15 @@
 import datetime
 import json
 
-import ckan.config.middleware as middleware
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.legacy as tests
+from ckan.tests import helpers
 import ckanext.datastore.backend.postgres as db
 import httpretty
 import httpretty.core
 import nose
-import paste.fixture
 import sqlalchemy.orm as orm
 from ckan.common import config
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
@@ -53,14 +52,13 @@ class HTTPrettyFix(httpretty.core.fakesock.socket):
 httpretty.core.fakesock.socket = HTTPrettyFix
 
 
-class TestDatastoreCreate(tests.WsgiAppCase):
+class TestDatastoreCreate():
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')

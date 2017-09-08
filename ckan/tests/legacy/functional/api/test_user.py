@@ -88,7 +88,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
         params = {
             'name': 'testinganewusersysadmin',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post(
             '/api/3/action/user_create',
@@ -102,7 +102,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
         params = {
             'name': 'testinganewuseranon',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
                             expect_errors=True)
@@ -138,7 +138,7 @@ class TestCreateUserApiEnabled(PylonsTestCase):
         params = {
             'name': 'testinganewusersysadmin',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post(
             '/api/3/action/user_create',
@@ -151,7 +151,7 @@ class TestCreateUserApiEnabled(PylonsTestCase):
         params = {
             'name': 'testinganewuseranon',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params))
         res_dict = res.json
@@ -186,7 +186,7 @@ class TestCreateUserWebDisabled(PylonsTestCase):
         params = {
             'name': 'testinganewuser',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
                             expect_errors=True)
@@ -222,7 +222,7 @@ class TestCreateUserWebEnabled(PylonsTestCase):
         params = {
             'name': 'testinganewuser',
             'email': 'testinganewuser@ckan.org',
-            'password': 'random',
+            'password': 'TestPassword1',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
                             expect_errors=True)
@@ -250,7 +250,7 @@ class TestUserActions(object):
         data_dict = {
             'name': 'a-new-user',
             'email': 'a.person@example.com',
-            'password': 'supersecret',
+            'password': 'TestPassword1',
         }
 
         user_dict = logic.get_action('user_create')(context, data_dict)

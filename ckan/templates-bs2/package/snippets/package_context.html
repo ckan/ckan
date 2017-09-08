@@ -1,0 +1,17 @@
+<div class="module context-info">
+  <section class="module-content">
+    <h1 class="heading">{{ h.dataset_display_name(pkg) }}</h1>
+    {% if pkg.notes %}
+      <p>
+        {{ h.markdown_extract(pkg.notes, 180) }}
+        {% link_for _('read more'), controller='package', action='about', id=pkg.name %}
+      </p>
+    {% endif %}
+    <div class="nums">
+      <dl>
+        <dt>{{ _('Resources') }}</dt>
+        <dd>{{ h.SI_number_span(pkg.resources|length) }}</dd>
+      </dl>
+    </div>
+  </section>
+</div>

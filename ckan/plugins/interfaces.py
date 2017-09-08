@@ -38,6 +38,7 @@ __all__ = [
     u'IUploader',
     u'IBlueprint',
     u'IPermissionLabels',
+    u'IForkObserver',
 ]
 
 
@@ -239,7 +240,10 @@ class IDomainObjectModification(Interface):
 
     def notify_after_commit(self, entity, operation):
         u'''
-        Send a notification after entity modification.
+        ** DEPRECATED **
+
+        Supposed to send a notification after entity modification, but it
+        doesn't work.
 
         :param entity: instance of module.Package.
         :param operation: 'new', 'changed' or 'deleted'.
@@ -1577,10 +1581,7 @@ class IFacets(Interface):
 
 
 class IAuthenticator(Interface):
-    u'''EXPERIMENTAL
-
-    Allows custom authentication methods to be integrated into CKAN.
-    Currently it is experimental and the interface may change.'''
+    u'''Allows custom authentication methods to be integrated into CKAN.'''
 
     def identify(self):
         u'''called to identify the user.
@@ -1751,4 +1752,14 @@ class IPermissionLabels(Interface):
 
         :returns: permission labels
         :rtype: list of unicode strings
+        '''
+
+
+class IForkObserver(Interface):
+    u'''
+    Observe forks of the CKAN process.
+    '''
+    def before_fork(self):
+        u'''
+        Called shortly before the CKAN process is forked.
         '''

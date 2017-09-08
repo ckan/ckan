@@ -162,19 +162,21 @@ It stores the configuration values defined in the :ref:`config_file`, eg::
 
 '''
         t['_'] = common._
-        self.docstring_overrides['_'] = '''The Pylons ``_()`` function.
+        self.docstring_overrides['_'] = '''Translates a string to the
+current locale.
 
-The Pylons ``_()`` function is a reference to the ``ugettext()`` function.
+The ``_()`` function is a reference to the ``ugettext()`` function.
 Everywhere in your code where you want strings to be internationalized
 (made available for translation into different languages), wrap them in the
 ``_()`` function, eg.::
 
     msg = toolkit._("Hello")
 
+Returns the localized unicode string.
 '''
         t['ungettext'] = common.ungettext
-        self.docstring_overrides['ungettext'] = '''The Pylons ``ungettext``
-        function.
+        self.docstring_overrides['ungettext'] = '''Translates a string with
+plural forms to the current locale.
 
 Mark a string for translation that has pural forms in the format
 ``ungettext(singular, plural, n)``. Returns the localized unicode string of

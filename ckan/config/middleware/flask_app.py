@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import os
+import re
 import inspect
 import itertools
 import pkgutil
@@ -12,6 +13,7 @@ from flask.sessions import SessionInterface
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Rule
 
+from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
 from paste.deploy.converters import asbool
@@ -19,7 +21,7 @@ from fanstatic import Fanstatic
 
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
-from ckan.common import config, g
+from ckan.common import config, g, request
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware
@@ -118,6 +120,23 @@ def make_flask_stack(conf, **app_conf):
     app.context_processor(helper_functions)
     app.context_processor(c_object)
 
+    # Babel
+    app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(root, u'i18n')
+    app.config[u'BABEL_DOMAIN'] = 'ckan'
+
+    babel = Babel(app)
+
+    @babel.localeselector
+    def get_locale():
+        u'''
+        Return the value of the `CKAN_LANG` key of the WSGI environ,
+        set by the I18nMiddleware based on the URL.
+        If no value is defined, it defaults to `ckan.locale_default` or `en`.
+        '''
+        return request.environ.get(
+            u'CKAN_LANG',
+            config.get(u'ckan.locale_default', u'en'))
+
     @app.route('/hello', methods=['GET'])
     def hello_world():
         return 'Hello World, this is served by Flask'
@@ -135,7 +154,6 @@ def make_flask_stack(conf, **app_conf):
             app.register_extension_blueprint(plugin.get_blueprint())
 
     # Start other middleware
-
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
 
@@ -156,6 +174,10 @@ def make_flask_stack(conf, **app_conf):
             'bottom': True,
             'bundle': True,
         }
+    root_path = config.get('ckan.root_path', None)
+    if root_path:
+        root_path = re.sub('/{{LANG}}', '', root_path)
+        fanstatic_config['base_url'] = root_path
     app = Fanstatic(app, **fanstatic_config)
 
     for plugin in PluginImplementations(IMiddleware):

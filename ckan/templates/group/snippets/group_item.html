@@ -17,30 +17,30 @@ Example:
 <li class="media-item">
   {% block item_inner %}
   {% block image %}
-    <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image">
+    <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image img-responsive">
   {% endblock %}
   {% block title %}
-    <h3 class="media-heading">{{ h.get_translated(group, 'title') or group.display_name }}</h3>
+    <h3 class="media-heading">{{ group.display_name }}</h3>
   {% endblock %}
   {% block description %}
-    {% if h.get_translated(group, 'description') %}
-      <p>{{ h.markdown_extract(h.get_translated(group, 'description'), extract_length=80) }}</p>
+    {% if group.description %}
+      <p>{{ h.markdown_extract(group.description, extract_length=80) }}</p>
     {% endif %}
   {% endblock %}
   {% block datasets %}
-    {% if group.packages %}
-      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.packages).format(num=group.packages) }}</strong>
-    {% elif group.packages == 0 %}
+    {% if group.package_count %}
+      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</strong>
+    {% elif group.package_count == 0 %}
       <span class="count">{{ _('0 Datasets') }}</span>
     {% endif %}
   {% endblock %}
   {% block link %}
-  <a href="{{ url }}" title="{{ _('View {name}').format(name=h.get_translated(group, 'title') or group.display_name) }}" class="media-view">
-    <span>{{ _('View {name}').format(name=h.get_translated(group, 'title') or group.display_name) }}</span>
+  <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" class="media-view">
+    <span>{{ _('View {name}').format(name=group.display_name) }}</span>
   </a>
   {% endblock %}
   {% if group.user_member %}
-    <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-small media-edit" title="{{ _('Remove dataset from this group') }}"/>
+    <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm media-edit" title="{{ _('Remove dataset from this group') }}"/>
   {% endif %}
   {% endblock %}
 </li>

@@ -170,14 +170,24 @@ class GroupController(base.BaseController):
             context['user_id'] = c.userobj.id
             context['user_is_admin'] = c.userobj.sysadmin
 
-        data_dict_global_results = {
-            'all_fields': False,
-            'q': q,
-            'sort': sort_by,
-            'type': group_type or 'group',
-        }
-        global_results = self._action('group_list')(context,
-                                                    data_dict_global_results)
+        try:
+            data_dict_global_results = {
+                'all_fields': False,
+                'q': q,
+                'sort': sort_by,
+                'type': group_type or 'group',
+            }
+            global_results = self._action('group_list')(
+                context, data_dict_global_results)
+        except ValidationError as e:
+            if e.error_dict and e.error_dict.get('message'):
+                msg = e.error_dict['message']
+            else:
+                msg = str(e)
+            h.flash_error(msg)
+            c.page = h.Page([], 0)
+            return render(self._index_template(group_type),
+                          extra_vars={'group_type': group_type})
 
         data_dict_page_results = {
             'all_fields': True,
@@ -660,8 +670,11 @@ class GroupController(base.BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user}
+        try:
+            self._check_access('group_member_create', context, {'id': id})
+        except NotAuthorized:
+            abort(403, _('Unauthorized to create group %s members') % '')
 
-        # self._check_access('group_delete', context, {'id': id})
         try:
             data_dict = {'id': id}
             data_dict['include_datasets'] = False

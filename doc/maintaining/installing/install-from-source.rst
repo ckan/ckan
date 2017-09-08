@@ -1,4 +1,4 @@
-.. include:: /_latest_release.rst
+.. include:: /_substitutions.rst
 
 ===========================
 Installing CKAN from source
@@ -98,13 +98,21 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the recommended version of 'setuptools':
+b. Install the recommended ``setuptools`` version:
 
    .. parsed-literal::
 
-       pip install -r |virtualenv|/src/ckan/requirement-setuptools.txt
+       pip install setuptools==\ |min_setuptools_version|
 
 c. Install the CKAN source code into your virtualenv.
+   .. important::
+   
+       For the following commands, make sure you are in your CKAN default directory. E.g.
+    
+      .. parsed-literal::
+      
+         cd /usr/lib/ckan/default/
+   
    To install the latest stable release of CKAN (CKAN |latest_release_version|),
    run:
 
@@ -120,6 +128,15 @@ c. Install the CKAN source code into your virtualenv.
 
        pip install -e 'git+\ |git_url|\#egg=ckan'
 
+   .. tip::
+      
+      If you would like to work submit a pull request with your changes, be sure you are working from a cloned repository.
+      Use your personal repository URL instead of the CKAN repository. E.g.
+      
+      .. parsed-literal::
+         
+         pip install -e 'git=https://github.com/{your-username}/ckan.git#egg=ckan'
+   
    .. warning::
 
       The development version may contain bugs and should not be used for

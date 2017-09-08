@@ -21,6 +21,13 @@ from ckanext.datastore.writer import (
     json_writer,
     xml_writer,
 )
+from ckan.logic import (
+    tuplize_dict,
+    parse_params,
+)
+import ckan.lib.navl.dictization_functions as dict_fns
+
+from itertools import izip_longest
 
 int_validator = get_validator('int_validator')
 boolean_validator = get_validator('boolean_validator')
@@ -75,17 +82,25 @@ class DatastoreController(BaseController):
         fields = [f for f in rec['fields'] if not f['id'].startswith('_')]
 
         if request.method == 'POST':
+            data = dict_fns.unflatten(tuplize_dict(parse_params(
+                request.params)))
+            info = data.get(u'info')
+            if not isinstance(info, list):
+                info = []
+            info = info[:len(fields)]
+
             get_action('datastore_create')(None, {
                 'resource_id': resource_id,
                 'force': True,
                 'fields': [{
                     'id': f['id'],
                     'type': f['type'],
-                    'info': {
-                        'label': request.POST.get('f{0}label'.format(i)),
-                        'notes': request.POST.get('f{0}notes'.format(i)),
-                    }} for i, f in enumerate(fields, 1)]})
+                    'info': fi if isinstance(fi, dict) else {}
+                    } for f, fi in izip_longest(fields, info)]})
 
+            h.flash_success(_('Data Dictionary saved. Any type overrides will '
+                              'take effect when the resource is next uploaded '
+                              'to DataStore'))
             h.redirect_to(
                 controller='ckanext.datastore.controller:DatastoreController',
                 action='dictionary',

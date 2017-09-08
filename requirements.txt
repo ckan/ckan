@@ -12,6 +12,7 @@ click==6.7
 decorator==4.0.6          # via pylons, sqlalchemy-migrate
 fanstatic==0.12
 Flask==0.11.1
+Flask-Babel==0.11.2
 FormEncode==1.3.0         # via pylons
 funcsigs==1.0.2           # via beaker
 html5lib==0.9999999       # via bleach
@@ -48,12 +49,12 @@ rq==0.6.0
 simplejson==3.10.0
 six==1.10.0               # via bleach, html5lib, pastescript, pyutilib.component.core, sqlalchemy-migrate
 sqlalchemy-migrate==0.10.0
-SQLAlchemy==0.9.6         # via sqlalchemy-migrate
+SQLAlchemy==1.1.11        # via sqlalchemy-migrate
 sqlparse==0.2.2
 Tempita==0.5.2            # via pylons, sqlalchemy-migrate, weberror
 tzlocal==1.3
 unicodecsv==0.14.1
-vdm==0.13
+vdm==0.14
 WebError==0.13.1          # via pylons
 WebHelpers==1.3           # via pylons
 WebOb==1.0.8              # via fanstatic, pylons, repoze.who, repoze.who-friendlyform, weberror, webtest
