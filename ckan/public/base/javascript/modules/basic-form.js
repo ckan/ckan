@@ -11,7 +11,7 @@ this.ckan.module('basic-form', function (jQuery) {
       // consecutive form submissions.
       this.el.on('submit', this._onSubmit);
     },
-    _onSubmit() {
+    _onSubmit: function () {
 
       // The button is not disabled immediately so that its value can be sent
       // the first time the form is submitted, because the "save" field is
