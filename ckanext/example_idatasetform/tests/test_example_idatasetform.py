@@ -133,11 +133,11 @@ class TestIDatasetFormPluginVersion4(object):
         nt.assert_equals([u'ie'], result['country_code'])
 
 
-class TestIDatasetFormPlugin(object):
+class TestIDatasetFormPluginVersion5(object):
     @classmethod
     def setup_class(cls):
         cls.original_config = config.copy()
-        plugins.load('example_idatasetform')
+        plugins.load('example_idatasetform_v5')
 
     def teardown(self):
         model.repo.rebuild_db()
@@ -145,7 +145,7 @@ class TestIDatasetFormPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_idatasetform')
+        plugins.unload('example_idatasetform_v5')
         helpers.reset_db()
         ckan.lib.search.clear_all()
 

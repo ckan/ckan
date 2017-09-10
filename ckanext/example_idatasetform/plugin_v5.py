@@ -1,23 +1,7 @@
-# encoding: utf-8
-
 import logging
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
-
-
-def convert_country_code_string_to_list(key, data, errors, context):
-    if isinstance(data['country_code_string',], basestring):
-        codes = [code.strip() \
-                for code in data['country_code_string',].split(',') \
-                if code.strip()]
-        data['country_code',] = codes
-
-
-def convert_country_codes_to_string(key, data, errors, context):
-    country_codes = data['country_code',]
-    if isinstance(country_codes, list):
-        data['country_code_string',] = ','.join(country_codes)
 
 
 def create_country_codes():
@@ -79,9 +63,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     num_times_setup_template_variables_called = 0
 
     def update_config(self, config):
-        # as we have slightly different forms for this tutorial we have to
-        # use a different template directory.
-        tk.add_template_directory(config, 'templates_v6')
+        # Add this plugin's templates dir to CKAN's extra_template_paths, so
+        # that CKAN will use this plugin's custom templates.
+        tk.add_template_directory(config, 'templates')
 
     def get_helpers(self):
         return {'country_codes': country_codes}
@@ -99,17 +83,19 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     def _modify_package_schema(self, schema):
         # Add our custom country_code metadata field to the schema.
         schema.update({
-            '__before': [ convert_country_code_string_to_list ],
-            'country_code_string': [tk.get_validator('ignore_missing')],
-            'country_code': [tk.get_validator('ignore_missing'),
-                tk.get_converter('convert_to_tags')('country_codes')],
-            'custom_text': [tk.get_validator('ignore_missing'),
-                tk.get_converter('convert_to_extras')]
-        })
+                'country_code': [tk.get_validator('ignore_missing'),
+                    tk.get_converter('convert_to_tags')('country_codes')]
+                })
+        # Add our custom_test metadata field to the schema, this one will use
+        # convert_to_extras instead of convert_to_tags.
+        schema.update({
+                'custom_text': [tk.get_validator('ignore_missing'),
+                    tk.get_converter('convert_to_extras')]
+                })
         # Add our custom_resource_text metadata field to the schema
         schema['resources'].update({
-            'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
-        })
+                'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
+                })
         return schema
 
     def create_package_schema(self):
@@ -133,14 +119,18 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         schema.update({
             'country_code': [
                 tk.get_converter('convert_from_tags')('country_codes'),
-                tk.get_validator('ignore_missing')],
-            'country_code_string': [ convert_country_codes_to_string ],
+                tk.get_validator('ignore_missing')]
+            })
+
+        # Add our custom_text field to the dataset schema.
+        schema.update({
             'custom_text': [tk.get_converter('convert_from_extras'),
                 tk.get_validator('ignore_missing')]
-        })
+            })
+
         schema['resources'].update({
-           'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
-        })
+                'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
+            })
         return schema
 
     # These methods just record how many times they're called, for testing

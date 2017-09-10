@@ -1,0 +1,14 @@
+{% ckan_extends %}
+
+{% block package_metadata_fields %}
+
+  <div class="control-group">
+    {% set country_codes = {
+      'data-module': 'autocomplete', 'data-module-tags': '',
+      'data-module-source': "/api/3/action/tag_autocomplete?vocabulary_id=country_codes&query=?"} %}
+    {{ form.input('country_code_string', id='field-country_codes', label=_('Country Codes'), placeholder=_('eg. de, uk, es'), value=data.country_code_string, error=errors.country_code, classes=['control-full'], attrs=country_codes) }}
+  </div>
+
+  {{ super() }}
+
+{% endblock %}

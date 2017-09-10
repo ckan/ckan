@@ -1,0 +1,7 @@
+{% ckan_extends %}
+
+{% block basic_fields_url %}
+{{ super() }}
+
+  {{ form.input('custom_resource_text', label=_('Custom Text'), id='field-custom_resource_text', placeholder=_('custom resource text'), value=data.custom_resource_text, error=errors.custom_resource_text, classes=['control-medium']) }}
+{% endblock %}
