@@ -515,7 +515,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res = res_dict['result']
         assert res['resource_id'] == data['resource_id']
         assert res['fields'] == data['fields'], res['fields']
-        assert res['records'] == data['records']
 
         c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))
@@ -749,7 +748,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert res_dict['success'] is True
         res = res_dict['result']
         assert res['fields'] == data['fields'], res['fields']
-        assert res['records'] == data['records']
 
         # Get resource details
         data = {
