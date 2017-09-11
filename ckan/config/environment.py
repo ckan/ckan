@@ -2,11 +2,16 @@
 
 '''CKAN environment configuration'''
 import os
+import tempfile
+import atexit
+import shutil
+from functools import partial
 import logging
 import warnings
 from urlparse import urlparse
 import pytz
 
+import jinja2
 import sqlalchemy
 from pylons import config as pylons_config
 import formencode
@@ -230,17 +235,32 @@ def update_config():
     logging.getLogger("MARKDOWN").setLevel(logging.getLogger().level)
 
     # Create Jinja2 environment
+    cache_dir = config.get('jinja2_cache_dir', None)
+    if not cache_dir:
+        cache_dir = tempfile.mkdtemp()
+        config['jinja2_cache_dir'] = cache_dir
+        atexit.register(partial(shutil.rmtree, cache_dir))
+    elif not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
     env = jinja_extensions.Environment(
         loader=jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
-        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
-                    jinja_extensions.SnippetExtension,
-                    jinja_extensions.CkanExtend,
-                    jinja_extensions.CkanInternationalizationExtension,
-                    jinja_extensions.LinkForExtension,
-                    jinja_extensions.ResourceExtension,
-                    jinja_extensions.UrlForStaticExtension,
-                    jinja_extensions.UrlForExtension]
+        auto_reload=False,
+        extensions=[
+            'jinja2.ext.do',
+            'jinja2.ext.with_',
+            'jinja2.ext.InternationalizationExtension',
+            jinja_extensions.SnippetExtension,
+            jinja_extensions.CkanExtend,
+            jinja_extensions.LinkForExtension,
+            jinja_extensions.ResourceExtension,
+            jinja_extensions.UrlForStaticExtension,
+            jinja_extensions.UrlForExtension
+        ],
+        # The pre-2.8 default was only 50, the post-2.8 default is 400.
+        cache_size=400,
+
+        bytecode_cache=jinja2.FileSystemBytecodeCache(cache_dir)
     )
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters

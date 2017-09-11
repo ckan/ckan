@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import sys
-import re
 from logging import getLogger
 
 from ckan.common import config
@@ -89,7 +88,7 @@ class AuthFunctions:
         self._functions.update(fetched_auth_functions)
 
 _AuthFunctions = AuthFunctions()
-#remove the class
+# remove the class
 del AuthFunctions
 
 
@@ -111,7 +110,8 @@ def is_sysadmin(username):
 
 
 def _get_user(username):
-    ''' Try to get the user from c, if possible, and fallback to using the DB '''
+    '''Try to get the user from c, if possible, and fallback to using the DB
+    '''
     if not username:
         return None
     # See if we can get the user without touching the DB
@@ -148,11 +148,22 @@ def is_authorized(action, context, data_dict=None):
     if context.get('ignore_auth'):
         return {'success': True}
 
+    read_only = asbool(config.get('ckan.read_only', 'false'))
+
     auth_function = _AuthFunctions.get(action)
     if auth_function:
         username = context.get('user')
-        user = _get_user(username)
 
+        if read_only:
+            # If the auth function has not been wrapped with a auth_read_safe
+            # decorator, we should deny it if read-only mode is on.
+            if not getattr(auth_function, 'auth_read_safe', False):
+                return {
+                    'success': False,
+                    'msg': 'Read-only mode is enabled.'
+                }
+
+        user = _get_user(username)
         if user:
             # deleted users are always unauthorized
             if user.is_deleted():
@@ -169,10 +180,12 @@ def is_authorized(action, context, data_dict=None):
         # access straight away
         if not getattr(auth_function, 'auth_allow_anonymous_access', False) \
            and not context.get('auth_user_obj'):
-            return {'success': False,
-                    'msg': '{0} requires an authenticated user'
-                            .format(auth_function)
-                   }
+            return {
+                'success': False,
+                'msg': '{0} requires an authenticated user'.format(
+                    auth_function
+                )
+            }
 
         return auth_function(context, data_dict)
     else:
@@ -182,7 +195,13 @@ def is_authorized(action, context, data_dict=None):
 # these are the permissions that roles have
 ROLE_PERMISSIONS = OrderedDict([
     ('admin', ['admin']),
-    ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset', 'manage_group']),
+    ('editor', [
+        'read',
+        'delete_dataset',
+        'create_dataset',
+        'update_dataset',
+        'manage_group'
+    ]),
     ('member', ['read', 'manage_group']),
 ])
 
@@ -253,7 +272,8 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
         return True
     # Handle when permissions cascade. Check the user's roles on groups higher
     # in the group hierarchy for permission.
-    for capacity in check_config_permission('roles_that_cascade_to_sub_groups'):
+    for capacity in check_config_permission(
+            'roles_that_cascade_to_sub_groups'):
         parent_groups = group.get_parent_group_hierarchy(type=group.type)
         group_ids = [group_.id for group_ in parent_groups]
         if _has_user_permission_for_groups(user_id, permission, group_ids,
@@ -335,7 +355,7 @@ def has_user_permission_for_some_org(user_name, permission):
 
     # see if any of the groups are orgs
     q = model.Session.query(model.Group) \
-        .filter(model.Group.is_organization == True) \
+        .filter(model.Group.is_organization.is_(True)) \
         .filter(model.Group.state == 'active') \
         .filter(model.Group.id.in_(group_ids))
 
@@ -417,6 +437,7 @@ def auth_is_registered_user():
     '''
     return auth_is_loggedin_user()
 
+
 def auth_is_loggedin_user():
     ''' Do we have a logged in user '''
     try:
@@ -424,6 +445,7 @@ def auth_is_loggedin_user():
     except TypeError:
         context_user = None
     return bool(context_user)
+
 
 def auth_is_anon_user(context):
     ''' Is this an anonymous user?

@@ -316,7 +316,7 @@ Example
 {% macro info(text='', inline=false, classes=[]) %}
   {%- if text -%}
     <div class="info-block{{ ' info-inline' if inline }}{{ " " ~ classes | join(' ') }}">
-      <i class="icon-info-sign"></i>
+      <i class="fa fa-info-circle"></i>
       {{ text }}
     </div>
   {%- endif -%}

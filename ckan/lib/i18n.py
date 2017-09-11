@@ -184,8 +184,8 @@ def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
         config.get('ckan.locale_default', 'en')
-    if lang != 'en':
-        set_lang(lang)
+
+    set_lang(lang)
 
     for plugin in PluginImplementations(ITranslation):
         if lang in plugin.i18n_locales():
@@ -234,5 +234,4 @@ def set_lang(language_code):
     ''' Wrapper to pylons call '''
     if language_code in non_translated_locals():
         language_code = config.get('ckan.locale_default', 'en')
-    if language_code != 'en':
-        _set_lang(language_code)
+    _set_lang(language_code)

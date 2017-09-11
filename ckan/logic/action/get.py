@@ -23,7 +23,6 @@ import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
-import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
 
@@ -1404,6 +1403,8 @@ def user_show(context, data_dict):
     :rtype: dictionary
 
     '''
+    _check_access('user_show', context, data_dict)
+
     model = context['model']
 
     id = data_dict.get('id', None)
@@ -1417,8 +1418,6 @@ def user_show(context, data_dict):
         context['user_obj'] = user_obj = provided_user
     else:
         raise NotFound
-
-    _check_access('user_show', context, data_dict)
 
     # include private and draft datasets?
     requester = context.get('user')
@@ -1780,8 +1779,9 @@ def package_search(context, data_dict):
 
     fl
         The parameter that controls which fields are returned in the solr
-        query cannot be changed.  CKAN always returns the matched datasets as
-        dictionary objects.
+        query.
+        fl can be  None or a list of result fields, such as ['id', 'extras_custom_field'].
+        if fl = None, datasets are returned as a list of full dictionary.
     '''
     # sometimes context['schema'] is None
     schema = (context.get('schema') or
@@ -1824,8 +1824,12 @@ def package_search(context, data_dict):
         else:
             data_source = 'validated_data_dict'
         data_dict.pop('use_default_schema', None)
-        # return a list of package ids
-        data_dict['fl'] = 'id {0}'.format(data_source)
+
+        result_fl = data_dict.get('fl')
+        if not result_fl:
+            data_dict['fl'] = 'id {0}'.format(data_source)
+        else:
+            data_dict['fl'] = ' '.join(result_fl)
 
         # we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
@@ -1877,32 +1881,42 @@ def package_search(context, data_dict):
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
 
-        for package in query.results:
-            # get the package object
-            package_dict = package.get(data_source)
-            ## use data in search index if there
-            if package_dict:
-                # the package_dict still needs translating when being viewed
-                package_dict = json.loads(package_dict)
-                if context.get('for_view'):
-                    for item in plugins.PluginImplementations(
-                            plugins.IPackageController):
-                        package_dict = item.before_view(package_dict)
-                results.append(package_dict)
-            else:
-                log.error('No package_dict is coming from solr for package '
-                          'id %s', package['id'])
+        if result_fl:
+            for package in query.results:
+                if package.get('extras'):
+                    package.update(package['extras'] )
+                    package.pop('extras')
+                results.append(package)
+        else:
+            for package in query.results:
+                # get the package object
+                package_dict = package.get(data_source)
+                ## use data in search index if there
+                if package_dict:
+                    # the package_dict still needs translating when being viewed
+                    package_dict = json.loads(package_dict)
+                    if context.get('for_view'):
+                        for item in plugins.PluginImplementations(
+                                plugins.IPackageController):
+                            package_dict = item.before_view(package_dict)
+                    results.append(package_dict)
+                else:
+                    log.error('No package_dict is coming from solr for package '
+                              'id %s', package['id'])
 
         count = query.count
         facets = query.facets
+        facet_ranges = query.facet_ranges
     else:
         count = 0
         facets = {}
+        facet_ranges = None
         results = []
 
     search_results = {
         'count': count,
         'facets': facets,
+        'facet_ranges': facet_ranges,
         'results': results,
         'sort': data_dict['sort']
     }
@@ -2519,17 +2533,27 @@ def package_activity_list(context, data_dict):
 
     package_ref = data_dict.get('id')  # May be name or ID.
     package = model.Package.get(package_ref)
+
     if package is None:
         raise logic.NotFound
 
     offset = int(data_dict.get('offset', 0))
     limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+        data_dict.get(
+            'limit',
+            config.get('ckan.activity_list_limit', 31)
+        )
+    )
 
-    _activity_objects = model.activity.package_activity_list(package.id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_objects = model.activity.package_activity_list(
+        package.id,
+        limit=limit,
+        offset=offset
+    )
+    activity_objects = _filter_activity_by_user(
+        _activity_objects,
+        _activity_stream_get_filtered_users()
+    )
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2599,10 +2623,12 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(org_id,
+    activity_objects = model.activity.group_activity_list(org_id,
             limit=limit, offset=offset)
+    """
     activity_objects = _filter_activity_by_user(_activity_objects,
             _activity_stream_get_filtered_users())
+    """
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2652,154 +2678,6 @@ def activity_detail_list(context, data_dict):
     activity_detail_objects = model.ActivityDetail.by_activity_id(activity_id)
     return model_dictize.activity_detail_list_dictize(
         activity_detail_objects, context)
-
-
-def user_activity_list_html(context, data_dict):
-    '''Return a user's public activity stream as HTML.
-
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param id: The id or name of the user.
-    :type id: string
-    :param offset: where to start getting activity items from
-        (optional, default: 0)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
-    :type limit: int
-
-    :rtype: string
-
-    '''
-    activity_stream = user_activity_list(context, data_dict)
-    offset = int(data_dict.get('offset', 0))
-    extra_vars = {
-        'controller': 'user',
-        'action': 'activity',
-        'id': data_dict['id'],
-        'offset': offset,
-    }
-    return activity_streams.activity_list_to_html(
-        context, activity_stream, extra_vars)
-
-
-def package_activity_list_html(context, data_dict):
-    '''Return a package's activity stream as HTML.
-
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param id: the id or name of the package
-    :type id: string
-    :param offset: where to start getting activity items from
-        (optional, default: 0)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
-    :type limit: int
-
-    :rtype: string
-
-    '''
-    activity_stream = package_activity_list(context, data_dict)
-    offset = int(data_dict.get('offset', 0))
-    extra_vars = {
-        'controller': 'package',
-        'action': 'activity',
-        'id': data_dict['id'],
-        'offset': offset,
-    }
-    return activity_streams.activity_list_to_html(
-        context, activity_stream, extra_vars)
-
-
-def group_activity_list_html(context, data_dict):
-    '''Return a group's activity stream as HTML.
-
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param id: the id or name of the group
-    :type id: string
-    :param offset: where to start getting activity items from
-        (optional, default: 0)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
-    :type limit: int
-
-    :rtype: string
-
-    '''
-    activity_stream = group_activity_list(context, data_dict)
-    offset = int(data_dict.get('offset', 0))
-    extra_vars = {
-        'controller': 'group',
-        'action': 'activity',
-        'id': data_dict['id'],
-        'offset': offset,
-    }
-    return activity_streams.activity_list_to_html(
-        context, activity_stream, extra_vars)
-
-
-def organization_activity_list_html(context, data_dict):
-    '''Return a organization's activity stream as HTML.
-
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param id: the id or name of the organization
-    :type id: string
-
-    :rtype: string
-
-    '''
-    activity_stream = organization_activity_list(context, data_dict)
-    offset = int(data_dict.get('offset', 0))
-    extra_vars = {
-        'controller': 'organization',
-        'action': 'activity',
-        'id': data_dict['id'],
-        'offset': offset,
-    }
-
-    return activity_streams.activity_list_to_html(
-        context, activity_stream, extra_vars)
-
-
-def recently_changed_packages_activity_list_html(context, data_dict):
-    '''Return the activity stream of all recently changed packages as HTML.
-
-    The activity stream includes all recently added or changed packages. It is
-    rendered as a snippet of HTML meant to be included in an HTML page, i.e. it
-    doesn't have any HTML header or footer.
-
-    :param offset: where to start getting activity items from
-        (optional, default: 0)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
-    :type limit: int
-
-    :rtype: string
-
-    '''
-    activity_stream = recently_changed_packages_activity_list(
-        context, data_dict)
-    offset = int(data_dict.get('offset', 0))
-    extra_vars = {
-        'controller': 'package',
-        'action': 'activity',
-        'offset': offset,
-    }
-    return activity_streams.activity_list_to_html(
-        context, activity_stream, extra_vars)
 
 
 def _follower_count(context, data_dict, default_schema, ModelClass):
@@ -3328,37 +3206,6 @@ def dashboard_activity_list(context, data_dict):
                 strptime(activity['timestamp'], fmt) > last_viewed)
 
     return activity_dicts
-
-
-@logic.validate(ckan.logic.schema.default_pagination_schema)
-def dashboard_activity_list_html(context, data_dict):
-    '''Return the authorized (via login or API key) user's dashboard activity
-       stream as HTML.
-
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param offset: where to start getting activity items from
-        (optional, default: 0)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
-    :type limit: int
-
-    :rtype: string
-
-    '''
-    activity_stream = dashboard_activity_list(context, data_dict)
-    model = context['model']
-    offset = data_dict.get('offset', 0)
-    extra_vars = {
-        'controller': 'user',
-        'action': 'dashboard',
-        'offset': offset,
-    }
-    return activity_streams.activity_list_to_html(context, activity_stream,
-                                                  extra_vars)
 
 
 def dashboard_new_activities_count(context, data_dict):

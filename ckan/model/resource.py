@@ -189,7 +189,6 @@ meta.mapper(Resource, resource_table, properties={
                             ),
     )
 },
-order_by=[resource_table.c.package_id],
 extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
            extension.PluginMapperExtension(),
            ],

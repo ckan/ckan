@@ -185,16 +185,16 @@ def register_group_plugins(map):
                              'unfollow', 'admins', 'activity'])))
             map.connect('%s_edit' % group_type, '/%s/edit/{id}' % group_type,
                         controller=group_controller, action='edit',
-                        ckan_icon='edit')
+                        ckan_icon='pencil-square-o')
             map.connect('%s_members' % group_type,
                         '/%s/members/{id}' % group_type,
                         controller=group_controller,
                         action='members',
-                        ckan_icon='group')
+                        ckan_icon='users')
             map.connect('%s_activity' % group_type,
                         '/%s/activity/{id}/{offset}' % group_type,
                         controller=group_controller,
-                        action='activity', ckan_icon='time'),
+                        action='activity', ckan_icon='clock-o'),
             map.connect('%s_about' % group_type, '/%s/about/{id}' % group_type,
                         controller=group_controller,
                         action='about', ckan_icon='info-sign')

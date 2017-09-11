@@ -165,9 +165,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                                  u'characters': None,
                                  u'rating with %': u'99%'}]
 
-        engine = db._get_engine(
-                {'connection_url': config['ckan.datastore.write_url']}
-            )
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -838,8 +836,12 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                                  u'published': None}]
         cls.expected_join_results = [{u'first': 1, u'second': 1}, {u'first': 1, u'second': 2}]
 
+<<<<<<< HEAD
         engine = db._get_engine(
             {'connection_url': config['ckan.datastore.write_url']})
+=======
+        engine = db.get_write_engine()
+>>>>>>> canada-v2.5
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -941,8 +943,12 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             'user': self.sysadmin_user.name,
             'model': model}
         data_dict = {
+<<<<<<< HEAD
             'resource_id': self.data['resource_id'],
             'connection_url': config['ckan.datastore.write_url']}
+=======
+            'resource_id': self.data['resource_id']}
+>>>>>>> canada-v2.5
         p.toolkit.get_action('datastore_make_private')(context, data_dict)
         query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
         data = {'sql': query}

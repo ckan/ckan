@@ -16,15 +16,13 @@
 {% block content_action %}
   {% link_for _('All resources'), controller='package', action='resources', id=pkg.name, class_='btn', icon='arrow-left' %}
   {% if res %}
-    {% link_for _('View resource'), controller='package', action='resource_read', id=pkg.name, resource_id=res.id, class_='btn', icon='eye-open' %}
+    {% link_for _('View resource'), controller='package', action='resource_read', id=pkg.name, resource_id=res.id, class_='btn', icon='eye' %}
   {% endif %}
 {% endblock %}
 
 {% block content_primary_nav %}
   {{ h.build_nav_icon('resource_edit', _('Edit resource'), id=pkg.name, resource_id=res.id) }}
-  {% if 'datapusher' in g.plugins %}
-    {{ h.build_nav_icon('resource_data', _('DataStore'), id=pkg.name, resource_id=res.id) }}
-  {% endif %}
+  {% block inner_primary_nav %}{% endblock %}
   {{ h.build_nav_icon('views', _('Views'), id=pkg.name, resource_id=res.id) }}
 {% endblock %}
 

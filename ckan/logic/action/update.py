@@ -27,6 +27,7 @@ import ckan.lib.app_globals as app_globals
 
 
 from ckan.common import _, request
+from ckan import new_authz
 
 log = logging.getLogger(__name__)
 
@@ -619,7 +620,7 @@ def user_update(context, data_dict):
     '''Update a user account.
 
     Normal users can only update their own user accounts. Sysadmins can update
-    any user account.
+    any user account. Can not modify exisiting user's name.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.user_create`.
