@@ -92,6 +92,7 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
             m.connect('theme_activity', '/theme/activity/{id}',
                       action='activity', ckan_icon='time')
             m.connect('theme_read', '/theme/{id}', action='read')
+            m.connect('theme_count', '/theme/{id}', action='count')
             m.connect('theme_about', '/theme/about/{id}',
                       action='about', ckan_icon='info-sign')
             m.connect('theme_read', '/theme/{id}', action='read',
@@ -99,7 +100,7 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
             m.connect('theme_edit', '/theme/edit/{id}',
                       action='edit', ckan_icon='edit')
             m.connect('theme_members', '/theme/edit_members/{id}',
-                      action='members', ckan_icon='group')
+                      action='members', ckan_icon='archive')
             m.connect('theme_bulk_process',
                       '/theme/bulk_process/{id}',
                       action='bulk_process', ckan_icon='sitemap')
