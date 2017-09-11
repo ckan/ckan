@@ -95,6 +95,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
        Document the parameters of :py:func:`ckan.plugins.toolkit.render`.
     '''
+    env = config['pylons.app_globals'].jinja_env
+    template = env.get_template(template_name)
 
     extras = extra_vars or {}
     extras.update(pylons_globals())
