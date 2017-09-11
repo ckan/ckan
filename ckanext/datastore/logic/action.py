@@ -63,7 +63,7 @@ def datastore_create(context, data_dict):
 
     **Results:**
 
-    :returns: The newly created data object.
+    :returns: The newly created data object, excluding ``records`` passed.
     :rtype: dictionary
 
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
@@ -155,6 +155,7 @@ def datastore_create(context, data_dict):
 
     result.pop('id', None)
     result.pop('private', None)
+    result.pop('records', None)
     return result
 
 
