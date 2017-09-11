@@ -392,7 +392,5 @@ class PackageSearchQuery(SearchQuery):
         except Exception, e:
             log.exception(e)
             raise SearchError(e)
-        finally:
-            conn.close()
 
         return {'results': self.results, 'count': self.count}
