@@ -360,37 +360,33 @@ class PackageSearchQuery(SearchQuery):
                         'Unknown sort order' in e.args[0]:
                     raise SearchQueryError('Invalid "sort" parameter')
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
-                              (query, e.reason))
-        try:
-            data = json.loads(solr_response)
-            response = data['response']
-            self.count = response.get('numFound', 0)
-            self.results = response.get('docs', [])
+                              (query, e))
+        self.count = solr_response.hits
+        self.results = solr_response.docs
 
-            # #1683 Filter out the last row that is sometimes out of order
-            self.results = self.results[:rows_to_return]
 
-            # get any extras and add to 'extras' dict
-            for result in self.results:
-                extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
-                extras = {}
-                for extra_key in extra_keys:
-                    value = result.pop(extra_key)
-                    extras[extra_key[len('extras_'):]] = value
-                if extra_keys:
-                    result['extras'] = extras
+        # #1683 Filter out the last row that is sometimes out of order
+        self.results = self.results[:rows_to_return]
 
-            # if just fetching the id or name, return a list instead of a dict
-            if query.get('fl') in ['id', 'name']:
-                self.results = [r.get(query.get('fl')) for r in self.results]
+        # get any extras and add to 'extras' dict
+        for result in self.results:
+            extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
+            extras = {}
+            for extra_key in extra_keys:
+                value = result.pop(extra_key)
+                extras[extra_key[len('extras_'):]] = value
+            if extra_keys:
+                result['extras'] = extras
 
-            # get facets and convert facets list to a dict
-            self.facets = data.get('facet_counts', {}).get('facet_fields', {})
-            for field, values in self.facets.iteritems():
-                self.facets[field] = dict(zip(values[0::2], values[1::2]))
-            self.facet_ranges = data.get('facet_counts', {}).get('facet_ranges', {})
-        except Exception, e:
-            log.exception(e)
-            raise SearchError(e)
+        # if just fetching the id or name, return a list instead of a dict
+        if query.get('fl') in ['id', 'name']:
+            self.results = [r.get(query.get('fl')) for r in self.results]
+
+        # get facets and convert facets list to a dict
+        self.facets = solr_response.facets.get('facet_fields', {})
+        for field, values in six.iteritems(self.facets):
+            self.facets[field] = dict(zip(values[0::2], values[1::2]))
+
+        self.facet_ranges = solr_response.facets.get('facet_counts', {}).get('facet_ranges', {})
 
         return {'results': self.results, 'count': self.count}
