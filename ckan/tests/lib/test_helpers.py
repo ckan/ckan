@@ -1,5 +1,6 @@
 import nose
 import i18n
+from babel import Locale
 
 import ckan.lib.helpers as h
 import ckan.exceptions
@@ -72,6 +73,14 @@ class TestHelpersUrlFor(object):
                                   action='read',
                                   id='my_dataset',
                                   locale='de')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/foo/{{LANG}}')
+    def test_url_for_with_locale_object(self):
+        url = '/foo/de/dataset/my_dataset'
+        generated_url = h.url_for('/dataset/my_dataset',
+                                  locale=Locale('de'))
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
@@ -153,6 +162,45 @@ class TestHelpersRenderMarkdown(object):
     def test_render_naughty_markdown(self):
         data = u'* [Foo (http://foo.bar) * Bar] (http://foo.bar)'
         output = u'<ul>\n<li>[Foo (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>) * Bar] (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>)</li>\n</ul>'
+        eq_(h.render_markdown(data), output)
+
+    def test_render_markdown_with_js(self):
+        data = u'[text](javascript: alert(1))'
+        output = u'<p><a>text</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_event_attributes(self):
+        data = u'<p onclick="some.script"><img onmouseover="some.script" src="image.png" /> and text</p>'
+        output = u'<p>and text</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_ampersand_in_links(self):
+        data = u'[link](/url?a=1&b=2)'
+        output = u'<p><a href="/url?a=1&amp;b=2">link</a></p>'
+        eq_(h.render_markdown(data), output)
+
+        data = u'http://example.com/page?a=1&b=2'
+        output = u'<p><a href="http://example.com/page?a=1&amp;b=2" target="_blank" rel="nofollow">http://example.com/page?a=1&amp;b=2</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_tags_h1(self):
+        data = u'#heading'
+        output = u'<h1>heading</h1>'
+        eq_(h.render_markdown(data), output)
+
+    def test_tags_h2(self):
+        data = u'##heading'
+        output = u'<h2>heading</h2>'
+        eq_(h.render_markdown(data), output)
+
+    def test_tags_h3(self):
+        data = u'###heading'
+        output = u'<h3>heading</h3>'
+        eq_(h.render_markdown(data), output)
+
+    def test_tags_img(self):
+        data = u'![image](/image.png)'
+        output = u'<p><img alt="image" src="/image.png"></p>'
         eq_(h.render_markdown(data), output)
 
 

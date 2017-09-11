@@ -13,21 +13,19 @@ import os
 import pytz
 import tzlocal
 import urllib
-import urlparse
 import pprint
 import copy
 import urlparse
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
-from webhelpers.html import escape, HTML, literal, url_escape
-from webhelpers.html.tools import mail_to
+from webhelpers.html import HTML, literal, url_escape
 from webhelpers.html.tags import *
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
 from markdown import markdown
-from bleach import clean as clean_html
+from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
 from pylons import config
@@ -50,6 +48,18 @@ from ckan.plugins.core import plugin_loaded
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
 )
+from markupsafe import Markup, escape
+
+
+MARKDOWN_TAGS = set([
+    'del', 'dd', 'dl', 'dt', 'h1', 'h2',
+    'h3', 'img', 'kbd', 'p', 'pre', 's',
+    'sup', 'sub', 'strike', 'br', 'hr'
+]).union(ALLOWED_TAGS)
+
+MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
+MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
+
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -313,7 +323,7 @@ def _local_url(url_to_amend, **kw):
         if default_locale:
             root_path = re.sub('/{{LANG}}', '', root_path)
         else:
-            root_path = re.sub('{{LANG}}', locale, root_path)
+            root_path = re.sub('{{LANG}}', str(locale), root_path)
         # make sure we don't have a trailing / on the root
         if root_path[-1] == '/':
             root_path = root_path[:-1]
@@ -360,6 +370,11 @@ def full_current_url():
 def current_url():
     ''' Returns current url unquoted'''
     return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
+
+def current_url():
+    ''' Returns current url unquoted'''
+    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
+
 
 def lang():
     ''' Return the language code for the current locale eg `en` '''
@@ -1051,6 +1066,24 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
 
     # if date_format was supplied we use it
     if date_format:
+
+        # See http://bugs.python.org/issue1777412
+        if datetime_.year < 1900:
+            year = str(datetime_.year)
+
+            date_format = re.sub('(?<!%)((%%)*)%y',
+                                 r'\g<1>{year}'.format(year=year[-2:]),
+                                 date_format)
+            date_format = re.sub('(?<!%)((%%)*)%Y',
+                                 r'\g<1>{year}'.format(year=year),
+                                 date_format)
+
+            datetime_ = datetime.datetime(2016, datetime_.month, datetime_.day,
+                                          datetime_.hour, datetime_.minute,
+                                          datetime_.second)
+
+            return datetime_.strftime(date_format)
+
         return datetime_.strftime(date_format)
     # the localised date
     return formatters.localised_nice_date(datetime_, show_date=True,
@@ -1760,7 +1793,9 @@ def render_markdown(data, auto_link=True, allow_html=False):
         data = markdown(data.strip())
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
-        data = markdown(clean_html(data, strip=True))
+        data = clean_html(
+            markdown(data), strip=True,
+            tags=MARKDOWN_TAGS, attributes=MARKDOWN_ATTRIBUTES)
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:
@@ -2164,6 +2199,11 @@ def get_translated(data_dict, field):
         val = data_dict.get(field, '')
         return _(val) if val and isinstance(val, basestring) else val
 
+def mail_to(email_address, name):
+    email = escape(email_address)
+    author = escape(name)
+    html = Markup(u'<a href=mailto:{0}>{1}</a>'.format(email, author))
+    return html
 
 
 # these are the functions that will end up in `h` template helpers
@@ -2287,5 +2327,6 @@ __allowed_functions__ = [
     'check_config_permission',
     'view_resource_url',
     'license_options',
-    'plugin_loaded'
+    'plugin_loaded',
+    'clean_html',
 ]

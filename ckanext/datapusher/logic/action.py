@@ -8,6 +8,7 @@ from dateutil.parser import parse as parse_date
 import pylons
 import requests
 
+import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
@@ -57,8 +58,8 @@ def datapusher_submit(context, data_dict):
 
     datapusher_url = pylons.config.get('ckan.datapusher.url')
 
-    site_url = pylons.config['ckan.site_url']
-    callback_url = site_url.rstrip('/') + '/api/3/action/datapusher_hook'
+    site_url = h.url_for('/', qualified=True)
+    callback_url = h.url_for('/api/3/action/datapusher_hook', qualified=True)
 
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
 

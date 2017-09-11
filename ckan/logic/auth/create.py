@@ -194,10 +194,8 @@ def _check_group_auth(context, data_dict):
     for group_blob in group_blobs:
         # group_blob might be a dict or a group_ref
         if isinstance(group_blob, dict):
-            if api_version == '1':
-                id = group_blob.get('name')
-            else:
-                id = group_blob.get('id')
+            # use group id by default, but we can accept name as well
+            id = group_blob.get('id') or group_blob.get('name')
             if not id:
                 continue
         else:
@@ -213,7 +211,7 @@ def _check_group_auth(context, data_dict):
         groups = groups - set(pkg_groups)
 
     for group in groups:
-        if not authz.has_user_permission_for_group_or_org(group.id, user, 'update'):
+        if not authz.has_user_permission_for_group_or_org(group.id, user, 'manage_group'):
             return False
 
     return True

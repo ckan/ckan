@@ -1,9 +1,10 @@
 import logging
+import json
 
 import pylons
 import sqlalchemy
 
-import ckan.lib.base as base
+import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
@@ -142,16 +143,14 @@ def datastore_create(context, data_dict):
     try:
         result = db.create(context, data_dict)
     except db.InvalidDataError as err:
-        raise p.toolkit.ValidationError(str(err))
+        raise p.toolkit.ValidationError(unicode(err))
 
     # Set the datastore_active flag on the resource if necessary
     if resource.extras.get('datastore_active') is not True:
         log.debug(
             'Setting datastore_active=True on resource {0}'.format(resource.id)
         )
-        p.toolkit.get_action('resource_patch')(
-            context,
-            {'id': data_dict['resource_id'], 'datastore_active': True})
+        set_datastore_active_flag(model, data_dict, True)
 
     result.pop('id', None)
     result.pop('private', None)
@@ -382,11 +381,9 @@ def datastore_delete(context, data_dict):
     if (not data_dict.get('filters') and
             resource.extras.get('datastore_active') is True):
         log.debug(
-            'Setting datastore_active=True on resource {0}'.format(resource.id)
+            'Setting datastore_active=False on resource {0}'.format(resource.id)
         )
-        p.toolkit.get_action('resource_patch')(
-            context, {'id': data_dict['resource_id'],
-                      'datastore_active': False})
+        set_datastore_active_flag(model, data_dict, False)
 
     result.pop('id', None)
     return result
@@ -575,6 +572,53 @@ def datastore_make_public(context, data_dict):
     p.toolkit.check_access('datastore_change_permissions', context, data_dict)
 
     db.make_public(context, data_dict)
+
+
+def set_datastore_active_flag(model, data_dict, flag):
+    '''
+    Set appropriate datastore_active flag on CKAN resource.
+
+    Called after creation or deletion of DataStore table.
+    '''
+    update_dict = {'datastore_active': flag}
+
+    # get extras(for entity update) and package_id(for search index update)
+    res_query = model.Session.query(
+        model.resource_table.c.extras,
+        model.resource_table.c.package_id
+    ).filter(
+        model.Resource.id == data_dict['resource_id']
+    )
+    extras, package_id = res_query.one()
+
+    # update extras in database for record and its revision
+    extras.update(update_dict)
+    res_query.update({'extras': extras}, synchronize_session=False)
+    model.Session.query(model.resource_revision_table).filter(
+        model.ResourceRevision.id == data_dict['resource_id'],
+        model.ResourceRevision.current is True
+    ).update({'extras': extras}, synchronize_session=False)
+
+    model.Session.commit()
+
+    # get package with  updated resource from solr
+    # find changed resource, patch it and reindex package
+    psi = search.PackageSearchIndex()
+    solr_query = search.PackageSearchQuery()
+    q = {
+        'q': 'id:"{0}"'.format(package_id),
+        'fl': 'data_dict',
+        'wt': 'json',
+        'fq': 'site_id:"%s"' % pylons.config.get('ckan.site_id'),
+        'rows': 1
+    }
+    for record in solr_query.run(q)['results']:
+        solr_data_dict = json.loads(record['data_dict'])
+        for resource in solr_data_dict['resources']:
+            if resource['id'] == data_dict['resource_id']:
+                resource.update(update_dict)
+                psi.index_package(solr_data_dict)
+                break
 
 
 def _resource_exists(context, data_dict):

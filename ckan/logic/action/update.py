@@ -128,6 +128,7 @@ def resource_update(context, data_dict):
 
     resource = model.Resource.get(id)
     context["resource"] = resource
+    old_resource_format = resource.format
 
     if not resource:
         log.error('Could not find resource ' + id)
@@ -165,13 +166,22 @@ def resource_update(context, data_dict):
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError, e:
-        errors = e.error_dict['resources'][n]
-        raise ValidationError(errors)
+        try:
+            raise ValidationError(e.error_dict['resources'][-1])
+        except (KeyError, IndexError):
+            raise ValidationError(e.error_dict)
 
     upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
 
     resource = _get_action('resource_show')(context, {'id': id})
+
+    if old_resource_format != resource['format']:
+        _get_action('resource_create_default_resource_views')(
+            {'model': context['model'], 'user': context['user'],
+             'ignore_auth': True},
+            {'package': updated_pkg_dict,
+             'resource': resource})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_update(context, resource)
@@ -355,6 +365,7 @@ def package_update(context, data_dict):
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
     context_org_update['defer_commit'] = True
+    context_org_update['add_revision'] = False
     _get_action('package_owner_org_update')(context_org_update,
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
@@ -1045,7 +1056,7 @@ def dashboard_mark_activities_old(context, data_dict):
     model = context['model']
     user_id = model.User.get(context['user']).id
     model.Dashboard.get(user_id).activity_stream_last_viewed = (
-            datetime.datetime.now())
+            datetime.datetime.utcnow())
     if not context.get('defer_commit'):
         model.repo.commit()
 
@@ -1083,6 +1094,7 @@ def package_owner_org_update(context, data_dict):
     :type id: string
     '''
     model = context['model']
+    user = context['user']
     name_or_id = data_dict.get('id')
     organization_id = data_dict.get('organization_id')
 
@@ -1102,10 +1114,17 @@ def package_owner_org_update(context, data_dict):
         org = None
         pkg.owner_org = None
 
+    if context.get('add_revision', True):
+        rev = model.repo.new_revision()
+        rev.author = user
+        if 'message' in context:
+            rev.message = context['message']
+        else:
+            rev.message = _(u'REST API: Update object %s') % pkg.get("name")
 
     members = model.Session.query(model.Member) \
-            .filter(model.Member.table_id == pkg.id) \
-            .filter(model.Member.capacity == 'organization')
+        .filter(model.Member.table_id == pkg.id) \
+        .filter(model.Member.capacity == 'organization')
 
     need_update = True
     for member_obj in members:

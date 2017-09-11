@@ -1,3 +1,4 @@
+import json
 import StringIO
 import unicodecsv as csv
 
@@ -8,6 +9,14 @@ import ckan.lib.base as base
 import ckan.model as model
 
 from ckan.common import request
+
+
+def _json_dump_nested(value):
+    is_nested = isinstance(value, (list, dict))
+
+    if is_nested:
+        return json.dumps(value)
+    return value
 
 
 class DatastoreController(base.BaseController):
@@ -40,5 +49,8 @@ class DatastoreController(base.BaseController):
         wr.writerow(header)
 
         for record in result['records']:
-            wr.writerow([record[column] for column in header])
+            wr.writerow([
+                _json_dump_nested(record[column])
+                for column in header])
+
         return f.getvalue()

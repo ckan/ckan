@@ -456,3 +456,71 @@ class TestDatasetPurge(object):
     def test_bad_id_returns_404(self):
         assert_raises(logic.NotFound,
                       helpers.call_action, 'dataset_purge', id='123')
+
+
+class TestUserDelete(object):
+    def setup(self):
+        helpers.reset_db()
+
+    def test_user_delete(self):
+        user = factories.User()
+        context = {}
+        params = {u'id': user[u'id']}
+
+        helpers.call_action(u'user_delete', context, **params)
+
+        # It is still there but with state=deleted
+        user_obj = model.User.get(user[u'id'])
+        assert_equals(user_obj.state, u'deleted')
+
+    def test_user_delete_removes_memberships(self):
+        user = factories.User()
+        factories.Organization(
+            users=[{u'name': user[u'id'], u'capacity': u'admin'}])
+
+        factories.Group(
+            users=[{u'name': user[u'id'], u'capacity': u'admin'}])
+
+        user_memberships = model.Session.query(model.Member).filter(
+            model.Member.table_id == user[u'id']).all()
+
+        assert_equals(len(user_memberships), 2)
+
+        assert_equals([m.state for m in user_memberships],
+                      [u'active', u'active'])
+
+        context = {}
+        params = {u'id': user[u'id']}
+
+        helpers.call_action(u'user_delete', context, **params)
+
+        user_memberships = model.Session.query(model.Member).filter(
+            model.Member.table_id == user[u'id']).all()
+
+        # Member objects are still there, but flagged as deleted
+        assert_equals(len(user_memberships), 2)
+
+        assert_equals([m.state for m in user_memberships],
+                      [u'deleted', u'deleted'])
+
+    def test_user_delete_removes_memberships_when_using_name(self):
+        user = factories.User()
+        factories.Organization(
+            users=[{u'name': user[u'id'], u'capacity': u'admin'}])
+
+        factories.Group(
+            users=[{u'name': user[u'id'], u'capacity': u'admin'}])
+
+        context = {}
+        params = {u'id': user[u'name']}
+
+        helpers.call_action(u'user_delete', context, **params)
+
+        user_memberships = model.Session.query(model.Member).filter(
+            model.Member.table_id == user[u'id']).all()
+
+        # Member objects are still there, but flagged as deleted
+        assert_equals(len(user_memberships), 2)
+
+        assert_equals([m.state for m in user_memberships],
+                      [u'deleted', u'deleted'])
