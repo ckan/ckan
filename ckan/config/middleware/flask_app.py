@@ -213,6 +213,25 @@ def make_flask_stack(conf, **app_conf):
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
+    who_parser = WhoConfig(config['here'])
+    who_parser.parse(open(app_conf['who.config_file']))
+    # Initialize repoze.who
+    who_parser = WhoConfig(conf['here'])
+    who_parser.parse(open(app_conf['who.config_file']))
+
+    app = PluggableAuthenticationMiddleware(
+        app,
+        who_parser.identifiers,
+        who_parser.authenticators,
+        who_parser.challengers,
+        who_parser.mdproviders,
+        who_parser.request_classifier,
+        who_parser.challenge_decider,
+        logging.getLogger('repoze.who'),
+        logging.WARN,  # ignored
+        who_parser.remote_user_key
+    )
+
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
 
@@ -360,3 +379,16 @@ def _register_core_blueprints(app):
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
             log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
+            for rule in app.url_map.iter_rules():
+                if '.' not in rule.endpoint:
+                    continue
+                controller, action = rule.endpoint.split('.')
+                route = {
+                    rule.endpoint: {
+                        'action': action,
+                        'controller': controller,
+                        'highlight_actions': action,
+                        'needed': list(rule.arguments)
+                    }
+                }
+                config['routes.named_routes'].update(route)
