@@ -152,23 +152,6 @@ def _get_request_data(try_url_params=False):
         be a list of strings, otherwise just a string.
 
     '''
-    def make_unicode(entity):
-        u'''Cast bare strings and strings in lists or dicts to Unicode. '''
-        if isinstance(entity, str):
-            return unicode(entity)
-        elif isinstance(entity, list):
-            new_items = []
-            for item in entity:
-                new_items.append(make_unicode(item))
-            return new_items
-        elif isinstance(entity, dict):
-            new_dict = {}
-            for key, val in entity.items():
-                new_dict[key] = make_unicode(val)
-            return new_dict
-        else:
-            return entity
-
     def mixed(multi_dict):
         u'''Return a dict with values being lists if they have more than one
            item or a string otherwise
@@ -215,12 +198,6 @@ def _get_request_data(try_url_params=False):
         raise ValueError(u'Invalid request. Please use the POST method for '
                          'your request')
 
-    if request_data:
-        # ensure unicode values
-        for key, val in request_data.items():
-            # if val is str then assume it is ascii, since json converts
-            # utf8 encoded JSON to unicode
-            request_data[key] = make_unicode(val)
     log.debug(u'Request data extracted: %r', request_data)
 
     return request_data
