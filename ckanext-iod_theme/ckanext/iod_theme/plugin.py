@@ -68,18 +68,44 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
 
     plugins.implements(plugins.IRoutes)
 
+    # Changing group icon WIP
+    # map.redirect('/packages', '/dataset')
+    # map.redirect('/packages/{url:.*}', '/dataset/{url}')
+    # map.redirect('/package', '/dataset')
+    # map.redirect('/package/{url:.*}', '/dataset/{url}')
+    #
+    # with SubMapper(map, controller='package') as m:
+    #     m.connect('dataset_themes', '/dataset/themes/{id}',
+    #           action='groups', ckan_icon='archive')
+    #
+    # map.redirect('/users/{url:.*}', '/user/{url}')
+    # map.redirect('/user/', '/user')
+    #
+    # with SubMapper(map, controller='user') as m:
+    #     m.connect('user_dashboard_themes', '/dashboard/themes',
+    #           action='dashboard_groups', ckan_icon='archive')
+
+
     def before_map(self, map):
+        map.redirect('/groups', '/theme',
+                     _redirect_code='301 Moved Permanently')
+        map.redirect('/groups/{url:.*}', '/theme/{url}',
+                     _redirect_code='301 Moved Permanently')
         map.redirect('/group', '/theme',
                      _redirect_code='301 Moved Permanently')
         map.redirect('/group/{url:.*}', '/theme/{url}',
                      _redirect_code='301 Moved Permanently')
+
         group_controller = 'ckan.controllers.group:GroupController'
+
         with mapper.SubMapper(map, controller=group_controller) as m:
-            m.connect('theme_index', '/theme', action='index')
-            m.connect('/theme/list', action='list')
-            m.connect('/theme/new', action='new')
-            m.connect('/theme/{action}/{id}',
+            m.connect('theme_index', '/theme', action='index',
+                      highlight_actions='index search')
+            m.connect('theme_list', '/theme/list', action='list')
+            m.connect('theme_new', '/theme/new', action='new')
+            m.connect('theme_action', '/theme/{action}/{id}',
                       requirements=dict(action='|'.join([
+                          'edit',
                           'delete',
                           'admins',
                           'member_new',
@@ -88,22 +114,25 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
                           'followers',
                           'follow',
                           'unfollow',
+                          'admins',
+                          'activity',
                       ])))
-            m.connect('theme_activity', '/theme/activity/{id}',
-                      action='activity', ckan_icon='time')
-            m.connect('theme_read', '/theme/{id}', action='read')
-            m.connect('theme_count', '/theme/{id}', action='count')
             m.connect('theme_about', '/theme/about/{id}',
                       action='about', ckan_icon='info-sign')
-            m.connect('theme_read', '/theme/{id}', action='read',
-                      ckan_icon='sitemap')
             m.connect('theme_edit', '/theme/edit/{id}',
                       action='edit', ckan_icon='edit')
             m.connect('theme_members', '/theme/edit_members/{id}',
                       action='members', ckan_icon='archive')
-            m.connect('theme_bulk_process',
-                      '/theme/bulk_process/{id}',
-                      action='bulk_process', ckan_icon='sitemap')
+            m.connect('theme_activity', '/theme/activity/{id}/{offset}',
+                      action='activity', ckan_icon='time')
+            m.connect('theme_read', '/theme/{id}', action='read',
+                      ckan_icon='sitemap')
+
+            # Where are these coming from?
+            # m.connect('theme_count', '/theme/{id}', action='count')
+            # m.connect('theme_bulk_process',
+            #           '/theme/bulk_process/{id}',
+            #           action='bulk_process', ckan_icon='sitemap')
         return map
 
     def after_map(self, map):
