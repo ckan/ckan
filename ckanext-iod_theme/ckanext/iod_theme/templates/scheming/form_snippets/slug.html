@@ -1,0 +1,33 @@
+{% import 'macros/form.html' as form %}
+
+{%- if entity_type == 'dataset' %}
+    {%- set controller = 'package' -%}
+    {%- set module_placeholder = '<dataset>' -%}
+{%- elif entity_type == 'organization' %}
+    {%- set controller = 'organization' -%}
+    {%- set module_placeholder = '<organization>' -%}
+{%- elif entity_type == 'group' -%}
+    {%- set controller = 'group' -%}
+    {%- set module_placeholder = '<group>' -%}
+{%- endif -%}
+
+{%- set prefix = h.url_for(controller=controller, action='read', id='') -%}
+{%- set domain = h.url_for(action='read', id='',
+    qualified=true) -%}
+{%- set domain = domain|replace("http://", "")|replace("https://", "") -%}
+{%- set attrs = {
+    'data-module': 'slug-preview-slug',
+    'data-module-prefix': domain,
+    'data-module-placeholder': module_placeholder } -%}
+
+{{ form.prepend(
+    field.field_name,
+    id='field-' + field.field_name,
+    label=h.scheming_language_text(field.label),
+    prepend=prefix,
+    placeholder=h.scheming_language_text(field.form_placeholder),
+    value=data[field.field_name],
+    error=errors[field.field_name],
+    attrs=attrs,
+    is_required=h.scheming_field_required(field)
+    ) }}
