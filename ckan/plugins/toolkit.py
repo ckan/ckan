@@ -44,6 +44,8 @@ class _Toolkit(object):
         'literal',
         # get logic action function
         'get_action',
+        # decorator for chained action
+        'chained_action',
         # get navl schema converter
         'get_converter',
         # get navl schema validator
