@@ -37,7 +37,7 @@ Support
 -------
 
 If you need help with CKAN or want to ask a question about CKAN, use either the
-`ckan-discuss`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
+`ckan-users`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
 searching the Stack Overflow and ckan-discuss archives for an answer to your
 question first).
 
@@ -49,7 +49,7 @@ rather than creating a public issue on GitHub.
 
 
 .. _CKAN tag on Stack Overflow: http://stackoverflow.com/questions/tagged/ckan
-.. _ckan-discuss: http://lists.okfn.org/mailman/listinfo/ckan-discuss
+.. _ckan-users: https://lists.okfn.org/mailman/listinfo/ckan-users
 .. _GitHub Issues: https://github.com/ckan/ckan/issues
 
 
