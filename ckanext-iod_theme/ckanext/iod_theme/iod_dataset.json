@@ -51,11 +51,109 @@
         "en": "Themes",
         "fa_IR": "موضوع"
       },
-      "preset": "tag_string_required_autocomplete",
-      "form_placeholder": {
-        "en": "Overall theme that the dataset falls in",
-        "fa_IR": "Overall theme that the dataset falls in"
-      }
+      "preset": "multiple_select",
+      "required": true,
+      "validators": "ignore_missing tag_string_convert",
+      "choices": [
+        {
+         "value": "Art, Culture & Tourism",
+         "label": {
+           "en": "Art, Culture & Tourism",
+           "fa_IR": "هنر، فرهنگ و گردشگری"
+         }
+        },
+        {
+         "value": "Banking and Finance",
+         "label": {
+           "en": "Banking and Finance",
+           "fa_IR": "مالی و بانکی"
+         }
+        },
+        {
+         "value": "Budget and Government Spending",
+         "label": {
+           "en": "Budget and Government Spending",
+           "fa_IR": "بودجه و هزینه‌های دولت"
+         }
+        },
+        {
+         "value": "Communications",
+         "label": {
+           "en": "Communications",
+           "fa_IR": "ارتباطات"
+         }
+        },
+        {
+         "value": "Economic Sector",
+         "label": {
+           "en": "Economic Sector",
+           "fa_IR": "بخش‌های اقتصادی"
+         }
+        },
+        {
+         "value": "Education",
+         "label": {
+           "en": "Education",
+           "fa_IR": "آموزش"
+         }
+        },
+        {
+         "value": "Employment",
+         "label": {
+           "en": "Employment",
+           "fa_IR": "اشتغال"
+         }
+        },
+        {
+         "value": "Energy",
+         "label": {
+           "en": "Energy",
+           "fa_IR": "انرژی"
+         }
+        },
+        {
+         "value": "Environment",
+         "label": {
+           "en": "Environment",
+           "fa_IR": "محیط زیست"
+         }
+        },
+        {
+         "value": "Health",
+         "label": {
+           "en": "Health",
+           "fa_IR": "بهداشت"
+         }
+        },
+        {
+         "value": "Housing",
+         "label": {
+           "en": "Housing",
+           "fa_IR": "مسکن"
+         }
+        },
+        {
+         "value": "Population",
+         "label": {
+           "en": "Population",
+           "fa_IR": "جمعیت"
+         }
+        },
+        {
+         "value": "Trade",
+         "label": {
+           "en": "Trade",
+           "fa_IR": "تجارت"
+         }
+        },
+        {
+         "value": "Transport",
+         "label": {
+           "en": "Transport",
+           "fa_IR": "حمل و نقل"
+         }
+        }
+      ]
     },
     {
       "field_name": "tags_string",
