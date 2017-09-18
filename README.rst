@@ -35,10 +35,11 @@ See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructio
 
 Support
 -------
+For general discussion around CKAN, you can write to the `Google Group`_.
 
-If you need help with CKAN or want to ask a question about CKAN, use either the
-`ckan-discuss`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
-searching the Stack Overflow and ckan-discuss archives for an answer to your
+If you need help with CKAN and and want to ask a or want to ask a question about CKAN, use either the
+`ckan-dev`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
+searching the Stack Overflow and ckan-dev `archives`_ for an answer to your
 question first).
 
 If you've found a bug in CKAN, open a new issue on CKAN's `GitHub Issues`_ (try
@@ -47,9 +48,10 @@ searching first to see if there's already an issue for your bug).
 If you find a potential security vulnerability please email security@ckan.org,
 rather than creating a public issue on GitHub.
 
-
+.. _Google Group: https://groups.google.com/forum/#!forum/ckan-global-user-group
 .. _CKAN tag on Stack Overflow: http://stackoverflow.com/questions/tagged/ckan
-.. _ckan-discuss: http://lists.okfn.org/mailman/listinfo/ckan-discuss
+.. _ckan-dev: https://lists.okfn.org/mailman/listinfo/ckan-dev
+.. _archives: https://www.google.com/search?q=%22%5Bckan-dev%5D%22+site%3Alists.okfn.org.
 .. _GitHub Issues: https://github.com/ckan/ckan/issues
 
 
