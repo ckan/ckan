@@ -387,6 +387,6 @@ class PackageSearchQuery(SearchQuery):
         for field, values in six.iteritems(self.facets):
             self.facets[field] = dict(zip(values[0::2], values[1::2]))
 
-        self.facet_ranges = solr_response.facets.get('facet_counts', {}).get('facet_ranges', {})
+        self.facet_ranges = solr_response.facets.get('facet_ranges', {})
 
         return {'results': self.results, 'count': self.count}
