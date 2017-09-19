@@ -63,10 +63,10 @@
           }
         },
         {
-          "value":"country divisions",
+          "value":"advanced diploma",
           "label":{
-            "en":"country divisions",
-            "fa_ir":"تقسیمات کشوری"
+            "en":"advanced diploma",
+            "fa_ir":"کاردانی"
           }
         },
         {
@@ -91,6 +91,13 @@
           }
         },
         {
+          "value":"bacholor",
+          "label":{
+            "en":"bacholor",
+            "fa_ir":"کارشناسی"
+          }
+        },
+        {
           "value":"banking",
           "label":{
             "en":"banking",
@@ -109,13 +116,6 @@
           "label":{
             "en":"beverages",
             "fa_ir":"آشامیدنی‌ها"
-          }
-        },
-        {
-          "value":"province area",
-          "label":{
-            "en":"province area",
-            "fa_ir":"مساحت استان"
           }
         },
         {
@@ -165,13 +165,6 @@
           "label":{
             "en":"city",
             "fa_ir":"شهر"
-          }
-        },
-        {
-          "value":"non governmental ",
-          "label":{
-            "en":"non governmental ",
-            "fa_ir":"غیر دولتی"
           }
         },
         {
@@ -252,6 +245,13 @@
           }
         },
         {
+          "value":"country divisions",
+          "label":{
+            "en":"country divisions",
+            "fa_ir":"تقسیمات کشوری"
+          }
+        },
+        {
           "value":"crude oil",
           "label":{
             "en":"crude oil",
@@ -305,13 +305,6 @@
           "label":{
             "en":"deposits",
             "fa_ir":"سپرده "
-          }
-        },
-        {
-          "value":"engineering",
-          "label":{
-            "en":"engineering",
-            "fa_ir":"مهندسی"
           }
         },
         {
@@ -371,6 +364,13 @@
           }
         },
         {
+          "value":"engineering",
+          "label":{
+            "en":"engineering",
+            "fa_ir":"مهندسی"
+          }
+        },
+        {
           "value":"environment",
           "label":{
             "en":"environment",
@@ -389,6 +389,13 @@
           "label":{
             "en":"exports",
             "fa_ir":"صادرات "
+          }
+        },
+        {
+          "value":"female\\women",
+          "label":{
+            "en":"female\\women",
+            "fa_ir":"زن"
           }
         },
         {
@@ -459,6 +466,20 @@
           "label":{
             "en":"health care",
             "fa_ir":"بهداشت"
+          }
+        },
+        {
+          "value":"high school ",
+          "label":{
+            "en":"high school ",
+            "fa_ir":"دبیرستان "
+          }
+        },
+        {
+          "value":"high school diploma",
+          "label":{
+            "en":"high school diploma",
+            "fa_ir":"دیپلم "
           }
         },
         {
@@ -539,6 +560,13 @@
           }
         },
         {
+          "value":"male\\men",
+          "label":{
+            "en":"male\\men",
+            "fa_ir":"مرد"
+          }
+        },
+        {
           "value":"marine",
           "label":{
             "en":"marine",
@@ -546,10 +574,24 @@
           }
         },
         {
+          "value":"masters",
+          "label":{
+            "en":"masters",
+            "fa_ir":" کارشناسی ارشد "
+          }
+        },
+        {
           "value":"media",
           "label":{
             "en":"media",
             "fa_ir":"رسانه "
+          }
+        },
+        {
+          "value":"middle schools",
+          "label":{
+            "en":"middle schools",
+            "fa_ir":"راهنمایی"
           }
         },
         {
@@ -571,6 +613,13 @@
           "label":{
             "en":"national statistics",
             "fa_ir":"آمار ملی"
+          }
+        },
+        {
+          "value":"non governmental ",
+          "label":{
+            "en":"non governmental ",
+            "fa_ir":"غیر دولتی"
           }
         },
         {
@@ -616,6 +665,13 @@
           }
         },
         {
+          "value":"PHD ",
+          "label":{
+            "en":"PHD ",
+            "fa_ir":"دکترای حرفه‌ای "
+          }
+        },
+        {
           "value":"pollution",
           "label":{
             "en":"pollution",
@@ -637,10 +693,31 @@
           }
         },
         {
+          "value":"postdoctorate",
+          "label":{
+            "en":"postdoctorate",
+            "fa_ir":"دکترای تخصصی"
+          }
+        },
+        {
           "value":"power",
           "label":{
             "en":"power",
             "fa_ir":"نیرو"
+          }
+        },
+        {
+          "value":"pre university ",
+          "label":{
+            "en":"pre university ",
+            "fa_ir":"پیش‌‌دانشگاهی"
+          }
+        },
+        {
+          "value":"preschool ",
+          "label":{
+            "en":"preschool ",
+            "fa_ir":"پیش‌دبستانی"
           }
         },
         {
@@ -658,6 +735,13 @@
           }
         },
         {
+          "value":"primary school ",
+          "label":{
+            "en":"primary school ",
+            "fa_ir":"دبستان"
+          }
+        },
+        {
           "value":"production",
           "label":{
             "en":"production",
@@ -669,6 +753,13 @@
           "label":{
             "en":"property",
             "fa_ir":"دارایی"
+          }
+        },
+        {
+          "value":"province area",
+          "label":{
+            "en":"province area",
+            "fa_ir":"مساحت استان"
           }
         },
         {
@@ -809,97 +900,6 @@
           "label":{
             "en":"youth",
             "fa_ir":"جوانان"
-          }
-        },
-        {
-          "value":"high school diploma",
-          "label":{
-            "en":"high school diploma",
-            "fa_ir":"دیپلم "
-          }
-        },
-        {
-          "value":"advanced diploma",
-          "label":{
-            "en":"advanced diploma",
-            "fa_ir":"کاردانی"
-          }
-        },
-        {
-          "value":"bacholor",
-          "label":{
-            "en":"bacholor",
-            "fa_ir":"کارشناسی"
-          }
-        },
-        {
-          "value":"masters",
-          "label":{
-            "en":"masters",
-            "fa_ir":" کارشناسی ارشد "
-          }
-        },
-        {
-          "value":"PHD ",
-          "label":{
-            "en":"PHD ",
-            "fa_ir":"دکترای حرفه‌ای "
-          }
-        },
-        {
-          "value":"postdoctorate",
-          "label":{
-            "en":"postdoctorate",
-            "fa_ir":"دکترای تخصصی"
-          }
-        },
-        {
-          "value":"preschool ",
-          "label":{
-            "en":"preschool ",
-            "fa_ir":"پیش‌دبستانی"
-          }
-        },
-        {
-          "value":"primary school ",
-          "label":{
-            "en":"primary school ",
-            "fa_ir":"دبستان"
-          }
-        },
-        {
-          "value":"middle schools",
-          "label":{
-            "en":"middle schools",
-            "fa_ir":"راهنمایی"
-          }
-        },
-        {
-          "value":"high school ",
-          "label":{
-            "en":"high school ",
-            "fa_ir":"دبیرستان "
-          }
-        },
-        {
-          "value":"pre university ",
-          "label":{
-            "en":"pre university ",
-            "fa_ir":"پیش‌‌دانشگاهی"
-          }
-        },
-        {
-          "value":"male-men",
-          "label":{
-            "en":"male-men",
-            "fa_ir":"مرد"
-          }
-        },
-        {
-          "value":"female-women",
-          "label":{
-            "en":"female-women",
-            "fa_ir":"زن"
           }
         }
       ]
@@ -1180,7 +1180,7 @@
         "fa_IR": "دامنه جغرافیایی"
       },
       "preset": "multiple_checkbox",
-      "validators": "ignore_missing tag_string_convert",
+      "required": true,
       "choices": [
         {
          "value": "National",

@@ -28,6 +28,17 @@
       }
     },
     {
+      "preset_name": "tag_string_required_autocomplete",
+      "values": {
+        "validators": "not_empty tag_string_convert",
+        "form_attrs": {
+          "data-module": "autocomplete",
+          "data-module-tags": "",
+          "data-module-source": "/api/2/util/tag/autocomplete?incomplete=?"
+        }
+      }
+    },
+    {
       "preset_name": "tag_string_autocomplete",
       "values": {
         "validators": "ignore_missing tag_string_convert",
@@ -39,14 +50,39 @@
       }
     },
     {
-      "preset_name": "tag_string_required_autocomplete",
+      "preset_name": "multiple_select_tag_required",
       "values": {
-        "validators": "not_empty tag_string_convert",
-        "form_attrs": {
-          "data-module": "autocomplete",
-          "data-module-tags": "",
-          "data-module-source": "/api/2/util/tag/autocomplete?incomplete=?"
-        }
+        "form_snippet": "multiple_select.html",
+        "display_snippet": "multiple_choice.html",
+        "validators": "scheming_multiple_choice",
+        "output_validators": "scheming_multiple_choice_output"
+      }
+    },
+    {
+      "preset_name": "multiple_checkbox_tag",
+      "values": {
+        "form_snippet": "multiple_checkbox.html",
+        "display_snippet": "multiple_choice.html",
+        "validators": "scheming_multiple_choice",
+        "output_validators": "scheming_multiple_choice_output"
+      }
+    },
+    {
+      "preset_name": "multiple_select",
+      "values": {
+        "form_snippet": "multiple_select.html",
+        "display_snippet": "multiple_choice.html",
+        "validators": "scheming_multiple_choice",
+        "output_validators": "scheming_multiple_choice_output"
+      }
+    },
+    {
+      "preset_name": "multiple_checkbox",
+      "values": {
+        "form_snippet": "multiple_checkbox.html",
+        "display_snippet": "multiple_choice.html",
+        "validators": "scheming_multiple_choice",
+        "output_validators": "scheming_multiple_choice_output"
       }
     },
     {
@@ -84,24 +120,6 @@
         "form_snippet": "select.html",
         "display_snippet": "select.html",
         "validators": "scheming_required scheming_choices"
-      }
-    },
-    {
-      "preset_name": "multiple_checkbox",
-      "values": {
-        "form_snippet": "multiple_checkbox.html",
-        "display_snippet": "multiple_choice.html",
-        "validators": "scheming_multiple_choice",
-        "output_validators": "scheming_multiple_choice_output"
-      }
-    },
-    {
-      "preset_name": "multiple_select",
-      "values": {
-        "form_snippet": "multiple_select.html",
-        "display_snippet": "multiple_choice.html",
-        "validators": "scheming_multiple_choice",
-        "output_validators": "scheming_multiple_choice_output"
       }
     },
     {
