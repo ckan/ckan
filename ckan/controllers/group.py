@@ -367,7 +367,7 @@ class GroupController(base.BaseController):
 
             data_dict = {
                 'q': q,
-                'fq': fq,
+                'fq': '',
                 'include_private': include_private,
                 'fq_list': fq_list,
                 'facet.field': [
