@@ -51,11 +51,858 @@
         "en": "Tags",
         "fa_IR": "برچسب"
       },
-      "preset": "tag_string_required_autocomplete",
-      "form_placeholder": {
-        "en": "Specific topics contained in the dataset",
-        "fa_IR": "Specific topics contained in the dataset"
-      }
+      "validators": "not_empty",
+      "preset": "multiple_select",
+      "required": true,
+      "choices": [
+        {
+          "value":"accidents",
+          "label":{
+            "en":"accidents",
+            "fa_ir":"تصادفات"
+          }
+        },
+        {
+          "value":"country divisions",
+          "label":{
+            "en":"country divisions",
+            "fa_ir":"تقسیمات کشوری"
+          }
+        },
+        {
+          "value":"age",
+          "label":{
+            "en":"age",
+            "fa_ir":"سن"
+          }
+        },
+        {
+          "value":"agriculture",
+          "label":{
+            "en":"agriculture",
+            "fa_ir":"کشاورزی"
+          }
+        },
+        {
+          "value":"art",
+          "label":{
+            "en":"art",
+            "fa_ir":"هنر"
+          }
+        },
+        {
+          "value":"banking",
+          "label":{
+            "en":"banking",
+            "fa_ir":"بانکداری"
+          }
+        },
+        {
+          "value":"bauxite",
+          "label":{
+            "en":"bauxite",
+            "fa_ir":"بوکسیت"
+          }
+        },
+        {
+          "value":"beverages",
+          "label":{
+            "en":"beverages",
+            "fa_ir":"آشامیدنی‌ها"
+          }
+        },
+        {
+          "value":"province area",
+          "label":{
+            "en":"province area",
+            "fa_ir":"مساحت استان"
+          }
+        },
+        {
+          "value":"budget",
+          "label":{
+            "en":"budget",
+            "fa_ir":"بودجه"
+          }
+        },
+        {
+          "value":"buses",
+          "label":{
+            "en":"buses",
+            "fa_ir":"اتوبوس"
+          }
+        },
+        {
+          "value":"business",
+          "label":{
+            "en":"business",
+            "fa_ir":"تجارت "
+          }
+        },
+        {
+          "value":"cause of death",
+          "label":{
+            "en":"cause of death",
+            "fa_ir":"علت مرگ "
+          }
+        },
+        {
+          "value":"chromite",
+          "label":{
+            "en":"chromite",
+            "fa_ir":"کرومیت"
+          }
+        },
+        {
+          "value":"cinemas",
+          "label":{
+            "en":"cinemas",
+            "fa_ir":"سینما "
+          }
+        },
+        {
+          "value":"city",
+          "label":{
+            "en":"city",
+            "fa_ir":"شهر"
+          }
+        },
+        {
+          "value":"non governmental ",
+          "label":{
+            "en":"non governmental ",
+            "fa_ir":"غیر دولتی"
+          }
+        },
+        {
+          "value":"classroom",
+          "label":{
+            "en":"classroom",
+            "fa_ir":"کلاس درسی"
+          }
+        },
+        {
+          "value":"CNG",
+          "label":{
+            "en":"CNG",
+            "fa_ir":"CNG"
+          }
+        },
+        {
+          "value":"coal",
+          "label":{
+            "en":"coal",
+            "fa_ir":"زغال‌سنگ"
+          }
+        },
+        {
+          "value":"commercial",
+          "label":{
+            "en":"commercial",
+            "fa_ir":"تجاری"
+          }
+        },
+        {
+          "value":"communication",
+          "label":{
+            "en":"communication",
+            "fa_ir":"ارتباطات "
+          }
+        },
+        {
+          "value":"companies",
+          "label":{
+            "en":"companies",
+            "fa_ir":"شرکت‌ها "
+          }
+        },
+        {
+          "value":"construction",
+          "label":{
+            "en":"construction",
+            "fa_ir":"ساخت و ساز"
+          }
+        },
+        {
+          "value":"construction permit",
+          "label":{
+            "en":"construction permit",
+            "fa_ir":"مجوز ساخت و ساز "
+          }
+        },
+        {
+          "value":"consumption",
+          "label":{
+            "en":"consumption",
+            "fa_ir":"مصرف"
+          }
+        },
+        {
+          "value":"copper",
+          "label":{
+            "en":"copper",
+            "fa_ir":"مس"
+          }
+        },
+        {
+          "value":"cost",
+          "label":{
+            "en":"cost",
+            "fa_ir":"هزینه"
+          }
+        },
+        {
+          "value":"crude oil",
+          "label":{
+            "en":"crude oil",
+            "fa_ir":"نفت خام "
+          }
+        },
+        {
+          "value":"culture",
+          "label":{
+            "en":"culture",
+            "fa_ir":"فرهنگ"
+          }
+        },
+        {
+          "value":"currency",
+          "label":{
+            "en":"currency",
+            "fa_ir":"واحد پول"
+          }
+        },
+        {
+          "value":"death",
+          "label":{
+            "en":"death",
+            "fa_ir":"مرگ|فوت|مرگ و میر"
+          }
+        },
+        {
+          "value":"debt",
+          "label":{
+            "en":"debt",
+            "fa_ir":"بدهی"
+          }
+        },
+        {
+          "value":"decorative stone",
+          "label":{
+            "en":"decorative stone",
+            "fa_ir":"سنگ‌های تزئینی"
+          }
+        },
+        {
+          "value":"defense",
+          "label":{
+            "en":"defense",
+            "fa_ir":"امور دفاعی"
+          }
+        },
+        {
+          "value":"deposits",
+          "label":{
+            "en":"deposits",
+            "fa_ir":"سپرده "
+          }
+        },
+        {
+          "value":"engineering",
+          "label":{
+            "en":"engineering",
+            "fa_ir":"مهندسی"
+          }
+        },
+        {
+          "value":"district",
+          "label":{
+            "en":"district",
+            "fa_ir":"بخش"
+          }
+        },
+        {
+          "value":"divorce",
+          "label":{
+            "en":"divorce",
+            "fa_ir":"طلاق"
+          }
+        },
+        {
+          "value":"dolomite",
+          "label":{
+            "en":"dolomite",
+            "fa_ir":"دولومیت"
+          }
+        },
+        {
+          "value":"domestic sector",
+          "label":{
+            "en":"domestic sector",
+            "fa_ir":"امور داخلی"
+          }
+        },
+        {
+          "value":"economics",
+          "label":{
+            "en":"economics",
+            "fa_ir":"اقتصاد"
+          }
+        },
+        {
+          "value":"education",
+          "label":{
+            "en":"education",
+            "fa_ir":"آموزش"
+          }
+        },
+        {
+          "value":"employment",
+          "label":{
+            "en":"employment",
+            "fa_ir":"اشتغال "
+          }
+        },
+        {
+          "value":"energy",
+          "label":{
+            "en":"energy",
+            "fa_ir":"انرژی"
+          }
+        },
+        {
+          "value":"environment",
+          "label":{
+            "en":"environment",
+            "fa_ir":"محیط زیست"
+          }
+        },
+        {
+          "value":"expenditure",
+          "label":{
+            "en":"expenditure",
+            "fa_ir":"مخارج"
+          }
+        },
+        {
+          "value":"exports",
+          "label":{
+            "en":"exports",
+            "fa_ir":"صادرات "
+          }
+        },
+        {
+          "value":"finance",
+          "label":{
+            "en":"finance",
+            "fa_ir":"امور مالی"
+          }
+        },
+        {
+          "value":"food",
+          "label":{
+            "en":"food",
+            "fa_ir":"مواد غذایی"
+          }
+        },
+        {
+          "value":"foreign affairs",
+          "label":{
+            "en":"foreign affairs",
+            "fa_ir":"امور خارجی"
+          }
+        },
+        {
+          "value":"fuel",
+          "label":{
+            "en":"fuel",
+            "fa_ir":"سوخت"
+          }
+        },
+        {
+          "value":"gas",
+          "label":{
+            "en":"gas",
+            "fa_ir":"گاز"
+          }
+        },
+        {
+          "value":"gasoline|petrol",
+          "label":{
+            "en":"gasoline|petrol",
+            "fa_ir":"بنزین"
+          }
+        },
+        {
+          "value":"gender",
+          "label":{
+            "en":"gender",
+            "fa_ir":"جنسیت"
+          }
+        },
+        {
+          "value":"government",
+          "label":{
+            "en":"government",
+            "fa_ir":"دولت"
+          }
+        },
+        {
+          "value":"health",
+          "label":{
+            "en":"health",
+            "fa_ir":"سلامت"
+          }
+        },
+        {
+          "value":"health care",
+          "label":{
+            "en":"health care",
+            "fa_ir":"بهداشت"
+          }
+        },
+        {
+          "value":"hotels",
+          "label":{
+            "en":"hotels",
+            "fa_ir":"هتل"
+          }
+        },
+        {
+          "value":"household",
+          "label":{
+            "en":"household",
+            "fa_ir":"خانوار"
+          }
+        },
+        {
+          "value":"housing",
+          "label":{
+            "en":"housing",
+            "fa_ir":"مسکن"
+          }
+        },
+        {
+          "value":"ICT",
+          "label":{
+            "en":"ICT",
+            "fa_ir":"فناوری اطلاعات و ارتباطات"
+          }
+        },
+        {
+          "value":"immigration",
+          "label":{
+            "en":"immigration",
+            "fa_ir":"مهاجرت"
+          }
+        },
+        {
+          "value":"import",
+          "label":{
+            "en":"import",
+            "fa_ir":"واردات "
+          }
+        },
+        {
+          "value":"industrial",
+          "label":{
+            "en":"industrial",
+            "fa_ir":"صنعتی"
+          }
+        },
+        {
+          "value":"industry",
+          "label":{
+            "en":"industry",
+            "fa_ir":"صنعت "
+          }
+        },
+        {
+          "value":"investment",
+          "label":{
+            "en":"investment",
+            "fa_ir":"سرمایه‌گذاری"
+          }
+        },
+        {
+          "value":"Iran",
+          "label":{
+            "en":"Iran",
+            "fa_ir":"ایران"
+          }
+        },
+        {
+          "value":"land",
+          "label":{
+            "en":"land",
+            "fa_ir":"زمین "
+          }
+        },
+        {
+          "value":"marine",
+          "label":{
+            "en":"marine",
+            "fa_ir":"دریایی"
+          }
+        },
+        {
+          "value":"media",
+          "label":{
+            "en":"media",
+            "fa_ir":"رسانه "
+          }
+        },
+        {
+          "value":"mining",
+          "label":{
+            "en":"mining",
+            "fa_ir":"معدن"
+          }
+        },
+        {
+          "value":"national security",
+          "label":{
+            "en":"national security",
+            "fa_ir":"امنیت ملی"
+          }
+        },
+        {
+          "value":"national statistics",
+          "label":{
+            "en":"national statistics",
+            "fa_ir":"آمار ملی"
+          }
+        },
+        {
+          "value":"oil",
+          "label":{
+            "en":"oil",
+            "fa_ir":"نفت"
+          }
+        },
+        {
+          "value":"OPEC",
+          "label":{
+            "en":"OPEC",
+            "fa_ir":"اوپک"
+          }
+        },
+        {
+          "value":"permits",
+          "label":{
+            "en":"permits",
+            "fa_ir":"مجوز"
+          }
+        },
+        {
+          "value":"pesticides",
+          "label":{
+            "en":"pesticides",
+            "fa_ir":"آفت‌کش"
+          }
+        },
+        {
+          "value":"pests",
+          "label":{
+            "en":"pests",
+            "fa_ir":"آفت‌ کشاورزی"
+          }
+        },
+        {
+          "value":"petroleum product",
+          "label":{
+            "en":"petroleum product",
+            "fa_ir":"فرآورده‌های نفتی"
+          }
+        },
+        {
+          "value":"pollution",
+          "label":{
+            "en":"pollution",
+            "fa_ir":"آلودگی"
+          }
+        },
+        {
+          "value":"population",
+          "label":{
+            "en":"population",
+            "fa_ir":"جمعیت"
+          }
+        },
+        {
+          "value":"population growth",
+          "label":{
+            "en":"population growth",
+            "fa_ir":"رشد جمعیت"
+          }
+        },
+        {
+          "value":"power",
+          "label":{
+            "en":"power",
+            "fa_ir":"نیرو"
+          }
+        },
+        {
+          "value":"press",
+          "label":{
+            "en":"press",
+            "fa_ir":"مطبوعات "
+          }
+        },
+        {
+          "value":"price",
+          "label":{
+            "en":"price",
+            "fa_ir":"قیمت"
+          }
+        },
+        {
+          "value":"production",
+          "label":{
+            "en":"production",
+            "fa_ir":"تولید"
+          }
+        },
+        {
+          "value":"property",
+          "label":{
+            "en":"property",
+            "fa_ir":"دارایی"
+          }
+        },
+        {
+          "value":"public institutions",
+          "label":{
+            "en":"public institutions",
+            "fa_ir":"موسسات دولتی"
+          }
+        },
+        {
+          "value":"public sector",
+          "label":{
+            "en":"public sector",
+            "fa_ir":"بخش دولتی"
+          }
+        },
+        {
+          "value":"road accidents",
+          "label":{
+            "en":"road accidents",
+            "fa_ir":"تصادفات جاده‌ای"
+          }
+        },
+        {
+          "value":"rural",
+          "label":{
+            "en":"rural",
+            "fa_ir":"روستایی"
+          }
+        },
+        {
+          "value":"science",
+          "label":{
+            "en":"science",
+            "fa_ir":"علوم تجربی"
+          }
+        },
+        {
+          "value":"security affairs",
+          "label":{
+            "en":"security affairs",
+            "fa_ir":"امور امنیتی"
+          }
+        },
+        {
+          "value":"social affairs",
+          "label":{
+            "en":"social affairs",
+            "fa_ir":"امور اجتماعی"
+          }
+        },
+        {
+          "value":"social economics",
+          "label":{
+            "en":"social economics",
+            "fa_ir":"اجتماعی-اقتصادی"
+          }
+        },
+        {
+          "value":"social security",
+          "label":{
+            "en":"social security",
+            "fa_ir":"امنیت اجتماعی"
+          }
+        },
+        {
+          "value":"Tehran",
+          "label":{
+            "en":"Tehran",
+            "fa_ir":"تهران"
+          }
+        },
+        {
+          "value":"tobacco",
+          "label":{
+            "en":"tobacco",
+            "fa_ir":"دخانیات"
+          }
+        },
+        {
+          "value":"tourism",
+          "label":{
+            "en":"tourism",
+            "fa_ir":"گردشگری"
+          }
+        },
+        {
+          "value":"trade",
+          "label":{
+            "en":"trade",
+            "fa_ir":"تجارت"
+          }
+        },
+        {
+          "value":"transportation",
+          "label":{
+            "en":"transportation",
+            "fa_ir":"حمل و نقل"
+          }
+        },
+        {
+          "value":"unemployment",
+          "label":{
+            "en":"unemployment",
+            "fa_ir":"بیکاری"
+          }
+        },
+        {
+          "value":"urban planning",
+          "label":{
+            "en":"urban planning",
+            "fa_ir":"برنامه‌ریزی شهری"
+          }
+        },
+        {
+          "value":"weather",
+          "label":{
+            "en":"weather",
+            "fa_ir":"هوا"
+          }
+        },
+        {
+          "value":"welfare",
+          "label":{
+            "en":"welfare",
+            "fa_ir":"رفاه"
+          }
+        },
+        {
+          "value":"work",
+          "label":{
+            "en":"work",
+            "fa_ir":"کار"
+          }
+        },
+        {
+          "value":"youth",
+          "label":{
+            "en":"youth",
+            "fa_ir":"جوانان"
+          }
+        },
+        {
+          "value":"high school diploma",
+          "label":{
+            "en":"high school diploma",
+            "fa_ir":"دیپلم "
+          }
+        },
+        {
+          "value":"advanced diploma",
+          "label":{
+            "en":"advanced diploma",
+            "fa_ir":"کاردانی"
+          }
+        },
+        {
+          "value":"bacholor",
+          "label":{
+            "en":"bacholor",
+            "fa_ir":"کارشناسی"
+          }
+        },
+        {
+          "value":"masters",
+          "label":{
+            "en":"masters",
+            "fa_ir":" کارشناسی ارشد "
+          }
+        },
+        {
+          "value":"PHD ",
+          "label":{
+            "en":"PHD ",
+            "fa_ir":"دکترای حرفه‌ای "
+          }
+        },
+        {
+          "value":"postdoctorate",
+          "label":{
+            "en":"postdoctorate",
+            "fa_ir":"دکترای تخصصی"
+          }
+        },
+        {
+          "value":"preschool ",
+          "label":{
+            "en":"preschool ",
+            "fa_ir":"پیش‌دبستانی"
+          }
+        },
+        {
+          "value":"primary school ",
+          "label":{
+            "en":"primary school ",
+            "fa_ir":"دبستان"
+          }
+        },
+        {
+          "value":"middle schools",
+          "label":{
+            "en":"middle schools",
+            "fa_ir":"راهنمایی"
+          }
+        },
+        {
+          "value":"high school ",
+          "label":{
+            "en":"high school ",
+            "fa_ir":"دبیرستان "
+          }
+        },
+        {
+          "value":"pre university ",
+          "label":{
+            "en":"pre university ",
+            "fa_ir":"پیش‌‌دانشگاهی"
+          }
+        },
+        {
+          "value":"male-men",
+          "label":{
+            "en":"male-men",
+            "fa_ir":"مرد"
+          }
+        },
+        {
+          "value":"female-women",
+          "label":{
+            "en":"female-women",
+            "fa_ir":"زن"
+          }
+        }
+      ]
     },
     {
       "field_name": "owner_org",
