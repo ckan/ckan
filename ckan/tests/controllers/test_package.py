@@ -10,7 +10,7 @@ from nose.tools import (
 )
 
 from mock import patch, MagicMock
-from routes import url_for
+from ckan.lib.helpers import url_for
 
 import ckan.model as model
 import ckan.plugins as p

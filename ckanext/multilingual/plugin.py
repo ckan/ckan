@@ -109,6 +109,7 @@ def translate_resource_data_dict(data_dict):
     as possible translated into the desired or the fallback language.
 
     '''
+
     desired_lang_code = request.environ['CKAN_LANG']
     fallback_lang_code = config.get('ckan.locale_default', 'en')
 
@@ -257,6 +258,8 @@ class MultilingualDataset(SingletonPlugin):
                 current_lang = config.get('ckan.locale_default')
             else:
                 raise
+        except KeyError:
+            current_lang = config.get('ckan.locale_default')
 
         # fallback to default locale if locale not in suported langs
         if not current_lang in lang_set:

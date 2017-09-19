@@ -738,7 +738,6 @@ class TestActionAuth(object):
         'create: file_upload',
         'delete: revision_delete',
         'delete: revision_undelete',
-        'get: group_autocomplete',
         'get: group_list_available',
         'get: sysadmin',
         'get: request_reset',
