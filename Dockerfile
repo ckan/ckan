@@ -15,6 +15,9 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && DEBIAN_FRONTEND=noninteract
         python-virtualenv \
         libpq-dev \
         git-core \
+        build-essential \
+        libssl-dev \
+        libffi-dev \
 	&& apt-get -q clean
 
 # SetUp Virtual Environment CKAN

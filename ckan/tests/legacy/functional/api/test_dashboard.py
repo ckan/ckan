@@ -12,8 +12,6 @@ from ckan.common import json
 import paste
 import pylons.test
 from ckan.tests.legacy import CreateTestData
-from ckan.tests import helpers
-
 
 class TestDashboard(object):
     '''Tests for the logic action functions related to the user's dashboard.'''
@@ -37,7 +35,7 @@ class TestDashboard(object):
         ckan.model.repo.rebuild_db()
         ckan.lib.search.clear_all()
         CreateTestData.create()
-        cls.app = helpers._get_test_app()
+        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
         joeadmin = ckan.model.User.get('joeadmin')
         cls.joeadmin = {
                 'id': joeadmin.id,

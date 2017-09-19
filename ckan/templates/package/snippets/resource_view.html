@@ -2,7 +2,14 @@
 
 {% block resource_view %}
   <div id="view-{{ resource_view['id'] }}" class="resource-view" data-id="{{ resource_view['id'] }}" data-title="{{ resource_view['title'] }}" data-description="{{ resource_view['descripion'] }}">
-    <a class="btn btn-default pull-right"
+  <div class="actions">
+    <a class="btn" 
+       target="_blank"
+       href="{{ h.url_for('resource_view', id=package['name'], resource_id=resource['id'], view_id=resource_view['id'], qualified=True) }}">
+      <i class="fa fa-arrows-alt"></i>
+      {{ _("Fullscreen") }}
+    </a>
+    <a class="btn"
        href="#embed-{{ resource_view['id'] }}"
        data-module="resource-view-embed"
        data-module-id="{{ resource_view['id'] }}"
@@ -10,7 +17,8 @@
       <i class="fa fa-code"></i>
       {{ _("Embed") }}
     </a>
-    <p class="desc">{{ h.render_markdown(resource_view['description']) }}</p>
+  </div>  
+  <p class="desc">{{ h.render_markdown(resource_view['description']) }}</p>
     <div class="m-top ckanext-datapreview">
       {% if not to_preview and h.resource_view_is_filterable(resource_view) %}
         {% snippet 'package/snippets/resource_view_filters.html', resource=resource %}

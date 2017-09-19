@@ -942,8 +942,6 @@ def user_create(context, data_dict):
     :type fullname: string
     :param about: a description of the new user (optional)
     :type about: string
-    :param openid: (optional)
-    :type openid: string
 
     :returns: the newly created user
     :rtype: dictionary

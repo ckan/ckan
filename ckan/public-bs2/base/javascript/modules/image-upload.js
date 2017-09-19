@@ -129,6 +129,11 @@ this.ckan.module('image-upload', function($) {
      * Returns String.
      */
     _fileNameFromUpload: function(url) {
+      // If it's a local CKAN image return the entire URL.
+      if (/^\/base\/images/.test(url)) {
+        return url;
+      }
+
       // remove fragment (#)
       url = url.substring(0, (url.indexOf("#") === -1) ? url.length : url.indexOf("#"));
       // remove query string

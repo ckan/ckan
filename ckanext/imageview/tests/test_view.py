@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-
 from ckan.lib.helpers import url_for
 
 import ckan.plugins as p
@@ -40,9 +39,8 @@ class TestImageView(helpers.FunctionalTestBase):
             resource_id=resource['id'],
             image_url='http://some.image.png')
 
-        with app.flask_app.test_request_context():
-            url = url_for(controller='package', action='resource_read',
-                          id=dataset['name'], resource_id=resource['id'])
+        url = url_for(controller='package', action='resource_read',
+                      id=dataset['name'], resource_id=resource['id'])
 
         response = app.get(url)
 

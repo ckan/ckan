@@ -2,7 +2,6 @@
 
 import json
 
-import ckan.config.middleware as middleware
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.plugins as p
@@ -10,12 +9,9 @@ import ckan.tests.legacy as tests
 import ckanext.datastore.backend.postgres as db
 import ckanext.datastore.tests.helpers as helpers
 import nose
-import paste.fixture
+from ckan.tests.helpers import _get_test_app
 import sqlalchemy.orm as orm
-from ckan.common import config
 from nose.tools import assert_equals, assert_in
-
-import ckan.tests.helpers as test_helpers
 
 
 class TestDatastoreDump(object):
@@ -24,8 +20,7 @@ class TestDatastoreDump(object):
 
     @classmethod
     def setup_class(cls):
-        test_helpers.reset_db()
-        cls.app = test_helpers._get_test_app()
+        cls.app = _get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
