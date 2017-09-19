@@ -46,116 +46,6 @@
       "required": true
     },
     {
-      "field_name": "theme_string",
-      "label": {
-        "en": "Themes",
-        "fa_IR": "موضوع"
-      },
-      "preset": "multiple_select",
-      "required": true,
-      "validators": "ignore_missing tag_string_convert",
-      "choices": [
-        {
-         "value": "Art, Culture & Tourism",
-         "label": {
-           "en": "Art, Culture & Tourism",
-           "fa_IR": "هنر، فرهنگ و گردشگری"
-         }
-        },
-        {
-         "value": "Banking and Finance",
-         "label": {
-           "en": "Banking and Finance",
-           "fa_IR": "مالی و بانکی"
-         }
-        },
-        {
-         "value": "Budget and Government Spending",
-         "label": {
-           "en": "Budget and Government Spending",
-           "fa_IR": "بودجه و هزینه‌های دولت"
-         }
-        },
-        {
-         "value": "Communications",
-         "label": {
-           "en": "Communications",
-           "fa_IR": "ارتباطات"
-         }
-        },
-        {
-         "value": "Economic Sector",
-         "label": {
-           "en": "Economic Sector",
-           "fa_IR": "بخش‌های اقتصادی"
-         }
-        },
-        {
-         "value": "Education",
-         "label": {
-           "en": "Education",
-           "fa_IR": "آموزش"
-         }
-        },
-        {
-         "value": "Employment",
-         "label": {
-           "en": "Employment",
-           "fa_IR": "اشتغال"
-         }
-        },
-        {
-         "value": "Energy",
-         "label": {
-           "en": "Energy",
-           "fa_IR": "انرژی"
-         }
-        },
-        {
-         "value": "Environment",
-         "label": {
-           "en": "Environment",
-           "fa_IR": "محیط زیست"
-         }
-        },
-        {
-         "value": "Health",
-         "label": {
-           "en": "Health",
-           "fa_IR": "بهداشت"
-         }
-        },
-        {
-         "value": "Housing",
-         "label": {
-           "en": "Housing",
-           "fa_IR": "مسکن"
-         }
-        },
-        {
-         "value": "Population",
-         "label": {
-           "en": "Population",
-           "fa_IR": "جمعیت"
-         }
-        },
-        {
-         "value": "Trade",
-         "label": {
-           "en": "Trade",
-           "fa_IR": "تجارت"
-         }
-        },
-        {
-         "value": "Transport",
-         "label": {
-           "en": "Transport",
-           "fa_IR": "حمل و نقل"
-         }
-        }
-      ]
-    },
-    {
       "field_name": "tags_string",
       "label": {
         "en": "Tags",
@@ -442,11 +332,59 @@
         "en": "Geographic Scope",
         "fa_IR": "دامنه جغرافیایی"
       },
-      "preset": "tag_string_autocomplete",
-      "form_placeholder": {
-        "en": "If data is applicable to sub-national level include tags here for level that it applies to (e.g. province, city, etc) and also specific geographic/administrative regions that it applies to",
-        "fa_IR": "If data is applicable to sub-national level include tags here for level that it applies to (e.g. province, city, etc) and also specific geographic/administrative regions that it applies to"
-      }
+      "preset": "multiple_checkbox",
+      "validators": "ignore_missing tag_string_convert",
+      "choices": [
+        {
+         "value": "National",
+         "label": {
+           "en": "National",
+           "fa_IR": "ملی"
+         }
+        },
+        {
+         "value": "Province",
+         "label": {
+           "en": "Province",
+           "fa_IR": "استان"
+         }
+        },
+        {
+         "value": "County",
+         "label": {
+           "en": "County",
+           "fa_IR": "شهرستان"
+         }
+        },
+        {
+         "value": "District",
+         "label": {
+           "en": "District",
+           "fa_IR": "بخش"
+         }
+        },
+        {
+         "value": "Rural district",
+         "label": {
+           "en": "Rural district",
+           "fa_IR": "دهستان"
+         }
+        },
+        {
+         "value": "City",
+         "label": {
+           "en": "City",
+           "fa_IR": "شهر"
+         }
+        },
+        {
+         "value": "Village",
+         "label": {
+           "en": "Village",
+           "fa_IR": "روستا/ آبادی"
+         }
+        }
+      ]
     },
     {
       "field_name": "methodology",
