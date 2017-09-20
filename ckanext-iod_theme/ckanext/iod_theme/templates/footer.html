@@ -1,0 +1,41 @@
+<footer class="site-footer">
+  <div class="container">
+    {% block footer_content %}
+    <div class="row">
+      <div class="span12 footer-links">
+        {% block footer_nav %}
+          <ul class="unstyled">
+            {% block footer_links %}
+              <li><a href="/pages/about">{{ _('About {0}').format(g.site_title) }}</a></li>
+            {% endblock %}
+          </ul>
+          <ul class="unstyled">
+            {% block footer_links_ckan %}
+              {% set api_url = 'http://docs.ckan.org/en/{0}/api/'.format(g.ckan_doc_version) %}
+              <li><a href="{{ api_url }}">{{ _('CKAN API') }}</a></li>
+              <li><a href="http://www.ckan.org/">{{ _('CKAN Association') }}</a></li>
+              <li><a href="http://www.opendefinition.org/okd/"><img src="{{ h.url_for_static('/base/images/od_80x15_blue.png') }}"></a></li>
+            {% endblock %}
+          </ul>
+        {% endblock %}
+      </div>
+      <div class="span12 attribution">
+        {% block footer_attribution %}
+          <p>{% trans %}<strong>Powered by</strong> <a class="hide-text ckan-footer-logo" href="http://ckan.org">CKAN</a>{% endtrans %}</p>
+        {% endblock %}
+      </div>
+      <div class="span12 disclaimer">
+        <p>Materials on the Iran Open Data website and its accompanying database are compiled from publicly available documentation and provided without fee for general informational purposes only. This is neither a commercial research service nor a domain managed by any governmental or inter-governmental agency; it is managed as a private non-profit open data/open knowledge media group. Information is publicly posted only after a careful vetting and verification process. However, Iran Open Data cannot guarantee accuracy, completeness or reliability from third party sources in every instance. Iran Open Data makes no representation or warranty, either expressed or implied, in fact or in law, with respect to the accuracy, completeness or appropriateness of the data, materials or documents contained or referenced herein or provided.</p>
+        <p>Site users are encouraged to do additional research in support of their activities and to share the results of that research with our team, contact us to further improve the site accuracy.</p>
+        <p>By accessing this Iran Open Data website or database users agree to take full responsibility for reliance on any site information provided and to hold harmless and waive any and all liability against individuals or entities associated with its development, form and content for any loss, harm or damage suffered as a result of its use.</p>
+      </div>
+    </div>
+    {% endblock %}
+  </div>
+
+  {% block footer_debug %}
+    {% if g.debug %}
+      {% include 'snippets/debug.html' %}
+    {% endif %}
+  {% endblock %}
+</footer>
