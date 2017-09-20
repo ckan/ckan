@@ -98,7 +98,10 @@ ckan.site_id = default
 #		same origin policy
 ckan.plugins = stats text_view image_view recline_view datastore datapusher iod_theme scheming_datasets resource_proxy webpage_view recline_map_view recline_graph_view recline_grid_view pdf_view fluent pages
 
+ckanext.pages.about_menu = False
+ckanext.pages.group_menu = False
 ckanext.pages.organization_menu = False
+ckanext.pages.allow_html = True
 
 #   module-path:file to schemas being used
 scheming.dataset_schemas = ckanext.iod_theme:iod_dataset.json
