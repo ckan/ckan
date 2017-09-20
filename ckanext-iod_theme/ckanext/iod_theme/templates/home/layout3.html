@@ -1,0 +1,20 @@
+<div role="main" class="hero">
+  <div class="container">
+    <h1 class="iod-title">Making Iranian Data Publicly Available</h1>
+    
+    {% block search %}
+      {% snippet 'home/snippets/search.html' %}
+    {% endblock %}
+  </div>
+</div>
+<div role="main">
+  <div class="container">
+    <div class="row row2">
+      <div class="span12 col1">
+        {% block stats %}
+          {% snippet 'home/snippets/stats.html' %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
