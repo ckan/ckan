@@ -34,7 +34,7 @@ external storage volume, and symlinked ``/var/lib/docker`` to the external volum
 This allows us to store the bulky and/or precious cargo -- Docker images, Docker data volumes
 containing the CKAN databases, filestore, and config -- on a cheaper service.
 On the other hand, a snapshotting filesystem like btrfs is ideal for rolling backups.
-The same cost consideration might apply to any cloud-based providers.
+The same cost consideration might apply to other cloud-based providers.
 
 .. note:: This setup stores data in named volumes, mapped to folder locations which can be
   networked or local storage.
@@ -57,7 +57,7 @@ Docker Compose is installed system-wide following the official `Docker Compose i
 guidelines <https://docs.docker.com/compose/install/>`_.
 Alternatively, Docker Compose can be installed inside a virtualenv,
 which would be entirely separate from the virtualenv used inside the CKAN container, and
-would need to be activated before runningn Docker Compose commands.
+would need to be activated before running Docker Compose commands.
 
 To verify a successful Docker Compose installation, run ``docker-compose version``.
 
@@ -67,9 +67,8 @@ Clone CKAN into a directory of your choice::
 
     cd /path/to/my/projects
     git clone git@github.com:ckan/ckan.git .
-    # This will use the latest CKAN master.
 
-Using master may not be stable enough for production use.
+This will use the latest CKAN master, which may not be stable enough for production use.
 To use a stable version, checkout the respective tag, e.g.::
 
     git checkout tags/ckan-2.6.2
@@ -160,7 +159,7 @@ We'll use a prefix ``VOL_`` to avoid overriding variables in ``docker-compose.ym
     export VOL_CKAN_STORAGE=`docker volume inspect docker_ckan_storage | jq -r -c '.[] | .Mountpoint'`
     echo $VOL_CKAN_STORAGE
 
-We won't need to access files inside ``docker_pg_data`` directly, therefore we'll skip the shortcut.
+We won't need to access files inside ``docker_pg_data`` directly, so we'll skip creating the shortcut.
 As shown further below, we can use ``psql`` from inside the ``ckan`` container to run commands
 against the database and import / export files from ``$VOL_CKAN_HOME``.
 
@@ -175,10 +174,14 @@ a. Create and configure datastore database
 With running CKAN containers, execute the built-in setup scripts against the ``db`` container::
 
     docker exec -it db psql -U ckan -f 00_create_datastore.sql
-    docker exec -it db psql -U ckan -f 10_set_permissions.sql
+    # canned, possibly outdated:
+    # docker exec -it db psql -U ckan -f 10_set_permissions.sql
+    # fresh:
+    docker exec ckan /usr/local/bin/ckan-paster --plugin=ckan datastore set-permissions -c /etc/ckan/ckan.ini | docker exec -i db psql -U ckan
 
 The first script will create the datastore database and the datastore readonly user in the ``db``
-container. The second script is the output of ``paster ckan set-permissions``.
+container. The second script is the output of ``paster ckan set-permissions`` - however,
+as this output can change in future versions of CKAN, we set the permissions directly.
 The effect of these scripts is persisted in the named volume ``docker_pg_data``.
 
 .. note:: We re-use the already privileged default user of the CKAN database as read/write user
@@ -230,14 +233,14 @@ The admin user's API key will be instrumental in tranferring data from other ins
 ---------------
 5. Migrate data
 ---------------
-This section illustrates the data migration from an existing CKAN instance assuming direct access
-to the target host.
+This section illustrates the data migration from an existing CKAN instance ``SOURCE_CKAN`` 
+into our new Docker Compose CKAN instance assuming direct (ssh) access to ``SOURCE_CKAN``.
 
 a. Transfer resource files
 
 Assuming the CKAN storage directory on ``SOURCE_CKAN`` is located at ``/path/to/files`` (containing
 resource files and uploaded images in ``resources`` and ``storage``), we'll simply ``rsync``
-those into the named volume ``docker_ckan_storage``::
+``SOURCE_CKAN``'s storage directory into the named volume ``docker_ckan_storage``::
 
     sudo rsync -Pavvr USER@SOURCE_CKAN:/path/to/files/ $VOL_CKAN_STORAGE
 
@@ -252,11 +255,11 @@ On source CKAN host with access to source db ``ckan_default``, export the ``user
     pg_dump -h CKAN_DBHOST -P CKAN_DBPORT -U CKAN_DBUSER -a -O -t user -f user.sql ckan_default
 
 On the target host, make ``user.sql`` accessible to the source CKAN container.
-Transfer user.sql into the named volume ``docker_ckan_home`` and chown it to the docker user::
+Transfer user.sql into the named volume ``docker_ckan_home`` and ``chown`` it to the docker user::
 
     rsync -Pavvr user@ckan-source-host:/path/to/user.sql $VOL_CKAN_HOME/venv/src
 
-    # $VOL_CKAN_HOME is owned by the user "ckan" (UID 900) created in the CKAN Dockerfile
+    # $VOL_CKAN_HOME is owned by the user "ckan" (UID 900) as created in the CKAN Dockerfile
     sudo ls -l $VOL_CKAN_HOME
     # drwxr-xr-x 1 900 900 62 Jul 17 16:13 venv
 
@@ -293,17 +296,17 @@ There are two scenarios to add extensions:
 * Developers need to read, modify and use version control on the extensions' source. This adds
   additional steps to the maintainers' workflow.
 
-For maintainers, the process is:
+For maintainers, the process is in summary:
 
 * Run a bash shell inside the running ``ckan`` container, download and install extension.
-  Alternative: Insert the ``pip install`` step into a custom CKAN Dockerfile.
+  Alternatively, add a ``pip install`` step for the extension into a custom CKAN Dockerfile.
 * Restart ``ckan`` service, read logs.
 
 a. Download and install extension from inside ``ckan`` container into ``docker_ckan_home`` volume
 
 The process is very similar to installing extensions in a source install. The only difference is
-that the installation steps happen inside the running container, using the virtualenv created
-inside the ckan image by CKAN's Dockerfile.
+that the installation steps will happen inside the running container, and they will use the 
+virtualenv created inside the ckan image by CKAN's Dockerfile.
 
 The downloaded and installed files will be persisted in the named volume ``docker_ckan_home``.
 
@@ -495,7 +498,6 @@ variables::
 ---------------------------
 8. Steps towards production
 ---------------------------
-
 As mentioned above, some design decisions may not be suitable for a production setup.
 
 A possible path towards a production-ready environment is:
