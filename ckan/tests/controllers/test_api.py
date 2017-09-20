@@ -7,7 +7,7 @@ controller itself.
 import json
 import re
 
-from routes import url_for
+from ckan.lib.helpers import url_for
 from nose.tools import assert_equal, assert_in, eq_
 
 import ckan.tests.helpers as helpers

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import paste
 from ckan.common import config
 import ckan.config.middleware
 import ckan.tests.legacy as tests

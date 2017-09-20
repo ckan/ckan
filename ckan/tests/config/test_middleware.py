@@ -3,7 +3,7 @@
 import mock
 import wsgiref
 from nose.tools import assert_equals, assert_not_equals, eq_, assert_raises
-from routes import url_for
+from ckan.lib.helpers import url_for
 from flask import Blueprint
 import flask
 
@@ -576,9 +576,6 @@ class MockRoutingPlugin(p.SingletonPlugin):
 
         _map.connect('/pylons_route_flask_url_for',
                      controller=self.controller, action='test_flask_url_for')
-        _map.connect('/pylons_translated',
-                     controller=self.controller, action='test_translation')
-
         _map.connect('/pylons_translated',
                      controller=self.controller, action='test_translation')
 
