@@ -107,7 +107,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
             datetime_ = datetime_.replace(tzinfo=pytz.utc)
         date_diff = now - datetime_
         days = date_diff.days
-        if days < 1:
+        if days < 1 and now > datetime_:
             # less than one day
             seconds = date_diff.seconds
             if seconds < 3600:
