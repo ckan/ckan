@@ -99,7 +99,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         return months
 
     if not show_date:
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now()
         if datetime_.tzinfo is not None:
             now = now.replace(tzinfo=datetime_.tzinfo)
         else:

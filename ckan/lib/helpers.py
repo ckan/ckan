@@ -120,8 +120,7 @@ def _datestamp_to_datetime(datetime_):
 
     # all dates are considered UTC internally,
     # change output if `ckan.display_timezone` is available
-    datetime_ = datetime_.replace(tzinfo=pytz.utc)
-    datetime_ = datetime_.astimezone(get_display_timezone())
+    datetime_ = datetime_.replace(tzinfo=get_display_timezone())
 
     return datetime_
 
