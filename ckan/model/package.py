@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import datetime
 from calendar import timegm
 import logging
@@ -11,13 +12,13 @@ from sqlalchemy import types, Column, Table
 from ckan.common import config
 import vdm.sqlalchemy
 
-import meta
-import core
-import license as _license
-import types as _types
-import domain_object
-import activity
-import extension
+from . import meta
+from . import core
+from . import license as _license
+from . import types as _types
+from . import domain_object
+from . import activity
+from . import extension
 
 import ckan.lib.maintain as maintain
 import ckan.lib.dictization as dictization
@@ -98,7 +99,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return [self]
 
     def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
-        import resource
+        from . import resource
         self.resources_all.append(resource.Resource(
             package_id=self.id,
             url=url,
@@ -135,7 +136,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         to the vocabulary.
 
         """
-        from tag import Tag
+        from .tag import Tag
         if not tag_name:
             return
         # Get the named tag.
@@ -228,7 +229,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         Raises KeyError if the type_ is invalid.
         '''
-        import package_relationship
+        from . import package_relationship
         if type_ in package_relationship.PackageRelationship.get_forward_types():
             subject = self
             object_ = related_package
@@ -240,7 +241,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             object_ = self
             direction = "reverse"
         else:
-            raise KeyError, 'Package relationship type: %r' % type_
+            raise KeyError('Package relationship type: %r' % type_)
 
         rels = self.get_relationships(with_package=related_package,
                                       type=type_, active=False, direction=direction)
@@ -266,7 +267,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         assert direction in ('both', 'forward', 'reverse')
         if with_package:
             assert isinstance(with_package, Package)
-        from package_relationship import PackageRelationship
+        from .package_relationship import PackageRelationship
         forward_filters = [PackageRelationship.subject==self]
         reverse_filters = [PackageRelationship.object==self]
         if with_package:
@@ -301,7 +302,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         non-direct relationships (such as siblings).
         @return: e.g. [(annakarenina, u"is a parent"), ...]
         '''
-        from package_relationship import PackageRelationship
+        from .package_relationship import PackageRelationship
         rel_list = []
         for rel in self.get_relationships():
             if rel.subject == self:
@@ -364,7 +365,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             self.license_id = license['id']
         else:
             msg = "Value not a license object or entity: %s" % repr(license)
-            raise Exception, msg
+            raise Exception(msg)
 
     license = property(get_license, set_license)
 
@@ -377,20 +378,20 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                                            revision])
                 Ordered by most recent first.
         '''
-        from tag import PackageTag
-        from resource import Resource
-        from package_extra import PackageExtra
+        from .tag import PackageTag
+        from .resource import Resource
+        from .package_extra import PackageExtra
 
         results = {} # revision:[PackageRevision1, PackageTagRevision1, etc.]
         for pkg_rev in self.all_revisions:
-            if not results.has_key(pkg_rev.revision):
+            if pkg_rev.revision not in results:
                 results[pkg_rev.revision] = []
             results[pkg_rev.revision].append(pkg_rev)
         for class_ in [Resource, PackageExtra, PackageTag]:
             rev_class = class_.__revision_class__
             obj_revisions = meta.Session.query(rev_class).filter_by(package_id=self.id).all()
             for obj_rev in obj_revisions:
-                if not results.has_key(obj_rev.revision):
+                if obj_rev.revision not in results:
                     results[obj_rev.revision] = []
                 results[obj_rev.revision].append(obj_rev)
 
@@ -408,9 +409,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def diff(self, to_revision=None, from_revision=None):
         '''Overrides the diff in vdm, so that related obj revisions are
         diffed as well as PackageRevisions'''
-        from tag import PackageTag
-        from resource import Resource
-        from package_extra import PackageExtra
+        from .tag import PackageTag
+        from .resource import Resource
+        from .package_extra import PackageExtra
 
         results = {} # field_name:diffs
         results.update(super(Package, self).diff(to_revision, from_revision))
@@ -566,8 +567,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         @param user_or_ip - user object or an IP address string
         '''
         user = None
-        from user import User
-        from rating import Rating, MAX_RATING, MIN_RATING
+        from .user import User
+        from .rating import Rating, MAX_RATING, MIN_RATING
         if isinstance(user_or_ip, User):
             user = user_or_ip
             rating_query = meta.Session.query(Rating)\
@@ -605,7 +606,7 @@ class RatingValueException(Exception):
     pass
 
 # import here to prevent circular import
-import tag
+from . import tag
 
 meta.mapper(Package, package_table, properties={
     # delete-orphan on cascade does NOT work!

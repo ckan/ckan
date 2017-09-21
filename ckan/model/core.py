@@ -1,9 +1,10 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import datetime
 
-import domain_object
-import meta
+from . import domain_object
+from . import meta
 import vdm.sqlalchemy
 from sqlalchemy import Column, DateTime, Text, Boolean
 

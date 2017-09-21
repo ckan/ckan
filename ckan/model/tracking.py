@@ -1,9 +1,10 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 from sqlalchemy import types, Column, Table, text
 
-import meta
-import domain_object
+from . import meta
+from . import domain_object
 
 __all__ = ['tracking_summary_table', 'TrackingSummary', 'tracking_raw_table']
 

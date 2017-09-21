@@ -1,8 +1,9 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import ckan.plugins as p
 from ckan.lib.base import BaseController
-import stats as stats_lib
+from . import stats as stats_lib
 import ckan.lib.helpers as h
 
 

@@ -1,6 +1,7 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 from ckan.plugins.core import *
 from ckan.plugins.interfaces import *
 
-import toolkit
+from . import toolkit

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import datetime
 import re
 import os
@@ -12,10 +13,10 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 import vdm.sqlalchemy
 
-import meta
-import core
-import types as _types
-import domain_object
+from . import meta
+from . import core
+from . import types as _types
+from . import domain_object
 
 
 user_table = Table('user', meta.metadata,

@@ -314,7 +314,7 @@ def _change_privilege(context, data_dict, what):
         })
     try:
         context['connection'].execute(sql)
-    except ProgrammingError, e:
+    except ProgrammingError as e:
         log.critical("Error making resource private. {0!r}".format(e.message))
         raise ValidationError({
             'privileges': [
@@ -534,7 +534,7 @@ def create_alias(context, data_dict):
                     })
 
                 context['connection'].execute(sql_alias_string)
-        except DBAPIError, e:
+        except DBAPIError as e:
             if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
                                  _PG_ERR_CODE['duplicate_alias']]:
                 raise ValidationError({
@@ -638,7 +638,7 @@ def _is_valid_pg_type(context, type_name):
         connection = context['connection']
         try:
             connection.execute('SELECT %s::regtype', type_name)
-        except ProgrammingError, e:
+        except ProgrammingError as e:
             if e.orig.pgcode in [_PG_ERR_CODE['undefined_object'],
                                  _PG_ERR_CODE['syntax_error']]:
                 return False
@@ -1436,7 +1436,7 @@ def upsert(context, data_dict):
         upsert_data(context, data_dict)
         trans.commit()
         return _unrename_json_field(data_dict)
-    except IntegrityError, e:
+    except IntegrityError as e:
         if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
             raise ValidationError({
                 'constraints': ['Cannot insert records or create index because'
@@ -1447,19 +1447,19 @@ def upsert(context, data_dict):
                 }
             })
         raise
-    except DataError, e:
+    except DataError as e:
         raise ValidationError({
             'data': e.message,
             'info': {
                 'orig': [str(e.orig)]
             }})
-    except DBAPIError, e:
+    except DBAPIError as e:
         if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
         raise
-    except Exception, e:
+    except Exception as e:
         trans.rollback()
         raise
     finally:
@@ -1477,7 +1477,7 @@ def search(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         return search_data(context, data_dict)
-    except DBAPIError, e:
+    except DBAPIError as e:
         if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Search took too long']
@@ -1522,7 +1522,7 @@ def search_sql(context, data_dict):
 
         return format_results(context, results, data_dict)
 
-    except ProgrammingError, e:
+    except ProgrammingError as e:
         if e.orig.pgcode == _PG_ERR_CODE['permission_denied']:
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to read resource.']
@@ -1540,7 +1540,7 @@ def search_sql(context, data_dict):
                 'orig': [_remove_explain(str(e.orig))]
             }
         })
-    except DBAPIError, e:
+    except DBAPIError as e:
         if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
@@ -1823,7 +1823,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 _change_privilege(context, data_dict, 'REVOKE')
             trans.commit()
             return _unrename_json_field(data_dict)
-        except IntegrityError, e:
+        except IntegrityError as e:
             if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
                 raise ValidationError({
                     'constraints': ['Cannot insert records or create index'
@@ -1834,19 +1834,19 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                     }
                 })
             raise
-        except DataError, e:
+        except DataError as e:
             raise ValidationError({
                 'data': e.message,
                 'info': {
                     'orig': [str(e.orig)]
                 }})
-        except DBAPIError, e:
+        except DBAPIError as e:
             if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
                 raise ValidationError({
                     'query': ['Query took too long']
                 })
             raise
-        except Exception, e:
+        except Exception as e:
             trans.rollback()
             raise
         finally:

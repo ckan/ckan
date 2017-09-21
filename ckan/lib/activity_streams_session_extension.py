@@ -135,7 +135,7 @@ class DatasetActivitySessionExtension(SessionExtension):
                     if activity_detail is not None:
                         if not package.id in activities:
                             activities[package.id] = activity
-                        if activity_details.has_key(activity.id):
+                        if activity.id in activity_details:
                             activity_details[activity.id].append(
                                 activity_detail)
                         else:

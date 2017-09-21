@@ -1,13 +1,14 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import vdm.sqlalchemy
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 
-import meta
-import core
-import package as _package
-import types as _types
-import domain_object
+from . import meta
+from . import core
+from . import package as _package
+from . import types as _types
+from . import domain_object
 
 # i18n only works when this is run as part of pylons,
 # which isn't the case for paster commands.
@@ -161,7 +162,7 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
             for j in range(2):
                 if type_ == types[j]:
                     return cls.types_printable[i][j]
-        raise TypeError, type_
+        raise TypeError(type_)
 
 meta.mapper(PackageRelationship, package_relationship_table, properties={
     'subject':orm.relation(_package.Package, primaryjoin=\

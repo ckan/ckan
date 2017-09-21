@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 import datetime
 import json
 
@@ -215,7 +216,7 @@ class TestDatastoreCreate():
         auth = {'Authorization': str(user.apikey)}
         res = self.app.post('/api/action/datapusher_hook', params=postparams,
                             extra_environ=auth, status=200)
-        print res.body
+        print(res.body)
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is True

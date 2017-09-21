@@ -1,6 +1,7 @@
 # encoding: utf-8
 
-from base import FunctionalTestCase
+from __future__ import absolute_import
+from .base import FunctionalTestCase
 
 class TestError(FunctionalTestCase):
     def test_without_redirect(self):

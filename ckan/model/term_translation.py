@@ -1,8 +1,9 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 from sqlalchemy import Column, Table
 from sqlalchemy.types import UnicodeText
-import meta
+from . import meta
 
 __all__ = ['term_translation_table']
 

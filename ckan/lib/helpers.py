@@ -5,6 +5,7 @@
 Consists of functions to typically be used within templates, but also
 available to Controllers. This module is available to templates as 'h'.
 '''
+from __future__ import absolute_import
 import email.utils
 import datetime
 import logging
@@ -33,7 +34,7 @@ from routes import redirect_to as _routes_redirect_to
 from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
-import i18n
+from . import i18n
 
 import ckan.exceptions
 import ckan.model as model
@@ -2417,7 +2418,7 @@ def resource_formats():
         with open(format_file_path) as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())
-            except ValueError, e:
+            except ValueError as e:
                 # includes simplejson.decoder.JSONDecodeError
                 raise ValueError('Invalid JSON syntax in %s: %s' %
                                  (format_file_path, e))

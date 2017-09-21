@@ -1,17 +1,18 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import vdm.sqlalchemy
 import vdm.sqlalchemy.stateful
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 
-import meta
-import core
-import package as _package
-import extension
-import domain_object
-import types as _types
+from . import meta
+from . import core
+from . import package as _package
+from . import extension
+from . import domain_object
+from . import types as _types
 import ckan.lib.dictization
-import activity
+from . import activity
 
 __all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision',
            'extra_revision_table']

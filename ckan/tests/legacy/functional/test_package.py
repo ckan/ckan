@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from __future__ import print_function
+from __future__ import absolute_import
 import datetime
 
 from ckan.common import config, c
@@ -10,7 +12,7 @@ from ckan.tests.legacy import *
 import ckan.tests.legacy as tests
 from ckan.tests.legacy.html_check import HtmlCheckMethods
 from ckan.tests.legacy.pylons_controller import PylonsTestCase
-from base import FunctionalTestCase
+from .base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic.action import get, update
@@ -61,7 +63,7 @@ class TestPackageForm(TestPackageBase):
         assert license.title in main_div, (license.title, main_div_str)
         tag_names = list(params['tags'])
         self.check_named_element(main_div, 'ul', *tag_names)
-        if params.has_key('state'):
+        if 'state' in params:
             assert 'State: %s' % params['state'] in main_div.replace('</strong>', ''), main_div_str
         if isinstance(params['extras'], dict):
             extras = []
@@ -109,7 +111,7 @@ class TestPackageForm(TestPackageBase):
         return unescaped_str.replace('<', '&lt;')
 
     def check_form_filled_correctly(self, res, **params):
-        if params.has_key('pkg'):
+        if 'pkg' in params:
             for key, value in params['pkg'].as_dict().items():
                 if key == 'license':
                     key = 'license_id'
@@ -133,7 +135,7 @@ class TestPackageForm(TestPackageBase):
             tags = params['tags']
         for tag in tags:
             self.check_tag(main_res, prefix+'tag_string', tag)
-        if params.has_key('state'):
+        if 'state' in params:
             self.check_tag_and_data(main_res, 'selected', str(params['state']))
         if isinstance(params['extras'], dict):
             extras = []
@@ -333,15 +335,15 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         offset = self.offset + '@%s' % self.revision_ids[0]
         res = self.app.get(offset, status=200)
         main_html = pkg_html = side_html = res.body
-        print 'MAIN', main_html
+        print('MAIN', main_html)
         assert 'This is an old revision of this dataset' in main_html
         assert 'at January 1, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
-        print 'PKG', pkg_html
+        print('PKG', pkg_html)
         assert 'title1' in res
         assert 'key2' not in pkg_html
         assert 'value3' not in pkg_html
-        print 'SIDE', side_html
+        print('SIDE', side_html)
         assert 'tag3.' not in side_html
         assert 'tag 2' not in side_html
 
@@ -349,15 +351,15 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         offset = self.offset + '@%s' % self.revision_ids[1]
         res = self.app.get(offset, status=200)
         main_html = pkg_html = side_html = res.body
-        print 'MAIN', main_html
+        print('MAIN', main_html)
         assert 'This is an old revision of this dataset' in main_html
         assert 'at January 2, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
-        print 'PKG', pkg_html
+        print('PKG', pkg_html)
         assert 'title2' in res
         assert 'key2' in pkg_html
         assert 'value2' in pkg_html
-        print 'SIDE', side_html
+        print('SIDE', side_html)
         assert 'tag3.' not in side_html
         assert 'tag 2' in side_html
 
@@ -365,17 +367,17 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         offset = self.offset + '@%s' % self.revision_ids[2]
         res = self.app.get(offset, status=200)
         main_html = pkg_html = side_html = res.body
-        print 'MAIN', main_html
+        print('MAIN', main_html)
         assert 'This is an old revision of this dataset' in main_html
         # It is not an old revision, but working that out is hard. The request
         # was for a particular revision, so assume it is old.
         assert 'at January 3, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
-        print 'PKG', pkg_html
+        print('PKG', pkg_html)
         assert 'title3' in res
         assert 'key2' in pkg_html
         assert 'value3' in pkg_html
-        print 'SIDE', side_html
+        print('SIDE', side_html)
         assert 'tag3.' in side_html
         assert 'tag 2' in side_html
 
@@ -432,7 +434,7 @@ class TestEdit(TestPackageForm):
         # not allowed to edit groups for now
         prefix = 'Dataset-%s-' % self.pkgid
         fv = self.res.forms['dataset-edit']
-        assert not fv.fields.has_key(prefix + 'groups')
+        assert prefix + 'groups' not in fv.fields
 
 
     def test_redirect_after_edit_using_param(self):

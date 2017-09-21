@@ -161,7 +161,7 @@ class CreateTestData(object):
                 rev.message = u'Creating test packages.'
                 pkg_dict = {}
                 for field in cls.pkg_core_fields:
-                    if item.has_key(field):
+                    if field in item:
                         pkg_dict[field] = unicode(item[field])
                 if model.Package.by_name(pkg_dict['name']):
                     log.warning('Cannot create package "%s" as it already exists.' % \
@@ -648,7 +648,7 @@ search_items = [{'name':'gils',
               'tags':'registry,country-usa,government,federal,gov,workshop-20081101,penguin'.split(','),
               'resources':[{'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/SFR17_2009_tables.xls',
                           'format':'XLS',
-                          'last_modified': datetime.datetime(2005,10,01),
+                          'last_modified': datetime.datetime(2005,10,0o1),
                           'description':'December 2009 | http://www.statistics.gov.uk/hub/id/119-36345'},
                           {'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000860/SFR17_2009_key.doc',
                           'format':'DOC',

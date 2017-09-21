@@ -1,13 +1,14 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import logging
 
 from ckan.lib.search import SearchIndexError
 
 import ckan.plugins as plugins
-import domain_object
-import package as _package
-import resource
+from . import domain_object
+from . import package as _package
+from . import resource
 
 log = logging.getLogger(__name__)
 
@@ -75,12 +76,12 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 plugins.IDomainObjectModification):
             try:
                 observer.notify(entity, operation)
-            except SearchIndexError, search_error:
+            except SearchIndexError as search_error:
                 log.exception(search_error)
                 # Reraise, since it's pretty crucial to ckan if it can't index
                 # a dataset
                 raise
-            except Exception, ex:
+            except Exception as ex:
                 log.exception(ex)
                 # Don't reraise other exceptions since they are generally of
                 # secondary importance so shouldn't disrupt the commit.

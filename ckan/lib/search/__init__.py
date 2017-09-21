@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from __future__ import print_function
+from __future__ import absolute_import
 import logging
 import sys
 import cgitb
@@ -13,10 +15,10 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
 
-from common import (SearchIndexError, SearchError, SearchQueryError,
+from .common import (SearchIndexError, SearchError, SearchQueryError,
                     make_connection, is_available, SolrSettings)
-from index import PackageSearchIndex, NoopSearchIndex
-from query import (TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
+from .index import PackageSearchIndex, NoopSearchIndex
+from .query import (TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
                    QueryOptions, convert_legacy_parameters_to_solr)
 
 log = logging.getLogger(__name__)
@@ -72,7 +74,7 @@ def index_for(_type):
     try:
         _type_n = _normalize_type(_type)
         return _INDICES[_type_n]()
-    except KeyError, ke:
+    except KeyError as ke:
         log.warn("Unknown search type: %s" % _type)
         return NoopSearchIndex()
 
@@ -83,7 +85,7 @@ def query_for(_type):
     try:
         _type_n = _normalize_type(_type)
         return _QUERIES[_type_n]()
-    except KeyError, ke:
+    except KeyError as ke:
         raise SearchError("Unknown search type: %s" % _type)
 
 
@@ -99,7 +101,7 @@ def dispatch_by_operation(entity_type, entity, operation):
             index.remove_dict(entity)
         else:
             log.warn("Unknown operation: %s" % operation)
-    except Exception, ex:
+    except Exception as ex:
         log.exception(ex)
         # we really need to know about any exceptions, so reraise
         # (see #1172)
@@ -193,7 +195,7 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
                     ),
                     defer_commit
                 )
-            except Exception, e:
+            except Exception as e:
                 log.error(u'Error while indexing dataset %s: %s' %
                           (pkg_id, repr(e)))
                 if force:
@@ -221,11 +223,11 @@ def check():
     pkgs = set([pkg.id for pkg in pkgs_q])
     indexed_pkgs = set(package_query.get_all_entity_ids(max_results=len(pkgs)))
     pkgs_not_indexed = pkgs - indexed_pkgs
-    print 'Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),
-                                                   len(pkgs))
+    print('Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),
+                                                   len(pkgs)))
     for pkg_id in pkgs_not_indexed:
         pkg = model.Session.query(model.Package).get(pkg_id)
-        print pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name
+        print(pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name)
 
 
 def show(package_reference):

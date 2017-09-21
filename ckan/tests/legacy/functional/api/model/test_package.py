@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 import copy
 
 from nose.tools import assert_equal, assert_raises
@@ -453,7 +454,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                 self.assert_equal(package.extras[key], value)
             # NB: key4 set to '' creates it
             # but: key2 set to None will delete it
-            assert not package.extras.has_key('key2')
+            assert 'key2' not in package.extras
         finally:
             self.purge_package_by_name(new_fixture_data['name'])
 
@@ -606,7 +607,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         try:
             package1_offset = self.package_offset(package1_name)
             # trying to rename package 1 to package 2's name
-            print package1_offset, package2_data
+            print(package1_offset, package2_data)
             self.post(package1_offset, package2_data, self.STATUS_409_CONFLICT, extra_environ=self.admin_extra_environ)
         finally:
             self.purge_package_by_name(package2_name)

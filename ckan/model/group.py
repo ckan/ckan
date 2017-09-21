@@ -1,16 +1,17 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import datetime
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_, text
 import vdm.sqlalchemy
 
-import meta
-import core
-import package as _package
-import types as _types
-import domain_object
-import user as _user
+from . import meta
+from . import core
+from . import package as _package
+from . import types as _types
+from . import domain_object
+from . import user as _user
 
 __all__ = ['group_table', 'Group',
            'Member', 'GroupRevision', 'MemberRevision',
@@ -350,7 +351,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         this group. Ordered by most recent first.
         '''
         results = {}
-        from group_extra import GroupExtra
+        from .group_extra import GroupExtra
         for grp_rev in self.all_revisions:
             if not grp_rev.revision in results:
                 results[grp_rev.revision] = []

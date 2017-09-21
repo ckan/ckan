@@ -26,7 +26,7 @@ class HomeController(base.BaseController):
         except logic.NotAuthorized:
             base.abort(403, _('Not authorized to see this page'))
         except (sqlalchemy.exc.ProgrammingError,
-                sqlalchemy.exc.OperationalError), e:
+                sqlalchemy.exc.OperationalError) as e:
             # postgres and sqlite errors for missing tables
             msg = str(e)
             if ('relation' in msg and 'does not exist' in msg) or \

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 from nose.tools import assert_equal 
 from nose.plugins.skip import SkipTest
 
@@ -255,7 +256,7 @@ class RelationshipsTestCase(BaseModelApiTestCase):
         # Currently it just ignores the changed type and subject/object
         res = self.app.put(offset, params=postparams, status=[200],
                            extra_environ=self.extra_environ)
-        print res.body
+        print(res.body)
         assert 'cat' not in res.body
         assert 'Matilda' not in res.body
         assert 'Tabby' in res.body
@@ -294,7 +295,7 @@ class RelationshipsTestCase(BaseModelApiTestCase):
                 for r in relationships:
                     msg += '%s %s %s; ' % (r['subject'], r['type'], r['object'])
                 msg += '.'
-            raise Exception, msg
+            raise Exception(msg)
 
     def check_relationships_rest(self, pkg1_name, pkg2_name=None,
                                  expected_relationships=[]):
@@ -312,7 +313,7 @@ class RelationshipsTestCase(BaseModelApiTestCase):
                 raise Exception('Unexpected relationship: %s %s %s' %
                                 (rel['subject'], rel['type'], rel['object']))
             for field in ('subject', 'object', 'type', 'comment'):
-                if the_expected_rel.has_key(field):
+                if field in the_expected_rel:
                     value = rel[field]
                     expected = the_expected_rel[field]
                     assert value == expected, (value, expected, field, rel)

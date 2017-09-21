@@ -126,7 +126,7 @@ def isodate(value, context):
         return None
     try:
         date = h.date_str_to_datetime(value)
-    except (TypeError, ValueError), e:
+    except (TypeError, ValueError) as e:
         raise Invalid(_('Date format incorrect'))
     return date
 
@@ -302,7 +302,7 @@ def object_id_validator(key, activity_dict, errors, context):
 
     '''
     activity_type = activity_dict[('activity_type',)]
-    if object_id_validators.has_key(activity_type):
+    if activity_type in object_id_validators:
         object_id = activity_dict[('object_id',)]
         return object_id_validators[activity_type](object_id, context)
     else:
@@ -355,7 +355,7 @@ def package_name_validator(key, data, errors, context):
     else:
         package_id = data.get(key[:-1] + ('id',))
     if package_id and package_id is not missing:
-        query = query.filter(model.Package.id <> package_id)
+        query = query.filter(model.Package.id != package_id)
     result = query.first()
     if result and result.state != State.DELETED:
         errors[key].append(_('That URL is already in use.'))
@@ -404,7 +404,7 @@ def group_name_validator(key, data, errors, context):
     else:
         group_id = data.get(key[:-1] + ('id',))
     if group_id and group_id is not missing:
-        query = query.filter(model.Group.id <> group_id)
+        query = query.filter(model.Group.id != group_id)
     result = query.first()
     if result:
         errors[key].append(_('Group name already exists in database'))
@@ -666,7 +666,7 @@ def tag_not_in_vocabulary(key, tag_dict, errors, context):
     tag_name = tag_dict[('name',)]
     if not tag_name:
         raise Invalid(_('No tag name'))
-    if tag_dict.has_key(('vocabulary_id',)):
+    if ('vocabulary_id',) in tag_dict:
         vocabulary_id = tag_dict[('vocabulary_id',)]
     else:
         vocabulary_id = None

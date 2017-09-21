@@ -12,6 +12,7 @@ See:
 * http://pythonpaste.org/script/developer.html#templates
 
 """
+from __future__ import print_function
 import sys
 
 import jinja2
@@ -59,7 +60,7 @@ class CkanextTemplate(Template):
         sys.setdefaultencoding('utf-8')
 
         if not vars['project'].startswith('ckanext-'):
-            print "\nError: Project name must start with 'ckanext-'"
+            print("\nError: Project name must start with 'ckanext-'")
             sys.exit(1)
 
         # The project name without the ckanext-.

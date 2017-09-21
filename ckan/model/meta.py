@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import datetime
 
 from paste.deploy.converters import asbool
@@ -9,7 +10,7 @@ from sqlalchemy import MetaData, and_
 import sqlalchemy.orm as orm
 from sqlalchemy.orm.session import SessionExtension
 
-import extension
+from . import extension
 import ckan.lib.activity_streams_session_extension as activity
 
 __all__ = ['Session', 'engine_is_sqlite', 'engine_is_pg']

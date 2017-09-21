@@ -124,7 +124,7 @@ def test_source_files_specify_encoding():
 
     Empty files and files that only contain comments are ignored.
     '''
-    pattern = re.compile(ur'#.*?coding[:=][ \t]*utf-?8')
+    pattern = re.compile(u'#.*?coding[:=][ \t]*utf-?8')
     decode_errors = []
     no_specification = []
     for abs_path, rel_path in walk_python_files():

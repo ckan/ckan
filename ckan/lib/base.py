@@ -188,7 +188,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         else:
             return cached_template(template_name, render_template)
 
-    except ckan.exceptions.CkanUrlException, e:
+    except ckan.exceptions.CkanUrlException as e:
         raise ckan.exceptions.CkanUrlException(
             '\nAn Exception has been raised for template %s\n%s' %
             (template_name, e.message))

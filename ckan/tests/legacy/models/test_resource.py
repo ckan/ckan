@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 from sqlalchemy import MetaData, __version__ as sqav
 from nose.tools import assert_equal, raises
 
@@ -122,7 +123,7 @@ class TestResource:
         assert len(pkg.resources_all) == 3, len(pkg.resources)
         lastres = pkg.resources[2]
         assert lastres.position == 2, lastres
-        print lastres
+        print(lastres)
         assert lastres.url == self.urls[0], (self.urls, lastres.url)
 
 
