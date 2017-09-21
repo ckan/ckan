@@ -213,6 +213,7 @@ write_substitutions_file(
     latest_release_version=latest_release_version(),
     latest_package_name_precise=latest_package_name('precise'),
     latest_package_name_trusty=latest_package_name('trusty'),
+    latest_package_name_xenial=latest_package_name('xenial'),
     min_setuptools_version=min_setuptools_version(),
 )
 
