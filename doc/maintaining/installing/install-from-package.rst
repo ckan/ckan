@@ -45,7 +45,7 @@ CKAN:
 
 #. Download the CKAN package:
 
-    - On Ubuntu 14.04:
+    - On Ubuntu 16.04:
 
        .. parsed-literal::
 
@@ -140,7 +140,7 @@ Install |solr|, running this command in a terminal::
 
 The install will whirr away, then towards the end you'll see this::
 
-     * Not starting jetty - edit /etc/default/jetty and change NO_START to be 0 (or comment it out).
+     * Not starting jetty - edit /etc/default/jetty (or /etc/default/jetty8) and change NO_START to be 0 (or comment it out).
 
 .. include:: solr.rst
 
