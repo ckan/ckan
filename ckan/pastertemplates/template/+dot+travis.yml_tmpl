@@ -4,6 +4,7 @@ python:
     - "2.7"
 services:
     - postgresql
+    - redis-server
 install:
     - bash bin/travis-build.bash
     - pip install coveralls
