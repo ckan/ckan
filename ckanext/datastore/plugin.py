@@ -32,8 +32,6 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
-    p.implements(p.IResourceUrlChange)
-    p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
     p.implements(p.ITemplateHelpers)
@@ -87,29 +85,6 @@ class DatastorePlugin(p.SingletonPlugin):
         # example 8.4).
         if hasattr(self.backend, 'is_legacy_mode'):
             self.legacy_mode = self.backend.is_legacy_mode(self.config)
-
-    # IDomainObjectModification
-    # IResourceUrlChange
-
-    def notify(self, entity, operation=None):
-        # XXX: hack
-        if isinstance(entity, model.Resource) and 'query' in entity.extras:
-            p.toolkit.get_action('datastore_mv_create')(
-                {'model': model, 'ignore_auth': True},
-                {'resource_id': entity.id, 'query': entity.extras['query']})
-            return
-        if not isinstance(entity, model.Package) or self.legacy_mode:
-            return
-        # if a resource is new, it cannot have a datastore resource, yet
-        if operation == model.domain_object.DomainObjectOperation.changed:
-            context = {'model': model, 'ignore_auth': True}
-            for resource in entity.resources:
-                try:
-                    func(context, {
-                        'connection_url': self.backend.write_url,
-                        'resource_id': resource.id})
-                except p.toolkit.ObjectNotFound:
-                    pass
 
     # IActions
 
