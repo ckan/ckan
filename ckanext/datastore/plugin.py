@@ -103,10 +103,6 @@ class DatastorePlugin(p.SingletonPlugin):
         # if a resource is new, it cannot have a datastore resource, yet
         if operation == model.domain_object.DomainObjectOperation.changed:
             context = {'model': model, 'ignore_auth': True}
-            if entity.private:
-                func = p.toolkit.get_action('datastore_make_private')
-            else:
-                func = p.toolkit.get_action('datastore_make_public')
             for resource in entity.resources:
                 try:
                     func(context, {
@@ -135,9 +131,6 @@ class DatastorePlugin(p.SingletonPlugin):
                 actions.update({
                     'datastore_search_sql': action.datastore_search_sql,
                 })
-            actions.update({
-                'datastore_make_private': action.datastore_make_private,
-                'datastore_make_public': action.datastore_make_public})
         return actions
 
     # IAuthFunctions
