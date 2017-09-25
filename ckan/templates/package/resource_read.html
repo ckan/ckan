@@ -46,7 +46,7 @@
               </li>
             {% endif %}
             {% if 'datastore' in g.plugins %}
-              <li>{% snippet 'package/snippets/data_api_button.html', resource=res, datastore_root_url=c.datastore_api %}</li>
+              <li>{% snippet 'package/snippets/data_api_button.html', resource=res %}</li>
             {% endif %}
             {% endblock %}
           </ul>
