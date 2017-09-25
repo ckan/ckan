@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from ckan.common import config
+from pylons import config
 import ckan.plugins as p
 import ckan.config.middleware as middleware
 import webtest
