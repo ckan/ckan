@@ -5,6 +5,7 @@ import logging
 import json
 import hashlib
 import os
+import re
 
 import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -95,6 +96,10 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             'bottom': True,
             'bundle': True,
         }
+    root_path = config.get('ckan.root_path', None)
+    if root_path:
+        root_path = re.sub('/{{LANG}}', '', root_path)
+        fanstatic_config['base_url'] = root_path
     app = Fanstatic(app, **fanstatic_config)
 
     for plugin in PluginImplementations(IMiddleware):
