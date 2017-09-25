@@ -17,6 +17,7 @@ import pprint
 import copy
 import urlparse
 from urllib import urlencode
+import uuid
 
 from paste.deploy import converters
 from webhelpers.html import HTML, literal, tags, tools
@@ -2402,3 +2403,10 @@ def load_plugin_helpers():
 
     for plugin in reversed(list(p.PluginImplementations(p.ITemplateHelpers))):
         helper_functions.update(plugin.get_helpers())
+
+@core_helper
+def sanitize_id(id_):
+    '''Given an id (uuid4), if it has any invalid characters it raises
+    ValueError.
+    '''
+    return str(uuid.UUID(id_))
