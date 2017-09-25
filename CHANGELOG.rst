@@ -7,8 +7,8 @@
 Changelog
 ---------
 
-v2.7.1 TBA
-==========
+v2.7.1 2017-08-02
+=================
 
  * add field_name to image_upload macro when uploading resources (#3766)
  * Add some missing major changes to change log. (#3799)
