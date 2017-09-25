@@ -2404,6 +2404,7 @@ def load_plugin_helpers():
     for plugin in reversed(list(p.PluginImplementations(p.ITemplateHelpers))):
         helper_functions.update(plugin.get_helpers())
 
+
 @core_helper
 def sanitize_id(id_):
     '''Given an id (uuid4), if it has any invalid characters it raises

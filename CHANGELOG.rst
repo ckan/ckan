@@ -7,6 +7,16 @@
 Changelog
 ---------
 
+v2.7.1 TBA
+==========
+
+ * add field_name to image_upload macro when uploading resources (#3766)
+ * Add some missing major changes to change log. (#3799)
+ * _mail_recipient header override (#3781)
+ * skip url parsing in redirect (#3499)
+ * Fix multiple errors in i18n of JS modules (#3590)
+ * Standardize on url_for on popup (#3831)
+
 v2.7.0 2017-08-02
 =================
 
