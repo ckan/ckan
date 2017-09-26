@@ -7,7 +7,7 @@
 Changelog
 ---------
 
-v2.7.1 2017-08-02
+v2.7.1 2017-09-27
 =================
 
  * add field_name to image_upload macro when uploading resources (#3766)
