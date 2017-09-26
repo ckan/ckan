@@ -7,6 +7,13 @@
 Changelog
 ---------
 
+v2.6.4 2017-09-27
+=================
+
+* Mail recepient header override (#3781)
+* Skip url parsing in redirect (#3499)
+* Support non root for fanstatic (#3618)
+
 v2.6.3 2017-08-02
 =================
 
