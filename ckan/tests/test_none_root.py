@@ -1,5 +1,5 @@
 # encoding: utf-8
-from pylons import config 
+from pylons import config
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
 
