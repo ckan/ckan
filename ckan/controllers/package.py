@@ -1132,7 +1132,7 @@ class PackageController(base.BaseController):
         except KeyError:
             c.package['isopen'] = False
 
-        # TODO: find a nicer way of doing this
+        # Deprecated: c.datastore_api - use h.action_url instead
         c.datastore_api = '%s/api/action' % config.get('ckan.site_url', '').rstrip('/')
 
         c.related_count = c.pkg.related_count
