@@ -7,6 +7,13 @@
 Changelog
 ---------
 
+v2.5.7 2017-09-27
+=================
+
+* Allow overriding email headers (#3781)
+* Support non-root instances on fanstatic (#3618)
+* Add missing close button on organization page (#3814)
+
 v2.5.6 2017-08-02
 =================
 
