@@ -1,14 +1,14 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal 
 from nose.plugins.skip import SkipTest
 
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 
 from ckan.tests.legacy.functional.api.base import BaseModelApiTestCase
-from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase
-from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase
+from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase 
+from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase 
 
 class RelationshipsTestCase(BaseModelApiTestCase):
 
@@ -115,7 +115,7 @@ class RelationshipsTestCase(BaseModelApiTestCase):
         assert len(rels) == 1
         self.check_relationship_dict(rels[0],
                'annakarenina', 'parent_of', 'warandpeace', self.comment)
-
+        
     def test_02_create_relationship_way_2(self):
         # Create a relationship using 2nd way
         self.create_annakarenina_parent_of_war_and_peace(way=2)
@@ -189,7 +189,7 @@ class RelationshipsTestCase(BaseModelApiTestCase):
     def create_annakarenina_parent_of_war_and_peace(self, way=1):
         # Create package relationship.
         # More than one 'way' to create a package.
-        # Todo: Redesign this in a RESTful style, so that a relationship is
+        # Todo: Redesign this in a RESTful style, so that a relationship is 
         # created by posting a relationship to a relationship **register**.
         assert way in (1, 2, 3, 4)
         if way == 1:
@@ -220,7 +220,7 @@ class RelationshipsTestCase(BaseModelApiTestCase):
         assert_equal(rel['type'], 'child_of')
         assert_equal(rel['subject'], self.ref_package(self.war))
         assert_equal(rel['object'], self.ref_package(self.anna))
-
+        
         # Check the model, directly.
         rels = self.anna.get_relationships()
         assert len(rels) == 1, rels
@@ -271,7 +271,7 @@ class RelationshipsTestCase(BaseModelApiTestCase):
         if type:
             allowable_statuses.append(404)
         res = self.app.get(offset, status=allowable_statuses)
-        if res.status_int == 200:
+        if res.status == 200:
             res_dict = self.data_from_res(res) if res.body else []
             return res_dict
         else:
@@ -300,7 +300,7 @@ class RelationshipsTestCase(BaseModelApiTestCase):
                                  expected_relationships=[]):
         rels = self.get_relationships(package1_name=pkg1_name,
                                       package2_name=pkg2_name)
-        self.assert_len_relationships(rels, expected_relationships)
+        self.assert_len_relationships(rels, expected_relationships) 
         for rel in rels:
             the_expected_rel = None
             for expected_rel in expected_relationships:

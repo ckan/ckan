@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 from bs4 import BeautifulSoup
-from ckan.lib.helpers import url_for
 from nose.tools import assert_equal, assert_true, assert_in
+from ckan.lib.helpers import url_for
 from mock import patch
 
 from ckan.tests import factories, helpers
@@ -12,29 +12,19 @@ from ckan.tests.helpers import webtest_submit, submit_and_follow
 class TestOrganizationNew(helpers.FunctionalTestBase):
     def setup(self):
         super(TestOrganizationNew, self).setup()
-
+        self.app = helpers._get_test_app()
         self.user = factories.User()
         self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
-
-        app = helpers._get_test_app()
-        with app.flask_app.test_request_context():
-            self.organization_new_url = url_for(controller='organization',
-                                                action='new')
+        self.organization_new_url = url_for(controller='organization',
+                                            action='new')
 
     def test_not_logged_in(self):
-
-        app = helpers._get_test_app()
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='group', action='new')
-        app.get(url, status=403)
+        self.app.get(url=url_for(controller='group', action='new'),
+                     status=403)
 
     def test_name_required(self):
-
-        app = helpers._get_test_app()
-
-        response = app.get(url=self.organization_new_url,
-                           extra_environ=self.user_env)
+        response = self.app.get(url=self.organization_new_url,
+                                extra_environ=self.user_env)
         form = response.forms['organization-edit-form']
         response = webtest_submit(form, name='save',
                                   extra_environ=self.user_env)
@@ -43,16 +33,13 @@ class TestOrganizationNew(helpers.FunctionalTestBase):
         assert_true('Name: Missing value' in response)
 
     def test_saved(self):
-
-        app = helpers._get_test_app()
-
-        response = app.get(url=self.organization_new_url,
-                           extra_environ=self.user_env)
+        response = self.app.get(url=self.organization_new_url,
+                                extra_environ=self.user_env)
 
         form = response.forms['organization-edit-form']
         form['name'] = u'saved'
 
-        response = submit_and_follow(app, form, name='save',
+        response = submit_and_follow(self.app, form, name='save',
                                      extra_environ=self.user_env)
         group = helpers.call_action('organization_show', id='saved')
         assert_equal(group['title'], u'')
@@ -60,7 +47,6 @@ class TestOrganizationNew(helpers.FunctionalTestBase):
         assert_equal(group['state'], 'active')
 
     def test_all_fields_saved(self):
-
         app = helpers._get_test_app()
         response = app.get(url=self.organization_new_url,
                            extra_environ=self.user_env)
@@ -71,7 +57,7 @@ class TestOrganizationNew(helpers.FunctionalTestBase):
         form['description'] = 'Sciencey datasets'
         form['image_url'] = 'http://example.com/image.png'
 
-        response = submit_and_follow(app, form, name='save',
+        response = submit_and_follow(self.app, form, name='save',
                                      extra_environ=self.user_env)
         group = helpers.call_action('organization_show', id='all-fields-saved')
         assert_equal(group['title'], u'Science')
@@ -81,44 +67,33 @@ class TestOrganizationNew(helpers.FunctionalTestBase):
 class TestOrganizationList(helpers.FunctionalTestBase):
     def setup(self):
         super(TestOrganizationList, self).setup()
-
+        self.app = helpers._get_test_app()
         self.user = factories.User()
         self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
-        app = helpers._get_test_app()
-        with app.flask_app.test_request_context():
-            self.organization_list_url = url_for(controller='organization',
-                                                 action='index')
+        self.organization_list_url = url_for(controller='organization',
+                                             action='index')
 
-    @patch('ckan.logic.auth.get.organization_list',
-           return_value={'success': False})
-    def test_error_message_shown_when_no_organization_list_permission(
-            self, mock_check_access):
-
-        app = helpers._get_test_app()
-
-        app.get(url=self.organization_list_url,
-                extra_environ=self.user_env,
-                status=403)
+    @patch('ckan.logic.auth.get.organization_list', return_value={'success': False})
+    def test_error_message_shown_when_no_organization_list_permission(self, mock_check_access):
+        response = self.app.get(url=self.organization_list_url,
+                                extra_environ=self.user_env,
+                                status=403)
 
 
 class TestOrganizationRead(helpers.FunctionalTestBase):
     def setup(self):
         super(TestOrganizationRead, self).setup()
-
+        self.app = helpers._get_test_app()
         self.user = factories.User()
         self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
         self.organization = factories.Organization(user=self.user)
 
     def test_organization_read(self):
-
-        app = helpers._get_test_app()
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='organization', action='read',
-                          id=self.organization['id'])
-        response = app.get(url=url,
-                           status=200,
-                           extra_environ=self.user_env)
+        response = self.app.get(url=url_for(controller='organization',
+                                            action='read',
+                                            id=self.organization['id']),
+                                status=200,
+                                extra_environ=self.user_env)
         assert_in(self.organization['title'], response)
         assert_in(self.organization['description'], response)
 
@@ -126,33 +101,24 @@ class TestOrganizationRead(helpers.FunctionalTestBase):
 class TestOrganizationEdit(helpers.FunctionalTestBase):
     def setup(self):
         super(TestOrganizationEdit, self).setup()
-
+        self.app = helpers._get_test_app()
         self.user = factories.User()
         self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
         self.organization = factories.Organization(user=self.user)
-        app = helpers._get_test_app()
-        with app.flask_app.test_request_context():
-            self.organization_edit_url = url_for(controller='organization',
-                                                 action='edit',
-                                                 id=self.organization['id'])
+        self.organization_edit_url = url_for(controller='organization',
+                                             action='edit',
+                                             id=self.organization['id'])
 
     def test_group_doesnt_exist(self):
-
-        app = helpers._get_test_app()
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='organization',
-                          action='edit',
-                          id='doesnt_exist')
-        app.get(url=url, extra_environ=self.user_env,
-                status=404)
+        url = url_for(controller='organization',
+                      action='edit',
+                      id='doesnt_exist')
+        self.app.get(url=url, extra_environ=self.user_env,
+                     status=404)
 
     def test_saved(self):
-
-        app = helpers._get_test_app()
-
-        response = app.get(url=self.organization_edit_url,
-                           extra_environ=self.user_env)
+        response = self.app.get(url=self.organization_edit_url,
+                                extra_environ=self.user_env)
 
         form = response.forms['organization-edit-form']
         response = webtest_submit(form, name='save',
@@ -164,11 +130,8 @@ class TestOrganizationEdit(helpers.FunctionalTestBase):
         assert_equal(group['state'], 'active')
 
     def test_all_fields_saved(self):
-
-        app = helpers._get_test_app()
-
-        response = app.get(url=self.organization_edit_url,
-                           extra_environ=self.user_env)
+        response = self.app.get(url=self.organization_edit_url,
+                                extra_environ=self.user_env)
 
         form = response.forms['organization-edit-form']
         form['name'] = u'all-fields-edited'
@@ -188,79 +151,59 @@ class TestOrganizationEdit(helpers.FunctionalTestBase):
 class TestOrganizationDelete(helpers.FunctionalTestBase):
     def setup(self):
         super(TestOrganizationDelete, self).setup()
-
+        self.app = helpers._get_test_app()
         self.user = factories.User()
         self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
         self.organization = factories.Organization(user=self.user)
 
     def test_owner_delete(self):
-
-        app = helpers._get_test_app()
-
-        with app.flask_app.test_request_context():
-            url = url_for(controller='organization',
-                          action='delete',
-                          id=self.organization['id'])
-        response = app.get(url, status=200, extra_environ=self.user_env)
+        response = self.app.get(url=url_for(controller='organization',
+                                            action='delete',
+                                            id=self.organization['id']),
+                                status=200,
+                                extra_environ=self.user_env)
 
         form = response.forms['organization-confirm-delete-form']
-        response = submit_and_follow(app, form, name='delete',
+        response = submit_and_follow(self.app, form, name='delete',
                                      extra_environ=self.user_env)
         organization = helpers.call_action('organization_show',
                                            id=self.organization['id'])
         assert_equal(organization['state'], 'deleted')
 
     def test_sysadmin_delete(self):
-
-        app = helpers._get_test_app()
-
         sysadmin = factories.Sysadmin()
         extra_environ = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            url = url_for(controller='organization',
-                          action='delete',
-                          id=self.organization['id'])
-
-        response = app.get(url=url,
-                           status=200,
-                           extra_environ=extra_environ)
+        response = self.app.get(url=url_for(controller='organization',
+                                            action='delete',
+                                            id=self.organization['id']),
+                                status=200,
+                                extra_environ=extra_environ)
 
         form = response.forms['organization-confirm-delete-form']
-        response = submit_and_follow(app, form, name='delete',
+        response = submit_and_follow(self.app, form, name='delete',
                                      extra_environ=self.user_env)
         organization = helpers.call_action('organization_show',
                                            id=self.organization['id'])
         assert_equal(organization['state'], 'deleted')
 
     def test_non_authorized_user_trying_to_delete_fails(self):
-
-        app = helpers._get_test_app()
-
         user = factories.User()
         extra_environ = {'REMOTE_USER': user['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            url = url_for(controller='organization',
-                          action='delete',
-                          id=self.organization['id'])
-
-        app.get(url=url,
-                status=403,
-                extra_environ=extra_environ)
+        self.app.get(url=url_for(controller='organization',
+                                 action='delete',
+                                 id=self.organization['id']),
+                     status=403,
+                     extra_environ=extra_environ)
 
         organization = helpers.call_action('organization_show',
                                            id=self.organization['id'])
         assert_equal(organization['state'], 'active')
 
     def test_anon_user_trying_to_delete_fails(self):
-
-        app = helpers._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(controller='organization',
-                          action='delete',
-                          id=self.organization['id'])
-
-        app.get(url=url,
-                status=403)
+        self.app.get(url=url_for(controller='organization',
+                                 action='delete',
+                                 id=self.organization['id']),
+                     status=403)
 
         organization = helpers.call_action('organization_show',
                                            id=self.organization['id'])
@@ -270,24 +213,19 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
 class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
     def setup(self):
         super(TestOrganizationBulkProcess, self).setup()
-
+        self.app = helpers._get_test_app()
         self.user = factories.User()
         self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
         self.organization = factories.Organization(user=self.user)
-        app = helpers._get_test_app()
-        with app.flask_app.test_request_context():
-            self.organization_bulk_url = url_for(controller='organization',
-                                                 action='bulk_process',
-                                                 id=self.organization['id'])
+        self.organization_bulk_url = url_for(controller='organization',
+                                             action='bulk_process',
+                                             id=self.organization['id'])
 
     def test_make_private(self):
-
-        app = helpers._get_test_app()
-
         datasets = [factories.Dataset(owner_org=self.organization['id'])
                     for i in range(0, 5)]
-        response = app.get(url=self.organization_bulk_url,
-                           extra_environ=self.user_env)
+        response = self.app.get(url=self.organization_bulk_url,
+                                extra_environ=self.user_env)
         form = response.forms[1]
         for v in form.fields.values():
             try:
@@ -303,14 +241,11 @@ class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
             assert_equal(d['private'], True)
 
     def test_make_public(self):
-
-        app = helpers._get_test_app()
-
         datasets = [factories.Dataset(owner_org=self.organization['id'],
                                       private=True)
                     for i in range(0, 5)]
-        response = app.get(url=self.organization_bulk_url,
-                           extra_environ=self.user_env)
+        response = self.app.get(url=self.organization_bulk_url,
+                                extra_environ=self.user_env)
         form = response.forms[1]
         for v in form.fields.values():
             try:
@@ -326,14 +261,11 @@ class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
             assert_equal(d['private'], False)
 
     def test_delete(self):
-
-        app = helpers._get_test_app()
-
         datasets = [factories.Dataset(owner_org=self.organization['id'],
                                       private=True)
                     for i in range(0, 5)]
-        response = app.get(url=self.organization_bulk_url,
-                           extra_environ=self.user_env)
+        response = self.app.get(url=self.organization_bulk_url,
+                                extra_environ=self.user_env)
         form = response.forms[1]
         for v in form.fields.values():
             try:
@@ -355,23 +287,17 @@ class TestOrganizationSearch(helpers.FunctionalTestBase):
 
     def setup(self):
         super(TestOrganizationSearch, self).setup()
+        self.app = self._get_test_app()
         factories.Organization(name='org-one', title='AOrg One')
         factories.Organization(name='org-two', title='AOrg Two')
         factories.Organization(name='org-three', title='Org Three')
-
-        app = helpers._get_test_app()
-        with app.flask_app.test_request_context():
-            self.search_url = url_for(controller='organization',
-                                      action='index')
+        self.search_url = url_for(controller='organization', action='index')
 
     def test_organization_search(self):
-
-        app = helpers._get_test_app()
-
         '''Requesting organization search (index) returns list of
         organizations and search form.'''
 
-        index_response = app.get(self.search_url)
+        index_response = self.app.get(self.search_url)
         index_response_html = BeautifulSoup(index_response.body)
         org_names = index_response_html.select('ul.media-grid '
                                                'li.media-item '
@@ -384,13 +310,10 @@ class TestOrganizationSearch(helpers.FunctionalTestBase):
         assert_true('Org Three' in org_names)
 
     def test_organization_search_results(self):
-
-        app = helpers._get_test_app()
-
         '''Searching via organization search form returns list of expected
         organizations.'''
 
-        index_response = app.get(self.search_url)
+        index_response = self.app.get(self.search_url)
         search_form = index_response.forms['organization-search-form']
         search_form['q'] = 'AOrg'
         search_response = webtest_submit(search_form)
@@ -407,12 +330,9 @@ class TestOrganizationSearch(helpers.FunctionalTestBase):
         assert_true('Org Three' not in org_names)
 
     def test_organization_search_no_results(self):
-
-        app = helpers._get_test_app()
-
         '''Searching with a term that doesn't apply returns no results.'''
 
-        index_response = app.get(self.search_url)
+        index_response = self.app.get(self.search_url)
         search_form = index_response.forms['organization-search-form']
         search_form['q'] = 'No Results Here'
         search_response = webtest_submit(search_form)
@@ -445,9 +365,8 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="ds-three", title="Dataset Three",
                           owner_org=org['id'])
 
-        with app.flask_app.test_request_context():
-            org_url = url_for(controller='organization', action='read',
-                              id=org['id'])
+        org_url = url_for(controller='organization', action='read',
+                          id=org['id'])
         org_response = app.get(org_url)
         org_response_html = BeautifulSoup(org_response.body)
 
@@ -475,9 +394,8 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="ds-three", title="Dataset Three",
                           owner_org=org['id'])
 
-        with app.flask_app.test_request_context():
-            org_url = url_for(controller='organization', action='read',
-                              id=org['id'])
+        org_url = url_for(controller='organization', action='read',
+                          id=org['id'])
         org_response = app.get(org_url)
         search_form = org_response.forms['organization-datasets-search-form']
         search_form['q'] = 'One'
@@ -509,9 +427,8 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="ds-three", title="Dataset Three",
                           owner_org=org['id'])
 
-        with app.flask_app.test_request_context():
-            org_url = url_for(controller='organization', action='read',
-                              id=org['id'])
+        org_url = url_for(controller='organization', action='read',
+                          id=org['id'])
         org_response = app.get(org_url)
         search_form = org_response.forms['organization-datasets-search-form']
         search_form['q'] = 'Nout'

@@ -13,7 +13,6 @@ from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCa
 from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase
 
 import ckan.tests.legacy as tests
-from ckan.tests import helpers
 
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
@@ -66,7 +65,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert_equal(pkg['extras'], self.package_fixture_data['extras'])
 
         # Check the value of the Location header.
-        location = res.headers['Location']
+        location = res.header('Location')
 
         assert offset in location
         res = self.app.get(location, status=self.STATUS_200_OK)
@@ -134,7 +133,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         package_fixture_data = self.package_fixture_data
         package_fixture_data['groups'] = groups
         data = self.dumps(package_fixture_data)
-        res = self.app.post(offset, data, status=self.STATUS_201_CREATED,
+        res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
                              extra_environ={'Authorization':str(user.apikey)})
 
         # Check the database record.
@@ -160,7 +159,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         package_fixture_data = self.package_fixture_data
         package_fixture_data['groups'] = groups
         data = self.dumps(package_fixture_data)
-        res = self.app.post(offset, data, status=self.STATUS_403_ACCESS_DENIED,
+        res = self.post_json(offset, data, status=self.STATUS_403_ACCESS_DENIED,
                              extra_environ=self.extra_environ)
         del package_fixture_data['groups']
 
@@ -174,7 +173,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         package_fixture_data = self.package_fixture_data
         package_fixture_data['groups'] = groups
         data = self.dumps(package_fixture_data)
-        res = self.app.post(offset, data, status=self.STATUS_404_NOT_FOUND,
+        res = self.post_json(offset, data, status=self.STATUS_404_NOT_FOUND,
                              extra_environ=self.extra_environ)
         del package_fixture_data['groups']
 
@@ -188,7 +187,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         package_fixture_data = self.package_fixture_data
         package_fixture_data['groups'] = groups
         data = self.dumps(package_fixture_data)
-        res = self.app.post(offset, data, status=self.STATUS_201_CREATED,
+        res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
                               extra_environ={'Authorization':str(user.apikey)})
         # Check the database record.
         model.Session.remove()
@@ -208,32 +207,13 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
         offset = self.package_offset()
         data = self.dumps(self.package_fixture_data)
-        res = self.app.post(offset, data, status=self.STATUS_201_CREATED,
+        res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
                              extra_environ=self.admin_extra_environ)
         # Check the database record.
         model.Session.remove()
         package = self.get_package_by_name(self.package_fixture_data['name'])
         assert package
         self.assert_equal(package.title, self.package_fixture_data['title'])
-
-    def test_register_post_bad_content_type(self):
-        assert not self.get_package_by_name(self.package_fixture_data['name'])
-        offset = self.package_offset()
-        data = self.dumps(self.package_fixture_data)
-        res = self.app.post(offset, data,
-                                content_type='something/unheard_of',
-                                status=[self.STATUS_400_BAD_REQUEST,
-                                        self.STATUS_201_CREATED],
-                                extra_environ=self.admin_extra_environ)
-        model.Session.remove()
-        # Some versions of webob work, some don't. No matter, we record this
-        # behaviour.
-        package = self.get_package_by_name(self.package_fixture_data['name'])
-        if res.status == self.STATUS_400_BAD_REQUEST:
-            # Check there is no database record.
-            assert not package
-        else:
-            assert package
 
     def test_register_post_bad_request(self):
         test_params = {
@@ -263,7 +243,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             offset = self.package_offset()
             data = self.dumps(self.package_fixture_data)
 
-            self.app.post(offset, data, status=500, extra_environ=self.admin_extra_environ)
+            self.post_json(offset, data, status=500, extra_environ=self.admin_extra_environ)
             model.Session.remove()
         finally:
             SolrSettings.init(original_settings)
@@ -274,7 +254,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert not self.get_package_by_name(pkg['name'])
         offset = self.package_offset()
         data = self.dumps(pkg)
-        res = self.app.post(offset, data, status=self.STATUS_409_CONFLICT,
+        res = self.post_json(offset, data, status=self.STATUS_409_CONFLICT,
                              extra_environ=self.admin_extra_environ)
         assert 'length is more than maximum 100' in res.body, res.body
         assert 'tagok' not in res.body
@@ -715,8 +695,8 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert self.get_package_by_name(self.package_fixture_data['name'])
         # delete it
         offset = self.package_offset(self.package_fixture_data['name'])
-        res = self.app.delete(offset, status=self.STATUS_200_OK,
-                              extra_environ=self.admin_extra_environ)
+        res = self.delete_request(offset, status=self.STATUS_200_OK,
+                                  extra_environ=self.admin_extra_environ)
         package = self.get_package_by_name(self.package_fixture_data['name'])
         self.assert_equal(package.state, 'deleted')
         model.Session.remove()

@@ -19,10 +19,8 @@ webtest_submit = helpers.webtest_submit
 def _get_admin_config_page(app):
     user = factories.Sysadmin()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
-    with app.flask_app.test_request_context():
-        url = url_for(controller='admin', action='config')
     response = app.get(
-        url=url,
+        url=url_for(controller='admin', action='config'),
         extra_environ=env,
     )
     return env, response
@@ -32,10 +30,8 @@ def _reset_config(app):
     '''Reset config via action'''
     user = factories.Sysadmin()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
-    with app.flask_app.test_request_context():
-        url = url_for(controller='admin', action='reset_config')
     app.post(
-        url=url,
+        url=url_for(controller='admin', action='reset_config'),
         extra_environ=env,
     )
 
@@ -266,9 +262,9 @@ class TestTrashView(helpers.FunctionalTestBase):
     def test_trash_view_anon_user(self):
         '''An anon user shouldn't be able to access trash view.'''
         app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            trash_url = url_for(controller='admin', action='trash')
-        app.get(trash_url, status=403)
+
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, status=403)
 
     def test_trash_view_normal_user(self):
         '''A normal logged in user shouldn't be able to access trash view.'''
@@ -276,9 +272,7 @@ class TestTrashView(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-
-        with app.flask_app.test_request_context():
-            trash_url = url_for(controller='admin', action='trash')
+        trash_url = url_for(controller='admin', action='trash')
         trash_response = app.get(trash_url, extra_environ=env, status=403)
         assert_true('Need to be system administrator to administer'
                     in trash_response)
@@ -289,9 +283,7 @@ class TestTrashView(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-
-        with app.flask_app.test_request_context():
-            trash_url = url_for(controller='admin', action='trash')
+        trash_url = url_for(controller='admin', action='trash')
         trash_response = app.get(trash_url, extra_environ=env, status=200)
         # On the purge page
         assert_true('form-purge-packages' in trash_response)
@@ -304,8 +296,7 @@ class TestTrashView(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            trash_url = url_for(controller='admin', action='trash')
+        trash_url = url_for(controller='admin', action='trash')
         trash_response = app.get(trash_url, extra_environ=env, status=200)
 
         trash_response_html = BeautifulSoup(trash_response.body)
@@ -324,8 +315,7 @@ class TestTrashView(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            trash_url = url_for(controller='admin', action='trash')
+        trash_url = url_for(controller='admin', action='trash')
         trash_response = app.get(trash_url, extra_environ=env, status=200)
 
         trash_response_html = BeautifulSoup(trash_response.body)
@@ -348,8 +338,7 @@ class TestTrashView(helpers.FunctionalTestBase):
         assert_equal(pkgs_before_purge, 3)
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        with app.flask_app.test_request_context():
-            trash_url = url_for(controller='admin', action='trash')
+        trash_url = url_for(controller='admin', action='trash')
         trash_response = app.get(trash_url, extra_environ=env, status=200)
 
         # submit the purge form
@@ -375,8 +364,7 @@ class TestAdminConfigUpdate(helpers.FunctionalTestBase):
         sysadmin = factories.Sysadmin()
         env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
         app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(controller='admin', action='config')
+        url = url_for(controller='admin', action='config')
 
         response = app.get(url=url, extra_environ=env)
         form = response.forms[1]

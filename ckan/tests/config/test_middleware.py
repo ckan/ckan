@@ -3,6 +3,7 @@
 import mock
 import wsgiref
 from nose.tools import assert_equals, assert_not_equals, eq_, assert_raises
+from ckan.lib.helpers import url_for
 from flask import Blueprint
 import flask
 
@@ -29,9 +30,7 @@ class TestPylonsResponseCleanupMiddleware(helpers.FunctionalTestBase):
         We are just testing the home page renders without any troubles and that
         the middleware has not done anything strange to the response string'''
         app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            response = app.get(
-                url=h.url_for(controller='home', action='index'))
+        response = app.get(url=url_for(controller='home', action='index'))
 
         assert_equals(200, response.status_int)
         # make sure we haven't overwritten the response too early.

@@ -5,6 +5,7 @@ import nose
 from nose.tools import assert_equal, raises
 
 import sqlalchemy.orm as orm
+from ckan.tests.helpers import _get_test_app
 
 from ckan.common import config
 import ckan.plugins as p
@@ -23,22 +24,12 @@ from ckan.plugins.toolkit import ValidationError
 class TestDatastoreCreateNewTests(object):
     @classmethod
     def setup_class(cls):
-        cls.app = helpers._get_test_app()
         p.load('datastore')
 
     @classmethod
     def teardown_class(cls):
         p.unload('datastore')
         helpers.reset_db()
-
-    def setup(self):
-
-        self.request_context = self.app.flask_app.test_request_context()
-        self.request_context.push()
-
-    def teardown(self):
-
-        self.request_context.pop()
 
     def test_create_creates_index_on_primary_key(self):
         package = factories.Dataset()
@@ -263,14 +254,14 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action('datastore_create', **data)
 
 
-class TestDatastoreCreate(tests.WsgiAppCase):
+class TestDatastoreCreate():
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
 
-        cls.app = helpers._get_test_app()
+        cls.app = _get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
@@ -279,23 +270,13 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         cls.normal_user = model.User.get('annafan')
         engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        with cls.app.flask_app.test_request_context():
-            set_url_type(
-                model.Package.get('annakarenina').resources, cls.sysadmin_user)
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
-
-    def setup(self):
-
-        self.request_context = self.app.flask_app.test_request_context()
-        self.request_context.push()
-
-    def teardown(self):
-
-        self.request_context.pop()
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -555,7 +536,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res = res_dict['result']
         assert res['resource_id'] == data['resource_id']
         assert res['fields'] == data['fields'], res['fields']
-        assert res['records'] == data['records']
 
         c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))
@@ -789,7 +769,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert res_dict['success'] is True
         res = res_dict['result']
         assert res['fields'] == data['fields'], res['fields']
-        assert res['records'] == data['records']
 
         # Get resource details
         data = {

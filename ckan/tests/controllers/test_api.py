@@ -12,6 +12,8 @@ from nose.tools import assert_equal, assert_in, eq_
 
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
+from ckan.lib import helpers as template_helpers
+import ckan.plugins as p
 from ckan import model
 
 
@@ -30,12 +32,9 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_dataset_autocomplete_name(self):
         dataset = factories.Dataset(name='rivers')
-
-        app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(controller='api', action='dataset_autocomplete',
-                          ver='/2')
+        url = url_for(controller='api', action='dataset_autocomplete', ver='/2')
         assert_equal(url, '/api/2/util/dataset/autocomplete')
+        app = self._get_test_app()
 
         response = app.get(
             url=url,
@@ -57,11 +56,7 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_dataset_autocomplete_title(self):
         dataset = factories.Dataset(name='test_ri', title='Rivers')
-
-        app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(controller='api', action='dataset_autocomplete',
-                          ver='/2')
+        url = url_for(controller='api', action='dataset_autocomplete', ver='/2')
         assert_equal(url, '/api/2/util/dataset/autocomplete')
         app = self._get_test_app()
 
@@ -85,12 +80,9 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_tag_autocomplete(self):
         factories.Dataset(tags=[{'name': 'rivers'}])
-
-        app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(controller='api', action='tag_autocomplete',
-                          ver='/2')
+        url = url_for(controller='api', action='tag_autocomplete', ver='/2')
         assert_equal(url, '/api/2/util/tag/autocomplete')
+        app = self._get_test_app()
 
         response = app.get(
             url=url,
@@ -106,12 +98,10 @@ class TestApiController(helpers.FunctionalTestBase):
                      'application/json;charset=utf-8')
 
     def test_group_autocomplete_by_name(self):
-        factories.Group(name='rivers', title='Bridges')
-        app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(controller='api', action='group_autocomplete',
-                          ver='/2')
+        org = factories.Group(name='rivers', title='Bridges')
+        url = url_for(controller='api', action='group_autocomplete', ver='/2')
         assert_equal(url, '/api/2/util/group/autocomplete')
+        app = self._get_test_app()
 
         response = app.get(
             url=url,
@@ -129,11 +119,9 @@ class TestApiController(helpers.FunctionalTestBase):
                      'application/json;charset=utf-8')
 
     def test_group_autocomplete_by_title(self):
-        factories.Group(name='frogs', title='Bugs')
+        org = factories.Group(name='frogs', title='Bugs')
+        url = url_for(controller='api', action='group_autocomplete', ver='/2')
         app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(controller='api', action='group_autocomplete',
-                          ver='/2')
 
         response = app.get(
             url=url,
@@ -149,12 +137,9 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_organization_autocomplete_by_name(self):
         org = factories.Organization(name='simple-dummy-org')
-
-        app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(controller='api', action='organization_autocomplete',
-                          ver='/2')
+        url = url_for(controller='api', action='organization_autocomplete', ver='/2')
         assert_equal(url, '/api/2/util/organization/autocomplete')
+        app = self._get_test_app()
 
         response = app.get(
             url=url,
@@ -172,12 +157,9 @@ class TestApiController(helpers.FunctionalTestBase):
                      'application/json;charset=utf-8')
 
     def test_organization_autocomplete_by_title(self):
-        factories.Organization(title='Simple dummy org')
-
+        org = factories.Organization(title='Simple dummy org')
+        url = url_for(controller='api', action='organization_autocomplete', ver='/2')
         app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(controller='api', action='organization_autocomplete',
-                          ver='/2')
 
         response = app.get(
             url=url,
@@ -193,14 +175,12 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_config_option_list_access_sysadmin(self):
         user = factories.Sysadmin()
-
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='config_option_list',
+            ver='/3')
         app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(
-                controller='api',
-                action='action',
-                logic_function='config_option_list',
-                ver='/3')
 
         app.get(
             url=url,
@@ -211,14 +191,12 @@ class TestApiController(helpers.FunctionalTestBase):
 
     def test_config_option_list_access_sysadmin_jsonp(self):
         user = factories.Sysadmin()
-
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='config_option_list',
+            ver='/3')
         app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(
-                controller='api',
-                action='action',
-                logic_function='config_option_list',
-                ver='/3')
 
         app.get(
             url=url,
@@ -232,13 +210,12 @@ class TestApiController(helpers.FunctionalTestBase):
         dataset1 = factories.Dataset()
         dataset2 = factories.Dataset()
 
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='package_list',
+            ver='/3')
         app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(
-                controller='api',
-                action='action',
-                logic_function='package_list',
-                ver='/3')
         res = app.get(
             url=url,
             params={'callback': 'my_callback'},
@@ -255,15 +232,15 @@ class TestApiController(helpers.FunctionalTestBase):
 
         dataset1 = factories.Dataset()
         dataset2 = factories.Dataset()
+
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='package_list',
+            ver='/3',
+            callback='my_callback',
+        )
         app = self._get_test_app()
-        with app.flask_app.test_request_context():
-            url = url_for(
-                controller='api',
-                action='action',
-                logic_function='package_list',
-                ver='/3',
-                callback='my_callback',
-            )
         res = app.post(
             url=url,
         )
@@ -273,6 +250,40 @@ class TestApiController(helpers.FunctionalTestBase):
         eq_(res_dict['success'], True)
         eq_(sorted(res_dict['result']),
             sorted([dataset1['name'], dataset2['name']]))
+
+    def test_api_info(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(
+            id='588dfa82-760c-45a2-b78a-e3bc314a4a9b',
+            package_id=dataset['id'], datastore_active=True)
+
+        # the 'API info' is seen on the resource_read page, a snippet loaded by
+        # javascript via data_api_button.html
+        url = template_helpers.url_for(
+            controller='api', action='snippet', ver=1,
+            snippet_path='api_info.html', resource_id=resource['id'])
+
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
+        app = self._get_test_app()
+        page = app.get(url, status=200)
+        p.unload('datastore')
+
+        # check we built all the urls ok
+        expected_urls = (
+            'http://test.ckan.net/api/3/action/datastore_create',
+            'http://test.ckan.net/api/3/action/datastore_upsert',
+            '<code>http://test.ckan.net/api/3/action/datastore_search',
+            'http://test.ckan.net/api/3/action/datastore_search_sql',
+            'http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5',
+            'http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;q=jones',
+            'http://test.ckan.net/api/3/action/datastore_search_sql?sql=SELECT * from &#34;588dfa82-760c-45a2-b78a-e3bc314a4a9b&#34; WHERE title LIKE &#39;jones&#39;',
+            "url: 'http://test.ckan.net/api/3/action/datastore_search'",
+            "http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5&amp;q=title:jones",
+            )
+        for url in expected_urls:
+            assert url in page, url
 
 
 class TestRevisionSearch(helpers.FunctionalTestBase):

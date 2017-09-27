@@ -4,13 +4,12 @@ import re
 import sgmllib
 
 import paste.fixture
-import webtest
 
 
 class HtmlCheckMethods(object):
     '''A collection of methods to check properties of a html page, usually
     in the form returned by paster.'''
-
+    
     def named_div(self, div_name, html):
         'strips html to just the <div id="DIV_NAME"> section'
         the_html = self._get_html_from_res(html)
@@ -34,13 +33,13 @@ class HtmlCheckMethods(object):
         '''Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace.'''
         if not isinstance(res, basestring):
             res = res.body.decode('utf-8')
-        return Stripper().strip(res)
+        return Stripper().strip(res)    
 
     def check_named_element(self, html, tag_name, *html_to_find):
         '''Searches in the html and returns True if it can find a particular
         tag and all its subtags & data which contains all the of the
         html_to_find'''
-        named_element_re = re.compile('(<(%(tag)s\w*).*?(>.*?</%(tag)s)?>)' % {'tag':tag_name})
+        named_element_re = re.compile('(<(%(tag)s\w*).*?(>.*?</%(tag)s)?>)' % {'tag':tag_name}) 
         html_str = self._get_html_from_res(html)
         self._check_html(named_element_re, html_str.replace('\n', ''), html_to_find)
 
@@ -61,14 +60,13 @@ class HtmlCheckMethods(object):
         self._check_html(self.tag_re, html, html_to_find)
 
     def _get_html_from_res(self, html):
-        if isinstance(html, (paste.fixture.TestResponse, webtest.app.TestResponse)):
+        if isinstance(html, paste.fixture.TestResponse):
             html_str = html.body.decode('utf8')
         elif isinstance(html, unicode):
             html_str = html
         elif isinstance(html, str):
             html_str = html.decode('utf8')
         else:
-            import ipdb; ipdb.set_trace()
             raise TypeError
         return html_str # always unicode
 

@@ -9,11 +9,14 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && \
         python-pip \
         python-virtualenv \
         libpq-dev \
-        git-core \
-        postgresql-client \
         libxml2-dev \
         libxslt-dev \
         libgeos-dev \
+        libssl-dev \
+        libffi-dev \
+        postgresql-client \
+        build-essential \
+        git-core \
         vim \
         wget \
 	&& apt-get -q clean

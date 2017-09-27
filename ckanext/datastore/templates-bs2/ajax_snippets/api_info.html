@@ -1,18 +1,18 @@
 {#
 Displays information about accessing a resource via the API.
 
-datastore_root_url - The root API url.
 resource_id - The resource id
 embedded - If true will not include the "modal" classes on the snippet.
 
 Example
 
-    {% snippet 'ajax_snippets/api_info.html', datastore_root_url=datastore_root_url, resource_id=resource_id, embedded=true %}
+    {% snippet 'ajax_snippets/api_info.html', resource_id=resource_id, embedded=true %}
 
 #}
 
-{% set sql_example_url = datastore_root_url + '/datastore_search_sql?sql=SELECT * from "' + resource_id + '" WHERE title LIKE \'jones\'' %}
-
+{% set resource_id = h.sanitize_id(resource_id) %}
+{% set sql_example_url = h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search_sql', qualified=True) + '?sql=SELECT * from "' + resource_id + '" WHERE title LIKE \'jones\'' %}
+{# not urlencoding the sql because its clearer #}
 <div{% if not embedded %} class="modal"{% endif %}>
   <div class="modal-header">
     <h3>
@@ -40,19 +40,19 @@ Example
             <tbody>
               <tr>
                 <th scope="row">{{ _('Create') }}</th>
-                <td><code>{{ datastore_root_url }}/datastore_create</code></td>
+                <td><code>{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_create', qualified=True) }}</code></td>
               </tr>
               <tr>
                 <th scope="row">{{ _('Update / Insert') }}</th>
-                <td><code>{{ datastore_root_url }}/datastore_upsert</code></td>
+                <td><code>{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_upsert', qualified=True) }}</code></td>
               </tr>
               <tr>
                 <th scope="row">{{ _('Query') }}</th>
-                <td><code>{{ datastore_root_url }}/datastore_search</code></td>
+                <td><code>{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search', qualified=True) }}</code></td>
               </tr>
               <tr>
                 <th scope="row">{{ _('Query (via SQL)') }}</th>
-                <td><code>{{ datastore_root_url }}/datastore_search_sql</code></td>
+                <td><code>{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search_sql', qualified=True) }}</code></td>
               </tr>
 
             </tbody>
@@ -69,12 +69,12 @@ Example
         <div class="accordion-inner">
           <strong>{{ _('Query example (first 5 results)') }}</strong>
           <p>
-          <code>{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&limit=5</code>
+          <code>{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}</code>
           </p>
 
           <strong>{{ _('Query example (results containing \'jones\')') }}</strong>
           <p>
-          <code>{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&q=jones</code>
+          <code>{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</code>
           </p>
 
           <strong>{{ _('Query example (via SQL statement)') }}</strong>
@@ -100,7 +100,7 @@ Example
     q: 'jones' // query for 'jones'
   };
   $.ajax({
-    url: '{{ datastore_root_url }}/datastore_search',
+    url: '{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search', qualified=True) }}',
     data: data,
     dataType: 'jsonp',
     success: function(data) {
@@ -119,7 +119,7 @@ Example
         <div class="accordion-inner">
           <pre>
 import urllib
-url = '{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&amp;limit=5&amp;q=title:jones'
+url = '{{ h.url_for(qualified=True, controller='api', action='action', ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5) + '&q=title:jones' }}'  {# not urlencoding the ":" because its clearer #}
 fileobj = urllib.urlopen(url)
 print fileobj.read()
 </pre>

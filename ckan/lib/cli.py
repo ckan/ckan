@@ -28,11 +28,16 @@ import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.plugins as p
 from ckan.common import config
+from ckan.tests.helpers import _get_test_app
+
+# This is a test Flask request context to be used internally.
+# Do not use it!
+_cli_test_request_context = None
 
 
-#NB No CKAN imports are allowed until after the config file is loaded.
-#   i.e. do the imports in methods, after _load_config is called.
-#   Otherwise loggers get disabled.
+# NB No CKAN imports are allowed until after the config file is loaded.
+#    i.e. do the imports in methods, after _load_config is called.
+#    Otherwise loggers get disabled.
 
 
 def deprecation_warning(message=None):
@@ -223,6 +228,12 @@ def load_config(config, load_site_user=True):
     # first time.
     from ckan.config.environment import load_environment
     load_environment(conf.global_conf, conf.local_conf)
+
+    # Set this internal test request context with the configured environment so
+    # it can be used when calling url_for from the CLI.
+    global _cli_test_request_context
+    flask_app = _get_test_app().flask_app
+    _cli_test_request_context = flask_app.test_request_context()
 
     registry = Registry()
     registry.prepare()

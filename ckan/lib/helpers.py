@@ -17,6 +17,7 @@ import pprint
 import copy
 import urlparse
 from urllib import urlencode
+import uuid
 
 from paste.deploy import converters
 from webhelpers.html import HTML, literal, tags, tools
@@ -28,6 +29,7 @@ from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
+from flask import _request_ctx_stack, current_app
 from routes import redirect_to as _routes_redirect_to
 from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
@@ -152,6 +154,12 @@ def redirect_to(*args, **kw):
 
         toolkit.redirect_to('dataset_read', id='changed')
 
+    If given a single string as argument, this redirects without url parsing
+
+        toolkit.redirect_to('http://example.com')
+        toolkit.redirect_to('/dataset')
+        toolkit.redirect_to('/some/other/path')
+
     '''
     if are_there_flash_messages():
         kw['__no_cache__'] = True
@@ -159,7 +167,19 @@ def redirect_to(*args, **kw):
     # Routes router doesn't like unicode args
     uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
                 args)
-    _url = url_for(*uargs, **kw)
+
+    _url = ''
+    skip_url_parsing = False
+    parse_url = kw.pop('parse_url', False)
+    if uargs and len(uargs) is 1 and isinstance(uargs[0], basestring) \
+            and (uargs[0].startswith('/') or is_url(uargs[0])) \
+            and parse_url is False:
+        skip_url_parsing = True
+        _url = uargs[0]
+
+    if skip_url_parsing is False:
+        _url = url_for(*uargs, **kw)
+
     if _url.startswith('/'):
         _url = str(config['ckan.site_url'].rstrip('/') + _url)
 
@@ -199,6 +219,30 @@ def get_site_protocol_and_host():
             parsed_url.netloc.encode('utf-8')
         )
     return (None, None)
+
+
+def _get_auto_flask_context():
+    '''
+    Provides a Flask test request context if we are outside the context
+    of a web request (tests or CLI)
+    '''
+
+    from ckan.config.middleware import _internal_test_request_context
+    from ckan.lib.cli import _cli_test_request_context
+
+    # This is a normal web request, there is a request context present
+    if _request_ctx_stack.top:
+        return None
+
+    # We are outside a web request. A test web application was created
+    # (and with it a test request context with the relevant configuration)
+    if _internal_test_request_context:
+        return _internal_test_request_context
+
+    # We are outside a web request. This is a CLI command. A test request
+    # context was created when setting it up
+    if _cli_test_request_context:
+        return _cli_test_request_context
 
 
 @core_helper
@@ -252,13 +296,23 @@ def url_for(*args, **kw):
         ver = kw.get('ver')
         if not ver:
             raise Exception('API URLs must specify the version (eg ver=3)')
+
+    _auto_flask_context = _get_auto_flask_context()
+
     try:
+        if _auto_flask_context:
+            _auto_flask_context.push()
+
         # First try to build the URL with the Flask router
         my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
+
         # If it doesn't succeed, fallback to the Pylons router
         my_url = _url_for_pylons(*args, **kw)
+    finally:
+        if _auto_flask_context:
+            _auto_flask_context.pop()
 
     # Add back internal params
     kw['__ckan_no_root'] = no_root
@@ -2495,3 +2549,11 @@ def load_plugin_helpers():
 
     for plugin in reversed(list(p.PluginImplementations(p.ITemplateHelpers))):
         helper_functions.update(plugin.get_helpers())
+
+
+@core_helper
+def sanitize_id(id_):
+    '''Given an id (uuid4), if it has any invalid characters it raises
+    ValueError.
+    '''
+    return str(uuid.UUID(id_))

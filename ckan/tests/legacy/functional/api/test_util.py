@@ -17,134 +17,26 @@ class TestUtil(ControllerTestCase):
     def teardown_class(cls):
         model.repo.rebuild_db()
 
-    def test_package_slug_invalid(self):
-
-        with self.app.flask_app.test_request_context():
-            url = url_for(controller='api', action='is_slug_valid', ver=2)
-
-        response = self.app.get(
-            url,
-            params={
-               'type': u'package',
-               'slug': u'edit',
-            },
-            status=200,
-        )
-        assert_equal(response.body, '{"valid": false}')
-        assert_equal(response.headers['Content-Type'], 'application/json;charset=utf-8')
-
-
-        with self.app.flask_app.test_request_context():
-            url = url_for(controller='api', action='is_slug_valid', ver=2)
-
-        response = self.app.get(
-            url,
-            params={
-               'type': u'package',
-               'slug': u'new',
-            },
-            status=200,
-        )
-        assert_equal(response.body, '{"valid": false}')
-        assert_equal(response.headers['Content-Type'], 'application/json;charset=utf-8')
-
-    def test_package_slug_valid(self):
-
-        with self.app.flask_app.test_request_context():
-            url = url_for(controller='api', action='is_slug_valid', ver=2)
-
-        response = self.app.get(
-            url,
-            params={
-               'type': u'package',
-               'slug': u'A New Title * With & Funny CHARacters',
-            },
-            status=200,
-        )
-        assert_equal(response.body, '{"valid": true}')
-        assert_equal(response.headers['Content-Type'], 'application/json;charset=utf-8')
-
-
-        with self.app.flask_app.test_request_context():
-            url = url_for(controller='api', action='is_slug_valid', ver=2)
-
-        response = self.app.get(
-            url,
-            params={
-               'type': u'package',
-               'slug': u'warandpeace',
-            },
-            status=200,
-        )
-        assert_equal(response.body, '{"valid": false}')
-        assert_equal(response.headers['Content-Type'], 'application/json;charset=utf-8')
-
-    def test_markdown(self):
-        markdown = '''##Title'''
-
-        with self.app.flask_app.test_request_context():
-            url = url_for(controller='api', action='markdown', ver=2)
-
-        response = self.app.get(
-            url,
-            params={'q': markdown},
-            status=200,
-        )
-        assert_equal(response.body, '"<h2>Title</h2>"')
-
     def test_munge_package_name(self):
-
-        with self.app.flask_app.test_request_context():
-            url = url_for(controller='api', action='munge_package_name', ver=2)
-
         response = self.app.get(
-            url,
+            url=url_for(controller='api', action='munge_package_name', ver=2),
             params={'name': 'test name'},
             status=200,
         )
         assert_equal(response.body, '"test-name"')
 
     def test_munge_title_to_package_name(self):
-
-        with self.app.flask_app.test_request_context():
-            url = url_for(controller='api', action='munge_title_to_package_name', ver=2)
-
         response = self.app.get(
-            url,
+            url=url_for(controller='api', action='munge_title_to_package_name', ver=2),
             params={'name': 'Test title'},
             status=200,
         )
         assert_equal(response.body, '"test-title"')
 
     def test_munge_tag(self):
-
-        with self.app.flask_app.test_request_context():
-            url = url_for(controller='api', action='munge_tag', ver=2)
-
         response = self.app.get(
-            url,
+            url=url_for(controller='api', action='munge_tag', ver=2),
             params={'name': 'Test subject'},
             status=200,
         )
         assert_equal(response.body, '"test-subject"')
-
-    def test_status(self):
-
-        with self.app.flask_app.test_request_context():
-            url = url_for(controller='api', action='status', ver=2)
-
-        response = self.app.get(
-            url,
-            params={},
-            status=200,
-        )
-        res = json.loads(response.body)
-        assert_equal(res['ckan_version'], __version__)
-        assert_equal(res['site_url'], 'http://test.ckan.net')
-        assert_equal(res['site_title'], 'CKAN')
-        assert_equal(res['site_description'], '')
-        assert_equal(res['locale_default'], 'en')
-
-        assert_equal(type(res['extensions']), list)
-        expected_extensions = set(('stats',))
-        assert_equal(set(res['extensions']), expected_extensions)
