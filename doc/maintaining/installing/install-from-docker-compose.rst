@@ -174,9 +174,6 @@ a. Create and configure datastore database
 With running CKAN containers, execute the built-in setup scripts against the ``db`` container::
 
     docker exec -it db psql -U ckan -f 00_create_datastore.sql
-    # canned, possibly outdated:
-    # docker exec -it db psql -U ckan -f 10_set_permissions.sql
-    # fresh:
     docker exec ckan /usr/local/bin/ckan-paster --plugin=ckan datastore set-permissions -c /etc/ckan/ckan.ini | docker exec -i db psql -U ckan
 
 The first script will create the datastore database and the datastore readonly user in the ``db``
