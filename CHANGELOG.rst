@@ -7,6 +7,12 @@
 Changelog
 ---------
 
+
+v2.7.2 2017-09-28
+=================
+
+ * Include missing minified JavaScript files
+
 v2.7.1 2017-09-27
 =================
 
