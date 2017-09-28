@@ -178,7 +178,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 continue
             try:
                 contents = f.read().decode(self.encoding)
-            except UnicodeDecodeError, e:
+            except UnicodeDecodeError as e:
                 log.critical(
                     'Template corruption in `%s` unicode decode errors'
                     % filename
@@ -206,7 +206,7 @@ class BaseExtension(ext.Extension):
 
     def parse(self, parser):
         stream = parser.stream
-        tag = stream.next()
+        tag = next(stream)
         # get arguments
         args = []
         kwargs = []

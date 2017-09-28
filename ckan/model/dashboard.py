@@ -1,8 +1,9 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import datetime
 import sqlalchemy
-import meta
+from . import meta
 
 dashboard_table = sqlalchemy.Table('dashboard', meta.metadata,
     sqlalchemy.Column('user_id', sqlalchemy.types.UnicodeText,

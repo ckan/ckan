@@ -525,7 +525,7 @@ def activity_dict_save(activity_dict, context):
     object_id = activity_dict['object_id']
     revision_id = activity_dict['revision_id']
     activity_type = activity_dict['activity_type']
-    if activity_dict.has_key('data'):
+    if 'data' in activity_dict:
         data = activity_dict['data']
     else:
         data = None
@@ -562,7 +562,7 @@ def vocabulary_dict_save(vocabulary_dict, context):
     vocabulary_obj = model.Vocabulary(vocabulary_name)
     session.add(vocabulary_obj)
 
-    if vocabulary_dict.has_key('tags'):
+    if 'tags' in vocabulary_dict:
         vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
             context)
 
@@ -575,10 +575,10 @@ def vocabulary_dict_update(vocabulary_dict, context):
 
     vocabulary_obj = model.vocabulary.Vocabulary.get(vocabulary_dict['id'])
 
-    if vocabulary_dict.has_key('name'):
+    if 'name' in vocabulary_dict:
         vocabulary_obj.name = vocabulary_dict['name']
 
-    if vocabulary_dict.has_key('tags'):
+    if 'tags' in vocabulary_dict:
         vocabulary_tag_list_save(vocabulary_dict['tags'], vocabulary_obj,
             context)
 

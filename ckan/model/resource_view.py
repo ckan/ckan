@@ -1,10 +1,11 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import sqlalchemy as sa
 
-import meta
-import types as _types
-import domain_object
+from . import meta
+from . import types as _types
+from . import domain_object
 
 __all__ = ['ResourceView', 'resource_view_table']
 

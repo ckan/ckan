@@ -17,6 +17,7 @@ prefixed names. Use the functions ``add_queue_name_prefix`` and
 
 .. versionadded:: 2.7
 '''
+from __future__ import print_function
 
 import logging
 

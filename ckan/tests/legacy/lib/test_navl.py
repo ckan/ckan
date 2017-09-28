@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 from ckan.lib.navl.dictization_functions import (flatten_schema,
                                    get_all_key_combinations,
                                    make_full_schema,
@@ -97,7 +98,7 @@ def test_make_full_schema():
 
     full_schema = make_full_schema(data, schema)
 
-    print set(full_schema.keys()) - set(data.keys())
+    print(set(full_schema.keys()) - set(data.keys()))
 
     assert set(full_schema.keys()) - set(data.keys()) == set([('2', 1, '__before'),
                                                               ('2', 0, '__after'),
@@ -110,7 +111,7 @@ def test_make_full_schema():
                                                               ('__junk',),
                                                              ])
 
-    print set(data.keys()) - set(full_schema.keys())
+    print(set(data.keys()) - set(full_schema.keys()))
 
     assert set(data.keys()) - set(full_schema.keys()) == set([('4',),
                                                               ('4', 1, '30')])
@@ -137,8 +138,8 @@ def test_identity_validation():
 
     
     converted_data, errors = validate_flattened(data, schema)
-    print errors
-    print converted_data
+    print(errors)
+    print(converted_data)
 
     assert not errors
 
@@ -295,7 +296,7 @@ def test_simple():
 
     converted_data, errors = validate(data, schema)
 
-    print errors
+    print(errors)
     assert errors == {'numbers': [{'code': [u'Missing value']}, {}]}
 
 

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 import os
 import subprocess
 import urllib2
@@ -41,14 +42,14 @@ class _TestSync(TestController):
         while True:
             try:
                 f = urllib2.urlopen('http://localhost:5050%s' % offset)
-            except urllib2.URLError, e:
+            except urllib2.URLError as e:
                 if hasattr(e, 'reason') and type(e.reason) == urllib2.socket.error:
                     # i.e. process not started up yet
                     count += 1
                     time.sleep(1)
                     assert count < 5, '%s: %r; %r' % (offset, e, e.args)
                 else:
-                    print 'Error opening url: %s' % offset
+                    print('Error opening url: %s' % offset)
                     assert 0, e # Print exception
             else:
                 break

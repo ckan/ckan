@@ -270,7 +270,7 @@ class PackageSearchQuery(SearchQuery):
         log.debug('Package query: %r' % query)
         try:
             solr_response = conn.search(**query)
-        except pysolr.SolrError, e:
+        except pysolr.SolrError as e:
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))
 
@@ -358,7 +358,7 @@ class PackageSearchQuery(SearchQuery):
         log.debug('Package query: %r' % query)
         try:
             solr_response = conn.search(**query)
-        except pysolr.SolrError, e:
+        except pysolr.SolrError as e:
             # Error with the sort parameter.  You see slightly different
             # error messages depending on whether the SOLR JSON comes back
             # or Jetty gets in the way converting it to HTML - not sure why

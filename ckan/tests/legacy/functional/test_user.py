@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 from ckan.lib.helpers import url_for
 from nose.tools import assert_equal
 from ckan.common import config
@@ -10,7 +11,7 @@ from ckan.tests.legacy.html_check import HtmlCheckMethods
 from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
 import ckan.model as model
-from base import FunctionalTestCase
+from .base import FunctionalTestCase
 from ckan.lib.mailer import get_reset_link, create_reset_key
 
 class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):

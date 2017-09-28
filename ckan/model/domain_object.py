@@ -1,13 +1,14 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import datetime
 
 import sqlalchemy as sa
 from sqlalchemy import orm
 from sqlalchemy.util import OrderedDict
 
-import meta
-import core
+from . import meta
+from . import core
 
 __all__ = ['DomainObject', 'DomainObjectOperation']
 
@@ -107,7 +108,7 @@ class DomainObject(object):
         for col in table.c:
             try:
                 repr += u' %s=%s' % (col.name, getattr(self, col.name))
-            except Exception, inst:
+            except Exception as inst:
                 repr += u' %s=%s' % (col.name, inst)
 
         repr += '>'

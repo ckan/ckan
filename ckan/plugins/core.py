@@ -3,6 +3,7 @@
 '''
 Provides plugin services to the CKAN
 '''
+from __future__ import absolute_import
 
 from contextlib import contextmanager
 import logging
@@ -13,7 +14,7 @@ from pyutilib.component.core import SingletonPlugin as _pca_SingletonPlugin
 from pyutilib.component.core import Plugin as _pca_Plugin
 from paste.deploy.converters import asbool
 
-import interfaces
+from . import interfaces
 
 from ckan.common import config
 

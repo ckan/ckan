@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import datetime
 
 from sqlalchemy.util import OrderedDict
@@ -10,13 +11,13 @@ import vdm.sqlalchemy
 import vdm.sqlalchemy.stateful
 from sqlalchemy import types, func, Column, Table, ForeignKey, and_
 
-import meta
-import core
-import package as _package
-import types as _types
-import extension
-import activity
-import domain_object
+from . import meta
+from . import core
+from . import package as _package
+from . import types as _types
+from . import extension
+from . import activity
+from . import domain_object
 import ckan.lib.dictization
 from .package import Package
 import ckan.model

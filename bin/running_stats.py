@@ -42,7 +42,7 @@ class StatsCount(dict):
     report_value_limit = 150
     
     def _init_category(self, category):
-        if not self.has_key(category):
+        if category not in self:
             self[category] = copy.deepcopy(self._init_value)
         
     def increment(self, category):

@@ -1,11 +1,12 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 from sqlalchemy import types, Column, Table
 
-import meta
-import types as _types
-import tag
-import domain_object
+from . import meta
+from . import types as _types
+from . import tag
+from . import domain_object
 
 VOCABULARY_NAME_MIN_LENGTH = 2
 VOCABULARY_NAME_MAX_LENGTH = 100

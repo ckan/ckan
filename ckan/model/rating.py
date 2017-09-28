@@ -1,14 +1,15 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import datetime
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 
-import meta
-import package as _package
-import user
-import domain_object
-import types as _types
+from . import meta
+from . import package as _package
+from . import user
+from . import domain_object
+from . import types as _types
 
 __all__ = ['Rating', 'MIN_RATING', 'MAX_RATING']
 

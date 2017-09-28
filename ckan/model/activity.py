@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import datetime
 
 from sqlalchemy import (
@@ -16,9 +17,9 @@ from sqlalchemy import (
 )
 
 import ckan.model
-import meta
-import types as _types
-import domain_object
+from . import meta
+from . import types as _types
+from . import domain_object
 
 __all__ = ['Activity', 'activity_table',
            'ActivityDetail', 'activity_detail_table',

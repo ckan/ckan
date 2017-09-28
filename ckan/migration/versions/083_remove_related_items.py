@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 WARNING = """
 
 WARNING: The 'related' tables were not deleted as they currently contain data.
@@ -17,7 +18,7 @@ def upgrade(migrate_engine):
     existing = migrate_engine.execute("SELECT COUNT(*) FROM related;")\
         .fetchone()
     if existing[0] > 0:
-        print WARNING
+        print(WARNING)
         return
 
     migrate_engine.execute('''

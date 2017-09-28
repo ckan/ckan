@@ -6,13 +6,14 @@ configuration options.
 
 For more details, check :doc:`maintaining/configuration`.
 '''
+from __future__ import absolute_import
 
 from sqlalchemy import types, Column, Table
 
 import vdm.sqlalchemy
-import meta
-import core
-import domain_object
+from . import meta
+from . import core
+from . import domain_object
 
 __all__ = ['system_info_revision_table', 'system_info_table', 'SystemInfo',
            'SystemInfoRevision', 'get_system_info', 'set_system_info']

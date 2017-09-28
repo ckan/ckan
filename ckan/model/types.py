@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 ## IMPORTS FIXED
+from __future__ import absolute_import
 import datetime
 import copy
 import uuid
@@ -8,7 +9,7 @@ import simplejson as json
 
 from sqlalchemy import types
 
-import meta
+from . import meta
 
 __all__ = ['iso_date_to_datetime_for_sqlite', 'make_uuid', 'UuidType',
            'JsonType', 'JsonDictType']

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import mock
 
 import ckan.model as model
@@ -8,7 +9,7 @@ import ckan.lib.search as search
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic import get_action
 from ckan.tests.legacy import *
-from base import FunctionalTestCase
+from .base import FunctionalTestCase
 
 
 class TestGroup(FunctionalTestCase):

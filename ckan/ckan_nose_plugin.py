@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from __future__ import print_function
 from nose.plugins import Plugin
 from inspect import isclass
 import hashlib
@@ -94,7 +95,7 @@ class CkanNose(Plugin):
 
     def finalize(self, report):
         if self.segments:
-            print 'Segments: %s' % self.segments
+            print('Segments: %s' % self.segments)
 
     def configure(self, settings, config):
         CkanNose.settings = settings

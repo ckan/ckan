@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from __future__ import print_function
+from __future__ import absolute_import
 import collections
 import csv
 import multiprocessing as mp
@@ -140,7 +142,7 @@ def user_add(args):
         }
         user_dict = logic.get_action('user_create')(context, data_dict)
         pprint(user_dict)
-    except logic.ValidationError, e:
+    except logic.ValidationError as e:
         error(traceback.format_exc())
 
 ## from http://code.activestate.com/recipes/577058/ MIT licence.
@@ -353,7 +355,7 @@ class ManageDb(CkanCommand):
 
             model.repo.init_db()
             if self.verbose:
-                print 'Initialising DB: SUCCESS'
+                print('Initialising DB: SUCCESS')
         elif cmd == 'clean' or cmd == 'drop':
 
             # remove any *.pyc version files to prevent conflicts
@@ -367,7 +369,7 @@ class ManageDb(CkanCommand):
             model.repo.clean_db()
             search.clear_all()
             if self.verbose:
-                print 'Cleaning DB: SUCCESS'
+                print('Cleaning DB: SUCCESS')
         elif cmd == 'upgrade':
             if len(self.args) > 1:
                 model.repo.upgrade_db(self.args[1])
@@ -384,7 +386,7 @@ class ManageDb(CkanCommand):
         elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
-                print 'Creating DB: SUCCESS'
+                print('Creating DB: SUCCESS')
         elif cmd == 'migrate-filestore':
             self.migrate_filestore()
         else:
@@ -417,14 +419,14 @@ class ManageDb(CkanCommand):
         pg_dump_cmd += ' %(db_name)s' % self.db_details
         pg_dump_cmd += ' > %s' % filepath
         self._run_cmd(pg_dump_cmd)
-        print 'Dumped database to: %s' % filepath
+        print('Dumped database to: %s' % filepath)
 
     def _postgres_load(self, filepath):
         import ckan.model as model
         assert not model.repo.are_tables_created(), "Tables already found. You need to 'db clean' before a load."
         pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
         self._run_cmd(pg_cmd)
-        print 'Loaded CKAN database: %s' % filepath
+        print('Loaded CKAN database: %s' % filepath)
 
     def _run_cmd(self, command_line):
         import subprocess
@@ -435,7 +437,7 @@ class ManageDb(CkanCommand):
     def dump(self):
         deprecation_warning(u"Use PostgreSQL's pg_dump instead.")
         if len(self.args) < 2:
-            print 'Need pg_dump filepath'
+            print('Need pg_dump filepath')
             return
         dump_path = self.args[1]
 
@@ -445,23 +447,23 @@ class ManageDb(CkanCommand):
     def load(self, only_load=False):
         deprecation_warning(u"Use PostgreSQL's pg_restore instead.")
         if len(self.args) < 2:
-            print 'Need pg_dump filepath'
+            print('Need pg_dump filepath')
             return
         dump_path = self.args[1]
 
         psql_cmd = self._get_psql_cmd() + ' -f %s'
         pg_cmd = self._postgres_load(dump_path)
         if not only_load:
-            print 'Upgrading DB'
+            print('Upgrading DB')
             import ckan.model as model
             model.repo.upgrade_db()
 
-            print 'Rebuilding search index'
+            print('Rebuilding search index')
             import ckan.lib.search
             ckan.lib.search.rebuild()
         else:
-            print 'Now remember you have to call \'db upgrade\' and then \'search-index rebuild\'.'
-        print 'Done'
+            print('Now remember you have to call \'db upgrade\' and then \'search-index rebuild\'.')
+        print('Done')
 
     def migrate_filestore(self):
         from ckan.model import Session
@@ -474,8 +476,8 @@ class ManageDb(CkanCommand):
         for id, revision_id, url in results:
             response = requests.get(url, stream=True)
             if response.status_code != 200:
-                print "failed to fetch %s (code %s)" % (url,
-                                                        response.status_code)
+                print("failed to fetch %s (code %s)" % (url,
+                                                        response.status_code))
                 continue
             resource_upload = ResourceUpload({'id': id})
             assert resource_upload.storage_path, "no storage configured aborting"
@@ -484,7 +486,7 @@ class ManageDb(CkanCommand):
             filepath = resource_upload.get_path(id)
             try:
                 os.makedirs(directory)
-            except OSError, e:
+            except OSError as e:
                 ## errno 17 is file already exists
                 if e.errno != 17:
                     raise
@@ -501,11 +503,11 @@ class ManageDb(CkanCommand):
                             "revision_id = :revision_id",
                             {'id': id, 'revision_id': revision_id})
             Session.commit()
-            print "Saved url %s" % url
+            print("Saved url %s" % url)
 
     def version(self):
         from ckan.model import Session
-        print Session.execute('select version from migrate_version;').fetchall()
+        print(Session.execute('select version from migrate_version;').fetchall())
 
 
 class SearchIndexCommand(CkanCommand):
@@ -555,7 +557,7 @@ Default is false.''')
     def command(self):
         if not self.args:
             # default to printing help
-            print self.usage
+            print(self.usage)
             return
 
         cmd = self.args[0]
@@ -574,7 +576,7 @@ Default is false.''')
         elif cmd == 'clear':
             self.clear()
         else:
-            print 'Command %s not recognized' % cmd
+            print('Command %s not recognized' % cmd)
 
     def rebuild(self):
         from ckan.lib.search import rebuild, commit
@@ -602,7 +604,7 @@ Default is false.''')
         from ckan.lib.search import show
 
         if not len(self.args) == 2:
-            print 'Missing parameter: dataset-name'
+            print('Missing parameter: dataset-name')
             return
         index = show(self.args[1])
         pprint(index)
@@ -684,7 +686,7 @@ class Notification(CkanCommand):
             for package in Session.query(Package):
                 dome.notify(package, DomainObjectOperation.changed)
         else:
-            print 'Command %s not recognized' % cmd
+            print('Command %s not recognized' % cmd)
 
 
 class RDFExport(CkanCommand):
@@ -703,7 +705,7 @@ class RDFExport(CkanCommand):
 
         if not self.args:
             # default to run
-            print RDFExport.__doc__
+            print(RDFExport.__doc__)
         else:
             self.export_datasets(self.args[0])
 
@@ -738,13 +740,13 @@ class RDFExport(CkanCommand):
                 fname = os.path.join(out_folder, dd['name']) + ".rdf"
                 try:
                     r = urllib2.urlopen(url).read()
-                except urllib2.HTTPError, e:
+                except urllib2.HTTPError as e:
                     if e.code == 404:
                         error('Please install ckanext-dcat and enable the ' +
                               '`dcat` plugin to use the RDF serializations')
                 with open(fname, 'wb') as f:
                     f.write(r)
-            except IOError, ioe:
+            except IOError as ioe:
                 sys.stderr.write(str(ioe) + "\n")
 
 
@@ -781,56 +783,56 @@ class Sysadmin(CkanCommand):
         elif cmd == 'remove':
             self.remove()
         else:
-            print 'Command %s not recognized' % cmd
+            print('Command %s not recognized' % cmd)
 
     def list(self):
         import ckan.model as model
-        print 'Sysadmins:'
+        print('Sysadmins:')
         sysadmins = model.Session.query(model.User).filter_by(sysadmin=True,
                                                               state='active')
-        print 'count = %i' % sysadmins.count()
+        print('count = %i' % sysadmins.count())
         for sysadmin in sysadmins:
-            print '%s name=%s email=%s id=%s' % (
+            print('%s name=%s email=%s id=%s' % (
                 sysadmin.__class__.__name__,
                 sysadmin.name,
                 sysadmin.email,
-                sysadmin.id)
+                sysadmin.id))
 
     def add(self):
         import ckan.model as model
 
         if len(self.args) < 2:
-            print 'Need name of the user to be made sysadmin.'
+            print('Need name of the user to be made sysadmin.')
             return
         username = self.args[1]
 
         user = model.User.by_name(unicode(username))
         if not user:
-            print 'User "%s" not found' % username
+            print('User "%s" not found' % username)
             makeuser = raw_input('Create new user: %s? [y/n]' % username)
             if makeuser == 'y':
                 user_add(self.args[1:])
                 user = model.User.by_name(unicode(username))
             else:
-                print 'Exiting ...'
+                print('Exiting ...')
                 return
 
         user.sysadmin = True
         model.Session.add(user)
         model.repo.commit_and_remove()
-        print 'Added %s as sysadmin' % username
+        print('Added %s as sysadmin' % username)
 
     def remove(self):
         import ckan.model as model
 
         if len(self.args) < 2:
-            print 'Need name of the user to be made sysadmin.'
+            print('Need name of the user to be made sysadmin.')
             return
         username = self.args[1]
 
         user = model.User.by_name(unicode(username))
         if not user:
-            print 'Error: user "%s" not found!' % username
+            print('Error: user "%s" not found!' % username)
             return
         user.sysadmin = False
         model.repo.commit_and_remove()
@@ -886,24 +888,24 @@ class UserCmd(CkanCommand):
 
     def list(self):
         import ckan.model as model
-        print 'Users:'
+        print('Users:')
         users = model.Session.query(model.User).filter_by(state='active')
-        print 'count = %i' % users.count()
+        print('count = %i' % users.count())
         for user in users:
-            print self.get_user_str(user)
+            print(self.get_user_str(user))
 
     def show(self):
         import ckan.model as model
 
         username = self.args[0]
         user = model.User.get(unicode(username))
-        print 'User: \n', user
+        print('User: \n', user)
 
     def setpass(self):
         import ckan.model as model
 
         if len(self.args) < 2:
-            print 'Need name of the user.'
+            print('Need name of the user.')
             return
         username = self.args[1]
         user = model.User.get(username)
@@ -912,20 +914,20 @@ class UserCmd(CkanCommand):
         password = self.password_prompt()
         user.password = password
         model.repo.commit_and_remove()
-        print 'Done'
+        print('Done')
 
     def search(self):
         import ckan.model as model
 
         if len(self.args) < 2:
-            print 'Need user name query string.'
+            print('Need user name query string.')
             return
         query_str = self.args[1]
 
         query = model.User.search(query_str)
-        print '%i users matching %r:' % (query.count(), query_str)
+        print('%i users matching %r:' % (query.count(), query_str))
         for user in query.all():
-            print self.get_user_str(user)
+            print(self.get_user_str(user))
 
     @classmethod
     def password_prompt(cls):
@@ -945,7 +947,7 @@ class UserCmd(CkanCommand):
         import ckan.model as model
 
         if len(self.args) < 2:
-            print 'Need name of the user.'
+            print('Need name of the user.')
             return
         username = self.args[1]
 
@@ -974,7 +976,7 @@ class DatasetCmd(CkanCommand):
         self._load_config()
 
         if not self.args:
-            print self.usage
+            print(self.usage)
         else:
             cmd = self.args[0]
             if cmd == 'delete':
@@ -990,12 +992,12 @@ class DatasetCmd(CkanCommand):
 
     def list(self):
         import ckan.model as model
-        print 'Datasets:'
+        print('Datasets:')
         datasets = model.Session.query(model.Package)
-        print 'count = %i' % datasets.count()
+        print('count = %i' % datasets.count())
         for dataset in datasets:
             state = ('(%s)' % dataset.state) if dataset.state != 'active' else ''
-            print '%s %s %s' % (dataset.id, dataset.name, state)
+            print('%s %s %s' % (dataset.id, dataset.name, state))
 
     def _get_dataset(self, dataset_ref):
         import ckan.model as model
@@ -1017,7 +1019,7 @@ class DatasetCmd(CkanCommand):
         dataset.delete()
         model.repo.commit_and_remove()
         dataset = self._get_dataset(dataset_ref)
-        print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
+        print('%s %s -> %s' % (dataset.name, old_state, dataset.state))
 
     def purge(self, dataset_ref):
         import ckan.logic as logic
@@ -1028,7 +1030,7 @@ class DatasetCmd(CkanCommand):
         context = {'user': site_user['name']}
         logic.get_action('dataset_purge')(
             context, {'id': dataset_ref})
-        print '%s purged' % name
+        print('%s purged' % name)
 
 
 class Celery(CkanCommand):
@@ -1086,13 +1088,13 @@ class Celery(CkanCommand):
         from kombu.transport.sqlalchemy.models import Message
         q = model.Session.query(Message)
         q_visible = q.filter_by(visible=True)
-        print '%i messages (total)' % q.count()
-        print '%i visible messages' % q_visible.count()
+        print('%i messages (total)' % q.count())
+        print('%i visible messages' % q_visible.count())
         for message in q:
             if message.visible:
-                print '%i: Visible' % (message.id)
+                print('%i: Visible' % (message.id))
             else:
-                print '%i: Invisible Sent:%s' % (message.id, message.sent_at)
+                print('%i: Invisible Sent:%s' % (message.id, message.sent_at))
 
     def clean(self):
         deprecation_warning(u'Use `paster jobs clear` instead.')
@@ -1101,13 +1103,13 @@ class Celery(CkanCommand):
         query = model.Session.execute("select * from kombu_message")
         tasks_initially = query.rowcount
         if not tasks_initially:
-            print 'No tasks to delete'
+            print('No tasks to delete')
             sys.exit(0)
         query = model.Session.execute("delete from kombu_message")
         query = model.Session.execute("select * from kombu_message")
         tasks_afterwards = query.rowcount
-        print '%i of %i tasks deleted' % (tasks_initially - tasks_afterwards,
-                                          tasks_initially)
+        print('%i of %i tasks deleted' % (tasks_initially - tasks_afterwards,
+                                          tasks_initially))
         if tasks_afterwards:
             error('Failed to delete all tasks')
         model.repo.commit_and_remove()
@@ -1139,22 +1141,22 @@ class Ratings(CkanCommand):
         elif cmd == 'clean-anonymous':
             self.clean(user_ratings=False)
         else:
-            print 'Command %s not recognized' % cmd
+            print('Command %s not recognized' % cmd)
 
     def count(self):
         import ckan.model as model
         q = model.Session.query(model.Rating)
-        print "%i ratings" % q.count()
+        print("%i ratings" % q.count())
         q = q.filter(model.Rating.user_id is None)
-        print "of which %i are anonymous ratings" % q.count()
+        print("of which %i are anonymous ratings" % q.count())
 
     def clean(self, user_ratings=True):
         import ckan.model as model
         q = model.Session.query(model.Rating)
-        print "%i ratings" % q.count()
+        print("%i ratings" % q.count())
         if not user_ratings:
             q = q.filter(model.Rating.user_id is None)
-            print "of which %i are anonymous ratings" % q.count()
+            print("of which %i are anonymous ratings" % q.count())
         ratings = q.all()
         for rating in ratings:
             rating.purge()
@@ -1221,7 +1223,7 @@ class Tracking(CkanCommand):
         while start_date < end_date:
             stop_date = start_date + datetime.timedelta(1)
             self.update_tracking(engine, start_date)
-            print 'tracking updated for %s' % start_date
+            print('tracking updated for %s' % start_date)
             start_date = stop_date
 
         self.update_tracking_solr(engine, start_date_solrsync)
@@ -1355,21 +1357,21 @@ class Tracking(CkanCommand):
 
         total = len(package_ids)
         not_found = 0
-        print '%i package index%s to be rebuilt starting from %s' % (total, '' if total < 2 else 'es', start_date)
+        print('%i package index%s to be rebuilt starting from %s' % (total, '' if total < 2 else 'es', start_date))
 
         from ckan.lib.search import rebuild
         for package_id in package_ids:
             try:
                 rebuild(package_id)
             except logic.NotFound:
-                print "Error: package %s not found." % (package_id)
+                print("Error: package %s not found." % (package_id))
                 not_found += 1
             except KeyboardInterrupt:
-                print "Stopped."
+                print("Stopped.")
                 return
             except:
                 raise
-        print 'search index rebuilding done.' + (' %i not found.' % (not_found) if not_found else "")
+        print('search index rebuilding done.' + (' %i not found.' % (not_found) if not_found else ""))
 
 
 class PluginInfo(CkanCommand):
@@ -1409,21 +1411,21 @@ class PluginInfo(CkanCommand):
 
         for plugin in plugins:
             p = plugins[plugin]
-            print plugin + ':'
-            print '-' * (len(plugin) + 1)
+            print(plugin + ':')
+            print('-' * (len(plugin) + 1))
             if p['doc']:
-                print p['doc']
-            print 'Implements:'
+                print(p['doc'])
+            print('Implements:')
             for i in p['implements']:
                 extra = None
                 if i == 'ITemplateHelpers':
                     extra = self.template_helpers(p['class'])
                 if i == 'IActions':
                     extra = self.actions(p['class'])
-                print '    %s' % i
+                print('    %s' % i)
                 if extra:
-                    print extra
-            print
+                    print(extra)
+            print()
 
     def actions(self, cls):
         ''' Return readable action function info. '''
@@ -1488,20 +1490,20 @@ class CreateTestDataCommand(CkanCommand):
     def command(self):
         self._load_config()
         from ckan import plugins
-        from create_test_data import CreateTestData
+        from .create_test_data import CreateTestData
 
         if self.args:
             cmd = self.args[0]
         else:
             cmd = 'basic'
         if self.verbose:
-            print 'Creating %s test data' % cmd
+            print('Creating %s test data' % cmd)
         if cmd == 'basic':
             CreateTestData.create_basic_test_data()
         elif cmd == 'user':
             CreateTestData.create_test_user()
-            print 'Created user %r with password %r and apikey %r' % ('tester',
-                                                                      'tester', 'tester')
+            print('Created user %r with password %r and apikey %r' % ('tester',
+                                                                      'tester', 'tester'))
         elif cmd == 'search':
             CreateTestData.create_search_test_data()
         elif cmd == 'gov':
@@ -1515,10 +1517,10 @@ class CreateTestDataCommand(CkanCommand):
         elif cmd == 'hierarchy':
             CreateTestData.create_group_hierarchy_test_data()
         else:
-            print 'Command %s not recognized' % cmd
+            print('Command %s not recognized' % cmd)
             raise NotImplementedError
         if self.verbose:
-            print 'Creating %s test data: Complete!' % cmd
+            print('Creating %s test data: Complete!' % cmd)
 
 
 class Profile(CkanCommand):
@@ -1575,7 +1577,7 @@ class Profile(CkanCommand):
                 res = self.app.get(url, status=[200],
                                    extra_environ={'REMOTE_USER': user})
             except paste.fixture.AppError:
-                print 'App error: ', url.strip()
+                print('App error: ', url.strip())
             except KeyboardInterrupt:
                 raise
             except Exception:
@@ -1588,8 +1590,8 @@ class Profile(CkanCommand):
         stats = pstats.Stats(output_filename)
         stats.sort_stats('cumulative')
         stats.print_stats(0.1)  # show only top 10% of lines
-        print 'Only top 10% of lines shown'
-        print 'Written profile to: %s' % output_filename
+        print('Only top 10% of lines shown')
+        print('Written profile to: %s' % output_filename)
 
 
 class CreateColorSchemeCommand(CkanCommand):
@@ -1778,7 +1780,7 @@ class CreateColorSchemeCommand(CkanCommand):
         import math
         saturation -= math.trunc(saturation)
 
-        print hue, saturation
+        print(hue, saturation)
         import colorsys
         ''' Create n related colours '''
         colors = []
@@ -1812,7 +1814,7 @@ class CreateColorSchemeCommand(CkanCommand):
             rgb = None
             if arg == 'clear':
                 os.remove(path)
-                print 'custom colors removed.'
+                print('custom colors removed.')
             elif arg.startswith('#'):
                 color = arg[1:]
                 if len(color) == 3:
@@ -1820,7 +1822,7 @@ class CreateColorSchemeCommand(CkanCommand):
                 elif len(color) == 6:
                     rgb = [int(x, 16) for x in re.findall('..', color)]
                 else:
-                    print 'ERROR: invalid color'
+                    print('ERROR: invalid color')
             elif arg.lower() in self.color_list:
                 color = self.color_list[arg.lower()][1:]
                 rgb = [int(x, 16) for x in re.findall('..', color)]
@@ -1828,7 +1830,7 @@ class CreateColorSchemeCommand(CkanCommand):
                 try:
                     hue = float(self.args[0])
                 except ValueError:
-                    print 'ERROR argument `%s` not recognised' % arg
+                    print('ERROR argument `%s` not recognised' % arg)
             if rgb:
                 import colorsys
                 hue, lightness, saturation = colorsys.rgb_to_hls(*rgb)
@@ -1844,10 +1846,10 @@ class CreateColorSchemeCommand(CkanCommand):
             colors = self.create_colors(hue, saturation=saturation, lightness=lightness)
             for i in xrange(len(self.rules)):
                 f.write('%s: %s;\n' % (self.rules[i], colors[i]))
-                print '%s: %s;\n' % (self.rules[i], colors[i])
+                print('%s: %s;\n' % (self.rules[i], colors[i]))
             f.close
-            print 'Color scheme has been created.'
-        print 'Make sure less is run for changes to take effect.'
+            print('Color scheme has been created.')
+        print('Make sure less is run for changes to take effect.')
 
 
 class TranslationsCommand(CkanCommand):
@@ -1875,7 +1877,7 @@ class TranslationsCommand(CkanCommand):
         elif command == 'js':
             build_js_translations()
         else:
-            print 'command not recognised'
+            print('command not recognised')
 
     def mangle_po(self):
         ''' This will mangle the zh_TW translations for translation coverage
@@ -1920,7 +1922,7 @@ class TranslationsCommand(CkanCommand):
         out_mo = os.path.join(out_dir, 'ckan.mo')
         po.save(out_po)
         po.save_as_mofile(out_mo)
-        print 'zh_TW has been mangled'
+        print('zh_TW has been mangled')
 
 
 class MinifyCommand(CkanCommand):
@@ -1983,7 +1985,7 @@ class MinifyCommand(CkanCommand):
             return
 
         if path_only.endswith('.min'):
-            print 'removing %s' % path
+            print('removing %s' % path)
             os.remove(path)
 
     def minify_file(self, path):
@@ -2017,7 +2019,7 @@ class MinifyCommand(CkanCommand):
         elif path.endswith('.js'):
             f.write(rjsmin.jsmin(source))
         f.close()
-        print "Minified file '{0}'".format(path)
+        print("Minified file '{0}'".format(path))
 
 
 class LessCommand(CkanCommand):
@@ -2099,7 +2101,7 @@ class LessCommand(CkanCommand):
         self.compile_less(root, less_bin, 'main')
 
     def compile_less(self, root, less_bin, color):
-        print 'compile %s.css' % color
+        print('compile %s.css' % color)
         import subprocess
         main_less = os.path.join(root, 'less', 'main.less')
         main_css = os.path.join(root, 'css', '%s.css' % color)
@@ -2108,7 +2110,7 @@ class LessCommand(CkanCommand):
 
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
-        print output
+        print(output)
 
 
 class FrontEndBuildCommand(CkanCommand):
@@ -2214,7 +2216,7 @@ Not used when using the `-d` option.''')
     def command(self):
         self._load_config()
         if not self.args:
-            print self.usage
+            print(self.usage)
         elif self.args[0] == 'create':
             view_plugin_types = self.args[1:]
             self.create_views(view_plugin_types)
@@ -2224,7 +2226,7 @@ Not used when using the `-d` option.''')
         elif self.args[0] == 'clean':
             self.clean_views()
         else:
-            print self.usage
+            print(self.usage)
 
     _page_size = 100
 
@@ -2353,7 +2355,7 @@ Not used when using the `-d` option.''')
 
         try:
             user_search_params = json.loads(self.options.search_params)
-        except ValueError, e:
+        except ValueError as e:
             error('Unable to parse JSON search parameters: {0}'.format(e))
 
         if user_search_params.get('q'):
@@ -2501,22 +2503,22 @@ Not used when using the `-d` option.''')
         results = model.ResourceView.get_count_not_in_view_types(names)
 
         if not results:
-            print 'No resource views to delete'
+            print('No resource views to delete')
             return
 
-        print 'This command will delete.\n'
+        print('This command will delete.\n')
         for row in results:
-            print '%s of type %s' % (row[1], row[0])
+            print('%s of type %s' % (row[1], row[0]))
 
         result = query_yes_no('Do you want to delete these resource views:', default='no')
 
         if result == 'no':
-            print 'Not Deleting.'
+            print('Not Deleting.')
             return
 
         model.ResourceView.delete_not_in_view_types(names)
         model.Session.commit()
-        print 'Deleted resource views.'
+        print('Deleted resource views.')
 
 
 class ConfigToolCommand(paste.script.command.Command):
@@ -2546,7 +2548,7 @@ class ConfigToolCommand(paste.script.command.Command):
         help='Supply an options file to merge in')
 
     def command(self):
-        import config_tool
+        from . import config_tool
         if len(self.args) < 1:
             self.parser.error('Not enough arguments (got %i, need at least 1)'
                               % len(self.args))
@@ -2571,7 +2573,7 @@ class ConfigToolCommand(paste.script.command.Command):
                 config_tool.config_edit_using_option_strings(
                     config_filepath, options, self.options.section,
                     edit=self.options.edit)
-            except config_tool.ConfigToolError, e:
+            except config_tool.ConfigToolError as e:
                 error(traceback.format_exc())
 
 

@@ -1,14 +1,15 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import vdm.sqlalchemy
 import vdm.sqlalchemy.stateful
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 
-import group
-import meta
-import core
-import types as _types
-import domain_object
+from . import group
+from . import meta
+from . import core
+from . import types as _types
+from . import domain_object
 
 
 __all__ = ['GroupExtra', 'group_extra_table', 'GroupExtraRevision']

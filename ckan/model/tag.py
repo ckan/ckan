@@ -1,17 +1,18 @@
 # encoding: utf-8
 
+from __future__ import absolute_import
 import vdm.sqlalchemy
 from sqlalchemy.orm import relation
 from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint
 
-import package as _package
-import extension as _extension
-import core
-import meta
-import types as _types
-import domain_object
-import vocabulary
-import activity
+from . import package as _package
+from . import extension as _extension
+from . import core
+from . import meta
+from . import types as _types
+from . import domain_object
+from . import vocabulary
+from . import activity
 import ckan  # this import is needed
 import ckan.lib.dictization
 
