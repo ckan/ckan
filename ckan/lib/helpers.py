@@ -438,7 +438,9 @@ def url_for_static_or_external(*args, **kw):
     if kw.get('qualified', False):
         kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
-    return _local_url(my_url, locale='default', **kw)
+    if not is_url(my_url):
+        my_url = _local_url(my_url, locale='default', **kw)
+    return my_url
 
 
 @core_helper

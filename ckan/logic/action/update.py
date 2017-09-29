@@ -1278,7 +1278,7 @@ def config_option_update(context, data_dict):
                 and not value.startswith('/'):
             image_path = 'uploads/admin/'
 
-            value = h.url_for_static('{0}{1}'.format(image_path, value))
+            value = '{0}{1}'.format(image_path, value)
 
         # Save value in database
         model.set_system_info(key, value)
