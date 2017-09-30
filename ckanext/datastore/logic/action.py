@@ -37,8 +37,9 @@ def datastore_create(context, data_dict):
     provide ``resource`` with a valid ``package_id`` and omit the
     ``resource_id``.
 
-    If you want to create a datastore resource from the content of a file,
-    provide ``resource`` with a valid ``url``.
+    To create a table with data from other DataStore tables pass a
+    select statement as ``materialized_view_sql`` parameter. You can update
+    data after the source data has changed by calling ``datastore_refresh``.
 
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
@@ -53,17 +54,23 @@ def datastore_create(context, data_dict):
     :type resource: dictionary
     :param aliases: names for read only aliases of the resource. (optional)
     :type aliases: list or comma separated string
-    :param fields: fields/columns and their extra metadata. (optional)
+    :param materialized_view_sql: a single SQL select statement to create
+        a materialized view instead of a normal table. (optional)
+    :type materialized_view_sql: string
+    :param fields: fields/columns and their extra metadata.
+        (optional)
     :type fields: list of dictionaries
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a", "b"]}]
-                    (optional)
+        (optional, ignored for materialized views)
     :type records: list of dictionaries
-    :param primary_key: fields that represent a unique key (optional)
+    :param primary_key: fields that represent a unique key
+        (optional, ignored for materialized views)
     :type primary_key: list or comma separated string
     :param indexes: indexes on table (optional)
     :type indexes: list or comma separated string
     :param triggers: trigger functions to apply to this table on update/insert.
-        functions may be created with
+        (optional, ignored for materialized views)
+        Functions may be created with
         :meth:`~ckanext.datastore.logic.action.datastore_function_create`.
         eg: [
         {"function": "trigger_clean_reference"},
@@ -171,11 +178,29 @@ def datastore_create(context, data_dict):
     return result
 
 
-def datastore_mv_create(context, data_dict):
+def datastore_materialized_view_create(context, data_dict):
+    '''Create a new materialized view
+
+    datastore_materialized_view_create allows you to create a
+    table with data based on an SQL query. Your account must have
+    access to run the query passed.
+
+    This materialized view can be searched and used like tables
+    created with datastore_create and its records may be updated
+    with datastore_materialized_view_refresh.
+
+    :param resource_id: resource id that the data is going to be stored
+                        against.
+    :type resource_id: string
+    :param sql: a single SQL select statement
+    :type sql: string
+    :param indexes: indexes on table (optional)
+    :type indexes: list or comma separated string
+    '''
     backend = DatastoreBackend.get_active_backend()
     resource_id = data_dict['resource_id']
     p.toolkit.check_access('datastore_create', context, data_dict)
-    backend.mv_create(resource_id, data_dict['query'])
+    backend.materialized_view_create(resource_id, data_dict['query'])
 
 
 def datastore_run_triggers(context, data_dict):
