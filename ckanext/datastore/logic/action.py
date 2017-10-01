@@ -178,31 +178,6 @@ def datastore_create(context, data_dict):
     return result
 
 
-def datastore_materialized_view_create(context, data_dict):
-    '''Create a new materialized view
-
-    datastore_materialized_view_create allows you to create a
-    table with data based on an SQL query. Your account must have
-    access to run the query passed.
-
-    This materialized view can be searched and used like tables
-    created with datastore_create and its records may be updated
-    with datastore_materialized_view_refresh.
-
-    :param resource_id: resource id that the data is going to be stored
-                        against.
-    :type resource_id: string
-    :param sql: a single SQL select statement
-    :type sql: string
-    :param indexes: indexes on table (optional)
-    :type indexes: list or comma separated string
-    '''
-    backend = DatastoreBackend.get_active_backend()
-    resource_id = data_dict['resource_id']
-    p.toolkit.check_access('datastore_create', context, data_dict)
-    backend.materialized_view_create(resource_id, data_dict['query'])
-
-
 def datastore_run_triggers(context, data_dict):
     ''' update each record with trigger
 
