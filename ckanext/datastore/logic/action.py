@@ -38,7 +38,7 @@ def datastore_create(context, data_dict):
     ``resource_id``.
 
     To create a table with data from other DataStore tables pass a
-    select statement as ``materialized_view_sql`` parameter. You can update
+    select statement as the ``materialized_view_sql`` parameter. Update
     data after the source data has changed by calling ``datastore_refresh``.
 
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
@@ -104,6 +104,18 @@ def datastore_create(context, data_dict):
 
     p.toolkit.check_access('datastore_create', context, data_dict)
 
+    materialized_view_sql = data_dict.get('materialized_view_sql')
+    if materialized_view_sql:
+        try:
+            p.toolkit.get_action('datastore_search_sql')(None,
+                {'sql': materialized_view_sql, 'dry_run': True})
+        except p.toolkit.ValidationError as e:
+            raise p.toolkit.ValidationError(
+                {'datastore_search_sql': e.error_dict['sql']})
+        except p.toolkit.NotAuthorized as e:
+            raise p.toolkit.ValidationError(
+                {'datastore_search_sql': e.message})
+
     if 'resource' in data_dict and 'resource_id' in data_dict:
         raise p.toolkit.ValidationError({
             'resource': ['resource cannot be used with resource_id']
@@ -161,7 +173,13 @@ def datastore_create(context, data_dict):
         data_dict['private'] = True
 
     try:
-        result = backend.create(context, data_dict)
+        if materialized_view_sql:
+            backend.materialized_view_create(
+                resource.id,
+                materialized_view_sql)
+            result = data_dict
+        else:
+            result = backend.create(context, data_dict)
 
     except InvalidDataError as err:
         raise p.toolkit.ValidationError(unicode(err))
@@ -481,6 +499,7 @@ def datastore_search(context, data_dict):
 
 
 @logic.side_effect_free
+@logic.validate(dsschema.datastore_search_sql_schema)
 def datastore_search_sql(context, data_dict):
     '''Execute SQL queries on the DataStore.
 
@@ -499,6 +518,9 @@ def datastore_search_sql(context, data_dict):
 
     :param sql: a single SQL select statement
     :type sql: string
+    :param dry_run: True to check sql and permissions but not actually run
+        query (default: False)
+    :type dry_run: bool
 
     **Results:**
 

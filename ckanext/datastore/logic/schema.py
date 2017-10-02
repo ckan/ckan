@@ -101,6 +101,7 @@ def datastore_create_schema():
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         'aliases': [ignore_missing, list_of_strings_or_string],
+        'materialized_view_sql': [ignore_missing, unicode_only],
         'fields': {
             'id': [not_empty, unicode],
             'type': [ignore_missing],
@@ -170,6 +171,13 @@ def datastore_search_schema():
         '__before': [rename('id', 'resource_id')]
     }
     return schema
+
+
+def datastore_search_sql_schema():
+    return {
+        'sql': [unicode_only],
+        'dry_run': [default(False), boolean_validator],
+    }
 
 
 def datastore_function_create_schema():

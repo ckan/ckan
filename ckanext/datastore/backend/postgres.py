@@ -239,7 +239,8 @@ def _get_fields(context, data_dict, include_id=False):
         u'SELECT * FROM "{0}" LIMIT 1'.format(data_dict['resource_id'])
     )
     for field in all_fields.cursor.description:
-        if (include_id and field[0].decode('utf-8') == '_id') or not field[0].startswith('_'):
+        if (include_id and field[0].decode('utf-8') == '_id') or (
+                not field[0].startswith('_')):
             fields.append({
                 'id': field[0].decode('utf-8'),
                 'type': _get_type(context, field[1])
@@ -1485,6 +1486,9 @@ def search_sql(context, data_dict):
             })
         context['check_access'](table_names)
 
+        if data_dict.get('dry_run'):
+            return {}
+
         results = context['connection'].execute(sql)
 
         return format_results(context, results, data_dict)
@@ -1737,10 +1741,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         finally:
             context['connection'].close()
 
-    def mv_create(self, resource_id, query):
-        # XXX
-        # XXX not even pretending to be safe
-        # XXX
+    def materialized_view_create(self, resource_id, query):
+        # query has been checked for correctness before this call
         sql = u'''
             DROP MATERIALIZED VIEW IF EXISTS {resource_id};
             '''.format(resource_id=identifier(resource_id))
@@ -1749,7 +1751,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             CREATE MATERIALIZED VIEW {resource_id} AS {query};
             '''.format(resource_id=identifier(resource_id), query=query)
         _write_engine_execute(sql)
-
 
     def create(self, context, data_dict):
         '''

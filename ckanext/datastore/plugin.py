@@ -98,7 +98,6 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_function_create': action.datastore_function_create,
             'datastore_function_delete': action.datastore_function_delete,
             'datastore_run_triggers': action.datastore_run_triggers,
-            'datastore_mv_create': action.datastore_mv_create,
         }
         if not self.legacy_mode:
             if getattr(self.backend, 'enable_sql_search', False):
