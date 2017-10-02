@@ -281,7 +281,7 @@ class TestApiController(helpers.FunctionalTestBase):
             'http://test.ckan.net/api/3/action/datastore_search_sql?sql=SELECT * from &#34;588dfa82-760c-45a2-b78a-e3bc314a4a9b&#34; WHERE title LIKE &#39;jones&#39;',
             "url: 'http://test.ckan.net/api/3/action/datastore_search'",
             "http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5&amp;q=title:jones",
-            )
+        )
         for url in expected_urls:
             assert url in page, url
 
