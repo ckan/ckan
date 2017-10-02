@@ -63,6 +63,7 @@ An **editor** can:
 * View the organization's private datasets
 * Add new datasets to the organization
 * Edit or delete any of the organization's datasets
+* Make  datasets public or private.
 
 A **member** can:
 
