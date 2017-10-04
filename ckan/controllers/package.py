@@ -224,17 +224,26 @@ class PackageController(base.BaseController):
                        'user': c.user, 'for_view': True,
                        'auth_user_obj': c.userobj}
 
-            if package_type and package_type != 'dataset':
+            # Unless changed via config options, don't show other dataset
+            # types any search page. Potential alternatives are do show them 
+            # on the default search page (dataset) or on one other search page
+            search_all_type = config.get('ckan.search.show_all_types', 'false')
+            search_all = False            
+
+            try:
+                #If the "type" is set to True or False, convert to bool
+                search_all = asbool(search_all_type)
+            #Otherwise we treat as a string representing a type
+            except ValueError:
+                if package_type and package_type == search_all_type:
+                    search_all = True
+                
+            if not package_type:
+                package_type = 'dataset'
+ 
+            if not search_all:
                 # Only show datasets of this particular type
                 fq += ' +dataset_type:{type}'.format(type=package_type)
-            else:
-                # Unless changed via config options or url parameter,
-                # don't show non standard dataset types on the default
-                # search page
-                if not asbool(
-                        config.get('ckan.search.show_all_types', 'False')) \
-                        and not request.params.get('_show_all_types', False):
-                    fq += ' +dataset_type:dataset'
 
             facets = OrderedDict()
 
