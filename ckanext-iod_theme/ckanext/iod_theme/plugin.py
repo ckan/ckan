@@ -4,6 +4,9 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.common import config
 import routes.mapper as mapper
+import ckanext.iod_theme.helpers as h
+from ckanext.iod_theme.logic.auth.update import has_user_permission_to_make_dataset_public
+
 
 def show_most_popular_groups():
     '''Return the value of the most_popular_groups config setting.
@@ -45,6 +48,9 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
 
     # Declare that this plugin will implement ITemplateHelpers.
     plugins.implements(plugins.ITemplateHelpers)
+    # Declare that this plugin will implement IActions
+    plugins.implements(plugins.IActions)
+    plugins.implements(plugins.IAuthFunctions)
 
     # IConfigurer
 
@@ -64,6 +70,8 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
         return {'iod_theme_most_popular_groups': most_popular_groups,
                'iod_theme_show_most_popular_groups':
                show_most_popular_groups,
+                'iod_theme_get_user_role_role_in_org':
+                    h.get_user_role_role_in_org
                }
 
     plugins.implements(plugins.IRoutes)
@@ -137,3 +145,17 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
 
     def after_map(self, map):
         return map
+
+    # IActions
+    def get_actions(self):
+        module_root = 'ckanext.iod_theme.logic.action'
+        action_functions = h._get_logic_functions(module_root)
+
+        return action_functions
+
+    # IAuthFunctions
+    def get_auth_functions(self):
+        return {
+            'has_user_permission_to_make_dataset_public': has_user_permission_to_make_dataset_public
+        }
+

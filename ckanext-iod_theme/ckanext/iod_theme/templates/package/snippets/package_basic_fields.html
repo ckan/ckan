@@ -60,6 +60,9 @@
   {% set show_organizations_selector = organizations_available %}
   {% set show_visibility_selector = dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
 
+  {% set user_role = h.iod_theme_get_user_role_role_in_org(data.owner_org) %}
+
+
   {% if show_organizations_selector and show_visibility_selector %}
     <div data-module="dataset-visibility">
   {% endif %}
@@ -83,7 +86,10 @@
     </div>
   {% endif %}
 
-  {% if show_visibility_selector %}
+  {% if user_role == 'editor' %}
+      <input type="hidden" name="private" value="{% if data.private %}{{data.private|trim}}{% else %}'False'{% endif %}">
+  {% else %}
+    {% if show_visibility_selector %}
     {% block package_metadata_fields_visibility %}
       <div class="control-group">
         <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
@@ -96,6 +102,7 @@
         </div>
       </div>
     {% endblock %}
+    {% endif %}
   {% endif %}
 
   {% if show_organizations_selector and show_visibility_selector %}
