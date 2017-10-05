@@ -47,8 +47,7 @@ General notes:
    configuration option.
  * This version requires a requirements upgrade on source installations
  * This version requires a database upgrade
- * This version does not require a Solr schema upgrade (You may want to
-   upgrade the schema if you want to target Solr>=5, see #2914)
+ * This version requires a Solr schema upgrade
  * There are several old features being officially deprecated starting from
    this version. Check the *Deprecations* section to be prepared.
 
