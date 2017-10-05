@@ -62,6 +62,13 @@
           }
         },
         {
+          "value": "activity status",
+          "label": {
+            "en": "activity status",
+            "fa_IR": "وضع فعالیت"
+          }
+        },
+        {
           "value": "advanced diploma",
           "label": {
             "en": "advanced diploma",
@@ -97,6 +104,20 @@
           }
         },
         {
+          "value": "balance of trade",
+          "label": {
+            "en": "balance of trade",
+            "fa_IR": "تراز تجاری"
+          }
+        },
+        {
+          "value": "balance sheet",
+          "label": {
+            "en": "balance sheet",
+            "fa_IR": "ترازنامه"
+          }
+        },
+        {
           "value": "banking",
           "label": {
             "en": "banking",
@@ -118,10 +139,24 @@
           }
         },
         {
+          "value": "Bonyad Mostazafan",
+          "label": {
+            "en": "Bonyad Mostazafan",
+            "fa_IR": "بنیاد مستضعفان"
+          }
+        },
+        {
           "value": "budget",
           "label": {
             "en": "budget",
             "fa_IR": "بودجه"
+          }
+        },
+        {
+          "value": "budget settlement ",
+          "label": {
+            "en": "budget settlement ",
+            "fa_IR": "تفریغ"
           }
         },
         {
@@ -216,6 +251,13 @@
           }
         },
         {
+          "value": "construction material",
+          "label": {
+            "en": "construction material",
+            "fa_IR": "مصالح ساختمانی"
+          }
+        },
+        {
           "value": "construction permit",
           "label": {
             "en": "construction permit",
@@ -223,10 +265,24 @@
           }
         },
         {
+          "value": "consultant",
+          "label": {
+            "en": "consultant",
+            "fa_IR": "مشاور"
+          }
+        },
+        {
           "value": "consumption",
           "label": {
             "en": "consumption",
             "fa_IR": "مصرف"
+          }
+        },
+        {
+          "value": "contractor",
+          "label": {
+            "en": "contractor",
+            "fa_IR": "پیمانکار"
           }
         },
         {
@@ -251,10 +307,24 @@
           }
         },
         {
+          "value": "credit",
+          "label": {
+            "en": "credit",
+            "fa_IR": "اعتبار"
+          }
+        },
+        {
           "value": "crude oil",
           "label": {
             "en": "crude oil",
             "fa_IR": "نفت خام "
+          }
+        },
+        {
+          "value": "cultivation",
+          "label": {
+            "en": "cultivation",
+            "fa_IR": "کشت ، زراعت"
           }
         },
         {
@@ -269,6 +339,13 @@
           "label": {
             "en": "currency",
             "fa_IR": "واحد پول"
+          }
+        },
+        {
+          "value": "dam",
+          "label": {
+            "en": "dam",
+            "fa_IR": "سد"
           }
         },
         {
@@ -307,6 +384,13 @@
           }
         },
         {
+          "value": "disease",
+          "label": {
+            "en": "disease",
+            "fa_IR": "بیماری"
+          }
+        },
+        {
           "value": "district",
           "label": {
             "en": "district",
@@ -342,10 +426,31 @@
           }
         },
         {
+          "value": "economy",
+          "label": {
+            "en": "economy",
+            "fa_IR": "اقتصاد"
+          }
+        },
+        {
           "value": "education",
           "label": {
             "en": "education",
             "fa_IR": "آموزش"
+          }
+        },
+        {
+          "value": "electricity",
+          "label": {
+            "en": "electricity",
+            "fa_IR": "برق"
+          }
+        },
+        {
+          "value": "emergency",
+          "label": {
+            "en": "emergency",
+            "fa_IR": "اورژانس"
           }
         },
         {
@@ -440,10 +545,24 @@
           }
         },
         {
+          "value": "GDP",
+          "label": {
+            "en": "GDP",
+            "fa_IR": "GDP"
+          }
+        },
+        {
           "value": "gender",
           "label": {
             "en": "gender",
             "fa_IR": "جنسیت"
+          }
+        },
+        {
+          "value": "global",
+          "label": {
+            "en": "global",
+            "fa_IR": "جهانی"
           }
         },
         {
@@ -479,6 +598,13 @@
           "label": {
             "en": "high school diploma",
             "fa_IR": "دیپلم "
+          }
+        },
+        {
+          "value": "hospital",
+          "label": {
+            "en": "hospital",
+            "fa_IR": "بیمارستان"
           }
         },
         {
@@ -524,6 +650,13 @@
           }
         },
         {
+          "value": "income",
+          "label": {
+            "en": "income",
+            "fa_IR": "درآمد"
+          }
+        },
+        {
           "value": "industrial",
           "label": {
             "en": "industrial",
@@ -538,6 +671,13 @@
           }
         },
         {
+          "value": "inflation",
+          "label": {
+            "en": "inflation",
+            "fa_IR": "تورم"
+          }
+        },
+        {
           "value": "investment",
           "label": {
             "en": "investment",
@@ -549,6 +689,13 @@
           "label": {
             "en": "Iran",
             "fa_IR": "ایران"
+          }
+        },
+        {
+          "value": "labour force",
+          "label": {
+            "en": "labour force",
+            "fa_IR": "نیروی کار"
           }
         },
         {
@@ -573,6 +720,13 @@
           }
         },
         {
+          "value": "marriage",
+          "label": {
+            "en": "marriage",
+            "fa_IR": "ازدواج"
+          }
+        },
+        {
           "value": "masters",
           "label": {
             "en": "masters",
@@ -594,10 +748,31 @@
           }
         },
         {
+          "value": "minerals",
+          "label": {
+            "en": "minerals",
+            "fa_IR": "مواد معدنی"
+          }
+        },
+        {
           "value": "mining",
           "label": {
             "en": "mining",
             "fa_IR": "معدن"
+          }
+        },
+        {
+          "value": "monetary",
+          "label": {
+            "en": "monetary",
+            "fa_IR": "پولی"
+          }
+        },
+        {
+          "value": "Mostazafan foundation",
+          "label": {
+            "en": "Mostazafan foundation",
+            "fa_IR": "بنیاد مستضعفان"
           }
         },
         {
@@ -612,6 +787,13 @@
           "label": {
             "en": "national statistics",
             "fa_IR": "آمار ملی"
+          }
+        },
+        {
+          "value": "newspaper",
+          "label": {
+            "en": "newspaper",
+            "fa_IR": "روزنامه"
           }
         },
         {
@@ -657,6 +839,13 @@
           }
         },
         {
+          "value": "petroleum",
+          "label": {
+            "en": "petroleum",
+            "fa_IR": "نفت"
+          }
+        },
+        {
           "value": "petroleum product",
           "label": {
             "en": "petroleum product",
@@ -664,10 +853,17 @@
           }
         },
         {
-          "value": "PHD ",
+          "value": "PHD",
           "label": {
-            "en": "PHD ",
+            "en": "PHD",
             "fa_IR": "دکترای حرفه‌ای "
+          }
+        },
+        {
+          "value": "police station",
+          "label": {
+            "en": "police station",
+            "fa_IR": "ایستگاه پلیس"
           }
         },
         {
@@ -702,14 +898,21 @@
           "value": "power",
           "label": {
             "en": "power",
-            "fa_IR": "نیرو"
+            "fa_IR": "قدرت"
           }
         },
         {
-          "value": "pre university ",
+          "value": "pre university",
           "label": {
-            "en": "pre university ",
+            "en": "pre university",
             "fa_IR": "پیش‌‌دانشگاهی"
+          }
+        },
+        {
+          "value": "premit",
+          "label": {
+            "en": "premit",
+            "fa_IR": "مجوز"
           }
         },
         {
@@ -755,6 +958,13 @@
           }
         },
         {
+          "value": "province",
+          "label": {
+            "en": "province",
+            "fa_IR": "استان"
+          }
+        },
+        {
           "value": "province area",
           "label": {
             "en": "province area",
@@ -776,6 +986,41 @@
           }
         },
         {
+          "value": "rent",
+          "label": {
+            "en": "rent",
+            "fa_IR": "اجاره"
+          }
+        },
+        {
+          "value": "research",
+          "label": {
+            "en": "research",
+            "fa_IR": "تحقیق ، پژوهش"
+          }
+        },
+        {
+          "value": "reservoir capacity",
+          "label": {
+            "en": "reservoir capacity",
+            "fa_IR": "ظرفیت مخزن"
+          }
+        },
+        {
+          "value": "revenue",
+          "label": {
+            "en": "revenue",
+            "fa_IR": "درآمد"
+          }
+        },
+        {
+          "value": "river ",
+          "label": {
+            "en": "river ",
+            "fa_IR": "رودخانه ، رود"
+          }
+        },
+        {
           "value": "road accidents",
           "label": {
             "en": "road accidents",
@@ -787,6 +1032,13 @@
           "label": {
             "en": "rural",
             "fa_IR": "روستایی"
+          }
+        },
+        {
+          "value": "school",
+          "label": {
+            "en": "school",
+            "fa_IR": "مدرسه"
           }
         },
         {
@@ -822,6 +1074,20 @@
           "label": {
             "en": "social security",
             "fa_IR": "امنیت اجتماعی"
+          }
+        },
+        {
+          "value": "student",
+          "label": {
+            "en": "student",
+            "fa_IR": "دانش‌آموز"
+          }
+        },
+        {
+          "value": "tax",
+          "label": {
+            "en": "tax",
+            "fa_IR": "مالیات"
           }
         },
         {
@@ -867,10 +1133,31 @@
           }
         },
         {
+          "value": "university",
+          "label": {
+            "en": "university",
+            "fa_IR": "دانشگاه"
+          }
+        },
+        {
+          "value": "urban",
+          "label": {
+            "en": "urban",
+            "fa_IR": "شهری"
+          }
+        },
+        {
           "value": "urban planning",
           "label": {
             "en": "urban planning",
             "fa_IR": "برنامه‌ریزی شهری"
+          }
+        },
+        {
+          "value": "water ",
+          "label": {
+            "en": "water ",
+            "fa_IR": "آب"
           }
         },
         {
@@ -1056,6 +1343,13 @@
          "label": {
            "en": "Ministry of Cooperatives Labour and Social Welfare",
            "fa_IR": "وزارت تعاون، کار و رفاه اجتماعی"
+         }
+        },
+        {
+         "value": "Ministry of Economic Affairs and Finance ",
+         "label": {
+           "en": "Ministry of Economic Affairs and Finance ",
+           "fa_IR": "وزارت امور اقتصادی و دارایی"
          }
         },
         {
@@ -1438,6 +1732,13 @@
          "label": {
            "en": "Ministry of Cooperatives Labour and Social Welfare",
            "fa_IR": "وزارت تعاون، کار و رفاه اجتماعی"
+         }
+        },
+        {
+         "value": "Ministry of Economic Affairs and Finance ",
+         "label": {
+           "en": "Ministry of Economic Affairs and Finance ",
+           "fa_IR": "وزارت امور اقتصادی و دارایی"
          }
         },
         {
