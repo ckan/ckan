@@ -236,8 +236,7 @@ class PackageController(base.BaseController):
             # Otherwise we treat as a string representing a type
             except ValueError:
                 if package_type and package_type == search_all_type:
-                    search_all = True
- 
+                    search_all = True 
             if not package_type:
                 package_type = 'dataset'
 
