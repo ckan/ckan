@@ -731,6 +731,30 @@ def nav_link(text, *args, **kwargs):
     :param condition: if ``False`` then no link is returned
 
     '''
+    if is_flask_request():
+        return nav_link_flask(text, *args, **kwargs)
+    else:
+        return nav_link_pylons(text, *args, **kwargs)
+
+
+def nav_link_flask(text, *args, **kwargs):
+    if len(args) > 1:
+        raise Exception('Too many unnamed parameters supplied')
+    controller, action = request.url_rule.endpoint.split('.')
+    if args:
+        kwargs['controller'] = controller or None
+    named_route = kwargs.pop('named_route', '')
+    if kwargs.pop('condition', True):
+        if named_route:
+            link = _link_to(text, named_route, **kwargs)
+        else:
+            link = _link_to(text, **kwargs)
+    else:
+        link = ''
+    return link
+
+
+def nav_link_pylons(text, *args, **kwargs):
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
     if args:
@@ -2512,9 +2536,11 @@ def mail_to(email_address, name):
 def radio(selected, id, checked):
     if checked:
         return literal((u'<input checked="checked" id="%s_%s" name="%s" \
-            value="%s" type="radio">') % (selected, id, selected, id))
+            value="%s" type="radio">'
+                                     ) % (selected, id, selected, id))
     return literal(('<input id="%s_%s" name="%s" \
-        value="%s" type="radio">') % (selected, id, selected, id))
+        value="%s" type="radio">'
+                                 ) % (selected, id, selected, id))
 
 
 core_helper(flash, name='flash')
