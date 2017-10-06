@@ -1,0 +1,13 @@
+{% ckan_extends %}
+{% block scripts %}
+{{ super() }}
+{% resource "iod_theme/check_user_role.js" %}
+{% endblock %}
+
+{% set pkg = c.pkg_dict %}
+{% set user_role = h.iod_theme_get_user_role_role_in_org(pkg.owner_org) %}
+
+{% block headtag %}
+  {{ super() }}
+  data-user-role="{{ user_role }}"
+{% endblock %}
