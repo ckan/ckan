@@ -62,12 +62,12 @@ def set_cors_headers_for_response(response):
             cors_origin_allowed = request.headers.get(u'Origin')
 
         if cors_origin_allowed is not None:
-            response.headers[u'Access-Control-Allow-Origin'] = \
+            response.headers['Access-Control-Allow-Origin'] = \
                 cors_origin_allowed
-            response.headers[u'Access-Control-Allow-Methods'] = \
-                u'POST, PUT, GET, DELETE, OPTIONS'
-            response.headers[u'Access-Control-Allow-Headers'] = \
-                u'X-CKAN-API-KEY, Authorization, Content-Type'
+            response.headers['Access-Control-Allow-Methods'] = \
+                'POST, PUT, GET, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = \
+                'X-CKAN-API-KEY, Authorization, Content-Type'
 
     return response
 
