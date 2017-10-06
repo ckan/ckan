@@ -355,7 +355,9 @@ def _register_core_blueprints(app):
     def is_blueprint(mm):
         return isinstance(mm, Blueprint)
 
-    for loader, name, _ in pkgutil.iter_modules(['ckan/views'], 'ckan.views.'):
+    path = os.path.join(os.path.dirname(__file__), '..', '..', 'views')
+
+    for loader, name, _ in pkgutil.iter_modules([path], 'ckan.views.'):
         module = loader.find_module(name).load_module(name)
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
