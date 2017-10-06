@@ -685,10 +685,23 @@ def are_there_flash_messages():
 
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
-    highlight_actions = kwargs.get('highlight_actions',
-                                   kwargs.get('action', '')).split()
-    return (c.controller == kwargs.get('controller')
+    if is_flask_request():
+        return _link_active_flask(kwargs)
+    else:
+        return _link_active_pylons(kwargs)
+
+
+def _link_active_pylons(kwargs):
+    highlight_actions = kwargs.get('highlight_actions', 
+                                   kwargs.get('action', '')).split() 
+    return (c.controller == kwargs.get('controller') 
             and c.action in highlight_actions)
+
+
+def _link_active_flask(kwargs):
+    controller, action = request.url_rule.endpoint.split('.')
+    return(kwargs.get('controller') == controller and
+           kwargs.get('action') == action)
 
 
 def _link_to(text, *args, **kwargs):
