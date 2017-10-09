@@ -4,6 +4,8 @@ import os
 import re
 import logging
 
+from jinja2 import FileSystemLoader
+
 from ckan.common import config
 
 log = logging.getLogger(__name__)
@@ -47,3 +49,16 @@ def template_info(template_name):
                   'template_type' : t_type,}
         _template_info_cache[template_name] = t_data
     return template_path, t_type
+
+
+class CkanextTemplateLoader(FileSystemLoader):
+    def __init__(self):
+        super(CkanextTemplateLoader, self).__init__([])
+
+    @property
+    def searchpath(self):
+        return config['computed_template_paths']
+
+    @searchpath.setter
+    def searchpath(self, _):
+        pass
