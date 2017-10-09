@@ -78,13 +78,12 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
         feed.add(
             title=pkg.get(u'title', u''),
             url=h.url_for(controller=u'package', action=u'read', 
-                          id=pkg['id']),
+                          id=pkg['id'], _external=True),
             description=pkg.get(u'notes', u''),
             updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
             published=h.date_str_to_datetime(pkg.get(u'metadata_created')),
             unique_id=_create_atom_id(u'/dataset%s' % pkg['id']),
             author=pkg.get(u'author', u''),
-            author_email=pkg.get(u'author_email', u''),
             categories=[{'terms': t['name']} for t in pkg.get('tags')],
             **additional_fields)
 
@@ -167,7 +166,7 @@ def group_or_organization(obj_dict, is_org):
                          id=obj_dict['name'])
     # site_title = SITE_TITLE
     if is_org:
-        guid = _create_atom_id(u'/feeds/organization/%s.atom' %
+        guid = _create_atom_id(u'feeds/organization/%s.atom' %
                                obj_dict['name'])
         alternate_url = _alternate_url(params, organization=obj_dict['name'])
         desc = u'Recently created or updated datasets on %s '\
@@ -175,7 +174,7 @@ def group_or_organization(obj_dict, is_org):
         title = u'%s - Organization: "%s"' % (SITE_TITLE, obj_dict['title'])
 
     else:
-        guid = _create_atom_id(u'/feeds/group/%s.atom' %
+        guid = _create_atom_id(u'feeds/group/%s.atom' %
                                obj_dict['name'])
         alternate_url = _alternate_url(params, groups=obj_dict['name'])
         desc = u'Recently created or updated datasets on %s '\
@@ -303,7 +302,7 @@ def _feed_url(query, controller, action, **kwargs):
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
-    path = h.url_for(controller=controller, action=action, **kwargs)
+    path = h.url_for(controller=controller, action=action)
     return h._url_with_params(BASE_URL + path, query.items())
 
 
@@ -437,7 +436,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
         # This is best we can do, and if the site_url is not set, then
         # this still results in an invalid feed.
         site_url = config.get(u'ckan.site_url', u'')
-        return u'/'.join([site_url, resource_path])
+        return u''.join([site_url, resource_path])
 
     tagging_entity = u','.join([authority_name, date_string])
     return u':'.join(['tag', tagging_entity, resource_path])
@@ -469,13 +468,13 @@ class _FixedAtomFeed(AtomFeed):
 
 
 # Routing
-feeds.add_url_rule(u'/dataset.atom', methods=[u'GET', u'POST'],
+feeds.add_url_rule(u'/dataset.atom', methods=[u'GET'],
                    view_func=general)
-feeds.add_url_rule(u'/custom.atom', methods=[u'GET', u'POST'],
+feeds.add_url_rule(u'/custom.atom', methods=[u'GET'],
                    view_func=custom)
-feeds.add_url_rule(u'/tag/<string:id>.atom', methods=[u'GET', u'POST'],
+feeds.add_url_rule(u'/tag/<string:id>.atom', methods=[u'GET'],
                    view_func=tag)
-feeds.add_url_rule(u'/group/<string:id>.atom', methods=[u'GET', u'POST'],
+feeds.add_url_rule(u'/group/<string:id>.atom', methods=[u'GET'],
                    view_func=group)
 feeds.add_url_rule(u'/organization/<string:id>.atom',
                    methods=[u'GET', u'POST'], view_func=organization)
