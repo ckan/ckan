@@ -77,7 +77,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
 
         feed.add(
             title=pkg.get(u'title', u''),
-            url=h.url_for(controller=u'package', action=u'read', 
+            url=h.url_for(controller=u'package', action=u'read',
                           id=pkg['id'], _external=True),
             description=pkg.get(u'notes', u''),
             updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
@@ -302,8 +302,9 @@ def _feed_url(query, controller, action, **kwargs):
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
-    path = h.url_for(controller=controller, action=action)
-    return h._url_with_params(BASE_URL + path, query.items())
+    for item in query.iteritems():
+        kwargs['query'] = item
+    return h.url_for(controller=controller, action=action, **kwargs)
 
 
 def _navigation_urls(query, controller, action, item_count, limit, **kwargs):
@@ -477,4 +478,4 @@ feeds.add_url_rule(u'/tag/<string:id>.atom', methods=[u'GET'],
 feeds.add_url_rule(u'/group/<string:id>.atom', methods=[u'GET'],
                    view_func=group)
 feeds.add_url_rule(u'/organization/<string:id>.atom',
-                   methods=[u'GET', u'POST'], view_func=organization)
+                   methods=[u'GET'], view_func=organization)
