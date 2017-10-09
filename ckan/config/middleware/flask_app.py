@@ -6,6 +6,8 @@ import inspect
 import itertools
 import pkgutil
 
+from jinja2 import ChoiceLoader, FileSystemLoader
+
 from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
@@ -54,6 +56,13 @@ def make_flask_stack(conf, **app_conf):
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
     app.url_rule_class = CKAN_Rule
+
+    extra_paths = config.get('computed_template_paths')
+    if extra_paths:
+        app.jinja_loader = ChoiceLoader([
+            app.jinja_loader,
+            FileSystemLoader(extra_paths)
+        ])
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
