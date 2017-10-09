@@ -3,11 +3,10 @@
 import logging
 import urlparse
 
-from flask import Blueprint, make_response
-from werkzeug.exceptions import BadRequest
+from flask import Blueprint
 from werkzeug.contrib.atom import AtomFeed
 
-from ckan.common import _, config, g, request, response, json
+from ckan.common import _, config, g, request
 import ckan.lib.helpers as h
 import ckan.lib.base as base
 import ckan.model as model
@@ -49,8 +48,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                 navigation_urls, feed_guid):
     author_name = config.get(u'ckan.feeds.author_name', u'').strip() or \
         config.get(u'ckan.site_id', u'').strip()
-    author_link = config.get(u'ckan.feeds.author_link', u'').strip() or \
-        config.get(u'ckan.site_url', u'').strip()
+
 
     # TODO: language
     feed_class = None
@@ -64,8 +62,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
     feed = feed_class(title=feed_title,
                       url=feed_link,
                       language=u'en',
-                      author={u'name': author_name},
-                      author_link=author_link,
+                      author={u'name': author_name, u'uri': BASE_URL},
                       id=feed_guid,
                       feed_url=feed_url,
                       links=navigation_urls,
@@ -78,16 +75,18 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             if hasattr(plugin, u'get_item_additional_fields'):
                 additional_fields = plugin.get_item_additional_fields(pkg)
 
-        feed.add(title=pkg.get(u'title', u''),
-                 url=BASE_URL + h.url_for(str(u'package.read'), id=pkg['id']),
-                 decription=pkg.get(u'notes', u''),
-                 updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
-                 published=h.date_str_to_datetime(
-                     pkg.get(u'metadata_created')),
-                 unique_id=_create_atom_id(u'/dataset%s' % pkg['id']),
-                 author=pkg.get(u'author', u''),
-                 author_email=pkg.get(u'author_email', u''),
-                 **additional_fields)
+        feed.add(
+            title=pkg.get(u'title', u''),
+            url=h.url_for(controller=u'package', action=u'read', 
+                          id=pkg['id']),
+            description=pkg.get(u'notes', u''),
+            updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
+            published=h.date_str_to_datetime(pkg.get(u'metadata_created')),
+            unique_id=_create_atom_id(u'/dataset%s' % pkg['id']),
+            author=pkg.get(u'author', u''),
+            author_email=pkg.get(u'author_email', u''),
+            categories=[{'terms': t['name']} for t in pkg.get('tags')],
+            **additional_fields)
 
     # response.content_type = feed.get_response()
     return feed.get_response()
@@ -304,7 +303,6 @@ def _feed_url(query, controller, action, **kwargs):
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
-    # endpoint = controller + '.' + action
     path = h.url_for(controller=controller, action=action, **kwargs)
     return h._url_with_params(BASE_URL + path, query.items())
 
@@ -313,7 +311,6 @@ def _navigation_urls(query, controller, action, item_count, limit, **kwargs):
     """
     Constructs and returns first, last, prev and next links for paging
     """
-    # urls = dict((rel, None) for rel in 'previous next first last'.split())
     urls = []
 
     page = int(query.get(u'page', 1))
