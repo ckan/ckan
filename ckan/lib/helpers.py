@@ -960,11 +960,12 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
             facets.append(dict(active=True, **facet_item))
     # Sort descendingly by count and ascendingly by case-sensitive display name
     facets.sort(key=lambda it: (-it['count'], it['display_name'].lower()))
-    if c.search_facets_limits and limit is None:
-        limit = c.search_facets_limits.get(facet)
-    # zero treated as infinite for hysterical raisins
-    if limit is not None and limit > 0:
-        return facets[:limit]
+    if hasattr(c, 'search_facets_limits'):
+        if c.search_facets_limits and limit is None:
+            limit = c.search_facets_limits.get(facet)
+        # zero treated as infinite for hysterical raisins
+        if limit is not None and limit > 0:
+            return facets[:limit]
     return facets
 
 
