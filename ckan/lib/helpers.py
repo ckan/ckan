@@ -692,9 +692,9 @@ def _link_active(kwargs):
 
 
 def _link_active_pylons(kwargs):
-    highlight_actions = kwargs.get('highlight_actions', 
-                                   kwargs.get('action', '')).split() 
-    return (c.controller == kwargs.get('controller') 
+    highlight_actions = kwargs.get('highlight_actions',
+                                   kwargs.get('action', '')).split()
+    return (c.controller == kwargs.get('controller')
             and c.action in highlight_actions)
 
 
@@ -2550,11 +2550,9 @@ def mail_to(email_address, name):
 def radio(selected, id, checked):
     if checked:
         return literal((u'<input checked="checked" id="%s_%s" name="%s" \
-            value="%s" type="radio">'
-                                     ) % (selected, id, selected, id))
+            value="%s" type="radio">') % (selected, id, selected, id))
     return literal(('<input id="%s_%s" name="%s" \
-        value="%s" type="radio">'
-                                 ) % (selected, id, selected, id))
+        value="%s" type="radio">') % (selected, id, selected, id))
 
 
 core_helper(flash, name='flash')
