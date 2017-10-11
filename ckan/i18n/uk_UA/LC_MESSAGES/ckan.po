@@ -29,7 +29,7 @@ msgstr "Обробка"
 
 #: ckanext/datapusher/helpers.py:23
 msgid "Submitting"
-msgstr "Підтведження"
+msgstr "Відправка"
 
 #: ckan/controllers/package.py:659 ckanext/datapusher/helpers.py:24
 msgid "Error"
@@ -37,7 +37,7 @@ msgstr "Помилка"
 
 #: ckanext/datapusher/helpers.py:29
 msgid "Not Uploaded Yet"
-msgstr "Ще не вкладено"
+msgstr "Ще не завантажено"
 
 #: ckan/controllers/package.py:591 ckan/controllers/package.py:1054
 #: ckan/controllers/package.py:1074 ckan/controllers/package.py:1141
@@ -59,11 +59,11 @@ msgstr "Недостатньо прав для перегляду цієї ст�
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:12
 msgid "Upload to DataStore"
-msgstr "Вкласти до DataStore"
+msgstr "Завантажити до DataStore"
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:19
 msgid "Upload error:"
-msgstr "Помилка вкладення"
+msgstr "Помилка завантаження"
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:25
 #: ckanext/datapusher/templates/datapusher/resource_data.html:27
@@ -145,7 +145,7 @@ msgid ""
 msgstr ""
 "Більше інформаціі в <a "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">головні документації по CKAN Data API та "
+"target=\"_blank\">головній документації по CKAN Data API та "
 "DataStore</a>.</p>"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:33
@@ -709,7 +709,7 @@ msgstr "Логотип тега сайту"
 #: ckan/templates/organization/read_base.html:19
 #: ckan/templates/user/edit_user_form.html:14
 msgid "About"
-msgstr "Про проект"
+msgstr "Детальніше"
 
 #: ckan/controllers/admin.py:55
 msgid "About page text"
@@ -1071,6 +1071,7 @@ msgstr "Неправильний формат перевірки: %r"
 #: ckan/controllers/package.py:396
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
 msgstr ""
+"Перегляд наборів даних типу \"{package_type}\" не підтримується ({file_!r})."
 
 #: ckan/controllers/package.py:435 ckan/controllers/package.py:817
 #: ckan/controllers/package.py:918 ckan/controllers/package.py:966
@@ -1429,7 +1430,7 @@ msgstr "{actor} додав ресурс {resource} до набору даних 
 
 #: ckan/lib/activity_streams.py:112
 msgid "{actor} signed up"
-msgstr "{actor} підписав"
+msgstr "{actor} зареєструвався"
 
 #: ckan/lib/activity_streams.py:115
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
@@ -3852,7 +3853,7 @@ msgstr "Джерело"
 #: ckan/templates/package/snippets/additional_info.html:42
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
 msgid "Maintainer"
-msgstr "Супровідний"
+msgstr "Відповідальна особа"
 
 #: ckan/templates/package/snippets/additional_info.html:49
 #: ckan/templates/package/snippets/package_metadata_fields.html:10
@@ -3988,7 +3989,7 @@ msgstr "joe@example.com"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 msgid "Maintainer Email"
-msgstr "Супровідний Email"
+msgstr "Email відповідальної особи"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
@@ -4273,7 +4274,7 @@ msgstr "Цей набір даних не має опису"
 
 #: ckan/templates/snippets/search_form.html:17
 msgid "Submit"
-msgstr "Підтвердити"
+msgstr "Відправити"
 
 #: ckan/templates/snippets/search_form.html:32
 #: ckan/templates/snippets/simple_search.html:8

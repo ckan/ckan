@@ -162,7 +162,8 @@ class PackageController(base.BaseController):
 
         def remove_field(key, value=None, replace=None):
             return h.remove_url_param(key, value=value, replace=replace,
-                                      controller='package', action='search')
+                                      controller='package', action='search',
+                                      alternative_url=package_type)
 
         c.remove_field = remove_field
 
@@ -1089,7 +1090,7 @@ class PackageController(base.BaseController):
         except KeyError:
             c.package['isopen'] = False
 
-        # TODO: find a nicer way of doing this
+        # Deprecated: c.datastore_api - use h.action_url instead
         c.datastore_api = '%s/api/action' % \
             config.get('ckan.site_url', '').rstrip('/')
 
