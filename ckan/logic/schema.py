@@ -4,6 +4,7 @@ from formencode.validators import OneOf
 
 import ckan.model
 import ckan.plugins as plugins
+from ckan.logic import get_validator
 from ckan.lib.navl.validators import (ignore_missing,
                                       keep_extras,
                                       not_empty,
@@ -11,7 +12,8 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       ignore,
                                       if_empty_same_as,
                                       not_missing,
-                                      ignore_empty
+                                      ignore_empty,
+                                      unicode_only,
                                       )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
@@ -75,6 +77,8 @@ from ckan.logic.validators import (
 
 
 def default_resource_schema():
+    datastore_resource_query = get_validator('datastore_resource_query')
+
     schema = {
         'id': [ignore_empty, unicode],
         'revision_id': [ignore_missing, unicode],
@@ -98,6 +102,7 @@ def default_resource_schema():
         'cache_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
         'datastore_active': [ignore_missing],
+        'query': [ignore_missing, unicode_only, datastore_resource_query],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 

@@ -851,3 +851,9 @@ def email_validator(value, context):
         if not email_pattern.match(value):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
+
+
+def datastore_resource_query(value):
+    '''Placeholder for datastore resource query validation,
+    overridden by datastore extension'''
+    return value
