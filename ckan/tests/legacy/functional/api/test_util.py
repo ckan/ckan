@@ -8,6 +8,7 @@ from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.tests.legacy import url_for
 from ckan.common import json
 
+
 class TestUtil(ControllerTestCase):
     @classmethod
     def setup_class(cls):
