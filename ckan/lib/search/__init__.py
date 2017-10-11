@@ -31,7 +31,7 @@ def text_traceback():
     return res
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.7']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
