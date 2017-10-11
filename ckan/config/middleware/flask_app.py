@@ -6,6 +6,8 @@ import inspect
 import itertools
 import pkgutil
 
+from jinja2 import ChoiceLoader
+
 from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
@@ -24,6 +26,7 @@ from repoze.who.middleware import PluggableAuthenticationMiddleware
 import ckan.model as model
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
+from ckan.lib.render import CkanextTemplateLoader
 from ckan.common import config, g, request, ungettext
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
@@ -54,6 +57,10 @@ def make_flask_stack(conf, **app_conf):
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
     app.url_rule_class = CKAN_Rule
+    app.jinja_loader = ChoiceLoader([
+        app.jinja_loader,
+        CkanextTemplateLoader()
+    ])
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
