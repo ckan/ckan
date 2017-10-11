@@ -317,22 +317,6 @@ def _validate_record(record, num, field_names):
         })
 
 
-def _to_full_text(fields, record):
-    full_text = []
-    ft_types = ['int8', 'int4', 'int2', 'float4', 'float8', 'date', 'time',
-                'timetz', 'timestamp', 'numeric', 'text']
-    for field in fields:
-        value = record.get(field['id'])
-        if not value:
-            continue
-
-        if field['type'].lower() in ft_types and unicode(value):
-            full_text.append(unicode(value))
-        else:
-            full_text.extend(json_get_values(value))
-    return ' '.join(set(full_text))
-
-
 def _where_clauses(data_dict, fields_types):
     filters = data_dict.get('filters', {})
     clauses = []
@@ -723,19 +707,6 @@ def convert(data, type_name):
     return unicode(data)
 
 
-def json_get_values(obj, current_list=None):
-    if current_list is None:
-        current_list = []
-    if isinstance(obj, list) or isinstance(obj, tuple):
-        for item in obj:
-            json_get_values(item, current_list)
-    elif isinstance(obj, dict):
-        json_get_values(obj.items(), current_list)
-    elif obj:
-        current_list.append(unicode(obj))
-    return current_list
-
-
 def check_fields(context, fields):
     '''Check if field types are valid.'''
     for field in fields:
@@ -1020,8 +991,8 @@ def upsert_data(context, data_dict):
     fields = _get_fields(context, data_dict)
     field_names = _pluck('id', fields)
     records = data_dict['records']
-    sql_columns = ", ".join(['"%s"' % name.replace(
-        '%', '%%') for name in field_names] + ['"_full_text"'])
+    sql_columns = ", ".join(
+        identifier(name) for name in field_names)
 
     if method == _INSERT:
         rows = []
@@ -1035,13 +1006,12 @@ def upsert_data(context, data_dict):
                     # a tuple with an empty second value
                     value = (json.dumps(value), '')
                 row.append(value)
-            row.append(_to_full_text(fields, record))
             rows.append(row)
 
-        sql_string = u'''INSERT INTO "{res_id}" ({columns})
-            VALUES ({values}, to_tsvector(%s));'''.format(
-            res_id=data_dict['resource_id'],
-            columns=sql_columns,
+        sql_string = u'''INSERT INTO {res_id} ({columns})
+            VALUES ({values});'''.format(
+            res_id=identifier(data_dict['resource_id']),
+            columns=sql_columns.replace('%', '%%'),
             values=', '.join(['%s' for field in field_names])
         )
 
@@ -1097,18 +1067,16 @@ def upsert_data(context, data_dict):
 
             used_values = [record[field] for field in used_field_names]
 
-            full_text = _to_full_text(fields, record)
-
             if method == _UPDATE:
                 sql_string = u'''
                     UPDATE "{res_id}"
-                    SET ({columns}, "_full_text") = ({values}, to_tsvector(%s))
+                    SET ({columns}, "_full_text") = ({values}, NULL)
                     WHERE ({primary_key}) = ({primary_value});
                 '''.format(
                     res_id=data_dict['resource_id'],
                     columns=u', '.join(
-                        [u'"{0}"'.format(field)
-                         for field in used_field_names]),
+                        [identifier(field)
+                         for field in used_field_names]).replace('%', '%%'),
                     values=u', '.join(
                         ['%s' for _ in used_field_names]),
                     primary_key=u','.join(
@@ -1117,7 +1085,7 @@ def upsert_data(context, data_dict):
                 )
                 try:
                     results = context['connection'].execute(
-                        sql_string, used_values + [full_text] + unique_values)
+                        sql_string, used_values + unique_values)
                 except sqlalchemy.exc.DatabaseError as err:
                     raise ValidationError({
                         u'records': [_programming_error_summary(err)],
@@ -1132,10 +1100,10 @@ def upsert_data(context, data_dict):
             elif method == _UPSERT:
                 sql_string = u'''
                     UPDATE "{res_id}"
-                    SET ({columns}, "_full_text") = ({values}, to_tsvector(%s))
+                    SET ({columns}, "_full_text") = ({values}, NULL)
                     WHERE ({primary_key}) = ({primary_value});
-                    INSERT INTO "{res_id}" ({columns}, "_full_text")
-                           SELECT {values}, to_tsvector(%s)
+                    INSERT INTO "{res_id}" ({columns})
+                           SELECT {values}
                            WHERE NOT EXISTS (SELECT 1 FROM "{res_id}"
                                     WHERE ({primary_key}) = ({primary_value}));
                 '''.format(
@@ -1152,7 +1120,7 @@ def upsert_data(context, data_dict):
                 try:
                     context['connection'].execute(
                         sql_string,
-                        (used_values + [full_text] + unique_values) * 2)
+                        (used_values + unique_values) * 2)
                 except sqlalchemy.exc.DatabaseError as err:
                     raise ValidationError({
                         u'records': [_programming_error_summary(err)],
@@ -1384,7 +1352,8 @@ def _create_triggers(connection, resource_id, triggers):
     or "for_each" parameters from triggers list.
     '''
     existing = connection.execute(
-        u'SELECT tgname FROM pg_trigger WHERE tgrelid = %s::regclass',
+        u"""SELECT tgname FROM pg_trigger
+        WHERE tgrelid = %s::regclass AND tgname LIKE 't___'""",
         resource_id)
     sql_list = (
         [u'DROP TRIGGER {name} ON {table}'.format(
@@ -1404,6 +1373,14 @@ def _create_triggers(connection, resource_id, triggers):
             connection.execute(u';\n'.join(sql_list))
     except ProgrammingError as pe:
         raise ValidationError({u'triggers': [_programming_error_summary(pe)]})
+
+
+def _create_fulltext_trigger(connection, resource_id):
+    connection.execute(
+        u'''CREATE TRIGGER zfulltext
+        BEFORE INSERT OR UPDATE ON {table}
+        FOR EACH ROW EXECUTE PROCEDURE populate_full_text_trigger()'''.format(
+            table=identifier(resource_id)))
 
 
 def upsert(context, data_dict):
@@ -1797,6 +1774,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             ).fetchone()
             if not result:
                 create_table(context, data_dict)
+                _create_fulltext_trigger(
+                    context['connection'],
+                    data_dict['resource_id'])
             else:
                 alter_table(context, data_dict)
             if 'triggers' in data_dict:

@@ -7,23 +7,51 @@
 Changelog
 ---------
 
+v?? (TBA)
+=========
+
+Note: This version requires re-running the 'datastore set-permissions' command
+   (assuming you run DataStore). See: :ref:`datastore-set-permissions`
+
+   Otherwise new and updated datasets will not be searchable in DataStore and
+   the logs will contain this error::
+
+      ProgrammingError: (psycopg2.ProgrammingError) function populate_full_text_trigger() does not exist
+
+   CKAN developers should also re-run set-permissions on the test database:
+   :ref:`datastore-test-set-permissions`
+
+v2.7.2 2017-09-28
+=================
+
+ * Include missing minified JavaScript files
+
+v2.7.1 2017-09-27
+=================
+
+ * add field_name to image_upload macro when uploading resources (#3766)
+ * Add some missing major changes to change log. (#3799)
+ * _mail_recipient header override (#3781)
+ * skip url parsing in redirect (#3499)
+ * Fix multiple errors in i18n of JS modules (#3590)
+ * Standardize on url_for on popup (#3831)
+
 v2.7.0 2017-08-02
 =================
 
-Note: Starting from this version, CKAN requires at least Postgres 9.3
+General notes:
+ * Starting from this version, CKAN requires at least Postgres 9.3
+ * Starting from this version, CKAN requires a Redis database. Please
+   refer to the new `ckan.redis.url
+   <http://docs.ckan.org/en/ckan-2.7.0/maintaining/configuration.html#ckan-redis-url>`_
+   configuration option.
+ * This version requires a requirements upgrade on source installations
+ * This version requires a database upgrade
+ * This version requires a Solr schema upgrade
+ * There are several old features being officially deprecated starting from
+   this version. Check the *Deprecations* section to be prepared.
 
-Note: This version requires a requirements upgrade on source installations
-
-Note: This version requires a database upgrade
-
-Note: This version does not require a Solr schema upgrade (You may want to
-         upgrade the schema if you want to target Solr>=5, see #2914)
-
-Note: There are several old features being officially deprecated starting from
-        this version. Check the *Deprecations* section to be prepared.
-
-
-Major:
+Major changes:
  * New datatables_view resource view plugin for tabular data (#3444)
  * IDataStoreBackend plugins for replacing the default DataStore Postgres backend (#3437)
  * datastore_search new result formats and performance improvements (#3523)
@@ -38,7 +66,7 @@ Major:
  * Generate complete datastore dump files (#3344)
  * A new system for asynchronous background jobs (#3165)
 
-Minor:
+Minor changes:
  * Renamed example theme plugin (#3576)
  * Localization support for groups (#3559)
  * Create new resource views when format changes (#3515)
@@ -95,7 +123,6 @@ API changes:
    to upgrade your code accordingly if you are using custom themes.
 
 Deprecations:
-
  * The API versions 1 and 2 (also known as the REST API, ie ``/api/rest/*`` will removed
    in favour of the version 3 (action API, ``/api/action/*``), which was introduced in
    CKAN 2.0. The REST API will be removed on CKAN 2.8.
@@ -111,6 +138,13 @@ Deprecations:
  * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
+
+v2.6.4 2017-09-27
+=================
+
+* Mail recepient header override (#3781)
+* Skip url parsing in redirect (#3499)
+* Support non root for fanstatic (#3618)
 
 v2.6.3 2017-08-02
 =================
@@ -253,6 +287,13 @@ Bug fixes:
 
 API changes and deprecations:
  * Replace `c.__version__` with new helper `h.ckan_version()` (`#3103 <https://github.com/ckan/ckan/pull/3103>`_)
+
+v2.5.7 2017-09-27
+=================
+
+* Allow overriding email headers (#3781)
+* Support non-root instances on fanstatic (#3618)
+* Add missing close button on organization page (#3814)
 
 v2.5.6 2017-08-02
 =================
@@ -398,20 +439,12 @@ v2.5.0 2015-12-17
 
 Cancelled release
 
-v2.4.6 2017-02-22
+v2.4.9 2017-09-27
 =================
 
- * Use the url_for() helper for datapusher URLs (#2866)
- * Resource creation date use datetime.utcnow() (#3447)
- * Fix locale error when using fix ckan.root_path
- * `render_markdown` breaks links with ampersands
- * Check group name and id during package creation
- * Use utcnow() on dashboard_mark_activities_old (#3373)
- * Fix encoding error on DataStore exception
- * Datastore doesn't add site_url to resource created via API (#3189)
- * Fix memberships after user deletion (#3265)
- * Remove idle database connection (#3260)
- * Fix package_owner_org_update action when called via the API (#2661)
+* Allow overriding email headers (#3781)
+* Support non-root instances on fanstatic (#3618)
+* Add missing close button on organization page (#3814)
 
 v2.4.8 2017-08-02
 =================

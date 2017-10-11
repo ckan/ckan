@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: jitopdeveloper <yuliantokurniawan76@gmail.com>, 2017\n"
+"Last-Translator: Try Fathur Rachman <tryfatur@gmail.com>, 2017\n"
 "Language-Team: Indonesian (https://www.transifex.com/okfn/teams/11162/id/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -121,7 +121,7 @@ msgstr ""
 #: ckanext/datastore/logic/action.py:348 ckanext/datastore/logic/action.py:459
 #: ckanext/datastore/logic/action.py:534 ckanext/datastore/logic/action.py:559
 msgid "Resource \"{0}\" was not found."
-msgstr ""
+msgstr "Data \"{0}\" tidak ditemukan"
 
 #: ckanext/datastore/logic/auth.py:19
 msgid "User {0} not authorized to update resource {1}"
@@ -154,7 +154,7 @@ msgstr ""
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:42
 msgid "Create"
-msgstr ""
+msgstr "Buat"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:46
 msgid "Update / Insert"
@@ -224,7 +224,7 @@ msgstr "Simpan"
 #: ckanext/datastore/templates/package/resource_edit_base.html:6
 #: ckanext/datastore/templates/package/resource_read.html:14
 msgid "Data Dictionary"
-msgstr ""
+msgstr "Kamus Data"
 
 #: ckanext/datastore/templates/package/resource_read.html:18
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:17
@@ -256,11 +256,11 @@ msgstr "API data"
 
 #: ckanext/datatablesview/plugin.py:46 ckanext/reclineview/plugin.py:128
 msgid "Table"
-msgstr ""
+msgstr "Tabel"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:6
 msgid "Responsive display"
-msgstr ""
+msgstr "Tampilan responsif"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:12
 msgid "Show Columns"
@@ -268,11 +268,11 @@ msgstr "Tampilkan Kolom"
 
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:28
 msgid "Hide/Unhide Columns"
-msgstr ""
+msgstr "Sembunyi/Tampilkan Kolom"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
-msgstr ""
+msgstr "Kumpulan data per halaman"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:13
 msgid "Test conf"
@@ -348,7 +348,7 @@ msgstr ""
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
 msgid "Country Code"
-msgstr ""
+msgstr "Kode Negara"
 
 #: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
 msgid "custom resource text"
@@ -356,12 +356,12 @@ msgstr ""
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr ""
+msgstr "Ini adalah kalimat yang belum diterjemahkan"
 
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
 msgid "This group has no description"
-msgstr ""
+msgstr "Grup ini belum memiliki deskripsi"
 
 #: ckan/templates/group/snippets/group_item.html:32
 #: ckan/templates/organization/snippets/organization_item.html:31
@@ -369,14 +369,14 @@ msgstr ""
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
-msgstr[0] ""
+msgstr[0] "{num} Kumpulan data"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
 msgid "0 Datasets"
-msgstr ""
+msgstr "0 Kumpulan data"
 
 #: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
@@ -414,11 +414,12 @@ msgstr "Gambar"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "Image url"
-msgstr ""
+msgstr "Tautan gambar"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
 msgstr ""
+"contoh: http://example.com/image.jpg (jika kosong, gunakan alamat data)"
 
 #: ckanext/reclineview/plugin.py:101
 msgid "Data Explorer"
@@ -427,16 +428,16 @@ msgstr ""
 #: ckanext/reclineview/plugin.py:171
 #: ckanext/reclineview/theme/public/recline_view.js:200
 msgid "Graph"
-msgstr ""
+msgstr "Grafik"
 
 #: ckanext/reclineview/plugin.py:231
 #: ckanext/reclineview/theme/public/recline_view.js:207
 msgid "Map"
-msgstr ""
+msgstr "Peta"
 
 #: ckanext/reclineview/theme/public/recline_view.js:28
 msgid "error loading view"
-msgstr ""
+msgstr "Kesalahan dalam memuat pratayang"
 
 #: ckanext/reclineview/theme/public/recline_view.js:75
 msgid "Could not load view"
@@ -472,7 +473,7 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "Jumlah baris"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
@@ -481,7 +482,7 @@ msgstr ""
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:6
 msgid "Graph type"
-msgstr ""
+msgstr "Tipe grafik"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:7
 msgid "Group (Axis 1)"
@@ -489,27 +490,27 @@ msgstr "Grup (Axis 1)"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:8
 msgid "Series (Axis 2)"
-msgstr ""
+msgstr "Sumbu (Axis 2)"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:6
 msgid "Field type"
-msgstr ""
+msgstr "Tipe Kolom"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:7
 msgid "Latitude field"
-msgstr ""
+msgstr "Kolom lintang"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:8
 msgid "Longitude field"
-msgstr ""
+msgstr "Kolom garis bujur"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:9
 msgid "GeoJSON field"
-msgstr ""
+msgstr "Kolom GeoJSON"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:10
 msgid "Auto zoom to features"
-msgstr ""
+msgstr "Otomatis menyorot pada fitur"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:11
 msgid "Cluster markers"
@@ -526,12 +527,12 @@ msgstr "Tanggal"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr ""
+msgstr "Jumlah total Kumpulan data"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "Revisi Kumpulan data per minggu"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
@@ -4423,11 +4424,11 @@ msgstr ""
 
 #: ckan/templates/user/new.html:6
 msgid "Registration"
-msgstr ""
+msgstr "Pendaftaran"
 
 #: ckan/templates/user/new.html:14
 msgid "Register for an Account"
-msgstr ""
+msgstr "Daftar untuk Akun baru"
 
 #: ckan/templates/user/new.html:26
 msgid "Why Sign Up?"
@@ -4435,37 +4436,37 @@ msgstr ""
 
 #: ckan/templates/user/new.html:28
 msgid "Create datasets, groups and other exciting things"
-msgstr ""
+msgstr "Buat kumpulan data, grup dan hal menarik lainnya"
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
-msgstr ""
+msgstr "Nama pengguna"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr ""
+msgstr "Nama lengkap"
 
 #: ckan/templates/user/new_user_form.html:17
 msgid "Create Account"
-msgstr ""
+msgstr "Buat akun"
 
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:14
 msgid "Reset Your Password"
-msgstr ""
+msgstr "Setel ulang sandi anda"
 
 #: ckan/templates/user/perform_reset.html:7
 msgid "Password Reset"
-msgstr ""
+msgstr "Setel ulang sandi"
 
 #: ckan/templates/user/perform_reset.html:24
 msgid "Update Password"
-msgstr ""
+msgstr "Perbaharui sandi"
 
 #: ckan/templates/user/perform_reset.html:38
 #: ckan/templates/user/request_reset.html:32
 msgid "How does this work?"
-msgstr ""
+msgstr "Bagaimana ini bekerja?"
 
 #: ckan/templates/user/perform_reset.html:40
 msgid "Simply enter a new password and we'll update your account"
@@ -4473,27 +4474,27 @@ msgstr ""
 
 #: ckan/templates/user/read.html:21
 msgid "User hasn't created any datasets."
-msgstr ""
+msgstr "Pengguna belum sama sekali membuat kumpulan data"
 
 #: ckan/templates/user/read_base.html:39
 msgid "You have not provided a biography."
-msgstr ""
+msgstr "Anda belum mengisi biografi"
 
 #: ckan/templates/user/read_base.html:41
 msgid "This user has no biography."
-msgstr ""
+msgstr "Pengguna ini tidak memiliki biografi"
 
 #: ckan/templates/user/read_base.html:73
 msgid "Open ID"
-msgstr ""
+msgstr "Open ID"
 
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "This means only you can see this"
-msgstr ""
+msgstr "Ini artinya hanya anda yang dapat melihat ini"
 
 #: ckan/templates/user/read_base.html:87
 msgid "Member Since"
-msgstr ""
+msgstr "Anggota sejak"
 
 #: ckan/templates/user/read_base.html:96
 msgid "API Key"
@@ -4506,17 +4507,19 @@ msgstr "Setel ulang password anda"
 
 #: ckan/templates/user/request_reset.html:6
 msgid "Password reset"
-msgstr ""
+msgstr "Setel ulang sandi"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "Request reset"
-msgstr ""
+msgstr "Meminta setel ulang sandi"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
 msgstr ""
+"Masukan nama pengguna ke dalam kolom dan kami akan mengirimkan surat "
+"elektronik beserta tautan untuk mengisi sandi baru"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
 #: ckan/templates/user/snippets/followee_dropdown.html:15
@@ -4533,7 +4536,7 @@ msgstr ""
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
-msgstr ""
+msgstr "Tidak ada pengikut"
 
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"

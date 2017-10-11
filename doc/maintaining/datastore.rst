@@ -120,6 +120,8 @@ if necessary, for example:
 Replace ``pass`` with the passwords you created for your |database_user| and
 |datastore_user| database users.
 
+.. _datastore-set-permissions:
+
 Set permissions
 ---------------
 

@@ -11,6 +11,10 @@ Upgrading a source install
 The process for upgrading a source install is the same, no matter what type of
 CKAN release you're upgrading to:
 
+#. Check the :doc:`/changelog` for changes regarding the required 3rd-party
+   packages and their minimum versions (e.g. web, database and search servers)
+   and update their installations if necessary.
+
 #. Activate your virtualenv and switch to the ckan source directory, e.g.:
 
    .. parsed-literal::
@@ -53,6 +57,11 @@ CKAN release you're upgrading to:
 #. If there have been changes in the database schema (check the
    :doc:`/changelog` to find out) you need to :ref:`upgrade your database
    schema <db upgrade>`.
+
+#. If new configuration options have been introduced (check the
+   :doc:`/changelog` to find out) then check whether you need to change them
+   from their default values. See :doc:`/maintaining/configuration` for
+   details.
 
 #. Rebuild your search index by running the ``ckan search-index rebuild``
    command:

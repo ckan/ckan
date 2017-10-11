@@ -644,7 +644,7 @@ class TestAction(WsgiAppCase):
         postparams = '=1'
         res = self.app.post('/api/action/package_list', params=postparams,
                             status=400)
-        assert "Bad request - Bad request data: Request data JSON decoded to '' but it needs to be a dictionary." in res.body, res.body
+        assert "Bad request - JSON Error: Error decoding JSON data." in res.body, res.body
 
     def test_32_get_domain_object(self):
         anna = model.Package.by_name(u'annakarenina')

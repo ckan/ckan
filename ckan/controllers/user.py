@@ -258,7 +258,7 @@ class UserController(base.BaseController):
         if not c.user:
             # log the user in programatically
             set_repoze_user(data_dict['name'])
-            h.redirect_to(controller='user', action='me', __ckan_no_root=True)
+            h.redirect_to(controller='user', action='me')
         else:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
