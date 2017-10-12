@@ -12,6 +12,7 @@ import ckan.lib.base as base
 import ckan.model as model
 import ckan.logic as logic
 import ckan.plugins as plugins
+import json
 
 log = logging.getLogger(__name__)
 
@@ -45,6 +46,17 @@ def _package_search(data_dict):
     query = logic.get_action(u'package_search')(context, data_dict.copy())
 
     return query['count'], query['results']
+
+
+def _enclosure(pkg):
+    links = []
+    links.append({
+        'href': h.url('api.action', logic_function='package_show', 
+                      ver=3, id=pkg['id'], _external=True),
+        'rel': '',
+        'length': unicode(len(json.dumps(pkg))),
+        'type': u'application/json'})
+    return links
 
 
 def output_feed(results, feed_title, feed_description, feed_link, feed_url,
@@ -81,19 +93,13 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
 
         feed.add(
             title=pkg.get(u'title', u''),
-            url=h.url_for(
-                controller=u'package',
-                action=u'read',
-                id=pkg['id'],
-                _external=True),
             description=pkg.get(u'notes', u''),
             updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
             published=h.date_str_to_datetime(pkg.get(u'metadata_created')),
-            unique_id=_create_atom_id(u'/dataset%s' % pkg['id']),
+            id=_create_atom_id(u'/dataset%s' % pkg['id']),
             author=pkg.get(u'author', u''),
-            categories=[{
-                'terms': t['name']
-            } for t in pkg.get('tags')],
+            categories=[{'terms': t['name']} for t in pkg.get('tags')],
+            links=_enclosure(pkg),
             **additional_fields)
 
     # response.content_type = feed.get_response()
