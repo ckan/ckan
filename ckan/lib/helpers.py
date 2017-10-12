@@ -699,9 +699,9 @@ def _link_active_pylons(kwargs):
 
 
 def _link_active_flask(kwargs):
-    controller, action = request.url_rule.endpoint.split('.')
-    return(kwargs.get('controller') == controller and
-           kwargs.get('action') == action)
+    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    return(kwargs.get('controller') == blueprint and
+           kwargs.get('action') == endpoint)
 
 
 def _link_to(text, *args, **kwargs):
@@ -753,9 +753,9 @@ def nav_link(text, *args, **kwargs):
 def nav_link_flask(text, *args, **kwargs):
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
-    controller, action = request.url_rule.endpoint.split('.')
+    blueprint, endpoint = request.url_rule.endpoint.split('.')
     if args:
-        kwargs['controller'] = controller or None
+        kwargs['controller'] = blueprint or None
     named_route = kwargs.pop('named_route', '')
     if kwargs.pop('condition', True):
         if named_route:
@@ -963,9 +963,9 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
     if hasattr(c, 'search_facets_limits'):
         if c.search_facets_limits and limit is None:
             limit = c.search_facets_limits.get(facet)
-        # zero treated as infinite for hysterical raisins
-        if limit is not None and limit > 0:
-            return facets[:limit]
+    # zero treated as infinite for hysterical raisins
+    if limit is not None and limit > 0:
+        return facets[:limit]
     return facets
 
 
@@ -2550,9 +2550,11 @@ def mail_to(email_address, name):
 def radio(selected, id, checked):
     if checked:
         return literal((u'<input checked="checked" id="%s_%s" name="%s" \
-            value="%s" type="radio">') % (selected, id, selected, id))
+            value="%s" type="radio">'
+                                     ) % (selected, id, selected, id))
     return literal(('<input id="%s_%s" name="%s" \
-        value="%s" type="radio">') % (selected, id, selected, id))
+        value="%s" type="radio">'
+                                 ) % (selected, id, selected, id))
 
 
 core_helper(flash, name='flash')
