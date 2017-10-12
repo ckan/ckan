@@ -5,6 +5,7 @@ this.ckan.module('resource-view-embed', function ($) {
   function initialize() {
     self = this;
     modal = $('#embed-'+this.options.id)
+    $('body').append(modal);
     this.el.on('click', _onClick);
     $('textarea', modal).on('focus', _selectAllCode).on('mouseup', _preventClick);
     $('input', modal).on('keyup change', _updateValues);

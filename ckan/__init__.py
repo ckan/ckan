@@ -4,17 +4,17 @@ __version__ = '2.8.0a'
 
 __description__ = 'CKAN Software'
 __long_description__ = \
-'''CKAN software provides a hub for datasets. The flagship site running CKAN
-is theDataHub.org but it is also used for dozens of other open data websites
-run by governments, agencies and citizens.
+'''
+CKAN is the world's leading Open Source data portal platform.
 
-CKAN provides a place to search for open knowledge resources as well as
-register your own - be that a set of Shakespeare's works, a global
-population density database, the voting records of MPs, or 30 years of
-US patents.
+It powers dozens of Open Data portals around the world, including
+data.gov, open.canada.ca and europeandataportal.eu but also regional,
+research and community organizations.
 
-Those familiar with Freshmeat or CPAN can think of CKAN as providing an
-analogous service for open data and knowledge.
+It makes easy to publish, share and find data online and is fully
+customizable via extensions and plugins.
+
+Check https://ckan.org to know more.
 '''
 __license__ = 'AGPL'
 

@@ -2,6 +2,7 @@
 
 import json
 import nose
+import urllib
 import pprint
 
 import sqlalchemy.orm as orm
@@ -108,14 +109,16 @@ class TestDatastoreSearchNewTest(object):
 
 
 
-class TestDatastoreSearch(tests.WsgiAppCase):
+class TestDatastoreSearch():
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
+
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -647,11 +650,12 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['error'].get('fields') is not None, res_dict['error']
 
 
-class TestDatastoreFullTextSearch(tests.WsgiAppCase):
+class TestDatastoreFullTextSearch():
     @classmethod
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -774,7 +778,7 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
         assert res_dict['success'], pprint.pformat(res_dict)
 
 
-class TestDatastoreSQL(tests.WsgiAppCase):
+class TestDatastoreSQL():
     sysadmin_user = None
     normal_user = None
 
@@ -782,6 +786,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         plugin = p.load('datastore')
         if plugin.legacy_mode:
             # make sure we undo adding the plugin
@@ -924,10 +929,9 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             where a.author = b.author
             limit 2
             '''.format(self.data['resource_id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
+        data = urllib.urlencode({'sql': query})
         auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+        res = self.app.post('/api/action/datastore_search_sql', params=data,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
@@ -1088,7 +1092,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         ]
         for query in test_cases:
             data = {'sql': query.replace('\n', '')}
-            postparams = json.dumps(data)
+            postparams = urllib.urlencode(data)
             res = self.app.post('/api/action/datastore_search_sql',
                                 params=postparams,
                                 status=403)

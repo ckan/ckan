@@ -25,6 +25,8 @@ fl_notes.txt
 *.ini
 .noseids
 *~
+.idea
+.vscode
 
 # custom style
 ckan/public/base/less/custom.less

@@ -9,8 +9,7 @@ import ckan.model as model
 import ckan.tests.legacy
 import ckan.tests.legacy.html_check
 import routes
-import paste.fixture
-import pylons.test
+from ckan.tests.helpers import _get_test_app
 
 _create_test_data = ckan.lib.create_test_data
 
@@ -19,7 +18,8 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
     'Test the translation of datasets by the multilingual_dataset plugin.'
     @classmethod
     def setup(cls):
-        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+
+        cls.app = _get_test_app()
         ckan.plugins.load('multilingual_dataset')
         ckan.plugins.load('multilingual_group')
         ckan.plugins.load('multilingual_tag')

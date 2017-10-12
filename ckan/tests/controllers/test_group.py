@@ -3,7 +3,7 @@
 from bs4 import BeautifulSoup
 from nose.tools import assert_equal, assert_true, assert_in
 
-from routes import url_for
+from ckan.lib.helpers import url_for
 
 import ckan.tests.helpers as helpers
 import ckan.model as model
@@ -55,17 +55,19 @@ class TestGroupController(helpers.FunctionalTestBase):
 
     def test_invalid_sort_param_does_not_crash(self):
         app = self._get_test_app()
-        group_url = url_for(controller='group',
-                            action='index',
-                            sort='title desc nope')
 
-        app.get(url=group_url)
+        with app.flask_app.test_request_context():
+            group_url = url_for(controller='group',
+                                action='index',
+                                sort='title desc nope')
 
-        group_url = url_for(controller='group',
-                            action='index',
-                            sort='title nope desc nope')
+            app.get(url=group_url)
 
-        app.get(url=group_url)
+            group_url = url_for(controller='group',
+                                action='index',
+                                sort='title nope desc nope')
+
+            app.get(url=group_url)
 
 
 def _get_group_new_page(app):
@@ -296,10 +298,10 @@ class TestGroupMembership(helpers.FunctionalTestBase):
 
         group = self._create_group(user_one['name'], other_users)
 
-        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
-
         member_list_url = url_for(controller='group', action='members',
                                   id=group['id'])
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+
         member_list_response = app.get(
             member_list_url, extra_environ=env)
 
@@ -408,6 +410,64 @@ class TestGroupMembership(helpers.FunctionalTestBase):
 
         assert_equal(len(user_roles.keys()), 1)
         assert_equal(user_roles['User One'], 'Admin')
+
+    def test_member_users_cannot_add_members(self):
+
+        user = factories.User()
+        group = factories.Group(
+            users=[{'name': user['name'], 'capacity': 'member'}]
+        )
+
+        app = helpers._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            app.get(
+                url_for(
+                    controller='group',
+                    action='member_new',
+                    id=group['id'],
+                ),
+                extra_environ=env,
+                status=403,
+            )
+
+            app.post(
+                url_for(
+                    controller='group',
+                    action='member_new',
+                    id=group['id'],
+                ),
+                {'id': 'test', 'username': 'test', 'save': 'save', 'role': 'test'},
+                extra_environ=env,
+                status=403,
+            )
+
+    def test_anonymous_users_cannot_add_members(self):
+        group = factories.Group()
+
+        app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+            app.get(
+                url_for(
+                    controller='group',
+                    action='member_new',
+                    id=group['id'],
+                ),
+                status=403,
+            )
+
+            app.post(
+                url_for(
+                    controller='group',
+                    action='member_new',
+                    id=group['id'],
+                ),
+                {'id': 'test', 'username': 'test', 'save': 'save', 'role': 'test'},
+                status=403,
+            )
 
 
 class TestGroupFollow(helpers.FunctionalTestBase):

@@ -254,8 +254,8 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert "/api/3/action/help_show?name=user_create" in res_obj['help']
         assert res_obj['success'] is False
-        assert res_obj['error'] == { '__type': 'Validation Error',
-                'password': ['Your password must be 4 characters or longer']}
+        assert_equal(res_obj['error'], { '__type': 'Validation Error',
+                'password': ['Your password must be 8 characters or longer']})
 
     def test_12_user_update(self):
         normal_user_dict = {'id': self.normal_user.id,
@@ -644,7 +644,7 @@ class TestAction(WsgiAppCase):
         postparams = '=1'
         res = self.app.post('/api/action/package_list', params=postparams,
                             status=400)
-        assert "Bad request - Bad request data: Request data JSON decoded to '' but it needs to be a dictionary." in res.body, res.body
+        assert "Bad request - JSON Error: Error decoding JSON data." in res.body, res.body
 
     def test_32_get_domain_object(self):
         anna = model.Package.by_name(u'annakarenina')

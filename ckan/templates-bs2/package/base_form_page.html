@@ -1,0 +1,39 @@
+{% extends "package/edit_base.html" %}
+
+{% block primary_content %}
+  <section class="module">
+    {% block page_header %}{% endblock %}
+    <div class="module-content">
+      {% block primary_content_inner %}
+        {% block form %}
+          {#- passing c to a snippet is bad but is required here
+              for backwards compatibility with old templates and
+              plugins using setup_template_variables() -#}
+          {{- h.snippet(form_snippet, c=c, **form_vars) -}}
+        {% endblock %}
+      {% endblock %}
+    </div>
+  </section>
+{% endblock %}
+
+{% block secondary_content %}
+  {% block info_module %}
+    <section class="module module-narrow module-shallow">
+      <h2 class="module-heading"><i class="fa fa-info-circle"></i> {{ _('What are datasets?') }}</h2>
+      <div class="module-content">
+        <p>
+          {% trans %}
+          A CKAN Dataset is a collection of data resources (such as files),
+          together with a description and other information, at a fixed URL.
+          Datasets are what users see when searching for data.
+          {% endtrans %}
+        </p>
+      </div>
+    </section>
+  {% endblock %}
+
+  {% block resources_module %}
+    {# TODO: Pass in a list of previously created resources and the current package dict #}
+    {% snippet "package/snippets/resources.html", pkg={}, action='new_resource' %}
+  {% endblock %}
+{% endblock %}

@@ -52,7 +52,7 @@ from pylons import i18n
 import pylons
 import polib
 
-from ckan.common import config
+from ckan.common import config, is_flask_request
 import ckan.i18n
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
@@ -225,7 +225,7 @@ def _set_lang(lang):
     if config.get('ckan.i18n_directory'):
         fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
                        'pylons.package': config['pylons.package']}
-        i18n.set_lang(lang, config=fake_config, class_=Translations)
+        i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
     else:
         i18n.set_lang(lang, class_=Translations)
 
@@ -273,11 +273,14 @@ def _add_extra_translations(dirname, locales, domain):
 def get_lang():
     ''' Returns the current language. Based on babel.i18n.get_lang but
     works when set_lang has not been run (i.e. still in English). '''
-    langs = i18n.get_lang()
-    if langs:
-        return langs[0]
+    if is_flask_request():
+        from ckan.config.middleware.flask_app import get_locale
+        return get_locale()
     else:
-        return 'en'
+        langs = i18n.get_lang()
+        if langs:
+            return langs[0]
+    return 'en'
 
 
 def set_lang(language_code):

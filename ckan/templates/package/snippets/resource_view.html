@@ -2,7 +2,14 @@
 
 {% block resource_view %}
   <div id="view-{{ resource_view['id'] }}" class="resource-view" data-id="{{ resource_view['id'] }}" data-title="{{ resource_view['title'] }}" data-description="{{ resource_view['descripion'] }}">
-    <a class="btn pull-right"
+  <div class="actions">
+    <a class="btn" 
+       target="_blank"
+       href="{{ h.url_for('resource_view', id=package['name'], resource_id=resource['id'], view_id=resource_view['id'], qualified=True) }}">
+      <i class="fa fa-arrows-alt"></i>
+      {{ _("Fullscreen") }}
+    </a>
+    <a class="btn"
        href="#embed-{{ resource_view['id'] }}"
        data-module="resource-view-embed"
        data-module-id="{{ resource_view['id'] }}"
@@ -10,7 +17,8 @@
       <i class="fa fa-code"></i>
       {{ _("Embed") }}
     </a>
-    <p class="desc">{{ h.render_markdown(resource_view['description']) }}</p>
+  </div>  
+  <p class="desc">{{ h.render_markdown(resource_view['description']) }}</p>
     <div class="m-top ckanext-datapreview">
       {% if not to_preview and h.resource_view_is_filterable(resource_view) %}
         {% snippet 'package/snippets/resource_view_filters.html', resource=resource %}
@@ -19,7 +27,7 @@
         {{ h.rendered_resource_view(resource_view, resource, package) }}
       {% else %}
         <div class="data-viewer-error js-hide">
-          <p class="text-error">
+          <p class="text-danger">
             <i class="fa fa-info-circle"></i>
             {{ _('This resource view is not available at the moment.') }}
             <a href="#" data-toggle="collapse" data-target="#data-view-error">
@@ -28,7 +36,7 @@
           </p>
           <p id="data-view-error" class="collapse"></p>
           <p>
-            <a href="{{ resource.url }}" class="btn btn-large resource-url-analytics" target="_blank">
+            <a href="{{ resource.url }}" class="btn btn-default btn-lg resource-url-analytics" target="_blank">
               <i class="fa fa-lg fa-arrow-circle-o-down"></i>
               {{ _('Download resource') }}
             </a>
@@ -57,22 +65,27 @@
         </iframe>
       {% endif %}
     </div>
-    <div id="embed-{{ resource_view['id'] }}" class="modal resource-view-embed hide">
+    <div id="embed-{{ resource_view['id'] }}" class="modal fade resource-view-embed">
+      <div class="modal-dialog">
+    <div class="modal-content">
+
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h3>{{ _("Embed resource view") }}</h3>
       </div>
       <div class="modal-body">
         <p class="embed-content">{{ _("You can copy and paste the embed code into a CMS or blog software that supports raw HTML") }}</p>
-        <div class="row-fluid">
-          <div class="span6">
+        <div class="row">
+          <div class="col-md-6">
             {{ form.input("width", label=_("Width"), value=700, classes=["control-full"]) }}
           </div>
-          <div class="span6">
+          <div class="col-md-6">
             {{ form.input("height", label=_("Height"), value=400, classes=["control-full"]) }}
           </div>
         </div>
         {{ form.textarea("code", label=_("Code"), value="", classes=["pre"], rows=3) }}
+      </div>
+      </div>
       </div>
     </div>
   </div>

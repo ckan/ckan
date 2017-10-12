@@ -5,6 +5,7 @@ import pytz
 import tzlocal
 from babel import Locale
 
+from ckan.common import config
 import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.exceptions
@@ -17,7 +18,33 @@ raises = nose.tools.raises
 CkanUrlException = ckan.exceptions.CkanUrlException
 
 
-class TestHelpersUrlForStatic(object):
+class BaseUrlFor(object):
+
+    @classmethod
+    def setup_class(cls):
+
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        cls._original_config = dict(config)
+        config['ckan.site_url'] = 'http://example.com'
+        cls.app = helpers._get_test_app()
+
+    def setup(self):
+
+        self.request_context = self.app.flask_app.test_request_context()
+        self.request_context.push()
+
+    def teardown(self):
+
+        self.request_context.pop()
+
+    @classmethod
+    def teardown_class(cls):
+        # Restore the config to its original values
+        config.clear()
+        config.update(cls._original_config)
+
+
+class TestHelpersUrlForStatic(BaseUrlFor):
 
     def test_url_for_static(self):
         url = '/assets/ckan.jpg'
@@ -51,7 +78,8 @@ class TestHelpersUrlForStatic(object):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_static_qualified_with_root_path(self):
         url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
-        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        generated_url = h.url_for_static('/my-asset/file.txt',
+                                         qualified=True)
         eq_(generated_url, url)
 
     @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
@@ -59,11 +87,12 @@ class TestHelpersUrlForStatic(object):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_static_with_root_path_and_script_name_env(self):
         url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
-        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        generated_url = h.url_for_static('/my-asset/file.txt',
+                                         qualified=True)
         eq_(generated_url, url)
 
 
-class TestHelpersUrlForStaticOrExternal(object):
+class TestHelpersUrlForStaticOrExternal(BaseUrlFor):
 
     def test_url_for_static_or_external(self):
         url = '/assets/ckan.jpg'
@@ -87,12 +116,13 @@ class TestHelpersUrlForStaticOrExternal(object):
         eq_(h.url_for_static_or_external(url), url)
 
 
-class TestHelpersUrlFor(object):
+class TestHelpersUrlFor(BaseUrlFor):
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_default(self):
         url = '/dataset/my_dataset'
-        generated_url = h.url_for(controller='package', action='read', id='my_dataset')
+        generated_url = h.url_for(controller='package', action='read',
+                                  id='my_dataset')
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
@@ -172,6 +202,90 @@ class TestHelpersUrlFor(object):
                                   qualified=True,
                                   locale='de')
         eq_(generated_url, url)
+
+
+class TestHelpersUrlForFlaskandPylons2(BaseUrlFor):
+
+    def test_url_for_flask_route_new_syntax(self):
+        url = '/api/3'
+        generated_url = h.url_for('api.get_api', ver=3)
+        eq_(generated_url, url)
+
+
+class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
+
+    def test_url_for_flask_route_new_syntax(self):
+        url = '/api/3'
+        generated_url = h.url_for('api.get_api', ver=3)
+        eq_(generated_url, url)
+
+    def test_url_for_flask_route_old_syntax(self):
+        url = '/api/3'
+        generated_url = h.url_for(controller='api', action='get_api', ver=3)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_new_syntax_external(self):
+        url = 'http://example.com/api/3'
+        generated_url = h.url_for('api.get_api', ver=3, _external=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_old_syntax_external(self):
+        url = 'http://example.com/api/3'
+        generated_url = h.url_for(controller='api', action='get_api', ver=3, _external=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_old_syntax_qualified(self):
+        url = 'http://example.com/api/3'
+        generated_url = h.url_for(controller='api', action='get_api', ver=3, qualified=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_new_syntax_site_url(self):
+        url = '/api/3'
+        generated_url = h.url_for('api.get_api', ver=3)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_old_syntax_site_url(self):
+        url = '/api/3'
+        generated_url = h.url_for(controller='api', action='get_api', ver=3)
+        eq_(generated_url, url)
+
+    def test_url_for_flask_route_new_syntax_request_context(self):
+        with self.app.flask_app.test_request_context():
+            url = '/api/3'
+            generated_url = h.url_for('api.get_api', ver=3)
+            eq_(generated_url, url)
+
+    def test_url_for_flask_request_using_pylons_url_for(self):
+
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+            plugin = p.get_plugin('test_routing_plugin')
+            self.app.flask_app.register_extension_blueprint(
+                plugin.get_blueprint())
+
+        res = self.app.get('/flask_route_pylons_url_for')
+
+        assert u'This URL was generated by Pylons' in res.ubody
+        assert u'/from_pylons_extension_before_map' in res.ubody
+
+        p.unload('test_routing_plugin')
+
+    def test_url_for_pylons_request_using_flask_url_for(self):
+
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+
+        res = self.app.get('/pylons_route_flask_url_for')
+
+        assert u'This URL was generated by Flask' in res.ubody
+        assert u'/api/3' in res.ubody
+
+        p.unload('test_routing_plugin')
 
 
 class TestHelpersRenderMarkdown(object):

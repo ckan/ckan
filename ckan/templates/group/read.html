@@ -1,7 +1,5 @@
 {% extends "group/read_base.html" %}
 
-{% block subtitle %}{{ h.get_translated(c.group_dict, 'title') or c.group_dict.display_name }}{% endblock %}
-
 {% block primary_content_inner %}
   {% block groups_search_form %}
     {% set facets = {

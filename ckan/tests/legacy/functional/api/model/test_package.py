@@ -215,25 +215,6 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert package
         self.assert_equal(package.title, self.package_fixture_data['title'])
 
-    def test_register_post_bad_content_type(self):
-        assert not self.get_package_by_name(self.package_fixture_data['name'])
-        offset = self.package_offset()
-        data = self.dumps(self.package_fixture_data)
-        res = self.http_request(offset, data,
-                                content_type='something/unheard_of',
-                                status=[self.STATUS_400_BAD_REQUEST,
-                                        self.STATUS_201_CREATED],
-                                extra_environ=self.admin_extra_environ)
-        model.Session.remove()
-        # Some versions of webob work, some don't. No matter, we record this
-        # behaviour.
-        package = self.get_package_by_name(self.package_fixture_data['name'])
-        if res.status == self.STATUS_400_BAD_REQUEST:
-            # Check there is no database record.
-            assert not package
-        else:
-            assert package
-
     def test_register_post_bad_request(self):
         test_params = {
             'name':u'testpackage06_400',

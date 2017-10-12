@@ -26,14 +26,18 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
-import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.plugins as p
 from ckan.common import config
+from ckan.tests.helpers import _get_test_app
+
+# This is a test Flask request context to be used internally.
+# Do not use it!
+_cli_test_request_context = None
 
 
-#NB No CKAN imports are allowed until after the config file is loaded.
-#   i.e. do the imports in methods, after _load_config is called.
-#   Otherwise loggers get disabled.
+# NB No CKAN imports are allowed until after the config file is loaded.
+#    i.e. do the imports in methods, after _load_config is called.
+#    Otherwise loggers get disabled.
 
 
 def deprecation_warning(message=None):
@@ -225,11 +229,18 @@ def load_config(config, load_site_user=True):
     from ckan.config.environment import load_environment
     load_environment(conf.global_conf, conf.local_conf)
 
+    # Set this internal test request context with the configured environment so
+    # it can be used when calling url_for from the CLI.
+    global _cli_test_request_context
+    flask_app = _get_test_app().flask_app
+    _cli_test_request_context = flask_app.test_request_context()
+
     registry = Registry()
     registry.prepare()
     import pylons
     registry.register(pylons.translator, MockTranslator())
 
+    site_user = None
     if model.user_table.exists() and load_site_user:
         # If the DB has already been initialized, create and register
         # a pylons context object, and add the site user to it, so the
@@ -248,6 +259,8 @@ def load_config(config, load_site_user=True):
     request_config = routes.request_config()
     request_config.host = parsed.netloc + parsed.path
     request_config.protocol = parsed.scheme
+
+    return site_user
 
 
 def paster_click_group(summary):
@@ -305,11 +318,7 @@ class CkanCommand(paste.script.command.Command):
     group_name = 'ckan'
 
     def _load_config(self, load_site_user=True):
-        load_config(self.options.config, load_site_user)
-
-    def _setup_app(self):
-        cmd = paste.script.appinstall.SetupCommand('setup-app')
-        cmd.run([self.filename])
+        self.site_user = load_config(self.options.config, load_site_user)
 
 
 class ManageDb(CkanCommand):
@@ -1478,7 +1487,6 @@ class CreateTestDataCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        self._setup_app()
         from ckan import plugins
         from create_test_data import CreateTestData
 
@@ -1795,8 +1803,9 @@ class CreateColorSchemeCommand(CkanCommand):
         saturation = None
         lightness = None
 
+        public = config.get(u'ckan.base_public_folder')
         path = os.path.dirname(__file__)
-        path = os.path.join(path, '..', 'public', 'base', 'less', 'custom.less')
+        path = os.path.join(path, '..', public, 'base', 'less', 'custom.less')
 
         if self.args:
             arg = self.args[0]
@@ -1987,6 +1996,8 @@ class MinifyCommand(CkanCommand):
         :param path: The path to the .js or .css file to minify
 
         '''
+        import ckan.lib.fanstatic_resources as fanstatic_resources
+
         path_only, extension = os.path.splitext(path)
 
         if path_only.endswith('.min'):
@@ -2022,6 +2033,7 @@ class LessCommand(CkanCommand):
     min_args = 0
 
     def command(self):
+        self._load_config()
         self.less()
 
     custom_css = {
@@ -2071,7 +2083,9 @@ class LessCommand(CkanCommand):
         directory = output[0].strip()
         less_bin = os.path.join(directory, 'lessc')
 
-        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        public = config.get(u'ckan.base_public_folder')
+
+        root = os.path.join(os.path.dirname(__file__), '..', public, 'base')
         root = os.path.abspath(root)
         custom_less = os.path.join(root, 'less', 'custom.less')
         for color in self.custom_css:
@@ -2094,6 +2108,7 @@ class LessCommand(CkanCommand):
 
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
+        print output
 
 
 class FrontEndBuildCommand(CkanCommand):
@@ -2113,6 +2128,7 @@ class FrontEndBuildCommand(CkanCommand):
 
         # Less css
         cmd = LessCommand('less')
+        cmd.options = self.options
         cmd.command()
 
         # js translation strings
@@ -2124,7 +2140,8 @@ class FrontEndBuildCommand(CkanCommand):
         # minification
         cmd = MinifyCommand('minify')
         cmd.options = self.options
-        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        public = config.get(u'ckan.base_public_folder')
+        root = os.path.join(os.path.dirname(__file__), '..', public, 'base')
         root = os.path.abspath(root)
         ckanext = os.path.join(os.path.dirname(__file__), '..', '..', 'ckanext')
         ckanext = os.path.abspath(ckanext)

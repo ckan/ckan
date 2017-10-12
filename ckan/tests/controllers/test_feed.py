@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from routes import url_for
+from ckan.lib.helpers import url_for
 from webhelpers.feedgenerator import GeoAtom1Feed
 
 import ckan.plugins as plugins
@@ -100,7 +100,10 @@ class TestFeedInterface(helpers.FunctionalTestBase):
         plugins.unload('test_feed_plugin')
 
     def test_custom_class_used(self):
-        offset = url_for(controller='feed', action='general')
+
+        app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='general')
         app = self._get_test_app()
         res = app.get(offset)
 
@@ -120,7 +123,10 @@ class TestFeedInterface(helpers.FunctionalTestBase):
         ]
 
         factories.Dataset(extras=extras)
-        offset = url_for(controller='feed', action='general')
+
+        app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            offset = url_for(controller='feed', action='general')
         app = self._get_test_app()
         res = app.get(offset)
 

@@ -162,7 +162,8 @@ class PackageController(base.BaseController):
 
         def remove_field(key, value=None, replace=None):
             return h.remove_url_param(key, value=value, replace=replace,
-                                      controller='package', action='search')
+                                      controller='package', action='search',
+                                      alternative_url=package_type)
 
         c.remove_field = remove_field
 
@@ -546,16 +547,22 @@ class PackageController(base.BaseController):
     def resource_edit(self, id, resource_id, data=None, errors=None,
                       error_summary=None):
 
+        context = {'model': model, 'session': model.Session,
+                   'api_version': 3, 'for_edit': True,
+                   'user': c.user, 'auth_user_obj': c.userobj}
+        data_dict = {'id': id}
+
+        try:
+            check_access('package_update', context, data_dict)
+        except NotAuthorized:
+            abort(403, _('User %r not authorized to edit %s') % (c.user, id))
+
         if request.method == 'POST' and not data:
             data = data or \
                 clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                                                            request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
-
-            context = {'model': model, 'session': model.Session,
-                       'api_version': 3, 'for_edit': True,
-                       'user': c.user, 'auth_user_obj': c.userobj}
 
             data['package_id'] = id
             try:
@@ -574,9 +581,6 @@ class PackageController(base.BaseController):
             h.redirect_to(controller='package', action='resource_read', id=id,
                           resource_id=resource_id)
 
-        context = {'model': model, 'session': model.Session,
-                   'api_version': 3, 'for_edit': True,
-                   'user': c.user, 'auth_user_obj': c.userobj}
         pkg_dict = get_action('package_show')(context, {'id': id})
         if pkg_dict['state'].startswith('draft'):
             # dataset has not yet been fully created
@@ -1086,7 +1090,7 @@ class PackageController(base.BaseController):
         except KeyError:
             c.package['isopen'] = False
 
-        # TODO: find a nicer way of doing this
+        # Deprecated: c.datastore_api - use h.action_url instead
         c.datastore_api = '%s/api/action' % \
             config.get('ckan.site_url', '').rstrip('/')
 

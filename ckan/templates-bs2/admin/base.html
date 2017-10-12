@@ -1,0 +1,12 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Administration') }}{% endblock %}
+
+{% block breadcrumb_content %}{% endblock %}
+
+{% block content_primary_nav %}
+  {{ h.build_nav_icon('ckanadmin_index', _('Sysadmins')) }}
+  {{ h.build_nav_icon('ckanadmin_config', _('Config')) }}
+  {{ h.build_nav_icon('ckanadmin_trash', _('Trash')) }}
+  {{ h.build_extra_admin_nav() }}
+{% endblock %}

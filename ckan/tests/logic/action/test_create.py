@@ -70,8 +70,10 @@ class TestUserInvite(object):
     @mock.patch('ckan.lib.mailer.send_invite')
     @mock.patch('random.SystemRandom')
     def test_works_even_if_username_already_exists(self, rand, _):
-        rand.return_value.random.side_effect = [1000, 1000, 1000, 2000,
-                                                3000, 4000, 5000]
+        # usernames
+        rand.return_value.random.side_effect = [1000, 1000, 2000, 3000]
+        # passwords (need to set something, otherwise choice will break)
+        rand.return_value.choice.side_effect = 'TestPassword1' * 3
 
         for _ in range(3):
             invited_user = self._invite_user_to_group(email='same@email.com')
@@ -547,7 +549,10 @@ class TestResourceCreate(object):
             'name': 'A nice resource',
             'upload': test_resource
         }
-        result = helpers.call_action('resource_create', context, **params)
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            result = helpers.call_action('resource_create', context, **params)
 
         mimetype = result.pop('mimetype')
 
@@ -583,7 +588,10 @@ class TestResourceCreate(object):
             'name': 'A nice resource',
             'upload': test_resource
         }
-        result = helpers.call_action('resource_create', context, **params)
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            result = helpers.call_action('resource_create', context, **params)
 
         mimetype = result.pop('mimetype')
 
@@ -615,7 +623,10 @@ class TestResourceCreate(object):
             'name': 'A nice resource',
             'upload': test_resource
         }
-        result = helpers.call_action('resource_create', context, **params)
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            result = helpers.call_action('resource_create', context, **params)
 
         size = result.pop('size')
 

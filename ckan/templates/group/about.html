@@ -3,15 +3,11 @@
 {% block subtitle %}{{ _('About') }} - {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
-  <h1>
-    {% block page_heading %}
-      {{ h.get_translated(c.group_dict, 'title') or c.group_dict.display_name }}
-    {% endblock %}
-  </h1>
+  <h1>{% block page_heading %}{{ c.group_dict.display_name }}{% endblock %}</h1>
   {% block group_description %}
-    {% if h.get_translated(c.group_dict, 'description') %}
-      {{ h.render_markdown(h.get_translated(c.group_dict, 'description')) }}
-    {% endif %}
+    {% if c.group_dict.description %}
+      {{ h.render_markdown(c.group_dict.description) }}
+  	{% endif %}
   {% endblock %}
 
   {% block group_extras %}

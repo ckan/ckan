@@ -14,9 +14,9 @@
 {% endblock %}
 
 {% block content_action %}
-  {% link_for _('All resources'), controller='package', action='resources', id=pkg.name, class_='btn', icon='arrow-left' %}
+  {% link_for _('All resources'), controller='package', action='resources', id=pkg.name, class_='btn btn-default', icon='arrow-left' %}
   {% if res %}
-    {% link_for _('View resource'), controller='package', action='resource_read', id=pkg.name, resource_id=res.id, class_='btn', icon='eye' %}
+    {% link_for _('View resource'), controller='package', action='resource_read', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='eye' %}
   {% endif %}
 {% endblock %}
 
