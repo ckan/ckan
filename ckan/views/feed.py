@@ -51,11 +51,11 @@ def _package_search(data_dict):
 def _enclosure(pkg):
     links = []
     links.append({
-        'href': h.url('api.action', logic_function='package_show', 
-                      ver=3, id=pkg['id'], _external=True),
-        'rel': '',
-        'length': unicode(len(json.dumps(pkg))),
-        'type': u'application/json'})
+        u'href': h.url(u'api.action', logic_function=u'package_show',
+                       ver=3, id=pkg['id'], _external=True),
+        u'rel': u'',
+        u'length': unicode(len(json.dumps(pkg))),
+        u'type': u'application/json'})
     return links
 
 
@@ -98,7 +98,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             published=h.date_str_to_datetime(pkg.get(u'metadata_created')),
             id=_create_atom_id(u'/dataset%s' % pkg['id']),
             author=pkg.get(u'author', u''),
-            categories=[{'terms': t['name']} for t in pkg.get('tags')],
+            categories=[{u'terms': t['name']} for t in pkg.get(u'tags')],
             links=_enclosure(pkg),
             **additional_fields)
 
