@@ -2550,11 +2550,9 @@ def mail_to(email_address, name):
 def radio(selected, id, checked):
     if checked:
         return literal((u'<input checked="checked" id="%s_%s" name="%s" \
-            value="%s" type="radio">'
-                                     ) % (selected, id, selected, id))
+            value="%s" type="radio">') % (selected, id, selected, id))
     return literal(('<input id="%s_%s" name="%s" \
-        value="%s" type="radio">'
-                                 ) % (selected, id, selected, id))
+        value="%s" type="radio">') % (selected, id, selected, id))
 
 
 core_helper(flash, name='flash')
