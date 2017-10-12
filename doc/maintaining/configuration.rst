@@ -547,7 +547,7 @@ Example::
 Default value: ``False``
 
 
-Allow new user accounts to be created via the API.
+Allow new user accounts to be created via the API by anyone. When ``False`` only sysadmins are authorised.
 
 .. _ckan.auth.create_user_via_web:
 

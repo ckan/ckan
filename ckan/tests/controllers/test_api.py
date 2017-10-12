@@ -266,6 +266,7 @@ class TestApiController(helpers.FunctionalTestBase):
 
         if not p.plugin_loaded('datastore'):
             p.load('datastore')
+
         app = self._get_test_app()
         page = app.get(url, status=200)
         p.unload('datastore')
@@ -277,7 +278,7 @@ class TestApiController(helpers.FunctionalTestBase):
             '<code>http://test.ckan.net/api/3/action/datastore_search',
             'http://test.ckan.net/api/3/action/datastore_search_sql',
             'http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5',
-            'http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;q=jones',
+            'http://test.ckan.net/api/3/action/datastore_search?q=jones&amp;resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b',
             'http://test.ckan.net/api/3/action/datastore_search_sql?sql=SELECT * from &#34;588dfa82-760c-45a2-b78a-e3bc314a4a9b&#34; WHERE title LIKE &#39;jones&#39;',
             "url: 'http://test.ckan.net/api/3/action/datastore_search'",
             "http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5&amp;q=title:jones",

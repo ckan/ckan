@@ -44,12 +44,18 @@ dataset searches but are shown in dataset searches within the organization.
 When a user joins an organization, an organization admin gives them one of
 three roles: member, editor or admin.
 
-An organization **admin** can:
+A **member** can:
 
-* View the organization's private datasets
+* View the organization's private datasets.
+
+An **editor** can do everything as **member** plus:
+
 * Add new datasets to the organization
 * Edit or delete any of the organization's datasets
-* Make  datasets public or private.
+* Make datasets public or private.
+
+An organization **admin** can do everything as **editor** plus:
+
 * Add users to the organization, and choose whether to make the new user a
   member, editor or admin
 * Change the role of any user in the organization, including other admin users
@@ -57,16 +63,6 @@ An organization **admin** can:
 * Edit the organization itself (for example: change the organization's title,
   description or image)
 * Delete the organization
-
-An **editor** can:
-
-* View the organization's private datasets
-* Add new datasets to the organization
-* Edit or delete any of the organization's datasets
-
-A **member** can:
-
-* View the organization's private datasets.
 
 When a user creates a new organization, they automatically become the first
 admin of that organization.
