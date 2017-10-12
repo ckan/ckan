@@ -516,7 +516,7 @@ class TestDatastoreSearch():
         ) for record in result['records']]
         assert results == self.expected_records, result['records']
 
-        expected_fields = [{u'type': u'int', u'id': u'_id'},
+        expected_fields = [{u'type': u'int4', u'id': u'_id'},
                         {u'type': u'text', u'id': u'b\xfck'},
                         {u'type': u'text', u'id': u'author'},
                         {u'type': u'timestamp', u'id': u'published'},
@@ -852,34 +852,31 @@ class TestDatastoreSQL():
         p.unload('datastore')
 
     def test_validates_sql_has_a_single_statement(self):
-        sql = 'SELECT * FROM public."{0}"; SELECT * FROM public."{0}";'.format(self.data['resource_id'])
+        sql = u'SELECT * FROM public."{0}"; SELECT * FROM public."{0}";'.format(self.data['resource_id'])
         assert_raises(p.toolkit.ValidationError,
                       helpers.call_action, 'datastore_search_sql', sql=sql)
 
     def test_works_with_semicolons_inside_strings(self):
-        sql = 'SELECT * FROM public."{0}" WHERE "author" = \'foo; bar\''.format(self.data['resource_id'])
+        sql = u'SELECT * FROM public."{0}" WHERE "author" = \'foo; bar\''.format(self.data['resource_id'])
         helpers.call_action('datastore_search_sql', sql=sql)
 
     def test_invalid_statement(self):
-        query = 'SELECT ** FROM foobar'
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
+        query = u'SELECT ** FROM foobar'
+        ctx = {u'user': self.normal_user.name, u'ignore_auth': False}
+        assert_raises(
+            p.toolkit.ValidationError,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx,
+            sql=query)
 
     def test_select_basic(self):
-        query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-        result = res_dict['result']
+        query = u'SELECT * FROM "{0}"'.format(self.data['resource_id'])
+        ctx = {u'user': self.normal_user.name, u'ignore_auth': False}
+        result = helpers.call_action(
+            'datastore_search_sql',
+            context=ctx,
+            sql=query)
         assert len(result['records']) == len(self.expected_records)
         for (row_index, row) in enumerate(result['records']):
             expected_row = self.expected_records[row_index]
@@ -892,25 +889,17 @@ class TestDatastoreSQL():
                     assert row[field] == expected_row[field]
 
         # test alias search
-        query = 'SELECT * FROM "{0}"'.format(self.data['aliases'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth)
-        res_dict_alias = json.loads(res.body)
+        query = u'SELECT * FROM "{0}"'.format(self.data['aliases'])
+        result_alias = helpers.call_action(
+            'datastore_search_sql',
+            context=ctx,
+            sql=query)
 
-        assert result['records'] == res_dict_alias['result']['records']
+        assert result['records'] == result_alias['records']
 
     def test_select_where_like_with_percent(self):
-        query = 'SELECT * FROM public."{0}" WHERE "author" LIKE \'tol%\''.format(self.data['resource_id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-        result = res_dict['result']
+        query = u'SELECT * FROM public."{0}" WHERE "author" LIKE \'tol%\''.format(self.data['resource_id'])
+        result = helpers.call_action('datastore_search_sql', sql=query)
         assert len(result['records']) == len(self.expected_records)
         for (row_index, row) in enumerate(result['records']):
             expected_row = self.expected_records[row_index]
@@ -971,15 +960,14 @@ class TestDatastoreSQL():
         assert res_dict['success'] is True
 
         # new resource should be private
-        query = 'SELECT * FROM "{0}"'.format(resource['id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
+        query = u'SELECT * FROM "{0}"'.format(resource['id'])
+        ctx = {u'user': self.normal_user.name, u'ignore_auth': False}
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx,
+            sql=query)
 
     def test_not_authorized_to_access_system_tables(self):
         test_cases = [
@@ -1028,9 +1016,9 @@ class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
             resource={u'package_id': ds2['id']},
             fields=[{u'id': u'ham', u'type': u'text'}])
 
-        sql1 = 'SELECT spam FROM "{0}"'.format(r1['resource_id'])
-        sql2 = 'SELECT ham FROM "{0}"'.format(r2['resource_id'])
-        sql3 = 'SELECT spam, ham FROM "{0}", "{1}"'.format(
+        sql1 = u'SELECT spam FROM "{0}"'.format(r1['resource_id'])
+        sql2 = u'SELECT ham FROM "{0}"'.format(r2['resource_id'])
+        sql3 = u'SELECT spam, ham FROM "{0}", "{1}"'.format(
             r1['resource_id'], r2['resource_id'])
 
         assert_raises(

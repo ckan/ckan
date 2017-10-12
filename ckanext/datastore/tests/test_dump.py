@@ -150,7 +150,7 @@ class TestDatastoreDump(object):
             str(self.data['resource_id'])), extra_environ=auth)
         content = res.body.decode('utf-8')
         expected_content = (
-            u'{\n  "fields": [{"type":"int","id":"_id"},{"type":"text",'
+            u'{\n  "fields": [{"type":"int4","id":"_id"},{"type":"text",'
             u'"id":"b\xfck"},{"type":"text","id":"author"},{"type":"timestamp"'
             u',"id":"published"},{"type":"_text","id":"characters"},'
             u'{"type":"_text","id":"random_letters"},{"type":"json",'
