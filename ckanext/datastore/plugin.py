@@ -36,6 +36,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IResourceController, inherit=True)
     p.implements(p.ITemplateHelpers)
     p.implements(p.IForkObserver, inherit=True)
+    p.implements(p.IValidators)
     p.implements(interfaces.IDatastore, inherit=True)
     p.implements(interfaces.IDatastoreBackend, inherit=True)
 
@@ -261,3 +262,23 @@ class DatastorePlugin(p.SingletonPlugin):
             pass
         else:
             before_fork()
+
+    # IValidators
+
+    def get_validators(self):
+        return {u'datastore_resource_query': datastore_resource_query}
+
+
+def datastore_resource_query(value):
+    '''Overrides default resource query field validator
+
+    checks SQL query for validity and user permissions'''
+    try:
+        p.toolkit.get_action('datastore_search_sql')(
+            None,
+            {'sql': value, 'dry_run': True})
+    except p.toolkit.ValidationError as e:
+        raise p.toolkit.Invalid(e['sql'])
+    except p.toolkit.NotAuthorized as e:
+        raise p.toolkit.Invalid(e.message)
+    return value
