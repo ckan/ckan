@@ -69,6 +69,13 @@
           }
         },
         {
+          "value": "administrative boundaries",
+          "label": {
+            "en": "administrative boundaries",
+            "fa_IR": "تقسیمات کشوری"
+          }
+        },
+        {
           "value": "advanced diploma",
           "label": {
             "en": "advanced diploma",
@@ -300,6 +307,13 @@
           }
         },
         {
+          "value": "country",
+          "label": {
+            "en": "country",
+            "fa_IR": "شهرستان"
+          }
+        },
+        {
           "value": "country divisions",
           "label": {
             "en": "country divisions",
@@ -517,6 +531,13 @@
           }
         },
         {
+          "value": "food safety",
+          "label": {
+            "en": "food safety",
+            "fa_IR": "ایمنی غذایی"
+          }
+        },
+        {
           "value": "foreign affairs",
           "label": {
             "en": "foreign affairs",
@@ -573,6 +594,13 @@
           }
         },
         {
+          "value": "graduates",
+          "label": {
+            "en": "graduates",
+            "fa_IR": "فارغ‌التحصیلان"
+          }
+        },
+        {
           "value": "health",
           "label": {
             "en": "health",
@@ -626,6 +654,13 @@
           "label": {
             "en": "housing",
             "fa_IR": "مسکن"
+          }
+        },
+        {
+          "value": "humanities",
+          "label": {
+            "en": "humanities",
+            "fa_IR": "علوم انسانی"
           }
         },
         {
@@ -734,6 +769,13 @@
           }
         },
         {
+          "value": "maths and physics",
+          "label": {
+            "en": "maths and physics",
+            "fa_IR": "ریاضی فیزیک"
+          }
+        },
+        {
           "value": "media",
           "label": {
             "en": "media",
@@ -773,6 +815,13 @@
           "label": {
             "en": "Mostazafan foundation",
             "fa_IR": "بنیاد مستضعفان"
+          }
+        },
+        {
+          "value": "national",
+          "label": {
+            "en": "national",
+            "fa_IR": "ملی"
           }
         },
         {
@@ -839,6 +888,13 @@
           }
         },
         {
+          "value": "petrol",
+          "label": {
+            "en": "petrol",
+            "fa_IR": "بنزین"
+          }
+        },
+        {
           "value": "petroleum",
           "label": {
             "en": "petroleum",
@@ -899,6 +955,13 @@
           "label": {
             "en": "power",
             "fa_IR": "قدرت"
+          }
+        },
+        {
+          "value": "practical science",
+          "label": {
+            "en": "practical science",
+            "fa_IR": "علوم تجربی"
           }
         },
         {
@@ -1032,6 +1095,13 @@
           "label": {
             "en": "rural",
             "fa_IR": "روستایی"
+          }
+        },
+        {
+          "value": "rural district",
+          "label": {
+            "en": "rural district",
+            "fa_IR": "دهستان"
           }
         },
         {
