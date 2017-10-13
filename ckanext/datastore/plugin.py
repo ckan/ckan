@@ -278,7 +278,7 @@ def datastore_resource_query(value):
             None,
             {'sql': value, 'dry_run': True})
     except p.toolkit.ValidationError as e:
-        raise p.toolkit.Invalid(e['sql'])
+        raise p.toolkit.Invalid(e.error_dict['sql'])
     except p.toolkit.NotAuthorized as e:
         raise p.toolkit.Invalid(e.message)
     return value

@@ -1504,11 +1504,10 @@ def search_sql(context, data_dict):
                        .replace('EXPLAIN ', ''))
 
         raise ValidationError({
-            'query': [_remove_explain(str(e))],
+            'sql': [_remove_explain(str(e.orig))],
             'info': {
                 'statement': [_remove_explain(e.statement)],
                 'params': [e.params],
-                'orig': [_remove_explain(str(e.orig))]
             }
         })
     except DBAPIError, e:

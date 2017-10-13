@@ -111,10 +111,10 @@ def datastore_create(context, data_dict):
                 {'sql': materialized_view_sql, 'dry_run': True})
         except p.toolkit.ValidationError as e:
             raise p.toolkit.ValidationError(
-                {'datastore_search_sql': e.error_dict['sql']})
+                {'materialized_view_sql': e.error_dict['sql']})
         except p.toolkit.NotAuthorized as e:
             raise p.toolkit.ValidationError(
-                {'datastore_search_sql': e.message})
+                {'materialized_view_sql': e.message})
 
     if 'resource' in data_dict and 'resource_id' in data_dict:
         raise p.toolkit.ValidationError({
