@@ -112,6 +112,31 @@ class DatastoreController(BaseController):
             extra_vars={'fields': fields})
 
 
+    def run_query(self, resource_id):
+        try:
+            resource = get_action('resource_show')(None, {'id': resource_id})
+        except (ObjectNotFound, NotAuthorized):
+            abort(404, _('Resource not found'))
+
+        if not resource.get('query'):
+            # must be a resource with a query defined
+            abort(404, _('Resource not found'))
+
+        if request.method == 'POST':
+            get_action('datastore_create')(None, {
+                'resource_id': resource_id,
+                'force': True,
+                'materialized_view_sql': resource['query']})
+
+            h.flash_success(_('Resource data updated.'))
+
+        h.redirect_to(
+            controller='package',
+            action='resource_read',
+            id=resource['package_id'],
+            resource_id=resource_id)
+
+
 def dump_to(resource_id, output, fmt, offset, limit, options):
     if fmt == 'csv':
         writer_factory = csv_writer

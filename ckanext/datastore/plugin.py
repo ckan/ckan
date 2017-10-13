@@ -135,6 +135,10 @@ class DatastorePlugin(p.SingletonPlugin):
             'resource_dictionary', '/dataset/{id}/dictionary/{resource_id}',
             controller='ckanext.datastore.controller:DatastoreController',
             action='dictionary', ckan_icon='book')
+        m.connect(
+            '/datastore/query/{resource_id}',
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='run_query')
         return m
 
     # IResourceController
