@@ -251,7 +251,7 @@ def update_config():
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
-    config['pylons.app_globals'].template_paths = template_paths
+    config['computed_template_paths'] = template_paths
 
     # Set the default language for validation messages from formencode
     # to what is set as the default locale in the config

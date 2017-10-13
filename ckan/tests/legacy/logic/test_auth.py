@@ -251,6 +251,9 @@ class TestAuthOrgHierarchy(TestAuth):
         for user in model.Session.query(model.User):
             cls.apikeys[user.name] = str(user.apikey)
 
+        cls.sysadmin = get_action('get_site_user')(
+            {'model': model, 'ignore_auth': True}, {})
+
         cls._original_config = config.copy()
 
         config['ckan.auth.roles_that_cascade_to_sub_groups'] = 'admin'
@@ -272,7 +275,8 @@ class TestAuthOrgHierarchy(TestAuth):
     def _reset_a_datasets_owner_org(self):
         rev = model.repo.new_revision()
         get_action('package_owner_org_update')(
-            {'model': model, 'ignore_auth': True},
+            {'model': model, 'user': self.sysadmin['name'],
+             'ignore_auth': True},
             {'id': 'adataset',
              'organization_id': 'national-health-service'})
 
