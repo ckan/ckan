@@ -47,10 +47,6 @@ def resource_dict_save(res_dict, context):
                 obj.url_changed = True
             setattr(obj, key, value)
         else:
-            if key == 'query' and (new or obj.extras.get('query') != value):
-                obj.url_changed = True # XXX hack to notify datastore
-                obj.url_type = 'datastore'
-                new_extras['datastore_active'] = True
             # resources save extras directly onto the object, instead
             # of in a separate extras field like packages and groups
             new_extras[key] = value
