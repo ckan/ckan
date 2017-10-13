@@ -269,16 +269,26 @@ class DatastorePlugin(p.SingletonPlugin):
         return {u'datastore_resource_query': datastore_resource_query}
 
 
-def datastore_resource_query(value):
+def datastore_resource_query(key, data, errors, context):
     '''Overrides default resource query field validator
 
     checks SQL query for validity and user permissions'''
+
+    value = data[key]
+    try:
+        original = context['package'].resources[key[1]].extras['query']
+    except Exception as e:
+        pass
+    else:
+        if original == value:
+            # don't check unchanged values for permissions etc.
+            return
+
     try:
         p.toolkit.get_action('datastore_search_sql')(
             None,
             {'sql': value, 'dry_run': True})
     except p.toolkit.ValidationError as e:
-        raise p.toolkit.Invalid(e.error_dict['sql'])
+        errors[key].append(e.error_dict['sql'])
     except p.toolkit.NotAuthorized as e:
-        raise p.toolkit.Invalid(e.message)
-    return value
+        errors[key].append(e.message)
