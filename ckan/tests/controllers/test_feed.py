@@ -4,6 +4,9 @@ from ckan.lib.helpers import url_for
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import ckan.plugins as plugins
+from ckan.views.feed import _FixedAtomFeed
+from werkzeug.contrib.atom import AtomFeed, FeedEntry
 
 
 class TestFeedNew(helpers.FunctionalTestBase):
@@ -82,7 +85,6 @@ class TestFeedNew(helpers.FunctionalTestBase):
                 'value': 'daily'
             }])
 
-        app = self._get_test_app()
         offset = url_for('feeds.custom')
         params = {'q': 'frequency:weekly'}
         app = self._get_test_app()
@@ -93,3 +95,79 @@ class TestFeedNew(helpers.FunctionalTestBase):
 
         assert u'<title type="text">{0}</title>'.format(
             dataset2['title']) not in res.body
+
+
+class TestFeedInterface(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(TestFeedInterface, cls).setup_class()
+
+        if not plugins.plugin_loaded('test_feed_plugin'):
+            plugins.load('test_feed_plugin')
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+        plugins.unload('test_feed_plugin')
+
+    def test_custom_class_used(self):
+
+        offset = url_for(u'feeds.custom')
+        app = self._get_test_app()
+        res = app.get(offset)
+
+        assert 'xmlns="http://www.w3.org/2005/Atom"' in res.body, res.body
+        assert 'CKAN - Custom query' in res.body, res.body
+
+    def test_additional_fields_added(self):
+        metadata = {
+            'ymin': '-2373790',
+            'xmin': '2937940',
+            'ymax': '-1681290',
+            'xmax': '3567770',
+        }
+
+        extras = [{'key': k, 'value': v} for (k, v) in metadata.items()]
+
+        factories.Dataset(extras=extras)
+
+        offset = url_for(u'feeds.custom')
+        app = self._get_test_app()
+        res = app.get(offset)
+        assert '<geometry>-2373790.000000 2937940.000000 -1681290.000000 3567770.000000</geometry>' in res.body, res.body
+        # assert '<extras>' in res.body, res.body
+
+
+class MockFeedPlugin(plugins.SingletonPlugin):
+    plugins.implements(plugins.IFeed)
+
+    def get_feed_class(self):
+        return _GeoAtomFeed
+
+    def get_item_additional_fields(self, dataset_dict):
+        extras = {e['key']: e['value'] for e in dataset_dict['extras']}
+
+        box = tuple(
+            float(extras.get(n)) for n in ('ymin', 'xmin', 'ymax', 'xmax'))
+        return {'geometry': box}
+
+
+class _GeoAtomFeed(_FixedAtomFeed):
+    def __init__(self, **kwargs):
+        _FixedAtomFeed.__init__(self, **kwargs)
+
+    def add(self, *args, **kwargs):
+        import pdb;  pdb.set_trace()
+        if u'extras' in kwargs:
+            kwargs.pop(u'extras')
+        extras = {u'extras': None}
+        extras.update(kwargs)
+        entrie = _CustomFeedEntry(**extras)
+        _FixedAtomFeed.add(self, entrie, id=entrie.id, updated=entrie.updated)
+
+
+class _CustomFeedEntry(FeedEntry):
+
+    def __init__(self, **kwargs):
+        FeedEntry.__init__(self, **kwargs)
+        self.extras = kwargs.get('extras')

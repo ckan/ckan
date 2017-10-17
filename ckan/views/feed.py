@@ -5,7 +5,6 @@ import urlparse
 
 from flask import Blueprint
 from werkzeug.contrib.atom import AtomFeed
-
 from ckan.common import _, config, g, request
 import ckan.lib.helpers as h
 import ckan.lib.base as base
@@ -59,6 +58,13 @@ def _enclosure(pkg):
     return links
 
 
+def _set_extras(**kw):
+    extras = []
+    for key, value in kw.iteritems():
+        extras.append({key: value})
+    return extras
+
+
 def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                 navigation_urls, feed_guid):
     author_name = config.get(u'ckan.feeds.author_name', u'').strip() or \
@@ -91,6 +97,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             if hasattr(plugin, u'get_item_additional_fields'):
                 additional_fields = plugin.get_item_additional_fields(pkg)
 
+        import pdb; pdb.set_trace()
         feed.add(
             title=pkg.get(u'title', u''),
             description=pkg.get(u'notes', u''),
@@ -100,7 +107,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             author=pkg.get(u'author', u''),
             categories=[{u'terms': t['name']} for t in pkg.get(u'tags')],
             links=_enclosure(pkg),
-            **additional_fields)
+            extras=_set_extras(**additional_fields))
 
     # response.content_type = feed.get_response()
     return feed.get_response()
@@ -487,7 +494,7 @@ class _FixedAtomFeed(AtomFeed):
             kwargs.pop(u'generator')
         defaults = {u'updated': None, u'published': None}
         defaults.update(kwargs)
-        super(_FixedAtomFeed, self).add(*args, **defaults)
+        AtomFeed.add(self, *args, **defaults)
 
     def latest_post_date(self):
         """
@@ -501,7 +508,7 @@ class _FixedAtomFeed(AtomFeed):
         if not len(updates):  # delegate to parent for default behaviour
             return super(_FixedAtomFeed, self).latest_post_date()
         return max(updates)
-
+    
 
 # Routing
 feeds.add_url_rule(u'/dataset.atom', methods=[u'GET'], view_func=general)
