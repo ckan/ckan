@@ -1,0 +1,174 @@
+.header-image {
+  padding: 10px 0;
+  width: 30%;
+}
+
+.masthead .nav-collapse {
+  width: 70%;
+}
+
+.header-image .logo {
+  display: block;
+}
+
+.masthead .navigation {
+  margin-right: 10px;
+}
+
+:lang(en) .fa-ir {
+  display: none;
+}
+
+:lang(fa_IR) .en {
+  display: none;
+}
+
+html:lang(fa_IR) {
+  direction: rtl;
+}
+
+.lang-select-2 {
+  float: left;
+  margin: 5px 0 0;
+}
+
+.lang-container,
+.lang-select-2 select {
+  width: 100px !important;
+}
+
+.homepage .module-search .module-content {
+  background: #e9552d;
+}
+
+body,
+.homepage .module-search .tags,
+.site-footer,
+.account-masthead {
+  background: #d6d6d6;
+  color: #444;
+}
+
+.homepage .module-search .tags {
+  display: none;
+}
+
+.account-masthead a,
+.site-footer a {
+  color: #444;
+}
+
+.account-masthead .account ul li a:hover,
+.account-masthead .account ul li a:active {
+  color: #fff;
+  background-color: #495051;
+}
+
+.account-masthead .account ul li a {
+  color: #444;
+}
+
+.account-masthead .account .notifications a span.badge {
+  color: #fff;
+  background-color: #444;
+}
+
+.account-masthead .account .notifications a:hover span,
+.account-masthead .account .notifications a:active span {
+  color: #444;
+  background-color: #fff;
+}
+
+.masthead {
+  background: #fff;
+  color: #444;
+}
+
+.masthead .nav > li > a {
+  color: #444;
+}
+
+.masthead .navigation .nav-pills li a:hover,
+.masthead .navigation .nav-pills li a:active,
+.masthead .navigation .nav-pills li.active a {
+  background-color: transparent;
+  color: #444;
+  border-bottom: 1px solid #e9552d;
+  border-radius: 0;
+ box-shadow: none;
+}
+
+a {
+  color: #e9552d;
+}
+
+a:hover,
+a:active {
+  color: #3a150b;
+}
+
+[role=main] {
+  min-height: 100%;
+}
+
+.iod-title {
+  font-size: 96px;
+  text-align: center;
+}
+
+.usecases ul {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.usecases li {
+  width: 29%;
+  float: left;
+  list-style: none;
+  margin: 2%;
+}
+
+.usecases dt,
+.usecases dd {
+  display: inline;
+  margin: 0;
+}
+
+/* General */
+* {
+  box-sizing: border-box;
+}
+
+.hero {
+  background: none;
+}
+
+.box {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Footer */
+.attribution {
+  margin-bottom: 10px;
+}
+
+.attribution__list {
+  list-style: none;
+  margin: 0;
+}
+
+.attribution__item + .attribution__item {
+  margin-top: 10px;
+}
+
+.attribution .attribution__logo {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 0 0 5px;
+}
+
+.attribution .sm-logo {
+  width: 21px;
+}
