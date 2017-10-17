@@ -1076,7 +1076,7 @@ class Celery(CkanCommand):
         from ckan.lib.celery_app import celery
         celery_args = []
         if len(self.args) == 2 and self.args[1] == 'concurrency':
-            celery_args.append['--concurrency=1']
+            celery_args.append('--concurrency=1')
         celery.worker_main(argv=['celeryd', '--loglevel=INFO'] + celery_args)
 
     def view(self):
