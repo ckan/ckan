@@ -17,6 +17,7 @@ For usage instructions, please see:
 import json
 import logging
 import re
+import socket
 import sys
 
 from pprint import pprint
@@ -50,6 +51,16 @@ def main():
     }
 
     seen_names = {}
+
+    # Ansible is stupid, and can't cope with DNS hostnames that are too long
+    # for a UNIX socket name, because it relies on SSH connection multiplexing
+    # to run multiple commands. Therefore rather than ever let Ansible see the
+    # long hostnames, just pass the relevant IP addresses, which it will in
+    # turn pass to SSH.
+    inside_ec2 = False
+    if instances:
+        addr = socket.gethostbyname(instances[0].dns_name)
+        inside_ec2 = addr.startswith('10.') or addr.startswith('172.')
 
     for instance in instances:
         env = instance.tags.get('Environment', '').encode('ascii')
@@ -119,9 +130,14 @@ def main():
         )
 
         output['_meta']['hostvars'][name] = {
-            'ansible_host': instance.ip_address,
+            'ansible_host': (
+                instance.private_ip_address
+                if inside_ec2 else
+                instance.ip_address
+            ),
             'ec2': {
                 'instance_id': instance.id,
+                'dns_name': instance.public_dns_name,
                 'private_ip_address': instance.private_ip_address,
                 'environment': env,
                 'project': project,
