@@ -87,10 +87,10 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
         author_name=author_name,
         feed_guid=feed_guid,
         feed_url=feed_url,
-        previous_page=navigation_urls['previous'],
-        next_page=navigation_urls['next'],
-        first_page=navigation_urls['first'],
-        last_page=navigation_urls['last'], )
+        previous_page=navigation_urls[u'previous'],
+        next_page=navigation_urls[u'next'],
+        first_page=navigation_urls[u'first'],
+        last_page=navigation_urls[u'last'], )
 
     for pkg in results:
         additional_fields = {}
@@ -100,33 +100,33 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                 additional_fields = plugin.get_item_additional_fields(pkg)
 
         feed.add_item(
-            title=pkg.get('title', ''),
+            title=pkg.get(u'title', u''),
             link=h.url_for(
                 u'api.action',
                 logic_function=u'package_read',
                 id=pkg['id'],
                 ver=3,
-                _exteral=True),
-            description=pkg.get('notes', ''),
-            updated=h.date_str_to_datetime(pkg.get('metadata_modified')),
-            published=h.date_str_to_datetime(pkg.get('metadata_created')),
+                _external=True),
+            description=pkg.get(u'notes', u''),
+            updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
+            published=h.date_str_to_datetime(pkg.get(u'metadata_created')),
             unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
-            author_name=pkg.get('author', ''),
-            author_email=pkg.get('author_email', ''),
-            categories=[t['name'] for t in pkg.get('tags', [])],
+            author_name=pkg.get(u'author', ''),
+            author_email=pkg.get(u'author_email', ''),
+            categories=[t['name'] for t in pkg.get(u'tags', [])],
             enclosure=webhelpers.feedgenerator.Enclosure(
                 h.url_for(
                     u'api.action',
                     logic_function=u'package_show',
                     id=pkg['name'],
-                    ver='3',
+                    ver=3,
                     _external=True),
                 unicode(len(json.dumps(pkg))), u'application/json'),
             **additional_fields)
 
         # response.content_type = feed.mime_type
-        resp = make_response(feed.writeString('utf-8'), 200)
-        resp.headers['Content-Type'] = 'text/xml'
+        resp = make_response(feed.writeString(u'utf-8'), 200)
+        resp.headers['Content-Type'] = u'text/xml'
         return resp
 
 
@@ -371,13 +371,13 @@ def _navigation_urls(query, controller, action, item_count, limit, **kwargs):
     Constructs and returns first, last, prev and next links for paging
     """
 
-    urls = dict((rel, None) for rel in 'previous next first last'.split())
+    urls = dict((rel, None) for rel in u'previous next first last'.split())
 
-    page = int(query.get('page', 1))
+    page = int(query.get(u'page', 1))
 
     # first: remove any page parameter
     first_query = query.copy()
-    first_query.pop('page', None)
+    first_query.pop(u'page', None)
     urls['first'] = _feed_url(first_query, controller,
                               action, **kwargs)
 
@@ -518,9 +518,9 @@ class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
         """
         Drop the pubdate field from the new item.
         """
-        if 'pubdate' in kwargs:
-            kwargs.pop('pubdate')
-        defaults = {'updated': None, 'published': None}
+        if u'pubdate' in kwargs:
+            kwargs.pop(u'pubdate')
+        defaults = {u'updated': None, u'published': None}
         defaults.update(kwargs)
         super(_FixedAtom1Feed, self).add_item(*args, **defaults)
 
@@ -548,11 +548,11 @@ class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 
         if (item['updated']):
             handler.addQuickElement(u'updated',
-                                    dfunc(item['updated']).decode('utf-8'))
+                                    dfunc(item['updated']).decode(u'utf-8'))
 
         if (item['published']):
             handler.addQuickElement(u'published',
-                                    dfunc(item['published']).decode('utf-8'))
+                                    dfunc(item['published']).decode(u'utf-8'))
 
     def add_root_elements(self, handler):
         """
@@ -564,11 +564,11 @@ class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
 
         handler.addQuickElement(u'subtitle', self.feed['description'])
 
-        for page in ['previous', 'next', 'first', 'last']:
-            if self.feed.get(page + '_page', None):
+        for page in [u'previous', u'next', u'first', u'last']:
+            if self.feed.get(page + u'_page', None):
                 handler.addQuickElement(u'link', u'', {
-                    'rel': page,
-                    'href': self.feed.get(page + '_page')
+                    u'rel': page,
+                    u'href': self.feed.get(page + u'_page')
                 })
 
 
