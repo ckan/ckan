@@ -3,7 +3,7 @@
 import logging
 import urlparse
 
-from flask import Blueprint
+from flask import Blueprint, make_response
 import webhelpers.feedgenerator
 from ckan.common import _, config, g, request, response
 import ckan.lib.helpers as h
@@ -125,7 +125,9 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             **additional_fields)
 
         # response.content_type = feed.mime_type
-        return feed.writeString('utf-8')
+        resp = make_response(feed.writeString('utf-8'), 200)
+        resp.headers['Content-Type'] = 'text/xml'
+        return resp
 
 
 def group(id):
@@ -332,13 +334,11 @@ def custom():
 
     alternate_url = _alternate_url(request.params)
 
-    site_title = config.get(u'ckan.site_title', u'CKAN')
-
     return output_feed(
         results,
-        feed_title=u'%s - Custom query' % site_title,
+        feed_title=u'%s - Custom query' % SITE_TITLE,
         feed_description=u'Recently created or updated'
-        ' datasets on %s. Custom query: \'%s\'' % (site_title, q),
+        ' datasets on %s. Custom query: \'%s\'' % (SITE_TITLE, q),
         feed_link=alternate_url,
         feed_guid=_create_atom_id(atom_url),
         feed_url=feed_url,

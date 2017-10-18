@@ -45,7 +45,7 @@ class TestFeedNew(helpers.FunctionalTestBase):
         offset = url_for(u'feeds.general')
         res = app.get(offset)
 
-        assert u'<title type="text">{0}</title>'.format(
+        assert u'<title>{0}</title>'.format(
             dataset['title']) in res.body
 
     def test_group_atom_feed_works(self):
@@ -56,7 +56,7 @@ class TestFeedNew(helpers.FunctionalTestBase):
         offset = url_for(u'feeds.group', id=group['name'])
         res = app.get(offset)
 
-        assert u'<title type="text">{0}</title>'.format(
+        assert u'<title>{0}</title>'.format(
             dataset['title']) in res.body
 
     def test_organization_atom_feed_works(self):
@@ -67,7 +67,7 @@ class TestFeedNew(helpers.FunctionalTestBase):
         offset = url_for(u'feeds.organization', id=group['name'])
         res = app.get(offset)
 
-        assert u'<title type="text">{0}</title>'.format(
+        assert u'<title>{0}</title>'.format(
             dataset['title']) in res.body
 
     def test_custom_atom_feed_works(self):
@@ -89,10 +89,10 @@ class TestFeedNew(helpers.FunctionalTestBase):
         app = self._get_test_app()
         res = app.get(offset, params=params)
 
-        assert u'<title type="text">{0}</title>'.format(
+        assert u'<title>{0}</title>'.format(
             dataset1['title']) in res.body
 
-        assert u'<title type="text">{0}</title>'.format(
+        assert u'<title">{0}</title>'.format(
             dataset2['title']) not in res.body
 
 
@@ -111,9 +111,8 @@ class TestFeedInterface(helpers.FunctionalTestBase):
 
     def test_custom_class_used(self):
 
-        import pdb; pdb.set_trace()
         app = self._get_test_app()
-        offset = url_for(u'feeds.custom')
+        offset = url_for(u'feeds.general')
         app = self._get_test_app()
         res = app.get(offset)
 
@@ -132,7 +131,7 @@ class TestFeedInterface(helpers.FunctionalTestBase):
         factories.Dataset(extras=extras)
 
         app = self._get_test_app()
-        offset = url_for(controller="feeds", action='general')
+        offset = url_for(u'feeds.general')
         app = self._get_test_app()
         res = app.get(offset)
 
