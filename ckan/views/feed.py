@@ -111,8 +111,8 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
             published=h.date_str_to_datetime(pkg.get(u'metadata_created')),
             unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
-            author_name=pkg.get(u'author', ''),
-            author_email=pkg.get(u'author_email', ''),
+            author_name=pkg.get(u'author', u''),
+            author_email=pkg.get(u'author_email', u''),
             categories=[t['name'] for t in pkg.get(u'tags', [])],
             enclosure=webhelpers.feedgenerator.Enclosure(
                 h.url_for(
