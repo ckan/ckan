@@ -124,10 +124,9 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                 unicode(len(json.dumps(pkg))), u'application/json'),
             **additional_fields)
 
-        # response.content_type = feed.mime_type
-        resp = make_response(feed.writeString(u'utf-8'), 200)
-        resp.headers['Content-Type'] = u'text/xml'
-        return resp
+    resp = make_response(feed.writeString(u'utf-8'), 200)
+    resp.headers['Content-Type'] = u'application/atom+xml'
+    return resp
 
 
 def group(id):
