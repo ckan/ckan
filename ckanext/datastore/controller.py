@@ -15,12 +15,7 @@ from ckan.plugins.toolkit import (
     c,
     h,
 )
-from ckanext.datastore.writer import (
-    csv_writer,
-    tsv_writer,
-    json_writer,
-    xml_writer,
-)
+from ckanext.datastore.writer import get_writers
 from ckan.logic import (
     tuplize_dict,
     parse_params,
@@ -113,18 +108,8 @@ class DatastoreController(BaseController):
 
 
 def dump_to(resource_id, output, fmt, offset, limit, options):
-    if fmt == 'csv':
-        writer_factory = csv_writer
-        records_format = 'csv'
-    elif fmt == 'tsv':
-        writer_factory = tsv_writer
-        records_format = 'tsv'
-    elif fmt == 'json':
-        writer_factory = json_writer
-        records_format = 'lists'
-    elif fmt == 'xml':
-        writer_factory = xml_writer
-        records_format = 'objects'
+
+    writer_factory, records_format = get_writers(fmt)
 
     def start_writer(fields):
         bom = options.get(u'bom', False)

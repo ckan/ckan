@@ -3,11 +3,37 @@
 from contextlib import contextmanager
 from email.utils import encode_rfc2231
 from simplejson import dumps
+import plugins
 from xml.etree.cElementTree import Element, SubElement, ElementTree
+from ckanext.datastore.interfaces import IWriter
 
 import unicodecsv
 
 from codecs import BOM_UTF8
+
+
+def get_writers(fmt):
+
+    for plugin in plugins.PluginImplementations(IWriter):
+        if hasattr(plugin, 'get_writer'):
+            plugin_writer = plugin.get_writer()
+
+    if fmt == 'csv':
+        writer_factory = csv_writer
+        records_format = 'csv'
+    elif fmt == 'tsv':
+        writer_factory = tsv_writer
+        records_format = 'tsv'
+    elif fmt == 'json':
+        writer_factory = json_writer
+        records_format = 'lists'
+    elif fmt == 'xml':
+        writer_factory = xml_writer
+        records_format = 'objects'
+    else:
+        writer_factory = plugin_writer
+        records_format = 'objects'
+    return writer_factory, records_format
 
 
 @contextmanager

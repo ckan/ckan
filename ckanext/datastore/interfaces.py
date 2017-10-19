@@ -170,3 +170,9 @@ class IDatastoreBackend(interfaces.Interface):
                   value
         """
         return {}
+
+
+class IWriter(interfaces.Interface):
+    ''' Allow custom implementation of writers'''
+    def get_writer(self):
+        return {}
