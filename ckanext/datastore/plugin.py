@@ -177,6 +177,29 @@ class DatastorePlugin(p.SingletonPlugin):
             res_query.update(
                 {'extras': res.extras}, synchronize_session=False)
 
+    def after_create(self, context, resource):
+        if not context.get('for_edit', False):
+            return
+        if resource.get['query']:
+            sync_query_frontend(resource['resource_id'], resource['query'])
+
+    def before_update(self, context, old, new):
+        if not context.get('for_edit', False):
+            return
+        # we need the old query in after_update to see if there's
+        # something that has changed (post-validation)
+        context.setdefault(
+            'datastore_old_query_values',
+            {})[old['resource_id']] = old.get('query')
+
+    def after_update(self, context, resource):
+        if not context.get('for_edit', False):
+            return
+        res_id = resource['resource_id']
+        query = resource.get('query')
+        if query != context['datastore_old_query_values'][res_id]:
+            sync_query_frontend(res_id, query)
+
     # IDatastore
 
     def datastore_validate(self, context, data_dict, fields_types):
@@ -296,3 +319,24 @@ def datastore_resource_query(key, data, errors, context):
         errors[key].append(e.error_dict['sql'])
     except p.toolkit.NotAuthorized as e:
         errors[key].append(e.message)
+
+
+def sync_query_frontend(resource_id, query):
+    '''
+    As a special case when editing a query-based resource on the front-end
+    automatically update the materialized view to match. When using the API
+    it is more consistent and less order-dependent for the user to do this
+    with explicit datastore_create/datastore_delete calls instead.
+    '''
+
+    try:
+        if query:
+            p.toolkit.get_action('datastore_create')(
+                None,
+                {'resource_id': resource_id, 'materialized_view_sql': query})
+        else:
+            p.toolkit.get_action('datastore_delete')(
+                None,
+                {'resource_id': resource_id})
+    except p.toolkit.ValidationError as e:
+        pass  # this is an optional extra step, if it fails pass silently
