@@ -153,14 +153,15 @@ def group_edit_permissions(context, data_dict):
     user = context['user']
     group = logic_auth.get_group_object(context, data_dict)
 
-    authorized = authz.has_user_permission_for_group_or_org(group.id,
-                                                                user,
-                                                                'update')
+    authorized = authz.has_user_permission_for_group_or_org(
+        group.id, user, 'update')
 
     if not authorized:
-        return {'success': False,
-                'msg': _('User %s not authorized to edit permissions of group %s') %
-                        (str(user), group.id)}
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to'
+                     ' edit permissions of group %s') %
+            (str(user), group.id)}
     else:
         return {'success': True}
 

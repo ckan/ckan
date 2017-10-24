@@ -17,9 +17,10 @@ import pprint
 import copy
 import urlparse
 from urllib import urlencode
+import uuid
 
 from paste.deploy import converters
-from webhelpers.html import escape, HTML, literal, tags, tools
+from webhelpers.html import HTML, literal, tags
 from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
@@ -27,7 +28,7 @@ from markdown import markdown
 from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from ckan.common import config
-from routes import redirect_to as _redirect_to
+from routes import redirect_to as _routes_redirect_to
 from routes import url_for as _routes_default_url_for
 import i18n
 
@@ -44,6 +45,7 @@ import ckan.plugins as p
 import ckan
 
 from ckan.common import _, ungettext, g, c, request, session, json
+from markupsafe import Markup, escape
 
 log = logging.getLogger(__name__)
 
@@ -146,10 +148,36 @@ def redirect_to(*args, **kw):
 
         toolkit.redirect_to('dataset_read', id='changed')
 
+    If given a single string as argument, this redirects without url parsing
+
+        toolkit.redirect_to('http://example.com')
+        toolkit.redirect_to('/dataset')
+        toolkit.redirect_to('/some/other/path')
+
     '''
     if are_there_flash_messages():
         kw['__no_cache__'] = True
-    return _redirect_to(url_for(*args, **kw))
+
+    # Routes router doesn't like unicode args
+    uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
+                args)
+
+    _url = ''
+    skip_url_parsing = False
+    parse_url = kw.pop('parse_url', False)
+    if uargs and len(uargs) is 1 and isinstance(uargs[0], basestring) \
+            and (uargs[0].startswith('/') or is_url(uargs[0])) \
+            and parse_url is False:
+        skip_url_parsing = True
+        _url = uargs[0]
+
+    if skip_url_parsing is False:
+        _url = url_for(*uargs, **kw)
+
+    if _url.startswith('/'):
+        _url = str(config['ckan.site_url'].rstrip('/') + _url)
+
+    return _routes_redirect_to(_url)
 
 
 @maintain.deprecated('h.url is deprecated please use h.url_for')
@@ -369,6 +397,12 @@ def full_current_url():
 
 
 @core_helper
+def current_url():
+    ''' Returns current url unquoted'''
+    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
+
+
+@core_helper
 def lang():
     ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
@@ -468,6 +502,7 @@ class _Flash(object):
 
     def are_there_messages(self):
         return bool(session.get(self.session_key))
+
 
 flash = _Flash()
 # this is here for backwards compatability
@@ -1028,6 +1063,7 @@ def linked_gravatar(email_hash, size=100, default=None):
         '%s</a>' % gravatar(email_hash, size, default)
     )
 
+
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid',
                             'wavatar', 'retro']
 
@@ -1154,6 +1190,24 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
 
     # if date_format was supplied we use it
     if date_format:
+
+        # See http://bugs.python.org/issue1777412
+        if datetime_.year < 1900:
+            year = str(datetime_.year)
+
+            date_format = re.sub('(?<!%)((%%)*)%y',
+                                 r'\g<1>{year}'.format(year=year[-2:]),
+                                 date_format)
+            date_format = re.sub('(?<!%)((%%)*)%Y',
+                                 r'\g<1>{year}'.format(year=year),
+                                 date_format)
+
+            datetime_ = datetime.datetime(2016, datetime_.month, datetime_.day,
+                                          datetime_.hour, datetime_.minute,
+                                          datetime_.second)
+
+            return datetime_.strftime(date_format)
+
         return datetime_.strftime(date_format)
     # the localised date
     return formatters.localised_nice_date(datetime_, show_date=True,
@@ -1439,6 +1493,7 @@ def convert_to_dict(object_type, objs):
         item = converter(obj, context)
         items.append(item)
     return items
+
 
 # these are the types of objects that can be followed
 _follow_objects = ['dataset', 'user', 'group']
@@ -1768,6 +1823,7 @@ def get_request_param(parameter_name, default=None):
     searches. '''
     return request.params.get(parameter_name, default)
 
+
 # find all inner text of html eg `<b>moo</b>` gets `moo` but not of <a> tags
 # as this would lead to linkifying links if they are urls.
 RE_MD_GET_INNER_HTML = re.compile(
@@ -2077,6 +2133,7 @@ def SI_number_span(number):
                          + '">')
     return output + formatters.localised_SI_number(number) + literal('</span>')
 
+
 # add some formatter functions
 localised_number = formatters.localised_number
 localised_SI_number = formatters.localised_SI_number
@@ -2177,6 +2234,7 @@ def get_site_statistics():
         logic.get_action('organization_list')({}, {}))
     return stats
 
+
 _RESOURCE_FORMATS = None
 
 
@@ -2274,9 +2332,34 @@ def license_options(existing_license_id=None):
 def get_translated(data_dict, field):
     language = i18n.get_lang()
     try:
-        return data_dict[field+'_translated'][language]
+        return data_dict[field + '_translated'][language]
     except KeyError:
         return data_dict.get(field, '')
+
+
+@core_helper
+def mail_to(email_address, name):
+    email = escape(email_address)
+    author = escape(name)
+    html = Markup(u'<a href=mailto:{0}>{1}</a>'.format(email, author))
+    return html
+
+
+@core_helper
+def radio(selected, id, checked):
+    if checked:
+        return literal((u'<input checked="checked" id="%s_%s" name="%s" \
+            value="%s" type="radio">') % (selected, id, selected, id))
+    return literal(('<input id="%s_%s" name="%s" \
+        value="%s" type="radio">') % (selected, id, selected, id))
+
+
+@core_helper
+def sanitize_id(id_):
+    '''Given an id (uuid4), if it has any invalid characters it raises
+    ValueError.
+    '''
+    return str(uuid.UUID(id_))
 
 
 core_helper(flash, name='flash')
@@ -2292,12 +2375,12 @@ core_helper(tags.literal)
 core_helper(tags.link_to)
 core_helper(tags.file)
 core_helper(tags.submit)
-core_helper(tools.mail_to)
 core_helper(whtext.truncate)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
+core_helper(clean_html, name='clean_html')
 
 
 def load_plugin_helpers():
