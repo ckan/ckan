@@ -37,7 +37,7 @@ Support
 -------
 For general discussion around CKAN, you can write to the `Google Group`_.
 
-If you need help with CKAN and and want to ask a or want to ask a question about CKAN, use either the
+If you need help with CKAN or want to ask a question, use either the
 `ckan-dev`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
 searching the Stack Overflow and ckan-dev `archives`_ for an answer to your
 question first).
