@@ -66,12 +66,12 @@ If you want to talk about CKAN development say hi to the CKAN developers on the
 
 If you've figured out how to do something with CKAN and want to document it for
 others, make a new page on the `CKAN wiki`_, and tell us about it on
-`ckan-dev`_.
+ckan-dev mailing list.
 
 .. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
 .. _#ckan: http://webchat.freenode.net/?channels=ckan
 .. _CKAN Wiki: https://github.com/ckan/ckan/wiki
-.. BotBot: https://botbot.me/freenode/ckan/
+.. _BotBot: https://botbot.me/freenode/ckan/
 
 
 Copying and License
