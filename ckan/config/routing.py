@@ -181,7 +181,7 @@ def make_map():
     map.redirect('/package/{url:.*}', '/dataset/{url}')
 
     with SubMapper(map, controller='package') as m:
-        m.connect('search', '/dataset', action='search',
+        m.connect('search', action='search',
                   highlight_actions='index search')
         m.connect('dataset_new', '/dataset/new', action='new')
         m.connect('/dataset/{action}',
@@ -223,6 +223,8 @@ def make_map():
                   action='resources', ckan_icon='bars')
         m.connect('dataset_read', '/dataset/{id}', action='read',
                   ckan_icon='sitemap')
+        m.connect('dataset_search', '/dataset',
+                  action='search')
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
         m.connect('/dataset/{id}/resource_delete/{resource_id}',
