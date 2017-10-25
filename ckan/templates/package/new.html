@@ -6,5 +6,5 @@
 {% else %}
     {% extends "package/base_form_page.html" %}
 
-    {% block subtitle %}{{ _('Create Dataset') }}{% endblock %}
+    {% block subtitle %}{{ _('Create ' + dataset_type.title()) }}{% endblock %}
 {% endif  %}
