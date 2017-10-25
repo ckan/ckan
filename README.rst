@@ -62,7 +62,7 @@ For contributing to CKAN or its documentation, see
 `CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.rst>`_.
 
 If you want to talk about CKAN development say hi to the CKAN developers on the
-`ckan-dev`_ mailing list or in the `#ckan`_ IRC channel on irc.freenode.net.
+`ckan-dev`_ mailing list, in the `#ckan`_ IRC channel, or on `BotBot`_.
 
 If you've figured out how to do something with CKAN and want to document it for
 others, make a new page on the `CKAN wiki`_, and tell us about it on
@@ -71,6 +71,7 @@ others, make a new page on the `CKAN wiki`_, and tell us about it on
 .. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
 .. _#ckan: http://webchat.freenode.net/?channels=ckan
 .. _CKAN Wiki: https://github.com/ckan/ckan/wiki
+.. BotBot: https://botbot.me/freenode/ckan/
 
 
 Copying and License
