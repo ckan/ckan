@@ -1325,13 +1325,6 @@
       "preset": "select",
       "choices": [
         {
-         "value": "Air Quality Control Company",
-         "label": {
-           "en": "Air Quality Control Company",
-           "fa_IR": "شرکت کنترل کیفیت هوا"
-         }
-        },
-        {
          "value": "Behnam Ideh Gostar Group",
          "label": {
            "en": "Behnam Ideh Gostar Group",
@@ -1353,9 +1346,9 @@
          }
         },
         {
-         "value": "eCommerce Development Centre of Iran",
+         "value": "E-Commerce Development Centre of Iran",
          "label": {
-           "en": "eCommerce Development Centre of Iran",
+           "en": "E-Commerce Development Centre of Iran",
            "fa_IR": "مرکز توسعه تجارت الکترونیکی ایران"
          }
         },
@@ -1367,23 +1360,16 @@
          }
         },
         {
-         "value": "Islamic Parliament Research Center Of Iran",
+         "value": "Islamic Parliament Research Centre Of Iran",
          "label": {
-           "en": "Islamic Parliament Research Center Of Iran",
-           "fa_IR": "مرکز پژوهش‌های مجلس شورای اسلامی"
-         }
-        },
-        {
-         "value": "Islamic Parliament Research Centre",
-         "label": {
-           "en": "Islamic Parliament Research Centre",
+           "en": "Islamic Parliament Research Centre Of Iran",
            "fa_IR": "مرکز تحقیقات مجلس شورای اسلامی"
          }
         },
         {
-         "value": "Islamic Republic of Iran Customs Administration",
+         "value": "Islamic Republic of Iran Customs",
          "label": {
-           "en": "Islamic Republic of Iran Customs Administration",
+           "en": "Islamic Republic of Iran Customs",
            "fa_IR": "گمرک جمهوری اسلامی ایران"
          }
         },
@@ -1458,6 +1444,13 @@
          }
         },
         {
+          "value": "National Oil Product Distribution Company",
+          "label": {
+            "en": "National Oil Product Distribution Company",
+            "fa_IR": "شرکت ملی پخش فرآورده‌های نفتی ایران"
+          }
+         },
+        {
          "value": "National Organisation for Civil Registration",
          "label": {
            "en": "National Organisation for Civil Registration",
@@ -1472,17 +1465,17 @@
          }
         },
         {
-         "value": "North Khorasan University of Medical Sciences & Health Services",
+         "value": "North Khorasan University of Medical Sciences and Health Services",
          "label": {
-           "en": "North Khorasan University of Medical Sciences & Health Services",
+           "en": "North Khorasan University of Medical Sciences and Health Services",
            "fa_IR": "دانشگاه علوم پزشکی و خدمات بهداشتی درمانی خراسان شمالی"
          }
         },
         {
-         "value": "President Deputy Strategic Planning and Control",
+         "value": "Organization of Petroleum Exporters Countries",
          "label": {
-           "en": "President Deputy Strategic Planning and Control",
-           "fa_IR": "معاونت برنامه‌ریزی و نظارت راهبردی رییس جمهور"
+           "en": "Organization of Petroleum Exporters Countries",
+           "fa_IR": "سازمان کشورهای صادر کننده نفت"
          }
         },
         {
@@ -1507,9 +1500,30 @@
          }
         },
         {
-         "value": "The World bank",
+         "value": "Tehran Air Quality Control Company",
          "label": {
-           "en": "The World bank",
+           "en": "Tehran Air Quality Control Company",
+           "fa_IR": "شرکت کنترل کیفیت هوای تهران"
+         }
+        },
+        {
+         "value": "Tehran Municipality",
+         "label": {
+           "en": "Tehran Municipality",
+           "fa_IR": "شهرداری تهران"
+         }
+        },
+        {
+         "value": "The National Land & Housing Organisation",
+         "label": {
+           "en": "The National Land & Housing Organisation",
+           "fa_IR": "سازمان ملی زمین و مسکن"
+         }
+        }, 
+        {
+         "value": "The World Bank",
+         "label": {
+           "en": "The World Bank",
            "fa_IR": "بانک جهانی"
          }
         },
@@ -1714,13 +1728,6 @@
       "preset": "select",
       "choices": [
         {
-         "value": "Air Quality Control Company",
-         "label": {
-           "en": "Air Quality Control Company",
-           "fa_IR": "شرکت کنترل کیفیت هوا"
-         }
-        },
-        {
          "value": "Behnam Ideh Gostar Group",
          "label": {
            "en": "Behnam Ideh Gostar Group",
@@ -1742,9 +1749,9 @@
          }
         },
         {
-         "value": "eCommerce Development Centre of Iran",
+         "value": "E-Commerce Development Centre of Iran",
          "label": {
-           "en": "eCommerce Development Centre of Iran",
+           "en": "E-Commerce Development Centre of Iran",
            "fa_IR": "مرکز توسعه تجارت الکترونیکی ایران"
          }
         },
@@ -1756,23 +1763,16 @@
          }
         },
         {
-         "value": "Islamic Parliament Research Center Of Iran",
+         "value": "Islamic Parliament Research Centre Of Iran",
          "label": {
-           "en": "Islamic Parliament Research Center Of Iran",
-           "fa_IR": "مرکز پژوهش‌های مجلس شورای اسلامی"
-         }
-        },
-        {
-         "value": "Islamic Parliament Research Centre",
-         "label": {
-           "en": "Islamic Parliament Research Centre",
+           "en": "Islamic Parliament Research Centre Of Iran",
            "fa_IR": "مرکز تحقیقات مجلس شورای اسلامی"
          }
         },
         {
-         "value": "Islamic Republic of Iran Customs Administration",
+         "value": "Islamic Republic of Iran Customs",
          "label": {
-           "en": "Islamic Republic of Iran Customs Administration",
+           "en": "Islamic Republic of Iran Customs",
            "fa_IR": "گمرک جمهوری اسلامی ایران"
          }
         },
@@ -1847,6 +1847,13 @@
          }
         },
         {
+          "value": "National Oil Product Distribution Company",
+          "label": {
+            "en": "National Oil Product Distribution Company",
+            "fa_IR": "شرکت ملی پخش فرآورده‌های نفتی ایران"
+          }
+         },
+        {
          "value": "National Organisation for Civil Registration",
          "label": {
            "en": "National Organisation for Civil Registration",
@@ -1861,17 +1868,17 @@
          }
         },
         {
-         "value": "North Khorasan University of Medical Sciences & Health Services",
+         "value": "North Khorasan University of Medical Sciences and Health Services",
          "label": {
-           "en": "North Khorasan University of Medical Sciences & Health Services",
+           "en": "North Khorasan University of Medical Sciences and Health Services",
            "fa_IR": "دانشگاه علوم پزشکی و خدمات بهداشتی درمانی خراسان شمالی"
          }
         },
         {
-         "value": "President Deputy Strategic Planning and Control",
+         "value": "Organization of Petroleum Exporters Countries",
          "label": {
-           "en": "President Deputy Strategic Planning and Control",
-           "fa_IR": "معاونت برنامه‌ریزی و نظارت راهبردی رییس جمهور"
+           "en": "Organization of Petroleum Exporters Countries",
+           "fa_IR": "سازمان کشورهای صادر کننده نفت"
          }
         },
         {
@@ -1896,9 +1903,30 @@
          }
         },
         {
-         "value": "The World bank",
+         "value": "Tehran Air Quality Control Company",
          "label": {
-           "en": "The World bank",
+           "en": "Tehran Air Quality Control Company",
+           "fa_IR": "شرکت کنترل کیفیت هوای تهران"
+         }
+        },
+        {
+         "value": "Tehran Municipality",
+         "label": {
+           "en": "Tehran Municipality",
+           "fa_IR": "شهرداری تهران"
+         }
+        },
+        {
+         "value": "The National Land & Housing Organisation",
+         "label": {
+           "en": "The National Land & Housing Organisation",
+           "fa_IR": "سازمان ملی زمین و مسکن"
+         }
+        }, 
+        {
+         "value": "The World Bank",
+         "label": {
+           "en": "The World Bank",
            "fa_IR": "بانک جهانی"
          }
         },
