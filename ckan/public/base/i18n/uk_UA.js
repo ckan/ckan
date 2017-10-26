@@ -8,6 +8,10 @@
     null,
     "Виникла помилка"
   ],
+  "An error occurred: %(text)s %(error)s": [
+    null,
+    "Виникла помилка: %(text)s %(error)s"
+  ],
   "Are you sure you want to perform this action?": [
     null,
     "Ви впевнені, що хочете виконати цю операцію?"
@@ -143,5 +147,9 @@
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
     "Ви вкладаєте файл. Ви впевнені, що хочете перейти на іншу сторінку і припинити вкладення?"
+  ],
+  "error loading view": [
+    null,
+    "помилка при завантаженні представлення"
   ]
 }

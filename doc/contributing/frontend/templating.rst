@@ -374,7 +374,7 @@ Examples:
 ::
 
     {% import 'macros/form.html' as form %}
-    {{ form.select('year', label=_('Year'), options={'value': 2010, 'value': 2011}, selected=2011, error=errors.year) }}
+    {{ form.select('year', label=_('Year'), options=[{'name':2010, 'value': 2010},{'name': 2011, 'value': 2011}], selected=2011, error=errors.year) }}
 
 form.textarea()
 ~~~~~~~~~~~~~~~

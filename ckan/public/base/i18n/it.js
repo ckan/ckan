@@ -8,6 +8,10 @@
     null,
     "Si è verificato un errore"
   ],
+  "An error occurred: %(text)s %(error)s": [
+    null,
+    "Si è verificato un errore: %(text)s %(error)s"
+  ],
   "Are you sure you want to perform this action?": [
     null,
     "Sei certo di voler confermare questa azione?"
@@ -143,5 +147,9 @@
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
     "Stai caricando un file. Sei sicuro che vuoi abbandonare questa pagina e interrompere il caricamento?"
+  ],
+  "error loading view": [
+    null,
+    "Errore nel caricamento della vista"
   ]
 }

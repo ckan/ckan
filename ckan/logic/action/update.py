@@ -60,11 +60,13 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
+
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
     resource = model.Resource.get(id)
     context["resource"] = resource
+    old_resource_format = resource.format
 
     if not resource:
         log.debug('Could not find resource %s', id)
@@ -102,13 +104,22 @@ def resource_update(context, data_dict):
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError, e:
-        errors = e.error_dict['resources'][n]
-        raise ValidationError(errors)
+        try:
+            raise ValidationError(e.error_dict['resources'][-1])
+        except (KeyError, IndexError):
+            raise ValidationError(e.error_dict)
 
     upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
 
     resource = _get_action('resource_show')(context, {'id': id})
+
+    if old_resource_format != resource['format']:
+        _get_action('resource_create_default_resource_views')(
+            {'model': context['model'], 'user': context['user'],
+             'ignore_auth': True},
+            {'package': updated_pkg_dict,
+             'resource': resource})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_update(context, resource)
