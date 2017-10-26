@@ -190,12 +190,12 @@ class DatastorePlugin(p.SingletonPlugin):
         # something that has changed (post-validation)
         context.setdefault(
             'datastore_old_query_values',
-            {})[old['resource_id']] = old.get('query')
+            {})[old['id']] = old.get('query')
 
     def after_update(self, context, resource):
         if not context.get('for_edit', False):
             return
-        res_id = resource['resource_id']
+        res_id = resource['id']
         query = resource.get('query')
         if query != context['datastore_old_query_values'][res_id]:
             sync_query_frontend(res_id, query)
@@ -332,8 +332,10 @@ def sync_query_frontend(resource_id, query):
     try:
         if query:
             p.toolkit.get_action('datastore_create')(
-                None,
-                {'resource_id': resource_id, 'materialized_view_sql': query})
+                None, {
+                    'resource_id': resource_id,
+                    'materialized_view_sql': query,
+                    'force': True})
         else:
             p.toolkit.get_action('datastore_delete')(
                 None,

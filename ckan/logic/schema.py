@@ -102,7 +102,7 @@ def default_resource_schema():
         'cache_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
         'datastore_active': [ignore_missing],
-        'query': [ignore_missing, unicode_only, datastore_resource_query],
+        'query': [ignore_empty, unicode_only, datastore_resource_query],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
