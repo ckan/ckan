@@ -694,6 +694,9 @@ def _link_active(kwargs):
 def _link_active_pylons(kwargs):
     highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split()
+    route_name = c.environ["routes.route"].name
+        if route_name:
+            return route_name == kwargs.get('named_route')
     return (c.controller == kwargs.get('controller')
             and c.action in highlight_actions)
 
@@ -909,7 +912,9 @@ def _make_menu_item(menu_item, title, **kw):
         raise Exception('menu item `%s` cannot be found' % menu_item)
     item = copy.copy(_menu_items[menu_item])
     item.update(kw)
+    item.update({'named_route': menu_item})
     active = _link_active(item)
+    item.pop('named_route')
     needed = item.pop('needed')
     for need in needed:
         if need not in kw:
