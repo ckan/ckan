@@ -695,8 +695,8 @@ def _link_active_pylons(kwargs):
     highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split()
     route_name = c.environ["routes.route"].name
-        if route_name:
-            return route_name == kwargs.get('named_route')
+    if route_name:
+        return route_name == kwargs.get('named_route')
     return (c.controller == kwargs.get('controller')
             and c.action in highlight_actions)
 
