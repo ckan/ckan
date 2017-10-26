@@ -55,7 +55,10 @@ CREATE OR REPLACE VIEW "_table_metadata" AS
         substr(md5(dependee.relname || COALESCE(dependent.relname, '')), 0, 17) AS "_id",
         dependee.relname AS name,
         dependee.oid AS oid,
-        dependent.relname AS alias_of
+        CASE WHEN dependee.relkind = 'm'::"char"
+            THEN NULL
+            ELSE dependent.relname
+        END AS alias_of
     FROM
         pg_class AS dependee
         LEFT OUTER JOIN pg_rewrite AS r ON r.ev_class = dependee.oid
