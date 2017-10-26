@@ -912,9 +912,7 @@ def _make_menu_item(menu_item, title, **kw):
         raise Exception('menu item `%s` cannot be found' % menu_item)
     item = copy.copy(_menu_items[menu_item])
     item.update(kw)
-    item.update({'named_route': menu_item})
-    active = _link_active(item)
-    item.pop('named_route')
+    active = _link_active(dict(item, named_resource=menu_item))
     needed = item.pop('needed')
     for need in needed:
         if need not in kw:
