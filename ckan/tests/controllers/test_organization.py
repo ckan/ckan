@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from ckan.common import config
 from bs4 import BeautifulSoup
 from nose.tools import assert_equal, assert_true, assert_in
 from ckan.lib.helpers import url_for
@@ -208,6 +209,26 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
         organization = helpers.call_action('organization_show',
                                            id=self.organization['id'])
         assert_equal(organization['state'], 'active')
+
+    def test_delete_organization_with_datasets(self):
+        ''' Test deletion of organization that has datasets'''
+        config['ckan.auth.create_unowned_dataset'] = False
+        
+        text = 'Organization cannot be deleted while it still has datasets'
+        datasets = [factories.Dataset(owner_org=self.organization['id'])
+                    for i in range(0, 5)]
+        response = self.app.get(
+            url=url_for(
+                controller='organization',
+                action='delete',
+                id=self.organization['id']),
+            status=200,
+            extra_environ=self.user_env)
+
+        form = response.forms['organization-confirm-delete-form']
+        response = submit_and_follow(
+            self.app, form, name='delete', extra_environ=self.user_env)
+        assert text in response.body
 
 
 class TestOrganizationBulkProcess(helpers.FunctionalTestBase):

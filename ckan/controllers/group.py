@@ -639,6 +639,9 @@ class GroupController(base.BaseController):
             abort(403, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
+        except ValidationError as e:
+            h.flash_error(e.error_dict['message'])
+            h.redirect_to(controller='organization', action='read', id=id)
         return self._render_template('group/confirm_delete.html', group_type)
 
     def members(self, id):

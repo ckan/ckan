@@ -346,12 +346,17 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     else:
         _check_access('group_delete', context, data_dict)
 
-    # organization delete will delete all datasets for that org
-    # FIXME this gets all the packages the user can see which generally will
-    # be all but this is only a fluke so we should fix this properly
+    # organization delete will not occure whilke all datasets for that org are
+    # not deleted
     if is_org:
-        for pkg in group.packages(with_private=True):
-            _get_action('package_delete')(context, {'id': pkg.id})
+        datasets = model.Session.query(model.Package) \
+                        .filter_by(owner_org=group.id) \
+                        .filter(model.Package.state != 'deleted') \
+                        .count()
+        if datasets:
+            if not authz.check_config_permission('ckan.auth.create_unowned_dataset'):
+                raise ValidationError('Organization cannot be deleted while it '
+                                      'still has datasets')
 
     rev = model.repo.new_revision()
     rev.author = user
