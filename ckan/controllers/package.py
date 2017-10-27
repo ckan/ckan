@@ -672,11 +672,12 @@ class PackageController(base.BaseController):
 
             data['package_id'] = id
             try:
+                update_context = dict(context, for_edit=True)
                 if resource_id:
                     data['id'] = resource_id
-                    get_action('resource_update')(context, data)
+                    get_action('resource_update')(update_context, data)
                 else:
-                    get_action('resource_create')(context, data)
+                    get_action('resource_create')(update_context, data)
             except ValidationError, e:
                 errors = e.error_dict
                 error_summary = e.error_summary

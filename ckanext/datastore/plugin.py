@@ -180,7 +180,7 @@ class DatastorePlugin(p.SingletonPlugin):
     def after_create(self, context, resource):
         if not context.get('for_edit', False):
             return
-        if resource.get['query']:
+        if resource.get('query'):
             sync_query_frontend(resource['id'], resource['query'])
 
     def before_update(self, context, old, new):
