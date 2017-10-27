@@ -1723,12 +1723,17 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         trans = context['connection'].begin()
         try:
-            # check if table exists
             if 'filters' not in data_dict:
-                context['connection'].execute(
-                    u'DROP TABLE "{0}" CASCADE'.format(
-                        data_dict['resource_id'])
-                )
+                try:
+                    context['connection'].execute(
+                        u'DROP TABLE IF EXISTS {0} CASCADE;'
+                        .format(identifier(data_dict['resource_id'])))
+                except ProgrammingError:
+                    trans.rollback()
+                    trans = context['connection'].begin()
+                    context['connection'].execute(
+                        u'DROP MATERIALIZED VIEW IF EXISTS {0} CASCADE;'
+                        .format(identifier(data_dict['resource_id'])))
             else:
                 delete_data(context, data_dict)
 

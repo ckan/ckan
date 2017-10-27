@@ -181,7 +181,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if not context.get('for_edit', False):
             return
         if resource.get['query']:
-            sync_query_frontend(resource['resource_id'], resource['query'])
+            sync_query_frontend(resource['id'], resource['query'])
 
     def before_update(self, context, old, new):
         if not context.get('for_edit', False):
@@ -329,16 +329,14 @@ def sync_query_frontend(resource_id, query):
     with explicit datastore_create/datastore_delete calls instead.
     '''
 
-    try:
-        if query:
-            p.toolkit.get_action('datastore_create')(
-                None, {
-                    'resource_id': resource_id,
-                    'materialized_view_sql': query,
-                    'force': True})
-        else:
-            p.toolkit.get_action('datastore_delete')(
-                None,
-                {'resource_id': resource_id})
-    except p.toolkit.ValidationError as e:
-        pass  # this is an optional extra step, if it fails pass silently
+    if query:
+        p.toolkit.get_action('datastore_create')(
+            None, {
+                'resource_id': resource_id,
+                'materialized_view_sql': query,
+                'force': True})
+    else:
+        p.toolkit.get_action('datastore_delete')(
+            None, {
+                'resource_id': resource_id,
+                'force': True})
