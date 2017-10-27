@@ -396,7 +396,8 @@ def group_delete(context, data_dict):
 def organization_delete(context, data_dict):
     '''Delete an organization.
 
-    You must be authorized to delete the organization.
+    You must be authorized to delete the organization
+    and no datsets should belong to the organization
 
     :param id: the name or id of the organization
     :type id: string
