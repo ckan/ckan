@@ -45,7 +45,7 @@ this.ckan.module('image-upload', function($) {
       this.label_location = $('label[for="field-image-url"]');
       // determines if the resource is a data resource
       this.is_data_resource = (this.options.field_url === 'url') && (this.options.field_upload === 'upload');
-      this.field_query = $(field_query).parents('.control-group');
+      this.field_query = $(field_query).parents('.form-group');
       this.field_query_input = $(field_query)[0];
 
       // Is there a clear checkbox on the form already?
@@ -60,7 +60,7 @@ this.ckan.module('image-upload', function($) {
 
       // Button to use a query for this resource
       if (this.field_query_input) {
-        this.button_query = $('<a href="javascript:;" class="btn">' +
+        this.button_query = $('<a href="javascript:;" class="btn btn-default">' +
                            '<i class="fa fa-filter"></i>' +
                            this._('Query') + '</a>')
           .prop('title', this._('Query data from other resources'))
