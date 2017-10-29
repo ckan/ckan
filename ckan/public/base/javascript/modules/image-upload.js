@@ -202,8 +202,7 @@ this.ckan.module('image-upload', function($) {
 
     _onQuery: function() {
       this._showOnlyQuery();
-      this.field_query_input.focus()
-        .on('blur', this._onQueryBlur);
+      this.field_query_input.focus();
     },
 
     /* Event listener for resetting the field back to the blank state
@@ -217,6 +216,10 @@ this.ckan.module('image-upload', function($) {
       this.field_url_input.prop('readonly', false);
 
       this.field_clear.val('true');
+
+      if (this.field_query_input) {
+        this.field_query_input.value = '';
+      }
     },
 
     /* Event listener for when someone chooses a file to upload
