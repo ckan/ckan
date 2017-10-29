@@ -59,6 +59,7 @@ this.ckan.module('image-upload', function($) {
         .appendTo(this.el);
 
       // Button to use a query for this resource
+      var removeText = this._('Remove');
       if (this.field_query_input) {
         this.button_query = $('<a href="javascript:;" class="btn btn-default">' +
                            '<i class="fa fa-filter"></i>' +
@@ -66,6 +67,11 @@ this.ckan.module('image-upload', function($) {
           .prop('title', this._('Query data from other resources'))
           .on('click', this._onQuery)
           .insertAfter(this.input);
+        $('<a href="javascript:;" class="btn btn-danger btn-remove-url">'
+          + removeText + '</a>')
+          .prop('title', removeText)
+          .on('click', this._onRemove)
+          .insertBefore(this.field_query_input);
       }
 
       // Button to set the field to be a URL
@@ -83,7 +89,6 @@ this.ckan.module('image-upload', function($) {
         .insertAfter(this.input);
 
       // Button for resetting the form when there is a URL set
-      var removeText = this._('Remove');
       $('<a href="javascript:;" class="btn btn-danger btn-remove-url">'
         + removeText + '</a>')
         .prop('title', removeText)
