@@ -391,10 +391,24 @@
           }
         },
         {
+          "value": "degree",
+          "label": {
+            "en": "degree",
+            "fa_IR": "مدرک"
+          }
+        },
+        {
           "value": "deposits",
           "label": {
             "en": "deposits",
             "fa_IR": "سپرده "
+          }
+        },
+        {
+          "value": "diploma",
+          "label": {
+            "en": "diploma",
+            "fa_IR": "دیپلم"
           }
         },
         {
@@ -846,9 +860,9 @@
           }
         },
         {
-          "value": "non governmental ",
+          "value": "non governmental",
           "label": {
-            "en": "non governmental ",
+            "en": "non governmental",
             "fa_IR": "غیر دولتی"
           }
         },
@@ -857,6 +871,13 @@
           "label": {
             "en": "oil",
             "fa_IR": "نفت"
+          }
+        },
+        {
+          "value": "oil production",
+          "label": {
+            "en": "oil production",
+            "fa_IR": "تولید نفتی"
           }
         },
         {
@@ -1000,10 +1021,17 @@
           }
         },
         {
-          "value": "primary school ",
+          "value": "primary school",
           "label": {
-            "en": "primary school ",
+            "en": "primary school",
             "fa_IR": "دبستان"
+          }
+        },
+        {
+          "value": "private sector",
+          "label": {
+            "en": "private sector",
+            "fa_IR": "بخش خصوصی"
           }
         },
         {
@@ -1158,6 +1186,20 @@
           "label": {
             "en": "tax",
             "fa_IR": "مالیات"
+          }
+        },
+        {
+          "value": "technical and vocational",
+          "label": {
+            "en": "technical and vocational",
+            "fa_IR": "فنی و حرفه‌ای"
+          }
+        },
+        {
+          "value": "technology",
+          "label": {
+            "en": "technology",
+            "fa_IR": "تکنولوٰژی"
           }
         },
         {
@@ -1353,6 +1395,13 @@
          }
         },
         {
+         "value": "Iran President Deputy Strategic Planning and Control",
+         "label": {
+           "en": "Iran President Deputy Strategic Planning and Control",
+           "fa_IR": "معاونت برنامه‌ریزی و نظارت راهبردی رییس جمهور"
+         }
+        },
+        {
          "value": "Iran Water Resources Management Company",
          "label": {
            "en": "Iran Water Resources Management Company",
@@ -1511,6 +1560,13 @@
          "label": {
            "en": "Tehran Municipality",
            "fa_IR": "شهرداری تهران"
+         }
+        },
+        {
+         "value": "Tehran Securities Exchange Technology Management Company",
+         "label": {
+           "en": "Tehran Securities Exchange Technology Management Company",
+           "fa_IR": "شركت مديريت فناوری بورس تهران"
          }
         },
         {
@@ -1756,6 +1812,13 @@
          }
         },
         {
+         "value": "Iran President Deputy Strategic Planning and Control",
+         "label": {
+           "en": "Iran President Deputy Strategic Planning and Control",
+           "fa_IR": "معاونت برنامه‌ریزی و نظارت راهبردی رییس جمهور"
+         }
+        },
+        {
          "value": "Iran Water Resources Management Company",
          "label": {
            "en": "Iran Water Resources Management Company",
@@ -1914,6 +1977,13 @@
          "label": {
            "en": "Tehran Municipality",
            "fa_IR": "شهرداری تهران"
+         }
+        },
+        {
+         "value": "Tehran Securities Exchange Technology Management Company",
+         "label": {
+           "en": "Tehran Securities Exchange Technology Management Company",
+           "fa_IR": "شركت مديريت فناوری بورس تهران"
          }
         },
         {
