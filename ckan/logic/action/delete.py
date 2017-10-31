@@ -355,8 +355,8 @@ def _group_or_org_delete(context, data_dict, is_org=False):
                         .count()
         if datasets:
             if not authz.check_config_permission('ckan.auth.create_unowned_dataset'):
-                raise ValidationError('Organization cannot be deleted while it '
-                                      'still has datasets')
+                raise ValidationError(_('Organization cannot be deleted while it '
+                                      'still has datasets'))
 
     rev = model.repo.new_revision()
     rev.author = user
