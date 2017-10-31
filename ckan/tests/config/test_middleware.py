@@ -113,10 +113,18 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
     def test_ask_around_is_called(self):
 
+        # import pdb;  pdb.set_trace()
         app = self._get_test_app()
+        ckan_app = app.app
+        start_response = mock.MagicMock()
+        environ = {
+            'PATH_INFO': '/',
+            'REQUEST_METHOD': 'GET',
+        }
+        wsgiref.util.setup_testing_defaults(environ)
         with mock.patch.object(AskAppDispatcherMiddleware, 'ask_around') as \
                 mock_ask_around:
-            app.get('/')
+            ckan_app(environ, start_response)
 
             assert mock_ask_around.called
 
