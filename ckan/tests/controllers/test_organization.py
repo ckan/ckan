@@ -210,9 +210,9 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
                                            id=self.organization['id'])
         assert_equal(organization['state'], 'active')
 
+    @helpers.change_config('ckan.auth.create_unowned_dataset', False)
     def test_delete_organization_with_datasets(self):
         ''' Test deletion of organization that has datasets'''
-        config['ckan.auth.create_unowned_dataset'] = False
         text = 'Organization cannot be deleted while it still has datasets'
         datasets = [factories.Dataset(owner_org=self.organization['id'])
                     for i in range(0, 5)]
