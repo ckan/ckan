@@ -70,7 +70,6 @@ def about():
 
 util_rules = [
     (u'/', index),
-    (u'/home', index),
     (u'/about', about)
 ]
 for rule, view_func in util_rules:
