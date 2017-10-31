@@ -1,0 +1,46 @@
+FROM alpine:edge
+
+# Variables for paster / .env
+ENV CKAN_HOME /usr/lib/ckan
+ENV CKAN_VENV $CKAN_HOME/venv
+ENV CKAN_CONFIG /etc/ckan
+ENV CKAN_STORAGE_PATH=/var/lib/ckan
+ENV CKAN_SITE_ID default
+ENV CKAN_SITE_URL http://localhost:5000
+ENV CKAN_SQLALCHEMY_URL postgresql://ckan:ckan@db/ckan
+ENV CKAN_SOLR_URL http://solr:8983/solr/ckan
+ENV CKAN_REDIS_URL redis://redis:6379/1
+ENV CKAN_STORAGE_PATH /var/lib/ckan
+ENV CKAN_DATAPUSHER_URL http://datapusher:8800
+ENV CKAN_DATASTORE_WRITE_URL postgresql://ckan:ckan@db/datastore
+ENV CKAN_DATASTORE_READ_URL postgresql://datastore_ro:datastore@db/datastore
+
+ENV CKAN_VERSION 2.7.2
+
+ADD contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh
+
+RUN apk add --no-cache python2 libpq libstdc++ postgresql-client libmagic \
+          # paster requires it
+          py2-pip && \
+    echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
+    apk add --no-cache  \
+        --virtual=.build-dependencies \
+        libxslt-dev libxml2-dev geos geos-dev py-geos libressl2.5-libssl libffi-dev postgresql-dev \
+        g++ musl-dev git \
+        python2-dev && \
+    find /usr/lib/python2.*/ -name 'tests' -exec rm -r '{}' + && \
+    mkdir -p /usr/lib/ckan/venv/src/ckan /etc/ckan /var/lib/ckan && \
+    # wget https://github.com/ckan/ckan/archive/ckan-$CKAN_VERSION.tar.gz && \ 
+    # tar -xf ckan-$CKAN_VERSION.tar.gz -C /usr/lib/ckan/venv/src/ckan --strip-components=1 && \
+    pip install --no-cache-dir -r https://raw.githubusercontent.com/ckan/ckan/ckan-$CKAN_VERSION/requirements.txt && \
+    # ckan.ini must exist for others projects install their extensions 
+    # paster make-config --no-interactive ckan $CKAN_CONFIG/ckan.ini && \
+    pip install -e 'git+https://github.com/ckan/ckan.git@ckan-'$CKAN_VERSION'#egg=ckan' && \
+    wget https://raw.githubusercontent.com/ckan/ckan/ckan-$CKAN_VERSION/ckan/config/who.ini -O /etc/ckan/who.ini && \
+    chmod +x /ckan-entrypoint.sh && \
+    sed -i -e 's/ckan-paster/paster/g' ckan-entrypoint.sh && \
+    apk del --purge .build-dependencies
+
+EXPOSE 5000
+ENTRYPOINT ["/ckan-entrypoint.sh"]
+CMD ["paster","serve","/etc/ckan/ckan.ini"]

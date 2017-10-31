@@ -61,7 +61,32 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
     abort "ERROR: no CKAN_DATAPUSHER_URL specified in docker-compose.yml"
 fi
 
+TIMEOUT=180
+QUIET=0
+
+echoerr() {
+  if [ "$QUIET" -ne 1 ]; then printf "%s\n" "$*" 1>&2; fi
+}
+
+wait_for() {
+  HOST=$(printf "%s\n" $CKAN_SQLALCHEMY_URL | cut -d @ -f 2 | cut -d / -f 1)
+  PORT=5432
+  echo "waiting $TIMEOUT seconds for $HOST:$PORT" 
+  for i in `seq $TIMEOUT` ; do
+    nc -z "$HOST" "$PORT" > /dev/null 2>&1
+    result=$?
+    if [ $result -eq 0 ] ; then
+        echo "$HOST:$PORT is available."
+        ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"
+        exec "$@"
+      exit 0
+    fi
+    sleep 1
+  done
+  echo "Operation timed out" >&2
+  exit 1
+}
+
 set_environment
-ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"
-exec "$@"
+wait_for "$@"
 
