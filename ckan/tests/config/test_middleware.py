@@ -398,11 +398,18 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         This should never happen in core, but just in case
         '''
         app = self._get_test_app()
+        app = app.app
 
-        res = app.get('/about')
+        environ = {
+            'PATH_INFO': '/about',
+            'REQUEST_METHOD': 'GET',
+        }
+        wsgiref.util.setup_testing_defaults(environ)
 
-        eq_(res.environ['ckan.app'], 'flask_app')
-        eq_(res.body, 'This was served from Flask')
+        answers = app.ask_around(environ)
+        print answers
+
+        eq_(answers, [(True, 'flask_app', 'core'), (True, 'pylons_app', 'core')])
 
 
 class TestFlaskUserIdentifiedInRequest(helpers.FunctionalTestBase):
