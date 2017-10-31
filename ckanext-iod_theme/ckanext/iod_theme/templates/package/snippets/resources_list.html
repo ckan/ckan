@@ -1,0 +1,9 @@
+{% ckan_extends %}
+
+{% block resource_list_inner %}
+  {% for resource in resources %}
+    {% if resource.language[:2]|lower == c.language[:2]|lower %}
+      {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource %}
+    {% endif %}
+  {% endfor %}
+{% endblock %}
