@@ -113,7 +113,6 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
     def test_ask_around_is_called(self):
 
-        # import pdb;  pdb.set_trace()
         app = self._get_test_app()
         ckan_app = app.app
         start_response = mock.MagicMock()
