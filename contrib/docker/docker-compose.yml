@@ -17,3 +17,7 @@ services:
   solr:
     container_name: solr
     image: ckan/solr:latest
+    # To build locally, remove the image reference above and uncommend this:
+    # build:
+    #   context: ../../
+    #   dockerfile: contrib/docker/solr/Dockerfile
