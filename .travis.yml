@@ -5,31 +5,21 @@ language: python
 services:
   - docker
 
-cache:
-  directories:
-     - ~/docker
-
 before_install:
-  - if [[ -e ~/docker/postgresql.tar ]]; then docker load -i ~/docker/postgresql.tar; fi
-  - if [[ -e ~/docker/solr.tar ]]; then docker load -i ~/docker/solr.tar; fi
-  - if [[ -e ~/docker/redis.tar ]]; then docker load -i ~/docker/redis.tar; fi
-  - if [[ -e ~/docker/ckan.tar ]]; then docker load -i ~/docker/ckan.tar; fi
-
-  - docker build --rm=false -t postgresql ./contrib/docker/postgresql/
-  - docker build --rm=false -t solr ./contrib/docker/solr/
-  - docker pull redis:latest
-  - docker build --rm=false -t ckan .
-
-  - mkdir -p ~/docker; docker save postgresql > ~/docker/postgresql.tar
-  - mkdir -p ~/docker; docker save solr > ~/docker/solr.tar
-  - mkdir -p ~/docker; docker save redis:latest > ~/docker/redis.tar
-  - mkdir -p ~/docker; docker save ckan > ~/docker/ckan.tar
+  - sudo curl -L https://github.com/aelsabbahy/goss/releases/download/v0.3.5/goss-linux-amd64 -o /usr/local/bin/goss
+  - sudo chmod +rx /usr/local/bin/goss
+  - cd contrib/docker
+  - cp .env.template .env
+  - docker-compose -f docker-compose-alpine.yml build 
+  - docker-compose -f docker-compose-alpine.yml up -d db redis solr
 
 install:
-  - docker run -d --name db postgresql
-  - docker run -d --name solr solr
-  - docker run -d --name redis redis:latest
-  - docker run -d --name ckan -p 5000:5000 --link db:db --link redis:redis --link solr:solr ckan
+  # wait for db redis and solr. Could use nc?
+  - sleep 180s
+  - docker-compose -f docker-compose-alpine.yml up -d ckan
+  - sleep 300s
+  - docker logs ckan
 
 script:
-  - docker ps -a
+  - sudo goss --gossfile ../../goss.yaml validate --retry-timeout 180s --sleep 1s
+  - docker logs ckan

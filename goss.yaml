@@ -1,0 +1,23 @@
+command:
+  sudo docker logs ckan:
+    exit-status: 0
+    stdout:
+    - 'Distribution already installed:'
+    - ckan 2.7.2 from /src/ckan
+    - Creating /etc/ckan/ckan.ini
+    - Now you should edit the config files
+    - \/etc/ckan/ckan.ini
+    - waiting 180 seconds for db:5432
+    - db:5432 is available.
+    - 'Initialising DB: SUCCESS'
+    - Starting server in PID 1.
+    stderr: []
+    timeout: 10000
+http:
+  http://localhost:5000:
+    status: 200
+    allow-insecure: false
+    no-follow-redirects: false
+    timeout: 100000
+    body:
+    - Welcome to CKAN
