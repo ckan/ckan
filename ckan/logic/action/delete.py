@@ -357,6 +357,15 @@ def _group_or_org_delete(context, data_dict, is_org=False):
             if not authz.check_config_permission('ckan.auth.create_unowned_dataset'):
                 raise ValidationError(_('Organization cannot be deleted while it '
                                       'still has datasets'))
+            
+            pkg_table = model.package_table
+            # using Core SQLA instead of the ORM should be faster
+            model.Session.execute(
+                pkg_table.update().where(
+                    sqla.and_(pkg_table.c.owner_org == group.id,
+                              pkg_table.c.state != 'deleted')
+                ).values(owner_org=None)
+            )
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -397,7 +406,8 @@ def organization_delete(context, data_dict):
     '''Delete an organization.
 
     You must be authorized to delete the organization
-    and no datsets should belong to the organization
+    and no datasets should belong to the organization
+    unless 'ckan.auth.create_unowned_dataset=True'
 
     :param id: the name or id of the organization
     :type id: string
