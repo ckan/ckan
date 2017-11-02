@@ -143,12 +143,14 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
     if with_hours:
         return (
             # NOTE: This is for translating dates like `April 24, 2013, 10:45 (Europe/Zurich)`
-            _('{month} {day}, {year}, {hour:02}:{min:02} ({timezone})') \
-            .format(**details))
+            _('{0} {1}, {2}, {3:02}:{4:02} ({5})').format(
+                details['month'], details['day'], details['year'],\
+                details['hour'], details['min'], details['timezone']))
     else:
         return (
             # NOTE: This is for translating dates like `April 24, 2013`
-            _('{month} {day}, {year}').format(**details))
+            _('{0} {1}, {2}').format(details['month'], details['day'], 
+                                     details['year']))
 
 
 def localised_number(number):
