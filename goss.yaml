@@ -1,5 +1,6 @@
 command:
   sudo docker logs ckan:
+    title: Check log for instance running
     exit-status: 0
     stdout:
     - 'Distribution already installed:'
@@ -15,6 +16,7 @@ command:
     timeout: 10000
 http:
   http://localhost:5000:
+    title: Check for Welcome page
     status: 200
     allow-insecure: false
     no-follow-redirects: false
