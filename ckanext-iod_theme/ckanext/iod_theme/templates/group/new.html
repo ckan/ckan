@@ -1,4 +1,4 @@
-{% extends "group/base_form_page.html" %}
+{% ckan_extends %}
 
 {% block subtitle %}{{ _('Create a Theme') }}{% endblock %}
 
@@ -6,8 +6,4 @@
 
 {% block page_heading %}{{ _('Create a Theme') }}{% endblock %}
 
-{% block page_header %}{% endblock %}
 
-{% block secondary_content %}
-  {% snippet "group/snippets/helper.html" %}
-{% endblock %}

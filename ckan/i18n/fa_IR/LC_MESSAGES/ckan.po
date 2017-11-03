@@ -767,14 +767,6 @@ msgstr "{months} ماه‌های گذشته"
 msgid "over {years} year ago"
 msgstr " در طول {years} سال گذشته"
 
-#: ckan/lib/formatters.py:148
-msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr "{ماه} {روز}، {سال}، {ساعت: 02}: {دقیقه: 02} ({منطقه زمانی})"
-
-#: ckan/lib/formatters.py:153
-msgid "{month} {day}, {year}"
-msgstr "{ماه} {روز}، {سال}"
-
 #: ckan/lib/formatters.py:169
 msgid "{bytes} bytes"
 msgstr "{bytes} بایت"

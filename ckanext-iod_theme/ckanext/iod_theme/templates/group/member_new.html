@@ -5,7 +5,9 @@
 {% set user = c.user_dict %}
 
 {% block primary_content_inner %}
-  {% link_for _('Back to all members'), controller='group', action='members', id=group.name, class_='btn pull-right', icon='arrow-left' %}
+  <a href="{% url_for 'theme_members', id=group.name %}" class="btn pull-right">
+      <i class="icon-arrow-left"></i> {{ _('Back to all members') }}
+  </a>
   <h1 class="page-heading">
     {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
   </h1>
@@ -56,7 +58,7 @@
     <div class="form-actions">
       {% if user %}
         {% set locale = h.dump_json({'content': _('Are you sure you want to delete this member?')}) %}
-        <a href="{% url_for controller='group', action='member_delete', id=c.group_dict.id, user=user.id %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-i18n="{{ locale }}">{{ _('Delete') }}</a>
+        <a href="{% url_for 'theme_action', action='member_delete', id=c.group_dict.id, user=user.id %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-i18n="{{ locale }}">{{ _('Delete') }}</a>
         <button class="btn btn-primary" type="submit" name="submit" >
           {{ _('Save') }}
         </button>

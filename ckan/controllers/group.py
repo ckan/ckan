@@ -135,9 +135,9 @@ class GroupController(base.BaseController):
     def _ensure_controller_matches_group_type(self, id):
         group = model.Group.get(id)
         if group is None:
-            abort(404, _('Theme not found'))
+            abort(404, _('Group not found'))
         if group.type not in self.group_types:
-            abort(404, _('Incorrect theme type'))
+            abort(404, _('Incorrect group type'))
         return group.type
 
     @classmethod
@@ -148,7 +148,7 @@ class GroupController(base.BaseController):
         cls.group_types.append(group_type)
 
     def index(self):
-        group_type = self._guess_group_type(False)
+        group_type = self._guess_group_type()
 
         page = h.get_page_number(request.params) or 1
         items_per_page = 21
@@ -232,7 +232,7 @@ class GroupController(base.BaseController):
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except (NotFound, NotAuthorized):
-            abort(404, _('Theme not found'))
+            abort(404, _('Group not found'))
 
         self._read(id, limit, group_type)
         return render(self._read_template(c.group_dict['type']),
@@ -471,7 +471,7 @@ class GroupController(base.BaseController):
         if data and 'type' in data:
             group_type = data['type']
         else:
-            group_type = self._guess_group_type(False)
+            group_type = self._guess_group_type(True)
         if data:
             data['type'] = group_type
 

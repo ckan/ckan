@@ -2,12 +2,12 @@
 
 {% block subtitle %}{{ _('Manage') }} - {{ c.group_dict.display_name }} - {{ _('Themes') }}{% endblock %}
 
-{% set theme = c.group_dict %}
+{% set group = c.group_dict %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Themes'), controller='group', action='index' %}</li>
   {% block breadcrumb_content_inner %}
-    <li>{% link_for theme.display_name|truncate(35), controller='group', action='read', id=group.name %}</li>
+    <li>{% link_for group.display_name|truncate(35), controller='group', action='read', id=group.name %}</li>
     <li class="active">{% link_for _('Manage'), controller='group', action='edit', id=group.name %}</li>
   {% endblock %}
 {% endblock %}
@@ -22,5 +22,5 @@
 {% endblock %}
 
 {% block secondary_content %}
-  {% snippet "group/snippets/info.html", theme=c.group_dict, show_nums=false %}
+  {% snippet "group/snippets/info.html", group=c.group_dict, show_nums=false %}
 {% endblock %}

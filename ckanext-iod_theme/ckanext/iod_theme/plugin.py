@@ -103,8 +103,12 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
                      _redirect_code='301 Moved Permanently')
         map.redirect('/group/{url:.*}', '/theme/{url}',
                      _redirect_code='301 Moved Permanently')
+        map.redirect('/themes', '/theme',
+                     _redirect_code='301 Moved Permanently')
+        map.redirect('/themes/{url:.*}', '/theme/{url}',
+                     _redirect_code='301 Moved Permanently')
 
-        group_controller = 'ckan.controllers.group:GroupController'
+        group_controller = 'ckanext.iod_theme.controllers.theme:ThemeController'
 
         with mapper.SubMapper(map, controller=group_controller) as m:
             m.connect('theme_index', '/theme', action='index',

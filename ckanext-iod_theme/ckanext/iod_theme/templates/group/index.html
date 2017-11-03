@@ -1,12 +1,10 @@
-{% extends "page.html" %}
+{% ckan_extends %}
 
 {% block subtitle %}{{ _('Themes') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li class="active">{% link_for _('Themes'), controller='group', action='index' %}</li>
 {% endblock %}
-
-{% block page_header %}{% endblock %}
 
 {% block page_primary_action %}
   {% if h.check_access('group_create') %}
@@ -38,6 +36,3 @@
   {% endblock %}
 {% endblock %}
 
-{% block secondary_content %}
-  {% snippet "group/snippets/helper.html" %}
-{% endblock %}
