@@ -12,5 +12,5 @@
 * `iodimport [OPTIONS] FILE SHEET REMOTE OWNERORG APIKEY`
     * FILE: export spreasheet and add to project folder
     * SHEET: declare with sheet to use if the spreadsheet has multiple ones
-    * OWNERORG: You can find the ID of the organization via the API: 'http://[urloftheproject]/api/action/organization_show?id=[nameoforganization]'
-    * APIKEY: API key of the user that can be found checking your user profile: 'http://[urloftheproject]/en/user/[username]'
+    * OWNERORG: You can find the ID of the organization via the API: `http://[urloftheproject]/api/action/organization_show?id=[nameoforganization]`
+    * APIKEY: API key of the user that can be found checking your user profile: `http://[urloftheproject]/en/user/[username]`
