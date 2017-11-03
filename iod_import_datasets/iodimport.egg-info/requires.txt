@@ -1,0 +1,4 @@
+ckanapi
+click
+openpyxl
+validators

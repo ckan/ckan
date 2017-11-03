@@ -1,0 +1,13 @@
+setup.py
+iodimport/__init__.py
+iodimport/cli.py
+iodimport/click_validate_url.py
+iodimport/helpers.py
+iodimport.egg-info/PKG-INFO
+iodimport.egg-info/SOURCES.txt
+iodimport.egg-info/dependency_links.txt
+iodimport.egg-info/entry_points.txt
+iodimport.egg-info/not-zip-safe
+iodimport.egg-info/pbr.json
+iodimport.egg-info/requires.txt
+iodimport.egg-info/top_level.txt

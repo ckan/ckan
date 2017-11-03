@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: iodimport
+Version: 0.1
+Summary: A command line interface and Python module for parsing xlsx iod datasets
+Home-page: https://github.com/smallmedia/iod-ckan
+Author: Viderum
+Author-email: info@viderum.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN

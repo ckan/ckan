@@ -1,0 +1,4 @@
+
+        [console_scripts]
+        iodimport=iodimport.cli:cli
+        
