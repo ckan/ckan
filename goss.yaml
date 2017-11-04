@@ -3,11 +3,6 @@ command:
     title: Check log for instance running
     exit-status: 0
     stdout:
-    - 'Distribution already installed:'
-    - ckan 2.7.2 from /src/ckan
-    - Creating /etc/ckan/ckan.ini
-    - Now you should edit the config files
-    - \/etc/ckan/ckan.ini
     - waiting 180 seconds for db:5432
     - db:5432 is available.
     - 'Initialising DB: SUCCESS'
@@ -15,11 +10,33 @@ command:
     stderr: []
     timeout: 10000
 http:
+  http://localhost:5000/api/3/action/package_list:
+    title: Check API dataset data
+    status: 200
+    allow-insecure: false
+    no-follow-redirects: false
+    timeout: 5000
+    body: ['{"help": "http://localhost:5000/api/3/action/help_show?name=package_list", "success": true, "result": ["annakarenina", "warandpeace"]}']
+  http://localhost:5000/api/3/action/tag_list:
+    title: Check API tag data
+    status: 200
+    allow-insecure: false
+    no-follow-redirects: false
+    timeout: 5000
+    body: ['{"help": "http://localhost:5000/api/3/action/help_show?name=tag_list", "success": true, "result": ["Flexible \u30a1", "russian", "tolstoy"]}']
+  http://localhost:5000/api/3/action/group_list:
+    title: Check API group data
+    status: 200
+    allow-insecure: false
+    no-follow-redirects: false
+    timeout: 5000
+    body: ['{"help": "http://localhost:5000/api/3/action/help_show?name=group_list", "success": true, "result": ["david", "roger"]}']
   http://localhost:5000:
     title: Check for Welcome page
     status: 200
     allow-insecure: false
     no-follow-redirects: false
-    timeout: 100000
-    body:
-    - Welcome to CKAN
+    timeout: 5000
+    body: ['Welcome to CKAN']
+
+##TODO ADD dataset, group and about pages

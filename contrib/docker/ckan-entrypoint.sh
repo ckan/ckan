@@ -33,6 +33,7 @@ set_environment () {
   export CKAN_SMTP_USER=${CKAN_SMTP_USER}
   export CKAN_SMTP_PASSWORD=${CKAN_SMTP_PASSWORD}
   export CKAN_SMTP_MAIL_FROM=${CKAN_SMTP_MAIL_FROM}
+  export CKAN_TEST_DOCKER=${CKAN_TEST_DOCKER}
 }
 
 write_config () {
@@ -78,6 +79,11 @@ wait_for() {
     if [ $result -eq 0 ] ; then
         echo "$HOST:$PORT is available."
         ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"
+        if [ "$CKAN_TEST_DOCKER" -eq 0 ] ; then
+            ckan-paster --plugin=ckan db clean -c "${CKAN_CONFIG}/ckan.ini"
+            ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"
+            ckan-paster --plugin=ckan make-test-data -c "${CKAN_CONFIG}/ckan.ini"
+        fi
         exec "$@"
       exit 0
     fi

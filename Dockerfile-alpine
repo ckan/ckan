@@ -18,18 +18,20 @@ ENV CKAN_STORAGE_PATH /var/lib/ckan
 ENV CKAN_DATAPUSHER_URL http://datapusher:8800
 ENV CKAN_DATASTORE_WRITE_URL postgresql://ckan:ckan@db/datastore
 ENV CKAN_DATASTORE_READ_URL postgresql://datastore_ro:datastore@db/datastore
+#1 is false
+ENV CKAN_TEST_DOCKER 1
 
 ENV CKAN_VERSION 2.7.2
 
 COPY contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh
 
 #paster requires py2-pip
-RUN apk add --no-cache python2 libpq libstdc++ postgresql-client libmagic \
-          py2-pip && \ 
-    echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
+    apk add --no-cache python2 libpq libstdc++ postgresql-client libmagic \
+          py2-pip geos py-geos && \ 
     apk add --no-cache  \
         --virtual=.build-dependencies \
-        libxslt-dev libxml2-dev geos geos-dev py-geos libressl2.5-libssl libffi-dev postgresql-dev \
+        libxslt-dev libxml2-dev geos-dev libressl2.5-libssl libffi-dev postgresql-dev \
         g++ musl-dev git \
         python2-dev && \
     find /usr/lib/python2.*/ -name 'tests' -exec rm -r '{}' + && \
@@ -40,6 +42,8 @@ RUN apk add --no-cache python2 libpq libstdc++ postgresql-client libmagic \
     chmod +x /ckan-entrypoint.sh && \
     sed -i -e 's/ckan-paster/paster/g' ckan-entrypoint.sh && \
     apk del --purge .build-dependencies
+
+RUN paster make-config --no-interactive ckan /etc/ckan/ckan.ini 
 
 EXPOSE 5000
 ENTRYPOINT ["/ckan-entrypoint.sh"]

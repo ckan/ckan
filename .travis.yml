@@ -10,6 +10,7 @@ before_install:
   - sudo chmod +rx /usr/local/bin/goss
   - cd contrib/docker
   - cp .env.template .env
+  - echo "CKAN_TEST_DOCKER=0" >> .env
   - docker-compose -f docker-compose-alpine.yml build db redis solr
   - docker-compose -f docker-compose-alpine.yml up -d db redis solr
 
