@@ -5,38 +5,43 @@ FROM alpine:edge
 LABEL maintainer="https://github.com/ckan/ckan"
 
 # Variables for paster / .env
-ENV CKAN_HOME /usr/lib/ckan
-ENV CKAN_VENV $CKAN_HOME/venv
-ENV CKAN_CONFIG /etc/ckan
-ENV CKAN_STORAGE_PATH=/var/lib/ckan
-ENV CKAN_SITE_ID default
-ENV CKAN_SITE_URL http://localhost:5000
-ENV CKAN_SQLALCHEMY_URL postgresql://ckan:ckan@db/ckan
-ENV CKAN_SOLR_URL http://solr:8983/solr/ckan
-ENV CKAN_REDIS_URL redis://redis:6379/1
-ENV CKAN_STORAGE_PATH /var/lib/ckan
-ENV CKAN_DATAPUSHER_URL http://datapusher:8800
-ENV CKAN_DATASTORE_WRITE_URL postgresql://ckan:ckan@db/datastore
-ENV CKAN_DATASTORE_READ_URL postgresql://datastore_ro:datastore@db/datastore
-#1 is false
-ENV CKAN_TEST_DOCKER 1
+ARG CKAN_TEST_DOCKER
+ENV CKAN_HOME=${CKAN_HOME:-/usr/lib/ckan} \
+    CKAN_VENV=${CKAN_VENV:-$CKAN_HOME/venv} \
+    CKAN_CONFIG=${CKAN_CONFIG:-/etc/ckan} \
+    CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH:-/var/lib/ckan} \
+    CKAN_SITE_ID=${CKAN_SITE_ID:-default} \
+    CKAN_SITE_URL=${CKAN_SITE_URL:-http://localhost:5000} \
+    CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL:-postgresql://ckan:ckan@db/ckan} \
+    CKAN_SOLR_URL=${CKAN_SOLR_URL:-http://solr:8983/solr/ckan} \
+    CKAN_REDIS_URL=${CKAN_REDIS_URL:-redis://redis:6379/1} \
+    CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH:-/var/lib/ckan} \
+    CKAN_DATAPUSHER_URL=${CKAN_DATAPUSHER_URL:-http://datapusher:8800} \
+    CKAN_DATASTORE_WRITE_URL=${CKAN_DATASTORE_WRITE_URL:-postgresql://ckan:ckan@db/datastore} \
+    CKAN_DATASTORE_READ_URL=${CKAN_DATASTORE_READ_URL:-postgresql://datastore_ro:datastore@db/datastore} \
+    CKAN_VERSION=${CKAN_VERSION:-2.7.2} \
+    CKAN_TEST_DOCKER=${CKAN_TEST_DOCKER:-false}
 
-ENV CKAN_VERSION 2.7.2
 
 COPY contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh
 
-#paster requires py2-pip
-RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
-    apk add --no-cache python2 libpq libstdc++ postgresql-client libmagic \
-          py2-pip geos py-geos && \ 
+# alpine edge is using postgresql-client=10* and is incompatible with pyscopg 2.4.*
+# see https://github.com/psycopg/psycopg2/issues/594
+# paster requires py2-pip
+RUN set -ex && \
+    echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
+    apk add --no-cache python2 libpq libstdc++ libmagic \
+         py2-pip geos py-geos postgresql-client && \ 
     apk add --no-cache  \
         --virtual=.build-dependencies \
-        libxslt-dev libxml2-dev geos-dev libressl2.5-libssl libffi-dev postgresql-dev \
+        libxslt-dev libxml2-dev libressl2.5-libssl libffi-dev postgresql-dev \
         g++ musl-dev git \
         python2-dev && \
     find /usr/lib/python2.*/ -name 'tests' -exec rm -r '{}' + && \
     mkdir -p /usr/lib/ckan/venv/src/ckan /etc/ckan /var/lib/ckan && \
-    pip install --no-cache-dir -r https://raw.githubusercontent.com/ckan/ckan/ckan-"$CKAN_VERSION"/requirements.txt && \
+    wget https://raw.githubusercontent.com/ckan/ckan/ckan-"$CKAN_VERSION"/requirements.txt && \
+    sed -i -e 's/psycopg2==2.4.5/psycopg2==2.7.3.2/g' requirements.txt && \
+    pip install --no-cache-dir -r requirements.txt && \
     pip install -e 'git+https://github.com/ckan/ckan.git@ckan-'"$CKAN_VERSION"'#egg=ckan' && \
     wget https://raw.githubusercontent.com/ckan/ckan/ckan-"$CKAN_VERSION"/ckan/config/who.ini -O /etc/ckan/who.ini && \
     chmod +x /ckan-entrypoint.sh && \
