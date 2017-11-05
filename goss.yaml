@@ -1,11 +1,13 @@
 command:
-  sudo docker logs ckan:
+  docker logs ckan:
     title: Check log for instance running
     exit-status: 0
     stdout:
     - waiting 180 seconds for db:5432
     - db:5432 is available.
     - 'Initialising DB: SUCCESS'
+    - CKAN_TEST_DOCKER is true.
+    - Creating basic test data
     - Starting server in PID 1.
     stderr: []
     timeout: 10000

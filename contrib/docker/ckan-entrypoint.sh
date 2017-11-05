@@ -79,10 +79,9 @@ wait_for() {
     if [ $result -eq 0 ] ; then
         echo "$HOST:$PORT is available."
         ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"
-        if [ "$CKAN_TEST_DOCKER" -eq 0 ] ; then
-            ckan-paster --plugin=ckan db clean -c "${CKAN_CONFIG}/ckan.ini"
-            ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"
-            ckan-paster --plugin=ckan make-test-data -c "${CKAN_CONFIG}/ckan.ini"
+        echo "CKAN_TEST_DOCKER is $CKAN_TEST_DOCKER."
+        if [ "$CKAN_TEST_DOCKER" = true ] ; then
+            ckan-paster --plugin=ckan create-test-data -c "${CKAN_CONFIG}/ckan.ini"
         fi
         exec "$@"
       exit 0

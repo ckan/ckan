@@ -10,18 +10,17 @@ before_install:
   - sudo chmod +rx /usr/local/bin/goss
   - cd contrib/docker
   - cp .env.template .env
-  - echo "CKAN_TEST_DOCKER=0" >> .env
   - docker-compose -f docker-compose-alpine.yml build db redis solr
   - docker-compose -f docker-compose-alpine.yml up -d db redis solr
 
 install:
   # wait for db redis and solr. Could use nc?
-  - docker-compose -f docker-compose-alpine.yml build ckan
+  - docker-compose -f docker-compose-alpine.yml build --build-arg CKAN_TEST_DOCKER=true ckan
   - docker-compose -f docker-compose-alpine.yml up -d ckan
   - sleep 180s
   - docker logs ckan
 
 script:
   - docker run --rm -i lukasmartinelli/hadolint < ../../Dockerfile-alpine
-  - sudo goss --gossfile ../../goss.yaml validate --retry-timeout 180s --sleep 1s
+  - sudo goss --gossfile ../../goss.yaml validate --retry-timeout 10s --sleep 1s
   - docker logs ckan
