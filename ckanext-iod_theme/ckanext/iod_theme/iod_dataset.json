@@ -573,9 +573,9 @@
           }
         },
         {
-          "value": "gasoline|petrol",
+          "value": "gasoline-petrol",
           "label": {
-            "en": "gasoline|petrol",
+            "en": "gasoline-petrol",
             "fa_IR": "بنزین"
           }
         },
