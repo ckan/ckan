@@ -407,7 +407,6 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around(environ)
-        print answers
 
         eq_(answers, [(True, 'flask_app', 'core'), (True, 'pylons_app', 'core')])
 
