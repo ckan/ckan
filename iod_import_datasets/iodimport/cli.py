@@ -49,8 +49,8 @@ def cli(file, sheet, remote, ownerorg, apikey):
         notes_translated['en'] = h.validate_not_empty(row[3].value, 'dataset notes english', idx)
         notes_translated['fa_IR'] = h.validate_not_empty(row[4].value, ' dataset notes farsi', idx)
         dataset['notes_translated'] = notes_translated
-        dataset['tags'] = []
         dataset['tags_string'] = h.parse_string_to_array(row[5].value)
+        dataset['tags'] = h.tags_string_to_list(dataset['tags_string'])
         dataset['date_start_gregorian'] = h.strftime(row[6].value, 'date start gregorian', idx)
         dataset['date_end_gregorian'] = h.strftime(row[7].value, 'date end gregorian', idx)
         dataset['date_start_iranian'] = h.strftime(row[8].value, 'date start iranian', idx)

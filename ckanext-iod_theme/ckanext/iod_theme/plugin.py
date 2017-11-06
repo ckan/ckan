@@ -1,11 +1,13 @@
 # encoding: utf-8
-
+import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.common import config
 import routes.mapper as mapper
 import ckanext.iod_theme.helpers as h
 from ckanext.iod_theme.logic.auth.update import has_user_permission_to_make_dataset_public
+
+log = logging.getLogger(__name__)
 
 
 def show_most_popular_groups():
@@ -40,25 +42,43 @@ def most_popular_groups():
     return groups
 
 
+def register_translator():
+    # Register a translator in this thread so that
+    # the _() functions in logic layer can work
+    from paste.registry import Registry
+    from pylons import translator
+    from ckan.lib.cli import MockTranslator
+    global registry
+    registry = Registry()
+    registry.prepare()
+    global translator_obj
+    translator_obj = MockTranslator()
+    registry.register(translator, translator_obj)
+
+
 class Iod_ThemePlugin(plugins.SingletonPlugin):
     '''IOD theme plugin.
 
     '''
     plugins.implements(plugins.IConfigurer)
-
     # Declare that this plugin will implement ITemplateHelpers.
     plugins.implements(plugins.ITemplateHelpers)
     # Declare that this plugin will implement IActions
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
+    plugins.implements(plugins.IRoutes)
+    plugins.implements(plugins.IConfigurable)
+    plugins.implements(plugins.IFacets, inherit=True)
+
+    startup = False
 
     # IConfigurer
-
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates')
         toolkit.add_public_directory(config_, 'public')
         toolkit.add_resource('fanstatic', 'iod_theme')
 
+    # ITemplateHelpers
     def get_helpers(self):
         '''Register the most_popular_groups() function above as a template
         helper function.
@@ -71,10 +91,12 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
                'iod_theme_show_most_popular_groups':
                show_most_popular_groups,
                 'iod_theme_get_user_role_role_in_org':
-                    h.get_user_role_role_in_org
+                    h.get_user_role_role_in_org,
+                'iod_theme_create_geographic_strings':
+                    h.create_geographic_strings,
+                'iod_theme_free_tags_only':
+                    h.free_tags_only
                }
-
-    plugins.implements(plugins.IRoutes)
 
     # Changing group icon WIP
     # map.redirect('/packages', '/dataset')
@@ -93,8 +115,17 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
     #     m.connect('user_dashboard_themes', '/dashboard/themes',
     #           action='dashboard_groups', ckan_icon='archive')
 
-
+    # IRoutes
     def before_map(self, map):
+
+        group_controller = 'ckanext.iod_theme.controllers.theme:ThemeController'
+        package_controller = 'ckanext.iod_theme.controllers.package:PackageController'
+
+        map.connect('add dataset', '/dataset/new', controller=package_controller, action='new')
+        map.connect('dataset_edit', '/dataset/edit/{id}', controller=package_controller,
+                    action='edit',
+                    ckan_icon='edit')
+
         map.redirect('/groups', '/theme',
                      _redirect_code='301 Moved Permanently')
         map.redirect('/groups/{url:.*}', '/theme/{url}',
@@ -107,8 +138,6 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
                      _redirect_code='301 Moved Permanently')
         map.redirect('/themes/{url:.*}', '/theme/{url}',
                      _redirect_code='301 Moved Permanently')
-
-        group_controller = 'ckanext.iod_theme.controllers.theme:ThemeController'
 
         with mapper.SubMapper(map, controller=group_controller) as m:
             m.connect('theme_index', '/theme', action='index',
@@ -139,12 +168,6 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
                       action='activity', ckan_icon='time')
             m.connect('theme_read', '/theme/{id}', action='read',
                       ckan_icon='sitemap')
-
-            # Where are these coming from?
-            # m.connect('theme_count', '/theme/{id}', action='count')
-            # m.connect('theme_bulk_process',
-            #           '/theme/bulk_process/{id}',
-            #           action='bulk_process', ckan_icon='sitemap')
         return map
 
     def after_map(self, map):
@@ -162,4 +185,20 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
         return {
             'has_user_permission_to_make_dataset_public': has_user_permission_to_make_dataset_public
         }
+
+    # IConfigurable
+    def configure(self, config):
+        self.startup = True
+        register_translator()
+        # Create geographic string vocabulary
+        h.create_geographic_strings()
+        self.startup = False
+
+    # IFacets
+    def dataset_facets(self, facets_dict, package_type):
+        log.info(facets_dict)
+        facets_dict['vocab_geographic_strings'] = toolkit._('Geographic Scope')
+        return facets_dict
+
+
 

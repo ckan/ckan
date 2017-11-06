@@ -3,8 +3,6 @@ import logging
 import ckan.logic as l
 import ckanext.iod_theme.helpers as h
 
-_check_access = l.check_access
-
 log = logging.getLogger(__name__)
 
 
@@ -17,5 +15,7 @@ def package_create(context, data_dict):
     if role and role == 'editor':
         data_dict['private'] = True
 
+    if data_dict and 'geographic_string' in data_dict.keys():
+        h.convert_to_tags('geographic_string', data_dict, context, 'geographic_strings')
 
     return l.action.create.package_create(context, data_dict)

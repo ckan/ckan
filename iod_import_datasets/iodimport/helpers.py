@@ -68,3 +68,17 @@ def strftime(obj, field, row):
             sys.exit("Incorrect data format for field %s, should be YYYY/MM/DD, line %d" % (field, row))
 
 
+def tags_string_to_list(tags_string):
+
+    if isinstance(tags_string, unicode):
+        tags_string = [tags_string]
+
+    out = []
+    for tag in tags_string:
+        tag = tag.strip()
+        if tag:
+            out.append({'name': tag,
+                        'state': 'active'})
+    return out
+
+
