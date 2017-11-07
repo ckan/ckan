@@ -756,6 +756,7 @@ def nav_link_flask(text, *args, **kwargs):
     blueprint, endpoint = request.url_rule.endpoint.split('.')
     if args:
         kwargs['controller'] = blueprint or None
+        kwargs['action'] = endpoint or None
     named_route = kwargs.pop('named_route', '')
     if kwargs.pop('condition', True):
         if named_route:

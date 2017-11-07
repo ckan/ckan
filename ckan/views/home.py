@@ -1,9 +1,10 @@
 # encoding: utf-8
 
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, abort
 
 import ckan.model as model
 import ckan.logic as logic
+import ckan.lib.base as base
 import ckan.lib.search as search
 import ckan.lib.helpers as h
 
@@ -60,12 +61,12 @@ def index():
                 u' if you need to reset your password.') \
             % config.get(u'ckan.site_title')
         h.flash_notice(msg, allow_html=True)
-    return render_template(u'home/index.html')
+    return base.render(u'home/index.html', extra_vars={})
 
 
 def about():
     u''' display about page'''
-    return render_template(u'home/about.html')
+    return base.render(u'home/about.html', extra_vars={})
 
 
 util_rules = [
