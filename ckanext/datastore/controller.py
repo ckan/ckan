@@ -21,13 +21,15 @@ from ckan.logic import (
     parse_params,
 )
 import ckan.lib.navl.dictization_functions as dict_fns
-
+from ckan.common import config
 from itertools import izip_longest
 
 int_validator = get_validator('int_validator')
 boolean_validator = get_validator('boolean_validator')
 
-DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
+# DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
+DUMP_FORMATS = config.get('ckan.dump_formats', '')
+
 PAGINATE_BY = 32000
 
 
@@ -46,7 +48,7 @@ class DatastoreController(BaseController):
 
         if fmt not in DUMP_FORMATS:
             abort(400, _(
-                u'format: must be one of %s') % u', '.join(DUMP_FORMATS))
+                u'format: must be one of:  %s') % u''.join(DUMP_FORMATS))
 
         try:
             dump_to(

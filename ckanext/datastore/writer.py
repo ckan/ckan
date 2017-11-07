@@ -14,6 +14,7 @@ from codecs import BOM_UTF8
 
 def get_writers(fmt):
 
+    import pdb; pdb.set_trace()
     for plugin in plugins.PluginImplementations(IWriter):
         if hasattr(plugin, 'get_writer'):
             plugin_writer = plugin.get_writer()
