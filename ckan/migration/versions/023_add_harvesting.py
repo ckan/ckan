@@ -32,8 +32,8 @@ def upgrade(migrate_engine):
     )
 
     metadata.bind = migrate_engine
-    harvest_source_table.create()
-    harvesting_job_table.create()
+    harvest_source_table.create(checkfirst=True)
+    harvesting_job_table.create(checkfirst=True)
 
 def downgrade(migrate_engine):
     metadata.bind = migrate_engine
