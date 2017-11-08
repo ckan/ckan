@@ -2211,10 +2211,6 @@ msgstr " مجموعه داده {num}"
 msgid "0 Datasets"
 msgstr "0 مجموعه داده"
 
-#: ckan%2Ftemplates%2Fgroup%2Fsnippets%2Fgroup_item.html%3A38+ckan%2Ftemplates%2Fgroup%2Fsnippets%2Fgroup_item.html%3A39
-msgid "View {name}"
-msgstr "نمایش {نام}"
-
 #: ckan/templates/group/snippets/group_item.html:43
 msgid "Remove dataset from this group"
 msgstr "حذف مجموعه داده از این گروه"
