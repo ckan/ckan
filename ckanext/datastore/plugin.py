@@ -22,8 +22,6 @@ from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
-DEFAULT_FORMATS = []
-
 ValidationError = p.toolkit.ValidationError
 
 
