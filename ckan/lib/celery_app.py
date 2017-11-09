@@ -63,10 +63,11 @@ for entry_point in iter_entry_points(group='ckan.celery_task'):
 
 try:
     for key, value in config.items('app:celery'):
+        key = key.upper()
         if key in LIST_PARAMS:
-            default_config[key.upper()] = value.split()
+            default_config.setdefault(key, []).extend(value.split())
         else:
-            default_config[key.upper()] = value
+            default_config[key] = value
 except ConfigParser.NoSectionError:
     pass
 
