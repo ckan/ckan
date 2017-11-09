@@ -15,24 +15,24 @@ from codecs import BOM_UTF8
 def get_writers(fmt):
 
     for plugin in plugins.PluginImplementations(IWriter):
-        if hasattr(plugin, 'get_writer'):
+        if hasattr(plugin, u'get_writer'):
             plugin_writer = plugin.get_writer()
 
-    if fmt == 'csv':
+    if fmt == u'csv':
         writer_factory = csv_writer
-        records_format = 'csv'
-    elif fmt == 'tsv':
+        records_format = u'csv'
+    elif fmt == u'tsv':
         writer_factory = tsv_writer
-        records_format = 'tsv'
-    elif fmt == 'json':
+        records_format = u'tsv'
+    elif fmt == u'json':
         writer_factory = json_writer
-        records_format = 'lists'
-    elif fmt == 'xml':
+        records_format = u'lists'
+    elif fmt == u'xml':
         writer_factory = xml_writer
-        records_format = 'objects'
+        records_format = u'objects'
     else:
         writer_factory = plugin_writer
-        records_format = 'objects'
+        records_format = u'objects'
     return writer_factory, records_format
 
 

@@ -212,60 +212,60 @@ class TestWriterInterface(object):
         cls.normal_user = model.User.get('annafan')
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
-            'resource_id': resource.id,
-            'force': True,
-            'aliases': 'books',
+            u'resource_id': resource.id,
+            u'force': True,
+            u'aliases': u'books',
             'fields': [
                 {
-                    'id': u'b\xfck',
-                    'type': 'text'
+                    u'id': u'b\xfck',
+                    u'type': u'text'
                 },
                 {
-                    'id': 'author',
-                    'type': 'text'
+                    u'id': u'author',
+                    u'type': u'text'
                 },
                 {
-                    'id': 'published'
+                    u'id': u'published'
                 },
                 {
-                    'id': u'characters',
+                    u'id': u'characters',
                     u'type': u'_text'
                 },
                 {
-                    'id': 'random_letters',
-                    'type': 'text[]'
+                    u'id': u'random_letters',
+                    u'type': u'text[]'
                 }
             ],
-            'records': [
+            u'records': [
                 {
-                    u'b\xfck': 'annakarenina',
-                    'author': 'tolstoy',
-                    'published': '2005-03-01',
-                    'nested': [
-                        'b',
-                        {'moo': 'moo'}
+                    u'b\xfck': u'annakarenina',
+                    u'author': u'tolstoy',
+                    u'published': u'2005-03-01',
+                    u'nested': [
+                        u'b',
+                        {u'moo': u'moo'}
                     ],
                     u'characters': [
                         u'Princess Anna',
                         u'Sergius'
                     ],
-                    'random_letters': [
-                        'a', 'e', 'x'
+                    u'random_letters': [
+                        u'a', u'e', u'x'
                     ]
                 },
                 {
-                    u'b\xfck': 'warandpeace',
-                    'author': 'tolstoy',
-                    'nested': {'a': 'b'},
-                    'random_letters': [
+                    u'b\xfck': u'warandpeace',
+                    u'author': u'tolstoy',
+                    u'nested': {u'a': u'b'},
+                    u'random_letters': [
 
                     ]
                 }
             ]
         }
         postparams = '%s=1' % json.dumps(cls.data)
-        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
-        res = cls.app.post('/api/action/datastore_create', params=postparams,
+        auth = {u'Authorization': str(cls.sysadmin_user.apikey)}
+        res = cls.app.post(u'/api/action/datastore_create', params=postparams,
                            extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
@@ -281,7 +281,7 @@ class TestWriterInterface(object):
 
     def test_dump_plugin(self):
         auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.get('/datastore/dump/{0}?limit=1&format=pdf'.format(
+        res = self.app.get(u'/datastore/dump/{0}?limit=1&format=pdf'.format(
             str(self.data['resource_id'])), extra_environ=auth)
 
 
