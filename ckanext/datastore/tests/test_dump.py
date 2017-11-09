@@ -12,6 +12,7 @@ import nose
 from ckan.tests.helpers import _get_test_app
 import sqlalchemy.orm as orm
 from nose.tools import assert_equals, assert_in
+import ckanext.datastore.interfaces as interfaces
 
 
 class TestDatastoreDump(object):
@@ -190,3 +191,107 @@ class TestDatastoreDump(object):
             u'</data>\n'
         )
         assert_equals(content, expected_content)
+
+
+class TestWriterInterface(object):
+    sysadmin_user = None
+    normal_user = None
+
+    @classmethod
+    def setup_class(cls):
+        cls.app = _get_test_app()
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
+        p.load('datastore')
+
+        if p.plugin_loaded('test_writer_plugin'):
+            p.load('test_writer_plugin')
+
+        ctd.CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.normal_user = model.User.get('annafan')
+        resource = model.Package.get('annakarenina').resources[0]
+        cls.data = {
+            'resource_id': resource.id,
+            'force': True,
+            'aliases': 'books',
+            'fields': [
+                {
+                    'id': u'b\xfck',
+                    'type': 'text'
+                },
+                {
+                    'id': 'author',
+                    'type': 'text'
+                },
+                {
+                    'id': 'published'
+                },
+                {
+                    'id': u'characters',
+                    u'type': u'_text'
+                },
+                {
+                    'id': 'random_letters',
+                    'type': 'text[]'
+                }
+            ],
+            'records': [
+                {
+                    u'b\xfck': 'annakarenina',
+                    'author': 'tolstoy',
+                    'published': '2005-03-01',
+                    'nested': [
+                        'b',
+                        {'moo': 'moo'}
+                    ],
+                    u'characters': [
+                        u'Princess Anna',
+                        u'Sergius'
+                    ],
+                    'random_letters': [
+                        'a', 'e', 'x'
+                    ]
+                },
+                {
+                    u'b\xfck': 'warandpeace',
+                    'author': 'tolstoy',
+                    'nested': {'a': 'b'},
+                    'random_letters': [
+
+                    ]
+                }
+            ]
+        }
+        postparams = '%s=1' % json.dumps(cls.data)
+        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
+        res = cls.app.post('/api/action/datastore_create', params=postparams,
+                           extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        engine = db.get_write_engine()
+        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.rebuild_all_dbs(cls.Session)
+        p.unload('datastore')
+        p.unload('test_writer_plugin')
+
+    def test_dump_plugin(self):
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.get('/datastore/dump/{0}?limit=1&format=pdf'.format(
+            str(self.data['resource_id'])), extra_environ=auth)
+
+
+class MockWriterPlugin(p.SingletonPlugin):
+    p.implements(interfaces.IWriter)
+
+    def get_writer(self):
+        writer = pdfwriter
+        return writer
+
+
+def pdfwriter(self):
+    return {}
