@@ -27,8 +27,7 @@ from itertools import izip_longest
 int_validator = get_validator('int_validator')
 boolean_validator = get_validator('boolean_validator')
 
-# DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
-DUMP_FORMATS = config.get('ckan.dump_formats', '')
+DUMP_FORMATS = config.get('ckan.dump_formats')
 
 PAGINATE_BY = 32000
 
