@@ -97,10 +97,24 @@
           }
         },
         {
+          "value": "Ansar bank",
+          "label": {
+            "en": "Ansar bank",
+            "fa_IR": "بانک انصار"
+          }
+        },
+        {
           "value": "art",
           "label": {
             "en": "art",
             "fa_IR": "هنر"
+          }
+        },
+        {
+          "value": "Ayandeh bank",
+          "label": {
+            "en": "Ayandeh bank",
+            "fa_IR": "بانک آینده"
           }
         },
         {
@@ -125,10 +139,24 @@
           }
         },
         {
+          "value": "bank",
+          "label": {
+            "en": "bank",
+            "fa_IR": "بانک"
+          }
+        },
+        {
           "value": "banking",
           "label": {
             "en": "banking",
             "fa_IR": "بانکداری"
+          }
+        },
+        {
+          "value": "banking system",
+          "label": {
+            "en": "banking system",
+            "fa_IR": "نظام بانکی"
           }
         },
         {
@@ -195,9 +223,9 @@
           }
         },
         {
-          "value": "cinemas",
+          "value": "cinema",
           "label": {
-            "en": "cinemas",
+            "en": "cinema",
             "fa_IR": "سینما "
           }
         },
@@ -216,10 +244,10 @@
           }
         },
         {
-          "value": "CNG",
+          "value": "cng",
           "label": {
-            "en": "CNG",
-            "fa_IR": "CNG"
+            "en": "cng",
+            "fa_IR": "گاز طبیعی فشرده"
           }
         },
         {
@@ -307,13 +335,6 @@
           }
         },
         {
-          "value": "country",
-          "label": {
-            "en": "country",
-            "fa_IR": "شهرستان"
-          }
-        },
-        {
           "value": "country divisions",
           "label": {
             "en": "country divisions",
@@ -321,10 +342,24 @@
           }
         },
         {
+          "value": "county",
+          "label": {
+            "en": "county",
+            "fa_IR": "شهرستان"
+          }
+        },
+        {
           "value": "credit",
           "label": {
             "en": "credit",
             "fa_IR": "اعتبار"
+          }
+        },
+        {
+          "value": "credit union",
+          "label": {
+            "en": "credit union",
+            "fa_IR": "موسسات اعتباری"
           }
         },
         {
@@ -405,6 +440,13 @@
           }
         },
         {
+          "value": "Dey bank",
+          "label": {
+            "en": "Dey bank",
+            "fa_IR": "بانک دی"
+          }
+        },
+        {
           "value": "diploma",
           "label": {
             "en": "diploma",
@@ -465,6 +507,13 @@
           "label": {
             "en": "education",
             "fa_IR": "آموزش"
+          }
+        },
+        {
+          "value": "Eghtesad Novin bank",
+          "label": {
+            "en": "Eghtesad Novin bank",
+            "fa_IR": "بانک اقتصاد نوین"
           }
         },
         {
@@ -559,10 +608,24 @@
           }
         },
         {
+          "value": "foreign bank",
+          "label": {
+            "en": "foreign bank",
+            "fa_IR": "بانک خارجی"
+          }
+        },
+        {
           "value": "fuel",
           "label": {
             "en": "fuel",
             "fa_IR": "سوخت"
+          }
+        },
+        {
+          "value": "Gardeshgari bank",
+          "label": {
+            "en": "Gardeshgari bank",
+            "fa_IR": "بانک گردشگری"
           }
         },
         {
@@ -580,10 +643,10 @@
           }
         },
         {
-          "value": "GDP",
+          "value": "gdp",
           "label": {
-            "en": "GDP",
-            "fa_IR": "GDP"
+            "en": "gdp",
+            "fa_IR": "تولید ناخالص داخلی"
           }
         },
         {
@@ -594,10 +657,24 @@
           }
         },
         {
+          "value": "Ghavamin bank",
+          "label": {
+            "en": "Ghavamin bank",
+            "fa_IR": "بانک قوامین"
+          }
+        },
+        {
           "value": "global",
           "label": {
             "en": "global",
             "fa_IR": "جهانی"
+          }
+        },
+        {
+          "value": "governemental bank",
+          "label": {
+            "en": "governemental bank",
+            "fa_IR": "بانک دولتی"
           }
         },
         {
@@ -626,6 +703,13 @@
           "label": {
             "en": "health care",
             "fa_IR": "بهداشت"
+          }
+        },
+        {
+          "value": "Hekmat Iranian bank",
+          "label": {
+            "en": "Hekmat Iranian bank",
+            "fa_IR": "بانک حکمت ایرانیان"
           }
         },
         {
@@ -738,6 +822,27 @@
           "label": {
             "en": "Iran",
             "fa_IR": "ایران"
+          }
+        },
+        {
+          "value": "Iran zamin bank",
+          "label": {
+            "en": "Iran zamin bank",
+            "fa_IR": "بانک ایران زمین"
+          }
+        },
+        {
+          "value": "Karafarinan bank",
+          "label": {
+            "en": "Karafarinan bank",
+            "fa_IR": "بانک کارآفرین"
+          }
+        },
+        {
+          "value": "Khavaremiyaneh bank",
+          "label": {
+            "en": "Khavaremiyaneh bank",
+            "fa_IR": "بانک خاورمیانه"
           }
         },
         {
