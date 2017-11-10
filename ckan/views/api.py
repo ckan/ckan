@@ -197,7 +197,8 @@ def _get_request_data(try_url_params=False):
     if request.method == u'PUT' and not request_data:
         raise ValueError(u'Invalid request. Please use the POST method for '
                          'your request')
-
+    for field_name, file_ in request.files.iteritems():
+        request_data[field_name] = file_
     log.debug(u'Request data extracted: %r', request_data)
 
     return request_data
