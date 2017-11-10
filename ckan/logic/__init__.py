@@ -677,12 +677,8 @@ def get_validator(validator):
         converters = _import_module_functions('ckan.logic.converters')
         _validators_cache.update(converters)
 
-        for plugin in p.PluginImplementations(p.IValidators):
+        for plugin in reversed(list(p.PluginImplementations(p.IValidators))):
             for name, fn in plugin.get_validators().items():
-                if name in _validators_cache:
-                    raise NameConflict(
-                        'The validator %r is already defined' % (name,)
-                    )
                 log.debug('Validator function {0} from plugin {1} was inserted'
                           .format(name, plugin.name))
                 _validators_cache[name] = fn

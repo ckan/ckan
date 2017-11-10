@@ -2,7 +2,7 @@
 
 import ckan.lib.navl.dictization_functions as df
 
-from ckan.common import _
+from ckan.common import _, json
 
 missing = df.missing
 StopOnError = df.StopOnError
@@ -123,3 +123,39 @@ def unicode_only(value):
     if not isinstance(value, unicode):
         raise Invalid(_('Must be a Unicode string value'))
     return value
+
+def unicode_safe(value):
+    '''
+    Make sure value passed is treated as unicode, but don't raise
+    an error if it's not, just make a reasonable attempt to
+    convert other types passed.
+
+    This validator is a safer alternative to the old ckan idiom
+    of using the unicode() function as a validator. It tries
+    not to pollute values with Python repr garbage e.g. when passed
+    a list of strings (uses json format instead). It also
+    converts binary strings assuming either UTF-8 or CP1252
+    encodings (not ASCII, with occasional decoding errors)
+    '''
+    if isinstance(value, unicode):
+        return value
+    if hasattr(value, 'filename'):
+        # cgi.FieldStorage instance for uploaded files, show the name
+        value = value.filename
+    if value is missing or value is None:
+        return u''
+    if isinstance(value, bytes):
+        # bytes only arrive when core ckan or plugins call
+        # actions from Python code
+        try:
+            return value.decode(u'utf8')
+        except UnicodeDecodeError:
+            return value.decode(u'cp1252')
+    try:
+        return json.dumps(value, sort_keys=True, ensure_ascii=False)
+    except Exception:
+        # at this point we have given up. Just don't error out
+        try:
+            return unicode(value)
+        except Exception:
+            return u'\N{REPLACEMENT CHARACTER}'
