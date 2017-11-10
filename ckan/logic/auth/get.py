@@ -3,9 +3,11 @@
 import ckan.logic as logic
 import ckan.authz as authz
 from ckan.common import _
+from ckan.common import config
 from ckan.logic.auth import (get_package_object, get_group_object,
-                            get_resource_object)
+                            get_resource_object, restrict_anon)
 from ckan.lib.plugins import get_permission_labels
+from paste.deploy.converters import asbool
 
 
 def sysadmin(context, data_dict):
@@ -88,7 +90,10 @@ def tag_list(context, data_dict):
 
 def user_list(context, data_dict):
     # Users list is visible by default
-    return {'success': True}
+    if not asbool(config.get('ckan.public_user_details', True)):
+        return restrict_anon(context)
+    else:
+        return {'success': True}
 
 def package_relationships_list(context, data_dict):
     user = context.get('user')
@@ -161,7 +166,10 @@ def group_show(context, data_dict):
     user = context.get('user')
     group = get_group_object(context, data_dict)
     if group.state == 'active':
-        return {'success': True}
+        if asbool(config.get('ckan.public_user_details', True)) or (
+                not asbool(data_dict.get('include_users', False)) and (
+                data_dict.get('object_type', None) != 'user')):
+            return {'success': True}
     authorized = authz.has_user_permission_for_group_or_org(
         group.id, user, 'read')
     if authorized:
@@ -185,7 +193,10 @@ def tag_show(context, data_dict):
 def user_show(context, data_dict):
     # By default, user details can be read by anyone, but some properties like
     # the API key are stripped at the action level if not not logged in.
-    return {'success': True}
+    if not asbool(config.get('ckan.public_user_details', True)):
+        return restrict_anon(context)
+    else:
+        return {'success': True}
 
 
 def package_autocomplete(context, data_dict):
