@@ -97,6 +97,13 @@
           }
         },
         {
+          "value": "air pollution",
+          "label": {
+            "en": "air pollution",
+            "fa_IR": "آلودگی هوا"
+          }
+        },
+        {
           "value": "Ansar bank",
           "label": {
             "en": "Ansar bank",
@@ -902,6 +909,20 @@
           }
         },
         {
+          "value": "Mehr eghtesad bank",
+          "label": {
+            "en": "Mehr eghtesad bank",
+            "fa_IR": "بانک مهر اقتصاد"
+          }
+        },
+        {
+          "value": "Mellat bank",
+          "label": {
+            "en": "Mellat bank",
+            "fa_IR": "بانک ملت"
+          }
+        },
+        {
           "value": "middle schools",
           "label": {
             "en": "middle schools",
@@ -965,10 +986,24 @@
           }
         },
         {
+          "value": "non banking",
+          "label": {
+            "en": "non banking",
+            "fa_IR": "غیربانکی"
+          }
+        },
+        {
           "value": "non governmental",
           "label": {
             "en": "non governmental",
             "fa_IR": "غیر دولتی"
+          }
+        },
+        {
+          "value": "nongovernmental bank",
+          "label": {
+            "en": "nongovernmental bank",
+            "fa_IR": "بانک غیردولتی"
           }
         },
         {
@@ -990,6 +1025,20 @@
           "label": {
             "en": "OPEC",
             "fa_IR": "اوپک"
+          }
+        },
+        {
+          "value": "Parsian bank",
+          "label": {
+            "en": "Parsian bank",
+            "fa_IR": "بانک پارسیان"
+          }
+        },
+        {
+          "value": "Pasargad bank",
+          "label": {
+            "en": "Pasargad bank",
+            "fa_IR": "بانک پارسارگاد"
           }
         },
         {
@@ -1035,9 +1084,9 @@
           }
         },
         {
-          "value": "PHD",
+          "value": "phd",
           "label": {
-            "en": "PHD",
+            "en": "phd",
             "fa_IR": "دکترای حرفه‌ای "
           }
         },
@@ -1070,9 +1119,16 @@
           }
         },
         {
-          "value": "postdoctorate",
+          "value": "Post bank",
           "label": {
-            "en": "postdoctorate",
+            "en": "Post bank",
+            "fa_IR": "پست بانک"
+          }
+        },
+        {
+          "value": "post doctorate",
+          "label": {
+            "en": "post doctorate",
             "fa_IR": "دکترای تخصصی"
           }
         },
@@ -1115,7 +1171,7 @@
           "value": "press",
           "label": {
             "en": "press",
-            "fa_IR": "مطبوعات "
+            "fa_IR": "مطبوعات"
           }
         },
         {
@@ -1189,6 +1245,13 @@
           }
         },
         {
+          "value": "Resalat gharzolhasaneh bank",
+          "label": {
+            "en": "Resalat gharzolhasaneh bank",
+            "fa_IR": "بانک قرض‌الحسنه رسالت"
+          }
+        },
+        {
           "value": "research",
           "label": {
             "en": "research",
@@ -1238,6 +1301,27 @@
           }
         },
         {
+          "value": "Saderat bank",
+          "label": {
+            "en": "Saderat bank",
+            "fa_IR": "بانک صادرات"
+          }
+        },
+        {
+          "value": "Saman bank",
+          "label": {
+            "en": "Saman bank",
+            "fa_IR": "بانک سامان"
+          }
+        },
+        {
+          "value": "Sarmayeh bank",
+          "label": {
+            "en": "Sarmayeh bank",
+            "fa_IR": "بانک سرمایه"
+          }
+        },
+        {
           "value": "school",
           "label": {
             "en": "school",
@@ -1259,6 +1343,34 @@
           }
         },
         {
+          "value": "Shahr bank",
+          "label": {
+            "en": "Shahr bank",
+            "fa_IR": "بانک شهر"
+          }
+        },
+        {
+          "value": "share",
+          "label": {
+            "en": "share",
+            "fa_IR": "سهام"
+          }
+        },
+        {
+          "value": "shareholders",
+          "label": {
+            "en": "shareholders",
+            "fa_IR": "سهامداران"
+          }
+        },
+        {
+          "value": "Sina bank",
+          "label": {
+            "en": "Sina bank",
+            "fa_IR": "بانک سینا"
+          }
+        },
+        {
           "value": "social affairs",
           "label": {
             "en": "social affairs",
@@ -1277,6 +1389,13 @@
           "label": {
             "en": "social security",
             "fa_IR": "امنیت اجتماعی"
+          }
+        },
+        {
+          "value": "stock",
+          "label": {
+            "en": "stock",
+            "fa_IR": "بورس"
           }
         },
         {
@@ -1312,6 +1431,13 @@
           "label": {
             "en": "Tehran",
             "fa_IR": "تهران"
+          }
+        },
+        {
+          "value": "Tejarat bank",
+          "label": {
+            "en": "Tejarat bank",
+            "fa_IR": "بانک تجارت"
           }
         },
         {
