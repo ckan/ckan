@@ -8,11 +8,10 @@ from sqlalchemy import orm
 from ckan.common import config
 import vdm.sqlalchemy
 import vdm.sqlalchemy.stateful
-from sqlalchemy import types, func, Column, Table, ForeignKey, and_
+from sqlalchemy import types, func, Column, Table, ForeignKey
 
 import meta
 import core
-import package as _package
 import types as _types
 import extension
 import activity

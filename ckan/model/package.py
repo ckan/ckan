@@ -1,11 +1,10 @@
 # encoding: utf-8
 
 import datetime
-from calendar import timegm
 import logging
 logger = logging.getLogger(__name__)
 
-from sqlalchemy.sql import select, and_, union, or_
+from sqlalchemy.sql import and_, or_
 from sqlalchemy import orm
 from sqlalchemy import types, Column, Table
 from ckan.common import config
@@ -68,7 +67,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     text_search_fields = ['name', 'title']
 
     def __init__(self, **kw):
-        from ckan import model
         super(Package, self).__init__(**kw)
 
     @classmethod
