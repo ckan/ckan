@@ -10,7 +10,6 @@ import core
 import package as _package
 import types as _types
 import domain_object
-import user as _user
 
 __all__ = ['group_table', 'Group',
            'Member', 'GroupRevision', 'MemberRevision',

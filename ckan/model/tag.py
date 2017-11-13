@@ -2,7 +2,7 @@
 
 import vdm.sqlalchemy
 from sqlalchemy.orm import relation
-from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint
+from sqlalchemy import types, Column, Table, ForeignKey, UniqueConstraint
 
 import package as _package
 import extension as _extension

@@ -11,126 +11,17 @@ from sqlalchemy import MetaData, __version__ as sqav, Table
 from sqlalchemy.util import OrderedDict
 
 import meta
-from meta import (
-    Session,
-    engine_is_sqlite,
-    engine_is_pg,
-)
-from core import (
-    System,
-    Revision,
-    State,
-    revision_table,
-)
-from package import (
-    Package,
-    PACKAGE_NAME_MIN_LENGTH,
-    PACKAGE_NAME_MAX_LENGTH,
-    PACKAGE_VERSION_MAX_LENGTH,
-    package_table,
-    package_revision_table,
-    PackageTagRevision,
-    PackageRevision,
-)
-from tag import (
-    Tag,
-    PackageTag,
-    MAX_TAG_LENGTH,
-    MIN_TAG_LENGTH,
-    tag_table,
-    package_tag_table,
-    package_tag_revision_table,
-)
-from user import (
-    User,
-    user_table,
-)
+from core import Revision
+from package import Package
+from tag import PackageTag
+from user import User
 from group import (
     Member,
     Group,
-    member_revision_table,
-    group_revision_table,
-    group_table,
-    GroupRevision,
-    MemberRevision,
-    member_table,
 )
-from group_extra import (
-    GroupExtra,
-    group_extra_table,
-    GroupExtraRevision,
-)
-from package_extra import (
-    PackageExtra,
-    PackageExtraRevision,
-    package_extra_table,
-    extra_revision_table,
-)
-from resource import (
-    Resource,
-    ResourceRevision,
-    DictProxy,
-    resource_table,
-    resource_revision_table,
-)
-from resource_view import (
-    ResourceView,
-    resource_view_table,
-)
-from tracking import (
-    tracking_summary_table,
-    TrackingSummary,
-    tracking_raw_table
-)
-from rating import (
-    Rating,
-    MIN_RATING,
-    MAX_RATING,
-)
-from package_relationship import (
-    PackageRelationship,
-    package_relationship_table,
-    package_relationship_revision_table,
-)
-from task_status import (
-    TaskStatus,
-    task_status_table,
-)
-from vocabulary import (
-    Vocabulary,
-    VOCABULARY_NAME_MAX_LENGTH,
-    VOCABULARY_NAME_MIN_LENGTH,
-)
-from activity import (
-    Activity,
-    ActivityDetail,
-    activity_table,
-    activity_detail_table,
-)
-from term_translation import (
-    term_translation_table,
-)
-from follower import (
-    UserFollowingUser,
-    UserFollowingDataset,
-    UserFollowingGroup,
-)
-from system_info import (
-    system_info_table,
-    system_info_revision_table,
-    SystemInfo,
-    SystemInfoRevision,
-    get_system_info,
-    set_system_info,
-    delete_system_info,
-)
-from domain_object import (
-    DomainObjectOperation,
-    DomainObject,
-)
-from dashboard import (
-    Dashboard,
-)
+from package_extra import PackageExtra
+from resource import Resource
+from system_info import SystemInfo
 
 import ckan.migration
 
