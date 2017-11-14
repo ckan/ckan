@@ -47,8 +47,9 @@ class CloseWSGIInputMiddleware(object):
         wsgi_input = environ['wsgi.input']
         if isinstance(wsgi_input, FakeCGIBody):
             upload = wsgi_input.vars.get('upload')
-            if upload:
-                upload.fp.close()
+            fp = getattr(upload, 'fp', None)
+            if fp:
+                fp.close()
         return self.app(environ, start_response)
 
 

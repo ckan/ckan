@@ -22,6 +22,21 @@ _max_resource_size = None
 _max_image_size = None
 
 
+def _copy_file(input_file, output_file, max_size):
+    input_file.seek(0)
+    current_size = 0
+    while True:
+        current_size = current_size + 1
+        # MB chunks
+        data = input_file.read(2**20)
+
+        if not data:
+            break
+        output_file.write(data)
+        if current_size > max_size:
+            raise logic.ValidationError({'upload': ['File upload too large']})
+
+
 def _get_underlying_file(wrapper):
     if isinstance(wrapper, FlaskFileStorage):
         return wrapper.stream
@@ -162,23 +177,15 @@ class Upload(object):
         max_size is size in MB maximum of the file'''
 
         if self.filename:
-            output_file = open(self.tmp_filepath, 'wb')
-            self.upload_file.seek(0)
-            current_size = 0
-            while True:
-                current_size = current_size + 1
-                # MB chunks
-                data = self.upload_file.read(2 ** 20)
-                if not data:
-                    break
-                output_file.write(data)
-                if current_size > max_size:
+            with open(self.tmp_filepath, 'wb+') as output_file:
+                try:
+                    _copy_file(self.upload_file, output_file, max_size)
+                except logic.ValidationError:
                     os.remove(self.tmp_filepath)
-                    raise logic.ValidationError(
-                        {self.file_field: ['File upload too large']}
-                    )
-            output_file.close()
-            os.rename(self.tmp_filepath, self.filepath)
+                    raise
+                finally:
+                    self.upload_file.close()
+                os.rename(self.tmp_filepath, filepath)
             self.clear = True
 
         if (self.clear and self.old_filename
@@ -286,24 +293,14 @@ class ResourceUpload(object):
                     raise
             tmp_filepath = filepath + '~'
             with open(tmp_filepath, 'wb+') as output_file:
-                self.upload_file.seek(0)
-                current_size = 0
-                while True:
-                    current_size = current_size + 1
-                    # MB chunks
-                    data = self.upload_file.read(2 ** 20)
-
-                    if not data:
-                        break
-                    output_file.write(data)
-                    if current_size > max_size:
-                        os.remove(tmp_filepath)
-                        raise logic.ValidationError(
-                            {'upload': ['File upload too large']}
-                        )
-                self.upload_file.close()
+                try:
+                    _copy_file(self.upload_file, output_file, max_size)
+                except logic.ValidationError:
+                    os.remove(tmp_filepath)
+                    raise
+                finally:
+                    self.upload_file.close()
                 os.rename(tmp_filepath, filepath)
-
             return
 
         # The resource form only sets self.clear (via the input clear_upload)
