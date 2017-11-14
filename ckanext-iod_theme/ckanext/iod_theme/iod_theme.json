@@ -1,0 +1,51 @@
+{
+    "scheming_version": 1,
+    "group_type": "group",
+    "about": "Iran Open Data CKAN theme schema",
+    "about_url": "http://github.com/smallmedia/iod-ckan",
+    "form_languages": ["en", "fa_IR"],
+    "fields": [
+        {
+          "field_name": "title",
+          "label": "Title of Theme",
+          "preset": "title",
+          "form_placeholder": "Name given to the theme",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "label": "URL",
+          "preset": "dataset_slug",
+          "form_placeholder": "eg. my-theme",
+          "required": true
+        },
+        {
+          "field_name": "title_translated",
+          "label": {
+            "en": "Title of Theme",
+            "fa_IR": "موضوع"
+          },
+          "preset": "fluent_core_translated",
+          "form_placeholder": {
+            "en": "Name given to the theme for English",
+            "fa_IR": "Name given to the theme for Farsi"
+          },
+          "required": true
+        },
+        {
+          "field_name": "notes_translated",
+          "label": {
+            "en": "Description",
+            "fa_IR": "توضیح"
+          },
+          "preset": "fluent_core_markdown_translated",
+          "form_placeholder": {
+            "en": "Short description explaining the theme for English",
+            "fa_IR": "Short description explaining the theme for Farsi"
+          }
+        },
+        {
+          "preset": "resource_url_upload"
+        }
+    ]
+  }

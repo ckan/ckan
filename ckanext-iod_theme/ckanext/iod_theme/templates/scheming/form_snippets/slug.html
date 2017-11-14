@@ -8,7 +8,7 @@
     {%- set module_placeholder = '<organization>' -%}
 {%- elif entity_type == 'group' -%}
     {%- set controller = 'group' -%}
-    {%- set module_placeholder = '<group>' -%}
+    {%- set module_placeholder = '<theme>' -%}
 {%- endif -%}
 
 {%- set prefix = h.url_for(controller=controller, action='read', id='') -%}
