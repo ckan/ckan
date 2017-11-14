@@ -59,7 +59,10 @@ services:
 
   solr:
     container_name: solr
-    image: ckan/solr:latest
+    build:
+      context: ../../
+      dockerfile: contrib/docker/solr/Dockerfile
+
 
   redis:
     container_name: redis
