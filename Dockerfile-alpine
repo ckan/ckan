@@ -1,5 +1,4 @@
-#Using edge because of the geos package
-FROM alpine:edge
+FROM alpine:3.6
 
 # MAINTENER is deprecated
 LABEL maintainer="https://github.com/ckan/ckan"
@@ -25,28 +24,30 @@ ENV CKAN_HOME=${CKAN_HOME:-/usr/lib/ckan} \
 
 COPY contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh
 
-# alpine edge is using postgresql-client=10* and is incompatible with pyscopg 2.4.*
-# see https://github.com/psycopg/psycopg2/issues/594
 # paster requires py2-pip
 RUN set -ex && \
-    echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
     apk add --no-cache python2 libpq libstdc++ libmagic \
-         py2-pip geos py-geos postgresql-client && \ 
+         py2-pip postgresql-client && \ 
+    apk add --no-cache --virtual .build-run-testing \ 
+        --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+        geos py-geos && \ 
     apk add --no-cache  \
         --virtual=.build-dependencies \
         libxslt-dev libxml2-dev libressl2.5-libssl libffi-dev postgresql-dev \
         g++ musl-dev git \
-        python2-dev && \
+        python2-dev openssl ca-certificates && \
+    apk add --no-cache --virtual .build-deps-testing \ 
+        --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+        geos-dev && \
     find /usr/lib/python2.*/ -name 'tests' -exec rm -r '{}' + && \
     mkdir -p /usr/lib/ckan/venv/src/ckan /etc/ckan /var/lib/ckan && \
     wget https://raw.githubusercontent.com/ckan/ckan/ckan-"$CKAN_VERSION"/requirements.txt && \
-    sed -i -e 's/psycopg2==2.4.5/psycopg2==2.7.3.2/g' requirements.txt && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install -e 'git+https://github.com/ckan/ckan.git@ckan-'"$CKAN_VERSION"'#egg=ckan' && \
     wget https://raw.githubusercontent.com/ckan/ckan/ckan-"$CKAN_VERSION"/ckan/config/who.ini -O /etc/ckan/who.ini && \
     chmod +x /ckan-entrypoint.sh && \
     sed -i -e 's/ckan-paster/paster/g' ckan-entrypoint.sh && \
-    apk del --purge .build-dependencies
+    apk del --purge .build-dependencies .build-deps-testing
 
 RUN paster make-config --no-interactive ckan /etc/ckan/ckan.ini 
 
