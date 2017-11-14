@@ -73,7 +73,7 @@
 <div class="filters">
   <div>
     {% for facet in c.facet_titles %}
-      {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet) }}
+      {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, alternative_url=dataset_type) }}
     {% endfor %}
   </div>
   <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
