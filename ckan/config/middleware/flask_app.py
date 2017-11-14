@@ -6,6 +6,8 @@ import inspect
 import itertools
 import pkgutil
 
+from jinja2 import ChoiceLoader
+
 from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
@@ -24,6 +26,7 @@ from repoze.who.middleware import PluggableAuthenticationMiddleware
 import ckan.model as model
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
+from ckan.lib.render import CkanextTemplateLoader
 from ckan.common import config, g, request, ungettext
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
@@ -54,6 +57,10 @@ def make_flask_stack(conf, **app_conf):
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
     app.url_rule_class = CKAN_Rule
+    app.jinja_loader = ChoiceLoader([
+        app.jinja_loader,
+        CkanextTemplateLoader()
+    ])
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
@@ -154,6 +161,21 @@ def make_flask_stack(conf, **app_conf):
     for plugin in PluginImplementations(IBlueprint):
         if hasattr(plugin, 'get_blueprint'):
             app.register_extension_blueprint(plugin.get_blueprint())
+
+    # Set flask routes in named_routes
+    for rule in app.url_map.iter_rules():
+        if '.' not in rule.endpoint:
+            continue
+        controller, action = rule.endpoint.split('.')
+        route = {
+            rule.endpoint: {
+                'action': action,
+                'controller': controller,
+                'highlight_actions': action,
+                'needed': list(rule.arguments)
+                }
+            }
+        config['routes.named_routes'].update(route)
 
     # Start other middleware
     for plugin in PluginImplementations(IMiddleware):
@@ -355,7 +377,9 @@ def _register_core_blueprints(app):
     def is_blueprint(mm):
         return isinstance(mm, Blueprint)
 
-    for loader, name, _ in pkgutil.iter_modules(['ckan/views'], 'ckan.views.'):
+    path = os.path.join(os.path.dirname(__file__), '..', '..', 'views')
+
+    for loader, name, _ in pkgutil.iter_modules([path], 'ckan.views.'):
         module = loader.find_module(name).load_module(name)
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])

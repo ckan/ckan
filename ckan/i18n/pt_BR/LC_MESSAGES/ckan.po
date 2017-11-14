@@ -3762,7 +3762,7 @@ msgstr "Valor"
 
 #: ckan/templates/package/resource_read.html:154
 msgid "Data last updated"
-msgstr "Dado atualizado pela última vez"
+msgstr "Dados atualizados pela última vez"
 
 #: ckan/templates/package/resource_read.html:155
 #: ckan/templates/package/resource_read.html:159
@@ -3773,7 +3773,7 @@ msgstr "Desconhecido"
 
 #: ckan/templates/package/resource_read.html:158
 msgid "Metadata last updated"
-msgstr "Metadado atualizado pela última vez"
+msgstr "Metadados atualizados pela última vez"
 
 #: ckan/templates/package/resource_read.html:162
 #: ckan/templates/package/snippets/additional_info.html:70

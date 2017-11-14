@@ -685,10 +685,23 @@ def are_there_flash_messages():
 
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
+    if is_flask_request():
+        return _link_active_flask(kwargs)
+    else:
+        return _link_active_pylons(kwargs)
+
+
+def _link_active_pylons(kwargs):
     highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split()
     return (c.controller == kwargs.get('controller')
             and c.action in highlight_actions)
+
+
+def _link_active_flask(kwargs):
+    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    return(kwargs.get('controller') == blueprint and
+           kwargs.get('action') == endpoint)
 
 
 def _link_to(text, *args, **kwargs):
@@ -731,6 +744,30 @@ def nav_link(text, *args, **kwargs):
     :param condition: if ``False`` then no link is returned
 
     '''
+    if is_flask_request():
+        return nav_link_flask(text, *args, **kwargs)
+    else:
+        return nav_link_pylons(text, *args, **kwargs)
+
+
+def nav_link_flask(text, *args, **kwargs):
+    if len(args) > 1:
+        raise Exception('Too many unnamed parameters supplied')
+    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    if args:
+        kwargs['controller'] = blueprint or None
+    named_route = kwargs.pop('named_route', '')
+    if kwargs.pop('condition', True):
+        if named_route:
+            link = _link_to(text, named_route, **kwargs)
+        else:
+            link = _link_to(text, **kwargs)
+    else:
+        link = ''
+    return link
+
+
+def nav_link_pylons(text, *args, **kwargs):
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
     if args:
@@ -923,8 +960,9 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
             facets.append(dict(active=True, **facet_item))
     # Sort descendingly by count and ascendingly by case-sensitive display name
     facets.sort(key=lambda it: (-it['count'], it['display_name'].lower()))
-    if c.search_facets_limits and limit is None:
-        limit = c.search_facets_limits.get(facet)
+    if hasattr(c, 'search_facets_limits'):
+        if c.search_facets_limits and limit is None:
+            limit = c.search_facets_limits.get(facet)
     # zero treated as infinite for hysterical raisins
     if limit is not None and limit > 0:
         return facets[:limit]

@@ -183,7 +183,7 @@ def make_map():
     with SubMapper(map, controller='package') as m:
         m.connect('search', '/dataset', action='search',
                   highlight_actions='index search')
-        m.connect('add dataset', '/dataset/new', action='new')
+        m.connect('dataset_new', '/dataset/new', action='new')
         m.connect('/dataset/{action}',
                   requirements=dict(action='|'.join([
                       'list',
@@ -371,13 +371,6 @@ def make_map():
         m.connect('/revision/list', action='list')
         m.connect('/revision/{id}', action='read')
 
-    # feeds
-    with SubMapper(map, controller='feed') as m:
-        m.connect('/feeds/group/{id}.atom', action='group')
-        m.connect('/feeds/organization/{id}.atom', action='organization')
-        m.connect('/feeds/tag/{id}.atom', action='tag')
-        m.connect('/feeds/dataset.atom', action='general')
-        m.connect('/feeds/custom.atom', action='custom')
 
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin',
                 action='index', ckan_icon='gavel')

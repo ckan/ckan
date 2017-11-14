@@ -197,7 +197,8 @@ def _get_request_data(try_url_params=False):
     if request.method == u'PUT' and not request_data:
         raise ValueError(u'Invalid request. Please use the POST method for '
                          'your request')
-
+    for field_name, file_ in request.files.iteritems():
+        request_data[field_name] = file_
     log.debug(u'Request data extracted: %r', request_data)
 
     return request_data
@@ -445,7 +446,12 @@ def snippet(snippet_path, ver=API_REST_DEFAULT_VERSION):
         We only allow snippets in templates/ajax_snippets and its subdirs
     '''
     snippet_path = u'ajax_snippets/' + snippet_path
-    return render(snippet_path, extra_vars=dict(request.args))
+    # werkzeug.datastructures.ImmutableMultiDict.to_dict
+    # by default returns flattened dict with first occurences of each key.
+    # For retrieving multiple values per key, use named argument `flat`
+    # set to `False`
+    extra_vars = request.args.to_dict()
+    return render(snippet_path, extra_vars=extra_vars)
 
 
 def i18n_js_translations(lang, ver=API_REST_DEFAULT_VERSION):

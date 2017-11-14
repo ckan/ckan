@@ -6,18 +6,66 @@ controller itself.
 '''
 import json
 import re
+import mock
+import __builtin__ as builtins
+from StringIO import StringIO
+
+from nose.tools import assert_equal, assert_in, eq_
+from pyfakefs import fake_filesystem
 
 from ckan.lib.helpers import url_for
-from nose.tools import assert_equal, assert_in, eq_
-
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
-from ckan.lib import helpers as template_helpers
+from ckan.lib import helpers as template_helpers, uploader as ckan_uploader
 import ckan.plugins as p
 from ckan import model
 
+fs = fake_filesystem.FakeFilesystem()
+fake_os = fake_filesystem.FakeOsModule(fs)
+fake_open = fake_filesystem.FakeFileOpen(fs)
+real_open = open
+
+
+def mock_open_if_open_fails(*args, **kwargs):
+    try:
+        return real_open(*args, **kwargs)
+    except (OSError, IOError):
+        return fake_open(*args, **kwargs)
+
 
 class TestApiController(helpers.FunctionalTestBase):
+
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan_uploader, 'os', fake_os)
+    @mock.patch.object(ckan_uploader, '_storage_path', new='/doesnt_exist')
+    def test_resource_create_upload_file(self, _):
+        user = factories.User()
+        pkg = factories.Dataset(creator_user_id=user['id'])
+        # upload_content = StringIO()
+        # upload_content.write('test-content')
+
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='resource_create', ver='/3')
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        postparams = {
+            'name': 'test-flask-upload',
+            'package_id': pkg['id']
+        }
+        upload_content = 'test-content'
+        upload_info = ('upload', 'test-upload.txt', upload_content)
+        app = self._get_test_app()
+        resp = app.post(
+            url, params=postparams,
+            upload_files=[upload_info],
+            extra_environ=env
+            # content_type= 'application/json'
+        )
+        result = resp.json['result']
+        eq_('upload', result['url_type'])
+        eq_(len(upload_content), result['size'])
 
     def test_unicode_in_error_message_works_ok(self):
         # Use tag_delete to echo back some unicode
@@ -266,6 +314,7 @@ class TestApiController(helpers.FunctionalTestBase):
 
         if not p.plugin_loaded('datastore'):
             p.load('datastore')
+
         app = self._get_test_app()
         page = app.get(url, status=200)
         p.unload('datastore')
@@ -277,11 +326,11 @@ class TestApiController(helpers.FunctionalTestBase):
             '<code>http://test.ckan.net/api/3/action/datastore_search',
             'http://test.ckan.net/api/3/action/datastore_search_sql',
             'http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5',
-            'http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;q=jones',
+            'http://test.ckan.net/api/3/action/datastore_search?q=jones&amp;resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b',
             'http://test.ckan.net/api/3/action/datastore_search_sql?sql=SELECT * from &#34;588dfa82-760c-45a2-b78a-e3bc314a4a9b&#34; WHERE title LIKE &#39;jones&#39;',
             "url: 'http://test.ckan.net/api/3/action/datastore_search'",
             "http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5&amp;q=title:jones",
-            )
+        )
         for url in expected_urls:
             assert url in page, url
 
