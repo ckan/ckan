@@ -110,7 +110,6 @@ class ConfigView(MethodView):
 
     def post(self):
         try:
-            # really?
             data_dict = logic.clean_dict(
                 dict_fns.unflatten(
                     logic.tuplize_dict(
