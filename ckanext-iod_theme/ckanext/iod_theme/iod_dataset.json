@@ -216,6 +216,13 @@
           }
         },
         {
+          "value": "Caspian credit institution",
+          "label": {
+            "en": "Caspian credit institution",
+            "fa_IR": "موسسه اعتباری كاسپين"
+          }
+        },
+        {
           "value": "cause of death",
           "label": {
             "en": "cause of death",
@@ -846,6 +853,13 @@
           }
         },
         {
+          "value": "Kowsar Markazi credit institution",
+          "label": {
+            "en": "Kowsar Markazi credit institution",
+            "fa_IR": "موسسه اعتباری كوثر مرکزی"
+          }
+        },
+        {
           "value": "Khavaremiyaneh bank",
           "label": {
             "en": "Khavaremiyaneh bank",
@@ -913,6 +927,13 @@
           "label": {
             "en": "Mehr eghtesad bank",
             "fa_IR": "بانک مهر اقتصاد"
+          }
+        },
+        {
+          "value": "Melal credit institution",
+          "label": {
+            "en": "Melal credit institution",
+            "fa_IR": "موسسه اعتباری ملل"
           }
         },
         {
@@ -1004,6 +1025,13 @@
           "label": {
             "en": "nongovernmental bank",
             "fa_IR": "بانک غیردولتی"
+          }
+        },
+        {
+          "value": "Nour credit institution",
+          "label": {
+            "en": "Nour credit institution",
+            "fa_IR": "موسسه اعتباری نور"
           }
         },
         {
@@ -1315,6 +1343,13 @@
           }
         },
         {
+          "value": "Samen credit institution",
+          "label": {
+            "en": "Samen credit institution",
+            "fa_IR": "موسسه اعتباری ثامن"
+          }
+        },
+        {
           "value": "Sarmayeh bank",
           "label": {
             "en": "Sarmayeh bank",
@@ -1445,6 +1480,13 @@
           "label": {
             "en": "tobacco",
             "fa_IR": "دخانیات"
+          }
+        },
+        {
+          "value": "Toseeh credit institution",
+          "label": {
+            "en": "Toseeh credit institution",
+            "fa_IR": "موسسه اعتباری توسعه"
           }
         },
         {
