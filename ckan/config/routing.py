@@ -371,15 +371,6 @@ def make_map():
         m.connect('/revision/list', action='list')
         m.connect('/revision/{id}', action='read')
 
-
-    map.connect('ckanadmin_index', '/ckan-admin', controller='admin',
-                action='index', ckan_icon='gavel')
-    map.connect('ckanadmin_config', '/ckan-admin/config', controller='admin',
-                action='config', ckan_icon='check-square-o')
-    map.connect('ckanadmin_trash', '/ckan-admin/trash', controller='admin',
-                action='trash', ckan_icon='trash-o')
-    map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
-
     with SubMapper(map, controller='ckan.controllers.storage:StorageController') as m:
         m.connect('storage_file', '/storage/f/{label:.*}',
                   action='file')

@@ -14,7 +14,10 @@ from pylons.decorators import jsonify
 from pylons.templating import cached_template, pylons_globals
 from webhelpers.html import literal
 
-from flask import render_template as flask_render_template
+from flask import (
+    render_template as flask_render_template,
+    abort as flask_abort
+)
 import ckan.exceptions
 import ckan
 import ckan.lib.i18n as i18n
@@ -61,6 +64,9 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
     # with Lucid) causes an exception when unicode is received.
     detail = detail.encode('utf8')
+    if is_flask_request():
+        flask_abort(status_code, detail)
+
     return _abort(status_code=status_code,
                   detail=detail,
                   headers=headers,

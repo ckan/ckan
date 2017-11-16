@@ -132,7 +132,13 @@ def parse_params(params, ignore_keys=None):
     for key in params:
         if ignore_keys and key in ignore_keys:
             continue
-        value = params.getall(key)
+        # flask request has `getlist` instead of pylons' `getall`
+
+        if hasattr(params, 'getall'):
+            value = params.getall(key)
+        else:
+            value = params.getlist(key)
+
         # Blank values become ''
         if not value:
             value = ''

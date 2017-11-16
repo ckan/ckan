@@ -15,7 +15,7 @@ class TestAdminController(WsgiAppCase):
 
     #test that only sysadmins can access the /ckan-admin page
     def test_index(self):
-        url = url_for('ckanadmin', action='index')
+        url = url_for('admin.index')
         response = self.app.get(url, status=[403])
         # random username
         response = self.app.get(url, status=[403],
@@ -25,4 +25,3 @@ class TestAdminController(WsgiAppCase):
         response = self.app.get(url,
                 extra_environ={'REMOTE_USER': username})
         assert 'Administration' in response, response
-
