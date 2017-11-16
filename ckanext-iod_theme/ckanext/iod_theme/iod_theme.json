@@ -8,44 +8,19 @@
         {
           "field_name": "title",
           "label": "Title of Theme",
-          "preset": "title",
+          "validators": "if_empty_same_as(name) unicode",
+          "form_snippet": "large_text.html",
+          "form_attrs": {"data-module": "slug-preview-target"},
           "form_placeholder": "Name given to the theme",
           "required": true
         },
         {
           "field_name": "name",
           "label": "URL",
-          "preset": "dataset_slug",
-          "form_placeholder": "eg. my-theme",
+          "validators": "not_empty unicode name_validator group_name_validator",
+          "form_snippet": "slug.html",
+          "form_placeholder": "my-theme",
           "required": true
-        },
-        {
-          "field_name": "title_translated",
-          "label": {
-            "en": "Title of Theme",
-            "fa_IR": "موضوع"
-          },
-          "preset": "fluent_core_translated",
-          "form_placeholder": {
-            "en": "Name given to the theme for English",
-            "fa_IR": "Name given to the theme for Farsi"
-          },
-          "required": true
-        },
-        {
-          "field_name": "notes_translated",
-          "label": {
-            "en": "Description",
-            "fa_IR": "توضیح"
-          },
-          "preset": "fluent_core_markdown_translated",
-          "form_placeholder": {
-            "en": "Short description explaining the theme for English",
-            "fa_IR": "Short description explaining the theme for Farsi"
-          }
-        },
-        {
-          "preset": "resource_url_upload"
         }
-    ]
+      ]
   }
