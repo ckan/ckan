@@ -5,6 +5,7 @@
 import urllib2
 import hashlib
 import json
+import cgi
 
 import sqlalchemy as sa
 from webob.request import FakeCGIBody
@@ -46,10 +47,12 @@ class CloseWSGIInputMiddleware(object):
     def __call__(self, environ, start_response):
         wsgi_input = environ['wsgi.input']
         if isinstance(wsgi_input, FakeCGIBody):
-            upload = wsgi_input.vars.get('upload')
-            fp = getattr(upload, 'fp', None)
-            if fp:
-                fp.close()
+            for _, item in wsgi_input.vars.items():
+                if not isinstance(item, cgi.FieldStorage):
+                    continue
+                fp = getattr(item, 'fp', None)
+                if fp is not None:
+                    fp.close()
         return self.app(environ, start_response)
 
 
