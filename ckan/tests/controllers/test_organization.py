@@ -229,6 +229,16 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
             self.app, form, name='delete', extra_environ=self.user_env)
         assert text in response.body
 
+    def test_delete_organization_with_unknown_dataset_true(self):
+        ''' Test deletion of organization that has datasets and unknown
+            datasets are set to true'''
+        dataset = factories.Dataset(owner_org=self.organization['id'])
+        assert_equal(dataset['owner_org'], self.organization['id'])
+        helpers.call_action('organization_delete', id=self.organization['id'])
+
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equal(dataset['owner_org'], None)
+
 
 class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
     def setup(self):
@@ -237,9 +247,10 @@ class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
         self.user = factories.User()
         self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
         self.organization = factories.Organization(user=self.user)
-        self.organization_bulk_url = url_for(controller='organization',
-                                             action='bulk_process',
-                                             id=self.organization['id'])
+        self.organization_bulk_url = url_for(
+            controller='organization',
+            action='bulk_process',
+            id=self.organization['id'])
 
     def test_make_private(self):
         datasets = [factories.Dataset(owner_org=self.organization['id'])
