@@ -24,7 +24,7 @@
               {% set new_activities = h.new_activities() %}
               <li class="notifications {% if new_activities > 0 %}notifications-important{% endif %}">
                 {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)', 'Dashboard (%(num)d new items)', new_activities) %}
-                <a href="{{ h.url_for(controller='user', action='dashboard') }}" title="{{ notifications_tooltip }}">
+                <a href="{{ h.url_for('dashboard.index') }}" title="{{ notifications_tooltip }}">
                   <i class="fa fa-tachometer" aria-hidden="true"></i>
                   <span class="text">{{ _('Dashboard') }}</span>
                   <span class="badge">{{ new_activities }}</span>
@@ -40,7 +40,7 @@
               {% endblock %}
               {% block header_account_log_out_link %}
                 <li>
-                  <a href="{{ h.url_for('/user/_logout') }}" title="{{ _('Log out') }}">
+                  <a href="{{ h.url_for('user.logout') }}" title="{{ _('Log out') }}">
                     <i class="fa fa-sign-out" aria-hidden="true"></i>
                     <span class="text">{{ _('Log out') }}</span>
                   </a>

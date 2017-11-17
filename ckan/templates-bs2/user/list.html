@@ -23,7 +23,7 @@
       {% endblock %}
     </div>
     {% block page_pagination %}
-      {{ page.pager(q=q) }}
+      {{ page.pager(q=q, order_by=order_by) }}
     {% endblock %}
   </article>
 {% endblock %}

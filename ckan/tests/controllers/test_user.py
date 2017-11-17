@@ -116,7 +116,7 @@ class TestLoginView(helpers.FunctionalTestBase):
         final_response = helpers.webtest_maybe_follow(submit_response)
 
         # the response is the user dashboard, right?
-        final_response.mustcontain('<a href="/dashboard">Dashboard</a>',
+        final_response.mustcontain('<a href="/dashboard/">Dashboard</a>',
                                    '<span class="username">{0}</span>'
                                    .format(user['fullname']))
         # and we're definitely not back on the login page.
@@ -202,7 +202,7 @@ class TestUser(helpers.FunctionalTestBase):
         app = self._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         response = app.get(
-            url=url_for(controller='user', action='dashboard_datasets'),
+            url=url_for('dashboard.datasets'),
             extra_environ=env,
         )
 
@@ -219,7 +219,7 @@ class TestUser(helpers.FunctionalTestBase):
         app = self._get_test_app()
         env = {'REMOTE_USER': user2['name'].encode('ascii')}
         response = app.get(
-            url=url_for(controller='user', action='dashboard_datasets'),
+            url=url_for('dashboard.datasets'),
             extra_environ=env,
         )
 
@@ -529,6 +529,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
         unfollow_url = url_for('user.unfollow',
                                id=user_two['id'])
+        print(unfollow_url)
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow()

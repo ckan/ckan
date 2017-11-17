@@ -23,8 +23,7 @@
       {% endblock %}
     </div>
     {% block page_pagination %}
-      {# FIX: previously we had `order_by=order_by` kwarg here. Does it have sense? #}
-      {{ page.pager(q=q) }}
+      {{ page.pager(q=q, order_by=order_by) }}
     {% endblock %}
   </article>
 {% endblock %}

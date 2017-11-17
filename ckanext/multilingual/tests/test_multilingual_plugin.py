@@ -2,7 +2,7 @@
 
 import ckan.plugins
 import ckanext.multilingual.plugin as mulilingual_plugin
-import ckan.lib.helpers
+import ckan.lib.helpers as h
 import ckan.lib.create_test_data
 import ckan.logic.action.update
 import ckan.model as model
@@ -71,7 +71,7 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
         # It is testsysadmin who created the dataset, so testsysadmin whom
         # we'd expect to see the datasets for.
         for user_name in ('testsysadmin',):
-            offset = routes.url_for(
+            offset = h.url_for(
                 'user.read', id=user_name)
             for (lang_code, translations) in (
                     ('de', _create_test_data.german_translations),

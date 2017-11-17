@@ -239,10 +239,10 @@ class TestActivity(HtmlCheckMethods):
 
         # The user's dashboard page should load successfully and have the
         # latest 15 activities on it.
-        offset = url_for(controller='user', action='dashboard')
+        offset = url_for('dashboard.index')
         extra_environ = {'Authorization':
                 str(ckan.model.User.get('billybeane').apikey)}
-        result = self.app.post(offset, extra_environ=extra_environ,
+        result = self.app.get(offset, extra_environ=extra_environ,
                 status=200)
         assert result.body.count('<span class="actor">') == 15, \
             result.body.count('<span class="actor">')

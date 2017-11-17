@@ -131,11 +131,11 @@ class TestPaginationUsers(TestController):
 
     def test_users_index(self):
         res = self.app.get(url_for('user.index'))
-        assert 'href="/user?q=&amp;order_by=name&amp;page=2"' in res
+        assert 'href="/user/?q=&amp;order_by=name&amp;page=2"' in res
         user_numbers = scrape_search_results(res, 'user')
         assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'], user_numbers)
 
         res = self.app.get(url_for('user.index', page=2))
-        assert 'href="/user?q=&amp;order_by=name&amp;page=1"' in res
+        assert 'href="/user/?q=&amp;order_by=name&amp;page=1"' in res
         user_numbers = scrape_search_results(res, 'user')
         assert_equal(['20'], user_numbers)

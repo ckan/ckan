@@ -327,16 +327,6 @@ def make_map():
     map.connect('/tag/{id}', controller='tag', action='read')
     # users
     map.redirect('/users/{url:.*}', '/user/{url}')
-    with SubMapper(map, controller='user') as m:
-        m.connect('user_dashboard', '/dashboard', action='dashboard',
-                  ckan_icon='list')
-        m.connect('user_dashboard_datasets', '/dashboard/datasets',
-                  action='dashboard_datasets', ckan_icon='sitemap')
-        m.connect('user_dashboard_groups', '/dashboard/groups',
-                  action='dashboard_groups', ckan_icon='users')
-        m.connect('user_dashboard_organizations', '/dashboard/organizations',
-                  action='dashboard_organizations', ckan_icon='building-o')
-        m.connect('/dashboard/{offset}', action='dashboard')
 
     with SubMapper(map, controller='revision') as m:
         m.connect('/revision', action='index')

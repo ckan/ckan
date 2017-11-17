@@ -14,7 +14,6 @@
     {{ form.markdown('about', label=_('About'), id='field-about', value=data.about, error=errors.about, placeholder=_('A little information about yourself')) }}
 
     {% if show_email_notifications %}
-      {{ form.hidden('activity_streams_email_notifications', False) }}
       {% call form.checkbox('activity_streams_email_notifications', label=_('Subscribe to notification emails'), id='field-activity-streams-email-notifications', value=True, checked=g.userobj.activity_streams_email_notifications) %}
       {% set helper_text = _("You will receive notification emails from {site_title}, e.g. when you have new activities on your dashboard."|string) %}
       {{ form.info(helper_text.format(site_title=g.site_title), classes=['info-help-tight']) }}

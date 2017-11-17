@@ -57,7 +57,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
         redirect_url = url_for('user.index',
                 qualified=True)
-        res = self.app.get(url, status=302, extra_environ=extra_environ)
+        res = self.app.post(url, status=302, extra_environ=extra_environ)
 
         assert user.is_deleted(), user
         assert res.header('Location').startswith(redirect_url), res.header('Location')
@@ -67,15 +67,15 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         url = url_for('user.delete', id=user.id)
         extra_environ = {'REMOTE_USER': 'an_unauthorized_user'}
 
-        self.app.get(url, status=403, extra_environ=extra_environ)
+        self.app.post(url, status=403, extra_environ=extra_environ)
 
     def test_user_read_without_id(self):
         offset = '/user/'
-        res = self.app.get(offset, status=302)
+        self.app.get(offset, status=200)
 
     def test_user_read_me_without_id(self):
         offset = '/user/me'
-        res = self.app.get(offset, status=302)
+        self.app.get(offset, status=302)
 
     def _get_cookie_headers(self, res):
         # For a request response, returns the Set-Cookie header values.
