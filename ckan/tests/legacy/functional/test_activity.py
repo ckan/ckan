@@ -52,7 +52,7 @@ class TestActivity(HtmlCheckMethods):
             'allow_partial_update': True,
             }
         user = user_create(context, user_dict)
-        offset = url_for(controller='user', action='activity', id=user['id'])
+        offset = url_for('user.activity', id=user['id'])
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
         assert '%s signed up' % user['fullname'] in stripped, stripped

@@ -1143,7 +1143,7 @@ def linked_user(user, maxlength=0, avatar=20):
             ),
             link=tags.link_to(
                 displayname,
-                url_for(controller='user', action='read', id=name)
+                url_for('user.read', id=name)
             )
         ))
 
