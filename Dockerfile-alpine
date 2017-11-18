@@ -27,14 +27,14 @@ COPY contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh
 # paster requires py2-pip
 RUN set -ex && \
     apk add --no-cache python2 libpq libstdc++ libmagic \
-         py2-pip postgresql-client && \ 
+         py2-pip postgresql-client libffi && \ 
     apk add --no-cache --virtual .build-run-testing \ 
         --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
         geos py-geos && \ 
     apk add --no-cache  \
         --virtual=.build-dependencies \
         libxslt-dev libxml2-dev libressl2.5-libssl libffi-dev postgresql-dev \
-        g++ musl-dev git \
+        g++ musl-dev git libffi-dev \
         python2-dev openssl ca-certificates && \
     apk add --no-cache --virtual .build-deps-testing \ 
         --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
