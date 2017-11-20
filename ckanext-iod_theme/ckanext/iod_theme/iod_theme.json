@@ -48,9 +48,13 @@
           }
         },
         {
-          "field_name": "icon",
+          "field_name": "image_url",
+          "label": "Image URL",
+          "validators": "ignore_missing",
+          "form_snippet": "upload.html",
           "preset": "resource_url_upload",
-          "upload_label": "Icon of Theme"
+          "form_placeholder": "http://example.com/my-image.jpg",
+          "upload_label": "Photo"
         }
       ]
   }
