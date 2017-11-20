@@ -56,6 +56,114 @@ h6:lang(en) {
   font-family: "futura-pt",sans-serif;
 }
 
+/*------------------------------------*\
+    #RTL
+\*------------------------------------*/
+
+/* Probably should fix all this moving to flexbox instead of using floating */
+
+ul:lang(fa_IR),
+ol:lang(fa_IR) {
+  margin: 0 25px 10px 0;
+}
+
+.unstyled:lang(fa_IR) {
+  margin: 0;
+}
+
+.pull-left:lang(fa_IR) {
+  float: right;
+}
+
+.account-masthead .account ul li {
+  display: inline-block;
+  float: none;
+}
+
+.account-masthead .account ul li + li {
+  margin-left: -5px;
+}
+
+.account-masthead:lang(fa_IR) .account ul li + li {
+  margin-right: -5px;
+}
+
+.masthead:lang(fa_IR) .nav-collapse {
+  float: left;
+}
+
+.masthead .section {
+  float: none;
+}
+
+.navbar:lang(fa_IR) .nav {
+  float: right;
+  margin: 0 0 0 10px;
+}
+
+.navbar:lang(fa_IR) .nav>li {
+  float: right;
+}
+
+.lang-select-2:lang(fa_IR) {
+  float: right;
+}
+
+.search-form:lang(fa_IR) .search-input.search-giant button {
+  right: auto;
+  left: 15px;
+}
+
+.homepage:lang(fa_IR) .stats ul li {
+  width: 50%;
+  float: right;
+}
+
+.usecases:lang(fa_IR) li {
+  float: right;
+}
+
+.toolbar:lang(fa_IR) .breadcrumb {
+  float: right;
+}
+
+[role=main]:lang(fa_IR) .primary {
+  float: left;
+}
+
+[role=main]:lang(fa_IR) .secondary {
+  float: right;
+  border-left: 1px solid #dddddd;
+  border-right: 0;
+}
+
+.search-form:lang(fa_IR) .control-order-by {
+  float: left;
+  margin-left: 0;
+  margin-right: 15px;
+}
+
+.form-actions:lang(fa_IR) {
+  margin-left: -10px;
+  margin-right: -40px;
+  text-align: right;
+}
+
+.form-horizontal:lang(fa_IR) .controls {
+  margin-right: 130px;
+}
+
+.form-horizontal:lang(fa_IR) .control-label {
+  float: right;
+  text-align: left;
+}
+
+.radio:lang(fa_IR) input[type="radio"],
+.checkbox:lang(fa_IR) input[type="checkbox"] {
+  float: right;
+  margin-left: 20px;
+}
+
 .header-image {
   padding: 10px 0;
   width: 30%;
@@ -190,6 +298,19 @@ a:active {
 .usecases dd {
   display: inline;
   margin: 0;
+}
+
+.homepage .stats ul li {
+  width: 50%;
+}
+
+.wrapper {
+  background-image: none;
+}
+
+[role=main] .secondary {
+  border-left: 0;
+  border-right: 1px solid #dddddd;
 }
 
 /* General */
