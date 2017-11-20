@@ -1,3 +1,61 @@
+/*------------------------------------*\
+    #FONTS
+\*------------------------------------*/
+
+@font-face {
+  font-family: 'PT Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/pt-sans-regular.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'PT Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/pt-sans-bold.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Droid Kufi';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/droid-kufi-regular.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Droid Kufi';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/droid-kufi-bold.woff2) format('woff2');
+}
+
+/*------------------------------------*\
+    #GENERIC
+\*------------------------------------*/
+
+body {
+  font-size: calc(10px + (60 - 12) * (100vw - 160px) / (8000 - 160));
+  box-sizing: border-box;
+}
+
+body:lang(en) {
+  font-family: 'PT Sans', sans-serif;
+}
+
+body:lang(fa_IR) {
+  font-family: 'Droid Kufi', sans-serif;
+}
+
+h1:lang(en),
+h2:lang(en),
+h3:lang(en),
+h4:lang(en),
+h5:lang(en),
+h6:lang(en) {
+  font-family: "futura-pt",sans-serif;
+}
+
 .header-image {
   padding: 10px 0;
   width: 30%;
