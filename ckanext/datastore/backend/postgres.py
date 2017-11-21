@@ -1497,7 +1497,7 @@ def search_sql(context, data_dict):
             })
 
         def _remove_explain(msg):
-            return (msg.replace('EXPLAIN (FORMAT JSON) ', '')
+            return (msg.replace('EXPLAIN (VERBOSE, FORMAT JSON) ', '')
                        .replace('EXPLAIN ', ''))
 
         raise ValidationError({
