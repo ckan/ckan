@@ -81,4 +81,18 @@ def tags_string_to_list(tags_string):
                         'state': 'active'})
     return out
 
+def themes_list_to_list_of_dicts(themes_string):
+
+    if isinstance(themes_string, unicode):
+        themes_string = [themes_string]
+
+    out = []
+    for theme in themes_string:
+        theme = theme.strip()
+        if theme:
+            out.append({'name': theme})
+    return out
+
+
+
 

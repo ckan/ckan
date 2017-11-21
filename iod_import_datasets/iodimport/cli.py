@@ -101,6 +101,7 @@ def cli(file, sheet, remote, ownerorg, apikey):
         resource_fa['cleaning_stage'] = h.validate_not_empty(row[24].value, 'resource cleaning stage', idx)
         resource_fa['name'] = h.validate_not_empty(row[30].value, 'resource name', idx) + 'fa'
         dataset['resources'].append(resource_fa)
+        dataset['groups'] =  h.themes_list_to_list_of_dicts(h.parse_string_to_array(row[26].value))
 
         datasets.append(dataset)
 
