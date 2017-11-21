@@ -37,7 +37,7 @@ def get_snippet_tag(activity, detail):
 
 def get_snippet_group(activity, detail):
     link = h.group_link(activity['data']['group'])
-    return literal('''<span>%s</span>'''
+    return literal('''<span class="theme">%s</span>'''
         % (link)
         )
 

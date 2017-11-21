@@ -75,9 +75,22 @@ ol:lang(fa_IR) {
   float: right;
 }
 
+.pull-right:lang(fa_IR) {
+  float: left;
+}
+
+.account-masthead:lang(fa_IR) .account {
+  float: left;
+}
+
 .account-masthead .account ul li {
   display: inline-block;
   float: none;
+}
+
+.account-masthead:lang(fa_IR) .account ul li {
+  border-left: none;
+  border-right: 1px solid #1d602b;
 }
 
 .account-masthead .account ul li + li {
@@ -162,6 +175,52 @@ ol:lang(fa_IR) {
 .checkbox:lang(fa_IR) input[type="checkbox"] {
   float: right;
   margin-left: 20px;
+}
+
+.page-header:lang(fa_IR) .content_action {
+  float: left;
+  margin-right: 0;
+  margin-left: -7px;
+}
+
+.page-header:lang(fa_IR) .nav-tabs {
+  float: right;
+  margin-right: 0;
+}
+
+.nav-tabs:lang(fa_IR) > li,
+.nav-pills:lang(fa_IR) > li {
+  float: right;
+}
+
+.activity:lang(fa_IR) {
+  background-position-x: 98.4%;
+  margin-right: 0;
+}
+
+.activity:lang(fa_IR) .item p {
+  margin: 5px 80px 0 0;
+}
+
+.activity:lang(fa_IR) .item p > * {
+  display: inline-block;
+}
+
+.activity:lang(fa_IR) .item .icon {
+  left: auto;
+  right: 0;
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+.activity:lang(fa_IR) .item .actor .gravatar {
+  left: auto;
+  right: 40px;
+}
+
+.nav-facet:lang(fa_IR) .nav-item>a:hover:after
+.nav-facet:lang(fa_IR) .nav-item.active>a:after {
+  right: 195px;
 }
 
 .header-image {
@@ -311,6 +370,7 @@ a:active {
 [role=main] .secondary {
   border-left: 0;
   border-right: 1px solid #dddddd;
+  height: 100vh;
 }
 
 /* General */
