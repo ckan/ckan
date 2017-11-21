@@ -35,7 +35,7 @@
 \*------------------------------------*/
 
 body {
-  font-size: calc(10px + (60 - 12) * (100vw - 160px) / (8000 - 160));
+  font-size: calc(10px + (60 - 10) * (100vw - 160px) / (8000 - 160));
   box-sizing: border-box;
 }
 
@@ -67,8 +67,16 @@ ol:lang(fa_IR) {
   margin: 0 25px 10px 0;
 }
 
-.unstyled:lang(fa_IR) {
+.unstyled:lang(fa_IR),
+.nav-simple:lang(fa_IR),
+.nav-aside:lang(fa_IR),
+.tag-list:lang(fa_IR) {
   margin: 0;
+}
+
+.resource-list:lang(fa_IR),
+.resource-list:lang(fa_IR) {
+  margin: -10px -10px 10px -10px;
 }
 
 .pull-left:lang(fa_IR) {
@@ -77,6 +85,17 @@ ol:lang(fa_IR) {
 
 .pull-right:lang(fa_IR) {
   float: left;
+}
+
+.table:lang(fa_IR) th,
+.table:lang(fa_IR) td {
+  text-align: right;
+}
+
+blockquote:lang(fa_IR) {
+  padding: 0 15px 0 0;
+  border-left: none;
+  border-right: 5px solid #eeeeee;
 }
 
 .account-masthead:lang(fa_IR) .account {
@@ -218,10 +237,75 @@ ol:lang(fa_IR) {
   right: 40px;
 }
 
-.nav-facet:lang(fa_IR) .nav-item>a:hover:after
-.nav-facet:lang(fa_IR) .nav-item.active>a:after {
-  right: 195px;
+.nav-item.active:lang(fa_IR) > a:before,
+.nav-aside:lang(fa_IR) li.active a:before {
+  right: auto;
+  left: -6px;
+  transform: rotate(180deg);
 }
+
+.nav-facet:lang(fa_IR) .nav-item > a:hover:after,
+.nav-facet:lang(fa_IR) .nav-item.active > a:after {
+  right: auto;
+  left: 5px;
+}
+
+.context-info:lang(fa_IR) .nums dl {
+  float: right;
+}
+
+.span9:lang(fa_IR) .page-header {
+  margin-left: 0;
+  margin-right: -17px;
+}
+
+.resource-item:lang(fa_IR) {
+  padding: 10px 60px 10px 10px;
+}
+
+.resource-item:lang(fa_IR) .format-label {
+  left: 0;
+  right: 10px;
+}
+
+.resource-item:lang(fa_IR) .btn-group {
+  right: auto;
+  left: 10px;
+}
+
+.span9:lang(fa_IR) div.module-content {
+  padding-right: 10px;
+  padding-left: 25px;
+}
+
+.module-resource:lang(fa_IR) .actions {
+  float: left;
+  right: 0;
+  left: -15px;
+}
+
+.recline-pager:lang(fa_IR) {
+  float: right;
+  margin-left: 0;
+  margin-right: 20px;
+}
+
+.recline-record-count:lang(fa_IR) {
+  float: right;
+  margin-left: 0;
+  margin-right: 10px;
+}
+
+.recline-query-editor:lang(fa_IR) {
+  float: left;
+  padding-right: 0;
+  padding-left: 5px;
+  margin-right: 0;
+  margin-right: 5px;
+  border-right: 0;
+  border-left: solid 2px #ddd;
+}
+
 
 .header-image {
   padding: 10px 0;
@@ -370,7 +454,6 @@ a:active {
 [role=main] .secondary {
   border-left: 0;
   border-right: 1px solid #dddddd;
-  height: 100vh;
 }
 
 /* General */
