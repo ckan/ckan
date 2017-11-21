@@ -306,6 +306,23 @@ blockquote:lang(fa_IR) {
   border-left: solid 2px #ddd;
 }
 
+/*------------------------------------*\
+    #ACCOUNT
+\*------------------------------------*/
+
+.account-masthead {
+  min-height: 0;
+}
+
+.account-masthead .account {
+  display: none;
+}
+
+.account-masthead .account.authed {
+  display: block;
+}
+
+
 
 .header-image {
   padding: 10px 0;
