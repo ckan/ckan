@@ -35,7 +35,7 @@ def cli(file, sheet, remote, ownerorg, apikey):
         dataset = {}
 
         dataset['owner_org'] = ownerorg
-        dataset['private'] = True
+        dataset['private'] = False
         dataset['name'] = h.validate_not_empty(row[0].value, 'dataset name', idx)
         dataset['title'] = h.validate_not_empty(row[1].value, 'dataset title', idx)
 

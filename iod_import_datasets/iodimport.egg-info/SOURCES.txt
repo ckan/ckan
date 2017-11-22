@@ -1,3 +1,4 @@
+README.md
 setup.py
 iodimport/__init__.py
 iodimport/cli.py
