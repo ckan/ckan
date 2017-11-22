@@ -129,8 +129,7 @@ blockquote:lang(fa_IR) {
 }
 
 .navbar:lang(fa_IR) .nav {
-  float: right;
-  margin: 0 0 0 10px;
+  float: left;
 }
 
 .navbar:lang(fa_IR) .nav>li {
@@ -310,16 +309,17 @@ blockquote:lang(fa_IR) {
     #ACCOUNT
 \*------------------------------------*/
 
-.account-masthead {
-  min-height: 0;
+.lang-selector {
+  margin: 0;
 }
 
-.account-masthead .account {
-  display: none;
+.lang-selector select {
+  margin: 0;
 }
 
-.account-masthead .account.authed {
-  display: block;
+.navbar .nav {
+  float: right;
+  margin: 0;
 }
 
 
