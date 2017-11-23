@@ -420,12 +420,14 @@ def get_action(action):
                 auth_function.auth_audit_exempt = True
                 fetched_actions[name] = auth_function
     for name, func_list in chained_actions.iteritems():
-        if name not in fetched_actions:
+        if name not in fetched_actions and name not in _actions:
             raise NotFound('The action %r is not found for chained action' % (
                 name))
         for func in reversed(func_list):
-            prev_func = fetched_actions[name]
+            prev_func = fetched_actions.get(name, _actions.get(name))
             fetched_actions[name] = functools.partial(func, prev_func)
+            if hasattr(func, 'side_effect_free'):
+                fetched_actions[name].side_effect_free = func.side_effect_free
 
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
