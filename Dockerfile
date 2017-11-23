@@ -3,9 +3,10 @@ FROM debian:jessie
 MAINTAINER Open Knowledge
 
 # Install required system packages
-RUN apt-get -q -y update && apt-get -q -y upgrade && \
-        DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
-		python-dev \
+RUN apt-get -q -y update \
+    && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade \
+    && apt-get -q -y install \
+        python-dev \
         python-pip \
         python-virtualenv \
         libpq-dev \
@@ -19,7 +20,8 @@ RUN apt-get -q -y update && apt-get -q -y upgrade && \
         git-core \
         vim \
         wget \
-	&& apt-get -q clean
+    && apt-get -q clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Define environment variables
 ENV CKAN_HOME /usr/lib/ckan
@@ -54,4 +56,3 @@ USER ckan
 EXPOSE 5000
 
 CMD ["ckan-paster","serve","/etc/ckan/ckan.ini"]
-
