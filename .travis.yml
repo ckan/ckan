@@ -16,7 +16,7 @@ before_install:
   - if [[ -e ~/docker/ckan.tar ]]; then docker load -i ~/docker/ckan.tar; fi
 
   - docker build --rm=false -t postgresql ./contrib/docker/postgresql/
-  - docker build --rm=false -t solr ./contrib/docker/solr/
+  - docker build --rm=false -f contrib/docker/solr/Dockerfile -t solr .
   - docker pull redis:latest
   - docker build --rm=false -t ckan .
 
