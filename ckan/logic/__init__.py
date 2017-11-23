@@ -428,6 +428,8 @@ def get_action(action):
             fetched_actions[name] = functools.partial(func, prev_func)
             if hasattr(func, 'side_effect_free'):
                 fetched_actions[name].side_effect_free = func.side_effect_free
+            if hasattr(func, 'auth_audit_exempt'):
+                fetched_actions[name].auth_audit_exempt = func.auth_audit_exempt
 
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
