@@ -35,8 +35,12 @@
 \*------------------------------------*/
 
 body {
-  font-size: calc(10px + (60 - 10) * (100vw - 160px) / (8000 - 160));
+  font-size: calc(8px + (48 - 8) * (100vw - 160px) / (12000 - 160));
   box-sizing: border-box;
+}
+
+p {
+  line-height: 1.75;
 }
 
 body:lang(en) {
@@ -96,6 +100,10 @@ blockquote:lang(fa_IR) {
   padding: 0 15px 0 0;
   border-left: none;
   border-right: 5px solid #eeeeee;
+}
+
+.navigation:lang(en) .nav li:nth-child(2) {
+  display: none;
 }
 
 .account-masthead:lang(fa_IR) .account {
@@ -322,6 +330,78 @@ blockquote:lang(fa_IR) {
   margin: 0;
 }
 
+/*------------------------------------*\
+    #LIST OF GROUPS IN HOMEPAGE
+\*------------------------------------*/
+
+.layout-3 .span12 + .span12 {
+  margin-top: 20px;
+}
+
+.group-list ul {
+  list-style: none;
+  margin: 0 0 0 -15px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.group-list li {
+  display: inline-block;
+  width: calc(20% - 30px);
+  margin: 20px 0 0 25px;
+}
+
+.group-list a {
+  display: block;
+}
+
+.group-list img {
+  width: 50%;
+  margin: 0 auto;
+  display: block;
+  padding-bottom: 20px;
+}
+
+.group-list li h3 {
+  text-align: center;
+}
+
+/*------------------------------------*\
+    #COLOURS
+\*------------------------------------*/
+
+.label[data-format=csv],
+.label[data-format*=csv] {
+  background-color: #e9552d;
+}
+
+/*------------------------------------*\
+    #CLAMPING
+\*------------------------------------*/
+
+.clamping {
+  position: relative;
+  height: 6.6rem;
+  width: 100%;
+  margin: 0 0 1rem 0;
+  overflow: hidden;
+}
+
+.clamping:after {
+  content: "";
+  text-align: left;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 1.1rem;
+  background: linear-gradient(to left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 80%);
+}
+
+.clamping p {
+  margin: 0;
+}
+
 
 
 .header-image {
@@ -438,7 +518,7 @@ a:active {
 }
 
 .iod-title {
-  font-size: 96px;
+  font-size: 80px;
   text-align: center;
 }
 
@@ -463,6 +543,7 @@ a:active {
 
 .homepage .stats ul li {
   width: 50%;
+  text-align: center;
 }
 
 .wrapper {
