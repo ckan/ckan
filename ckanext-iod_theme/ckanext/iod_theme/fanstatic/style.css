@@ -492,6 +492,8 @@ body,
 
 .masthead .nav > li > a {
   color: #444;
+  margin: 10px 13px;
+  padding: 2px;
 }
 
 .masthead .navigation .nav-pills li a:hover,
@@ -501,7 +503,7 @@ body,
   color: #444;
   border-bottom: 1px solid #e9552d;
   border-radius: 0;
- box-shadow: none;
+  box-shadow: none;
 }
 
 a {
