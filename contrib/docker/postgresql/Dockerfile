@@ -12,6 +12,6 @@ ARG POSTGRES_PASSWORD
 ARG DS_RO_PASS
 
 # Include datastore setup scripts
-ADD /docker-entrypoint-initdb.d/00_create_datastore.sql ./00_create_datastore.sql
-ADD /docker-entrypoint-initdb.d/20_postgis_permissions.sql ./20_postgis_permissions.sql
+ADD /docker-entrypoint-initdb.d/00_create_datastore.sql /docker-entrypoint-initdb.d/00_create_datastore.sql
+ADD /docker-entrypoint-initdb.d/20_postgis_permissions.sql /docker-entrypoint-initdb.d/20_postgis_permissions.sql
 
