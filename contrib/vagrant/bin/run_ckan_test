@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+nosetests --ckan --with-pylons=/vagrant/test-core.ini $@;

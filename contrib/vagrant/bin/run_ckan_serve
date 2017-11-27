@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+paster serve /etc/ckan/default/development.ini $@;
