@@ -81,17 +81,10 @@
       <span class="icon-bar"></span>
     </button>
     {# The .header-image class hides the main text and uses image replacement for the title #}
-    <hgroup class="{{ g.header_class }} pull-left">
+    <hgroup class="header-image pull-left">
 
       {% block header_logo %}
-        {% if g.site_logo %}
-          <a class="logo" href="{{ h.url_for('home') }}"><img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}" title="{{ g.site_title }}" /></a>
-        {% else %}
-          <h1>
-            <a href="{{ h.url_for('home') }}">{{ g.site_title }}</a>
-          </h1>
-          {% if g.site_description %}<h2>{{ g.site_description }}</h2>{% endif %}
-        {% endif %}
+        <a class="logo" href="{{ h.url_for('home') }}"><img src="/images/logo.svg" alt="Iran Open Data" title="Iran Open Data" /></a>
       {% endblock %}
 
     </hgroup>

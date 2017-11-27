@@ -6,28 +6,28 @@
   font-family: 'PT Sans';
   font-style: normal;
   font-weight: 400;
-  src: url(/pt-sans-regular.woff2) format('woff2');
+  src: url(/fonts/pt-sans-regular.woff2) format('woff2');
 }
 
 @font-face {
   font-family: 'PT Sans';
   font-style: normal;
   font-weight: 700;
-  src: url(/pt-sans-bold.woff2) format('woff2');
+  src: url(/fonts/pt-sans-bold.woff2) format('woff2');
 }
 
 @font-face {
   font-family: 'Droid Kufi';
   font-style: normal;
   font-weight: 400;
-  src: url(/droid-kufi-regular.woff2) format('woff2');
+  src: url(/fonts/droid-kufi-regular.woff2) format('woff2');
 }
 
 @font-face {
   font-family: 'Droid Kufi';
   font-style: normal;
   font-weight: 700;
-  src: url(/droid-kufi-bold.woff2) format('woff2');
+  src: url(/fonts/droid-kufi-bold.woff2) format('woff2');
 }
 
 /*------------------------------------*\
@@ -353,10 +353,17 @@ blockquote:lang(fa_IR) {
 
 .group-list a {
   display: block;
+
+}
+
+.group-list a:hover,
+.group-list a:focus,
+.group-list a:active {
+  text-decoration: none;
 }
 
 .group-list img {
-  width: 50%;
+  width: 40%;
   margin: 0 auto;
   display: block;
   padding-bottom: 20px;
@@ -364,6 +371,9 @@ blockquote:lang(fa_IR) {
 
 .group-list li h3 {
   text-align: center;
+  font-size: 1.5rem;
+  font-weight: 400;
+  font-family: 'PT Sans', sans-serif;
 }
 
 /*------------------------------------*\
@@ -443,16 +453,49 @@ html:lang(fa_IR) {
   width: 100px !important;
 }
 
+.homepage .module-search {
+  padding: 0;
+}
+
 .homepage .module-search .module-content {
-  background: #e9552d;
+  background: #42b70b;
+  border-radius: 0;
+}
+
+.homepage .module-search .module-content .heading {
+  font-size: 1.25rem;
+}
+
+.homepage .module-search .search-giant input {
+  border: none;
+  border-radius: 0;
+}
+
+.homepage .stats ul li a {
+  font-size: 1.25rem;
+  text-transform: capitalize;
+}
+
+.homepage .stats ul li a b {
+  font-size: 3.125rem;
+  color: #343333;
+}
+
+.homepage .stats h3,
+.homepage .group-list h3 {
+  font-size: 1.25rem;
 }
 
 body,
 .homepage .module-search .tags,
-.site-footer,
 .account-masthead {
   background: #d6d6d6;
   color: #444;
+}
+
+.site-footer {
+  background: #343333;
+  color: #fff;
 }
 
 .homepage .module-search .tags {
@@ -501,7 +544,7 @@ body,
 .masthead .navigation .nav-pills li.active a {
   background-color: transparent;
   color: #444;
-  border-bottom: 1px solid #e9552d;
+  border-bottom: 2px solid #42b70b;
   border-radius: 0;
   box-shadow: none;
 }
@@ -522,6 +565,7 @@ a:active {
 .iod-title {
   font-size: 80px;
   text-align: center;
+  padding: 10px 0 20px;
 }
 
 .usecases ul {
