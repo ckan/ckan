@@ -10,8 +10,8 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 8983, host: 8983  # Solr
 
   config.vm.provision "shell", inline: <<-SHELL
-    # for file in /vagrant/contrib/vagrant/bin/??_*.sh; do
-    #   bash "$file";
-    # done;
+    for file in /vagrant/contrib/vagrant/bin/??_*.sh; do
+      bash "$file";
+    done;
   SHELL
 end
