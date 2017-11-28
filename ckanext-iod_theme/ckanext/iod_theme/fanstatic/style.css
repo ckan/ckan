@@ -350,12 +350,14 @@ blockquote:lang(fa_IR) {
   width: calc(20% - 20px);
   margin: 20px 0 0 20px;
   background: #fff;
-  padding: 20px 10px 15px;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .group-list a {
   display: block;
   color: #343333;
+  padding: 20px 10px 15px;
 }
 
 .group-list a:hover,
@@ -611,6 +613,9 @@ a:active {
   width: calc(50% - 10px);
   text-align: center;
   background: #fff;
+}
+
+.homepage .stats ul a {
   padding-bottom: 20px;
 }
 
@@ -678,16 +683,16 @@ a:active {
     #MAGICSSIAN
 \*------------------------------------*/
 
-.homepage .stats ul li,
-.homepage .group-list ul li {
+.homepage .stats ul a,
+.homepage .group-list ul a {
   position: relative;
 }
 
-.homepage .stats ul li {
+.homepage .stats ul a {
   border-bottom: 2px solid #e9552d;
 }
 
-.homepage .group-list ul li {
+.homepage .group-list ul a {
   border-bottom: 2px solid transparent;
 }
 
@@ -729,10 +734,10 @@ a:active {
   border-bottom-color: #fbcbbd;
 }
 
-.homepage .stats ul li:before,
-.homepage .stats ul li:after,
-.homepage .group-list ul li:before,
-.homepage .group-list ul li:after {
+.homepage .stats ul a:before,
+.homepage .stats ul a:after,
+.homepage .group-list ul a:before,
+.homepage .group-list ul a:after {
   z-index: 1;
   box-sizing: border-box;
   content: '';
@@ -743,13 +748,13 @@ a:active {
   animation-timing-function: linear;
 }
 
-.homepage .stats ul li:hover:before,
-.homepage .group-list ul li:hover:before {
+.homepage .stats ul a:hover:before,
+.homepage .group-list ul a:hover:before {
   bottom: 0;
   left: 0;
 }
 
-.homepage .stats ul li:hover:before{
+.homepage .stats ul a:hover:before{
   animation: border-left-orange 2s normal forwards;
 }
 
@@ -791,13 +796,13 @@ a:active {
   animation: border-left-pink 2s normal forwards;
 }
 
-.homepage .stats ul li:hover:after,
-.homepage .group-list ul li:hover:after {
+.homepage .stats ul a:hover:after,
+.homepage .group-list ul a:hover:after {
   bottom: 0;
   right: 0;
 }
 
-.homepage .stats ul li:hover:after {
+.homepage .stats ul a:hover:after {
   animation: border-right-orange 2s normal forwards;
 }
 

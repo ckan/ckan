@@ -14,9 +14,9 @@
     {% set type = group.type or 'group' %}
     {% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
     {% block item %}
-    <li class="{{ group.name }}">
+    <li>
       {% block item_inner %}
-      <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}">
+      <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" class="{{ group.name }}">
       {% block image %}
         <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image js-inline-svg">
       {% endblock %}
