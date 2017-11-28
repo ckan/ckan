@@ -1,5 +1,11 @@
 {% ckan_extends %}
 
+<title>
+  {%- block title -%}
+    Making Iranian Data Available to the public
+  {%- endblock -%}
+</title>
+
 {% block styles %}
   {{ super() }}
 
@@ -9,6 +15,7 @@
      'style.css' is the path to the CSS file, relative to the root of
      the fanstatic directory. #}
   {% resource 'iod_theme/style.css' %}
+  {% resource 'iod_theme/script.js' %}
 
   <link rel="stylesheet" href="https://use.typekit.net/kww7zne.css">
 {% endblock %}

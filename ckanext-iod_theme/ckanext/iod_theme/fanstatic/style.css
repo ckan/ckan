@@ -334,26 +334,28 @@ blockquote:lang(fa_IR) {
     #LIST OF GROUPS IN HOMEPAGE
 \*------------------------------------*/
 
-.layout-3 .span12 + .span12 {
-  margin-top: 20px;
+.box {
+  background-color: transparent;
 }
 
 .group-list ul {
   list-style: none;
-  margin: 0 0 0 -15px;
+  margin: -10px 0 0 -20px;
   display: flex;
   flex-wrap: wrap;
 }
 
 .group-list li {
   display: inline-block;
-  width: calc(20% - 30px);
-  margin: 20px 0 0 25px;
+  width: calc(20% - 20px);
+  margin: 20px 0 0 20px;
+  background: #fff;
+  padding: 20px 10px 15px;
 }
 
 .group-list a {
   display: block;
-
+  color: #343333;
 }
 
 .group-list a:hover,
@@ -414,6 +416,11 @@ blockquote:lang(fa_IR) {
 
 
 
+.homepage [role=main] {
+  background-color: #fff;
+  padding-bottom: 40px;
+}
+
 .header-image {
   padding: 10px 0;
   width: 30%;
@@ -471,9 +478,14 @@ html:lang(fa_IR) {
   border-radius: 0;
 }
 
+.homepage .box .inner {
+  padding: 20px 0;
+}
+
 .homepage .stats ul li a {
   font-size: 1.25rem;
   text-transform: capitalize;
+  color: #343333;
 }
 
 .homepage .stats ul li a b {
@@ -484,6 +496,10 @@ html:lang(fa_IR) {
 .homepage .stats h3,
 .homepage .group-list h3 {
   font-size: 1.25rem;
+}
+
+.homepage .group-list h3 {
+  margin: 0;
 }
 
 body,
@@ -581,6 +597,10 @@ a:active {
   margin: 2%;
 }
 
+.usecases h2 {
+  font-size: 1.25rem;
+}
+
 .usecases dt,
 .usecases dd {
   display: inline;
@@ -588,8 +608,14 @@ a:active {
 }
 
 .homepage .stats ul li {
-  width: 50%;
+  width: calc(50% - 10px);
   text-align: center;
+  background: #fff;
+  padding-bottom: 20px;
+}
+
+.homepage .stats ul li + li {
+  margin-left: 20px;
 }
 
 .wrapper {
@@ -638,4 +664,682 @@ a:active {
 
 .attribution .sm-logo {
   width: 21px;
+}
+
+/*------------------------------------*\
+    #MASONRY
+\*------------------------------------*/
+
+.media-item {
+  text-align: center;
+}
+
+/*------------------------------------*\
+    #MAGICSSIAN
+\*------------------------------------*/
+
+.homepage .stats ul li,
+.homepage .group-list ul li {
+  position: relative;
+}
+
+.homepage .stats ul li {
+  border-bottom: 2px solid #e9552d;
+}
+
+.homepage .group-list ul li {
+  border-bottom: 2px solid transparent;
+}
+
+.homepage .group-list ul .energy {
+  border-bottom-color: #b8e2f2;
+}
+
+.homepage .group-list ul .communications,
+.homepage .group-list ul .transport {
+  border-bottom-color: #b3e0dc;
+}
+
+.homepage .group-list ul .budget-government-spending,
+.homepage .group-list ul .employment,
+.homepage .group-list ul .banking-finance {
+  border-bottom-color: #90a4ae;
+}
+
+.homepage .group-list ul .economic-sector,
+.homepage .group-list ul .trade {
+  border-bottom-color: #cfd8dc;
+}
+
+.homepage .group-list ul .health {
+  border-bottom-color: #f9aa92;
+}
+
+.homepage .group-list ul .environment {
+  border-bottom-color: #dcecc8;
+}
+
+.homepage .group-list ul .housing,
+.homepage .group-list ul .population {
+  border-bottom-color: #fecc81;
+}
+
+.homepage .group-list ul .art-culture-tourism,
+.homepage .group-list ul .education {
+  border-bottom-color: #fbcbbd;
+}
+
+.homepage .stats ul li:before,
+.homepage .stats ul li:after,
+.homepage .group-list ul li:before,
+.homepage .group-list ul li:after {
+  z-index: 1;
+  box-sizing: border-box;
+  content: '';
+  position: absolute;
+  border: 2px solid transparent;
+  width: 0;
+  height: 0;
+  animation-timing-function: linear;
+}
+
+.homepage .stats ul li:hover:before,
+.homepage .group-list ul li:hover:before {
+  bottom: 0;
+  left: 0;
+}
+
+.homepage .stats ul li:hover:before{
+  animation: border-left-orange 2s normal forwards;
+}
+
+.homepage .group-list ul .energy:hover:before {
+  animation: border-left-blue 2s normal forwards;
+}
+
+.homepage .group-list ul .communications:hover:before,
+.homepage .group-list ul .transport:hover:before {
+  animation: border-left-lightblue 2s normal forwards;
+}
+
+.homepage .group-list ul .budget-government-spending:hover:before,
+.homepage .group-list ul .employment:hover:before,
+.homepage .group-list ul .banking-finance:hover:before {
+  animation: border-left-darkgray 2s normal forwards;
+}
+
+.homepage .group-list ul .economic-sector:hover:before,
+.homepage .group-list ul .trade:hover:before {
+  animation: border-left-lightgray 2s normal forwards;
+}
+
+.homepage .group-list ul .health:hover:before {
+  animation: border-left-red 2s normal forwards;
+}
+
+.homepage .group-list ul .environment:hover:before {
+  animation: border-left-green 2s normal forwards;
+}
+
+.homepage .group-list ul .housing:hover:before,
+.homepage .group-list ul .population:hover:before {
+  animation: border-left-amber 2s normal forwards;
+}
+
+.homepage .group-list ul .art-culture-tourism:hover:before,
+.homepage .group-list ul .education:hover:before {
+  animation: border-left-pink 2s normal forwards;
+}
+
+.homepage .stats ul li:hover:after,
+.homepage .group-list ul li:hover:after {
+  bottom: 0;
+  right: 0;
+}
+
+.homepage .stats ul li:hover:after {
+  animation: border-right-orange 2s normal forwards;
+}
+
+.homepage .group-list ul .energy:hover:after {
+  animation: border-right-blue 2s normal forwards;
+}
+
+.homepage .group-list ul .communications:hover:after,
+.homepage .group-list ul .transport:hover:after {
+  animation: border-right-lightblue 2s normal forwards;
+}
+
+.homepage .group-list ul .budget-government-spending:hover:after,
+.homepage .group-list ul .employment:hover:after,
+.homepage .group-list ul .banking-finance:hover:after {
+  animation: border-right-darkgray 2s normal forwards;
+}
+
+.homepage .group-list ul .economic-sector:hover:after,
+.homepage .group-list ul .trade:hover:after {
+  animation: border-right-lightgray 2s normal forwards;
+}
+
+.homepage .group-list ul .health:hover:after {
+  animation: border-right-red 2s normal forwards;
+}
+
+.homepage .group-list ul .environment:hover:after {
+  animation: border-right-green 2s normal forwards;
+}
+
+.homepage .group-list ul .housing:hover:after,
+.homepage .group-list ul .population:hover:after {
+  animation: border-right-amber 2s normal forwards;
+}
+
+.homepage .group-list ul .art-culture-tourism:hover:after,
+.homepage .group-list ul .education:hover:after {
+  animation: border-right-pink 2s normal forwards;
+}
+
+@keyframes border-left-orange {
+  0% {
+    width: 0;
+    height: 0;
+    border-left-color: #e9552d;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-left-color: #e9552d;
+    border-top-color: #e9552d;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-left-color: #e9552d;
+    border-top-color: #e9552d;
+  }
+}
+
+@keyframes border-right-orange {
+  0% {
+    width: 0;
+    height: 0;
+    border-right-color: #e9552d;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-right-color: #e9552d;
+    border-top-color: #e9552d;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-right-color: #e9552d;
+    border-top-color: #e9552d;
+  }
+}
+
+@keyframes border-left-blue {
+  0% {
+    width: 0;
+    height: 0;
+    border-left-color: #b8e2f2;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-left-color: #b8e2f2;
+    border-top-color: #b8e2f2;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-left-color: #b8e2f2;
+    border-top-color: #b8e2f2;
+  }
+}
+
+@keyframes border-right-blue {
+  0% {
+    width: 0;
+    height: 0;
+    border-right-color: #b8e2f2;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-right-color: #b8e2f2;
+    border-top-color: #b8e2f2;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-right-color: #b8e2f2;
+    border-top-color: #b8e2f2;
+  }
+}
+
+@keyframes border-left-lightblue {
+  0% {
+    width: 0;
+    height: 0;
+    border-left-color: #b3e0dc;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-left-color: #b3e0dc;
+    border-top-color: #b3e0dc;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-left-color: #b3e0dc;
+    border-top-color: #b3e0dc;
+  }
+}
+
+@keyframes border-right-lightblue {
+  0% {
+    width: 0;
+    height: 0;
+    border-right-color: #b3e0dc;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-right-color: #b3e0dc;
+    border-top-color: #b3e0dc;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-right-color: #b3e0dc;
+    border-top-color: #b3e0dc;
+  }
+}
+
+@keyframes border-left-darkgray {
+  0% {
+    width: 0;
+    height: 0;
+    border-left-color: #90a4ae;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-left-color: #90a4ae;
+    border-top-color: #90a4ae;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-left-color: #90a4ae;
+    border-top-color: #90a4ae;
+  }
+}
+
+@keyframes border-right-darkgray {
+  0% {
+    width: 0;
+    height: 0;
+    border-right-color: #90a4ae;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-right-color: #90a4ae;
+    border-top-color: #90a4ae;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-right-color: #90a4ae;
+    border-top-color: #90a4ae;
+  }
+}
+
+@keyframes border-left-lightgray {
+  0% {
+    width: 0;
+    height: 0;
+    border-left-color: #cfd8dc;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-left-color: #cfd8dc;
+    border-top-color: #cfd8dc;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-left-color: #cfd8dc;
+    border-top-color: #cfd8dc;
+  }
+}
+
+@keyframes border-right-lightgray {
+  0% {
+    width: 0;
+    height: 0;
+    border-right-color: #cfd8dc;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-right-color: #cfd8dc;
+    border-top-color: #cfd8dc;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-right-color: #cfd8dc;
+    border-top-color: #cfd8dc;
+  }
+}
+
+@keyframes border-left-red {
+  0% {
+    width: 0;
+    height: 0;
+    border-left-color: #f9aa92;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-left-color: #f9aa92;
+    border-top-color: #f9aa92;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-left-color: #f9aa92;
+    border-top-color: #f9aa92;
+  }
+}
+
+@keyframes border-right-red {
+  0% {
+    width: 0;
+    height: 0;
+    border-right-color: #f9aa92;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-right-color: #f9aa92;
+    border-top-color: #f9aa92;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-right-color: #f9aa92;
+    border-top-color: #f9aa92;
+  }
+}
+
+@keyframes border-left-green {
+  0% {
+    width: 0;
+    height: 0;
+    border-left-color: #dcecc8;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-left-color: #dcecc8;
+    border-top-color: #dcecc8;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-left-color: #dcecc8;
+    border-top-color: #dcecc8;
+  }
+}
+
+@keyframes border-right-green {
+  0% {
+    width: 0;
+    height: 0;
+    border-right-color: #dcecc8;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-right-color: #dcecc8;
+    border-top-color: #dcecc8;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-right-color: #dcecc8;
+    border-top-color: #dcecc8;
+  }
+}
+
+@keyframes border-left-amber {
+  0% {
+    width: 0;
+    height: 0;
+    border-left-color: #fecc81;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-left-color: #fecc81;
+    border-top-color: #fecc81;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-left-color: #fecc81;
+    border-top-color: #fecc81;
+  }
+}
+
+@keyframes border-right-amber {
+  0% {
+    width: 0;
+    height: 0;
+    border-right-color: #fecc81;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-right-color: #fecc81;
+    border-top-color: #fecc81;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-right-color: #fecc81;
+    border-top-color: #fecc81;
+  }
+}
+
+@keyframes border-left-pink {
+  0% {
+    width: 0;
+    height: 0;
+    border-left-color: #fbcbbd;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-left-color: #fbcbbd;
+    border-top-color: #fbcbbd;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-left-color: #fbcbbd;
+    border-top-color: #fbcbbd;
+  }
+}
+
+@keyframes border-right-pink {
+  0% {
+    width: 0;
+    height: 0;
+    border-right-color: #fbcbbd;
+    border-top-color: transparent;
+  }
+  12.49% {
+    border-top-color: transparent;
+  }
+  12.5% {
+    height: 100%;
+    width: 0;
+    border-right-color: #fbcbbd;
+    border-top-color: #fbcbbd;
+  }
+  25%,
+  100% {
+    width: 100%;
+    height: 100%;
+    border-right-color: #fbcbbd;
+    border-top-color: #fbcbbd;
+  }
+}
+
+/*------------------------------------*\
+    #SVG
+\*------------------------------------*/
+
+.js-inline-svg {
+  width: 40%;
+  margin: 0 auto;
+  display: block;
+  padding-bottom: 20px;
+}
+
+.replaced-svg path,
+.replaced-svg polygon {
+  fill: #000;
+  transition : fill 500ms ease-out;
+}
+
+.homepage .group-list .energy:hover .replaced-svg polygon {
+  fill: #b8e2f2;
+}
+
+.homepage .group-list .communications:hover .replaced-svg path,
+.homepage .group-list .transport:hover .replaced-svg path {
+  fill: #b3e0dc;
+}
+
+.homepage .group-list .budget-government-spending:hover .replaced-svg path,
+.homepage .group-list .employment:hover .replaced-svg path,
+.homepage .group-list .banking-finance:hover .replaced-svg path {
+  fill: #90a4ae;
+}
+
+.homepage .group-list .economic-sector:hover .replaced-svg path,
+.homepage .group-list .trade:hover .replaced-svg path {
+  fill: #cfd8dc;
+}
+
+.homepage .group-list .health:hover .replaced-svg path {
+  fill: #f9aa92;
+}
+
+.homepage .group-list .environment:hover .replaced-svg path {
+  fill: #dcecc8;
+}
+
+.homepage .group-list .housing:hover .replaced-svg path,
+.homepage .group-list .population:hover .replaced-svg path {
+  fill: #fecc81;
+}
+
+.homepage .group-list .art-culture-tourism:hover .replaced-svg path,
+.homepage .group-list .education:hover .replaced-svg path {
+  fill: #fbcbbd;
 }
