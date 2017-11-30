@@ -1,11 +1,9 @@
 {% set current_url = request.environ.CKAN_CURRENT_URL %}
 {% set current_lang = request.environ.CKAN_LANG %}
-<form action="{% url_for controller='util', action='redirect' %}" data-module="select-switch" method="POST" class="lang-selector">
-  <select name="url">
+<div class="lang-selector">
+  <ul>
     {% for locale in h.get_available_locales() %}
-      <option value="{% url_for current_url, locale=locale.short_name %}" {% if locale.identifier == current_lang %}selected="selected"{% endif %}>
-        {{ locale.display_name or locale.english_name }}
-      </option>
+      <li><a href="{% url_for current_url, locale=locale.short_name %}" {% if locale.identifier == current_lang %}class="selected"{% endif %}>{{ locale.display_name or locale.english_name }}</a></li>
     {% endfor %}
-  </select>
-</form>
+  </ul>
+</div>

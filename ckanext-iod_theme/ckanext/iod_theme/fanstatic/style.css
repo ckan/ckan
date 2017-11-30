@@ -128,10 +128,6 @@ blockquote:lang(fa_IR) {
   margin-right: -5px;
 }
 
-.masthead:lang(fa_IR) .nav-collapse {
-  float: left;
-}
-
 .masthead .section {
   float: none;
 }
@@ -141,10 +137,6 @@ blockquote:lang(fa_IR) {
 }
 
 .navbar:lang(fa_IR) .nav>li {
-  float: right;
-}
-
-.lang-select-2:lang(fa_IR) {
   float: right;
 }
 
@@ -317,17 +309,60 @@ blockquote:lang(fa_IR) {
     #ACCOUNT
 \*------------------------------------*/
 
+.account-masthead {
+  min-height: 0;
+}
+
+.authed {
+  height: 100%;
+}
+
+.navbar .container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .lang-selector {
+  margin: 0;
+  width: 25%;
+  padding-top: 10px
+}
+
+.lang-selector:lang(fa_IR) {
+  order: 2;
+}
+
+.lang-selector ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
   margin: 0;
 }
 
-.lang-selector select {
-  margin: 0;
+.lang-selector li + li {
+  border-left: 1px solid #e9552d;
+}
+
+.lang-selector:lang(fa_IR) li + li {
+  border-left: 0;
+  border-right: 1px solid #e9552d;
+}
+
+.nav-collapse:lang(fa_IR) {
+  order: 2;
+}
+
+.navbar .nav-collapse {
+  width: 49%;
 }
 
 .navbar .nav {
-  float: right;
   margin: 0;
+}
+
+.header-image {
+  padding: 10px 0;
+  width: 25%;
 }
 
 /*------------------------------------*\
@@ -425,11 +460,6 @@ blockquote:lang(fa_IR) {
 
 .header-image {
   padding: 10px 0;
-  width: 30%;
-}
-
-.masthead .nav-collapse {
-  width: 70%;
 }
 
 .header-image .logo {
@@ -450,16 +480,6 @@ blockquote:lang(fa_IR) {
 
 html:lang(fa_IR) {
   direction: rtl;
-}
-
-.lang-select-2 {
-  float: left;
-  margin: 5px 0 0;
-}
-
-.lang-container,
-.lang-select-2 select {
-  width: 100px !important;
 }
 
 .homepage .module-search {
@@ -551,15 +571,22 @@ body,
   color: #444;
 }
 
-.masthead .nav > li > a {
+.navbar .lang-selector li > a,
+.navbar .navigation li > a {
   color: #444;
   margin: 10px 13px;
   padding: 2px;
+  display: block;
+  line-height: 14px;
+  text-decoration: none;
 }
 
 .masthead .navigation .nav-pills li a:hover,
 .masthead .navigation .nav-pills li a:active,
-.masthead .navigation .nav-pills li.active a {
+.masthead .navigation .nav-pills li.active a,
+.navbar .lang-selector li > a:hover,
+.navbar .lang-selector li > a:active,
+.navbar .lang-selector li.active > a {
   background-color: transparent;
   color: #444;
   border-bottom: 2px solid #42b70b;

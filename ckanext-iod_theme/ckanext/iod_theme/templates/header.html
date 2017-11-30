@@ -60,10 +60,8 @@
             </ul>
           </div>
         {% else %}
+        <nav class="account not-authed"></nav>
         {% endif %}
-        {% block footer_lang %}
-          {% snippet "snippets/language_selector.html" %}
-        {% endblock %}
       {% endblock %}
     </div>
   </header>
@@ -75,19 +73,9 @@
     {% endif %}
   {% endblock %}
   <div class="container">
-    <button data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar" type="button">
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-    </button>
-    {# The .header-image class hides the main text and uses image replacement for the title #}
-    <hgroup class="header-image pull-left">
-
-      {% block header_logo %}
-        <a class="logo" href="{{ h.url_for('home') }}"><img src="/images/logo.svg" alt="Iran Open Data" title="Iran Open Data" /></a>
-      {% endblock %}
-
-    </hgroup>
+    {% block footer_lang %}
+      {% snippet "snippets/language_selector.html" %}
+    {% endblock %}
 
     <div class="nav-collapse collapse">
 
@@ -105,6 +93,15 @@
         </nav>
       {% endblock %}
     </div>
+
+    {# The .header-image class hides the main text and uses image replacement for the title #}
+    <hgroup class="header-image">
+
+      {% block header_logo %}
+        <a class="logo" href="{{ h.url_for('home') }}"><img src="/images/logo.svg" alt="Iran Open Data" title="Iran Open Data" /></a>
+      {% endblock %}
+
+    </hgroup>
   </div>
 </header>
 {% endblock %}
