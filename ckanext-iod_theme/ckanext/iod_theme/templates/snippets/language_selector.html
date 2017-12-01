@@ -3,7 +3,9 @@
 <div class="lang-selector">
   <ul>
     {% for locale in h.get_available_locales() %}
-      <li><a href="{% url_for current_url, locale=locale.short_name %}" {% if locale.identifier == current_lang %}class="selected"{% endif %}>{{ locale.display_name or locale.english_name }}</a></li>
+      <li class="lang-selector__{{ locale }}">
+        <a href="{% url_for current_url, locale=locale.short_name %}" {% if locale.identifier == current_lang %}class="selected"{% endif %}>{{ locale.display_name or locale.english_name }}</a>
+      </li>
     {% endfor %}
   </ul>
 </div>

@@ -344,6 +344,10 @@ blockquote:lang(fa_IR) {
   border-right: 1px solid #e9552d;
 }
 
+.lang-selector__fa_IR {
+  direction: rtl;
+}
+
 .nav-collapse:lang(fa_IR) {
   order: 2;
 }
