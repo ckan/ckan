@@ -19,3 +19,6 @@
 [submodule "ckanext-googleanalytics"]
 	path = ckanext-googleanalytics
 	url = https://github.com/ckan/ckanext-googleanalytics.git
+[submodule "ckanext-contact"]
+	path = ckanext-contact
+	url = https://github.com/NaturalHistoryMuseum/ckanext-contact.git
