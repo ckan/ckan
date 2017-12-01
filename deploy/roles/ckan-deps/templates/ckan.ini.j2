@@ -96,8 +96,20 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore datapusher iod_theme scheming_datasets scheming_groups resource_proxy webpage_view recline_map_view recline_graph_view recline_grid_view pdf_view fluent pages
+ckan.plugins = stats text_view image_view recline_view datastore datapusher iod_theme scheming_datasets scheming_groups resource_proxy webpage_view recline_map_view recline_graph_view recline_grid_view pdf_view fluent pages googleanalytics contact
 
+# ckanext-contact
+ckanext.contact.mail_to = contact@iranopendata.org
+ckanext.contact.recipient_name =
+ckanext.contact.subject =
+
+# ckanext-googleanlytics
+googleanalytics.id = UA-1010101-1
+googleanalytics.account = http://www.iranopendata.org
+googleanalytics.username = googleaccount@gmail.com
+googleanalytics.password = googlepassword
+
+# ckanext-pages
 ckanext.pages.about_menu = False
 ckanext.pages.group_menu = False
 ckanext.pages.organization_menu = False
@@ -148,10 +160,11 @@ ckan.display_timezone = server
 
 
 ## Internationalisation Settings
-ckan.locale_default = en
+ckan.locale_default = fa_IR
 ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
-ckan.locales_offered = en fa_IR
+ckan.locales_offered = fa_IR en
 ckan.locales_filtered_out = en_GB
+ckan.i18n_directory = ckanext-iod_theme/ckanext/iod_theme/
 
 ## Feeds Settings
 
