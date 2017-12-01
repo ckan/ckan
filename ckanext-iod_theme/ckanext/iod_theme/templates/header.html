@@ -89,6 +89,9 @@
                 ('about', _('About'))
               ) }}
             {% endblock %}
+            <li>
+              <a href="{{ h.url_for('contact_form') }}" title="{{ _('Contact') }}">Contact</a>
+            </li>
           </ul>
         </nav>
       {% endblock %}

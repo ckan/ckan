@@ -102,10 +102,6 @@ blockquote:lang(fa_IR) {
   border-right: 5px solid #eeeeee;
 }
 
-.navigation:lang(en) .nav li:nth-child(2) {
-  display: none;
-}
-
 .account-masthead:lang(fa_IR) .account {
   float: left;
 }
@@ -1374,4 +1370,16 @@ a:active {
 .homepage .group-list .art-culture-tourism:hover .replaced-svg path,
 .homepage .group-list .education:hover .replaced-svg path {
   fill: #fbcbbd;
+}
+
+/*------------------------------------*\
+    #CONTACT
+\*------------------------------------*/
+
+.form-actions--contact:lang(fa_IR) .control-required-message {
+  float: right;
+}
+
+.form-actions--contact:lang(fa_IR) .btn-primary {
+  float: left;
 }
