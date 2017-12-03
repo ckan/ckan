@@ -2,6 +2,7 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMetaData
 import datetime
 import uuid
 from migrate.changeset.constraint import PrimaryKeyConstraint
@@ -11,7 +12,7 @@ def make_uuid():
     return unicode(uuid.uuid4())
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMetaData()
     harvest_source_table = Table('harvest_source', metadata,
             Column('id', UnicodeText, primary_key=True, default=make_uuid),
             Column('status', UnicodeText, default=u'New'),

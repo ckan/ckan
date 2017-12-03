@@ -5,13 +5,14 @@ import warnings
 from sqlalchemy import exc as sa_exc
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMetaData
 import migrate.changeset
 
 def upgrade(migrate_engine):
     # ignore reflection warnings
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
-        metadata = MetaData()
+        metadata = CkanMetaData()
         metadata.bind = migrate_engine
 
         harvest_source_table = Table('harvest_source', metadata, autoload=True)

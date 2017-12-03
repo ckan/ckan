@@ -3,13 +3,14 @@
 from sqlalchemy import *
 from sqlalchemy.sql import select, and_
 from migrate import *
+from ckan.model.metadata import CkanMetaData
 import logging
 
 log = logging.getLogger(__name__)
 
 def upgrade(migrate_engine):
     '''#1066 Change Visitor role on System from "reader" to "anon_editor".'''
-    metadata = MetaData(migrate_engine)
+    metadata = CkanMetaData(migrate_engine)
 
     # get visitor ID
     user = Table('user', metadata, autoload=True)

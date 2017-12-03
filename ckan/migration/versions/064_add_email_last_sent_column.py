@@ -2,9 +2,10 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMetaData
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMetaData()
     metadata.bind = migrate_engine
     migrate_engine.execute('''
 ALTER TABLE dashboard

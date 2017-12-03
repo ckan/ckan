@@ -2,6 +2,7 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMetaData
 import datetime
 import uuid
 import migrate.changeset
@@ -13,7 +14,7 @@ def make_uuid():
 
 def upgrade(migrate_engine):
 
-    metadata = MetaData(migrate_engine)
+    metadata = CkanMetaData(migrate_engine)
 
     package = Table('package', metadata, autoload=True)
 

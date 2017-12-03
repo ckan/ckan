@@ -2,11 +2,12 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMetaData
 import migrate.changeset
 
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMetaData()
     metadata.bind = migrate_engine
 
     package_relationship_table = Table('package_relationship',

@@ -3,13 +3,14 @@
 from sqlalchemy import *
 from sqlalchemy import types
 from migrate import *
+from ckan.model.metadata import CkanMetaData
 from datetime import datetime
 import migrate.changeset
 import uuid
 
     
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMetaData()
     metadata.bind = migrate_engine
     user_sql = 'ALTER TABLE "user" ADD openid TEXT'
     migrate_engine.execute(user_sql)

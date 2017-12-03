@@ -2,9 +2,10 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMetaData
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMetaData()
     metadata.bind = migrate_engine
     user_table = Table('user', metadata, autoload=True)
     reset_key_col = Column('reset_key', UnicodeText)
