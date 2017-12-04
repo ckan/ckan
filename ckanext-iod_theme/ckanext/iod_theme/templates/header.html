@@ -90,9 +90,6 @@
               ) }}
             {% endblock %}
             <li>
-              <a href="{{ h.url_for('contact_form') }}" title="{{ _('Contact') }}">Contact</a>
-            </li>
-            <li>
               <a href="{{ h.url_for('about') }}" title="{{ _('About') }}">About</a>
             </li>
             <li>
@@ -100,6 +97,9 @@
             </li>
             <li>
               <a href="{{ h.url_for('use_cases') }}" title="{{ _('Use cases') }}">Use cases</a>
+            </li>
+            <li>
+              <a href="{{ h.url_for('contact_form') }}" title="{{ _('Contact') }}">Contact</a>
             </li>
           </ul>
         </nav>
