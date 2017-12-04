@@ -1,0 +1,20 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Use cases') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for _('Use cases'), controller='home', action='use_cases' %}</li>
+{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      {% block use_cases %}
+          <h1 class="page-heading">{{ _('Use cases') }}</h1>
+          {% snippet 'home/snippets/use_cases_text.html' %}
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary %}{% endblock %}

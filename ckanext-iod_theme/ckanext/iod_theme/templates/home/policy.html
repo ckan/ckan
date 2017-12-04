@@ -1,0 +1,20 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Policy') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for _('Policy'), controller='home', action='policy' %}</li>
+{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      {% block policy %}
+          <h1 class="page-heading">{{ _('Policy') }}</h1>
+          {% snippet 'home/snippets/policy_text.html' %}
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary %}{% endblock %}

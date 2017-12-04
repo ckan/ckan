@@ -105,3 +105,9 @@ class HomeController(base.BaseController):
     def cors_options(self, url=None):
         # just return 200 OK and empty data
         return ''
+
+    def policy(self):
+        return base.render('home/policy.html')
+
+    def use_cases(self):
+        return base.render('home/use_cases.html')

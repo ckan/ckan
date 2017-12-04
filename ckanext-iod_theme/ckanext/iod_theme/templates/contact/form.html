@@ -1,0 +1,34 @@
+{% extends "page.html" %}
+
+{% block breadcrumb_content %}
+    {{ super() }}
+  <li class="active"><a href="{{ h.url_for('contact_form') }}">Contact</a></li>
+
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">Contact us</h1>
+
+        {% block contact_form_content %}
+            {% include "contact/snippets/form.html" %}
+        {% endblock %}
+
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+<div class="module module-narrow module-shallow">
+  <h2 class="module-heading">
+    <i class="icon-info-sign"></i>
+    {{ _('Contact Us') }}
+  </h2>
+  <div class="module-content">
+    <p>
+      Questions? Comments? We are always glad to hear from you!
+    </p>
+  </div>
+</div>
+{% endblock %}

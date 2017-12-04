@@ -114,7 +114,10 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
 
     # IRoutes
     def before_map(self, map):
-
+        
+        map.connect('policy', '/policy', controller='home', action='policy')
+        map.connect('use_cases', '/use_cases', controller='home', action='use_cases')
+        
         group_controller = 'ckanext.iod_theme.controllers.theme:ThemeController'
         package_controller = 'ckanext.iod_theme.controllers.package:PackageController'
 
