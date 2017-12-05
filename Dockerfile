@@ -55,4 +55,4 @@ ENTRYPOINT ["/ckan-entrypoint.sh"]
 USER ckan
 EXPOSE 5000
 
-CMD ["ckan-paster","serve","/etc/ckan/ckan.ini"]
+CMD ["ckan-paster","serve","/etc/ckan/production.ini"]
