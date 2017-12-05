@@ -5,9 +5,8 @@
       <div class="span12 attribution">
         {% block footer_attribution %}
           <ul class="attribution__list">
-            <li class="attribution__item">{% trans %}Powered by <a class="hide-text ckan-footer-logo attribution__logo" href="http://ckan.org" rel="noopener" target="_blank">CKAN</a>{% endtrans %}</li>
-            <li class="attribution__item">{% trans %}Site by
-              <a class="hide-text attribution__logo" href="https://smallmedia.org.uk" rel="noopener" target="_blank">
+            <li class="attribution__item">{% trans %}Powered by{% endtrans %} <a class="hide-text ckan-footer-logo attribution__logo" href="http://ckan.org" rel="noopener" target="_blank">CKAN</a></li>
+            <li class="attribution__item">{% trans %}Site by{% endtrans %} <a class="hide-text attribution__logo" href="https://smallmedia.org.uk" rel="noopener" target="_blank">
                 Small Media
                 <svg viewBox="0 0 20.3 21" class="sm-logo">
                   <g fill="none" transform="translate(-.95)">
@@ -15,12 +14,12 @@
                     <path fill="#F8F8F8" d="M10.6 13.3C8.9 13.1 7.5 11.7 7.5 10L7.5 6.8 10.6 6.8 10.6 9.9 9.2 9.9C9.2 11 9.5 11.7 10.6 12L10.6 13.3zM11.7 13.4L11.7 10.3 13.1 10.3C13.1 9.2 12.8 8.5 11.7 8.2L11.7 7C13.4 7.2 14.8 8.6 14.8 10.3L14.8 13.5 11.7 13.5 11.7 13.4z"/>
                   </g>
                 </svg>
-              </a>{% endtrans %}</li>
+              </a></li>
           </ul>
         {% endblock %}
       </div>
       <div class="span12 disclaimer">
-        <p>By accessing this Iran Open Data website or database, users agree to take full responsibility for reliance on any information provided by this site, and to hold harmless and waive any and all liability against individuals or entities associated with its development, form and content for any loss, harm or damage suffered as a result of its use.</p>
+        <p>{% trans %}By accessing this Iran Open Data website or database, users agree to take full responsibility for reliance on any information provided by this site, and to hold harmless and waive any and all liability against individuals or entities associated with its development, form and content for any loss, harm or damage suffered as a result of its use.{% endtrans %}</p>
       </div>
     </div>
     {% endblock %}
