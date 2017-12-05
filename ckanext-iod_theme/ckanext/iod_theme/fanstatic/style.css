@@ -146,10 +146,6 @@ blockquote:lang(fa_IR) {
   float: right;
 }
 
-.usecases:lang(fa_IR) li {
-  float: right;
-}
-
 .toolbar:lang(fa_IR) .breadcrumb {
   float: right;
 }
@@ -373,31 +369,51 @@ blockquote:lang(fa_IR) {
   background-color: transparent;
 }
 
-.group-list ul {
+.group-list ul,
+.usecases ul {
   list-style: none;
   margin: -10px 0 0 -20px;
   display: flex;
   flex-wrap: wrap;
 }
 
-.group-list li {
+.group-list li,
+.usecases li {
   display: inline-block;
-  width: calc(20% - 20px);
   margin: 20px 0 0 20px;
   background: #fff;
   display: flex;
   flex-wrap: wrap;
 }
 
-.group-list a {
+.group-list li {
+  width: calc(20% - 20px);
+}
+
+.usecases li {
+  width: calc(33.333% - 20px);
+}
+
+.group-list a,
+.usecases a {
   display: block;
   color: #343333;
+}
+
+.group-list a {
   padding: 20px 10px 15px;
+}
+
+.usecases a {
+  padding: 0 10px 15px;
 }
 
 .group-list a:hover,
 .group-list a:focus,
-.group-list a:active {
+.group-list a:active,
+.usecases a:hover,
+.usecases a:focus,
+.usecases a:active {
   text-decoration: none;
 }
 
@@ -516,11 +532,13 @@ html:lang(fa_IR) {
 }
 
 .homepage .stats h3,
-.homepage .group-list h3 {
+.homepage .group-list h3,
+.homepage .usecases h3 {
   font-size: 1.25rem;
 }
 
-.homepage .group-list h3 {
+.homepage .group-list h3,
+.homepage .usecases h3 {
   margin: 0;
 }
 
@@ -619,13 +637,6 @@ a:active {
   margin: 0;
 }
 
-.usecases li {
-  width: 29%;
-  float: left;
-  list-style: none;
-  margin: 2%;
-}
-
 .usecases h2 {
   font-size: 1.25rem;
 }
@@ -643,7 +654,7 @@ a:active {
 }
 
 .homepage .stats ul a {
-  padding-bottom: 20px;
+  padding-bottom: 15px;
 }
 
 .homepage .stats ul li + li {
@@ -711,11 +722,13 @@ a:active {
 \*------------------------------------*/
 
 .homepage .stats ul a,
-.homepage .group-list ul a {
+.homepage .group-list ul a,
+.homepage .usecases ul a {
   position: relative;
 }
 
-.homepage .stats ul a {
+.homepage .stats ul a,
+.homepage .usecases ul a {
   border-bottom: 2px solid #e9552d;
 }
 
@@ -764,8 +777,9 @@ a:active {
 .homepage .stats ul a:before,
 .homepage .stats ul a:after,
 .homepage .group-list ul a:before,
-.homepage .group-list ul a:after {
-  z-index: 1;
+.homepage .group-list ul a:after,
+.homepage .usecases ul a:before,
+.homepage .usecases ul a:after {
   box-sizing: border-box;
   content: '';
   position: absolute;
@@ -776,12 +790,14 @@ a:active {
 }
 
 .homepage .stats ul a:hover:before,
-.homepage .group-list ul a:hover:before {
+.homepage .group-list ul a:hover:before,
+.homepage .usecases ul a:hover:before {
   bottom: 0;
   left: 0;
 }
 
-.homepage .stats ul a:hover:before{
+.homepage .stats ul a:hover:before,
+.homepage .usecases ul a:hover:before {
   animation: border-left-orange 2s normal forwards;
 }
 
@@ -824,12 +840,14 @@ a:active {
 }
 
 .homepage .stats ul a:hover:after,
-.homepage .group-list ul a:hover:after {
+.homepage .group-list ul a:hover:after,
+.homepage .usecases ul a:hover:after {
   bottom: 0;
   right: 0;
 }
 
-.homepage .stats ul a:hover:after {
+.homepage .stats ul a:hover:after,
+.homepage .usecases ul a:hover:after {
   animation: border-right-orange 2s normal forwards;
 }
 
