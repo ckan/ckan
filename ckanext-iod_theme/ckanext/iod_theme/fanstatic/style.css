@@ -405,7 +405,16 @@ blockquote:lang(fa_IR) {
 }
 
 .usecases a {
-  padding: 0 10px 15px;
+  padding: 0 0 15px;
+}
+
+.usecases h3 {
+  padding: 10px 10px 0;
+}
+
+.usecases dl,
+.usecases div {
+  padding: 0 10px;
 }
 
 .group-list a:hover,
@@ -447,7 +456,7 @@ blockquote:lang(fa_IR) {
 .clamping {
   position: relative;
   height: 6.6rem;
-  width: 100%;
+  width: 99%;
   margin: 0 0 1rem 0;
   overflow: hidden;
 }
