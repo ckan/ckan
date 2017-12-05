@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-10-05 18:33+0100\n"
-"PO-Revision-Date: 2017-12-04 19:16+0000\n"
+"PO-Revision-Date: 2017-12-05 15:16+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1770,11 +1770,11 @@ msgstr "گزینه‌های پیکره‌بندی CKAN"
 
 #: ckan/templates/admin/config.html:34
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance It appears in various places throughout CKAN.</p> <p><strong>Style:</strong> Choose from a list of simple variations of the main colour scheme to get a very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This is the logo that appears in the header of all the CKAN instance templates.</p> <p><strong>About:</strong> This text will appear on this CKAN instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
-"<p><strong>Custom CSS:</strong> This is a block of CSS that appears in <code>&lt;head&gt;</code> tag of every page. If you wish to customize the templates more fully we recommend <a href=\"%(docs_url)s\" target=\"_blank\">reading the documentation</a>.</p> <p><strong>Homepage:</strong> This is for choosing a predefined layout for the modules that appear on your homepage.</p> "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It appears in various places throughout CKAN.</p> <p><strong>Style:</strong> Choose from a list of simple variations of the main colour scheme to get a very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This is the logo that appears in the header of all the CKAN instance templates.</p> <p><strong>About:</strong> This text will appear on this CKAN instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> <p><strong>Custom CSS:</strong> This is a block of CSS that appears in <code>&lt;"
+"head&gt;</code> tag of every page. If you wish to customize the templates more fully we recommend <a href=\"%(docs_url)s\" target=\"_blank\">reading the documentation</a>.</p> <p><strong>Homepage:</strong> This is for choosing a predefined layout for the modules that appear on your homepage.</p> "
 msgstr ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance It appears in various places throughout CKAN.</p> <p><strong>Style:</strong> Choose from a list of simple variations of the main colour scheme to get a very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This is the logo that appears in the header of all the CKAN instance templates.</p> <p><strong>About:</strong> This text will appear on this CKAN instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
-"<p><strong>Custom CSS:</strong> This is a block of CSS that appears in <code>&lt;head&gt;</code> tag of every page. If you wish to customize the templates more fully we recommend <a href=\"%(docs_url)s\" target=\"_blank\">reading the documentation</a>.</p> <p><strong>Homepage:</strong> This is for choosing a predefined layout for the modules that appear on your homepage.</p> "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It appears in various places throughout CKAN.</p> <p><strong>Style:</strong> Choose from a list of simple variations of the main colour scheme to get a very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This is the logo that appears in the header of all the CKAN instance templates.</p> <p><strong>About:</strong> This text will appear on this CKAN instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> <p><strong>Custom CSS:</strong> This is a block of CSS that appears in <code>&lt;"
+"head&gt;</code> tag of every page. If you wish to customize the templates more fully we recommend <a href=\"%(docs_url)s\" target=\"_blank\">reading the documentation</a>.</p> <p><strong>Homepage:</strong> This is for choosing a predefined layout for the modules that appear on your homepage.</p> "
 
 #: ckan%2Ftemplates%2Fadmin%2Fconfirm_reset.html%3A3+ckan%2Ftemplates%2Fadmin%2Fconfirm_reset.html%3A10
 msgid "Confirm Reset"
@@ -3710,44 +3710,72 @@ msgstr "دسترسی آسان به داده "
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
-" <p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN is a complete out-of-the-box software solution that makes data accessible and usable – by providing tools to streamline publishing, sharing, finding and using data (including storage of data and provision of robust data APIs). CKAN is aimed at data publishers (national and regional governments, companies and organizations) wanting to make their data open and available.</p> <p>CKAN is used by governments and user groups worldwide and powers a variety of official and community data portals including portals for local, national and international government, such as the UK’s "
-"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland government portals, as well as city and municipal sites in the US, UK, Argentina, Finland and elsewhere.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features overview: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+" <p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN is a complete out-of-the-box software solution that makes data accessible and usable – by providing tools to streamline publishing, sharing, finding and using data (including storage of data and provision of robust data APIs). CKAN is aimed at data publishers (national and regional governments, companies and organizations) wanting to make their data open and available.</p> <p>CKAN is used by governments and user groups worldwide and powers a variety of official and community data portals including portals for local, national and international government, such as the UK’s <a href=\"http://data.gov.uk\">data.gov.uk</a> and the European "
+"Union’s <a href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland government portals, as well as city and municipal sites in the US, UK, Argentina, Finland and elsewhere.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features overview: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 msgstr ""
-"<p> CKAN پیشروترین پلتفرم پورتال داده متن‌باز جهان است.</p> <p>CKAN یک نرم‌افزار کاملا نوآور است که دسترسی و استفاده از داده را با ارائه ابزارهایی برای انتشار آنلاین، به اشتراک گذاری، پیدا کردن و استفاده از داده (از جمله ذخیره داده و تدارک APIهای قدرتمند داده) تسهیل می‌کند.</p><p> استفاده‌کنندگان CKAN در وهله اول آن دسته از منتشرکنندگان داده (نهادهای حکومتی ملی و محلی، شرکت‌ها و سازمان‌ها) هستند که می‌خواهند داده‌هایشان را بدون محدودیت در دسترس عموم بگذارند. CKAN در سراسر جهان مورد استفاده دولت‌ها و گروه‌های کاربری قرار می‌گیرد، و طیفی از پورتال‌های داده رسمی و غیرروسمی را در اختیار نهادهای حکومتی محلی، ملی و بین‌المللی می‌گذارد. برای مثال می‌توان به http://data."
-"gov.uk در بریتانیا و http://publicdata.eu برای اتحادیه اروپا، http://dados.gov.br در برزیل، و پورتال دولت هلند، و همچنین سایت‌های شهرداری‌ها در ایالات متحده، بریتانیا، آرژانتین، فنلاند و کشورهای دیگر اشاره کرد. </p>"
+"<p> CKAN پیشروترین پلتفرم پورتال داده متن‌باز جهان است.</p> <p>CKAN یک نرم‌افزار کاملا نوآور است که دسترسی و استفاده از داده را با ارائه ابزارهایی برای انتشار آنلاین، به اشتراک گذاری، پیدا کردن و استفاده از داده (از جمله ذخیره داده و تدارک APIهای قدرتمند داده) تسهیل می‌کند.</p><p> استفاده‌کنندگان CKAN در وهله اول آن دسته از منتشرکنندگان داده (نهادهای حکومتی ملی و محلی، شرکت‌ها و سازمان‌ها) هستند که می‌خواهند داده‌هایشان را بدون محدودیت در دسترس عموم بگذارند. CKAN در سراسر جهان مورد استفاده دولت‌ها و گروه‌های کاربری قرار می‌گیرد، و طیفی از پورتال‌های داده رسمی و غیرروسمی را در اختیار نهادهای حکومتی محلی، ملی و بین‌المللی می‌گذارد. برای مثال می‌توان به http://data.gov.uk در بریتانیا و http://publicdata.eu برای اتحادیه اروپا، http://"
+"dados.gov.br در برزیل، و پورتال دولت هلند، و همچنین سایت‌های شهرداری‌ها در ایالات متحده، بریتانیا، آرژانتین، فنلاند و کشورهای دیگر اشاره کرد. </p>"
 
 #: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:1
-msgid ""
-" <h2>Who are we?</h2>"
-"<p>Iran Open Data is a collaborative initiative undertaken by a community of individuals and organisations who are passionate about open data and transparency. It has been designed and developed by <a href=\"https://smallmedia.org.uk/\" target=\"_blank\" rel=\"noopener\">Small Media</a>. Iran Open Data is eager to expand its community of members, so please get in touch if you’re interested in getting involved!</p>"
-"<h2>What is open data?</h2>"
-"<p>At the simplest level, the Open Data Institute <a href=\"https://theodi.org/guides/what-open-data\" target=\"_blank\" rel=\"noopener\">describes</a> open data as: ‘data that anyone can access, use and share.’ More specifically, Open Knowledge International’s Open Data Handbook <a href=\"http://opendatahandbook.org/guide/en/what-is-open-data/\" target=\"_blank\" rel=\"noopener\">notes</a> that to be considered truly ‘open’, data should adhere to the following three core principles:</p>"
-"<ul><li>Available and accessible, at no more than a reasonable reproduction cost.</li>"
-"<li>Reuseable and redistributional, meaning that the license should permit reuse and redistribution.</li>"
-"<li>Open to Universal Participation, so that everyone must be able to use, re-use and re-distribute data, with no restrictions on usage.</li></ul>"
-"<h2>Why Iran Open Data?</h2>"
-"<p>Iranian government agencies at all levels, municipal, provincial, and national, publish an abundance of data publicly. However, more often than not this data is locked away in inaccessible formats (such as images or PDFs), tucked away in different sections of official websites, or is not digitised at all.</p>"
-"<p>Iran Open Data aims to make Iranian government data accessible by gathering it together into one central hub, and converting it into machine-readable formats (such as CSV and JSON). Iran Open Data aims to become the definitive online platform for meeting the data needs of researchers, journalists and Iranian citizens seeking to better understand their government’s policies and actions.</p>"
-"<p>The openness and free availability of data is one of the key characteristics of an accountable and responsible government. Through its work, Iran Open Data also hopes to highlight the areas where Iranian authorities can increase the transparency of their actions by making more data publicly available and easily accessible.</p>"
-"<h2>What is our methodology?</h2>"
-"<p>An open data platform should itself be open. A defining feature of Iran Open Data is that is based on CKAN, the world’s leading Open Source data portal platform, so all of its technology processes, the architecture of the platform, the code for the site, and the data specification and all the information about available datasets is available <a href=\"https://github.com/smallmedia/iod-ckan\" target=\"_blank\" rel=\"noopener\">here</a>.</p>"
-"<p>Depending on the difficulty of gathering or cleaning a particular dataset (we call it the ‘data ingest’), we might develop an automated script to do some of these processes for us. The code for all the scripts we develop will be made available <a href=\"https://github.com/smallmedia/iod-ckan\" target=\"_blank\" rel=\"noopener\">here</a>.</p>"
-"<p>We also rely on a host of other tools to capture datasets that are locked away in less accessible formats. For instance, to extract data that has been produced in PDFs we currently use <a href=\"http://tabula.technology/\" target=\"_blank\" rel=\"noopener\">Tabula</a>, which necessitates a manual process.</p>"
-"<p>Due to this manual process, there may be some inconsistencies in the datasets. Please <a href=\"contact\">contact us</a> if you come across any errors in the data, and please be advised that the onus is on the website user to do due diligence and further research to support any findings gleaned from analysing these datasets. Please see our <a href=\"policy\">policy page</a> for more information.</p> "
-msgstr ""
-" <h2>ما که هستیم؟</h2>"
-"<p>پایگاه داده‌ باز ایران ابتکار مشترک افراد و سازمان‌هایی است که به موضوع داده‌ باز و شفافیت علاقه‌مندند. این پایگاه را موسسه اسمال مدیا <a href=\"https://smallmedia.org.uk/\" target=\"_blank\" rel=\"noopener\">(Small Media)</a> طراحی کرده است. پایگاه داده‌ باز ایران مشتاق گسترش دامنه‌ی اعضای خود است، اگر به موضوع داده‌ باز علاقه‌مندید، لطفا با ما تماس بگیرید.</p>"
-"<h2>داده باز چیست؟</h2>"
-"<p>به زبان ساده و همانگونه که موسسه داده‌ باز <a href=\"https://theodi.org/guides/what-open-data\" target=\"_blank\" rel=\"noopener\">(Open Data Institute)</a> تعریف می‌کند، داده‌ باز داده‌ای است که «همه بتوانند به آن دسترسی داشته‌ باشند، از آن استفاده کنند و به اشتراک بگذارند». به طور خاص، موسسه دانش باز بین‌المللی <a href=\"http://opendatahandbook.org/guide/en/what-is-open-data/\" target=\"_blank\" rel=\"noopener\">(Open Knowledge International)</a> کتابچه راهنمایی در مورد داده‌ باز منتشر کرده و در آن توضیح می‌دهد که داده در صورتی باز به حساب می‌آید که از سه اصل اساسی زیر تبعیت کند:</p>"
-"<ul><li>در دسترس باشد، با هزینه‌ای معقول برای باز تولید آن.</li>"
-"<li>استفاده و توزیع مجدد آن امکان‌پذیر باشد، به این معنی که مجوز آن اجازه‌ی استفاده و توزیع مجدد آن را بدهد.</li>"
-"<li>امکان مشارکت همگانی داشته باشد، به این معنی که استفاده، استفاده مجدد و توزیع دوباره داده‌ها محدودیتی نداشته باشد.</li></ul>"
-"<h2>چرا پایگاه داده‌ باز ایران؟</h2>"
-"<p>سازمان‌های دولتی در ایران در همه سطوح -شهری، استانی و ملی- داده‌های عمومی فراوانی منتشر می‌کنند. اما در بسیاری از مواقع این داده‌ها به راحتی قابل دسترسی نیستند: یا در فرمت‌های غیرقابل دسترس مانند پی‌دی‌اف یا عکس عرضه شده‌اند،‌ یا در پس لایه‌های مختلف وبسایت‌های رسمی آمده‌اند یا اصلا در قالب دیجیتال عرضه نشده‌اند.</p>"
-"<p>پایگاه داده‌ باز ایران قصد دارد داده‌های دولتی ایران را در یک جا جمع کرده و آن‌ها را در قالب‌هایی که با ماشین قابل خواندن باشند (مانند CSV یا JSON) در یک کانون مرکزی ارائه دهد. هدف ما این است که به پایگاه آنلاین معتبر داده برای محققان، خبرنگاران و شهروندان ایرانی تبدیل شویم؛ و معتقدیم وجود چنین پایگاهی به افراد کمک می‌کند تا عملکرد و سیاست‌های دولت خود را بهتر درک کنند.</p>"
-"<p>باز و رایگان بودن داده یکی از ویژگی‌های کلیدی دولت پاسخگو و مسئول است. در این مسیر، پایگاه داده‌ باز ایران امیدوار است بتواند حوزه‌هایی را که مسئولان ایرانی می‌توانند شفافیت فعالیت‌های خود را بالا ببرند، برجسته کند. این کار با در اختیار عموم گذاشتن داده و دسترسی راحت به داده‌ها ممکن است.</p>"
-"<h2>روش کار ما چیست؟</h2>"
-"<p>یک پایگاه داده‌ باز، خود نیز باید باز باشد. یکی از ویژگی‌های برجسته پایگاه داده‌ باز ایران این است که کل فرآیند تکنولوژی و معماری پلتفرم آن بر روی CKAN که یکی از پلتفرم‌های پیشرو در منابع داده‌ باز است به صورت عمومی قابل دسترس است. کدهای سایت در <a href=\"https://github.com/smallmedia/iod-ckan\" target=\"_blank\" rel=\"noopener\">اینجا</a> در دسترس است، مشخصات داده‌ها و همه اطلاعات در مورد مجموعه داده‌های موجود را نیز <a href=\"https://github.com/smallmedia/iod-ckan\" target=\"_blank\" rel=\"noopener\">اینجا</a> می‌توان دید.</p>"
-"<p>روش جمع‌آوری و تمیز کردن داده (که به آن اصطلاحا تمیزکاری داده یا data ingest می‌گوییم) به ماهیت مجموعه داده بستگی دارد. در برخی موارد ممکن است که اسکریپت خودکار (Automated Script) طراحی کنیم تا کار را برای ما انجام دهد. کد همه اسکریپت‌هایی که طراحی می‌کنیم <a href=\"https://github.com/smallmedia/iod-ckan\" target=\"_blank\" rel=\"noopener\">اینجا</a> در دسترس خواهند بود.</p>"
-"<p>برای به دست آوردن داده‌هایی که در فرمت‌های ناخوانا و پیچیده حبس شده‌اند نیز از ابزارهای مختلف استفاده می‌کنیم. به عنوان مثال، برای داده‌هایی که به صورت پی‌دی‌اف عرضه شده‌اند در حال حاضر از <a href=\"http://tabula.technology/\" target=\"_blank\" rel=\"noopener\">Tabula</a> استفاده می‌کنیم که نیازمند فرآیندی دستی است.</p>"
-"<p>به دلیل این فرآیند دستی، امکان وجود تناقضات در این مجموعه داده‌ها وجود دارد. اگر با <a href=\"contact\">این خطاها</a> برخورد کردید، لطفا با ما تماس بگیرید. و در نظر داشته باشید که تلاش برای تحقیق بیشتر در جهت یافتن اطلاعات تکمیلی برای تصدیق یافته‌های بر مبنای این مجموعه داده‌ها بر عهده خود کاربر وبسایت است. برای اطلاعات بیشتر لطفا <a href=\"policy\">صفحه مقررات<a> را ببینید.</p> "
+msgid "Who are we?"
+msgstr "ما که هستیم؟"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:3
+msgid "Iran Open Data is a collaborative initiative undertaken by a community of individuals and organisations who are passionate about open data and transparency. It has been designed and developed by <a href=\"https://smallmedia.org.uk/\" target=\"_blank\" rel=\"noopener\">Small Media</a>. Iran Open Data is eager to expand its community of members, so please get in touch if you’re interested in getting involved!"
+msgstr "پایگاه داده‌ باز ایران ابتکار مشترک افراد و سازمان‌هایی است که به موضوع داده‌ باز و شفافیت علاقه‌مندند. این پایگاه را موسسه اسمال مدیا <a href=\"https://smallmedia.org.uk/\" target=\"_blank\" rel=\"noopener\">(Small Media)</a> طراحی کرده است. پایگاه داده‌ باز ایران مشتاق گسترش دامنه‌ی اعضای خود است، اگر به موضوع داده‌ باز علاقه‌مندید، لطفا با ما تماس بگیرید."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:5
+msgid "What is open data?"
+msgstr "داده باز چیست؟"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:7
+msgid "At the simplest level, the Open Data Institute <a href=\"https://theodi.org/guides/what-open-data\" target=\"_blank\" rel=\"noopener\">describes</a> open data as: ‘data that anyone can access, use and share.’ More specifically, Open Knowledge International’s Open Data Handbook <a href=\"http://opendatahandbook.org/guide/en/what-is-open-data/\" target=\"_blank\" rel=\"noopener\">notes</a> that to be considered truly ‘open’, data should adhere to the following three core principles:"
+msgstr "به زبان ساده و همانگونه که موسسه داده‌ باز <a href=\"https://theodi.org/guides/what-open-data\" target=\"_blank\" rel=\"noopener\">(Open Data Institute)</a> تعریف می‌کند، داده‌ باز داده‌ای است که «همه بتوانند به آن دسترسی داشته‌ باشند، از آن استفاده کنند و به اشتراک بگذارند». به طور خاص، موسسه دانش باز بین‌المللی <a href=\"http://opendatahandbook.org/guide/en/what-is-open-data/\" target=\"_blank\" rel=\"noopener\">(Open Knowledge International)</a> کتابچه راهنمایی در مورد داده‌ باز منتشر کرده و در آن توضیح می‌دهد که داده در صورتی باز به حساب می‌آید که از سه اصل اساسی زیر تبعیت کند:"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:10
+msgid "Available and accessible, at no more than a reasonable reproduction cost."
+msgstr "در دسترس باشد، با هزینه‌ای معقول برای باز تولید آن."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:12
+msgid "Reuseable and redistributional, meaning that the license should permit reuse and redistribution."
+msgstr "استفاده و توزیع مجدد آن امکان‌پذیر باشد، به این معنی که مجوز آن اجازه‌ی استفاده و توزیع مجدد آن را بدهد."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:14
+msgid "Open to Universal Participation, so that everyone must be able to use, re-use and re-distribute data, with no restrictions on usage."
+msgstr "امکان مشارکت همگانی داشته باشد، به این معنی که استفاده، استفاده مجدد و توزیع دوباره داده‌ها محدودیتی نداشته باشد."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:17
+msgid "Why Iran Open Data?"
+msgstr "چرا پایگاه داده‌ باز ایران؟"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:19
+msgid "Iranian government agencies at all levels, municipal, provincial, and national, publish an abundance of data publicly. However, more often than not this data is locked away in inaccessible formats (such as images or PDFs), tucked away in different sections of official websites, or is not digitised at all."
+msgstr "سازمان‌های دولتی در ایران در همه سطوح -شهری، استانی و ملی- داده‌های عمومی فراوانی منتشر می‌کنند. اما در بسیاری از مواقع این داده‌ها به راحتی قابل دسترسی نیستند: یا در فرمت‌های غیرقابل دسترس مانند پی‌دی‌اف یا عکس عرضه شده‌اند،‌ یا در پس لایه‌های مختلف وبسایت‌های رسمی آمده‌اند یا اصلا در قالب دیجیتال عرضه نشده‌اند."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:21
+msgid "Iran Open Data aims to make Iranian government data accessible by gathering it together into one central hub, and converting it into machine-readable formats (such as CSV and JSON). Iran Open Data aims to become the definitive online platform for meeting the data needs of researchers, journalists and Iranian citizens seeking to better understand their government’s policies and actions."
+msgstr "پایگاه داده‌ باز ایران قصد دارد داده‌های دولتی ایران را در یک جا جمع کرده و آن‌ها را در قالب‌هایی که با ماشین قابل خواندن باشند (مانند CSV یا JSON) در یک کانون مرکزی ارائه دهد. هدف ما این است که به پایگاه آنلاین معتبر داده برای محققان، خبرنگاران و شهروندان ایرانی تبدیل شویم؛ و معتقدیم وجود چنین پایگاهی به افراد کمک می‌کند تا عملکرد و سیاست‌های دولت خود را بهتر درک کنند."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:23
+msgid "The openness and free availability of data is one of the key characteristics of an accountable and responsible government. Through its work, Iran Open Data also hopes to highlight the areas where Iranian authorities can increase the transparency of their actions by making more data publicly available and easily accessible."
+msgstr "باز و رایگان بودن داده یکی از ویژگی‌های کلیدی دولت پاسخگو و مسئول است. در این مسیر، پایگاه داده‌ باز ایران امیدوار است بتواند حوزه‌هایی را که مسئولان ایرانی می‌توانند شفافیت فعالیت‌های خود را بالا ببرند، برجسته کند. این کار با در اختیار عموم گذاشتن داده و دسترسی راحت به داده‌ها ممکن است."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:25
+msgid "What is our methodology?"
+msgstr "روش کار ما چیست؟"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:27
+msgid "An open data platform should itself be open. A defining feature of Iran Open Data is that is based on CKAN, the world’s leading Open Source data portal platform, so all of its technology processes, the architecture of the platform, the code for the site, and the data specification and all the information about available datasets is available <a href=\"https://github.com/smallmedia/iod-ckan\" target=\"_blank\" rel=\"noopener\">here</a>."
+msgstr "یک پایگاه داده‌ باز، خود نیز باید باز باشد. یکی از ویژگی‌های برجسته پایگاه داده‌ باز ایران این است که کل فرآیند تکنولوژی و معماری پلتفرم آن بر روی CKAN که یکی از پلتفرم‌های پیشرو در منابع داده‌ باز است به صورت عمومی قابل دسترس است. کدهای سایت در <a href=\"https://github.com/smallmedia/iod-ckan\" target=\"_blank\" rel=\"noopener\">اینجا</a> در دسترس است، مشخصات داده‌ها و همه اطلاعات در مورد مجموعه داده‌های موجود را نیز <a href=\"https://github.com/smallmedia/iod-ckan\" target=\"_blank\" rel=\"noopener\">اینجا</a> می‌توان دید."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:29
+msgid "Depending on the difficulty of gathering or cleaning a particular dataset (we call it the ‘data ingest’), we might develop an automated script to do some of these processes for us. The code for all the scripts we develop will be made available <a href=\"https://github.com/smallmedia/iod-ckan\" target=\"_blank\" rel=\"noopener\">here</a>."
+msgstr "روش جمع‌آوری و تمیز کردن داده (که به آن اصطلاحا تمیزکاری داده یا data ingest می‌گوییم) به ماهیت مجموعه داده بستگی دارد. در برخی موارد ممکن است که اسکریپت خودکار (Automated Script) طراحی کنیم تا کار را برای ما انجام دهد. کد همه اسکریپت‌هایی که طراحی می‌کنیم <a href=\"https://github.com/smallmedia/iod-ckan\" target=\"_blank\" rel=\"noopener\">اینجا</a> در دسترس خواهند بود."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:31
+msgid "We also rely on a host of other tools to capture datasets that are locked away in less accessible formats. For instance, to extract data that has been produced in PDFs we currently use <a href=\"http://tabula.technology/\" target=\"_blank\" rel=\"noopener\">Tabula</a>, which necessitates a manual process."
+msgstr "برای به دست آوردن داده‌هایی که در فرمت‌های ناخوانا و پیچیده حبس شده‌اند نیز از ابزارهای مختلف استفاده می‌کنیم. به عنوان مثال، برای داده‌هایی که به صورت پی‌دی‌اف عرضه شده‌اند در حال حاضر از <a href=\"http://tabula.technology/\" target=\"_blank\" rel=\"noopener\">Tabula</a> استفاده می‌کنیم که نیازمند فرآیندی دستی است."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:33
+msgid "Due to this manual process, there may be some inconsistencies in the datasets. Please <a href=\"contact\">contact us</a> if you come across any errors in the data, and please be advised that the onus is on the website user to do due diligence and further research to support any findings gleaned from analysing these datasets. Please see our <a href=\"policy\">policy page</a> for more information."
+msgstr "به دلیل این فرآیند دستی، امکان وجود تناقضات در این مجموعه داده‌ها وجود دارد. اگر با <a href=\"contact\">این خطاها</a> برخورد کردید، لطفا با ما تماس بگیرید. و در نظر داشته باشید که تلاش برای تحقیق بیشتر در جهت یافتن اطلاعات تکمیلی برای تصدیق یافته‌های بر مبنای این مجموعه داده‌ها بر عهده خود کاربر وبسایت است. برای اطلاعات بیشتر لطفا <a href=\"policy\">صفحه مقررات<a> را ببینید."
