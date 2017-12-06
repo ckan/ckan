@@ -17,7 +17,7 @@
     {% set truncate_title = truncate_title or 80 %}
     {% set title = package.title_translated[h.lang()] or package.title or package.name %}
     {% set notes = h.markdown_extract(package.notes_translated[h.lang()], extract_length=truncate) %}
-    {% set publisher = h.markdown_extract(package.publisher[h.lang()], extract_length=truncate) %}
+    {% set publisher = package.publisher[h.lang()] %}
     
     {% block package_item %}
       <li class="{{ item_class or "dataset-item" }}">
@@ -53,7 +53,7 @@
             {% endblock %}
             {% block notes %}
               {% if notes %}
-                <div>{{ notes|urlize }}</div>
+                <div>{{ publisher|urlize }}</div>
               {% else %}
                 <p class="empty">{{ _("This dataset has no description") }}</p>
               {% endif %}
