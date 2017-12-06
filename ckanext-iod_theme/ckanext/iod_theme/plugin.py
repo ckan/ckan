@@ -197,6 +197,9 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
     # IFacets
     def dataset_facets(self, facets_dict, package_type):
         facets_dict['vocab_geographic_strings'] = toolkit._('Geographic Scope')
+        facets_dict.pop('vocab_geographic_strings')
+        facets_dict['organization'] = toolkit._('Organizations')
+        facets_dict.pop('organization')
         return facets_dict
 
 
