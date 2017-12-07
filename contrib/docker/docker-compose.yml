@@ -3,8 +3,6 @@
 version: "3"
 
 volumes:
-  ckan_config:
-  ckan_home:
   ckan_storage:
   pg_data:
 
@@ -34,8 +32,6 @@ services:
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
 
     volumes:
-      - ckan_config:/etc/ckan
-      - ckan_home:/usr/lib/ckan
       - ckan_storage:/var/lib/ckan
 
   datapusher:
