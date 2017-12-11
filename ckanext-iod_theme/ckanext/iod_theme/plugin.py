@@ -202,5 +202,15 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
         facets_dict.pop('organization')
         return facets_dict
 
+    def group_facets(self, facets_dict, group_type, package_type):
+        facets_dict['organization'] = toolkit._('Organizations')
+        facets_dict.pop('organization')
+        return facets_dict
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        facets_dict['organization'] = toolkit._('Organizations')
+        facets_dict.pop('organization')
+        return facets_dict
+
 
 
