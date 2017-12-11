@@ -53,9 +53,9 @@
             {% endblock %}
             {% block publisher %}
               {% if publisher %}
-                <div>{{ publisher }}</div>
+                <div>{{ package.publisher }}</div>
               {% else %}
-                <p class="empty">{{ package }}</p>
+                <p class="empty">{{ _("This dataset has no publisher") }}</p>
               {% endif %}
             {% endblock %}
           </div>
