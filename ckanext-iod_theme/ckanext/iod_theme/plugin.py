@@ -196,20 +196,24 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
 
     # IFacets
     def dataset_facets(self, facets_dict, package_type):
-        facets_dict['vocab_geographic_strings'] = toolkit._('Geographic Scope')
-        facets_dict.pop('vocab_geographic_strings')
         facets_dict['organization'] = toolkit._('Organizations')
         facets_dict.pop('organization')
+        facets_dict['license_id'] = toolkit._('Licenses')
+        facets_dict.pop('license_id')
         return facets_dict
 
     def group_facets(self, facets_dict, group_type, package_type):
         facets_dict['organization'] = toolkit._('Organizations')
         facets_dict.pop('organization')
+        facets_dict['license_id'] = toolkit._('Licenses')
+        facets_dict.pop('license_id')
         return facets_dict
 
     def organization_facets(self, facets_dict, organization_type, package_type):
         facets_dict['organization'] = toolkit._('Organizations')
         facets_dict.pop('organization')
+        facets_dict['license_id'] = toolkit._('Licenses')
+        facets_dict.pop('license_id')
         return facets_dict
 
 
