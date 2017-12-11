@@ -141,11 +141,6 @@ blockquote:lang(fa_IR) {
   left: 15px;
 }
 
-.homepage:lang(fa_IR) .stats ul li {
-  width: 50%;
-  float: right;
-}
-
 .toolbar:lang(fa_IR) .breadcrumb {
   float: right;
 }
