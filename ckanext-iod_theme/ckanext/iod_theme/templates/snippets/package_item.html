@@ -55,7 +55,7 @@
               {% if publisher %}
                 <div>{{ publisher }}</div>
               {% else %}
-                <p class="empty">{{ package.publisher }}</p>
+                <p class="empty">{{ package.publisher['en'] }}</p>
               {% endif %}
             {% endblock %}
           </div>
