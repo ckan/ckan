@@ -19,7 +19,7 @@ connection, the Solr server URL, etc. Sometimes it can be useful to define them 
 automate and orchestrate deployments without having to first modify the `CKAN configuration file`_.
 
 These options are only read at startup time to update the ``config`` object used by CKAN,
-but they won't we accessed any more during the lifetime of the application.
+but they won't be accessed any more during the lifetime of the application.
 
 CKAN environment variables names match the options in the configuration file, but they are always uppercase
 and prefixed with `CKAN_` (this prefix is added even if
