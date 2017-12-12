@@ -57,7 +57,6 @@ def cli(file, sheet, remote, ownerorg, apikey):
         dataset['date_end_iranian'] = h.strftime(row[9].value, 'date end iranian', idx)
         dataset['publisher'] = row[10].value
         dataset['publisher_url'] = h.validate_url(row[11].value, idx)
-        dataset['geographic_string'] = h.parse_string_to_array(row[12].value)
         dataset['methodology'] = h.validate_not_empty(row[13].value, 'methodology', idx)
         dataset['license_id'] = h.validate_not_empty(row[14].value, 'license_id', idx)
 
