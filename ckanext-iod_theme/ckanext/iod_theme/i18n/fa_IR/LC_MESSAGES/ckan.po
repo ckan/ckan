@@ -3,11 +3,11 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-10-05 18:33+0100\n"
-"PO-Revision-Date: 2017-12-10 23:44+0000\n"
+"PO-Revision-Date: 2017-12-12 17:10+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.5\n"
+"X-Generator: Poedit 2.0.3\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa\n"
@@ -1669,8 +1669,12 @@ msgid "CKAN Association"
 msgstr "انجمن CKAN"
 
 #: ckan/templates/footer.html:24
-msgid "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
-msgstr "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
+msgid "Powered by"
+msgstr "طراحی شده توسط"
+
+#: ckan/templates/footer.html:24
+msgid "Site by"
+msgstr "سایت توسط"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
@@ -1770,11 +1774,11 @@ msgstr "گزینه‌های پیکره‌بندی CKAN"
 
 #: ckan/templates/admin/config.html:34
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance It appears in various places throughout CKAN.</p> <p><strong>Style:</strong> Choose from a list of simple variations of the main colour scheme to get a very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This is the logo that appears in the header of all the CKAN instance templates.</p> <p><strong>About:</strong> This text will appear on this CKAN instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> <p><strong>Custom CSS:</strong> This is a block of CSS that appears in <code>&lt;head&gt;</code> tag of every page. If "
-"you wish to customize the templates more fully we recommend <a href=\"%(docs_url)s\" target=\"_blank\">reading the documentation</a>.</p> <p><strong>Homepage:</strong> This is for choosing a predefined layout for the modules that appear on your homepage.</p> "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It appears in various places throughout CKAN.</p> <p><strong>Style:</strong> Choose from a list of simple variations of the main colour scheme to get a very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This is the logo that appears in the header of all the CKAN instance templates.</p> <p><strong>About:</strong> This text will appear on this CKAN instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> <p><strong>Custom CSS:</strong> This is a block of CSS that appears in <code>&lt;head&gt;</code> tag of every page. If you wish to customize the templates more fully we recommend <a "
+"href=\"%(docs_url)s\" target=\"_blank\">reading the documentation</a>.</p> <p><strong>Homepage:</strong> This is for choosing a predefined layout for the modules that appear on your homepage.</p> "
 msgstr ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance It appears in various places throughout CKAN.</p> <p><strong>Style:</strong> Choose from a list of simple variations of the main colour scheme to get a very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This is the logo that appears in the header of all the CKAN instance templates.</p> <p><strong>About:</strong> This text will appear on this CKAN instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> <p><strong>Custom CSS:</strong> This is a block of CSS that appears in <code>&lt;head&gt;</code> tag of every page. If "
-"you wish to customize the templates more fully we recommend <a href=\"%(docs_url)s\" target=\"_blank\">reading the documentation</a>.</p> <p><strong>Homepage:</strong> This is for choosing a predefined layout for the modules that appear on your homepage.</p> "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It appears in various places throughout CKAN.</p> <p><strong>Style:</strong> Choose from a list of simple variations of the main colour scheme to get a very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This is the logo that appears in the header of all the CKAN instance templates.</p> <p><strong>About:</strong> This text will appear on this CKAN instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> <p><strong>Custom CSS:</strong> This is a block of CSS that appears in <code>&lt;head&gt;</code> tag of every page. If you wish to customize the templates more fully we recommend <a "
+"href=\"%(docs_url)s\" target=\"_blank\">reading the documentation</a>.</p> <p><strong>Homepage:</strong> This is for choosing a predefined layout for the modules that appear on your homepage.</p> "
 
 #: ckan%2Ftemplates%2Fadmin%2Fconfirm_reset.html%3A3+ckan%2Ftemplates%2Fadmin%2Fconfirm_reset.html%3A10
 msgid "Confirm Reset"
@@ -2217,7 +2221,7 @@ msgid "Popular tags"
 msgstr "برچسب‌های پرطرفدار"
 
 #: ckan/templates/home/snippets/stats.html:5
-msgid "{0} statistics"
+msgid "{0} Statistics"
 msgstr "{0} آمارها"
 
 #: ckan/templates/home/snippets/stats.html:11
@@ -3710,11 +3714,11 @@ msgstr "دسترسی آسان به داده "
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
-" <p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN is a complete out-of-the-box software solution that makes data accessible and usable – by providing tools to streamline publishing, sharing, finding and using data (including storage of data and provision of robust data APIs). CKAN is aimed at data publishers (national and regional governments, companies and organizations) wanting to make their data open and available.</p> <p>CKAN is used by governments and user groups worldwide and powers a variety of official and community data portals including portals for local, national and international government, such as the UK’s <a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a href=\"http://publicdata.eu/"
-"\">publicdata.eu</a>, the Brazilian <a href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland government portals, as well as city and municipal sites in the US, UK, Argentina, Finland and elsewhere.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features overview: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+" <p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN is a complete out-of-the-box software solution that makes data accessible and usable – by providing tools to streamline publishing, sharing, finding and using data (including storage of data and provision of robust data APIs). CKAN is aimed at data publishers (national and regional governments, companies and organizations) wanting to make their data open and available.</p> <p>CKAN is used by governments and user groups worldwide and powers a variety of official and community data portals including portals for local, national and international government, such as the UK’s <a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a href=\"http://dados.gov.br/"
+"\">dados.gov.br</a>, Dutch and Netherland government portals, as well as city and municipal sites in the US, UK, Argentina, Finland and elsewhere.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features overview: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 msgstr ""
-"<p> CKAN پیشروترین پلتفرم پورتال داده متن‌باز جهان است.</p> <p>CKAN یک نرم‌افزار کاملا نوآور است که دسترسی و استفاده از داده را با ارائه ابزارهایی برای انتشار آنلاین، به اشتراک گذاری، پیدا کردن و استفاده از داده (از جمله ذخیره داده و تدارک APIهای قدرتمند داده) تسهیل می‌کند.</p><p> استفاده‌کنندگان CKAN در وهله اول آن دسته از منتشرکنندگان داده (نهادهای حکومتی ملی و محلی، شرکت‌ها و سازمان‌ها) هستند که می‌خواهند داده‌هایشان را بدون محدودیت در دسترس عموم بگذارند. CKAN در سراسر جهان مورد استفاده دولت‌ها و گروه‌های کاربری قرار می‌گیرد، و طیفی از پورتال‌های داده رسمی و غیرروسمی را در اختیار نهادهای حکومتی محلی، ملی و بین‌المللی می‌گذارد. برای مثال می‌توان به http://data.gov.uk در بریتانیا و http://publicdata.eu برای اتحادیه اروپا، http://dados.gov.br در برزیل، و پورتال دولت "
-"هلند، و همچنین سایت‌های شهرداری‌ها در ایالات متحده، بریتانیا، آرژانتین، فنلاند و کشورهای دیگر اشاره کرد. </p>"
+"<p> CKAN پیشروترین پلتفرم پورتال داده متن‌باز جهان است.</p> <p>CKAN یک نرم‌افزار کاملا نوآور است که دسترسی و استفاده از داده را با ارائه ابزارهایی برای انتشار آنلاین، به اشتراک گذاری، پیدا کردن و استفاده از داده (از جمله ذخیره داده و تدارک APIهای قدرتمند داده) تسهیل می‌کند.</p><p> استفاده‌کنندگان CKAN در وهله اول آن دسته از منتشرکنندگان داده (نهادهای حکومتی ملی و محلی، شرکت‌ها و سازمان‌ها) هستند که می‌خواهند داده‌هایشان را بدون محدودیت در دسترس عموم بگذارند. CKAN در سراسر جهان مورد استفاده دولت‌ها و گروه‌های کاربری قرار می‌گیرد، و طیفی از پورتال‌های داده رسمی و غیرروسمی را در اختیار نهادهای حکومتی محلی، ملی و بین‌المللی می‌گذارد. برای مثال می‌توان به http://data.gov.uk در بریتانیا و http://publicdata.eu برای اتحادیه اروپا، http://dados.gov.br در برزیل، و پورتال دولت هلند، و همچنین سایت‌های شهرداری‌ها در ایالات متحده، بریتانیا، "
+"آرژانتین، فنلاند و کشورهای دیگر اشاره کرد. </p>"
 
 #: ckanext-iod_theme/ckanext/iod_theme/templates/home/about_text.html:1
 msgid "Who are we?"
@@ -3807,3 +3811,39 @@ msgstr "به کاربران سایت توصیه می‌شود که برای تک
 #: ckanext-iod_theme/ckanext/iod_theme/templates/home/policty_text.html:13
 msgid "* Please note that all the years in the documents and datasets are in Persian Jalali Calendar and for English section of the website we convert all years to the Gregorian Calendar. As the Persian Calendar and the Gregorian Calendar do not match completely, we choose a year in Gregorian calendar that has over six month in common with the Persian calendar."
 msgstr "* لطفا توجه داشته باشید که تاریخ‌‌ سال‌ها در تمامی اسناد و مجموعه‌ داده‌ها براساس تقویم خورشیدی ایران است که در نسخه انگلیسی به میلادی تبدیل شده‌اند. از آنجا که تقویم میلادی و خورشیدی کاملا بر هم منطبق نیستند، ما برای سال میلادی، سالی را انتخاب کرده‌ایم که بیشتر از شش ماه آن در سال خورشیدی مورد نظر قرار گرفته باشد."
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/snippets/stats.html:17
+msgid "theme"
+msgstr "حوزه"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/snippets/stats.html:17
+msgid "themes"
+msgstr "حوزه‌‌ها"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/snippets/stats.html:17
+msgid "Theme"
+msgstr "حوزه"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/snippets/stats.html:17
+msgid "Themes"
+msgstr "حوزه‌‌ها"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/layout3.html:26
+msgid "Use Cases"
+msgstr "کاربرد داده"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/layout3.html:26
+msgid "Use cases"
+msgstr "کاربرد داده"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/home/layout3.html:26
+msgid "use cases"
+msgstr "کاربرد داده"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/header.html:101
+msgid "Policy"
+msgstr "مقررات"
+
+#: ckanext-iod_theme/ckanext/iod_theme/templates/header.html:104
+msgid "Contact"
+msgstr "تماس"
