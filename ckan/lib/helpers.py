@@ -753,9 +753,10 @@ def nav_link(text, *args, **kwargs):
 def nav_link_flask(text, *args, **kwargs):
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
-    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    blueprint, endpoint = args[0].split('.')  #this should be reviewed
     if args:
         kwargs['controller'] = blueprint or None
+        kwargs['action'] = endpoint or None
     named_route = kwargs.pop('named_route', '')
     if kwargs.pop('condition', True):
         if named_route:
