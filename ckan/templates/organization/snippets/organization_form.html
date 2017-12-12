@@ -10,8 +10,8 @@
     {{ form.input('title', label=_('Name'), id='field-name', placeholder=_('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
     {# Perhaps these should be moved into the controller? #}
-    {% set prefix = h.url_for(controller='organization', action='read', id='') %}
-    {% set domain = h.url_for(controller='organization', action='read', id='', qualified=true) %}
+    {% set prefix = h.url_for('organization.read', id='') %}
+    {% set domain = h.url_for('organization.read', id='', qualified=true) %}
     {% set domain = domain|replace("http://", "")|replace("https://", "") %}
     {% set attrs = {'data-module': 'slug-preview-slug', 'class': 'form-control input-sm', 'data-module-prefix': domain, 'data-module-placeholder': '<organization>'} %}
 
