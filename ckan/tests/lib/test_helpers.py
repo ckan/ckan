@@ -358,6 +358,104 @@ class TestHelpersRenderMarkdown(object):
         output = u'<p><img alt="image" src="/image.png"></p>'
         eq_(h.render_markdown(data), output)
 
+    def test_bold(self):
+        data = u'Something **important**'
+        output = u'<p>Something <strong>important</strong></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_italics(self):
+        data = u'Something *important*'
+        output = u'<p>Something <em>important</em></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_link(self):
+        """Asserts links like 'tag:test-tag' work"""
+        data = 'tag:test-tag foobar'
+        output = '<p><a href="/tag/test-tag">tag:test-tag</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_linked_with_quotes(self):
+        """Asserts links like 'tag:"test-tag"' work"""
+        data = 'tag:"test-tag" foobar'
+        output = '<p><a href="/tag/test-tag">tag:&#34;test-tag&#34;</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_linked_with_quotes_and_space(self):
+        """Asserts links like 'tag:"test tag"' work"""
+        data = 'tag:"test tag" foobar'
+        output = '<p><a href="/tag/test%20tag">tag:&#34;test tag&#34;</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_with_no_opening_quote_only_matches_single_word(self):
+        """Asserts that without an opening quote only one word is matched"""
+        data = 'tag:test tag" foobar'  # should match 'tag:test'
+        output = '<p><a href="/tag/test">tag:test</a> tag" foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_with_no_opening_quote_wont_match_the_closing_quote(self):
+        """Asserts that 'tag:test" tag' is matched, but to 'tag:test'"""
+        data = 'tag:test" foobar'  # should match 'tag:test'
+        output = '<p><a href="/tag/test">tag:test</a>" foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_with_no_closing_quote_does_not_match(self):
+        """Asserts that without an opening quote only one word is matched"""
+        data = 'tag:"test tag foobar'
+        out = h.render_markdown(data)
+        assert "<a href" not in out
+
+    def test_tag_names_match_simple_punctuation(self):
+        """Asserts punctuation and capital letters are matched in the tag name"""
+        data = 'tag:"Test- _." foobar'
+        output = '<p><a href="/tag/Test-%20_.">tag:&#34;Test- _.&#34;</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_tag_names_do_not_match_commas(self):
+        """Asserts commas don't get matched as part of a tag name"""
+        data = 'tag:Test,tag foobar'
+        output = '<p><a href="/tag/Test">tag:Test</a>,tag foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_tag_names_dont_match_non_space_whitespace(self):
+        """Asserts that the only piece of whitespace matched in a tagname is a space"""
+        whitespace_characters = '\t\n\r\f\v'
+        for ch in whitespace_characters:
+            data = 'tag:Bad' + ch + 'space'
+            output = '<p><a href="/tag/Bad">tag:Bad</a>'
+            result = h.render_markdown(data)
+            assert output in result, '\nGot: %s\nWanted: %s' % (result, output)
+
+    def test_tag_names_with_unicode_alphanumeric(self):
+        """Asserts that unicode alphanumeric characters are captured"""
+        data = u'tag:"Japanese katakana \u30a1" blah'
+        output = u'<p><a href="/tag/Japanese%20katakana%20%E3%82%A1">tag:&#34;Japanese katakana \u30a1&#34;</a> blah</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_normal_link(self):
+        data = 'http://somelink/'
+        output = '<p><a href="http://somelink/" target="_blank" rel="nofollow">http://somelink/</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_normal_link_with_anchor(self):
+        data = 'http://somelink.com/#anchor'
+        output = '<p><a href="http://somelink.com/#anchor" target="_blank" rel="nofollow">http://somelink.com/#anchor</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_auto_link(self):
+        data = 'http://somelink.com'
+        output = '<p><a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_auto_link_after_whitespace(self):
+        data = 'go to http://somelink.com'
+        output = '<p>go to <a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_malformed_link_1(self):
+        data = u'<a href=\u201dsomelink\u201d>somelink</a>'
+        output = '<p>somelink</p>'
+        eq_(h.render_markdown(data), output)
+
 
 class TestHelpersRemoveLineBreaks(object):
 
