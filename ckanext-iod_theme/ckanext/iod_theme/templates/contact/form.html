@@ -2,14 +2,14 @@
 
 {% block breadcrumb_content %}
     {{ super() }}
-  <li class="active"><a href="{{ h.url_for('contact_form') }}">Contact</a></li>
+  <li class="active"><a href="{{ h.url_for('contact_form') }}">{{ _('Contact') }}</a></li>
 
 {% endblock %}
 
 {% block primary_content %}
   <article class="module">
     <div class="module-content">
-      <h1 class="page-heading">Contact us</h1>
+      <h1 class="page-heading">{% trans %}Contact us{% endtrans %}</h1>
 
         {% block contact_form_content %}
             {% include "contact/snippets/form.html" %}
@@ -26,9 +26,7 @@
     {{ _('Contact Us') }}
   </h2>
   <div class="module-content">
-    <p>
-      Questions? Comments? We are always glad to hear from you!
-    </p>
+    <p>{% trans %}Questions? Comments? We are always glad to hear from you!{% endtrans %}</p>
   </div>
 </div>
 {% endblock %}
