@@ -57,48 +57,48 @@ def cli(file, sheet, remote, ownerorg, apikey):
         dataset['date_end_iranian'] = h.strftime(row[9].value, 'date end iranian', idx)
         dataset['publisher'] = row[10].value
         dataset['publisher_url'] = h.validate_url(row[11].value, idx)
-        dataset['methodology'] = h.validate_not_empty(row[13].value, 'methodology', idx)
-        dataset['license_id'] = h.validate_not_empty(row[14].value, 'license_id', idx)
+        dataset['methodology'] = h.validate_not_empty(row[12].value, 'methodology', idx)
+        dataset['license_id'] = h.validate_not_empty(row[13].value, 'license_id', idx)
 
         dataset['resources'] = []
         resource_en = {}
-        resource_en['url'] = h.validate_url(row[15].value, idx, True)
+        resource_en['url'] = h.validate_url(row[14].value, idx, True)
 
         notes_translated_en = {}
-        notes_translated_en['en'] = row[17].value if row[17].value else ''
-        notes_translated_en['fa_IR'] = row[18].value if row[18].value else ''
+        notes_translated_en['en'] = row[16].value if row[16].value else ''
+        notes_translated_en['fa_IR'] = row[17].value if row[17].value else ''
         resource_en['notes_translated'] = notes_translated_en
 
-        resource_en['publisher'] = row[19].value
-        resource_en['publisher_url'] = row[20].value
+        resource_en['publisher'] = row[18].value
+        resource_en['publisher_url'] = row[19].value
 
         source_translated_en = {}
-        source_translated_en['en'] = row[21].value
-        source_translated_en['fa_IR'] = row[22].value
+        source_translated_en['en'] = row[20].value
+        source_translated_en['fa_IR'] = row[21].value
         resource_en['source_translated'] = source_translated_en
         resource_en['language'] = 'English'
-        resource_en['cleaning_stage'] = h.validate_not_empty(row[24].value, 'resource cleaning stage', idx)
-        resource_en['name'] = h.validate_not_empty(row[30].value, 'resource name', idx) + 'en'
+        resource_en['cleaning_stage'] = h.validate_not_empty(row[23].value, 'resource cleaning stage', idx)
+        resource_en['name'] = h.validate_not_empty(row[29].value, 'resource name', idx) + 'en'
         dataset['resources'].append(resource_en)
 
         resource_fa = {}
-        resource_fa['url'] = h.validate_url(row[16].value, idx, True)
+        resource_fa['url'] = h.validate_url(row[15].value, idx, True)
 
         notes_translated_fa = {}
-        notes_translated_fa['en'] = row[17].value if row[17].value else ''
-        notes_translated_fa['fa_IR'] = row[18].value if row[18].value else ''
+        notes_translated_fa['en'] = row[16].value if row[16].value else ''
+        notes_translated_fa['fa_IR'] = row[17].value if row[17].value else ''
         resource_fa['notes_translated'] = notes_translated_fa
 
-        resource_fa['publisher'] = row[19].value
-        resource_fa['publisher_url'] = row[20].value
+        resource_fa['publisher'] = row[18].value
+        resource_fa['publisher_url'] = row[19].value
 
         source_translated_fa = {}
-        source_translated_fa['en'] = row[21].value
-        source_translated_fa['fa_IR'] = row[22].value
+        source_translated_fa['en'] = row[20].value
+        source_translated_fa['fa_IR'] = row[21].value
         resource_fa['source_translated'] = source_translated_fa
         resource_fa['language'] = 'Farsi'
-        resource_fa['cleaning_stage'] = h.validate_not_empty(row[24].value, 'resource cleaning stage', idx)
-        resource_fa['name'] = h.validate_not_empty(row[30].value, 'resource name', idx) + 'fa'
+        resource_fa['cleaning_stage'] = h.validate_not_empty(row[23].value, 'resource cleaning stage', idx)
+        resource_fa['name'] = h.validate_not_empty(row[29].value, 'resource name', idx) + 'fa'
         dataset['resources'].append(resource_fa)
         dataset['groups'] =  h.themes_list_to_list_of_dicts(h.parse_string_to_array(row[26].value))
 
