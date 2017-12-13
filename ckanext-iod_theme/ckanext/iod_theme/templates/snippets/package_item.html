@@ -18,6 +18,7 @@
     {% set title = package.title_translated[h.lang()] or package.title or package.name %}
     {% set notes = h.markdown_extract(package.notes_translated[h.lang()], extract_length=truncate) %}
     {% set publisher = package.publisher[h.lang()] %}
+    {% set fields = h.scheming_get_dataset_schema('dataset')['dataset_fields'] %}
     
     {% block package_item %}
       <li class="{{ item_class or "dataset-item" }}">
@@ -53,9 +54,11 @@
             {% endblock %}
             {% block publisher %}
               {% if publisher %}
-                <div>{{ package.publisher }}</div>
+                {% set field = h.scheming_field_by_name(fields, 'publisher') %}
+                  {% snippet 'scheming/display_snippets/select.html', field=field, data=package %}
+                  <div>{{ publisher }}</div>
               {% else %}
-                <p class="empty">{{ package.publisher }}</p>
+                <p class="empty">{{ _("This dataset has no publisher") }}</p>
               {% endif %}
             {% endblock %}
           </div>
