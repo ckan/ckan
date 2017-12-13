@@ -36,6 +36,8 @@ organization = Blueprint('organization', __name__, url_prefix=u'/organization')
 lookup_group_plugin = ckan.lib.plugins.lookup_group_plugin
 lookup_group_controller = ckan.lib.plugins.lookup_group_controller
 
+group_types = ['group']
+
 
 def _index_template(group_type):
     return lookup_group_plugin(group_type).index_template()
@@ -215,36 +217,6 @@ def index():
     templ_name = _index_template(group_type)
     vars = dict(group_type=group_type)
     return base.render(templ_name, extra_vars=vars)
-
-
-def read(id=None, limit=20):
-    group_type = _guess_group_type()
-
-    context = {
-        'model': model,
-        'session': model.Session,
-        'user': c.user,
-        'schema': _db_to_form_schema(group_type=group_type),
-        'for_view': True
-    }
-    data_dict = {'id': id, 'type': group_type}
-
-    # unicode format (decoded from utf8)
-    c.q = request.params.get('q', '')
-
-    try:
-        # Do not query for the group datasets when dictizing, as they will
-        # be ignored and get requested on the controller anyway
-        data_dict['include_datasets'] = False
-        c.group_dict = _action('group_show')(context, data_dict)
-        c.group = context['group']
-    except (NotFound, NotAuthorized):
-        base.abort(404, _('Group not found'))
-
-    _read(id, limit, group_type)
-    return base.render(
-        _read_template(c.group_dict['type']),
-        extra_vars={'group_type': group_type})
 
 
 def _read(id, limit, group_type):
@@ -468,8 +440,151 @@ def _save_new(context, group_type=None):
         return new(data_dict, errors, error_summary)
 
 
+###### INTERNAL FUNCS END ########
+
+###### VIEW FUCTIONS START #######
+
+
+# def authz(id):
+#     group = model.Group.get(id)
+#     if group is None:
+#         base.abort(404, _('Group not found'))
+#     group_type = group.type
+#     if group_type not in group_types:
+#         base.abort(404, _('Incorrect group type'))
+#     c.groupname = group.name
+#     c.grouptitle = group.display_name
+
+#     try:
+#         context = \
+#             {'model': model, 'user': c.user, 'group': group}
+#         _check_access('group_edit_permissions', context)
+#         c.authz_editable = True
+#         c.group = context['group']
+#     except NotAuthorized:
+#         c.authz_editable = False
+#     if not c.authz_editable:
+#         base.abort(403,
+#                    _('User %r not authorized to edit %s authorizations') %
+#                    (c.user, id))
+
+#     roles = _handle_update_of_authz(group)
+#     _prepare_authz_info_for_render(roles)
+#     return base.render(
+#         'group/authz.html', extra_vars={'group_type': group_type})
+
+
+def read(id=None, limit=20):
+    group_type = _guess_group_type()
+
+    context = {
+        'model': model,
+        'session': model.Session,
+        'user': c.user,
+        'schema': _db_to_form_schema(group_type=group_type),
+        'for_view': True
+    }
+    data_dict = {'id': id, 'type': group_type}
+
+    # unicode format (decoded from utf8)
+    c.q = request.params.get('q', '')
+
+    try:
+        # Do not query for the group datasets when dictizing, as they will
+        # be ignored and get requested on the controller anyway
+        data_dict['include_datasets'] = False
+        c.group_dict = _action('group_show')(context, data_dict)
+        c.group = context['group']
+    except (NotFound, NotAuthorized):
+        base.abort(404, _('Group not found'))
+
+    _read(id, limit, group_type)
+    return base.render(
+        _read_template(c.group_dict['type']),
+        extra_vars={'group_type': group_type})
+
+
+def bulk_process(id):
+    ''' Allow bulk processing of datasets for an organization.  Make
+        private/public or delete. For organization admins.'''
+
+    group_type = _guess_group_type()
+
+    # check we are org admin
+
+    context = {
+        'model': model,
+        'session': model.Session,
+        'user': c.user,
+        'schema': _db_to_form_schema(group_type=group_type),
+        'for_view': True,
+        'extras_as_string': True
+    }
+    data_dict = {'id': id, 'type': group_type}
+
+    try:
+        _check_access('bulk_update_public', context, {'org_id': id})
+        # Do not query for the group datasets when dictizing, as they will
+        # be ignored and get requested on the controller anyway
+        data_dict['include_datasets'] = False
+        c.group_dict = _action('group_show')(context, data_dict)
+        c.group = context['group']
+    except NotFound:
+        base.abort(404, _('Group not found'))
+    except NotAuthorized:
+        base.abort(403, _('User %r not authorized to edit %s') % (c.user, id))
+
+    if not c.group_dict['is_organization']:
+        # FIXME: better error
+        raise Exception('Must be an organization')
+
+    # use different form names so that ie7 can be detected
+    form_names = set(
+        ["bulk_action.public", "bulk_action.delete", "bulk_action.private"])
+    actions_in_form = set(request.params.keys())
+    actions = form_names.intersection(actions_in_form)
+    # If no action then just show the datasets
+    if not actions:
+        # unicode format (decoded from utf8)
+        limit = 500
+        _read(id, limit, group_type)
+        c.packages = c.page.items
+        return base.render(
+            _bulk_process_template(group_type),
+            extra_vars={'group_type': group_type})
+
+    # ie7 puts all buttons in form params but puts submitted one twice
+    for key, value in dict(request.params.dict_of_lists()).items():
+        if len(value) == 2:
+            action = key.split('.')[-1]
+            break
+    else:
+        # normal good browser form submission
+        action = actions.pop().split('.')[-1]
+
+    # process the action first find the datasets to perform the action on.
+    # they are prefixed by dataset_ in the form data
+    datasets = []
+    for param in request.params:
+        if param.startswith('dataset_'):
+            datasets.append(param[8:])
+
+    action_functions = {
+        'private': 'bulk_update_private',
+        'public': 'bulk_update_public',
+        'delete': 'bulk_update_delete',
+    }
+
+    data_dict = {'datasets': datasets, 'org_id': c.group_dict['id']}
+
+    try:
+        get_action(action_functions[action])(context, data_dict)
+    except NotAuthorized:
+        base.abort(403, _('Not authorized to perform bulk update'))
+    _redirect_to_this_controller(action='bulk_process', id=id)
+
+
 def new(data=None, errors=None, error_summary=None):
-    print 'HEEEEEEEEEEEEELOOOOOOOOOOOOOO'
     if data and 'type' in data:
         group_type = data['type']
     else:
@@ -602,6 +717,290 @@ def about(id):
                        extra_vars={'group_type': group_type})
 
 
+def delete(id):
+    group_type = _guess_group_type()
+    if 'cancel' in request.params:
+        _redirect_to_this_controller(action='edit', id=id)
+
+    context = {'model': model, 'session': model.Session, 'user': c.user}
+
+    try:
+        _check_access('group_delete', context, {'id': id})
+    except NotAuthorized:
+        base.abort(403, _('Unauthorized to delete group %s') % '')
+
+    try:
+        if request.method == 'POST':
+            _action('group_delete')(context, {'id': id})
+            if group_type == 'organization':
+                h.flash_notice(_('Organization has been deleted.'))
+            elif group_type == 'group':
+                h.flash_notice(_('Group has been deleted.'))
+            else:
+                h.flash_notice(
+                    _('%s has been deleted.') % _(group_type.capitalize()))
+            _redirect_to_this_controller(action='index')
+        c.group_dict = _action('group_show')(context, {'id': id})
+    except NotAuthorized:
+        base.abort(403, _('Unauthorized to delete group %s') % '')
+    except NotFound:
+        base.abort(404, _('Group not found'))
+    except ValidationError as e:
+        h.flash_error(e.error_dict['message'])
+        h.redirect_to(controller='organization', action='read', id=id)
+    return _render_template('group/confirm_delete.html', group_type)
+
+
+def members(id):
+    group_type = _guess_group_type()
+
+    context = {'model': model, 'session': model.Session, 'user': c.user}
+
+    try:
+        data_dict = {'id': id}
+        check_access('group_edit_permissions', context, data_dict)
+        c.members = _action('member_list')(context, {
+            'id': id,
+            'object_type': 'user'
+        })
+        data_dict['include_datasets'] = False
+        c.group_dict = _action('group_show')(context, data_dict)
+    except NotFound:
+        base.abort(404, _('Group not found'))
+    except NotAuthorized:
+        base.abort(403,
+                   _('User %r not authorized to edit members of %s') % (c.user,
+                                                                        id))
+
+    return _render_template('group/members.html', group_type)
+
+
+def member_new(id):
+    group_type = _guess_group_type()
+
+    context = {'model': model, 'session': model.Session, 'user': c.user}
+    try:
+        _check_access('group_member_create', context, {'id': id})
+    except NotAuthorized:
+        base.abort(403, _('Unauthorized to create group %s members') % '')
+
+    try:
+        data_dict = {'id': id}
+        data_dict['include_datasets'] = False
+        c.group_dict = _action('group_show')(context, data_dict)
+        c.roles = _action('member_roles_list')(context, {
+            'group_type': group_type
+        })
+
+        if request.method == 'POST':
+            data_dict = clean_dict(
+                dict_fns.unflatten(tuplize_dict(parse_params(request.params))))
+            data_dict['id'] = id
+
+            email = data_dict.get('email')
+
+            if email:
+                user_data_dict = {
+                    'email': email,
+                    'group_id': data_dict['id'],
+                    'role': data_dict['role']
+                }
+                del data_dict['email']
+                user_dict = _action('user_invite')(context, user_data_dict)
+                data_dict['username'] = user_dict['name']
+
+            c.group_dict = _action('group_member_create')(context, data_dict)
+
+            _redirect_to_this_controller(action='members', id=id)
+        else:
+            user = request.params.get('user')
+            if user:
+                c.user_dict = \
+                    get_action('user_show')(context, {'id': user})
+                c.user_role = \
+                    authz.users_role_for_group_or_org(id, user) or 'member'
+            else:
+                c.user_role = 'member'
+    except NotAuthorized:
+        base.abort(403, _('Unauthorized to add member to group %s') % '')
+    except NotFound:
+        base.abort(404, _('Group not found'))
+    except ValidationError, e:
+        h.flash_error(e.error_summary)
+    return _render_template('group/member_new.html', group_type)
+
+
+def member_delete(id):
+    group_type = _guess_group_type()
+
+    if 'cancel' in request.params:
+        _redirect_to_this_controller(action='members', id=id)
+
+    context = {'model': model, 'session': model.Session, 'user': c.user}
+
+    try:
+        _check_access('group_member_delete', context, {'id': id})
+    except NotAuthorized:
+        base.abort(403, _('Unauthorized to delete group %s members') % '')
+
+    try:
+        user_id = request.params.get('user')
+        if request.method == 'POST':
+            _action('group_member_delete')(context, {
+                'id': id,
+                'user_id': user_id
+            })
+            h.flash_notice(_('Group member has been deleted.'))
+            _redirect_to_this_controller(action='members', id=id)
+        c.user_dict = _action('user_show')(context, {'id': user_id})
+        c.user_id = user_id
+        c.group_id = id
+    except NotAuthorized:
+        base.abort(403, _('Unauthorized to delete group %s members') % '')
+    except NotFound:
+        base.abort(404, _('Group not found'))
+    return _render_template('group/confirm_delete_member.html', group_type)
+
+
+def history(id):
+    group_type = _guess_group_type()
+    if 'diff' in request.params or 'selected1' in request.params:
+        try:
+            params = {
+                'id': request.params.getone('group_name'),
+                'diff': request.params.getone('selected1'),
+                'oldid': request.params.getone('selected2'),
+            }
+        except KeyError:
+            if 'group_name' in dict(request.params):
+                id = request.params.getone('group_name')
+            c.error = \
+                _('Select two revisions before doing the comparison.')
+        else:
+            params['diff_entity'] = 'group'
+            h.redirect_to(controller='revision', action='diff', **params)
+
+    context = {
+        'model': model,
+        'session': model.Session,
+        'user': c.user,
+        'schema': _db_to_form_schema()
+    }
+    data_dict = {'id': id}
+    try:
+        c.group_dict = _action('group_show')(context, data_dict)
+        c.group_revisions = _action('group_revision_list')(context, data_dict)
+        # TODO: remove
+        # Still necessary for the authz check in group/layout.html
+        c.group = context['group']
+    except (NotFound, NotAuthorized):
+        base.abort(404, _('Group not found'))
+
+    format = request.params.get('format', '')
+    if format == 'atom':
+        # Generate and return Atom 1.0 document.
+        from webhelpers.feedgenerator import Atom1Feed
+        feed = Atom1Feed(
+            title=_(u'CKAN Group Revision History'),
+            link=_url_for_this_controller(
+                action='read', id=c.group_dict['name']),
+            description=_(u'Recent changes to CKAN Group: ') +
+            c.group_dict['display_name'],
+            language=unicode(get_lang()), )
+        for revision_dict in c.group_revisions:
+            revision_date = h.date_str_to_datetime(revision_dict['timestamp'])
+            try:
+                dayHorizon = int(request.params.get('days'))
+            except:
+                dayHorizon = 30
+            dayAge = (datetime.datetime.now() - revision_date).days
+            if dayAge >= dayHorizon:
+                break
+            if revision_dict['message']:
+                item_title = u'%s' % revision_dict['message'].\
+                    split('\n')[0]
+            else:
+                item_title = u'%s' % revision_dict['id']
+            item_link = h.url_for(
+                controller='revision', action='read', id=revision_dict['id'])
+            item_description = _('Log message: ')
+            item_description += '%s' % (revision_dict['message'] or '')
+            item_author_name = revision_dict['author']
+            item_pubdate = revision_date
+            feed.add_item(
+                title=item_title,
+                link=item_link,
+                description=item_description,
+                author_name=item_author_name,
+                pubdate=item_pubdate, )
+        feed.content_type = 'application/atom+xml'
+        return feed.writeString('utf-8')
+    return base.render(_history_template(group_type),
+                       extra_vars={'group_type': group_type})
+
+
+def follow(id):
+        '''Start following this group.'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user}
+        data_dict = {'id': id}
+        try:
+            get_action('follow_group')(context, data_dict)
+            group_dict = get_action('group_show')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(
+                group_dict['title']))
+        except ValidationError as e:
+            error_message = (e.message or e.error_summary
+                             or e.error_dict)
+            h.flash_error(error_message)
+        except NotAuthorized as e:
+            h.flash_error(e.message)
+        h.redirect_to('group.read', id=id)
+
+
+def unfollow(self, id):
+    '''Stop following this group.'''
+    context = {'model': model,
+                'session': model.Session,
+                'user': c.user}
+    data_dict = {'id': id}
+    try:
+        get_action('unfollow_group')(context, data_dict)
+        group_dict = get_action('group_show')(context, data_dict)
+        h.flash_success(_("You are no longer following {0}").format(
+            group_dict['title']))
+    except ValidationError as e:
+        error_message = (e.message or e.error_summary or e.error_dict)
+        h.flash_error(error_message)
+    except (NotFound, NotAuthorized) as e:
+        error_message = e.message
+        h.flash_error(error_message)
+    h.redirect_to(controller='group', action='read', id=id)
+
+
+def followers(id):
+        group_type = _guess_group_type()
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user}
+        c.group_dict = _get_group_dict(id)
+        try:
+            c.followers = \
+                get_action('group_follower_list')(context, {'id': id})
+        except NotAuthorized:
+            base.abort(403, _('Unauthorized to view followers %s') % '')
+        return base.render('group/followers.html', 
+                           extra_vars={'group_type': group_type})
+
+
+def admins(id):
+    group_type = _guess_group_type()
+    c.group_dict = _get_group_dict(id)
+    c.admins = authz.get_group_or_org_admin_ids(id)
+    return base.render(_admins_template(c.group_dict['type']),
+                       extra_vars={'group_type': group_type})
+
+
 # Routing
 group.add_url_rule(u'/', methods=[u'GET'], view_func=index)
 group.add_url_rule(u'/new', methods=[u'GET', u'POST'], view_func=new)
@@ -614,6 +1013,6 @@ group.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
 organization.add_url_rule(u'/', methods=[u'GET'], view_func=index)
 organization.add_url_rule(u'/new', methods=[u'GET', u'POST'], view_func=new)
 organization.add_url_rule(u'/<id>', methods=[u'GET'], view_func=read)
-organization.add_url_rule(u'/activity/<id>/<offset>', methods=[u'GET'], 
+organization.add_url_rule(u'/activity/<id>/<offset>', methods=[u'GET'],
                           view_func=activity)
 organization.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
