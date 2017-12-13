@@ -902,6 +902,13 @@
           }
         },
         {
+          "value": "Mashhad",
+          "label": {
+            "en": "Mashhad",
+            "fa_IR": "مشهد"
+          }
+        },
+        {
           "value": "masters",
           "label": {
             "en": "masters",
@@ -983,6 +990,13 @@
           "label": {
             "en": "Mostazafan foundation",
             "fa_IR": "بنیاد مستضعفان"
+          }
+        },
+        {
+          "value": "municipality",
+          "label": {
+            "en": "municipality",
+            "fa_IR": "شهرداری"
           }
         },
         {
@@ -1406,6 +1420,13 @@
           }
         },
         {
+          "value": "Shiraz",
+          "label": {
+            "en": "Shiraz",
+            "fa_IR": "شیراز"
+          }
+        },
+        {
           "value": "Sina bank",
           "label": {
             "en": "Sina bank",
@@ -1723,6 +1744,13 @@
            "fa_IR": "سازمان مدیریت و برنامه‌ریزی کشور"
          }
         },
+        {
+          "value": "Mashhad municipality",
+          "label": {
+            "en": "Mashhad municipality",
+            "fa_IR": "شهرداری مشهد"
+          }
+         },
         {
          "value": "Ministry of Agriculture-Jahad",
          "label": {
@@ -2238,6 +2266,13 @@
            "fa_IR": "سازمان کشورهای صادر کننده نفت"
          }
         },
+        {
+          "value": "Shiraz municipality",
+          "label": {
+            "en": "Shiraz municipality",
+            "fa_IR": "شهرداری شیراز"
+          }
+         },
         {
          "value": "Statistical Centre of Iran",
          "label": {
