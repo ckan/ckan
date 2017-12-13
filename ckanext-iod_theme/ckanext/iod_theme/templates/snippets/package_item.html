@@ -17,6 +17,7 @@
     {% set truncate_title = truncate_title or 80 %}
     {% set title = package.title_translated[h.lang()] or package.title or package.name %}
     {% set notes = h.markdown_extract(package.notes_translated[h.lang()], extract_length=truncate) %}
+    {% set publisher = package.publisher[h.lang()] %}
     {% set fields = h.scheming_get_dataset_schema('dataset')['dataset_fields'] %}
     
     {% block package_item %}
