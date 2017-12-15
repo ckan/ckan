@@ -738,6 +738,7 @@ a:active {
 
 .homepage .group-list ul a {
   border-bottom: 2px solid transparent;
+  width: 100%;
 }
 
 .homepage .group-list ul .energy {
