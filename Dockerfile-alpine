@@ -26,7 +26,7 @@ COPY contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh
 
 # paster requires py2-pip
 RUN set -ex && \
-    apk add --no-cache libpq libstdc++ libmagic \
+    apk add --no-cache libpq libstdc++ libmagic file-dev \
          postgresql-client libffi && \ 
     apk add --no-cache --virtual .build-run-testing \ 
         --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
