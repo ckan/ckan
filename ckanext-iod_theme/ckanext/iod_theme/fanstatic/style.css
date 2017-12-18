@@ -34,8 +34,12 @@
     #GENERIC
 \*------------------------------------*/
 
+html {
+  font-size: calc(8px + (60 - 0) * (100vw - 0px) / (12000 - 0));
+}
+
 body {
-  font-size: calc(8px + (48 - 8) * (100vw - 160px) / (12000 - 160));
+  font-size: inherit;
   box-sizing: border-box;
 }
 
@@ -630,7 +634,7 @@ a:active {
 }
 
 .iod-title {
-  font-size: 80px;
+  font-size: 6rem;
   text-align: center;
   padding: 10px 0 20px;
 }
@@ -1409,4 +1413,26 @@ a:active {
 
 .form-actions--contact:lang(fa_IR) .btn-primary {
   float: left;
+}
+
+/*------------------------------------*\
+    #RESPONSIVE
+\*------------------------------------*/
+
+@media (max-width:767px) {
+  body {
+    padding-left: 0;
+    padding-right: 0;
+    background: transparent;
+  }
+
+  .homepage,
+  .site-footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .iod-title {
+    font-size: 4rem;
+  }
 }
