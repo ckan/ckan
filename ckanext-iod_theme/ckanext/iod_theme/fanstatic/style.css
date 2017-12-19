@@ -35,7 +35,7 @@
 \*------------------------------------*/
 
 html {
-  font-size: calc(8px + (60 - 0) * (100vw - 0px) / (12000 - 0));
+  font-size: calc(10px + (24 - 0) * (100vw - 0px) / (12000 - 0));
 }
 
 body {
@@ -130,10 +130,6 @@ blockquote:lang(fa_IR) {
 
 .masthead .section {
   float: none;
-}
-
-.navbar:lang(fa_IR) .nav {
-  float: left;
 }
 
 .navbar:lang(fa_IR) .nav>li {
@@ -311,11 +307,16 @@ blockquote:lang(fa_IR) {
 .navbar .container {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.container:before,
+.container:after {
+  content: none;
 }
 
 .lang-selector {
   margin: 0;
-  width: 25%;
   padding-top: 10px
 }
 
@@ -347,17 +348,13 @@ blockquote:lang(fa_IR) {
   order: 2;
 }
 
-.navbar .nav-collapse {
-  width: 49%;
-}
-
 .navbar .nav {
   margin: 0;
 }
 
 .header-image {
   padding: 10px 0;
-  width: 25%;
+  width: 215px;
 }
 
 /*------------------------------------*\
@@ -480,6 +477,10 @@ blockquote:lang(fa_IR) {
 .homepage [role=main] {
   background-color: #fff;
   padding-bottom: 40px;
+}
+
+.homepage [role=main]:not(.hero) {
+  background: #fff url("../../../base/images/bg.png")
 }
 
 .header-image {
@@ -1419,20 +1420,92 @@ a:active {
     #RESPONSIVE
 \*------------------------------------*/
 
+@media (max-width:979px) {
+  .navbar .container {
+    width: 724px;
+    padding: 0;
+  }
+
+  .navbar .nav-collapse {
+    height: auto;
+    overflow: visible;
+  }
+
+  .navbar .nav-collapse .nav-pills li {
+    float: left;
+  }
+
+  .nav-collapse .nav > li > a {
+    font-weight: 400;
+  }
+
+  .header-image {
+    width: 200px;
+  }
+
+  .usecases li {
+    width: calc(50% - 20px);
+  }
+
+  .group-list li {
+    width: calc(25% - 20px);
+  }
+}
+
 @media (max-width:767px) {
   body {
     padding-left: 0;
     padding-right: 0;
-    background: transparent;
+    background-color: transparent;
   }
 
-  .homepage,
+  .navbar,
+  .homepage .container,
+  .homepage .main,
   .site-footer {
     padding-left: 20px;
     padding-right: 20px;
   }
 
+  .navbar .container {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  .navbar .nav-collapse {
+    width: 100%;
+    order: 2;
+    padding-top: 0;
+  }
+
+  .header-image {
+    width: 165px;
+  }
+
   .iod-title {
     font-size: 4rem;
+  }
+
+  .navbar .lang-selector li > a {
+    margin: 2px 2px;
+  }
+
+  .navbar .navigation li > a {
+    margin: 6px 6px;
+  }
+
+  .nav-collapse .nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .usecases li {
+    width: 100%;
+  }
+
+  .group-list li {
+    width: calc(50% - 20px);
   }
 }
