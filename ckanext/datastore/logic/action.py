@@ -356,6 +356,7 @@ def datastore_delete(context, data_dict):
     resource = model.Resource.get(data_dict['resource_id'])
 
     if (not data_dict.get('filters') and
+            resource is not None and
             resource.extras.get('datastore_active') is True):
         log.debug(
             'Setting datastore_active=False on resource {0}'.format(
