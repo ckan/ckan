@@ -22,7 +22,7 @@ CKAN: The Open Source Data Portal Software
 
 **CKAN is the world’s leading open-source data portal platform**.
 CKAN makes it easy to publish, share and work with data. It's a data management
-system that provides a powerful platform for cataloging, storing and accessing
+system that provides a powerful platform for cataloguing, storing and accessing
 datasets with a rich front-end, full API (for both data and catalog), visualization
 tools and more. Read more at `ckan.org <http://ckan.org/>`_.
 
