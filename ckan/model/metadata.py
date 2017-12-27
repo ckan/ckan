@@ -17,8 +17,8 @@ class CkanMetaData(MetaData):
     """
 
     def __init__(self, *args, **kwargs):
-        schema = ckan_config.get('ckan.migrations.target_schema')
-        if 'schema' not in kwargs and schema:
-            kwargs['schema'] = schema
+        schema = ckan_config.get(u'ckan.migrations.target_schema')
+        if u'schema' not in kwargs and schema:
+            kwargs[u'schema'] = schema
 
         super(CkanMetaData, self).__init__(*args, **kwargs)
