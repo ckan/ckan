@@ -84,8 +84,6 @@ class TestUpdateConfig(h.FunctionalTestBase):
 
         nosetools.assert_equal(config['sqlalchemy.url'],
                                'postgresql://mynewsqlurl/')
-        nosetools.assert_equal(config['ckan.migrations.target_schema'],
-                               'public2')
 
 
 class TestSiteUrlMandatory(object):

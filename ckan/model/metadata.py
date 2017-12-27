@@ -1,7 +1,13 @@
 # encoding: utf-8
 
+"""Wrapper for SqlAchemy MetaData
+
+Keep a consistent set of metadata for CKAN.
+"""
+
 from sqlalchemy import MetaData
 from ckan.common import config as ckan_config
+
 
 class CkanMetaData(MetaData):
     """CKAN custom metadata
