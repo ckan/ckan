@@ -16,8 +16,8 @@ class TestMetaData(object):
 
     def test_set_schema(self):
 
-        config['ckan.migrations.target_schema'] = 'test_schema'
+        config[u'ckan.migrations.target_schema'] = u'test_schema'
 
         metadata = CkanMetaData()
 
-        assert_equals(metadata.schema, 'test_schema')
+        assert_equals(metadata.schema, u'test_schema')
