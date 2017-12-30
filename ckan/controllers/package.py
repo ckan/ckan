@@ -227,7 +227,8 @@ class PackageController(base.BaseController):
             # Unless changed via config options, don't show other dataset
             # types any search page. Potential alternatives are do show them
             # on the default search page (dataset) or on one other search page
-            search_all_type = config.get('ckan.search.show_all_types', 'dataset')
+            search_all_type = config.get(
+                                  'ckan.search.show_all_types', 'dataset')
             search_all = False
 
             try:
