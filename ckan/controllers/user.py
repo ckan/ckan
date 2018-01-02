@@ -251,7 +251,7 @@ class UserController(base.BaseController):
         if not c.user:
             # log the user in programatically
             set_repoze_user(data_dict['name'])
-            h.redirect_to(controller='user', action='me', __ckan_no_root=True)
+            h.redirect_to(controller='user', action='me')
         else:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
@@ -390,8 +390,7 @@ class UserController(base.BaseController):
         if not c.user:
             came_from = request.params.get('came_from')
             if not came_from:
-                came_from = h.url_for(controller='user', action='logged_in',
-                                      __ckan_no_root=True)
+                came_from = h.url_for(controller='user', action='logged_in')
             c.login_handler = h.url_for(
                 self._get_repoze_handler('login_handler_path'),
                 came_from=came_from)
@@ -429,10 +428,9 @@ class UserController(base.BaseController):
         # Do any plugin logout stuff
         for item in p.PluginImplementations(p.IAuthenticator):
             item.logout()
-        url = h.url_for(controller='user', action='logged_out_page',
-                        __ckan_no_root=True)
+        url = h.url_for(controller='user', action='logged_out_page')
         h.redirect_to(self._get_repoze_handler('logout_handler_path') +
-                      '?came_from=' + url)
+                      '?came_from=' + url, parse_url=True)
 
     def logged_out(self):
         # redirect if needed
@@ -524,8 +522,12 @@ class UserController(base.BaseController):
         if request.method == 'POST':
             try:
                 context['reset_password'] = True
+                user_state = user_dict['state']
                 new_password = self._get_form_password()
                 user_dict['password'] = new_password
+                username = request.params.get('name')
+                if (username is not None and username != ''):
+                    user_dict['name'] = username
                 user_dict['reset_key'] = c.reset_key
                 user_dict['state'] = model.State.ACTIVE
                 user = get_action('user_update')(context, user_dict)
@@ -543,6 +545,7 @@ class UserController(base.BaseController):
                 h.flash_error(u'%r' % e.error_dict)
             except ValueError, ve:
                 h.flash_error(unicode(ve))
+            user_dict['state'] = user_state
 
         c.user_dict = user_dict
         return render('user/perform_reset.html')

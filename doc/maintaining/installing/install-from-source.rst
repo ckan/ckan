@@ -1,4 +1,4 @@
-.. include:: /_latest_release.rst
+.. include:: /_substitutions.rst
 
 ===========================
 Installing CKAN from source
@@ -7,8 +7,8 @@ Installing CKAN from source
 This section describes how to install CKAN from source. Although
 :doc:`install-from-package` is simpler, it requires Ubuntu 14.04 64-bit or
 Ubuntu 12.04 64-bit. Installing CKAN from source works with other versions of
-Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X).
-If you install CKAN from source on your own operating system, please share your
+Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
+you install CKAN from source on your own operating system, please share your
 experiences on our
 `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
@@ -21,7 +21,11 @@ work on CKAN.
 --------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
-required packages with this command::
+required packages with this command for Ubuntu 16.04::
+
+    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
+
+or for Ubuntu 14.04::
 
     sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk redis-server
 
@@ -40,8 +44,8 @@ pip                    `A tool for installing and managing Python packages <http
 virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
 Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
 Apache Solr            `A search platform <http://lucene.apache.org/solr>`_
-Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr).
-OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
+Jetty                  `An HTTP server <http://www.eclipse.org/jetty/>`_ (used for Solr).
+OpenJDK JDK            `The Java Development Kit <http://openjdk.java.net/install/>`_ (used by Jetty)
 Redis                  `An in-memory data structure store <http://redis.io/>`_
 =====================  ===============================================
 
@@ -94,7 +98,21 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the CKAN source code into your virtualenv.
+b. Install the recommended ``setuptools`` version:
+
+   .. parsed-literal::
+
+       pip install setuptools==\ |min_setuptools_version|
+
+c. Install the CKAN source code into your virtualenv.
+   .. important::
+   
+       For the following commands, make sure you are in your CKAN default directory. E.g.
+    
+      .. parsed-literal::
+      
+         cd /usr/lib/ckan/default/
+   
    To install the latest stable release of CKAN (CKAN |latest_release_version|),
    run:
 
@@ -110,13 +128,22 @@ b. Install the CKAN source code into your virtualenv.
 
        pip install -e 'git+\ |git_url|\#egg=ckan'
 
+   .. tip::
+      
+      If you would like to work submit a pull request with your changes, be sure you are working from a cloned repository.
+      Use your personal repository URL instead of the CKAN repository. E.g.
+      
+      .. parsed-literal::
+         
+         pip install -e 'git=https://github.com/{your-username}/ckan.git#egg=ckan'
+   
    .. warning::
 
       The development version may contain bugs and should not be used for
       production websites! Only install this version if you're doing CKAN
       development.
 
-c. Install the Python modules that CKAN requires into your virtualenv:
+d. Install the Python modules that CKAN requires into your virtualenv:
 
    .. versionchanged:: 2.1
       In CKAN 2.0 and earlier the requirement file was called
@@ -126,7 +153,7 @@ c. Install the Python modules that CKAN requires into your virtualenv:
 
        pip install -r |virtualenv|/src/ckan/requirements.txt
 
-d. Deactivate and reactivate your virtualenv, to make sure you're using the
+e. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
    installed copies:
 
@@ -321,9 +348,13 @@ If ``javac`` isn't installed, do::
 
 and then restart Solr:
 
-.. parsed-literal::
+For Ubuntu 16.04::
 
-   |restart_solr|
+     sudo service jetty8 restart
+
+or for Ubuntu 14.04::
+
+     sudo service jetty restart
 
 AttributeError: 'module' object has no attribute 'css/main.debug.css'
 ---------------------------------------------------------------------
@@ -331,11 +362,22 @@ AttributeError: 'module' object has no attribute 'css/main.debug.css'
 This error is likely to show up when `debug` is set to `True`. To fix this
 error, install frontend dependencies. See :doc:`/contributing/frontend/index`.
 
-After installing the dependencies, run `bin/less` and then start paster server
+After installing the dependencies, run ``bin/less`` and then start paster server
 again.
 
 If you do not want to compile CSS, you can also copy the main.css to
-main.debug.css to get CKAN running.
+main.debug.css to get CKAN running::
 
     cp /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.css \
     /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.debug.css
+
+JSP support not configured
+--------------------------
+
+This is seen occasionally with Jetty and Ubuntu 14.04. It requires a solr-jetty fix::
+
+    cd /tmp
+    wget https://launchpad.net/~vshn/+archive/ubuntu/solr/+files/solr-jetty-jsp-fix_1.0.2_all.deb
+    sudo dpkg -i solr-jetty-jsp-fix_1.0.2_all.deb
+    sudo service jetty restart
+

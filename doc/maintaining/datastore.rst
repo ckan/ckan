@@ -120,6 +120,8 @@ if necessary, for example:
 Replace ``pass`` with the passwords you created for your |database_user| and
 |datastore_user| database users.
 
+.. _datastore-set-permissions:
+
 Set permissions
 ---------------
 
@@ -143,7 +145,7 @@ Then you can use this connection to set the permissions::
 .. note::
    If you performed a source install, you will need to replace all references to
    ``sudo ckan ...`` with ``paster --plugin=ckan ...`` and provide the path to
-   the config file, e.g. ``paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/development.ini``
+   the config file, e.g. ``paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/development.ini | sudo -u postgres psql --set ON_ERROR_STOP=1``
 
 If your database server is not local, but you can access it over SSH, you can
 pipe the permissions script over SSH::
@@ -244,6 +246,10 @@ across DataStore resources.
 Data can be written incrementally to the DataStore through the API. New data can be
 inserted, existing data can be updated or deleted. You can also add a new column to
 an existing table even if the DataStore resource already contains some data.
+
+Triggers may be added to enforce validation, clean data as it is loaded or
+even record record histories. Triggers are PL/pgSQL functions that must be
+created by a sysadmin.
 
 You will notice that we tried to keep the layer between the underlying PostgreSQL
 database and the API as thin as possible to allow you to use the features you would
@@ -430,3 +436,13 @@ name
     Contains the name of the alias if alias_of is not null. Otherwise, this is the resource id of the CKAN resource for the DataStore resource.
 oid
     The PostgreSQL object ID of the table that belongs to name.
+
+Extending DataStore
+===================
+
+Starting from CKAN version 2.7, backend used in DataStore can be replaced with custom one. For this purpose, custom extension must implement `ckanext.datastore.interfaces.IDatastoreBackend`, which provides one method - `register_backends`. It should return dictonary with names of custom backends as keys and classes, that represent those backends as values. Each class supposed to be inherited from `ckanext.datastore.backend.DatastoreBackend`.
+
+.. note:: Example of custom implementation can be found at `ckanext.example_idatastorebackend`
+
+.. automodule:: ckanext.datastore.backend
+   :members:

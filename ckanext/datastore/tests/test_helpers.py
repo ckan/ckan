@@ -5,8 +5,9 @@ import nose
 
 from ckan.common import config
 import ckanext.datastore.helpers as datastore_helpers
+import ckanext.datastore.backend.postgres as postgres_backend
 import ckanext.datastore.tests.helpers as datastore_test_helpers
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 
 
 eq_ = nose.tools.eq_
@@ -39,10 +40,10 @@ class TestTypeGetters(object):
                      'SELECT * FROM "foo"; SELECT * FROM "abc"']
 
         for single in singles:
-            assert datastore_helpers.is_single_statement(single) is True
+            assert postgres_backend.is_single_statement(single) is True
 
         for multiple in multiples:
-            assert datastore_helpers.is_single_statement(multiple) is False
+            assert postgres_backend.is_single_statement(multiple) is False
 
     def test_should_fts_index_field_type(self):
         indexable_field_types = ['tsvector',
@@ -70,9 +71,7 @@ class TestGetTables(object):
         if not config.get('ckan.datastore.read_url'):
             raise nose.SkipTest('Datastore runs on legacy mode, skipping...')
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']}
-        )
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
         datastore_test_helpers.clear_db(cls.Session)

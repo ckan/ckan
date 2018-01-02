@@ -35,10 +35,11 @@ See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructio
 
 Support
 -------
+For general discussion around CKAN, you can write to the `Google Group`_.
 
-If you need help with CKAN or want to ask a question about CKAN, use either the
-`ckan-discuss`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
-searching the Stack Overflow and ckan-discuss archives for an answer to your
+If you need help with CKAN or want to ask a question, use either the
+`ckan-dev`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
+searching the Stack Overflow and ckan-dev `archives`_ for an answer to your
 question first).
 
 If you've found a bug in CKAN, open a new issue on CKAN's `GitHub Issues`_ (try
@@ -47,9 +48,10 @@ searching first to see if there's already an issue for your bug).
 If you find a potential security vulnerability please email security@ckan.org,
 rather than creating a public issue on GitHub.
 
-
+.. _Google Group: https://groups.google.com/forum/#!forum/ckan-global-user-group
 .. _CKAN tag on Stack Overflow: http://stackoverflow.com/questions/tagged/ckan
-.. _ckan-discuss: http://lists.okfn.org/mailman/listinfo/ckan-discuss
+.. _ckan-dev: https://lists.okfn.org/mailman/listinfo/ckan-dev
+.. _archives: https://www.google.com/search?q=%22%5Bckan-dev%5D%22+site%3Alists.okfn.org.
 .. _GitHub Issues: https://github.com/ckan/ckan/issues
 
 
@@ -60,21 +62,22 @@ For contributing to CKAN or its documentation, see
 `CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.rst>`_.
 
 If you want to talk about CKAN development say hi to the CKAN developers on the
-`ckan-dev`_ mailing list or in the `#ckan`_ IRC channel on irc.freenode.net.
+`ckan-dev`_ mailing list, in the `#ckan`_ IRC channel, or on `BotBot`_.
 
 If you've figured out how to do something with CKAN and want to document it for
 others, make a new page on the `CKAN wiki`_, and tell us about it on
-`ckan-dev`_.
+ckan-dev mailing list.
 
 .. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
 .. _#ckan: http://webchat.freenode.net/?channels=ckan
 .. _CKAN Wiki: https://github.com/ckan/ckan/wiki
+.. _BotBot: https://botbot.me/freenode/ckan/
 
 
 Copying and License
 -------------------
 
-This material is copyright (c) 2006-2014 Open Knowledge Foundation.
+This material is copyright (c) 2006-2017 Open Knowledge International and contributors.
 
 It is open and licensed under the GNU Affero General Public License (AGPL) v3.0
 whose full text may be found at:

@@ -545,10 +545,9 @@ def user_name_validator(key, data, errors, context):
         raise Invalid(_('User names must be strings'))
 
     user = model.User.get(new_user_name)
+    user_obj_from_context = context.get('user_obj')
     if user is not None:
         # A user with new_user_name already exists in the database.
-
-        user_obj_from_context = context.get('user_obj')
         if user_obj_from_context and user_obj_from_context.id == user.id:
             # If there's a user_obj in context with the same id as the user
             # found in the db, then we must be doing a user_update and not
@@ -559,6 +558,12 @@ def user_name_validator(key, data, errors, context):
             # name, so you can create a new user with that name or update an
             # existing user's name to that name.
             errors[key].append(_('That login name is not available.'))
+    elif user_obj_from_context:
+        old_user = model.User.get(user_obj_from_context.id)
+        if old_user is not None and old_user.state != model.State.PENDING:
+            errors[key].append(_('That login name can not be modified.'))
+        else:
+            return
 
 def user_both_passwords_entered(key, data, errors, context):
 
@@ -578,8 +583,9 @@ def user_password_validator(key, data, errors, context):
         errors[('password',)].append(_('Passwords must be strings'))
     elif value == '':
         pass
-    elif len(value) < 4:
-        errors[('password',)].append(_('Your password must be 4 characters or longer'))
+    elif len(value) < 8:
+        errors[('password',)].append(_('Your password must be 8 characters or '
+                                       'longer'))
 
 def user_passwords_match(key, data, errors, context):
 
@@ -831,3 +837,17 @@ def empty_if_not_sysadmin(key, data, errors, context):
         return
 
     empty(key, data, errors, context)
+
+#pattern from https://html.spec.whatwg.org/#e-mail-state-(type=email)
+email_pattern = re.compile(r"^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]"\
+                       "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]"\
+                       "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+
+def email_validator(value, context):
+    '''Validate email input '''
+
+    if value:
+        if not email_pattern.match(value):
+            raise Invalid(_('Email {email} is not a valid format').format(email=value))
+    return value

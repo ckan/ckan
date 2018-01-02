@@ -28,21 +28,41 @@
           <ul>
             {% block resource_actions_inner %}
             {% if h.check_access('package_update', {'id':pkg.id }) %}
-              <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
+              <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
             {% endif %}
             {% if res.url and h.is_url(res.url) %}
               <li>
+                <div class="btn-group">
                 <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
                   {% if res.resource_type in ('listing', 'service') %}
                     <i class="fa fa-eye"></i> {{ _('View') }}
                   {% elif  res.resource_type == 'api' %}
                     <i class="fa fa-key"></i> {{ _('API Endpoint') }}
-                  {% elif not res.has_views or not res.can_be_previewed %}
+                  {% elif (not res.has_views or not res.can_be_previewed) and not res.url_type == 'upload' %}
                     <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
                   {% else %}
                     <i class="fa fa-arrow-circle-o-down"></i> {{ _('Download') }}
                   {% endif %}
                 </a>
+                 {% block download_resource_button %}
+                  {%if res.datastore_active %}
+                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                  </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a href="{{ h.url_for(controller='ckanext.datastore.controller:DatastoreController', action='dump', resource_id=res.id, bom=True) }}"
+                      target="_blank"><span>CSV</span></a>
+                    <a href="{{ h.url_for(controller='ckanext.datastore.controller:DatastoreController', action='dump', resource_id=res.id, format='tsv', bom=True) }}"
+                      target="_blank"><span>TSV</span></a>
+                    <a href="{{ h.url_for(controller='ckanext.datastore.controller:DatastoreController', action='dump', resource_id=res.id, format='json') }}"
+                      target="_blank"><span>JSON</span></a>
+                    <a href="{{ h.url_for(controller='ckanext.datastore.controller:DatastoreController', action='dump', resource_id=res.id, format='xml') }}"
+                      target="_blank"><span>XML</span></a>
+                  </li>
+                </ul>
+                {%endif%} {% endblock %}
+                </div>
               </li>
             {% endif %}
             {% endblock %}
@@ -53,9 +73,9 @@
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
-              <p class="muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+              <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
             {% elif res.url %}
-              <p class="muted break-word">{{ _('URL:') }} {{ res.url }}</p>
+              <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
             {% endif %}
           {% endblock %}
           <div class="prose notes" property="rdfs:label">
@@ -69,7 +89,6 @@
             {% endif %}
           </div>
         {% endblock %}
-      </div>
       {% block data_preview %}
       {% block resource_view %}
         {% block resource_view_nav %}
@@ -84,7 +103,6 @@
              extra_class="nav-tabs-plain"
            %}
         {% endblock %}
-        <div class="module-content">
           {% block resource_view_content %}
             <div class="resource-view">
               {% set resource_preview = h.resource_preview(c.resource, c.package) %}
@@ -105,10 +123,10 @@
                 {% endif %}
               {% else %}
                 {# Views not created #}
-                <div class="module-content data-viewer-info">
+                <div class="data-viewer-info">
                   <p>{{ _("There are no views created for this resource yet.") }}</p>
                   {% if h.check_access('resource_view_create', {'resource_id': c.resource.id}) %}
-                    <p class="muted">
+                    <p class="text-muted">
                       <i class="fa fa-info-circle"></i>
                       {{ _("Not seeing the views you were expecting?")}}
                       <a href="javascript:void(0);" data-toggle="collapse" data-target="#data-view-info">
@@ -151,8 +169,12 @@
             </thead>
             <tbody>
               <tr>
-                <th scope="row">{{ _('Last updated') }}</th>
-                <td>{{ h.render_datetime(res.last_modified) or h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
+                <th scope="row">{{ _('Data last updated') }}</th>
+                <td>{{ h.render_datetime(res.last_modified) or h.render_datetime(res.created) or _('unknown') }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{{ _('Metadata last updated') }}</th>
+                <td>{{ h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
               </tr>
               <tr>
                 <th scope="row">{{ _('Created') }}</th>

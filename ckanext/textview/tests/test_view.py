@@ -1,16 +1,13 @@
 # encoding: utf-8
-
-import paste.fixture
 from ckan.common import config
 import urlparse
 
 import ckan.model as model
-import ckan.tests.legacy as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckanext.textview.plugin as plugin
 import ckan.lib.create_test_data as create_test_data
-import ckan.config.middleware as middleware
+from ckan.tests import helpers
 
 
 def _create_test_view(view_type):
@@ -29,16 +26,18 @@ def _create_test_view(view_type):
     return resource_view, package, resource_id
 
 
-class TestTextView(tests.WsgiAppCase):
+class TestTextView(object):
     view_type = 'text_view'
 
     @classmethod
     def setup_class(cls):
-        cls.config_templates = config['ckan.legacy_templates']
-        config['ckan.legacy_templates'] = 'false'
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        plugins.load('text_view')
-        cls.app = paste.fixture.TestApp(wsgiapp)
+
+        if not plugins.plugin_loaded('text_view'):
+            plugins.load('text_view')
+
+        if plugins.plugin_loaded('resource_proxy'):
+            plugins.unload('resource_proxy')
+
         cls.p = plugin.TextView()
 
         create_test_data.CreateTestData.create()
@@ -48,7 +47,6 @@ class TestTextView(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        config['ckan.legacy_templates'] = cls.config_templates
         plugins.unload('text_view')
         model.repo.rebuild_db()
 
@@ -79,17 +77,36 @@ class TestTextView(tests.WsgiAppCase):
         assert not self.p.can_view(data_dict)
 
     def test_title_description_iframe_shown(self):
-        url = h.url_for(controller='package', action='resource_read',
-                        id=self.package.name, resource_id=self.resource_id)
-        result = self.app.get(url)
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        original_config = dict(config)
+        config['ckan.plugins'] = 'text_view'
+
+        app = helpers._get_test_app()
+        with app.flask_app.test_request_context():
+            url = h.url_for(controller='package', action='resource_read',
+                            id=self.package.name, resource_id=self.resource_id)
+        result = app.get(url)
         assert self.resource_view['title'] in result
         assert self.resource_view['description'] in result
         assert 'data-module="data-viewer"' in result.body
 
+        # Restore the config to its original values
+        config.clear()
+        config.update(original_config)
+
     def test_js_included(self):
-        url = h.url_for(controller='package', action='resource_view',
-                        id=self.package.name, resource_id=self.resource_id,
-                        view_id=self.resource_view['id'])
-        result = self.app.get(url)
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        original_config = dict(config)
+        config['ckan.plugins'] = 'text_view'
+
+        app = helpers._get_test_app()
+        with app.flask_app.test_request_context():
+            url = h.url_for(controller='package', action='resource_view',
+                            id=self.package.name, resource_id=self.resource_id,
+                            view_id=self.resource_view['id'])
+        result = app.get(url)
         assert (('text_view.js' in result.body) or
                 ('text_view.min.js' in result.body))
+        # Restore the config to its original values
+        config.clear()
+        config.update(original_config)

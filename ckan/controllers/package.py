@@ -160,7 +160,8 @@ class PackageController(base.BaseController):
 
         def remove_field(key, value=None, replace=None):
             return h.remove_url_param(key, value=value, replace=replace,
-                                      controller='package', action='search')
+                                      controller='package', action='search',
+                                      alternative_url=package_type)
 
         c.remove_field = remove_field
 
@@ -222,15 +223,29 @@ class PackageController(base.BaseController):
                        'user': c.user, 'for_view': True,
                        'auth_user_obj': c.userobj}
 
-            if package_type and package_type != 'dataset':
+            # Unless changed via config options, don't show other dataset
+            # types any search page. Potential alternatives are do show them
+            # on the default search page (dataset) or on one other search page
+            search_all_type = config.get(
+                                  'ckan.search.show_all_types', 'dataset')
+            search_all = False
+
+            try:
+                # If the "type" is set to True or False, convert to bool
+                # and we know that no type was specified, so use traditional
+                # behaviour of applying this only to dataset type
+                search_all = asbool(search_all_type)
+                search_all_type = 'dataset'
+            # Otherwise we treat as a string representing a type
+            except ValueError:
+                search_all = True
+
+            if not package_type:
+                package_type = 'dataset'
+
+            if not search_all or package_type != search_all_type:
                 # Only show datasets of this particular type
                 fq += ' +dataset_type:{type}'.format(type=package_type)
-            else:
-                # Unless changed via config options, don't show non standard
-                # dataset types on the default search page
-                if not asbool(
-                        config.get('ckan.search.show_all_types', 'False')):
-                    fq += ' +dataset_type:dataset'
 
             facets = OrderedDict()
 
@@ -378,23 +393,22 @@ class PackageController(base.BaseController):
 
         template = self._read_template(package_type)
         try:
-            return render(
-                template,
-                extra_vars={
-                    'dataset_type': package_type
-                }
+            return render(template,
+                          extra_vars={'dataset_type': package_type})
+        except ckan.lib.render.TemplateNotFound as e:
+            msg = _(
+                "Viewing datasets of type \"{package_type}\" is "
+                "not supported ({file_!r}).".format(
+                    package_type=package_type,
+                    file_=e.message
+                )
             )
-        except ckan.lib.render.TemplateNotFound:
-            msg = _("Viewing {package_type} datasets in {format} format is "
-                    "not supported (template file {file} not found).".format(
-                        package_type=package_type, format=format,
-                        file=template))
             abort(404, msg)
 
         assert False, "We should never get here"
 
     def history(self, id):
-        h.redirect_to(controller='pacakge', action='activities', id=id)
+        h.redirect_to(controller='package', action='activities', id=id)
 
     def new(self, data=None, errors=None, error_summary=None):
         if data and 'type' in data:
@@ -457,16 +471,22 @@ class PackageController(base.BaseController):
     def resource_edit(self, id, resource_id, data=None, errors=None,
                       error_summary=None):
 
+        context = {'model': model, 'session': model.Session,
+                   'api_version': 3, 'for_edit': True,
+                   'user': c.user, 'auth_user_obj': c.userobj}
+        data_dict = {'id': id}
+
+        try:
+            check_access('package_update', context, data_dict)
+        except NotAuthorized:
+            abort(403, _('User %r not authorized to edit %s') % (c.user, id))
+
         if request.method == 'POST' and not data:
             data = data or \
                 clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                                                            request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
-
-            context = {'model': model, 'session': model.Session,
-                       'api_version': 3, 'for_edit': True,
-                       'user': c.user, 'auth_user_obj': c.userobj}
 
             data['package_id'] = id
             try:
@@ -485,9 +505,6 @@ class PackageController(base.BaseController):
             h.redirect_to(controller='package', action='resource_read', id=id,
                           resource_id=resource_id)
 
-        context = {'model': model, 'session': model.Session,
-                   'api_version': 3, 'for_edit': True,
-                   'user': c.user, 'auth_user_obj': c.userobj}
         pkg_dict = get_action('package_show')(context, {'id': id})
         if pkg_dict['state'].startswith('draft'):
             # dataset has not yet been fully created
@@ -950,7 +967,12 @@ class PackageController(base.BaseController):
             if request.method == 'POST':
                 get_action('resource_delete')(context, {'id': resource_id})
                 h.flash_notice(_('Resource has been deleted.'))
-                h.redirect_to(controller='package', action='read', id=id)
+                pkg_dict = get_action('package_show')(None, {'id': id})
+                if pkg_dict['state'].startswith('draft'):
+                    h.redirect_to(controller='package', action='new_resource',
+                                  id=id)
+                else:
+                    h.redirect_to(controller='package', action='read', id=id)
             c.resource_dict = get_action('resource_show')(
                 context, {'id': resource_id})
             c.pkg_id = id
@@ -992,7 +1014,7 @@ class PackageController(base.BaseController):
         except KeyError:
             c.package['isopen'] = False
 
-        # TODO: find a nicer way of doing this
+        # Deprecated: c.datastore_api - use h.action_url instead
         c.datastore_api = '%s/api/action' % \
             config.get('ckan.site_url', '').rstrip('/')
 

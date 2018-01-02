@@ -1,8 +1,9 @@
 # encoding: utf-8
 
+from ckan.common import config
 from bs4 import BeautifulSoup
 from nose.tools import assert_equal, assert_true, assert_in
-from routes import url_for
+from ckan.lib.helpers import url_for
 from mock import patch
 
 from ckan.tests import factories, helpers
@@ -209,6 +210,35 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
                                            id=self.organization['id'])
         assert_equal(organization['state'], 'active')
 
+    @helpers.change_config('ckan.auth.create_unowned_dataset', False)
+    def test_delete_organization_with_datasets(self):
+        ''' Test deletion of organization that has datasets'''
+        text = 'Organization cannot be deleted while it still has datasets'
+        datasets = [factories.Dataset(owner_org=self.organization['id'])
+                    for i in range(0, 5)]
+        response = self.app.get(
+            url=url_for(
+                controller='organization',
+                action='delete',
+                id=self.organization['id']),
+            status=200,
+            extra_environ=self.user_env)
+
+        form = response.forms['organization-confirm-delete-form']
+        response = submit_and_follow(
+            self.app, form, name='delete', extra_environ=self.user_env)
+        assert text in response.body
+
+    def test_delete_organization_with_unknown_dataset_true(self):
+        ''' Test deletion of organization that has datasets and unknown
+            datasets are set to true'''
+        dataset = factories.Dataset(owner_org=self.organization['id'])
+        assert_equal(dataset['owner_org'], self.organization['id'])
+        helpers.call_action('organization_delete', id=self.organization['id'])
+
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equal(dataset['owner_org'], None)
+
 
 class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
     def setup(self):
@@ -217,9 +247,10 @@ class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
         self.user = factories.User()
         self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
         self.organization = factories.Organization(user=self.user)
-        self.organization_bulk_url = url_for(controller='organization',
-                                             action='bulk_process',
-                                             id=self.organization['id'])
+        self.organization_bulk_url = url_for(
+            controller='organization',
+            action='bulk_process',
+            id=self.organization['id'])
 
     def test_make_private(self):
         datasets = [factories.Dataset(owner_org=self.organization['id'])
@@ -444,3 +475,97 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         ds_titles = [t.string for t in ds_titles]
 
         assert_equal(len(ds_titles), 0)
+
+
+class TestOrganizationMembership(helpers.FunctionalTestBase):
+
+    def test_editor_users_cannot_add_members(self):
+
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'editor'}]
+        )
+
+        app = helpers._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            app.get(
+                url_for(
+                    controller='organization',
+                    action='member_new',
+                    id=organization['id'],
+                ),
+                extra_environ=env,
+                status=403,
+            )
+
+            app.post(
+                url_for(
+                    controller='organization',
+                    action='member_new',
+                    id=organization['id'],
+                ),
+                {'id': 'test', 'username': 'test', 'save': 'save', 'role': 'test'},
+                extra_environ=env,
+                status=403,
+            )
+
+    def test_member_users_cannot_add_members(self):
+
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'member'}]
+        )
+
+        app = helpers._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        with app.flask_app.test_request_context():
+            app.get(
+                url_for(
+                    controller='organization',
+                    action='member_new',
+                    id=organization['id'],
+                ),
+                extra_environ=env,
+                status=403,
+            )
+
+            app.post(
+                url_for(
+                    controller='organization',
+                    action='member_new',
+                    id=organization['id'],
+                ),
+                {'id': 'test', 'username': 'test', 'save': 'save', 'role': 'test'},
+                extra_environ=env,
+                status=403,
+            )
+
+    def test_anonymous_users_cannot_add_members(self):
+        organization = factories.Organization()
+
+        app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+            app.get(
+                url_for(
+                    controller='organization',
+                    action='member_new',
+                    id=organization['id'],
+                ),
+                status=403,
+            )
+
+            app.post(
+                url_for(
+                    controller='organization',
+                    action='member_new',
+                    id=organization['id'],
+                ),
+                {'id': 'test', 'username': 'test', 'save': 'save', 'role': 'test'},
+                status=403,
+            )

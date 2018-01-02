@@ -40,6 +40,7 @@ environment:
 
     pip install -r |virtualenv|/src/ckan/dev-requirements.txt
 
+.. _datastore-test-set-permissions:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 Set up the test databases
@@ -55,6 +56,9 @@ Create test databases:
 
     sudo -u postgres createdb -O |database_user| |test_database| -E utf-8
     sudo -u postgres createdb -O |database_user| |test_datastore| -E utf-8
+
+Set the permissions::
+
     paster datastore set-permissions -c test-core.ini | sudo -u postgres psql
 
 This database connection is specified in the ``test-core.ini`` file by the
@@ -62,6 +66,56 @@ This database connection is specified in the ``test-core.ini`` file by the
 
 You should also make sure that the :ref:`Redis database <ckan_redis_url>`
 configured in ``test-core.ini`` is different from your production database.
+
+
+.. _solr-multi-core:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure Solr Multi-core
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The tests assume that Solr is configured 'multi-core', whereas the default
+Solr set-up is often 'single-core'. You can ask Solr for its cores status::
+
+    curl -s 'http://127.0.0.1:8983/solr/admin/cores?action=STATUS' |python -c 'import sys;import xml.dom.minidom;s=sys.stdin.read();print xml.dom.minidom.parseString(s).toprettyxml()'
+
+Each core will be within a child from the ``<lst name="status"`` element, and contain a ``<str name="instanceDir">`` element.
+
+You can also tell from your ckan config (assuming ckan is working)::
+
+    grep solr_url /etc/ckan/default/production.ini
+    # single-core: solr_url = http://127.0.0.1:8983/solr
+    # multi-core:  solr_url = http://127.0.0.1:8983/solr/ckan
+
+To enable multi-core:
+
+1. Find the ``instanceDir`` of the existing Solr core. It is found in the output of the curl command above.
+
+       e.g. ``/usr/share/solr/`` or ``/opt/solr/example/solr/collection1``
+
+2. Make a copy of that core's directory e.g.::
+
+       sudo cp -r /usr/share/solr/ /etc/solr/ckan
+
+3. Find your solr.xml. It is in the Solr Home directory given by this command::
+
+       curl -s 'http://127.0.0.1:8983/solr/admin/' | grep SolrHome
+
+4. Configure Solr with the new core by editing ``solr.xml``. The 'cores' section will have one 'core' in it already and needs the second one 'ckan' added so it looks like this::
+
+       <cores adminPath="/admin/cores" defaultCoreName="collection1">
+         <core name="collection1" instanceDir="." />
+         <core name="ckan" instanceDir="/etc/solr/ckan" />
+       </cores>
+
+5. Restart Solr by restarting Jetty (or Tomcat)::
+
+       sudo service jetty restart
+
+6. Edit your main ckan config (e.g. |development.ini|) and adjust the solr_url to match::
+
+       solr_url = http://127.0.0.1:8983/solr/ckan
+
 
 ~~~~~~~~~~~~~
 Run the tests
@@ -75,7 +129,7 @@ run the tests for CKAN core and for the core extensions::
 
 The speed of the PostgreSQL tests can be improved by running PostgreSQL in
 memory and turning off durability, as described
-`in the PostgreSQL documentation <http://www.postgresql.org/docs/9.0/static/non-durability.html>`_. 
+`in the PostgreSQL documentation <http://www.postgresql.org/docs/9.0/static/non-durability.html>`_.
 
 By default the tests will keep the database between test runs. If you wish to
 drop and reinitialize the database before the run you can use the ``reset-db``
@@ -160,6 +214,14 @@ nosetests
    One final check - the version of nose should be at least 1.0. Check with::
 
          pip freeze | grep -i nose
+
+SolrError
+=========
+
+``SolrError: Solr responded with an error (HTTP 404): [Reason: None]
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type" /><title>Error 404 NOT_FOUND</title></head><body><h2>HTTP ERROR 404</h2><p>Problem accessing /solr/ckan/select/. Reason:<pre>    NOT_FOUND</pre></p><hr /><i><small>Powered by Jetty://</small></i>``
+
+This means your solr_url is not corresponding with your SOLR. When running tests, it is usually easiest to change your set-up to match the default solr_url in test-core.ini. Often this means switching to multi-core - see :ref:`solr-multi-core`.
 
 
 ---------------

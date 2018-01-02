@@ -5,6 +5,7 @@ import pytz
 import tzlocal
 from babel import Locale
 
+from ckan.common import config
 import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.exceptions
@@ -17,7 +18,33 @@ raises = nose.tools.raises
 CkanUrlException = ckan.exceptions.CkanUrlException
 
 
-class TestHelpersUrlForStatic(object):
+class BaseUrlFor(object):
+
+    @classmethod
+    def setup_class(cls):
+
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        cls._original_config = dict(config)
+        config['ckan.site_url'] = 'http://example.com'
+        cls.app = helpers._get_test_app()
+
+    def setup(self):
+
+        self.request_context = self.app.flask_app.test_request_context()
+        self.request_context.push()
+
+    def teardown(self):
+
+        self.request_context.pop()
+
+    @classmethod
+    def teardown_class(cls):
+        # Restore the config to its original values
+        config.clear()
+        config.update(cls._original_config)
+
+
+class TestHelpersUrlForStatic(BaseUrlFor):
 
     def test_url_for_static(self):
         url = '/assets/ckan.jpg'
@@ -51,7 +78,8 @@ class TestHelpersUrlForStatic(object):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_static_qualified_with_root_path(self):
         url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
-        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        generated_url = h.url_for_static('/my-asset/file.txt',
+                                         qualified=True)
         eq_(generated_url, url)
 
     @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
@@ -59,11 +87,12 @@ class TestHelpersUrlForStatic(object):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_static_with_root_path_and_script_name_env(self):
         url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
-        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        generated_url = h.url_for_static('/my-asset/file.txt',
+                                         qualified=True)
         eq_(generated_url, url)
 
 
-class TestHelpersUrlForStaticOrExternal(object):
+class TestHelpersUrlForStaticOrExternal(BaseUrlFor):
 
     def test_url_for_static_or_external(self):
         url = '/assets/ckan.jpg'
@@ -87,12 +116,13 @@ class TestHelpersUrlForStaticOrExternal(object):
         eq_(h.url_for_static_or_external(url), url)
 
 
-class TestHelpersUrlFor(object):
+class TestHelpersUrlFor(BaseUrlFor):
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_default(self):
         url = '/dataset/my_dataset'
-        generated_url = h.url_for(controller='package', action='read', id='my_dataset')
+        generated_url = h.url_for(controller='package', action='read',
+                                  id='my_dataset')
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
@@ -174,6 +204,90 @@ class TestHelpersUrlFor(object):
         eq_(generated_url, url)
 
 
+class TestHelpersUrlForFlaskandPylons2(BaseUrlFor):
+
+    def test_url_for_flask_route_new_syntax(self):
+        url = '/api/3'
+        generated_url = h.url_for('api.get_api', ver=3)
+        eq_(generated_url, url)
+
+
+class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
+
+    def test_url_for_flask_route_new_syntax(self):
+        url = '/api/3'
+        generated_url = h.url_for('api.get_api', ver=3)
+        eq_(generated_url, url)
+
+    def test_url_for_flask_route_old_syntax(self):
+        url = '/api/3'
+        generated_url = h.url_for(controller='api', action='get_api', ver=3)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_new_syntax_external(self):
+        url = 'http://example.com/api/3'
+        generated_url = h.url_for('api.get_api', ver=3, _external=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_old_syntax_external(self):
+        url = 'http://example.com/api/3'
+        generated_url = h.url_for(controller='api', action='get_api', ver=3, _external=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_old_syntax_qualified(self):
+        url = 'http://example.com/api/3'
+        generated_url = h.url_for(controller='api', action='get_api', ver=3, qualified=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_new_syntax_site_url(self):
+        url = '/api/3'
+        generated_url = h.url_for('api.get_api', ver=3)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_old_syntax_site_url(self):
+        url = '/api/3'
+        generated_url = h.url_for(controller='api', action='get_api', ver=3)
+        eq_(generated_url, url)
+
+    def test_url_for_flask_route_new_syntax_request_context(self):
+        with self.app.flask_app.test_request_context():
+            url = '/api/3'
+            generated_url = h.url_for('api.get_api', ver=3)
+            eq_(generated_url, url)
+
+    def test_url_for_flask_request_using_pylons_url_for(self):
+
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+            plugin = p.get_plugin('test_routing_plugin')
+            self.app.flask_app.register_extension_blueprint(
+                plugin.get_blueprint())
+
+        res = self.app.get('/flask_route_pylons_url_for')
+
+        assert u'This URL was generated by Pylons' in res.ubody
+        assert u'/from_pylons_extension_before_map' in res.ubody
+
+        p.unload('test_routing_plugin')
+
+    def test_url_for_pylons_request_using_flask_url_for(self):
+
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+
+        res = self.app.get('/pylons_route_flask_url_for')
+
+        assert u'This URL was generated by Flask' in res.ubody
+        assert u'/api/3' in res.ubody
+
+        p.unload('test_routing_plugin')
+
+
 class TestHelpersRenderMarkdown(object):
 
     def test_render_markdown_allow_html(self):
@@ -242,6 +356,104 @@ class TestHelpersRenderMarkdown(object):
     def test_tags_img(self):
         data = u'![image](/image.png)'
         output = u'<p><img alt="image" src="/image.png"></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_bold(self):
+        data = u'Something **important**'
+        output = u'<p>Something <strong>important</strong></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_italics(self):
+        data = u'Something *important*'
+        output = u'<p>Something <em>important</em></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_link(self):
+        """Asserts links like 'tag:test-tag' work"""
+        data = 'tag:test-tag foobar'
+        output = '<p><a href="/tag/test-tag">tag:test-tag</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_linked_with_quotes(self):
+        """Asserts links like 'tag:"test-tag"' work"""
+        data = 'tag:"test-tag" foobar'
+        output = '<p><a href="/tag/test-tag">tag:&#34;test-tag&#34;</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_linked_with_quotes_and_space(self):
+        """Asserts links like 'tag:"test tag"' work"""
+        data = 'tag:"test tag" foobar'
+        output = '<p><a href="/tag/test%20tag">tag:&#34;test tag&#34;</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_with_no_opening_quote_only_matches_single_word(self):
+        """Asserts that without an opening quote only one word is matched"""
+        data = 'tag:test tag" foobar'  # should match 'tag:test'
+        output = '<p><a href="/tag/test">tag:test</a> tag" foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_with_no_opening_quote_wont_match_the_closing_quote(self):
+        """Asserts that 'tag:test" tag' is matched, but to 'tag:test'"""
+        data = 'tag:test" foobar'  # should match 'tag:test'
+        output = '<p><a href="/tag/test">tag:test</a>" foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_with_no_closing_quote_does_not_match(self):
+        """Asserts that without an opening quote only one word is matched"""
+        data = 'tag:"test tag foobar'
+        out = h.render_markdown(data)
+        assert "<a href" not in out
+
+    def test_tag_names_match_simple_punctuation(self):
+        """Asserts punctuation and capital letters are matched in the tag name"""
+        data = 'tag:"Test- _." foobar'
+        output = '<p><a href="/tag/Test-%20_.">tag:&#34;Test- _.&#34;</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_tag_names_do_not_match_commas(self):
+        """Asserts commas don't get matched as part of a tag name"""
+        data = 'tag:Test,tag foobar'
+        output = '<p><a href="/tag/Test">tag:Test</a>,tag foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_tag_names_dont_match_non_space_whitespace(self):
+        """Asserts that the only piece of whitespace matched in a tagname is a space"""
+        whitespace_characters = '\t\n\r\f\v'
+        for ch in whitespace_characters:
+            data = 'tag:Bad' + ch + 'space'
+            output = '<p><a href="/tag/Bad">tag:Bad</a>'
+            result = h.render_markdown(data)
+            assert output in result, '\nGot: %s\nWanted: %s' % (result, output)
+
+    def test_tag_names_with_unicode_alphanumeric(self):
+        """Asserts that unicode alphanumeric characters are captured"""
+        data = u'tag:"Japanese katakana \u30a1" blah'
+        output = u'<p><a href="/tag/Japanese%20katakana%20%E3%82%A1">tag:&#34;Japanese katakana \u30a1&#34;</a> blah</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_normal_link(self):
+        data = 'http://somelink/'
+        output = '<p><a href="http://somelink/" target="_blank" rel="nofollow">http://somelink/</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_normal_link_with_anchor(self):
+        data = 'http://somelink.com/#anchor'
+        output = '<p><a href="http://somelink.com/#anchor" target="_blank" rel="nofollow">http://somelink.com/#anchor</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_auto_link(self):
+        data = 'http://somelink.com'
+        output = '<p><a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_auto_link_after_whitespace(self):
+        data = 'go to http://somelink.com'
+        output = '<p>go to <a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_malformed_link_1(self):
+        data = u'<a href=\u201dsomelink\u201d>somelink</a>'
+        output = '<p>somelink</p>'
         eq_(h.render_markdown(data), output)
 
 

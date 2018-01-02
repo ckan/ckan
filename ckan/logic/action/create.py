@@ -3,10 +3,10 @@
 '''API functions for adding data to CKAN.'''
 
 import logging
-import mimetypes
 import random
 import re
 from socket import error as socket_error
+import string
 
 import paste.deploy.converters
 from sqlalchemy import func
@@ -120,7 +120,8 @@ def package_create(context, data_dict):
     :param owner_org: the id of the dataset's owning organization, see
         :py:func:`~ckan.logic.action.get.organization_list` or
         :py:func:`~ckan.logic.action.get.organization_list_for_user` for
-        available values (optional)
+        available values. This parameter can be made optional if the config
+        option :ref:`ckan.auth.create_unowned_dataset` is set to ``True``.
     :type owner_org: string
 
     :returns: the newly created dataset (unless 'return_id_only' is set to True
@@ -315,8 +316,10 @@ def resource_create(context, data_dict):
         _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError, e:
-        errors = e.error_dict['resources'][-1]
-        raise ValidationError(errors)
+        try:
+            raise ValidationError(e.error_dict['resources'][-1])
+        except (KeyError, IndexError):
+            raise ValidationError(e.error_dict)
 
     # Get out resource_id resource from model as it will not appear in
     # package_show until after commit
@@ -610,7 +613,7 @@ def member_create(context, data_dict=None):
                               table_id=obj.id,
                               group_id=group.id,
                               state='active')
-
+        member.group = group
     member.capacity = capacity
 
     model.Session.add(member)
@@ -939,8 +942,6 @@ def user_create(context, data_dict):
     :type fullname: string
     :param about: a description of the new user (optional)
     :type about: string
-    :param openid: (optional)
-    :type openid: string
 
     :returns: the newly created user
     :rtype: dictionary
@@ -1020,6 +1021,7 @@ def user_invite(context, data_dict):
     :returns: the newly created user
     :rtype: dictionary
     '''
+    import string
     _check_access('user_invite', context, data_dict)
 
     schema = context.get('schema',
@@ -1034,7 +1036,19 @@ def user_invite(context, data_dict):
         raise NotFound()
 
     name = _get_random_username_from_email(data['email'])
-    password = str(random.SystemRandom().random())
+    # Choose a password. However it will not be used - the invitee will not be
+    # told it - they will need to reset it
+    while True:
+        password = ''.join(random.SystemRandom().choice(
+            string.ascii_lowercase + string.ascii_uppercase + string.digits)
+            for _ in range(12))
+        # Occasionally it won't meet the constraints, so check
+        errors = {}
+        logic.validators.user_password_validator(
+            'password', {'password': password}, errors, None)
+        if not errors:
+            break
+
     data['name'] = name
     data['password'] = password
     data['state'] = ckan.model.State.PENDING

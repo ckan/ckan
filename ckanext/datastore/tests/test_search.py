@@ -2,6 +2,7 @@
 
 import json
 import nose
+import urllib
 import pprint
 
 import sqlalchemy.orm as orm
@@ -12,7 +13,7 @@ import ckan.model as model
 import ckan.tests.legacy as tests
 
 from ckan.common import config
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
 
 import ckan.tests.helpers as helpers
@@ -20,6 +21,7 @@ import ckan.tests.factories as factories
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+assert_in = nose.tools.assert_in
 
 
 class TestDatastoreSearchNewTest(object):
@@ -66,6 +68,7 @@ class TestDatastoreSearchNewTest(object):
             ],
         }
         result = helpers.call_action('datastore_create', **data)
+
         search_data = {
             'resource_id': resource['id'],
             'fields': 'year',
@@ -106,14 +109,16 @@ class TestDatastoreSearchNewTest(object):
 
 
 
-class TestDatastoreSearch(tests.WsgiAppCase):
+class TestDatastoreSearch():
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
+
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -165,9 +170,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                                  u'characters': None,
                                  u'rating with %': u'99%'}]
 
-        engine = db._get_engine(
-                {'connection_url': config['ckan.datastore.write_url']}
-            )
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -512,14 +515,13 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         ) for record in result['records']]
         assert results == self.expected_records, result['records']
 
-        expected_fields = [{u'type': u'int4', u'id': u'_id'},
+        expected_fields = [{u'type': u'int', u'id': u'_id'},
                         {u'type': u'text', u'id': u'b\xfck'},
                         {u'type': u'text', u'id': u'author'},
                         {u'type': u'timestamp', u'id': u'published'},
-                        {u'type': u'json', u'id': u'nested'},
-                        {u'type': u'float4', u'id': u'rank'}]
+                        {u'type': u'json', u'id': u'nested'}]
         for field in expected_fields:
-            assert field in result['fields'], field
+            assert_in(field, result['fields'])
 
         # test multiple word queries (connected with and)
         data = {'resource_id': self.data['resource_id'],
@@ -648,11 +650,12 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['error'].get('fields') is not None, res_dict['error']
 
 
-class TestDatastoreFullTextSearch(tests.WsgiAppCase):
+class TestDatastoreFullTextSearch():
     @classmethod
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -775,7 +778,7 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
         assert res_dict['success'], pprint.pformat(res_dict)
 
 
-class TestDatastoreSQL(tests.WsgiAppCase):
+class TestDatastoreSQL():
     sysadmin_user = None
     normal_user = None
 
@@ -783,6 +786,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         plugin = p.load('datastore')
         if plugin.legacy_mode:
             # make sure we undo adding the plugin
@@ -838,8 +842,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                                  u'published': None}]
         cls.expected_join_results = [{u'first': 1, u'second': 1}, {u'first': 1, u'second': 2}]
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -926,10 +929,9 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             where a.author = b.author
             limit 2
             '''.format(self.data['resource_id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
+        data = urllib.urlencode({'sql': query})
         auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+        res = self.app.post('/api/action/datastore_search_sql', params=data,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
@@ -941,8 +943,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             'user': self.sysadmin_user.name,
             'model': model}
         data_dict = {
-            'resource_id': self.data['resource_id'],
-            'connection_url': config['ckan.datastore.write_url']}
+            'resource_id': self.data['resource_id']}
         p.toolkit.get_action('datastore_make_private')(context, data_dict)
         query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
         data = {'sql': query}
@@ -1091,7 +1092,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         ]
         for query in test_cases:
             data = {'sql': query.replace('\n', '')}
-            postparams = json.dumps(data)
+            postparams = urllib.urlencode(data)
             res = self.app.post('/api/action/datastore_search_sql',
                                 params=postparams,
                                 status=403)

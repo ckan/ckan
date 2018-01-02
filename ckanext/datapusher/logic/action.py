@@ -4,6 +4,7 @@ import logging
 import json
 import urlparse
 import datetime
+import time
 
 from dateutil.parser import parse as parse_date
 
@@ -84,18 +85,34 @@ def datapusher_submit(context, data_dict):
         'error': '{}',
     }
     try:
-        task_id = p.toolkit.get_action('task_status_show')(context, {
+        existing_task = p.toolkit.get_action('task_status_show')(context, {
             'entity_id': res_id,
             'task_type': 'datapusher',
             'key': 'datapusher'
-        })['id']
-        task['id'] = task_id
+        })
+        assume_task_stale_after = datetime.timedelta(seconds=int(
+            config.get('ckan.datapusher.assume_task_stale_after', 3600)))
+        if existing_task.get('state') == 'pending':
+            updated = datetime.datetime.strptime(
+                existing_task['last_updated'], '%Y-%m-%dT%H:%M:%S.%f')
+            time_since_last_updated = datetime.datetime.utcnow() - updated
+            if time_since_last_updated > assume_task_stale_after:
+                # it's been a while since the job was last updated - it's more
+                # likely something went wrong with it and the state wasn't
+                # updated than its still in progress. Let it be restarted.
+                log.info('A pending task was found %r, but it is only %s hours'
+                         ' old', existing_task['id'], time_since_last_updated)
+            else:
+                log.info('A pending task was found %s for this resource, so '
+                         'skipping this duplicate task', existing_task['id'])
+                return False
+
+        task['id'] = existing_task['id']
     except logic.NotFound:
         pass
 
     context['ignore_auth'] = True
-    result = p.toolkit.get_action('task_status_update')(context, task)
-    task_id = result['id']
+    p.toolkit.get_action('task_status_update')(context, task)
 
     try:
         r = requests.post(
@@ -271,6 +288,13 @@ def datapusher_status(context, data_dict):
                                            'Authorization': job_key})
             r.raise_for_status()
             job_detail = r.json()
+            for log in job_detail['logs']:
+                if 'timestamp' in log:
+                    date = time.strptime(
+                        log['timestamp'], "%Y-%m-%dT%H:%M:%S.%f")
+                    date = datetime.datetime.utcfromtimestamp(
+                        time.mktime(date))
+                    log['timestamp'] = date
         except (requests.exceptions.ConnectionError,
                 requests.exceptions.HTTPError):
             job_detail = {'error': 'cannot connect to datapusher'}

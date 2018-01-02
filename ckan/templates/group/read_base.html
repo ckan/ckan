@@ -9,7 +9,7 @@
 
 {% block content_action %}
   {% if h.check_access('group_update', {'id': c.group_dict.id}) %}
-    {% link_for _('Manage'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='wrench' %}
+    {% link_for _('Manage'), controller='group', action='edit', id=c.group_dict.name, class_='btn btn-default', icon='wrench' %}
   {% endif %}
 {% endblock %}
 

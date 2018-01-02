@@ -44,6 +44,8 @@ class _Toolkit(object):
         'literal',
         # get logic action function
         'get_action',
+        # decorator for chained action
+        'chained_action',
         # get navl schema converter
         'get_converter',
         # get navl schema validator
@@ -66,8 +68,10 @@ class _Toolkit(object):
         'StopOnError',
         # validation invalid exception
         'Invalid',
-        # class for providing cli interfaces
+        # old class for providing CLI interfaces
         'CkanCommand',
+        # function for initializing CLI interfaces
+        'load_config',
         # base class for IDatasetForm plugins
         'DefaultDatasetForm',
         # base class for IGroupForm plugins
@@ -158,19 +162,21 @@ It stores the configuration values defined in the :ref:`config_file`, eg::
 
 '''
         t['_'] = common._
-        self.docstring_overrides['_'] = '''The Pylons ``_()`` function.
+        self.docstring_overrides['_'] = '''Translates a string to the
+current locale.
 
-The Pylons ``_()`` function is a reference to the ``ugettext()`` function.
+The ``_()`` function is a reference to the ``ugettext()`` function.
 Everywhere in your code where you want strings to be internationalized
 (made available for translation into different languages), wrap them in the
 ``_()`` function, eg.::
 
     msg = toolkit._("Hello")
 
+Returns the localized unicode string.
 '''
         t['ungettext'] = common.ungettext
-        self.docstring_overrides['ungettext'] = '''The Pylons ``ungettext``
-        function.
+        self.docstring_overrides['ungettext'] = '''Translates a string with
+plural forms to the current locale.
 
 Mark a string for translation that has pural forms in the format
 ``ungettext(singular, plural, n)``. Returns the localized unicode string of
@@ -227,6 +233,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['literal'] = webhelpers.html.tags.literal
 
         t['get_action'] = logic.get_action
+        t['chained_action'] = logic.chained_action
         t['get_converter'] = logic.get_validator  # For backwards compatibility
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
@@ -240,6 +247,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['Invalid'] = logic_validators.Invalid
 
         t['CkanCommand'] = cli.CkanCommand
+        t['load_config'] = cli.load_config
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
         t['DefaultGroupForm'] = lib_plugins.DefaultGroupForm
         t['DefaultOrganizationForm'] = lib_plugins.DefaultOrganizationForm

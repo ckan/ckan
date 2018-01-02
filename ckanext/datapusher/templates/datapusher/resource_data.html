@@ -7,7 +7,7 @@
   {% set action = h.url_for(controller='ckanext.datapusher.plugin:ResourceDataController', action='resource_data', id=pkg.name, resource_id=res.id) %}
   {% set show_table = true %}
 
-  <form method="post" action="{{ action }}" >
+  <form method="post" action="{{ action }}" class="datapusher-form">
     <button class="btn btn-primary" name="save" type="submit">
       <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
     </button>
@@ -68,10 +68,12 @@
         <li class="item no-avatar{{ class }}">
           <i class="fa icon fa-{{ icon }}"></i>
           <p>
-            {{ item.message | urlize }}<br>
+            {% for line in item.message.strip().split('\n') %}
+              {{ line | urlize }}<br>
+            {% endfor %}
             <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
               {{ h.time_ago_from_timestamp(item.timestamp) }}
-              <a href="#" data-target="popover" data-content="<dl>{% for key, value in item.iteritems() %}<dt>{{ key }}</dt><dd>{{ value }}</dd>{% endfor %}</dl>" data-html="true">{{ _('Details') }}</a>
+              <a href="#" data-target="popover" data-content="<dl>{% for key, value in item.iteritems() %}<dt>{{ key }}</dt><dd>{{ h.clean_html(value) }}</dd>{% endfor %}</dl>" data-html="true">{{ _('Details') }}</a>
             </span>
           </p>
         </li>

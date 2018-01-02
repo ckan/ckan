@@ -2,7 +2,7 @@
 
 import datetime
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_
+from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_, text
 import vdm.sqlalchemy
 
 import meta
@@ -198,7 +198,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         '''
         results = meta.Session.query(Group.id, Group.name, Group.title,
                                      'parent_id').\
-            from_statement(HIERARCHY_DOWNWARDS_CTE).\
+            from_statement(text(HIERARCHY_DOWNWARDS_CTE)).\
             params(id=self.id, type=type).all()
         return results
 
@@ -221,7 +221,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Returns this group's parent, parent's parent, parent's parent's
         parent etc.. Sorted with the top level parent first.'''
         return meta.Session.query(Group).\
-            from_statement(HIERARCHY_UPWARDS_CTE).\
+            from_statement(text(HIERARCHY_UPWARDS_CTE)).\
             params(id=self.id, type=type).all()
 
     @classmethod
@@ -317,7 +317,8 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             return query.all()
 
     @classmethod
-    def search_by_name_or_title(cls, text_query, group_type=None, is_org=False):
+    def search_by_name_or_title(cls, text_query, group_type=None,
+                                is_org=False, limit=20):
         text_query = text_query.strip().lower()
         q = meta.Session.query(cls) \
             .filter(or_(cls.name.contains(text_query),
@@ -329,7 +330,9 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             if group_type:
                 q = q.filter(cls.type == group_type)
         q = q.filter(cls.state == 'active')
-        return q.order_by(cls.title)
+        q.order_by(cls.title)
+        q = q.limit(limit)
+        return q
 
     def add_package_by_name(self, package_name):
         if not package_name:

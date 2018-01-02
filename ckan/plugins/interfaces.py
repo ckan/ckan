@@ -4,6 +4,9 @@ u'''A collection of interfaces that CKAN plugins can implement to customize and
 extend CKAN.
 
 '''
+from inspect import isclass
+from pyutilib.component.core import Interface as _pca_Interface
+
 __all__ = [
     u'Interface',
     u'IRoutes',
@@ -35,20 +38,29 @@ __all__ = [
     u'IUploader',
     u'IBlueprint',
     u'IPermissionLabels',
+    u'IForkObserver',
 ]
-
-from inspect import isclass
-from pyutilib.component.core import Interface as _pca_Interface
 
 
 class Interface(_pca_Interface):
+    u'''Base class for custom interfaces.
+
+    Marker base class for extension point interfaces.  This class
+    is not intended to be instantiated.  Instead, the declaration
+    of subclasses of Interface are recorded, and these
+    classes are used to define extension points.
+    '''
 
     @classmethod
     def provided_by(cls, instance):
+        u'''Check that object is an instance of class that implements interface.
+        '''
         return cls.implemented_by(instance.__class__)
 
     @classmethod
     def implemented_by(cls, other):
+        u'''Check wheter class implements current interface.
+        '''
         if not isclass(other):
             raise TypeError(u'Class expected', other)
         try:
@@ -125,7 +137,7 @@ class IRoutes(Interface):
 class IMapper(Interface):
     u'''
     A subset of the SQLAlchemy mapper extension hooks.
-    See http://docs.sqlalchemy.org/en/rel_0_9/orm/deprecated.html#sqlalchemy.orm.interfaces.MapperExtension
+    See `sqlalchemy MapperExtension`_
 
     Example::
 
@@ -135,6 +147,9 @@ class IMapper(Interface):
         ...
         ...     def after_update(self, mapper, connection, instance):
         ...         log(u'Updated: %r', instance)
+
+    .. _sqlalchemy MapperExtension:\
+    http://docs.sqlalchemy.org/en/rel_0_9/orm/deprecated.html#sqlalchemy.orm.interfaces.MapperExtension
     '''
 
     def before_insert(self, mapper, connection, instance):
@@ -225,7 +240,10 @@ class IDomainObjectModification(Interface):
 
     def notify_after_commit(self, entity, operation):
         u'''
-        Send a notification after entity modification.
+        ** DEPRECATED **
+
+        Supposed to send a notification after entity modification, but it
+        doesn't work.
 
         :param entity: instance of module.Package.
         :param operation: 'new', 'changed' or 'deleted'.
@@ -506,21 +524,23 @@ class IGroupController(Interface):
     '''
 
     def read(self, entity):
+        u'''Called after IGroupController.before_view inside group_read.
+        '''
         pass
 
     def create(self, entity):
+        u'''Called after group had been created inside group_create.
+        '''
         pass
 
     def edit(self, entity):
-        pass
-
-    def authz_add_role(self, object_role):
-        pass
-
-    def authz_remove_role(self, object_role):
+        u'''Called after group had been updated inside group_update.
+        '''
         pass
 
     def delete(self, entity):
+        u'''Called before commit inside group_delete.
+        '''
         pass
 
     def before_view(self, pkg_dict):
@@ -541,21 +561,24 @@ class IOrganizationController(Interface):
     '''
 
     def read(self, entity):
+        u'''Called after IOrganizationController.before_view inside
+        organization_read.
+        '''
         pass
 
     def create(self, entity):
+        u'''Called after organization had been created inside organization_create.
+        '''
         pass
 
     def edit(self, entity):
-        pass
-
-    def authz_add_role(self, object_role):
-        pass
-
-    def authz_remove_role(self, object_role):
+        u'''Called after organization had been updated inside organization_update.
+        '''
         pass
 
     def delete(self, entity):
+        u'''Called before commit inside organization_delete.
+        '''
         pass
 
     def before_view(self, pkg_dict):
@@ -574,21 +597,23 @@ class IPackageController(Interface):
     '''
 
     def read(self, entity):
+        u'''Called after IGroupController.before_view inside package_read.
+        '''
         pass
 
     def create(self, entity):
+        u'''Called after group had been created inside package_create.
+        '''
         pass
 
     def edit(self, entity):
-        pass
-
-    def authz_add_role(self, object_role):
-        pass
-
-    def authz_remove_role(self, object_role):
+        u'''Called after group had been updated inside package_update.
+        '''
         pass
 
     def delete(self, entity):
+        u'''Called before commit inside package_delete.
+        '''
         pass
 
     def after_create(self, context, pkg_dict):
@@ -892,6 +917,17 @@ class IActions(Interface):
         By decorating a function with the `ckan.logic.side_effect_free`
         decorator, the associated action will be made available by a GET
         request (as well as the usual POST request) through the action API.
+
+        By decrorating a function with the 'ckan.plugins.toolkit.chained_action,
+        the action will be chained to another function defined in plugins with a
+        "first plugin wins" pattern, which means the first plugin declaring a
+        chained action should be called first. Chained actions must be
+        defined as action_function(original_action, context, data_dict)
+        where the first parameter will be set to the action function in
+        the next plugin or in core ckan. The chained action may call the
+        original_action function, optionally passing different values,
+        handling exceptions, returning different values and/or raising
+        different exceptions to the caller.
         '''
 
 
@@ -1545,10 +1581,7 @@ class IFacets(Interface):
 
 
 class IAuthenticator(Interface):
-    u'''EXPERIMENTAL
-
-    Allows custom authentication methods to be integrated into CKAN.
-    Currently it is experimental and the interface may change.'''
+    u'''Allows custom authentication methods to be integrated into CKAN.'''
 
     def identify(self):
         u'''called to identify the user.
@@ -1649,7 +1682,7 @@ class IUploader(Interface):
 
         Optionally, this method can set the following two attributes
         on the class instance so they are set in the resource object:
-            
+
             filesize (int):  Uploaded file filesize.
             mimetype (str):  Uploaded file mimetype.
 
@@ -1719,4 +1752,14 @@ class IPermissionLabels(Interface):
 
         :returns: permission labels
         :rtype: list of unicode strings
+        '''
+
+
+class IForkObserver(Interface):
+    u'''
+    Observe forks of the CKAN process.
+    '''
+    def before_fork(self):
+        u'''
+        Called shortly before the CKAN process is forked.
         '''

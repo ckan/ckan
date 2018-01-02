@@ -10,20 +10,10 @@ cache:
      - ~/docker
 
 before_install:
-  - if [[ -e ~/docker/postgresql.tar ]]; then docker load -i ~/docker/postgresql.tar; fi
-  - if [[ -e ~/docker/solr.tar ]]; then docker load -i ~/docker/solr.tar; fi
-  - if [[ -e ~/docker/redis.tar ]]; then docker load -i ~/docker/redis.tar; fi
-  - if [[ -e ~/docker/ckan.tar ]]; then docker load -i ~/docker/ckan.tar; fi
-
-  - docker build --rm=false -t postgresql ./contrib/docker/postgresql/
-  - docker build --rm=false -t solr ./contrib/docker/solr/
+  - docker build --rm=false -f contrib/docker/postgresql/Dockerfile -t postgresql .
+  - docker build --rm=false -f contrib/docker/solr/Dockerfile -t solr .
   - docker pull redis:latest
   - docker build --rm=false -t ckan .
-
-  - mkdir -p ~/docker; docker save postgresql > ~/docker/postgresql.tar
-  - mkdir -p ~/docker; docker save solr > ~/docker/solr.tar
-  - mkdir -p ~/docker; docker save redis:latest > ~/docker/redis.tar
-  - mkdir -p ~/docker; docker save ckan > ~/docker/ckan.tar
 
 install:
   - docker run -d --name db postgresql

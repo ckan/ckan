@@ -12,14 +12,8 @@
 
   <form method="post" action="{{ action }}" >
     {% block dictionary_form %}
-      {% for f in fields %}
-        <h3>{{ _( "Field {num}.").format(num=loop.index) }} {{ f.id }} ({{ f.type }})</h3>
-        {{ form.input('f' ~ loop.index ~ 'label',
-          label=_('Label'), id='field-f' ~ loop.index ~ 'label',
-          value=f.get('info', {}).get('label', ''), classes=['control-full']) }}
-        {{ form.markdown('f' ~ loop.index ~ 'notes',
-          label=_('Description'), id='field-d' ~ loop.index ~ 'notes',
-          value=f.get('info', {}).get('notes', '')) }}
+      {% for field in fields %}
+          {% snippet "datastore/snippets/dictionary_form.html", field=field, position=loop.index %}
       {% endfor %}
     {% endblock %}
     <button class="btn btn-primary" name="save" type="submit">

@@ -1,10 +1,10 @@
-# These are packages that required when running ckan tests and building the docs
+# These are packages that are required by ckan developers - for running ckan in debug mode, running ckan tests, building the docs and to pip-compile the requirements.in file.
 
 beautifulsoup4==4.5.1
 coveralls   #Let Unpinned - Requires latest coveralls
 docutils==0.12
 factory-boy==2.1.1
-Flask-DebugToolbar==0.10.0
+Flask-DebugToolbar==0.10.1
 httpretty==0.8.3
 mock==2.0.0
 pycodestyle==2.2.0

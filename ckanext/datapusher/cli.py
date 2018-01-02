@@ -4,7 +4,7 @@ import sys
 
 import ckan.lib.cli as cli
 import ckan.plugins as p
-import ckanext.datastore.db as datastore_db
+import ckanext.datastore.backend as datastore_backend
 
 
 class DatapusherCommand(cli.CkanCommand):
@@ -24,19 +24,29 @@ class DatapusherCommand(cli.CkanCommand):
     summary = __doc__.split('\n')[0]
     usage = __doc__
 
+    def __init__(self, name):
+        super(DatapusherCommand, self).__init__(name)
+
+        self.parser.add_option('-y', dest='yes',
+                               action='store_true', default=False,
+                               help='Always answer yes to questions')
+
     def command(self):
         if self.args and self.args[0] == 'resubmit':
-            self._confirm_or_abort()
+            if not self.options.yes:
+                self._confirm_or_abort()
 
             self._load_config()
             self._resubmit_all()
         elif self.args and self.args[0] == 'submit_all':
-            self._confirm_or_abort()
+            if not self.options.yes:
+                self._confirm_or_abort()
 
             self._load_config()
             self._submit_all_packages()
         elif self.args and self.args[0] == 'submit':
-            self._confirm_or_abort()
+            if not self.options.yes:
+                self._confirm_or_abort()
 
             if len(self.args) != 2:
                 print "This command requires an argument\n"
@@ -60,7 +70,7 @@ class DatapusherCommand(cli.CkanCommand):
             sys.exit(0)
 
     def _resubmit_all(self):
-        resource_ids = datastore_db.get_all_resources_ids_in_datastore()
+        resource_ids = datastore_backend.get_all_resources_ids_in_datastore()
         self._submit(resource_ids)
 
     def _submit_all_packages(self):

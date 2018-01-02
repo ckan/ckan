@@ -54,6 +54,7 @@ sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
 ckan.datastore.default_fts_lang = english
 ckan.datastore.default_fts_index_method = gist
 
+
 ## Site Settings
 
 ckan.site_url =
@@ -115,6 +116,11 @@ ckan.views.default_views = image_view text_view recline_view
 #ckan.preview.image_formats = png jpeg jpg gif
 
 ## Front-End Settings
+
+# Uncomment following configuration to enable using of Bootstrap 2
+#ckan.base_public_folder = public-bs2
+#ckan.base_templates_folder = templates-bs2
+
 ckan.site_title = CKAN
 ckan.site_logo = /base/images/ckan-logo.png
 ckan.site_description =
@@ -159,6 +165,7 @@ ckan.feeds.author_link =
 
 #ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 #ckan.datapusher.url = http://127.0.0.1:8800/
+#ckan.datapusher.assume_task_stale_after = 3600
 
 # Resource Proxy settings
 # Preview size limit, default: 1MB

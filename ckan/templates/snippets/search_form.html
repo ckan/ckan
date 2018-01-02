@@ -9,13 +9,15 @@
 <form {% if form_id %}id="{{ form_id }}" {% endif %}class="search-form{% if no_bottom_border %} no-bottom-border{% endif %}" method="get" data-module="select-switch">
 
   {% block search_input %}
-    <div class="search-input control-group {{ search_class }}">
-      <input type="text" class="search" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
+    <div class="input-group search-input-group">
+      <label for="field-giant-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
+      <input id="field-giant-search" type="text" class="form-control" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
       {% block search_input_button %}
-      <button type="submit" value="search">
-        <i class="fa fa-search"></i>
-        <span>{{ _('Submit') }}</span>
-      </button>
+      <span class="input-group-btn">
+        <button class="btn btn-default" type="submit" value="search">
+          <i class="fa fa-search"></i>
+        </button>
+      </span>
       {% endblock %}
     </div>
   {% endblock %}
@@ -28,9 +30,9 @@
 
   {% block search_sortby %}
     {% if sorting %}
-      <div class="form-select control-group control-order-by">
+      <div class="form-select form-group control-order-by">
         <label for="field-order-by">{{ _('Order by') }}</label>
-        <select id="field-order-by" name="sort">
+        <select id="field-order-by" name="sort" class="form-control">
           {% for label, value in sorting %}
             {% if label and value %}
               <option value="{{ value }}"{% if sorting_selected == value %} selected="selected"{% endif %}>{{ label }}</option>
@@ -38,7 +40,7 @@
           {% endfor %}
         </select>
         {% block search_sortby_button %}
-        <button class="btn js-hide" type="submit">{{ _('Go') }}</button>
+        <button class="btn btn-default js-hide" type="submit">{{ _('Go') }}</button>
         {% endblock %}
       </div>
     {% endif %}
@@ -69,8 +71,8 @@
             </span>
           {% endfor %}
         {% endfor %}
-      </p>     
-      <a class="show-filters btn">{{ _('Filter Results') }}</a>
+      </p>
+      <a class="show-filters btn btn-default">{{ _('Filter Results') }}</a>
     {% endif %}
   {% endblock %}
 

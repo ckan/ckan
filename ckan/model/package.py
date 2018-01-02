@@ -231,16 +231,18 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         if type_ in package_relationship.PackageRelationship.get_forward_types():
             subject = self
             object_ = related_package
+            direction = "forward"
         elif type_ in package_relationship.PackageRelationship.get_reverse_types():
             type_ = package_relationship.PackageRelationship.reverse_to_forward_type(type_)
             assert type_
             subject = related_package
             object_ = self
+            direction = "reverse"
         else:
             raise KeyError, 'Package relationship type: %r' % type_
 
         rels = self.get_relationships(with_package=related_package,
-                                      type=type_, active=False, direction="forward")
+                                      type=type_, active=False, direction=direction)
         if rels:
             rel = rels[0]
             if comment:

@@ -139,9 +139,9 @@ def make_package(name=None):
         'name': name,
         'title': 'My Test Package',
         'author': 'test author',
-        'author_email': 'test_author@test_author.com',
+        'author_email': 'test_author@testauthor.com',
         'maintainer': 'test maintainer',
-        'maintainer_email': 'test_maintainer@test_maintainer.com',
+        'maintainer_email': 'test_maintainer@testmaintainer.com',
         'notes': 'some test notes',
         'url': 'www.example.com',
         }
@@ -1418,7 +1418,7 @@ class TestActivity:
         # Create a new user.
         user_dict = {'name': 'testuser',
                 'about': 'Just a test user', 'email': 'me@test.org',
-                'password': 'testpass'}
+                'password': 'TestPassword1'}
         response = self.app.post('/api/action/user_create',
             json.dumps(user_dict),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])})

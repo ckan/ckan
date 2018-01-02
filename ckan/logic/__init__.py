@@ -4,6 +4,7 @@ import functools
 import logging
 import re
 import sys
+from collections import defaultdict
 
 import formencode.validators
 
@@ -131,7 +132,13 @@ def parse_params(params, ignore_keys=None):
     for key in params:
         if ignore_keys and key in ignore_keys:
             continue
-        value = params.getall(key)
+        # flask request has `getlist` instead of pylons' `getall`
+
+        if hasattr(params, 'getall'):
+            value = params.getall(key)
+        else:
+            value = params.getlist(key)
+
         # Blank values become ''
         if not value:
             value = ''
@@ -312,6 +319,15 @@ def clear_actions_cache():
     _actions.clear()
 
 
+def chained_action(func):
+    func.chained_action = True
+    return func
+
+
+def _is_chained_action(func):
+    return getattr(func, 'chained_action', False)
+
+
 def get_action(action):
     '''Return the named :py:mod:`ckan.logic.action` function.
 
@@ -394,20 +410,32 @@ def get_action(action):
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
     fetched_actions = {}
+    chained_actions = defaultdict(list)
     for plugin in p.PluginImplementations(p.IActions):
         for name, auth_function in plugin.get_actions().items():
-            if name in resolved_action_plugins:
+            if _is_chained_action(auth_function):
+                chained_actions[name].append(auth_function)
+            elif name in resolved_action_plugins:
                 raise NameConflict(
                     'The action %r is already implemented in %r' % (
                         name,
                         resolved_action_plugins[name]
                     )
                 )
-            resolved_action_plugins[name] = plugin.name
-            # Extensions are exempted from the auth audit for now
-            # This needs to be resolved later
-            auth_function.auth_audit_exempt = True
-            fetched_actions[name] = auth_function
+            else:
+                resolved_action_plugins[name] = plugin.name
+                # Extensions are exempted from the auth audit for now
+                # This needs to be resolved later
+                auth_function.auth_audit_exempt = True
+                fetched_actions[name] = auth_function
+    for name, func_list in chained_actions.iteritems():
+        if name not in fetched_actions:
+            raise NotFound('The action %r is not found for chained action' % (
+                name))
+        for func in reversed(func_list):
+            prev_func = fetched_actions[name]
+            fetched_actions[name] = functools.partial(func, prev_func)
+
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
 
@@ -655,12 +683,8 @@ def get_validator(validator):
         converters = _import_module_functions('ckan.logic.converters')
         _validators_cache.update(converters)
 
-        for plugin in p.PluginImplementations(p.IValidators):
+        for plugin in reversed(list(p.PluginImplementations(p.IValidators))):
             for name, fn in plugin.get_validators().items():
-                if name in _validators_cache:
-                    raise NameConflict(
-                        'The validator %r is already defined' % (name,)
-                    )
                 log.debug('Validator function {0} from plugin {1} was inserted'
                           .format(name, plugin.name))
                 _validators_cache[name] = fn

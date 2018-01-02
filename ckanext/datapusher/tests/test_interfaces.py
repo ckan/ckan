@@ -9,16 +9,14 @@ import datetime
 from nose.tools import raises
 from ckan.common import config
 import sqlalchemy.orm as orm
-import paste.fixture
+from ckan.tests.helpers import _get_test_app
 
 from ckan.tests import helpers, factories
 import ckan.plugins as p
-import ckan.model as model
 import ckan.tests.legacy as tests
-import ckan.config.middleware as middleware
 
 import ckanext.datapusher.interfaces as interfaces
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs
 
 
@@ -32,7 +30,7 @@ class FakeDataPusherPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(interfaces.IDataPusher, inherit=True)
 
-    def configure(self, config):
+    def configure(self, _config):
         self.after_upload_calls = 0
 
     def can_upload(self, resource_id):
@@ -48,8 +46,7 @@ class TestInterace(object):
 
     @classmethod
     def setup_class(cls):
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = _get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
@@ -61,8 +58,7 @@ class TestInterace(object):
 
         cls.sysadmin_user = factories.User(name='testsysadmin', sysadmin=True)
         cls.normal_user = factories.User(name='annafan')
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod

@@ -69,9 +69,21 @@ def load_environment(global_conf, app_conf):
 
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    valid_base_public_folder_names = ['public', 'public-bs2']
+    static_files = app_conf.get('ckan.base_public_folder', 'public')
+    app_conf['ckan.base_public_folder'] = static_files
+
+    if static_files not in valid_base_public_folder_names:
+        raise CkanConfigurationException(
+            'You provided an invalid value for ckan.base_public_folder. '
+            'Possible values are: "public" and "public-bs2".'
+        )
+
+    log.info('Loading static files from %s' % static_files)
     paths = dict(root=root,
                  controllers=os.path.join(root, 'controllers'),
-                 static_files=os.path.join(root, 'public'),
+                 static_files=os.path.join(root, static_files),
                  templates=[])
 
     # Initialize main CKAN config object
@@ -95,12 +107,12 @@ def load_environment(global_conf, app_conf):
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
+    # load all CKAN plugins
+    p.load_all()
+
     # Check Redis availability
     if not is_redis_available():
         log.critical('Could not connect to Redis.')
-
-    # load all CKAN plugins
-    p.load_all()
 
     app_globals.reset()
 
@@ -220,14 +232,26 @@ def update_config():
     helpers.load_plugin_helpers()
     config['pylons.h'] = helpers.helper_functions
 
-    jinja2_templates_path = os.path.join(root, 'templates')
+    # Templates and CSS loading from configuration
+    valid_base_templates_folder_names = ['templates', 'templates-bs2']
+    templates = config.get('ckan.base_templates_folder', 'templates')
+    config['ckan.base_templates_folder'] = templates
+
+    if templates not in valid_base_templates_folder_names:
+        raise CkanConfigurationException(
+            'You provided an invalid value for ckan.base_templates_folder. '
+            'Possible values are: "templates" and "templates-bs2".'
+        )
+
+    jinja2_templates_path = os.path.join(root, templates)
+    log.info('Loading templates from %s' % jinja2_templates_path)
     template_paths = [jinja2_templates_path]
 
     extra_template_paths = config.get('extra_template_paths', '')
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
-    config['pylons.app_globals'].template_paths = template_paths
+    config['computed_template_paths'] = template_paths
 
     # Set the default language for validation messages from formencode
     # to what is set as the default locale in the config

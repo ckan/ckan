@@ -15,7 +15,7 @@ import ckan.tests.factories as factories
 
 from ckan.common import config
 
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 assert_equal = nose.tools.assert_equal
@@ -77,7 +77,7 @@ class TestDatastoreUpsertNewTests(object):
         helpers.call_action('datastore_upsert', **data)
 
 
-class TestDatastoreUpsert(tests.WsgiAppCase):
+class TestDatastoreUpsert():
     sysadmin_user = None
     normal_user = None
 
@@ -85,6 +85,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -113,8 +114,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -329,7 +329,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 
 
 
-class TestDatastoreInsert(tests.WsgiAppCase):
+class TestDatastoreInsert():
     sysadmin_user = None
     normal_user = None
 
@@ -337,6 +337,7 @@ class TestDatastoreInsert(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -365,8 +366,7 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -431,7 +431,7 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         assert results.rowcount == 3
 
 
-class TestDatastoreUpdate(tests.WsgiAppCase):
+class TestDatastoreUpdate():
     sysadmin_user = None
     normal_user = None
 
@@ -439,6 +439,7 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -472,8 +473,7 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod

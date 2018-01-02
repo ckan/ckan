@@ -32,15 +32,19 @@ troubleshooting) see :doc:`paster`.
       cd |virtualenv|/src/ckan
 
 You have to create your first CKAN sysadmin user from the command line. For
-example, to create a user called ``seanh`` and make him a sysadmin:
+example, to create a new user called ``seanh`` and make him a sysadmin:
+
+.. parsed-literal::
+
+   paster sysadmin add seanh email=seanh@localhost name=seanh -c |production.ini|
+   
+You'll be prompted to enter a password during account creation.
+
+Or, if you already have an existing user, you could promote him to a sysadmin:
 
 .. parsed-literal::
 
    paster sysadmin add seanh -c |production.ini|
-
-If a user called ``seanh`` already exists he will be promoted to a sysadmin. If
-the user account doesn't exist yet you'll be prompted to enter a password and
-the account will be created.
 
 For a list of other command line commands for managing sysadmins, run::
 

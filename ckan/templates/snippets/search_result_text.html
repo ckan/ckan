@@ -28,18 +28,31 @@ Example:
   {% set text_query_none = _('No organizations found for "{query}"') %}
   {% set text_no_query = ungettext('{number} organization found', '{number} organizations found', count) %}
   {% set text_no_query_none = _('No organizations found') %}
+
+{% else %}
+  {% set text_query_singular = '{number} ' + type + ' found for "{query}"' %}
+  {% set text_query_plural = '{number} ' + type + 's found for "{query}"' %}
+  {% set text_query_none_plural = 'No ' + type + 's found for "{query}"' %}
+  {% set text_no_query_singular = '{number} ' + type + ' found' %}        
+  {% set text_no_query_plural = '{number} ' + type + 's found' %}
+  {% set text_no_query_none_plural = 'No ' + type + 's found' %}      
+
+  {% set text_query = ungettext(text_query_singular, text_query_plural, count) %}
+  {% set text_query_none = _(text_query_none_plural) %}
+  {% set text_no_query = ungettext(text_no_query_singular, text_no_query_plural, count) %}
+  {% set text_no_query_none = _(text_no_query_none_plural) %}
 {%- endif -%}
 
 {% if query %}
   {%- if count -%}
-    {{ text_query.format(number=h.localised_number(count), query=query) }}
+    {{ text_query.format(number=h.localised_number(count), query=query, type=type) }}
   {%- else -%}
-    {{ text_query_none.format(query=query) }}
+    {{ text_query_none.format(query=query, type=type) }}
   {%- endif -%}
 {%- else -%}
   {%- if count -%}
-    {{ text_no_query.format(number=h.localised_number(count)) }}
+    {{ text_no_query.format(number=h.localised_number(count), type=type) }}
   {%- else -%}
-    {{ text_no_query_none }}
+    {{ text_no_query_none.format(type=type) }}
   {%- endif -%}
 {%- endif -%}

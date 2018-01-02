@@ -2,6 +2,7 @@
 
 import json
 import nose
+from nose.tools import assert_equal
 
 import sqlalchemy
 import sqlalchemy.orm as orm
@@ -10,18 +11,18 @@ import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
-from ckan.common import config
+from ckan.tests import helpers
+from ckan.plugins.toolkit import ValidationError
 import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
 from ckan.logic import NotFound
-
-import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
+import ckanext.datastore.backend.postgres as db
+from ckanext.datastore.tests.helpers import (
+    rebuild_all_dbs, set_url_type, DatastoreFunctionalTestBase)
 
 assert_raises = nose.tools.assert_raises
 
 
-class TestDatastoreDelete(tests.WsgiAppCase):
+class TestDatastoreDelete():
     sysadmin_user = None
     normal_user = None
     Session = None
@@ -30,6 +31,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -47,8 +49,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
                          'rating with %': '42%'}]
         }
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
+
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
@@ -113,6 +115,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
                 'package_id': package['id']
             },
         }
+
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
         helpers.call_action('resource_delete', id=resource_id)
@@ -259,3 +262,33 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert(len(results['result']['records']) == 0)
 
         self._delete()
+
+
+class TestDatastoreFunctionDelete(DatastoreFunctionalTestBase):
+    def test_create_delete(self):
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'test_nop',
+            rettype=u'trigger',
+            definition=u'BEGIN RETURN NEW; END;')
+        helpers.call_action(
+            u'datastore_function_delete',
+            name=u'test_nop')
+
+    def test_delete_nonexistant(self):
+        try:
+            helpers.call_action(
+                u'datastore_function_delete',
+                name=u'test_not_there')
+        except ValidationError as ve:
+            assert_equal(
+                ve.error_dict,
+                {u'name': [u'function test_not_there() does not exist']})
+        else:
+            assert 0, u'no validation error'
+
+    def test_delete_if_exitst(self):
+        helpers.call_action(
+            u'datastore_function_delete',
+            name=u'test_not_there_either',
+            if_exists=True)

@@ -22,121 +22,133 @@
 @import "dashboard.less";
 @import "resource-view.less";
 @import "datapusher.less";
-
+@import "alerts.less";
+@import "input-groups.less";
 body {
-  // Using the masthead/footer gradient prevents the color from changing
-  // at the bottom of the window on pages with little content.
-  background: @mastheadBackgroundColor url("@{bgPath}");
+    // Using the masthead/footer gradient prevents the color from changing
+    // at the bottom of the window on pages with little content.
+    background: @mastheadBackgroundColor url("@{bgPath}");
 }
 
 [hidden] {
-  display: none;
+    display: none;
 }
 
 table {
-  table-layout: fixed;
+    table-layout: fixed;
 }
 
 thead th {
-  vertical-align: top;
+    vertical-align: top;
 }
 
-td, th {
-  word-wrap: break-word;
+td,
+th {
+    word-wrap: break-word;
 }
 
 table .metric {
-  width: 140px;
+    width: 140px;
 }
 
 code {
-  color: @codeTextColor;
-  border: none;
-  background: none;
-  white-space: normal;
+    color: @codeTextColor;
+    border: none;
+    background: none;
+    white-space: normal;
 }
 
 pre {
-  border: none;
-  background: none;
-  padding-left: 0;
-  padding-right: 0;
+    border: none;
+    background: none;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 mark {
-  background: @highlightBackground;
+    background: @highlightBackground;
 }
 
 blockquote p {
-  font-size: 1em;
+    font-size: 1em;
 }
 
 iframe {
-  border: none;
+    border: none;
 }
 
 .embedded-content h1 {
-  font-size: 1.4em;
+    font-size: 1.4em;
 }
 
 .embedded-content h2 {
-  font-size: 1.4em;
+    font-size: 1.4em;
 }
 
 .embedded-content h3 {
-  font-size: 1.2em;
+    font-size: 1.2em;
 }
 
 .popular {
-  text-indent: -999em;
+    text-indent: -999em;
 }
 
 .empty {
-  color: @emptyTextColor;
-  font-style: italic;
+    color: @emptyTextColor;
+    font-style: italic;
 }
 
 .page-heading {
-  margin-top: 0;
-  margin-bottom: 16px;
+    margin-top: 0;
+    margin-bottom: @grid-gutter-width/2;
 }
 
 .m-top {
-  margin-top: @gutterSmallX;
+    margin-top: @gutterSmallX;
 }
+
 .m-left {
-  margin-left: @gutterSmallX;
+    margin-left: @gutterSmallX;
 }
+
 .m-right {
-  margin-right: @gutterSmallX;
+    margin-right: @gutterSmallX;
 }
+
 .m-bottom {
-  margin-bottom: @gutterSmallX;
+    margin-bottom: @gutterSmallX;
 }
+
 .no-margin {
-  margin: 0;
+    margin: 0;
 }
+
 .reduced-margin {
-  margin: 3px 5px;
+    margin: 3px 5px;
 }
 
 .p-top {
-  padding-top: @gutterSmallX;
-}
-.p-left {
-  padding-left: @gutterSmallX;
-}
-.p-right {
-  padding-right: @gutterSmallX;
-}
-.p-bottom {
-  padding-bottom: @gutterSmallX;
-}
-.no-padding {
-  padding: 0;
-}
-.reduced-padding {
-  padding: 3px 5px;
+    padding-top: @gutterSmallX;
 }
 
-@import "iehacks.less";
+.p-left {
+    padding-left: @gutterSmallX;
+}
+
+.p-right {
+    padding-right: @gutterSmallX;
+}
+
+.p-bottom {
+    padding-bottom: @gutterSmallX;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.reduced-padding {
+    padding: 3px 5px;
+}
+
+// @import "iehacks.less";

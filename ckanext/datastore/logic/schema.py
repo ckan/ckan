@@ -16,6 +16,8 @@ empty = get_validator('empty')
 boolean_validator = get_validator('boolean_validator')
 int_validator = get_validator('int_validator')
 OneOf = get_validator('OneOf')
+unicode_only = get_validator('unicode_only')
+default = get_validator('default')
 
 
 def rename(old, new):
@@ -106,6 +108,17 @@ def datastore_create_schema():
         },
         'primary_key': [ignore_missing, list_of_strings_or_string],
         'indexes': [ignore_missing, list_of_strings_or_string],
+        'triggers': {
+            'when': [
+                default(u'before insert or update'),
+                unicode_only,
+                OneOf([u'before insert or update'])],
+            'for_each': [
+                default(u'row'),
+                unicode_only,
+                OneOf([u'row'])],
+            'function': [not_empty, unicode_only],
+        },
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
@@ -149,7 +162,32 @@ def datastore_search_schema():
         'fields': [ignore_missing, list_of_strings_or_string],
         'sort': [ignore_missing, list_of_strings_or_string],
         'distinct': [ignore_missing, boolean_validator],
+        'include_total': [default(True), boolean_validator],
+        'records_format': [
+            default(u'objects'),
+            OneOf([u'objects', u'lists', u'csv', u'tsv'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
     return schema
+
+
+def datastore_function_create_schema():
+    return {
+        'name': [unicode_only, not_empty],
+        'or_replace': [default(False), boolean_validator],
+        # we're only exposing functions for triggers at the moment
+        'arguments': {
+            'argname': [unicode_only, not_empty],
+            'argtype': [unicode_only, not_empty],
+        },
+        'rettype': [default(u'void'), unicode_only],
+        'definition': [unicode_only],
+    }
+
+
+def datastore_function_delete_schema():
+    return {
+        'name': [unicode_only, not_empty],
+        'if_exists': [default(False), boolean_validator],
+    }

@@ -20,19 +20,24 @@ import routes
 import paste.script
 from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
+import click
 
+from ckan.config.middleware import make_app
 import ckan.logic as logic
 import ckan.model as model
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
-import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.plugins as p
 from ckan.common import config
 
+# This is a test Flask request context to be used internally.
+# Do not use it!
+_cli_test_request_context = None
 
-#NB No CKAN imports are allowed until after the config file is loaded.
-#   i.e. do the imports in methods, after _load_config is called.
-#   Otherwise loggers get disabled.
+
+# NB No CKAN imports are allowed until after the config file is loaded.
+#    i.e. do the imports in methods, after _load_config is called.
+#    Otherwise loggers get disabled.
 
 
 def deprecation_warning(message=None):
@@ -85,6 +90,59 @@ def parse_db_config(config_key='sqlalchemy.url'):
     return db_details
 
 
+def user_add(args):
+    '''Add new user if we use paster sysadmin add
+    or paster user add
+    '''
+    if len(args) < 1:
+        error('Error: you need to specify the user name.')
+    username = args[0]
+
+    # parse args into data_dict
+    data_dict = {'name': username}
+    for arg in args[1:]:
+        try:
+            field, value = arg.split('=', 1)
+            data_dict[field] = value
+        except ValueError:
+            raise ValueError(
+                'Could not parse arg: %r (expected "<option>=<value>)"' % arg
+            )
+
+    # Required
+    while not data_dict.get('email'):
+        data_dict['email'] = raw_input('Email address: ')
+
+    if 'password' not in data_dict:
+        data_dict['password'] = UserCmd.password_prompt()
+
+    # Optional
+    if 'fullname' in data_dict:
+        data_dict['fullname'] = data_dict['fullname'].decode(
+            sys.getfilesystemencoding()
+        )
+
+    print('Creating user: %r' % username)
+
+    try:
+        import ckan.logic as logic
+        import ckan.model as model
+        site_user = logic.get_action('get_site_user')({
+            'model': model,
+            'ignore_auth': True},
+            {}
+        )
+        context = {
+            'model': model,
+            'session': model.Session,
+            'ignore_auth': True,
+            'user': site_user['name'],
+        }
+        user_dict = logic.get_action('user_create')(context, data_dict)
+        pprint(user_dict)
+    except logic.ValidationError, e:
+        error(traceback.format_exc())
+
 ## from http://code.activestate.com/recipes/577058/ MIT licence.
 ## Written by Trent Mick
 def query_yes_no(question, default="yes"):
@@ -133,11 +191,127 @@ class MockTranslator(object):
         return singular
 
 
+def _get_config(config=None):
+    from paste.deploy import appconfig
+
+    if config:
+        filename = os.path.abspath(config)
+        config_source = '-c parameter'
+    elif os.environ.get('CKAN_INI'):
+        filename = os.environ.get('CKAN_INI')
+        config_source = '$CKAN_INI'
+    else:
+        default_filename = 'development.ini'
+        filename = os.path.join(os.getcwd(), default_filename)
+        if not os.path.exists(filename):
+            # give really clear error message for this common situation
+            msg = 'ERROR: You need to specify the CKAN config (.ini) '\
+                'file path.'\
+                '\nUse the --config parameter or set environment ' \
+                'variable CKAN_INI or have {}\nin the current directory.' \
+                .format(default_filename)
+            exit(msg)
+
+    if not os.path.exists(filename):
+        msg = 'Config file not found: %s' % filename
+        msg += '\n(Given by: %s)' % config_source
+        exit(msg)
+
+    fileConfig(filename)
+    return appconfig('config:' + filename)
+
+
+def load_config(config, load_site_user=True):
+    conf = _get_config(config)
+    assert 'ckan' not in dir()  # otherwise loggers would be disabled
+    # We have now loaded the config. Now we can import ckan for the
+    # first time.
+    from ckan.config.environment import load_environment
+    load_environment(conf.global_conf, conf.local_conf)
+
+    # Set this internal test request context with the configured environment so
+    # it can be used when calling url_for from the CLI.
+    global _cli_test_request_context
+
+    app = make_app(conf.global_conf, **conf.local_conf)
+    flask_app = app.apps['flask_app']._wsgi_app
+    _cli_test_request_context = flask_app.test_request_context()
+
+    registry = Registry()
+    registry.prepare()
+    import pylons
+    registry.register(pylons.translator, MockTranslator())
+
+    site_user = None
+    if model.user_table.exists() and load_site_user:
+        # If the DB has already been initialized, create and register
+        # a pylons context object, and add the site user to it, so the
+        # auth works as in a normal web request
+        c = pylons.util.AttribSafeContextObj()
+
+        registry.register(pylons.c, c)
+
+        site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+
+        pylons.c.user = site_user['name']
+        pylons.c.userobj = model.User.get(site_user['name'])
+
+    ## give routes enough information to run url_for
+    parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
+    request_config = routes.request_config()
+    request_config.host = parsed.netloc + parsed.path
+    request_config.protocol = parsed.scheme
+
+    return site_user
+
+
+def paster_click_group(summary):
+    '''Return a paster command click.Group for paster subcommands
+
+    :param command: the paster command linked to this function from
+        setup.py, used in help text (e.g. "datastore")
+    :param summary: summary text used in paster's help/command listings
+        (e.g. "Perform commands to set up the datastore")
+    '''
+    class PasterClickGroup(click.Group):
+        '''A click.Group that may be called like a paster command'''
+        def __call__(self, ignored_command):
+            sys.argv.remove(ignored_command)
+            return super(PasterClickGroup, self).__call__(
+                prog_name=u'paster ' + ignored_command,
+                help_option_names=[u'-h', u'--help'],
+                obj={})
+
+    @click.group(cls=PasterClickGroup)
+    @click.option(
+        '--plugin',
+        metavar='ckan',
+        help='paster plugin (when run outside ckan directory)')
+    @click_config_option
+    @click.pass_context
+    def cli(ctx, plugin, config):
+        ctx.obj['config'] = config
+
+
+    cli.summary = summary
+    cli.group_name = u'ckan'
+    return cli
+
+
+# common definition for paster ... --config
+click_config_option = click.option(
+    '-c',
+    '--config',
+    default=None,
+    metavar='CONFIG',
+    help=u'Config file to use (default: development.ini)')
+
+
 class CkanCommand(paste.script.command.Command):
     '''Base class for classes that implement CKAN paster commands to inherit.'''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
-                      default='development.ini', help='Config file to use.')
+                      help='Config file to use.')
     parser.add_option('-f', '--file',
                       action='store',
                       dest='file_path',
@@ -145,63 +319,8 @@ class CkanCommand(paste.script.command.Command):
     default_verbosity = 1
     group_name = 'ckan'
 
-    def _get_config(self):
-        from paste.deploy import appconfig
-
-        if self.options.config:
-            self.filename = os.path.abspath(self.options.config)
-            config_source = '-c parameter'
-        elif os.environ.get('CKAN_INI'):
-            self.filename = os.environ.get('CKAN_INI')
-            config_source = '$CKAN_INI'
-        else:
-            self.filename = os.path.join(os.getcwd(), 'development.ini')
-            config_source = 'default value'
-
-        if not os.path.exists(self.filename):
-            msg = 'Config file not found: %s' % self.filename
-            msg += '\n(Given by: %s)' % config_source
-            raise self.BadCommand(msg)
-
-        fileConfig(self.filename)
-        return appconfig('config:' + self.filename)
-
     def _load_config(self, load_site_user=True):
-        conf = self._get_config()
-        assert 'ckan' not in dir()  # otherwise loggers would be disabled
-        # We have now loaded the config. Now we can import ckan for the
-        # first time.
-        from ckan.config.environment import load_environment
-        load_environment(conf.global_conf, conf.local_conf)
-
-        self.registry = Registry()
-        self.registry.prepare()
-        import pylons
-        self.translator_obj = MockTranslator()
-        self.registry.register(pylons.translator, self.translator_obj)
-
-        if model.user_table.exists() and load_site_user:
-            # If the DB has already been initialized, create and register
-            # a pylons context object, and add the site user to it, so the
-            # auth works as in a normal web request
-            c = pylons.util.AttribSafeContextObj()
-
-            self.registry.register(pylons.c, c)
-
-            self.site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
-
-            pylons.c.user = self.site_user['name']
-            pylons.c.userobj = model.User.get(self.site_user['name'])
-
-        ## give routes enough information to run url_for
-        parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
-        request_config = routes.request_config()
-        request_config.host = parsed.netloc + parsed.path
-        request_config.protocol = parsed.scheme
-
-    def _setup_app(self):
-        cmd = paste.script.appinstall.SetupCommand('setup-app')
-        cmd.run([self.filename])
+        self.site_user = load_config(self.options.config, load_site_user)
 
 
 class ManageDb(CkanCommand):
@@ -637,18 +756,24 @@ class Sysadmin(CkanCommand):
     Usage:
       sysadmin                      - lists sysadmins
       sysadmin list                 - lists sysadmins
-      sysadmin add USERNAME         - add a user as a sysadmin
+      sysadmin add USERNAME         - make an existing user into a sysadmin
+      sysadmin add USERNAME [FIELD1=VALUE1 FIELD2=VALUE2 ...]
+                                    - creates a new user that is a sysadmin
+                                      (prompts for password and email if not
+                                      supplied).
+                                      Field can be: apikey
+                                                    password
+                                                    email
       sysadmin remove USERNAME      - removes user from sysadmins
     '''
 
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 2
+    max_args = None
     min_args = 0
 
     def command(self):
         self._load_config()
-        import ckan.model as model
 
         cmd = self.args[0] if self.args else None
         if cmd is None or cmd == 'list':
@@ -667,9 +792,11 @@ class Sysadmin(CkanCommand):
                                                               state='active')
         print 'count = %i' % sysadmins.count()
         for sysadmin in sysadmins:
-            print '%s name=%s id=%s' % (sysadmin.__class__.__name__,
-                                        sysadmin.name,
-                                        sysadmin.id)
+            print '%s name=%s email=%s id=%s' % (
+                sysadmin.__class__.__name__,
+                sysadmin.name,
+                sysadmin.email,
+                sysadmin.id)
 
     def add(self):
         import ckan.model as model
@@ -684,10 +811,8 @@ class Sysadmin(CkanCommand):
             print 'User "%s" not found' % username
             makeuser = raw_input('Create new user: %s? [y/n]' % username)
             if makeuser == 'y':
-                password = UserCmd.password_prompt()
-                print('Creating %s user' % username)
-                user = model.User(name=unicode(username),
-                                  password=password)
+                user_add(self.args[1:])
+                user = model.User.by_name(unicode(username))
             else:
                 print 'Exiting ...'
                 return
@@ -721,8 +846,8 @@ class UserCmd(CkanCommand):
       user list                       - lists users
       user USERNAME                   - shows user properties
       user add USERNAME [FIELD1=VALUE1 FIELD2=VALUE2 ...]
-                                      - add a user (prompts for password
-                                        if not supplied).
+                                      - add a user (prompts for email and
+                                        password if not supplied).
                                         Field can be: apikey
                                                       password
                                                       email
@@ -737,7 +862,6 @@ class UserCmd(CkanCommand):
 
     def command(self):
         self._load_config()
-        import ckan.model as model
 
         if not self.args:
             self.list()
@@ -817,42 +941,7 @@ class UserCmd(CkanCommand):
         return password1
 
     def add(self):
-        import ckan.model as model
-
-        if len(self.args) < 2:
-            error('Need name of the user.')
-        username = self.args[1]
-
-        # parse args into data_dict
-        data_dict = {'name': username}
-        for arg in self.args[2:]:
-            try:
-                field, value = arg.split('=', 1)
-                data_dict[field] = value
-            except ValueError:
-                raise ValueError('Could not parse arg: %r (expected "<option>=<value>)"' % arg)
-
-        if 'password' not in data_dict:
-            data_dict['password'] = self.password_prompt()
-
-        if 'fullname' in data_dict:
-            data_dict['fullname'] = data_dict['fullname'].decode(sys.getfilesystemencoding())
-
-        print('Creating user: %r' % username)
-
-        try:
-            import ckan.logic as logic
-            site_user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-            context = {
-                'model': model,
-                'session': model.Session,
-                'ignore_auth': True,
-                'user': site_user['name'],
-            }
-            user_dict = logic.get_action('user_create')(context, data_dict)
-            pprint(user_dict)
-        except logic.ValidationError, e:
-            error(traceback.format_exc())
+        user_add(self.args[1:])
 
     def remove(self):
         import ckan.model as model
@@ -989,7 +1078,7 @@ class Celery(CkanCommand):
         from ckan.lib.celery_app import celery
         celery_args = []
         if len(self.args) == 2 and self.args[1] == 'concurrency':
-            celery_args.append['--concurrency=1']
+            celery_args.append('--concurrency=1')
         celery.worker_main(argv=['celeryd', '--loglevel=INFO'] + celery_args)
 
     def view(self):
@@ -1400,7 +1489,6 @@ class CreateTestDataCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        self._setup_app()
         from ckan import plugins
         from create_test_data import CreateTestData
 
@@ -1717,8 +1805,9 @@ class CreateColorSchemeCommand(CkanCommand):
         saturation = None
         lightness = None
 
+        public = config.get(u'ckan.base_public_folder')
         path = os.path.dirname(__file__)
-        path = os.path.join(path, '..', 'public', 'base', 'less', 'custom.less')
+        path = os.path.join(path, '..', public, 'base', 'less', 'custom.less')
 
         if self.args:
             arg = self.args[0]
@@ -1909,6 +1998,8 @@ class MinifyCommand(CkanCommand):
         :param path: The path to the .js or .css file to minify
 
         '''
+        import ckan.lib.fanstatic_resources as fanstatic_resources
+
         path_only, extension = os.path.splitext(path)
 
         if path_only.endswith('.min'):
@@ -1944,6 +2035,7 @@ class LessCommand(CkanCommand):
     min_args = 0
 
     def command(self):
+        self._load_config()
         self.less()
 
     custom_css = {
@@ -1993,7 +2085,9 @@ class LessCommand(CkanCommand):
         directory = output[0].strip()
         less_bin = os.path.join(directory, 'lessc')
 
-        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        public = config.get(u'ckan.base_public_folder')
+
+        root = os.path.join(os.path.dirname(__file__), '..', public, 'base')
         root = os.path.abspath(root)
         custom_less = os.path.join(root, 'less', 'custom.less')
         for color in self.custom_css:
@@ -2016,6 +2110,7 @@ class LessCommand(CkanCommand):
 
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
+        print output
 
 
 class FrontEndBuildCommand(CkanCommand):
@@ -2035,6 +2130,7 @@ class FrontEndBuildCommand(CkanCommand):
 
         # Less css
         cmd = LessCommand('less')
+        cmd.options = self.options
         cmd.command()
 
         # js translation strings
@@ -2046,7 +2142,8 @@ class FrontEndBuildCommand(CkanCommand):
         # minification
         cmd = MinifyCommand('minify')
         cmd.options = self.options
-        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        public = config.get(u'ckan.base_public_folder')
+        root = os.path.join(os.path.dirname(__file__), '..', public, 'base')
         root = os.path.abspath(root)
         ckanext = os.path.join(os.path.dirname(__file__), '..', '..', 'ckanext')
         ckanext = os.path.abspath(ckanext)

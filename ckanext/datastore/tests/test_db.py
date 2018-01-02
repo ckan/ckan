@@ -6,10 +6,12 @@ import nose
 import sqlalchemy.exc
 
 import ckan.plugins as p
+import ckan.lib.jobs as jobs
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-import ckanext.datastore.db as db
+import ckanext.datastore.backend.postgres as db
+import ckanext.datastore.backend as backend
 
 assert_equal = nose.tools.assert_equal
 
@@ -48,7 +50,7 @@ class TestCreateIndexes(object):
                                       method='gin')
 
     @helpers.change_config('ckan.datastore.default_fts_lang', None)
-    @mock.patch('ckanext.datastore.db._get_fields')
+    @mock.patch('ckanext.datastore.backend.postgres._get_fields')
     def test_creates_fts_index_on_all_fields_except_dates_nested_and_arrays_with_english_as_default(self, _get_fields):
         _get_fields.return_value = [
             {'id': 'text', 'type': 'text'},
@@ -73,7 +75,7 @@ class TestCreateIndexes(object):
         self._assert_created_index_on('number', connection, resource_id, 'english', cast=True)
 
     @helpers.change_config('ckan.datastore.default_fts_lang', 'simple')
-    @mock.patch('ckanext.datastore.db._get_fields')
+    @mock.patch('ckanext.datastore.backend.postgres._get_fields')
     def test_creates_fts_index_on_textual_fields_can_overwrite_lang_with_config_var(self, _get_fields):
         _get_fields.return_value = [
             {'id': 'foo', 'type': 'text'},
@@ -92,7 +94,7 @@ class TestCreateIndexes(object):
         self._assert_created_index_on('foo', connection, resource_id, 'simple')
 
     @helpers.change_config('ckan.datastore.default_fts_lang', 'simple')
-    @mock.patch('ckanext.datastore.db._get_fields')
+    @mock.patch('ckanext.datastore.backend.postgres._get_fields')
     def test_creates_fts_index_on_textual_fields_can_overwrite_lang_using_lang_param(self, _get_fields):
         _get_fields.return_value = [
             {'id': 'foo', 'type': 'text'},
@@ -131,7 +133,7 @@ class TestCreateIndexes(object):
                             "called with a string containing '%s'" % sql_str)
 
 
-@mock.patch("ckanext.datastore.db._get_fields")
+@mock.patch("ckanext.datastore.backend.postgres._get_fields")
 def test_upsert_with_insert_method_and_invalid_data(
         mock_get_fields_function):
     """upsert_data() should raise InvalidDataError if given invalid data.
@@ -168,27 +170,7 @@ def test_upsert_with_insert_method_and_invalid_data(
     mock_get_fields_function.return_value = data_dict["fields"]
 
     nose.tools.assert_raises(
-        db.InvalidDataError, db.upsert_data, context, data_dict)
-
-
-class TestJsonGetValues(object):
-    def test_returns_empty_list_if_called_with_none(self):
-        assert_equal(db.json_get_values(None), [])
-
-    def test_returns_list_with_value_if_called_with_string(self):
-        assert_equal(db.json_get_values('foo'), ['foo'])
-
-    def test_returns_list_with_only_the_original_truthy_values_if_called(self):
-        data = [None, 'foo', 42, 'bar', {}, []]
-        assert_equal(db.json_get_values(data), ['foo', '42', 'bar'])
-
-    def test_returns_flattened_list(self):
-        data = ['foo', ['bar', ('baz', 42)]]
-        assert_equal(db.json_get_values(data), ['foo', 'bar', 'baz', '42'])
-
-    def test_returns_only_truthy_values_from_dict(self):
-        data = {'foo': 'bar', 'baz': [42, None, {}, [], 'hey']}
-        assert_equal(db.json_get_values(data), ['foo', 'bar', 'baz', '42', 'hey'])
+        backend.InvalidDataError, db.upsert_data, context, data_dict)
 
 
 class TestGetAllResourcesIdsInDatastore(object):
@@ -210,7 +192,62 @@ class TestGetAllResourcesIdsInDatastore(object):
         }
         helpers.call_action('datastore_create', **data)
 
-        resource_ids = db.get_all_resources_ids_in_datastore()
+        resource_ids = backend.get_all_resources_ids_in_datastore()
 
         assert resource_in_datastore['id'] in resource_ids
         assert resource_not_in_datastore['id'] not in resource_ids
+
+
+def datastore_job(res_id, value):
+    '''
+    A background job that uses the Datastore.
+    '''
+    app = helpers._get_test_app()
+    p.load('datastore')
+    data = {
+        'resource_id': res_id,
+        'method': 'insert',
+        'records': [{'value': value}],
+    }
+
+    with app.flask_app.test_request_context():
+        helpers.call_action('datastore_upsert', **data)
+
+
+class TestBackgroundJobs(helpers.RQTestBase):
+    '''
+    Test correct interaction with the background jobs system.
+    '''
+    @classmethod
+    def setup_class(cls):
+
+        cls.app = helpers._get_test_app()
+        p.load('datastore')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('datastore')
+        helpers.reset_db()
+
+    def test_worker_datastore_access(self):
+        '''
+        Test DataStore access from within a worker.
+        '''
+        pkg = factories.Dataset()
+        data = {
+            'resource': {
+                'package_id': pkg['id'],
+            },
+            'fields': [{'id': 'value', 'type': 'int'}],
+        }
+
+        with self.app.flask_app.test_request_context():
+            table = helpers.call_action('datastore_create', **data)
+        res_id = table['resource_id']
+        for i in range(3):
+            self.enqueue(datastore_job, args=[res_id, i])
+        jobs.Worker().work(burst=True)
+        # Aside from ensuring that the job succeeded, this also checks
+        # that accessing the Datastore still works in the main process.
+        result = helpers.call_action('datastore_search', resource_id=res_id)
+        assert_equal([0, 1, 2], [r['value'] for r in result['records']])
