@@ -49,7 +49,7 @@ style script.
 
 ::
 
-    $ npm install less@1.7.5 nodewatch
+    $ npm install less@2.7.2 nodewatch
 
 
 You may need to use ``sudo`` depending on your CKAN install type.
