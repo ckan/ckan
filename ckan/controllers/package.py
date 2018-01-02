@@ -1224,12 +1224,7 @@ class PackageController(base.BaseController):
             extra_vars={
                 'dataset_type': dataset_type,
                 'activity_stream': get_action('package_activity_list')(
-                    context,
-                    {
-                        'id': id
-                    }
-                )
-            }
+                    context, {'id': id})}
         )
 
     def resource_embedded_dataviewer(self, id, resource_id,

@@ -2660,10 +2660,9 @@ def organization_activity_list(context, data_dict):
 
     activity_objects = model.activity.group_activity_list(org_id,
             limit=limit, offset=offset)
-    """
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
-    """
+    # WHAT?
+    # activity_objects = _filter_activity_by_user(_activity_objects,
+    #         _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 

@@ -595,13 +595,7 @@ class UserController(base.BaseController):
             'user/activity_stream.html',
             extra_vars={
                 'activity_stream': get_action('user_activity_list')(
-                    context,
-                    {
-                        'id': id,
-                        'offset': offset
-                    }
-                )
-            }
+                    context, {'id': id, 'offset': offset})}
         )
 
     def _get_dashboard_context(self, filter_type=None, filter_id=None, q=None):
@@ -669,18 +663,10 @@ class UserController(base.BaseController):
         filter_id = request.params.get('name', u'')
 
         c.followee_list = get_action('followee_list')(
-            context,
-            {
-                'id': c.userobj.id,
-                'q': q
-            }
-        )
+            context, {'id': c.userobj.id, 'q': q})
 
         c.dashboard_activity_stream_context = self._get_dashboard_context(
-            filter_type,
-            filter_id,
-            q
-        )
+            filter_type, filter_id, q)
         dashboard_activity_stream = h.dashboard_activity_stream(
             c.userobj.id, filter_type, filter_id, offset
         )

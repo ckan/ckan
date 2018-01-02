@@ -853,12 +853,7 @@ class GroupController(base.BaseController):
             extra_vars={
                 'group_type': group_type,
                 'activity_stream': get_action(activity_action)(
-                    context,
-                    {
-                        'id': c.group_dict['id'],
-                        'offset': offset
-                    }
-                )
+                    context, {'id': c.group_dict['id'], 'offset': offset})
             }
         )
 
