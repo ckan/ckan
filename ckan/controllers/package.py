@@ -358,21 +358,27 @@ class PackageController(base.BaseController):
         data_dict = {'id': id, 'include_tracking': True}
         activity_id = request.params.get('activity_id')
 
-        # check if package exists
+        # get the package dict
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-
-            if activity_id:
+            # NB templates should not use c.pkg, because it takes no account
+            # of activity_id (among other reasons)
+        except (NotFound, NotAuthorized):
+            abort(404, _('Dataset not found'))
+        if activity_id:
+            # view an 'old' version of the package, as recorded in the
+            # activity stream
+            try:
                 c.pkg_dict = context['session'].query(model.Activity).get(
                     activity_id
                 ).data['package']
-                # Don't crash on old activity records, which do not include
-                # resources or extras.
-                c.pkg_dict.setdefault('resources', [])
-                c.is_activity_archive = True
-        except (NotFound, NotAuthorized):
-            abort(404, _('Dataset not found'))
+            except AttributeError:
+                abort(404, _('Dataset not found'))
+            # Don't crash on old activity records, which do not include
+            # resources or extras.
+            c.pkg_dict.setdefault('resources', [])
+            c.is_activity_archive = True
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
@@ -993,6 +999,20 @@ class PackageController(base.BaseController):
             c.package = get_action('package_show')(context, {'id': id})
         except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
+        activity_id = request.params.get('activity_id')
+        if activity_id:
+            # view an 'old' version of the package, as recorded in the
+            # activity stream
+            try:
+                c.package = context['session'].query(model.Activity).get(
+                    activity_id
+                ).data['package']
+            except AttributeError:
+                abort(404, _('Dataset not found'))
+            # Don't crash on old activity records, which do not include
+            # resources or extras.
+            c.package.setdefault('resources', [])
+            c.is_activity_archive = True
 
         for resource in c.package.get('resources', []):
             if resource['id'] == resource_id:

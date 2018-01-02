@@ -27,7 +27,7 @@
           {% block resource_actions %}
           <ul>
             {% block resource_actions_inner %}
-            {% if h.check_access('package_update', {'id':pkg.id }) %}
+            {% if h.check_access('package_update', {'id':pkg.id }) and not c.is_activity_archive %}
               <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
             {% endif %}
             {% if res.url and h.is_url(res.url) %}
@@ -70,6 +70,17 @@
           {% endblock %}
         </div>
         {% block resource_content %}
+          {% block package_archive_notice %}
+            {% if c.is_activity_archive %}
+              <div id="activity-archive-notice" class="alert alert-danger">
+                {% trans url=h.url_for(controller='package', action='read', id=pkg.id) %}
+                You're currently viewing an old version of this dataset. Some resources
+                may no longer exist or the dataset may not display correctly. To see the
+                current version, click <a href="{{ url }}">here</a>.
+                {% endtrans %}
+              </div>
+            {% endif %}
+          {% endblock %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
@@ -210,4 +221,3 @@
     {% snippet "snippets/social.html" %}
   {% endblock %}
 {% endblock %}
-

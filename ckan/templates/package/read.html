@@ -13,7 +13,7 @@
     {% endif %}
     {% block package_archive_notice %}
       {% if c.is_activity_archive %}
-        <div class="alert alert-error">
+        <div class="alert alert-danger">
           {% trans url=h.url_for(controller='package', action='read', id=pkg.id) %}
           You're currently viewing an old version of this dataset. Some resources
           may no longer exist or the dataset may not display correctly. To see the

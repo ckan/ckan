@@ -8232,6 +8232,9 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
 .resource-view {
   margin-top: 20px;
 }
+#activity-archive-notice {
+  clear: both;
+}
 .search-form {
   margin-bottom: 20px;
   padding-bottom: 25px;

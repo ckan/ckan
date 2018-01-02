@@ -1,4 +1,4 @@
-{# 
+{#
 Renders a list of resources with icons and view links.
 
 resources - A list of resources to render
@@ -15,7 +15,7 @@ Example:
     {% if resources %}
       <ul class="{% block resource_list_class %}resource-list{% endblock %}">
         {% block resource_list_inner %}
-          {% set can_edit = h.check_access('package_update', {'id':pkg.id }) %}
+          {% set can_edit = h.check_access('package_update', {'id':pkg.id }) and not c.is_activity_archive %}
           {% for resource in resources %}
             {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, can_edit=can_edit %}
           {% endfor %}

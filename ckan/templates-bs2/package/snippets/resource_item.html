@@ -1,5 +1,5 @@
 {% set url_action = 'resource_edit' if url_is_edit and can_edit else 'resource_read' %}
-{% set url = h.url_for(controller='package', action=url_action, id=pkg.name, resource_id=res.id) %}
+{% set url = h.url_for(controller='package', action=url_action, id=pkg.name, resource_id=res.id, **({'activity_id': request.params['activity_id']} if 'activity_id' in request.params else {}))) %}
 
 <li class="resource-item" data-id="{{ res.id }}">
   {% block resource_item_title %}
