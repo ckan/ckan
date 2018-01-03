@@ -366,7 +366,7 @@ blockquote:lang(fa_IR) {
 }
 
 .group-list ul,
-.usecases ul {
+.usecases .list {
   list-style: none;
   margin: -10px 0 0 -20px;
   display: flex;
@@ -374,7 +374,7 @@ blockquote:lang(fa_IR) {
 }
 
 .group-list li,
-.usecases li {
+.usecases .list li {
   display: inline-block;
   margin: 20px 0 0 20px;
   background: #fff;
@@ -386,12 +386,12 @@ blockquote:lang(fa_IR) {
   width: calc(20% - 20px);
 }
 
-.usecases li {
+.usecases .list li {
   width: calc(33.333% - 20px);
 }
 
 .group-list a,
-.usecases a {
+.usecases .list a {
   display: block;
   color: #343333;
 }
@@ -409,7 +409,7 @@ blockquote:lang(fa_IR) {
 }
 
 .usecases dl,
-.usecases div {
+.usecases .list {
   padding: 0 10px;
 }
 
@@ -640,7 +640,7 @@ a:active {
   padding: 10px 0 20px;
 }
 
-.usecases ul {
+.usecases .list {
   display: flex;
   flex-wrap: wrap;
   margin: 0;
@@ -732,12 +732,12 @@ a:active {
 
 .homepage .stats ul a,
 .homepage .group-list ul a,
-.homepage .usecases ul a {
+.homepage .usecases .list a {
   position: relative;
 }
 
 .homepage .stats ul a,
-.homepage .usecases ul a {
+.homepage .usecases .list a {
   border-bottom: 2px solid #e9552d;
 }
 
@@ -788,8 +788,8 @@ a:active {
 .homepage .stats ul a:after,
 .homepage .group-list ul a:before,
 .homepage .group-list ul a:after,
-.homepage .usecases ul a:before,
-.homepage .usecases ul a:after {
+.homepage .usecases .list a:before,
+.homepage .usecases .list a:after {
   box-sizing: border-box;
   content: '';
   position: absolute;
@@ -801,13 +801,13 @@ a:active {
 
 .homepage .stats ul a:hover:before,
 .homepage .group-list ul a:hover:before,
-.homepage .usecases ul a:hover:before {
+.homepage .usecases .list a:hover:before {
   bottom: 0;
   left: 0;
 }
 
 .homepage .stats ul a:hover:before,
-.homepage .usecases ul a:hover:before {
+.homepage .usecases .list a:hover:before {
   animation: border-left-orange 2s normal forwards;
 }
 
@@ -851,13 +851,13 @@ a:active {
 
 .homepage .stats ul a:hover:after,
 .homepage .group-list ul a:hover:after,
-.homepage .usecases ul a:hover:after {
+.homepage .usecases .list a:hover:after {
   bottom: 0;
   right: 0;
 }
 
 .homepage .stats ul a:hover:after,
-.homepage .usecases ul a:hover:after {
+.homepage .usecases .list a:hover:after {
   animation: border-right-orange 2s normal forwards;
 }
 

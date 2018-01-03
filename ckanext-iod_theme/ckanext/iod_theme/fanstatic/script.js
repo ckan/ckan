@@ -39,3 +39,8 @@ document.querySelectorAll('img.js-inline-svg').forEach(function(img){
     });
 
 });
+
+var casesList = new List('list__container', {
+    page: 9,
+    pagination: true
+});

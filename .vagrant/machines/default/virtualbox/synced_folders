@@ -1,0 +1,1 @@
+{"virtualbox":{"/vagrant":{"mount_options":["dmode=777","fmode=666","uid=1000","gid=1000"],"guestpath":"/vagrant","hostpath":"/Users/riccardo/Sites/iod-ckan","disabled":false,"__vagrantfile":true}}}
