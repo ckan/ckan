@@ -21,7 +21,7 @@
         <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image js-inline-svg">
       {% endblock %}
       {% block title %}
-        <h4>{{ group.display_name }}</h4>
+        <h3>{{ group.display_name }}</h3>
       {% endblock %}
       {% block description %}
         {% if group.description %}

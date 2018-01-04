@@ -394,6 +394,10 @@ blockquote:lang(fa_IR) {
   width: calc(20% - 20px);
 }
 
+.theme-list--not-homepage li {
+  width: calc(25% - 20px);
+}
+
 .usecases .list li {
   width: calc(33.333% - 20px);
 }
