@@ -406,7 +406,6 @@ blockquote:lang(fa_IR) {
 
 .theme-list a {
   padding: 20px 10px 15px;
-  position: relative;
 }
 
 .usecases a {
@@ -452,8 +451,8 @@ blockquote:lang(fa_IR) {
 }
 
 .theme-list li .count {
-  bottom: 15px;
-  position: absolute;
+  margin-button: 0;
+  text-align: center;
 }
 
 /*------------------------------------*\
