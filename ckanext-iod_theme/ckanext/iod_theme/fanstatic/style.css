@@ -443,7 +443,7 @@ blockquote:lang(fa_IR) {
   font-family: 'PT Sans', sans-serif;
 }
 
-.theme-list li h3 {
+.theme-list li h4 {
   text-align: center;
   font-size: 1.15rem;
   font-weight: 400;

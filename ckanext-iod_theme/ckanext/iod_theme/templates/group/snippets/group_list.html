@@ -14,7 +14,7 @@ Example:
         <ul>
             {% block group_list_inner %}
             {% for group in groups %}
-                {% snippet "home/snippets/group_item_home.html", group=group, position=loop.index %}
+                {% snippet "group/snippets/group_item.html", group=group, position=loop.index %}
             {% endfor %}
             {% endblock %}
         </ul>
