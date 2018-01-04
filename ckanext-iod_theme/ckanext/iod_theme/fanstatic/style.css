@@ -365,7 +365,7 @@ blockquote:lang(fa_IR) {
   background-color: transparent;
 }
 
-.group-list ul,
+.theme-list ul,
 .usecases .list {
   list-style: none;
   margin: -10px 0 0 -20px;
@@ -373,7 +373,7 @@ blockquote:lang(fa_IR) {
   flex-wrap: wrap;
 }
 
-.group-list li,
+.theme-list li,
 .usecases .list li {
   display: inline-block;
   margin: 20px 0 0 20px;
@@ -382,7 +382,7 @@ blockquote:lang(fa_IR) {
   flex-wrap: wrap;
 }
 
-.group-list li {
+.theme-list li {
   width: calc(20% - 20px);
 }
 
@@ -390,13 +390,13 @@ blockquote:lang(fa_IR) {
   width: calc(33.333% - 20px);
 }
 
-.group-list a,
+.theme-list a,
 .usecases .list a {
   display: block;
   color: #343333;
 }
 
-.group-list a {
+.theme-list a {
   padding: 20px 10px 15px;
 }
 
@@ -412,23 +412,23 @@ blockquote:lang(fa_IR) {
   padding: 0 10px;
 }
 
-.group-list a:hover,
-.group-list a:focus,
-.group-list a:active,
+.theme-list a:hover,
+.theme-list a:focus,
+.theme-list a:active,
 .usecases a:hover,
 .usecases a:focus,
 .usecases a:active {
   text-decoration: none;
 }
 
-.group-list img {
+.theme-list img {
   width: 40%;
   margin: 0 auto;
   display: block;
   padding-bottom: 20px;
 }
 
-.group-list li h3 {
+.theme-list li h3 {
   text-align: center;
   font-size: 1.5rem;
   font-weight: 400;
@@ -540,12 +540,12 @@ html:lang(fa_IR) {
 }
 
 .homepage .stats h3,
-.homepage .group-list h3,
+.theme-list h3,
 .homepage .usecases h3 {
   font-size: 1.25rem;
 }
 
-.homepage .group-list h3,
+.theme-list h3,
 .homepage .usecases h3 {
   margin: 0;
 }
@@ -729,7 +729,7 @@ a:active {
 \*------------------------------------*/
 
 .homepage .stats ul a,
-.homepage .group-list ul a,
+.theme-list ul a,
 .homepage .usecases .list a {
   position: relative;
 }
@@ -739,53 +739,53 @@ a:active {
   border-bottom: 2px solid #e9552d;
 }
 
-.homepage .group-list ul a {
+.theme-list ul a {
   border-bottom: 2px solid transparent;
   width: 100%;
 }
 
-.homepage .group-list ul .energy {
+.theme-list ul .energy {
   border-bottom-color: #b8e2f2;
 }
 
-.homepage .group-list ul .communications,
-.homepage .group-list ul .transport {
+.theme-list ul .communications,
+.theme-list ul .transport {
   border-bottom-color: #b3e0dc;
 }
 
-.homepage .group-list ul .budget-government-spending,
-.homepage .group-list ul .employment,
-.homepage .group-list ul .banking-finance {
+.theme-list ul .budget-government-spending,
+.theme-list ul .employment,
+.theme-list ul .banking-finance {
   border-bottom-color: #90a4ae;
 }
 
-.homepage .group-list ul .economic-sector,
-.homepage .group-list ul .trade {
+.theme-list ul .economic-sector,
+.theme-list ul .trade {
   border-bottom-color: #cfd8dc;
 }
 
-.homepage .group-list ul .health {
+.theme-list ul .health {
   border-bottom-color: #f9aa92;
 }
 
-.homepage .group-list ul .environment {
+.theme-list ul .environment {
   border-bottom-color: #dcecc8;
 }
 
-.homepage .group-list ul .housing,
-.homepage .group-list ul .population {
+.theme-list ul .housing,
+.theme-list ul .population {
   border-bottom-color: #fecc81;
 }
 
-.homepage .group-list ul .art-culture-tourism,
-.homepage .group-list ul .education {
+.theme-list ul .art-culture-tourism,
+.theme-list ul .education {
   border-bottom-color: #fbcbbd;
 }
 
 .homepage .stats ul a:before,
 .homepage .stats ul a:after,
-.homepage .group-list ul a:before,
-.homepage .group-list ul a:after,
+.theme-list ul a:before,
+.theme-list ul a:after,
 .homepage .usecases .list a:before,
 .homepage .usecases .list a:after {
   box-sizing: border-box;
@@ -798,7 +798,7 @@ a:active {
 }
 
 .homepage .stats ul a:hover:before,
-.homepage .group-list ul a:hover:before,
+.theme-list ul a:hover:before,
 .homepage .usecases .list a:hover:before {
   bottom: 0;
   left: 0;
@@ -809,46 +809,46 @@ a:active {
   animation: border-left-orange 2s normal forwards;
 }
 
-.homepage .group-list ul .energy:hover:before {
+.theme-list ul .energy:hover:before {
   animation: border-left-blue 2s normal forwards;
 }
 
-.homepage .group-list ul .communications:hover:before,
-.homepage .group-list ul .transport:hover:before {
+.theme-list ul .communications:hover:before,
+.theme-list ul .transport:hover:before {
   animation: border-left-lightblue 2s normal forwards;
 }
 
-.homepage .group-list ul .budget-government-spending:hover:before,
-.homepage .group-list ul .employment:hover:before,
-.homepage .group-list ul .banking-finance:hover:before {
+.theme-list ul .budget-government-spending:hover:before,
+.theme-list ul .employment:hover:before,
+.theme-list ul .banking-finance:hover:before {
   animation: border-left-darkgray 2s normal forwards;
 }
 
-.homepage .group-list ul .economic-sector:hover:before,
-.homepage .group-list ul .trade:hover:before {
+.theme-list ul .economic-sector:hover:before,
+.theme-list ul .trade:hover:before {
   animation: border-left-lightgray 2s normal forwards;
 }
 
-.homepage .group-list ul .health:hover:before {
+.theme-list ul .health:hover:before {
   animation: border-left-red 2s normal forwards;
 }
 
-.homepage .group-list ul .environment:hover:before {
+.theme-list ul .environment:hover:before {
   animation: border-left-green 2s normal forwards;
 }
 
-.homepage .group-list ul .housing:hover:before,
-.homepage .group-list ul .population:hover:before {
+.theme-list ul .housing:hover:before,
+.theme-list ul .population:hover:before {
   animation: border-left-amber 2s normal forwards;
 }
 
-.homepage .group-list ul .art-culture-tourism:hover:before,
-.homepage .group-list ul .education:hover:before {
+.theme-list ul .art-culture-tourism:hover:before,
+.theme-list ul .education:hover:before {
   animation: border-left-pink 2s normal forwards;
 }
 
 .homepage .stats ul a:hover:after,
-.homepage .group-list ul a:hover:after,
+.theme-list ul a:hover:after,
 .homepage .usecases .list a:hover:after {
   bottom: 0;
   right: 0;
@@ -859,41 +859,41 @@ a:active {
   animation: border-right-orange 2s normal forwards;
 }
 
-.homepage .group-list ul .energy:hover:after {
+.theme-list ul .energy:hover:after {
   animation: border-right-blue 2s normal forwards;
 }
 
-.homepage .group-list ul .communications:hover:after,
-.homepage .group-list ul .transport:hover:after {
+.theme-list ul .communications:hover:after,
+.theme-list ul .transport:hover:after {
   animation: border-right-lightblue 2s normal forwards;
 }
 
-.homepage .group-list ul .budget-government-spending:hover:after,
-.homepage .group-list ul .employment:hover:after,
-.homepage .group-list ul .banking-finance:hover:after {
+.theme-list ul .budget-government-spending:hover:after,
+.theme-list ul .employment:hover:after,
+.theme-list ul .banking-finance:hover:after {
   animation: border-right-darkgray 2s normal forwards;
 }
 
-.homepage .group-list ul .economic-sector:hover:after,
-.homepage .group-list ul .trade:hover:after {
+.theme-list ul .economic-sector:hover:after,
+.theme-list ul .trade:hover:after {
   animation: border-right-lightgray 2s normal forwards;
 }
 
-.homepage .group-list ul .health:hover:after {
+.theme-list ul .health:hover:after {
   animation: border-right-red 2s normal forwards;
 }
 
-.homepage .group-list ul .environment:hover:after {
+.theme-list ul .environment:hover:after {
   animation: border-right-green 2s normal forwards;
 }
 
-.homepage .group-list ul .housing:hover:after,
-.homepage .group-list ul .population:hover:after {
+.theme-list ul .housing:hover:after,
+.theme-list ul .population:hover:after {
   animation: border-right-amber 2s normal forwards;
 }
 
-.homepage .group-list ul .art-culture-tourism:hover:after,
-.homepage .group-list ul .education:hover:after {
+.theme-list ul .art-culture-tourism:hover:after,
+.theme-list ul .education:hover:after {
   animation: border-right-pink 2s normal forwards;
 }
 
@@ -1364,41 +1364,41 @@ a:active {
   transition : fill 500ms ease-out;
 }
 
-.homepage .group-list .energy:hover .replaced-svg polygon {
+.theme-list .energy:hover .replaced-svg polygon {
   fill: #b8e2f2;
 }
 
-.homepage .group-list .communications:hover .replaced-svg path,
-.homepage .group-list .transport:hover .replaced-svg path {
+.theme-list .communications:hover .replaced-svg path,
+.theme-list .transport:hover .replaced-svg path {
   fill: #b3e0dc;
 }
 
-.homepage .group-list .budget-government-spending:hover .replaced-svg path,
-.homepage .group-list .employment:hover .replaced-svg path,
-.homepage .group-list .banking-finance:hover .replaced-svg path {
+.theme-list .budget-government-spending:hover .replaced-svg path,
+.theme-list .employment:hover .replaced-svg path,
+.theme-list .banking-finance:hover .replaced-svg path {
   fill: #90a4ae;
 }
 
-.homepage .group-list .economic-sector:hover .replaced-svg path,
-.homepage .group-list .trade:hover .replaced-svg path {
+.theme-list .economic-sector:hover .replaced-svg path,
+.theme-list .trade:hover .replaced-svg path {
   fill: #cfd8dc;
 }
 
-.homepage .group-list .health:hover .replaced-svg path {
+.theme-list .health:hover .replaced-svg path {
   fill: #f9aa92;
 }
 
-.homepage .group-list .environment:hover .replaced-svg path {
+.theme-list .environment:hover .replaced-svg path {
   fill: #dcecc8;
 }
 
-.homepage .group-list .housing:hover .replaced-svg path,
-.homepage .group-list .population:hover .replaced-svg path {
+.theme-list .housing:hover .replaced-svg path,
+.theme-list .population:hover .replaced-svg path {
   fill: #fecc81;
 }
 
-.homepage .group-list .art-culture-tourism:hover .replaced-svg path,
-.homepage .group-list .education:hover .replaced-svg path {
+.theme-list .art-culture-tourism:hover .replaced-svg path,
+.theme-list .education:hover .replaced-svg path {
   fill: #fbcbbd;
 }
 
@@ -1445,7 +1445,7 @@ a:active {
     width: calc(50% - 20px);
   }
 
-  .group-list li {
+  .theme-list li {
     width: calc(25% - 20px);
   }
 }
@@ -1503,7 +1503,7 @@ a:active {
     width: 100%;
   }
 
-  .group-list li {
+  .theme-list li {
     width: calc(50% - 20px);
   }
 }
