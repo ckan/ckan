@@ -365,6 +365,14 @@ blockquote:lang(fa_IR) {
   background-color: transparent;
 }
 
+.theme-list--not-homepage {
+  margin: 0 -25px 0 -27px;
+  padding: 5px 15px 15px;
+  background: #fbfbfb url("../../../base/images/bg.png");
+  border: 1px solid #ddd;
+  border-width: 1px 0;
+}
+
 .theme-list ul,
 .usecases .list {
   list-style: none;
@@ -431,6 +439,13 @@ blockquote:lang(fa_IR) {
 .theme-list li h3 {
   text-align: center;
   font-size: 1.5rem;
+  font-weight: 400;
+  font-family: 'PT Sans', sans-serif;
+}
+
+.theme-list li h3 {
+  text-align: center;
+  font-size: 1.15rem;
   font-weight: 400;
   font-family: 'PT Sans', sans-serif;
 }
