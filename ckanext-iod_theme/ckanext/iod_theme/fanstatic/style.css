@@ -408,8 +408,7 @@ blockquote:lang(fa_IR) {
   padding: 10px 10px 0;
 }
 
-.usecases dl,
-.usecases .list {
+.usecases dl {
   padding: 0 10px;
 }
 
@@ -643,7 +642,6 @@ a:active {
 .usecases .list {
   display: flex;
   flex-wrap: wrap;
-  margin: 0;
 }
 
 .usecases h2 {
