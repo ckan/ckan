@@ -1756,3 +1756,8 @@ module.exports = function(text, pattern, options) {
 
 /***/ })
 /******/ ]);
+
+var casesList = new List('list__container', {
+  page: 9,
+  pagination: true
+});
