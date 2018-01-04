@@ -30,7 +30,7 @@ class TemplateController(base.BaseController):
         Found)
         """
         if url.endswith(u'.txt'):
-            response.headers[u'Content-Type'] = u'text/plain; charset=utf-8'
+            response.headers[b'Content-Type'] = b'text/plain; charset=utf-8'
         # Default content-type is text/html
         try:
             return base.render(url)
@@ -38,7 +38,7 @@ class TemplateController(base.BaseController):
             if url.endswith(u'.html'):
                 base.abort(404)
             url += u'.html'
-            response.headers[u'Content-Type'] = u'text/html; charset=utf-8'
+            response.headers[b'Content-Type'] = b'text/html; charset=utf-8'
             try:
                 return base.render(url)
             except ckan.lib.render.TemplateNotFound:
