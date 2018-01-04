@@ -30,9 +30,9 @@
       {% endblock %}
       {% block datasets %}
         {% if group.package_count %}
-          <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</strong>
+          <p class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</p>
         {% elif group.package_count == 0 %}
-          <span class="count">{{ _('0 Datasets') }}</span>
+          <p class="count">{{ _('0 Datasets') }}</p>
         {% endif %}
       {% endblock %}
       </a>
