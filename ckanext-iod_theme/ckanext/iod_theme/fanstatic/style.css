@@ -455,7 +455,7 @@ blockquote:lang(fa_IR) {
 }
 
 .theme-list li .count {
-  margin-bottom: 0;
+  margin: 10px 0 0;
   text-align: center;
 }
 
