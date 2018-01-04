@@ -44,3 +44,6 @@ node_modules/
 # Bulk upload script
 datasets.jsonl.gz
 *.xlsx
+
+# Vagrant
+.vagrant
