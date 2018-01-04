@@ -1472,6 +1472,10 @@ a:active {
   .theme-list li {
     width: calc(25% - 20px);
   }
+
+  .theme-list--not-homepage li {
+    width: calc(33.333% - 20px);
+  }
 }
 
 @media (max-width:767px) {
