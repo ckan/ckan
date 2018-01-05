@@ -11,8 +11,6 @@
           {% endfor %}
         </ul>
     #}
-
-    {% set title = group.title_translated[h.lang()] %}
     {% set type = group.type or 'group' %}
     {% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
     {% block item %}
@@ -23,7 +21,7 @@
         <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image js-inline-svg">
       {% endblock %}
       {% block title %}
-        <h3>{{ title }}</h3>
+        <h3>{{ group.display_name }}</h3>
       {% endblock %}
       {% block description %}
         {% if group.description %}
