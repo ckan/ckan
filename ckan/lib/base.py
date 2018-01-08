@@ -94,17 +94,41 @@ def render_jinja2(template_name, extra_vars):
     return template.render(**extra_vars)
 
 
-def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
-           cache_expire=None, cache_force=None, renderer=None):
+def render(template_name, extra_vars=None, *pargs, **kwargs):
     '''Render a template and return the output.
 
     This is CKAN's main template rendering function.
 
-    .. todo::
-
-       Document the parameters of :py:func:`ckan.plugins.toolkit.render`.
+    :params template_name: relative path to template inside registered tpl_dir
+    :type template_name: str
+    :params extra_vars: additional variables available in template
+    :type extra_vars: dict
+    :params pargs: rest of positional args passed to pylons render func
+    :type pargs: tuple
+    :params kwargs: rest of named args passed to pylons render func
+    :type kwargs: dict
 
     '''
+    if extra_vars is None:
+        extra_vars = {}
+    try:
+        # TODO: investigate and test this properly
+        if is_flask_request():
+            return flask_render_template(template_name, **extra_vars)
+        else:
+            renderer = _pylons_prepare_renderer(template_name, extra_vars,
+                                                *pargs, **kwargs)
+            return cached_template(template_name, renderer)
+
+    except ckan.exceptions.CkanUrlException, e:
+        raise ckan.exceptions.CkanUrlException(
+            '\nAn Exception has been raised for template %s\n%s' %
+            (template_name, e.message))
+
+
+def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
+                             cache_type=None, cache_expire=None,
+                             cache_force=None, renderer=None):
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
@@ -179,27 +203,13 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
     # TODO: replicate this logic in Flask once we start looking at the
     # rendering for the frontend controllers
-    if not is_flask_request():
-        set_pylons_response_headers(allow_cache)
+    set_pylons_response_headers(allow_cache)
 
     if not allow_cache:
         # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
 
-    # Render Time :)
-    try:
-        # TODO: investigate and test this properly
-        if is_flask_request():
-            return flask_render_template(template_name, **extra_vars)
-        else:
-            return cached_template(template_name, render_template)
-
-    except ckan.exceptions.CkanUrlException, e:
-        raise ckan.exceptions.CkanUrlException(
-            '\nAn Exception has been raised for template %s\n%s' %
-            (template_name, e.message))
-    except render_.TemplateNotFound:
-        raise
+    return render_template
 
 
 class ValidationException(Exception):
