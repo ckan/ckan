@@ -19,7 +19,7 @@ connection, the Solr server URL, etc. Sometimes it can be useful to define them 
 automate and orchestrate deployments without having to first modify the `CKAN configuration file`_.
 
 These options are only read at startup time to update the ``config`` object used by CKAN,
-but they won't we accessed any more during the lifetime of the application.
+but they won't be accessed any more during the lifetime of the application.
 
 CKAN environment variables names match the options in the configuration file, but they are always uppercase
 and prefixed with `CKAN_` (this prefix is added even if
@@ -654,12 +654,16 @@ ckan.search.show_all_types
 
 Example::
 
- ckan.search.show_all_types = true
+ ckan.search.show_all_types = dataset
 
 Default value:  ``false``
 
-Controls whether the default search page (``/dataset``) should show only
-standard datasets or also custom dataset types.
+Controls whether a search page (e.g. ``/dataset``) should also show 
+custom dataset types. The default is ``false`` meaning that no search 
+page for any type will show other types. ``true`` will show other types 
+on the ``/dataset`` search page. Any other value (e.g. ``dataset`` or 
+``document`` will be treated as a dataset type and that type's search 
+page will show datasets of all types.
 
 .. _ckan.search.default_include_private:
 
@@ -668,7 +672,7 @@ ckan.search.default_include_private
 
 Example::
 
- ckan.search.defalt_include_private = false
+ ckan.search.default_include_private = false
 
 Default value:  ``true``
 

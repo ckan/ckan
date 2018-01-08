@@ -10,6 +10,7 @@ from paste.cascade import Cascade
 from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
 from paste.deploy.converters import asbool
+from paste.fileapp import _FileIter
 from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from routes.middleware import RoutesMiddleware
 from repoze.who.config import WhoConfig
@@ -223,33 +224,58 @@ class CKANPylonsApp(PylonsApp):
             return (False, self.app_name)
 
 
-def generate_close_and_callback(iterable, callback, environ):
+class CloseCallbackWrapper(object):
+    def __init__(self, iterable, callback, environ):
+        # pylons.fileapp expects app_iter to have `file` attribute.
+        self.file = iterable
+        self.callback = callback
+        self.environ = environ
+
+    def __iter__(self):
+        """
+        return a generator that passes through items from iterable
+        then calls callback(environ).
+        """
+        try:
+            for item in self.file:
+                yield item
+        except GeneratorExit:
+            if hasattr(self.file, 'close'):
+                self.file.close()
+            raise
+        finally:
+            self.callback(self.environ)
+
+
+class FileIterWrapper(CloseCallbackWrapper, _FileIter):
+    """Same CloseCallbackWrapper, just with _FileIter mixin.
+
+    That will prevent pylons from converting file responses into
+    in-memori lists.
     """
-    return a generator that passes through items from iterable
-    then calls callback(environ).
-    """
-    try:
-        for item in iterable:
-            yield item
-    except GeneratorExit:
-        if hasattr(iterable, 'close'):
-            iterable.close()
-        raise
-    finally:
-        callback(environ)
+    pass
 
 
 def execute_on_completion(application, config, callback):
     """
     Call callback(environ) once complete response is sent
     """
+
     def inner(environ, start_response):
         try:
             result = application(environ, start_response)
         except:
             callback(environ)
             raise
-        return generate_close_and_callback(result, callback, environ)
+        # paste.fileapp converts non-file responses into list
+        # In order to avoid interception of OOM Killer
+        # file responses wrapped into generator with
+        # _FileIter in parent tree.
+        klass = CloseCallbackWrapper
+        if isinstance(result, _FileIter):
+            klass = FileIterWrapper
+        return klass(result, callback, environ)
+
     return inner
 
 
