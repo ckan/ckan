@@ -60,7 +60,6 @@ def _extra_template_variables(context, data_dict):
     except logic.NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
-    user_dict = user_dict
     is_myself = user_dict[u'name'] == g.user
     about_formatted = h.render_markdown(user_dict[u'about'])
     extra = {
@@ -122,7 +121,6 @@ def index():
     return base.render(u'user/list.html', extra_vars)
 
 
-# TODO: update after dashboard blueprint finished
 def me():
     route = u'dashboard.index' if g.user else u'user.login'
     return h.redirect_to(route)
