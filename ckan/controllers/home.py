@@ -69,7 +69,7 @@ class HomeController(base.BaseController):
             c.package_count = 0
 
         if c.userobj and not c.userobj.email:
-            url = h.url_for(controller='user', action='edit')
+            url = h.url_for('user.edit')
             msg = _('Please <a href="%s">update your profile</a>'
                     ' and add your email address. ') % url + \
                 _('%s uses your email address'
