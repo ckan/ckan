@@ -92,7 +92,9 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
                 'iod_theme_create_geographic_strings':
                     h.create_geographic_strings,
                 'iod_theme_free_tags_only':
-                    h.free_tags_only
+                    h.free_tags_only,
+                'theme_pagination':
+                    h.theme_pagination
                }
 
     # Changing group icon WIP
@@ -114,10 +116,10 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
 
     # IRoutes
     def before_map(self, map):
-        
+
         map.connect('policy', '/policy', controller='home', action='policy')
         map.connect('use_cases', '/use_cases', controller='home', action='use_cases')
-        
+
         group_controller = 'ckanext.iod_theme.controllers.theme:ThemeController'
         package_controller = 'ckanext.iod_theme.controllers.package:PackageController'
 
@@ -215,6 +217,3 @@ class Iod_ThemePlugin(plugins.SingletonPlugin):
         facets_dict['license_id'] = toolkit._('Licenses')
         facets_dict.pop('license_id')
         return facets_dict
-
-
-

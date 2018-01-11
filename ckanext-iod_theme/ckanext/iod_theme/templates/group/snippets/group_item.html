@@ -1,10 +1,10 @@
 {#
     Renders a media item for a group. This should be used in a list.
-    
+
     group - A group dict.
-    
+
     Example:
-    
+
         <ul class="media-grid">
           {% for group in groups %}
             {% snippet "group/snippets/group_item.html", group=group %}
@@ -12,7 +12,7 @@
         </ul>
     #}
     {% set type = group.type or 'group' %}
-    {% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
+    {% set url = h.url_for(type ~ '_read', action='read', id=group.name)|replace("group", "theme") %}
     {% block item %}
     <li>
       {% block item_inner %}
@@ -42,4 +42,3 @@
       {% endif %}
     </li>
     {% endblock %}
-    

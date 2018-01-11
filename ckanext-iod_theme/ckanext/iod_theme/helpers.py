@@ -127,3 +127,7 @@ def free_tags_only(tags):
             continue
         free_tags.append(tag)
     return free_tags
+
+
+def theme_pagination(q):
+        return tk.c.page.pager(q=q).replace('group', 'theme')
