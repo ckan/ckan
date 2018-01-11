@@ -6,6 +6,8 @@ Provides the BaseController class for subclassing.
 """
 import logging
 import time
+import inspect
+import sys
 
 from pylons import cache
 from pylons.controllers import WSGIController
@@ -78,10 +80,8 @@ def render_snippet(template_name, **kw):
     comment tags added to show the template used. NOTE: unlike other
     render functions this takes a list of keywords instead of a dict for
     the extra template variables. '''
-    # allow cache_force to be set in render function
-    cache_force = kw.pop('cache_force', None)
-    output = render(template_name, extra_vars=kw, cache_force=cache_force,
-                    renderer='snippet')
+
+    output = render(template_name, extra_vars=kw)
     if config.get('debug'):
         output = ('\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n'
                   % (template_name, output, template_name))
@@ -103,27 +103,28 @@ def render(template_name, extra_vars=None, *pargs, **kwargs):
     :type template_name: str
     :params extra_vars: additional variables available in template
     :type extra_vars: dict
-    :params pargs: rest of positional args passed to pylons render func
+    :params pargs: DEPRECATED
     :type pargs: tuple
-    :params kwargs: rest of named args passed to pylons render func
+    :params kwargs: DEPRECATED
     :type kwargs: dict
 
     '''
+    if pargs or kwargs:
+        tb = inspect.getframeinfo(sys._getframe(1))
+        log.warning(
+            'Extra arguments to `base.render` are deprecated: ' +
+            '<{0.filename}:{0.lineno}>'.format(tb)
+        )
+
     if extra_vars is None:
         extra_vars = {}
-    try:
-        # TODO: investigate and test this properly
-        if is_flask_request():
-            return flask_render_template(template_name, **extra_vars)
-        else:
-            renderer = _pylons_prepare_renderer(template_name, extra_vars,
-                                                *pargs, **kwargs)
-            return cached_template(template_name, renderer)
 
-    except ckan.exceptions.CkanUrlException, e:
-        raise ckan.exceptions.CkanUrlException(
-            '\nAn Exception has been raised for template %s\n%s' %
-            (template_name, e.message))
+    if not is_flask_request():
+        renderer = _pylons_prepare_renderer(template_name, extra_vars,
+                                            *pargs, **kwargs)
+        return cached_template(template_name, renderer)
+
+    return flask_render_template(template_name, **extra_vars)
 
 
 def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
@@ -198,8 +199,6 @@ def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
         for k, v in extra_vars.iteritems():
             allow_cache = False
             break
-    # Record cachability for the page cache if enabled
-    request.environ['CKAN_PAGE_CACHABLE'] = allow_cache
 
     # TODO: replicate this logic in Flask once we start looking at the
     # rendering for the frontend controllers

@@ -326,23 +326,6 @@ Default value: 0
 
 This sets ``Cache-Control`` header's max-age value.
 
-.. _ckan.page_cache_enabled:
-
-ckan.page_cache_enabled
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.page_cache_enabled = True
-
-Default value: ``False``
-
-This enables CKAN's built-in page caching.
-
-.. warning::
-
-   Page caching is an experimental feature.
-
 .. _ckan.cache_enabled:
 
 ckan.cache_enabled
@@ -658,11 +641,11 @@ Example::
 
 Default value:  ``false``
 
-Controls whether a search page (e.g. ``/dataset``) should also show 
-custom dataset types. The default is ``false`` meaning that no search 
-page for any type will show other types. ``true`` will show other types 
-on the ``/dataset`` search page. Any other value (e.g. ``dataset`` or 
-``document`` will be treated as a dataset type and that type's search 
+Controls whether a search page (e.g. ``/dataset``) should also show
+custom dataset types. The default is ``false`` meaning that no search
+page for any type will show other types. ``true`` will show other types
+on the ``/dataset`` search page. Any other value (e.g. ``dataset`` or
+``document`` will be treated as a dataset type and that type's search
 page will show datasets of all types.
 
 .. _ckan.search.default_include_private:

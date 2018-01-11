@@ -171,10 +171,6 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
                 )
         app = Cascade(extra_static_parsers + static_parsers)
 
-    # Page cache
-    if asbool(config.get('ckan.page_cache_enabled')):
-        app = common_middleware.PageCacheMiddleware(app, config)
-
     # Tracking
     if asbool(config.get('ckan.tracking_enabled', 'false')):
         app = common_middleware.TrackingMiddleware(app, config)
