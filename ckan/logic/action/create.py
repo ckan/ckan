@@ -610,12 +610,13 @@ def member_create(context, data_dict=None):
     if not member:
         member = model.Member(table_name=obj_type,
                               table_id=obj.id,
-                              group_id=group.id,
+                              group=group,
                               state='active')
 
     member.capacity = capacity
 
     model.Session.add(member)
+
     model.repo.commit()
 
     return model_dictize.member_dictize(member, context)
