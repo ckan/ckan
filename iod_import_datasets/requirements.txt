@@ -1,4 +1,4 @@
 ckanapi
 click
-openpyxl
+openpyxl==2.4.8
 validators
