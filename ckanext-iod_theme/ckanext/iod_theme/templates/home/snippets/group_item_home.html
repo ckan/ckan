@@ -12,7 +12,7 @@
         </ul>
     #}
     {% set type = group.type or 'group' %}
-    {% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
+    {% set url = h.url_for(type ~ '_read', action='read', id=group.name)|replace("group", "theme") %}
     {% block item %}
     <li>
       {% block item_inner %}
