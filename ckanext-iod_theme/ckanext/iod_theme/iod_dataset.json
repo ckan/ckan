@@ -1000,6 +1000,13 @@
           }
         },
         {
+          "value": "municipality budget",
+          "label": {
+            "en": "municipality budget",
+            "fa_IR": "بودجه شهرداری"
+          }
+        },
+        {
           "value": "national",
           "label": {
             "en": "national",
@@ -1322,6 +1329,13 @@
           }
         },
         {
+          "value": "revenue sources",
+          "label": {
+            "en": "revenue sources",
+            "fa_IR": "منابع درآمدی"
+          }
+        },
+        {
           "value": "river",
           "label": {
             "en": "river",
@@ -1494,6 +1508,13 @@
           "label": {
             "en": "Tehran",
             "fa_IR": "تهران"
+          }
+        },
+        {
+          "value": "Tehran municipality",
+          "label": {
+            "en": "Tehran municipality",
+            "fa_IR": "شهرداری تهران"
           }
         },
         {
