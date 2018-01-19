@@ -366,7 +366,7 @@ blockquote:lang(fa_IR) {
 }
 
 .theme-list--not-homepage {
-  margin: 0 -25px 0 -27px;
+  margin: 0 -27px 0 -25px;
   padding: 5px 15px 15px;
   background: #fbfbfb url("../../../base/images/bg.png");
   border: 1px solid #ddd;
