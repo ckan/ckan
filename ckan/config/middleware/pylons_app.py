@@ -130,8 +130,6 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
         who_parser.remote_user_key
     )
 
-    from ckanext.security.middleware import CSRFMiddleware
-    app = CSRFMiddleware(app, config)
     app = SessionMiddleware(app, config)
 
     # Establish the Registry for this application
