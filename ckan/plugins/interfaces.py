@@ -1017,6 +1017,15 @@ class IAuthFunctions(Interface):
                 # Unless there is a logged in user or a valid API key provided
                 # NotAuthorized will be raised before reaching this function.
 
+        By decorating a function with the 'ckan.plugins.toolkit.chained_auth`,
+        the auth function will be chained along with any other decorated auth
+        functions, and the original. The last auth function to be registered in
+        a chain will be called first. Chained auth functions must accept an
+        extra parameter - the next auth function in the chain, for example:
+        auth_function(next_auth, context, data_dict). The chained auth function
+        may call the next_auth function, optionally passing different values,
+        handling exceptions, returning different values and/or raising
+        different exceptions to the caller.
         '''
 
 
