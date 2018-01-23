@@ -1,5 +1,6 @@
-Dear {{ user_name }},
+{% trans %}Dear {{ user_name }},{% endtrans %}
 
+{% trans -%}
 You have been invited to {{ site_title }}.
 
 A user has already been created for you with the username {{ user_name }}. You can change it later.
@@ -9,9 +10,11 @@ You have been added to the {{ group_type }} {{ group_title }} with the following
 To accept this invite, please reset your password at:
 
    {{ reset_link }}
+{%- endtrans %}
 
-
-Have a nice day.
+{% trans %}Have a nice day.{% endtrans %}
 
 --
+{% trans -%}
 Message sent by {{ site_title }} ({{ site_url }})
+{%- endtrans %}
