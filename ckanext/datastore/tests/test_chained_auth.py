@@ -9,7 +9,7 @@ assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
 
 
-auth_message = 'No search for you'
+auth_message = u'No search for you'
 
 
 class TestAuthException(Exception):
@@ -21,7 +21,7 @@ def datastore_search_sql_auth(up_func, context, data_dict):
     # simple checks to confirm that the up_func we've received is the original
     # sql search auth function
     assert_equals(up_func.auth_allow_anonymous_access, True)
-    assert_equals(up_func(context, data_dict), {'success': True})
+    assert_equals(up_func(context, data_dict), {u'success': True})
     raise TestAuthException(auth_message)
 
 
@@ -49,6 +49,6 @@ class TestChainedAuth(object):
         with assert_raises(TestAuthException) as raise_context:
             # checking access should call to our chained version defined above
             # first, thus this should throw an exception
-            check_access('datastore_search_sql', {'user': 'annafan'}, {})
+            check_access(u'datastore_search_sql', {u'user': u'annafan'}, {})
         # check that exception returned has the message from our auth function
         assert_equals(raise_context.exception.message, auth_message)
