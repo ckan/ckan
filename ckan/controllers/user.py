@@ -554,7 +554,10 @@ class UserController(base.BaseController):
             except DataError:
                 h.flash_error(_(u'Integrity Error'))
             except ValidationError, e:
-                h.flash_error(u'%r' % e.error_dict)
+                if u'password' in e.error_dict:
+                    h.flash_error(u''.join(e.error_dict['password']))
+                else:
+                    h.flash_error(e.error_dict)
             except ValueError, ve:
                 h.flash_error(unicode(ve))
             user_dict['state'] = user_state
