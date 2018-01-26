@@ -644,11 +644,11 @@ def auth_disallow_anonymous_access(action):
     return wrapper
 
 
-def chained_auth(func):
+def chained_auth_function(func):
     '''
     Decorator function allowing authentication functions to be chained.
     '''
-    func.chained_auth = True
+    func.chained_auth_function = True
     return func
 
 

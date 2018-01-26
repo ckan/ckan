@@ -41,12 +41,12 @@ class AuthFunctions:
         return self._functions.get(function)
 
     @staticmethod
-    def _is_chained_auth(func):
+    def _is_chained_auth_function(func):
         '''
         Helper function to check if a function is a chained auth function, i.e.
-        it has been decorated with the chain auth decorator.
+        it has been decorated with the chain auth function decorator.
         '''
-        return getattr(func, 'chained_auth', False)
+        return getattr(func, 'chained_auth_function', False)
 
     def _build(self):
         ''' Gather the auth functions.
@@ -88,7 +88,7 @@ class AuthFunctions:
         chained_auth_functions = defaultdict(list)
         for plugin in p.PluginImplementations(p.IAuthFunctions):
             for name, auth_function in plugin.get_auth_functions().items():
-                if self._is_chained_auth(auth_function):
+                if self._is_chained_auth_function(auth_function):
                     chained_auth_functions[name].append(auth_function)
                 elif name in resolved_auth_function_plugins:
                     raise Exception(

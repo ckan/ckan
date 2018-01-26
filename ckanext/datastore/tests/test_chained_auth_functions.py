@@ -16,7 +16,7 @@ class TestAuthException(Exception):
     pass
 
 
-@p.toolkit.chained_auth
+@p.toolkit.chained_auth_function
 def datastore_search_sql_auth(up_func, context, data_dict):
     # simple checks to confirm that the up_func we've received is the original
     # sql search auth function

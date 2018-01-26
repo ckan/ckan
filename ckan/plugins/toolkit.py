@@ -52,8 +52,8 @@ class _Toolkit(object):
         'get_validator',
         # check logic function authorisation
         'check_access',
-        # decorator for chained authentication
-        'chained_auth',
+        # decorator for chained authentication functions
+        'chained_auth_function',
         # implements validate method with navl schema
         'navl_validate',
         # placeholder for missing values for validation
@@ -239,7 +239,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['get_converter'] = logic.get_validator  # For backwards compatibility
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
-        t['chained_auth'] = logic.chained_auth
+        t['chained_auth_function'] = logic.chained_auth_function
         t['navl_validate'] = dictization_functions.validate
         t['missing'] = dictization_functions.missing
         t['ObjectNotFound'] = logic.NotFound  # Name change intentional
