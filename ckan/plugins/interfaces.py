@@ -1024,7 +1024,9 @@ class IAuthFunctions(Interface):
         ends with the original auth function (or a non-chained plugin override
         version). Chained auth functions must accept an extra parameter,
         specifically the next auth function in the chain, for example:
+
             auth_function(next_auth, context, data_dict).
+
         The chained auth function may call the next_auth function, optionally
         passing different values, handling exceptions, returning different
         values and/or raising different exceptions to the caller.
