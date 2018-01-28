@@ -155,6 +155,9 @@ class DatastorePlugin(p.SingletonPlugin):
         if 'datastore_active' not in resource_dict:
             resource_dict[u'datastore_active'] = False
 
+        if resource_dict.get(u'query'):
+            resource_dict[u'format'] = 'Query CSV'
+
         return resource_dict
 
     def after_delete(self, context, resources):
