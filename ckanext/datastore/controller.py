@@ -4,6 +4,7 @@ from ckan.plugins.toolkit import (
     Invalid,
     ObjectNotFound,
     NotAuthorized,
+    ValidationError,
     get_action,
     get_validator,
     _,
@@ -122,12 +123,17 @@ class DatastoreController(BaseController):
             abort(404, _('Resource not found'))
 
         if request.method == 'POST':
-            get_action('datastore_create')(None, {
-                'resource_id': resource_id,
-                'force': True,
-                'create_table_as_sql': resource['query']})
-
-            h.flash_success(_('Resource data updated.'))
+            try:
+                get_action('datastore_create')(None, {
+                    'resource_id': resource_id,
+                    'force': True,
+                    'create_table_as_sql': resource['query']})
+                h.flash_success(_('Resource data updated.'))
+            except ValidationError as e:
+                if 'create_table_as_sql' not in e.error_dict:
+                    raise
+                h.flash_error(_('There was an error with the saved resource '
+                    'query. Please click "Manage" to update the query.'))
 
         h.redirect_to(
             controller='package',
