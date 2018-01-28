@@ -47,6 +47,7 @@ this.ckan.module('image-upload', function($) {
       this.is_data_resource = (this.options.field_url === 'url') && (this.options.field_upload === 'upload');
       this.field_query = $(field_query).parents('.form-group');
       this.field_query_input = $(field_query)[0];
+      this.field_format = $('input[name="format"]').parents('.form-group');
 
       // Is there a clear checkbox on the form already?
       var checkbox = $(field_clear, this.el);
@@ -72,6 +73,8 @@ this.ckan.module('image-upload', function($) {
           .prop('title', removeText)
           .on('click', this._onRemove)
           .insertBefore(this.field_query_input);
+        $(this.field_query)
+          .on('change', this._onQueryChange)
       }
 
       // Button to set the field to be a URL
@@ -240,6 +243,15 @@ this.ckan.module('image-upload', function($) {
       this._updateUrlLabel(this._('File'));
     },
 
+    /* Event listener for when someone starts to enter a query
+     *
+     * Returns nothing.
+     */
+    _onQueryChange: function() {
+      this._autoName('Query');
+    },
+
+
     /* Show only the buttons, hiding all others
      *
      * Returns nothing.
@@ -251,6 +263,7 @@ this.ckan.module('image-upload', function($) {
         .add(this.button_url)
         .add(this.input)
         .show();
+      this.field_format.show();
     },
 
     /* Show only the URL field, hiding all others
@@ -260,11 +273,17 @@ this.ckan.module('image-upload', function($) {
     _showOnlyFieldUrl: function() {
       this.fields.hide();
       this.field_url.show();
+      this.field_format.show();
     },
 
+    /* Show only the Query field, hiding all others
+     *
+     * Returns nothing.
+     */
     _showOnlyQuery: function() {
       this.fields.hide();
       this.field_query.show();
+      this.field_format.hide();
     },
     /* Event listener for when a user mouseovers the hidden file input
      *
