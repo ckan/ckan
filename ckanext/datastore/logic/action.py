@@ -38,7 +38,7 @@ def datastore_create(context, data_dict):
     ``resource_id``.
 
     To create a table with data from other DataStore tables pass a
-    select statement as the ``materialized_view_sql`` parameter. Update
+    select statement as the ``create_table_as_sql`` parameter. Update
     data after the source data has changed by calling ``datastore_refresh``.
 
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
@@ -54,22 +54,22 @@ def datastore_create(context, data_dict):
     :type resource: dictionary
     :param aliases: names for read only aliases of the resource. (optional)
     :type aliases: list or comma separated string
-    :param materialized_view_sql: a single SQL select statement to create
-        a materialized view instead of a normal table. (optional)
-    :type materialized_view_sql: string
+    :param create_table_as_sql: a single SQL select statement to create
+        table based on other DataStore data. (optional)
+    :type create_table_as_sql: string
     :param fields: fields/columns and their extra metadata.
         (optional)
     :type fields: list of dictionaries
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a", "b"]}]
-        (optional, ignored for materialized views)
+        (optional, ignored when create_table_as_sql passed)
     :type records: list of dictionaries
     :param primary_key: fields that represent a unique key
-        (optional, ignored for materialized views)
+        (optional, ignored when create_table_as_sql passed)
     :type primary_key: list or comma separated string
     :param indexes: indexes on table (optional)
     :type indexes: list or comma separated string
     :param triggers: trigger functions to apply to this table on update/insert.
-        (optional, ignored for materialized views)
+        (optional, ignored when create_table_as_sql passed)
         Functions may be created with
         :meth:`~ckanext.datastore.logic.action.datastore_function_create`.
         eg: [
@@ -104,17 +104,17 @@ def datastore_create(context, data_dict):
 
     p.toolkit.check_access('datastore_create', context, data_dict)
 
-    materialized_view_sql = data_dict.get('materialized_view_sql')
-    if materialized_view_sql:
+    create_table_as_sql = data_dict.get('create_table_as_sql')
+    if create_table_as_sql:
         try:
             p.toolkit.get_action('datastore_search_sql')(None,
-                {'sql': materialized_view_sql, 'dry_run': True})
+                {'sql': create_table_as_sql, 'dry_run': True})
         except p.toolkit.ValidationError as e:
             raise p.toolkit.ValidationError(
-                {'materialized_view_sql': e.error_dict['sql']})
+                {'create_table_as_sql': e.error_dict['sql']})
         except p.toolkit.NotAuthorized as e:
             raise p.toolkit.ValidationError(
-                {'materialized_view_sql': e.message})
+                {'create_table_as_sql': e.message})
 
     if 'resource' in data_dict and 'resource_id' in data_dict:
         raise p.toolkit.ValidationError({
@@ -173,10 +173,10 @@ def datastore_create(context, data_dict):
         data_dict['private'] = True
 
     try:
-        if materialized_view_sql:
-            backend.materialized_view_create(
+        if create_table_as_sql:
+            backend.create_table_as(
                 resource.id,
-                materialized_view_sql)
+                create_table_as_sql)
             result = data_dict
         else:
             result = backend.create(context, data_dict)

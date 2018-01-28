@@ -101,7 +101,7 @@ def datastore_create_schema():
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         'aliases': [ignore_missing, list_of_strings_or_string],
-        'materialized_view_sql': [ignore_missing, unicode_only],
+        'create_table_as_sql': [ignore_missing, unicode_only],
         'fields': {
             'id': [not_empty, unicode],
             'type': [ignore_missing],

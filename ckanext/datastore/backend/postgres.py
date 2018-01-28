@@ -1724,16 +1724,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         trans = context['connection'].begin()
         try:
             if 'filters' not in data_dict:
-                try:
-                    context['connection'].execute(
-                        u'DROP TABLE IF EXISTS {0} CASCADE;'
-                        .format(identifier(data_dict['resource_id'])))
-                except ProgrammingError:
-                    trans.rollback()
-                    trans = context['connection'].begin()
-                    context['connection'].execute(
-                        u'DROP MATERIALIZED VIEW IF EXISTS {0} CASCADE;'
-                        .format(identifier(data_dict['resource_id'])))
+                context['connection'].execute(
+                    u'DROP TABLE IF EXISTS {0} CASCADE;'
+                    .format(identifier(data_dict['resource_id'])))
             else:
                 delete_data(context, data_dict)
 
@@ -1745,14 +1738,14 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         finally:
             context['connection'].close()
 
-    def materialized_view_create(self, resource_id, query):
+    def create_table_as(self, resource_id, query):
         # query has been checked for correctness before this call
         sql = u'''
-            DROP MATERIALIZED VIEW IF EXISTS {resource_id};
+            DROP TABLE IF EXISTS {resource_id};
             '''.format(resource_id=identifier(resource_id))
         _write_engine_execute(sql)
         sql = u'''
-            CREATE MATERIALIZED VIEW {resource_id} AS {query};
+            CREATE TABLE {resource_id} AS {query};
             '''.format(resource_id=identifier(resource_id), query=query)
         _write_engine_execute(sql)
 

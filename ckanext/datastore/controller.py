@@ -125,7 +125,7 @@ class DatastoreController(BaseController):
             get_action('datastore_create')(None, {
                 'resource_id': resource_id,
                 'force': True,
-                'materialized_view_sql': resource['query']})
+                'create_table_as_sql': resource['query']})
 
             h.flash_success(_('Resource data updated.'))
 

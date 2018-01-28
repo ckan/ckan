@@ -327,7 +327,7 @@ def datastore_resource_query(key, data, errors, context):
 def sync_query_frontend(resource_id, query):
     '''
     As a special case when editing a query-based resource on the front-end
-    automatically update the materialized view to match. When using the API
+    automatically create/update the table to match. When using the API
     it is more consistent and less order-dependent for the user to do this
     with explicit datastore_create/datastore_delete calls instead.
     '''
@@ -336,7 +336,7 @@ def sync_query_frontend(resource_id, query):
         p.toolkit.get_action('datastore_create')(
             None, {
                 'resource_id': resource_id,
-                'materialized_view_sql': query,
+                'create_table_as_sql': query,
                 'force': True})
     else:
         p.toolkit.get_action('datastore_delete')(
