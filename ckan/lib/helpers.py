@@ -732,8 +732,7 @@ def _link_to(text, *args, **kwargs):
     return tags.link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
-        class_=class_
-    )
+        class_=class_)
 
 
 @core_helper
@@ -753,9 +752,13 @@ def nav_link(text, *args, **kwargs):
 def nav_link_flask(text, *args, **kwargs):
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
-    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    if args:
+        blueprint, endpoint = args[0].split('.')  # this should be reviewed
+    else:
+        blueprint, endpoint = request.url_rule.endpoint.split('.')
     if args:
         kwargs['controller'] = blueprint or None
+        kwargs['action'] = endpoint or None
     named_route = kwargs.pop('named_route', '')
     if kwargs.pop('condition', True):
         if named_route:
@@ -913,8 +916,8 @@ def _make_menu_item(menu_item, title, **kw):
     needed = item.pop('needed')
     for need in needed:
         if need not in kw:
-            raise Exception('menu item `%s` need parameter `%s`'
-                            % (menu_item, need))
+            raise Exception('menu item `%s` need parameter `%s`' % (menu_item,
+                                                                    need))
     link = _link_to(title, menu_item, suppress_active_class=True, **item)
     if active:
         return literal('<li class="active">') + link + literal('</li>')
@@ -2555,9 +2558,11 @@ def mail_to(email_address, name):
 def radio(selected, id, checked):
     if checked:
         return literal((u'<input checked="checked" id="%s_%s" name="%s" \
-            value="%s" type="radio">') % (selected, id, selected, id))
+            value="%s" type="radio">'
+                                     ) % (selected, id, selected, id))
     return literal(('<input id="%s_%s" name="%s" \
-        value="%s" type="radio">') % (selected, id, selected, id))
+        value="%s" type="radio">'
+                                 ) % (selected, id, selected, id))
 
 
 @core_helper
