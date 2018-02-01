@@ -43,7 +43,7 @@ class TestTypeGetters(unittest.TestCase):
         engine = db._get_engine_from_url(config['sqlalchemy.url'])
         connection = engine.connect()
         assert db._pg_version_is_at_least(connection, '8.0')
-        assert not db._pg_version_is_at_least(connection, '10.0')
+        assert not db._pg_version_is_at_least(connection, '20.0')
 
 
 class TestLegacyModeSetting():

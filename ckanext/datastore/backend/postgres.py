@@ -23,7 +23,7 @@ from ckan.lib.lazyjson import LazyJSONObject
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
 
-import psycopg2.extras
+from psycopg2.extras import register_default_json, register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
@@ -117,6 +117,14 @@ def _get_engine_from_url(connection_url):
                                                'ckan.datastore.sqlalchemy.',
                                                **extras)
         _engines[connection_url] = engine
+
+    # don't automatically convert to python objects
+    # when using native json types in 9.2+
+    # http://initd.org/psycopg/docs/extras.html#adapt-json
+    register_default_json(conn_or_curs=engine.raw_connection().connection,
+                          globally=False,
+                          loads=lambda x: x)
+
     return engine
 
 
@@ -274,9 +282,7 @@ def _cache_types(context):
             # redo cache types with json now available.
             return _cache_types(context)
 
-        psycopg2.extras.register_composite('nested',
-                                           connection.connection,
-                                           True)
+        register_composite('nested', connection.connection, True)
 
 
 def _pg_version_is_at_least(connection, version):
