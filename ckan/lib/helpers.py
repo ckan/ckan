@@ -25,7 +25,7 @@ from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
 from markdown import markdown
-from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
+from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
@@ -1143,7 +1143,7 @@ def linked_user(user, maxlength=0, avatar=20):
             ),
             link=tags.link_to(
                 displayname,
-                url_for(controller='user', action='read', id=name)
+                url_for('user.read', id=name)
             )
         ))
 
@@ -1273,13 +1273,18 @@ def gravatar(email_hash, size=100, default=None):
 
 @core_helper
 def pager_url(page, partial=None, **kwargs):
-    routes_dict = _pylons_default_url.environ['pylons.routes_dict']
-    kwargs['controller'] = routes_dict['controller']
-    kwargs['action'] = routes_dict['action']
-    if routes_dict.get('id'):
-        kwargs['id'] = routes_dict['id']
+    pargs = []
+    if is_flask_request():
+        pargs.append(request.endpoint)
+        # FIXME: add `id` param to kwargs if it really required somewhere
+    else:
+        routes_dict = _pylons_default_url.environ['pylons.routes_dict']
+        kwargs['controller'] = routes_dict['controller']
+        kwargs['action'] = routes_dict['action']
+        if routes_dict.get('id'):
+            kwargs['id'] = routes_dict['id']
     kwargs['page'] = page
-    return url_for(**kwargs)
+    return url_for(*pargs, **kwargs)
 
 
 class Page(paginate.Page):
@@ -2102,7 +2107,7 @@ def render_markdown(data, auto_link=True, allow_html=False):
         data = markdown(data.strip())
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
-        data = clean_html(
+        data = bleach_clean(
             markdown(data), strip=True,
             tags=MARKDOWN_TAGS, attributes=MARKDOWN_ATTRIBUTES)
     # tags can be added by tag:... or tag:"...." and a link will be made
@@ -2555,6 +2560,11 @@ def radio(selected, id, checked):
         value="%s" type="radio">') % (selected, id, selected, id))
 
 
+@core_helper
+def clean_html(html):
+    return bleach_clean(unicode(html))
+
+
 core_helper(flash, name='flash')
 core_helper(localised_number)
 core_helper(localised_SI_number)
@@ -2573,7 +2583,6 @@ core_helper(whtext.truncate)
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
-core_helper(clean_html, name='clean_html')
 
 
 def load_plugin_helpers():

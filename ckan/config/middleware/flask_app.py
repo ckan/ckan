@@ -167,12 +167,13 @@ def make_flask_stack(conf, **app_conf):
         if '.' not in rule.endpoint:
             continue
         controller, action = rule.endpoint.split('.')
+        needed = list(rule.arguments - set(rule.defaults or {}))
         route = {
             rule.endpoint: {
                 'action': action,
                 'controller': controller,
                 'highlight_actions': action,
-                'needed': list(rule.arguments)
+                'needed': needed
                 }
             }
         config['routes.named_routes'].update(route)

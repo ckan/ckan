@@ -31,7 +31,7 @@ def _reset_config(app):
     user = factories.Sysadmin()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
     app.post(
-        url=url_for(controller='admin', action='reset_config'),
+        url=url_for('admin.reset_config'),
         extra_environ=env,
     )
 

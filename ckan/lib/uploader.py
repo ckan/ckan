@@ -15,6 +15,8 @@ import ckan.plugins as plugins
 from ckan.common import config
 
 ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
+MB = 1 << 20
+
 log = logging.getLogger(__name__)
 
 _storage_path = None
@@ -28,7 +30,7 @@ def _copy_file(input_file, output_file, max_size):
     while True:
         current_size = current_size + 1
         # MB chunks
-        data = input_file.read(2**20)
+        data = input_file.read(MB)
 
         if not data:
             break

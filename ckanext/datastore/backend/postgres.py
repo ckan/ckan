@@ -782,8 +782,10 @@ def create_indexes(context, data_dict):
         indexes = []
 
     if primary_key is not None:
-        _drop_indexes(context, data_dict, True)
-        indexes.append(primary_key)
+        unique_keys = _get_unique_key(context, data_dict)
+        if sorted(unique_keys) != sorted(primary_key):
+            _drop_indexes(context, data_dict, True)
+            indexes.append(primary_key)
 
     for index in indexes:
         if not index:

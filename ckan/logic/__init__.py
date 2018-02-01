@@ -132,7 +132,13 @@ def parse_params(params, ignore_keys=None):
     for key in params:
         if ignore_keys and key in ignore_keys:
             continue
-        value = params.getall(key)
+        # flask request has `getlist` instead of pylons' `getall`
+
+        if hasattr(params, 'getall'):
+            value = params.getall(key)
+        else:
+            value = params.getlist(key)
+
         # Blank values become ''
         if not value:
             value = ''
@@ -636,6 +642,14 @@ def auth_disallow_anonymous_access(action):
         return action(context, data_dict)
     wrapper.auth_allow_anonymous_access = False
     return wrapper
+
+
+def chained_auth_function(func):
+    '''
+    Decorator function allowing authentication functions to be chained.
+    '''
+    func.chained_auth_function = True
+    return func
 
 
 class UnknownValidator(Exception):
