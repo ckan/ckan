@@ -57,8 +57,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
 
+    app = common_middleware.CloseWSGIInputMiddleware(app, config)
     app = common_middleware.RootPathMiddleware(app, config)
-
     # Routing/Session/Cache Middleware
     app = RoutesMiddleware(app, config['routes.map'])
     # we want to be able to retrieve the routes middleware to be able to update
