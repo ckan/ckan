@@ -529,7 +529,6 @@ class TestUserFollow(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
         unfollow_url = url_for('user.unfollow',
                                id=user_two['id'])
-        print(unfollow_url)
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow()
