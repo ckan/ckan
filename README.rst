@@ -77,7 +77,7 @@ ckan-dev mailing list.
 Copying and License
 -------------------
 
-This material is copyright (c) 2006-2017 Open Knowledge International and contributors.
+This material is copyright (c) 2006-2018 Open Knowledge International and contributors.
 
 It is open and licensed under the GNU Affero General Public License (AGPL) v3.0
 whose full text may be found at:
