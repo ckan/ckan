@@ -260,8 +260,8 @@ def make_map():
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type ('group' is the default type)
     with SubMapper(map, controller='group') as m:
-        m.connect('group_index', '/group', action='index',
-                  highlight_actions='index search')
+        # m.connect('group_index', '/group', action='index',
+        #           highlight_actions='index search')
         m.connect('group_list', '/group/list', action='list')
         m.connect('group_new', '/group/new', action='new')
         m.connect('group_action', '/group/{action}/{id}',

@@ -26,6 +26,9 @@ _default_group_plugin = None
 # Mapping from group-type strings to controllers
 _group_controllers = {}
 
+# Mapping from group-type strings to blueprints 
+_group_blueprints = {}
+
 
 def reset_package_plugins():
     global _default_package_plugin
@@ -70,7 +73,14 @@ def lookup_group_controller(group_type=None):
     Returns the group controller associated with the given group type. The
     controller is expressed as a string that you'd pass to url_to(controller=x)
     """
-    return _group_controllers.get(group_type)
+    return _group_controllers.get(group_type)   
+
+
+def lookup_group_blueprints(group_type=None):
+    """
+    Returns the group blueprint
+    """
+    return _group_blueprints.get(group_type)
 
 
 def register_package_plugins(map):
