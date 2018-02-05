@@ -15,6 +15,8 @@
             {% snippet 'home/snippets/use_cases_text_en.html' %}
           {% elif if h.lang() == 'fa_IR' %}
             {% snippet 'home/snippets/use_cases_text_fa.html' %}
+          {% else %}
+            <p>There are currently no use cases available.</p>
           {% endif %}
       {% endblock %}
     </div>
