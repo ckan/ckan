@@ -1002,7 +1002,7 @@ def package_show(context, data_dict):
                 package_dict_validated = False
             metadata_modified = pkg.metadata_modified.isoformat()
             search_metadata_modified = search_result['metadata_modified']
-            # solr stores less precice datetime,
+            # solr stores less precise datetime,
             # truncate to 22 charactors to get good enough match
             if metadata_modified[:22] != search_metadata_modified[:22]:
                 package_dict = None
@@ -2572,7 +2572,9 @@ def package_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    _check_access('package_show', context, data_dict)
+    data_dict['object_type'] = 'package'
+    data_dict['include_data'] = False
+    _check_access('activity_show', context, data_dict)
 
     model = context['model']
 
@@ -2590,7 +2592,8 @@ def package_activity_list(context, data_dict):
     activity_objects = _filter_activity_by_user(_activity_objects,
             _activity_stream_get_filtered_users())
 
-    return model_dictize.activity_list_dictize(activity_objects, context)
+    return model_dictize.activity_list_dictize(
+        activity_objects, context, include_data=data_dict['include_data'])
 
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2700,16 +2703,51 @@ def recently_changed_packages_activity_list(context, data_dict):
 def activity_detail_list(context, data_dict):
     '''Return an activity's list of activity detail items.
 
-    :param id: the id of the activity
+    :param id: the id or name of the object (e.g. dataset)
+        (or activity - DEPRECATED)
     :type id: string
-    :rtype: list of dictionaries.
+    :param object_type: the type of the object being identified.
+        Accepted values: ``'package'``, ``'activity'`` (deprecated, default)
+        (``'activity'`` is just there for backward compatibility)
+    :type object_id: string
+    :rtype: list of dictionaries
 
     '''
-    # FIXME: Filter out activities whose subject or object the user is not
-    # authorized to read.
     model = context['model']
     activity_id = _get_or_bust(data_dict, 'id')
-    activity_detail_objects = model.ActivityDetail.by_activity_id(activity_id)
+    object_type = data_dict.get('object_type', 'activity')
+    allowed_object_types = ('package', 'activity')
+    if object_type not in allowed_object_types:
+        raise logic.ValidationError('object_type not accepted. Choose from: {}'
+                                    .format(allowed_object_types))
+    name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
+    if object_type != 'activity':
+        # i.e. object_type == 'package':
+        # context['package'] = model.Package.get(activity.object_id)
+        _check_access('activity_show', context, data_dict)
+
+        offset = int(data_dict.get('offset', 0))
+        limit = int(
+            data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+
+        _activity_objects = model.activity.package_activity_list(package.id,
+                limit=limit, offset=offset)
+        activity_objects = _filter_activity_by_user(_activity_objects,
+                _activity_stream_get_filtered_users())
+
+        return model_dictize.activity_list_dictize(activity_objects, context)
+        # activity_detail_objects = \
+        #     model.Session.query(model.ActivityDetail) \
+        #     .filter_by(object_type=object_type) \
+        #     .filter_by(object_id=id) \
+        #     .join(model.Activity) \
+        #     .order_by(model.Activity.timestamp)
+    else:
+        activity_detail_objects = \
+            model.ActivityDetail.by_activity_id(activity_id)
+    if 'package' in activity.activity_type:
+        pass
+    _check_access(u'activity_detail_show', context, data_dict)
     return model_dictize.activity_detail_list_dictize(
         activity_detail_objects, context)
 
@@ -3260,6 +3298,31 @@ def dashboard_new_activities_count(context, data_dict):
         context, data_dict)
     return len([activity for activity in activities if activity['is_new']])
 
+
+def activity_show(context, data_dict):
+    '''Show details of an item of 'activity' (part of the activity stream).
+
+    :param id: the id of the activity
+    :type id: string
+
+    :rtype: dictionary
+    '''
+    model = context['model']
+    user = context['user']
+    activity_id = _get_or_bust(data_dict, 'id')
+
+    activity = model.Session.query(model.Activity).get(activity_id)
+    if activity is None:
+        raise NotFound
+    context['activity'] = activity
+
+    if 'package' in activity.activity_type:
+        context['package'] = model.Package.get(activity.object_id)
+
+    _check_access(u'activity_show', context, data_dict)
+
+    activity = model_dictize.activity_dictize(activity, context)
+    return activity
 
 def _unpick_search(sort, allowed_fields=None, total=None):
     ''' This is a helper function that takes a sort string

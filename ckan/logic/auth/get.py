@@ -260,6 +260,25 @@ def dashboard_new_activities_count(context, data_dict):
             context, data_dict)
 
 
+def activity_show(context, data_dict):
+    if data_dict.get('include_data'):
+        # The 'data' field of the activity is restricted to users who are
+        # allowed to edit the object
+        if data_dict.get('object_type') == 'package':
+            return {'success': authz.is_authorized_boolean(
+                'package_update', context, {'id': data_dict['id']})}
+        else:
+            raise {'success': False, 'msg': 'object_type not recognized'}
+
+    # the activity for an object (i.e. the activity metadata) can be seen if
+    # the user can see the object
+    if data_dict.get('object_type') == 'package':
+        return authz.is_authorized('package_show', context,
+                                   {'id': data_dict['id']})
+    else:
+        raise {'success': False, 'msg': 'object_type not recognized'}
+
+
 def user_follower_list(context, data_dict):
     return authz.is_authorized('sysadmin', context, data_dict)
 

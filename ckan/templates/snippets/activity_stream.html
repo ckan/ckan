@@ -6,7 +6,9 @@
 
 {% macro dataset(activity) %}
 <span class="dataset">
-  {{ h.dataset_link(activity.data.package) }}
+  {% if 'data' in activity %}
+      {{ h.dataset_link(activity.data.package) }}
+  {% endif %}
 </span>
 {% endmacro %}
 
@@ -32,8 +34,15 @@
 </span>
 {% endmacro %}
 
+{# Displays an activity stream
+
+activity_stream - the activity data. e.g. the output from package_activity_list
+id - the id of the object (e.g. package)
+
+#}
 {% block activity_stream %}
   <ul class="activity">
+  {% set can_show_activity_detail = h.check_access('activity_show', {'id': id}) %}
   {% for activity in activity_stream %}
     {%- snippet "snippets/activities/{}.html".format(
       activity.activity_type.replace(' ', '_')

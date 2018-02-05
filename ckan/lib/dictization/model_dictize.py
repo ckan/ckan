@@ -695,12 +695,15 @@ def vocabulary_list_dictize(vocabulary_list, context):
     return [vocabulary_dictize(vocabulary, context)
             for vocabulary in vocabulary_list]
 
-def activity_dictize(activity, context):
+def activity_dictize(activity, context, include_data=False):
     activity_dict = d.table_dictize(activity, context)
+    if not include_data:
+        del activity_dict['data']
     return activity_dict
 
-def activity_list_dictize(activity_list, context):
-    return [activity_dictize(activity, context) for activity in activity_list]
+def activity_list_dictize(activity_list, context, include_data=False):
+    return [activity_dictize(activity, context, include_data)
+            for activity in activity_list]
 
 def activity_detail_dictize(activity_detail, context):
     return d.table_dictize(activity_detail, context)
@@ -764,4 +767,3 @@ def resource_view_list_dictize(resource_views, context):
     for view in resource_views:
         resource_view_dicts.append(resource_view_dictize(view, context))
     return resource_view_dicts
-

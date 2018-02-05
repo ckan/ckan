@@ -370,13 +370,19 @@ class PackageController(base.BaseController):
             # view an 'old' version of the package, as recorded in the
             # activity stream
             try:
-                c.pkg_dict = context['session'].query(model.Activity).get(
-                    activity_id
-                ).data['package']
-            except AttributeError:
+                activity = get_action('activity_show')(context,
+                                                       {'id': activity_id})
+            except NotFound:
+                abort(404, _('Activity not found'))
+            except NotAuthorized:
+                abort(403, _('Unauthorized to create a package'))
+            try:
+                c.pkg_dict = activity['data']['package']
+            except KeyError:
                 abort(404, _('Dataset not found'))
-            # Don't crash on old activity records, which do not include
-            # resources or extras.
+            # Earlier versions of CKAN only stored the package table in the
+            # activity, so add a placeholder for resources, or the template
+            # will crash.
             c.pkg_dict.setdefault('resources', [])
             c.is_activity_archive = True
 
@@ -740,7 +746,6 @@ class PackageController(base.BaseController):
         return h.json.dumps(data)
 
     def history_ajax(self, id):
-
         context = {'model': model, 'session': model.Session,
                    'user': c.user, 'auth_user_obj': c.userobj}
         data_dict = {'id': id}
