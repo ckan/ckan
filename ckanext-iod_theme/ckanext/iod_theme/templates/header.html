@@ -89,11 +89,9 @@
                 ('about', _('About'))
               ) }}
             {% endblock %}
-            {% if h.lang() == 'fa_IR' %}
-              <li>
-                <a href="{{ h.url_for('use_cases') }}" title="{{ _('Use cases') }}">{{ _('Use cases') }}</a>
-              </li>
-            {% endif %}
+            <li>
+              <a href="{{ h.url_for('use_cases') }}" title="{{ _('Use cases') }}">{{ _('Use cases') }}</a>
+            </li>
             <li>
               <a href="{{ h.url_for('about') }}" title="{{ _('About') }}">{{ _('About') }}</a>
             </li>

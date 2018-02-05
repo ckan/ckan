@@ -11,10 +11,10 @@
     <div class="module-content">
       {% block use_cases %}
           <h1 class="page-heading">{{ _('Use cases') }}</h1>
-          {% if h.lang() == 'fa_IR' %}
-            {% snippet 'home/snippets/use_cases_text.html' %}
-          {% else %}
-            <p>There are currently no English use cases available.</p>
+          {% if h.lang() == 'en' %}
+            {% snippet 'home/snippets/use_cases_text_en.html' %}
+          {% elseif h.lang() == 'fa_IR' %}
+            {% snippet 'home/snippets/use_cases_text_fa.html' %}
           {% endif %}
       {% endblock %}
     </div>

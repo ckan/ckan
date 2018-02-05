@@ -721,23 +721,10 @@ a:active {
   margin-bottom: 10px;
 }
 
-.attribution__list {
-  list-style: none;
-  margin: 0;
-}
-
-.attribution__item + .attribution__item {
-  margin-top: 10px;
-}
-
 .attribution .attribution__logo {
   display: inline-block;
   vertical-align: top;
   margin: 0 0 0 5px;
-}
-
-.attribution .sm-logo {
-  width: 21px;
 }
 
 /*------------------------------------*\
