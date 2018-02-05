@@ -43,9 +43,22 @@ def _index_template(group_type):
     return lookup_group_plugin(group_type).index_template()
 
 
+def _group_form(group_type=None):
+    return lookup_group_plugin(group_type).group_form()
+
+
 def _replace_group_org(string):
     ''' substitute organization for group if this is an org'''
     return string
+
+
+def _setup_template_variables(context, data_dict, group_type=None):
+        return lookup_group_plugin(group_type).\
+            setup_template_variables(context, data_dict)
+
+
+def _new_template(group_type):
+    return lookup_group_plugin(group_type).new_template()
 
 
 def _action(action_name):
@@ -53,12 +66,30 @@ def _action(action_name):
     return get_action(_replace_group_org(action_name))
 
 
+def _save_new(context, group_type=None):
+    try:
+        data_dict = clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(request.params))))
+        data_dict['type'] = group_type or 'group'
+        context['message'] = data_dict.get('log_message', '')
+        data_dict['users'] = [{'name': g.user, 'capacity': 'admin'}]
+
+        h.redirect_to(group['type'] + '_read', id=group['name'])
+    except (NotFound, NotAuthorized), e:
+        base.abort(404, _('Group not found'))
+    except dict_fns.DataError:
+        base.abort(400, _(u'Integrity Error'))
+    except ValidationError, e:
+        errors = e.error_dict
+        error_summary = e.error_summary
+        return new(data_dict, errors, error_summary)
+
+
 @group.before_request
 def before_request():
     try:
         context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
-        logic.check_access(u'site_read', context)
-    except logic.NotAuthorized:
+        check_access(u'site_read', context)
+    except NotAuthorized:
         _, action = request.url_rule.endpoint.split(u'.')
         if action not in (u'group_list', ):
             base.abort(403, _(u'Not authorized to see this page'))
@@ -127,5 +158,49 @@ def index():
     return base.render(_index_template(group_type), extra_vars=vars)
 
 
+def new(data=None, errors=None, error_summary=None):
+    if data and 'type' in data:
+        group_type = data['type']
+    else:
+        group_type = 'group'
+    if data:
+        data['type'] = group_type
+
+    context = {
+        'model': model,
+        'session': model.Session,
+        'user': g.user,
+        'save': 'save' in request.params,
+        'parent': request.params.get('parent', None)
+    }
+
+    try:
+        check_access('group_create', context)
+    except NotAuthorized:
+        base.abort(403, _('Unauthorized to create a group'))
+
+    if context['save'] and not data:
+        return _save_new(context, group_type)
+
+    data = data or {}
+    if not data.get('image_url', '').startswith('http'):
+        data.pop('image_url', None)
+
+    errors = errors or {}
+    error_summary = error_summary or {}
+    vars = {
+        'data': data,
+        'errors': errors,
+        'error_summary': error_summary,
+        'action': 'new',
+        'group_type': group_type
+    }
+    _setup_template_variables(context, data, group_type=group_type)
+    c.form = base.render(_group_form(group_type=group_type), extra_vars=vars)
+    return base.render(
+        _new_template(group_type), extra_vars={'group_type': group_type})
+
+
 # Routing
 group.add_url_rule(u'/', view_func=index, strict_slashes=False)
+group.add_url_rule(u'/new', view_func=new)

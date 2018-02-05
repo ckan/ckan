@@ -263,7 +263,7 @@ def make_map():
         # m.connect('group_index', '/group', action='index',
         #           highlight_actions='index search')
         m.connect('group_list', '/group/list', action='list')
-        m.connect('group_new', '/group/new', action='new')
+        #m.connect('group_new', '/group/new', action='new')
         m.connect('group_action', '/group/{action}/{id}',
                   requirements=dict(action='|'.join([
                       'edit',
