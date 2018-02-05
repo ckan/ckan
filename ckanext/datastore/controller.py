@@ -132,7 +132,8 @@ class DatastoreController(BaseController):
             except ValidationError as e:
                 if 'create_table_as_sql' not in e.error_dict:
                     raise
-                h.flash_error(_('There was an error with the saved resource '
+                h.flash_error(_(
+                    'There was an error with the saved resource '
                     'query. Please click "Manage" to update the query.'))
 
         h.redirect_to(
