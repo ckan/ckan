@@ -439,7 +439,16 @@ options     - A list/tuple of fields to be used as <options>.
     {% endif %}
 
   {% if query %}
-    {{ textarea('query', label=_('Query'), id='field-query', value=data.get('query'), placeholder="SELECT * FROM ...", rows=5, cols=20) }}
+    {% call input_block('query', label=_('Query'), error='', classes=['control-full', 'editor']) %}
+      <textarea id="field-query" name="query" placeholder='SELECT * FROM "23af..."' rows="5" cols="20" class="form-control">{{ data.get('query', '') | empty_and_escape }}</textarea>
+      <span class="editor-info-block">{% trans %}Create a snapshot of data
+        from other DataStore tables using an SQL Query. You may re-run this
+        query at any time from the resource preview screen.<br/>
+        <b>Note:</b> This query will run
+        with your permissions but the data will be published and visible
+        along with other data in this dataset.{% endtrans %}
+      </span>
+    {% endcall %}
   {% endif %}
 
   {% if is_upload_enabled %}</div>{% endif %}
