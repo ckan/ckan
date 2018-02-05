@@ -68,7 +68,7 @@ this.ckan.module('image-upload', function($) {
           .prop('title', this._('Query data from other resources'))
           .on('click', this._onQuery)
           .insertAfter(this.input);
-        $('<a href="javascript:;" class="btn btn-danger btn-remove-url">'
+        $('<a href="javascript:;" class="btn btn-danger btn-remove-url" style="top:-1.7em">'
           + removeText + '</a>')
           .prop('title', removeText)
           .on('click', this._onRemove)
