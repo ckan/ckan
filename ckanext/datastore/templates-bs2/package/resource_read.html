@@ -33,7 +33,7 @@
       </table>
     </div>
   {% endif %}
-  {% if res.query %}
+  {% if res.query and h.check_access('resource_update', {'id':res.id}) %}
     <div class="module-content">
       <h2>{{ _('Resource Query') }}</h2>
       <p>{{ _('Click Run Query to update the data in this resource.') }}</p>
