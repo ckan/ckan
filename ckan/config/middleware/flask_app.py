@@ -44,7 +44,7 @@ log = logging.getLogger(__name__)
 class CKANBabel(Babel):
     def __init__(self, *pargs, **kwargs):
         super(CKANBabel, self).__init__(*pargs, **kwargs)
-        self.__i18n_path_idx = 0
+        self._i18n_path_idx = 0
 
     @property
     def domain(self):
