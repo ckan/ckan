@@ -205,7 +205,6 @@ class TestGroupDelete(helpers.FunctionalTestBase):
         self.group = factories.Group(user=self.user)
 
     def test_owner_delete(self):
-        import pdb; pdb.set_trace()
         response = self.app.get(url=url_for('group.delete',
                                             id=self.group['id']),
                                 status=200,
