@@ -958,10 +958,10 @@ def package_show(context, data_dict):
     :param id: the id or name of the dataset
     :type id: string
     :param use_default_schema: use default package schema instead of
-        a custom schema defined with an IDatasetForm plugin (default: False)
+        a custom schema defined with an IDatasetForm plugin (default: ``False``)
     :type use_default_schema: bool
     :param include_tracking: add tracking information to dataset and
-        resources (default: False)
+        resources (default: ``False``)
     :type include_tracking: bool
     :rtype: dictionary
 
@@ -1064,7 +1064,7 @@ def resource_show(context, data_dict):
     :param id: the id of the resource
     :type id: string
     :param include_tracking: add tracking information to dataset and
-        resources (default: False)
+        resources (default: ``False``)
     :type include_tracking: bool
 
     :rtype: dictionary
@@ -1563,7 +1563,7 @@ def package_autocomplete(context, data_dict):
     :param q: the string to search for
     :type q: string
     :param limit: the maximum number of resource formats to return (optional,
-        default: 10)
+        default: ``10``)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -1611,7 +1611,7 @@ def format_autocomplete(context, data_dict):
     :param q: the string to search for
     :type q: string
     :param limit: the maximum number of resource formats to return (optional,
-        default: 5)
+        default: ``5``)
     :type limit: int
 
     :rtype: list of strings
@@ -1648,7 +1648,7 @@ def user_autocomplete(context, data_dict):
     :param q: the string to search for
     :type q: string
     :param limit: the maximum number of user names to return (optional,
-        default: 20)
+        default: ``20``)
     :type limit: int
 
     :rtype: a list of user dictionaries each with keys ``'name'``,
@@ -1723,7 +1723,7 @@ def organization_autocomplete(context, data_dict):
     :param q: the string to search for
     :type q: string
     :param limit: the maximum number of organizations to return (optional,
-        default: 20)
+        default: ``20``)
     :type limit: int
 
     :rtype: a list of organization dictionaries each with keys ``'name'``,
@@ -1783,13 +1783,13 @@ def package_search(context, data_dict):
         results. A user will only be returned their own draft datasets, and a
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
-    :type include_drafts: boolean
+    :type include_drafts: bool
     :param include_private: if ``True``, private datasets will be included in
         the results. Only private datasets from the user's organizations will
         be returned and sysadmins will be returned all private datasets.
         Optional, the default is ``False``.
     :param use_default_schema: use default package schema instead of
-        a custom schema defined with an IDatasetForm plugin (default: False)
+        a custom schema defined with an IDatasetForm plugin (default: ``False``)
     :type use_default_schema: bool
 
 
@@ -2434,7 +2434,7 @@ def get_site_user(context, data_dict):
         commit and clean up the current transaction. If set to true, caller
         is responsible for commiting transaction after get_site_user is
         called. Leaving open connections can cause cli commands to hang!
-        (optional, default: False)
+        (optional, default: ``False``)
     :type defer_commit: boolean
     '''
     _check_access('get_site_user', context, data_dict)
@@ -2519,10 +2519,10 @@ def user_activity_list(context, data_dict):
     :param id: the id or name of the user
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         ckan.activity_list_limit setting)
     :type limit: int
 
@@ -2561,10 +2561,10 @@ def package_activity_list(context, data_dict):
     :param id: the id or name of the package
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         ckan.activity_list_limit setting)
     :type limit: int
 
@@ -2603,10 +2603,10 @@ def group_activity_list(context, data_dict):
     :param id: the id or name of the group
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         ckan.activity_list_limit setting)
     :type limit: int
 
@@ -2672,10 +2672,10 @@ def recently_changed_packages_activity_list(context, data_dict):
     '''Return the activity stream of all recently added or changed packages.
 
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         ckan.activity_list_limit setting)
     :type limit: int
 
@@ -2723,10 +2723,10 @@ def user_activity_list_html(context, data_dict):
     :param id: The id or name of the user.
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         ckan.activity_list_limit setting)
     :type limit: int
 
@@ -2754,10 +2754,10 @@ def package_activity_list_html(context, data_dict):
     :param id: the id or name of the package
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         ckan.activity_list_limit setting)
     :type limit: int
 
@@ -2785,10 +2785,10 @@ def group_activity_list_html(context, data_dict):
     :param id: the id or name of the group
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         ckan.activity_list_limit setting)
     :type limit: int
 
@@ -2840,10 +2840,10 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     doesn't have any HTML header or footer.
 
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         ckan.activity_list_limit setting)
     :type limit: int
 
@@ -3348,10 +3348,10 @@ def dashboard_activity_list(context, data_dict):
     The user's own activities are always marked ``'is_new': False``.
 
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         :ref:`ckan.activity_list_limit` setting)
 
     :rtype: list of activity dictionaries
@@ -3399,10 +3399,10 @@ def dashboard_activity_list_html(context, data_dict):
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         ckan.activity_list_limit setting)
     :type limit: int
 
