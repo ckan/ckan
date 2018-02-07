@@ -413,54 +413,6 @@ def read(id=None, limit=20):
         extra_vars={'group_type': group_type})
 
 
-def edit(id, data=None, errors=None, error_summary=None):
-    group_type = 'group'
-    context = {
-        'model': model,
-        'session': model.Session,
-        'user': c.user,
-        'save': 'save' in request.params,
-        'for_edit': True,
-        'parent': request.params.get('parent', None)
-    }
-    data_dict = {'id': id, 'include_datasets': False}
-
-    if context['save'] and not data:
-        return _save_edit(id, context)
-
-    try:
-        data_dict['include_datasets'] = False
-        old_data = _action('group_show')(context, data_dict)
-        c.grouptitle = old_data.get('title')
-        c.groupname = old_data.get('name')
-        data = data or old_data
-    except (NotFound, NotAuthorized):
-        base.abort(404, _('Group not found'))
-
-    group = context.get("group")
-    c.group = group
-    c.group_dict = _action('group_show')(context, data_dict)
-
-    try:
-        _check_access('group_update', context)
-    except NotAuthorized:
-        base.abort(403, _('User %r not authorized to edit %s') % (c.user, id))
-
-    errors = errors or {}
-    vars = {
-        'data': data,
-        'errors': errors,
-        'error_summary': error_summary,
-        'action': 'edit',
-        'group_type': group_type
-    }
-
-    _setup_template_variables(context, data, group_type=group_type)
-    c.form = base.render(_group_form(group_type), extra_vars=vars)
-    return base.render(
-        _edit_template(c.group.type), extra_vars={'group_type': group_type})
-
-
 def activity(id, offset=0):
     '''Render this group's public activity stream page.'''
 
@@ -580,7 +532,7 @@ def member_new(id):
 
         if request.method == 'POST':
             data_dict = clean_dict(
-                dict_fns.unflatten(tuplize_dict(parse_params(request.params))))
+                dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
             data_dict['id'] = id
 
             email = data_dict.get('email')
@@ -739,7 +691,7 @@ def follow(id):
         h.flash_error(error_message)
     except NotAuthorized as e:
         h.flash_error(e.message)
-    h.redirect_to('group.read', id=id)
+    return h.redirect_to('group.read', id=id)
 
 
 def unfollow(self, id):
@@ -757,7 +709,7 @@ def unfollow(self, id):
     except (NotFound, NotAuthorized) as e:
         error_message = e.message
         h.flash_error(error_message)
-    h.redirect_to(controller='group', action='read', id=id)
+    return h.redirect_to('group.read', id=id)
 
 
 def followers(id):
