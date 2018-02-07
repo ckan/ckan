@@ -28,7 +28,7 @@
       <p class="empty">
         {{ _('There are currently no groups for this site') }}.
         {% if h.check_access('group_create') %}
-          {% link_for _('How about creating one?'), controller='group', action='new' %}</a>.
+          {% link_for _('How about creating one?'), named_route='group.new' %}</a>.
         {% endif %}
       </p>
     {% endif %}
