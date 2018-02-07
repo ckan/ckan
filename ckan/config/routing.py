@@ -259,34 +259,34 @@ def make_map():
 
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type ('group' is the default type)
-    with SubMapper(map, controller='group') as m:
+    # with SubMapper(map, controller='group') as m:
         # m.connect('group_index', '/group', action='index',
         #           highlight_actions='index search')
-        m.connect('group_list', '/group/list', action='list')
-        #m.connect('group_new', '/group/new', action='new')
-        m.connect('group_action', '/group/{action}/{id}',
-                  requirements=dict(action='|'.join([
-                      'edit',
-                      'delete',
-                      'member_new',
-                      'member_delete',
-                      'history',
-                      'followers',
-                      'follow',
-                      'unfollow',
-                      'admins',
-                      'activity',
-                  ])))
-        m.connect('group_about', '/group/about/{id}', action='about',
-                  ckan_icon='info-circle'),
-        m.connect('group_edit', '/group/edit/{id}', action='edit',
-                  ckan_icon='pencil-square-o')
-        m.connect('group_members', '/group/members/{id}', action='members',
-                  ckan_icon='users'),
-        m.connect('group_activity', '/group/activity/{id}/{offset}',
-                  action='activity', ckan_icon='clock-o'),
-        m.connect('group_read', '/group/{id}', action='read',
-                  ckan_icon='sitemap')
+        # m.connect('group_list', '/group/list', action='list')
+        # m.connect('group_new', '/group/new', action='new')
+        # m.connect('group_action', '/group/{action}/{id}',
+        #           requirements=dict(action='|'.join([
+        #               'edit',
+        #               'delete',
+        #               'member_new',
+        #               'member_delete',
+        #               'history',
+        #               'followers',
+        #               'follow',
+        #               'unfollow',
+        #               'admins',
+        #               'activity',
+        #           ])))
+        # m.connect('group_about', '/group/about/{id}', action='about',
+        #           ckan_icon='info-circle'),
+        # m.connect('group_edit', '/group/edit/{id}', action='edit',
+        #           ckan_icon='pencil-square-o')
+        # m.connect('group_members', '/group/members/{id}', action='members',
+        #           ckan_icon='users'),
+        # m.connect('group_activity', '/group/activity/{id}/{offset}',
+        #           action='activity', ckan_icon='clock-o'),
+        # m.connect('group_read', '/group/{id}', action='read',
+        #           ckan_icon='sitemap')
 
     # organizations these basically end up being the same as groups
     with SubMapper(map, controller='organization') as m:
