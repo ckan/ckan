@@ -220,8 +220,7 @@ class TestGroupDelete(helpers.FunctionalTestBase):
     def test_sysadmin_delete(self):
         sysadmin = factories.Sysadmin()
         extra_environ = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
-        response = self.app.get(url=url_for(controller='group',
-                                            action='delete',
+        response = self.app.get(url=url_for('group.delete',
                                             id=self.group['id']),
                                 status=200,
                                 extra_environ=extra_environ)
@@ -665,8 +664,7 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="ds-three", title="Dataset Three",
                           groups=[{'id': grp['id']}])
 
-        grp_url = url_for('group.read',
-                          id=grp['id'])
+        grp_url = url_for('group.read', id=grp['id'])
         grp_response = app.get(grp_url)
         search_form = grp_response.forms['group-datasets-search-form']
         search_form['q'] = 'One'
@@ -728,8 +726,7 @@ class TestGroupIndex(helpers.FunctionalTestBase):
                 name='test-group-{0}'.format(_i),
                 title='Test Group {0}'.format(_i))
 
-        url = url_for(controller='group',
-                      action='index')
+        url = url_for('group.index')
         response = app.get(url)
 
         for i in xrange(1, 22):
