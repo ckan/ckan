@@ -1604,7 +1604,7 @@ def tag_link(tag):
 
 @core_helper
 def group_link(group):
-    url = url_for(controller='group', action='read', id=group['name'])
+    url = url_for('group.read', id=group['name'])
     return tags.link_to(group['title'], url)
 
 
