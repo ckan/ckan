@@ -10,7 +10,6 @@
 
   {% block search_input %}
     <div class="search-input control-group {{ search_class }}">
-      <label for="field-giant-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
       <input id="field-giant-search" type="text" class="search" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
       {% block search_input_button %}
       <button type="submit" value="search">

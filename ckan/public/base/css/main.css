@@ -8315,9 +8315,6 @@ fieldset[disabled] .control-custom.disabled .checkbox.btn.focus {
 .search-form .search-input-group {
   margin-bottom: 12px;
 }
-.search-form .search-input-group .input-group-btn .btn {
-  margin-top: 25px;
-}
 .tertiary .control-order-by {
   float: none;
   margin: 0;
