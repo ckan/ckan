@@ -513,61 +513,6 @@ def members(id):
     return _render_template('group/members.html', group_type)
 
 
-def member_new(id):
-    group_type = 'group'
-
-    context = {'model': model, 'session': model.Session, 'user': c.user}
-    try:
-        _check_access('group_member_create', context, {'id': id})
-    except NotAuthorized:
-        base.abort(403, _('Unauthorized to create group %s members') % '')
-
-    try:
-        data_dict = {'id': id}
-        data_dict['include_datasets'] = False
-        c.group_dict = _action('group_show')(context, data_dict)
-        c.roles = _action('member_roles_list')(context, {
-            'group_type': group_type
-        })
-
-        if request.method == 'POST':
-            data_dict = clean_dict(
-                dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
-            data_dict['id'] = id
-
-            email = data_dict.get('email')
-
-            if email:
-                user_data_dict = {
-                    'email': email,
-                    'group_id': data_dict['id'],
-                    'role': data_dict['role']
-                }
-                del data_dict['email']
-                user_dict = _action('user_invite')(context, user_data_dict)
-                data_dict['username'] = user_dict['name']
-
-            c.group_dict = _action('group_member_create')(context, data_dict)
-
-            _redirect_to_this_controller(action='members', id=id)
-        else:
-            user = request.params.get('user')
-            if user:
-                c.user_dict = \
-                    get_action('user_show')(context, {'id': user})
-                c.user_role = \
-                    authz.users_role_for_group_or_org(id, user) or 'member'
-            else:
-                c.user_role = 'member'
-    except NotAuthorized:
-        base.abort(403, _('Unauthorized to add member to group %s') % '')
-    except NotFound:
-        base.abort(404, _('Group not found'))
-    except ValidationError, e:
-        h.flash_error(e.error_summary)
-    return _render_template('group/member_new.html', group_type)
-
-
 def member_delete(id):
     group_type = 'group'
 
@@ -882,8 +827,73 @@ class EditGroupView(MethodView):
             _edit_template(group_type), extra_vars={'group_type': group_type})
 
 
+class MembersGroupView(MethodView):
+    '''New members group view'''
+    def _prepare(self, id=None):
+        group_type = 'group'
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user,
+            'group_type': group_type
+        }
+        try:
+            _check_access('group_member_create', context, {'id': id})
+        except NotAuthorized:
+            base.abort(403, _('Unauthorized to create group %s members') % '')
+
+        return context
+
+    def post(self, id=None):
+        context = self._prepare(id)
+        data_dict = clean_dict(dict_fns.unflatten(
+                               tuplize_dict(parse_params(request.form))))
+        data_dict['id'] = id
+
+        email = data_dict.get('email')
+
+        if email:
+            user_data_dict = {
+                'email': email,
+                'group_id': data_dict['id'],
+                'role': data_dict['role']
+            }
+            del data_dict['email']
+            user_dict = _action('user_invite')(context, user_data_dict)
+            data_dict['username'] = user_dict['name']
+
+        try:
+            c.group_dict = _action('group_member_create')(context, data_dict)
+        except NotAuthorized:
+            base.abort(403, _('Unauthorized to add member to group %s') % '')
+        except NotFound:
+            base.abort(404, _('Group not found'))
+        except ValidationError, e:
+            h.flash_error(e.error_summary)
+
+        _redirect_to_this_controller(action='members', id=id)
+        return self.get(id)
+
+    def get(self, id=None):
+        context = self._prepare(id)
+        user = request.params.get('user')
+        data_dict = {'id': id}
+        data_dict['include_datasets'] = False
+        c.group_dict = _action('group_show')(context, data_dict)
+        c.roles = _action('member_roles_list')(context, {
+            'group_type': context['group_type']
+        })
+        if user:
+            c.user_dict = get_action('user_show')(context, {'id': user})
+            c.user_role =\
+                authz.users_role_for_group_or_org(id, user) or 'member'
+        else:
+            c.user_role = 'member'
+        return _render_template('group/member_new.html', context['group_type'])
+
+
 # Routing
-actions = ['delete', 'member_new', 'member_delete', 'history',
+actions = ['delete', 'member_delete', 'history',
            'followers', 'follow', 'unfollow', 'admins', 'activity']
 group.add_url_rule(u'/', view_func=index, strict_slashes=False)
 group.add_url_rule(u'/new', methods=[u'GET', u'POST'],
@@ -896,6 +906,8 @@ group.add_url_rule(u'/activity/<id>/<offset>', methods=[u'GET'],
 group.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
 group.add_url_rule(u'/members/<id>', methods=[u'GET', u'POST'],
                    view_func=members)
+group.add_url_rule(u'/member_new/<id>',
+                   view_func=MembersGroupView.as_view(str('member_new')))
 for action in actions:
     group.add_url_rule(u'/{0}/<id>'.format(action), methods=[u'GET', u'POST'],
                        view_func=globals()[action])
