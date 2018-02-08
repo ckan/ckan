@@ -44,7 +44,7 @@ log = logging.getLogger(__name__)
 class CKANBabel(Babel):
     def __init__(self, *pargs, **kwargs):
         super(CKANBabel, self).__init__(*pargs, **kwargs)
-        self.__i18n_path_idx = 0
+        self._i18n_path_idx = 0
 
     @property
     def domain(self):
@@ -54,16 +54,16 @@ class CKANBabel(Babel):
             return default
         domains = multiple.split(';')
         try:
-            return domains[self.__i18n_path_idx]
+            return domains[self._i18n_path_idx]
         except IndexError:
             return default
 
     @property
     def translation_directories(self):
-        self.__i18n_path_idx = 0
+        self._i18n_path_idx = 0
         for path in super(CKANBabel, self).translation_directories:
             yield path
-            self.__i18n_path_idx += 1
+            self._i18n_path_idx += 1
 
 
 def make_flask_stack(conf, **app_conf):
