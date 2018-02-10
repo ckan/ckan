@@ -62,7 +62,7 @@ def _mail_recipient(recipient_name, recipient_email,
 
     try:
         smtp_connection.connect(smtp_server)
-    except socket.error, e:
+    except socket.error as e:
         log.exception(e)
         raise MailerException('SMTP server could not be connected to: "%s" %s'
                               % (smtp_server, e))
@@ -89,7 +89,7 @@ def _mail_recipient(recipient_name, recipient_email,
         smtp_connection.sendmail(mail_from, [recipient_email], msg.as_string())
         log.info("Sent email to {0}".format(recipient_email))
 
-    except smtplib.SMTPException, e:
+    except smtplib.SMTPException as e:
         msg = '%r' % e
         log.exception(msg)
         raise MailerException(msg)

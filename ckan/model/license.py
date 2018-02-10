@@ -117,12 +117,12 @@ class LicenseRegister(object):
         try:
             response = urllib2.urlopen(license_url)
             response_body = response.read()
-        except Exception, inst:
+        except Exception as inst:
             msg = "Couldn't connect to licenses service %r: %s" % (license_url, inst)
             raise Exception(msg)
         try:
             license_data = json.loads(response_body)
-        except Exception, inst:
+        except Exception as inst:
             msg = "Couldn't read response from licenses service %r: %s" % (response_body, inst)
             raise Exception(inst)
         self._create_license_list(license_data, license_url)

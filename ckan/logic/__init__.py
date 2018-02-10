@@ -303,7 +303,7 @@ def check_access(action, context, data_dict=None):
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)
-    except NotAuthorized, e:
+    except NotAuthorized as e:
         log.debug(u'check access NotAuthorized - %s user=%s "%s"',
                   action, user, unicode(e))
         raise

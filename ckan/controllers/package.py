@@ -295,14 +295,14 @@ class PackageController(base.BaseController):
             )
             c.search_facets = query['search_facets']
             c.page.items = query['results']
-        except SearchQueryError, se:
+        except SearchQueryError as se:
             # User's search parameters are invalid, in such a way that is not
             # achievable with the web interface, so return a proper error to
             # discourage spiders which are the main cause of this.
             log.info('Dataset search query rejected: %r', se.args)
             abort(400, _('Invalid search query: {error_message}')
                   .format(error_message=str(se)))
-        except SearchError, se:
+        except SearchError as se:
             # May be bad input from the user, but may also be more serious like
             # bad code causing a SOLR syntax error, or a problem connecting to
             # SOLR
@@ -369,9 +369,9 @@ class PackageController(base.BaseController):
                 try:
                     date = h.date_str_to_datetime(revision_ref)
                     context['revision_date'] = date
-                except TypeError, e:
+                except TypeError as e:
                     abort(400, _('Invalid revision format: %r') % e.args)
-                except ValueError, e:
+                except ValueError as e:
                     abort(400, _('Invalid revision format: %r') % e.args)
         elif len(split) > 2:
             abort(400, _('Invalid revision format: %r') %
@@ -585,7 +585,7 @@ class PackageController(base.BaseController):
                     get_action('resource_update')(context, data)
                 else:
                     get_action('resource_create')(context, data)
-            except ValidationError, e:
+            except ValidationError as e:
                 errors = e.error_dict
                 error_summary = e.error_summary
                 return self.resource_edit(id, resource_id, data,
@@ -691,7 +691,7 @@ class PackageController(base.BaseController):
                     get_action('resource_update')(context, data)
                 else:
                     get_action('resource_create')(context, data)
-            except ValidationError, e:
+            except ValidationError as e:
                 errors = e.error_dict
                 error_summary = e.error_summary
                 return self.new_resource(id, data, errors, error_summary)
@@ -934,17 +934,17 @@ class PackageController(base.BaseController):
                                      package_type=package_type)
         except NotAuthorized:
             abort(403, _('Unauthorized to read package %s') % '')
-        except NotFound, e:
+        except NotFound as e:
             abort(404, _('Dataset not found'))
         except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
-        except SearchIndexError, e:
+        except SearchIndexError as e:
             try:
                 exc_str = unicode(repr(e.args))
             except Exception:  # We don't like bare excepts
                 exc_str = unicode(str(e))
             abort(500, _(u'Unable to add package to search index.') + exc_str)
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             if is_an_update:
@@ -982,17 +982,17 @@ class PackageController(base.BaseController):
                                      package_type=package_type)
         except NotAuthorized:
             abort(403, _('Unauthorized to read package %s') % id)
-        except NotFound, e:
+        except NotFound as e:
             abort(404, _('Dataset not found'))
         except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
-        except SearchIndexError, e:
+        except SearchIndexError as e:
             try:
                 exc_str = unicode(repr(e.args))
             except Exception:  # We don't like bare excepts
                 exc_str = unicode(str(e))
             abort(500, _(u'Unable to update search index.') + exc_str)
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             return self.edit(name_or_id, data_dict, errors, error_summary)
@@ -1435,7 +1435,7 @@ class PackageController(base.BaseController):
         # update resource should tell us early if the user has privilages.
         try:
             check_access('resource_update', context, {'id': resource_id})
-        except NotAuthorized, e:
+        except NotAuthorized as e:
             abort(403, _('User %r not authorized to edit %s') % (c.user, id))
 
         # get resource and package data
@@ -1475,7 +1475,7 @@ class PackageController(base.BaseController):
                     data = get_action('resource_view_update')(context, data)
                 else:
                     data = get_action('resource_view_create')(context, data)
-            except ValidationError, e:
+            except ValidationError as e:
                 # Could break preview if validation error
                 to_preview = False
                 errors = e.error_dict

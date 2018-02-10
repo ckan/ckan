@@ -541,7 +541,7 @@ class RequestResetView(MethodView):
                     _(u'Please check your inbox for '
                       u'a reset code.'))
                 return h.redirect_to(u'/')
-            except mailer.MailerException, e:
+            except mailer.MailerException as e:
                 h.flash_error(_(u'Could not send reset link: %s') % unicode(e))
         return self.get()
 
@@ -616,7 +616,7 @@ class PerformResetView(MethodView):
             h.flash_error(_(u'User not found'))
         except dictization_functions.DataError:
             h.flash_error(_(u'Integrity Error'))
-        except logic.ValidationError, e:
+        except logic.ValidationError as e:
             h.flash_error(u'%r' % e.error_dict)
         except ValueError as e:
             h.flash_error(unicode(e))

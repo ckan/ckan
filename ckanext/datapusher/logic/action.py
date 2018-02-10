@@ -134,7 +134,7 @@ def datapusher_submit(context, data_dict):
                 }
             }))
         r.raise_for_status()
-    except requests.exceptions.ConnectionError, e:
+    except requests.exceptions.ConnectionError as e:
         error = {'message': 'Could not connect to DataPusher.',
                  'details': str(e)}
         task['error'] = json.dumps(error)
@@ -143,7 +143,7 @@ def datapusher_submit(context, data_dict):
         p.toolkit.get_action('task_status_update')(context, task)
         raise p.toolkit.ValidationError(error)
 
-    except requests.exceptions.HTTPError, e:
+    except requests.exceptions.HTTPError as e:
         m = 'An Error occurred while sending the job: {0}'.format(e.message)
         try:
             body = e.response.json()

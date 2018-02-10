@@ -72,7 +72,7 @@ def index_for(_type):
     try:
         _type_n = _normalize_type(_type)
         return _INDICES[_type_n]()
-    except KeyError, ke:
+    except KeyError as ke:
         log.warn("Unknown search type: %s" % _type)
         return NoopSearchIndex()
 
@@ -83,7 +83,7 @@ def query_for(_type):
     try:
         _type_n = _normalize_type(_type)
         return _QUERIES[_type_n]()
-    except KeyError, ke:
+    except KeyError as ke:
         raise SearchError("Unknown search type: %s" % _type)
 
 
@@ -99,7 +99,7 @@ def dispatch_by_operation(entity_type, entity, operation):
             index.remove_dict(entity)
         else:
             log.warn("Unknown operation: %s" % operation)
-    except Exception, ex:
+    except Exception as ex:
         log.exception(ex)
         # we really need to know about any exceptions, so reraise
         # (see #1172)
@@ -193,7 +193,7 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
                     ),
                     defer_commit
                 )
-            except Exception, e:
+            except Exception as e:
                 log.error(u'Error while indexing dataset %s: %s' %
                           (pkg_id, repr(e)))
                 if force:
