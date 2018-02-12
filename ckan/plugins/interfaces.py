@@ -1105,7 +1105,7 @@ class IDatasetForm(Interface):
         If no IDatasetForm plugin's ``is_fallback()`` method returns ``True``,
         CKAN will use ``DefaultDatasetForm`` as the fallback.
 
-        :rtype: boolean
+        :rtype: bool
 
         '''
 
