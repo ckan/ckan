@@ -639,7 +639,7 @@ def follow(id):
     return h.redirect_to('group.read', id=id)
 
 
-def unfollow(self, id):
+def unfollow(id):
     '''Stop following this group.'''
     context = {'model': model, 'session': model.Session, 'user': c.user}
     data_dict = {'id': id}
@@ -909,5 +909,5 @@ group.add_url_rule(u'/members/<id>', methods=[u'GET', u'POST'],
 group.add_url_rule(u'/member_new/<id>',
                    view_func=MembersGroupView.as_view(str('member_new')))
 for action in actions:
-    group.add_url_rule(u'/{0}/<id>'.format(action), methods=[u'GET', u'POST'],
+    group.add_url_rule(u'/{0}/<id>'.format(action), methods=[u'POST'],
                        view_func=globals()[action])
