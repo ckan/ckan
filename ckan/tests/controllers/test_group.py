@@ -479,7 +479,8 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
         follow_url = url_for('group.follow',
                              id='not-here')
-        response = app.post(follow_url, extra_environ=env, status=404)
+        response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow(status=404)
         assert_true('Group not found' in response)
 
     def test_group_unfollow(self):
