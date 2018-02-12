@@ -458,7 +458,7 @@ def about(id):
 def delete(id):
     group_type = 'group'
     if 'cancel' in request.params:
-        _redirect_to_this_controller(action='edit', id=id)
+        return _redirect_to_this_controller(action='edit', id=id)
 
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
@@ -477,7 +477,7 @@ def delete(id):
             else:
                 h.flash_notice(
                     _('%s has been deleted.') % _(group_type.capitalize()))
-            _redirect_to_this_controller(action='index')
+            return _redirect_to_this_controller(action='index')
         c.group_dict = _action('group_show')(context, {'id': id})
     except NotAuthorized:
         base.abort(403, _('Unauthorized to delete group %s') % '')
@@ -517,7 +517,7 @@ def member_delete(id):
     group_type = 'group'
 
     if 'cancel' in request.params:
-        _redirect_to_this_controller(action='members', id=id)
+        return _redirect_to_this_controller(action='members', id=id)
 
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
@@ -534,7 +534,7 @@ def member_delete(id):
                 'user_id': user_id
             })
             h.flash_notice(_('Group member has been deleted.'))
-            _redirect_to_this_controller(action='members', id=id)
+            return _redirect_to_this_controller(action='members', id=id)
         c.user_dict = _action('user_show')(context, {'id': user_id})
         c.user_id = user_id
         c.group_id = id
@@ -871,7 +871,7 @@ class MembersGroupView(MethodView):
         except ValidationError, e:
             h.flash_error(e.error_summary)
 
-        _redirect_to_this_controller(action='members', id=id)
+        #_redirect_to_this_controller(action='members', id=id)
         return self.get(id)
 
     def get(self, id=None):
