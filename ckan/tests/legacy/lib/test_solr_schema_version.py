@@ -39,7 +39,7 @@ class TestSolrSchemaVersionCheck(TestController):
 
             #Should not happen
             assert False
-        except SearchError,e:
+        except SearchError as e:
             assert 'Could not extract version info' in str(e)
 
         # An exception is thrown if the schema version is not supported
@@ -49,7 +49,5 @@ class TestSolrSchemaVersionCheck(TestController):
 
             #Should not happen
             assert False
-        except SearchError,e:
+        except SearchError as e:
             assert 'SOLR schema version not supported' in str(e)
-
-

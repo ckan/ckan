@@ -315,7 +315,7 @@ def resource_create(context, data_dict):
         context['use_cache'] = False
         _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
-    except ValidationError, e:
+    except ValidationError as e:
         try:
             raise ValidationError(e.error_dict['resources'][-1])
         except (KeyError, IndexError):

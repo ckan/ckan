@@ -140,7 +140,7 @@ def user_add(args):
         }
         user_dict = logic.get_action('user_create')(context, data_dict)
         pprint(user_dict)
-    except logic.ValidationError, e:
+    except logic.ValidationError as e:
         error(traceback.format_exc())
 
 ## from http://code.activestate.com/recipes/577058/ MIT licence.

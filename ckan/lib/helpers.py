@@ -2461,7 +2461,7 @@ def resource_formats():
         with open(format_file_path) as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())
-            except ValueError, e:
+            except ValueError as e:
                 # includes simplejson.decoder.JSONDecodeError
                 raise ValueError('Invalid JSON syntax in %s: %s' %
                                  (format_file_path, e))

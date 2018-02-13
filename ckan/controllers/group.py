@@ -364,7 +364,7 @@ class GroupController(base.BaseController):
 
             c.sort_by_selected = sort_by
 
-        except search.SearchError, se:
+        except search.SearchError as se:
             log.error('Group search error: %r', se.args)
             c.query_error = True
             c.page = h.Page(collection=[])
@@ -542,11 +542,11 @@ class GroupController(base.BaseController):
 
             # Redirect to the appropriate _read route for the type of group
             h.redirect_to(group['type'] + '_read', id=group['name'])
-        except (NotFound, NotAuthorized), e:
+        except (NotFound, NotAuthorized) as e:
             abort(404, _('Group not found'))
         except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
@@ -572,11 +572,11 @@ class GroupController(base.BaseController):
                 self._force_reindex(group)
 
             h.redirect_to('%s_read' % group['type'], id=group['name'])
-        except (NotFound, NotAuthorized), e:
+        except (NotFound, NotAuthorized) as e:
             abort(404, _('Group not found'))
         except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             return self.edit(id, data_dict, errors, error_summary)
@@ -721,7 +721,7 @@ class GroupController(base.BaseController):
             abort(403, _('Unauthorized to add member to group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
-        except ValidationError, e:
+        except ValidationError as e:
             h.flash_error(e.error_summary)
         return self._render_template('group/member_new.html', group_type)
 

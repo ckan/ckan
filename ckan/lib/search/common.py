@@ -55,7 +55,7 @@ def is_available():
     try:
         conn = make_connection()
         conn.search(q="*:*", rows=1)
-    except Exception, e:
+    except Exception as e:
         log.exception(e)
         return False
     return True

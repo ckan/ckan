@@ -218,7 +218,7 @@ def convert(converter, key, converted_data, errors, context):
         try:
             value = converted_data.get(key)
             value = converter().to_python(value, state=context)
-        except fe.Invalid, e:
+        except fe.Invalid as e:
             errors[key].append(e.msg)
         return
 
@@ -226,7 +226,7 @@ def convert(converter, key, converted_data, errors, context):
         try:
             value = converted_data.get(key)
             value = converter.to_python(value, state=context)
-        except fe.Invalid, e:
+        except fe.Invalid as e:
             errors[key].append(e.msg)
         return
 
@@ -234,22 +234,22 @@ def convert(converter, key, converted_data, errors, context):
         value = converter(converted_data.get(key))
         converted_data[key] = value
         return
-    except TypeError, e:
+    except TypeError as e:
         # hack to make sure the type error was caused by the wrong
         # number of arguments given.
         if converter.__name__ not in str(e):
             raise
-    except Invalid, e:
+    except Invalid as e:
         errors[key].append(e.error)
         return
 
     try:
         converter(key, converted_data, errors, context)
         return
-    except Invalid, e:
+    except Invalid as e:
         errors[key].append(e.error)
         return
-    except TypeError, e:
+    except TypeError as e:
         # hack to make sure the type error was caused by the wrong
         # number of arguments given.
         if converter.__name__ not in str(e):
@@ -259,7 +259,7 @@ def convert(converter, key, converted_data, errors, context):
         value = converter(converted_data.get(key), context)
         converted_data[key] = value
         return
-    except Invalid, e:
+    except Invalid as e:
         errors[key].append(e.error)
         return
 

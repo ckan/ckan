@@ -186,7 +186,7 @@ def resource_delete(context, data_dict):
                 r['id'] == id]
     try:
         pkg_dict = _get_action('package_update')(context, pkg_dict)
-    except ValidationError, e:
+    except ValidationError as e:
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
