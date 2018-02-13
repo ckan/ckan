@@ -357,7 +357,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
             if not authz.check_config_permission('ckan.auth.create_unowned_dataset'):
                 raise ValidationError(_('Organization cannot be deleted while it '
                                       'still has datasets'))
-            
+
             pkg_table = model.package_table
             # using Core SQLA instead of the ORM should be faster
             model.Session.execute(
@@ -428,7 +428,7 @@ def _group_or_org_purge(context, data_dict, is_org=False):
 
     :param is_org: you should pass is_org=True if purging an organization,
         otherwise False (optional, default: False)
-    :type is_org: boolean
+    :type is_org: bool
 
     '''
     model = context['model']

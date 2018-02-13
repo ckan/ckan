@@ -16,7 +16,7 @@ def show_most_popular_groups():
 
     Returns ``False`` by default, if the setting is not in the config file.
 
-    :rtype: boolean
+    :rtype: bool
 
     '''
     value = config.get('ckan.example_theme.show_most_popular_groups', False)

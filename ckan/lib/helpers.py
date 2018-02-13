@@ -1891,7 +1891,7 @@ def groups_available(am_member=False):
       member of, otherwise return all groups that the user is authorized to
       edit (for example, sysadmin users are authorized to edit all groups)
       (optional, default: False)
-    :type am-member: boolean
+    :type am-member: bool
 
     '''
     context = {}

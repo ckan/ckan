@@ -97,7 +97,7 @@ def _package_list_with_resources(context, package_revision_list):
 def site_read(context, data_dict=None):
     '''Return ``True``.
 
-    :rtype: boolean
+    :rtype: bool
     '''
     _check_access('site_read', context, data_dict)
     return True
@@ -453,22 +453,22 @@ def group_list(context, data_dict):
         property for each group is deprecated, but there is a count of the
         packages in the `package_count` property.
         (optional, default: ``False``)
-    :type all_fields: boolean
+    :type all_fields: bool
     :param include_dataset_count: if all_fields, include the full package_count
         (optional, default: ``True``)
-    :type include_dataset_count: boolean
+    :type include_dataset_count: bool
     :param include_extras: if all_fields, include the group extra fields
         (optional, default: ``False``)
-    :type include_extras: boolean
+    :type include_extras: bool
     :param include_tags: if all_fields, include the group tags
         (optional, default: ``False``)
-    :type include_tags: boolean
+    :type include_tags: bool
     :param include_groups: if all_fields, include the groups the groups are in
         (optional, default: ``False``).
-    :type include_groups: boolean
+    :type include_groups: bool
     :param include_users: if all_fields, include the group users
         (optional, default: ``False``).
-    :type include_users: boolean
+    :type include_users: bool
 
     :rtype: list of strings
     '''
@@ -503,23 +503,23 @@ def organization_list(context, data_dict):
         property for each group is deprecated, but there is a count of the
         packages in the `package_count` property.
         (optional, default: ``False``)
-    :type all_fields: boolean
+    :type all_fields: bool
     :param include_dataset_count: if all_fields, include the full package_count
         (optional, default: ``True``)
-    :type include_dataset_count: boolean
+    :type include_dataset_count: bool
     :param include_extras: if all_fields, include the organization extra fields
         (optional, default: ``False``)
-    :type include_extras: boolean
+    :type include_extras: bool
     :param include_tags: if all_fields, include the organization tags
         (optional, default: ``False``)
-    :type include_tags: boolean
+    :type include_tags: bool
     :param include_groups: if all_fields, include the organizations the
         organizations are in
         (optional, default: ``False``)
-    :type all_fields: boolean
+    :type all_fields: bool
     :param include_users: if all_fields, include the organization users
         (optional, default: ``False``).
-    :type include_users: boolean
+    :type include_users: bool
 
     :rtype: list of strings
 
@@ -535,13 +535,13 @@ def group_list_authz(context, data_dict):
 
     :param available_only: remove the existing groups in the package
       (optional, default: ``False``)
-    :type available_only: boolean
+    :type available_only: bool
 
     :param am_member: if ``True`` return only the groups the logged-in user is
       a member of, otherwise return all groups that the user is authorized to
       edit (for example, sysadmin users are authorized to edit all groups)
       (optional, default: ``False``)
-    :type am-member: boolean
+    :type am-member: bool
 
     :returns: list of dictized groups that the user is authorized to edit
     :rtype: list of dicts
@@ -630,7 +630,7 @@ def organization_list_for_user(context, data_dict):
     :type permission: string
     :param include_dataset_count: include the package_count in each org
         (optional, default: ``False``)
-    :type include_dataset_count: boolean
+    :type include_dataset_count: bool
 
     :returns: list of organizations that the user has the given permission for
     :rtype: list of dicts
@@ -786,7 +786,7 @@ def tag_list(context, data_dict):
     :type vocabulary_id: string
     :param all_fields: return full tag dictionaries instead of just names
         (optional, default: ``False``)
-    :type all_fields: boolean
+    :type all_fields: bool
 
     :rtype: list of dictionaries
 
@@ -828,7 +828,7 @@ def user_list(context, data_dict):
     :type order_by: string
     :param all_fields: return full user dictionaries instead of just names.
       (optional, default: ``True``)
-    :type all_fields: boolean
+    :type all_fields: bool
 
     :rtype: list of user dictionaries. User properties include:
       ``number_of_edits`` which counts the revisions by the user and
@@ -1286,25 +1286,25 @@ def group_show(context, data_dict):
     :type id: string
     :param include_datasets: include a truncated list of the group's datasets
          (optional, default: ``False``)
-    :type include_datasets: boolean
+    :type include_datasets: bool
     :param include_dataset_count: include the full package_count
          (optional, default: ``True``)
-    :type include_dataset_count: boolean
+    :type include_dataset_count: bool
     :param include_extras: include the group's extra fields
          (optional, default: ``True``)
-    :type id: boolean
+    :type id: bool
     :param include_users: include the group's users
          (optional, default: ``True``)
-    :type id: boolean
+    :type id: bool
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)
-    :type id: boolean
+    :type id: bool
     :param include_tags: include the group's tags
          (optional, default: ``True``)
-    :type id: boolean
+    :type id: bool
     :param include_followers: include the group's number of followers
          (optional, default: ``True``)
-    :type id: boolean
+    :type id: bool
 
     :rtype: dictionary
 
@@ -1321,25 +1321,25 @@ def organization_show(context, data_dict):
     :type id: string
     :param include_datasets: include a truncated list of the org's datasets
          (optional, default: ``False``)
-    :type include_datasets: boolean
+    :type include_datasets: bool
     :param include_dataset_count: include the full package_count
          (optional, default: ``True``)
-    :type include_dataset_count: boolean
+    :type include_dataset_count: bool
     :param include_extras: include the organization's extra fields
          (optional, default: ``True``)
-    :type id: boolean
+    :type id: bool
     :param include_users: include the organization's users
          (optional, default: ``True``)
-    :type id: boolean
+    :type id: bool
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
-    :type id: boolean
+    :type id: bool
     :param include_tags: include the organization's tags
          (optional, default: ``True``)
-    :type id: boolean
+    :type id: bool
     :param include_followers: include the organization's number of followers
          (optional, default: ``True``)
-    :type id: boolean
+    :type id: bool
 
 
     :rtype: dictionary
@@ -1436,13 +1436,13 @@ def user_show(context, data_dict):
         If it is the same user or a sysadmin requesting, it includes datasets
         that are draft or private.
         (optional, default:``False``, limit:50)
-    :type include_datasets: boolean
+    :type include_datasets: bool
     :param include_num_followers: Include the number of followers the user has
         (optional, default:``False``)
-    :type include_num_followers: boolean
+    :type include_num_followers: bool
     :param include_password_hash: Include the stored password hash
         (sysadmin only, optional, default:``False``)
-    :type include_password_hash: boolean
+    :type include_password_hash: bool
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
         number_created_packages (which excludes draft or private datasets
@@ -2435,7 +2435,7 @@ def get_site_user(context, data_dict):
         is responsible for commiting transaction after get_site_user is
         called. Leaving open connections can cause cli commands to hang!
         (optional, default: ``False``)
-    :type defer_commit: boolean
+    :type defer_commit: bool
     '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
@@ -3035,7 +3035,7 @@ def am_following_user(context, data_dict):
     :param id: the id or name of the user
     :type id: string
 
-    :rtype: boolean
+    :rtype: bool
 
     '''
     return _am_following(
@@ -3050,7 +3050,7 @@ def am_following_dataset(context, data_dict):
     :param id: the id or name of the dataset
     :type id: string
 
-    :rtype: boolean
+    :rtype: bool
 
     '''
     return _am_following(
@@ -3065,7 +3065,7 @@ def am_following_group(context, data_dict):
     :param id: the id or name of the group
     :type id: string
 
-    :rtype: boolean
+    :rtype: bool
 
     '''
     return _am_following(
