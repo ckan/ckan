@@ -5,7 +5,7 @@ from migrate import *
 
 
 def upgrade(migrate_engine):
-    meta = MetaData()
+    meta = MetaData(schema='public')
 
     state = Table('state', meta,
       Column('id', Integer() ,  primary_key=True, nullable=False),
