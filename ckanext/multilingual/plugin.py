@@ -7,6 +7,11 @@ from ckan.plugins import IGroupController, IOrganizationController, ITagControll
 from ckan.common import request, config, c
 from ckan.logic import get_action
 
+try:
+    long        # Python 2
+except NameError:
+    long = int  # Python 3
+
 
 def translate_data_dict(data_dict):
     '''Return the given dict (e.g. a dataset dict) with as many of its fields
