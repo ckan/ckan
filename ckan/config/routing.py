@@ -254,6 +254,7 @@ def make_map():
                   action='resource_view')
 
     # group
+
     lib_plugins.register_package_plugins(map)
     lib_plugins.register_group_plugins(map)
 
