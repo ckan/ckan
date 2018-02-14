@@ -465,13 +465,14 @@ def delete(id):
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
     try:
-        _check_access('group_delete', context, {'id': id})
+        action_delete = group_type + '_delete'
+        check_access(action_delete, context, {'id': id})
     except NotAuthorized:
         base.abort(403, _('Unauthorized to delete group %s') % '')
 
     try:
         if request.method == 'POST':
-            _action('group_delete')(context, {'id': id})
+            get_action(action_delete)(context, {'id': id})
             if group_type == 'organization':
                 h.flash_notice(_('Organization has been deleted.'))
             elif group_type == 'group':
@@ -480,7 +481,8 @@ def delete(id):
                 h.flash_notice(
                     _('%s has been deleted.') % _(group_type.capitalize()))
             return _redirect_to_this_controller(action='index')
-        c.group_dict = _action('group_show')(context, {'id': id})
+        action_show = group_type + '_show'
+        c.group_dict = get_action(action_show)(context, {'id': id})
     except NotAuthorized:
         base.abort(403, _('Unauthorized to delete group %s') % '')
     except NotFound:
@@ -499,12 +501,13 @@ def members(id):
     try:
         data_dict = {'id': id}
         check_access('group_edit_permissions', context, data_dict)
-        c.members = _action('member_list')(context, {
+        c.members = get_action('member_list')(context, {
             'id': id,
             'object_type': 'user'
         })
         data_dict['include_datasets'] = False
-        c.group_dict = _action('group_show')(context, data_dict)
+        action_show = group_type + '_show'
+        c.group_dict = get_action(action_show)(context, data_dict)
     except NotFound:
         base.abort(404, _('Group not found'))
     except NotAuthorized:
@@ -524,7 +527,8 @@ def member_delete(id):
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
     try:
-        _check_access('group_member_delete', context, {'id': id})
+        action_member_delete = group_type + '_member_delete'
+        check_access(action_member_delete, context, {'id': id})
     except NotAuthorized:
         base.abort(403, _('Unauthorized to delete group %s members') % '')
 
@@ -537,7 +541,10 @@ def member_delete(id):
             })
             h.flash_notice(_('Group member has been deleted.'))
             return _redirect_to_this_controller(action='members', id=id)
-        c.user_dict = _action('user_show')(context, {'id': user_id})
+        action_show = group_type + '_show'
+        c.user_dict = get_action(action_show)(context, {
+            'id': user_id
+        })
         c.user_id = user_id
         c.group_id = id
     except NotAuthorized:
@@ -573,8 +580,11 @@ def history(id):
     }
     data_dict = {'id': id}
     try:
-        c.group_dict = _action('group_show')(context, data_dict)
-        c.group_revisions = _action('group_revision_list')(context, data_dict)
+        action_show = group_type + '_show'
+        action_revision_list = group_type + '_revision_list'
+        c.group_dict = get_action(action_show)(context, data_dict)
+        c.group_revisions = get_action(action_revision_list)(context,
+                                                             data_dict)
         # TODO: remove
         # Still necessary for the authz check in group/layout.html
         c.group = context['group']
@@ -700,7 +710,7 @@ def bulk_process(id):
     data_dict = {'id': id, 'type': group_type}
 
     try:
-        _check_access('bulk_update_public', context, {'org_id': id})
+        check_access('bulk_update_public', context, {'org_id': id})
         # Do not query for the group datasets when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
@@ -782,7 +792,8 @@ class CreateGroupView(MethodView):
         }
 
         try:
-            _check_access('group_create', context)
+            action_create = group_type + '_create'
+            check_access(action_create, context)
         except NotAuthorized:
             base.abort(403, _('Unauthorized to create a group'))
 
@@ -867,13 +878,15 @@ class EditGroupView(MethodView):
 
     def post(self, id=None):
         context = self._prepare(id)
+        group_type = context['group_type']
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = context['id']
             context['allow_partial_update'] = True
-            group = _action('group_update')(context, data_dict)
+            action_update = group_type + '_update'
+            group = get_action(action_update)(context, data_dict)
             if id != group['name']:
                 _force_reindex(group)
 
@@ -922,26 +935,29 @@ class DeleteGroupView(MethodView):
             'group_type': group_type
         }
         try:
-            _check_access('group_delete', context, {'id': id})
+            action_delete = group_type + '_delete'
+            check_access(action_delete, context, {'id': id})
         except NotAuthorized:
             base.abort(403, _('Unauthorized to delete group %s') % '')
         return context
 
     def post(self, id=None):
         context = self._prepare(id)
+        group_type = context['group_type']
+        action_delete = group_type + '_delete'
         try:
             if request.method == 'POST':
-                _action('group_delete')(context, {'id': id})
-                if context['group_type'] == 'organization':
+                get_action(action_delete)(context, {'id': id})
+                if group_type == 'organization':
                     h.flash_notice(_('Organization has been deleted.'))
-                elif context['group_type'] == 'group':
+                elif group_type == 'group':
                     h.flash_notice(_('Group has been deleted.'))
                 else:
                     h.flash_notice(
-                        _('%s has been deleted.') %
-                        _(context['group_type'].capitalize()))
+                        _('%s has been deleted.') % _(group_type.capitalize()))
                 return _redirect_to_this_controller(action='index')
-            c.group_dict = _action('group_show')(context, {'id': id})
+            action_show = group_type + '_show'
+            c.group_dict = get_action(action_show)(context, {'id': id})
         except NotAuthorized:
             base.abort(403, _('Unauthorized to delete group %s') % '')
         except NotFound:
@@ -953,11 +969,13 @@ class DeleteGroupView(MethodView):
 
     def get(self, id=None):
         context = self._prepare(id)
-        c.group_dict = _action('group_show')(context, {'id': id})
+        group_type = context['group_type']
+        action = group_type + '_show'
+        c.group_dict = get_action(action)(context, {'id': id})
         if 'cancel' in request.params:
             return _redirect_to_this_controller(action='edit', id=id)
-        return _render_template('group/confirm_delete.html',
-                                context['group_type'])
+        group_type = context['group_type']
+        return _render_template('group/confirm_delete.html', group_type)
 
 
 class MembersGroupView(MethodView):
@@ -971,7 +989,8 @@ class MembersGroupView(MethodView):
             'group_type': group_type
         }
         try:
-            _check_access('group_member_create', context, {'id': id})
+            action = group_type + '_member_create'
+            check_access(action, context, {'id': id})
         except NotAuthorized:
             base.abort(403, _('Unauthorized to create group %s members') % '')
 
@@ -979,6 +998,7 @@ class MembersGroupView(MethodView):
 
     def post(self, id=None):
         context = self._prepare(id)
+        group_type = context['group_type']
         data_dict = clean_dict(dict_fns.unflatten(
                                tuplize_dict(parse_params(request.form))))
         data_dict['id'] = id
@@ -996,7 +1016,8 @@ class MembersGroupView(MethodView):
             data_dict['username'] = user_dict['name']
 
         try:
-            c.group_dict = _action('group_member_create')(context, data_dict)
+            action = group_type + '_member_create'
+            c.group_dict = get_action(action)(context, data_dict)
         except NotAuthorized:
             base.abort(403, _('Unauthorized to add member to group %s') % '')
         except NotFound:
@@ -1008,13 +1029,14 @@ class MembersGroupView(MethodView):
 
     def get(self, id=None):
         context = self._prepare(id)
+        group_type = context['group_type']
         user = request.params.get('user')
         data_dict = {'id': id}
         data_dict['include_datasets'] = False
-        c.group_dict = _action('group_show')(context, data_dict)
+        action = group_type + '_show'
+        c.group_dict = get_action(action)(context, data_dict)
         c.roles = _action('member_roles_list')(context, {
-            'group_type': context['group_type']
-        })
+            'group_type': group_type})
         if user:
             c.user_dict = get_action('user_show')(context, {'id': user})
             c.user_role =\
