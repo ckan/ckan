@@ -140,7 +140,7 @@ def before_request():
 
 
 def index():
-    group_type = request.blueprint or 'group'
+    group_type = request.blueprint
     page = h.get_page_number(request.params) or 1
     items_per_page = 21
 
@@ -168,8 +168,8 @@ def index():
             'sort': sort_by,
             'type': group_type or 'group',
         }
-        global_results = _action('group_list')(context,
-                                               data_dict_global_results)
+        action = group_type + '_list'
+        global_results = get_action(action)(context, data_dict_global_results)
     except ValidationError as e:
         if e.error_dict and e.error_dict.get('message'):
             msg = e.error_dict['message']
@@ -189,7 +189,7 @@ def index():
         'offset': items_per_page * (page - 1),
         'include_extras': True
     }
-    page_results = _action('group_list')(context, data_dict_page_results)
+    page_results = get_action(action)(context, data_dict_page_results)
 
     c.page = h.Page(
         collection=global_results,
@@ -352,7 +352,7 @@ def _update_facet_titles(facets, group_type):
         facets = plugin.group_facets(facets, group_type, None)
 
 
-def _get_group_dict(id):
+def _get_group_dict(id, group_type):
     ''' returns the result of group_show action or aborts if there is a
     problem '''
     context = {
@@ -362,7 +362,8 @@ def _get_group_dict(id):
         'for_view': True
     }
     try:
-        return _action('group_show')(context, {
+        action = group_type + '_show'
+        return get_action(action)(context, {
             'id': id,
             'include_datasets': False
         })
@@ -385,8 +386,7 @@ def _url_for_this_controller(*args, **kw):
 
 
 def read(id=None, limit=20):
-    import pdb;   pdb.set_trace()
-    group_type = request.blueprint or 'group'
+    group_type = request.blueprint
     context = {
         'model': model,
         'session': model.Session,
@@ -403,7 +403,8 @@ def read(id=None, limit=20):
         # Do not query for the group datasets when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
-        c.group_dict = _action('group_show')(context, data_dict)
+        action = group_type + '_show'
+        c.group_dict = _action(action)(context, data_dict)
         c.group = context['group']
     except (NotFound, NotAuthorized):
         base.abort(404, _('Group not found'))
@@ -417,7 +418,7 @@ def read(id=None, limit=20):
 def activity(id, offset=0):
     '''Render this group's public activity stream page.'''
 
-    group_type = request.blueprint or 'group'
+    group_type = request.blueprint
     context = {
         'model': model,
         'session': model.Session,
@@ -425,7 +426,7 @@ def activity(id, offset=0):
         'for_view': True
     }
     try:
-        c.group_dict = _get_group_dict(id)
+        c.group_dict = _get_group_dict(id, group_type)
     except (NotFound, NotAuthorized):
         base.abort(404, _('Group not found'))
 
@@ -433,11 +434,11 @@ def activity(id, offset=0):
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html
         # template to retrieve later.
-        c.group_activity_stream = _action('group_activity_list_html')(
-            context, {
-                'id': c.group_dict['id'],
-                'offset': offset
-            })
+        action = group_type+'_activity_list_html'
+        c.group_activity_stream = get_action(action)(context, {
+            'id': c.group_dict['id'],
+            'offset': offset
+        })
 
     except ValidationError as error:
         base.abort(400, error.message)
@@ -447,9 +448,9 @@ def activity(id, offset=0):
 
 
 def about(id):
-    group_type = request.blueprint or 'group'
+    group_type = request.blueprint
     context = {'model': model, 'session': model.Session, 'user': c.user}
-    c.group_dict = _get_group_dict(id)
+    c.group_dict = _get_group_dict(id, group_type)
     group_type = c.group_dict['type']
     _setup_template_variables(context, {'id': id}, group_type=group_type)
     return base.render(
@@ -457,7 +458,7 @@ def about(id):
 
 
 def delete(id):
-    group_type = request.blueprint or 'group'
+    group_type = request.blueprint
     if 'cancel' in request.params:
         return _redirect_to_this_controller(action='edit', id=id)
 
@@ -491,7 +492,7 @@ def delete(id):
 
 
 def members(id):
-    group_type = request.blueprint or 'group'
+    group_type = request.blueprint
 
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
@@ -515,7 +516,7 @@ def members(id):
 
 
 def member_delete(id):
-    group_type = request.blueprint or 'group'
+    group_type = request.blueprint
 
     if 'cancel' in request.params:
         return _redirect_to_this_controller(action='members', id=id)
@@ -547,7 +548,7 @@ def member_delete(id):
 
 
 def history(id):
-    group_type = request.blueprint or 'group'
+    group_type = request.blueprint
     if 'diff' in request.params or 'selected1' in request.params:
         try:
             params = {
@@ -659,9 +660,9 @@ def unfollow(id):
 
 
 def followers(id):
-    group_type = request.blueprint or 'group'
+    group_type = request.blueprint
     context = {'model': model, 'session': model.Session, 'user': c.user}
-    c.group_dict = _get_group_dict(id)
+    c.group_dict = _get_group_dict(id, group_type)
     try:
         c.followers = \
             get_action('group_follower_list')(context, {'id': id})
@@ -672,12 +673,93 @@ def followers(id):
 
 
 def admins(id):
-    group_type = request.blueprint or 'group'
-    c.group_dict = _get_group_dict(id)
+    group_type = request.blueprint
+    c.group_dict = _get_group_dict(id, group_type)
     c.admins = authz.get_group_or_org_admin_ids(id)
     return base.render(
         _admins_template(c.group_dict['type']),
         extra_vars={'group_type': group_type})
+
+
+def bulk_process(id):
+    ''' Allow bulk processing of datasets for an organization.  Make
+        private/public or delete. For organization admins.'''
+
+    group_type = request.blueprint
+
+    # check we are org admin
+
+    context = {
+        'model': model,
+        'session': model.Session,
+        'user': c.user,
+        'schema': _db_to_form_schema(group_type=group_type),
+        'for_view': True,
+        'extras_as_string': True
+    }
+    data_dict = {'id': id, 'type': group_type}
+
+    try:
+        _check_access('bulk_update_public', context, {'org_id': id})
+        # Do not query for the group datasets when dictizing, as they will
+        # be ignored and get requested on the controller anyway
+        data_dict['include_datasets'] = False
+        action = group_type + '_show'
+        c.group_dict = get_action(action)(context, data_dict)
+        c.group = context['group']
+    except NotFound:
+        base.abort(404, _('Group not found'))
+    except NotAuthorized:
+        base.abort(403, _('User %r not authorized to edit %s') % (c.user, id))
+
+    if not c.group_dict['is_organization']:
+        # FIXME: better error
+        raise Exception('Must be an organization')
+
+    # use different form names so that ie7 can be detected
+    form_names = set(
+        ["bulk_action.public", "bulk_action.delete", "bulk_action.private"])
+    actions_in_form = set(request.params.keys())
+    actions = form_names.intersection(actions_in_form)
+    # If no action then just show the datasets
+    if not actions:
+        # unicode format (decoded from utf8)
+        limit = 500
+        _read(id, limit, group_type)
+        c.packages = c.page.items
+        return base.render(
+            _bulk_process_template(group_type),
+            extra_vars={'group_type': group_type})
+
+    # ie7 puts all buttons in form params but puts submitted one twice
+    for key, value in dict(request.params.dict_of_lists()).items():
+        if len(value) == 2:
+            action = key.split('.')[-1]
+            break
+    else:
+        # normal good browser form submission
+        action = actions.pop().split('.')[-1]
+
+    # process the action first find the datasets to perform the action on.
+    # they are prefixed by dataset_ in the form data
+    datasets = []
+    for param in request.params:
+        if param.startswith('dataset_'):
+            datasets.append(param[8:])
+
+    action_functions = {
+        'private': 'bulk_update_private',
+        'public': 'bulk_update_public',
+        'delete': 'bulk_update_delete',
+    }
+
+    data_dict = {'datasets': datasets, 'org_id': c.group_dict['id']}
+
+    try:
+        get_action(action_functions[action])(context, data_dict)
+    except NotAuthorized:
+        base.abort(403, _('Not authorized to perform bulk update'))
+    return _redirect_to_this_controller(action='bulk_process', id=id)
 
 
 class CreateGroupView(MethodView):
@@ -686,7 +768,7 @@ class CreateGroupView(MethodView):
         if data and 'type' in data:
             group_type = data['type']
         else:
-            group_type = request.blueprint or 'group'
+            group_type = request.blueprint
         if data:
             data['type'] = group_type
 
@@ -714,7 +796,8 @@ class CreateGroupView(MethodView):
             data_dict['type'] = context['group_type'] or 'group'
             context['message'] = data_dict.get('log_message', '')
             data_dict['users'] = [{'name': g.user, 'capacity': 'admin'}]
-            group = _action('group_create')(context, data_dict)
+            action = context['group_type'] + '_create'
+            group = get_action(action)(context, data_dict)
 
         except (NotFound, NotAuthorized), e:
             base.abort(404, _('Group not found'))
@@ -756,7 +839,7 @@ class EditGroupView(MethodView):
         if data and 'type' in data:
             group_type = data['type']
         else:
-            group_type = request.blueprint or 'group'
+            group_type = request.blueprint
         if data:
             data['type'] = group_type
         data_dict = {'id': id, 'include_datasets': False}
@@ -773,8 +856,8 @@ class EditGroupView(MethodView):
         }
 
         try:
-            group = _action('group_show')(context, data_dict)
-            _check_access('group_update', context)
+            group = get_action(group_type + '_show')(context, data_dict)
+            check_access(group_type + '_update', context)
         except NotAuthorized:
             base.abort(403, _('Unauthorized to create a group'))
         except NotFound:
@@ -831,7 +914,7 @@ class EditGroupView(MethodView):
 class DeleteGroupView(MethodView):
     '''Delete group view '''
     def _prepare(self, id=None):
-        group_type = request.blueprint or 'group'
+        group_type = request.blueprint
         context = {
             'model': model,
             'session': model.Session,
@@ -880,7 +963,7 @@ class DeleteGroupView(MethodView):
 class MembersGroupView(MethodView):
     '''New members group view'''
     def _prepare(self, id=None):
-        group_type = request.blueprint or 'group'
+        group_type = request.blueprint
         context = {
             'model': model,
             'session': model.Session,
@@ -941,9 +1024,9 @@ class MembersGroupView(MethodView):
         return _render_template('group/member_new.html', context['group_type'])
 
 
-
 actions = ['member_delete', 'history',
-           'followers', 'follow', 'unfollow', 'admins', 'activity']
+           'followers', 'follow', 'unfollow', 'admins', 'activity',
+           'bulk_process']
 # Routing for groups
 group.add_url_rule(u'/', view_func=index, strict_slashes=False)
 group.add_url_rule(u'/new', methods=[u'GET', u'POST'],
@@ -951,7 +1034,7 @@ group.add_url_rule(u'/new', methods=[u'GET', u'POST'],
 group.add_url_rule(u'/<id>', methods=[u'GET'], view_func=read)
 group.add_url_rule(u'/edit/<id>',
                    view_func=EditGroupView.as_view(str('edit')))
-group.add_url_rule(u'/activity/<id>/<offset>', methods=[u'GET'],
+group.add_url_rule(u'/activity/<id>/<int:offset>', methods=[u'GET'],
                    view_func=activity)
 group.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
 group.add_url_rule(u'/members/<id>', methods=[u'GET', u'POST'],
@@ -969,21 +1052,21 @@ for action in actions:
 # Routing for organizations
 organization.add_url_rule(u'/', view_func=index, strict_slashes=False)
 organization.add_url_rule(u'/new', methods=[u'GET', u'POST'],
-                   view_func=CreateGroupView.as_view(str('new')))
+                          view_func=CreateGroupView.as_view(str('new')))
 organization.add_url_rule(u'/<id>', methods=[u'GET'], view_func=read)
 organization.add_url_rule(u'/edit/<id>',
-                   view_func=EditGroupView.as_view(str('edit')))
-organization.add_url_rule(u'/activity/<id>/<offset>', methods=[u'GET'],
-                   view_func=activity)
+                          view_func=EditGroupView.as_view(str('edit')))
+organization.add_url_rule(u'/activity/<id>/<int:offset>', methods=[u'GET'],
+                          view_func=activity)
 organization.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
 organization.add_url_rule(u'/members/<id>', methods=[u'GET', u'POST'],
-                   view_func=members)
+                          view_func=members)
 organization.add_url_rule(u'/member_new/<id>',
-                   view_func=MembersGroupView.as_view(str('member_new')))
+                          view_func=MembersGroupView.as_view(str('member_new')))
 organization.add_url_rule(
     u'/delete/<id>',
     methods=[u'GET', u'POST'],
     view_func=DeleteGroupView.as_view(str('delete')))
 for action in actions:
     organization.add_url_rule(u'/{0}/<id>'.format(action), methods=[u'GET', u'POST'],
-                       view_func=globals()[action])
+                              view_func=globals()[action])
