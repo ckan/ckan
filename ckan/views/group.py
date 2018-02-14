@@ -140,7 +140,7 @@ def before_request():
 
 
 def index():
-    group_type = 'group'
+    group_type = request.blueprint or 'group'
     page = h.get_page_number(request.params) or 1
     items_per_page = 21
 
@@ -385,7 +385,8 @@ def _url_for_this_controller(*args, **kw):
 
 
 def read(id=None, limit=20):
-    group_type = 'group'
+    import pdb;   pdb.set_trace()
+    group_type = request.blueprint or 'group'
     context = {
         'model': model,
         'session': model.Session,
@@ -416,7 +417,7 @@ def read(id=None, limit=20):
 def activity(id, offset=0):
     '''Render this group's public activity stream page.'''
 
-    group_type = 'group'
+    group_type = request.blueprint or 'group'
     context = {
         'model': model,
         'session': model.Session,
@@ -446,7 +447,7 @@ def activity(id, offset=0):
 
 
 def about(id):
-    group_type = 'group'
+    group_type = request.blueprint or 'group'
     context = {'model': model, 'session': model.Session, 'user': c.user}
     c.group_dict = _get_group_dict(id)
     group_type = c.group_dict['type']
@@ -456,7 +457,7 @@ def about(id):
 
 
 def delete(id):
-    group_type = 'group'
+    group_type = request.blueprint or 'group'
     if 'cancel' in request.params:
         return _redirect_to_this_controller(action='edit', id=id)
 
@@ -490,7 +491,7 @@ def delete(id):
 
 
 def members(id):
-    group_type = 'group'
+    group_type = request.blueprint or 'group'
 
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
@@ -514,7 +515,7 @@ def members(id):
 
 
 def member_delete(id):
-    group_type = 'group'
+    group_type = request.blueprint or 'group'
 
     if 'cancel' in request.params:
         return _redirect_to_this_controller(action='members', id=id)
@@ -546,7 +547,7 @@ def member_delete(id):
 
 
 def history(id):
-    group_type = 'group'
+    group_type = request.blueprint or 'group'
     if 'diff' in request.params or 'selected1' in request.params:
         try:
             params = {
@@ -658,7 +659,7 @@ def unfollow(id):
 
 
 def followers(id):
-    group_type = 'group'
+    group_type = request.blueprint or 'group'
     context = {'model': model, 'session': model.Session, 'user': c.user}
     c.group_dict = _get_group_dict(id)
     try:
@@ -671,7 +672,7 @@ def followers(id):
 
 
 def admins(id):
-    group_type = 'group'
+    group_type = request.blueprint or 'group'
     c.group_dict = _get_group_dict(id)
     c.admins = authz.get_group_or_org_admin_ids(id)
     return base.render(
@@ -685,7 +686,7 @@ class CreateGroupView(MethodView):
         if data and 'type' in data:
             group_type = data['type']
         else:
-            group_type = 'group'
+            group_type = request.blueprint or 'group'
         if data:
             data['type'] = group_type
 
@@ -755,7 +756,7 @@ class EditGroupView(MethodView):
         if data and 'type' in data:
             group_type = data['type']
         else:
-            group_type = 'group'
+            group_type = request.blueprint or 'group'
         if data:
             data['type'] = group_type
         data_dict = {'id': id, 'include_datasets': False}
@@ -830,7 +831,7 @@ class EditGroupView(MethodView):
 class DeleteGroupView(MethodView):
     '''Delete group view '''
     def _prepare(self, id=None):
-        group_type = 'group'
+        group_type = request.blueprint or 'group'
         context = {
             'model': model,
             'session': model.Session,
@@ -879,7 +880,7 @@ class DeleteGroupView(MethodView):
 class MembersGroupView(MethodView):
     '''New members group view'''
     def _prepare(self, id=None):
-        group_type = 'group'
+        group_type = request.blueprint or 'group'
         context = {
             'model': model,
             'session': model.Session,
@@ -940,9 +941,10 @@ class MembersGroupView(MethodView):
         return _render_template('group/member_new.html', context['group_type'])
 
 
-# Routing
+
 actions = ['member_delete', 'history',
            'followers', 'follow', 'unfollow', 'admins', 'activity']
+# Routing for groups
 group.add_url_rule(u'/', view_func=index, strict_slashes=False)
 group.add_url_rule(u'/new', methods=[u'GET', u'POST'],
                    view_func=CreateGroupView.as_view(str('new')))
@@ -962,4 +964,26 @@ group.add_url_rule(
     view_func=DeleteGroupView.as_view(str('delete')))
 for action in actions:
     group.add_url_rule(u'/{0}/<id>'.format(action), methods=[u'GET', u'POST'],
+                       view_func=globals()[action])
+
+# Routing for organizations
+organization.add_url_rule(u'/', view_func=index, strict_slashes=False)
+organization.add_url_rule(u'/new', methods=[u'GET', u'POST'],
+                   view_func=CreateGroupView.as_view(str('new')))
+organization.add_url_rule(u'/<id>', methods=[u'GET'], view_func=read)
+organization.add_url_rule(u'/edit/<id>',
+                   view_func=EditGroupView.as_view(str('edit')))
+organization.add_url_rule(u'/activity/<id>/<offset>', methods=[u'GET'],
+                   view_func=activity)
+organization.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
+organization.add_url_rule(u'/members/<id>', methods=[u'GET', u'POST'],
+                   view_func=members)
+organization.add_url_rule(u'/member_new/<id>',
+                   view_func=MembersGroupView.as_view(str('member_new')))
+organization.add_url_rule(
+    u'/delete/<id>',
+    methods=[u'GET', u'POST'],
+    view_func=DeleteGroupView.as_view(str('delete')))
+for action in actions:
+    organization.add_url_rule(u'/{0}/<id>'.format(action), methods=[u'GET', u'POST'],
                        view_func=globals()[action])
