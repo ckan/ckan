@@ -1746,11 +1746,10 @@ def follow_count(obj_type, obj_id):
 def _create_url_with_params(params=None, controller=None, action=None,
                             extras=None):
     ''' internal function for building urls with parameters. '''
-
     if not controller:
-        controller = c.controller
+        controller = getattr(c, 'controller', False) or request.blueprint
     if not action:
-        action = c.action
+        action = getattr(c, 'action', False) or request.endpoint.split('.')[1]
     if not extras:
         extras = {}
 
