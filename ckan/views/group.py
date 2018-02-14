@@ -827,6 +827,55 @@ class EditGroupView(MethodView):
             _edit_template(group_type), extra_vars={'group_type': group_type})
 
 
+class DeleteGroupView(MethodView):
+    '''Delete group view '''
+    def _prepare(self, id=None):
+        group_type = 'group'
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user,
+            'group_type': group_type
+        }
+        try:
+            _check_access('group_delete', context, {'id': id})
+        except NotAuthorized:
+            base.abort(403, _('Unauthorized to delete group %s') % '')
+        return context
+
+    def post(self, id=None):
+        context = self._prepare(id)
+        try:
+            if request.method == 'POST':
+                _action('group_delete')(context, {'id': id})
+                if context['group_type'] == 'organization':
+                    h.flash_notice(_('Organization has been deleted.'))
+                elif context['group_type'] == 'group':
+                    h.flash_notice(_('Group has been deleted.'))
+                else:
+                    h.flash_notice(
+                        _('%s has been deleted.') %
+                        _(context['group_type'].capitalize()))
+                return _redirect_to_this_controller(action='index')
+            c.group_dict = _action('group_show')(context, {'id': id})
+        except NotAuthorized:
+            base.abort(403, _('Unauthorized to delete group %s') % '')
+        except NotFound:
+            base.abort(404, _('Group not found'))
+        except ValidationError as e:
+            h.flash_error(e.error_dict['message'])
+            h.redirect_to(controller='organization', action='read', id=id)
+        return self.get()
+
+    def get(self, id=None):
+        context = self._prepare(id)
+        c.group_dict = _action('group_show')(context, {'id': id})
+        if 'cancel' in request.params:
+            return _redirect_to_this_controller(action='edit', id=id)
+        return _render_template('group/confirm_delete.html',
+                                context['group_type'])
+
+
 class MembersGroupView(MethodView):
     '''New members group view'''
     def _prepare(self, id=None):
@@ -892,7 +941,7 @@ class MembersGroupView(MethodView):
 
 
 # Routing
-actions = ['delete', 'member_delete', 'history',
+actions = ['member_delete', 'history',
            'followers', 'follow', 'unfollow', 'admins', 'activity']
 group.add_url_rule(u'/', view_func=index, strict_slashes=False)
 group.add_url_rule(u'/new', methods=[u'GET', u'POST'],
@@ -907,6 +956,10 @@ group.add_url_rule(u'/members/<id>', methods=[u'GET', u'POST'],
                    view_func=members)
 group.add_url_rule(u'/member_new/<id>',
                    view_func=MembersGroupView.as_view(str('member_new')))
+group.add_url_rule(
+    u'/delete/<id>',
+    methods=[u'GET', u'POST'],
+    view_func=DeleteGroupView.as_view(str('delete')))
 for action in actions:
     group.add_url_rule(u'/{0}/<id>'.format(action), methods=[u'POST'],
                        view_func=globals()[action])
