@@ -871,8 +871,7 @@ class MembersGroupView(MethodView):
         except ValidationError, e:
             h.flash_error(e.error_summary)
 
-        #_redirect_to_this_controller(action='members', id=id)
-        return self.get(id)
+        return _redirect_to_this_controller(action='members', id=id)
 
     def get(self, id=None):
         context = self._prepare(id)
