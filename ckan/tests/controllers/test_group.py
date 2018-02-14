@@ -531,8 +531,8 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         unfollow_url = url_for('group.unfollow',
                                id='not-here')
         unfollow_response = app.post(unfollow_url, extra_environ=env,
-                                     status=404)
-        assert_true('Group not found' in unfollow_response)
+                                     status=302)
+        assert_in('group/not-here', unfollow_response.headers['location'])
 
     def test_group_follower_list(self):
         '''Following users appear on followers list page.'''
@@ -617,7 +617,7 @@ class TestGroupSearch(helpers.FunctionalTestBase):
         grp_names = [n.string for n in grp_names]
 
         assert_equal(len(grp_names), 0)
-        assert_true("No groups found for &#34;No Results Here&#34;"
+        assert_true('No groups found for "No Results Here"'
                     in search_response)
 
 

@@ -961,5 +961,5 @@ group.add_url_rule(
     methods=[u'GET', u'POST'],
     view_func=DeleteGroupView.as_view(str('delete')))
 for action in actions:
-    group.add_url_rule(u'/{0}/<id>'.format(action), methods=[u'POST'],
+    group.add_url_rule(u'/{0}/<id>'.format(action), methods=[u'GET', u'POST'],
                        view_func=globals()[action])
