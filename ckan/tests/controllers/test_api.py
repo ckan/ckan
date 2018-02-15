@@ -13,6 +13,8 @@ from StringIO import StringIO
 from nose.tools import assert_equal, assert_in, eq_
 from pyfakefs import fake_filesystem
 
+from six.moves import xrange
+
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
