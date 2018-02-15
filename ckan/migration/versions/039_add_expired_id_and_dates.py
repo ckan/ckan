@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from migrate import *
-from ckan.model.metadata import CkanMetaData
+from ckan.model.metadata import CkanMigrationMetaData
 import uuid
 import datetime
 

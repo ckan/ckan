@@ -2,7 +2,7 @@
 
 from sqlalchemy import *
 from migrate import *
-from ckan.model.metadata import CkanMetaData
+from ckan.model.metadata import CkanMigrationMetaData
 import uuid
 
 
@@ -11,7 +11,7 @@ def make_uuid():
 
 
 def upgrade(migrate_engine):
-    metadata = CkanMetaData()
+    metadata = CkanMigrationMetaData()
     user_table = Table('user', metadata,
             Column('id', UnicodeText, primary_key=True, default=make_uuid),
             Column('name', UnicodeText),

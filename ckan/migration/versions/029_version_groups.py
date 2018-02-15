@@ -5,7 +5,7 @@ import uuid
 from sqlalchemy import *
 from sqlalchemy import types
 from migrate import *
-from ckan.model.metadata import CkanMetaData
+from ckan.model.metadata import CkanMigrationMetaData
 from datetime import datetime
 import migrate.changeset
 from migrate.changeset.constraint import ForeignKeyConstraint
@@ -39,7 +39,7 @@ def make_uuid():
 
 
 def upgrade(migrate_engine):
-    metadata = CkanMetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
 
     group_table = Table('group', metadata,

@@ -2,14 +2,14 @@
 
 from sqlalchemy import *
 from migrate import *
-from ckan.model.metadata import CkanMetaData
+from ckan.model.metadata import CkanMigrationMetaData
 import uuid
 
 
 
 
 def upgrade(migrate_engine):
-    metadata = CkanMetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
 
     user_object_role_table = Table('user_object_role', metadata, autoload=True)

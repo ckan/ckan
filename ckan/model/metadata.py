@@ -9,7 +9,7 @@ from sqlalchemy import MetaData
 from ckan.common import config as ckan_config
 
 
-class CkanMetaData(MetaData):
+class CkanMigrationMetaData(MetaData):
     """CKAN custom metadata
 
     Allow for setting metadata from CKAN's own configuration.
@@ -21,4 +21,4 @@ class CkanMetaData(MetaData):
         if u'schema' not in kwargs and schema:
             kwargs[u'schema'] = schema
 
-        super(CkanMetaData, self).__init__(*args, **kwargs)
+        super(CkanMigrationMetaData, self).__init__(*args, **kwargs)

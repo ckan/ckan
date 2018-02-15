@@ -5,7 +5,7 @@ import sqlalchemy.schema
 import uuid
 
 from migrate import *
-from ckan.model.metadata import CkanMetaData
+from ckan.model.metadata import CkanMigrationMetaData
 import migrate.changeset
 from migrate.changeset.constraint import ForeignKeyConstraint, PrimaryKeyConstraint
 
@@ -20,7 +20,7 @@ def make_uuid():
 # 4 create uuids for revisions (auto cascades elsewhere!)
 def upgrade(migrate_engine):
     global metadata
-    metadata = CkanMetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
     dropped_fk_constraints = drop_constraints_and_alter_types()
     upgrade2(migrate_engine, dropped_fk_constraints)
@@ -57,7 +57,7 @@ def drop_constraints_and_alter_types():
 
 def upgrade2(migrate_engine, dropped_fk_constraints):
     # have changed type of cols so recreate metadata
-    metadata = CkanMetaData(migrate_engine)
+    metadata = CkanMigrationMetaData(migrate_engine)
 
     # 3 create foreign key constraints
     for fk_constraint in dropped_fk_constraints:

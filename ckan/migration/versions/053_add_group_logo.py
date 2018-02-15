@@ -2,7 +2,7 @@
 
 from sqlalchemy import *
 from migrate import *
-from ckan.model.metadata import CkanMetaData
+from ckan.model.metadata import CkanMigrationMetaData
 
 def upgrade(migrate_engine):
     migrate_engine.execute('''

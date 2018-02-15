@@ -2,7 +2,7 @@
 
 from sqlalchemy import *
 from migrate import *
-from ckan.model.metadata import CkanMetaData
+from ckan.model.metadata import CkanMigrationMetaData
 import uuid
 
 
@@ -10,7 +10,7 @@ def make_uuid():
     return unicode(uuid.uuid4())
 
 def upgrade(migrate_engine):
-    metadata = CkanMetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
 
     # you need to load these two for foreign keys to work 

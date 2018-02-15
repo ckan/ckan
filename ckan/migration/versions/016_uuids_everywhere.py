@@ -6,11 +6,11 @@ import uuid
 from sqlalchemy.sql import select
 
 from migrate import *
-from ckan.model.metadata import CkanMetaData
+from ckan.model.metadata import CkanMigrationMetaData
 import migrate.changeset
 from migrate.changeset.constraint import ForeignKeyConstraint, PrimaryKeyConstraint
 
-metadata = CkanMetaData()
+metadata = CkanMigrationMetaData()
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -35,7 +35,7 @@ def make_uuid():
 
 def upgrade(migrate_engine):
     global metadata
-    metadata = CkanMetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
     primary_table_name = 'package'
     foreign_tables = ['package_revision',
@@ -152,7 +152,7 @@ def add_fk_constraints(migrate_engine, dropped_fk_constraints, primary_table_nam
 
 def create_uuids(migrate_engine, primary_table_name, revision_table_name):
     # have changed type of cols so recreate metadata
-    metadata = CkanMetaData(migrate_engine)
+    metadata = CkanMigrationMetaData(migrate_engine)
 
     # 4 create uuids for primary entities and in related tables
     primary_table = Table(primary_table_name, metadata, autoload=True)

@@ -2,12 +2,12 @@
 
 from sqlalchemy import *
 from migrate import *
-from ckan.model.metadata import CkanMetaData
+from ckan.model.metadata import CkanMigrationMetaData
 import migrate.changeset
 
     
 def upgrade(migrate_engine):
-    metadata = CkanMetaData()
+    metadata = CkanMigrationMetaData()
     harvested_source_table = Table('harvest_source', metadata,
         Column('status', UnicodeText, nullable=False),
         )

@@ -5,7 +5,7 @@ import nose.tools
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-from ckan.model.metadata import CkanMetaData
+from ckan.model.metadata import CkanMigrationMetaData
 from ckan.common import config
 
 
@@ -18,6 +18,6 @@ class TestMetaData(object):
 
         config[u'ckan.migrations.target_schema'] = u'test_schema'
 
-        metadata = CkanMetaData()
+        metadata = CkanMigrationMetaData()
 
         assert_equals(metadata.schema, u'test_schema')
