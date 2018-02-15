@@ -131,7 +131,6 @@ def load_environment(global_conf, app_conf):
 # Start CONFIG_FROM_ENV_VARS
 CONFIG_FROM_ENV_VARS = {
     'sqlalchemy.url': 'CKAN_SQLALCHEMY_URL',
-    'ckan.migrations.target_schema': 'CKAN_MIGRATIONS_TARGET_SCHEMA',
     'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
     'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
     'ckan.redis.url': 'CKAN_REDIS_URL',
