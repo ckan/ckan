@@ -4,11 +4,12 @@ from sqlalchemy import *
 import sqlalchemy.sql as sql
 
 from migrate import *
+from ckan.model.metadata import CkanMigrationMetaData
 import migrate.changeset
 
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
     stateful_tables = [
             'license',

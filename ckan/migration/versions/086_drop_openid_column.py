@@ -1,10 +1,10 @@
 # encoding: utf-8
 
-from sqlalchemy import MetaData
+from ckan.model.metadata import CkanMigrationMetaData
 
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
     migrate_engine.execute('''
 ALTER TABLE "user"

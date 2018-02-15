@@ -2,11 +2,12 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMigrationMetaData
 import datetime
 
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMigrationMetaData()
     harvested_document_table = Table('harvested_document', metadata,
             Column('id', UnicodeText, primary_key=True),
             Column('created', DateTime),

@@ -2,10 +2,10 @@
 
 from sqlalchemy import *
 from migrate import *
-
+from ckan.model.metadata import CkanMigrationMetaData
 
 def upgrade(migrate_engine):
-    meta = MetaData()
+    meta = CkanMigrationMetaData()
 
     state = Table('state', meta,
       Column('id', Integer() ,  primary_key=True, nullable=False),

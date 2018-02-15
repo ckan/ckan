@@ -270,6 +270,21 @@ Default value:  ``True``
 This option allows you to disable the datastore_search_sql action function, and
 corresponding API endpoint if you do not wish it to be activated.
 
+.. _ckan.migrations.target_schema:
+
+ckan.migrations.target_schema
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example:
+
+ ckan.migrations.target_schema = ckan
+
+Default value:  ``public``
+
+This option allows you to define the target PostgreSQL schema to which the
+migrations should be pointed. In general, this should be ``public`` to fit with
+the standard default schema.
+
 Site Settings
 -------------
 

@@ -2,6 +2,7 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMigrationMetaData
 import uuid
 
 
@@ -86,7 +87,7 @@ map = {
 }
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
     #print "Changing package license_ids to strings."
 

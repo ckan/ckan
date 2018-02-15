@@ -2,11 +2,12 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMigrationMetaData
 import migrate.changeset
 
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
     # Using sql because migrate doesn't quote reserved word 'user'
     user_sql = 'ALTER TABLE "user" ADD about TEXT'

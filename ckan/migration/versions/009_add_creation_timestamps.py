@@ -4,13 +4,14 @@ from datetime import datetime
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMigrationMetaData
 import migrate.changeset
 
 
 domain_obj_names = ['rating', 'group', 'user']
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
     # Use sql instead of migrate.changeset because user and group are sql
     # reserved words and migrate doesn't quote them.

@@ -2,13 +2,14 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMigrationMetaData
 import datetime
 from migrate.changeset.constraint import PrimaryKeyConstraint
 
 
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMigrationMetaData()
 
     revision_table = Table('revision', metadata,
             Column('id', UnicodeText, primary_key=True),

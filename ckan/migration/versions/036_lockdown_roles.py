@@ -2,6 +2,7 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMigrationMetaData
 import datetime
 import uuid
 from migrate.changeset.constraint import PrimaryKeyConstraint
@@ -10,7 +11,7 @@ def make_uuid():
     return unicode(uuid.uuid4())
 
 def upgrade(migrate_engine):
-    metadata = MetaData()
+    metadata = CkanMigrationMetaData()
     metadata.bind = migrate_engine
     role_action = Table('role_action', metadata, autoload=True)
     q = role_action.insert(values={'id': make_uuid(), 'role': 'editor', 

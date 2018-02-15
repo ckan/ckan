@@ -2,6 +2,7 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.model.metadata import CkanMigrationMetaData
 import datetime
 import uuid
 import migrate.changeset
@@ -9,7 +10,7 @@ from migrate.changeset.constraint import PrimaryKeyConstraint
 from ckan.model.types import JsonDictType
 
 def upgrade(migrate_engine):
-    metadata = MetaData(migrate_engine)
+    metadata = CkanMigrationMetaData(migrate_engine)
 
     migrate_engine.execute('''
 

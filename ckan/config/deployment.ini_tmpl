@@ -94,6 +94,9 @@ ckan.site_id = default
 # cors.origin_whitelist is a space separated list of allowed domains.
 # ckan.cors.origin_whitelist = http://example1.com http://example2.com
 
+## Migration Settings
+ckan.migrations.target_schema = public
+
 
 ## Plugins Settings
 
