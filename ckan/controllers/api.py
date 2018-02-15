@@ -38,6 +38,7 @@ CONTENT_TYPES = {
     'text': 'text/plain;charset=utf-8',
     'html': 'text/html;charset=utf-8',
     'json': 'application/json;charset=utf-8',
+    'javascript': 'application/javascript;charset=utf-8',
 }
 
 
@@ -99,6 +100,7 @@ class ApiController(base.BaseController):
                 # escape callback to remove '<', '&', '>' chars
                 callback = cgi.escape(request.params['callback'])
                 response_msg = self._wrap_jsonp(callback, response_msg)
+                response.headers['Content-Type'] = CONTENT_TYPES['javascript']
         return response_msg
 
     def _finish_ok(self, response_data=None,
