@@ -214,8 +214,19 @@ site_url
 
 .. _postgres-init:
 
+----------------------
+6. Link to ``who.ini``
+----------------------
+
+``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
+same directory as your CKAN config file, so create a symlink to it:
+
+.. parsed-literal::
+
+    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
+
 -------------------------
-6. Create database tables
+7. Create database tables
 -------------------------
 
 Now that you have a configuration file that has the correct settings for your
@@ -235,7 +246,7 @@ You should see ``Initialising DB: SUCCESS``.
     See `4. Create a CKAN config file`_.
 
 -----------------------
-7. Set up the DataStore
+8. Set up the DataStore
 -----------------------
 
 .. note ::
@@ -246,17 +257,6 @@ You should see ``Initialising DB: SUCCESS``.
 Follow the instructions in :doc:`/maintaining/datastore` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
-
-----------------------
-8. Link to ``who.ini``
-----------------------
-
-``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
-same directory as your CKAN config file, so create a symlink to it:
-
-.. parsed-literal::
-
-    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
 
 ---------------
 9. You're done!
