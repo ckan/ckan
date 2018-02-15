@@ -5,7 +5,9 @@ from migrate import *
 
 
 def upgrade(migrate_engine):
-    meta = MetaData()
+    # we specify the schema here, because of a clash with another 'state' table
+    # in the mdillon/postgis container
+    meta = MetaData(schema='public')
 
     state = Table('state', meta,
       Column('id', Integer() ,  primary_key=True, nullable=False),
