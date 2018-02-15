@@ -23,6 +23,7 @@ CONTENT_TYPES = {
     u'text': u'text/plain;charset=utf-8',
     u'html': u'text/html;charset=utf-8',
     u'json': u'application/json;charset=utf-8',
+    u'javascript': u'application/javascript;charset=utf-8',
 }
 
 API_REST_DEFAULT_VERSION = 1
@@ -69,6 +70,7 @@ def _finish(status_int, response_data=None,
             # escape callback to remove '<', '&', '>' chars
             callback = cgi.escape(request.args[u'callback'])
             response_msg = _wrap_jsonp(callback, response_msg)
+            headers[u'Content-Type'] = CONTENT_TYPES[u'javascript']
     return make_response((response_msg, status_int, headers))
 
 
