@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from six import string_types
+
 import ckan
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan.plugins import IGroupController, IOrganizationController, ITagController, IResourceController
@@ -31,7 +33,7 @@ def translate_data_dict(data_dict):
     for (key, value) in flattened.items():
         if value in (None, True, False):
             continue
-        elif isinstance(value, basestring):
+        elif isinstance(value, string_types):
             terms.add(value)
         elif isinstance(value, (int, long)):
             continue
@@ -79,7 +81,7 @@ def translate_data_dict(data_dict):
             # Don't try to translate values that aren't strings.
             translated_flattened[key] = value
 
-        elif isinstance(value, basestring):
+        elif isinstance(value, string_types):
             if value in desired_translations:
                 translated_flattened[key] = desired_translations[value]
             else:
@@ -127,7 +129,7 @@ def translate_resource_data_dict(data_dict):
     for (key, value) in flattened.items():
         if value in (None, True, False):
             continue
-        elif isinstance(value, basestring):
+        elif isinstance(value, string_types):
             terms.add(value)
         elif isinstance(value, (int, long)):
             continue
@@ -170,7 +172,7 @@ def translate_resource_data_dict(data_dict):
             # Don't try to translate values that aren't strings.
             translated_flattened[key] = value
 
-        elif isinstance(value, basestring):
+        elif isinstance(value, string_types):
             if value in desired_translations:
                 translated_flattened[key] = desired_translations[value]
             else:
@@ -229,7 +231,7 @@ class MultilingualDataset(SingletonPlugin):
             if not isinstance(value, list):
                 value = [value]
             for item in value:
-                if isinstance(item, basestring):
+                if isinstance(item, string_types):
                     all_terms.append(item)
 
         field_translations = get_action('term_translation_show')(
