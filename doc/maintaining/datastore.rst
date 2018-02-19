@@ -233,10 +233,34 @@ alongside CKAN.
 To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
 
 
+.. _data_dictionary:
+
+---------------
+Data Dictionary
+---------------
+
+DataStore columns may be described with a Data Dictionary. A Data Dictionary tab
+will appear when editing any resource with a DataStore table.
+The Data Dictionary form allows entering the following values for
+each column:
+
+1. Type Override: the type to be used the next time DataPusher is run to load
+   data into this column
+2. Label: a human-friendly label for this column
+3. Description: a full description for this column in markdown format
+
+Extension developers may add new fields to this form by overriding the default
+Data Dictionary form template ``datastore/snippets/dictionary_form.html``.
+
+The Data Dictionary is set through the API as part of the :ref:`fields` passed
+to :meth:`~ckanext.datastore.logic.action.datastore_create` and
+returned from :meth:`~ckanext.datastore.logic.action.datastore_search`.
+
+
 .. _dump:
 
 ---------------------
-Downloading resources
+Downloading Resources
 ---------------------
 
 A DataStore resource can be downloaded in the `CSV`_ file format from ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}``.
