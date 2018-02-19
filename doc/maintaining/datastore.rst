@@ -304,22 +304,40 @@ Fields
 Fields define the column names and the type of the data in a column. A field is defined as follows::
 
     {
-        "id":    # a string which defines the column name
+        "id":  # the column name (required)
         "type":  # the data type for the column
+        "info": {
+            "label":  # human-readable label for column
+            "notes":  # markdown description of column
+            "type_override":  # type for datapusher to use when importing data
+            ...:  # other user-defined fields
+	}
     }
 
-Field **types are optional** and will be guessed by the DataStore from the provided data. However, setting the types ensures that future inserts will not fail because of wrong types. See :ref:`valid-types` for details on which types are valid.
+Field types not provided will be guessed based on the first row of provided data.
+Set the types to ensure that future inserts will not fail because of an incorrectly
+guessed type. See :ref:`valid-types` for details on which types are valid.
+
+Extra ``"info"`` field values will be stored along with the column. ``"label"``,
+``"notes"`` and ``"type_override"`` can be managed from the default Data Dictionary
+form.  Additional fields can be stored by customizing the Data Dictionary form or by
+passing their values to the API directly.
 
 Example::
 
     [
         {
-            "id": "foo",
-            "type": "int4"
+            "id": "code_number",
+            "type": "numeric"
         },
         {
-            "id": "bar"
-            # type is optional
+            "id": "description"
+            "type": "text",
+            "info": {
+                "label": "Description",
+                "notes": "A brief usage description for this code",
+                "example": "Used for temporary service interruptions"
+            }
         }
     ]
 
@@ -331,19 +349,21 @@ Records
 A record is the data to be inserted in a DataStore resource and is defined as follows::
 
     {
-        "<id>":  # data to be set
-        # .. more data
+        column_1_id: value_1,
+        columd_2_id: value_2,
+        ...
     }
 
 Example::
 
     [
         {
-            "foo": 100,
-            "bar": "Here's some text"
+            "code_number": 10,
+            "description": "Submitted successfully"
         },
         {
-            "foo": 42
+            "code_number": 42,
+            "description": "In progress"
         }
     ]
 
