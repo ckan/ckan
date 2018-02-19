@@ -244,10 +244,10 @@ will appear when editing any resource with a DataStore table.
 The Data Dictionary form allows entering the following values for
 each column:
 
-1. Type Override: the type to be used the next time DataPusher is run to load
-   data into this column
-2. Label: a human-friendly label for this column
-3. Description: a full description for this column in markdown format
+* **Type Override:** the type to be used the next time DataPusher is run to load
+  data into this column
+* **Label:** a human-friendly label for this column
+* **Description:** a full description for this column in markdown format
 
 Extension developers may add new fields to this form by overriding the default
 Data Dictionary form template ``datastore/snippets/dictionary_form.html``.
@@ -345,7 +345,7 @@ Set the types to ensure that future inserts will not fail because of an incorrec
 guessed type. See :ref:`valid-types` for details on which types are valid.
 
 Extra ``"info"`` field values will be stored along with the column. ``"label"``,
-``"notes"`` and ``"type_override"`` can be managed from the default Data Dictionary
+``"notes"`` and ``"type_override"`` can be managed from the default :ref:`data_dictionary`
 form.  Additional fields can be stored by customizing the Data Dictionary form or by
 passing their values to the API directly.
 
