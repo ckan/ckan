@@ -23,8 +23,21 @@
       <div class="span12 col1 fa-ir">
         <div class="box usecases">
           <div class="inner">
-            <h3>{% trans %}Use Cases{% endtrans %}</h3>
+            <h3>{{ _('Use cases') }}</h3>
             <ul class="list">
+              {% if h.lang() == 'en' %}
+              <li>
+                  <a target="_blank" rel="noopener" href="https://en.radiofarda.com/a/iran-dams-disappeared/28825889.html">
+                      <img src="/images/cases/n7ow4d8.png">
+                      <h3>The Case of Iran's Lost Dams</h3>
+                      <dl>
+                          <dt>Source:</dt>
+                          <dd>Radio Farda</dd>
+                      </dl>
+                      <div class="clamping"><p>Since the 1979 revolution, Iran has invested a large amount of money into the construction of dams. In addition to power generation, dams were considered an important tool for water management during times of hardship. However, in recent years, dams have been at the crux of one of the country’s most serious environmental crises.</p></div>
+                  </a>
+              </li>
+              {% elif h.lang() == 'fa_IR' %}
               <li>
                 <a target="_blank" rel="noopener" href="https://www.radiofarda.com/a/iran-soc-women-eco-activities/28734705.html">
                   <img src="/images/cases/na8a.png">
@@ -60,6 +73,7 @@
                   <div class="clamping"><p>نظام اقتصادی ایران بر اساس قانون اساسی باید شامل بخش‌های دولتی، خصوصی و تعاونی باشد. اما اقتصاد ایران در همه سال‌های پس از انقلاب بازیگران بزرگ دیگری نیز داشته که یا در شمار این سه بخش نمی‌گنجند یا اگر برای مثال تعاونی هستند، عملکردی یکسره متفاوت از ماهیت آن دارند. بررسی عملکرد این بازیگران که عموما به مجموعه آنها «نهادها و بنیادهای انقلاب اسلامی» گفته می‌شود، اهمیت فراوانی در شناخت اقتصاد و سیاست ایران دارد.</p></div>
                 </a>
               </li>
+              {% else %}
             </ul>
           </div>
         </div>
