@@ -233,6 +233,25 @@ alongside CKAN.
 To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
 
 
+.. _dump:
+
+---------------------
+Downloading resources
+---------------------
+
+A DataStore resource can be downloaded in the `CSV`_ file format from ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}``.
+
+For an Excel-compatible CSV file use ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?bom=true``.
+
+Other formats supported include tab-separated values (``?format=tsv``),
+JSON (``?format=json``) and XML (``?format=xml``). E.g. to download an Excel-compatible
+tab-separated file use
+``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?format=tsv&bom=true``.
+
+.. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
+
+
+
 -----------------
 The DataStore API
 -----------------
@@ -277,23 +296,6 @@ API reference
 
 .. automodule:: ckanext.datastore.logic.action
    :members:
-
-
-.. _dump:
-
-Download resource
------------------
-
-A DataStore resource can be downloaded in the `CSV`_ file format from ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}``.
-
-For an Excel-compatible CSV file use ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?bom=true``.
-
-Other formats supported include tab-separated values (``?format=tsv``),
-JSON (``?format=json``) and XML (``?format=xml``). E.g. to download an Excel-compatible
-tab-separated file use
-``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?format=tsv&bom=true``.
-
-.. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
 
 
 .. _fields:
@@ -457,8 +459,10 @@ name
 oid
     The PostgreSQL object ID of the table that belongs to name.
 
+
+-------------------
 Extending DataStore
-===================
+-------------------
 
 Starting from CKAN version 2.7, backend used in DataStore can be replaced with custom one. For this purpose, custom extension must implement `ckanext.datastore.interfaces.IDatastoreBackend`, which provides one method - `register_backends`. It should return dictonary with names of custom backends as keys and classes, that represent those backends as values. Each class supposed to be inherited from `ckanext.datastore.backend.DatastoreBackend`.
 
