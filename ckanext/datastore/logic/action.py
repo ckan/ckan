@@ -523,6 +523,7 @@ def datastore_search_sql(context, data_dict):
 
     result = db.search_sql(context, data_dict)
     result.pop('id', None)
+    result.pop('sql', None)
     return result
 
 
