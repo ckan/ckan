@@ -416,7 +416,7 @@ blockquote:lang(fa_IR) {
   padding: 0 0 15px;
 }
 
-.usecases h3 {
+.usecases:not(.box) h3 {
   padding: 10px 10px 0;
 }
 
