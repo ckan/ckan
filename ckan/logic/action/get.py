@@ -11,6 +11,7 @@ import socket
 from ckan.common import config
 import sqlalchemy
 from paste.deploy.converters import asbool
+from six import string_types
 
 import ckan.lib.dictization
 import ckan.logic as logic
@@ -2109,7 +2110,7 @@ def resource_search(context, data_dict):
             {'fields': _('Do not specify if using "query" parameter')})
 
     elif query is not None:
-        if isinstance(query, basestring):
+        if isinstance(query, string_types):
             query = [query]
         try:
             fields = dict(pair.split(":", 1) for pair in query)
@@ -2125,7 +2126,7 @@ def resource_search(context, data_dict):
         # So maintain that behaviour
         split_terms = {}
         for field, terms in fields.items():
-            if isinstance(terms, basestring):
+            if isinstance(terms, string_types):
                 terms = terms.split()
             split_terms[field] = terms
         fields = split_terms
@@ -2143,7 +2144,7 @@ def resource_search(context, data_dict):
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
 
-        if isinstance(terms, basestring):
+        if isinstance(terms, string_types):
             terms = [terms]
 
         if field not in resource_fields:
@@ -2215,7 +2216,7 @@ def _tag_search(context, data_dict):
     model = context['model']
 
     terms = data_dict.get('query') or data_dict.get('q') or []
-    if isinstance(terms, basestring):
+    if isinstance(terms, string_types):
         terms = [terms]
     terms = [t.strip() for t in terms if t.strip()]
 
@@ -2402,7 +2403,7 @@ def term_translation_show(context, data_dict):
     # This action accepts `terms` as either a list of strings, or a single
     # string.
     terms = _get_or_bust(data_dict, 'terms')
-    if isinstance(terms, basestring):
+    if isinstance(terms, string_types):
         terms = [terms]
     if terms:
         q = q.where(trans_table.c.term.in_(terms))
@@ -2411,7 +2412,7 @@ def term_translation_show(context, data_dict):
     # string.
     if 'lang_codes' in data_dict:
         lang_codes = _get_or_bust(data_dict, 'lang_codes')
-        if isinstance(lang_codes, basestring):
+        if isinstance(lang_codes, string_types):
             lang_codes = [lang_codes]
         q = q.where(trans_table.c.lang_code.in_(lang_codes))
 
