@@ -282,14 +282,21 @@
           "value": "communication",
           "label": {
             "en": "communication",
-            "fa_IR": "ارتباطات "
+            "fa_IR": "ارتباطات"
           }
         },
         {
           "value": "companies",
           "label": {
             "en": "companies",
-            "fa_IR": "شرکت‌ها "
+            "fa_IR": "شرکت‌ها"
+          }
+        },
+        {
+          "value": "computer",
+          "label": {
+            "en": "computer",
+            "fa_IR": "رایانه"
           }
         },
         {
@@ -374,6 +381,13 @@
           "label": {
             "en": "credit union",
             "fa_IR": "موسسات اعتباری"
+          }
+        },
+        {
+          "value": "crime",
+          "label": {
+            "en": "crime",
+            "fa_IR": "جرم"
           }
         },
         {
@@ -825,6 +839,13 @@
           }
         },
         {
+          "value": "internet",
+          "label": {
+            "en": "internet",
+            "fa_IR": "اینترنت"
+          }
+        },
+        {
           "value": "investment",
           "label": {
             "en": "investment",
@@ -878,6 +899,13 @@
           "label": {
             "en": "land",
             "fa_IR": "زمین "
+          }
+        },
+        {
+          "value": "literacy",
+          "label": {
+            "en": "literacy",
+            "fa_IR": "سواد"
           }
         },
         {
@@ -958,6 +986,13 @@
           }
         },
         {
+          "value": "meteorology",
+          "label": {
+            "en": "meteorology",
+            "fa_IR": "هواشناسی"
+          }
+        },
+        {
           "value": "middle schools",
           "label": {
             "en": "middle schools",
@@ -1028,10 +1063,24 @@
           }
         },
         {
+          "value": "news",
+          "label": {
+            "en": "news",
+            "fa_IR": "خبر"
+          }
+        },
+        {
           "value": "newspaper",
           "label": {
             "en": "newspaper",
             "fa_IR": "روزنامه"
+          }
+        },
+        {
+          "value": "nomads",
+          "label": {
+            "en": "nomads",
+            "fa_IR": "عشایر"
           }
         },
         {
@@ -1189,6 +1238,13 @@
           }
         },
         {
+          "value": "poverty",
+          "label": {
+            "en": "poverty",
+            "fa_IR": "فقر"
+          }
+        },
+        {
           "value": "power",
           "label": {
             "en": "power",
@@ -1207,6 +1263,13 @@
           "label": {
             "en": "pre university",
             "fa_IR": "پیش‌‌دانشگاهی"
+          }
+        },
+        {
+          "value": "precipitation",
+          "label": {
+            "en": "precipitation",
+            "fa_IR": "بارندگی"
           }
         },
         {
@@ -1469,6 +1532,13 @@
           }
         },
         {
+          "value": "sport",
+          "label": {
+            "en": "sport",
+            "fa_IR": "ورزش"
+          }
+        },
+        {
           "value": "stock",
           "label": {
             "en": "stock",
@@ -1522,6 +1592,13 @@
           "label": {
             "en": "Tejarat bank",
             "fa_IR": "بانک تجارت"
+          }
+        },
+        {
+          "value": "television",
+          "label": {
+            "en": "television",
+            "fa_IR": "تلویزیون"
           }
         },
         {
@@ -1592,6 +1669,13 @@
           "label": {
             "en": "water",
             "fa_IR": "آب"
+          }
+        },
+        {
+          "value": "wealth",
+          "label": {
+            "en": "wealth",
+            "fa_IR": "ثروت"
           }
         },
         {
