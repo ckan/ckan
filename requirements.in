@@ -4,7 +4,7 @@ Babel==2.3.4
 bleach==2.1.2
 click==6.7
 fanstatic==0.12
-Flask==0.11.1
+Flask==0.12.2
 Flask-Babel==0.11.2
 Jinja2==2.8
 Markdown==2.6.7
