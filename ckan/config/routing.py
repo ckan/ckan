@@ -264,19 +264,23 @@ def make_map():
                   highlight_actions='index search')
         m.connect('group_list', '/group/list', action='list')
         m.connect('group_new', '/group/new', action='new')
-        m.connect('group_action', '/group/{action}/{id}',
-                  requirements=dict(action='|'.join([
-                      'edit',
-                      'delete',
-                      'member_new',
-                      'member_delete',
-                      'history',
-                      'followers',
-                      'follow',
-                      'unfollow',
-                      'admins',
-                      'activity',
-                  ])))
+
+        for action in [
+              'edit',
+              'delete',
+              'member_new',
+              'member_delete',
+              'history',
+              'followers',
+              'follow',
+              'unfollow',
+              'admins',
+              'activity',
+          ]:
+            m.connect('group_' + action,
+                      '/group/' + action + '/{id}',
+                      action=action)
+
         m.connect('group_about', '/group/about/{id}', action='about',
                   ckan_icon='info-circle'),
         m.connect('group_edit', '/group/edit/{id}', action='edit',
@@ -299,7 +303,9 @@ def make_map():
           'member_new',
           'member_delete',
           'history']:
-            m.connect('organization_' + action, '/organization/' + action + '/{id}', action=action)
+            m.connect('organization_' + action,
+                      '/organization/' + action + '/{id}',
+                      action=action)
 
         m.connect('organization_activity', '/organization/activity/{id}/{offset}',
                   action='activity', ckan_icon='clock-o')
