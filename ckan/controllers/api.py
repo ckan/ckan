@@ -9,6 +9,7 @@ import urllib
 
 from webob.multidict import UnicodeMultiDict
 from paste.util.multidict import MultiDict
+from six import text_type
 
 import ckan.model as model
 import ckan.logic as logic
@@ -217,14 +218,14 @@ class ApiController(base.BaseController):
                                     'message': _('Access denied')}
             return_dict['success'] = False
 
-            if unicode(e):
+            if text_type(e):
                 return_dict['error']['message'] += u': %s' % e
 
             return self._finish(403, return_dict, content_type='json')
         except NotFound as e:
             return_dict['error'] = {'__type': 'Not Found Error',
                                     'message': _('Not found')}
-            if unicode(e):
+            if text_type(e):
                 return_dict['error']['message'] += u': %s' % e
             return_dict['success'] = False
             return self._finish(404, return_dict, content_type='json')
@@ -297,9 +298,9 @@ class ApiController(base.BaseController):
         try:
             return self._finish_ok(action(context, {'id': id}))
         except NotFound as e:
-            return self._finish_not_found(unicode(e))
+            return self._finish_not_found(text_type(e))
         except NotAuthorized as e:
-            return self._finish_not_authz(unicode(e))
+            return self._finish_not_authz(text_type(e))
 
     def show(self, ver=None, register=None, subregister=None,
              id=None, id2=None):
@@ -326,9 +327,9 @@ class ApiController(base.BaseController):
         try:
             return self._finish_ok(action(context, data_dict))
         except NotFound as e:
-            return self._finish_not_found(unicode(e))
+            return self._finish_not_found(text_type(e))
         except NotAuthorized as e:
-            return self._finish_not_authz(unicode(e))
+            return self._finish_not_authz(text_type(e))
 
     def create(self, ver=None, register=None, subregister=None,
                id=None, id2=None):
@@ -369,9 +370,9 @@ class ApiController(base.BaseController):
             return self._finish_ok(response_data,
                                    resource_location=location)
         except NotAuthorized as e:
-            return self._finish_not_authz(unicode(e))
+            return self._finish_not_authz(text_type(e))
         except NotFound as e:
-            return self._finish_not_found(unicode(e))
+            return self._finish_not_found(text_type(e))
         except ValidationError as e:
             # CS: nasty_string ignore
             log.info('Validation error (REST create): %r', str(e.error_dict))
@@ -425,9 +426,9 @@ class ApiController(base.BaseController):
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
         except NotAuthorized as e:
-            return self._finish_not_authz(unicode(e))
+            return self._finish_not_authz(text_type(e))
         except NotFound as e:
-            return self._finish_not_found(unicode(e))
+            return self._finish_not_found(text_type(e))
         except ValidationError as e:
             # CS: nasty_string ignore
             log.info('Validation error (REST update): %r', str(e.error_dict))
@@ -472,9 +473,9 @@ class ApiController(base.BaseController):
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
         except NotAuthorized as e:
-            return self._finish_not_authz(unicode(e))
+            return self._finish_not_authz(text_type(e))
         except NotFound as e:
-            return self._finish_not_found(unicode(e))
+            return self._finish_not_found(text_type(e))
         except ValidationError as e:
             # CS: nasty_string ignore
             log.info('Validation error (REST delete): %r', str(e.error_dict))
@@ -671,7 +672,7 @@ class ApiController(base.BaseController):
 
     def tag_autocomplete(self):
         q = request.str_params.get('incomplete', '')
-        q = unicode(urllib.unquote(q), 'utf-8')
+        q = text_type(urllib.unquote(q), 'utf-8')
         limit = request.params.get('limit', 10)
         tag_names = []
         if q:
@@ -758,7 +759,7 @@ class ApiController(base.BaseController):
         def make_unicode(entity):
             '''Cast bare strings and strings in lists or dicts to Unicode. '''
             if isinstance(entity, str):
-                return unicode(entity)
+                return text_type(entity)
             elif isinstance(entity, list):
                 new_items = []
                 for item in entity:

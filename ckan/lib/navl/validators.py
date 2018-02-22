@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from six import text_type
+
 import ckan.lib.navl.dictization_functions as df
 
 from ckan.common import _, json
@@ -120,7 +122,7 @@ def convert_int(value, context):
 def unicode_only(value):
     '''Accept only unicode values'''
 
-    if not isinstance(value, unicode):
+    if not isinstance(value, text_type):
         raise Invalid(_('Must be a Unicode string value'))
     return value
 
@@ -137,7 +139,7 @@ def unicode_safe(value):
     converts binary strings assuming either UTF-8 or CP1252
     encodings (not ASCII, with occasional decoding errors)
     '''
-    if isinstance(value, unicode):
+    if isinstance(value, text_type):
         return value
     if hasattr(value, 'filename'):
         # cgi.FieldStorage instance for uploaded files, show the name
@@ -156,6 +158,6 @@ def unicode_safe(value):
     except Exception:
         # at this point we have given up. Just don't error out
         try:
-            return unicode(value)
+            return text_type(value)
         except Exception:
             return u'\N{REPLACEMENT CHARACTER}'

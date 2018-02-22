@@ -13,6 +13,7 @@ import re
 import pysolr
 from ckan.common import config
 from paste.deploy.converters import asbool
+from six import text_type
 
 from common import SearchIndexError, make_connection
 from ckan.model import PackageRelationship
@@ -140,7 +141,7 @@ class PackageSearchIndex(SearchIndex):
         for extra in extras:
             key, value = extra['key'], extra['value']
             if isinstance(value, (tuple, list)):
-                value = " ".join(map(unicode, value))
+                value = " ".join(map(text_type, value))
             key = ''.join([c for c in key if c in KEY_CHARS])
             pkg_dict['extras_' + key] = value
             if key not in index_fields:

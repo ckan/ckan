@@ -5,7 +5,7 @@ import datetime
 from urllib import urlencode
 
 from pylons.i18n import get_lang
-from six import string_types
+from six import string_types, text_type
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -789,7 +789,7 @@ class GroupController(base.BaseController):
                     id=c.group_dict['name']),
                 description=_(u'Recent changes to CKAN Group: ') +
                 c.group_dict['display_name'],
-                language=unicode(get_lang()),
+                language=text_type(get_lang()),
             )
             for revision_dict in c.group_revisions:
                 revision_date = h.date_str_to_datetime(
