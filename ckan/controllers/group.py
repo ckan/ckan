@@ -238,9 +238,9 @@ class GroupController(base.BaseController):
         q = c.q = request.params.get('q', '')
         # Search within group
         if c.group_dict.get('is_organization'):
-            q += ' owner_org:"%s"' % c.group_dict.get('id')
+            fq = 'owner_org:"%s"' % c.group_dict.get('id')
         else:
-            q += ' groups:"%s"' % c.group_dict.get('name')
+            fq = 'groups:"%s"' % c.group_dict.get('name')
 
         c.description_formatted = \
             h.render_markdown(c.group_dict.get('description'))
@@ -321,7 +321,7 @@ class GroupController(base.BaseController):
 
             data_dict = {
                 'q': q,
-                'fq': '',
+                'fq': fq,
                 'include_private': True,
                 'facet.field': facets.keys(),
                 'rows': limit,
