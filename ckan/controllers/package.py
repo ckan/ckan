@@ -9,6 +9,7 @@ import cgi
 from ckan.common import config
 from paste.deploy.converters import asbool
 import paste.fileapp
+from six import string_types
 
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -45,7 +46,7 @@ lookup_package_plugin = ckan.lib.plugins.lookup_package_plugin
 
 
 def _encode_params(params):
-    return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v))
+    return [(k, v.encode('utf-8') if isinstance(v, string_types) else str(v))
             for k, v in params]
 
 

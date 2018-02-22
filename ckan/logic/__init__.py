@@ -7,6 +7,7 @@ import sys
 from collections import defaultdict
 
 import formencode.validators
+from six import string_types
 
 import ckan.model as model
 import ckan.authz as authz
@@ -175,7 +176,7 @@ def clean_dict(data_dict):
         if not isinstance(value, list):
             continue
         for inner_dict in value[:]:
-            if isinstance(inner_dict, basestring):
+            if isinstance(inner_dict, string_types):
                 break
             if not any(inner_dict.values()):
                 value.remove(inner_dict)
@@ -516,7 +517,7 @@ def get_or_bust(data_dict, keys):
         not in the given dictionary
 
     '''
-    if isinstance(keys, basestring):
+    if isinstance(keys, string_types):
         keys = [keys]
 
     import ckan.logic.schema as schema
