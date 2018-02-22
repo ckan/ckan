@@ -15,6 +15,8 @@ import hashlib
 import json
 from cStringIO import StringIO
 
+from six import string_types
+
 import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -374,7 +376,7 @@ def _where_clauses(data_dict, fields_types):
     # add full-text search where clause
     q = data_dict.get('q')
     if q:
-        if isinstance(q, basestring):
+        if isinstance(q, string_types):
             ts_query_alias = _ts_query_alias()
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
             clauses.append((clause_str,))
@@ -409,7 +411,7 @@ def _textsearch_query(data_dict):
     statements = []
     rank_columns = []
     plain = data_dict.get('plain', True)
-    if isinstance(q, basestring):
+    if isinstance(q, string_types):
         query, rank = _build_query_and_rank_statements(
             lang, q, plain)
         statements.append(query)
@@ -469,7 +471,7 @@ def _sort(data_dict, fields_types):
     if not sort:
         q = data_dict.get('q')
         if q:
-            if isinstance(q, basestring):
+            if isinstance(q, string_types):
                 return [_ts_rank_alias()]
             elif isinstance(q, dict):
                 return [_ts_rank_alias(field) for field in q
@@ -1196,7 +1198,7 @@ def validate(context, data_dict):
     for key, values in data_dict_copy.iteritems():
         if not values:
             continue
-        if isinstance(values, basestring):
+        if isinstance(values, string_types):
             value = values
         elif isinstance(values, (list, tuple)):
             value = values[0]

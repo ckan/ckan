@@ -5,6 +5,8 @@ import logging
 import re
 import pysolr
 import simplejson
+from six import string_types
+
 log = logging.getLogger(__name__)
 
 
@@ -72,7 +74,7 @@ def make_connection(decode_dates=True):
 
 def solr_datetime_decoder(d):
     for k, v in d.items():
-        if isinstance(v, basestring):
+        if isinstance(v, string_types):
             possible_datetime = re.search(pysolr.DATETIME_REGEX, v)
             if possible_datetime:
                 date_values = possible_datetime.groupdict()

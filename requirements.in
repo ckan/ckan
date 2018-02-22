@@ -1,11 +1,10 @@
 # The file contains the direct ckan requirements.
 # Use pip-compile to create a requirements.txt file from this
 Babel==2.3.4
-Beaker==1.9.0 # Needs to be pinned to a more up to date version than the Pylons one
 bleach==2.1.2
 click==6.7
 fanstatic==0.12
-Flask==0.11.1
+Flask==0.12.2
 Flask-Babel==0.11.2
 Jinja2==2.8
 Markdown==2.6.7

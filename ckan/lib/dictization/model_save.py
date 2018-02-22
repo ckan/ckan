@@ -5,6 +5,7 @@ import uuid
 import logging
 
 from sqlalchemy.orm import class_mapper
+from six import string_types
 
 import ckan.lib.dictization as d
 import ckan.lib.helpers as h
@@ -460,7 +461,7 @@ def package_api_to_dict(api1_dict, context):
     for key, value in api1_dict.iteritems():
         new_value = value
         if key == 'tags':
-            if isinstance(value, basestring):
+            if isinstance(value, string_types):
                 new_value = [{"name": item} for item in value.split()]
             else:
                 new_value = [{"name": item} for item in value]

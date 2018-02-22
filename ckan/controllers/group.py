@@ -5,6 +5,7 @@ import datetime
 from urllib import urlencode
 
 from pylons.i18n import get_lang
+from six import string_types
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -268,7 +269,7 @@ class GroupController(base.BaseController):
             controller = lookup_group_controller(group_type)
             action = 'bulk_process' if c.action == 'bulk_process' else 'read'
             url = h.url_for(controller=controller, action=action, id=id)
-            params = [(k, v.encode('utf-8') if isinstance(v, basestring)
+            params = [(k, v.encode('utf-8') if isinstance(v, string_types)
                        else str(v)) for k, v in params]
             return url + u'?' + urlencode(params)
 
