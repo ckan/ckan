@@ -190,6 +190,14 @@ def register_group_plugins(map):
                         controller=group_controller,
                         action='members',
                         ckan_icon='users')
+            map.connect('%s_member_new' % group_type,
+                        '/%s/member_new/{id}' % group_type,
+                        controller=group_controller,
+                        action='member_new')
+            map.connect('%s_member_delete' % group_type,
+                        '/%s/member_delete/{id}' % group_type,
+                        controller=group_controller,
+                        action='member_delete')
             map.connect('%s_activity' % group_type,
                         '/%s/activity/{id}/{offset}' % group_type,
                         controller=group_controller,
