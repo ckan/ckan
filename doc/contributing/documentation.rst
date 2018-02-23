@@ -67,10 +67,6 @@ install the dependencies necessary for building CKAN. In this example we'll
 create a virtualenv in a folder called ``pyenv``. Run these commands in a
 terminal:
 
-.. versionchanged:: 2.1
-   In CKAN 2.0 and earlier the requirements file was called
-   ``pip-requirements-docs.txt``, not ``dev-requirements.txt`` as below.
-
 ::
 
     virtualenv --no-site-packages pyenv

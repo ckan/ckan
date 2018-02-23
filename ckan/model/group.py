@@ -263,14 +263,14 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         Returns all packages in this group with VDM revision state ACTIVE
 
         :param with_private: if True, include the group's private packages
-        :type with_private: boolean
+        :type with_private: bool
 
         :param limit: the maximum number of packages to return
         :type limit: int
 
         :param return_query: if True, return the SQLAlchemy query object
             instead of the list of Packages resulting from the query
-        :type return_query: boolean
+        :type return_query: bool
 
         :returns: a list of this group's packages
         :rtype: list of ckan.model.package.Package objects

@@ -7,14 +7,20 @@ from nose.tools import assert_true, assert_false
 
 
 class TestExampleITranslationPlugin(helpers.FunctionalTestBase):
+
+    @classmethod
+    def _apply_config_changes(cls, config):
+        config['ckan.plugins'] = 'example_itranslation'
+
     @classmethod
     def setup_class(cls):
         super(TestExampleITranslationPlugin, cls).setup_class()
-        plugins.load('example_itranslation')
+        # plugins.load('example_itranslation')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_itranslation')
+        if plugins.plugin_loaded('example_itranslation'):
+            plugins.unload('example_itranslation')
         super(TestExampleITranslationPlugin, cls).teardown_class()
 
     def test_translated_string_in_extensions_templates(self):

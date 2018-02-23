@@ -15,6 +15,8 @@ import hashlib
 import json
 from cStringIO import StringIO
 
+from six import string_types
+
 import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -23,7 +25,7 @@ from ckan.lib.lazyjson import LazyJSONObject
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
 
-import psycopg2.extras
+from psycopg2.extras import register_default_json, register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
@@ -117,6 +119,14 @@ def _get_engine_from_url(connection_url):
                                                'ckan.datastore.sqlalchemy.',
                                                **extras)
         _engines[connection_url] = engine
+
+    # don't automatically convert to python objects
+    # when using native json types in 9.2+
+    # http://initd.org/psycopg/docs/extras.html#adapt-json
+    register_default_json(conn_or_curs=engine.raw_connection().connection,
+                          globally=False,
+                          loads=lambda x: x)
+
     return engine
 
 
@@ -274,9 +284,7 @@ def _cache_types(context):
             # redo cache types with json now available.
             return _cache_types(context)
 
-        psycopg2.extras.register_composite('nested',
-                                           connection.connection,
-                                           True)
+        register_composite('nested', connection.connection, True)
 
 
 def _pg_version_is_at_least(connection, version):
@@ -314,7 +322,7 @@ def _change_privilege(context, data_dict, what):
         })
     try:
         context['connection'].execute(sql)
-    except ProgrammingError, e:
+    except ProgrammingError as e:
         log.critical("Error making resource private. {0!r}".format(e.message))
         raise ValidationError({
             'privileges': [
@@ -368,7 +376,7 @@ def _where_clauses(data_dict, fields_types):
     # add full-text search where clause
     q = data_dict.get('q')
     if q:
-        if isinstance(q, basestring):
+        if isinstance(q, string_types):
             ts_query_alias = _ts_query_alias()
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
             clauses.append((clause_str,))
@@ -403,7 +411,7 @@ def _textsearch_query(data_dict):
     statements = []
     rank_columns = []
     plain = data_dict.get('plain', True)
-    if isinstance(q, basestring):
+    if isinstance(q, string_types):
         query, rank = _build_query_and_rank_statements(
             lang, q, plain)
         statements.append(query)
@@ -463,7 +471,7 @@ def _sort(data_dict, fields_types):
     if not sort:
         q = data_dict.get('q')
         if q:
-            if isinstance(q, basestring):
+            if isinstance(q, string_types):
                 return [_ts_rank_alias()]
             elif isinstance(q, dict):
                 return [_ts_rank_alias(field) for field in q
@@ -534,7 +542,7 @@ def create_alias(context, data_dict):
                     })
 
                 context['connection'].execute(sql_alias_string)
-        except DBAPIError, e:
+        except DBAPIError as e:
             if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
                                  _PG_ERR_CODE['duplicate_alias']]:
                 raise ValidationError({
@@ -638,7 +646,7 @@ def _is_valid_pg_type(context, type_name):
         connection = context['connection']
         try:
             connection.execute('SELECT %s::regtype', type_name)
-        except ProgrammingError, e:
+        except ProgrammingError as e:
             if e.orig.pgcode in [_PG_ERR_CODE['undefined_object'],
                                  _PG_ERR_CODE['syntax_error']]:
                 return False
@@ -782,8 +790,10 @@ def create_indexes(context, data_dict):
         indexes = []
 
     if primary_key is not None:
-        _drop_indexes(context, data_dict, True)
-        indexes.append(primary_key)
+        unique_keys = _get_unique_key(context, data_dict)
+        if sorted(unique_keys) != sorted(primary_key):
+            _drop_indexes(context, data_dict, True)
+            indexes.append(primary_key)
 
     for index in indexes:
         if not index:
@@ -1188,7 +1198,7 @@ def validate(context, data_dict):
     for key, values in data_dict_copy.iteritems():
         if not values:
             continue
-        if isinstance(values, basestring):
+        if isinstance(values, string_types):
             value = values
         elif isinstance(values, (list, tuple)):
             value = values[0]
@@ -1436,7 +1446,7 @@ def upsert(context, data_dict):
         upsert_data(context, data_dict)
         trans.commit()
         return _unrename_json_field(data_dict)
-    except IntegrityError, e:
+    except IntegrityError as e:
         if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
             raise ValidationError({
                 'constraints': ['Cannot insert records or create index because'
@@ -1447,19 +1457,19 @@ def upsert(context, data_dict):
                 }
             })
         raise
-    except DataError, e:
+    except DataError as e:
         raise ValidationError({
             'data': e.message,
             'info': {
                 'orig': [str(e.orig)]
             }})
-    except DBAPIError, e:
+    except DBAPIError as e:
         if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
         raise
-    except Exception, e:
+    except Exception as e:
         trans.rollback()
         raise
     finally:
@@ -1477,7 +1487,7 @@ def search(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         return search_data(context, data_dict)
-    except DBAPIError, e:
+    except DBAPIError as e:
         if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Search took too long']
@@ -1522,7 +1532,7 @@ def search_sql(context, data_dict):
 
         return format_results(context, results, data_dict)
 
-    except ProgrammingError, e:
+    except ProgrammingError as e:
         if e.orig.pgcode == _PG_ERR_CODE['permission_denied']:
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to read resource.']
@@ -1540,7 +1550,7 @@ def search_sql(context, data_dict):
                 'orig': [_remove_explain(str(e.orig))]
             }
         })
-    except DBAPIError, e:
+    except DBAPIError as e:
         if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
@@ -1823,7 +1833,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 _change_privilege(context, data_dict, 'REVOKE')
             trans.commit()
             return _unrename_json_field(data_dict)
-        except IntegrityError, e:
+        except IntegrityError as e:
             if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
                 raise ValidationError({
                     'constraints': ['Cannot insert records or create index'
@@ -1834,19 +1844,19 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                     }
                 })
             raise
-        except DataError, e:
+        except DataError as e:
             raise ValidationError({
                 'data': e.message,
                 'info': {
                     'orig': [str(e.orig)]
                 }})
-        except DBAPIError, e:
+        except DBAPIError as e:
             if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
                 raise ValidationError({
                     'query': ['Query took too long']
                 })
             raise
-        except Exception, e:
+        except Exception as e:
             trans.rollback()
             raise
         finally:

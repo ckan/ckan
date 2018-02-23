@@ -11,7 +11,7 @@ set -e
 # URL for datapusher (required unless linked to a container called 'datapusher')
 : ${CKAN_DATAPUSHER_URL:=}
 
-CONFIG="${CKAN_CONFIG}/ckan.ini"
+CONFIG="${CKAN_CONFIG}/production.ini"
 
 abort () {
   echo "$@" >&2
@@ -62,6 +62,5 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
 fi
 
 set_environment
-ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"
+ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 exec "$@"
-

@@ -44,7 +44,7 @@ class TestHome(helpers.FunctionalTestBase):
         response = app.get(url=url_for('home.index'), extra_environ=env)
 
         assert 'update your profile' in response.body
-        assert url_for(controller='user', action='edit') in response.body
+        assert url_for('user.edit') in response.body
         assert ' and add your email address.' in response.body
 
     def test_email_address_no_nag(self):

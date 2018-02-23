@@ -47,7 +47,8 @@ services:
   db:
     container_name: db
     build:
-      context: postgresql/
+      context: ../../
+      dockerfile: contrib/docker/postgresql/Dockerfile
       args:
         - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
         - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -59,7 +60,10 @@ services:
 
   solr:
     container_name: solr
-    image: ckan/solr:latest
+    build:
+      context: ../../
+      dockerfile: contrib/docker/solr/Dockerfile
+
 
   redis:
     container_name: redis

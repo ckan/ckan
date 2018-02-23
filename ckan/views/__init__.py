@@ -54,7 +54,7 @@ def set_cors_headers_for_response(response):
 
         cors_origin_allowed = None
         if asbool(config.get(u'ckan.cors.origin_allow_all')):
-            cors_origin_allowed = u'*'
+            cors_origin_allowed = b'*'
         elif config.get(u'ckan.cors.origin_whitelist') and \
                 request.headers.get(u'Origin') \
                 in config[u'ckan.cors.origin_whitelist'].split(u' '):

@@ -7,6 +7,7 @@ import warnings
 from urlparse import urlparse
 import pytz
 
+import jinja2
 import sqlalchemy
 from pylons import config as pylons_config
 import formencode
@@ -275,7 +276,8 @@ def update_config():
                     jinja_extensions.LinkForExtension,
                     jinja_extensions.ResourceExtension,
                     jinja_extensions.UrlForStaticExtension,
-                    jinja_extensions.UrlForExtension]
+                    jinja_extensions.UrlForExtension],
+        bytecode_cache=jinja2.FileSystemBytecodeCache()
     )
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
