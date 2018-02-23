@@ -4,6 +4,8 @@ import datetime
 
 import nose.tools
 
+from six.moves import xrange
+
 from ckan import __version__
 import ckan.logic as logic
 import ckan.plugins as p
