@@ -3,14 +3,14 @@
 {% block subtitle %}{{ _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% link_for _('Groups'), controller='group', action='index' %}</li>
+  <li class="active">{% link_for _('Groups'), controller='group', action='index', named_route=group_type + '_index' %}</li>
 {% endblock %}
 
 {% block page_header %}{% endblock %}
 
 {% block page_primary_action %}
   {% if h.check_access('group_create') %}
-    {% link_for _('Add Group'), controller='group', action='new', class_='btn btn-primary', icon='plus-square' %}
+    {% link_for _('Add Group'), controller='group', action='new', class_='btn btn-primary', icon='plus-square', named_route=group_type + '_new' %}
   {% endif %}
 {% endblock %}
 
