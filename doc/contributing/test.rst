@@ -32,10 +32,6 @@ virtual environment:
 Install nose and other test-specific CKAN dependencies into your virtual
 environment:
 
-.. versionchanged:: 2.1
-   In CKAN 2.0 and earlier the requirements file was called
-   ``pip-requirements-test.txt``, not ``dev-requirements.txt`` as below.
-
 .. parsed-literal::
 
     pip install -r |virtualenv|/src/ckan/dev-requirements.txt
@@ -45,10 +41,6 @@ environment:
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 Set up the test databases
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. versionchanged:: 2.1
-   Previously |postgres| tests used the databases defined in your
-   ``development.ini`` file, instead of using their own test databases.
 
 Create test databases:
 

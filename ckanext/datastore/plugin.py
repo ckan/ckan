@@ -2,6 +2,7 @@
 
 import logging
 
+from six import string_types
 
 import ckan.plugins as p
 import ckan.logic as logic
@@ -213,16 +214,17 @@ class DatastorePlugin(p.SingletonPlugin):
 
         q = data_dict.get('q')
         if q:
-            if isinstance(q, basestring):
+            if isinstance(q, string_types):
                 del data_dict['q']
             elif isinstance(q, dict):
                 for key in q.keys():
-                    if key in fields_types and isinstance(q[key], basestring):
+                    if key in fields_types and isinstance(q[key],
+                                                          string_types):
                         del q[key]
 
         language = data_dict.get('language')
         if language:
-            if isinstance(language, basestring):
+            if isinstance(language, string_types):
                 del data_dict['language']
 
         plain = data_dict.get('plain')
@@ -249,7 +251,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if limit:
             is_positive_int = datastore_helpers.validate_int(limit,
                                                              non_negative=True)
-            is_all = isinstance(limit, basestring) and limit.lower() == 'all'
+            is_all = isinstance(limit, string_types) and limit.lower() == 'all'
             if is_positive_int or is_all:
                 del data_dict['limit']
 

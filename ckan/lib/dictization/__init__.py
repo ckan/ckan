@@ -11,6 +11,11 @@ try:
 except AttributeError:
     RowProxy = sqlalchemy.engine.base.RowProxy
 
+try:
+    long        # Python 2
+except NameError:
+    long = int  # Python 3
+
 
 # NOTE
 # The functions in this file contain very generic methods for dictizing objects

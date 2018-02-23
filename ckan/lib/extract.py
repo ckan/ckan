@@ -3,6 +3,7 @@
 import re
 from jinja2.ext import babel_extract as extract_jinja2
 import lib.jinja_extensions
+from six import string_types
 
 jinja_extensions = '''
                     jinja2.ext.do, jinja2.ext.with_,
@@ -24,7 +25,7 @@ def jinja2_cleaner(fileobj, *args, **kw):
 
     for lineno, func, message, finder in raw_extract:
 
-        if isinstance(message, basestring):
+        if isinstance(message, string_types):
             message = lib.jinja_extensions.regularise_html(message)
         elif message is not None:
             message = (lib.jinja_extensions.regularise_html(message[0])

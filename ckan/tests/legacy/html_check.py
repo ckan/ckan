@@ -3,13 +3,15 @@
 import re
 import sgmllib
 
+from six import string_types
+
 import paste.fixture
 
 
 class HtmlCheckMethods(object):
     '''A collection of methods to check properties of a html page, usually
     in the form returned by paster.'''
-    
+
     def named_div(self, div_name, html):
         'strips html to just the <div id="DIV_NAME"> section'
         the_html = self._get_html_from_res(html)
@@ -31,15 +33,15 @@ class HtmlCheckMethods(object):
 
     def strip_tags(self, res):
         '''Call strip_tags on a TestResponse object to strip any and all HTML and normalise whitespace.'''
-        if not isinstance(res, basestring):
+        if not isinstance(res, string_types):
             res = res.body.decode('utf-8')
-        return Stripper().strip(res)    
+        return Stripper().strip(res)
 
     def check_named_element(self, html, tag_name, *html_to_find):
         '''Searches in the html and returns True if it can find a particular
         tag and all its subtags & data which contains all the of the
         html_to_find'''
-        named_element_re = re.compile('(<(%(tag)s\w*).*?(>.*?</%(tag)s)?>)' % {'tag':tag_name}) 
+        named_element_re = re.compile('(<(%(tag)s\w*).*?(>.*?</%(tag)s)?>)' % {'tag':tag_name})
         html_str = self._get_html_from_res(html)
         self._check_html(named_element_re, html_str.replace('\n', ''), html_to_find)
 

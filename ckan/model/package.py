@@ -240,7 +240,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             object_ = self
             direction = "reverse"
         else:
-            raise KeyError, 'Package relationship type: %r' % type_
+            raise KeyError('Package relationship type: %r' % type_)
 
         rels = self.get_relationships(with_package=related_package,
                                       type=type_, active=False, direction=direction)
@@ -364,7 +364,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             self.license_id = license['id']
         else:
             msg = "Value not a license object or entity: %s" % repr(license)
-            raise Exception, msg
+            raise Exception(msg)
 
     license = property(get_license, set_license)
 

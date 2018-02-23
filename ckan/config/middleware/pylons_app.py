@@ -155,7 +155,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
             path = os.path.join(storage_directory, 'storage')
             try:
                 os.makedirs(path)
-            except OSError, e:
+            except OSError as e:
                 # errno 17 is file already exists
                 if e.errno != 17:
                     raise

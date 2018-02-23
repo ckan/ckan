@@ -193,7 +193,7 @@ class TrashView(MethodView):
                     # page Ensure that whatever 'head' pointer is used
                     # gets moved down to the next revision
                     model.repo.purge_revision(revision, leave_record=False)
-                except Exception, inst:
+                except Exception as inst:
                     msg = _(u'Problem purging revision %s: %s') % (id, inst)
                     msgs.append(msg)
             h.flash_success(_(u'Purge complete'))
