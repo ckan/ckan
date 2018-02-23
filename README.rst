@@ -37,7 +37,7 @@ Support
 -------
 For general discussion around CKAN, you can write to the `Google Group`_.
 
-If you need help with CKAN and and want to ask a or want to ask a question about CKAN, use either the
+If you need help with CKAN or want to ask a question, use either the
 `ckan-dev`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
 searching the Stack Overflow and ckan-dev `archives`_ for an answer to your
 question first).
@@ -62,21 +62,22 @@ For contributing to CKAN or its documentation, see
 `CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.rst>`_.
 
 If you want to talk about CKAN development say hi to the CKAN developers on the
-`ckan-dev`_ mailing list or in the `#ckan`_ IRC channel on irc.freenode.net.
+`ckan-dev`_ mailing list, in the `#ckan`_ IRC channel, or on `BotBot`_.
 
 If you've figured out how to do something with CKAN and want to document it for
 others, make a new page on the `CKAN wiki`_, and tell us about it on
-`ckan-dev`_.
+ckan-dev mailing list.
 
 .. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
 .. _#ckan: http://webchat.freenode.net/?channels=ckan
 .. _CKAN Wiki: https://github.com/ckan/ckan/wiki
+.. _BotBot: https://botbot.me/freenode/ckan/
 
 
 Copying and License
 -------------------
 
-This material is copyright (c) 2006-2017 Open Knowledge International and contributors.
+This material is copyright (c) 2006-2018 Open Knowledge International and contributors.
 
 It is open and licensed under the GNU Affero General Public License (AGPL) v3.0
 whose full text may be found at:

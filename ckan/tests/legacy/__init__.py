@@ -86,7 +86,7 @@ class BaseCase(object):
         import commands
         (status, output) = commands.getstatusoutput(cmd)
         if status:
-            raise Exception, "Couldn't execute cmd: %s: %s" % (cmd, output)
+            raise Exception("Couldn't execute cmd: %s: %s" % (cmd, output))
 
     @classmethod
     def _paster(cls, cmd, config_path_rel):
@@ -279,7 +279,7 @@ class CkanServerCase(BaseCase):
         pid = process.pid
         pid = int(pid)
         if os.system("kill -9 %d" % pid):
-            raise Exception, "Can't kill foreign CKAN instance (pid: %d)." % pid
+            raise Exception("Can't kill foreign CKAN instance (pid: %d)." % pid)
 
 
 class TestController(CommonFixtureMethods, CkanServerCase, WsgiAppCase, BaseCase):

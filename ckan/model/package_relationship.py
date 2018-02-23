@@ -40,7 +40,7 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
     as "parent_of". However, the model functions provide the relationships
     from both packages in the relationship and the type is swapped from
     forward to reverse accordingly, for meaningful display to the user.'''
-    
+
     # List of (type, corresponding_reverse_type)
     # e.g. (A "depends_on" B, B has a "dependency_of" A)
     # don't forget to add specs to Solr's schema.xml
@@ -105,7 +105,7 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
             raise Exception('Package %s is not in this relationship: %s' % \
                              (package, self))
         return (type_str, other_package)
-        
+
     @classmethod
     def by_subject(cls, package):
         return meta.Session.query(cls).filter(cls.subject_package_id==package.id)
@@ -113,7 +113,7 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def by_object(cls, package):
         return meta.Session.query(cls).filter(cls.object_package_id==package.id)
-    
+
     @classmethod
     def get_forward_types(cls):
         if not hasattr(cls, 'fwd_types'):
@@ -139,7 +139,7 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
     def reverse_to_forward_type(cls, reverse_type):
         for fwd, rev in cls.types:
             if rev == reverse_type:
-                return fwd        
+                return fwd
 
     @classmethod
     def forward_to_reverse_type(cls, forward_type):
@@ -153,7 +153,7 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
             if fwd == forward_or_reverse_type:
                 return rev
             if rev == forward_or_reverse_type:
-                return fwd        
+                return fwd
 
     @classmethod
     def make_type_printable(cls, type_):
@@ -161,7 +161,7 @@ class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
             for j in range(2):
                 if type_ == types[j]:
                     return cls.types_printable[i][j]
-        raise TypeError, type_
+        raise TypeError(type_)
 
 meta.mapper(PackageRelationship, package_relationship_table, properties={
     'subject':orm.relation(_package.Package, primaryjoin=\

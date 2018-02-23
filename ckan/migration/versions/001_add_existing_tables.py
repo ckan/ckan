@@ -2,10 +2,17 @@
 
 from sqlalchemy import *
 from migrate import *
+from ckan.common import config as ckan_config
 
 
 def upgrade(migrate_engine):
-    meta = MetaData()
+    schema = ckan_config.get(u'ckan.migrations.target_schema') or 'public'
+    # we specify the schema here because of a clash with another 'state' table
+    # in the mdillon/postgis container. You only need to change the value in the
+    # config if you've altered the default schema from 'public' in your
+    # postgresql.conf. Because this is such a rarely needed option, it is
+    # otherwise undocumented.
+    meta = MetaData(schema=schema)
 
     state = Table('state', meta,
       Column('id', Integer() ,  primary_key=True, nullable=False),

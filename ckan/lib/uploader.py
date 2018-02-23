@@ -7,16 +7,42 @@ import logging
 import magic
 import mimetypes
 
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
+
 import ckan.lib.munge as munge
 import ckan.logic as logic
 import ckan.plugins as plugins
 from ckan.common import config
+
+ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
+MB = 1 << 20
 
 log = logging.getLogger(__name__)
 
 _storage_path = None
 _max_resource_size = None
 _max_image_size = None
+
+
+def _copy_file(input_file, output_file, max_size):
+    input_file.seek(0)
+    current_size = 0
+    while True:
+        current_size = current_size + 1
+        # MB chunks
+        data = input_file.read(MB)
+
+        if not data:
+            break
+        output_file.write(data)
+        if current_size > max_size:
+            raise logic.ValidationError({'upload': ['File upload too large']})
+
+
+def _get_underlying_file(wrapper):
+    if isinstance(wrapper, FlaskFileStorage):
+        return wrapper.stream
+    return wrapper.file
 
 
 def get_uploader(upload_to, old_filename=None):
@@ -105,7 +131,7 @@ class Upload(object):
                                          'uploads', object_type)
         try:
             os.makedirs(self.storage_path)
-        except OSError, e:
+        except OSError as e:
             # errno 17 is file already exists
             if e.errno != 17:
                 raise
@@ -130,13 +156,13 @@ class Upload(object):
         if not self.storage_path:
             return
 
-        if isinstance(self.upload_field_storage, cgi.FieldStorage):
+        if isinstance(self.upload_field_storage, (ALLOWED_UPLOAD_TYPES)):
             self.filename = self.upload_field_storage.filename
             self.filename = str(datetime.datetime.utcnow()) + self.filename
             self.filename = munge.munge_filename_legacy(self.filename)
             self.filepath = os.path.join(self.storage_path, self.filename)
             data_dict[url_field] = self.filename
-            self.upload_file = self.upload_field_storage.file
+            self.upload_file = _get_underlying_file(self.upload_field_storage)
             self.tmp_filepath = self.filepath + '~'
         # keep the file if there has been no change
         elif self.old_filename and not self.old_filename.startswith('http'):
@@ -153,22 +179,14 @@ class Upload(object):
         max_size is size in MB maximum of the file'''
 
         if self.filename:
-            output_file = open(self.tmp_filepath, 'wb')
-            self.upload_file.seek(0)
-            current_size = 0
-            while True:
-                current_size = current_size + 1
-                # MB chunks
-                data = self.upload_file.read(2 ** 20)
-                if not data:
-                    break
-                output_file.write(data)
-                if current_size > max_size:
+            with open(self.tmp_filepath, 'wb+') as output_file:
+                try:
+                    _copy_file(self.upload_file, output_file, max_size)
+                except logic.ValidationError:
                     os.remove(self.tmp_filepath)
-                    raise logic.ValidationError(
-                        {self.file_field: ['File upload too large']}
-                    )
-            output_file.close()
+                    raise
+                finally:
+                    self.upload_file.close()
             os.rename(self.tmp_filepath, self.filepath)
             self.clear = True
 
@@ -191,7 +209,7 @@ class ResourceUpload(object):
         self.storage_path = os.path.join(path, 'resources')
         try:
             os.makedirs(self.storage_path)
-        except OSError, e:
+        except OSError as e:
             # errno 17 is file already exists
             if e.errno != 17:
                 raise
@@ -206,7 +224,7 @@ class ResourceUpload(object):
         if config_mimetype_guess == 'file_ext':
             self.mimetype = mimetypes.guess_type(url)[0]
 
-        if isinstance(upload_field_storage, cgi.FieldStorage):
+        if isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
             self.filesize = 0  # bytes
 
             self.filename = upload_field_storage.filename
@@ -214,8 +232,7 @@ class ResourceUpload(object):
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
             resource['last_modified'] = datetime.datetime.utcnow()
-            self.upload_file = upload_field_storage.file
-
+            self.upload_file = _get_underlying_file(upload_field_storage)
             self.upload_file.seek(0, os.SEEK_END)
             self.filesize = self.upload_file.tell()
             # go back to the beginning of the file buffer
@@ -230,7 +247,7 @@ class ResourceUpload(object):
                     self.mimetype = magic.from_buffer(self.upload_file.read(),
                                                       mime=True)
                     self.upload_file.seek(0, os.SEEK_SET)
-                except IOError, e:
+                except IOError as e:
                     # Not that important if call above fails
                     self.mimetype = None
 
@@ -272,29 +289,19 @@ class ResourceUpload(object):
         if self.filename:
             try:
                 os.makedirs(directory)
-            except OSError, e:
+            except OSError as e:
                 # errno 17 is file already exists
                 if e.errno != 17:
                     raise
             tmp_filepath = filepath + '~'
-            output_file = open(tmp_filepath, 'wb+')
-            self.upload_file.seek(0)
-            current_size = 0
-            while True:
-                current_size = current_size + 1
-                # MB chunks
-                data = self.upload_file.read(2 ** 20)
-
-                if not data:
-                    break
-                output_file.write(data)
-                if current_size > max_size:
+            with open(tmp_filepath, 'wb+') as output_file:
+                try:
+                    _copy_file(self.upload_file, output_file, max_size)
+                except logic.ValidationError:
                     os.remove(tmp_filepath)
-                    raise logic.ValidationError(
-                        {'upload': ['File upload too large']}
-                    )
-
-            output_file.close()
+                    raise
+                finally:
+                    self.upload_file.close()
             os.rename(tmp_filepath, filepath)
             return
 
@@ -306,5 +313,5 @@ class ResourceUpload(object):
         if self.clear:
             try:
                 os.remove(filepath)
-            except OSError, e:
+            except OSError as e:
                 pass

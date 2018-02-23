@@ -6,6 +6,8 @@ import logging
 import paste.deploy.converters as converters
 import sqlparse
 
+from six import string_types
+
 from ckan.plugins.toolkit import get_action, ObjectNotFound, NotAuthorized
 
 log = logging.getLogger(__name__)
@@ -57,10 +59,10 @@ def validate_int(i, non_negative=False):
     return i >= 0 or not non_negative
 
 
-def _strip(input):
-    if isinstance(input, basestring) and len(input) and input[0] == input[-1]:
-        return input.strip().strip('"')
-    return input
+def _strip(s):
+    if isinstance(s, string_types) and len(s) and s[0] == s[-1]:
+        return s.strip().strip('"')
+    return s
 
 
 def should_fts_index_field_type(field_type):

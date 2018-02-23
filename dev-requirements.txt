@@ -4,7 +4,7 @@ beautifulsoup4==4.5.1
 coveralls   #Let Unpinned - Requires latest coveralls
 docutils==0.12
 factory-boy==2.1.1
-Flask-DebugToolbar==0.10.0
+Flask-DebugToolbar==0.10.1
 httpretty==0.8.3
 mock==2.0.0
 pycodestyle==2.2.0

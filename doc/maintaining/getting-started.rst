@@ -36,7 +36,7 @@ example, to create a new user called ``seanh`` and make him a sysadmin:
 
 .. parsed-literal::
 
-   paster sysadmin add seanh email=seanh@localhost name=Seanh -c |production.ini|
+   paster sysadmin add seanh email=seanh@localhost name=seanh -c |production.ini|
    
 You'll be prompted to enter a password during account creation.
 
