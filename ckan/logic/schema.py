@@ -29,7 +29,7 @@ def default_resource_schema(
         ignore_empty, unicode_safe, ignore, ignore_missing,
         remove_whitespace, if_empty_guess_format, clean_format, isodate,
         int_validator, extras_unicode_convert, keep_extras,
-        datastore_resource_query):
+        datastore_resource_query, unicode_only):
     return {
         'id': [ignore_empty, unicode_safe],
         'revision_id': [ignore_missing, unicode_safe],
