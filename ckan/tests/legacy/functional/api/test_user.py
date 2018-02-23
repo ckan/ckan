@@ -32,7 +32,7 @@ class TestUserApi(ControllerTestCase):
             },
             status=200,
         )
-        print response.json
+        print(response.json)
         assert set(response.json[0].keys()) == set(['id', 'name', 'fullname'])
         assert_equal(response.json[0]['name'], u'testsysadmin')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
@@ -45,7 +45,7 @@ class TestUserApi(ControllerTestCase):
             },
             status=200,
         )
-        print response.json
+        print(response.json)
         assert_equal(len(response.json), 2)
 
     def test_autocomplete_limit(self):
@@ -57,7 +57,7 @@ class TestUserApi(ControllerTestCase):
             },
             status=200,
         )
-        print response.json
+        print(response.json)
         assert_equal(len(response.json), 1)
 
 

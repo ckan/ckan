@@ -82,12 +82,12 @@ def test_get_key_combination():
     flattened_schema = flatten_schema(schema)
     assert get_all_key_combinations(data, flattened_schema) ==\
         set([(),
-            ('2', 0), 
-            ('2', 1), 
+            ('2', 0),
+            ('2', 1),
             ('2', 1, '21', 0),
             ('2', 0, '21', 0),
-            ('2', 1, '21', 1), 
-            ('2', 1, '21', 3), 
+            ('2', 1, '21', 1),
+            ('2', 1, '21', 3),
             ]), get_all_key_combinations(data, flattened_schema)
 
     #state = {}
@@ -97,7 +97,7 @@ def test_make_full_schema():
 
     full_schema = make_full_schema(data, schema)
 
-    print set(full_schema.keys()) - set(data.keys())
+    print(set(full_schema.keys()) - set(data.keys()))
 
     assert set(full_schema.keys()) - set(data.keys()) == set([('2', 1, '__before'),
                                                               ('2', 0, '__after'),
@@ -110,7 +110,7 @@ def test_make_full_schema():
                                                               ('__junk',),
                                                              ])
 
-    print set(data.keys()) - set(full_schema.keys())
+    print(set(data.keys()) - set(full_schema.keys()))
 
     assert set(data.keys()) - set(full_schema.keys()) == set([('4',),
                                                               ('4', 1, '30')])
@@ -135,10 +135,10 @@ def test_augment_junk_and_extras():
 
 def test_identity_validation():
 
-    
+
     converted_data, errors = validate_flattened(data, schema)
-    print errors
-    print converted_data
+    print(errors)
+    print(converted_data)
 
     assert not errors
 
@@ -295,7 +295,7 @@ def test_simple():
 
     converted_data, errors = validate(data, schema)
 
-    print errors
+    print(errors)
     assert errors == {'numbers': [{'code': [u'Missing value']}, {}]}
 
 
