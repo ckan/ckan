@@ -149,7 +149,7 @@ class TestDeleteTags(object):
         # through in NotFound as unicode.
         try:
             helpers.call_action('tag_delete', id=u'Delta symbol: \u0394')
-        except logic.NotFound, e:
+        except logic.NotFound as e:
             assert u'Delta symbol: \u0394' in unicode(e)
         else:
             assert 0, 'Should have raised NotFound'

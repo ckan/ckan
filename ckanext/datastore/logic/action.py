@@ -356,6 +356,7 @@ def datastore_delete(context, data_dict):
     resource = model.Resource.get(data_dict['resource_id'])
 
     if (not data_dict.get('filters') and
+            resource is not None and
             resource.extras.get('datastore_active') is True):
         log.debug(
             'Setting datastore_active=False on resource {0}'.format(
@@ -489,6 +490,10 @@ def datastore_search_sql(context, data_dict):
     .. note:: This action is only available when using PostgreSQL 9.X and
         using a read-only user on the database.
         It is not available in :ref:`legacy mode<legacy-mode>`.
+        
+    .. note:: When source data columns (i.e. CSV) heading names are provdied
+        in all UPPERCASE you need to double quote them in the SQL select 
+        statement to avoid returning null results.
 
     :param sql: a single SQL select statement
     :type sql: string

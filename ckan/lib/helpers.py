@@ -25,7 +25,7 @@ from webhelpers import paginate
 import webhelpers.text as whtext
 import webhelpers.date as date
 from markdown import markdown
-from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
+from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from ckan.common import config, is_flask_request
 from flask import redirect as _flask_redirect
@@ -35,6 +35,7 @@ from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
+from six import string_types
 
 import ckan.exceptions
 import ckan.model as model
@@ -111,7 +112,7 @@ def _datestamp_to_datetime(datetime_):
 
     :rtype: datetime
     '''
-    if isinstance(datetime_, basestring):
+    if isinstance(datetime_, string_types):
         try:
             datetime_ = date_str_to_datetime(datetime_)
         except TypeError:
@@ -171,7 +172,7 @@ def redirect_to(*args, **kw):
     _url = ''
     skip_url_parsing = False
     parse_url = kw.pop('parse_url', False)
-    if uargs and len(uargs) is 1 and isinstance(uargs[0], basestring) \
+    if uargs and len(uargs) is 1 and isinstance(uargs[0], string_types) \
             and (uargs[0].startswith('/') or is_url(uargs[0])) \
             and parse_url is False:
         skip_url_parsing = True
@@ -358,7 +359,7 @@ def _url_for_flask(*args, **kw):
     # The API routes used to require a slash on the version number, make sure
     # we remove it
     if (args and args[0].startswith('api.') and
-            isinstance(kw.get('ver'), basestring) and
+            isinstance(kw.get('ver'), string_types) and
             kw['ver'].startswith('/')):
         kw['ver'] = kw['ver'].replace('/', '')
 
@@ -685,10 +686,23 @@ def are_there_flash_messages():
 
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
+    if is_flask_request():
+        return _link_active_flask(kwargs)
+    else:
+        return _link_active_pylons(kwargs)
+
+
+def _link_active_pylons(kwargs):
     highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split()
     return (c.controller == kwargs.get('controller')
             and c.action in highlight_actions)
+
+
+def _link_active_flask(kwargs):
+    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    return(kwargs.get('controller') == blueprint and
+           kwargs.get('action') == endpoint)
 
 
 def _link_to(text, *args, **kwargs):
@@ -731,6 +745,30 @@ def nav_link(text, *args, **kwargs):
     :param condition: if ``False`` then no link is returned
 
     '''
+    if is_flask_request():
+        return nav_link_flask(text, *args, **kwargs)
+    else:
+        return nav_link_pylons(text, *args, **kwargs)
+
+
+def nav_link_flask(text, *args, **kwargs):
+    if len(args) > 1:
+        raise Exception('Too many unnamed parameters supplied')
+    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    if args:
+        kwargs['controller'] = blueprint or None
+    named_route = kwargs.pop('named_route', '')
+    if kwargs.pop('condition', True):
+        if named_route:
+            link = _link_to(text, named_route, **kwargs)
+        else:
+            link = _link_to(text, **kwargs)
+    else:
+        link = ''
+    return link
+
+
+def nav_link_pylons(text, *args, **kwargs):
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
     if args:
@@ -923,8 +961,9 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
             facets.append(dict(active=True, **facet_item))
     # Sort descendingly by count and ascendingly by case-sensitive display name
     facets.sort(key=lambda it: (-it['count'], it['display_name'].lower()))
-    if c.search_facets_limits and limit is None:
-        limit = c.search_facets_limits.get(facet)
+    if hasattr(c, 'search_facets_limits'):
+        if c.search_facets_limits and limit is None:
+            limit = c.search_facets_limits.get(facet)
     # zero treated as infinite for hysterical raisins
     if limit is not None and limit > 0:
         return facets[:limit]
@@ -1013,7 +1052,7 @@ def get_param_int(name, default=10):
 def _url_with_params(url, params):
     if not params:
         return url
-    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v))
+    params = [(k, v.encode('utf-8') if isinstance(v, string_types) else str(v))
               for k, v in params]
     return url + u'?' + urlencode(params)
 
@@ -1105,7 +1144,7 @@ def linked_user(user, maxlength=0, avatar=20):
             ),
             link=tags.link_to(
                 displayname,
-                url_for(controller='user', action='read', id=name)
+                url_for('user.read', id=name)
             )
         ))
 
@@ -1235,13 +1274,18 @@ def gravatar(email_hash, size=100, default=None):
 
 @core_helper
 def pager_url(page, partial=None, **kwargs):
-    routes_dict = _pylons_default_url.environ['pylons.routes_dict']
-    kwargs['controller'] = routes_dict['controller']
-    kwargs['action'] = routes_dict['action']
-    if routes_dict.get('id'):
-        kwargs['id'] = routes_dict['id']
+    pargs = []
+    if is_flask_request():
+        pargs.append(request.endpoint)
+        # FIXME: add `id` param to kwargs if it really required somewhere
+    else:
+        routes_dict = _pylons_default_url.environ['pylons.routes_dict']
+        kwargs['controller'] = routes_dict['controller']
+        kwargs['action'] = routes_dict['action']
+        if routes_dict.get('id'):
+            kwargs['id'] = routes_dict['id']
     kwargs['page'] = page
-    return url_for(**kwargs)
+    return url_for(*pargs, **kwargs)
 
 
 class Page(paginate.Page):
@@ -1759,7 +1803,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     instead.
 
     '''
-    if isinstance(key, basestring):
+    if isinstance(key, string_types):
         keys = [key]
     else:
         keys = key
@@ -1848,7 +1892,7 @@ def groups_available(am_member=False):
       member of, otherwise return all groups that the user is authorized to
       edit (for example, sysadmin users are authorized to edit all groups)
       (optional, default: False)
-    :type am-member: boolean
+    :type am-member: bool
 
     '''
     context = {}
@@ -2064,7 +2108,7 @@ def render_markdown(data, auto_link=True, allow_html=False):
         data = markdown(data.strip())
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
-        data = clean_html(
+        data = bleach_clean(
             markdown(data), strip=True,
             tags=MARKDOWN_TAGS, attributes=MARKDOWN_ATTRIBUTES)
     # tags can be added by tag:... or tag:"...." and a link will be made
@@ -2094,7 +2138,7 @@ def format_resource_items(items):
                 # Sometimes values that can't be converted to ints can sneak
                 # into the db. In this case, just leave them as they are.
                 pass
-        elif isinstance(value, basestring):
+        elif isinstance(value, string_types):
             # check if strings are actually datetime/number etc
             if re.search(reg_ex_datetime, value):
                 datetime_ = date_str_to_datetime(value)
@@ -2418,7 +2462,7 @@ def resource_formats():
         with open(format_file_path) as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())
-            except ValueError, e:
+            except ValueError as e:
                 # includes simplejson.decoder.JSONDecodeError
                 raise ValueError('Invalid JSON syntax in %s: %s' %
                                  (format_file_path, e))
@@ -2491,7 +2535,7 @@ def get_translated(data_dict, field):
         return data_dict[field + u'_translated'][language]
     except KeyError:
         val = data_dict.get(field, '')
-        return _(val) if val and isinstance(val, basestring) else val
+        return _(val) if val and isinstance(val, string_types) else val
 
 
 @core_helper
@@ -2517,6 +2561,11 @@ def radio(selected, id, checked):
         value="%s" type="radio">') % (selected, id, selected, id))
 
 
+@core_helper
+def clean_html(html):
+    return bleach_clean(unicode(html))
+
+
 core_helper(flash, name='flash')
 core_helper(localised_number)
 core_helper(localised_SI_number)
@@ -2535,7 +2584,6 @@ core_helper(whtext.truncate)
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
-core_helper(clean_html, name='clean_html')
 
 
 def load_plugin_helpers():

@@ -7,6 +7,7 @@ import sys
 from collections import defaultdict
 
 import formencode.validators
+from six import string_types
 
 import ckan.model as model
 import ckan.authz as authz
@@ -132,7 +133,13 @@ def parse_params(params, ignore_keys=None):
     for key in params:
         if ignore_keys and key in ignore_keys:
             continue
-        value = params.getall(key)
+        # flask request has `getlist` instead of pylons' `getall`
+
+        if hasattr(params, 'getall'):
+            value = params.getall(key)
+        else:
+            value = params.getlist(key)
+
         # Blank values become ''
         if not value:
             value = ''
@@ -169,7 +176,7 @@ def clean_dict(data_dict):
         if not isinstance(value, list):
             continue
         for inner_dict in value[:]:
-            if isinstance(inner_dict, basestring):
+            if isinstance(inner_dict, string_types):
                 break
             if not any(inner_dict.values()):
                 value.remove(inner_dict)
@@ -297,7 +304,7 @@ def check_access(action, context, data_dict=None):
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)
-    except NotAuthorized, e:
+    except NotAuthorized as e:
         log.debug(u'check access NotAuthorized - %s user=%s "%s"',
                   action, user, unicode(e))
         raise
@@ -510,7 +517,7 @@ def get_or_bust(data_dict, keys):
         not in the given dictionary
 
     '''
-    if isinstance(keys, basestring):
+    if isinstance(keys, string_types):
         keys = [keys]
 
     import ckan.logic.schema as schema
@@ -638,6 +645,14 @@ def auth_disallow_anonymous_access(action):
     return wrapper
 
 
+def chained_auth_function(func):
+    '''
+    Decorator function allowing authentication functions to be chained.
+    '''
+    func.chained_auth_function = True
+    return func
+
+
 class UnknownValidator(Exception):
     '''Exception raised when a requested validator function cannot be found.
 
@@ -677,12 +692,8 @@ def get_validator(validator):
         converters = _import_module_functions('ckan.logic.converters')
         _validators_cache.update(converters)
 
-        for plugin in p.PluginImplementations(p.IValidators):
+        for plugin in reversed(list(p.PluginImplementations(p.IValidators))):
             for name, fn in plugin.get_validators().items():
-                if name in _validators_cache:
-                    raise NameConflict(
-                        'The validator %r is already defined' % (name,)
-                    )
                 log.debug('Validator function {0} from plugin {1} was inserted'
                           .format(name, plugin.name))
                 _validators_cache[name] = fn

@@ -6,21 +6,40 @@
 
 {% block primary_content_inner %}
 
-  {{ form.errors(error_summary) }}
+{{ form.errors(error_summary) }}
 
   <form method='post' action="" class="form-horizontal" id="admin-config-form" enctype="multipart/form-data">
     {% block admin_form %}
-      {{ autoform.generate(form_items, data, errors) }}
+
+    {{ form.input('ckan.site_title', id='field-ckan-site-title', label=_('Site Title'), value=data['ckan.site_title'], error=error, classes=['control-medium']) }}
+
+    {{ form.select('ckan.main_css', id='field-ckan-main-css', label=_('Style'), options=styles, selected=data['ckan.main_css'], error=error) }}
+
+    {{ form.input('ckan.site_description', id='field-ckan-site-description', label=_('Site Tag Line'), value=data['ckan.site_description'], error=error, classes=['control-medium']) }}
+
+    {% set field_url = 'ckan.site_logo' %}
+    {% set is_upload = data[field_url] and not data[field_url].startswith('http') %}
+    {% set is_url = data[field_url] and data[field_url].startswith('http') %}
+    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label = _('Site logo'), url_label=_('Site logo'),  field_url=field_url, field_upload='logo_upload', field_clear='clear_logo_upload' )}}
+
+    {{ form.markdown('ckan.site_about', id='field-ckan-site-about', label=_('About'), value=data['ckan.site_about'], error=error, placeholder=_('About page text')) }}
+
+    {{ form.markdown('ckan.site_intro_text', id='field-ckan-site-intro-text', label=_('Intro Text'), value=data['ckan.site_intro_text'], error=error, placeholder=_('Text on home page')) }}
+
+    {{ form.textarea('ckan.site_custom_css', id='field-ckan-site-custom-css', label=_('Custom CSS'), value=data['ckan.site_custom_css'], error=error, placeholder=_('Customisable css inserted into the page header')) }}
+
+    {{ form.select('ckan.homepage_style', id='field-homepage-style', label=_('Homepage'), options=homepages, selected=data['ckan.homepage_style'], error=error) }}
+
     {% endblock %}
     <div class="form-actions">
-      <a href="{% url_for controller='admin', action='reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to reset the config?') }}">{{ _('Reset') }}</a>
-      <button type="submit" class="btn btn-primary" name="save">{{ _('Update Config') }}</button>
+        <a href="{% url_for 'admin.reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to reset the config?') }}">{{ _('Reset') }}</a>
+        <button type="submit" class="btn btn-primary" name="save">{{ _('Update Config') }}</button>
     </div>
-  </form>
+</form>
 {% endblock %}
 
 {% block secondary_content %}
-  <div class="module module-narrow module-shallow">
+<div class="module module-narrow module-shallow">
     <h2 class="module-heading">
       <i class="fa fa-info-circle"></i>
       {{ _('CKAN config options') }}

@@ -1,7 +1,10 @@
 # encoding: utf-8
 
+import functools
 import sys
 import re
+
+from collections import defaultdict
 from logging import getLogger
 
 from ckan.common import config
@@ -36,6 +39,14 @@ class AuthFunctions:
         if not self._functions:
             self._build()
         return self._functions.get(function)
+
+    @staticmethod
+    def _is_chained_auth_function(func):
+        '''
+        Helper function to check if a function is a chained auth function, i.e.
+        it has been decorated with the chain auth function decorator.
+        '''
+        return getattr(func, 'chained_auth_function', False)
 
     def _build(self):
         ''' Gather the auth functions.
@@ -74,17 +85,31 @@ class AuthFunctions:
         # Then overwrite them with any specific ones in the plugins:
         resolved_auth_function_plugins = {}
         fetched_auth_functions = {}
+        chained_auth_functions = defaultdict(list)
         for plugin in p.PluginImplementations(p.IAuthFunctions):
             for name, auth_function in plugin.get_auth_functions().items():
-                if name in resolved_auth_function_plugins:
+                if self._is_chained_auth_function(auth_function):
+                    chained_auth_functions[name].append(auth_function)
+                elif name in resolved_auth_function_plugins:
                     raise Exception(
                         'The auth function %r is already implemented in %r' % (
                             name,
                             resolved_auth_function_plugins[name]
                         )
                     )
-                resolved_auth_function_plugins[name] = plugin.name
-                fetched_auth_functions[name] = auth_function
+                else:
+                    resolved_auth_function_plugins[name] = plugin.name
+                    fetched_auth_functions[name] = auth_function
+
+        for name, func_list in chained_auth_functions.iteritems():
+            if name not in fetched_auth_functions:
+                raise Exception('The auth %r is not found for chained auth' % (
+                    name))
+            # create the chain of functions in the correct order
+            for func in reversed(func_list):
+                prev_func = fetched_auth_functions[name]
+                fetched_auth_functions[name] = functools.partial(func, prev_func)
+
         # Use the updated ones in preference to the originals.
         self._functions.update(fetched_auth_functions)
 

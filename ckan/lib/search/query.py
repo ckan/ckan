@@ -49,7 +49,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
     non_solr_params = set(legacy_params.keys()) - VALID_SOLR_PARAMETERS
     for search_key in non_solr_params:
         value_obj = legacy_params[search_key]
-        value = value_obj.replace('+', ' ') if isinstance(value_obj, basestring) else value_obj
+        value = value_obj.replace('+', ' ') if isinstance(value_obj, six.string_types) else value_obj
         if search_key == 'all_fields':
             if value:
                 solr_params['fl'] = '*'
@@ -62,7 +62,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
         elif search_key == 'tags':
             if isinstance(value_obj, list):
                 tag_list = value_obj
-            elif isinstance(value_obj, basestring):
+            elif isinstance(value_obj, six.string_types):
                 tag_list = [value_obj]
             else:
                 raise SearchQueryError('Was expecting either a string or JSON list for the tags parameter: %r' % value)
@@ -173,7 +173,7 @@ class TagSearchQuery(SearchQuery):
         else:
             options.update(kwargs)
 
-        if isinstance(query, basestring):
+        if isinstance(query, six.string_types):
             query = [query]
 
         query = query[:] # don't alter caller's query list.
@@ -220,7 +220,7 @@ class ResourceSearchQuery(SearchQuery):
         # action.
         query = []
         for field, terms in fields.items():
-            if isinstance(terms, basestring):
+            if isinstance(terms, six.string_types):
                 terms = terms.split()
             for term in terms:
                 query.append(':'.join([field, term]))
@@ -270,7 +270,7 @@ class PackageSearchQuery(SearchQuery):
         log.debug('Package query: %r' % query)
         try:
             solr_response = conn.search(**query)
-        except pysolr.SolrError, e:
+        except pysolr.SolrError as e:
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))
 
@@ -358,7 +358,7 @@ class PackageSearchQuery(SearchQuery):
         log.debug('Package query: %r' % query)
         try:
             solr_response = conn.search(**query)
-        except pysolr.SolrError, e:
+        except pysolr.SolrError as e:
             # Error with the sort parameter.  You see slightly different
             # error messages depending on whether the SOLR JSON comes back
             # or Jetty gets in the way converting it to HTML - not sure why

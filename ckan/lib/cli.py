@@ -22,13 +22,13 @@ from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
 import click
 
+from ckan.config.middleware import make_app
 import ckan.logic as logic
 import ckan.model as model
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.plugins as p
 from ckan.common import config
-from ckan.tests.helpers import _get_test_app
 
 # This is a test Flask request context to be used internally.
 # Do not use it!
@@ -140,7 +140,7 @@ def user_add(args):
         }
         user_dict = logic.get_action('user_create')(context, data_dict)
         pprint(user_dict)
-    except logic.ValidationError, e:
+    except logic.ValidationError as e:
         error(traceback.format_exc())
 
 ## from http://code.activestate.com/recipes/577058/ MIT licence.
@@ -232,7 +232,9 @@ def load_config(config, load_site_user=True):
     # Set this internal test request context with the configured environment so
     # it can be used when calling url_for from the CLI.
     global _cli_test_request_context
-    flask_app = _get_test_app().flask_app
+
+    app = make_app(conf.global_conf, **conf.local_conf)
+    flask_app = app.apps['flask_app']._wsgi_app
     _cli_test_request_context = flask_app.test_request_context()
 
     registry = Registry()
@@ -1076,7 +1078,7 @@ class Celery(CkanCommand):
         from ckan.lib.celery_app import celery
         celery_args = []
         if len(self.args) == 2 and self.args[1] == 'concurrency':
-            celery_args.append['--concurrency=1']
+            celery_args.append('--concurrency=1')
         celery.worker_main(argv=['celeryd', '--loglevel=INFO'] + celery_args)
 
     def view(self):

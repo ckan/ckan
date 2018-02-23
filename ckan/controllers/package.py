@@ -9,6 +9,7 @@ import cgi
 from ckan.common import config
 from paste.deploy.converters import asbool
 import paste.fileapp
+from six import string_types
 
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -45,7 +46,7 @@ lookup_package_plugin = ckan.lib.plugins.lookup_package_plugin
 
 
 def _encode_params(params):
-    return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v))
+    return [(k, v.encode('utf-8') if isinstance(v, string_types) else str(v))
             for k, v in params]
 
 
@@ -225,15 +226,29 @@ class PackageController(base.BaseController):
                        'user': c.user, 'for_view': True,
                        'auth_user_obj': c.userobj}
 
-            if package_type and package_type != 'dataset':
+            # Unless changed via config options, don't show other dataset
+            # types any search page. Potential alternatives are do show them
+            # on the default search page (dataset) or on one other search page
+            search_all_type = config.get(
+                                  'ckan.search.show_all_types', 'dataset')
+            search_all = False
+
+            try:
+                # If the "type" is set to True or False, convert to bool
+                # and we know that no type was specified, so use traditional
+                # behaviour of applying this only to dataset type
+                search_all = asbool(search_all_type)
+                search_all_type = 'dataset'
+            # Otherwise we treat as a string representing a type
+            except ValueError:
+                search_all = True
+
+            if not package_type:
+                package_type = 'dataset'
+
+            if not search_all or package_type != search_all_type:
                 # Only show datasets of this particular type
                 fq += ' +dataset_type:{type}'.format(type=package_type)
-            else:
-                # Unless changed via config options, don't show non standard
-                # dataset types on the default search page
-                if not asbool(
-                        config.get('ckan.search.show_all_types', 'False')):
-                    fq += ' +dataset_type:dataset'
 
             facets = OrderedDict()
 
@@ -281,14 +296,14 @@ class PackageController(base.BaseController):
             )
             c.search_facets = query['search_facets']
             c.page.items = query['results']
-        except SearchQueryError, se:
+        except SearchQueryError as se:
             # User's search parameters are invalid, in such a way that is not
             # achievable with the web interface, so return a proper error to
             # discourage spiders which are the main cause of this.
             log.info('Dataset search query rejected: %r', se.args)
             abort(400, _('Invalid search query: {error_message}')
                   .format(error_message=str(se)))
-        except SearchError, se:
+        except SearchError as se:
             # May be bad input from the user, but may also be more serious like
             # bad code causing a SOLR syntax error, or a problem connecting to
             # SOLR
@@ -355,9 +370,9 @@ class PackageController(base.BaseController):
                 try:
                     date = h.date_str_to_datetime(revision_ref)
                     context['revision_date'] = date
-                except TypeError, e:
+                except TypeError as e:
                     abort(400, _('Invalid revision format: %r') % e.args)
-                except ValueError, e:
+                except ValueError as e:
                     abort(400, _('Invalid revision format: %r') % e.args)
         elif len(split) > 2:
             abort(400, _('Invalid revision format: %r') %
@@ -571,7 +586,7 @@ class PackageController(base.BaseController):
                     get_action('resource_update')(context, data)
                 else:
                     get_action('resource_create')(context, data)
-            except ValidationError, e:
+            except ValidationError as e:
                 errors = e.error_dict
                 error_summary = e.error_summary
                 return self.resource_edit(id, resource_id, data,
@@ -677,7 +692,7 @@ class PackageController(base.BaseController):
                     get_action('resource_update')(context, data)
                 else:
                     get_action('resource_create')(context, data)
-            except ValidationError, e:
+            except ValidationError as e:
                 errors = e.error_dict
                 error_summary = e.error_summary
                 return self.new_resource(id, data, errors, error_summary)
@@ -920,17 +935,17 @@ class PackageController(base.BaseController):
                                      package_type=package_type)
         except NotAuthorized:
             abort(403, _('Unauthorized to read package %s') % '')
-        except NotFound, e:
+        except NotFound as e:
             abort(404, _('Dataset not found'))
         except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
-        except SearchIndexError, e:
+        except SearchIndexError as e:
             try:
                 exc_str = unicode(repr(e.args))
             except Exception:  # We don't like bare excepts
                 exc_str = unicode(str(e))
             abort(500, _(u'Unable to add package to search index.') + exc_str)
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             if is_an_update:
@@ -968,17 +983,17 @@ class PackageController(base.BaseController):
                                      package_type=package_type)
         except NotAuthorized:
             abort(403, _('Unauthorized to read package %s') % id)
-        except NotFound, e:
+        except NotFound as e:
             abort(404, _('Dataset not found'))
         except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
-        except SearchIndexError, e:
+        except SearchIndexError as e:
             try:
                 exc_str = unicode(repr(e.args))
             except Exception:  # We don't like bare excepts
                 exc_str = unicode(str(e))
             abort(500, _(u'Unable to update search index.') + exc_str)
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             return self.edit(name_or_id, data_dict, errors, error_summary)
@@ -1421,7 +1436,7 @@ class PackageController(base.BaseController):
         # update resource should tell us early if the user has privilages.
         try:
             check_access('resource_update', context, {'id': resource_id})
-        except NotAuthorized, e:
+        except NotAuthorized as e:
             abort(403, _('User %r not authorized to edit %s') % (c.user, id))
 
         # get resource and package data
@@ -1461,7 +1476,7 @@ class PackageController(base.BaseController):
                     data = get_action('resource_view_update')(context, data)
                 else:
                     data = get_action('resource_view_create')(context, data)
-            except ValidationError, e:
+            except ValidationError as e:
                 # Could break preview if validation error
                 to_preview = False
                 errors = e.error_dict

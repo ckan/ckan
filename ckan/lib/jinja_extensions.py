@@ -11,6 +11,8 @@ from jinja2.exceptions import TemplateNotFound
 from jinja2.utils import open_if_exists, escape
 from jinja2 import Environment
 
+from six.moves import xrange
+
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 
@@ -178,7 +180,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 continue
             try:
                 contents = f.read().decode(self.encoding)
-            except UnicodeDecodeError, e:
+            except UnicodeDecodeError as e:
                 log.critical(
                     'Template corruption in `%s` unicode decode errors'
                     % filename
