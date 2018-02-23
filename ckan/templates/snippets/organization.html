@@ -15,7 +15,7 @@ Example:
 #}
 
 {% set truncate = truncate or 0 %}
-{% set url = h.url_for(controller='organization', action='read', id=organization.name) %}
+{% set url = h.url_for(organization.type + '_read', id=organization.name, ) %}
 
   {% block info %}
   <div class="module module-narrow module-shallow context-info">
