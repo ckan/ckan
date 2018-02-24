@@ -314,12 +314,10 @@ class PackageSearchIndex(SearchIndex):
             log.exception(e)
             raise SearchIndexError(e)
 
-
     def delete_package(self, pkg_dict):
         conn = make_connection()
-        query = "+%s:%s (+id:\"%s\" OR +name:\"%s\") +site_id:\"%s\"" % (TYPE_FIELD, PACKAGE_TYPE,
-                                                       pkg_dict.get('id'), pkg_dict.get('id'),
-                                                       config.get('ckan.site_id'))
+        query = "+%s:%s AND +(id:\"%s\" OR name:\"%s\") AND +site_id:\"%s\"" % \
+                (TYPE_FIELD, PACKAGE_TYPE, pkg_dict.get('id'), pkg_dict.get('id'), config.get('ckan.site_id'))
         try:
             commit = asbool(config.get('ckan.search.solr_commit', 'true'))
             conn.delete(q=query, commit=commit)
