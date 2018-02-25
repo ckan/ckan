@@ -1550,16 +1550,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             self._log_or_raise(
                 'CKAN and DataStore database cannot be the same.')
 
-        # in legacy mode, the read and write url are the same (both write url)
-        # consequently the same url check and and write privilege check
-        # don't make sense
-        if not self.legacy_mode:
-            if self._same_read_and_write_url():
-                self._log_or_raise('The write and read-only database '
-                                   'connection urls are the same.')
+        if self._same_read_and_write_url():
+            self._log_or_raise('The write and read-only database '
+                               'connection urls are the same.')
 
-            if not self._read_connection_has_correct_privileges():
-                self._log_or_raise('The read-only user has write privileges.')
+        if not self._read_connection_has_correct_privileges():
+            self._log_or_raise('The read-only user has write privileges.')
 
     def _is_read_only_database(self):
         ''' Returns True if no connection has CREATE privileges on the public
@@ -1614,25 +1610,14 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             write_connection.close()
         return True
 
-    def is_legacy_mode(self, config):
-        '''
-            Decides if the DataStore should run on legacy mode
-
-            Returns True if `ckan.datastore.read_url` is not set in the
-            provided config object or CKAN is running on Postgres < 9.x
-        '''
-
-        engine = self._get_write_engine()
-        connection = engine.connect()
-
-        return (not config.get('ckan.datastore.read_url') or
-                not _pg_version_is_at_least(connection, '9.0'))
-
     def configure(self, config):
         self.config = config
         # check for ckan.datastore.write_url and ckan.datastore.read_url
         if ('ckan.datastore.write_url' not in config):
             error_msg = 'ckan.datastore.write_url not found in config'
+            raise DatastoreException(error_msg)
+        if ('ckan.datastore.read_url' not in config):
+            error_msg = 'ckan.datastore.read_url not found in config'
             raise DatastoreException(error_msg)
 
         # Check whether users have disabled datastore_search_sql
@@ -1649,15 +1634,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore.write_url']
-
-        self.legacy_mode = self.is_legacy_mode(config)
-
-        if self.legacy_mode:
-            self.read_url = self.write_url
-            log.warn('Legacy mode active. '
-                     'The sql search will not be available.')
-        else:
-            self.read_url = self.config['ckan.datastore.read_url']
+        self.read_url = self.config['ckan.datastore.read_url']
 
         self.read_engine = self._get_read_engine()
         if not model.engine_is_pg(self.read_engine):
