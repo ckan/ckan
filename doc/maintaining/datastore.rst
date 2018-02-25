@@ -125,8 +125,6 @@ Replace ``pass`` with the passwords you created for your |database_user| and
 Set permissions
 ---------------
 
-.. tip:: See :ref:`legacy-mode` if these steps continue to fail or seem too complicated for your set-up. However, keep in mind that the legacy mode is limited in its capabilities.
-
 Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a paster command to help you correctly set these permissions.
 
 If you are able to use the ``psql`` command to connect to your database as a
@@ -192,29 +190,6 @@ You can now delete the DataStore table with::
     curl -X POST http://127.0.0.1:5000/api/3/action/datastore_delete -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}"}'
 
 To find out more about the DataStore API, see `The DataStore API`_.
-
-
-.. _legacy-mode:
-
-Legacy mode: use the DataStore with old PostgreSQL versions
-===========================================================
-
-.. tip:: The legacy mode can also be used to simplify the set-up since it does not require you to set the permissions or create a separate user.
-
-The DataStore can be used with a PostgreSQL version prior to 9.0 in *legacy mode*. Due to the lack of some functionality, the :meth:`~ckanext.datastore.logic.action.datastore_search_sql` and consequently the :ref:`datastore_search_htsql` cannot be used. To enable the legacy mode, remove the declaration of the ``ckan.datastore.read_url``.
-
-The set-up for legacy mode is analogous to the normal set-up as described above with a few changes and consists of the following steps:
-
-1. Enable the plugin
-2. The legacy mode is enabled by **not** setting the ``ckan.datastore.read_url``
-#. Set-Up the database
-
-   a) Create a separate database
-   #) Create a write user on the DataStore database (optional since the CKAN user can be used)
-
-#. Test the set-up
-
-There is no need for a read-only user or special permissions. Therefore the legacy mode can be used for simple set-ups as well.
 
 
 ---------------------------------------------------

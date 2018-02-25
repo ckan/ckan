@@ -41,7 +41,6 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(interfaces.IDatastore, inherit=True)
     p.implements(interfaces.IDatastoreBackend, inherit=True)
 
-    legacy_mode = False
     resource_show_action = None
 
     def __new__(cls, *args, **kwargs):
@@ -81,13 +80,6 @@ class DatastorePlugin(p.SingletonPlugin):
         self.config = config
         self.backend.configure(config)
 
-        # Legacy mode means that we have no read url. Consequently sql search
-        # is not available and permissions do not have to be changed. In
-        # legacy mode, the datastore runs on PG prior to 9.0 (for
-        # example 8.4).
-        if hasattr(self.backend, 'is_legacy_mode'):
-            self.legacy_mode = self.backend.is_legacy_mode(self.config)
-
     # IActions
 
     def get_actions(self):
@@ -101,12 +93,11 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_function_delete': action.datastore_function_delete,
             'datastore_run_triggers': action.datastore_run_triggers,
         }
-        if not self.legacy_mode:
-            if getattr(self.backend, 'enable_sql_search', False):
-                # Only enable search_sql if the config does not disable it
-                actions.update({
-                    'datastore_search_sql': action.datastore_search_sql,
-                })
+        if getattr(self.backend, 'enable_sql_search', False):
+            # Only enable search_sql if the config/backend does not disable it
+            actions.update({
+                'datastore_search_sql': action.datastore_search_sql,
+            })
         return actions
 
     # IAuthFunctions
