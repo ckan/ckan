@@ -483,9 +483,8 @@ def datastore_search_sql(context, data_dict):
     engine is the
     `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
-    DataStore resource that belong to a private CKAN resource cannot be
-    searched with this action. Use
-    :meth:`~ckanext.datastore.logic.action.datastore_search` instead.
+    Queries are only allowed if you have access to the all the CKAN resources
+    in the query and send the appropriate authorization.
 
     .. note:: This action is only available when using PostgreSQL 9.X and
         using a read-only user on the database.
