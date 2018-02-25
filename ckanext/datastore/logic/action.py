@@ -148,13 +148,15 @@ def datastore_create(context, data_dict):
 
     try:
         result = backend.create(context, data_dict)
-
     except InvalidDataError as err:
         raise p.toolkit.ValidationError(unicode(err))
+
     # Set the datastore_active flag on the resource if necessary
-    if resource.extras.get('datastore_active') is not True:
+    model = _get_or_bust(context, 'model')
+    resobj = model.Resource.get(data_dict['resource_id'])
+    if resobj.extras.get('datastore_active') is not True:
         log.debug(
-            'Setting datastore_active=True on resource {0}'.format(resource.id)
+            'Setting datastore_active=True on resource {0}'.format(resobj.id)
         )
         set_datastore_active_flag(model, data_dict, True)
 
