@@ -9,6 +9,7 @@ import sqlparse
 from six import string_types
 
 from ckan.plugins.toolkit import get_action, ObjectNotFound, NotAuthorized
+from ckanext.datastore.backend import DatastoreBackend
 
 log = logging.getLogger(__name__)
 
@@ -164,3 +165,8 @@ def datastore_dictionary(resource_id):
             if not f['id'].startswith(u'_')]
     except (ObjectNotFound, NotAuthorized):
         return []
+
+
+def resource_query_enabled():
+    backend = DatastoreBackend.get_active_backend()
+    return getattr(backend, 'enable_resource_query', False)

@@ -274,7 +274,9 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            'datastore_dictionary': datastore_helpers.datastore_dictionary}
+            'datastore_dictionary': datastore_helpers.datastore_dictionary,
+            'resource_query_enabled': datastore_helpers.resource_query_enabled,
+        }
 
     # IForkObserver
 
@@ -289,7 +291,10 @@ class DatastorePlugin(p.SingletonPlugin):
     # IValidators
 
     def get_validators(self):
-        return {u'datastore_resource_query': datastore_resource_query}
+        if getattr(self.backend, 'enable_resource_query', False):
+            return {u'datastore_resource_query': datastore_resource_query}
+        else:
+            return {}
 
 
 def datastore_resource_query(key, data, errors, context):

@@ -2566,6 +2566,13 @@ def clean_html(html):
     return bleach_clean(unicode(html))
 
 
+@core_helper
+def resource_query_enabled():
+    '''Placeholder to report whether resource query feature is available,
+    overridden by datastore extension'''
+    return False
+
+
 core_helper(flash, name='flash')
 core_helper(localised_number)
 core_helper(localised_SI_number)

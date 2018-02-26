@@ -270,6 +270,23 @@ Default value:  ``True``
 This option allows you to disable the datastore_search_sql action function, and
 corresponding API endpoint if you do not wish it to be activated.
 
+.. _ckan.datastore.resource_query.enabled:
+
+ckan.datastore.resource_query.enabled
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.resource_query.enabled = False
+
+Default value:  ``True``
+
+This option allows you to disable the resource query feature and the
+datastore_create ``create_table_as_sql`` parameter it is based on.
+Setting :ref:`ckan.datastore.sqlsearch.enabled` to ``False`` also disables
+resource queries.
+
+
 Site Settings
 -------------
 

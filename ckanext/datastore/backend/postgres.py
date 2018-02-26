@@ -1622,9 +1622,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             error_msg = 'ckan.datastore.read_url not found in config'
             raise DatastoreException(error_msg)
 
-        # Check whether users have disabled datastore_search_sql
+        # Check whether users have disabled datastore_search_sql,
+        # resource queries
         self.enable_sql_search = toolkit.asbool(
             self.config.get('ckan.datastore.sqlsearch.enabled', True))
+        self.enable_resource_query = self.enable_sql_search and toolkit.asbool(
+            self.config.get('ckan.datastore.resource_query.enabled', True))
 
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.

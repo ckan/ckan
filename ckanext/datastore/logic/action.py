@@ -38,8 +38,7 @@ def datastore_create(context, data_dict):
     ``resource_id``.
 
     To create a table with data from other DataStore tables pass a
-    select statement as the ``create_table_as_sql`` parameter. Update
-    data after the source data has changed by calling ``datastore_refresh``.
+    select statement as the ``create_table_as_sql`` parameter.
 
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
@@ -56,6 +55,9 @@ def datastore_create(context, data_dict):
     :type aliases: list or comma separated string
     :param create_table_as_sql: a single SQL select statement to create
         table based on other DataStore data. (optional)
+        Both :ref:`ckan.datastore.sqlsearch.enabled` and
+        :ref:`ckan.datastore.resource_query.enabled` must be set
+        to ``True`` to use this parameter.
     :type create_table_as_sql: string
     :param fields: fields/columns and their extra metadata.
         (optional)
@@ -115,6 +117,9 @@ def datastore_create(context, data_dict):
         except p.toolkit.NotAuthorized as e:
             raise p.toolkit.ValidationError(
                 {'create_table_as_sql': e.message})
+        except KeyError:
+            raise p.toolkit.ValidationError(
+                {'create_table_as_sql': 'Feature not enabled'})
 
     if 'resource' in data_dict and 'resource_id' in data_dict:
         raise p.toolkit.ValidationError({
