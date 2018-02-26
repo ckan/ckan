@@ -208,6 +208,29 @@ alongside CKAN.
 To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
 
 
+.. _query_resources:
+
+---------------
+Query Resources
+---------------
+
+Once data has been loaded into the DataStore new DataStore tables
+may be created based on that data using Query Resources.
+
+Query Resources create DataStore tables directly from an SQL Query.
+Click the Query button when creating or editing a resource to set the
+SQL Query. A DataStore table is created and data is loaded immediately
+after saving the resource.
+
+Query Resources may be based on any existing tables, including tables
+attached to private datasets. They may be used to join, filter or
+aggregate existing data for visualizations, data transformations or
+publishing partial data.
+
+Users with permission to edit the Query Resource may refresh the data in
+by clicking the "Run Query" button on the resource view page.
+
+
 .. _data_dictionary:
 
 ---------------
