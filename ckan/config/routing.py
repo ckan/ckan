@@ -262,19 +262,23 @@ def make_map():
                   highlight_actions='index search')
         m.connect('group_list', '/group/list', action='list')
         m.connect('group_new', '/group/new', action='new')
-        m.connect('group_action', '/group/{action}/{id}',
-                  requirements=dict(action='|'.join([
-                      'edit',
-                      'delete',
-                      'member_new',
-                      'member_delete',
-                      'history',
-                      'followers',
-                      'follow',
-                      'unfollow',
-                      'admins',
-                      'activity',
-                  ])))
+
+        for action in [
+              'edit',
+              'delete',
+              'member_new',
+              'member_delete',
+              'history',
+              'followers',
+              'follow',
+              'unfollow',
+              'admins',
+              'activity',
+          ]:
+            m.connect('group_' + action,
+                      '/group/' + action + '/{id}',
+                      action=action)
+
         m.connect('group_about', '/group/about/{id}', action='about',
                   ckan_icon='info-circle'),
         m.connect('group_edit', '/group/edit/{id}', action='edit',
@@ -289,16 +293,18 @@ def make_map():
     # organizations these basically end up being the same as groups
     with SubMapper(map, controller='organization') as m:
         m.connect('organizations_index', '/organization', action='index')
-        m.connect('/organization/list', action='list')
-        m.connect('/organization/new', action='new')
-        m.connect('/organization/{action}/{id}',
-                  requirements=dict(action='|'.join([
-                      'delete',
-                      'admins',
-                      'member_new',
-                      'member_delete',
-                      'history'
-                  ])))
+        m.connect('organization_index', '/organization', action='index')
+        m.connect('organization_new', '/organization/new', action='new')
+        for action in [
+          'delete',
+          'admins',
+          'member_new',
+          'member_delete',
+          'history']:
+            m.connect('organization_' + action,
+                      '/organization/' + action + '/{id}',
+                      action=action)
+
         m.connect('organization_activity', '/organization/activity/{id}/{offset}',
                   action='activity', ckan_icon='clock-o')
         m.connect('organization_read', '/organization/{id}', action='read')
