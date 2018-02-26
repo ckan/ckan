@@ -278,6 +278,19 @@ class TestApiController(helpers.FunctionalTestBase):
         eq_(sorted(res_dict['result']),
             sorted([dataset1['name'], dataset2['name']]))
 
+    def test_jsonp_returns_javascript_content_type(self):
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='status_show',
+            ver='/3')
+        app = self._get_test_app()
+        res = app.get(
+            url=url,
+            params={'callback': 'my_callback'},
+        )
+        assert_in('application/javascript', res.headers.get('Content-Type'))
+
     def test_jsonp_does_not_work_on_post_requests(self):
 
         dataset1 = factories.Dataset()
