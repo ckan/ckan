@@ -13,10 +13,13 @@ import re
 import itertools
 import json
 import logging
-import urlparse
 from optparse import OptionConflictError
 import traceback
 
+from six.moves import input, xrange
+from six.moves.urllib.error import HTTPError
+from six.moves.urllib.parse import urljoin, urlparse
+from six.moves.urllib.request import urlopen
 import sqlalchemy as sa
 import routes
 import paste.script
@@ -112,8 +115,8 @@ def user_add(args):
             )
 
     # Required
-    while not data_dict.get('email'):
-        data_dict['email'] = raw_input('Email address: ')
+    while '@' not in data_dict.get('email', ''):
+        data_dict['email'] = input('Email address: ').strip()
 
     if 'password' not in data_dict:
         data_dict['password'] = UserCmd.password_prompt()
@@ -148,7 +151,7 @@ def user_add(args):
 ## from http://code.activestate.com/recipes/577058/ MIT licence.
 ## Written by Trent Mick
 def query_yes_no(question, default="yes"):
-    """Ask a yes/no question via raw_input() and return their answer.
+    """Ask a yes/no question via input() and return their answer.
 
     "question" is a string that is presented to the user.
     "default" is the presumed answer if the user just hits <Enter>.
@@ -170,13 +173,13 @@ def query_yes_no(question, default="yes"):
 
     while 1:
         sys.stdout.write(question + prompt)
-        choice = raw_input().lower()
+        choice = input().strip().lower()
         if default is not None and choice == '':
             return default
         elif choice in valid.keys():
             return valid[choice]
         else:
-            sys.stdout.write("Please respond with 'yes' or 'no' "\
+            sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
 
 
@@ -259,7 +262,7 @@ def load_config(config, load_site_user=True):
         pylons.c.userobj = model.User.get(site_user['name'])
 
     ## give routes enough information to run url_for
-    parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
+    parsed = urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
     request_config = routes.request_config()
     request_config.host = parsed.netloc + parsed.path
     request_config.protocol = parsed.scheme
@@ -716,8 +719,6 @@ class RDFExport(CkanCommand):
         '''
         Export datasets as RDF to an output folder.
         '''
-        import urlparse
-        import urllib2
         from ckan.common import config
         import ckan.model as model
         import ckan.logic as logic
@@ -738,12 +739,12 @@ class RDFExport(CkanCommand):
 
             url = h.url_for(controller='package', action='read', id=dd['name'])
 
-            url = urlparse.urljoin(fetch_url, url[1:]) + '.rdf'
+            url = urljoin(fetch_url, url[1:]) + '.rdf'
             try:
                 fname = os.path.join(out_folder, dd['name']) + ".rdf"
                 try:
-                    r = urllib2.urlopen(url).read()
-                except urllib2.HTTPError as e:
+                    r = urlopen(url).read()
+                except HTTPError as e:
                     if e.code == 404:
                         error('Please install ckanext-dcat and enable the ' +
                               '`dcat` plugin to use the RDF serializations')
@@ -812,7 +813,7 @@ class Sysadmin(CkanCommand):
         user = model.User.by_name(unicode(username))
         if not user:
             print('User "%s" not found' % username)
-            makeuser = raw_input('Create new user: %s? [y/n]' % username)
+            makeuser = input('Create new user: %s? [y/n]' % username)
             if makeuser == 'y':
                 user_add(self.args[1:])
                 user = model.User.by_name(unicode(username))
