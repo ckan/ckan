@@ -4,7 +4,7 @@
 {% block subtitle %}{{ _("Datasets") }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{{ h.nav_link(_(dataset_type.title() + 's'), controller='package', action='search', named_route=dataset_type + '_search', highlight_actions = 'new index') }}</li>
+  <li class="active">{{ h.nav_link(_(dataset_type.title() + 's'), named_route='%s.search' % dataset_type, highlight_actions = 'new index') }}</li>
 {% endblock %}
 
 {% block primary_content %}
@@ -19,11 +19,11 @@
       {% endblock %}
       {% block form %}
         {% set facets = {
-          'fields': c.fields_grouped,
-          'search': c.search_facets,
-          'titles': c.facet_titles,
-          'translated_fields': c.translated_fields,
-          'remove_field': c.remove_field }
+          'fields': fields_grouped,
+          'search': search_facets,
+          'titles': facet_titles,
+          'translated_fields': translated_fields,
+          'remove_field': remove_field }
         %}
         {% set sorting = [
           (_('Relevance'), 'score desc, metadata_modified desc'),
@@ -32,15 +32,15 @@
           (_('Last Modified'), 'metadata_modified desc'),
           (_('Popular'), 'views_recent desc') if g.tracking_enabled else (false, false) ]
         %}
-        {% snippet 'snippets/search_form.html', form_id='dataset-search-form', type=dataset_type, query=c.q, sorting=sorting, sorting_selected=c.sort_by_selected, count=c.page.item_count, placeholder=_('Search ' + dataset_type + 's') + '...', facets=facets, show_empty=request.params, error=c.query_error, fields=c.fields %}
+        {% snippet 'snippets/search_form.html', form_id='dataset-search-form', type=dataset_type, query=q, sorting=sorting, sorting_selected=sort_by_selected, count=page.item_count, placeholder=_('Search ' + dataset_type + 's') + '...', facets=facets, show_empty=request.params, error=query_error, fields=fields %}
       {% endblock %}
       {% block package_search_results_list %}
-        {{ h.snippet('snippets/package_list.html', packages=c.page.items) }}
+        {{ h.snippet('snippets/package_list.html', packages=page.items) }}
       {% endblock %}
     </div>
 
     {% block page_pagination %}
-      {{ c.page.pager(q=c.q) }}
+      {{ page.pager(q=q) }}
     {% endblock %}
   </section>
 
@@ -72,11 +72,10 @@
 {% block secondary_content %}
 <div class="filters">
   <div>
-    {% for facet in c.facet_titles %}
-      {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet) }}
+    {% for facet in facet_titles %}
+      {{ h.snippet('snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets) }}
     {% endfor %}
   </div>
   <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
 </div>
 {% endblock %}
-

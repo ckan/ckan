@@ -19,7 +19,7 @@
       <p class="empty">
         {{ _('You haven\'t created any datasets.') }}
         {% if h.check_access('package_create') %}
-          {% link_for _('Create one now?'), controller='package', action='new' %}
+          {% link_for _('Create one now?'), named_route='dataset.new' %}
         {% endif %}
       </p>
     {% else %}

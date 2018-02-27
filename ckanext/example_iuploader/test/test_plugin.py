@@ -40,7 +40,7 @@ def _get_package_new_page(app):
     user = factories.User()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
     response = app.get(
-        url=url_for(controller='package', action='new'),
+        url=url_for('dataset.new'),
         extra_environ=env,
     )
     return env, response
@@ -105,8 +105,7 @@ class TestExampleIUploaderPlugin(helpers.FunctionalTestBase):
         assert_equal(pkg.resources[0].url_type, u'upload')
         assert_equal(pkg.state, 'active')
         url = url_for(
-            controller='package',
-            action='resource_download',
+            'resource.download',
             id=pkg.id,
             resource_id=pkg.resources[0].id
         )

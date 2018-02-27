@@ -3,7 +3,7 @@
 {% block resource_actions_inner %}
   {{ super() }}
   {% if res.datastore_active %}
-    <li>{% snippet 'package/snippets/data_api_button.html', resource=res,  datastore_root_url=c.datastore_api %}</li>
+    <li>{% snippet 'package/snippets/data_api_button.html', resource=res %}</li>
   {% endif %}
 {% endblock %}
 

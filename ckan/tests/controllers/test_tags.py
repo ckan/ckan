@@ -124,7 +124,7 @@ class TestTagRead(helpers.FunctionalTestBase):
         tag_url = url_for(controller='tag', action='read', id='find-me')
         tag_response = app.get(tag_url, status=302)
         assert_equal(tag_response.headers['Location'],
-                     'http://test.ckan.net/dataset?tags=find-me')
+                     'http://test.ckan.net/dataset/?tags=find-me')
 
     def test_tag_read_not_found(self):
         '''Attempting access to non-existing tag returns a 404'''

@@ -4,7 +4,9 @@ import logging
 import os
 import sys
 
-from ckan.common import c
+from flask import Blueprint
+
+from ckan.common import c, g
 from ckan.lib import base
 from ckan import logic
 import logic.schema
@@ -92,6 +94,8 @@ def register_package_plugins(map):
     if _default_package_plugin is not None:
         return
 
+    from ckan.views import dataset
+
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         if plugin.is_fallback():
@@ -103,20 +107,18 @@ def register_package_plugins(map):
         for package_type in plugin.package_types():
             # Create a connection between the newly named type and the
             # package controller
+            blueprint = Blueprint(
+                package_type, dataset.dataset.import_name,
+                url_prefix='/{}'.format(package_type),
+                url_defaults={'package_type': package_type})
 
-            map.connect('%s_search' % package_type, '/%s' % package_type,
-                        controller='package', action='search')
-
-            map.connect('%s_new' % package_type, '/%s/new' % package_type,
-                        controller='package', action='new')
-            map.connect('%s_read' % package_type, '/%s/{id}' % package_type,
-                        controller='package', action='read')
-
-            for action in ['edit', 'authz', 'history']:
-                map.connect('%s_%s' % (package_type, action),
-                            '/%s/%s/{id}' % (package_type, action),
-                            controller='package',
-                            action=action)
+            blueprint.add_url_rule(
+                '/', view_func=dataset.search, strict_slashes=False)
+            blueprint.add_url_rule(
+                '/new', view_func=dataset.CreateView.as_view(str(u'new')))
+            blueprint.add_url_rule('/<id>', view_func=dataset.read)
+            blueprint.add_url_rule(
+                '/edit/<id>', view_func=dataset.EditView.as_view(str(u'edit')))
 
             if package_type in _package_plugins:
                 raise ValueError("An existing IDatasetForm is "
@@ -312,35 +314,15 @@ class DefaultDatasetForm(object):
         return ckan.logic.schema.default_show_package_schema()
 
     def setup_template_variables(self, context, data_dict):
-        authz_fn = logic.get_action('group_list_authz')
-        c.groups_authz = authz_fn(context, data_dict)
         data_dict.update({'available_only': True})
-
-        c.groups_available = authz_fn(context, data_dict)
-
-        c.licenses = [('', '')] + base.model.Package.get_license_options()
-        c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
-
-        if context.get('revision_id') or context.get('revision_date'):
-            if context.get('revision_id'):
-                rev = base.model.Session.query(base.model.Revision) \
-                                .filter_by(id=context['revision_id']) \
-                                .first()
-                c.revision_date = rev.timestamp if rev else '?'
-            else:
-                c.revision_date = context.get('revision_date')
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
-        pkg = context_pkg or c.pkg
+        pkg = context_pkg or getattr(g, 'pkg', None)
+
         if pkg:
-            try:
-                if not context_pkg:
-                    context['package'] = pkg
-                logic.check_access('package_change_state', context)
-                c.auth_for_change_state = True
-            except logic.NotAuthorized:
-                c.auth_for_change_state = False
+            if not context_pkg:
+                context['package'] = pkg
 
     def new_template(self):
         return 'package/new.html'

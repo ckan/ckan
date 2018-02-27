@@ -40,7 +40,7 @@ class TestWebPageView(helpers.FunctionalTestBase):
             view_type='webpage_view',
             page_url='http://some.other.website.html',)
 
-        url = url_for(controller='package', action='resource_read',
+        url = url_for('resource.read',
                       id=dataset['name'], resource_id=resource['id'])
 
         response = app.get(url)

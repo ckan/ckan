@@ -217,7 +217,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
 
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'
-        offset = url_for(controller='package', action='read', id=name)
+        offset = url_for('dataset.read', id=name)
         res = self.app.get(offset, status=404)
 
     def test_read_internal_links(self):
@@ -228,7 +228,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
                    'tag:tag_1 group:test-group-1 and a multi-word tag: tag:"multi word with punctuation."',
              }
             ])
-        offset = url_for(controller='package', action='read', id=pkg_name)
+        offset = url_for('dataset.read', id=pkg_name)
         res = self.app.get(offset)
         def check_link(res, controller, id):
             id_in_uri = id.strip('"').replace(' ', '%20') # remove quotes and percent-encode spaces
@@ -245,7 +245,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
         name = u'annakarenina'
-        offset = url_for(controller='package', action='read', id=name)
+        offset = url_for('dataset.read', id=name)
         res = self.app.get(offset)
 
         assert plugin.calls['read'] == 1, plugin.calls
@@ -266,7 +266,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         context['api_version'] = 3
         update.package_update(context, pkg)
         # check that the cache url is included on the dataset view page
-        offset = url_for(controller='package', action='read', id=name)
+        offset = url_for('dataset.read', id=name)
         res = self.app.get(offset)
         #assert '[cached]'in res
         #assert cache_url in res
@@ -308,8 +308,7 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         pkg.extras['key2'] = u'value3'
         model.repo.commit_and_remove()
 
-        cls.offset = url_for(controller='package',
-                             action='read',
+        cls.offset = url_for('dataset.read',
                              id=cls.pkg_name)
         pkg = model.Package.by_name(cls.pkg_name)
         cls.revision_ids = [rev[0].id for rev in pkg.all_related_revisions[::-1]]
@@ -416,7 +415,7 @@ class TestEdit(TestPackageForm):
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
         self.pkgid = self.editpkg.id
-        self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
+        self.offset = url_for('dataset.edit', id=self.editpkg_name)
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
         self.admin = model.User.by_name(u'testsysadmin')
@@ -492,7 +491,7 @@ class TestEdit(TestPackageForm):
 
 
     def test_edit_404(self):
-        self.offset = url_for(controller='package', action='edit', id='random_name')
+        self.offset = url_for('dataset.edit', id='random_name')
         self.res = self.app.get(self.offset, status=404)
 
 
@@ -511,7 +510,7 @@ class TestEdit(TestPackageForm):
             assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
 
             # edit the package
-            self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
+            self.offset = url_for('dataset.edit', id=self.editpkg_name)
             self.res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
             fv = self.res.forms['dataset-edit']
             fv['title'] = u'New Title'
@@ -549,8 +548,7 @@ class TestDelete(TestPackageForm):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
 
-        offset = url_for(controller='package', action='delete',
-                id='warandpeace')
+        offset = url_for('dataset.delete', id='warandpeace')
         # Since organizations, any owned dataset can be edited/deleted by any
         # user
         self.app.post(offset, extra_environ=self.extra_environ_tester)
@@ -584,7 +582,7 @@ class TestNew(TestPackageForm):
     def test_new_plugin_hook(self):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
-        offset = url_for(controller='package', action='new')
+        offset = url_for('dataset.new')
         res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         new_name = u'plugged'
         fv = res.forms['dataset-edit']
@@ -599,7 +597,7 @@ class TestNew(TestPackageForm):
     def test_after_create_plugin_hook(self):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
-        offset = url_for(controller='package', action='new')
+        offset = url_for('dataset.new')
         res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         new_name = u'plugged2'
         fv = res.forms['dataset-edit']
@@ -620,7 +618,7 @@ class TestNew(TestPackageForm):
             SolrSettings.init(bad_solr_url)
             new_package_name = u'new-package-missing-solr'
 
-            offset = url_for(controller='package', action='new')
+            offset = url_for('dataset.new')
             res = self.app.get(offset, extra_environ=self.extra_environ_tester)
             fv = res.forms['dataset-edit']
             fv['name'] = new_package_name
@@ -635,7 +633,7 @@ class TestNew(TestPackageForm):
             SolrSettings.init(solr_url)
 
     def test_change_locale(self):
-        offset = url_for(controller='package', action='new')
+        offset = url_for('dataset.new')
         res = self.app.get(offset, extra_environ=self.extra_environ_tester)
 
         res = self.app.get('/de/dataset/new', extra_environ=self.extra_environ_tester)
@@ -685,12 +683,12 @@ class TestNonActivePackages(TestPackageBase):
         model.repo.rebuild_db()
 
     def test_read(self):
-        offset = url_for(controller='package', action='read', id=self.non_active_name)
+        offset = url_for('dataset.read', id=self.non_active_name)
         res = self.app.get(offset, status=[404])
 
 
     def test_read_as_admin(self):
-        offset = url_for(controller='package', action='read', id=self.non_active_name)
+        offset = url_for('dataset.read', id=self.non_active_name)
         res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testsysadmin'})
 
 
@@ -720,14 +718,13 @@ class TestRevisions(TestPackageBase):
         cls.revision_ids = [rev[0].id for rev in cls.pkg1.all_related_revisions]
                            # revision ids are newest first
         cls.revision_timestamps = [rev[0].timestamp for rev in cls.pkg1.all_related_revisions]
-        cls.offset = url_for(controller='package', action='history', id=cls.pkg1.name)
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
 
     def test_2_atom_feed(self):
-        offset = "%s?format=atom" % self.offset
+        offset = "?format=atom"
         res = self.app.get(offset)
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res

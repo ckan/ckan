@@ -124,15 +124,14 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_default(self):
         url = '/dataset/my_dataset'
-        generated_url = h.url_for(controller='package', action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset')
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_with_locale(self):
         url = '/de/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   locale='de')
         eq_(generated_url, url)
@@ -148,8 +147,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_not_qualified(self):
         url = '/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=False)
         eq_(generated_url, url)
@@ -157,8 +155,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_qualified(self):
         url = 'http://example.com/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=True)
         eq_(generated_url, url)
@@ -167,8 +164,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.root_path', '/my/prefix')
     def test_url_for_qualified_with_root_path(self):
         url = 'http://example.com/my/prefix/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=True)
         eq_(generated_url, url)
@@ -176,8 +172,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_qualified_with_locale(self):
         url = 'http://example.com/de/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=True,
                                   locale='de')
@@ -187,8 +182,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_qualified_with_root_path_and_locale(self):
         url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=True,
                                   locale='de')
@@ -199,8 +193,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_qualified_with_root_path_locale_and_script_name_env(self):
         url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=True,
                                   locale='de')

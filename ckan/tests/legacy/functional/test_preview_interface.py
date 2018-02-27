@@ -19,12 +19,10 @@ class TestPluggablePreviews(base.FunctionalTestCase):
 
         cls.package = model.Package.get('annakarenina')
         cls.resource = cls.package.resources[0]
-        cls.url = h.url_for(controller='package',
-            action='resource_read',
+        cls.url = h.url_for('resource.read',
             id=cls.package.name,
             resource_id=cls.resource.id)
-        cls.preview_url = h.url_for(controller='package',
-            action='resource_datapreview',
+        cls.preview_url = h.url_for('resource.datapreview',
             id=cls.package.id,
             resource_id=cls.resource.id)
 
@@ -70,8 +68,7 @@ class TestPluggablePreviews(base.FunctionalTestCase):
         assert self.plugin.calls['preview_templates'] == 1, self.plugin.calls
 
         # test whether the json preview is used
-        preview_url = h.url_for(controller='package',
-                action='resource_datapreview',
+        preview_url = h.url_for('resource.datapreview',
                 id=testpackage.id,
                 resource_id=testpackage.resources[1].id)
         result = self.app.get(preview_url, status=200)

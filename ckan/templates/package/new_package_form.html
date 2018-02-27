@@ -1,7 +1,5 @@
 {% extends 'package/snippets/package_form.html' %}
 
-{% set form_style = c.form_style or c.action %}
-
 {% block stages %}
   {% if form_style != 'edit' %}
     {{ super() }}
@@ -23,7 +21,7 @@
 {% endblock %}
 
 {% block delete_button %}
-  {% if form_style == 'edit' and h.check_access('package_delete', {'id': c.pkg_dict.id}) %}
+  {% if form_style == 'edit' and h.check_access('package_delete', {'id': pkg_dict.id}) %}
     {{ super() }}
   {% endif %}
 {% endblock %}

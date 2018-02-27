@@ -33,7 +33,7 @@ Example:
               {% endif %}
             {% endblock %}
             {% block heading_title %}
-              {{ h.link_to(h.truncate(title, truncate_title), h.url_for(controller='package', action='read', id=package.name)) }}
+              {{ h.link_to(h.truncate(title, truncate_title), h.url_for('dataset.read', id=package.name)) }}
             {% endblock %}
             {% block heading_meta %}
               {% if package.get('state', '').startswith('draft') %}
@@ -65,7 +65,7 @@ Example:
               {% block resources_inner %}
                 {% for resource in h.dict_list_reduce(package.resources, 'format') %}
                 <li>
-                  <a href="{{ h.url_for(controller='package', action='read', id=package.name) }}" class="label" data-format="{{ resource.lower() }}">{{ resource }}</a>
+                  <a href="{{ h.url_for('dataset.read', id=package.name) }}" class="label" data-format="{{ resource.lower() }}">{{ resource }}</a>
                 </li>
                 {% endfor %}
               {% endblock %}

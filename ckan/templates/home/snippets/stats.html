@@ -6,7 +6,7 @@
     <ul>
       {% block stats_group %}
       <li>
-        <a href="{{ h.url_for(controller='package', action='search') }}">
+        <a href="{{ h.url_for('dataset.search') }}">
           <strong>{{ h.SI_number_span(stats.dataset_count) }}</strong>
           {{ _('dataset') if stats.dataset_count == 1 else _('datasets') }}
         </a>

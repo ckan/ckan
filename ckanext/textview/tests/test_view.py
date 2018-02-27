@@ -83,7 +83,7 @@ class TestTextView(object):
 
         app = helpers._get_test_app()
         with app.flask_app.test_request_context():
-            url = h.url_for(controller='package', action='resource_read',
+            url = h.url_for('resource.read',
                             id=self.package.name, resource_id=self.resource_id)
         result = app.get(url)
         assert self.resource_view['title'] in result
@@ -101,7 +101,7 @@ class TestTextView(object):
 
         app = helpers._get_test_app()
         with app.flask_app.test_request_context():
-            url = h.url_for(controller='package', action='resource_view',
+            url = h.url_for('resource.view',
                             id=self.package.name, resource_id=self.resource_id,
                             view_id=self.resource_view['id'])
         result = app.get(url)

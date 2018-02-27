@@ -76,5 +76,5 @@ class TagController(base.BaseController):
         if asbool(config.get('ckan.legacy_templates', False)):
             return base.render('tag/read.html')
         else:
-            h.redirect_to(controller='package', action='search',
+            h.redirect_to('dataset.search',
                           tags=c.tag.get('name'))

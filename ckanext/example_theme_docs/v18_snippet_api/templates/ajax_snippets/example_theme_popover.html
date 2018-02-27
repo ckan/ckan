@@ -30,7 +30,7 @@
   {{ h.follow_button('dataset', id) }}
 
   <a class="btn go-to-dataset"
-     href="{{ h.url_for(controller='package', action='read', id=id) }}">
+     href="{{ h.url_for('dataset.read', id=id) }}">
     <i class="fa fa-arrow-circle-right"></i>
     Go to dataset
   </a>

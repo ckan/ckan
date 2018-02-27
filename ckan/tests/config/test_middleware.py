@@ -186,7 +186,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         app = app.app
 
         environ = {
-            'PATH_INFO': '/dataset',
+            'PATH_INFO': '/tag',
             'REQUEST_METHOD': 'GET',
         }
         wsgiref.util.setup_testing_defaults(environ)
@@ -203,7 +203,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         app = app.app
 
         environ = {
-            'PATH_INFO': '/dataset/new',
+            'PATH_INFO': '/tag',
             'REQUEST_METHOD': 'POST',
         }
         wsgiref.util.setup_testing_defaults(environ)
@@ -354,7 +354,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
 
-        res = app.get('/dataset')
+        res = app.get('/tags')
 
         eq_(res.environ['ckan.app'], 'pylons_app')
 

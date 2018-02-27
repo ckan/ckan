@@ -1,5 +1,5 @@
-{% set url_action = 'resource_edit' if url_is_edit and can_edit else 'resource_read' %}
-{% set url = h.url_for(controller='package', action=url_action, id=pkg.name, resource_id=res.id) %}
+{% set url_action = 'resource.edit' if url_is_edit and can_edit else 'resource.read' %}
+{% set url = h.url_for(url_action, id=pkg.name, resource_id=res.id) %}
 
 <li class="resource-item" data-id="{{ res.id }}">
   {% block resource_item_title %}
@@ -51,7 +51,7 @@
       {% endif %}
       {% if can_edit %}
       <li>
-        <a href="{{ h.url_for(controller='package', action='resource_edit', id=pkg.name, resource_id=res.id) }}">
+        <a href="{{ h.url_for('resource.edit', id=pkg.name, resource_id=res.id) }}">
           <i class="fa fa-pencil-square-o"></i>
           {{ _('Edit') }}
         </a>

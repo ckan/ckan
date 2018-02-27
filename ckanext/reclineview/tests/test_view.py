@@ -42,7 +42,7 @@ class BaseTestReclineViewBase():
         assert not self.p.can_view(data_dict)
 
     def test_title_description_iframe_shown(self):
-        url = h.url_for(controller='package', action='resource_read',
+        url = h.url_for('resource.read',
                         id=self.package.name, resource_id=self.resource_id)
         result = self.app.get(url)
         assert self.resource_view['title'] in result
@@ -112,7 +112,7 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
 
         resource_id = result['resource_id']
 
-        url = h.url_for(controller='package', action='resource_read',
+        url = h.url_for('resource.read',
                         id=dataset['id'], resource_id=resource_id)
 
         result = self.app.get(url)
