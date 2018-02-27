@@ -706,7 +706,7 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         search_form['q'] = 'Nout'
         search_response = webtest_submit(search_form)
 
-        assert_true('No datasets found for &#34;Nout&#34;' in search_response)
+        assert_true('No datasets found for "Nout"' in search_response.body)
 
         search_response_html = BeautifulSoup(search_response.body)
 
