@@ -59,7 +59,7 @@ class CkanextTemplate(Template):
         sys.setdefaultencoding('utf-8')
 
         if not vars['project'].startswith('ckanext-'):
-            print "\nError: Project name must start with 'ckanext-'"
+            print("\nError: Project name must start with 'ckanext-'")
             sys.exit(1)
 
         # The project name without the ckanext-.

@@ -54,6 +54,8 @@ class GroupController(base.BaseController):
         return lookup_group_plugin(group_type).db_to_form_schema()
 
     def _setup_template_variables(self, context, data_dict, group_type=None):
+        if 'type' not in data_dict:
+            data_dict['type'] = group_type
         return lookup_group_plugin(group_type).\
             setup_template_variables(context, data_dict)
 
@@ -101,18 +103,6 @@ class GroupController(base.BaseController):
         ''' render the correct group/org template '''
         return render(self._replace_group_org(template_name),
                       extra_vars={'group_type': group_type})
-
-    def _redirect_to_this_controller(self, *args, **kw):
-        ''' wrapper around redirect_to but it adds in this request's controller
-        (so that it works for Organization or other derived controllers)'''
-        kw['controller'] = request.environ['pylons.routes_dict']['controller']
-        return h.redirect_to(*args, **kw)
-
-    def _url_for_this_controller(self, *args, **kw):
-        ''' wrapper around url_for but it adds in this request's controller
-        (so that it works for Organization or other derived controllers)'''
-        kw['controller'] = request.environ['pylons.routes_dict']['controller']
-        return h.url_for(*args, **kw)
 
     def _guess_group_type(self, expecting_name=False):
         """
@@ -249,9 +239,9 @@ class GroupController(base.BaseController):
         q = c.q = request.params.get('q', '')
         # Search within group
         if c.group_dict.get('is_organization'):
-            q += ' owner_org:"%s"' % c.group_dict.get('id')
+            fq = 'owner_org:"%s"' % c.group_dict.get('id')
         else:
-            q += ' groups:"%s"' % c.group_dict.get('name')
+            fq = 'groups:"%s"' % c.group_dict.get('name')
 
         c.description_formatted = \
             h.render_markdown(c.group_dict.get('description'))
@@ -332,7 +322,7 @@ class GroupController(base.BaseController):
 
             data_dict = {
                 'q': q,
-                'fq': '',
+                'fq': fq,
                 'include_private': True,
                 'facet.field': facets.keys(),
                 'rows': limit,
@@ -451,7 +441,7 @@ class GroupController(base.BaseController):
             get_action(action_functions[action])(context, data_dict)
         except NotAuthorized:
             abort(403, _('Not authorized to perform bulk update'))
-        self._redirect_to_this_controller(action='bulk_process', id=id)
+        h.redirect_to(group_type + '_bulk_process', id=id)
 
     def new(self, data=None, errors=None, error_summary=None):
         if data and 'type' in data:
@@ -614,7 +604,7 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(id)
 
         if 'cancel' in request.params:
-            self._redirect_to_this_controller(action='edit', id=id)
+            h.redirect_to(group_type + '_edit', id=id)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user}
@@ -634,7 +624,7 @@ class GroupController(base.BaseController):
                 else:
                     h.flash_notice(_('%s has been deleted.')
                                    % _(group_type.capitalize()))
-                self._redirect_to_this_controller(action='index')
+                h.redirect_to(group_type + '_index')
             c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
             abort(403, _('Unauthorized to delete group %s') % '')
@@ -708,7 +698,7 @@ class GroupController(base.BaseController):
                 c.group_dict = self._action('group_member_create')(
                     context, data_dict)
 
-                self._redirect_to_this_controller(action='members', id=id)
+                h.redirect_to(group_type + '_members', id=id)
             else:
                 user = request.params.get('user')
                 if user:
@@ -730,7 +720,7 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(id)
 
         if 'cancel' in request.params:
-            self._redirect_to_this_controller(action='members', id=id)
+            h.redirect_to(group_type + '_members', id=id)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user}
@@ -746,7 +736,7 @@ class GroupController(base.BaseController):
                 self._action('group_member_delete')(
                     context, {'id': id, 'user_id': user_id})
                 h.flash_notice(_('Group member has been deleted.'))
-                self._redirect_to_this_controller(action='members', id=id)
+                h.redirect_to(group_type + '_members', id=id)
             c.user_dict = self._action('user_show')(context, {'id': user_id})
             c.user_id = user_id
             c.group_id = id
@@ -794,8 +784,8 @@ class GroupController(base.BaseController):
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
-                link=self._url_for_this_controller(
-                    action='read',
+                link=h.url_for(
+                    group_type + '_read',
                     id=c.group_dict['name']),
                 description=_(u'Recent changes to CKAN Group: ') +
                 c.group_dict['display_name'],
