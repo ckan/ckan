@@ -783,6 +783,98 @@ def bulk_process(id):
     return _redirect_to_this_controller(action='bulk_process', id=id)
 
 
+class BulkProcessView(MethodView):
+    ''' Bulk process view'''
+    def _prepare(self, id=None):
+        group_type = _guess_group_type()
+
+        # check we are org admin
+
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user,
+            'schema': _db_to_form_schema(group_type=group_type),
+            'for_view': True,
+            'extras_as_string': True,
+            'group_type': group_type
+        }
+        return context
+
+    def get(self, id):
+        context = self._prepare(id)
+        group_type = context['group_type']
+        data_dict = {'id': id, 'type': group_type}
+        data_dict['include_datasets'] = False
+        c.group_dict = _action('group_show')(context, data_dict)
+        c.group = context['group']
+
+        # If no action then just show the datasets
+        limit = 500
+        _read(id, limit, group_type)
+        c.packages = c.page.items
+
+        return base.render(
+            _bulk_process_template(group_type),
+            extra_vars={'group_type': group_type})
+
+    def post(self, id, data=None):
+        context = self._prepare()
+        group_type = context['group_type']
+        data_dict = {'id': id, 'type': group_type}
+        try:
+            check_access('bulk_update_public', context, {'org_id': id})
+            # Do not query for the group datasets when dictizing, as they will
+            # be ignored and get requested on the controller anyway
+            data_dict['include_datasets'] = False
+            c.group_dict = _action('group_show')(context, data_dict)
+            c.group = context['group']
+        except NotFound:
+            base.abort(404, _('Group not found'))
+        except NotAuthorized:
+            base.abort(403, _('User %r not authorized to edit %s') % (c.user, id))
+
+        if not c.group_dict['is_organization']:
+            # FIXME: better error
+            raise Exception('Must be an organization')
+
+        # use different form names so that ie7 can be detected
+        form_names = set(
+            ["bulk_action.public", "bulk_action.delete", "bulk_action.private"])
+        actions_in_form = set(request.form.keys())
+        actions = form_names.intersection(actions_in_form)
+        # ie7 puts all buttons in form params but puts submitted one twice
+
+        for key, value in request.form.to_dict().iteritems():
+            if value in [u'private', u'public']:
+                action = key.split('.')[-1]
+                break
+        else:
+            # normal good browser form submission
+            action = actions.pop().split('.')[-1]
+
+        # process the action first find the datasets to perform the action on.
+        # they are prefixed by dataset_ in the form data
+        datasets = []
+        for param in request.form:
+            if param.startswith('dataset_'):
+                datasets.append(param[8:])
+
+        action_functions = {
+            'private': 'bulk_update_private',
+            'public': 'bulk_update_public',
+            'delete': 'bulk_update_delete',
+        }
+
+        data_dict = {'datasets': datasets, 'org_id': c.group_dict['id']}
+
+        try:
+            get_action(action_functions[action])(context, data_dict)
+        except NotAuthorized:
+            base.abort(403, _('Not authorized to perform bulk update'))
+        return _redirect_to_this_controller(action='bulk_process', id=id)
+
+
 class CreateGroupView(MethodView):
     '''Create group view '''
     def _prepare(self, data=None):
@@ -1051,8 +1143,7 @@ class MembersGroupView(MethodView):
 
 
 actions = ['member_delete', 'history',
-           'followers', 'follow', 'unfollow', 'admins', 'activity',
-           'bulk_process']
+           'followers', 'follow', 'unfollow', 'admins', 'activity']
 # Routing for groups
 group.add_url_rule(u'/', view_func=index, strict_slashes=False)
 group.add_url_rule(u'/new', methods=[u'GET', u'POST'],
@@ -1089,6 +1180,8 @@ organization.add_url_rule(u'/members/<id>', methods=[u'GET', u'POST'],
                           view_func=members)
 organization.add_url_rule(u'/member_new/<id>',
                           view_func=MembersGroupView.as_view(str('member_new')))
+organization.add_url_rule(u'/bulk_process/<id>',
+                          view_func=BulkProcessView.as_view(str('bulk_process')))
 organization.add_url_rule(
     u'/delete/<id>',
     methods=[u'GET', u'POST'],
