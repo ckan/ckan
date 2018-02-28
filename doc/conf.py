@@ -338,8 +338,8 @@ htmlhelp_basename = 'CKANdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('contents', 'CKAN.tex', ur'CKAN documentation',
-   ur'CKAN contributors', 'manual'),
+  ('contents', 'CKAN.tex', u'CKAN documentation',
+   u'CKAN contributors', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
