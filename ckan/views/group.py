@@ -475,40 +475,6 @@ def about(id):
         _about_template(group_type), extra_vars={'group_type': group_type})
 
 
-# def delete(id):
-#     group_type = _guess_group_type()
-#     if 'cancel' in request.params:
-#         return _redirect_to_this_controller(action='edit', id=id)
-
-#     context = {'model': model, 'session': model.Session, 'user': c.user}
-
-#     try:
-#         _check_access('group_delete', context, {'id': id})
-#     except NotAuthorized:
-#         base.abort(403, _('Unauthorized to delete group %s') % '')
-
-#     try:
-#         if request.method == 'POST':
-#             _action('group_delete')(context, {'id': id})
-#             if group_type == 'organization':
-#                 h.flash_notice(_('Organization has been deleted.'))
-#             elif group_type == 'group':
-#                 h.flash_notice(_('Group has been deleted.'))
-#             else:
-#                 h.flash_notice(
-#                     _('%s has been deleted.') % _(group_type.capitalize()))
-#             return _redirect_to_this_controller(action='index')
-#         c.group_dict = _action('group_show')(context, {'id': id})
-#     except NotAuthorized:
-#         base.abort(403, _('Unauthorized to delete group %s') % '')
-#     except NotFound:
-#         base.abort(404, _('Group not found'))
-#     except ValidationError as e:
-#         h.flash_error(e.error_dict['message'])
-#         h.redirect_to(group_type+'.read', id=id)
-#     return _render_template('group/confirm_delete.html', group_type)
-
-
 def members(id):
     group_type = _guess_group_type()
 
@@ -805,8 +771,11 @@ class BulkProcessView(MethodView):
         group_type = context['group_type']
         data_dict = {'id': id, 'type': group_type}
         data_dict['include_datasets'] = False
-        c.group_dict = _action('group_show')(context, data_dict)
-        c.group = context['group']
+        try:
+            c.group_dict = _action('group_show')(context, data_dict)
+            c.group = context['group']
+        except NotFound:
+            base.abort(404, _('Group not found'))
 
         # If no action then just show the datasets
         limit = 500
