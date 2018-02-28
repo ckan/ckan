@@ -77,8 +77,6 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         response = self.app.get(url=self.organization_list_url,
                                 extra_environ=self.user_env,
                                 status=403)
-        print response
-
 
 class TestOrganizationRead(helpers.FunctionalTestBase):
     def setup(self):
@@ -361,8 +359,8 @@ class TestOrganizationSearch(helpers.FunctionalTestBase):
         org_names = [n.string for n in org_names]
 
         assert_equal(len(org_names), 0)
-        assert_true("No organizations found for &#34;No Results Here&#34;"
-                    in search_response)
+        assert_true('No organizations found for "No Results Here"'
+                    in search_response.body)
 
 
 class TestOrganizationInnerSearch(helpers.FunctionalTestBase):

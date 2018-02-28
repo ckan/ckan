@@ -148,15 +148,8 @@ def _guess_group_type(expecting_name=False):
     return gt
 
 
-@group.before_request
-def before_request():
-    try:
-        context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
-        check_access(u'site_read', context)
-    except NotAuthorized:
-        _, action = request.url_rule.endpoint.split(u'.')
-        if action not in (u'group_list', ):
-            base.abort(403, _(u'Not authorized to see this page'))
+def add_group_type(group_type):
+    group_types.append(group_type)
 
 
 def index():
@@ -171,6 +164,12 @@ def index():
         'for_view': True,
         'with_private': False
     }
+
+    try:
+        _check_access('site_read', context)
+        _check_access('group_list', context)
+    except NotAuthorized:
+        base.abort(403, _('Not authorized to see this page'))
 
     q = c.q = request.params.get('q', '')
     sort_by = c.sort_by_selected = request.params.get('sort')
@@ -253,7 +252,7 @@ def _read(id, limit, group_type):
 
     def search_url(params):
         controller = lookup_group_controller(group_type)
-        action = 'bulk_process' if c.action == 'bulk_process' else 'read'
+        action = u'bulk_process' if getattr(c, u'action') == u'bulk_process' else 'read'
         url = h.url_for(controller=controller, action=action, id=id)
         params = [(k, v.encode('utf-8')
                    if isinstance(v, basestring) else str(v))
