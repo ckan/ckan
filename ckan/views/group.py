@@ -2,6 +2,7 @@
 
 import logging
 import datetime
+import re
 from urllib import urlencode
 
 from pylons.i18n import get_lang
@@ -98,7 +99,7 @@ def _bulk_process_template(group_type):
 
 def _replace_group_org(string):
     ''' substitute organization for group if this is an org'''
-    return string
+    return re.sub('^group', _guess_group_type() , string)
 
 
 def _action(action_name):
@@ -128,6 +129,25 @@ def _force_reindex(grp):
         search.rebuild(dataset.name)
 
 
+def _guess_group_type(expecting_name=False):
+    """
+            Guess the type of group from the URL.
+            * The default url '/group/xyz' returns None
+            * group_type is unicode
+            * this handles the case where there is a prefix on the URL
+              (such as /data/organization)
+        """
+    parts = [x for x in request.path.split('/') if x]
+
+    idx = 0
+    if expecting_name:
+        idx = -1
+
+    gt = parts[idx]
+
+    return gt
+
+
 @group.before_request
 def before_request():
     try:
@@ -140,7 +160,7 @@ def before_request():
 
 
 def index():
-    group_type = request.blueprint
+    group_type = _guess_group_type()
     page = h.get_page_number(request.params) or 1
     items_per_page = 21
 
@@ -168,8 +188,8 @@ def index():
             'sort': sort_by,
             'type': group_type or 'group',
         }
-        action = group_type + '_list'
-        global_results = get_action(action)(context, data_dict_global_results)
+        global_results = _action('group_list')(context,
+                                               data_dict_global_results)
     except ValidationError as e:
         if e.error_dict and e.error_dict.get('message'):
             msg = e.error_dict['message']
@@ -189,7 +209,7 @@ def index():
         'offset': items_per_page * (page - 1),
         'include_extras': True
     }
-    page_results = get_action(action)(context, data_dict_page_results)
+    page_results = _action('group_list')(context, data_dict_page_results)
 
     c.page = h.Page(
         collection=global_results,
@@ -362,8 +382,7 @@ def _get_group_dict(id, group_type):
         'for_view': True
     }
     try:
-        action = group_type + '_show'
-        return get_action(action)(context, {
+        return _action('group_show')(context, {
             'id': id,
             'include_datasets': False
         })
@@ -386,7 +405,7 @@ def _url_for_this_controller(*args, **kw):
 
 
 def read(id=None, limit=20):
-    group_type = request.blueprint
+    group_type = _guess_group_type()
     context = {
         'model': model,
         'session': model.Session,
@@ -418,7 +437,7 @@ def read(id=None, limit=20):
 def activity(id, offset=0):
     '''Render this group's public activity stream page.'''
 
-    group_type = request.blueprint
+    group_type = _guess_group_type()
     context = {
         'model': model,
         'session': model.Session,
@@ -434,11 +453,11 @@ def activity(id, offset=0):
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html
         # template to retrieve later.
-        action = group_type+'_activity_list_html'
-        c.group_activity_stream = get_action(action)(context, {
-            'id': c.group_dict['id'],
-            'offset': offset
-        })
+        c.group_activity_stream = _action('group_activity_list_html')(
+            context, {
+                'id': c.group_dict['id'],
+                'offset': offset
+            })
 
     except ValidationError as error:
         base.abort(400, error.message)
@@ -448,7 +467,7 @@ def activity(id, offset=0):
 
 
 def about(id):
-    group_type = request.blueprint
+    group_type = _guess_group_type()
     context = {'model': model, 'session': model.Session, 'user': c.user}
     c.group_dict = _get_group_dict(id, group_type)
     group_type = c.group_dict['type']
@@ -458,21 +477,20 @@ def about(id):
 
 
 def delete(id):
-    group_type = request.blueprint
+    group_type = _guess_group_type()
     if 'cancel' in request.params:
         return _redirect_to_this_controller(action='edit', id=id)
 
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
     try:
-        action_delete = group_type + '_delete'
-        check_access(action_delete, context, {'id': id})
+        _check_access('group_delete', context, {'id': id})
     except NotAuthorized:
         base.abort(403, _('Unauthorized to delete group %s') % '')
 
     try:
         if request.method == 'POST':
-            get_action(action_delete)(context, {'id': id})
+            _action('group_delete')(context, {'id': id})
             if group_type == 'organization':
                 h.flash_notice(_('Organization has been deleted.'))
             elif group_type == 'group':
@@ -481,20 +499,19 @@ def delete(id):
                 h.flash_notice(
                     _('%s has been deleted.') % _(group_type.capitalize()))
             return _redirect_to_this_controller(action='index')
-        action_show = group_type + '_show'
-        c.group_dict = get_action(action_show)(context, {'id': id})
+        c.group_dict = _action('group_show')(context, {'id': id})
     except NotAuthorized:
         base.abort(403, _('Unauthorized to delete group %s') % '')
     except NotFound:
         base.abort(404, _('Group not found'))
     except ValidationError as e:
         h.flash_error(e.error_dict['message'])
-        h.redirect_to(controller='organization', action='read', id=id)
+        h.redirect_to(group_type+'.read', id=id)
     return _render_template('group/confirm_delete.html', group_type)
 
 
 def members(id):
-    group_type = request.blueprint
+    group_type = _guess_group_type()
 
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
@@ -506,8 +523,7 @@ def members(id):
             'object_type': 'user'
         })
         data_dict['include_datasets'] = False
-        action_show = group_type + '_show'
-        c.group_dict = get_action(action_show)(context, data_dict)
+        c.group_dict = _action('group_show')(context, data_dict)
     except NotFound:
         base.abort(404, _('Group not found'))
     except NotAuthorized:
@@ -519,7 +535,7 @@ def members(id):
 
 
 def member_delete(id):
-    group_type = request.blueprint
+    group_type = _guess_group_type()
 
     if 'cancel' in request.params:
         return _redirect_to_this_controller(action='members', id=id)
@@ -527,8 +543,7 @@ def member_delete(id):
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
     try:
-        action_member_delete = group_type + '_member_delete'
-        check_access(action_member_delete, context, {'id': id})
+        _check_access('group_member_delete', context, {'id': id})
     except NotAuthorized:
         base.abort(403, _('Unauthorized to delete group %s members') % '')
 
@@ -541,8 +556,7 @@ def member_delete(id):
             })
             h.flash_notice(_('Group member has been deleted.'))
             return _redirect_to_this_controller(action='members', id=id)
-        action_show = group_type + '_show'
-        c.user_dict = get_action(action_show)(context, {
+        c.user_dict = _action('group_show')(context, {
             'id': user_id
         })
         c.user_id = user_id
@@ -555,7 +569,7 @@ def member_delete(id):
 
 
 def history(id):
-    group_type = request.blueprint
+    group_type = _guess_group_type()
     if 'diff' in request.params or 'selected1' in request.params:
         try:
             params = {
@@ -580,11 +594,9 @@ def history(id):
     }
     data_dict = {'id': id}
     try:
-        action_show = group_type + '_show'
-        action_revision_list = group_type + '_revision_list'
-        c.group_dict = get_action(action_show)(context, data_dict)
-        c.group_revisions = get_action(action_revision_list)(context,
-                                                             data_dict)
+        c.group_dict = _action('group_show')(context, data_dict)
+        c.group_revisions = _action('group_revision_list')(context,
+                                                           data_dict)
         # TODO: remove
         # Still necessary for the authz check in group/layout.html
         c.group = context['group']
@@ -670,7 +682,7 @@ def unfollow(id):
 
 
 def followers(id):
-    group_type = request.blueprint
+    group_type = _guess_group_type()
     context = {'model': model, 'session': model.Session, 'user': c.user}
     c.group_dict = _get_group_dict(id, group_type)
     try:
@@ -683,7 +695,7 @@ def followers(id):
 
 
 def admins(id):
-    group_type = request.blueprint
+    group_type = _guess_group_type()
     c.group_dict = _get_group_dict(id, group_type)
     c.admins = authz.get_group_or_org_admin_ids(id)
     return base.render(
@@ -695,7 +707,7 @@ def bulk_process(id):
     ''' Allow bulk processing of datasets for an organization.  Make
         private/public or delete. For organization admins.'''
 
-    group_type = request.blueprint
+    group_type = _guess_group_type()
 
     # check we are org admin
 
@@ -714,8 +726,7 @@ def bulk_process(id):
         # Do not query for the group datasets when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
-        action_show = group_type + '_show'
-        c.group_dict = get_action(action_show)(context, data_dict)
+        c.group_dict = _action('group_show')(context, data_dict)
         c.group = context['group']
     except NotFound:
         base.abort(404, _('Group not found'))
@@ -778,7 +789,7 @@ class CreateGroupView(MethodView):
         if data and 'type' in data:
             group_type = data['type']
         else:
-            group_type = request.blueprint
+            group_type = _guess_group_type()
         if data:
             data['type'] = group_type
 
@@ -807,8 +818,7 @@ class CreateGroupView(MethodView):
             data_dict['type'] = context['group_type'] or 'group'
             context['message'] = data_dict.get('log_message', '')
             data_dict['users'] = [{'name': g.user, 'capacity': 'admin'}]
-            action = context['group_type'] + '_create'
-            group = get_action(action)(context, data_dict)
+            group = _action('group_create')(context, data_dict)
 
         except (NotFound, NotAuthorized), e:
             base.abort(404, _('Group not found'))
@@ -850,7 +860,7 @@ class EditGroupView(MethodView):
         if data and 'type' in data:
             group_type = data['type']
         else:
-            group_type = request.blueprint
+            group_type = _guess_group_type()
         if data:
             data['type'] = group_type
         data_dict = {'id': id, 'include_datasets': False}
@@ -867,7 +877,7 @@ class EditGroupView(MethodView):
         }
 
         try:
-            group = get_action(group_type + '_show')(context, data_dict)
+            group = _action('group_show')(context, data_dict)
             check_access(group_type + '_update', context)
         except NotAuthorized:
             base.abort(403, _('Unauthorized to create a group'))
@@ -885,8 +895,7 @@ class EditGroupView(MethodView):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = context['id']
             context['allow_partial_update'] = True
-            action_update = group_type + '_update'
-            group = get_action(action_update)(context, data_dict)
+            group = _action('group_update')(context, data_dict)
             if id != group['name']:
                 _force_reindex(group)
 
@@ -927,7 +936,7 @@ class EditGroupView(MethodView):
 class DeleteGroupView(MethodView):
     '''Delete group view '''
     def _prepare(self, id=None):
-        group_type = request.blueprint
+        group_type = _guess_group_type()
         context = {
             'model': model,
             'session': model.Session,
@@ -944,10 +953,9 @@ class DeleteGroupView(MethodView):
     def post(self, id=None):
         context = self._prepare(id)
         group_type = context['group_type']
-        action_delete = group_type + '_delete'
         try:
             if request.method == 'POST':
-                get_action(action_delete)(context, {'id': id})
+                _action('group_delete')(context, {'id': id})
                 if group_type == 'organization':
                     h.flash_notice(_('Organization has been deleted.'))
                 elif group_type == 'group':
@@ -956,8 +964,7 @@ class DeleteGroupView(MethodView):
                     h.flash_notice(
                         _('%s has been deleted.') % _(group_type.capitalize()))
                 return _redirect_to_this_controller(action='index')
-            action_show = group_type + '_show'
-            c.group_dict = get_action(action_show)(context, {'id': id})
+            c.group_dict = _action('group_show')(context, {'id': id})
         except NotAuthorized:
             base.abort(403, _('Unauthorized to delete group %s') % '')
         except NotFound:
@@ -970,8 +977,7 @@ class DeleteGroupView(MethodView):
     def get(self, id=None):
         context = self._prepare(id)
         group_type = context['group_type']
-        action = group_type + '_show'
-        c.group_dict = get_action(action)(context, {'id': id})
+        c.group_dict = _action('group_show')(context, {'id': id})
         if 'cancel' in request.params:
             return _redirect_to_this_controller(action='edit', id=id)
         group_type = context['group_type']
@@ -981,7 +987,7 @@ class DeleteGroupView(MethodView):
 class MembersGroupView(MethodView):
     '''New members group view'''
     def _prepare(self, id=None):
-        group_type = request.blueprint
+        group_type = _guess_group_type()
         context = {
             'model': model,
             'session': model.Session,
@@ -1016,8 +1022,7 @@ class MembersGroupView(MethodView):
             data_dict['username'] = user_dict['name']
 
         try:
-            action = group_type + '_member_create'
-            c.group_dict = get_action(action)(context, data_dict)
+            c.group_dict = _action('group_member_create')(context, data_dict)
         except NotAuthorized:
             base.abort(403, _('Unauthorized to add member to group %s') % '')
         except NotFound:
@@ -1033,8 +1038,7 @@ class MembersGroupView(MethodView):
         user = request.params.get('user')
         data_dict = {'id': id}
         data_dict['include_datasets'] = False
-        action = group_type + '_show'
-        c.group_dict = get_action(action)(context, data_dict)
+        c.group_dict = _action('group_show')(context, data_dict)
         c.roles = _action('member_roles_list')(context, {
             'group_type': group_type})
         if user:
