@@ -578,8 +578,8 @@ def side_effect_free(action):
 
     '''
     @functools.wraps(action)
-    def wrapper(context, data_dict):
-        return action(context, data_dict)
+    def wrapper(*args, **kwargs):
+        return action(*args, **kwargs)
     wrapper.side_effect_free = True
 
     return wrapper
@@ -600,8 +600,8 @@ def auth_sysadmins_check(action):
 
     '''
     @functools.wraps(action)
-    def wrapper(context, data_dict):
-        return action(context, data_dict)
+    def wrapper(*args, **kwargs):
+        return action(*args, **kwargs)
     wrapper.auth_sysadmins_check = True
     return wrapper
 
@@ -609,8 +609,8 @@ def auth_sysadmins_check(action):
 def auth_audit_exempt(action):
     ''' Dirty hack to stop auth audit being done '''
     @functools.wraps(action)
-    def wrapper(context, data_dict):
-        return action(context, data_dict)
+    def wrapper(*args, **kwargs):
+        return action(*args, **kwargs)
     wrapper.auth_audit_exempt = True
     return wrapper
 
@@ -624,8 +624,8 @@ def auth_allow_anonymous_access(action):
     granted).
     '''
     @functools.wraps(action)
-    def wrapper(context, data_dict):
-        return action(context, data_dict)
+    def wrapper(*args, **kwargs):
+        return action(*args, **kwargs)
     wrapper.auth_allow_anonymous_access = True
     return wrapper
 
@@ -638,8 +638,8 @@ def auth_disallow_anonymous_access(action):
     calling the actual auth function.
     '''
     @functools.wraps(action)
-    def wrapper(context, data_dict):
-        return action(context, data_dict)
+    def wrapper(*args, **kwargs):
+        return action(*args, **kwargs)
     wrapper.auth_allow_anonymous_access = False
     return wrapper
 
