@@ -77,6 +77,7 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         response = self.app.get(url=self.organization_list_url,
                                 extra_environ=self.user_env,
                                 status=403)
+        print response
 
 
 class TestOrganizationRead(helpers.FunctionalTestBase):
@@ -450,7 +451,7 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
         search_form['q'] = 'Nout'
         search_response = webtest_submit(search_form)
 
-        assert_true('No datasets found for &#34;Nout&#34;' in search_response)
+        assert_true('No datasets found for "Nout"' in search_response.body)
 
         search_response_html = BeautifulSoup(search_response.body)
 
