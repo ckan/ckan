@@ -6,6 +6,14 @@ Testing coding standards
 before being merged into master**. This document gives some guidelines for
 developers who are writing tests or reviewing code for CKAN.
 
+.. seealso::
+
+   :doc:`Testing CKAN <test>`
+     How to set up your development environment to run CKAN's test suite
+
+   :ref:`background jobs testing`
+     How to handle asynchronous background jobs in your tests
+
 
 --------------------------------------
 Transitioning from legacy to new tests
