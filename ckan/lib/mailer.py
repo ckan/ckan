@@ -11,6 +11,7 @@ from email import Utils
 
 from ckan.common import config
 import paste.deploy.converters
+from six import text_type
 
 import ckan
 import ckan.model as model
@@ -186,7 +187,7 @@ def send_invite(user, group_dict=None, role=None):
 
 
 def create_reset_key(user):
-    user.reset_key = unicode(make_key())
+    user.reset_key = text_type(make_key())
     model.repo.commit_and_remove()
 
 

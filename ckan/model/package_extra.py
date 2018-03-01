@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from six import text_type
 import vdm.sqlalchemy
 import vdm.sqlalchemy.stateful
 from sqlalchemy import orm, types, Column, Table, ForeignKey
@@ -75,11 +76,10 @@ PackageExtraRevision= vdm.sqlalchemy.create_object_version(meta.mapper, PackageE
 PackageExtraRevision.related_packages = lambda self: [self.continuity.package]
 
 def _create_extra(key, value):
-    return PackageExtra(key=unicode(key), value=value)
+    return PackageExtra(key=text_type(key), value=value)
 
 _extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
-        vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of()) 
+        vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of())
 setattr(_package.Package, 'extras_active', _extras_active)
 _package.Package.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
             creator=_create_extra)
-

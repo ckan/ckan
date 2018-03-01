@@ -9,7 +9,7 @@ import cgi
 from ckan.common import config
 from paste.deploy.converters import asbool
 import paste.fileapp
-from six import string_types
+from six import string_types, text_type
 
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -462,7 +462,7 @@ class PackageController(base.BaseController):
                                id=c.pkg_dict['name']),
                 description=_(u'Recent changes to CKAN Dataset: ') +
                 (c.pkg_dict['title'] or ''),
-                language=unicode(i18n.get_lang()),
+                language=text_type(i18n.get_lang()),
             )
             for revision_dict in c.pkg_revisions:
                 revision_date = h.date_str_to_datetime(
@@ -941,9 +941,9 @@ class PackageController(base.BaseController):
             abort(400, _(u'Integrity Error'))
         except SearchIndexError as e:
             try:
-                exc_str = unicode(repr(e.args))
+                exc_str = text_type(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = unicode(str(e))
+                exc_str = text_type(str(e))
             abort(500, _(u'Unable to add package to search index.') + exc_str)
         except ValidationError as e:
             errors = e.error_dict
@@ -989,9 +989,9 @@ class PackageController(base.BaseController):
             abort(400, _(u'Integrity Error'))
         except SearchIndexError as e:
             try:
-                exc_str = unicode(repr(e.args))
+                exc_str = text_type(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = unicode(str(e))
+                exc_str = text_type(str(e))
             abort(500, _(u'Unable to update search index.') + exc_str)
         except ValidationError as e:
             errors = e.error_dict

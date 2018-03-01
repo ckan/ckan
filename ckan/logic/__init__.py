@@ -7,7 +7,7 @@ import sys
 from collections import defaultdict
 
 import formencode.validators
-from six import string_types
+from six import string_types, text_type
 
 import ckan.model as model
 import ckan.authz as authz
@@ -306,7 +306,7 @@ def check_access(action, context, data_dict=None):
             raise NotAuthorized(msg)
     except NotAuthorized as e:
         log.debug(u'check access NotAuthorized - %s user=%s "%s"',
-                  action, user, unicode(e))
+                  action, user, text_type(e))
         raise
 
     log.debug('check access OK - %s user=%s', action, user)

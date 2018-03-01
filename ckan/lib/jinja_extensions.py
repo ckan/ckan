@@ -12,6 +12,7 @@ from jinja2.utils import open_if_exists, escape
 from jinja2 import Environment
 from jinja2 import FileSystemBytecodeCache
 
+from six import text_type
 from six.moves import xrange
 
 import ckan.lib.base as base
@@ -80,7 +81,7 @@ class CkanInternationalizationExtension(ext.InternationalizationExtension):
             for arg in args:
                 if isinstance(arg, nodes.Const):
                     value = arg.value
-                    if isinstance(value, unicode):
+                    if isinstance(value, text_type):
                         arg.value = regularise_html(value)
         return node
 

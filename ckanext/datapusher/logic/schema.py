@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from six import text_type
+
 import ckan.plugins as p
 import ckanext.datastore.logic.schema as dsschema
 
@@ -18,7 +20,7 @@ OneOf = get_validator('OneOf')
 
 def datapusher_submit_schema():
     schema = {
-        'resource_id': [not_missing, not_empty, unicode],
+        'resource_id': [not_missing, not_empty, text_type],
         'id': [ignore_missing],
         'set_url_type': [ignore_missing, boolean_validator],
         'ignore_hash': [ignore_missing, boolean_validator],

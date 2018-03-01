@@ -7,7 +7,7 @@ import uuid
 import simplejson as json
 
 from sqlalchemy import types
-from six import string_types
+from six import string_types, text_type
 
 import meta
 
@@ -15,13 +15,13 @@ __all__ = ['iso_date_to_datetime_for_sqlite', 'make_uuid', 'UuidType',
            'JsonType', 'JsonDictType']
 
 def make_uuid():
-    return unicode(uuid.uuid4())
+    return text_type(uuid.uuid4())
 
 class UuidType(types.TypeDecorator):
     impl = types.Unicode
 
     def process_bind_param(self, value, engine):
-        return unicode(value)
+        return text_type(value)
 
     def process_result_value(self, value, engine):
         # return uuid.UUID(value)
@@ -33,7 +33,7 @@ class UuidType(types.TypeDecorator):
     @classmethod
     def default(cls):
         # return uuid.uuid4()
-        return unicode(uuid.uuid4())
+        return text_type(uuid.uuid4())
 
 
 class JsonType(types.TypeDecorator):
@@ -50,7 +50,7 @@ class JsonType(types.TypeDecorator):
             return None
         else:
             # ensure_ascii=False => allow unicode but still need to convert
-            return unicode(json.dumps(value, ensure_ascii=False))
+            return text_type(json.dumps(value, ensure_ascii=False))
 
     def process_result_value(self, value, engine):
         if value is None:
@@ -76,9 +76,9 @@ class JsonDictType(JsonType):
             return None
         else:
             if isinstance(value, string_types):
-                return unicode(value)
+                return text_type(value)
             else:
-                return unicode(json.dumps(value, ensure_ascii=False))
+                return text_type(json.dumps(value, ensure_ascii=False))
 
     def copy(self):
         return JsonDictType(self.impl.length)

@@ -11,7 +11,7 @@ import socket
 from ckan.common import config
 import sqlalchemy
 from paste.deploy.converters import asbool
-from six import string_types
+from six import string_types, text_type
 
 import ckan.lib.dictization
 import ckan.logic as logic
@@ -2168,7 +2168,7 @@ def resource_search(context, data_dict):
 
             # Treat the has field separately, see docstring.
             if field == 'hash':
-                q = q.filter(model_attr.ilike(unicode(term) + '%'))
+                q = q.filter(model_attr.ilike(text_type(term) + '%'))
 
             # Resource extras are stored in a json blob.  So searching for
             # matching fields is a bit trickier.  See the docstring.
@@ -2185,7 +2185,7 @@ def resource_search(context, data_dict):
 
             # Just a regular field
             else:
-                q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
+                q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
 
     if order_by is not None:
         if hasattr(model.Resource, order_by):

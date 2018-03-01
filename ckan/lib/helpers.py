@@ -35,7 +35,7 @@ from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
-from six import string_types
+from six import string_types, text_type
 
 import ckan.exceptions
 import ckan.model as model
@@ -166,7 +166,7 @@ def redirect_to(*args, **kw):
         kw['__no_cache__'] = True
 
     # Routes router doesn't like unicode args
-    uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
+    uargs = map(lambda arg: str(arg) if isinstance(arg, text_type) else arg,
                 args)
 
     _url = ''
@@ -1092,7 +1092,7 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
         elif auto_clean:
             k = k.replace('_', ' ').replace('-', ' ').title()
         if isinstance(v, (list, tuple)):
-            v = ", ".join(map(unicode, v))
+            v = ", ".join(map(text_type, v))
         output.append((k, v))
     return output
 
@@ -1127,7 +1127,7 @@ def get_action(action_name, data_dict=None):
 @core_helper
 def linked_user(user, maxlength=0, avatar=20):
     if not isinstance(user, model.User):
-        user_name = unicode(user)
+        user_name = text_type(user)
         user = model.User.get(user_name)
         if not user:
             return user_name
@@ -1170,7 +1170,7 @@ def markdown_extract(text, extract_length=190):
         return literal(plain)
 
     return literal(
-        unicode(
+        text_type(
             whtext.truncate(
                 plain,
                 length=extract_length,
@@ -2297,7 +2297,7 @@ def resource_view_full_page(resource_view):
 @core_helper
 def remove_linebreaks(string):
     '''Remove linebreaks from string to make it usable in JavaScript'''
-    return unicode(string).replace('\n', '')
+    return text_type(string).replace('\n', '')
 
 
 @core_helper
@@ -2564,7 +2564,7 @@ def radio(selected, id, checked):
 
 @core_helper
 def clean_html(html):
-    return bleach_clean(unicode(html))
+    return bleach_clean(text_type(html))
 
 
 core_helper(flash, name='flash')

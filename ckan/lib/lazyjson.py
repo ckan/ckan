@@ -1,7 +1,7 @@
 # encoding: utf-8
 
-
 from simplejson import loads, RawJSON, dumps
+from six import text_type
 
 
 class LazyJSONObject(RawJSON):
@@ -12,7 +12,7 @@ class LazyJSONObject(RawJSON):
     unicode strings containing a single JSON object.
     '''
     def __init__(self, json_string):
-        assert isinstance(json_string, unicode), json_string
+        assert isinstance(json_string, text_type), json_string
         self._json_string = json_string
         self._json_dict = None
 

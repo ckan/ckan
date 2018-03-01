@@ -6,9 +6,10 @@ Utility functions for I/O.
 
 import sys
 
+from six import text_type
 
-_FILESYSTEM_ENCODING = unicode(sys.getfilesystemencoding()
-                               or sys.getdefaultencoding())
+_FILESYSTEM_ENCODING = text_type(sys.getfilesystemencoding()
+                                 or sys.getdefaultencoding())
 
 
 def encode_path(p):
@@ -28,7 +29,7 @@ def encode_path(p):
 
     Raises a ``TypeError`` is the input is not a Unicode string.
     '''
-    if not isinstance(p, unicode):
+    if not isinstance(p, text_type):
         raise TypeError(u'Can only encode unicode, not {}'.format(type(p)))
     return p.encode(_FILESYSTEM_ENCODING)
 

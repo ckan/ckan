@@ -6,6 +6,7 @@ import nose
 import pytz
 import tzlocal
 from babel import Locale
+from six import text_type
 
 from ckan.common import config
 import ckan.lib.helpers as h
@@ -469,7 +470,7 @@ class TestHelpersRemoveLineBreaks(object):
             '"remove_linebreaks" should remove line breaks'
 
     def test_remove_linebreaks_casts_into_unicode(self):
-        class UnicodeLike(unicode):
+        class UnicodeLike(text_type):
             pass
 
         test_string = UnicodeLike('foo')

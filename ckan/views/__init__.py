@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from paste.deploy.converters import asbool
+from six import text_type
 
 import ckan.model as model
 from ckan.common import g, request, config, session
@@ -115,7 +116,7 @@ def identify_user():
         g.author = g.user
     else:
         g.author = g.remote_addr
-    g.author = unicode(g.author)
+    g.author = text_type(g.author)
 
 
 def _identify_user_default():
