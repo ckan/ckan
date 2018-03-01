@@ -7,7 +7,6 @@ import warnings
 from urlparse import urlparse
 import pytz
 
-import jinja2
 import sqlalchemy
 from pylons import config as pylons_config
 import formencode
@@ -267,18 +266,7 @@ def update_config():
 
     # Create Jinja2 environment
     env = jinja_extensions.Environment(
-        loader=jinja_extensions.CkanFileSystemLoader(template_paths),
-        autoescape=True,
-        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
-                    jinja_extensions.SnippetExtension,
-                    jinja_extensions.CkanExtend,
-                    jinja_extensions.CkanInternationalizationExtension,
-                    jinja_extensions.LinkForExtension,
-                    jinja_extensions.ResourceExtension,
-                    jinja_extensions.UrlForStaticExtension,
-                    jinja_extensions.UrlForExtension],
-        bytecode_cache=jinja2.FileSystemBytecodeCache()
-    )
+        **jinja_extensions.get_jinja_env_options())
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
     env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape

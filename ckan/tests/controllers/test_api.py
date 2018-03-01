@@ -314,6 +314,22 @@ class TestApiController(helpers.FunctionalTestBase):
         eq_(sorted(res_dict['result']),
             sorted([dataset1['name'], dataset2['name']]))
 
+
+class TestApiControllerApiInfo(helpers.FunctionalTestBase):
+    """
+    As template loader initialized during setiing-up application
+    datastore(container of ajax_snippets/api_info.html) should be loaded before
+    any test
+    """
+    @classmethod
+    def _apply_config_changes(cls, config):
+        config['ckan.plugins'] = 'datastore'
+
+    @classmethod
+    def teardown_class(cls):
+        if p.plugin_loaded('datastore'):
+            p.unload('datastore')
+
     def test_api_info(self):
 
         dataset = factories.Dataset()
@@ -327,12 +343,8 @@ class TestApiController(helpers.FunctionalTestBase):
             controller='api', action='snippet', ver=1,
             snippet_path='api_info.html', resource_id=resource['id'])
 
-        if not p.plugin_loaded('datastore'):
-            p.load('datastore')
-
         app = self._get_test_app()
         page = app.get(url, status=200)
-        p.unload('datastore')
 
         # check we built all the urls ok
         expected_urls = (

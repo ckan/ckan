@@ -67,6 +67,13 @@ class ExampleFlaskStreamingPlugin(p.SingletonPlugin):
     An example plugin to demonstrate Flask streaming responses.
     '''
     p.implements(p.IBlueprint)
+    p.implements(p.IConfigurer)
+
+    # IConfigurer
+
+    def update_config(self, config):
+        # Add extension templates directory
+        p.toolkit.add_template_directory(config, u'templates')
 
     def get_blueprint(self):
         u'''Return a Flask Blueprint object to be registered by the app.'''
