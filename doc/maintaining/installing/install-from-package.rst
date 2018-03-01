@@ -5,13 +5,30 @@ Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 16.04 64-bit**, **Ubuntu 14.04 64-bit** or **Ubuntu 12.04 64-bit**. If
-you're not using Ubuntu 14.04 64-bit or Ubuntu 12.04 64-bit, or if you're installing CKAN for
+and easiest way to install CKAN, but it requires **Ubuntu 16.04 64-bit** or **Ubuntu 14.04 64-bit**. If
+you're not using Ubuntu 16.04 64-bit or Ubuntu 14.04 64-bit, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
 At the end of the installation process you will end up with two running web
 applications, CKAN itself and the DataPusher, a separate service for automatically
 importing data to CKAN's :doc:`/maintaining/datastore`.
+
+
+Host ports requirements:
+
+    +------------+------------+-----------+
+    | Service    | Port       | Used for  |
+    +============+============+===========+
+    | NGINX      | 80         | Proxy     |
+    +------------+------------+-----------+
+    | Apache2    | 8080       | Web Server|
+    +------------+------------+-----------+
+    | Solr/Jetty | 8983       | Search    |
+    +------------+------------+-----------+
+    | PostgreSQL | 5432       | Database  |
+    +------------+------------+-----------+
+    | Redis      | 6379       | Search    |
+    +------------+------------+-----------+
 
 
 .. _run-package-installer:
@@ -23,17 +40,6 @@ importing data to CKAN's :doc:`/maintaining/datastore`.
 On your Ubuntu system, open a terminal and run these commands to install
 CKAN:
 
-#. Host ports requirements
-
-    +------------+------------+-----------+ 
-    | Service    | Port       | Used for  | 
-    +============+============+===========+ 
-    | NGINX      | 80         | Proxy     | 
-    +------------+------------+-----------+ 
-    | Apache2    | 8080       | Web Server| 
-    +------------+------------+-----------+ 
-    | Solr/Jetty | 8983       | Search    | 
-    +------------+------------+-----------+
 
 #. Update Ubuntu's package index::
 
@@ -57,17 +63,6 @@ CKAN:
 
            wget \http://packaging.ckan.org/|latest_package_name_trusty|
 
-   - On Ubuntu 12.04:
-
-       .. parsed-literal::
-
-           wget \http://packaging.ckan.org/|latest_package_name_precise|
-
-
-   .. note:: If ``wget`` is not present, you can install it
-       via::
-
-        sudo apt-get install wget
 
 #. Install the CKAN package:
 
@@ -82,12 +77,6 @@ CKAN:
        .. parsed-literal::
 
            sudo dpkg -i |latest_package_name_trusty|
-
-   - On Ubuntu 12.04:
-
-       .. parsed-literal::
-
-           sudo dpkg -i |latest_package_name_precise|
 
     .. note:: If you get the following error it means that for some reason the
      Apache WSGI module was not enabled::
