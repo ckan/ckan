@@ -106,7 +106,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
             return 'This was served from Flask'
 
         # This endpoint is defined both in Flask and in Pylons core
-        flask_app.add_url_rule('/about', view_func=test_view)
+        flask_app.add_url_rule('/flask_core', view_func=test_view)
 
         # This endpoint is defined both in Flask and a Pylons extension
         flask_app.add_url_rule('/pylons_and_flask', view_func=test_view)
@@ -114,16 +114,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
     def test_ask_around_is_called(self):
 
         app = self._get_test_app()
-        ckan_app = app.app
-        start_response = mock.MagicMock()
-        environ = {
-            'PATH_INFO': '/',
-            'REQUEST_METHOD': 'GET',
-        }
-        wsgiref.util.setup_testing_defaults(environ)
         with mock.patch.object(AskAppDispatcherMiddleware, 'ask_around') as \
                 mock_ask_around:
-            ckan_app(environ, start_response)
+            app.get('/', status=404)
 
             assert mock_ask_around.called
 
@@ -398,17 +391,10 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         This should never happen in core, but just in case
         '''
         app = self._get_test_app()
-        app = app.app
+        res = app.get('/flask_core')
 
-        environ = {
-            'PATH_INFO': '/about',
-            'REQUEST_METHOD': 'GET',
-        }
-        wsgiref.util.setup_testing_defaults(environ)
-
-        answers = app.ask_around(environ)
-
-        eq_(answers, [(True, 'flask_app', 'core'), (True, 'pylons_app', 'core')])
+        eq_(res.environ['ckan.app'], 'flask_app')
+        eq_(res.body, 'This was served from Flask')
 
 
 class TestFlaskUserIdentifiedInRequest(helpers.FunctionalTestBase):
