@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import nose
+from six import text_type
 from ckan.lib.navl.dictization_functions import validate, Invalid
 
 
@@ -59,7 +60,7 @@ class TestDictizationError(object):
 
     def test_unicode_error(self):
         err_obj = Invalid('Some ascii error')
-        eq_(unicode(err_obj), u"Invalid: 'Some ascii error'")
+        eq_(text_type(err_obj), u"Invalid: 'Some ascii error'")
 
     def test_repr_error(self):
         err_obj = Invalid('Some ascii error')
@@ -73,7 +74,7 @@ class TestDictizationError(object):
 
     def test_unicode_unicode_error(self):
         err_obj = Invalid(u'Some unicode \xa3 error')
-        eq_(unicode(err_obj), "Invalid: u'Some unicode \\xa3 error'")
+        eq_(text_type(err_obj), "Invalid: u'Some unicode \\xa3 error'")
 
     def test_repr_unicode_error(self):
         err_obj = Invalid(u'Some unicode \xa3 error')
@@ -85,7 +86,7 @@ class TestDictizationError(object):
 
     def test_unicode_blank(self):
         err_obj = Invalid('')
-        eq_(unicode(err_obj), u"Invalid")
+        eq_(text_type(err_obj), u"Invalid")
 
     def test_repr_blank(self):
         err_obj = Invalid('')

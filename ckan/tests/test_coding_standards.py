@@ -17,8 +17,9 @@ import re
 import subprocess
 import sys
 
+from six import text_type
 
-FILESYSTEM_ENCODING = unicode(
+FILESYSTEM_ENCODING = text_type(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
 

@@ -4,6 +4,7 @@ import logging
 from flask import Blueprint
 from flask.views import MethodView
 from paste.deploy.converters import asbool
+from six import text_type
 
 import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
@@ -542,7 +543,8 @@ class RequestResetView(MethodView):
                       u'a reset code.'))
                 return h.redirect_to(u'/')
             except mailer.MailerException as e:
-                h.flash_error(_(u'Could not send reset link: %s') % unicode(e))
+                h.flash_error(_(u'Could not send reset link: %s') %
+                              text_type(e))
         return self.get()
 
     def get(self):
@@ -619,7 +621,7 @@ class PerformResetView(MethodView):
         except logic.ValidationError as e:
             h.flash_error(u'%r' % e.error_dict)
         except ValueError as e:
-            h.flash_error(unicode(e))
+            h.flash_error(text_type(e))
         user_dict[u'state'] = user_state
         return base.render(u'user/perform_reset.html', {
             u'user_dict': user_dict

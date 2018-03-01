@@ -4,6 +4,7 @@ import logging
 import json
 
 import sqlalchemy
+from six import text_type
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
@@ -146,27 +147,21 @@ def datastore_create(context, data_dict):
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
-    # create a private datastore resource, if necessary
-    model = _get_or_bust(context, 'model')
-    resource = model.Resource.get(data_dict['resource_id'])
-    legacy_mode = 'ckan.datastore.read_url' not in config
-    if not legacy_mode and resource.package.private:
-        data_dict['private'] = True
-
     try:
         result = backend.create(context, data_dict)
-
     except InvalidDataError as err:
-        raise p.toolkit.ValidationError(unicode(err))
+        raise p.toolkit.ValidationError(text_type(err))
+
     # Set the datastore_active flag on the resource if necessary
-    if resource.extras.get('datastore_active') is not True:
+    model = _get_or_bust(context, 'model')
+    resobj = model.Resource.get(data_dict['resource_id'])
+    if resobj.extras.get('datastore_active') is not True:
         log.debug(
-            'Setting datastore_active=True on resource {0}'.format(resource.id)
+            'Setting datastore_active=True on resource {0}'.format(resobj.id)
         )
         set_datastore_active_flag(model, data_dict, True)
 
     result.pop('id', None)
-    result.pop('private', None)
     result.pop('connection_url', None)
     result.pop('records', None)
     return result
@@ -486,12 +481,11 @@ def datastore_search_sql(context, data_dict):
     Queries are only allowed if you have access to the all the CKAN resources
     in the query and send the appropriate authorization.
 
-    .. note:: This action is only available when using PostgreSQL 9.X and
-        using a read-only user on the database.
-        It is not available in :ref:`legacy mode<legacy-mode>`.
-        
+    .. note:: This action is not available when
+        :ref:`ckan.datastore.sqlsearch.enabled` is set to false
+
     .. note:: When source data columns (i.e. CSV) heading names are provdied
-        in all UPPERCASE you need to double quote them in the SQL select 
+        in all UPPERCASE you need to double quote them in the SQL select
         statement to avoid returning null results.
 
     :param sql: a single SQL select statement

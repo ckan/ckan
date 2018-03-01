@@ -21,6 +21,7 @@ import time
 from ckan.common import config
 from pylons.test import pylonsapp
 from paste.script.appinstall import SetupCommand
+from six import text_type
 
 import pkg_resources
 import paste.fixture
@@ -134,7 +135,7 @@ class CommonFixtureMethods(BaseCase):
     @classmethod
     def purge_packages(cls, pkg_names):
         for pkg_name in pkg_names:
-            pkg = model.Package.by_name(unicode(pkg_name))
+            pkg = model.Package.by_name(text_type(pkg_name))
             if pkg:
                 pkg.purge()
         model.repo.commit_and_remove()

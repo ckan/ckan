@@ -16,10 +16,12 @@ import logging
 from optparse import OptionConflictError
 import traceback
 
+from six import text_type
 from six.moves import input, xrange
 from six.moves.urllib.error import HTTPError
 from six.moves.urllib.parse import urljoin, urlparse
 from six.moves.urllib.request import urlopen
+
 import sqlalchemy as sa
 import routes
 import paste.script
@@ -810,13 +812,13 @@ class Sysadmin(CkanCommand):
             return
         username = self.args[1]
 
-        user = model.User.by_name(unicode(username))
+        user = model.User.by_name(text_type(username))
         if not user:
             print('User "%s" not found' % username)
             makeuser = input('Create new user: %s? [y/n]' % username)
             if makeuser == 'y':
                 user_add(self.args[1:])
-                user = model.User.by_name(unicode(username))
+                user = model.User.by_name(text_type(username))
             else:
                 print('Exiting ...')
                 return
@@ -834,7 +836,7 @@ class Sysadmin(CkanCommand):
             return
         username = self.args[1]
 
-        user = model.User.by_name(unicode(username))
+        user = model.User.by_name(text_type(username))
         if not user:
             print('Error: user "%s" not found!' % username)
             return
@@ -902,7 +904,7 @@ class UserCmd(CkanCommand):
         import ckan.model as model
 
         username = self.args[0]
-        user = model.User.get(unicode(username))
+        user = model.User.get(text_type(username))
         print('User: \n', user)
 
     def setpass(self):
@@ -1005,7 +1007,7 @@ class DatasetCmd(CkanCommand):
 
     def _get_dataset(self, dataset_ref):
         import ckan.model as model
-        dataset = model.Package.get(unicode(dataset_ref))
+        dataset = model.Package.get(text_type(dataset_ref))
         assert dataset, 'Could not find dataset matching reference: %r' % dataset_ref
         return dataset
 

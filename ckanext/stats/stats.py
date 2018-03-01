@@ -3,6 +3,7 @@
 import datetime
 
 from ckan.common import config
+from six import text_type
 from sqlalchemy import Table, select, join, func, and_
 
 import ckan.plugins as p
@@ -36,7 +37,7 @@ class Stats(object):
               order_by(func.avg(rating.c.rating).desc(), func.count(rating.c.rating).desc()).\
               limit(limit)
         res_ids = model.Session.execute(sql).fetchall()
-        res_pkgs = [(model.Session.query(model.Package).get(unicode(pkg_id)), avg, num) for pkg_id, avg, num in res_ids]
+        res_pkgs = [(model.Session.query(model.Package).get(text_type(pkg_id)), avg, num) for pkg_id, avg, num in res_ids]
         return res_pkgs
 
     @classmethod
@@ -50,7 +51,7 @@ class Stats(object):
             order_by(func.count(package_revision.c.revision_id).desc()).\
             limit(limit)
         res_ids = model.Session.execute(s).fetchall()
-        res_pkgs = [(model.Session.query(model.Package).get(unicode(pkg_id)), val) for pkg_id, val in res_ids]
+        res_pkgs = [(model.Session.query(model.Package).get(text_type(pkg_id)), val) for pkg_id, val in res_ids]
         return res_pkgs
 
     @classmethod
@@ -69,7 +70,7 @@ class Stats(object):
             limit(limit)
 
         res_ids = model.Session.execute(s).fetchall()
-        res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), val) for group_id, val in res_ids]
+        res_groups = [(model.Session.query(model.Group).get(text_type(group_id)), val) for group_id, val in res_ids]
         return res_groups
 
     @classmethod
@@ -97,7 +98,7 @@ class Stats(object):
         if returned_tag_info in ('id', 'name'):
             return res_col
         elif returned_tag_info == 'object':
-            res_tags = [(model.Session.query(model.Tag).get(unicode(tag_id)), val) for tag_id, val in res_col]
+            res_tags = [(model.Session.query(model.Tag).get(text_type(tag_id)), val) for tag_id, val in res_col]
             return res_tags
 
     @classmethod
@@ -111,7 +112,7 @@ class Stats(object):
                  .order_by(func.count(model.Package.creator_user_id).desc())\
                  .limit(limit).all()
         user_count = [
-            (model.Session.query(model.User).get(unicode(user_id)), count)
+            (model.Session.query(model.User).get(text_type(user_id)), count)
             for user_id, count in userid_count
             if user_id]
         return user_count

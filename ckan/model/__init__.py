@@ -5,6 +5,7 @@ import logging
 import re
 from datetime import datetime
 
+from six import text_type
 import vdm.sqlalchemy
 from vdm.sqlalchemy.base import SQLAlchemySession
 from sqlalchemy import MetaData, __version__ as sqav, Table
@@ -373,7 +374,7 @@ def _get_groups(self):
 
 # could set this up directly on the mapper?
 def _get_revision_user(self):
-    username = unicode(self.author)
+    username = text_type(self.author)
     user = meta.Session.query(User).filter_by(name=username).first()
     return user
 
