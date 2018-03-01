@@ -6,6 +6,8 @@ from itertools import count
 import re
 import mimetypes
 
+from six import string_types
+
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
 import ckan.lib.helpers as h
@@ -327,7 +329,7 @@ def name_validator(value, context):
         a valid name
 
     '''
-    if not isinstance(value, basestring):
+    if not isinstance(value, string_types):
         raise Invalid(_('Names must be strings'))
 
     # check basic textual rules
@@ -441,7 +443,7 @@ def tag_string_convert(key, data, errors, context):
     and parses tag names. These are added to the data dict, enumerated. They
     are also validated.'''
 
-    if isinstance(data[key], basestring):
+    if isinstance(data[key], string_types):
         tags = [tag.strip() \
                 for tag in data[key].split(',') \
                 if tag.strip()]
@@ -541,7 +543,7 @@ def user_name_validator(key, data, errors, context):
     model = context['model']
     new_user_name = data[key]
 
-    if not isinstance(new_user_name, basestring):
+    if not isinstance(new_user_name, string_types):
         raise Invalid(_('User names must be strings'))
 
     user = model.User.get(new_user_name)
@@ -579,7 +581,7 @@ def user_password_validator(key, data, errors, context):
 
     if isinstance(value, Missing):
         pass
-    elif not isinstance(value, basestring):
+    elif not isinstance(value, string_types):
         errors[('password',)].append(_('Passwords must be strings'))
     elif value == '':
         pass
@@ -752,7 +754,7 @@ def list_of_strings(key, data, errors, context):
     if not isinstance(value, list):
         raise Invalid(_('Not a list'))
     for x in value:
-        if not isinstance(x, basestring):
+        if not isinstance(x, string_types):
             raise Invalid('%s: %s' % (_('Not a string'), x))
 
 def if_empty_guess_format(key, data, errors, context):

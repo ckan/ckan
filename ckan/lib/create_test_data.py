@@ -532,7 +532,7 @@ left arrow <
         '''If you create a domain object manually in your test then you
         can name it here (flag it up) and it will be deleted when you next
         call CreateTestData.delete().'''
-        if isinstance(pkg_names, basestring):
+        if isinstance(pkg_names, string_types):
             pkg_names = [pkg_names]
         cls.pkg_names.extend(pkg_names)
         cls.tag_names.extend(tag_names)
