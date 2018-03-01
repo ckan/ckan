@@ -440,6 +440,13 @@
           }
         },
         {
+          "value": "decompose",
+          "label": {
+            "en": "decompose",
+            "fa_IR": "تجزیه"
+          }
+        },
+        {
           "value": "decorative stone",
           "label": {
             "en": "decorative stone",
@@ -1357,6 +1364,13 @@
           }
         },
         {
+          "value": "recycle",
+          "label": {
+            "en": "recycle",
+            "fa_IR": "بازیافت"
+          }
+        },
+        {
           "value": "rent",
           "label": {
             "en": "rent",
@@ -1665,6 +1679,20 @@
           }
         },
         {
+          "value": "village",
+          "label": {
+            "en": "village",
+            "fa_IR": "روستا"
+          }
+        },
+        {
+          "value": "waste",
+          "label": {
+            "en": "waste",
+            "fa_IR": "زباله"
+          }
+        },
+        {
           "value": "water",
           "label": {
             "en": "water",
@@ -1934,6 +1962,13 @@
          }
         },
         {
+         "value": "National Park Service",
+         "label": {
+           "en": "National Park Service",
+           "fa_IR": "سازمان خدمات پارک ملی آمریکا"
+         }
+        },
+        {
          "value": "North Khorasan University of Medical Sciences and Health Services",
          "label": {
            "en": "North Khorasan University of Medical Sciences and Health Services",
@@ -1997,12 +2032,19 @@
          }
         },
         {
-          "value": "Tehran Securities Exchange Technology Management Company",
-          "label": {
-            "en": "Tehran Securities Exchange Technology Management Company",
-            "fa_IR": "شركت مديريت فناوری بورس تهران"
-          }
-         },
+         "value": "Tehran Securities Exchange Technology Management Company",
+         "label": {
+           "en": "Tehran Securities Exchange Technology Management Company",
+           "fa_IR": "شركت مديريت فناوری بورس تهران"
+         }
+        },
+        {
+         "value": "Tehran Waste Management Organisation",
+         "label": {
+           "en": "Tehran Waste Management Organisation",
+           "fa_IR": "سازمان مدیریت پسماند تهران"
+         }
+        },
         {
          "value": "The National Land & Housing Organisation",
          "label": {
@@ -2379,6 +2421,13 @@
          }
         },
         {
+         "value": "National Park Service",
+         "label": {
+           "en": "National Park Service",
+           "fa_IR": "سازمان خدمات پارک ملی آمریکا"
+         }
+        },
+        {
          "value": "North Khorasan University of Medical Sciences and Health Services",
          "label": {
            "en": "North Khorasan University of Medical Sciences and Health Services",
@@ -2446,6 +2495,13 @@
          "label": {
            "en": "Tehran Securities Exchange Technology Management Company",
            "fa_IR": "شركت مديريت فناوری بورس تهران"
+         }
+        },
+        {
+         "value": "Tehran Waste Management Organisation",
+         "label": {
+           "en": "Tehran Waste Management Organisation",
+           "fa_IR": "سازمان مدیریت پسماند تهران"
          }
         },
         {
