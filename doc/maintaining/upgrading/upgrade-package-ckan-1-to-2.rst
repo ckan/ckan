@@ -9,7 +9,7 @@ Upgrading a CKAN 1 package install to CKAN 2.x
    `documentation <http://docs.ckan.org/en/ckan-1.8/install-from-package.html#upgrading-a-package-install>`_
    relevant to the old CKAN packaging system.
 
-The CKAN 2.x packages require Ubuntu 14.04 64-bit or 12.04 64-bit, whereas previous CKAN
+The CKAN 2.x packages require Ubuntu 16.04 64-bit or 14.04 64-bit, whereas previous CKAN
 packages used Ubuntu 10.04. CKAN 2.x also introduces many
 backwards-incompatible feature changes (see :doc:`the changelog </changelog>`).
 So it's not possible to automatically upgrade to a CKAN 2.x package install.
@@ -28,7 +28,7 @@ database and any custom configuration, extensions or templates to your new CKAN
 
 #. Install CKAN 2.x, either from a
    :doc:`package install </maintaining/installing/install-from-package>`
-   if you have Ubuntu 14.04 or 12.04 64-bit, or from a
+   if you have Ubuntu 16.04 or 14.04 64-bit, or from a
    :doc:`source install </maintaining/installing/install-from-source>`
    otherwise.
 
