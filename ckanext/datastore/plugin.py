@@ -33,8 +33,6 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
-    p.implements(p.IResourceUrlChange)
-    p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
     p.implements(p.ITemplateHelpers)
@@ -89,27 +87,6 @@ class DatastorePlugin(p.SingletonPlugin):
         if hasattr(self.backend, 'is_legacy_mode'):
             self.legacy_mode = self.backend.is_legacy_mode(self.config)
 
-    # IDomainObjectModification
-    # IResourceUrlChange
-
-    def notify(self, entity, operation=None):
-        if not isinstance(entity, model.Package) or self.legacy_mode:
-            return
-        # if a resource is new, it cannot have a datastore resource, yet
-        if operation == model.domain_object.DomainObjectOperation.changed:
-            context = {'model': model, 'ignore_auth': True}
-            if entity.private:
-                func = p.toolkit.get_action('datastore_make_private')
-            else:
-                func = p.toolkit.get_action('datastore_make_public')
-            for resource in entity.resources:
-                try:
-                    func(context, {
-                        'connection_url': self.backend.write_url,
-                        'resource_id': resource.id})
-                except p.toolkit.ObjectNotFound:
-                    pass
-
     # IActions
 
     def get_actions(self):
@@ -129,9 +106,6 @@ class DatastorePlugin(p.SingletonPlugin):
                 actions.update({
                     'datastore_search_sql': action.datastore_search_sql,
                 })
-            actions.update({
-                'datastore_make_private': action.datastore_make_private,
-                'datastore_make_public': action.datastore_make_public})
         return actions
 
     # IAuthFunctions

@@ -303,38 +303,6 @@ def _get_read_only_user(data_dict):
     return parsed['db_user']
 
 
-def _change_privilege(context, data_dict, what):
-    ''' We need a transaction for this code to work '''
-    read_only_user = _get_read_only_user(data_dict)
-    if what == 'REVOKE':
-        sql = u'REVOKE SELECT ON TABLE "{0}" FROM "{1}"'.format(
-            data_dict['resource_id'],
-            read_only_user)
-    elif what == 'GRANT':
-        sql = u'GRANT SELECT ON TABLE "{0}" TO "{1}"'.format(
-            data_dict['resource_id'],
-            read_only_user)
-    else:
-        raise ValidationError({
-            'privileges': [
-                u'Can only GRANT or REVOKE but not {0}'.format(what)
-            ]
-        })
-    try:
-        context['connection'].execute(sql)
-    except ProgrammingError as e:
-        log.critical("Error making resource private. {0!r}".format(e.message))
-        raise ValidationError({
-            'privileges': [
-                u'cannot make "{resource_id}" private'.format(**data_dict)
-            ],
-            'info': {
-                'orig': str(e.orig),
-                'pgcode': e.orig.pgcode
-            }
-        })
-
-
 def _is_array_type(field_type):
     return field_type.startswith('_')
 
@@ -1478,7 +1446,7 @@ def upsert(context, data_dict):
 
 def search(context, data_dict):
     backend = DatastorePostgresqlBackend.get_active_backend()
-    engine = backend._get_write_engine()
+    engine = backend._get_read_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1522,11 +1490,11 @@ def search_sql(context, data_dict):
         table_names = datastore_helpers.get_table_names_from_sql(context, sql)
         log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
 
-        system_tables = [t for t in table_names if t.startswith('pg_')]
-        if len(system_tables):
+        if any(t.startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to access system tables']
             })
+        context['check_access'](table_names)
 
         results = context['connection'].execute(sql)
 
@@ -1539,7 +1507,7 @@ def search_sql(context, data_dict):
             })
 
         def _remove_explain(msg):
-            return (msg.replace('EXPLAIN (FORMAT JSON) ', '')
+            return (msg.replace('EXPLAIN (VERBOSE, FORMAT JSON) ', '')
                        .replace('EXPLAIN ', ''))
 
         raise ValidationError({
@@ -1829,8 +1797,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             insert_data(context, data_dict)
             create_indexes(context, data_dict)
             create_alias(context, data_dict)
-            if data_dict.get('private'):
-                _change_privilege(context, data_dict, 'REVOKE')
             trans.commit()
             return _unrename_json_field(data_dict)
         except IntegrityError as e:
@@ -1880,34 +1846,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             })
         return search_sql(context, data_dict)
 
-    def make_private(self, context, data_dict):
-        data_dict['connection_url'] = self.write_url
-        log.info('Making resource {resource_id!r} private'.format(**data_dict))
-        engine = self._get_write_engine()
-        context['connection'] = engine.connect()
-        trans = context['connection'].begin()
-        try:
-            _change_privilege(context, data_dict, 'REVOKE')
-            trans.commit()
-        finally:
-            context['connection'].close()
-
-    def make_public(self, context, data_dict):
-        log.info('Making resource {resource_id!r} public'.format(**data_dict))
-        engine = self._get_write_engine()
-        context['connection'] = engine.connect()
-        trans = context['connection'].begin()
-        try:
-            _change_privilege(context, data_dict, 'GRANT')
-            trans.commit()
-        finally:
-            context['connection'].close()
-
     def resource_exists(self, id):
         resources_sql = sqlalchemy.text(
             u'''SELECT 1 FROM "_table_metadata"
             WHERE name = :id AND alias_of IS NULL''')
-        results = self._get_write_engine().execute(resources_sql, id=id)
+        results = self._get_read_engine().execute(resources_sql, id=id)
         res_exists = results.rowcount > 0
         return res_exists
 
@@ -1915,7 +1858,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         real_id = None
         resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
                                         WHERE name = :id''')
-        results = self._get_write_engine().execute(resources_sql, id=alias)
+        results = self._get_read_engine().execute(resources_sql, id=alias)
 
         res_exists = results.rowcount > 0
         if res_exists:
@@ -1943,7 +1886,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE table_name = :resource_id;
             ''')
-            schema_results = self._get_write_engine().execute(
+            schema_results = self._get_read_engine().execute(
                 schema_sql, resource_id=id)
             for row in schema_results.fetchall():
                 k = row[0]
@@ -1957,7 +1900,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             meta_sql = sqlalchemy.text(u'''
                 SELECT count(_id) FROM "{0}";
             '''.format(id))
-            meta_results = self._get_write_engine().execute(
+            meta_results = self._get_read_engine().execute(
                 meta_sql, resource_id=id)
             info['meta']['count'] = meta_results.fetchone()[0]
         finally:
@@ -1971,7 +1914,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         resources_sql = sqlalchemy.text(
             u'''SELECT name FROM "_table_metadata"
             WHERE alias_of IS NULL''')
-        query = self._get_write_engine().execute(resources_sql)
+        query = self._get_read_engine().execute(resources_sql)
         return [q[0] for q in query.fetchall()]
 
     def create_function(self, *args, **kwargs):
