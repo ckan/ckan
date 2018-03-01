@@ -577,12 +577,8 @@ def side_effect_free(action):
     your action function with CKAN.)
 
     '''
-    @functools.wraps(action)
-    def wrapper(*args, **kwargs):
-        return action(*args, **kwargs)
-    wrapper.side_effect_free = True
-
-    return wrapper
+    action.side_effect_free = True
+    return action
 
 
 def auth_sysadmins_check(action):
@@ -599,20 +595,14 @@ def auth_sysadmins_check(action):
     sysadmin.
 
     '''
-    @functools.wraps(action)
-    def wrapper(*args, **kwargs):
-        return action(*args, **kwargs)
-    wrapper.auth_sysadmins_check = True
-    return wrapper
+    action.auth_sysadmins_check = True
+    return action
 
 
 def auth_audit_exempt(action):
     ''' Dirty hack to stop auth audit being done '''
-    @functools.wraps(action)
-    def wrapper(*args, **kwargs):
-        return action(*args, **kwargs)
-    wrapper.auth_audit_exempt = True
-    return wrapper
+    action.auth_audit_exempt = True
+    return action
 
 
 def auth_allow_anonymous_access(action):
@@ -623,11 +613,8 @@ def auth_allow_anonymous_access(action):
     auth function can still return False if for some reason access is not
     granted).
     '''
-    @functools.wraps(action)
-    def wrapper(*args, **kwargs):
-        return action(*args, **kwargs)
-    wrapper.auth_allow_anonymous_access = True
-    return wrapper
+    action.auth_allow_anonymous_access = True
+    return action
 
 
 def auth_disallow_anonymous_access(action):
@@ -637,11 +624,8 @@ def auth_disallow_anonymous_access(action):
     exception if an authenticated user is not provided in the context, without
     calling the actual auth function.
     '''
-    @functools.wraps(action)
-    def wrapper(*args, **kwargs):
-        return action(*args, **kwargs)
-    wrapper.auth_allow_anonymous_access = False
-    return wrapper
+    action.auth_allow_anonymous_access = False
+    return action
 
 
 def chained_auth_function(func):
