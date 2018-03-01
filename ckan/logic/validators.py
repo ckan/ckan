@@ -355,7 +355,7 @@ def package_name_validator(key, data, errors, context):
     else:
         package_id = data.get(key[:-1] + ('id',))
     if package_id and package_id is not missing:
-        query = query.filter(model.Package.id <> package_id)
+        query = query.filter(model.Package.id != package_id)
     result = query.first()
     if result and result.state != State.DELETED:
         errors[key].append(_('That URL is already in use.'))
@@ -404,7 +404,7 @@ def group_name_validator(key, data, errors, context):
     else:
         group_id = data.get(key[:-1] + ('id',))
     if group_id and group_id is not missing:
-        query = query.filter(model.Group.id <> group_id)
+        query = query.filter(model.Group.id != group_id)
     result = query.first()
     if result:
         errors[key].append(_('Group name already exists in database'))

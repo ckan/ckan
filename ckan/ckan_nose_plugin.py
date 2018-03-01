@@ -94,7 +94,7 @@ class CkanNose(Plugin):
 
     def finalize(self, report):
         if self.segments:
-            print 'Segments: %s' % self.segments
+            print('Segments: %s' % self.segments)
 
     def configure(self, settings, config):
         CkanNose.settings = settings
