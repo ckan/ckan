@@ -49,6 +49,7 @@ class TestChainedAuth(object):
         with assert_raises(TestAuthException) as raise_context:
             # checking access should call to our chained version defined above
             # first, thus this should throw an exception
-            check_access(u'datastore_search_sql', {u'user': u'annafan'}, {})
+            check_access(u'datastore_search_sql', {
+                u'user': u'annafan', u'table_names': []}, {})
         # check that exception returned has the message from our auth function
         assert_equals(raise_context.exception.message, auth_message)

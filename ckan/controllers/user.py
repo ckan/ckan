@@ -4,6 +4,7 @@ import logging
 
 from ckan.common import config
 from paste.deploy.converters import asbool
+from six import text_type
 
 import ckan.lib.base as base
 import ckan.model as model
@@ -499,7 +500,7 @@ class UserController(base.BaseController):
                     h.redirect_to('/')
                 except mailer.MailerException as e:
                     h.flash_error(_('Could not send reset link: %s') %
-                                  unicode(e))
+                                  text_type(e))
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
@@ -551,7 +552,7 @@ class UserController(base.BaseController):
             except ValidationError as e:
                 h.flash_error(u'%r' % e.error_dict)
             except ValueError as ve:
-                h.flash_error(unicode(ve))
+                h.flash_error(text_type(ve))
             user_dict['state'] = user_state
 
         c.user_dict = user_dict

@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from six import text_type
+
 from ckan.lib.navl.dictization_functions import (flatten_schema,
                                    get_all_key_combinations,
                                    make_full_schema,
@@ -301,7 +303,7 @@ def test_simple():
 
 def test_simple_converter_types():
     schema = {
-        "name": [not_empty, unicode],
+        "name": [not_empty, text_type],
         "age": [ignore_missing, int],
         "gender": [default("female")],
     }
@@ -315,13 +317,13 @@ def test_simple_converter_types():
     assert not errors
     assert converted_data == {'gender': 'female', 'age': 32, 'name': u'fred'}, converted_data
 
-    assert isinstance(converted_data["name"], unicode)
-    assert not isinstance(converted_data["gender"], unicode)
+    assert isinstance(converted_data["name"], text_type)
+    assert isinstance(converted_data["gender"], str)
 
 
 def test_formencode_compat():
     schema = {
-        "name": [not_empty, unicode],
+        "name": [not_empty, text_type],
         "email": [validators.Email],
         "email2": [validators.Email],
     }
@@ -338,7 +340,7 @@ def test_formencode_compat():
 def test_range_validator():
 
     schema = {
-        "name": [not_empty, unicode],
+        "name": [not_empty, text_type],
         "email": [validators.Int(min=1, max=10)],
         "email2": [validators.Email],
     }

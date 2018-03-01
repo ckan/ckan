@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import logging
+from six import text_type
 import ckan.plugins as p
 
 log = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ class WebPageView(p.SingletonPlugin):
     def info(self):
         return {'name': 'webpage_view',
                 'title': p.toolkit._('Website'),
-                'schema': {'page_url': [ignore_empty, unicode]},
+                'schema': {'page_url': [ignore_empty, text_type]},
                 'iframed': False,
                 'icon': 'link',
                 'always_available': True,

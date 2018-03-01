@@ -10,6 +10,7 @@ from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
+from six import text_type
 import vdm.sqlalchemy
 
 import meta
@@ -101,7 +102,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         '''
         hashed_password = pbkdf2_sha512.encrypt(password)
 
-        if not isinstance(hashed_password, unicode):
+        if not isinstance(hashed_password, text_type):
             hashed_password = hashed_password.decode('utf-8')
         self._password = hashed_password
 
@@ -109,7 +110,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         return self._password
 
     def _verify_and_upgrade_from_sha1(self, password):
-        if isinstance(password, unicode):
+        if isinstance(password, text_type):
             password_8bit = password.encode('ascii', 'ignore')
         else:
             password_8bit = password

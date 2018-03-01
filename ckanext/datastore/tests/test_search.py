@@ -14,7 +14,8 @@ import ckan.tests.legacy as tests
 
 from ckan.common import config
 import ckanext.datastore.backend.postgres as db
-from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
+from ckanext.datastore.tests.helpers import (
+    extract, rebuild_all_dbs, DatastoreFunctionalTestBase)
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -788,10 +789,6 @@ class TestDatastoreSQL():
             raise nose.SkipTest("Datastore not supported")
         cls.app = helpers._get_test_app()
         plugin = p.load('datastore')
-        if plugin.legacy_mode:
-            # make sure we undo adding the plugin
-            p.unload('datastore')
-            raise nose.SkipTest("SQL tests are not supported in legacy mode")
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -938,26 +935,6 @@ class TestDatastoreSQL():
         result = res_dict['result']
         assert result['records'] == self.expected_join_results
 
-    def test_read_private(self):
-        context = {
-            'user': self.sysadmin_user.name,
-            'model': model}
-        data_dict = {
-            'resource_id': self.data['resource_id']}
-        p.toolkit.get_action('datastore_make_private')(context, data_dict)
-        query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        # make it public for the other tests
-        p.toolkit.get_action('datastore_make_public')(context, data_dict)
-
     def test_new_datastore_table_from_private_resource(self):
         # make a private CKAN resource
         group = self.dataset.get_groups()[0]
@@ -1000,86 +977,6 @@ class TestDatastoreSQL():
         assert res_dict['success'] is False
         assert res_dict['error']['__type'] == 'Authorization Error'
 
-    def test_making_resource_private_makes_datastore_private(self):
-        group = self.dataset.get_groups()[0]
-        context = {
-            'user': self.sysadmin_user.name,
-            'ignore_auth': True,
-            'model': model}
-        package = p.toolkit.get_action('package_create')(
-            context,
-            {'name': 'privatedataset2',
-             'private': False,
-             'owner_org': self.organization['id'],
-             'groups': [{
-                 'id': group.id
-             }]})
-        resource = p.toolkit.get_action('resource_create')(
-            context,
-            {'name': 'privateresource2',
-             'url': 'https://www.example.co.uk/',
-             'package_id': package['id']})
-
-        postparams = '%s=1' % json.dumps({
-            'resource_id': resource['id'],
-            'force': True
-        })
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
-        # Test public resource
-        query = 'SELECT * FROM "{0}"'.format(resource['id'])
-        data = {'sql': query}
-        postparams_sql = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
-        # Make resource private
-        package = p.toolkit.get_action('package_show')(
-            context, {'id': package.get('id')})
-        package['private'] = True
-        package = p.toolkit.get_action('package_update')(context, package)
-
-        # Test private
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        postparams = json.dumps({'resource_id': resource['id']})
-        res = self.app.post('/api/action/datastore_search', params=postparams,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        # we should not be able to make the private resource it public
-        postparams = json.dumps({'resource_id': resource['id']})
-        res = self.app.post('/api/action/datastore_make_public', params=postparams,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        # Make resource public
-        package = p.toolkit.get_action('package_show')(
-            context, {'id': package.get('id')})
-        package['private'] = False
-        package = p.toolkit.get_action('package_update')(context, package)
-
-        # Test public again
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
     def test_not_authorized_to_access_system_tables(self):
         test_cases = [
             'SELECT * FROM pg_roles',
@@ -1099,3 +996,72 @@ class TestDatastoreSQL():
             res_dict = json.loads(res.body)
             assert res_dict['success'] is False
             assert res_dict['error']['__type'] == 'Authorization Error'
+
+
+class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
+    def test_search_sql_enforces_private(self):
+        user1 = factories.User()
+        user2 = factories.User()
+        user3 = factories.User()
+        ctx1 = {u'user': user1['name'], u'ignore_auth': False}
+        ctx2 = {u'user': user2['name'], u'ignore_auth': False}
+        ctx3 = {u'user': user3['name'], u'ignore_auth': False}
+
+        org1 = factories.Organization(
+            user=user1,
+            users=[{u'name': user3['name'], u'capacity': u'member'}])
+        org2 = factories.Organization(
+            user=user2,
+            users=[{u'name': user3['name'], u'capacity': u'member'}])
+        ds1 = factories.Dataset(owner_org=org1['id'], private=True)
+        ds2 = factories.Dataset(owner_org=org2['id'], private=True)
+        r1 = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds1['id']},
+            fields=[{u'id': u'spam', u'type': u'text'}])
+        r2 = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds2['id']},
+            fields=[{u'id': u'ham', u'type': u'text'}])
+
+        sql1 = 'SELECT spam FROM "{0}"'.format(r1['resource_id'])
+        sql2 = 'SELECT ham FROM "{0}"'.format(r2['resource_id'])
+        sql3 = 'SELECT spam, ham FROM "{0}", "{1}"'.format(
+            r1['resource_id'], r2['resource_id'])
+
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx2,
+            sql=sql1)
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx1,
+            sql=sql2)
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx1,
+            sql=sql3)
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx2,
+            sql=sql3)
+        helpers.call_action(
+            'datastore_search_sql',
+            context=ctx1,
+            sql=sql1)
+        helpers.call_action(
+            'datastore_search_sql',
+            context=ctx2,
+            sql=sql2)
+        helpers.call_action(
+            'datastore_search_sql',
+            context=ctx3,
+            sql=sql3)

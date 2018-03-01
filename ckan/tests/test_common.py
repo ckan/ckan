@@ -4,6 +4,7 @@ import flask
 import pylons
 
 from nose.tools import eq_, assert_not_equal as neq_, assert_raises
+from six import text_type
 
 from ckan.tests import helpers
 from ckan.common import (CKANConfig, config as ckan_config,
@@ -243,7 +244,7 @@ class TestCommonG(object):
 
         with app.flask_app.test_request_context():
 
-            assert u'flask.g' in unicode(ckan_g)
+            assert u'flask.g' in text_type(ckan_g)
 
             flask.g.user = u'example'
 

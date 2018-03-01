@@ -2,7 +2,7 @@
 
 import json
 
-from six import string_types
+from six import string_types, text_type
 
 import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
@@ -46,7 +46,7 @@ def convert_from_extras(key, data, errors, context):
 
 def extras_unicode_convert(extras, context):
     for extra in extras:
-        extras[extra] = unicode(extras[extra])
+        extras[extra] = text_type(extras[extra])
     return extras
 
 def free_tags_only(key, data, errors, context):

@@ -6,8 +6,6 @@ import inspect
 import itertools
 import pkgutil
 
-from jinja2 import ChoiceLoader
-
 from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
@@ -26,7 +24,6 @@ from repoze.who.middleware import PluggableAuthenticationMiddleware
 import ckan.model as model
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
-from ckan.lib.render import CkanextTemplateLoader
 from ckan.common import config, g, request, ungettext
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
@@ -82,11 +79,8 @@ def make_flask_stack(conf, **app_conf):
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
     app.url_rule_class = CKAN_Rule
-    app.jinja_loader = ChoiceLoader([
-        app.jinja_loader,
-        CkanextTemplateLoader()
-    ])
 
+    app.jinja_options = jinja_extensions.get_jinja_env_options()
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
     if config:
@@ -132,18 +126,6 @@ def make_flask_stack(conf, **app_conf):
     app.session_interface = BeakerSessionInterface()
 
     # Add Jinja2 extensions and filters
-    extensions = [
-        'jinja2.ext.do', 'jinja2.ext.with_',
-        jinja_extensions.SnippetExtension,
-        jinja_extensions.CkanExtend,
-        jinja_extensions.CkanInternationalizationExtension,
-        jinja_extensions.LinkForExtension,
-        jinja_extensions.ResourceExtension,
-        jinja_extensions.UrlForStaticExtension,
-        jinja_extensions.UrlForExtension
-    ]
-    for extension in extensions:
-        app.jinja_env.add_extension(extension)
     app.jinja_env.filters['empty_and_escape'] = \
         jinja_extensions.empty_and_escape
 

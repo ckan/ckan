@@ -6,6 +6,7 @@ import unittest
 
 import nose.tools as nt
 from passlib.hash import pbkdf2_sha512
+from six import text_type
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -28,7 +29,7 @@ class TestPassword(unittest.TestCase):
 
         This is needed to create old password hashes in the tests
         '''
-        if isinstance(password, unicode):
+        if isinstance(password, text_type):
             password_8bit = password.encode('ascii', 'ignore')
         else:
             password_8bit = password
@@ -37,7 +38,7 @@ class TestPassword(unittest.TestCase):
         hash = hashlib.sha1(password_8bit + salt.hexdigest())
         hashed_password = salt.hexdigest() + hash.hexdigest()
 
-        if not isinstance(hashed_password, unicode):
+        if not isinstance(hashed_password, text_type):
             hashed_password = hashed_password.decode('utf-8')
         return hashed_password
 
