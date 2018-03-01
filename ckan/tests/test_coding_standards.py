@@ -17,8 +17,10 @@ import re
 import subprocess
 import sys
 
+from six import text_type
+from six.moves import xrange
 
-FILESYSTEM_ENCODING = unicode(
+FILESYSTEM_ENCODING = text_type(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
 
@@ -124,7 +126,7 @@ def test_source_files_specify_encoding():
 
     Empty files and files that only contain comments are ignored.
     '''
-    pattern = re.compile(ur'#.*?coding[:=][ \t]*utf-?8')
+    pattern = re.compile(r'#.*?coding[:=][ \t]*utf-?8')
     decode_errors = []
     no_specification = []
     for abs_path, rel_path in walk_python_files():
@@ -572,6 +574,7 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/tests/plugins/__init__.py',
     u'ckan/tests/plugins/test_toolkit.py',
     u'ckan/tests/test_authz.py',
+    u'ckan/tests/test_coding_standards.py',
     u'ckan/tests/test_factories.py',
     u'ckan/websetup.py',
     u'ckanext/datapusher/cli.py',
