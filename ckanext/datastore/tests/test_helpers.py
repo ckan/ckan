@@ -68,9 +68,6 @@ class TestGetTables(object):
     @classmethod
     def setup_class(cls):
 
-        if not config.get('ckan.datastore.read_url'):
-            raise nose.SkipTest('Datastore runs on legacy mode, skipping...')
-
         engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
