@@ -3,6 +3,7 @@
 import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
+from six import text_type
 from ckan.common import config
 from ckan.model.core import State
 
@@ -58,7 +59,7 @@ def table_dictize(obj, context, **kw):
         elif isinstance(value, list):
             result_dict[name] = value
         else:
-            result_dict[name] = unicode(value)
+            result_dict[name] = text_type(value)
 
     result_dict.update(kw)
 

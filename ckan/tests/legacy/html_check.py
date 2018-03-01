@@ -3,7 +3,8 @@
 import re
 import sgmllib
 
-from six import string_types
+from six import string_types, text_type
+
 
 import paste.fixture
 
@@ -64,23 +65,23 @@ class HtmlCheckMethods(object):
     def _get_html_from_res(self, html):
         if isinstance(html, paste.fixture.TestResponse):
             html_str = html.body.decode('utf8')
-        elif isinstance(html, unicode):
+        elif isinstance(html, text_type):
             html_str = html
         elif isinstance(html, str):
             html_str = html.decode('utf8')
         else:
             raise TypeError
-        return html_str # always unicode
+        return html_str  # always unicode
 
     def _check_html(self, regex_compiled, html, html_to_find):
-        html_to_find = [unicode(html_bit) for html_bit in html_to_find]
+        html_to_find = [text_type(html_bit) for html_bit in html_to_find]
         partly_matching_tags = []
         html_str = self._get_html_from_res(html)
         for tag in regex_compiled.finditer(html_str):
             found_all=True
             for i, html_bit_to_find in enumerate(html_to_find):
-                assert isinstance(html_bit_to_find, (str, unicode)), html_bit_to_find
-                html_bit_to_find = unicode(html_bit_to_find)
+                assert isinstance(html_bit_to_find, string_types), html_bit_to_find
+                html_bit_to_find = text_type(html_bit_to_find)
                 find_inverse = html_bit_to_find.startswith('!')
                 if (find_inverse and html_bit_to_find[1:] in tag.group()) or \
                    (not find_inverse and html_bit_to_find not in tag.group()):

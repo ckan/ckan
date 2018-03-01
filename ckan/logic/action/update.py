@@ -11,6 +11,7 @@ import os
 
 from ckan.common import config
 import paste.deploy.converters as converters
+from six import text_type
 
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
@@ -822,9 +823,9 @@ def term_translation_update(context, data_dict):
 
     _check_access('term_translation_update', context, data_dict)
 
-    schema = {'term': [validators.not_empty, unicode],
-              'term_translation': [validators.not_empty, unicode],
-              'lang_code': [validators.not_empty, unicode]}
+    schema = {'term': [validators.not_empty, text_type],
+              'term_translation': [validators.not_empty, text_type],
+              'lang_code': [validators.not_empty, text_type]}
 
     data, errors = _validate(data_dict, schema, context)
     if errors:

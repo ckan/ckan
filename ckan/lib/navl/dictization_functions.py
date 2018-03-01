@@ -4,6 +4,8 @@ import copy
 import formencode as fe
 import inspect
 import json
+
+from six import text_type
 from ckan.common import config
 
 from ckan.common import _
@@ -47,7 +49,7 @@ class State(object):
 
 class DictizationError(Exception):
     def __str__(self):
-        return unicode(self).encode('utf8')
+        return text_type(self).encode('utf8')
 
     def __unicode__(self):
         if hasattr(self, 'error') and self.error:
