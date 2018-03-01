@@ -328,9 +328,8 @@ to adapt where the mock is installed. See `mock's documentation`_ for details.
 Migrating from CKAN's previous background job system
 ====================================================
 Before version 2.7 (starting from 1.5), CKAN offered a different background job
-system built around Celery_. That system is still available but deprecated and
-will be removed in future versions of CKAN. You should therefore update your
-code to use the new system described above.
+system built around Celery_. As of CKAN 2.8, that system is no longer available.
+You should therefore update your code to use the new system described above.
 
 .. _Celery: http://celeryproject.org/
 
