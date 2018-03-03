@@ -19,8 +19,8 @@ groups - the list of groups to render
       {% else %}
         <p>{{ _('This group has no description') }}</p>
       {% endif %}
-      {% if group.packages %}
-        <strong>{{ ungettext('{num} Dataset', '{num} Datasets', group.packages).format(num=group.packages) }}</strong>
+      {% if group.package_count %}
+        <strong>{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</strong>
       {% else %}
         <span>{{ _('0 Datasets') }}</span>
       {% endif %}
