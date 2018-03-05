@@ -7070,11 +7070,15 @@ a.tag:hover {
   .nav-aside li.active a:before {
     content: ' ';
     position: absolute;
-    top: 3px;
+    border: 20px solid transparent;
+    border-right: none;
+    border-left-color: #8ca0a6;
+    border-left-width: 6px;
+    top: 0;
+    bottom: 0;
     right: -6px;
     width: 6px;
     height: 34px;
-    background-image: url("../../../base/images/nav-active.png?1");
   }
 }
 .nav-pills > li {
@@ -7089,7 +7093,6 @@ a.tag:hover {
 .nav-aside li.active a span {
   white-space: nowrap;
   overflow: hidden;
-  display: block;
 }
 .module-narrow .nav-item > a,
 .module-narrow .nav-aside li a {
