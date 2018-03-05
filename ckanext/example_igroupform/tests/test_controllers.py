@@ -26,14 +26,20 @@ def _get_group_new_page(app, group_type):
 
 
 class TestGroupController(helpers.FunctionalTestBase):
+
+    @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'example_igroupform'
+
     @classmethod
     def setup_class(cls):
         super(TestGroupController, cls).setup_class()
-        plugins.load('example_igroupform')
+        # plugins.load('example_igroupform')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_igroupform')
+        if plugins.plugin_loaded('example_igroupform'):
+            plugins.unload('example_igroupform')
         super(TestGroupController, cls).teardown_class()
 
     def test_about(self):
@@ -74,6 +80,7 @@ class TestGroupController(helpers.FunctionalTestBase):
 
 
 class TestOrganizationController(helpers.FunctionalTestBase):
+
     @classmethod
     def setup_class(cls):
         super(TestOrganizationController, cls).setup_class()

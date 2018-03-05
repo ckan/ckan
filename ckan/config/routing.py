@@ -255,7 +255,7 @@ def make_map():
 
     # group
     lib_plugins.register_package_plugins(map)
-    lib_plugins.register_group_plugins(map)
+    #lib_plugins.register_group_plugins(map)
 
     # tags
     map.redirect('/tags', '/tag')

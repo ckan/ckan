@@ -19,7 +19,6 @@ import ckan.plugins as plugins
 from ckan.common import OrderedDict, c, g, config, request, _
 from flask import Blueprint
 from flask.views import MethodView
-import ckan.lib.plugins as lib_plugins
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized

@@ -188,7 +188,7 @@ def register_group_plugins(app):
                                      "groups has been registered")
                 _default_group_plugin = plugin
                 
-        
+        from views import group as group
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
             # allow us to have top level objects that are actually
@@ -200,7 +200,7 @@ def register_group_plugins(app):
             # map instead. This looks like a threading problem waiting
             # to happen but it is executed sequentially from inside the
             # routing setup
-            blueprint = Blueprint(group_type, group.import_name,
+            blueprint = Blueprint(group_type, group.group.import_name,
                                   url_prefix='/{}'.format(group_type),
                                   url_defaults={'package_type': group_type})
             actions = ['group.member_delete', 'group.history', 
@@ -244,25 +244,24 @@ def register_group_plugins(app):
                     methods=[u'GET', u'POST'],
                     view_func=action)
 
-
-            # if group_type in _group_plugins:
-            #     raise ValueError("An existing IGroupForm is "
-            #                      "already associated with the group type "
-            #                      "'%s'" % group_type)
+            if group_type in _group_plugins:
+                raise ValueError("An existing IGroupForm is "
+                                 "already associated with the group type "
+                                 "'%s'" % group_type)
             app.register_blueprint(blueprint)
             _group_plugins[group_type] = plugin
             # _group_controllers[group_type] = group_controller
 
-            # controller_obj = None
+            controller_obj = None
             # If using one of the default controllers, tell it that it is allowed
             # to handle other group_types.
             # Import them here to avoid circular imports.
-            # if group_controller == 'group':
-            #     from ckan.controllers.group import GroupController as controller_obj
-            # elif group_controller == 'organization':
-            #     from ckan.controllers.organization import OrganizationController as controller_obj
-            # if controller_obj is not None:
-            #     controller_obj.add_group_type(group_type)
+            if group_controller == 'group':
+                from ckan.controllers.group import GroupController as controller_obj
+            elif group_controller == 'organization':
+                from ckan.controllers.organization import OrganizationController as controller_obj
+            if controller_obj is not None:
+                controller_obj.add_group_type(group_type)
 
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
