@@ -11,6 +11,7 @@ import logic.schema
 from ckan import plugins
 import ckan.authz
 import ckan.plugins.toolkit as toolkit
+from flask import Blueprint
 
 log = logging.getLogger(__name__)
 
@@ -186,7 +187,8 @@ def register_group_plugins(app):
                     raise ValueError("More than one fallback IGroupForm for "
                                      "groups has been registered")
                 _default_group_plugin = plugin
-
+                
+        from ckan.views import group
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
             # allow us to have top level objects that are actually
@@ -198,6 +200,49 @@ def register_group_plugins(app):
             # map instead. This looks like a threading problem waiting
             # to happen but it is executed sequentially from inside the
             # routing setup
+            blueprint = Blueprint(group, group.group.import_name,
+                                  url_prefix='/{}'.format(group_type),
+                                  url_defaults={'package_type': group_type})
+            actions = ['group.member_delete', 'group.history', 
+                       'group.followers', 'group.follow', 'group.unfollow',
+                       'group.admins', 'group.activity']
+
+            blueprint.add_url_rule(u'/', view_func=group.index,
+                                   strict_slashes=False)
+            blueprint.add_url_rule(
+                u'/new',
+                methods=[u'GET', u'POST'],
+                view_func=group.CreateGroupView.as_view(str('new')))
+            blueprint.add_url_rule(
+                u'/<id>', methods=[u'GET'],
+                view_func=group.read)
+            blueprint.add_url_rule(
+                u'/edit/<id>',
+                view_func=group.EditGroupView.as_view(str('edit')))
+            blueprint.add_url_rule(
+                u'/activity/<id>/<int:offset>',
+                methods=[u'GET'],
+                view_func=group.activity)
+            blueprint.add_url_rule(
+                u'/about/<id>',
+                methods=[u'GET'],
+                view_func=group.about)
+            blueprint.add_url_rule(
+                u'/members/<id>',
+                methods=[u'GET', u'POST'],
+                view_func=group.members)
+            blueprint.add_url_rule(
+                u'/member_new/<id>',
+                view_func=group.MembersGroupView.as_view(str('member_new')))
+            blueprint.add_url_rule(
+                u'/delete/<id>',
+                methods=[u'GET', u'POST'],
+                view_func=group.DeleteGroupView.as_view(str('delete')))
+            for action in actions:
+                blueprint.add_url_rule(
+                    u'/{0}/<id>'.format(action),
+                    methods=[u'GET', u'POST'],
+                    view_func=action)
 
 
             # if group_type in _group_plugins:
@@ -205,18 +250,18 @@ def register_group_plugins(app):
             #                      "already associated with the group type "
             #                      "'%s'" % group_type)
             _group_plugins[group_type] = plugin
-            _group_controllers[group_type] = group_controller
+            # _group_controllers[group_type] = group_controller
 
-            controller_obj = None
+            # controller_obj = None
             # If using one of the default controllers, tell it that it is allowed
             # to handle other group_types.
             # Import them here to avoid circular imports.
-            if group_controller == 'group':
-                from ckan.controllers.group import GroupController as controller_obj
-            elif group_controller == 'organization':
-                from ckan.controllers.organization import OrganizationController as controller_obj
-            if controller_obj is not None:
-                controller_obj.add_group_type(group_type)
+            # if group_controller == 'group':
+            #     from ckan.controllers.group import GroupController as controller_obj
+            # elif group_controller == 'organization':
+            #     from ckan.controllers.organization import OrganizationController as controller_obj
+            # if controller_obj is not None:
+            #     controller_obj.add_group_type(group_type)
 
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
