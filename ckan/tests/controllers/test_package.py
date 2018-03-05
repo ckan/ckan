@@ -934,7 +934,7 @@ class TestResourceNew(helpers.FunctionalTestBase):
 
         response = app.post(
             url_for(
-                'ew_rsource.new',
+                'resource.new',
                 id=dataset['id'],
             ),
             {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
@@ -997,17 +997,19 @@ class TestResourceNew(helpers.FunctionalTestBase):
 
 class TestResourceView(helpers.FunctionalTestBase):
     @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'image_view'
+
+    @classmethod
     def setup_class(cls):
         super(cls, cls).setup_class()
-
-        if not p.plugin_loaded('image_view'):
-            p.load('image_view')
 
         helpers.reset_db()
 
     @classmethod
     def teardown_class(cls):
-        p.unload('image_view')
+        if p.plugin_loaded('image_view'):
+            p.unload('image_view')
 
     def test_existent_resource_view_page_returns_ok_code(self):
         resource_view = factories.ResourceView()
@@ -1431,7 +1433,7 @@ class TestSearch(helpers.FunctionalTestBase):
         search_form['q'] = 'Nout'
         search_results = webtest_submit(search_form)
 
-        assert_true('No datasets found for &#34;Nout&#34;' in search_results)
+        assert_true('No datasets found for "Nout"' in search_results)
 
         search_response_html = BeautifulSoup(search_results.body)
         ds_titles = search_response_html.select('.dataset-list '
@@ -1451,8 +1453,7 @@ class TestSearch(helpers.FunctionalTestBase):
 
         search_url = url_for('dataset.search')
         search_response = app.get(search_url)
-
-        assert_true('/dataset?tags=my-tag' in search_response)
+        assert_true('/dataset/?tags=my-tag' in search_response)
 
         tag_search_response = app.get('/dataset?tags=my-tag')
 

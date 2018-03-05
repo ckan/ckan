@@ -929,7 +929,8 @@ def default_group_type():
 
 
 @core_helper
-def get_facet_items_dict(facet, search_facets, limit=None, exclude_active=False):
+def get_facet_items_dict(
+        facet, search_facets, limit=None, exclude_active=False):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
 

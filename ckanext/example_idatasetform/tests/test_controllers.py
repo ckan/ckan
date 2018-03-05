@@ -64,7 +64,7 @@ class TestPackageController(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
         # just check it has finished the edit, rather than being sent on to the
         # resource create/edit form.
-        assert_equal(response.req.path, '/dataset/%s' % dataset['name'])
+        assert_equal(response.request.path, '/dataset/%s' % dataset['name'])
 
         pkg = model.Package.by_name(dataset['name'])
         assert_equal(pkg.extras['testkey'], u'bar')

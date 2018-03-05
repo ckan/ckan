@@ -166,20 +166,20 @@ class TestPackageForm(TestPackageBase):
         '''
         try:
             new_name = u'new-name'
-            offset_params = {'controller':'package'}
+            offset_params = {}
             if pkg_name_to_edit:
                 pkg_name = pkg_name_to_edit
                 pkg = model.Package.by_name(pkg_name)
                 assert pkg
                 pkg_id = pkg.id
-                offset_params['action'] = 'edit'
+                named_route = 'dataset.edit'
                 offset_params['id'] = pkg_name_to_edit
             else:
-                offset_params['action'] = 'new'
+                named_route = 'dataset.new'
                 pkg_id = ''
             if return_url_param:
                 offset_params['return_to'] = return_url_param
-            offset = url_for(**offset_params)
+            offset = url_for(named_route, **offset_params)
             res = self.app.get(offset, extra_environ=extra_environ)
             assert 'Datasets -' in res
             fv = res.forms['dataset-edit']
@@ -272,118 +272,118 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         #assert cache_url in res
 
 
-class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
+# class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
 
-    @classmethod
-    def setup_class(cls):
-        cls.before = datetime.datetime(2010, 1, 1)
-        cls.date1 = datetime.datetime(2011, 1, 1)
-        cls.date2 = datetime.datetime(2011, 1, 2)
-        cls.date3 = datetime.datetime(2011, 1, 3)
-        cls.today = datetime.datetime.now()
-        cls.pkg_name = u'testpkg'
+#     @classmethod
+#     def setup_class(cls):
+#         cls.before = datetime.datetime(2010, 1, 1)
+#         cls.date1 = datetime.datetime(2011, 1, 1)
+#         cls.date2 = datetime.datetime(2011, 1, 2)
+#         cls.date3 = datetime.datetime(2011, 1, 3)
+#         cls.today = datetime.datetime.now()
+#         cls.pkg_name = u'testpkg'
 
-        # create dataset
-        rev = model.repo.new_revision()
-        rev.timestamp = cls.date1
-        pkg = model.Package(name=cls.pkg_name, title=u'title1')
-        model.Session.add(pkg)
-        model.repo.commit_and_remove()
+#         # create dataset
+#         rev = model.repo.new_revision()
+#         rev.timestamp = cls.date1
+#         pkg = model.Package(name=cls.pkg_name, title=u'title1')
+#         model.Session.add(pkg)
+#         model.repo.commit_and_remove()
 
-        # edit dataset
-        rev = model.repo.new_revision()
-        rev.timestamp = cls.date2
-        pkg = model.Package.by_name(cls.pkg_name)
-        pkg.title = u'title2'
-        pkg.add_tag_by_name(u'tag 2')
-        pkg.extras = {'key2': u'value2'}
-        model.repo.commit_and_remove()
+#         # edit dataset
+#         rev = model.repo.new_revision()
+#         rev.timestamp = cls.date2
+#         pkg = model.Package.by_name(cls.pkg_name)
+#         pkg.title = u'title2'
+#         pkg.add_tag_by_name(u'tag 2')
+#         pkg.extras = {'key2': u'value2'}
+#         model.repo.commit_and_remove()
 
-        # edit dataset again
-        rev = model.repo.new_revision()
-        rev.timestamp = cls.date3
-        pkg = model.Package.by_name(cls.pkg_name)
-        pkg.title = u'title3'
-        pkg.add_tag_by_name(u'tag3.')
-        pkg.extras['key2'] = u'value3'
-        model.repo.commit_and_remove()
+#         # edit dataset again
+#         rev = model.repo.new_revision()
+#         rev.timestamp = cls.date3
+#         pkg = model.Package.by_name(cls.pkg_name)
+#         pkg.title = u'title3'
+#         pkg.add_tag_by_name(u'tag3.')
+#         pkg.extras['key2'] = u'value3'
+#         model.repo.commit_and_remove()
 
-        cls.offset = url_for('dataset.read',
-                             id=cls.pkg_name)
-        pkg = model.Package.by_name(cls.pkg_name)
-        cls.revision_ids = [rev[0].id for rev in pkg.all_related_revisions[::-1]]
-                        # revision order is reversed to be chronological
+#         cls.offset = url_for('dataset.read',
+#                              id=cls.pkg_name)
+#         pkg = model.Package.by_name(cls.pkg_name)
+#         cls.revision_ids = [rev[0].id for rev in pkg.all_related_revisions[::-1]]
+#                         # revision order is reversed to be chronological
 
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
+#     @classmethod
+#     def teardown_class(cls):
+#         model.repo.rebuild_db()
 
-    def test_read_date_before_created(self):
-        offset = self.offset + self.before.strftime('@%Y-%m-%d')
-        res = self.app.get(offset, status=404)
+#     def test_read_date_before_created(self):
+#         offset = self.offset + self.before.strftime('@%Y-%m-%d')
+#         res = self.app.get(offset, status=404)
 
-    def test_read_date_invalid(self):
-        res = self.app.get(self.offset + self.date3.strftime('@%Y-%m'),
-                           status=400)
-        res = self.app.get(self.offset + self.date3.strftime('@%Y'),
-                           status=400)
-        res = self.app.get(self.offset + self.date3.strftime('@%Y@%m'),
-                           status=400)
+#     def test_read_date_invalid(self):
+#         res = self.app.get(self.offset + self.date3.strftime('@%Y-%m'),
+#                            status=400)
+#         res = self.app.get(self.offset + self.date3.strftime('@%Y'),
+#                            status=400)
+#         res = self.app.get(self.offset + self.date3.strftime('@%Y@%m'),
+#                            status=400)
 
-    def test_read_revision1(self):
-        offset = self.offset + '@%s' % self.revision_ids[0]
-        res = self.app.get(offset, status=200)
-        main_html = pkg_html = side_html = res.body
-        print('MAIN', main_html)
-        assert 'This is an old revision of this dataset' in main_html
-        assert 'at January 1, 2011, 00:00' in main_html
-        self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
-        print('PKG', pkg_html)
-        assert 'title1' in res
-        assert 'key2' not in pkg_html
-        assert 'value3' not in pkg_html
-        print('SIDE', side_html)
-        assert 'tag3.' not in side_html
-        assert 'tag 2' not in side_html
+#     def test_read_revision1(self):
+#         offset = self.offset + '@%s' % self.revision_ids[0]
+#         res = self.app.get(offset, status=200)
+#         main_html = pkg_html = side_html = res.body
+#         print('MAIN', main_html)
+#         assert 'This is an old revision of this dataset' in main_html
+#         assert 'at January 1, 2011, 00:00' in main_html
+#         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
+#         print('PKG', pkg_html)
+#         assert 'title1' in res
+#         assert 'key2' not in pkg_html
+#         assert 'value3' not in pkg_html
+#         print('SIDE', side_html)
+#         assert 'tag3.' not in side_html
+#         assert 'tag 2' not in side_html
 
-    def test_read_revision2(self):
-        offset = self.offset + '@%s' % self.revision_ids[1]
-        res = self.app.get(offset, status=200)
-        main_html = pkg_html = side_html = res.body
-        print('MAIN', main_html)
-        assert 'This is an old revision of this dataset' in main_html
-        assert 'at January 2, 2011, 00:00' in main_html
-        self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
-        print('PKG', pkg_html)
-        assert 'title2' in res
-        assert 'key2' in pkg_html
-        assert 'value2' in pkg_html
-        print('SIDE', side_html)
-        assert 'tag3.' not in side_html
-        assert 'tag 2' in side_html
+#     def test_read_revision2(self):
+#         offset = self.offset + '@%s' % self.revision_ids[1]
+#         res = self.app.get(offset, status=200)
+#         main_html = pkg_html = side_html = res.body
+#         print('MAIN', main_html)
+#         assert 'This is an old revision of this dataset' in main_html
+#         assert 'at January 2, 2011, 00:00' in main_html
+#         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
+#         print('PKG', pkg_html)
+#         assert 'title2' in res
+#         assert 'key2' in pkg_html
+#         assert 'value2' in pkg_html
+#         print('SIDE', side_html)
+#         assert 'tag3.' not in side_html
+#         assert 'tag 2' in side_html
 
-    def test_read_revision3(self):
-        offset = self.offset + '@%s' % self.revision_ids[2]
-        res = self.app.get(offset, status=200)
-        main_html = pkg_html = side_html = res.body
-        print('MAIN', main_html)
-        assert 'This is an old revision of this dataset' in main_html
-        # It is not an old revision, but working that out is hard. The request
-        # was for a particular revision, so assume it is old.
-        assert 'at January 3, 2011, 00:00' in main_html
-        self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
-        print('PKG', pkg_html)
-        assert 'title3' in res
-        assert 'key2' in pkg_html
-        assert 'value3' in pkg_html
-        print('SIDE', side_html)
-        assert 'tag3.' in side_html
-        assert 'tag 2' in side_html
+#     def test_read_revision3(self):
+#         offset = self.offset + '@%s' % self.revision_ids[2]
+#         res = self.app.get(offset, status=200)
+#         main_html = pkg_html = side_html = res.body
+#         print('MAIN', main_html)
+#         assert 'This is an old revision of this dataset' in main_html
+#         # It is not an old revision, but working that out is hard. The request
+#         # was for a particular revision, so assume it is old.
+#         assert 'at January 3, 2011, 00:00' in main_html
+#         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
+#         print('PKG', pkg_html)
+#         assert 'title3' in res
+#         assert 'key2' in pkg_html
+#         assert 'value3' in pkg_html
+#         print('SIDE', side_html)
+#         assert 'tag3.' in side_html
+#         assert 'tag 2' in side_html
 
-    def test_read_bad_revision(self):
-        # this revision doesn't exist in the db
-        offset = self.offset + '@ccab6798-1f4b-4a22-bcf5-462703aa4594'
-        res = self.app.get(offset, status=404)
+#     def test_read_bad_revision(self):
+#         # this revision doesn't exist in the db
+#         offset = self.offset + '@ccab6798-1f4b-4a22-bcf5-462703aa4594'
+#         res = self.app.get(offset, status=404)
 
 class TestEdit(TestPackageForm):
     editpkg_name = u'editpkgtest'
@@ -718,13 +718,14 @@ class TestRevisions(TestPackageBase):
         cls.revision_ids = [rev[0].id for rev in cls.pkg1.all_related_revisions]
                            # revision ids are newest first
         cls.revision_timestamps = [rev[0].timestamp for rev in cls.pkg1.all_related_revisions]
+        cls.offset = url_for('dataset.history', id=cls.pkg1.name)
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
 
     def test_2_atom_feed(self):
-        offset = "?format=atom"
+        offset = "%s?format=atom" % self.offset
         res = self.app.get(offset)
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res

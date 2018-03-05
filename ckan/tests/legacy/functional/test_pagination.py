@@ -60,13 +60,13 @@ class TestPaginationPackage(TestController):
 
     def test_package_search_p1(self):
         res = self.app.get(url_for('dataset.search', q='groups:group_00'))
-        assert 'href="/dataset?q=groups%3Agroup_00&amp;page=2"' in res
+        assert 'href="/dataset/?q=groups%3Agroup_00&amp;page=2"' in res
         pkg_numbers = scrape_search_results(res, 'dataset')
         assert_equal(['50', '49', '48', '47', '46', '45', '44', '43', '42', '41', '40', '39', '38', '37', '36', '35', '34', '33', '32', '31'], pkg_numbers)
 
     def test_package_search_p2(self):
         res = self.app.get(url_for('dataset.search', q='groups:group_00', page=2))
-        assert 'href="/dataset?q=groups%3Agroup_00&amp;page=1"' in res
+        assert 'href="/dataset/?q=groups%3Agroup_00&amp;page=1"' in res
         pkg_numbers = scrape_search_results(res, 'dataset')
         assert_equal(['30', '29', '28', '27', '26', '25', '24', '23', '22', '21', '20', '19', '18', '17', '16', '15', '14', '13', '12', '11'], pkg_numbers)
 

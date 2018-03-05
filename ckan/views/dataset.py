@@ -3,12 +3,14 @@ import logging
 from collections import OrderedDict
 from functools import partial
 from urllib import urlencode
+import datetime
 
 from flask import Blueprint, make_response
 from flask.views import MethodView
 from paste.deploy.converters import asbool
-from six import string_types
+from six import string_types, text_type
 
+import ckan.lib.i18n as i18n
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
@@ -74,7 +76,7 @@ def search_url(params, package_type=None):
 def drill_down_url(alternative_url=None, **by):
     return h.add_url_param(
         alternative_url=alternative_url,
-        controller=u'package',
+        controller=u'dataset',
         action=u'search',
         new_params=by
     )
@@ -85,7 +87,7 @@ def remove_field(package_type, key, value=None, replace=None):
         key,
         value=value,
         replace=replace,
-        controller=u'package',
+        controller=u'dataset',
         action=u'search',
         alternative_url=package_type
     )
@@ -131,7 +133,7 @@ def _form_save_redirect(pkg_name, action, package_type=None):
     @param action - What the action of the edit was
     """
     assert action in (u'new', u'edit')
-    url = request.params.get(u'return_to') or config.get(
+    url = request.args.get(u'return_to') or config.get(
         u'package_%s_return_url' % action
     )
     if url:
@@ -169,20 +171,20 @@ def search(package_type):
         base.abort(403, _(u'Not authorized to see this page'))
 
     # unicode format (decoded from utf8)
-    extra_vars[u'q'] = q = request.params.get(u'q', u'')
+    extra_vars[u'q'] = q = request.args.get(u'q', u'')
 
     extra_vars['query_error'] = False
-    page = h.get_page_number(request.params)
+    page = h.get_page_number(request.args)
 
     limit = int(config.get(u'ckan.datasets_per_page', 20))
 
     # most search operations should reset the page counter:
-    params_nopage = [(k, v) for k, v in request.params.items() if k != u'page']
+    params_nopage = [(k, v) for k, v in request.args.items() if k != u'page']
 
     extra_vars[u'drill_down_url'] = drill_down_url
     extra_vars[u'remove_field'] = partial(remove_field, package_type)
 
-    sort_by = request.params.get(u'sort', None)
+    sort_by = request.args.get(u'sort', None)
     params_nosort = [(k, v) for k, v in params_nopage if k != u'sort']
 
     extra_vars[u'sort_by'] = partial(_sort_by, params_nosort, package_type)
@@ -206,7 +208,7 @@ def search(package_type):
         extra_vars[u'fields_grouped'] = fields_grouped = {}
         search_extras = {}
         fq = u''
-        for (param, value) in request.params.items():
+        for (param, value) in request.args.items():
             if param not in [u'q', u'page', u'sort'] \
                     and len(value) and not param.startswith(u'_'):
                 if not param.startswith(u'ext_'):
@@ -268,7 +270,6 @@ def search(package_type):
             facets = plugin.dataset_facets(facets, package_type)
 
         extra_vars[u'facet_titles'] = facets
-
         data_dict = {
             u'q': q,
             u'fq': fq.strip(),
@@ -321,7 +322,7 @@ def search(package_type):
     for facet in extra_vars[u'search_facets'].keys():
         try:
             limit = int(
-                request.params.get(
+                request.args.get(
                     u'_%s_limit' % facet,
                     int(config.get(u'search.facets.default', 10))
                 )
@@ -401,7 +402,7 @@ def read(package_type, id):
 
     # FEATURE: [start] https://github.com/ckan/ckan/pull/3972
     is_activity_archive = True
-    activity_id = request.params.get(u'activity_id')
+    activity_id = request.args.get(u'activity_id')
     if activity_id:
         # view an 'old' version of the package, as recorded in the
         # activity stream
@@ -462,7 +463,7 @@ def read(package_type, id):
 
 class CreateView(MethodView):
     def _is_save(self):
-        return u'save' in request.params
+        return u'save' in request.form
 
     def _prepare(self, data=None):
 
@@ -488,7 +489,7 @@ class CreateView(MethodView):
         # this is a real new.
         context = self._prepare()
         is_an_update = False
-        ckan_phase = request.params.get(u'_ckan_phase')
+        ckan_phase = request.form.get(u'_ckan_phase')
 
         try:
             data_dict = clean_dict(
@@ -496,7 +497,6 @@ class CreateView(MethodView):
             )
         except dict_fns.DataError:
             return base.abort(400, _(u'Integrity Error'))
-
         try:
             if ckan_phase:
                 # prevent clearing of groups etc
@@ -518,23 +518,11 @@ class CreateView(MethodView):
                         context, data_dict
                     )
 
-                    if request.params[u'save'] == u'go-metadata':
-                        # redirect to add metadata
-                        url = h.url_for(
-                            controller=u'package',
-                            action=u'new_metadata',
-                            id=pkg_dict[u'name']
-                        )
-                    else:
-                        # redirect to add dataset resources
-                        url = h.url_for(
-                            controller=u'package',
-                            action=u'new_resource',
-                            id=pkg_dict[u'name']
-                        )
+                    # redirect to add dataset resources
+                    url = h.url_for(u'resource.new', id=pkg_dict[u'name'])
                     return h.redirect_to(url)
                 # Make sure we don't index this dataset
-                if request.params[u'save'] not in [
+                if request.form[u'save'] not in [
                     u'go-resource', u'go-metadata'
                 ]:
                     data_dict[u'state'] = u'draft'
@@ -547,11 +535,7 @@ class CreateView(MethodView):
 
             if ckan_phase:
                 # redirect to add dataset resources
-                url = h.url_for(
-                    controller=u'package',
-                    action=u'new_resource',
-                    id=pkg_dict[u'name']
-                )
+                url = h.url_for(u'resource.new', id=pkg_dict[u'name'])
                 return h.redirect_to(url)
 
             return _form_save_redirect(
@@ -592,7 +576,7 @@ class CreateView(MethodView):
         data = data or clean_dict(
             dict_fns.unflatten(
                 tuplize_dict(
-                    parse_params(request.params, ignore_keys=CACHE_PARAMETERS)
+                    parse_params(request.args, ignore_keys=CACHE_PARAMETERS)
                 )
             )
         )
@@ -613,9 +597,9 @@ class CreateView(MethodView):
 
         # if we are creating from a group then this allows the group to be
         # set automatically
-        data[u'group_id'
-             ] = request.params.get(u'group'
-                                    ) or request.params.get(u'groups__0__id')
+        data[
+            u'group_id'
+        ] = request.args.get(u'group') or request.args.get(u'groups__0__id')
 
         form_snippet = _get_pkg_template(
             u'package_form', package_type=package_type
@@ -654,7 +638,7 @@ class EditView(MethodView):
             u'session': model.Session,
             u'user': g.user,
             u'auth_user_obj': g.userobj,
-            u'save': u'save' in request.params
+            u'save': u'save' in request.form
         }
         return context
 
@@ -729,7 +713,10 @@ class EditView(MethodView):
             g.form_style = u'new'
 
             return CreateView().get(
-                data=data, errors=errors, error_summary=error_summary
+                package_type,
+                data=data,
+                errors=errors,
+                error_summary=error_summary
             )
 
         pkg = context.get(u"package")
@@ -1081,7 +1068,107 @@ dataset.add_url_rule(
 )
 dataset.add_url_rule(u'/activity/<id>', view_func=activity)
 
+
 # XXX: [kill] history
+def history(package_type, id):
+    if u'diff' in request.args or u'selected1' in request.args:
+        try:
+            params = {
+                u'id': request.args.getone(u'pkg_name'),
+                u'diff': request.args.getone(u'selected1'),
+                u'oldid': request.args.getone(u'selected2'),
+            }
+        except KeyError:
+            if u'pkg_name' in dict(request.args):
+                id = request.args.getone(u'pkg_name')
+            g.error = \
+                _(u'Select two revisions before doing the comparison.')
+        else:
+            params[u'diff_entity'] = u'package'
+            return h.redirect_to(
+                controller=u'revision', action=u'diff', **params
+            )
+
+    context = {
+        u'model': model,
+        u'session': model.Session,
+        u'user': g.user,
+        u'auth_user_obj': g.userobj,
+        u'for_view': True
+    }
+    data_dict = {u'id': id}
+    try:
+        g.pkg_dict = get_action(u'package_show')(context, data_dict)
+        g.pkg_revisions = get_action(u'package_revision_list')(
+            context, data_dict
+        )
+        # TODO: remove
+        # Still necessary for the authz check in group/layout.html
+        g.pkg = context[u'package']
+
+    except NotAuthorized:
+        return base.abort(403, _(u'Unauthorized to read package %s') % u'')
+    except NotFound:
+        return base.abort(404, _(u'Dataset not found'))
+
+    format = request.args.get(u'format', u'')
+    if format == u'atom':
+        # Generate and return Atom 1.0 document.
+        from webhelpers.feedgenerator import Atom1Feed
+        feed = Atom1Feed(
+            title=_(u'CKAN Dataset Revision History'),
+            link=h.url_for(
+                controller=u'revision', action=u'read', id=g.pkg_dict[u'name']
+            ),
+            description=_(u'Recent changes to CKAN Dataset: ') +
+            (g.pkg_dict[u'title'] or u''),
+            language=text_type(i18n.get_lang()),
+        )
+        for revision_dict in g.pkg_revisions:
+            revision_date = h.date_str_to_datetime(revision_dict[u'timestamp'])
+            try:
+                dayHorizon = int(request.args.get(u'days'))
+            except:
+                dayHorizon = 30
+            dayAge = (datetime.datetime.now() - revision_date).days
+            if dayAge >= dayHorizon:
+                break
+            if revision_dict[u'message']:
+                item_title = u'%s' % revision_dict[u'message'].\
+                    split(u'\n')[0]
+            else:
+                item_title = u'%s' % revision_dict[u'id']
+            item_link = h.url_for(
+                controller=u'revision',
+                action=u'read',
+                id=revision_dict[u'id']
+            )
+            item_description = _(u'Log message: ')
+            item_description += u'%s' % (revision_dict[u'message'] or u'')
+            item_author_name = revision_dict[u'author']
+            item_pubdate = revision_date
+            feed.add_item(
+                title=item_title,
+                link=item_link,
+                description=item_description,
+                author_name=item_author_name,
+                pubdate=item_pubdate,
+            )
+        response = make_response(feed.writeString(u'utf-8'))
+        response.headers[u'Content-Type'] = u'application/atom+xml'
+        return response
+
+    package_type = g.pkg_dict[u'type'] or u'dataset'
+
+    return base.render(
+        _get_pkg_template(
+            u'history_template', g.pkg_dict.get(u'type', package_type)
+        ),
+        extra_vars={u'dataset_type': package_type}
+    )
+
+
+dataset.add_url_rule(u'/<id>/history', view_func=history)
 # XXX: [kill] history_ajax
 
 # XXX: [?] read_ajax

@@ -9,18 +9,19 @@ from ckan.tests import helpers, factories
 
 
 class TestWebPageView(helpers.FunctionalTestBase):
+    @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'webpage_view'
 
     @classmethod
     def setup_class(cls):
 
         super(TestWebPageView, cls).setup_class()
 
-        if not p.plugin_loaded('webpage_view'):
-            p.load('webpage_view')
-
     @classmethod
     def teardown_class(cls):
-        p.unload('webpage_view')
+        if p.plugin_loaded('webpage_view'):
+            p.unload('webpage_view')
 
         super(TestWebPageView, cls).teardown_class()
 

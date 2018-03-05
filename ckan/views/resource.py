@@ -3,7 +3,7 @@ import cgi
 import json
 import logging
 
-from flask import Blueprint, send_file
+import flask
 from flask.views import MethodView
 
 import ckan.lib.base as base
@@ -20,6 +20,7 @@ from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
 
+Blueprint = flask.Blueprint
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
@@ -54,9 +55,10 @@ def read(package_type, id, resource_id):
     except (NotFound, NotAuthorized):
         return base.abort(404, _(u'Dataset not found'))
 
-    for resource in package.get(u'resources', []):
-        if resource[u'id'] == resource_id:
-            resource = resource
+    resource = None
+    for res in package.get(u'resources', []):
+        if res[u'id'] == resource_id:
+            resource = res
             break
     if not resource:
         return base.abort(404, _(u'Resource not found'))
@@ -129,7 +131,7 @@ def download(package_type, id, resource_id, filename=None):
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
-        return send_file(filepath)
+        return flask.send_file(filepath)
     elif u'url' not in rsc:
         return base.abort(404, _(u'No download is available'))
     return h.redirect_to(rsc[u'url'])
@@ -141,6 +143,9 @@ class CreateView(MethodView):
         data = clean_dict(
             dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
         )
+        data.update(clean_dict(
+            dict_fns.unflatten(tuplize_dict(parse_params(request.files)))
+        ))
 
         # we don't want to include save as it is part of the form
         del data[u'save']
@@ -156,8 +161,9 @@ class CreateView(MethodView):
         # see if we have any data that we are trying to save
         data_provided = False
         for key, value in data.iteritems():
-            if ((value or isinstance(value, cgi.FieldStorage))
-                and key != u'resource_type'):
+            if (
+                    (value or isinstance(value, cgi.FieldStorage))
+                    and key != u'resource_type'):
                 data_provided = True
                 break
 
@@ -261,7 +267,7 @@ class CreateView(MethodView):
             u'errors': errors,
             u'error_summary': error_summary,
             u'action': u'new',
-            u'resource_form_snippet': self._get_pkg_template(
+            u'resource_form_snippet': _get_pkg_template(
                 u'resource_form', package_type
             ),
             u'dataset_type': package_type,
@@ -270,7 +276,7 @@ class CreateView(MethodView):
         }
         template = u'package/new_resource_not_draft.html'
         if pkg_dict[u'state'].startswith(u'draft'):
-            vars[u'stage'] = ['complete', u'active']
+            extra_vars[u'stage'] = ['complete', u'active']
             template = u'package/new_resource.html'
         return base.render(template, extra_vars)
 
@@ -299,6 +305,10 @@ class EditView(MethodView):
         data = clean_dict(
             dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
         )
+        data.update(clean_dict(
+            dict_fns.unflatten(tuplize_dict(parse_params(request.files)))
+        ))
+
         # we don't want to include save as it is part of the form
         del data[u'save']
 
@@ -341,7 +351,7 @@ class EditView(MethodView):
             return base.abort(404, _(u'Resource not found'))
 
         if pkg_dict[u'state'].startswith(u'draft'):
-            return CreateView().get(id, data=resource_dict)
+            return CreateView().get(package_type, id, data=resource_dict)
 
         # resource is fully created
         resource = resource_dict
