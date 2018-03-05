@@ -252,28 +252,6 @@ def send_email_notifications(context, data_dict):
     return {'success': False}
 
 
-## Modifications for rest api
-
-def package_update_rest(context, data_dict):
-    model = context['model']
-    user = context['user']
-    if not user:
-        return {'success': False,
-                'msg': _('Valid API key needed to edit a package')}
-
-    return authz.is_authorized('package_update', context, data_dict)
-
-
-def group_update_rest(context, data_dict):
-    model = context['model']
-    user = context['user']
-    if not user:
-        return {'success': False,
-                'msg': _('Valid API key needed to edit a group')}
-
-    return authz.is_authorized('group_update', context, data_dict)
-
-
 def package_owner_org_update(context, data_dict):
     # sysadmins only
     return {'success': False}

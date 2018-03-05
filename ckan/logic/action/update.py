@@ -883,58 +883,6 @@ def term_translation_update_many(context, data_dict):
     return {'success': '%s rows updated' % (num + 1)}
 
 
-## Modifications for rest api
-
-def package_update_rest(context, data_dict):
-
-    model = context['model']
-    id = data_dict.get("id")
-    request_id = context['id']
-    pkg = model.Package.get(request_id)
-
-    if not pkg:
-        raise NotFound
-
-    if id and id != pkg.id:
-        pkg_from_data = model.Package.get(id)
-        if pkg_from_data != pkg:
-            error_dict = {id:('Cannot change value of key from %s to %s. '
-                'This key is read-only') % (pkg.id, id)}
-            raise ValidationError(error_dict)
-
-    context["package"] = pkg
-    context["allow_partial_update"] = False
-    dictized_package = model_save.package_api_to_dict(data_dict, context)
-
-    _check_access('package_update_rest', context, dictized_package)
-
-    dictized_after = _get_action('package_update')(context, dictized_package)
-
-    pkg = context['package']
-
-    package_dict = model_dictize.package_to_api(pkg, context)
-
-    return package_dict
-
-def group_update_rest(context, data_dict):
-
-    model = context['model']
-    id = _get_or_bust(data_dict, "id")
-    group = model.Group.get(id)
-    context["group"] = group
-    context["allow_partial_update"] = True
-    dictized_group = model_save.group_api_to_dict(data_dict, context)
-
-    _check_access('group_update_rest', context, dictized_group)
-
-    dictized_after = _get_action('group_update')(context, dictized_group)
-
-    group = context['group']
-
-    group_dict = model_dictize.group_to_api(group, context)
-
-    return group_dict
-
 def vocabulary_update(context, data_dict):
     '''Update a tag vocabulary.
 

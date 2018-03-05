@@ -224,10 +224,6 @@ def package_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    # need to let rest api create
-    context["package"] = pkg
-    # this is added so that the rest controller can make a new location
-    context["id"] = pkg.id
     log.debug('Created object %s' % pkg.name)
 
     return_id_only = context.get('return_id_only', False)
@@ -1099,28 +1095,6 @@ def _get_random_username_from_email(email):
     return cleaned_localpart
 
 
-# Modifications for rest api
-
-def package_create_rest(context, data_dict):
-    _check_access('package_create_rest', context, data_dict)
-    dictized_package = model_save.package_api_to_dict(data_dict, context)
-    dictized_after = _get_action('package_create')(context, dictized_package)
-    pkg = context['package']
-    package_dict = model_dictize.package_to_api(pkg, context)
-    data_dict['id'] = pkg.id
-    return package_dict
-
-
-def group_create_rest(context, data_dict):
-    _check_access('group_create_rest', context, data_dict)
-    dictized_group = model_save.group_api_to_dict(data_dict, context)
-    dictized_after = _get_action('group_create')(context, dictized_group)
-    group = context['group']
-    group_dict = model_dictize.group_to_api(group, context)
-    data_dict['id'] = group.id
-    return group_dict
-
-
 def vocabulary_create(context, data_dict):
     '''Create a new tag vocabulary.
 
@@ -1216,21 +1190,6 @@ def activity_create(context, activity_dict, **kw):
 
     log.debug("Created '%s' activity" % activity.activity_type)
     return model_dictize.activity_dictize(activity, context)
-
-
-def package_relationship_create_rest(context, data_dict):
-    # rename keys
-    key_map = {'id': 'subject',
-               'id2': 'object',
-               'rel': 'type'}
-    # Don't be destructive to enable parameter values for
-    # object and type to override the URL parameters.
-    data_dict = ckan.logic.action.rename_keys(data_dict, key_map,
-                                              destructive=False)
-
-    relationship_dict = _get_action('package_relationship_create')(
-        context, data_dict)
-    return relationship_dict
 
 
 def tag_create(context, data_dict):
