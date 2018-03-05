@@ -10,7 +10,7 @@
 
   {% block search_input %}
     <div class="input-group search-input-group">
-      <input aria-label="{% block search_input_accessible_label %}{{ placeholder }}{% endblock %}" id="field-giant-search" type="text" class="form-control input-lg" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
+      <input aria-label="{% block header_site_search_label %}{{ placeholder }}{% endblock %}" id="field-giant-search" type="text" class="form-control input-lg" name="q" value="{{ query }}" autocomplete="off" placeholder="{{ placeholder }}">
       {% block search_input_button %}
       <span class="input-group-btn">
         <button class="btn btn-default btn-lg" type="submit" value="search">
