@@ -173,6 +173,7 @@ def make_flask_stack(conf, **app_conf):
 
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
+    _register_plugin_blueprints(app)
 
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):

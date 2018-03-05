@@ -188,7 +188,7 @@ def register_group_plugins(app):
                                      "groups has been registered")
                 _default_group_plugin = plugin
                 
-        from ckan.views import group
+        
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
             # allow us to have top level objects that are actually
@@ -200,7 +200,7 @@ def register_group_plugins(app):
             # map instead. This looks like a threading problem waiting
             # to happen but it is executed sequentially from inside the
             # routing setup
-            blueprint = Blueprint(group, group.group.import_name,
+            blueprint = Blueprint(group_type, group.import_name,
                                   url_prefix='/{}'.format(group_type),
                                   url_defaults={'package_type': group_type})
             actions = ['group.member_delete', 'group.history', 
@@ -249,6 +249,7 @@ def register_group_plugins(app):
             #     raise ValueError("An existing IGroupForm is "
             #                      "already associated with the group type "
             #                      "'%s'" % group_type)
+            app.register_blueprint(blueprint)
             _group_plugins[group_type] = plugin
             # _group_controllers[group_type] = group_controller
 
