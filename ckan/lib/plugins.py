@@ -139,7 +139,7 @@ def register_package_plugins(map):
         _default_package_plugin = DefaultDatasetForm()
 
 
-def register_group_plugins(map):
+def register_group_plugins(app):
     """
     Register the various IGroupForm instances.
 
@@ -199,51 +199,11 @@ def register_group_plugins(map):
             # to happen but it is executed sequentially from inside the
             # routing setup
 
-            map.connect('%s_index' % group_type, '/%s' % group_type,
-                        controller=group_controller, action='index')
-            map.connect('%s_new' % group_type, '/%s/new' % group_type,
-                        controller=group_controller, action='new')
-            map.connect('%s_read' % group_type, '/%s/{id}' % group_type,
-                        controller=group_controller, action='read')
-            map.connect('%s_action' % group_type,
-                        '/%s/{action}/{id}' % group_type,
-                        controller=group_controller,
-                        requirements=dict(action='|'.join(
-                            ['edit', 'authz', 'delete', 'history', 'member_new',
-                             'member_delete', 'followers', 'follow',
-                             'unfollow', 'admins', 'activity'])))
-            map.connect('%s_edit' % group_type, '/%s/edit/{id}' % group_type,
-                        controller=group_controller, action='edit',
-                        ckan_icon='pencil-square-o')
-            map.connect('%s_members' % group_type,
-                        '/%s/members/{id}' % group_type,
-                        controller=group_controller,
-                        action='members',
-                        ckan_icon='users')
-            map.connect('%s_member_new' % group_type,
-                        '/%s/member_new/{id}' % group_type,
-                        controller=group_controller,
-                        action='member_new')
-            map.connect('%s_member_delete' % group_type,
-                        '/%s/member_delete/{id}' % group_type,
-                        controller=group_controller,
-                        action='member_delete')
-            map.connect('%s_activity' % group_type,
-                        '/%s/activity/{id}/{offset}' % group_type,
-                        controller=group_controller,
-                        action='activity', ckan_icon='clock-o'),
-            map.connect('%s_about' % group_type, '/%s/about/{id}' % group_type,
-                        controller=group_controller,
-                        action='about', ckan_icon='info-circle')
-            map.connect('%s_bulk_process' % group_type,
-                        '/%s/bulk_process/{id}' % group_type,
-                        controller=group_controller,
-                        action='bulk_process', ckan_icon='sitemap')
 
-            if group_type in _group_plugins:
-                raise ValueError("An existing IGroupForm is "
-                                 "already associated with the group type "
-                                 "'%s'" % group_type)
+            # if group_type in _group_plugins:
+            #     raise ValueError("An existing IGroupForm is "
+            #                      "already associated with the group type "
+            #                      "'%s'" % group_type)
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
 
