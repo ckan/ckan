@@ -1,14 +1,13 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal 
+from nose.tools import assert_equal
 from nose.plugins.skip import SkipTest
 
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 
 from ckan.tests.legacy.functional.api.base import BaseModelApiTestCase
-from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase 
-from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase 
+
 
 class RatingsTestCase(BaseModelApiTestCase):
 
@@ -72,9 +71,9 @@ class RatingsTestCase(BaseModelApiTestCase):
         assert pkg_name in res, res
         assert '"ratings_average": %s.0' % rating_opts['rating'] in res, res
         assert '"ratings_count": 1' in res, res
-        
+
         model.Session.remove()
-        
+
         # Rerate package
         offset = self.rating_offset()
         postparams = '%s=1' % self.dumps(rating_opts)
@@ -99,6 +98,3 @@ class RatingsTestCase(BaseModelApiTestCase):
         pkg = self.get_package_by_name(rating_opts['package'])
         assert pkg
         assert len(pkg.ratings) == 0
-
-class TestRatingsVersion1(Version1TestCase, RatingsTestCase): pass
-class TestRatingsVersion2(Version2TestCase, RatingsTestCase): pass
