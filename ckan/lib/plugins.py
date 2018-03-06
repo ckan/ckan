@@ -201,11 +201,10 @@ def register_group_plugins(app):
             # to happen but it is executed sequentially from inside the
             # routing setup
             blueprint = Blueprint(group_type, group.group.import_name,
-                                  url_prefix='/{}'.format(group_type),
-                                  url_defaults={'group_type': group_type})
-            actions = ['group.member_delete', 'group.history', 
-                       'group.followers', 'group.follow', 'group.unfollow',
-                       'group.admins', 'group.activity']
+                                  url_prefix='/{}'.format(group_type))
+            actions = ['member_delete', 'history', 
+                       'followers', 'follow', 'unfollow',
+                       'admins', 'activity']
 
             blueprint.add_url_rule(u'/', view_func=group.index,
                                    strict_slashes=False)
@@ -242,15 +241,17 @@ def register_group_plugins(app):
                 blueprint.add_url_rule(
                     u'/{0}/<id>'.format(action),
                     methods=[u'GET', u'POST'],
-                    view_func=action)
+                    view_func=getattr(group, action))
+            app.register_blueprint(blueprint)
 
             if group_type in _group_plugins:
                 raise ValueError("An existing IGroupForm is "
                                  "already associated with the group type "
                                  "'%s'" % group_type)
-            app.register_blueprint(blueprint)
+            
             _group_plugins[group_type] = plugin
-            # _group_controllers[group_type] = group_controller
+            _group_controllers[group_type] = group_controller
+            _group_blueprints[group_type] = blueprint
 
             controller_obj = None
             # If using one of the default controllers, tell it that it is allowed

@@ -14,7 +14,7 @@ import ckan.logic as logic
 import ckan.lib.search as search
 import ckan.model as model
 import ckan.authz as authz
-import ckan.lib.plugins
+import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
 from ckan.common import OrderedDict, c, g, config, request, _
 from flask import Blueprint
@@ -31,11 +31,12 @@ parse_params = logic.parse_params
 
 log = logging.getLogger(__name__)
 
+lookup_group_plugin = lib_plugins.lookup_group_plugin
+lookup_group_controller = lib_plugins.lookup_group_controller
+lookup_group_blueprint = lib_plugins.lookup_group_blueprints
+
 group = Blueprint('group', __name__, url_prefix=u'/group')
 organization = Blueprint('organization', __name__, url_prefix=u'/organization')
-
-lookup_group_plugin = ckan.lib.plugins.lookup_group_plugin
-lookup_group_controller = ckan.lib.plugins.lookup_group_controller
 
 group_types = ['group']
 
@@ -98,7 +99,8 @@ def _bulk_process_template(group_type):
 
 def _replace_group_org(string):
     ''' substitute organization for group if this is an org'''
-    return re.sub('^group', _guess_group_type() , string)
+    return re.sub('^group',
+                  lookup_group_controller(_guess_group_type()), string)
 
 
 def _action(action_name):
