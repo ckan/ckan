@@ -381,7 +381,7 @@ class BaseController(WSGIController):
         '''
         cors_origin_allowed = None
         if asbool(config.get('ckan.cors.origin_allow_all')):
-            cors_origin_allowed = "*"
+            cors_origin_allowed = b"*"
         elif config.get('ckan.cors.origin_whitelist') and \
                 request.headers.get('Origin') \
                 in config['ckan.cors.origin_whitelist'].split():
