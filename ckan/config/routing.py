@@ -86,7 +86,7 @@ def make_map():
     OPTIONS = dict(method=['OPTIONS'])
 
     import ckan.lib.plugins as lib_plugins
-    lib_plugins.reset_package_plugins()
+    lib_plugins.reset_group_plugins()
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
@@ -246,7 +246,7 @@ def make_map():
         m.connect('organization_bulk_process',
                   '/organization/bulk_process/{id}',
                   action='bulk_process', ckan_icon='sitemap')
-    lib_plugins.register_package_plugins(map)
+    # lib_plugins.register_package_plugins(map)
     lib_plugins.register_group_plugins(map)
 
     # tags

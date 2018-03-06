@@ -3,11 +3,11 @@
 import logging
 import os
 import sys
+from importlib import import_module
 
 from flask import Blueprint
 
 from ckan.common import c, g
-from ckan.lib import base
 from ckan import logic
 import logic.schema
 from ckan import plugins
@@ -35,6 +35,9 @@ def reset_package_plugins():
     _default_package_plugin = None
     global _package_plugins
     _package_plugins = {}
+
+
+def reset_group_plugins():
     global _default_group_plugin
     _default_group_plugin = None
     global _default_organization_plugin
@@ -78,7 +81,7 @@ def lookup_group_controller(group_type=None):
     return _group_controllers.get(group_type)
 
 
-def register_package_plugins(map):
+def register_package_plugins(app):
     """
     Register the various IDatasetForm instances.
 
@@ -93,8 +96,7 @@ def register_package_plugins(map):
     # running unit tests.
     if _default_package_plugin is not None:
         return
-
-    from ckan.views import dataset
+    dataset = import_module(app.blueprints['dataset'].import_name)
 
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
@@ -103,15 +105,14 @@ def register_package_plugins(map):
                 raise ValueError("More than one fallback "
                                  "IDatasetForm has been registered")
             _default_package_plugin = plugin
-
         for package_type in plugin.package_types():
             # Create a connection between the newly named type and the
             # package controller
             blueprint = Blueprint(
-                package_type, dataset.dataset.import_name,
+                package_type,
+                dataset.dataset.import_name,
                 url_prefix='/{}'.format(package_type),
                 url_defaults={'package_type': package_type})
-
             blueprint.add_url_rule(
                 '/', view_func=dataset.search, strict_slashes=False)
             blueprint.add_url_rule(
@@ -119,6 +120,7 @@ def register_package_plugins(map):
             blueprint.add_url_rule('/<id>', view_func=dataset.read)
             blueprint.add_url_rule(
                 '/edit/<id>', view_func=dataset.EditView.as_view(str(u'edit')))
+            app.register_blueprint(blueprint)
 
             if package_type in _package_plugins:
                 raise ValueError("An existing IDatasetForm is "
