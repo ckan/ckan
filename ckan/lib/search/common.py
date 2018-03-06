@@ -65,6 +65,13 @@ def is_available():
 
 def make_connection(decode_dates=True):
     solr_url, solr_user, solr_password = SolrSettings.get()
+
+    if solr_url and solr_user:
+        # Rebuild the URL with the username/password
+        protocol = re.search('(http(?:s)?)://', solr_url).group()
+        solr_url = re.sub(protocol, '', solr_url)
+        solr_url = "{}{}:{}@{}".format(protocol, solr_user, solr_password, solr_url)
+
     if decode_dates:
         decoder = simplejson.JSONDecoder(object_hook=solr_datetime_decoder)
         return pysolr.Solr(solr_url, decoder=decoder)
