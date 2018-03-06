@@ -112,6 +112,8 @@ CONFIG_FROM_ENV_VARS = {
     'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
     'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
     'solr_url': 'CKAN_SOLR_URL',
+    'solr_user': 'CKAN_SOLR_USER',
+    'solr_password': 'CKAN_SOLR_PASSWORD',
     'ckan.site_id': 'CKAN_SITE_ID',
     'ckan.site_url': 'CKAN_SITE_URL',
     'ckan.storage_path': 'CKAN_STORAGE_PATH',
