@@ -124,6 +124,45 @@ class TestDatastoreDelete():
             NotFound, helpers.call_action, 'datastore_search',
             resource_id=resource_id)
 
+    def test_datastore_deleted_during_resource_only_for_deleted_resource(self):
+        package = factories.Dataset()
+        data = {
+            'boo%k': 'crime',
+            'author': ['tolstoy', 'dostoevsky'],
+            'package_id': package['id']
+        }
+
+        result_1 = helpers.call_action(
+            'datastore_create', resource=data.copy())
+        resource_id_1 = result_1['resource_id']
+
+        result_2 = helpers.call_action(
+            'datastore_create', resource=data.copy())
+        resource_id_2 = result_2['resource_id']
+
+        res_1 = model.Resource.get(resource_id_1)
+        res_2 = model.Resource.get(resource_id_2)
+
+        # `synchronize_session=False` and session cache requires
+        # refreshing objects
+        model.Session.refresh(res_1)
+        model.Session.refresh(res_2)
+        assert res_1.extras['datastore_active']
+        assert res_2.extras['datastore_active']
+
+        helpers.call_action('resource_delete', id=resource_id_1)
+
+        assert_raises(
+            NotFound, helpers.call_action, 'datastore_search',
+            resource_id=resource_id_1)
+        assert_raises(
+            NotFound, helpers.call_action, 'resource_show',
+            id=resource_id_1)
+        model.Session.refresh(res_1)
+        model.Session.refresh(res_2)
+        assert not res_1.extras['datastore_active']
+        assert res_2.extras['datastore_active']
+
     def test_delete_invalid_resource_id(self):
         postparams = '%s=1' % json.dumps({'resource_id': 'bad'})
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
