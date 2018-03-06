@@ -202,7 +202,7 @@ def register_group_plugins(app):
             # routing setup
             blueprint = Blueprint(group_type, group.group.import_name,
                                   url_prefix='/{}'.format(group_type),
-                                  url_defaults={'package_type': group_type})
+                                  url_defaults={'group_type': group_type})
             actions = ['group.member_delete', 'group.history', 
                        'group.followers', 'group.follow', 'group.unfollow',
                        'group.admins', 'group.activity']
