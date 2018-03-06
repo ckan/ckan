@@ -7070,12 +7070,14 @@ a.tag:hover {
   .nav-aside li.active a:before {
     content: ' ';
     position: absolute;
-    border: 3px solid transparent;
+    border: 20px solid transparent;
     border-right: none;
     border-left-color: #8ca0a6;
+    border-left-width: 6px;
     top: 0;
+    bottom: 0;
     right: -6px;
-    width: 3px;
+    width: 6px;
     height: 34px;
   }
 }
@@ -7091,7 +7093,6 @@ a.tag:hover {
 .nav-aside li.active a span {
   white-space: nowrap;
   overflow: hidden;
-  display: block;
 }
 .module-narrow .nav-item > a,
 .module-narrow .nav-aside li a {
