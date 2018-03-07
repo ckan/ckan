@@ -24,7 +24,8 @@ this.ckan.module('custom-fields', function (jQuery) {
       this.el.on('change', ':checkbox', this._onRemove);
 
       // Style the remove checkbox like a button.
-      this.$('.checkbox').addClass("btn btn-danger fa fa-times");
+      // Not needed anymore. Included in the HTML markup
+      // this.$('.checkbox').addClass("btn btn-danger fa fa-trash");
     },
 
     /* Creates a new field and appends it to the list. This currently works by
