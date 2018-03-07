@@ -218,27 +218,36 @@ class TestActivity:
             extra_environ = {'Authorization': str(apikey)}
         else:
             extra_environ = None
-        response = self.app.get("/api/2/rest/user/%s/activity" % user_id,
-                extra_environ=extra_environ)
-        return json.loads(response.body)
+        params = {'id': user_id}
+        response = self.app.get("/api/action/user_activity_list",
+                                params=params, extra_environ=extra_environ)
+        assert response.json['success'] is True
+        activities = response.json['result']
+        return activities
 
     def package_activity_stream(self, package_id, apikey=None):
         if apikey:
             extra_environ = {'Authorization': str(apikey)}
         else:
             extra_environ = None
-        response = self.app.get("/api/2/rest/dataset/%s/activity" % package_id,
-                extra_environ=extra_environ)
-        return json.loads(response.body)
+        params = {'id': package_id}
+        response = self.app.get("/api/action/package_activity_list",
+                                params=params, extra_environ=extra_environ)
+        assert response.json['success'] is True
+        activities = response.json['result']
+        return activities
 
     def group_activity_stream(self, group_id, apikey=None):
         if apikey:
             extra_environ = {'Authorization': str(apikey)}
         else:
             extra_environ = None
-        response = self.app.get("/api/2/rest/group/%s/activity" % group_id,
-                extra_environ=extra_environ)
-        return json.loads(response.body)
+        params = {'id': group_id}
+        response = self.app.get("/api/action/group_activity_list",
+                                params=params, extra_environ=extra_environ)
+        assert response.json['success'] is True
+        activities = response.json['result']
+        return activities
 
     def recently_changed_datasets_stream(self, apikey=None):
         if apikey:
