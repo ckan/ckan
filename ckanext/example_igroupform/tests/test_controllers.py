@@ -19,7 +19,7 @@ def _get_group_new_page(app, group_type):
     user = factories.User()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
     response = app.get(
-        url_for('%s_new' % group_type),
+        url_for('%s.new' % group_type),
         extra_environ=env,
     )
     return env, response
@@ -48,7 +48,7 @@ class TestGroupController(helpers.FunctionalTestBase):
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_about' % custom_group_type,
+        url = url_for('%s.about' % custom_group_type,
                       id=group_name)
         response = app.get(url=url, extra_environ=env)
         response.mustcontain(group_name)
@@ -59,7 +59,7 @@ class TestGroupController(helpers.FunctionalTestBase):
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_bulk_process' % custom_group_type,
+        url = url_for('%s.bulk_process' % custom_group_type,
                       id=group_name)
         try:
             response = app.get(url=url, extra_environ=env)
@@ -74,13 +74,12 @@ class TestGroupController(helpers.FunctionalTestBase):
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_action' % custom_group_type, action='delete',
-                      id=group_name)
+        url = url_for('%s.delete' % custom_group_type, id=group_name)
         response = app.get(url=url, extra_environ=env)
 
 
 class TestOrganizationController(helpers.FunctionalTestBase):
-
+    
     @classmethod
     def _apply_config_changes(cls, cfg):
         cfg['ckan.plugins'] = 'example_igroupform_organization'
@@ -217,7 +216,7 @@ def _get_group_edit_page(app, group_type, group_name=None):
         group = factories.Group(user=user, type=group_type)
         group_name = group['name']
     env = {'REMOTE_USER': user['name'].encode('ascii')}
-    url = url_for('%s_edit' % group_type,
+    url = url_for('%s.edit' % group_type,
                   id=group_name)
     response = app.get(url=url, extra_environ=env)
     return env, response, group_name

@@ -237,6 +237,9 @@ def register_group_plugins(app):
                 u'/delete/<id>',
                 methods=[u'GET', u'POST'],
                 view_func=group.DeleteGroupView.as_view(str('delete')))
+            blueprint.add_url_rule(
+                u'/bulk_process/<id>',
+                view_func=group.BulkProcessView.as_view(str('bulk_process')))
             for action in actions:
                 blueprint.add_url_rule(
                     u'/{0}/<id>'.format(action),

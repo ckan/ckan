@@ -1125,6 +1125,9 @@ group.add_url_rule(u'/members/<id>', methods=[u'GET', u'POST'],
 group.add_url_rule(u'/member_new/<id>',
                    view_func=MembersGroupView.as_view(str('member_new')))
 group.add_url_rule(
+    u'/bulk_process/<id>',
+    view_func=BulkProcessView.as_view(str('bulk_process')))
+group.add_url_rule(
     u'/delete/<id>',
     methods=[u'GET', u'POST'],
     view_func=DeleteGroupView.as_view(str('delete')))
