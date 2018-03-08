@@ -70,7 +70,10 @@ def make_connection(decode_dates=True):
         # Rebuild the URL with the username/password
         protocol = re.search('(http(?:s)?)://', solr_url).group()
         solr_url = re.sub(protocol, '', solr_url)
-        solr_url = "{}{}:{}@{}".format(protocol, solr_user, solr_password, solr_url)
+        solr_url = "{}{}:{}@{}".format(protocol,
+                                       solr_user,
+                                       solr_password,
+                                       solr_url)
 
     if decode_dates:
         decoder = simplejson.JSONDecoder(object_hook=solr_datetime_decoder)
