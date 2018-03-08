@@ -85,16 +85,8 @@ def group_list(app, data_dict=None, apikey=None):
 
 
 def package_update(app, data_dict, apikey=None):
-    if apikey:
-        extra_environ = {'Authorization': str(apikey)}
-    else:
-        extra_environ = None
-    response = app.post('/api/action/package_update',
-            json.dumps(data_dict), extra_environ=extra_environ)
-    response_dict = json.loads(response.body)
-    assert response_dict['success'] is True
-    updated_package = response_dict['result']
-    return updated_package
+    response = call_action('package_update', **data_dict)
+    return response
 
 
 def group_update(app, data_dict, apikey=None):
@@ -264,9 +256,8 @@ class TestActivity:
         return activities
 
     def activity_details(self, activity):
-        response = self.app.get(
-                "/api/2/rest/activity/%s/details" % activity['id'])
-        return json.loads(response.body)
+        response = call_action('activity_detail_list', id=activity['id'])
+        return response
 
     def record_details(self, user_id, package_id=None, group_ids=None,
             apikey=None):
