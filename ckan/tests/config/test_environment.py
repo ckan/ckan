@@ -31,7 +31,8 @@ class TestUpdateConfig(h.FunctionalTestBase):
         ('CKAN_SMTP_STARTTLS', 'True'),
         ('CKAN_SMTP_USER', 'my_user'),
         ('CKAN_SMTP_PASSWORD', 'password'),
-        ('CKAN_SMTP_MAIL_FROM', 'server@example.com')
+        ('CKAN_SMTP_MAIL_FROM', 'server@example.com'),
+        ('CKAN_MAX_UPLOAD_SIZE_MB', '50')
     ]
 
     def _setup_env_vars(self):
@@ -71,6 +72,7 @@ class TestUpdateConfig(h.FunctionalTestBase):
         nosetools.assert_equal(config['smtp.user'], 'my_user')
         nosetools.assert_equal(config['smtp.password'], 'password')
         nosetools.assert_equal(config['smtp.mail_from'], 'server@example.com')
+        nosetools.assert_equal(config['ckan.max_resource_size'], '50')
 
     def test_update_config_db_url_precedence(self):
         '''CKAN_SQLALCHEMY_URL in the env takes precedence over CKAN_DB'''

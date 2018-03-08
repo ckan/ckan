@@ -143,7 +143,8 @@ CONFIG_FROM_ENV_VARS = {
     'smtp.starttls': 'CKAN_SMTP_STARTTLS',
     'smtp.user': 'CKAN_SMTP_USER',
     'smtp.password': 'CKAN_SMTP_PASSWORD',
-    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM'
+    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM',
+    'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB'
 }
 # End CONFIG_FROM_ENV_VARS
 
