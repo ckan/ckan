@@ -39,8 +39,8 @@ def reset_package_plugins():
     _package_plugins = {}
     global _default_group_plugin
     _default_group_plugin = None
-    global _default_organization_plugin
-    _default_organization_plugin = None
+    # global _default_organization_plugin
+    # _default_organization_plugin = None
     global _group_plugins
     _group_plugins = {}
     global _group_controllers
@@ -187,7 +187,7 @@ def register_group_plugins(app):
                     raise ValueError("More than one fallback IGroupForm for "
                                      "groups has been registered")
                 _default_group_plugin = plugin
-                
+            
         from views import group as group
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
@@ -200,7 +200,8 @@ def register_group_plugins(app):
             # map instead. This looks like a threading problem waiting
             # to happen but it is executed sequentially from inside the
             # routing setup
-            blueprint = Blueprint(group_type, group.group.import_name,
+            blueprint = Blueprint('custom_{0}'.format(group_type),
+                                  group.group.import_name,
                                   url_prefix='/{}'.format(group_type))
             actions = ['member_delete', 'history', 
                        'followers', 'follow', 'unfollow',
@@ -251,7 +252,7 @@ def register_group_plugins(app):
                 raise ValueError("An existing IGroupForm is "
                                  "already associated with the group type "
                                  "'%s'" % group_type)
-            
+         
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
             _group_blueprints[group_type] = blueprint
