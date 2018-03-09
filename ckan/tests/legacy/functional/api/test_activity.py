@@ -206,16 +206,8 @@ class TestActivity:
         model.repo.rebuild_db()
 
     def user_activity_stream(self, user_id, apikey=None):
-        if apikey:
-            extra_environ = {'Authorization': str(apikey)}
-        else:
-            extra_environ = None
-        params = {'id': user_id}
-        response = self.app.get("/api/action/user_activity_list",
-                                params=params, extra_environ=extra_environ)
-        assert response.json['success'] is True
-        activities = response.json['result']
-        return activities
+        response = call_action('user_activity_list', id=user_id)
+        return response
 
     def package_activity_stream(self, package_id, apikey=None):
         if apikey:

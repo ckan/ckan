@@ -928,23 +928,6 @@ def vocabulary_update(context, data_dict):
 
     return model_dictize.vocabulary_dictize(updated_vocab, context)
 
-def package_relationship_update_rest(context, data_dict):
-
-    # rename keys
-    key_map = {'id': 'subject',
-               'id2': 'object',
-               'rel': 'type'}
-
-    # We want 'destructive', so that the value of the subject,
-    # object and rel in the URI overwrite any values for these
-    # in params. This is because you are not allowed to change
-    # these values.
-    data_dict = logic.action.rename_keys(data_dict, key_map, destructive=True)
-
-    relationship_dict = _get_action('package_relationship_update')(context, data_dict)
-
-    return relationship_dict
-
 
 def dashboard_mark_activities_old(context, data_dict):
     '''Mark all the authorized user's new dashboard activities as old.

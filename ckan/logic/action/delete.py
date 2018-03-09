@@ -598,19 +598,6 @@ def tag_delete(context, data_dict):
     tag_obj.delete()
     model.repo.commit()
 
-def package_relationship_delete_rest(context, data_dict):
-
-    # rename keys
-    key_map = {'id': 'subject',
-               'id2': 'object',
-               'rel': 'type'}
-    # We want 'destructive', so that the value of the subject,
-    # object and rel in the URI overwrite any values for these
-    # in params. This is because you are not allowed to change
-    # these values.
-    data_dict = ckan.logic.action.rename_keys(data_dict, key_map, destructive=True)
-
-    package_relationship_delete(context, data_dict)
 
 def _unfollow(context, data_dict, schema, FollowerClass):
     model = context['model']
