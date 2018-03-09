@@ -208,27 +208,32 @@ alongside CKAN.
 To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
 
 
-.. _query_resources:
+.. _resource_queries:
 
----------------
-Query Resources
----------------
+----------------
+Resource Queries
+----------------
 
-Once data has been loaded into the DataStore new DataStore tables
-may be created based on that data using Query Resources.
+New DataStore tables may be created based on data already loaded into
+the DataStore using Resource Queries.
 
-Query Resources create DataStore tables directly from an SQL Query.
+Resource Queries create DataStore tables directly from an SQL Query.
 Click the Query button when creating or editing a resource to set the
 SQL Query. A DataStore table is created and data is loaded immediately
 after saving the resource.
 
-Query Resources may be based on any existing tables, including tables
+Resource Queries may be based on any existing tables, including tables
 attached to private datasets. They may be used to join, filter or
 aggregate existing data for visualizations, data transformations or
 publishing partial data.
 
-Users with permission to edit the Query Resource may refresh the data in
+Users with permission to edit the resource may refresh the data in
 by clicking the "Run Query" button on the resource view page.
+
+Resource Queries may be created through the API by storing the SQL
+as the ``query`` value of a resource, then calling
+:meth:`~ckanext.datastore.logic.action.datastore_create` with the
+same resource id and query in the ``create_table_as_sql`` parameter.
 
 
 .. _data_dictionary:
