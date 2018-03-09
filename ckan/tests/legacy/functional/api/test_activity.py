@@ -84,8 +84,9 @@ def group_list(app, data_dict=None, apikey=None):
     return groups
 
 
-def package_update(app, data_dict, apikey=None):
-    response = call_action('package_update', **data_dict)
+def package_update(app, data_dict, user):
+    response = call_action('package_update', context={'user': user['name']},
+                           **data_dict)
     return response
 
 
@@ -206,8 +207,16 @@ class TestActivity:
         model.repo.rebuild_db()
 
     def user_activity_stream(self, user_id, apikey=None):
-        response = call_action('user_activity_list', id=user_id)
-        return response
+        if apikey:
+            extra_environ = {'Authorization': str(apikey)}
+        else:
+            extra_environ = None
+        params = {'id': user_id}
+        response = self.app.get("/api/action/user_activity_list",
+                                params=params, extra_environ=extra_environ)
+        assert response.json['success'] is True
+        activities = response.json['result']
+        return activities
 
     def package_activity_stream(self, package_id, apikey=None):
         if apikey:
@@ -404,7 +413,7 @@ class TestActivity:
         # Create a new resource.
         resources = package['resources']
         resources.append(make_resource())
-        updated_package = package_update(self.app, package, user['apikey'])
+        updated_package = package_update(self.app, package, user)
 
         after = self.record_details(user_id, package['id'],
                 [group['name'] for group in package['groups']], apikey=apikey)
@@ -492,8 +501,7 @@ class TestActivity:
 
         # Update the package's first extra.
         del package_dict['extras'][0]
-        updated_package = package_update(self.app, package_dict,
-                user['apikey'])
+        updated_package = package_update(self.app, package_dict, user)
 
         after = self.record_details(user_id, package_dict['id'],
                 [group['name'] for group in package_dict['groups']],
@@ -586,8 +594,7 @@ class TestActivity:
         else:
             assert package_dict['extras'][0]['value'] != '"edited again"'
             package_dict['extras'][0]['value'] = '"edited again"'
-        updated_package = package_update(self.app, package_dict,
-                user['apikey'])
+        updated_package = package_update(self.app, package_dict, user)
 
         after = self.record_details(user_id, package_dict['id'],
                 [group['name'] for group in package_dict['groups']],
@@ -678,8 +685,7 @@ class TestActivity:
         # Create a new extra.
         extras = package_dict['extras']
         extras.append({'key': key, 'value': '10000'})
-        updated_package = package_update(self.app, package_dict,
-                user['apikey'])
+        updated_package = package_update(self.app, package_dict, user)
 
         after = self.record_details(user_id, package_dict['id'],
                 [group['name'] for group in package_dict['groups']],
@@ -897,7 +903,7 @@ class TestActivity:
         resource_ids = [resource['id'] for resource in package['resources']]
 
         package['resources'] = []
-        package_update(self.app, package, self.normal_user['apikey'])
+        package_update(self.app, package, self.normal_user)
 
         after = self.record_details(self.normal_user['id'], package['id'],
                 [group['name'] for group in package['groups']],
@@ -983,7 +989,7 @@ class TestActivity:
         else:
             assert package['title'] != 'edited again'
             package['title'] = 'edited again'
-        package_update(self.app, package, user['apikey'])
+        package_update(self.app, package, user)
 
         after = self.record_details(user_id, package['id'], apikey=apikey)
 
@@ -1060,7 +1066,7 @@ class TestActivity:
 
         # Update the resource.
         resource['name'] = 'edited'
-        package_update(self.app, package)
+        package_update(self.app, package, user)
 
         after = self.record_details(user_id, package['id'], apikey=apikey)
 
@@ -1250,7 +1256,7 @@ class TestActivity:
             'id': pkg_dict['id'],
             'tags': pkg_dict['tags'][0:-1],
             }
-        package_update(self.app, data_dict, user['apikey'])
+        package_update(self.app, data_dict, user)
         after = self.record_details(user['id'], pkg_dict['id'],
                 [group['name'] for group in pkg_dict['groups']],
                 apikey=user['apikey'])
@@ -1522,7 +1528,7 @@ class TestActivity:
         assert new_tag_name not in [tag['name'] for tag in pkg_dict['tags']]
 
         pkg_dict['tags'].append({'name': new_tag_name})
-        package_update(self.app, pkg_dict, user['apikey'])
+        package_update(self.app, pkg_dict, user)
         after = self.record_details(user['id'], pkg_dict['id'],
                 apikey=user['apikey'])
 
