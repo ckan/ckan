@@ -185,7 +185,6 @@ class TestGroupControllerNew_DefaultGroupType(helpers.FunctionalTestBase):
         super(TestGroupControllerNew_DefaultGroupType, cls).teardown_class()
 
     def test_save(self):
-        import pdb; pdb.set_trace()
         app = self._get_test_app()
         env, response = _get_group_new_page(app, group_type)
         form = response.forms['group-edit']
