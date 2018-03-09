@@ -14,7 +14,7 @@ passlib==1.6.5
 paste==1.7.5.1
 polib==1.0.7
 psycopg2==2.7.3.2
-python-magic==0.4.12
+python-magic==0.4.15
 pysolr==3.6.0
 Pylons==0.9.7
 python-dateutil>=1.5.0,<2.0.0

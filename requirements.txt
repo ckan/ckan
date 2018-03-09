@@ -35,7 +35,7 @@ Pygments==2.2.0           # via weberror
 Pylons==0.9.7
 pysolr==3.6.0
 python-dateutil==1.5
-python-magic==0.4.12
+python-magic==0.4.15
 pytz==2016.7
 pyutilib.component.core==4.6.4
 redis==2.10.6             # via rq
