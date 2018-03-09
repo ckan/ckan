@@ -395,9 +395,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 results[obj_rev.revision].append(obj_rev)
 
         result_list = results.items()
-        ourcmp = lambda rev_tuple1, rev_tuple2: \
-                 cmp(rev_tuple2[0].timestamp, rev_tuple1[0].timestamp)
-        return sorted(result_list, cmp=ourcmp)
+        return sorted(result_list, key=lambda x: x[0].timestamp, reverse=True)
 
     @property
     def latest_related_revision(self):
