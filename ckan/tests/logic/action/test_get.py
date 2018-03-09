@@ -4,6 +4,7 @@ import datetime
 
 import nose.tools
 
+from six import text_type
 from six.moves import xrange
 
 from ckan import __version__
@@ -1948,7 +1949,7 @@ class TestRevisionList(helpers.FunctionalTestBase):
         rev_ids = []
         for i in xrange(num_revisions):
             rev = model.repo.new_revision()
-            rev.id = unicode(i)
+            rev.id = text_type(i)
             model.Session.commit()
             rev_ids.append(rev.id)
         return rev_ids

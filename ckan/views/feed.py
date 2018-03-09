@@ -4,6 +4,7 @@ import logging
 import urlparse
 
 from flask import Blueprint, make_response
+from six import text_type
 import webhelpers.feedgenerator
 from ckan.common import _, config, g, request, response
 import ckan.lib.helpers as h
@@ -53,7 +54,7 @@ def _enclosure(pkg):
         u'href': h.url(u'api.action', logic_function=u'package_show',
                        ver=3, id=pkg['id'], _external=True),
         u'rel': u'',
-        u'length': unicode(len(json.dumps(pkg))),
+        u'length': text_type(len(json.dumps(pkg))),
         u'type': u'application/json'})
     return links
 
@@ -121,7 +122,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                     id=pkg['name'],
                     ver=3,
                     _external=True),
-                unicode(len(json.dumps(pkg))), u'application/json'),
+                text_type(len(json.dumps(pkg))), u'application/json'),
             **additional_fields)
 
     resp = make_response(feed.writeString(u'utf-8'), 200)

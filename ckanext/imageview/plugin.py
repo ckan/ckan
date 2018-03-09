@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import logging
+from six import text_type
 import ckan.plugins as p
 
 log = logging.getLogger(__name__)
@@ -25,7 +26,7 @@ class ImageView(p.SingletonPlugin):
         return {'name': 'image_view',
                 'title': p.toolkit._('Image'),
                 'icon': 'picture-o',
-                'schema': {'image_url': [ignore_empty, unicode]},
+                'schema': {'image_url': [ignore_empty, text_type]},
                 'iframed': False,
                 'always_available': True,
                 'default_title': p.toolkit._('Image'),

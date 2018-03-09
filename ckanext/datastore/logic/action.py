@@ -4,6 +4,7 @@ import logging
 import json
 
 import sqlalchemy
+from six import text_type
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
@@ -179,7 +180,7 @@ def datastore_create(context, data_dict):
         else:
             result = backend.create(context, data_dict)
     except InvalidDataError as err:
-        raise p.toolkit.ValidationError(unicode(err))
+        raise p.toolkit.ValidationError(text_type(err))
 
     # Set the datastore_active flag on the resource if necessary
     model = _get_or_bust(context, 'model')

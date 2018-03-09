@@ -17,7 +17,7 @@ def upgrade(migrate_engine):
     existing = migrate_engine.execute("SELECT COUNT(*) FROM related;")\
         .fetchone()
     if existing[0] > 0:
-        print WARNING
+        print(WARNING)
         return
 
     migrate_engine.execute('''

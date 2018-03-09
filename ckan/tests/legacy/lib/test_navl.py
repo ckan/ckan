@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from six import text_type
+
 from ckan.lib.navl.dictization_functions import (flatten_schema,
                                    get_all_key_combinations,
                                    make_full_schema,
@@ -82,12 +84,12 @@ def test_get_key_combination():
     flattened_schema = flatten_schema(schema)
     assert get_all_key_combinations(data, flattened_schema) ==\
         set([(),
-            ('2', 0), 
-            ('2', 1), 
+            ('2', 0),
+            ('2', 1),
             ('2', 1, '21', 0),
             ('2', 0, '21', 0),
-            ('2', 1, '21', 1), 
-            ('2', 1, '21', 3), 
+            ('2', 1, '21', 1),
+            ('2', 1, '21', 3),
             ]), get_all_key_combinations(data, flattened_schema)
 
     #state = {}
@@ -97,7 +99,7 @@ def test_make_full_schema():
 
     full_schema = make_full_schema(data, schema)
 
-    print set(full_schema.keys()) - set(data.keys())
+    print(set(full_schema.keys()) - set(data.keys()))
 
     assert set(full_schema.keys()) - set(data.keys()) == set([('2', 1, '__before'),
                                                               ('2', 0, '__after'),
@@ -110,7 +112,7 @@ def test_make_full_schema():
                                                               ('__junk',),
                                                              ])
 
-    print set(data.keys()) - set(full_schema.keys())
+    print(set(data.keys()) - set(full_schema.keys()))
 
     assert set(data.keys()) - set(full_schema.keys()) == set([('4',),
                                                               ('4', 1, '30')])
@@ -135,10 +137,10 @@ def test_augment_junk_and_extras():
 
 def test_identity_validation():
 
-    
+
     converted_data, errors = validate_flattened(data, schema)
-    print errors
-    print converted_data
+    print(errors)
+    print(converted_data)
 
     assert not errors
 
@@ -295,13 +297,13 @@ def test_simple():
 
     converted_data, errors = validate(data, schema)
 
-    print errors
+    print(errors)
     assert errors == {'numbers': [{'code': [u'Missing value']}, {}]}
 
 
 def test_simple_converter_types():
     schema = {
-        "name": [not_empty, unicode],
+        "name": [not_empty, text_type],
         "age": [ignore_missing, int],
         "gender": [default("female")],
     }
@@ -315,13 +317,13 @@ def test_simple_converter_types():
     assert not errors
     assert converted_data == {'gender': 'female', 'age': 32, 'name': u'fred'}, converted_data
 
-    assert isinstance(converted_data["name"], unicode)
-    assert not isinstance(converted_data["gender"], unicode)
+    assert isinstance(converted_data["name"], text_type)
+    assert isinstance(converted_data["gender"], str)
 
 
 def test_formencode_compat():
     schema = {
-        "name": [not_empty, unicode],
+        "name": [not_empty, text_type],
         "email": [validators.Email],
         "email2": [validators.Email],
     }
@@ -338,7 +340,7 @@ def test_formencode_compat():
 def test_range_validator():
 
     schema = {
-        "name": [not_empty, unicode],
+        "name": [not_empty, text_type],
         "email": [validators.Int(min=1, max=10)],
         "email2": [validators.Email],
     }

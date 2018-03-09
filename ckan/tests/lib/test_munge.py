@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from nose.tools import assert_equal, ok_
+from six import text_type
 
 from ckan.lib.munge import (munge_filename_legacy, munge_filename, munge_name,
                             munge_title_to_name, munge_tag)
@@ -66,7 +67,7 @@ class TestMungeFilename(object):
         for org, exp in self.munge_list:
             munge = munge_filename(org)
             assert_equal(munge, exp)
-            ok_(isinstance(munge, unicode))
+            ok_(isinstance(munge, text_type))
 
     def test_munge_filename_multiple_pass(self):
         '''Munging filename multiple times produces same result.'''

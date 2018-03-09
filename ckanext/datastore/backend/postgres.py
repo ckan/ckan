@@ -15,7 +15,7 @@ import hashlib
 import json
 from cStringIO import StringIO
 
-from six import string_types
+from six import string_types, text_type
 
 import ckan.lib.cli as cli
 import ckan.plugins as p
@@ -707,12 +707,12 @@ def convert(data, type_name):
         sub_type = type_name[1:]
         return [convert(item, sub_type) for item in data]
     if type_name == 'tsvector':
-        return unicode(data, 'utf-8')
+        return text_type(data, 'utf-8')
     if isinstance(data, datetime.datetime):
         return data.isoformat()
     if isinstance(data, (int, float)):
         return data
-    return unicode(data)
+    return text_type(data)
 
 
 def check_fields(context, fields):

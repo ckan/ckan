@@ -24,6 +24,7 @@ of the revision history, rather than a feed of datasets.
 import logging
 import urlparse
 
+from six import text_type
 import webhelpers.feedgenerator
 
 import ckan.lib.base as base
@@ -417,7 +418,7 @@ class FeedController(base.BaseController):
                               id=pkg['name'],
                               ver='3',
                               qualified=True),
-                    unicode(len(json.dumps(pkg))),   # TODO fix this
+                    text_type(len(json.dumps(pkg))),   # TODO fix this
                     u'application/json'),
                 **additional_fields
             )

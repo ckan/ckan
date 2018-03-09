@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from __future__ import print_function
+
 from nose.tools import assert_equal, assert_not_in, assert_in
 from pprint import pprint, pformat
 from difflib import unified_diff
@@ -212,8 +214,8 @@ class TestBasicDictize:
         del dictize['organization']
         as_dict_string = pformat(as_dict)
         dictize_string = pformat(dictize)
-        print as_dict_string
-        print dictize_string
+        print(as_dict_string)
+        print(dictize_string)
 
         assert as_dict == dictize, "\n".join(unified_diff(as_dict_string.split("\n"), dictize_string.split("\n")))
 
@@ -229,8 +231,8 @@ class TestBasicDictize:
 
         as_dict_string = pformat(as_dict)
         dictize_string = pformat(dictize)
-        print as_dict_string
-        print dictize_string
+        print(as_dict_string)
+        print(dictize_string)
 
         assert package_to_api2(pkg, context) == dictize, "\n".join(unified_diff(as_dict_string.split("\n"), dictize_string.split("\n")))
 
@@ -254,8 +256,8 @@ class TestBasicDictize:
         del dictize['organization']
         as_dict_string = pformat(as_dict)
         dictize_string = pformat(dictize)
-        print as_dict_string
-        print dictize_string
+        print(as_dict_string)
+        print(dictize_string)
 
         assert as_dict == dictize, "\n".join(unified_diff(as_dict_string.split("\n"), dictize_string.split("\n")))
 
@@ -335,7 +337,7 @@ class TestBasicDictize:
 
         sorted_resource_revisions = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
         for res in sorted_resource_revisions:
-            print res.id, res.revision_timestamp, res.state
+            print(res.id, res.revision_timestamp, res.state)
         assert len(sorted_resource_revisions) == 3
 
         # Make sure we remove changeable fields BEFORE we store the pretty-printed version
@@ -413,7 +415,7 @@ class TestBasicDictize:
         second_dictized['extras'][0]['value'] = u'new_value'
         second_dictized['state'] = 'active'
 
-        print '\n'.join(unified_diff(pformat(second_dictized).split('\n'), pformat(third_dictized).split('\n')))
+        print('\n'.join(unified_diff(pformat(second_dictized).split('\n'), pformat(third_dictized).split('\n'))))
         assert second_dictized == third_dictized
 
         context['revision_id'] = sorted_packages[3].revision_id #original state
@@ -784,4 +786,3 @@ class TestBasicDictize:
 
         # Passwords should never be available
         assert 'password' not in user_dict
-

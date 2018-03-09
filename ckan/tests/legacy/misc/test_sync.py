@@ -48,8 +48,8 @@ class _TestSync(TestController):
                     time.sleep(1)
                     assert count < 5, '%s: %r; %r' % (offset, e, e.args)
                 else:
-                    print 'Error opening url: %s' % offset
-                    assert 0, e # Print exception
+                    print('Error opening url: %s' % offset)
+                    assert 0, e  # Print exception
             else:
                 break
         return f.read()

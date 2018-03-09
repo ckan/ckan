@@ -10,6 +10,22 @@ between Python 2 and Python 3 you might also be interested in the
 .. _Python 2 Unicode HOWTO: https://docs.python.org/2/howto/unicode.html
 .. _Python 3 Unicode HOWTO: https://docs.python.org/3/howto/unicode.html
 
+CKAN uses the `six`_ module to provide simultaneous compatibility with
+Python 2 and Python 3.  All **strs** are Unicode in Python 3 so the builtins
+``unicode`` and ``basestring`` have been removed so there are a few general
+rules to follow:
+
+.. _six: http://six.readthedocs.io
+
+#. Change all calls to ``basestring()`` into calls to ``six.string_types()``
+#. Change remaining instances of ``basestring`` to ``six.string_types``
+#. Change all instances of ``(str, unicode)`` to ``six.string_types``
+#. Change all calls to ``unicode()`` into calls to ``six.text_type()``
+#. Change remaining instances of ``unicode`` to ``six.text_type``
+
+These rules do not apply in every instance so some thought needs to be
+given about the context around these changes.
+
 .. note::
 
     This document describes the intended future state of Unicode handling in
@@ -22,8 +38,9 @@ between Python 2 and Python 3 you might also be interested in the
 
 Overall Strategy
 ----------------
-CKAN only uses Unicode internally (``unicode`` on Python 2). Conversion to/from
-ASCII strings happens on the boundary to other systems/libaries if necessary.
+CKAN only uses Unicode internally (``six.text_type`` on both Python 2 and
+Python 3). Conversion to/from ASCII strings happens on the boundary to other
+systems/libraries if necessary.
 
 
 Encoding of Python files
@@ -50,6 +67,13 @@ to explicitly mark a literal as ``str``::
     x = "I'm a str literal"
     y = u"I'm a unicode literal"
     z = b"I'm also a str literal"
+
+In Python 3, all ``str`` are Unicode and ``str`` and ``bytes`` are explicitly
+different data types so::
+
+    x = "I'm a str literal"
+    y = u"I'm also a str literal"
+    z = b"I'm a bytes literal"
 
 In CKAN, every string literal must carry either a ``u`` or a ``b`` prefix.
 While the latter is redundant in Python 2, it makes the developer's intention
@@ -79,13 +103,13 @@ Use ``io.open`` to open text files
 ```````````````````````````````````
 When opening text (not binary) files you should use `io.open`_ instead of
 ``open``. This allows you to specify the file's encoding and reads will return
-``unicode`` instead of ``str``::
+Unicode instead of ASCII::
 
     import io
 
     with io.open(u'my_file.txt', u'r', encoding=u'utf-8') as f:
         text = f.read()  # contents is automatically decoded
-                         # to unicode using UTF-8
+                         # to Unicode using UTF-8
 
 .. _io.open: https://docs.python.org/2/library/io.html#io.open
 
@@ -237,4 +261,3 @@ represented using the filesystem's encoding use
 .. _os.walk: https://docs.python.org/2/library/os.html#os.walk
 .. _os.getcwd: https://docs.python.org/2/library/os.html#os.getcwd
 .. _os.getcwdu: https://docs.python.org/2/library/os.html#os.getcwdu
-

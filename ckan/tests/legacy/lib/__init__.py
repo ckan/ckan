@@ -1,13 +1,14 @@
 # encoding: utf-8
 
 from nose.tools import assert_equal
+from six import text_type
 
 from ckan import model
 import ckan.lib.search as search
 
 def check_search_results(terms, expected_count, expected_packages=[]):
     query = {
-        'q': unicode(terms),
+        'q': text_type(terms),
     }
     result = search.query_for(model.Package).run(query)
     pkgs = result['results']
