@@ -370,8 +370,8 @@ class PackageController(base.BaseController):
             # view an 'old' version of the package, as recorded in the
             # activity stream
             try:
-                activity = get_action('activity_show')(context,
-                                                       {'id': activity_id})
+                activity = get_action('activity_show')(
+                    context, {'id': activity_id, 'include_data': True})
             except NotFound:
                 abort(404, _('Activity not found'))
             except NotAuthorized:
@@ -1238,6 +1238,9 @@ class PackageController(base.BaseController):
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.package_activity_stream = get_action(
+                'package_activity_list')(
+                context, {'id': id})
             dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
@@ -1248,8 +1251,9 @@ class PackageController(base.BaseController):
             'package/activity.html',
             extra_vars={
                 'dataset_type': dataset_type,
-                'activity_stream': get_action('package_activity_list')(
-                    context, {'id': id})}
+                'activity_stream': c.package_activity_stream,
+                'id': id,
+                }
         )
 
     def resource_embedded_dataviewer(self, id, resource_id,

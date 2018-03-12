@@ -2553,7 +2553,7 @@ def user_activity_list(context, data_dict):
 
 @logic.validate(logic.schema.default_activity_list_schema)
 def package_activity_list(context, data_dict):
-    '''Return a package's activity stream.
+    '''Return a package's activity stream (not including detail)
 
     You must be authorized to view the package.
 
@@ -2574,7 +2574,7 @@ def package_activity_list(context, data_dict):
     # authorized to read.
     data_dict['object_type'] = 'package'
     data_dict['include_data'] = False
-    _check_access('activity_show', context, data_dict)
+    _check_access('activity_list_show', context, data_dict)
 
     model = context['model']
 
@@ -2723,8 +2723,8 @@ def activity_detail_list(context, data_dict):
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
     if object_type != 'activity':
         # i.e. object_type == 'package':
-        # context['package'] = model.Package.get(activity.object_id)
-        _check_access('activity_show', context, data_dict)
+        data_dict['include_data'] = True
+        _check_access('activity_list_show', context, data_dict)
 
         offset = int(data_dict.get('offset', 0))
         limit = int(
@@ -3304,25 +3304,27 @@ def activity_show(context, data_dict):
 
     :param id: the id of the activity
     :type id: string
+    :param include_data: include the data field (or just the activity metadata)
+    :type include_data: boolean
 
     :rtype: dictionary
     '''
     model = context['model']
     user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
+    include_data = asbool(_get_or_bust(data_dict, 'include_data'))
 
     activity = model.Session.query(model.Activity).get(activity_id)
     if activity is None:
         raise NotFound
     context['activity'] = activity
 
-    if 'package' in activity.activity_type:
-        context['package'] = model.Package.get(activity.object_id)
-
     _check_access(u'activity_show', context, data_dict)
 
-    activity = model_dictize.activity_dictize(activity, context)
+    activity = model_dictize.activity_dictize(activity, context,
+                                              include_data=include_data)
     return activity
+
 
 def _unpick_search(sort, allowed_fields=None, total=None):
     ''' This is a helper function that takes a sort string

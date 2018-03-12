@@ -45,6 +45,7 @@ activity_detail_table = Table(
     Column('data', _types.JsonDictType),
     )
 
+
 class Activity(domain_object.DomainObject):
 
     def __init__(self, user_id, object_id, revision_id, activity_type,
@@ -59,6 +60,15 @@ class Activity(domain_object.DomainObject):
             self.data = {}
         else:
             self.data = data
+
+    @classmethod
+    def get(cls, id):
+        '''Returns an Activity object referenced by its id.'''
+        if not id:
+            return None
+
+        return meta.Session.query(cls).get(id)
+
 
 meta.mapper(Activity, activity_table)
 

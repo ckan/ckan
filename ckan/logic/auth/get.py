@@ -4,7 +4,7 @@ import ckan.logic as logic
 import ckan.authz as authz
 from ckan.common import _
 from ckan.logic.auth import (get_package_object, get_group_object,
-                            get_resource_object)
+                            get_resource_object, get_activity_object)
 from ckan.lib.plugins import get_permission_labels
 
 
@@ -260,23 +260,50 @@ def dashboard_new_activities_count(context, data_dict):
             context, data_dict)
 
 
-def activity_show(context, data_dict):
+def activity_list_show(context, data_dict):
+    '''
+    :param id: the id or name of the object (e.g. package id)
+    :type id: string
+    :param object_type: The type of the object (e.g. 'package')
+    :type object_type: string
+    :param include_data: include the data field (or just the activity metadata)
+    :type include_data: boolean
+    '''
     if data_dict.get('include_data'):
         # The 'data' field of the activity is restricted to users who are
         # allowed to edit the object
-        if data_dict.get('object_type') == 'package':
-            return {'success': authz.is_authorized_boolean(
-                'package_update', context, {'id': data_dict['id']})}
-        else:
-            raise {'success': False, 'msg': 'object_type not recognized'}
+        action_on_which_to_base_auth = 'package_update'
+    else:
+        # the activity for an object (i.e. the activity metadata) can be viewed
+        # if the user can see the object
+        action_on_which_to_base_auth = 'package_show'
 
-    # the activity for an object (i.e. the activity metadata) can be seen if
-    # the user can see the object
-    if data_dict.get('object_type') == 'package':
-        return authz.is_authorized('package_show', context,
+    if data_dict['object_type'] == 'package':
+        return authz.is_authorized(action_on_which_to_base_auth, context,
                                    {'id': data_dict['id']})
     else:
-        raise {'success': False, 'msg': 'object_type not recognized'}
+        return {'success': False, 'msg': 'object_type not recognized'}
+
+
+def activity_show(context, data_dict):
+    '''
+    :param id: the id of the activity
+    :type id: string
+    :param include_data: include the data field (or just the activity metadata)
+    :type include_data: boolean
+    '''
+    activity = get_activity_object(context, data_dict)
+    # NB it would be better to have recorded an activity_type against the
+    # activity
+    if 'package' in activity.activity_type:
+        object_type = 'package'
+    else:
+        return {'success': False, 'msg': 'object_type not recognized'}
+    return activity_list_show(context, {
+        'id': activity.object_id,
+        'object_type': object_type,
+        'include_data': data_dict['include_data'],
+        })
 
 
 def user_follower_list(context, data_dict):
