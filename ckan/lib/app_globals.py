@@ -42,7 +42,7 @@ app_globals_from_config_details = {
         # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
-    'ckan.recaptcha.version': {'name': 'recaptcha_version', 'default': '1'},
+    'ckan.recaptcha.version': {'name': 'recaptcha_version'},
     'ckan.template_title_deliminater': {'default': '-'},
     'ckan.template_head_end': {},
     'ckan.template_footer_end': {},

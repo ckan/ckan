@@ -1037,36 +1037,37 @@ web interface. ``dumps_format`` is just a string for display. Example::
 ckan.recaptcha.version
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The version of Recaptcha to use, for example::
+The version of reCAPTCHA to use, for example::
 
- ckan.recaptcha.version = 1
+ ckan.recaptcha.version = 2
 
-Default Value: 1
+Valid options: 2
 
-Valid options: 1, 2
+NB Version 1 is unsupported and Google switched off the API for version 1 on
+2018-03-31.
 
 .. _ckan.recaptcha.publickey:
 
 ckan.recaptcha.publickey
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The public key for your Recaptcha account, for example::
+The public key for your reCAPTCHA account, for example::
 
  ckan.recaptcha.publickey = 6Lc...-KLc
 
-To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
+To get a reCAPTCHA account, sign up at: http://www.google.com/recaptcha
 
 .. _ckan.recaptcha.privatekey:
 
 ckan.recaptcha.privatekey
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The private key for your Recaptcha account, for example::
+The private key for your reCAPTCHA account, for example::
 
  ckan.recaptcha.privatekey = 6Lc...-jP
 
-Setting both :ref:`ckan.recaptcha.publickey` and
-:ref:`ckan.recaptcha.privatekey` adds captcha to the user registration form.
+Setting :ref:`ckan.recaptcha.publickey`, :ref:`ckan.recaptcha.privatekey` and
+:ref:`ckan.recaptcha.version` adds captcha to the user registration form.
 This has been effective at preventing bots registering users and creating spam
 packages.
 
