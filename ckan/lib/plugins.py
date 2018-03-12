@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+from importlib import import_module
 
 from ckan.common import c
 from ckan.lib import base
@@ -28,7 +29,7 @@ _default_organization_plugin = None
 # Mapping from group-type strings to controllers
 _group_controllers = {}
 
-# Mapping from group-type strings to blueprints 
+# Mapping from group-type strings to blueprints
 _group_blueprints = {}
 
 
@@ -187,8 +188,8 @@ def register_group_plugins(app):
                     raise ValueError("More than one fallback IGroupForm for "
                                      "groups has been registered")
                 _default_group_plugin = plugin
-            
-        from views import group as group
+
+        group = import_module(app.blueprints['group'].import_name)
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
             # allow us to have top level objects that are actually
@@ -200,7 +201,7 @@ def register_group_plugins(app):
             # map instead. This looks like a threading problem waiting
             # to happen but it is executed sequentially from inside the
             # routing setup
-            blueprint = Blueprint('custom_{0}'.format(group_type),
+            blueprint = Blueprint(group_type,
                                   group.group.import_name,
                                   url_prefix='/{}'.format(group_type))
             actions = ['member_delete', 'history', 
