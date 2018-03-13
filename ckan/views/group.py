@@ -156,7 +156,7 @@ def add_group_type(group_type):
 def index():
     group_type = _guess_group_type()
     page = h.get_page_number(request.params) or 1
-    items_per_page = 21
+    items_per_page = int(config.get('ckan.datasets_per_page', 20))
 
     context = {
         'model': model,
@@ -254,7 +254,7 @@ def _read(id, limit, group_type):
     def search_url(params):
         controller = lookup_group_controller(group_type)
         action = u'bulk_process' if getattr(c, u'action') == u'bulk_process' else 'read'
-        url = h.url_for(controller=controller, action=action, id=id)
+        url = h.url_for('.'.join([controller, action]), id=id)
         params = [(k, v.encode('utf-8')
                    if isinstance(v, basestring) else str(v))
                   for k, v in params]
