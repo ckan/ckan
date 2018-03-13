@@ -8,6 +8,28 @@ Changelog
 ---------
 
 
+v2.7.3 2018-03-13
+=================
+
+Note: As with all patch releases this one does not include requirement changes.
+  However in some scenarios you might encounter the following error while 
+  installing or upgrading::
+
+    Error: could not determine PostgreSQL version from '10.2'
+
+  This is due to a bug in the psycopg2 version pinned to the release. To solve
+  it, upgrade psycopg2 with the following command::
+
+    pip install --upgrade psycopg2==2.7.3.2
+
+Note: This release does not require a Solr schema upgrade, but if you are having the
+  issues described in #3863 (datasets wrongly indexed in multilingual setups),
+  you can upgrade the Solr schema and reindex to solve them.
+
+
+
+ 
+
 v2.7.2 2017-09-28
 =================
 
