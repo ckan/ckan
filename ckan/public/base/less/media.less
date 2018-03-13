@@ -18,25 +18,18 @@
     .list-unstyled;
     .clearfix;
     min-height: 205px;
-    // margin: 0 -25px;
-    // padding-bottom: 15px;
+    padding-top: @grid-gutter-width/2;
     background: lighten(@layoutBackgroundColor, 5%) url("@{bgPath}");
     border: 1px solid @moduleHeadingBorderColor;
     border-width: 1px 0;
 }
-
-// @media (min-width: @screen-sm-min) {
-//     .media-grid {
-//         margin-left: -27px;
-//     }
-// }
 
 .media-item {
     position: relative;
     float: left;
     width: 178px;
     padding: @grid-gutter-width/2;
-    margin: @grid-gutter-width/2 0 0 @grid-gutter-width/2;
+    margin: 0 0 @grid-gutter-width/2 @grid-gutter-width/2;
     background-color: white;
     .border-radius(3px);
     span.count {
