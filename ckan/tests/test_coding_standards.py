@@ -273,7 +273,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/lib/authenticator.py',
     u'ckan/lib/base.py',
     u'ckan/lib/captcha.py',
-    u'ckan/lib/celery_app.py',
     u'ckan/lib/cli.py',
     u'ckan/lib/config_tool.py',
     u'ckan/lib/create_test_data.py',

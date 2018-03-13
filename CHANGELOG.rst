@@ -21,6 +21,11 @@ Note: This version requires re-running the 'datastore set-permissions' command
    CKAN developers should also re-run set-permissions on the test database:
    :ref:`datastore-test-set-permissions`
 
+Changes and deprecations:
+ * The old Celery based background jobs have been removed in CKAN 2.8 in favour of the new RQ based
+   jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
+   of course use Celery but they will need to handle the management themselves.
+
 v2.7.2 2017-09-28
 =================
 
