@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Zoran Pandovski <zoran.pandovski@gmail.com>, 2017\n"
+"Last-Translator: Konstantin Sivakov <konstantin.sivakov@gmail.com>, 2017\n"
 "Language-Team: Macedonian (https://www.transifex.com/okfn/teams/11162/mk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -893,7 +893,7 @@ msgstr ""
 #: ckan/templates/package/read_base.html:20
 #: ckan/templates/revision/diff.html:16 ckan/templates/revision/read.html:84
 msgid "Groups"
-msgstr ""
+msgstr "Групи"
 
 #: ckan/controllers/group.py:307 ckan/controllers/home.py:63
 #: ckan/controllers/package.py:242 ckan/lib/helpers.py:835
@@ -1439,55 +1439,55 @@ msgstr[1] ""
 
 #: ckan/lib/formatters.py:19
 msgid "January"
-msgstr ""
+msgstr "Јануари"
 
 #: ckan/lib/formatters.py:23
 msgid "February"
-msgstr ""
+msgstr "Февруари"
 
 #: ckan/lib/formatters.py:27
 msgid "March"
-msgstr ""
+msgstr "Март"
 
 #: ckan/lib/formatters.py:31
 msgid "April"
-msgstr ""
+msgstr "Април"
 
 #: ckan/lib/formatters.py:35
 msgid "May"
-msgstr ""
+msgstr "Мај"
 
 #: ckan/lib/formatters.py:39
 msgid "June"
-msgstr ""
+msgstr "Јуни"
 
 #: ckan/lib/formatters.py:43
 msgid "July"
-msgstr ""
+msgstr "Јули"
 
 #: ckan/lib/formatters.py:47
 msgid "August"
-msgstr ""
+msgstr "Август"
 
 #: ckan/lib/formatters.py:51
 msgid "September"
-msgstr ""
+msgstr "Септември"
 
 #: ckan/lib/formatters.py:55
 msgid "October"
-msgstr ""
+msgstr "Октомври"
 
 #: ckan/lib/formatters.py:59
 msgid "November"
-msgstr ""
+msgstr "Ноември"
 
 #: ckan/lib/formatters.py:63
 msgid "December"
-msgstr ""
+msgstr "Декември"
 
 #: ckan/lib/formatters.py:114
 msgid "Just now"
-msgstr ""
+msgstr "Во моментот"
 
 #: ckan/lib/formatters.py:116
 msgid "{mins} minute ago"
@@ -1695,7 +1695,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:92
 msgid "Invalid integer"
-msgstr ""
+msgstr "Погрешен број"
 
 #: ckan/logic/validators.py:97
 msgid "Must be a natural number"
@@ -4098,7 +4098,7 @@ msgstr ""
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 msgid "Home"
-msgstr ""
+msgstr "Дома"
 
 #: ckan/templates/snippets/language_selector.html:3
 msgid "Language"
@@ -4336,7 +4336,7 @@ msgstr ""
 #: ckan/templates/user/perform_reset.html:20
 #: ckan/templates/user/snippets/login_form.html:22
 msgid "Password"
-msgstr ""
+msgstr "Лозинка"
 
 #: ckan/templates/user/edit_user_form.html:39
 msgid "Confirm Password"
@@ -4367,7 +4367,7 @@ msgstr ""
 #: ckan/templates/user/login.html:12
 #: ckan/templates/user/snippets/login_form.html:28
 msgid "Login"
-msgstr ""
+msgstr "Најави се"
 
 #: ckan/templates/user/login.html:25
 msgid "Need an Account?"
