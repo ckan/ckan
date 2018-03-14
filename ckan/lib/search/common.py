@@ -6,6 +6,7 @@ import re
 import pysolr
 import simplejson
 from six import string_types
+import urllib
 
 log = logging.getLogger(__name__)
 
@@ -71,8 +72,8 @@ def make_connection(decode_dates=True):
         protocol = re.search('(http(?:s)?)://', solr_url).group()
         solr_url = re.sub(protocol, '', solr_url)
         solr_url = "{}{}:{}@{}".format(protocol,
-                                       solr_user,
-                                       solr_password,
+                                       urllib.quote_plus(solr_user),
+                                       urllib.quote_plus(solr_password),
                                        solr_url)
 
     if decode_dates:
