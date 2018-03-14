@@ -133,7 +133,6 @@ ckan.display_timezone = server
 # package_hide_extras = for_search_index_only
 #package_edit_return_url = http://another.frontend/dataset/<NAME>
 #package_new_return_url = http://another.frontend/dataset/<NAME>
-#ckan.recaptcha.version = 2
 #ckan.recaptcha.publickey =
 #ckan.recaptcha.privatekey =
 #licenses_group_url = http://licenses.opendefinition.org/licenses/groups/ckan.json

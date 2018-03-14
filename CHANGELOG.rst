@@ -21,6 +21,10 @@ Note: This version requires re-running the 'datastore set-permissions' command
    CKAN developers should also re-run set-permissions on the test database:
    :ref:`datastore-test-set-permissions`
 
+Minor changes:
+ * `ckan.recaptcha.version` config option removed, since v2 is the only valid
+    version now (#4061)
+
 v2.7.2 2017-09-28
 =================
 
