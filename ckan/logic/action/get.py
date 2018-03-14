@@ -1147,46 +1147,6 @@ def resource_view_list(context, data_dict):
     return model_dictize.resource_view_list_dictize(resource_views, context)
 
 
-def resource_status_show(context, data_dict):
-    '''Return the statuses of a resource's tasks.
-
-    This function is DEPRECATED.
-
-    :param id: the id of the resource
-    :type id: string
-
-    :rtype: list of (status, date_done, traceback, task_status) dictionaries
-
-    '''
-
-    _check_access('resource_status_show', context, data_dict)
-
-    try:
-        import ckan.lib.celery_app as celery_app
-    except ImportError:
-        return {'message': 'queue is not installed on this instance'}
-
-    model = context['model']
-    id = _get_or_bust(data_dict, 'id')
-
-    # needs to be text query as celery tables are not in our model
-    q = _text("""
-        select status, date_done, traceback, task_status.*
-        from task_status left join celery_taskmeta
-        on task_status.value = celery_taskmeta.task_id
-           and key = 'celery_task_id'
-        where entity_id = :entity_id
-    """)
-    try:
-        result = model.Session.connection().execute(q, entity_id=id)
-    except sqlalchemy.exc.ProgrammingError:
-        # celery tables (celery_taskmeta) may not be created even with celery
-        # installed, causing ProgrammingError exception.
-        return {'message': 'queue tables not installed on this instance'}
-    result_list = [_table_dictize(row, context) for row in result]
-    return result_list
-
-
 @logic.auth_audit_exempt
 def revision_show(context, data_dict):
     '''Return the details of a revision.
