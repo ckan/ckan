@@ -654,32 +654,6 @@ class TestAction(WsgiAppCase):
         assert_equal(get_domain_object(model, group.name).name, group.name)
         assert_equal(get_domain_object(model, group.id).name, group.name)
 
-    def test_40_task_resource_status(self):
-
-        try:
-            import ckan.lib.celery_app as celery_app
-        except ImportError:
-            raise SkipTest('celery not installed')
-
-        backend = celery_app.celery.backend
-        ##This creates the database tables as a side effect, can not see another way
-        ##to make tables unless you actually create a task.
-        celery_result_session = backend.ResultSession()
-
-        ## need to do inserts as setting up an embedded celery is too much for these tests
-        model.Session.connection().execute(
-            '''INSERT INTO task_status (id, entity_id, entity_type, task_type, key, value, state, error, last_updated) VALUES ('5753adae-cd0d-4327-915d-edd832d1c9a3', '749cdcf2-3fc8-44ae-aed0-5eff8cc5032c', 'resource', 'qa', 'celery_task_id', '51f2105d-85b1-4393-b821-ac11475919d9', NULL, '', '2012-04-20 21:32:45.553986');
-            '''
-        )
-        model.Session.commit()
-        res = json.loads(self.app.post('/api/action/resource_status_show',
-                            params=json.dumps({'id': '749cdcf2-3fc8-44ae-aed0-5eff8cc5032c'}),
-                            status=200).body)
-
-        assert "/api/3/action/help_show?name=resource_status_show" in res['help']
-        assert res['success'] is True
-        assert res['result'] == [{"status": None, "entity_id": "749cdcf2-3fc8-44ae-aed0-5eff8cc5032c", "task_type": "qa", "last_updated": "2012-04-20T21:32:45.553986", "date_done": None, "entity_type": "resource", "traceback": None, "value": "51f2105d-85b1-4393-b821-ac11475919d9", "state": None, "key": "celery_task_id", "error": "", "id": "5753adae-cd0d-4327-915d-edd832d1c9a3"}], res['result']
-
     def test_41_missing_action(self):
         try:
             get_action('unicorns')
