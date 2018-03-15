@@ -1,4 +1,5 @@
-'''
+# encoding: utf-8
+u'''
 This script fixes resource extras affected by a bug introduced in #3425 and
 raised in #4042
 
@@ -34,24 +35,25 @@ from sqlalchemy.sql import text
 
 config = ConfigParser()
 parser = ArgumentParser()
-parser.add_argument('-c', '--config', help='Configuration file', required=True)
+parser.add_argument(
+    u'-c', u'--config', help=u'Configuration file', required=True)
 
 SIMPLE_Q = (
-    "SELECT id, r.extras, rr.extras revision "
-    "FROM resource r JOIN resource_revision rr "
-    "USING(id, revision_id) WHERE r.extras != rr.extras"
+    u"SELECT id, r.extras, rr.extras revision "
+    u"FROM resource r JOIN resource_revision rr "
+    u"USING(id, revision_id) WHERE r.extras != rr.extras"
 )
-UPDATE_Q = text("UPDATE resource SET extras = :extras WHERE id = :id")
+UPDATE_Q = text(u"UPDATE resource SET extras = :extras WHERE id = :id")
 
 
 def main():
     args = parser.parse_args()
     config.read(args.config)
-    engine = create_engine(config.get('app:main', 'sqlalchemy.url'))
+    engine = create_engine(config.get(u'app:main', u'sqlalchemy.url'))
     records = engine.execute(SIMPLE_Q)
 
     total = records.rowcount
-    print('Found {} datasets with inconsistent extras.'.format(total))
+    print(u'Found {} datasets with inconsistent extras.'.format(total))
 
     skip_confirmation = False
     i = 0
@@ -69,23 +71,24 @@ def main():
             continue
         i += 1
 
-        print('[{:{}}/{}] Resource <{}>'.format(i, len(str(total)), total, id))
-        print('\tCurrent extras state in DB: {}'.format(current))
-        print('\tAccording to the revision:  {}'.format(rev))
+        print(u'[{:{}}/{}] Resource <{}>'.format(
+            i, len(str(total)), total, id))
+        print(u'\tCurrent extras state in DB: {}'.format(current))
+        print(u'\tAccording to the revision:  {}'.format(rev))
         if not skip_confirmation:
             choice = raw_input(
-                '\tRequired action: '
-                'y - rewrite; n - skip; ! - rewrite all; q - skip all: '
+                u'\tRequired action: '
+                u'y - rewrite; n - skip; ! - rewrite all; q - skip all: '
             ).strip()
-            if choice == 'q':
+            if choice == u'q':
                 break
-            elif choice == 'n':
+            elif choice == u'n':
                 continue
-            elif choice == '!':
+            elif choice == u'!':
                 skip_confirmation = True
         engine.execute(UPDATE_Q, id=id, extras=rev)
-        print('\tUpdated')
+        print(u'\tUpdated')
 
 
-if __name__ == '__main__':
+if __name__ == u'__main__':
     main()
