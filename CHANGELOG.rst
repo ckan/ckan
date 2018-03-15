@@ -8,11 +8,11 @@ Changelog
 ---------
 
 
-v2.7.3 2018-03-13
+v2.7.3 2018-03-15
 =================
 
 Note: As with all patch releases this one does not include requirement changes.
-  However in some scenarios you might encounter the following error while 
+  However in some scenarios you might encounter the following error while
   installing or upgrading::
 
     Error: could not determine PostgreSQL version from '10.2'
@@ -26,9 +26,25 @@ Note: This release does not require a Solr schema upgrade, but if you are having
   issues described in #3863 (datasets wrongly indexed in multilingual setups),
   you can upgrade the Solr schema and reindex to solve them.
 
-
-
- 
+* Fix toggle bars header icon (#3880)
+* Change CORS header keys and values to string instead of unicode (#3855)
+* Fix cors header when all origins are allowed (#3898)
+* Update SOLR schema.xml reference in Dockerfile
+* Build local SOLR container by default
+* Create datastore indexes only if they are not exist
+* Properly close file responses
+* Use javascript content-type for jsonp responses (#4022)
+* Add Data Dictionary documentation (#3989)
+* Fix SOLR index delete_package implementation
+* Add second half of DataStore set-permissions command(Docs)
+* Fix extras overriding for removed resources (#4042)
+* Return a 403 if not authorized on the search page (#4081)
+* Add support for user/pass for Solr as ENV var
+* Change permission_labels type to string in schema.xml (#3863)
+* Disallow solr local parameters
+* Improve text view rendering
+* Update Orgs/Groups logic for custom fields delete and update (#4094)
+* Upgrade Solr Docker image
 
 v2.7.2 2017-09-28
 =================
