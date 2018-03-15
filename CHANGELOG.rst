@@ -42,7 +42,7 @@ General notes:
    If all these are true you can run the following script to restore the extras to
    their previous state:
 
-        <link to gist/wiki>
+   https://github.com/ckan/ckan/blob/dev-v2.7/scripts/4042_fix_resource_extras.py
 
    This issue is described in #4042
 
