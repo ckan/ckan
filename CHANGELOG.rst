@@ -26,6 +26,65 @@ Changes and deprecations:
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
 
+v2.7.3 2018-03-15
+=================
+
+General notes:
+ * As with all patch releases this one does not include requirement changes.
+   However in some scenarios you might encounter the following error while
+   installing or upgrading this version of CKAN::
+
+     Error: could not determine PostgreSQL version from '10.2'
+
+   This is due to a bug in the psycopg2 version pinned to the release. To solve
+   it, upgrade psycopg2 with the following command::
+
+     pip install --upgrade psycopg2==2.7.3.2
+
+ * This release does not require a Solr schema upgrade, but if you are having the
+   issues described in #3863 (datasets wrongly indexed in multilingual setups),
+   you can upgrade the Solr schema and reindex to solve them.
+
+ * #3422 (implemented in #3425) introduced a major bug where if a resource was
+   deleted and the DataStore was active extras from all resources on the site where
+   changed. This is now fixed as part of this release but if your database is already
+   affected you will need to run a script to restore the extras to their
+   previous state. Remember, you only need to run the script if all the following are
+   true:
+
+   1. You are currently running CKAN 2.7.0 or 2.7.2, and
+   2. You have enabled the DataStore, and
+   3. One or more resources with data on the DataStore have been deleted (or you
+      suspect they might have been)
+
+   If all these are true you can run the following script to restore the extras to
+   their previous state:
+
+   https://github.com/ckan/ckan/blob/dev-v2.7/scripts/4042_fix_resource_extras.py
+
+   This issue is described in #4042
+
+Fixes:
+ * Fix toggle bars header icon (#3880)
+ * Change CORS header keys and values to string instead of unicode (#3855)
+ * Fix cors header when all origins are allowed (#3898)
+ * Update SOLR schema.xml reference in Dockerfile
+ * Build local SOLR container by default
+ * Create datastore indexes only if they are not exist
+ * Properly close file responses
+ * Use javascript content-type for jsonp responses (#4022)
+ * Add Data Dictionary documentation (#3989)
+ * Fix SOLR index delete_package implementation
+ * Add second half of DataStore set-permissions command(Docs)
+ * Fix extras overriding for removed resources (#4042)
+ * Return a 403 if not authorized on the search page (#4081)
+ * Add support for user/pass for Solr as ENV var
+ * Change permission_labels type to string in schema.xml (#3863)
+ * Disallow solr local parameters
+ * Improve text view rendering
+ * Update Orgs/Groups logic for custom fields delete and update (#4094)
+ * Upgrade Solr Docker image
+
 v2.7.2 2017-09-28
 =================
 
@@ -143,6 +202,28 @@ Deprecations:
  * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
+
+v2.6.5 2018-03-15
+=================
+
+Note: This version requires a database upgrade
+
+* Activity Time stored in UTC (#2882)
+* Migration script to adjust current activity timestamps to UTC
+* Change CORS header keys and values to string instead of unicode (#3855)
+* Fix cors header when all origins are allowed (#3898)
+* Update SOLR schema.xml reference in Dockerfile
+* Build local SOLR container by default
+* Create datastore indexes only if they don't exist
+* Properly close file responses
+* Use javascript content-type for jsonp responses (#4022)
+* Fix SOLR index delete_package implementation
+* Add second half of DataStore set-permissions command (Docs)
+* Return a 403 if not authorized on the search page (#4081)
+* Add support for user/pass for Solr as ENV var
+* Disallow solr local parameters
+* Improve text view rendering
+* Update Orgs/Groups logic for custom fields delete and update (#4094)
 
 v2.6.4 2017-09-27
 =================
@@ -292,6 +373,27 @@ Bug fixes:
 
 API changes and deprecations:
  * Replace `c.__version__` with new helper `h.ckan_version()` (`#3103 <https://github.com/ckan/ckan/pull/3103>`_)
+
+v2.5.8 2018-03-15
+=================
+
+Note: This version requires a database upgrade
+
+* Fix language switcher
+* Activity Time stored in UTC (#2882)
+* Migration script to adjust current activity timestamps to UTC
+* Change CORS header keys and values to string instead of unicode (#3855)
+* Fix cors header when all origins are allowed (#3898)
+* Create datastore indexes only if they are not exist
+* Use javascript content-type for jsonp responses (#4022)
+* Fix SOLR index delete_package implementation
+* Add second half of DataStore set-permissions command(Docs)
+* Update SOLR client (pysolr -> solrpy)
+* Return a 403 if not authorized on the search page (#4081)
+* Add support for user/pass for Solr as ENV var
+* Disallow solr local parameters
+* Improve text view rendering
+* Update Orgs/Groups logic for custom fields delete and update (#4094)
 
 v2.5.7 2017-09-27
 =================
