@@ -18,12 +18,11 @@ Note: This version requires a database upgrade
 * Fix cors header when all origins are allowed (#3898)
 * Update SOLR schema.xml reference in Dockerfile
 * Build local SOLR container by default
-* Create datastore indexes only if they are not exist
+* Create datastore indexes only if they don't exist
 * Properly close file responses
 * Use javascript content-type for jsonp responses (#4022)
 * Fix SOLR index delete_package implementation
-* Add second half of DataStore set-permissions command(Docs)
-* Update SOLR client (pysolr -> solrpy)
+* Add second half of DataStore set-permissions command (Docs)
 * Return a 403 if not authorized on the search page (#4081)
 * Add support for user/pass for Solr as ENV var
 * Disallow solr local parameters
