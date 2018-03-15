@@ -27,6 +27,7 @@ Note that it requires SQLAlchemy, so you should run it with the virtualenv
 activated.
 '''
 
+import json
 from ConfigParser import ConfigParser
 from argparse import ArgumentParser
 from sqlalchemy import create_engine
@@ -53,7 +54,6 @@ def main():
 
     total = records.rowcount
     print(u'Found {} datasets with inconsistent extras.'.format(total))
-    print()
 
     skip_confirmation = False
     i = 0
@@ -64,8 +64,10 @@ def main():
             break
 
         id, current, rev = row
-        if (dict(current, datastore_active=None) ==
-                dict(rev, datastore_active=None)):
+        current_json = json.loads(current)
+        rev_json = json.loads(rev)
+        if (dict(current_json, datastore_active=None) ==
+                dict(rev_json, datastore_active=None)):
             continue
         i += 1
 
