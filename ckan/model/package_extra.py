@@ -34,20 +34,6 @@ class PackageExtra(vdm.sqlalchemy.RevisionedObjectMixin,
     def related_packages(self):
         return [self.package]
 
-    def activity_stream_detail(self, activity_id, activity_type):
-        import ckan.model as model
-
-        # Handle 'deleted' extras.
-        # When the user marks an extra as deleted this comes through here as a
-        # 'changed' extra. We detect this and change it to a 'deleted'
-        # activity.
-        if activity_type == 'changed' and self.state == u'deleted':
-            activity_type = 'deleted'
-
-        data_dict = ckan.lib.dictization.table_dictize(self,
-                context={'model': model})
-        return activity.ActivityDetail(activity_id, self.id, u"PackageExtra",
-                activity_type, {'package_extra': data_dict})
 
 meta.mapper(PackageExtra, package_extra_table, properties={
     'package': orm.relation(_package.Package,
@@ -78,8 +64,7 @@ def _create_extra(key, value):
     return PackageExtra(key=unicode(key), value=value)
 
 _extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
-        vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of()) 
+        vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of())
 setattr(_package.Package, 'extras_active', _extras_active)
 _package.Package.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
             creator=_create_extra)
-

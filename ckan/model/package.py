@@ -562,21 +562,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             }
         )
 
-    def activity_stream_detail(self, activity_id, activity_type):
-        import ckan.model
-
-        # Handle 'deleted' objects.
-        # When the user marks a package as deleted this comes through here as
-        # a 'changed' package activity. We detect this and change it to a
-        # 'deleted' activity.
-        if activity_type == 'changed' and self.state == u'deleted':
-            activity_type = 'deleted'
-
-        package_dict = dictization.table_dictize(self,
-                context={'model':ckan.model})
-        return activity.ActivityDetail(activity_id, self.id, u"Package", activity_type,
-            {'package': package_dict })
-
     def set_rating(self, user_or_ip, rating):
         '''Record a user's rating of this package.
 

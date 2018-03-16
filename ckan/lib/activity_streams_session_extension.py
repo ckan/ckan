@@ -18,15 +18,6 @@ def activity_stream_item(obj, activity_type, revision, user_id):
         return None
 
 
-def activity_stream_detail(obj, activity_id, activity_type):
-    method = getattr(obj, "activity_stream_detail", None)
-    if callable(method):
-        return method(activity_id, activity_type)
-    else:
-        # Object did not have a suitable activity_stream_detail() method
-        return None
-
-
 class DatasetActivitySessionExtension(SessionExtension):
     """Session extension that emits activity stream activities for packages
     and related objects.
@@ -89,10 +80,6 @@ class DatasetActivitySessionExtension(SessionExtension):
 
             activities[obj.id] = activity
 
-            activity_detail = activity_stream_detail(obj, activity.id, "new")
-            if activity_detail is not None:
-                activity_details[activity.id] = [activity_detail]
-
         # Now process other objects.
         for activity_type in ('new', 'changed', 'deleted'):
             objects = object_cache[activity_type]
@@ -130,24 +117,8 @@ class DatasetActivitySessionExtension(SessionExtension):
                         if activity is None:
                             continue
 
-                    activity_detail = activity_stream_detail(
-                        obj, activity.id, activity_type)
-                    if activity_detail is not None:
-                        if not package.id in activities:
-                            activities[package.id] = activity
-                        if activity_details.has_key(activity.id):
-                            activity_details[activity.id].append(
-                                activity_detail)
-                        else:
-                            activity_details[activity.id] = [activity_detail]
-
         for key, activity in activities.items():
             # Emitting activity
             session.add(activity)
-
-        for key, activity_detail_list in activity_details.items():
-            for activity_detail_obj in activity_detail_list:
-                # Emitting activity detail
-                session.add(activity_detail_obj)
 
         session.flush()

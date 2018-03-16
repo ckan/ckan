@@ -746,6 +746,7 @@ class PackageController(base.BaseController):
         return h.json.dumps(data)
 
     def history_ajax(self, id):
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user, 'auth_user_obj': c.userobj}
         data_dict = {'id': id}
