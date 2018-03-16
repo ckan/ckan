@@ -607,11 +607,9 @@ def default_dashboard_activity_list_schema(unicode_safe):
 
 
 @validator_args
-def default_activity_list_schema(
-        ignore_missing, not_missing, unicode_safe, boolean_validator):
+def default_activity_list_schema(not_missing, unicode_safe):
     schema = default_pagination_schema()
     schema['id'] = [not_missing, unicode_safe]
-    schema['include_data'] = [ignore_missing, boolean_validator]
     return schema
 
 
