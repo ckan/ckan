@@ -3325,6 +3325,46 @@ def activity_show(context, data_dict):
     return activity
 
 
+def activity_data_show(context, data_dict):
+    '''Show the data from an item of 'activity' (part of the activity stream).
+
+    For example you can get just the old version of a dataset, without the
+    activity stream info of who and when the version was created.
+
+    :param id: the id of the activity
+    :type id: string
+    :param object_type: 'package', 'user', 'group' or 'organization'
+    :type object_type: string
+
+    :rtype: dictionary
+    '''
+    model = context['model']
+    user = context['user']
+    activity_id = _get_or_bust(data_dict, 'id')
+    object_type = data_dict.get('object_type')
+    data_dict['include_data'] = True
+
+    activity = model.Session.query(model.Activity).get(activity_id)
+    if activity is None:
+        raise NotFound
+    context['activity'] = activity
+
+    _check_access(u'activity_show', context, data_dict)
+
+    activity = model_dictize.activity_dictize(activity, context,
+                                              include_data=True)
+    try:
+        activity_data = activity['data']
+    except KeyError:
+        raise NotFound('Could not find data in the activity')
+    if object_type:
+        try:
+            activity_data = activity_data[object_type]
+        except KeyError:
+            raise NotFound('Could not find that object_type in the activity')
+    return activity_data
+
+
 def _unpick_search(sort, allowed_fields=None, total=None):
     ''' This is a helper function that takes a sort string
     eg 'name asc, last_modified desc' and returns a list of
