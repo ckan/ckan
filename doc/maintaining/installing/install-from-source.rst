@@ -38,7 +38,7 @@ wiki page for help):
 Package                Description
 =====================  ===============================================
 Python                 `The Python programming language, v2.7 <http://www.python.org/getit/>`_
-|postgres|             `The PostgreSQL database system, v9.2 or newer <http://www.postgresql.org/download/>`_
+|postgres|             `The PostgreSQL database system, v9.3 or newer <http://www.postgresql.org/download/>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
 virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
@@ -106,13 +106,13 @@ b. Install the recommended ``setuptools`` version:
 
 c. Install the CKAN source code into your virtualenv.
    .. important::
-   
+
        For the following commands, make sure you are in your CKAN default directory. E.g.
-    
+
       .. parsed-literal::
-      
+
          cd /usr/lib/ckan/default/
-   
+
    To install the latest stable release of CKAN (CKAN |latest_release_version|),
    run:
 
@@ -129,14 +129,14 @@ c. Install the CKAN source code into your virtualenv.
        pip install -e 'git+\ |git_url|\#egg=ckan'
 
    .. tip::
-      
+
       If you would like to work submit a pull request with your changes, be sure you are working from a cloned repository.
       Use your personal repository URL instead of the CKAN repository. E.g.
-      
+
       .. parsed-literal::
-         
+
          pip install -e 'git=https://github.com/{your-username}/ckan.git#egg=ckan'
-   
+
    .. warning::
 
       The development version may contain bugs and should not be used for
@@ -380,4 +380,3 @@ This is seen occasionally with Jetty and Ubuntu 14.04. It requires a solr-jetty 
     wget https://launchpad.net/~vshn/+archive/ubuntu/solr/+files/solr-jetty-jsp-fix_1.0.2_all.deb
     sudo dpkg -i solr-jetty-jsp-fix_1.0.2_all.deb
     sudo service jetty restart
-
