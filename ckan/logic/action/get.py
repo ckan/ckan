@@ -2702,51 +2702,16 @@ def recently_changed_packages_activity_list(context, data_dict):
 def activity_detail_list(context, data_dict):
     '''Return an activity's list of activity detail items.
 
-    :param id: the id or name of the object (e.g. dataset)
-        (or activity - DEPRECATED)
+    :param id: the id of the activity
     :type id: string
-    :param object_type: the type of the object being identified.
-        Accepted values: ``'package'``, ``'activity'`` (deprecated, default)
-        (``'activity'`` is just there for backward compatibility)
-    :type object_id: string
-    :rtype: list of dictionaries
+    :rtype: list of dictionaries.
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
     model = context['model']
     activity_id = _get_or_bust(data_dict, 'id')
-    object_type = data_dict.get('object_type', 'activity')
-    allowed_object_types = ('package', 'activity')
-    if object_type not in allowed_object_types:
-        raise logic.ValidationError('object_type not accepted. Choose from: {}'
-                                    .format(allowed_object_types))
-    name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
-    if object_type != 'activity':
-        # i.e. object_type == 'package':
-        data_dict['include_data'] = True
-        _check_access('activity_list_show', context, data_dict)
-
-        offset = int(data_dict.get('offset', 0))
-        limit = int(
-            data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
-
-        _activity_objects = model.activity.package_activity_list(package.id,
-                limit=limit, offset=offset)
-        activity_objects = _filter_activity_by_user(_activity_objects,
-                _activity_stream_get_filtered_users())
-
-        return model_dictize.activity_list_dictize(activity_objects, context)
-        # activity_detail_objects = \
-        #     model.Session.query(model.ActivityDetail) \
-        #     .filter_by(object_type=object_type) \
-        #     .filter_by(object_id=id) \
-        #     .join(model.Activity) \
-        #     .order_by(model.Activity.timestamp)
-    else:
-        activity_detail_objects = \
-            model.ActivityDetail.by_activity_id(activity_id)
-    if 'package' in activity.activity_type:
-        pass
-    _check_access(u'activity_detail_show', context, data_dict)
+    activity_detail_objects = model.ActivityDetail.by_activity_id(activity_id)
     return model_dictize.activity_detail_list_dictize(
         activity_detail_objects, context)
 
