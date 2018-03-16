@@ -20,9 +20,6 @@ class OrganizationController(group.GroupController):
 
     group_types = ['organization']
 
-    def _guess_group_type(self, expecting_name=False):
-        return 'organization'
-
     def _replace_group_org(self, string):
         ''' substitute organization for group if this is an org'''
         return re.sub('^group', 'organization', string)

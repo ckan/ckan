@@ -28,10 +28,6 @@ class TestDatastoreInfo(object):
         if not is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         plugin = p.load('datastore')
-        if plugin.legacy_mode:
-            # make sure we undo adding the plugin
-            p.unload('datastore')
-            raise nose.SkipTest("Info is not supported in legacy mode")
 
     @classmethod
     def teardown_class(cls):

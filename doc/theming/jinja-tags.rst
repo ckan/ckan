@@ -2,4 +2,4 @@
 Custom Jinja2 tags reference
 ============================
 
-.. todo::
+.. todo:: TODO

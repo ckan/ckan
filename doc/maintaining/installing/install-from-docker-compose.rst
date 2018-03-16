@@ -66,7 +66,7 @@ d. CKAN source
 Clone CKAN into a directory of your choice::
 
     cd /path/to/my/projects
-    git clone git@github.com:ckan/ckan.git .
+    git clone https://github.com/ckan/ckan.git
 
 This will use the latest CKAN master, which may not be stable enough for production use.
 To use a stable version, checkout the respective tag, e.g.::
@@ -83,7 +83,7 @@ a. Sensitive settings and environment variables
 
 Copy ``contrib/docker/.env.template`` to ``contrib/docker/.env`` and follow instructions
 within to set passwords and other sensitive or user-defined variables.
-The defaults will work fine in a development environment.
+The defaults will work fine in a development environment on Linux. For Windows and OSX, the `CKAN_SITE_URL` must be updated.
 
 .. note:: Related reading:
 

@@ -4,6 +4,7 @@ import logging
 import json
 
 import sqlalchemy
+from six import text_type
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
@@ -146,27 +147,21 @@ def datastore_create(context, data_dict):
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
-    # create a private datastore resource, if necessary
-    model = _get_or_bust(context, 'model')
-    resource = model.Resource.get(data_dict['resource_id'])
-    legacy_mode = 'ckan.datastore.read_url' not in config
-    if not legacy_mode and resource.package.private:
-        data_dict['private'] = True
-
     try:
         result = backend.create(context, data_dict)
-
     except InvalidDataError as err:
-        raise p.toolkit.ValidationError(unicode(err))
+        raise p.toolkit.ValidationError(text_type(err))
+
     # Set the datastore_active flag on the resource if necessary
-    if resource.extras.get('datastore_active') is not True:
+    model = _get_or_bust(context, 'model')
+    resobj = model.Resource.get(data_dict['resource_id'])
+    if resobj.extras.get('datastore_active') is not True:
         log.debug(
-            'Setting datastore_active=True on resource {0}'.format(resource.id)
+            'Setting datastore_active=True on resource {0}'.format(resobj.id)
         )
         set_datastore_active_flag(model, data_dict, True)
 
     result.pop('id', None)
-    result.pop('private', None)
     result.pop('connection_url', None)
     result.pop('records', None)
     return result
@@ -483,13 +478,15 @@ def datastore_search_sql(context, data_dict):
     engine is the
     `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
-    DataStore resource that belong to a private CKAN resource cannot be
-    searched with this action. Use
-    :meth:`~ckanext.datastore.logic.action.datastore_search` instead.
+    Queries are only allowed if you have access to the all the CKAN resources
+    in the query and send the appropriate authorization.
 
-    .. note:: This action is only available when using PostgreSQL 9.X and
-        using a read-only user on the database.
-        It is not available in :ref:`legacy mode<legacy-mode>`.
+    .. note:: This action is not available when
+        :ref:`ckan.datastore.sqlsearch.enabled` is set to false
+
+    .. note:: When source data columns (i.e. CSV) heading names are provdied
+        in all UPPERCASE you need to double quote them in the SQL select
+        statement to avoid returning null results.
 
     :param sql: a single SQL select statement
     :type sql: string
@@ -507,63 +504,24 @@ def datastore_search_sql(context, data_dict):
     '''
     backend = DatastoreBackend.get_active_backend()
 
-    p.toolkit.check_access('datastore_search_sql', context, data_dict)
+    def check_access(table_names):
+        '''
+        Raise NotAuthorized if current user is not allowed to access
+        any of the tables passed
 
-    result = backend.search_sql(context, data_dict)
+        :type table_names: list strings
+        '''
+        p.toolkit.check_access(
+            'datastore_search_sql',
+            dict(context, table_names=table_names),
+            data_dict)
+
+    result = backend.search_sql(
+        dict(context, check_access=check_access),
+        data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
     return result
-
-
-def datastore_make_private(context, data_dict):
-    ''' Deny access to the DataStore table through
-    :meth:`~ckanext.datastore.logic.action.datastore_search_sql`.
-
-    This action is called automatically when a CKAN dataset becomes
-    private or a new DataStore table is created for a CKAN resource
-    that belongs to a private dataset.
-
-    :param resource_id: id of resource that should become private
-    :type resource_id: string
-    '''
-    backend = DatastoreBackend.get_active_backend()
-    if 'id' in data_dict:
-        data_dict['resource_id'] = data_dict['id']
-    res_id = _get_or_bust(data_dict, 'resource_id')
-
-    if not _resource_exists(context, data_dict):
-        raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(res_id)
-        ))
-
-    p.toolkit.check_access('datastore_change_permissions', context, data_dict)
-
-    backend.make_private(context, data_dict)
-
-
-def datastore_make_public(context, data_dict):
-    ''' Allow access to the DataStore table through
-    :meth:`~ckanext.datastore.logic.action.datastore_search_sql`.
-
-    This action is called automatically when a CKAN dataset becomes
-    public.
-
-    :param resource_id: if of resource that should become public
-    :type resource_id: string
-    '''
-    backend = DatastoreBackend.get_active_backend()
-    if 'id' in data_dict:
-        data_dict['resource_id'] = data_dict['id']
-    res_id = _get_or_bust(data_dict, 'resource_id')
-
-    if not _resource_exists(context, data_dict):
-        raise p.toolkit.ObjectNotFound(p.toolkit._(
-            u'Resource "{0}" was not found.'.format(res_id)
-        ))
-
-    p.toolkit.check_access('datastore_change_permissions', context, data_dict)
-
-    backend.make_public(context, data_dict)
 
 
 def set_datastore_active_flag(model, data_dict, flag):

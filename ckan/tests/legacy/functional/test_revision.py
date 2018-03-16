@@ -30,22 +30,22 @@ class TestRevisionController(TestController):
             # res2 = res.click('^%s$' % link_exp)
             res2 = res.click(link_exp)
         except:
-            print "\nThe first response (list):\n\n"
-            print str(res)
-            print "\nThe link that couldn't be followed:"
-            print str(link_exp)
+            print("\nThe first response (list):\n\n")
+            print(str(res))
+            print("\nThe link that couldn't be followed:")
+            print(str(link_exp))
             raise
         try:
             assert res2_exp in res2
         except:
-            print "\nThe first response (list):\n\n"
-            print str(res)
-            print "\nThe second response (item):\n\n"
-            print str(res2)
-            print "\nThe followed link:"
-            print str(link_exp)
-            print "\nThe expression that couldn't be found:"
-            print str(res2_exp)
+            print("\nThe first response (list):\n\n")
+            print(str(res))
+            print("\nThe second response (item):\n\n")
+            print(str(res2))
+            print("\nThe followed link:")
+            print(str(link_exp))
+            print("\nThe expression that couldn't be found:")
+            print(str(res2_exp))
             raise
 
     def create_updating_revision(self, name, **kwds):
@@ -75,7 +75,7 @@ class TestRevisionController(TestController):
         model.Session.commit()
         model.Session.remove()
         if not model.repo.history()[0].packages:
-            raise Exception, "Didn't set up revision right."
+            raise Exception("Didn't set up revision right.")
 
     def create_deleting_revision(self, name):
         rev = model.repo.new_revision()
@@ -152,4 +152,3 @@ class TestRevisionController(TestController):
         assert 'warandpeace:updated:date_updated' in res, res
         assert 'annakarenina:updated:resources' in res, res
         assert 'annakarenina:deleted' in res, res
-

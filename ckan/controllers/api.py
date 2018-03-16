@@ -9,6 +9,7 @@ import urllib
 
 from webob.multidict import UnicodeMultiDict
 from paste.util.multidict import MultiDict
+from six import text_type
 
 import ckan.model as model
 import ckan.logic as logic
@@ -38,6 +39,7 @@ CONTENT_TYPES = {
     'text': 'text/plain;charset=utf-8',
     'html': 'text/html;charset=utf-8',
     'json': 'application/json;charset=utf-8',
+    'javascript': 'application/javascript;charset=utf-8',
 }
 
 
@@ -99,6 +101,7 @@ class ApiController(base.BaseController):
                 # escape callback to remove '<', '&', '>' chars
                 callback = cgi.escape(request.params['callback'])
                 response_msg = self._wrap_jsonp(callback, response_msg)
+                response.headers['Content-Type'] = CONTENT_TYPES['javascript']
         return response_msg
 
     def _finish_ok(self, response_data=None,
@@ -144,7 +147,7 @@ class ApiController(base.BaseController):
     def _set_response_header(self, name, value):
         try:
             value = str(value)
-        except Exception, inst:
+        except Exception as inst:
             msg = "Couldn't convert '%s' header value '%s' to string: %s" % \
                 (name, value, inst)
             raise Exception(msg)
@@ -179,7 +182,7 @@ class ApiController(base.BaseController):
             side_effect_free = getattr(function, 'side_effect_free', False)
             request_data = self._get_request_data(
                 try_url_params=side_effect_free)
-        except ValueError, inst:
+        except ValueError as inst:
             log.info('Bad Action API request data: %s', inst)
             return self._finish_bad_request(
                 _('JSON Error: %s') % inst)
@@ -202,7 +205,7 @@ class ApiController(base.BaseController):
             result = function(context, request_data)
             return_dict['success'] = True
             return_dict['result'] = result
-        except DataError, e:
+        except DataError as e:
             log.info('Format incorrect (Action API): %s - %s',
                      e.error, request_data)
             return_dict['error'] = {'__type': 'Integrity Error',
@@ -210,23 +213,23 @@ class ApiController(base.BaseController):
                                     'data': request_data}
             return_dict['success'] = False
             return self._finish(400, return_dict, content_type='json')
-        except NotAuthorized, e:
+        except NotAuthorized as e:
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
             return_dict['success'] = False
 
-            if unicode(e):
+            if text_type(e):
                 return_dict['error']['message'] += u': %s' % e
 
             return self._finish(403, return_dict, content_type='json')
-        except NotFound, e:
+        except NotFound as e:
             return_dict['error'] = {'__type': 'Not Found Error',
                                     'message': _('Not found')}
-            if unicode(e):
+            if text_type(e):
                 return_dict['error']['message'] += u': %s' % e
             return_dict['success'] = False
             return self._finish(404, return_dict, content_type='json')
-        except ValidationError, e:
+        except ValidationError as e:
             error_dict = e.error_dict
             error_dict['__type'] = 'Validation Error'
             return_dict['error'] = error_dict
@@ -234,18 +237,18 @@ class ApiController(base.BaseController):
             # CS nasty_string ignore
             log.info('Validation error (Action API): %r', str(e.error_dict))
             return self._finish(409, return_dict, content_type='json')
-        except search.SearchQueryError, e:
+        except search.SearchQueryError as e:
             return_dict['error'] = {'__type': 'Search Query Error',
                                     'message': 'Search Query is invalid: %r' %
                                     e.args}
             return_dict['success'] = False
             return self._finish(400, return_dict, content_type='json')
-        except search.SearchError, e:
+        except search.SearchError as e:
             return_dict['error'] = {'__type': 'Search Error',
                                     'message': 'Search error: %r' % e.args}
             return_dict['success'] = False
             return self._finish(409, return_dict, content_type='json')
-        except search.SearchIndexError, e:
+        except search.SearchIndexError as e:
             return_dict['error'] = {
                 '__type': 'Search Index Error',
                 'message': 'Unable to add package to search index: %s' %
@@ -294,10 +297,10 @@ class ApiController(base.BaseController):
                 _('Cannot list entity of this type: %s') % register)
         try:
             return self._finish_ok(action(context, {'id': id}))
-        except NotFound, e:
-            return self._finish_not_found(unicode(e))
-        except NotAuthorized, e:
-            return self._finish_not_authz(unicode(e))
+        except NotFound as e:
+            return self._finish_not_found(text_type(e))
+        except NotAuthorized as e:
+            return self._finish_not_authz(text_type(e))
 
     def show(self, ver=None, register=None, subregister=None,
              id=None, id2=None):
@@ -323,10 +326,10 @@ class ApiController(base.BaseController):
                 _('Cannot read entity of this type: %s') % register)
         try:
             return self._finish_ok(action(context, data_dict))
-        except NotFound, e:
-            return self._finish_not_found(unicode(e))
-        except NotAuthorized, e:
-            return self._finish_not_authz(unicode(e))
+        except NotFound as e:
+            return self._finish_not_found(text_type(e))
+        except NotAuthorized as e:
+            return self._finish_not_authz(text_type(e))
 
     def create(self, ver=None, register=None, subregister=None,
                id=None, id2=None):
@@ -347,7 +350,7 @@ class ApiController(base.BaseController):
             request_data = self._get_request_data()
             data_dict = {'id': id, 'id2': id2, 'rel': subregister}
             data_dict.update(request_data)
-        except ValueError, inst:
+        except ValueError as inst:
             return self._finish_bad_request(
                 _('JSON Error: %s') % inst)
 
@@ -366,15 +369,15 @@ class ApiController(base.BaseController):
                                           data_dict.get("id")))
             return self._finish_ok(response_data,
                                    resource_location=location)
-        except NotAuthorized, e:
-            return self._finish_not_authz(unicode(e))
-        except NotFound, e:
-            return self._finish_not_found(unicode(e))
-        except ValidationError, e:
+        except NotAuthorized as e:
+            return self._finish_not_authz(text_type(e))
+        except NotFound as e:
+            return self._finish_not_found(text_type(e))
+        except ValidationError as e:
             # CS: nasty_string ignore
             log.info('Validation error (REST create): %r', str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
-        except DataError, e:
+        except DataError as e:
             log.info('Format incorrect (REST create): %s - %s',
                      e.error, request_data)
             error_dict = {
@@ -410,7 +413,7 @@ class ApiController(base.BaseController):
             request_data = self._get_request_data()
             data_dict = {'id': id, 'id2': id2, 'rel': subregister}
             data_dict.update(request_data)
-        except ValueError, inst:
+        except ValueError as inst:
             return self._finish_bad_request(
                 _('JSON Error: %s') % inst)
 
@@ -422,15 +425,15 @@ class ApiController(base.BaseController):
         try:
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
-        except NotAuthorized, e:
-            return self._finish_not_authz(unicode(e))
-        except NotFound, e:
-            return self._finish_not_found(unicode(e))
-        except ValidationError, e:
+        except NotAuthorized as e:
+            return self._finish_not_authz(text_type(e))
+        except NotFound as e:
+            return self._finish_not_found(text_type(e))
+        except ValidationError as e:
             # CS: nasty_string ignore
             log.info('Validation error (REST update): %r', str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
-        except DataError, e:
+        except DataError as e:
             log.info('Format incorrect (REST update): %s - %s',
                      e.error, request_data)
             error_dict = {
@@ -469,11 +472,11 @@ class ApiController(base.BaseController):
         try:
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
-        except NotAuthorized, e:
-            return self._finish_not_authz(unicode(e))
-        except NotFound, e:
-            return self._finish_not_found(unicode(e))
-        except ValidationError, e:
+        except NotAuthorized as e:
+            return self._finish_not_authz(text_type(e))
+        except NotFound as e:
+            return self._finish_not_found(text_type(e))
+        except ValidationError as e:
             # CS: nasty_string ignore
             log.info('Validation error (REST delete): %r', str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
@@ -497,7 +500,7 @@ class ApiController(base.BaseController):
                 since_time_str = request.params['since_time']
                 try:
                     since_time = h.date_str_to_datetime(since_time_str)
-                except ValueError, inst:
+                except ValueError as inst:
                     return self._finish_bad_request('ValueError: %s' % inst)
             else:
                 return self._finish_bad_request(
@@ -511,7 +514,7 @@ class ApiController(base.BaseController):
         elif register in ['dataset', 'package', 'resource']:
             try:
                 params = MultiDict(self._get_search_params(request.params))
-            except ValueError, e:
+            except ValueError as e:
                 return self._finish_bad_request(
                     _('Could not read parameters: %r' % e))
 
@@ -571,7 +574,7 @@ class ApiController(base.BaseController):
                         del params['callback']
                     results = query.run(params)
                 return self._finish_ok(results)
-            except search.SearchError, e:
+            except search.SearchError as e:
                 log.exception(e)
                 return self._finish_bad_request(
                     _('Bad search option: %s') % e)
@@ -585,7 +588,7 @@ class ApiController(base.BaseController):
             try:
                 qjson_param = request_params['qjson'].replace('\\\\u', '\\u')
                 params = h.json.loads(qjson_param, encoding='utf8')
-            except ValueError, e:
+            except ValueError as e:
                 raise ValueError(_('Malformed qjson value: %r')
                                  % e)
         elif len(request_params) == 1 and \
@@ -669,7 +672,7 @@ class ApiController(base.BaseController):
 
     def tag_autocomplete(self):
         q = request.str_params.get('incomplete', '')
-        q = unicode(urllib.unquote(q), 'utf-8')
+        q = text_type(urllib.unquote(q), 'utf-8')
         limit = request.params.get('limit', 10)
         tag_names = []
         if q:
@@ -756,7 +759,7 @@ class ApiController(base.BaseController):
         def make_unicode(entity):
             '''Cast bare strings and strings in lists or dicts to Unicode. '''
             if isinstance(entity, str):
-                return unicode(entity)
+                return text_type(entity)
             elif isinstance(entity, list):
                 new_items = []
                 for item in entity:
@@ -785,7 +788,7 @@ class ApiController(base.BaseController):
                     request_data = keys[0]
                 else:
                     request_data = urllib.unquote_plus(request.body)
-            except Exception, inst:
+            except Exception as inst:
                 msg = "Could not find the POST data: %r : %s" % \
                       (request.POST, inst)
                 raise ValueError(msg)
@@ -799,7 +802,7 @@ class ApiController(base.BaseController):
                     request_data = request.body
                 else:
                     request_data = None
-            except Exception, inst:
+            except Exception as inst:
                 msg = "Could not extract request body data: %s" % \
                       (inst)
                 raise ValueError(msg)
@@ -814,7 +817,7 @@ class ApiController(base.BaseController):
         if request_data and request.content_type != 'multipart/form-data':
             try:
                 request_data = h.json.loads(request_data, encoding='utf8')
-            except ValueError, e:
+            except ValueError as e:
                 raise ValueError('Error decoding JSON data. '
                                  'Error: %r '
                                  'JSON data extracted from the request: %r' %

@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 
 from pylons.i18n import get_lang
+from six import text_type
 
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -44,7 +45,7 @@ class RevisionController(base.BaseController):
                 title=_(u'CKAN Repository Revision History'),
                 link=h.url_for(controller='revision', action='list', id=''),
                 description=_(u'Recent changes to the CKAN repository.'),
-                language=unicode(get_lang()),
+                language=text_type(get_lang()),
             )
             # TODO: make this configurable?
             # we do not want the system to fall over!

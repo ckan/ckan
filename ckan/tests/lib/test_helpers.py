@@ -1,9 +1,12 @@
 # encoding: utf-8
 
+import datetime
+
 import nose
 import pytz
 import tzlocal
 from babel import Locale
+from six import text_type
 
 from ckan.common import config
 import ckan.lib.helpers as h
@@ -467,7 +470,7 @@ class TestHelpersRemoveLineBreaks(object):
             '"remove_linebreaks" should remove line breaks'
 
     def test_remove_linebreaks_casts_into_unicode(self):
-        class UnicodeLike(unicode):
+        class UnicodeLike(text_type):
             pass
 
         test_string = UnicodeLike('foo')
@@ -523,6 +526,17 @@ class TestGetDisplayTimezone(object):
     @helpers.change_config('ckan.display_timezone', 'America/New_York')
     def test_named_timezone(self):
         eq_(h.get_display_timezone(), pytz.timezone('America/New_York'))
+
+
+class TestCleanHtml(object):
+    def test_disallowed_tag(self):
+        eq_(h.clean_html('<b><bad-tag>Hello'),
+            u'<b>&lt;bad-tag&gt;Hello&lt;/bad-tag&gt;</b>')
+
+    def test_non_string(self):
+        # allow a datetime for compatibility with older ckanext-datapusher
+        eq_(h.clean_html(datetime.datetime(2018, 1, 5, 10, 48, 23, 463511)),
+            u'2018-01-05 10:48:23.463511')
 
 
 class TestHelperException(helpers.FunctionalTestBase):

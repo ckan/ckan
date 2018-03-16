@@ -5,6 +5,7 @@ import uuid
 import logging
 
 from sqlalchemy.orm import class_mapper
+from six import string_types
 
 import ckan.lib.dictization as d
 import ckan.lib.helpers as h
@@ -131,19 +132,6 @@ def package_extras_save(extra_dicts, obj, context):
             continue
         state = 'deleted'
         extra.state = state
-
-def group_extras_save(extras_dicts, context):
-
-    model = context["model"]
-    session = context["session"]
-
-    result_dict = {}
-    for extra_dict in extras_dicts:
-        if extra_dict.get("deleted"):
-            continue
-        result_dict[extra_dict["key"]] = extra_dict["value"]
-
-    return result_dict
 
 def package_tag_list_save(tag_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
@@ -411,14 +399,17 @@ def group_dict_save(group_dict, context, prevent_packages_update=False):
             'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
             group_groups_changed, group_tags_changed)
 
-    extras = group_extras_save(group_dict.get("extras", {}), context)
-    if extras or not allow_partial_update:
-        old_extras = set(group.extras.keys())
-        new_extras = set(extras.keys())
-        for key in old_extras - new_extras:
+    extras = group_dict.get("extras", [])
+    new_extras = {i['key'] for i in extras}
+    if extras:
+        old_extras = group.extras
+        for key in set(old_extras) - new_extras:
             del group.extras[key]
-        for key in new_extras:
-            group.extras[key] = extras[key]
+        for x in extras:
+            if 'deleted' in x and x['key'] in old_extras:
+                del group.extras[x['key']]
+                continue
+            group.extras[x['key']] = x['value']
 
     # We will get a list of packages that we have either added or
     # removed from the group, and trigger a re-index.
@@ -460,7 +451,7 @@ def package_api_to_dict(api1_dict, context):
     for key, value in api1_dict.iteritems():
         new_value = value
         if key == 'tags':
-            if isinstance(value, basestring):
+            if isinstance(value, string_types):
                 new_value = [{"name": item} for item in value.split()]
             else:
                 new_value = [{"name": item} for item in value]

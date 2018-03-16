@@ -33,10 +33,6 @@ CKAN release you're upgrading to:
 
 #. Update CKAN's dependencies:
 
-   .. versionchanged:: 2.1
-      In CKAN 2.0 and earlier the requirements file was called
-      ``pip-requirements.txt``, not ``requirements.txt`` as below.
-
    ::
 
      pip install --upgrade -r requirements.txt
@@ -84,4 +80,3 @@ CKAN release you're upgrading to:
 
 You should now be able to visit your CKAN website in your web browser and see
 that it's running the new version of CKAN.
-

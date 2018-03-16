@@ -186,8 +186,8 @@ class ApiTestCase(object):
     def loads(self, chars):
         try:
             return json.loads(chars)
-        except ValueError, inst:
-            raise Exception, "Couldn't loads string '%s': %s" % (chars, inst)
+        except ValueError as inst:
+            raise Exception("Couldn't loads string '%s': %s" % (chars, inst))
 
     def assert_json_response(self, res, expected_in_body=None):
         content_type = res.header_dict['Content-Type']

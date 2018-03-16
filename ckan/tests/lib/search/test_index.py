@@ -81,6 +81,28 @@ class TestSearchIndex(object):
         response = self.solr_client.search(q='name:monkey', fq=self.fq)
         assert_equal(len(response), 0)
 
+    def test_delete_package(self):
+        self.package_index.index_package(self.base_package_dict)
+
+        pkg_dict = self.base_package_dict.copy()
+        pkg_dict.update({
+            'id': 'test-index-2',
+            'name': 'monkey2'
+        })
+        self.package_index.index_package(pkg_dict)
+
+        response = self.solr_client.search(q='title:Monkey', fq=self.fq)
+        assert_equal(len(response), 2)
+        response_ids = sorted([x['id'] for x in response.docs])
+        assert_equal(response_ids, ['test-index', 'test-index-2'])
+
+        self.package_index.delete_package(pkg_dict)
+
+        response = self.solr_client.search(q='title:Monkey', fq=self.fq)
+        assert_equal(len(response), 1)
+        response_ids = sorted([x['id'] for x in response.docs])
+        assert_equal(response_ids, ['test-index'])
+
     def test_index_illegal_xml_chars(self):
 
         pkg_dict = self.base_package_dict.copy()

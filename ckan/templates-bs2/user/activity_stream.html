@@ -5,6 +5,6 @@
 {% block primary_content_inner %}
   <h2 class="hide-heading">{% block page_heading %}{{ _('Activity Stream') }}{% endblock %}</h2>
   {% block activity_stream %}
-    {{ c.user_activity_stream | safe }}
+    {{ g.user_activity_stream | safe }}
   {% endblock %}
 {% endblock %}

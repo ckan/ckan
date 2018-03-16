@@ -151,7 +151,7 @@ class TestValidators(object):
             # Non-string names aren't allowed as names.
             13,
             23.7,
-            100L,
+            100,
             1.0j,
             None,
             True,
@@ -229,7 +229,7 @@ class TestValidators(object):
         non_string_values = [
             13,
             23.7,
-            100L,
+            100,
             1.0j,
             None,
             True,

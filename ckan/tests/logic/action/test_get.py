@@ -4,6 +4,9 @@ import datetime
 
 import nose.tools
 
+from six import text_type
+from six.moves import xrange
+
 from ckan import __version__
 import ckan.logic as logic
 import ckan.plugins as p
@@ -1296,6 +1299,14 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         p.unload('example_idatasetform')
 
+    def test_local_parameters_not_supported(self):
+
+        nose.tools.assert_raises(
+            SearchError,
+            helpers.call_action,
+            'package_search',
+            q='{!child of="content_type:parentDoc"}')
+
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
     '''test class for #1258 non-int query parameters cause 500 errors
@@ -1946,7 +1957,7 @@ class TestRevisionList(helpers.FunctionalTestBase):
         rev_ids = []
         for i in xrange(num_revisions):
             rev = model.repo.new_revision()
-            rev.id = unicode(i)
+            rev.id = text_type(i)
             model.Session.commit()
             rev_ids.append(rev.id)
         return rev_ids

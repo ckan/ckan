@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from six import text_type
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
@@ -25,7 +26,8 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
             'ckan.datasets_per_page': [ignore_missing, is_positive_integer],
 
             # This is a custom configuration option
-            'ckanext.example_iconfigurer.test_conf': [ignore_missing, unicode],
+            'ckanext.example_iconfigurer.test_conf': [ignore_missing,
+                                                      text_type],
         })
 
         return schema

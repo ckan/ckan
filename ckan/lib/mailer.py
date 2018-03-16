@@ -11,6 +11,7 @@ from email import Utils
 
 from ckan.common import config
 import paste.deploy.converters
+from six import text_type
 
 import ckan
 import ckan.model as model
@@ -28,7 +29,11 @@ class MailerException(Exception):
 
 def _mail_recipient(recipient_name, recipient_email,
                     sender_name, sender_url, subject,
-                    body, headers={}):
+                    body, headers=None):
+
+    if not headers:
+        headers = {}
+
     mail_from = config.get('smtp.mail_from')
     msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
     for k, v in headers.items():
@@ -62,7 +67,7 @@ def _mail_recipient(recipient_name, recipient_email,
 
     try:
         smtp_connection.connect(smtp_server)
-    except socket.error, e:
+    except socket.error as e:
         log.exception(e)
         raise MailerException('SMTP server could not be connected to: "%s" %s'
                               % (smtp_server, e))
@@ -89,7 +94,7 @@ def _mail_recipient(recipient_name, recipient_email,
         smtp_connection.sendmail(mail_from, [recipient_email], msg.as_string())
         log.info("Sent email to {0}".format(recipient_email))
 
-    except smtplib.SMTPException, e:
+    except smtplib.SMTPException as e:
         msg = '%r' % e
         log.exception(msg)
         raise MailerException(msg)
@@ -182,7 +187,7 @@ def send_invite(user, group_dict=None, role=None):
 
 
 def create_reset_key(user):
-    user.reset_key = unicode(make_key())
+    user.reset_key = text_type(make_key())
     model.repo.commit_and_remove()
 
 

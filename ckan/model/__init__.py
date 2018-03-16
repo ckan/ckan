@@ -5,6 +5,7 @@ import logging
 import re
 from datetime import datetime
 
+from six import text_type
 import vdm.sqlalchemy
 from vdm.sqlalchemy.base import SQLAlchemySession
 from sqlalchemy import MetaData, __version__ as sqav, Table
@@ -185,25 +186,6 @@ class Repository(vdm.sqlalchemy.Repository):
         else:
             if not self.tables_created_and_initialised:
                 self.upgrade_db()
-                ## make sure celery tables are made as celery only makes
-                ## them after adding a task
-                try:
-                    import ckan.lib.celery_app as celery_app
-                    import celery.db.session as celery_session
-                    import celery.backends.database
-                    ## This creates the database tables (if using that backend)
-                    ## It is a slight hack to celery
-                    backend = celery_app.celery.backend
-                    if isinstance(backend,
-                                  celery.backends.database.DatabaseBackend):
-                        celery_result_session = backend.ResultSession()
-                        engine = celery_result_session.bind
-                        celery_session.ResultModelBase.metadata.\
-                            create_all(engine)
-                except ImportError:
-                    # use of celery is optional
-                    pass
-
                 self.tables_created_and_initialised = True
         log.info('Database initialised')
 
@@ -392,7 +374,7 @@ def _get_groups(self):
 
 # could set this up directly on the mapper?
 def _get_revision_user(self):
-    username = unicode(self.author)
+    username = text_type(self.author)
     user = meta.Session.query(User).filter_by(name=username).first()
     return user
 

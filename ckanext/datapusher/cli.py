@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from __future__ import print_function
+
 import sys
 
 import ckan.lib.cli as cli
@@ -49,14 +51,14 @@ class DatapusherCommand(cli.CkanCommand):
                 self._confirm_or_abort()
 
             if len(self.args) != 2:
-                print "This command requires an argument\n"
-                print self.usage
+                print("This command requires an argument\n")
+                print(self.usage)
                 sys.exit(1)
 
             self._load_config()
             self._submit_package(self.args[1])
         else:
-            print self.usage
+            print(self.usage)
 
     def _confirm_or_abort(self):
         question = (
@@ -66,7 +68,7 @@ class DatapusherCommand(cli.CkanCommand):
         )
         answer = cli.query_yes_no(question, default=None)
         if not answer == 'yes':
-            print "Aborting..."
+            print("Aborting...")
             sys.exit(0)
 
     def _resubmit_all(self):
@@ -89,9 +91,9 @@ class DatapusherCommand(cli.CkanCommand):
         try:
             pkg = package_show({'model': model, 'ignore_auth': True},
                                {'id': pkg_id.strip()})
-        except Exception, e:
-            print e
-            print "Package '{}' was not found".format(pkg_id)
+        except Exception as e:
+            print(e)
+            print("Package '{}' was not found".format(pkg_id))
             sys.exit(1)
 
         resource_ids = [r['id'] for r in pkg['resources']]
@@ -100,17 +102,17 @@ class DatapusherCommand(cli.CkanCommand):
     def _submit(self, resources):
         import ckan.model as model
 
-        print 'Submitting %d datastore resources' % len(resources)
+        print('Submitting %d datastore resources' % len(resources))
         user = p.toolkit.get_action('get_site_user')(
             {'model': model, 'ignore_auth': True}, {})
         datapusher_submit = p.toolkit.get_action('datapusher_submit')
         for resource_id in resources:
-            print ('Submitting %s...' % resource_id),
+            print('Submitting %s...' % resource_id, end=' ')
             data_dict = {
                 'resource_id': resource_id,
                 'ignore_hash': True,
             }
             if datapusher_submit({'user': user['name']}, data_dict):
-                print 'OK'
+                print('OK')
             else:
-                print 'Fail'
+                print('Fail')

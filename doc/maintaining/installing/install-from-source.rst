@@ -5,8 +5,8 @@ Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 14.04 64-bit or
-Ubuntu 12.04 64-bit. Installing CKAN from source works with other versions of
+:doc:`install-from-package` is simpler, it requires Ubuntu 16.04 64-bit or
+Ubuntu 14.04 64-bit. Installing CKAN from source works with other versions of
 Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
 you install CKAN from source on your own operating system, please share your
 experiences on our
@@ -105,13 +105,6 @@ b. Install the recommended ``setuptools`` version:
        pip install setuptools==\ |min_setuptools_version|
 
 c. Install the CKAN source code into your virtualenv.
-   .. important::
-
-       For the following commands, make sure you are in your CKAN default directory. E.g.
-
-      .. parsed-literal::
-
-         cd /usr/lib/ckan/default/
 
    To install the latest stable release of CKAN (CKAN |latest_release_version|),
    run:
@@ -128,15 +121,6 @@ c. Install the CKAN source code into your virtualenv.
 
        pip install -e 'git+\ |git_url|\#egg=ckan'
 
-   .. tip::
-
-      If you would like to work submit a pull request with your changes, be sure you are working from a cloned repository.
-      Use your personal repository URL instead of the CKAN repository. E.g.
-
-      .. parsed-literal::
-
-         pip install -e 'git=https://github.com/{your-username}/ckan.git#egg=ckan'
-
    .. warning::
 
       The development version may contain bugs and should not be used for
@@ -144,10 +128,6 @@ c. Install the CKAN source code into your virtualenv.
       development.
 
 d. Install the Python modules that CKAN requires into your virtualenv:
-
-   .. versionchanged:: 2.1
-      In CKAN 2.0 and earlier the requirement file was called
-      ``pip-requirements.txt`` not ``requirements.txt`` as below.
 
    .. parsed-literal::
 
@@ -235,8 +215,19 @@ site_url
 
 .. _postgres-init:
 
+----------------------
+6. Link to ``who.ini``
+----------------------
+
+``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
+same directory as your CKAN config file, so create a symlink to it:
+
+.. parsed-literal::
+
+    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
+
 -------------------------
-6. Create database tables
+7. Create database tables
 -------------------------
 
 Now that you have a configuration file that has the correct settings for your
@@ -256,7 +247,7 @@ You should see ``Initialising DB: SUCCESS``.
     See `4. Create a CKAN config file`_.
 
 -----------------------
-7. Set up the DataStore
+8. Set up the DataStore
 -----------------------
 
 .. note ::
@@ -267,17 +258,6 @@ You should see ``Initialising DB: SUCCESS``.
 Follow the instructions in :doc:`/maintaining/datastore` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
-
-----------------------
-8. Link to ``who.ini``
-----------------------
-
-``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
-same directory as your CKAN config file, so create a symlink to it:
-
-.. parsed-literal::
-
-    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
 
 ---------------
 9. You're done!

@@ -4,6 +4,7 @@ import logging
 
 from ckan.common import config
 from paste.deploy.converters import asbool
+from six import text_type
 
 import ckan.lib.base as base
 import ckan.model as model
@@ -243,7 +244,7 @@ class UserController(base.BaseController):
             user = get_action('user_create')(context, data_dict)
         except NotAuthorized:
             abort(403, _('Unauthorized to create user %s') % '')
-        except NotFound, e:
+        except NotFound as e:
             abort(404, _('User not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
@@ -251,7 +252,7 @@ class UserController(base.BaseController):
             error_msg = _(u'Bad Captcha. Please try again.')
             h.flash_error(error_msg)
             return self.new(data_dict)
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
@@ -373,11 +374,11 @@ class UserController(base.BaseController):
             h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
             abort(403, _('Unauthorized to edit user %s') % id)
-        except NotFound, e:
+        except NotFound as e:
             abort(404, _('User not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             return self.edit(id, data_dict, errors, error_summary)
@@ -497,9 +498,9 @@ class UserController(base.BaseController):
                     h.flash_success(_('Please check your inbox for '
                                     'a reset code.'))
                     h.redirect_to('/')
-                except mailer.MailerException, e:
+                except mailer.MailerException as e:
                     h.flash_error(_('Could not send reset link: %s') %
-                                  unicode(e))
+                                  text_type(e))
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
@@ -518,7 +519,7 @@ class UserController(base.BaseController):
             user_dict = get_action('user_show')(context, data_dict)
 
             user_obj = context['user_obj']
-        except NotFound, e:
+        except NotFound as e:
             abort(404, _('User not found'))
 
         c.reset_key = request.params.get('key')
@@ -544,14 +545,14 @@ class UserController(base.BaseController):
                 h.redirect_to('/')
             except NotAuthorized:
                 h.flash_error(_('Unauthorized to edit user %s') % id)
-            except NotFound, e:
+            except NotFound as e:
                 h.flash_error(_('User not found'))
             except DataError:
                 h.flash_error(_(u'Integrity Error'))
-            except ValidationError, e:
+            except ValidationError as e:
                 h.flash_error(u'%r' % e.error_dict)
-            except ValueError, ve:
-                h.flash_error(unicode(ve))
+            except ValueError as ve:
+                h.flash_error(text_type(ve))
             user_dict['state'] = user_state
 
         c.user_dict = user_dict
