@@ -1203,6 +1203,13 @@
           }
         },
         {
+          "value": "phone line",
+          "label": {
+            "en": "phone line",
+            "fa_IR": "خط تلفن"
+          }
+        },
+        {
           "value": "police station",
           "label": {
             "en": "police station",
@@ -1231,6 +1238,13 @@
           }
         },
         {
+          "value": "post",
+          "label": {
+            "en": "post",
+            "fa_IR": "پست"
+          }
+        },
+        {
           "value": "Post bank",
           "label": {
             "en": "Post bank",
@@ -1242,6 +1256,13 @@
           "label": {
             "en": "post doctorate",
             "fa_IR": "دکترای تخصصی"
+          }
+        },
+        {
+          "value": "post office",
+          "label": {
+            "en": "post office",
+            "fa_IR": "اداره پست"
           }
         },
         {
@@ -1606,6 +1627,13 @@
           "label": {
             "en": "Tejarat bank",
             "fa_IR": "بانک تجارت"
+          }
+        },
+        {
+          "value": "telephone",
+          "label": {
+            "en": "telephone",
+            "fa_IR": "تلفن"
           }
         },
         {
