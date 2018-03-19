@@ -2145,7 +2145,11 @@ def resource_search(context, data_dict):
 
             # Just a regular field
             else:
-                q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
+                column = model_attr.property.columns[0]
+                if isinstance(column.type, sqlalchemy.DateTime):
+                    q = q.filter(model_attr == term)
+                else:
+                    q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
 
     if order_by is not None:
         if hasattr(model.Resource, order_by):
