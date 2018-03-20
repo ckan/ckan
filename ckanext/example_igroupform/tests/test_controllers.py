@@ -19,21 +19,25 @@ def _get_group_new_page(app, group_type):
     user = factories.User()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
     response = app.get(
-        url_for('%s_new' % group_type),
-        extra_environ=env,
-    )
+        url_for('%s.new' % group_type),
+        extra_environ=env, )
     return env, response
 
 
 class TestGroupController(helpers.FunctionalTestBase):
     @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'example_igroupform'
+
+    @classmethod
     def setup_class(cls):
         super(TestGroupController, cls).setup_class()
-        plugins.load('example_igroupform')
+        # plugins.load('example_igroupform')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_igroupform')
+        if plugins.plugin_loaded('example_igroupform'):
+            plugins.unload('example_igroupform')
         super(TestGroupController, cls).teardown_class()
 
     def test_about(self):
@@ -42,8 +46,7 @@ class TestGroupController(helpers.FunctionalTestBase):
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_about' % custom_group_type,
-                      id=group_name)
+        url = url_for('%s.about' % custom_group_type, id=group_name)
         response = app.get(url=url, extra_environ=env)
         response.mustcontain(group_name)
 
@@ -53,8 +56,7 @@ class TestGroupController(helpers.FunctionalTestBase):
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_bulk_process' % custom_group_type,
-                      id=group_name)
+        url = url_for('%s.bulk_process' % custom_group_type, id=group_name)
         try:
             response = app.get(url=url, extra_environ=env)
         except Exception as e:
@@ -68,20 +70,24 @@ class TestGroupController(helpers.FunctionalTestBase):
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_action' % custom_group_type, action='delete',
-                      id=group_name)
+        url = url_for('%s.delete' % custom_group_type, id=group_name)
         response = app.get(url=url, extra_environ=env)
 
 
 class TestOrganizationController(helpers.FunctionalTestBase):
     @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'example_igroupform_organization'
+
+    @classmethod
     def setup_class(cls):
         super(TestOrganizationController, cls).setup_class()
-        plugins.load('example_igroupform_organization')
+        # plugins.load('example_igroupform_organization')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_igroupform_organization')
+        if plugins.plugin_loaded('example_igroupform_organization'):
+            plugins.unload('example_igroupform_organization')
         super(TestOrganizationController, cls).teardown_class()
 
     def test_about(self):
@@ -90,8 +96,7 @@ class TestOrganizationController(helpers.FunctionalTestBase):
         group = factories.Organization(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_about' % custom_group_type,
-                      id=group_name)
+        url = url_for('%s.about' % custom_group_type, id=group_name)
         response = app.get(url=url, extra_environ=env)
         response.mustcontain(group_name)
 
@@ -101,8 +106,7 @@ class TestOrganizationController(helpers.FunctionalTestBase):
         group = factories.Organization(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_bulk_process' % custom_group_type,
-                      id=group_name)
+        url = url_for('%s.bulk_process' % custom_group_type, id=group_name)
         response = app.get(url=url, extra_environ=env)
 
     def test_delete(self):
@@ -111,20 +115,24 @@ class TestOrganizationController(helpers.FunctionalTestBase):
         group = factories.Organization(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_action' % custom_group_type, action='delete',
-                      id=group_name)
+        url = url_for('%s.delete' % custom_group_type, id=group_name)
         response = app.get(url=url, extra_environ=env)
 
 
 class TestGroupControllerNew(helpers.FunctionalTestBase):
     @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'example_igroupform'
+
+    @classmethod
     def setup_class(cls):
         super(TestGroupControllerNew, cls).setup_class()
-        plugins.load('example_igroupform')
+        # plugins.load('example_igroupform')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_igroupform')
+        if plugins.plugin_loaded('example_igroupform'):
+            plugins.unload('example_igroupform')
         super(TestGroupControllerNew, cls).teardown_class()
 
     def test_save(self):
@@ -148,19 +156,26 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
         app = self._get_test_app()
         env, response = _get_group_new_page(app, custom_group_type)
 
-        assert_in('My Custom Group Form!', response,
-                  msg="Custom group form not being used.")
+        assert_in(
+            'My Custom Group Form!',
+            response,
+            msg="Custom group form not being used.")
 
 
 class TestGroupControllerNew_DefaultGroupType(helpers.FunctionalTestBase):
     @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'example_igroupform_default_group_type'
+
+    @classmethod
     def setup_class(cls):
         super(TestGroupControllerNew_DefaultGroupType, cls).setup_class()
-        plugins.load('example_igroupform_default_group_type')
+        # plugins.load('example_igroupform_default_group_type')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_igroupform_default_group_type')
+        if plugins.plugin_loaded('example_igroupform_default_group_type'):
+            plugins.unload('example_igroupform_default_group_type')
         super(TestGroupControllerNew_DefaultGroupType, cls).teardown_class()
 
     def test_save(self):
@@ -184,8 +199,10 @@ class TestGroupControllerNew_DefaultGroupType(helpers.FunctionalTestBase):
         app = self._get_test_app()
         env, response = _get_group_new_page(app, group_type)
 
-        assert_in('My Custom Group Form!', response,
-                  msg="Custom group form not being used.")
+        assert_in(
+            'My Custom Group Form!',
+            response,
+            msg="Custom group form not being used.")
 
 
 def _get_group_edit_page(app, group_type, group_name=None):
@@ -194,31 +211,33 @@ def _get_group_edit_page(app, group_type, group_name=None):
         group = factories.Group(user=user, type=group_type)
         group_name = group['name']
     env = {'REMOTE_USER': user['name'].encode('ascii')}
-    url = url_for('%s_edit' % group_type,
-                  id=group_name)
+    url = url_for('%s.edit' % group_type, id=group_name)
     response = app.get(url=url, extra_environ=env)
     return env, response, group_name
 
 
 class TestGroupControllerEdit(helpers.FunctionalTestBase):
     @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'example_igroupform'
+
+    @classmethod
     def setup_class(cls):
         super(TestGroupControllerEdit, cls).setup_class()
-        plugins.load('example_igroupform')
+        # plugins.load('example_igroupform')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_igroupform')
+        if plugins.plugin_loaded('example_igroupform'):
+            plugins.unload('example_igroupform')
         super(TestGroupControllerEdit, cls).teardown_class()
 
     def test_group_doesnt_exist(self):
         app = self._get_test_app()
         user = factories.User()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_edit' % custom_group_type,
-                      id='doesnt_exist')
-        app.get(url=url, extra_environ=env,
-                status=404)
+        url = url_for('%s.edit' % custom_group_type, id='doesnt_exist')
+        app.get(url=url, extra_environ=env, status=404)
 
     def test_save(self):
         app = self._get_test_app()
@@ -237,29 +256,34 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
         env, response, group_name = \
             _get_group_edit_page(app, custom_group_type)
 
-        assert_in('My Custom Group Form!', response,
-                  msg="Custom group form not being used.")
+        assert_in(
+            'My Custom Group Form!',
+            response,
+            msg="Custom group form not being used.")
 
 
 class TestGroupControllerEdit_DefaultGroupType(helpers.FunctionalTestBase):
     @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'example_igroupform_default_group_type'
+
+    @classmethod
     def setup_class(cls):
         super(TestGroupControllerEdit_DefaultGroupType, cls).setup_class()
-        plugins.load('example_igroupform_default_group_type')
+        # plugins.load('example_igroupform_default_group_type')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_igroupform_default_group_type')
+        if plugins.plugin_loaded('example_igroupform_default_group_type'):
+            plugins.unload('example_igroupform_default_group_type')
         super(TestGroupControllerEdit_DefaultGroupType, cls).teardown_class()
 
     def test_group_doesnt_exist(self):
         app = self._get_test_app()
         user = factories.User()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_edit' % group_type,
-                      id='doesnt_exist')
-        app.get(url=url, extra_environ=env,
-                status=404)
+        url = url_for('%s.edit' % group_type, id='doesnt_exist')
+        app.get(url=url, extra_environ=env, status=404)
 
     def test_save(self):
         app = self._get_test_app()
@@ -276,5 +300,7 @@ class TestGroupControllerEdit_DefaultGroupType(helpers.FunctionalTestBase):
         app = self._get_test_app()
         env, response, group_name = _get_group_edit_page(app, group_type)
 
-        assert_in('My Custom Group Form!', response,
-                  msg="Custom group form not being used.")
+        assert_in(
+            'My Custom Group Form!',
+            response,
+            msg="Custom group form not being used.")
