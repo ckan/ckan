@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+from importlib import import_module
 
 from ckan.common import c
 from ckan.lib import base
@@ -11,6 +12,7 @@ import logic.schema
 from ckan import plugins
 import ckan.authz
 import ckan.plugins.toolkit as toolkit
+from flask import Blueprint
 
 log = logging.getLogger(__name__)
 
@@ -26,6 +28,8 @@ _default_group_plugin = None
 _default_organization_plugin = None
 # Mapping from group-type strings to controllers
 _group_controllers = {}
+# Mapping from group-type strings to blueprints
+_group_blueprints = {}
 
 
 def reset_package_plugins():
@@ -129,7 +133,7 @@ def register_package_plugins(map):
         _default_package_plugin = DefaultDatasetForm()
 
 
-def register_group_plugins(map):
+def register_group_plugins(app):
     """
     Register the various IGroupForm instances.
 
@@ -177,6 +181,7 @@ def register_group_plugins(map):
                                      "groups has been registered")
                 _default_group_plugin = plugin
 
+        group = import_module(app.blueprints['group'].import_name)
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
             # allow us to have top level objects that are actually
@@ -188,54 +193,62 @@ def register_group_plugins(map):
             # map instead. This looks like a threading problem waiting
             # to happen but it is executed sequentially from inside the
             # routing setup
+            blueprint = Blueprint(group_type,
+                                  group.group.import_name,
+                                  url_prefix='/{}'.format(group_type))
+            actions = ['member_delete', 'history', 
+                       'followers', 'follow', 'unfollow',
+                       'admins', 'activity']
 
-            map.connect('%s_index' % group_type, '/%s' % group_type,
-                        controller=group_controller, action='index')
-            map.connect('%s_new' % group_type, '/%s/new' % group_type,
-                        controller=group_controller, action='new')
-            map.connect('%s_read' % group_type, '/%s/{id}' % group_type,
-                        controller=group_controller, action='read')
-            map.connect('%s_action' % group_type,
-                        '/%s/{action}/{id}' % group_type,
-                        controller=group_controller,
-                        requirements=dict(action='|'.join(
-                            ['edit', 'authz', 'delete', 'history', 'member_new',
-                             'member_delete', 'followers', 'follow',
-                             'unfollow', 'admins', 'activity'])))
-            map.connect('%s_edit' % group_type, '/%s/edit/{id}' % group_type,
-                        controller=group_controller, action='edit',
-                        ckan_icon='pencil-square-o')
-            map.connect('%s_members' % group_type,
-                        '/%s/members/{id}' % group_type,
-                        controller=group_controller,
-                        action='members',
-                        ckan_icon='users')
-            map.connect('%s_member_new' % group_type,
-                        '/%s/member_new/{id}' % group_type,
-                        controller=group_controller,
-                        action='member_new')
-            map.connect('%s_member_delete' % group_type,
-                        '/%s/member_delete/{id}' % group_type,
-                        controller=group_controller,
-                        action='member_delete')
-            map.connect('%s_activity' % group_type,
-                        '/%s/activity/{id}/{offset}' % group_type,
-                        controller=group_controller,
-                        action='activity', ckan_icon='clock-o'),
-            map.connect('%s_about' % group_type, '/%s/about/{id}' % group_type,
-                        controller=group_controller,
-                        action='about', ckan_icon='info-circle')
-            map.connect('%s_bulk_process' % group_type,
-                        '/%s/bulk_process/{id}' % group_type,
-                        controller=group_controller,
-                        action='bulk_process', ckan_icon='sitemap')
+            blueprint.add_url_rule(u'/', view_func=group.index,
+                                   strict_slashes=False)
+            blueprint.add_url_rule(
+                u'/new',
+                methods=[u'GET', u'POST'],
+                view_func=group.CreateGroupView.as_view(str('new')))
+            blueprint.add_url_rule(
+                u'/<id>', methods=[u'GET'],
+                view_func=group.read)
+            blueprint.add_url_rule(
+                u'/edit/<id>',
+                view_func=group.EditGroupView.as_view(str('edit')))
+            blueprint.add_url_rule(
+                u'/activity/<id>/<int:offset>',
+                methods=[u'GET'],
+                view_func=group.activity)
+            blueprint.add_url_rule(
+                u'/about/<id>',
+                methods=[u'GET'],
+                view_func=group.about)
+            blueprint.add_url_rule(
+                u'/members/<id>',
+                methods=[u'GET', u'POST'],
+                view_func=group.members)
+            blueprint.add_url_rule(
+                u'/member_new/<id>',
+                view_func=group.MembersGroupView.as_view(str('member_new')))
+            blueprint.add_url_rule(
+                u'/delete/<id>',
+                methods=[u'GET', u'POST'],
+                view_func=group.DeleteGroupView.as_view(str('delete')))
+            blueprint.add_url_rule(
+                u'/bulk_process/<id>',
+                view_func=group.BulkProcessView.as_view(str('bulk_process')))
+            for action in actions:
+                blueprint.add_url_rule(
+                    u'/{0}/<id>'.format(action),
+                    methods=[u'GET', u'POST'],
+                    view_func=getattr(group, action))
+            app.register_blueprint(blueprint)
 
             if group_type in _group_plugins:
                 raise ValueError("An existing IGroupForm is "
                                  "already associated with the group type "
                                  "'%s'" % group_type)
+
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
+            _group_blueprints[group_type] = blueprint
 
             controller_obj = None
             # If using one of the default controllers, tell it that it is allowed
