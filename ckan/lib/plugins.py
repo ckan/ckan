@@ -80,6 +80,13 @@ def lookup_group_controller(group_type=None):
     return _group_controllers.get(group_type)
 
 
+def lookup_group_blueprints(group_type=None):
+    """
+    Returns the group blueprint
+    """
+    return _group_blueprints.get(group_type)
+
+
 def register_package_plugins(map):
     """
     Register the various IDatasetForm instances.
