@@ -3,8 +3,8 @@
 {% block page_primary_action %}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li>{{ h.nav_link(_('Groups'), controller='group', action='index') }}</li>
-  <li class="active">{% block breadcrumb_link %}{{ h.nav_link(_('Add a Group'), controller='group', action='new') }}{% endblock %}</li>
+  <li>{{ h.nav_link(_('Groups'), named_route=group_type+'.index') }}</li>
+  <li class="active">{% block breadcrumb_link %}{{ h.nav_link(_('Add a Group'), named_route=group_type+'.new') }}{% endblock %}</li>
 {% endblock %}
 
 {% block primary_content_inner %}
