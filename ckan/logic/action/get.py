@@ -1480,40 +1480,6 @@ def user_show(context, data_dict):
     return user_dict
 
 
-def package_show_rest(context, data_dict):
-    _check_access('package_show_rest', context, data_dict)
-
-    logic.get_action('package_show')(context, data_dict)
-
-    pkg = context['package']
-
-    package_dict = model_dictize.package_to_api(pkg, context)
-
-    return package_dict
-
-
-def group_show_rest(context, data_dict):
-    _check_access('group_show_rest', context, data_dict)
-
-    logic.get_action('group_show')(context, data_dict)
-    group = context['group']
-
-    group_dict = model_dictize.group_to_api(group, context)
-
-    return group_dict
-
-
-def tag_show_rest(context, data_dict):
-    _check_access('tag_show_rest', context, data_dict)
-
-    logic.get_action('tag_show')(context, data_dict)
-    tag = context['tag']
-
-    tag_dict = model_dictize.tag_to_api(tag, context)
-
-    return tag_dict
-
-
 @logic.validate(logic.schema.default_autocomplete_schema)
 def package_autocomplete(context, data_dict):
     '''Return a list of datasets (packages) that match a string.
