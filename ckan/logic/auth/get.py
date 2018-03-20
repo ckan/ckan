@@ -216,19 +216,6 @@ def task_status_show(context, data_dict):
     return {'success': True}
 
 
-## Modifications for rest api
-def package_show_rest(context, data_dict):
-    return authz.is_authorized('package_show', context, data_dict)
-
-
-def group_show_rest(context, data_dict):
-    return authz.is_authorized('group_show', context, data_dict)
-
-
-def tag_show_rest(context, data_dict):
-    return authz.is_authorized('tag_show', context, data_dict)
-
-
 def get_site_user(context, data_dict):
     # FIXME this is available to sysadmins currently till
     # @auth_sysadmins_check decorator is added

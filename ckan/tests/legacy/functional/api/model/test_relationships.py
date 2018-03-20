@@ -7,8 +7,7 @@ from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 
 from ckan.tests.legacy.functional.api.base import BaseModelApiTestCase
-from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase
-from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase
+
 
 class RelationshipsTestCase(BaseModelApiTestCase):
 
@@ -325,6 +324,3 @@ class RelationshipsTestCase(BaseModelApiTestCase):
         assert rel_dict['object'] == object_ref, (rel_dict, object_ref)
         assert rel_dict['type'] == type, (rel_dict, type)
         assert rel_dict['comment'] == comment, (rel_dict, comment)
-
-class TestRelationshipsVersion1(Version1TestCase, RelationshipsTestCase): pass
-class TestRelationshipsVersion2(Version2TestCase, RelationshipsTestCase): pass

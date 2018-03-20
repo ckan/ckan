@@ -1,13 +1,12 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal 
+from nose.tools import assert_equal
 
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 
 from ckan.tests.legacy.functional.api.base import BaseModelApiTestCase
-from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase
-from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase
+
 
 class LicensesTestCase(BaseModelApiTestCase):
 
@@ -32,7 +31,3 @@ class LicensesTestCase(BaseModelApiTestCase):
             license = register[id]
             assert license['title'] == license.title
             assert license['url'] == license.url
-
-
-class TestLicensesVersion1(Version1TestCase, LicensesTestCase): pass
-class TestLicensesVersion2(Version2TestCase, LicensesTestCase): pass
