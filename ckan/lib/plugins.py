@@ -537,7 +537,7 @@ class DefaultGroupForm(object):
 
         ## This is messy as auths take domain object not data_dict
         context_group = context.get('group', None)
-        group = context_group or c.group
+        group = context_group or getattr(c, 'group', '')
         if group:
             try:
                 if not context_group:
@@ -546,6 +546,9 @@ class DefaultGroupForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
+        else:
+            # needs to be set to get template displayed when flask request
+            c.group = ''
 
 
 class DefaultOrganizationForm(DefaultGroupForm):
