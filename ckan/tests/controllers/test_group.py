@@ -732,25 +732,25 @@ class TestGroupIndex(helpers.FunctionalTestBase):
         url = url_for('group.index')
         response = app.get(url)
 
-        for i in xrange(1, 22):
+        for i in xrange(1, 21):
             _i = '0' + str(i) if i < 10 else i
             assert_in('Test Group {0}'.format(_i), response)
 
-        assert 'Test Group 22' not in response
+        assert 'Test Group 21' not in response
 
         url = url_for('group.index', page=1)
         response = app.get(url)
 
-        for i in xrange(1, 22):
+        for i in xrange(1, 21):
             _i = '0' + str(i) if i < 10 else i
             assert_in('Test Group {0}'.format(_i), response)
 
-        assert 'Test Group 22' not in response
+        assert 'Test Group 21' not in response
 
         url = url_for('group.index', page=2)
         response = app.get(url)
 
-        for i in xrange(22, 26):
+        for i in xrange(21, 26):
             assert_in('Test Group {0}'.format(i), response)
 
-        assert 'Test Group 21' not in response
+        assert 'Test Group 20' not in response
