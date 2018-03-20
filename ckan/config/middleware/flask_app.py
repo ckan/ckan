@@ -33,7 +33,7 @@ from ckan.views import (identify_user,
                         check_session_cookie,
                         )
 
-
+import ckan.lib.plugins as lib_plugins
 import logging
 log = logging.getLogger(__name__)
 
@@ -171,6 +171,7 @@ def make_flask_stack(conf, **app_conf):
 
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
+    _register_plugin_blueprints(app)
 
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
@@ -400,3 +401,8 @@ def _register_core_blueprints(app):
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
             log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
+
+
+# We should register blueprint routes to the app object
+def _register_plugin_blueprints(app):
+    lib_plugins.register_group_plugins(app)
