@@ -25,6 +25,8 @@ Changes and deprecations:
  * The old Celery based background jobs have been removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
+ * `ckan.recaptcha.version` config option is removed, since v2 is the only valid
+    version now (#4061)
 
 v2.7.3 2018-03-15
 =================
