@@ -551,7 +551,7 @@ def history(id):
                 _('Select two revisions before doing the comparison.')
         else:
             params['diff_entity'] = 'group'
-            h.redirect_to(controller='revision', action='diff', **params)
+            return h.redirect_to(controller='revision', action='diff', **params)
 
     context = {
         'model': model,
@@ -1040,7 +1040,7 @@ class DeleteGroupView(MethodView):
             base.abort(404, _('Group not found'))
         except ValidationError as e:
             h.flash_error(e.error_dict['message'])
-            h.redirect_to('organization.read', id=id)
+            return h.redirect_to('organization.read', id=id)
         return _redirect_to_this_controller(action='index')
 
     def get(self, id=None):
