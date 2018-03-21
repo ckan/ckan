@@ -200,53 +200,55 @@ def register_group_plugins(app):
             # map instead. This looks like a threading problem waiting
             # to happen but it is executed sequentially from inside the
             # routing setup
-            blueprint = Blueprint(group_type,
-                                  group.group.import_name,
-                                  url_prefix='/{}'.format(group_type))
-            actions = ['member_delete', 'history', 
-                       'followers', 'follow', 'unfollow',
-                       'admins', 'activity']
 
-            blueprint.add_url_rule(u'/', view_func=group.index,
-                                   strict_slashes=False)
-            blueprint.add_url_rule(
-                u'/new',
-                methods=[u'GET', u'POST'],
-                view_func=group.CreateGroupView.as_view(str('new')))
-            blueprint.add_url_rule(
-                u'/<id>', methods=[u'GET'],
-                view_func=group.read)
-            blueprint.add_url_rule(
-                u'/edit/<id>',
-                view_func=group.EditGroupView.as_view(str('edit')))
-            blueprint.add_url_rule(
-                u'/activity/<id>/<int:offset>',
-                methods=[u'GET'],
-                view_func=group.activity)
-            blueprint.add_url_rule(
-                u'/about/<id>',
-                methods=[u'GET'],
-                view_func=group.about)
-            blueprint.add_url_rule(
-                u'/members/<id>',
-                methods=[u'GET', u'POST'],
-                view_func=group.members)
-            blueprint.add_url_rule(
-                u'/member_new/<id>',
-                view_func=group.MembersGroupView.as_view(str('member_new')))
-            blueprint.add_url_rule(
-                u'/delete/<id>',
-                methods=[u'GET', u'POST'],
-                view_func=group.DeleteGroupView.as_view(str('delete')))
-            blueprint.add_url_rule(
-                u'/bulk_process/<id>',
-                view_func=group.BulkProcessView.as_view(str('bulk_process')))
-            for action in actions:
+            if group_type not in app.blueprints:
+                blueprint = Blueprint(group_type,
+                                      group.group.import_name,
+                                      url_prefix='/{}'.format(group_type))
+                actions = ['member_delete', 'history', 
+                        'followers', 'follow', 'unfollow',
+                        'admins', 'activity']
+
+                blueprint.add_url_rule(u'/', view_func=group.index,
+                                       strict_slashes=False)
                 blueprint.add_url_rule(
-                    u'/{0}/<id>'.format(action),
+                    u'/new',
                     methods=[u'GET', u'POST'],
-                    view_func=getattr(group, action))
-            app.register_blueprint(blueprint)
+                    view_func=group.CreateGroupView.as_view(str('new')))
+                blueprint.add_url_rule(
+                    u'/<id>', methods=[u'GET'],
+                    view_func=group.read)
+                blueprint.add_url_rule(
+                    u'/edit/<id>',
+                    view_func=group.EditGroupView.as_view(str('edit')))
+                blueprint.add_url_rule(
+                    u'/activity/<id>/<int:offset>',
+                    methods=[u'GET'],
+                    view_func=group.activity)
+                blueprint.add_url_rule(
+                    u'/about/<id>',
+                    methods=[u'GET'],
+                    view_func=group.about)
+                blueprint.add_url_rule(
+                    u'/members/<id>',
+                    methods=[u'GET', u'POST'],
+                    view_func=group.members)
+                blueprint.add_url_rule(
+                    u'/member_new/<id>',
+                    view_func=group.MembersGroupView.as_view(str('member_new')))
+                blueprint.add_url_rule(
+                    u'/delete/<id>',
+                    methods=[u'GET', u'POST'],
+                    view_func=group.DeleteGroupView.as_view(str('delete')))
+                blueprint.add_url_rule(
+                    u'/bulk_process/<id>',
+                    view_func=group.BulkProcessView.as_view(str('bulk_process')))
+                for action in actions:
+                    blueprint.add_url_rule(
+                        u'/{0}/<id>'.format(action),
+                        methods=[u'GET', u'POST'],
+                        view_func=getattr(group, action))
+                app.register_blueprint(blueprint)
 
             if group_type in _group_plugins:
                 raise ValueError("An existing IGroupForm is "
@@ -255,7 +257,6 @@ def register_group_plugins(app):
 
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
-            _group_blueprints[group_type] = blueprint
 
             controller_obj = None
             # If using one of the default controllers, tell it that it is allowed
