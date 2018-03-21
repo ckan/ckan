@@ -256,7 +256,7 @@ def _read(id, limit, group_type):
     def search_url(params):
         controller = lookup_group_controller(group_type)
         action = u'bulk_process' if getattr(
-            c, u'action') == u'bulk_process' else u'read'
+            c, u'action', u'') == u'bulk_process' else u'read'
         url = h.url_for(u'.'.join([controller, action]), id=id)
         params = [(k, v.encode(u'utf-8')
                    if isinstance(v, basestring) else str(v))
@@ -425,8 +425,7 @@ def read(id=None, limit=20):
         # Do not query for the group datasets when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
-        action = group_type + u'_show'
-        c.group_dict = _action(action)(context, data_dict)
+        c.group_dict = _action(u'group_show')(context, data_dict)
         c.group = context['group']
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
@@ -486,7 +485,7 @@ def members(id):
 
     try:
         data_dict = {u'id': id}
-        check_access(u'group_edit_permissions', context, data_dict)
+        _check_access(u'group_edit_permissions', context, data_dict)
         c.members = get_action(u'member_list')(context, {
             u'id': id,
             u'object_type': u'user'
@@ -869,8 +868,7 @@ class CreateGroupView(MethodView):
         }
 
         try:
-            action_create = group_type + u'_create'
-            check_access(action_create, context)
+            _check_access(u'group_create', context)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
 
@@ -946,7 +944,7 @@ class EditGroupView(MethodView):
 
         try:
             group = _action(u'group_show')(context, data_dict)
-            check_access(group_type + u'_update', context)
+            check_access(u'group_update', context)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
         except NotFound:
@@ -1066,8 +1064,7 @@ class MembersGroupView(MethodView):
             u'group_type': group_type
         }
         try:
-            action = group_type + u'_member_create'
-            check_access(action, context, {u'id': id})
+            _check_access(u'group_member_create', context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create group %s members') % u'')
 
