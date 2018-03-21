@@ -143,7 +143,7 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
 
         response = submit_and_follow(app, form, env, 'save')
         # check correct redirect
-        assert_equal(response.req.url,
+        assert_equal(response.request.url,
                      'http://test.ckan.net/%s/saved' % custom_group_type)
         # check saved ok
         group = model.Group.by_name(u'saved')
@@ -186,7 +186,7 @@ class TestGroupControllerNew_DefaultGroupType(helpers.FunctionalTestBase):
 
         response = submit_and_follow(app, form, env, 'save')
         # check correct redirect
-        assert_equal(response.req.url,
+        assert_equal(response.request.url,
                      'http://test.ckan.net/%s/saved' % group_type)
         # check saved ok
         group = model.Group.by_name(u'saved')
