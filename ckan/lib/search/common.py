@@ -69,7 +69,7 @@ def make_connection(decode_dates=True):
 
     if solr_url and solr_user:
         # Rebuild the URL with the username/password
-        protocol = re.search('(http(?:s)?)://', solr_url).group()
+        protocol = re.search('http(?:s)?://', solr_url).group()
         solr_url = re.sub(protocol, '', solr_url)
         solr_url = "{}{}:{}@{}".format(protocol,
                                        urllib.quote_plus(solr_user),
