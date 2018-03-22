@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import codecs
 import smtplib
 import socket
 import logging
@@ -192,7 +193,7 @@ def create_reset_key(user):
 
 
 def make_key():
-    return uuid.uuid4().hex[:10]
+    return codecs.encode(os.urandom(16), 'hex')
 
 
 def verify_reset_link(user, key):
