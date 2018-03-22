@@ -646,7 +646,7 @@ class TestPep8(object):
 
     def test_pep8_pass(self):
         msg = 'The following files passed pep8 but are blacklisted'
-        # show_passing(msg, self.passes)
+        show_passing(msg, self.passes)
 
     @classmethod
     def find_pep8_errors(cls, filename=None, lines=None):
