@@ -4,7 +4,7 @@
 
 {% block page_primary_action %}
   {% if h.check_access('group_create') %}
-    {% link_for _('Add Group'), controller='group', action='new', class_="btn btn-primary", icon="plus-square" %}
+    {% link_for _('Add Group'), named_route='group.new', class_="btn btn-primary", icon="plus-square" %}
   {% endif %}
 {% endblock %}
 
@@ -19,7 +19,7 @@
     <p class="empty">
       {{ _('You are not a member of any groups.') }}
       {% if h.check_access('group_create') %}
-        {% link_for _('Create one now?'), controller='group', action='new' %}
+        {% link_for _('Create one now?'), named_route='group.new' %}
       {% endif %}
     </p>
   {% endif %}

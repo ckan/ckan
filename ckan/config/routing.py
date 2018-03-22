@@ -86,7 +86,6 @@ def make_map():
     OPTIONS = dict(method=['OPTIONS'])
 
     import ckan.lib.plugins as lib_plugins
-    lib_plugins.reset_package_plugins()
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
@@ -222,75 +221,7 @@ def make_map():
                   action='resource_view')
 
     # group
-    map.redirect('/groups', '/group')
-    map.redirect('/groups/{url:.*}', '/group/{url}')
-
-    # These named routes are used for custom group forms which will use the
-    # names below based on the group.type ('group' is the default type)
-    with SubMapper(map, controller='group') as m:
-        m.connect('group_index', '/group', action='index',
-                  highlight_actions='index search')
-        m.connect('group_list', '/group/list', action='list')
-        m.connect('group_new', '/group/new', action='new')
-
-        for action in [
-              'edit',
-              'delete',
-              'member_new',
-              'member_delete',
-              'history',
-              'followers',
-              'follow',
-              'unfollow',
-              'admins',
-              'activity',
-          ]:
-            m.connect('group_' + action,
-                      '/group/' + action + '/{id}',
-                      action=action)
-
-        m.connect('group_about', '/group/about/{id}', action='about',
-                  ckan_icon='info-circle'),
-        m.connect('group_edit', '/group/edit/{id}', action='edit',
-                  ckan_icon='pencil-square-o')
-        m.connect('group_members', '/group/members/{id}', action='members',
-                  ckan_icon='users'),
-        m.connect('group_activity', '/group/activity/{id}/{offset}',
-                  action='activity', ckan_icon='clock-o'),
-        m.connect('group_read', '/group/{id}', action='read',
-                  ckan_icon='sitemap')
-
-    # organizations these basically end up being the same as groups
-    with SubMapper(map, controller='organization') as m:
-        m.connect('organizations_index', '/organization', action='index')
-        m.connect('organization_index', '/organization', action='index')
-        m.connect('organization_new', '/organization/new', action='new')
-        for action in [
-          'delete',
-          'admins',
-          'member_new',
-          'member_delete',
-          'history']:
-            m.connect('organization_' + action,
-                      '/organization/' + action + '/{id}',
-                      action=action)
-
-        m.connect('organization_activity', '/organization/activity/{id}/{offset}',
-                  action='activity', ckan_icon='clock-o')
-        m.connect('organization_read', '/organization/{id}', action='read')
-        m.connect('organization_about', '/organization/about/{id}',
-                  action='about', ckan_icon='info-circle')
-        m.connect('organization_read', '/organization/{id}', action='read',
-                  ckan_icon='sitemap')
-        m.connect('organization_edit', '/organization/edit/{id}',
-                  action='edit', ckan_icon='pencil-square-o')
-        m.connect('organization_members', '/organization/members/{id}',
-                  action='members', ckan_icon='users')
-        m.connect('organization_bulk_process',
-                  '/organization/bulk_process/{id}',
-                  action='bulk_process', ckan_icon='sitemap')
     lib_plugins.register_package_plugins(map)
-    lib_plugins.register_group_plugins(map)
 
     # tags
     map.redirect('/tags', '/tag')

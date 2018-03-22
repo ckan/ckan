@@ -13,8 +13,8 @@
     <li class="active"><a href="" title="{{ _('Revision Differences') }}">{{ _('Revision Differences') }}</a></li>
   {% elif c.diff_entity == 'group' %}
     {% set group = group.display_name or group.name %}
-    <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
-    <li>{% link_for group, controller='group', action='read', id=group.name %}</li>
+    <li>{% link_for _('Groups'), named_route='group.index' %}</li>
+    <li>{% link_for group, named_route='group.read', id=group.name %}</li>
     <li class="active"><a href="" title="{{ _('Revision Differences') }}">{{ _('Revision Differences') }}</a></li>
   {% endif %}
 {% endblock %}
@@ -24,7 +24,7 @@
     {% if c.diff_entity == 'package' %}
       {% link_for pkg.title, controller='package', action='read', id=pkg.name %}
     {% elif c.diff_entity == 'group' %}
-      {% link_for group.display_name, controller='group', action='read', id=group.name %}
+      {% link_for group.display_name, named_route='group.read', id=group.name %}
     {% endif %}
   </h1>
 
