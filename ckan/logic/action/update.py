@@ -358,7 +358,7 @@ def package_resource_reorder(context, data_dict):
     :param id: the id or name of the package to update
     :type id: string
     :param order: a list of resource ids in the order needed
-    :type list: list
+    :type order: list
     '''
 
     id = _get_or_bust(data_dict, "id")
@@ -425,6 +425,7 @@ def package_relationship_update(context, data_dict):
     :type subject: string
     :param object: the name or id of the dataset that is the object of the
         relationship
+    :type object: string
     :param type: the type of the relationship, one of ``'depends_on'``,
         ``'dependency_of'``, ``'derives_from'``, ``'has_derivation'``,
         ``'links_to'``, ``'linked_from'``, ``'child_of'`` or ``'parent_of'``
@@ -976,7 +977,7 @@ def package_owner_org_update(context, data_dict):
     :type id: string
 
     :param organization_id: the name or id of the owning organization
-    :type id: string
+    :type organization_id: string
     '''
     model = context['model']
     user = context['user']
