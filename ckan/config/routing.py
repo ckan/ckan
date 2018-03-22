@@ -85,7 +85,7 @@ def make_map():
     OPTIONS = dict(method=['OPTIONS'])
 
     import ckan.lib.plugins as lib_plugins
-    lib_plugins.reset_package_plugins()
+    # lib_plugins.reset_package_plugins()
 
     map = Mapper(
         directory=config['pylons.paths']['controllers'],

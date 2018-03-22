@@ -19,6 +19,7 @@ import ckan.lib.app_globals as app_globals
 from ckan.lib.redis import is_redis_available
 import ckan.lib.render as render
 import ckan.lib.search as search
+import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
@@ -157,6 +158,7 @@ def update_config():
     plugin might have changed the config values (for instance it might
     change ckan.site_url) '''
 
+    lib_plugins.reset_package_plugins()
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
