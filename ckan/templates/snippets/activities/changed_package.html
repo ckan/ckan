@@ -13,6 +13,10 @@
         <a href="{{ h.url_for(controller='package', action='read', id=activity.object_id, activity_id=activity.id) }}">
           {{ _('View this version') }}
         </a>
+        &nbsp;|&nbsp;
+        <a href="{{ h.url_for(controller='package', action='changes', activity_id=activity.id) }}">
+          {{ _('View raw changes') }}
+        </a>
       {% endif %}
     </span>
   </p>

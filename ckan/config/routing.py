@@ -217,6 +217,8 @@ def make_map():
         m.connect('dataset_activity', '/dataset/activity/{id}',
                   action='activity', ckan_icon='clock-o')
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
+        m.connect('dataset_changes', '/dataset/changes/{activity_id}',
+                  action='changes')
         m.connect('dataset_groups', '/dataset/groups/{id}',
                   action='groups', ckan_icon='users')
         m.connect('dataset_resources', '/dataset/resources/{id}',

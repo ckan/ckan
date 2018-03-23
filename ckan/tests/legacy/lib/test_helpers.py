@@ -23,36 +23,6 @@ class TestHelpers(TestController):
         assert "Data exposed" in h.markdown_extract(WITH_HTML)
         assert "collects information" in h.markdown_extract(WITH_UNICODE)
 
-    def test_render_datetime(self):
-        res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
-        assert_equal(res, 'April 13, 2008')
-
-    def test_render_datetime_with_hours(self):
-        res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456), with_hours=True)
-        assert_equal(res, 'April 13, 2008, 20:40 (UTC)')
-
-    def test_render_datetime_but_from_string(self):
-        res = h.render_datetime('2008-04-13T20:40:20.123456')
-        assert_equal(res, 'April 13, 2008')
-
-    def test_render_datetime_blank(self):
-        res = h.render_datetime(None)
-        assert_equal(res, '')
-
-    def test_render_datetime_year_before_1900(self):
-        res = h.render_datetime('1875-04-13T20:40:20.123456', date_format='%Y')
-        assert_equal(res, '1875')
-
-        res = h.render_datetime('1875-04-13T20:40:20.123456', date_format='%y')
-        assert_equal(res, '75')
-
-    def test_render_datetime_year_before_1900_escape_percent(self):
-        res = h.render_datetime('1875-04-13', date_format='%%%y')
-        assert_equal(res, '%75')
-
-        res = h.render_datetime('1875-04-13', date_format='%%%Y')
-        assert_equal(res, '%1875')
-
     def test_datetime_to_date_str(self):
         res = datetime.datetime(2008, 4, 13, 20, 40, 20, 123456).isoformat()
         assert_equal(res, '2008-04-13T20:40:20.123456')

@@ -375,11 +375,16 @@ class PackageController(base.BaseController):
             except NotFound:
                 abort(404, _('Activity not found'))
             except NotAuthorized:
-                abort(403, _('Unauthorized to create a package'))
+                abort(403, _('Unauthorized to view activity data'))
             try:
                 c.pkg_dict = activity['data']['package']
             except KeyError:
                 abort(404, _('Dataset not found'))
+            if c.pkg_dict['id'] != id:
+                # the activity is not for the package in the URL - don't allow
+                # misleading URLs as could be malicious
+                abort(404, _('Activity not found'))
+
             # Earlier versions of CKAN only stored the package table in the
             # activity, so add a placeholder for resources, or the template
             # will crash.
@@ -1015,6 +1020,12 @@ class PackageController(base.BaseController):
                 ).data['package']
             except AttributeError:
                 abort(404, _('Dataset not found'))
+
+            if c.package['id'] != id:
+                # the activity is not for the package in the URL - don't allow
+                # misleading URLs as could be malicious
+                abort(404, _('Activity not found'))
+
             # Don't crash on old activity records, which do not include
             # resources or extras.
             c.package.setdefault('resources', [])
@@ -1552,3 +1563,32 @@ class PackageController(base.BaseController):
         else:
             return render(preview_plugin.preview_template(context, data_dict),
                           extra_vars={'dataset_type': dataset_type})
+
+    def changes(self, activity_id):
+        '''
+        Shows the changes to a dataset in one particular activity stream
+        item.
+        '''
+        context = {
+            'model': model, 'session': model.Session,
+            'user': c.user, 'auth_user_obj': c.userobj
+        }
+        try:
+            activity_diff = get_action('activity_diff')(
+                context, {'id': activity_id, 'object_type': 'package',
+                          'diff_type': 'html'})
+        except NotFound:
+            abort(404, _('Activity not found'))
+        except NotAuthorized:
+            abort(403, _('Unauthorized to view activity data'))
+
+        # 'pkg_dict' needs to go to the templates for page title & breadcrumbs.
+        # Use the current version of the package, in case the name/title have
+        # changed, and we need a link to it which works
+        pkg_id = activity_diff['activities'][1]['data']['package']['id']
+        current_pkg_dict = get_action('package_show')(context, {'id': pkg_id})
+
+        return render('package/changes.html',
+                      extra_vars={'activity_diff': activity_diff,
+                                  'pkg_dict': current_pkg_dict,
+                                  })

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import datetime
 import nose
 import pytz
 import tzlocal
@@ -523,6 +524,43 @@ class TestGetDisplayTimezone(object):
     @helpers.change_config('ckan.display_timezone', 'America/New_York')
     def test_named_timezone(self):
         eq_(h.get_display_timezone(), pytz.timezone('America/New_York'))
+
+
+class TestHelpersRenderDatetime(object):
+
+    def test_date(self):
+        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
+        eq_(h.render_datetime(data), 'April 13, 2008')
+
+    def test_with_hours(self):
+        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
+        eq_(h.render_datetime(data, with_hours=True),
+            'April 13, 2008, 20:40 (UTC)')
+
+    def test_with_seconds(self):
+        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
+        eq_(h.render_datetime(data, with_seconds=True),
+            'April 13, 2008, 20:40:59 (UTC)')
+
+    def test_from_string(self):
+        data = '2008-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data), 'April 13, 2008')
+
+    def test_blank(self):
+        data = None
+        eq_(h.render_datetime(data), '')
+
+    def test_before_1900(self):
+        data = '1875-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data, date_format='%Y'), '1875')
+
+    def test_before_1900_with_2_digit_year(self):
+        data = '1875-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data, date_format='%y'), '75')
+
+    def test_escaped_percent(self):
+        data = '2008-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data, date_format='%%%Y'), '%2008')
 
 
 class TestHelperException(helpers.FunctionalTestBase):
