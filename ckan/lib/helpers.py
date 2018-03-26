@@ -950,7 +950,7 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
     '''
     if not hasattr(c, u'search_facets') or not c.search_facets.get(
                                                facet, {}).get(u'items'):
-        return []   
+        return []
     facets = []
     for facet_item in c.search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
