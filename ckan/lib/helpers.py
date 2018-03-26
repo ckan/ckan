@@ -948,8 +948,9 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
     exclude_active -- only return unselected facets.
 
     '''
-    if not hasattr(c, 'search_facets'):
-        return c.search_facets.get(facet, {}).get('items', [])
+    if not hasattr(c, u'search_facets') or not c.search_facets.get(
+                                               facet, {}).get(u'items'):
+        return []   
     facets = []
     for facet_item in c.search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
