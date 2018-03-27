@@ -16,8 +16,6 @@ When a resource is added to the DataStore, you get:
 The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
-The DataStore extension only imports the first worksheet of a spreadsheet. It does not support duplicate column headers.
-
 The DataStore is generally used alongside the
 `DataPusher <http://docs.ckan.org/projects/datapusher>`_, which will
 automatically upload data to the DataStore from suitable files, whether
