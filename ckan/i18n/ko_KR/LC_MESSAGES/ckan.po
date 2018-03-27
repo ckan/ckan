@@ -201,8 +201,8 @@ msgstr "엔드포인트"
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:37
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:39
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action "
-"API."
+"The Data API can be accessed via the following actions of the CKAN action"
+" API."
 msgstr "데이터 API는 CKAN 액션 API의 다음 액션들을 통해 접근할 수 있습니다."
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
@@ -314,6 +314,8 @@ msgstr "컬럼"
 msgid "Type"
 msgstr "타입"
 
+#: ckan/public-bs2/base/javascript/modules/activity-stream.js:97
+#: ckan/public-bs2/base/javascript/modules/popover-context.js:62
 #: ckan/public/base/javascript/modules/activity-stream.js:97
 #: ckan/public/base/javascript/modules/activity-stream.min.js:2
 #: ckan/public/base/javascript/modules/popover-context.js:62
@@ -1641,8 +1643,8 @@ msgstr "이름은 최대 %i 글자입니다"
 
 #: ckan/logic/validators.py:367
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
-"-_"
+"Must be purely lowercase alphanumeric (ascii) characters and these "
+"symbols: -_"
 msgstr "완전한 소문자 알파벳 (ascii) 문자와 기호입니다: -_"
 
 #: ckan/logic/validators.py:385
@@ -2282,11 +2284,13 @@ msgstr "%s의 부모이다"
 msgid "has sibling %s"
 msgstr "형제 %s를 갖는다 "
 
+#: ckan/public-bs2/base/javascript/modules/api-info.js:96
 #: ckan/public/base/javascript/modules/api-info.js:96
 #: ckan/public/base/javascript/modules/api-info.min.js:2
 msgid "There is no API data to load for this resource"
 msgstr "이 리소스를 적재할 API 데이터가 없음"
 
+#: ckan/public-bs2/base/javascript/modules/api-info.js:124
 #: ckan/public/base/javascript/modules/api-info.js:124
 #: ckan/public/base/javascript/modules/api-info.min.js:4
 msgid "Failed to load data API information"
@@ -2309,6 +2313,7 @@ msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] "입력이 너무 짧아요, 최소한 %(num)d 이상으로 입력해주세요"
 
+#: ckan/public-bs2/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.min.js:1
 msgid "There are unsaved modifications to this form"
@@ -2439,11 +2444,13 @@ msgstr "순서 저장"
 msgid "Saving..."
 msgstr "저장 중"
 
+#: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:57
 #: ckan/public/base/javascript/modules/resource-upload-field.js:57
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
 msgid "Upload a file"
 msgstr "파일 업로드하기"
 
+#: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:144
 #: ckan/public/base/javascript/modules/resource-upload-field.js:144
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
 msgid "An Error Occurred"
@@ -2472,21 +2479,24 @@ msgstr "파일을 업로드하기 위한 데이터를 가져올 수 없음"
 #: ckan/public/base/javascript/modules/resource-upload-field.js:275
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop "
-"this upload?"
+"You are uploading a file. Are you sure you want to navigate away and stop"
+" this upload?"
 msgstr "파일을 업로드중입니다. 탐색을 위해 업로드를 중지하겠습니까?"
 
+#: ckan/public-bs2/base/javascript/modules/resource-view-filters.js:9
 #: ckan/public/base/javascript/modules/resource-view-filters.js:9
 #: ckan/public/base/javascript/modules/resource-view-filters.min.js:1
 #: ckan/templates/package/snippets/view_form_filters.html:16
 msgid "Add Filter"
 msgstr "필터 추가"
 
+#: ckan/public-bs2/base/javascript/modules/resource-view-filters.js:52
 #: ckan/public/base/javascript/modules/resource-view-filters.js:52
 #: ckan/public/base/javascript/modules/resource-view-filters.min.js:3
 msgid "Select a field"
 msgstr "필드 선택하기"
 
+#: ckan/public-bs2/base/javascript/modules/slug-preview.js:57
 #: ckan/public/base/javascript/modules/slug-preview.js:57
 #: ckan/public/base/javascript/modules/slug-preview.min.js:2
 #: ckan/templates/group/edit_base.html:20 ckan/templates/group/members.html:28
@@ -2502,15 +2512,104 @@ msgstr "필드 선택하기"
 msgid "Edit"
 msgstr "편집"
 
+#: ckan/public-bs2/base/javascript/modules/table-toggle-more.js:25
 #: ckan/public/base/javascript/modules/table-toggle-more.js:25
 #: ckan/public/base/javascript/modules/table-toggle-more.min.js:1
 msgid "Show more"
 msgstr "더 보기"
 
+#: ckan/public-bs2/base/javascript/modules/table-toggle-more.js:26
 #: ckan/public/base/javascript/modules/table-toggle-more.js:26
 #: ckan/public/base/javascript/modules/table-toggle-more.min.js:1
 msgid "Hide"
 msgstr "숨기기"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:13
+#: ckan/public-bs2/base/test/spec/module.spec.js:385
+#: ckan/public/base/test/spec/i18n.spec.js:13
+#: ckan/public/base/test/spec/module.spec.js:385
+msgid "foo"
+msgstr ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:17
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:46
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:50
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:54
+#: ckan/public/base/test/spec/i18n.spec.js:17
+#: ckan/public/base/test/spec/i18n.spec.js:46
+#: ckan/public/base/test/spec/i18n.spec.js:50
+#: ckan/public/base/test/spec/i18n.spec.js:54
+msgid "no translation"
+msgid_plural "no translations"
+msgstr[0] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:22
+#: ckan/public/base/test/spec/i18n.spec.js:22
+#, python-format
+msgid "hello %(name)s!"
+msgstr ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:29
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:76
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:81
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:86
+#: ckan/public/base/test/spec/i18n.spec.js:29
+#: ckan/public/base/test/spec/i18n.spec.js:76
+#: ckan/public/base/test/spec/i18n.spec.js:81
+#: ckan/public/base/test/spec/i18n.spec.js:86
+#, python-format
+msgid "no %(attr)s translation"
+msgid_plural "no %(attr)s translations"
+msgstr[0] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:39
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:40
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:41
+#: ckan/public-bs2/base/test/spec/module.spec.js:395
+#: ckan/public-bs2/base/test/spec/module.spec.js:396
+#: ckan/public-bs2/base/test/spec/module.spec.js:397
+#: ckan/public/base/test/spec/i18n.spec.js:39
+#: ckan/public/base/test/spec/i18n.spec.js:40
+#: ckan/public/base/test/spec/i18n.spec.js:41
+#: ckan/public/base/test/spec/module.spec.js:395
+#: ckan/public/base/test/spec/module.spec.js:396
+#: ckan/public/base/test/spec/module.spec.js:397
+msgid "bar"
+msgid_plural "bars"
+msgstr[0] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:61
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:65
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:69
+#: ckan/public/base/test/spec/i18n.spec.js:61
+#: ckan/public/base/test/spec/i18n.spec.js:65
+#: ckan/public/base/test/spec/i18n.spec.js:69
+#, python-format
+msgid "%(color)s shirt"
+msgid_plural "%(color)s shirts"
+msgstr[0] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:93
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:94
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:95
+#: ckan/public/base/test/spec/i18n.spec.js:93
+#: ckan/public/base/test/spec/i18n.spec.js:94
+#: ckan/public/base/test/spec/i18n.spec.js:95
+#, python-format
+msgid "%(num)d item"
+msgid_plural "%(num)d items"
+msgstr[0] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:100
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:105
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:110
+#: ckan/public/base/test/spec/i18n.spec.js:100
+#: ckan/public/base/test/spec/i18n.spec.js:105
+#: ckan/public/base/test/spec/i18n.spec.js:110
+#, python-format
+msgid "%(num)d missing translation"
+msgid_plural "%(num)d missing translations"
+msgstr[0] ""
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
@@ -2678,23 +2777,23 @@ msgid ""
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
-"templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
+" templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p>"
 msgstr ""
 " <p><strong>사이트명:</strong> CKAN 인스턴스의 이름으로 다양한 곳에서 보여집니다.</p> "
-"<p><strong>스타일:</strong> Choose from a list of simple variations of the main"
-" colour scheme to get a very quick custom theme working.</p> <p><strong>사이트 "
-"태그 로고:</strong> CKAN 인스턴스 템플릿의 헤더에 보여지는 로고입니다.</p> "
-"<p><strong>About:</strong> 이 텍스트는 CKAN 인스턴스의 <a href=\"%(about_url)s\">about"
-" page</a>에 보여집니다.</p> <p><strong>Intro Text:</strong>  이 텍스트는 방문자를 환영하는 의미로 "
-"CKAN 인스턴스의 <a href=\"%(home_url)s\">home page</a>에 보여집니다.</p> "
-"<p><strong>Custom CSS:</strong> 모든 페이지의 <code>&lt;head&gt;</code>태그에 보여지는 "
-"CSS 블록입니다. 템플릿을 수정하려면<a href=\"%(docs_url)s\" target=\"_blank\"> 문서를 읽는 것을 "
-"추천합니다</a>.</p> <p><strong>Homepage:</strong>홈페이지에 보여줄 모듈의 미리 정의된 레이아웃을 "
-"선택합니다.</p> "
+"<p><strong>스타일:</strong> Choose from a list of simple variations of the "
+"main colour scheme to get a very quick custom theme working.</p> "
+"<p><strong>사이트 태그 로고:</strong> CKAN 인스턴스 템플릿의 헤더에 보여지는 로고입니다.</p> "
+"<p><strong>About:</strong> 이 텍스트는 CKAN 인스턴스의 <a "
+"href=\"%(about_url)s\">about page</a>에 보여집니다.</p> <p><strong>Intro "
+"Text:</strong>  이 텍스트는 방문자를 환영하는 의미로 CKAN 인스턴스의 <a "
+"href=\"%(home_url)s\">home page</a>에 보여집니다.</p> <p><strong>Custom "
+"CSS:</strong> 모든 페이지의 <code>&lt;head&gt;</code>태그에 보여지는 CSS 블록입니다. 템플릿을 "
+"수정하려면<a href=\"%(docs_url)s\" target=\"_blank\"> 문서를 읽는 것을 추천합니다</a>.</p>"
+" <p><strong>Homepage:</strong>홈페이지에 보여줄 모듈의 미리 정의된 레이아웃을 선택합니다.</p> "
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2712,9 +2811,9 @@ msgid ""
 " with care!</p> <p>For guidance on using sysadmin features, see the CKAN  <a"
 " href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p>"
 msgstr ""
-" <p>sysadmin 사용자로써 CKAN 인스턴스에 대한 모든 권한을 갖고 있습니다. 주의를 갖고 처리하세요!</p> <p>For "
-"guidance on using sysadmin 특징을 사용하기 위한 방법은 CKAN <a href=\"%(docs_url)s\" "
-"target=\"_blank\">sysadmin guide</a>을 참조하세</p> "
+" <p>sysadmin 사용자로써 CKAN 인스턴스에 대한 모든 권한을 갖고 있습니다. 주의를 갖고 처리하세요!</p> <p>For"
+" guidance on using sysadmin 특징을 사용하기 위한 방법은 CKAN <a href=\"%(docs_url)s\""
+" target=\"_blank\">sysadmin guide</a>을 참조하세</p> "
 
 #: ckan/templates/admin/trash.html:12
 msgid "Are you sure you want to purge everything?"
@@ -2925,8 +3024,7 @@ msgstr "그룹 검색"
 msgid "There are currently no groups for this site"
 msgstr "현재 이 사이트에 그룹이 없습니다."
 
-#: ckan/templates/group/index.html:31
-#: ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "하나를 생성하겠습니까?"
 
@@ -3089,8 +3187,8 @@ msgid ""
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets."
 msgstr ""
-"데이터셋의 집합을 생성하고 관리하기 위해 CKAN 그룹을 사용할 수 있습니다. 그룹은 특정한 프로젝트 또는 팀을 위한 카탈로그 데이터셋일"
-" 수 있고, 또는 특정한 주제입니다. 그룹을 통해 다른 사용자들은  출판된 데이터셋을 찾거나 검색할 수 있습니다. "
+"데이터셋의 집합을 생성하고 관리하기 위해 CKAN 그룹을 사용할 수 있습니다. 그룹은 특정한 프로젝트 또는 팀을 위한 카탈로그 "
+"데이터셋일 수 있고, 또는 특정한 주제입니다. 그룹을 통해 다른 사용자들은  출판된 데이터셋을 찾거나 검색할 수 있습니다. "
 
 #: ckan/templates/group/snippets/info.html:16
 #: ckan/templates/organization/bulk_process.html:82
@@ -3131,15 +3229,16 @@ msgid ""
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 msgstr ""
-"<p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN"
-" is a complete out-of-the-box software solution that makes data accessible "
-"and usable – by providing tools to streamline publishing, sharing, finding "
-"and using data (including storage of data and provision of robust data "
-"APIs). CKAN is aimed at data publishers (national and regional governments, "
-"companies and organizations) wanting to make their data open and "
-"available.</p> <p>CKAN is used by governments and user groups worldwide and "
-"powers a variety of official and community data portals including portals "
-"for local, national and international government, such as the UK’s <a "
+"<p>CKAN is the world’s leading open-source data portal platform.</p> "
+"<p>CKAN is a complete out-of-the-box software solution that makes data "
+"accessible and usable – by providing tools to streamline publishing, "
+"sharing, finding and using data (including storage of data and provision "
+"of robust data APIs). CKAN is aimed at data publishers (national and "
+"regional governments, companies and organizations) wanting to make their "
+"data open and available.</p> <p>CKAN is used by governments and user "
+"groups worldwide and powers a variety of official and community data "
+"portals including portals for local, national and international "
+"government, such as the UK’s <a "
 "href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
@@ -3172,6 +3271,10 @@ msgstr "예. 환경"
 msgid "Search data"
 msgstr "데이터 검색"
 
+#: ckan/templates/home/snippets/search.html:8
+msgid "Search datasets"
+msgstr ""
+
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
 msgstr "인기있는 태그"
@@ -3203,8 +3306,8 @@ msgstr "이 필드는 필수입니다"
 #: ckan/templates/macros/form.html:136
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
-"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
+"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 "<a href=\"#markdown\" title=\"Markdown quick reference\" data-"
@@ -3385,10 +3488,10 @@ msgid ""
 "individual users the right to publish datasets from that particular "
 "organisation (e.g. Office of National Statistics).</p>"
 msgstr ""
-" <p>기관은 데이터셋을 출판하는 부서와 유사합니다 (예. the Department of Health). 데이터셋은 개인 사용자가 아닌"
-" 부서에 의해 출판되거나 소유되는 것을 의미합니다.</p> <p>기관 내에서 어드민은 멤버들에게 역할과 권한을 부여할 수 있습니다. "
-"멤버는 특정 기관으로부터 데이터셋 출판을 위한 권리를 부여받은 개인사용자입니다 (e.g. Office of National "
-"Statistics).</p> "
+" <p>기관은 데이터셋을 출판하는 부서와 유사합니다 (예. the Department of Health). 데이터셋은 개인 사용자가"
+" 아닌 부서에 의해 출판되거나 소유되는 것을 의미합니다.</p> <p>기관 내에서 어드민은 멤버들에게 역할과 권한을 부여할 수 "
+"있습니다. 멤버는 특정 기관으로부터 데이터셋 출판을 위한 권리를 부여받은 개인사용자입니다 (e.g. Office of "
+"National Statistics).</p> "
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
@@ -3396,8 +3499,8 @@ msgid ""
 "datasets. Users can have different roles within an Organization, depending "
 "on their level of authorisation to create, edit and publish."
 msgstr ""
-"CKAN 기관은 데이터셋의 집합을 생성, 관리, 출판하는데 사용됩니다. 사용자는 기관내에서 서로 다른 역할을 갖을 수 있으며, 권한의 "
-"등급에 따라 생성, 편집, 출판이 다릅니다."
+"CKAN 기관은 데이터셋의 집합을 생성, 관리, 출판하는데 사용됩니다. 사용자는 기관내에서 서로 다른 역할을 갖을 수 있으며, "
+"권한의 등급에 따라 생성, 편집, 출판이 다릅니다."
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3533,10 +3636,10 @@ msgid ""
 "structured-data-the-data-explorer' target='_blank'>Data Explorer "
 "documentation</a>."
 msgstr ""
-"데이터스토어 확장판이 활성화되지 않으면, 데이터 탐색기 뷰는 느리거나 신뢰하지 못할 수 있습니다. 추가적인 정보는 다음을 참조하세요 <a"
-" href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
-"structured-data-the-data-explorer' target='_blank'>Data Explorer "
-"documentation</a>. "
+"데이터스토어 확장판이 활성화되지 않으면, 데이터 탐색기 뷰는 느리거나 신뢰하지 못할 수 있습니다. 추가적인 정보는 다음을 참조하세요"
+" <a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
+"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
+" documentation</a>. "
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:85
@@ -3618,9 +3721,9 @@ msgstr "사이트 관리자가 관련 있는 뷰 플러그인을 활성화하지
 
 #: ckan/templates/package/resource_read.html:152
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be enabled, "
-"or the data may not have been pushed to the DataStore, or the DataStore "
-"hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be "
+"enabled, or the data may not have been pushed to the DataStore, or the "
+"DataStore hasn't finished processing the data yet"
 msgstr ""
 "뷰가 데이터스토어를 필요할 경우, 데이터스토어 플러그인을 활성화되지 않을 수 있거나, 데이터가 데이터 스토어에 저정되지 않을 수 "
 "있습니다. 또는 데이터 스토어는 데이터를 처리하는 것을 완료하지 않은 상태일 수 있습니다."
@@ -3871,8 +3974,8 @@ msgid ""
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 msgstr ""
 "라이센스 정의와 추가적인 정보는 <a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>에서 찾을 수 "
-"있습니다"
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>에서 찾을 "
+"수 있습니다"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:79
 #: ckan/templates/snippets/organization.html:23
@@ -3897,14 +4000,15 @@ msgstr "Active"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of any"
-" resource files that you add to this dataset. By submitting this form, you "
-"agree to release the <i>metadata</i> values that you enter into the form "
-"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
-"Database License</a>."
-msgstr ""
-"선택한 <i>data license</i>는 이 데이터셋에 추가하는 리소스 파일의 컨텐트에만 적용됩니다. 이 양식을 제출하면,  <a "
+"The <i>data license</i> you select above only applies to the contents of "
+"any resource files that you add to this dataset. By submitting this form,"
+" you agree to release the <i>metadata</i> values that you enter into the "
+"form under the <a "
 "href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
+"License</a>."
+msgstr ""
+"선택한 <i>data license</i>는 이 데이터셋에 추가하는 리소스 파일의 컨텐트에만 적용됩니다. 이 양식을 제출하면,  "
+"<a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
 "License</a>에 따라 <i>metadata</i> 값을 배포하는데 동의하는 것입니다. "
 
 #: ckan/templates/package/snippets/package_form.html:39
