@@ -46,7 +46,6 @@ class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
         resources = [model.Session.query(model.Resource).get(resource_id) for resource_id in result_dict['results']]
         urls = set([resource.url for resource in resources])
         assert urls == set(expected_urls), urls
-        
 
     def test_01_url(self):
         offset = self.base_url + '?url=site'
@@ -79,7 +78,3 @@ class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
         result = self.app.get(offset, status=200)
         assert re.match('^mycallback\(.*\);$', result.body), result.body
         assert 'package_id' in result.body, result.body
-
-
-class TestResourceSearchApi1(Api1TestCase, ResourceSearchApiTestCase): pass
-class TestResourceSearchApi2(Api2TestCase, ResourceSearchApiTestCase): pass
