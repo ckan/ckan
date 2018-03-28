@@ -1207,4 +1207,4 @@ class TestMember(WsgiAppCase):
         groups = user.get_groups(group.type, role)
         group_ids = [g.id for g in groups]
         assert res['success'] is True, res
-        assert group.id in group_ids, (group, user_groups)
+        assert group.id in group_ids, (group, group_ids)
