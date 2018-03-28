@@ -24,7 +24,7 @@ import ckan.lib.dictization as dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTag', 'PackageTagRevision',
+           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision',
            'PackageRevision']
 
 
