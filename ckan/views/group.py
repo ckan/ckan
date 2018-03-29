@@ -35,11 +35,23 @@ lookup_group_plugin = lib_plugins.lookup_group_plugin
 lookup_group_controller = lib_plugins.lookup_group_controller
 lookup_group_blueprint = lib_plugins.lookup_group_blueprints
 
-group = Blueprint(u'group', __name__, url_prefix=u'/group')
-organization = Blueprint(u'organization', __name__, url_prefix=u'/organization')
 
-group_types = ['group']
+class GroupBlueprint(Blueprint):
 
+    group_types = ['group']
+
+    @classmethod
+    def add_group_type(cls, group_type):
+        cls.group_types.append(group_type)
+
+
+class OrganizationBlueprint(GroupBlueprint):
+
+    group_types = ['organization']
+
+    @classmethod
+    def add_group_type(cls, group_type):
+        cls.group_types.append(group_type)
 
 def _index_template(group_type):
     return lookup_group_plugin(group_type).index_template()
@@ -96,9 +108,6 @@ def _bulk_process_template(group_type):
     return lookup_group_plugin(group_type).bulk_process_template()
 
 
-# end hooks
-
-
 def _replace_group_org(string):
     u''' substitute organization for group if this is an org'''
     return re.sub(u'^group',
@@ -151,10 +160,6 @@ def _guess_group_type(expecting_name=False):
     return gt
 
 
-def add_group_type(group_type):
-    group_types.append(group_type)
-
-
 def index():
     group_type = _guess_group_type()
     page = h.get_page_number(request.params) or 1
@@ -191,7 +196,7 @@ def index():
             u'type': group_type or u'group',
         }
         global_results = _action(u'group_list')(context,
-                                               data_dict_global_results)
+                                data_dict_global_results)
     except ValidationError as e:
         if e.error_dict and e.error_dict.get(u'message'):
             msg = e.error_dict['message']
@@ -1118,6 +1123,10 @@ class MembersGroupView(MethodView):
             c.user_role = u'member'
         return _render_template(u'group/member_new.html', context['group_type'])
 
+
+group = GroupBlueprint(u'group', __name__, url_prefix=u'/group')
+organization = OrganizationBlueprint(u'organization',
+                                     __name__, url_prefix=u'/organization')
 
 actions = [
     u'member_delete', u'history', u'followers', u'follow',

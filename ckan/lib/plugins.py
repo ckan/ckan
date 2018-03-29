@@ -263,9 +263,9 @@ def register_group_plugins(app):
             # to handle other group_types.
             # Import them here to avoid circular imports.
             if group_controller == 'group':
-                from ckan.controllers.group import GroupController as controller_obj
+                from ckan.views.group import GroupBlueprint as controller_obj
             elif group_controller == 'organization':
-                from ckan.controllers.organization import OrganizationController as controller_obj
+                from ckan.views.group import OrganizationBlueprint as controller_obj
             if controller_obj is not None:
                 controller_obj.add_group_type(group_type)
 
