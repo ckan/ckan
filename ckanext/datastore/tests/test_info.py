@@ -14,7 +14,7 @@ from ckan.tests.legacy import is_datastore_supported
 from ckan.lib import helpers as template_helpers
 
 import ckanext.datastore.backend.postgres as db
-from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
+from ckanext.datastore.tests.helpers import extract, DatastoreFunctionalTestBase
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -23,8 +23,7 @@ assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
 
 
-class TestDatastoreInfo(helpers.FunctionalTestBase):
-    _load_plugins = ['datastore']
+class TestDatastoreInfo(DatastoreFunctionalTestBase):
 
     def test_info_success(self):
         resource = factories.Resource()

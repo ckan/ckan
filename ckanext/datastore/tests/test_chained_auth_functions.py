@@ -5,6 +5,8 @@ from ckan.logic import check_access
 import ckan.lib.create_test_data as ctd
 import ckan.tests.helpers as helpers
 
+from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
+
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
 
@@ -32,20 +34,13 @@ class ExampleDataStoreSearchSQLPlugin(p.SingletonPlugin):
         return {u'datastore_search_sql': datastore_search_sql_auth}
 
 
-class TestChainedAuth(object):
-    @classmethod
-    def setup_class(cls):
-        p.load(u'datastore')
-        p.load(u'example_data_store_search_sql_plugin')
-        ctd.CreateTestData.create()
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload(u'example_data_store_search_sql_plugin')
-        p.unload(u'datastore')
-        helpers.reset_db()
+class TestChainedAuth(DatastoreFunctionalTestBase):
+    _load_plugins = (
+        u'datastore',
+        u'example_data_store_search_sql_plugin')
 
     def test_datastore_search_sql_auth(self):
+        ctd.CreateTestData.create()
         with assert_raises(TestAuthException) as raise_context:
             # checking access should call to our chained version defined above
             # first, thus this should throw an exception
