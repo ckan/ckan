@@ -7,23 +7,21 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.legacy as tests
 import ckanext.datastore.backend.postgres as db
-import ckanext.datastore.tests.helpers as helpers
+from ckanext.datastore.tests.helpers import DatastoreLegacyTestBase
 import nose
 from ckan.tests.helpers import _get_test_app
 import sqlalchemy.orm as orm
 from nose.tools import assert_equals, assert_in
 
 
-class TestDatastoreDump(object):
+class TestDatastoreDump(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
         cls.app = _get_test_app()
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+        super(TestDatastoreDump, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -89,11 +87,6 @@ class TestDatastoreDump(object):
 
         engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    @classmethod
-    def teardown_class(cls):
-        helpers.rebuild_all_dbs(cls.Session)
-        p.unload('datastore')
 
     def test_dump_basic(self):
         auth = {'Authorization': str(self.normal_user.apikey)}
