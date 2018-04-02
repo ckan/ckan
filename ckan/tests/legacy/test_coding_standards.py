@@ -520,7 +520,6 @@ class TestPep8(object):
         'ckan/tests/legacy/ckantestplugins.py',
         'ckan/tests/legacy/functional/api/base.py',
         'ckan/tests/legacy/functional/api/model/test_group.py',
-        'ckan/tests/legacy/functional/api/model/test_licenses.py',
         'ckan/tests/legacy/functional/api/model/test_package.py',
         'ckan/tests/legacy/functional/api/model/test_ratings.py',
         'ckan/tests/legacy/functional/api/model/test_relationships.py',
