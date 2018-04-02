@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import codecs
+import os
 import smtplib
 import socket
 import logging
