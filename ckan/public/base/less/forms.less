@@ -93,12 +93,6 @@ textarea {
     width: 100%;
 }
 
-.control-medium {
-    @media (min-width: @screen-md-min) {
-        width: calc(~"50% - " @grid-gutter-width/2);
-    }
-}
-
 .control-large {
     input {
         .input-lg;
@@ -761,34 +755,26 @@ select[data-module="autocomplete"] {
 }
 
 .add-member-form .control-label {
-    width: 100%;
-    text-align: left;
+  display: block;
 }
 
-.add-member-form .controls {
-    margin-left: auto;
+.add-member-or-wrap{
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  @media (max-width: @screen-sm-max){
+    margin-bottom: @grid-gutter-width;
+  }
+  @media (min-width: @screen-md-min){
+    min-height: @grid-gutter-width*3 + 10;
+  }
 }
 
 .add-member-or {
-    // float: left;
-    // margin-top: 75px;
-    // width: 7%;
-    // text-align: center;
+    text-align: center;
     text-transform: uppercase;
     color: @gray-light;
     font-weight: bold;
-}
-
-.add-member-form .row .control-group {
-    float: left;
-    width: 45%;
-}
-
-.add-member-form .row {
-    .select2-container,
-    input {
-        width: 100% !important;
-    }
 }
 
 #recaptcha_table {
