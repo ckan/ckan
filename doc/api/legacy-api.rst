@@ -9,9 +9,6 @@ Legacy APIs
     added to these APIs.
 
 
-API Versions
-~~~~~~~~~~~~
-
 .. Note::
 
    The REST API was deprecatred in CKAN v2.0 and droped after CKAN v2.8. 
