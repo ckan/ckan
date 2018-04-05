@@ -316,53 +316,6 @@ class TestApiController(helpers.FunctionalTestBase):
             sorted([dataset1['name'], dataset2['name']]))
 
 
-class TestApiControllerApiInfo(helpers.FunctionalTestBase):
-    """
-    As template loader initialized during setiing-up application
-    datastore(container of ajax_snippets/api_info.html) should be loaded before
-    any test
-    """
-    @classmethod
-    def _apply_config_changes(cls, config):
-        config['ckan.plugins'] = 'datastore'
-
-    @classmethod
-    def teardown_class(cls):
-        if p.plugin_loaded('datastore'):
-            p.unload('datastore')
-
-    def test_api_info(self):
-
-        dataset = factories.Dataset()
-        resource = factories.Resource(
-            id='588dfa82-760c-45a2-b78a-e3bc314a4a9b',
-            package_id=dataset['id'], datastore_active=True)
-
-        # the 'API info' is seen on the resource_read page, a snippet loaded by
-        # javascript via data_api_button.html
-        url = template_helpers.url_for(
-            controller='api', action='snippet', ver=1,
-            snippet_path='api_info.html', resource_id=resource['id'])
-
-        app = self._get_test_app()
-        page = app.get(url, status=200)
-
-        # check we built all the urls ok
-        expected_urls = (
-            'http://test.ckan.net/api/3/action/datastore_create',
-            'http://test.ckan.net/api/3/action/datastore_upsert',
-            '<code>http://test.ckan.net/api/3/action/datastore_search',
-            'http://test.ckan.net/api/3/action/datastore_search_sql',
-            'http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5',
-            'http://test.ckan.net/api/3/action/datastore_search?q=jones&amp;resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b',
-            'http://test.ckan.net/api/3/action/datastore_search_sql?sql=SELECT * from &#34;588dfa82-760c-45a2-b78a-e3bc314a4a9b&#34; WHERE title LIKE &#39;jones&#39;',
-            "url: 'http://test.ckan.net/api/3/action/datastore_search'",
-            "http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5&amp;q=title:jones",
-        )
-        for url in expected_urls:
-            assert url in page, url
-
-
 class TestRevisionSearch(helpers.FunctionalTestBase):
 
     # Error cases
