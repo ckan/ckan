@@ -61,7 +61,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
       var query = new recline.Model.Query();
       query.set({ size: reclineView.limit || 100 });
       query.set({ from: reclineView.offset || 0 });
-      
+
       var urlFilters = {};
       try {
         if (window.parent.ckan.views && window.parent.ckan.views.filters) {
@@ -120,7 +120,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
           state.lonField = reclineView.longitude_field;
         }
 
-        view = new recline.View.Map({model: dataset, state: state});
+        view = new recline.View.Map($.extend(this._reclineMapViewOptions(dataset, this.options.map_config), {state:state}));
       } else if(reclineView.view_type === "recline_view") {
         view = this._newDataExplorer(dataset);
       } else {
