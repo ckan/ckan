@@ -5,6 +5,7 @@ import nose
 
 from ckan.common import config
 import ckanext.datastore.helpers as datastore_helpers
+from ckanext.datastore.tests.helpers import DatastoreLegacyTestBase
 import ckanext.datastore.backend.postgres as postgres_backend
 import ckanext.datastore.tests.helpers as datastore_test_helpers
 import ckanext.datastore.backend.postgres as db
@@ -63,11 +64,11 @@ class TestTypeGetters(object):
             assert datastore_helpers.should_fts_index_field_type(non_indexable) is False
 
 
-class TestGetTables(object):
+class TestGetTables(DatastoreLegacyTestBase):
 
     @classmethod
     def setup_class(cls):
-
+        super(TestGetTables, cls).setup_class()
         engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
@@ -81,10 +82,6 @@ class TestGetTables(object):
         ]
         for create_table_sql in create_tables:
             cls.Session.execute(create_table_sql)
-
-    @classmethod
-    def teardown_class(cls):
-        datastore_test_helpers.clear_db(cls.Session)
 
     def test_get_table_names(self):
 

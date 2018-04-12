@@ -15,7 +15,8 @@ import ckan.tests.legacy as tests
 from ckan.common import config
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
-    extract, rebuild_all_dbs, DatastoreFunctionalTestBase)
+    extract, rebuild_all_dbs,
+    DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -25,16 +26,7 @@ assert_raises = nose.tools.assert_raises
 assert_in = nose.tools.assert_in
 
 
-class TestDatastoreSearchNewTest(object):
-    @classmethod
-    def setup_class(cls):
-        p.load('datastore')
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload('datastore')
-        helpers.reset_db()
-
+class TestDatastoreSearchNewTest(DatastoreFunctionalTestBase):
     def test_fts_on_field_calculates_ranks_only_on_that_specific_field(self):
         resource = factories.Resource()
         data = {
@@ -110,17 +102,14 @@ class TestDatastoreSearchNewTest(object):
 
 
 
-class TestDatastoreSearch():
+class TestDatastoreSearch(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
         cls.app = helpers._get_test_app()
-        p.load('datastore')
+        super(TestDatastoreSearch, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -173,11 +162,6 @@ class TestDatastoreSearch():
 
         engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    @classmethod
-    def teardown_class(cls):
-        rebuild_all_dbs(cls.Session)
-        p.unload('datastore')
 
     def test_search_basic(self):
         data = {'resource_id': self.data['resource_id']}
@@ -651,13 +635,11 @@ class TestDatastoreSearch():
         assert res_dict['error'].get('fields') is not None, res_dict['error']
 
 
-class TestDatastoreFullTextSearch():
+class TestDatastoreFullTextSearch(DatastoreLegacyTestBase):
     @classmethod
     def setup_class(cls):
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
         cls.app = helpers._get_test_app()
-        p.load('datastore')
+        super(TestDatastoreFullTextSearch, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -691,11 +673,6 @@ class TestDatastoreFullTextSearch():
                            extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
-
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-        p.unload('datastore')
 
     def test_search_full_text(self):
         data = {'resource_id': self.data['resource_id'],
@@ -779,16 +756,14 @@ class TestDatastoreFullTextSearch():
         assert res_dict['success'], pprint.pformat(res_dict)
 
 
-class TestDatastoreSQL():
+class TestDatastoreSQL(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
         cls.app = helpers._get_test_app()
-        plugin = p.load('datastore')
+        super(TestDatastoreSQL, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -841,11 +816,6 @@ class TestDatastoreSQL():
 
         engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    @classmethod
-    def teardown_class(cls):
-        rebuild_all_dbs(cls.Session)
-        p.unload('datastore')
 
     def test_validates_sql_has_a_single_statement(self):
         sql = 'SELECT * FROM public."{0}"; SELECT * FROM public."{0}";'.format(self.data['resource_id'])

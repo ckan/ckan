@@ -520,7 +520,6 @@ class TestPep8(object):
         'ckan/tests/legacy/ckantestplugins.py',
         'ckan/tests/legacy/functional/api/base.py',
         'ckan/tests/legacy/functional/api/model/test_group.py',
-        'ckan/tests/legacy/functional/api/model/test_licenses.py',
         'ckan/tests/legacy/functional/api/model/test_package.py',
         'ckan/tests/legacy/functional/api/model/test_ratings.py',
         'ckan/tests/legacy/functional/api/model/test_relationships.py',
@@ -646,7 +645,7 @@ class TestPep8(object):
 
     def test_pep8_pass(self):
         msg = 'The following files passed pep8 but are blacklisted'
-        # show_passing(msg, self.passes)
+        show_passing(msg, self.passes)
 
     @classmethod
     def find_pep8_errors(cls, filename=None, lines=None):

@@ -17,22 +17,21 @@ import ckan.tests.factories as factories
 from ckan.logic import NotFound
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
-    rebuild_all_dbs, set_url_type, DatastoreFunctionalTestBase)
+    rebuild_all_dbs, set_url_type,
+    DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
 
 assert_raises = nose.tools.assert_raises
 
 
-class TestDatastoreDelete():
+class TestDatastoreDelete(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
     Session = None
 
     @classmethod
     def setup_class(cls):
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
         cls.app = helpers._get_test_app()
-        p.load('datastore')
+        super(TestDatastoreDelete, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -54,11 +53,6 @@ class TestDatastoreDelete():
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
-
-    @classmethod
-    def teardown_class(cls):
-        rebuild_all_dbs(cls.Session)
-        p.unload('datastore')
 
     def _create(self):
         postparams = '%s=1' % json.dumps(self.data)

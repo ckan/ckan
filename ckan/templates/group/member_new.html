@@ -12,42 +12,48 @@
   {% block form %}
   <form class="dataset-form add-member-form" method='post' id="add-member-form">
     <div class="row">
-      <div class="form-group control-medium">
-        {% if not user %}
-          <label class="control-label" for="username">
-            {{ _('Existing User') }}
-          </label>
-          <span>
-            {{ _('If you wish to add an existing user, search for their username below.') }}
-          </span>
-        {% endif %}
-        <div class="controls">
-          {% if user %}
-            <input type="hidden" name="username" value="{{ user.name }}" />
-            <input id="username" name="username" type="text" value="{{ user.name }}"
-            disabled="True" class="form-control control-medium">
-          {% else %}
-            <input id="username" type="text" name="username" placeholder="Username"
-            value="" class="form-control control-medium" data-module="autocomplete"
-            data-module-source="/api/2/util/user/autocomplete?q=?">
+      <div class="col-md-5">
+        <div class="form-group control-medium">
+          {% if not user %}
+            <label class="control-label" for="username">
+              {{ _('Existing User') }}
+            </label>
+            <p>
+              {{ _('If you wish to add an existing user, search for their username below.') }}
+            </p>
           {% endif %}
+          <div class="controls">
+            {% if user %}
+              <input type="hidden" name="username" value="{{ user.name }}" />
+              <input id="username" name="username" type="text" value="{{ user.name }}"
+              disabled="True" class="form-control control-medium">
+            {% else %}
+              <input id="username" type="text" name="username" placeholder="Username"
+              value="" class="control-medium" data-module="autocomplete"
+              data-module-source="/api/2/util/user/autocomplete?q=?">
+            {% endif %}
+          </div>
         </div>
       </div>
       {% if not user %}
+      <div class="col-md-2 add-member-or-wrap">
         <div class="add-member-or">
           {{ _('or') }}
         </div>
+      </div>
+      <div class="col-md-5">
         <div class="form-group control-medium">
           <label class="control-label" for="email">
             {{ _('New User') }}
           </label>
-          <span>
+          <p>
             {{ _('If you wish to invite a new user, enter their email address.') }}
-          </span>
+          </p>
           <div class="controls">
             <input id="email" type="text" name="email" placeholder="Email address" class="form-control">
           </div>
         </div>
+      </div>
       {% endif %}
     </div>
 
