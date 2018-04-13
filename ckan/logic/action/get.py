@@ -3371,7 +3371,7 @@ def activity_diff(context, data_dict):
         raise NotFound('Could not find object in the activity data')
     # convert each object dict to 'pprint'-style
     # and split into lines to suit difflib
-    obj_lines = [pformat(obj).split('\n') for obj in objs]
+    obj_lines = [json.dumps(obj, indent=2).split('\n') for obj in objs]
 
     # do the diff
     if diff_type == 'unified':
@@ -3381,6 +3381,13 @@ def activity_diff(context, data_dict):
         diff_generator = difflib.context_diff(*obj_lines)
         diff = '\n'.join(line for line in diff_generator)
     elif diff_type == 'html':
+        # word-wrap lines. Otherwise you get scroll bars for most datasets.
+        import re
+        for obj_index in (0, 1):
+            wrapped_obj_lines = []
+            for line in obj_lines[obj_index]:
+                wrapped_obj_lines.extend(re.findall(r'.{1,70}(?:\s+|$)', line))
+            obj_lines[obj_index] = wrapped_obj_lines
         diff = difflib.HtmlDiff().make_table(*obj_lines)
     else:
         raise ValidationError('diff_type not recognized')
