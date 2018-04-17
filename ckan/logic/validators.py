@@ -46,7 +46,7 @@ def owner_org_validator(key, data, errors, context):
     if not group:
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
-    if not(user.sysadmin or
+    if not context.get(u'ignore_auth', False) and not(user.sysadmin or
            authz.has_user_permission_for_group_or_org(
                group_id, user.name, 'create_dataset')):
         raise Invalid(_('You cannot add a dataset to this organization'))
