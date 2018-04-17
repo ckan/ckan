@@ -305,6 +305,9 @@ def url_for(*args, **kw):
             _auto_flask_context.push()
 
         # First try to build the URL with the Flask router
+        # Temporary mapping for pylons to flask route names
+        if len(args):
+            args = (map_pylons_to_flask_route_name(args[0]),)
         my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
@@ -831,6 +834,7 @@ def build_nav_main(*args):
         menu_item, title = item[:2]
         if len(item) == 3 and not check_access(item[2]):
             continue
+        menu_item = map_pylons_to_flask_route_name(menu_item)
         output += _make_menu_item(menu_item, title)
     return output
 
@@ -870,8 +874,18 @@ def build_nav(menu_item, title, **kw):
     :rtype: HTML literal
 
     '''
+    menu_item = map_pylons_to_flask_route_name(menu_item)
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
+
+def map_pylons_to_flask_route_name(menu_item):
+    '''returns flask routes for old fashioned route names'''
+    old_routes = {
+        # "search": "dataset.search",
+        "home": "home.index",
+        "about": "home.about",
+    }
+    return old_routes.get(menu_item, menu_item)
 
 @core_helper
 def build_extra_admin_nav():
