@@ -485,12 +485,7 @@ class UserController(base.BaseController):
                         data_dict['id'] = user_list[0]['id']
                         user_dict = get_action('user_show')(context, data_dict)
                         user_obj = context['user_obj']
-                    elif len(user_list) > 1:
-                        h.flash_error(_('"%s" matched several users') % (id))
-                    else:
-                        h.flash_error(_('No such user: %s') % id)
-                else:
-                    h.flash_error(_('No such user: %s') % id)
+            helpers.flash_success(_('A reset token has been sent.'))
 
             if user_obj:
                 try:
