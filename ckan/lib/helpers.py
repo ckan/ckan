@@ -878,11 +878,12 @@ def build_nav(menu_item, title, **kw):
 
 def map_pylons_to_flask_route_name(menu_item):
     '''returns flask routes for old fashioned route names'''
-    old_routes = {
-        # "search": "dataset.search",
-        "home": "home.index",
-        "about": "home.about",
-    }
+    old_routes = json.loads(config.get('ckan.legacy_route_mappings'))
+    # old_routes = {
+    #     # "search": "dataset.search",
+    #     "home": "home.index",
+    #     "about": "home.about",
+    # }
     return old_routes.get(menu_item, menu_item)
 
 
