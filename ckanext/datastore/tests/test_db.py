@@ -12,6 +12,7 @@ import ckan.tests.factories as factories
 
 import ckanext.datastore.backend.postgres as db
 import ckanext.datastore.backend as backend
+from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
 
 assert_equal = nose.tools.assert_equal
 
@@ -173,16 +174,7 @@ def test_upsert_with_insert_method_and_invalid_data(
         backend.InvalidDataError, db.upsert_data, context, data_dict)
 
 
-class TestGetAllResourcesIdsInDatastore(object):
-    @classmethod
-    def setup_class(cls):
-        p.load('datastore')
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload('datastore')
-        helpers.reset_db()
-
+class TestGetAllResourcesIdsInDatastore(DatastoreFunctionalTestBase):
     def test_get_all_resources_ids_in_datastore(self):
         resource_in_datastore = factories.Resource()
         resource_not_in_datastore = factories.Resource()
@@ -214,21 +206,10 @@ def datastore_job(res_id, value):
         helpers.call_action('datastore_upsert', **data)
 
 
-class TestBackgroundJobs(helpers.RQTestBase):
+class TestBackgroundJobs(helpers.RQTestBase, DatastoreFunctionalTestBase):
     '''
     Test correct interaction with the background jobs system.
     '''
-    @classmethod
-    def setup_class(cls):
-
-        cls.app = helpers._get_test_app()
-        p.load('datastore')
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload('datastore')
-        helpers.reset_db()
-
     def test_worker_datastore_access(self):
         '''
         Test DataStore access from within a worker.
@@ -241,7 +222,7 @@ class TestBackgroundJobs(helpers.RQTestBase):
             'fields': [{'id': 'value', 'type': 'int'}],
         }
 
-        with self.app.flask_app.test_request_context():
+        with self._get_test_app().flask_app.test_request_context():
             table = helpers.call_action('datastore_create', **data)
         res_id = table['resource_id']
         for i in range(3):

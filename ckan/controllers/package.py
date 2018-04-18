@@ -311,6 +311,9 @@ class PackageController(base.BaseController):
             c.query_error = True
             c.search_facets = {}
             c.page = h.Page(collection=[])
+        except NotAuthorized:
+            abort(403, _('Not authorized to see this page'))
+
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
             try:

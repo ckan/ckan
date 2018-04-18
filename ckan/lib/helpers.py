@@ -930,7 +930,7 @@ def default_group_type():
 
 @core_helper
 def get_facet_items_dict(
-        facet, search_facets, limit=None, exclude_active=False):
+        facet, search_facets=None, limit=None, exclude_active=False):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
 
@@ -950,9 +950,11 @@ def get_facet_items_dict(
     exclude_active -- only return unselected facets.
 
     '''
-    if not search_facets or \
-            not search_facets.get(facet) or \
-            not search_facets.get(facet).get('items'):
+    if search_facets is None:
+        search_facets = getattr(c, u'search_facets', None)
+
+    if not search_facets or not search_facets.get(
+            facet, {}).get('items'):
         return []
     facets = []
     for facet_item in search_facets.get(facet)['items']:

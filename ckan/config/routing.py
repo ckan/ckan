@@ -131,36 +131,6 @@ def make_map():
                    ver='/1') as m:
         m.connect('/search/{register}', action='search')
 
-    # /api ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
-                   ver='/1') as m:
-        m.connect('/rest', action='index')
-
-    # /api/rest ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
-                   ver='/1', requirements=dict(register=register_list_str)
-                   ) as m:
-
-        m.connect('/rest/{register}', action='list', conditions=GET)
-        m.connect('/rest/{register}', action='create', conditions=POST)
-        m.connect('/rest/{register}/{id}', action='show', conditions=GET)
-        m.connect('/rest/{register}/{id}', action='update', conditions=PUT)
-        m.connect('/rest/{register}/{id}', action='update', conditions=POST)
-        m.connect('/rest/{register}/{id}', action='delete', conditions=DELETE)
-        m.connect('/rest/{register}/{id}/:subregister', action='list',
-                  conditions=GET)
-        m.connect('/rest/{register}/{id}/:subregister', action='create',
-                  conditions=POST)
-        m.connect('/rest/{register}/{id}/:subregister/{id2}', action='create',
-                  conditions=POST)
-        m.connect('/rest/{register}/{id}/:subregister/{id2}', action='show',
-                  conditions=GET)
-        m.connect('/rest/{register}/{id}/:subregister/{id2}', action='update',
-                  conditions=PUT)
-        m.connect('/rest/{register}/{id}/:subregister/{id2}', action='delete',
-                  conditions=DELETE)
-
-
     # /api/util ver 1, 2 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
                    ver='/1') as m:

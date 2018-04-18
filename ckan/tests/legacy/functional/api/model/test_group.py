@@ -9,8 +9,6 @@ from ckan.lib import search
 from nose.tools import assert_equal
 
 from ckan.tests.legacy.functional.api.base import BaseModelApiTestCase
-from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase
-from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase
 
 
 class GroupsTestCase(BaseModelApiTestCase):
@@ -221,7 +219,3 @@ class GroupsTestCase(BaseModelApiTestCase):
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
         self.assert_json_response(res, 'not found')
-
-
-class TestGroupsVersion1(Version1TestCase, GroupsTestCase): pass
-class TestGroupsVersion2(Version2TestCase, GroupsTestCase): pass

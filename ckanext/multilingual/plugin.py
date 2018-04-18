@@ -125,7 +125,7 @@ def translate_resource_data_dict(data_dict):
 
     # Get a simple flat list of all the terms to be translated, from the
     # flattened data dict.
-    terms = sets.Set()
+    terms = set()
     for (key, value) in flattened.items():
         if value in (None, True, False):
             continue

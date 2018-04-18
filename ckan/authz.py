@@ -197,10 +197,11 @@ def is_authorized(action, context, data_dict=None):
         # access straight away
         if not getattr(auth_function, 'auth_allow_anonymous_access', False) \
            and not context.get('auth_user_obj'):
-            return {'success': False,
-                    'msg': '{0} requires an authenticated user'
-                            .format(auth_function)
-                   }
+            return {
+                'success': False,
+                'msg': 'Action {0} requires an authenticated user'.format(
+                    auth_function.__name__)
+            }
 
         return auth_function(context, data_dict)
     else:

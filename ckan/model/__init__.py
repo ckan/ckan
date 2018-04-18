@@ -4,6 +4,7 @@ import warnings
 import logging
 import re
 from datetime import datetime
+from time import sleep
 
 from six import text_type
 import vdm.sqlalchemy
@@ -138,6 +139,7 @@ import ckan.migration
 log = logging.getLogger(__name__)
 
 
+DB_CONNECT_RETRIES = 10
 
 # set up in init_model after metadata is bound
 version_table = None
@@ -152,11 +154,18 @@ def init_model(engine):
     meta.metadata.bind = engine
     # sqlalchemy migrate version table
     import sqlalchemy.exc
-    try:
-        global version_table
-        version_table = Table('migrate_version', meta.metadata, autoload=True)
-    except sqlalchemy.exc.NoSuchTableError:
-        pass
+    for i in reversed(range(DB_CONNECT_RETRIES)):
+        try:
+            global version_table
+            version_table = Table('migrate_version', meta.metadata, autoload=True)
+            break
+        except sqlalchemy.exc.NoSuchTableError:
+            break
+        except sqlalchemy.exc.OperationalError as e:
+            if 'database system is starting up' in repr(e.orig) and i:
+                sleep(DB_CONNECT_RETRIES - i)
+                continue
+            raise
 
 
 class Repository(vdm.sqlalchemy.Repository):
@@ -186,25 +195,6 @@ class Repository(vdm.sqlalchemy.Repository):
         else:
             if not self.tables_created_and_initialised:
                 self.upgrade_db()
-                ## make sure celery tables are made as celery only makes
-                ## them after adding a task
-                try:
-                    import ckan.lib.celery_app as celery_app
-                    import celery.db.session as celery_session
-                    import celery.backends.database
-                    ## This creates the database tables (if using that backend)
-                    ## It is a slight hack to celery
-                    backend = celery_app.celery.backend
-                    if isinstance(backend,
-                                  celery.backends.database.DatabaseBackend):
-                        celery_result_session = backend.ResultSession()
-                        engine = celery_result_session.bind
-                        celery_session.ResultModelBase.metadata.\
-                            create_all(engine)
-                except ImportError:
-                    # use of celery is optional
-                    pass
-
                 self.tables_created_and_initialised = True
         log.info('Database initialised')
 
