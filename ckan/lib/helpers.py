@@ -1012,7 +1012,6 @@ def build_nav_main(*args):
         menu_item, title = item[:2]
         if len(item) == 3 and not check_access(item[2]):
             continue
-        menu_item = map_pylons_to_flask_route_name(menu_item)
         output += _make_menu_item(menu_item, title)
     return output
 
@@ -1052,7 +1051,6 @@ def build_nav(menu_item, title, **kw):
     :rtype: HTML literal
 
     '''
-    menu_item = map_pylons_to_flask_route_name(menu_item)
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
 
@@ -1071,6 +1069,7 @@ def map_pylons_to_flask_route_name(menu_item):
                  'Please update calls to use "{}" instead'
                  .format(menu_item, LEGACY_ROUTE_NAMES[menu_item]))
     return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
+
 
 
 @core_helper
