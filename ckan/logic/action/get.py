@@ -1496,34 +1496,37 @@ def package_autocomplete(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    model = context['model']
-
     _check_access('package_autocomplete', context, data_dict)
 
     limit = data_dict.get('limit', 10)
     q = data_dict['q']
 
-    like_q = u"%s%%" % q
-
-    query = model.Session.query(model.Package)
-    query = query.filter(model.Package.state == 'active')
-    query = query.filter(model.Package.private == False)
-    query = query.filter(_or_(model.Package.name.ilike(like_q),
-                              model.Package.title.ilike(like_q)))
-    query = query.limit(limit)
+    data_dict = {
+        'fq': '+capacity:public',
+        'q': ' OR '.join([
+            'name_ngram:{0}',
+            'title_ngram:{0}',
+            'name:{0}',
+            'title:{0}',
+        ]).format(search.query.solr_literal(q)),
+        'fl': ['name', 'title'],
+        'rows': limit
+    }
+    query = search.query_for(model.Package)
+    results = query.run(data_dict)['results']
 
     q_lower = q.lower()
     pkg_list = []
-    for package in query:
-        if package.name.startswith(q_lower):
+    for package in results:
+        if q_lower in package['name']:
             match_field = 'name'
-            match_displayed = package.name
+            match_displayed = package['name']
         else:
             match_field = 'title'
-            match_displayed = '%s (%s)' % (package.title, package.name)
+            match_displayed = '%s (%s)' % (package['title'], package['name'])
         result_dict = {
-            'name': package.name,
-            'title': package.title,
+            'name': package['name'],
+            'title': package['title'],
             'match_field': match_field,
             'match_displayed': match_displayed}
         pkg_list.append(result_dict)
