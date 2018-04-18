@@ -485,7 +485,7 @@ class UserController(base.BaseController):
                         data_dict['id'] = user_list[0]['id']
                         user_dict = get_action('user_show')(context, data_dict)
                         user_obj = context['user_obj']
-            helpers.flash_success(_('A reset token has been sent.'))
+            h.flash_success(_('A reset token has been sent.'))
 
             if user_obj:
                 try:
