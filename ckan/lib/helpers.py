@@ -834,7 +834,6 @@ def build_nav_main(*args):
         menu_item, title = item[:2]
         if len(item) == 3 and not check_access(item[2]):
             continue
-        menu_item = map_pylons_to_flask_route_name(menu_item)
         output += _make_menu_item(menu_item, title)
     return output
 
@@ -874,7 +873,6 @@ def build_nav(menu_item, title, **kw):
     :rtype: HTML literal
 
     '''
-    menu_item = map_pylons_to_flask_route_name(menu_item)
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
 
@@ -886,6 +884,7 @@ def map_pylons_to_flask_route_name(menu_item):
         "about": "home.about",
     }
     return old_routes.get(menu_item, menu_item)
+
 
 @core_helper
 def build_extra_admin_nav():
@@ -920,6 +919,7 @@ def _make_menu_item(menu_item, title, **kw):
 
     This function is called by wrapper functions.
     '''
+    menu_item = map_pylons_to_flask_route_name(menu_item)
     _menu_items = config['routes.named_routes']
     if menu_item not in _menu_items:
         raise Exception('menu item `%s` cannot be found' % menu_item)

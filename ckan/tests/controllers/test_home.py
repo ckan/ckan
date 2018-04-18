@@ -62,7 +62,6 @@ class TestHome(helpers.FunctionalTestBase):
         assert 'Welcome to CKAN' in response.body
 
 
-
 class TestI18nURLs(helpers.FunctionalTestBase):
 
     def test_right_urls_are_rendered_on_language_selector(self):
