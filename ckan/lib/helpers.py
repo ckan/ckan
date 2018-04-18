@@ -269,7 +269,7 @@ def url_for(*args, **kw):
 
     URLs built by Pylons use the Routes syntax::
 
-        url_for('dataset.read', id='my_dataset')
+        url_for(controller='my_controller', action='my_action', id='my_dataset')
         # Returns '/dataset/my_dataset'
 
     Or, using a named route::

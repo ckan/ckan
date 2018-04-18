@@ -12,7 +12,7 @@ import re
 from routes.mapper import SubMapper, Mapper as _Mapper
 
 import ckan.plugins as p
-from ckan.common import config
+from ckan.common import config, current_app
 
 named_routes = {}
 
@@ -86,6 +86,7 @@ def make_map():
     OPTIONS = dict(method=['OPTIONS'])
 
     import ckan.lib.plugins as lib_plugins
+    lib_plugins.reset_package_plugins()
     lib_plugins.reset_group_plugins()
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
@@ -216,7 +217,9 @@ def make_map():
         m.connect('organization_bulk_process',
                   '/organization/bulk_process/{id}',
                   action='bulk_process', ckan_icon='sitemap')
-    # lib_plugins.register_package_plugins(map)
+
+    lib_plugins.register_package_plugins(current_app)
+
     lib_plugins.register_group_plugins(map)
 
     # tags

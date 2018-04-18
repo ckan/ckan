@@ -201,7 +201,7 @@ def search(package_type):
     extra_vars[u'search_url_params'] = search_url_params
 
     try:
-        # c.fields_grouped will contain a dict of params containing
+        # fields_grouped will contain a dict of params containing
         # a list of values eg {u'tags':[u'tag1', u'tag2']}
 
         extra_vars[u'fields'] = fields = []
@@ -340,6 +340,10 @@ def search(package_type):
 
     extra_vars[u'dataset_type'] = package_type
 
+    # TODO: remove
+    for key, value in extra_vars:
+        setattr(g, key, value)
+
     return base.render(
         _get_pkg_template(u'search_template', package_type), extra_vars
     )
@@ -374,6 +378,10 @@ def resources(package_type, id):
     package_type = pkg_dict[u'type'] or u'dataset'
     _setup_template_variables(context, {u'id': id}, package_type=package_type)
 
+    # TODO: remove
+    g.pkg_dict = pkg_dict
+    g.pkg = pkg
+
     return base.render(
         u'package/resources.html', {
             u'dataset_type': package_type,
@@ -400,32 +408,8 @@ def read(package_type, id):
     except (NotFound, NotAuthorized):
         return base.abort(404, _(u'Dataset not found'))
 
-    # FEATURE: [start] https://github.com/ckan/ckan/pull/3972
-    is_activity_archive = True
-    activity_id = request.args.get(u'activity_id')
-    if activity_id:
-        # view an 'old' version of the package, as recorded in the
-        # activity stream
-        try:
-            activity = get_action(u'activity_show')(
-                context, {
-                    u'id': activity_id
-                }
-            )
-        except NotFound:
-            return base.abort(404, _(u'Activity not found'))
-        except NotAuthorized:
-            return base.abort(403, _(u'Unauthorized to create a package'))
-        try:
-            pkg_dict = activity[u'data'][u'package']
-        except KeyError:
-            return base.abort(404, _(u'Dataset not found'))
-        # Earlier versions of CKAN only stored the package table in the
-        # activity, so add a placeholder for resources, or the template
-        # will crash.
-        pkg_dict.setdefault(u'resources', [])
-        is_activity_archive = True
-    # FEATURE: [end]
+    g.pkg_dict = pkg_dict
+    g.pkg = pkg
 
     # can the resources be previewed?
     for resource in pkg_dict[u'resources']:
@@ -445,8 +429,7 @@ def read(package_type, id):
             template, {
                 u'dataset_type': package_type,
                 u'pkg_dict': pkg_dict,
-                u'pkg': pkg,
-                u'is_activity_archive': is_activity_archive
+                u'pkg': pkg
             }
         )
     except TemplateNotFound as e:
@@ -474,9 +457,6 @@ class CreateView(MethodView):
             u'auth_user_obj': g.userobj,
             u'save': self._is_save()
         }
-
-        # Package needs to have a organization group in the call to
-        # check_access and also to save it
         try:
             check_access(u'package_create', context)
         except NotAuthorized:
@@ -615,6 +595,10 @@ class CreateView(MethodView):
         }
         errors_json = h.json.dumps(errors)
 
+        # TODO: remove
+        g.resources_json = resources_json
+        g.errors_json = errors_json
+
         _setup_template_variables(context, {}, package_type=package_type)
 
         new_template = _get_pkg_template(u'new_template', package_type)
@@ -748,6 +732,11 @@ class EditView(MethodView):
         }
         errors_json = h.json.dumps(errors)
 
+        # TODO: remove
+        g.pkg = pkg
+        g.resources_json = resources_json
+        g.errors_json = errors_json
+
         _setup_template_variables(
             context, {u'id': id}, package_type=package_type
         )
@@ -771,29 +760,6 @@ class EditView(MethodView):
                 u'errors_json': errors_json
             }
         )
-
-
-# FIXME: do we really need this route?
-def read_ajax(package_type, id, revision=None):
-    context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
-        u'revision_id': revision
-    }
-    try:
-        data = get_action(u'package_show')(context, {u'id': id})
-    except (NotFound, NotAuthorized):
-        return base.abort(404, _(u'Dataset not found'))
-
-    data.pop(u'tags')
-    data = flatten_to_string_key(data)
-    resp = make_response(
-        h.json.dumps(data), 200,
-        {u'content-type': CONTENT_TYPES[u'javascript']}
-    )
-    return resp
 
 
 class DeleteView(MethodView):
@@ -836,6 +802,9 @@ class DeleteView(MethodView):
             )
 
         dataset_type = pkg_dict[u'type'] or package_type
+
+        # TODO: remove
+        g.pkg_dict = pkg_dict
 
         return base.render(
             u'package/confirm_delete.html', {
@@ -900,7 +869,6 @@ def unfollow(package_type, id):
     return h.redirect_to(u'dataset.read', id=id)
 
 
-# FIXME: Do we need this?
 def followers(package_type, id=None):
     context = {
         u'model': model,
@@ -925,6 +893,11 @@ def followers(package_type, id=None):
         return base.abort(404, _(u'Dataset not found'))
     except NotAuthorized:
         return base.abort(403, _(u'Unauthorized to read package %s') % id)
+
+    # TODO: remove
+    g.pkg_dict = pkg_dict
+    g.pkg = pkg
+    g.followers = followers
 
     return base.render(
         u'package/followers.html', {
@@ -1005,6 +978,10 @@ class GroupView(MethodView):
         for group in pkg_dict.get(u'groups', []):
             group[u'user_member'] = (group[u'id'] in user_group_ids)
 
+        # TODO: remove
+        g.pkg_dict = pkg_dict
+        g.group_dropdown = group_dropdown
+
         return base.render(
             u'package/group_list.html', {
                 u'dataset_type': dataset_type,
@@ -1039,6 +1016,11 @@ def activity(package_type, id):
     except NotAuthorized:
         return base.abort(403, _(u'Unauthorized to read dataset %s') % id)
 
+    # TODO: remove
+    g.pkg_dict = pkg_dict
+    g.pkg = pkg
+    g.package_activity_stream = package_activity_stream
+
     return base.render(
         u'package/activity.html', {
             u'dataset_type': dataset_type,
@@ -1049,27 +1031,6 @@ def activity(package_type, id):
     )
 
 
-dataset.add_url_rule(u'/', view_func=search, strict_slashes=False)
-dataset.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
-dataset.add_url_rule(u'/<id>', view_func=read)
-dataset.add_url_rule(u'/resources/<id>', view_func=resources)
-dataset.add_url_rule(u'/edit/<id>', view_func=EditView.as_view(str(u'edit')))
-dataset.add_url_rule(u'/read_ajax/<id>', view_func=read_ajax)
-dataset.add_url_rule(
-    u'/delete/<id>', view_func=DeleteView.as_view(str(u'delete'))
-)
-dataset.add_url_rule(u'/follow/<id>', view_func=follow, methods=(u'POST', ))
-dataset.add_url_rule(
-    u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', )
-)
-dataset.add_url_rule(u'/followers/<id>', view_func=followers)
-dataset.add_url_rule(
-    u'/groups/<id>', view_func=GroupView.as_view(str(u'groups'))
-)
-dataset.add_url_rule(u'/activity/<id>', view_func=activity)
-
-
-# XXX: [kill] history
 def history(package_type, id):
     if u'diff' in request.args or u'selected1' in request.args:
         try:
@@ -1168,8 +1129,25 @@ def history(package_type, id):
     )
 
 
-dataset.add_url_rule(u'/<id>/history', view_func=history)
-# XXX: [kill] history_ajax
+def register_dataset_plugin_rules(blueprint):
+    blueprint.add_url_rule(u'/', view_func=search, strict_slashes=False)
+    blueprint.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
+    blueprint.add_url_rule(u'/<id>', view_func=read)
+    blueprint.add_url_rule(u'/resources/<id>', view_func=resources)
+    blueprint.add_url_rule(u'/edit/<id>', view_func=EditView.as_view(str(u'edit')))
+    blueprint.add_url_rule(
+        u'/delete/<id>', view_func=DeleteView.as_view(str(u'delete'))
+    )
+    blueprint.add_url_rule(u'/follow/<id>', view_func=follow, methods=(u'POST', ))
+    blueprint.add_url_rule(
+        u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', )
+    )
+    blueprint.add_url_rule(u'/followers/<id>', view_func=followers)
+    blueprint.add_url_rule(
+        u'/groups/<id>', view_func=GroupView.as_view(str(u'groups'))
+    )
+    blueprint.add_url_rule(u'/activity/<id>', view_func=activity)
+    blueprint.add_url_rule(u'/<id>/history', view_func=history)
 
-# XXX: [?] read_ajax
-# XXX: [?] followers
+
+register_dataset_plugin_rules(dataset)

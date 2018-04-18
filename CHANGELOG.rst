@@ -27,6 +27,10 @@ Changes and deprecations:
    of course use Celery but they will need to handle the management themselves.
  * `ckan.recaptcha.version` config option is removed, since v2 is the only valid
     version now (#4061)
+ * After introducing dataset blueprint, `h.get_facet_items_dict` takes search_facets as second argument.
+   This change is aimed to reduce usage of global variables in context. For a while, it has default value
+   of None, in which case, `c.search_facets` will be used. But all template designers are strongly advised
+   to specify this argument explicitly, as in future it'll become required.
 
 v2.7.3 2018-03-15
 =================

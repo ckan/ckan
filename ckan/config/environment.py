@@ -279,7 +279,7 @@ def update_config():
     # any Pylons config options)
 
     # Initialize SQLAlchemy
-    engine = sqlalchemy.engine_from_config(config, client_encoding='utf8')
+    engine = sqlalchemy.engine_from_config(config)
     model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):

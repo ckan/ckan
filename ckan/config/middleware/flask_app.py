@@ -162,9 +162,6 @@ def make_flask_stack(conf, **app_conf):
 
     babel.localeselector(get_locale)
 
-    # XXX: do we need such type of cleaning?
-    lib_plugins.reset_package_plugins()
-
     @app.route('/hello', methods=['GET'])
     def hello_world():
         return 'Hello World, this is served by Flask'
@@ -175,7 +172,6 @@ def make_flask_stack(conf, **app_conf):
 
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
-    _register_plugin_blueprints(app)
 
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
@@ -405,7 +401,3 @@ def _register_core_blueprints(app):
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
             log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
-
-
-def _register_plugin_blueprints(app):
-    lib_plugins.register_package_plugins(app)

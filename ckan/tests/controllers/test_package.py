@@ -1004,11 +1004,12 @@ class TestResourceView(helpers.FunctionalTestBase):
     def setup_class(cls):
         super(cls, cls).setup_class()
 
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
         helpers.reset_db()
 
     @classmethod
     def teardown_class(cls):
-        if p.plugin_loaded('image_view'):
             p.unload('image_view')
 
     def test_existent_resource_view_page_returns_ok_code(self):

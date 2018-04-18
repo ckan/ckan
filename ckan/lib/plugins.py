@@ -96,7 +96,8 @@ def register_package_plugins(app):
     # running unit tests.
     if _default_package_plugin is not None:
         return
-    dataset = import_module(app.blueprints['dataset'].import_name)
+    from ckan.views import dataset
+    from ckan.views import resource
 
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
@@ -108,19 +109,21 @@ def register_package_plugins(app):
         for package_type in plugin.package_types():
             # Create a connection between the newly named type and the
             # package controller
-            blueprint = Blueprint(
+            dataset_blueprint = Blueprint(
                 package_type,
                 dataset.dataset.import_name,
                 url_prefix='/{}'.format(package_type),
                 url_defaults={'package_type': package_type})
-            blueprint.add_url_rule(
-                '/', view_func=dataset.search, strict_slashes=False)
-            blueprint.add_url_rule(
-                '/new', view_func=dataset.CreateView.as_view(str(u'new')))
-            blueprint.add_url_rule('/<id>', view_func=dataset.read)
-            blueprint.add_url_rule(
-                '/edit/<id>', view_func=dataset.EditView.as_view(str(u'edit')))
-            app.register_blueprint(blueprint)
+            dataset.register_dataset_plugin_rules(dataset_blueprint)
+            app.register_blueprint(dataset_blueprint)
+
+            resource_blueprint = Blueprint(
+                u'{}_resource'.format(package_type),
+                resource.resource.import_name,
+                url_prefix=u'/{}/<id>/resource'.format(package_type),
+                url_defaults={u'package_type': package_type})
+            resource.register_dataset_plugin_rules(resource_blueprint)
+            app.register_blueprint(resource_blueprint)
 
             if package_type in _package_plugins:
                 raise ValueError("An existing IDatasetForm is "

@@ -96,6 +96,12 @@ def read(package_type, id, resource_id):
     pkg = context[u'package']
     dataset_type = pkg.type or package_type
 
+    # TODO: remove
+    g.package = package
+    g.resource = resource
+    g.pkg = pkg
+    g.pkg_dict = package
+
     extra_vars = {
         u'resource_views': resource_views,
         u'current_resource_view': current_resource_view,
@@ -439,6 +445,10 @@ class DeleteView(MethodView):
         except NotFound:
             return base.abort(404, _(u'Resource not found'))
 
+        # TODO: remove
+        g.resource_dict = resource_dict
+        g.pkg_id = pkg_id
+
         return base.render(
             u'package/confirm_delete_resource.html', {
                 u'dataset_type': _get_package_type(id),
@@ -487,6 +497,12 @@ def views(package_type, id, resource_id):
         return base.abort(403, _(u'Unauthorized to read resource %s') % id)
 
     _setup_template_variables(context, {u'id': id}, package_type=package_type)
+
+    # TODO: remove
+    g.pkg_dict = pkg_dict
+    g.pkg = pkg
+    g.resource = resource
+    g.views = views
 
     return base.render(
         u'package/resource_views.html', {
@@ -542,7 +558,7 @@ def view(package_type, id, resource_id, view_id=None):
 
 
 # FIXME: could anyone think about better name?
-class EditViewView(MethodView):
+class EditResourceViewView(MethodView):
     def _prepare(self, id, resource_id):
         context = {
             u'model': model,
@@ -575,6 +591,11 @@ class EditViewView(MethodView):
             )
         except (NotFound, NotAuthorized):
             return base.abort(404, _(u'Resource not found'))
+
+        # TODO: remove
+        g.pkg_dict = pkg_dict
+        g.pkg = pkg
+        g.resource = resource
 
         extra_vars = dict(
             data={},
@@ -776,6 +797,15 @@ def embedded_dataviewer(package_type, id, resource_id, width=500, height=500):
     height = max(int(request.args.get(u'height', height)), 100)
     embedded = True
 
+    # TODO: remove
+    g.resource = resource
+    g.package = package
+    g.resource_json = resource_json
+    g.recline_state = recline_state
+    g.width = width
+    g.height = height
+    g.embedded = embedded
+
     return base.render(
         u'package/resource_embedded_dataviewer.html', {
             u'dataset_type': dataset_type,
@@ -819,6 +849,12 @@ def datapreview(package_type, id, resource_id):
         preview_plugin.setup_template_variables(context, data_dict)
         resource_json = json.dumps(resource)
         dataset_type = package[u'type'] or package_type
+
+        # TODO: remove
+        g.resource = resource
+        g.package = package
+        g.resource_json = resource_json
+
     except (NotFound, NotAuthorized):
         return base.abort(404, _(u'Resource not found'))
     else:
@@ -832,35 +868,41 @@ def datapreview(package_type, id, resource_id):
         )
 
 
-resource.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
-resource.add_url_rule(u'/<resource_id>', view_func=read, strict_slashes=False)
-resource.add_url_rule(
-    u'/<resource_id>/edit', view_func=EditView.as_view(str(u'edit'))
-)
-resource.add_url_rule(
-    u'/<resource_id>/delete', view_func=DeleteView.as_view(str(u'delete'))
-)
+def register_dataset_plugin_rules(blueprint):
+    blueprint.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
+    blueprint.add_url_rule(
+        u'/<resource_id>', view_func=read, strict_slashes=False)
+    blueprint.add_url_rule(
+        u'/<resource_id>/edit', view_func=EditView.as_view(str(u'edit'))
+    )
+    blueprint.add_url_rule(
+        u'/<resource_id>/delete', view_func=DeleteView.as_view(str(u'delete'))
+    )
 
-resource.add_url_rule(u'/<resource_id>/download', view_func=download)
-resource.add_url_rule(u'/<resource_id>/views', view_func=views)
-resource.add_url_rule(u'/<resource_id>/view', view_func=view)
-resource.add_url_rule(u'/<resource_id>/view/<view_id>', view_func=view)
-resource.add_url_rule(
-    u'/<resource_id>/download/<filename>', view_func=download
-)
+    blueprint.add_url_rule(u'/<resource_id>/download', view_func=download)
+    blueprint.add_url_rule(u'/<resource_id>/views', view_func=views)
+    blueprint.add_url_rule(u'/<resource_id>/view', view_func=view)
+    blueprint.add_url_rule(u'/<resource_id>/view/<view_id>', view_func=view)
+    blueprint.add_url_rule(
+        u'/<resource_id>/download/<filename>', view_func=download
+    )
 
-_edit_view = EditViewView.as_view(str(u'edit_view'))
-resource.add_url_rule(u'/<resource_id>/new_view', view_func=_edit_view)
-resource.add_url_rule(
-    u'/<resource_id>/edit_view/<view_id>', view_func=_edit_view
-)
-resource.add_url_rule(u'/<resource_id>/embed', view_func=embedded_dataviewer)
-resource.add_url_rule(
-    u'/<resource_id>/viewer',
-    view_func=embedded_dataviewer,
-    defaults={
-        u'width': u"960",
-        u'height': u"800"
-    }
-)
-resource.add_url_rule(u'/<resource_id>/preview', view_func=datapreview)
+    _edit_view = EditResourceViewView.as_view(str(u'edit_view'))
+    blueprint.add_url_rule(u'/<resource_id>/new_view', view_func=_edit_view)
+    blueprint.add_url_rule(
+        u'/<resource_id>/edit_view/<view_id>', view_func=_edit_view
+    )
+    blueprint.add_url_rule(
+        u'/<resource_id>/embed', view_func=embedded_dataviewer)
+    blueprint.add_url_rule(
+        u'/<resource_id>/viewer',
+        view_func=embedded_dataviewer,
+        defaults={
+            u'width': u"960",
+            u'height': u"800"
+        }
+    )
+    blueprint.add_url_rule(u'/<resource_id>/preview', view_func=datapreview)
+
+
+register_dataset_plugin_rules(resource)
