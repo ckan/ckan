@@ -6,249 +6,12 @@ Legacy APIs
 
     The legacy APIs documented in this section are provided for
     backwards-compatibility, but support for new CKAN features will not be
-    added to these APIs.
+    added to these APIs. These endpoints will be removed in the future.
 
 
-API Versions
-~~~~~~~~~~~~
+.. Note::
 
-There are two versions of the legacy APIs. When the API returns a reference to
-an object, version 1 of the API will return the name of the object (e.g.
-``"river-pollution"``), whereas version 2 will return the ID of the object
-(e.g.  ``"a3dd8f64-9078-4f04-845c-e3f047125028"``). Tag objects are an
-exception, tag names are immutable so tags are always referred to with their
-name.
-
-You can specify which version of the API to use in the URL. For example,
-opening this URL in your web browser will list demo.ckan.org's datasets using
-API version 1:
-
-http://demo.ckan.org/api/1/rest/dataset
-
-Opening this URL calls the same function using API version 2:
-
-http://demo.ckan.org/api/2/rest/dataset
-
-If no version number is given in the URL then the API defaults to version 1, so
-this URL will list the site's datasets using API version 1:
-
-http://demo.ckan.org/api/rest/dataset
-
-Dataset names can change, so to reliably refer to the same dataset over time,
-you will want to use the dataset's ID and therefore use API v2. Alternatively,
-many people prefer to deal with Names, so API v1 suits them.
-
-When posting parameters with your API requests, you can refer to objects by
-either their name or ID, interchangeably.
-
-
-Model API
-~~~~~~~~~
-
-Model resources are available at published locations. They are represented with
-a variety of data formats. Each resource location supports a number of methods.
-
-The data formats of the requests and the responses are defined below.
-
-Model Resources
-```````````````
-
-Here are the resources of the Model API.
-
-
-+--------------------------------+-------------------------------------------------------------------+
-| Model Resource                 | Location                                                          |
-+================================+===================================================================+
-| Dataset Register               | ``/rest/dataset``                                                 |
-+--------------------------------+-------------------------------------------------------------------+
-| Dataset Entity                 | ``/rest/dataset/DATASET-REF``                                     |
-+--------------------------------+-------------------------------------------------------------------+
-| Group Register                 | ``/rest/group``                                                   |
-+--------------------------------+-------------------------------------------------------------------+
-| Group Entity                   | ``/rest/group/GROUP-REF``                                         |
-+--------------------------------+-------------------------------------------------------------------+
-| Tag Register                   | ``/rest/tag``                                                     |
-+--------------------------------+-------------------------------------------------------------------+
-| Tag Entity                     | ``/rest/tag/TAG-NAME``                                            |
-+--------------------------------+-------------------------------------------------------------------+
-| Rating Register                | ``/rest/rating``                                                  |
-+--------------------------------+-------------------------------------------------------------------+
-| Dataset Relationships Register | ``/rest/dataset/DATASET-REF/relationships``                       |
-+--------------------------------+-------------------------------------------------------------------+
-| Dataset Relationships Register | ``/rest/dataset/DATASET-REF/RELATIONSHIP-TYPE``                   |
-+--------------------------------+-------------------------------------------------------------------+
-| Dataset Relationships Register | ``/rest/dataset/DATASET-REF/relationships/DATASET-REF``           |
-+--------------------------------+-------------------------------------------------------------------+
-| Dataset Relationship Entity    | ``/rest/dataset/DATASET-REF/RELATIONSHIP-TYPE/DATASET-REF``       |
-+--------------------------------+-------------------------------------------------------------------+
-| Dataset\'s Revisions Entity    | ``/rest/dataset/DATASET-REF/revisions``                           |
-+--------------------------------+-------------------------------------------------------------------+
-| Revision Register              | ``/rest/revision``                                                |
-+--------------------------------+-------------------------------------------------------------------+
-| Revision Entity                | ``/rest/revision/REVISION-ID``                                    |
-+--------------------------------+-------------------------------------------------------------------+
-| License List                   | ``/rest/licenses``                                                |
-+--------------------------------+-------------------------------------------------------------------+
-
-Possible values for DATASET-REF are the dataset id, or the current dataset name.
-
-Possible values for RELATIONSHIP-TYPE are described in the Relationship-Type data format.
-
-
-Model Methods
-`````````````
-
-Here are the methods of the Model API.
-
-+-------------------------------+--------+------------------+-------------------+
-| Resource                      | Method | Request          | Response          |
-+===============================+========+==================+===================+ 
-| Dataset Register              | GET    |                  | Dataset-List      |
-+-------------------------------+--------+------------------+-------------------+
-| Dataset Register              | POST   | Dataset          |                   |
-+-------------------------------+--------+------------------+-------------------+
-| Dataset Entity                | GET    |                  | Dataset           |
-+-------------------------------+--------+------------------+-------------------+
-| Dataset Entity                | PUT    | Dataset          |                   |
-+-------------------------------+--------+------------------+-------------------+
-| Group Register                | GET    |                  | Group-List        |
-+-------------------------------+--------+------------------+-------------------+
-| Group Register                | POST   | Group            |                   |
-+-------------------------------+--------+------------------+-------------------+
-| Group Entity                  | GET    |                  | Group             |
-+-------------------------------+--------+------------------+-------------------+
-| Group Entity                  | PUT    | Group            |                   |
-+-------------------------------+--------+------------------+-------------------+
-| Tag Register                  | GET    |                  | Tag-List          | 
-+-------------------------------+--------+------------------+-------------------+
-| Tag Entity                    | GET    |                  | Dataset-List      |
-+-------------------------------+--------+------------------+-------------------+
-| Rating Register               | POST   | Rating           |                   |
-+-------------------------------+--------+------------------+-------------------+
-| Rating Entity                 | GET    |                  | Rating            |
-+-------------------------------+--------+------------------+-------------------+
-| Dataset Relationships Register| GET    |                  | Pkg-Relationships |
-+-------------------------------+--------+------------------+-------------------+
-| Dataset Relationship Entity   | GET    |                  | Pkg-Relationship  |
-+-------------------------------+--------+------------------+-------------------+
-| Dataset Relationships Register| POST   | Pkg-Relationship |                   |
-+-------------------------------+--------+------------------+-------------------+
-| Dataset Relationship Entity   | PUT    | Pkg-Relationship |                   |
-+-------------------------------+--------+------------------+-------------------+
-| Dataset\'s Revisions Entity   | GET    |                  | Pkg-Revisions     |
-+-------------------------------+--------+------------------+-------------------+
-| Revision List                 | GET    |                  | Revision-List     |
-+-------------------------------+--------+------------------+-------------------+
-| Revision Entity               | GET    |                  | Revision          |
-+-------------------------------+--------+------------------+-------------------+
-| License List                  | GET    |                  | License-List      |
-+-------------------------------+--------+------------------+-------------------+
-
-In general:
-
-* GET to a register resource will *list* the entities of that type.
-
-* GET of an entity resource will *show* the entity's properties.
-
-* POST of entity data to a register resource will *create* the new entity.
-
-* PUT of entity data to an existing entity resource will *update* it.
-
-It is usually clear whether you are trying to create or update, so in these cases, HTTP POST and PUT methods are accepted by CKAN interchangeably.
-
-Model Formats
-`````````````
-
-Here are the data formats for the Model API:
-
-+--------------------+------------------------------------------------------------+
-| Name               | Format                                                     |
-+====================+============================================================+
-| Dataset-Ref        | Dataset-Name-String (API v1) OR Dataset-Id-Uuid (API v2)   |
-+--------------------+------------------------------------------------------------+
-| Dataset-List       | [ Dataset-Ref, Dataset-Ref, Dataset-Ref, ... ]             |
-+--------------------+------------------------------------------------------------+
-| Dataset            | { id: Uuid, name: Name-String, title: String, version:     | 
-|                    | String, url: String, resources: [ Resource, Resource, ...],| 
-|                    | author: String, author_email: String, maintainer: String,  |
-|                    | maintainer_email: String, license_id: String,              |
-|                    | tags: Tag-List, notes: String, extras: { Name-String:      |
-|                    | String, ... } }                                            |
-|                    | See note below on additional fields upon GET of a dataset. |
-+--------------------+------------------------------------------------------------+
-| Group-Ref          | Group-Name-String (API v1) OR Group-Id-Uuid (API v2)       |
-+--------------------+------------------------------------------------------------+
-| Group-List         | [ Group-Ref, Group-Ref, Group-Ref, ... ]                   |
-+--------------------+------------------------------------------------------------+
-| Group              | { name: Group-Name-String, title: String,                  |
-|                    | description: String, packages: Dataset-List }              |
-+--------------------+------------------------------------------------------------+
-| Tag-List           | [ Name-String, Name-String, Name-String, ... ]             |
-+--------------------+------------------------------------------------------------+
-| Tag                | { name: Name-String }                                      |
-+--------------------+------------------------------------------------------------+
-| Resource           | { url: String, format: String, description: String,        |
-|                    | hash: String }                                             |
-+--------------------+------------------------------------------------------------+
-| Rating             | { dataset: Name-String, rating: int }                      |
-+--------------------+------------------------------------------------------------+
-| Pkg-Relationships  | [ Pkg-Relationship, Pkg-Relationship, ... ]                |
-+--------------------+------------------------------------------------------------+
-| Pkg-Relationship   | { subject: Dataset-Name-String,                            |
-|                    | object: Dataset-Name-String, type: Relationship-Type,      |
-|                    | comment: String }                                          |
-+--------------------+------------------------------------------------------------+
-| Pkg-Revisions      | [ Pkg-Revision, Pkg-Revision, Pkg-Revision, ... ]          |
-+--------------------+------------------------------------------------------------+
-| Pkg-Revision       | { id: Uuid, message: String, author: String,               |
-|                    | timestamp: Date-Time }                                     |
-+--------------------+------------------------------------------------------------+
-|Relationship-Type   | One of: 'depends_on', 'dependency_of',                     |
-|                    | 'derives_from', 'has_derivation',                          |
-|                    | 'child_of', 'parent_of',                                   |
-|                    | 'links_to', 'linked_from'.                                 |
-+--------------------+------------------------------------------------------------+
-| Revision-List      | [ revision_id, revision_id, revision_id, ... ]             |
-+--------------------+------------------------------------------------------------+
-| Revision           | { id: Uuid, message: String, author: String,               |
-|                    | timestamp: Date-Time, datasets: Dataset-List }             |
-+--------------------+------------------------------------------------------------+
-| License-List       | [ License, License, License, ... ]                         |
-+--------------------+------------------------------------------------------------+
-| License            | { id: Name-String, title: String, is_okd_compliant:        |
-|                    | Boolean, is_osi_compliant: Boolean, tags: Tag-List,        |
-|                    | family: String, url: String, maintainer: String,           |
-|                    | date_created: Date-Time, status: String }                  |
-+--------------------+------------------------------------------------------------+
-
-To send request data, create the JSON-format string (encode in UTF8) put it in the request body and send it using PUT or POST.
-
-Response data will be in the response body in JSON format.
-
-Notes:
-
- * When you update an object, fields that you don't supply will remain as they were before.
-
- * To delete an 'extra' key-value pair, supply the key with JSON value: ``null``
-
- * When you read a dataset, some additional information is supplied that you cannot modify and POST back to the CKAN API. These 'read-only' fields are provided only on the Dataset GET. This is a convenience to clients, to save further requests. This applies to the following fields:
-    
-===================== ================================
-Key                   Description 
-===================== ================================
-id                    Unique Uuid for the Dataset
-revision_id           Latest revision ID for the core Package data (but is not affected by changes to tags, groups, extras, relationships etc)
-metadata_created      Date the Dataset (record) was created
-metadata_modified     Date the Dataset (record) was last modified
-relationships         info on Dataset Relationships
-ratings_average         
-ratings_count            
-ckan_url              full URL of the Dataset
-download_url (API v1) URL of the first Resource
-isopen                boolean indication of whether dataset is open according to Open Knowledge Definition, based on other fields
-notes_rendered        HTML rendered version of the Notes field (which may contain Markdown)
-===================== ================================
-   
+   The REST API was deprecated in CKAN v2.0 and removed starting from CKAN v2.8.
 
 
 Search API
@@ -285,17 +48,17 @@ Here are the methods of the Search API.
 
 +-------------------------------+--------+------------------------+--------------------------+
 | Resource                      | Method | Request                | Response                 |
-+===============================+========+========================+==========================+ 
-| Dataset Search                | POST   | Dataset-Search-Params  | Dataset-Search-Response  | 
++===============================+========+========================+==========================+
+| Dataset Search                | POST   | Dataset-Search-Params  | Dataset-Search-Response  |
 +-------------------------------+--------+------------------------+--------------------------+
-| Resource Search               | POST   | Resource-Search-Params | Resource-Search-Response | 
+| Resource Search               | POST   | Resource-Search-Params | Resource-Search-Response |
 +-------------------------------+--------+------------------------+--------------------------+
-| Revision Search               | POST   | Revision-Search-Params | Revision-List            | 
+| Revision Search               | POST   | Revision-Search-Params | Revision-List            |
 +-------------------------------+--------+------------------------+--------------------------+
-| Tag Counts                    | GET    |                        | Tag-Count-List           | 
+| Tag Counts                    | GET    |                        | Tag-Count-List           |
 +-------------------------------+--------+------------------------+--------------------------+
 
-It is also possible to supply the search parameters in the URL of a GET request, 
+It is also possible to supply the search parameters in the URL of a GET request,
 for example ``/api/search/dataset?q=geodata&amp;allfields=1``.
 
 Search Formats
@@ -307,7 +70,7 @@ Here are the data formats for the Search API.
 | Name                    | Format                                                     |
 +=========================+============================================================+
 | Dataset-Search-Params   | { Param-Key: Param-Value, Param-Key: Param-Value, ... }    |
-| Resource-Search-Params  | See below for full details of search parameters across the | 
+| Resource-Search-Params  | See below for full details of search parameters across the |
 | Revision-Search-Params  | various domain objects.                                    |
 +-------------------------+------------------------------------------------------------+
 | Dataset-Search-Response | { count: Count-int, results: [Dataset, Dataset, ... ] }    |
@@ -417,7 +180,7 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 | Param-Key             | Param-Value   | Example                                             |  Notes                           |
-+=======================+===============+=====================================================+==================================+ 
++=======================+===============+=====================================================+==================================+
 | since_time            | Date-Time     | since_time=2010-05-05T19:42:45.854533               | The time can be less precisely   |
 |                       |               |                                                     | stated (e.g 2010-05-05).         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
@@ -487,31 +250,6 @@ This returns:
 
     {"ResultSet": {"Result": [{"Format": "csv"}]}}
 
-markdown
-````````
-
-Takes a raw markdown string and returns a corresponding chunk of HTML. CKAN uses the basic Markdown format with some modifications (for security) and useful additions (e.g. auto links to datasets etc. e.g. ``dataset:river-quality``).
-
-Example::
-
-    /api/util/markdown?q=<http://ibm.com/>
-
-Returns::
-
-    "<p><a href="http://ibm.com/" target="_blank" rel="nofollow">http://ibm.com/</a>\n</p>"
-
-is slug valid
-`````````````
-
-Checks a name is valid for a new dataset (package) or group, with respect to it being used already.
-
-Example::
-
-    /api/2/util/is_slug_valid?slug=river-quality&type=package
-
-Response::
-
-    {"valid": true}
 
 munge package name
 ``````````````````
@@ -557,13 +295,13 @@ Standard HTTP status codes are used to signal method outcomes.
 ===== =====
 Code  Name
 ===== =====
-200   OK                 
+200   OK
 201   OK and new object created (referred to in the Location header)
-301   Moved Permanently  
-400   Bad Request     
-403   Not Authorized     
-404   Not Found          
+301   Moved Permanently
+400   Bad Request
+403   Not Authorized
+404   Not Found
 409   Conflict (e.g. name already exists)
-500   Service Error           
+500   Service Error
 ===== =====
 
