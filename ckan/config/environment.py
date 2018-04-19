@@ -231,7 +231,6 @@ def update_config():
     config['routes.named_routes'] = routing.named_routes
     config['pylons.app_globals'] = app_globals.app_globals
     # Pylons to Flask legacy route names mapping0
-    import pdb; pdb.set_trace()
     config['legacy_route_mappings'] = json.loads(
                                       config.get('ckan.legacy_route_mappings',
                                                  '{"home":"home.index",\
