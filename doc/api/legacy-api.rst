@@ -84,8 +84,6 @@ Here are the data formats for the Search API.
 | Tag-Count-List          | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
 +-------------------------+------------------------------------------------------------+
 
-The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_.
-
 **Dataset Parameters**
 
 +-----------------------+---------------+----------------------------------+----------------------------------+
