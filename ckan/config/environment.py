@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 '''CKAN environment configuration'''
+import json
 import os
 import logging
 import warnings
@@ -229,6 +230,12 @@ def update_config():
     # routes.named_routes is a CKAN thing
     config['routes.named_routes'] = routing.named_routes
     config['pylons.app_globals'] = app_globals.app_globals
+    # Pylons to Flask legacy route names mapping0
+    import pdb; pdb.set_trace()
+    config['legacy_route_mappings'] = json.loads(
+                                      config.get('ckan.legacy_route_mappings',
+                                                 '{"home":"home.index",\
+                                                   "about": "home.about"}'))
     # initialise the globals
     app_globals.app_globals._init()
 
