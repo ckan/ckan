@@ -6,12 +6,12 @@ Legacy APIs
 
     The legacy APIs documented in this section are provided for
     backwards-compatibility, but support for new CKAN features will not be
-    added to these APIs.
+    added to these APIs. These endpoints will be removed in the future.
 
 
 .. Note::
 
-   The REST API was deprecatred in CKAN v2.0 and droped after CKAN v2.8. 
+   The REST API was deprecated in CKAN v2.0 and removed starting from CKAN v2.8.
 
 
 Search API
@@ -48,17 +48,17 @@ Here are the methods of the Search API.
 
 +-------------------------------+--------+------------------------+--------------------------+
 | Resource                      | Method | Request                | Response                 |
-+===============================+========+========================+==========================+ 
-| Dataset Search                | POST   | Dataset-Search-Params  | Dataset-Search-Response  | 
++===============================+========+========================+==========================+
+| Dataset Search                | POST   | Dataset-Search-Params  | Dataset-Search-Response  |
 +-------------------------------+--------+------------------------+--------------------------+
-| Resource Search               | POST   | Resource-Search-Params | Resource-Search-Response | 
+| Resource Search               | POST   | Resource-Search-Params | Resource-Search-Response |
 +-------------------------------+--------+------------------------+--------------------------+
-| Revision Search               | POST   | Revision-Search-Params | Revision-List            | 
+| Revision Search               | POST   | Revision-Search-Params | Revision-List            |
 +-------------------------------+--------+------------------------+--------------------------+
-| Tag Counts                    | GET    |                        | Tag-Count-List           | 
+| Tag Counts                    | GET    |                        | Tag-Count-List           |
 +-------------------------------+--------+------------------------+--------------------------+
 
-It is also possible to supply the search parameters in the URL of a GET request, 
+It is also possible to supply the search parameters in the URL of a GET request,
 for example ``/api/search/dataset?q=geodata&amp;allfields=1``.
 
 Search Formats
@@ -70,7 +70,7 @@ Here are the data formats for the Search API.
 | Name                    | Format                                                     |
 +=========================+============================================================+
 | Dataset-Search-Params   | { Param-Key: Param-Value, Param-Key: Param-Value, ... }    |
-| Resource-Search-Params  | See below for full details of search parameters across the | 
+| Resource-Search-Params  | See below for full details of search parameters across the |
 | Revision-Search-Params  | various domain objects.                                    |
 +-------------------------+------------------------------------------------------------+
 | Dataset-Search-Response | { count: Count-int, results: [Dataset, Dataset, ... ] }    |
@@ -180,7 +180,7 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 | Param-Key             | Param-Value   | Example                                             |  Notes                           |
-+=======================+===============+=====================================================+==================================+ 
++=======================+===============+=====================================================+==================================+
 | since_time            | Date-Time     | since_time=2010-05-05T19:42:45.854533               | The time can be less precisely   |
 |                       |               |                                                     | stated (e.g 2010-05-05).         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
@@ -250,31 +250,6 @@ This returns:
 
     {"ResultSet": {"Result": [{"Format": "csv"}]}}
 
-markdown
-````````
-
-Takes a raw markdown string and returns a corresponding chunk of HTML. CKAN uses the basic Markdown format with some modifications (for security) and useful additions (e.g. auto links to datasets etc. e.g. ``dataset:river-quality``).
-
-Example::
-
-    /api/util/markdown?q=<http://ibm.com/>
-
-Returns::
-
-    "<p><a href="http://ibm.com/" target="_blank" rel="nofollow">http://ibm.com/</a>\n</p>"
-
-is slug valid
-`````````````
-
-Checks a name is valid for a new dataset (package) or group, with respect to it being used already.
-
-Example::
-
-    /api/2/util/is_slug_valid?slug=river-quality&type=package
-
-Response::
-
-    {"valid": true}
 
 munge package name
 ``````````````````
@@ -320,13 +295,13 @@ Standard HTTP status codes are used to signal method outcomes.
 ===== =====
 Code  Name
 ===== =====
-200   OK                 
+200   OK
 201   OK and new object created (referred to in the Location header)
-301   Moved Permanently  
-400   Bad Request     
-403   Not Authorized     
-404   Not Found          
+301   Moved Permanently
+400   Bad Request
+403   Not Authorized
+404   Not Found
 409   Conflict (e.g. name already exists)
-500   Service Error           
+500   Service Error
 ===== =====
 
