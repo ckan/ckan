@@ -64,7 +64,7 @@ ckan.module('text_view', function (jQuery, _) {
             highlighted = '<pre>' + data + '</pre>';
           }
 
-          self.el.html(highlighted);
+          self.el[0].innerHTML = highlighted;
         },
         error: function(jqXHR, textStatus, errorThrown) {
           if (textStatus == 'error' && jqXHR.responseText.length) {

@@ -268,7 +268,14 @@ class PackageSearchQuery(SearchQuery):
             'wt': 'json',
             'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
 
+        try:
+            if query['q'].startswith('{!'):
+                raise SearchError('Local parameters are not supported.')
+        except KeyError:
+            pass
+
         conn = make_connection()
+
         log.debug('Package query: %r' % query)
         try:
             solr_response = conn.raw_query(**query)
@@ -354,8 +361,14 @@ class PackageSearchQuery(SearchQuery):
             query['mm'] = query.get('mm', '2<-1 5<80%')
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
+        try:
+            if query['q'].startswith('{!'):
+                raise SearchError('Local parameters are not supported.')
+        except KeyError:
+            pass
 
         conn = make_connection()
+
         log.debug('Package query: %r' % query)
         try:
             solr_response = conn.raw_query(**query)

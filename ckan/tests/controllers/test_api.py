@@ -201,6 +201,19 @@ class TestApiController(helpers.FunctionalTestBase):
             status=403,
         )
 
+    def test_jsonp_returns_javascript_content_type(self):
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='status_show',
+            ver='/3')
+        app = self._get_test_app()
+        res = app.get(
+            url=url,
+            params={'callback': 'my_callback'},
+        )
+        assert_in('application/javascript', res.headers.get('Content-Type'))
+
 
 class TestRevisionSearch(helpers.FunctionalTestBase):
 

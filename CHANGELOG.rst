@@ -7,6 +7,27 @@
 Changelog
 ---------
 
+v2.5.8 2018-03-15
+=================
+
+Note: This version requires a database upgrade
+
+* Fix language switcher
+* Activity Time stored in UTC (#2882)
+* Migration script to adjust current activity timestamps to UTC
+* Change CORS header keys and values to string instead of unicode (#3855)
+* Fix cors header when all origins are allowed (#3898)
+* Create datastore indexes only if they are not exist
+* Use javascript content-type for jsonp responses (#4022)
+* Fix SOLR index delete_package implementation
+* Add second half of DataStore set-permissions command(Docs)
+* Update SOLR client (pysolr -> solrpy)
+* Return a 403 if not authorized on the search page (#4081)
+* Add support for user/pass for Solr as ENV var
+* Disallow solr local parameters
+* Improve text view rendering
+* Update Orgs/Groups logic for custom fields delete and update (#4094)
+
 v2.5.7 2017-09-27
 =================
 
