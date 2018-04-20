@@ -116,6 +116,7 @@ class DatasetActivitySessionExtension(SessionExtension):
                             package, "changed", revision, user_id)
                         if activity is None:
                             continue
+                        activities[package.id] = activity
 
         for key, activity in activities.items():
             # Emitting activity
