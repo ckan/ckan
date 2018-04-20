@@ -2007,6 +2007,9 @@ class LessCommand(CkanCommand):
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
         directory = output[0].strip()
+        if not directory:
+            raise error('Command "{}" returned nothing. Check that npm is '
+                        'installed.'.format(command))
         less_bin = os.path.join(directory, 'lessc')
 
         public = config.get(u'ckan.base_public_folder')
