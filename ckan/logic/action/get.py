@@ -3291,10 +3291,11 @@ def activity_show(context, data_dict):
 
 
 def activity_data_show(context, data_dict):
-    '''Show the data from an item of 'activity' (part of the activity stream).
+    '''Show the data from an item of 'activity' (part of the activity
+    stream).
 
-    For example you can get just the old version of a dataset, without the
-    activity stream info of who and when the version was created.
+    For example for a package update this returns just the dataset dict but
+    none of the activity stream info of who and when the version was created.
 
     :param id: the id of the activity
     :type id: string

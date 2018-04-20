@@ -6,7 +6,8 @@ from nose.tools import (
     assert_not_equal,
     assert_raises,
     assert_true,
-    assert_in
+    assert_not_in,
+    assert_in,
 )
 
 from mock import patch, MagicMock
@@ -1747,3 +1748,74 @@ class TestDatasetRead(helpers.FunctionalTestBase):
                       id=dataset['id'])
         response = app.get(url)
         assert_in(dataset['title'], response)
+
+
+class TestActivity(helpers.FunctionalTestBase):
+    '''
+    We don't test the detail of the different kinds of activities - that is
+    tested at the logic layer level.
+    '''
+
+    def test_simple(self):
+        '''Checking the template shows the activity stream.'''
+        app = self._get_test_app()
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        url = url_for(controller='package',
+                      action='activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in(dataset['title'], response)
+        assert_in('created the dataset', response)
+
+    def test_admin_can_see_old_versions(self):
+        app = self._get_test_app()
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        dataset = factories.Dataset(user=user)
+
+        url = url_for(controller='package',
+                      action='activity',
+                      id=dataset['id'])
+        response = app.get(url, extra_environ=env)
+        assert_in('View this version', response)
+
+    def test_public_cant_see_old_versions(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        url = url_for(controller='package',
+                      action='activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_not_in('View this version', response)
+
+    def test_admin_can_see_changes(self):
+        app = self._get_test_app()
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        dataset = factories.Dataset()  # activities by system user aren't shown
+        dataset['title'] = 'Changed'
+        result = helpers.call_action('package_update', **dataset)
+
+        url = url_for(controller='package',
+                      action='activity',
+                      id=dataset['id'])
+        response = app.get(url, extra_environ=env)
+        assert_in('View raw changes', response)
+
+    def test_public_cant_see_changes(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset()  # activities by system user aren't shown
+        dataset['title'] = 'Changed'
+        result = helpers.call_action('package_update', **dataset)
+
+        url = url_for(controller='package',
+                      action='activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_not_in('View raw changes', response)
