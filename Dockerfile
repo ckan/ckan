@@ -26,7 +26,7 @@ RUN ln -s $CKAN_HOME/bin/paster /usr/local/bin/ckan-paster
 # SetUp Requirements
 ADD ./requirements.txt $CKAN_HOME/src/ckan/requirements.txt
 RUN ckan-pip install --upgrade -r $CKAN_HOME/src/ckan/requirements.txt
-RUN ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt
+RUN ckan-pip install --upgrade --no-cache-dir -r $CKAN_HOME/src/ckan/requirement-setuptools.txt
 
 # TMP-BUGFIX https://github.com/ckan/ckan/issues/3388
 ADD ./dev-requirements.txt $CKAN_HOME/src/ckan/dev-requirements.txt
