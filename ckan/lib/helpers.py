@@ -879,6 +879,10 @@ def build_nav(menu_item, title, **kw):
 def map_pylons_to_flask_route_name(menu_item):
     '''returns flask routes for old fashioned route names'''
     old_routes = config['legacy_route_mappings']
+    if menu_item in old_routes:
+        log.info('Route name "{}" is deprecated and will be removed.\
+                Please update calls to use "{}" instead'.format(
+                menu_item, old_routes[menu_item]))
     return old_routes.get(menu_item, menu_item)
 
 
