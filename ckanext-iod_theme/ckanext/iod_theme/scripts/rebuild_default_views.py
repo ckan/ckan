@@ -14,7 +14,13 @@ for package in packages:
     d = {'id': package['name']}
     show = requests.post(site + '/api/3/action/package_show',
                          headers=auth, json=d)
-    data = {'package': show.json()['result'], 'create_datastore_views': True}
+
+    data = {'package': show.json()['result']}
     views = requests.post(
         site + '/api/3/action/package_create_default_resource_views',
         headers=auth, json=data)
+
+    data_in_ds = {'package': show.json()['result'], 'create_datastore_views': True }
+    views = requests.post(
+        site + '/api/3/action/package_create_default_resource_views',
+        headers=auth, json=data_in_ds)
