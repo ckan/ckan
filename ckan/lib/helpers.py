@@ -887,17 +887,15 @@ def map_pylons_to_flask_route_name(menu_item):
     '''returns flask routes for old fashioned route names'''
     # Pylons to Flask legacy route names mappings
     if config.get('ckan.legacy_route_mappings'):
-        config.legacy_route_mappings = LEGACY_ROUTE_NAMES.update(json.loads(
-               config.get('ckan.legacy_route_mappings')))
-    else:
-        config['legacy_route_mappings'] = LEGACY_ROUTE_NAMES
+        if isinstance(config.get('ckan.legacy_route_mappings'), string_types):
+            LEGACY_ROUTE_NAMES.update(json.loads(config.get(
+                'ckan.legacy_route_mappings')))
 
-    old_routes = config['legacy_route_mappings']
-    if menu_item in old_routes:
+    if menu_item in LEGACY_ROUTE_NAMES:
         log.info('Route name "{}" is deprecated and will be removed.\
                 Please update calls to use "{}" instead'.format(
-                menu_item, old_routes[menu_item]))
-    return old_routes.get(menu_item, menu_item)
+                menu_item, LEGACY_ROUTE_NAMES[menu_item]))
+    return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
 
 
 @core_helper
