@@ -885,7 +885,7 @@ LEGACY_ROUTE_NAMES = {
 
 def map_pylons_to_flask_route_name(menu_item):
     '''returns flask routes for old fashioned route names'''
-    # Pylons to Flask legacy route names mapping0
+    # Pylons to Flask legacy route names mappings
     if config.get('ckan.legacy_route_mappings'):
         config.legacy_route_mappings = LEGACY_ROUTE_NAMES.update(json.loads(
                config.get('ckan.legacy_route_mappings')))

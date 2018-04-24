@@ -110,6 +110,17 @@ files, and enables CKAN templates' debugging features.
    With debug mode enabled, a visitor to your site could execute malicious
    commands.
 
+ckan.legacy_route_mappings
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.legacy_route_mappings = {"home":"home.index", "about": "home.about",
+                                  "search": "dataset.search"}
+
+This will prevent extensions from having broken routes if used older (pylons) route namings.
+
+  .. warning:: This configuration will be removed when migration to flask will be finished
 
 Repoze.who Settings
 -------------------
