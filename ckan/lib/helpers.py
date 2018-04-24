@@ -875,6 +875,7 @@ def build_nav(menu_item, title, **kw):
     '''
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
+
 # Legacy route names
 LEGACY_ROUTE_NAMES = {
     'home': 'home.index',
