@@ -152,13 +152,6 @@ CONFIG_FROM_ENV_VARS = {
 # End CONFIG_FROM_ENV_VARS
 
 
-# Legacy route names
-LEGACY_ROUTE_NAMES = {
-    'home': 'home.index',
-    'about': 'home.about',
-}
-
-
 def update_config():
     ''' This code needs to be run when the config is changed to take those
     changes into account. It is called whenever a plugin is loaded as the
@@ -237,13 +230,6 @@ def update_config():
     # routes.named_routes is a CKAN thing
     config['routes.named_routes'] = routing.named_routes
     config['pylons.app_globals'] = app_globals.app_globals
-
-    # Pylons to Flask legacy route names mapping0
-    if config.get('ckan.legacy_route_mappings'):
-        config['legacy_route_mappings'] = LEGACY_ROUTE_NAMES.update(json.loads(
-               config.get('ckan.legacy_route_mappings')))
-    else:
-        config['legacy_route_mappings'] = LEGACY_ROUTE_NAMES
 
     # initialise the globals
     app_globals.app_globals._init()
