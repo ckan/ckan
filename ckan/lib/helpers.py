@@ -875,9 +875,22 @@ def build_nav(menu_item, title, **kw):
     '''
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
+# Legacy route names
+LEGACY_ROUTE_NAMES = {
+    'home': 'home.index',
+    'about': 'home.about',
+}
+
 
 def map_pylons_to_flask_route_name(menu_item):
     '''returns flask routes for old fashioned route names'''
+    # Pylons to Flask legacy route names mapping0
+    if config.get('ckan.legacy_route_mappings'):
+        config.legacy_route_mappings = LEGACY_ROUTE_NAMES.update(json.loads(
+               config.get('ckan.legacy_route_mappings')))
+    else:
+        config['legacy_route_mappings'] = LEGACY_ROUTE_NAMES
+
     old_routes = config['legacy_route_mappings']
     if menu_item in old_routes:
         log.info('Route name "{}" is deprecated and will be removed.\
