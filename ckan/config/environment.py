@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 '''CKAN environment configuration'''
-import json
 import os
 import logging
 import warnings
@@ -230,7 +229,6 @@ def update_config():
     # routes.named_routes is a CKAN thing
     config['routes.named_routes'] = routing.named_routes
     config['pylons.app_globals'] = app_globals.app_globals
-
     # initialise the globals
     app_globals.app_globals._init()
 

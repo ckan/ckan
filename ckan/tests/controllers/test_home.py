@@ -63,6 +63,9 @@ class TestHome(helpers.FunctionalTestBase):
         response = app.get(url_for('my_home_route'))
         assert 'Welcome to CKAN' in response.body
 
+        response = app.get(url_for('home'))
+        assert 'Welcome to CKAN' in response.body
+
 
 class TestI18nURLs(helpers.FunctionalTestBase):
 
