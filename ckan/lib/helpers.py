@@ -65,6 +65,11 @@ MARKDOWN_TAGS = set([
 MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
 MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
 
+LEGACY_ROUTE_NAMES = {
+    'home': 'home.index',
+    'about': 'home.about',
+}
+
 
 class HelperAttributeDict(dict):
     def __init__(self, *args, **kwargs):
@@ -874,13 +879,6 @@ def build_nav(menu_item, title, **kw):
 
     '''
     return _make_menu_item(menu_item, title, icon=None, **kw)
-
-
-# Legacy route names
-LEGACY_ROUTE_NAMES = {
-    'home': 'home.index',
-    'about': 'home.about',
-}
 
 
 def map_pylons_to_flask_route_name(menu_item):

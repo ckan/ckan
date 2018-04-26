@@ -115,12 +115,16 @@ ckan.legacy_route_mappings
 
 Example::
 
-    ckan.legacy_route_mappings = {"home":"home.index", "about": "home.about",
+    ckan.legacy_route_mappings = {"home": "home.index", "about": "home.about",
                                   "search": "dataset.search"}
 
-This will prevent extensions from having broken routes if used older (pylons) route namings.
+Default value: ``{"home": "home.index", "about": "home.about"}``
 
-  .. warning:: This configuration will be removed when migration to flask will be finished
+This can be used when using an extension that is still using old (Pylons-based) route names to
+maintain compatibility.
+
+  .. warning:: This configuration will be removed when migration to Flask is completed. Please
+    update the extension code to use the new Flask-based route names.
 
 Repoze.who Settings
 -------------------
