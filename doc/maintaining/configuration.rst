@@ -110,6 +110,21 @@ files, and enables CKAN templates' debugging features.
    With debug mode enabled, a visitor to your site could execute malicious
    commands.
 
+ckan.legacy_route_mappings
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.legacy_route_mappings = {"home": "home.index", "about": "home.about",
+                                  "search": "dataset.search"}
+
+Default value: ``{"home": "home.index", "about": "home.about"}``
+
+This can be used when using an extension that is still using old (Pylons-based) route names to
+maintain compatibility.
+
+  .. warning:: This configuration will be removed when migration to Flask is completed. Please
+    update the extension code to use the new Flask-based route names.
 
 Repoze.who Settings
 -------------------
