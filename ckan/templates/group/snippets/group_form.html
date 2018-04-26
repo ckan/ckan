@@ -10,12 +10,12 @@
     {{ form.input('title', label=_('Name'), id='field-name', placeholder=_('My Group'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
     {# Perhaps these should be moved into the controller? #}
-    {% set prefix = h.url_for(controller='group', action='read', id='') %}
-    {% set domain = h.url_for(controller='group', action='read', id='', qualified=true) %}
+    {%- set prefix = h.url_for(group_type + '_read', id='') -%}
+    {%- set domain = h.url_for(group_type + '_read', id='', qualified=true) -%}
     {% set domain = domain|replace("http://", "")|replace("https://", "") %}
-    {% set attrs = {'data-module': 'slug-preview-slug', 'class': 'form-control input-sm', 'data-module-prefix': domain, 'data-module-placeholder': '<group>'} %}
+    {% set attrs = {'data-module': 'slug-preview-slug', 'class': 'form-control input-sm', 'data-module-prefix': domain, 'data-module-placeholder': '<' + group_type + '>'} %}
 
-    {{ form.prepend('name', label=_('URL'), prepend=prefix, id='field-url', placeholder=_('my-group'), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
+    {{ form.prepend('name', label=_('URL'), prepend=prefix, id='field-url', placeholder=_('my-' + group_type), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
 
     {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=_('A little information about my group...'), value=data.description, error=errors.description) }}
 
