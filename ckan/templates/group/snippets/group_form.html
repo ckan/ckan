@@ -9,7 +9,6 @@
     {% set attrs = {'data-module': 'slug-preview-target', 'class': 'form-control'} %}
     {{ form.input('title', label=_('Name'), id='field-name', placeholder=_('My Group'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
-    {# Perhaps these should be moved into the controller? #}
     {%- set prefix = h.url_for(group_type + '_read', id='') -%}
     {%- set domain = h.url_for(group_type + '_read', id='', qualified=true) -%}
     {% set domain = domain|replace("http://", "")|replace("https://", "") %}
