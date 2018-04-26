@@ -141,6 +141,7 @@ class TestOrganizationController(helpers.FunctionalTestBase):
         assert 'data-module-placeholder="&lt;{}&gt;"'.format(
             custom_group_type) in response
 
+
 class TestGroupControllerNew(helpers.FunctionalTestBase):
     @classmethod
     def setup_class(cls):
