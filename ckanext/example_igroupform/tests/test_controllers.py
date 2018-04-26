@@ -72,6 +72,19 @@ class TestGroupController(helpers.FunctionalTestBase):
                       id=group_name)
         response = app.get(url=url, extra_environ=env)
 
+    def test_custom_group_form_slug(self):
+        app = self._get_test_app()
+        env, response = _get_group_new_page(app, custom_group_type)
+
+        assert '<span class="input-group-addon">/{}/</span>'.format(
+            custom_group_type) in response
+        assert 'placeholder="my-{}"'.format(
+            custom_group_type) in response
+        assert 'data-module-prefix="test.ckan.net/{}/"'.format(
+            custom_group_type) in response
+        assert 'data-module-placeholder="&lt;{}&gt;"'.format(
+            custom_group_type) in response
+
 
 class TestOrganizationController(helpers.FunctionalTestBase):
     @classmethod
@@ -115,6 +128,18 @@ class TestOrganizationController(helpers.FunctionalTestBase):
                       id=group_name)
         response = app.get(url=url, extra_environ=env)
 
+    def test_custom_org_form_slug(self):
+        app = self._get_test_app()
+        env, response = _get_group_new_page(app, custom_group_type)
+
+        assert '<span class="input-group-addon">/{}/</span>'.format(
+            custom_group_type) in response
+        assert 'placeholder="my-{}"'.format(
+            custom_group_type) in response
+        assert 'data-module-prefix="test.ckan.net/{}/"'.format(
+            custom_group_type) in response
+        assert 'data-module-placeholder="&lt;{}&gt;"'.format(
+            custom_group_type) in response
 
 class TestGroupControllerNew(helpers.FunctionalTestBase):
     @classmethod
