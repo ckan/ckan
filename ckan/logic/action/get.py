@@ -2574,6 +2574,7 @@ def package_activity_list(context, data_dict):
     # authorized to read.
     data_dict['object_type'] = 'package'
     data_dict['include_data'] = False
+    include_hidden_activity = asbool(context.get('include_hidden_activity'))
     _check_access('activity_list_show', context, data_dict)
 
     model = context['model']
@@ -2589,8 +2590,11 @@ def package_activity_list(context, data_dict):
 
     _activity_objects = model.activity.package_activity_list(package.id,
             limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    if not include_hidden_activity:
+        activity_objects = _filter_activity_by_user(
+            _activity_objects, _activity_stream_get_filtered_users())
+    else:
+        activity_objects = _activity_objects
 
     return model_dictize.activity_list_dictize(
         activity_objects, context, include_data=data_dict['include_data'])
