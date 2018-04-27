@@ -3376,7 +3376,8 @@ def activity_diff(context, data_dict):
         raise NotFound('Could not find object in the activity data')
     # convert each object dict to 'pprint'-style
     # and split into lines to suit difflib
-    obj_lines = [json.dumps(obj, indent=2).split('\n') for obj in objs]
+    obj_lines = [json.dumps(obj, indent=2, sort_keys=True).split('\n')
+                 for obj in objs]
 
     # do the diff
     if diff_type == 'unified':
