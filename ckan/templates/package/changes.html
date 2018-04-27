@@ -1,0 +1,36 @@
+{% extends "package/base.html" %}
+
+{% block subtitle %}{{ pkg_dict.name }} - Changes - {{ super() }}{% endblock %}
+
+{% block breadcrumb_content_selected %}{% endblock %}
+
+{% block breadcrumb_content %}
+  {{ super() }}
+  <li>{% link_for _('Changes'), controller='package', action='activity', id=pkg_dict.name %}</li>
+  <li class="active">{% link_for activity_diff.activities[1].id|truncate(30), controller='package', action='changes', activity_id=activity_diff.activities[1].id %}</li>
+{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      {% block package_changes_header %}
+        <h1 class="page-heading">{{ _('Changes') }}</h1>
+        Dataset: {% link_for pkg_dict.title, controller='package', action='read', id=pkg_dict.name %}
+        {% if activity_diff.activities[1].data.package.title != pkg_dict.title %}
+          (which had title "{{ activity_diff.activities[1].data.package.title }}" at the time)
+        {% endif %}<br>
+        User: {{ h.linked_user(activity_diff.activities[1].user_id) }}<br>
+        Date: {{ h.render_datetime(activity_diff.activities[1].timestamp, with_hours=True, with_seconds=True) }}<br>
+        Compared to previous version from date: {{ h.render_datetime(activity_diff.activities[0].timestamp, with_hours=True, with_seconds=True) }})<br>
+      {% endblock %}
+
+      {% block package_changes_diff %}
+        <pre>
+          {{ activity_diff['diff']|safe }}
+        </pre>
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary %}{% endblock %}
