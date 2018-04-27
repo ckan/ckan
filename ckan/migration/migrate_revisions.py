@@ -99,7 +99,7 @@ def migrate_dataset(dataset_name):
             print '    Full dataset already recorded - no action'
         else:
             activity_obj.data = data
-            #print '    {} dataset {}'.format(actor_name, repr(dataset))
+            # print '    {} dataset {}'.format(actor_name, repr(dataset))
     if model.Session.dirty:
         model.Session.commit()
         print '  saved'
