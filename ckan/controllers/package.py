@@ -376,14 +376,20 @@ class PackageController(base.BaseController):
                 abort(404, _('Activity not found'))
             except NotAuthorized:
                 abort(403, _('Unauthorized to view activity data'))
+            current_pkg = c.pkg_dict
             try:
                 c.pkg_dict = activity['data']['package']
             except KeyError:
                 abort(404, _('Dataset not found'))
-            if c.pkg_dict['id'] != id:
+            if c.pkg_dict['id'] != current_pkg['id']:
+                log.info('Mismatch between pkg id in activity and URL {} {}'
+                         .format(c.pkg_dict['id'], current_pkg['id']))
                 # the activity is not for the package in the URL - don't allow
                 # misleading URLs as could be malicious
                 abort(404, _('Activity not found'))
+            # The name is used lots in the template for links, so fix it to be
+            # the current one. It's not displayed to the user anyway.
+            c.pkg_dict['name'] = current_pkg['name']
 
             # Earlier versions of CKAN only stored the package table in the
             # activity, so add a placeholder for resources, or the template
@@ -1016,6 +1022,7 @@ class PackageController(base.BaseController):
         if activity_id:
             # view an 'old' version of the package, as recorded in the
             # activity stream
+            current_pkg = c.package
             try:
                 c.package = context['session'].query(model.Activity).get(
                     activity_id
@@ -1023,13 +1030,18 @@ class PackageController(base.BaseController):
             except AttributeError:
                 abort(404, _('Dataset not found'))
 
-            if c.package['id'] != id:
+            if c.package['id'] != current_pkg['id']:
+                log.info('Mismatch between pkg id in activity and URL {} {}'
+                         .format(c.pkg_dict['id'], current_pkg['id']))
                 # the activity is not for the package in the URL - don't allow
                 # misleading URLs as could be malicious
                 abort(404, _('Activity not found'))
+            # The name is used lots in the template for links, so fix it to be
+            # the current one. It's not displayed to the user anyway.
+            c.package['name'] = current_pkg['name']
 
-            # Don't crash on old activity records, which do not include
-            # resources or extras.
+            # Don't crash on old (unmigrated) activity records, which do not
+            # include resources or extras.
             c.package.setdefault('resources', [])
 
         for resource in c.package.get('resources', []):
@@ -1266,7 +1278,7 @@ class PackageController(base.BaseController):
             extra_vars={
                 'dataset_type': dataset_type,
                 'activity_stream': c.package_activity_stream,
-                'id': id,
+                'id': id,  # i.e. package's current name
                 }
         )
 
