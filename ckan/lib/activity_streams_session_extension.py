@@ -58,12 +58,6 @@ class DatasetActivitySessionExtension(SessionExtension):
         # objects.
         activities = {}
 
-        # The second-level objects that we will append to the activity_detail
-        # table. Each row in the activity table has zero or more related rows
-        # in the activity_detail table. The keys here are activity IDs, and the
-        # values are lists of model.activity:ActivityDetail objects.
-        activity_details = {}
-
         # Log new packages first to prevent them from getting incorrectly
         # logged as changed packages.
         # Looking for new packages...
