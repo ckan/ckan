@@ -47,7 +47,7 @@ class RatingsTestCase(BaseModelApiTestCase):
 
         offset = self.rating_offset(self.anna.name)
         res = self.app.get(offset, status=[200])
-        assert_equal(res, rating_opts['rating'])
+        assert_equal(res, rating_opts['rating'])  # noqa: test not implemented
 
     def test_register_post(self):
         # Test Rating Register Post 200.
