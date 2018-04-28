@@ -389,7 +389,6 @@ class PackageController(base.BaseController):
             # activity, so add a placeholder for resources, or the template
             # will crash.
             c.pkg_dict.setdefault('resources', [])
-            c.is_activity_archive = True
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
@@ -411,7 +410,10 @@ class PackageController(base.BaseController):
         template = self._read_template(package_type)
         try:
             return render(template,
-                          extra_vars={'dataset_type': package_type})
+                          extra_vars={
+                              'dataset_type': package_type,
+                              'is_activity_archive': bool(activity_id),
+                          })
         except ckan.lib.render.TemplateNotFound as e:
             msg = _(
                 "Viewing datasets of type \"{package_type}\" is "
@@ -1029,7 +1031,6 @@ class PackageController(base.BaseController):
             # Don't crash on old activity records, which do not include
             # resources or extras.
             c.package.setdefault('resources', [])
-            c.is_activity_archive = True
 
         for resource in c.package.get('resources', []):
             if resource['id'] == resource_id:
@@ -1079,7 +1080,8 @@ class PackageController(base.BaseController):
 
         vars = {'resource_views': resource_views,
                 'current_resource_view': current_resource_view,
-                'dataset_type': dataset_type}
+                'dataset_type': dataset_type,
+                'is_activity_archive': bool(activity_id)}
 
         template = self._resource_template(dataset_type)
         return render(template, extra_vars=vars)

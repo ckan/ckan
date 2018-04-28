@@ -3,6 +3,7 @@ Renders a list of resources with icons and view links.
 
 resources - A list of resources to render
 pkg - A package object that the resources belong to.
+is_activity_archive - Whether this is an old version of the dataset (and therefore read-only)
 
 Example:
 
@@ -15,14 +16,14 @@ Example:
     {% if resources %}
       <ul class="{% block resource_list_class %}resource-list{% endblock %}">
         {% block resource_list_inner %}
-          {% set can_edit = h.check_access('package_update', {'id':pkg.id }) and not c.is_activity_archive %}
+          {% set can_edit = h.check_access('package_update', {'id':pkg.id }) and not is_activity_archive %}
           {% for resource in resources %}
             {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, can_edit=can_edit %}
           {% endfor %}
         {% endblock %}
       </ul>
     {% else %}
-      {% if h.check_access('resource_create', {'package_id': pkg['id']}) %}
+      {% if h.check_access('resource_create', {'package_id': pkg['id']}) and not is_activity_archive %}
           {% trans url=h.url_for(controller='package', action='new_resource', id=pkg.name) %}
             <p class="empty">This dataset has no data, <a href="{{ url }}">why not add some?</a></p>
           {% endtrans %}

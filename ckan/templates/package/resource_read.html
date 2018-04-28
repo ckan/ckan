@@ -27,7 +27,7 @@
           {% block resource_actions %}
           <ul>
             {% block resource_actions_inner %}
-            {% if h.check_access('package_update', {'id':pkg.id }) and not c.is_activity_archive %}
+            {% if h.check_access('package_update', {'id':pkg.id }) and not is_activity_archive %}
               <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
             {% endif %}
             {% if res.url and h.is_url(res.url) %}
@@ -71,7 +71,7 @@
         </div>
         {% block resource_content %}
           {% block package_archive_notice %}
-            {% if c.is_activity_archive %}
+            {% if is_activity_archive %}
               <div id="activity-archive-notice" class="alert alert-danger">
                 {% trans url=h.url_for(controller='package', action='read', id=pkg.id) %}
                 You're currently viewing an old version of this dataset. To see the

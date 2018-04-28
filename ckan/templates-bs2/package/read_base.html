@@ -10,7 +10,7 @@
 {% endblock -%}
 
 {% block content_action %}
-  {% if not c.is_activity_archive %}
+  {% if not is_activity_archive %}
     {% if h.check_access('package_update', {'id':pkg.id }) %}
       {% link_for _('Manage'), controller='package', action='edit', id=pkg.name, class_='btn', icon='wrench' %}
     {% endif %}

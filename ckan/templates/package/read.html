@@ -12,7 +12,7 @@
       </span>
     {% endif %}
     {% block package_archive_notice %}
-      {% if c.is_activity_archive %}
+      {% if is_activity_archive %}
         <div class="alert alert-danger">
           {% trans url=h.url_for(controller='package', action='read', id=pkg.id) %}
           You're currently viewing an old version of this dataset. To see the
@@ -44,7 +44,7 @@
   {% endblock %}
 
   {% block package_resources %}
-    {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
+    {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources, is_activity_archive=is_activity_archive %}
   {% endblock %}
 
   {% block package_tags %}
