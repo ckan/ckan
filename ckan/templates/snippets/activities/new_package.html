@@ -10,7 +10,7 @@
       {{ h.time_ago_from_timestamp(activity.timestamp) }}
       {% if can_show_activity_detail %}
         &nbsp;|&nbsp;
-        <a href="{{ h.url_for(controller='package', action='read', id=id, activity_id=activity.id) }}">
+        <a href="{{ h.url_for(controller='package', action='read', id=activity.object_id, activity_id=activity.id) }}">
           {{ _('View this version') }}
         </a>
       {% endif %}
