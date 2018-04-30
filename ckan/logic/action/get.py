@@ -1241,7 +1241,7 @@ def group_show(context, data_dict):
          (optional, default: ``True``)
     :type include_groups: bool
     :param include_tags: include the group's tags
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_tags: bool
     :param include_followers: include the group's number of followers
          (optional, default: ``True``)
