@@ -65,6 +65,11 @@ MARKDOWN_TAGS = set([
 MARKDOWN_ATTRIBUTES = copy.deepcopy(ALLOWED_ATTRIBUTES)
 MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
 
+LEGACY_ROUTE_NAMES = {
+    'home': 'home.index',
+    'about': 'home.about',
+}
+
 
 class HelperAttributeDict(dict):
     def __init__(self, *args, **kwargs):
@@ -305,6 +310,9 @@ def url_for(*args, **kw):
             _auto_flask_context.push()
 
         # First try to build the URL with the Flask router
+        # Temporary mapping for pylons to flask route names
+        if len(args):
+            args = (map_pylons_to_flask_route_name(args[0]),)
         my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
@@ -873,6 +881,21 @@ def build_nav(menu_item, title, **kw):
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
 
+def map_pylons_to_flask_route_name(menu_item):
+    '''returns flask routes for old fashioned route names'''
+    # Pylons to Flask legacy route names mappings
+    if config.get('ckan.legacy_route_mappings'):
+        if isinstance(config.get('ckan.legacy_route_mappings'), string_types):
+            LEGACY_ROUTE_NAMES.update(json.loads(config.get(
+                'ckan.legacy_route_mappings')))
+
+    if menu_item in LEGACY_ROUTE_NAMES:
+        log.info('Route name "{}" is deprecated and will be removed.\
+                Please update calls to use "{}" instead'.format(
+                menu_item, LEGACY_ROUTE_NAMES[menu_item]))
+    return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
+
+
 @core_helper
 def build_extra_admin_nav():
     '''Build extra navigation items used in ``admin/base.html`` for values
@@ -906,6 +929,7 @@ def _make_menu_item(menu_item, title, **kw):
 
     This function is called by wrapper functions.
     '''
+    menu_item = map_pylons_to_flask_route_name(menu_item)
     _menu_items = config['routes.named_routes']
     if menu_item not in _menu_items:
         raise Exception('menu item `%s` cannot be found' % menu_item)

@@ -94,7 +94,7 @@ def load_environment(global_conf, app_conf):
     pylons_config.init_app(global_conf, app_conf, package='ckan', paths=paths)
 
     # Update the main CKAN config object with the Pylons specific stuff, as it
-    # quite hard to keep them separated. This should be removed once Pylons
+    # is quite hard to keep them separated. This should be removed once Pylons
     # support is dropped
     config.update(pylons_config)
 

@@ -56,6 +56,16 @@ class TestHome(helpers.FunctionalTestBase):
 
         assert 'add your email address' not in response
 
+    @helpers.change_config('ckan.legacy_route_mappings',
+                           '{"my_home_route": "home.index"}')
+    def test_map_pylons_to_flask_route(self):
+        app = self._get_test_app()
+        response = app.get(url_for('my_home_route'))
+        assert 'Welcome to CKAN' in response.body
+
+        response = app.get(url_for('home'))
+        assert 'Welcome to CKAN' in response.body
+
 
 class TestI18nURLs(helpers.FunctionalTestBase):
 
