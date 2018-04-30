@@ -1184,7 +1184,10 @@ def _group_or_org_show(context, data_dict, is_org=False):
         packages_field = None
 
     include_tags = asbool(data_dict.get('include_tags', True))
-    include_users = asbool(data_dict.get('include_users', True))
+    if asbool(config.get('ckan.public_user_details', True)):
+        include_users = asbool(data_dict.get('include_users', True))
+    else:
+        include_users = asbool(data_dict.get('include_users', False))
     include_groups = asbool(data_dict.get('include_groups', True))
     include_extras = asbool(data_dict.get('include_extras', True))
     include_followers = asbool(data_dict.get('include_followers', True))
@@ -1261,7 +1264,7 @@ def group_show(context, data_dict):
          (optional, default: ``True``)
     :type include_groups: bool
     :param include_tags: include the group's tags
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_tags: bool
     :param include_followers: include the group's number of followers
          (optional, default: ``True``)
