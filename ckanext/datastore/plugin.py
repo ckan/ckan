@@ -117,7 +117,8 @@ class DatastorePlugin(p.SingletonPlugin):
                      'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
-            self._create_alias_table()
+            # IW: disable until this is removed by upgrade to 2.7
+            #self._create_alias_table()
 
     def notify(self, entity, operation=None):
         if not isinstance(entity, model.Package) or self.legacy_mode:
