@@ -24,7 +24,7 @@
 <!-- We update the version when there is a backward-incompatible change to this
 schema. In this case the version should be set to the next CKAN version number.
 (x.y but not x.y.z since it needs to be a float) -->
-<schema name="ckan" version="2.81">
+<schema name="ckan" version="2.9">
 
 <types>
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
