@@ -1184,7 +1184,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
         packages_field = None
 
     include_tags = asbool(data_dict.get('include_tags', True))
-    if asbool(config.get('ckan.public_user_details', True)):
+    if asbool(config.get('ckan.auth.public_user_details', True)):
         include_users = asbool(data_dict.get('include_users', True))
     else:
         include_users = asbool(data_dict.get('include_users', False))
