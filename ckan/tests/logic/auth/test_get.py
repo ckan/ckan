@@ -14,7 +14,7 @@ from ckan import model
 
 class TestUserListAuth(object):
 
-    @helpers.change_config(u'ckan.public_user_details', u'false')
+    @helpers.change_config(u'ckan.auth.public_user_details', u'false')
     def test_auth_user_list(self):
         context = {'user': None,
                    'model': model}
@@ -32,7 +32,7 @@ class TestUserShowAuth(object):
     def setup(self):
         helpers.reset_db()
 
-    @helpers.change_config(u'ckan.public_user_details', u'false')
+    @helpers.change_config(u'ckan.auth.public_user_details', u'false')
     def test_auth_user_show(self):
         fred = factories.User(name='fred')
         fred['capacity'] = 'editor'
@@ -115,7 +115,7 @@ class TestGroupShowAuth(object):
                                 id=org['name'])
         assert ret
 
-    @helpers.change_config(u'ckan.public_user_details', u'false')
+    @helpers.change_config(u'ckan.auth.public_user_details', u'false')
     def test_group_show__user_is_hidden_to_public(self):
         group = factories.Group()
         context = {'model': model}
