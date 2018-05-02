@@ -25,4 +25,4 @@ for package in packages:
                                             json={'user': sysadmin,
                                             'resource_id': r['id'],
                                             'ignore_hash': 'True'})
-    		print upload_resource
+    	print upload_resource
