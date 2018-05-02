@@ -61,15 +61,6 @@ class _TestSync(TestController):
         else:
             return json.loads(res)
 
-    def test_0_check_setup(self):
-        offset = '/api/rest/package'
-        resB = self.app.get(offset).body
-        resA = self.sub_app_get(offset)
-        pkgsB = json.loads(resB or '[]')
-        pkgsA = json.loads(resA or '[]')
-        assert len(pkgsA) == 2
-        assert len(pkgsB) == 0
-
     def test_1_first_sync(self):
         server = self._last_synced_revision_id.keys()[0]
         assert server == 'http://localhost:5050'
