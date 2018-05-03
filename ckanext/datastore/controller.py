@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import unicodecsv
 from ckan.plugins.toolkit import (
     Invalid,
     ObjectNotFound,
@@ -107,6 +108,30 @@ class DatastoreController(BaseController):
         return render(
             'datastore/dictionary.html',
             extra_vars={'fields': fields})
+
+
+    def dictionary_download(self, resource_id):
+        try:
+            resource_datastore = get_action('datastore_search')(None, {
+                'resource_id': resource_id,
+                'limit': 0})
+        except (ObjectNotFound, NotAuthorized):
+            abort(404, _('Resource not found'))
+
+        fields = [f for f in resource_datastore['fields'] if not f['id'].startswith('_')]
+        header = ['column','type','label','description']
+
+        if hasattr(response, u'headers'):
+            response.headers['Content-Type'] = b'text/csv; charset=utf-8'
+            response.headers['Content-disposition'] = (
+                b'attachment; filename="{name}-data-dictionary.csv"'.format(name=resource_id))
+
+        wr = unicodecsv.writer(response, encoding=u'utf-8')
+        wr.writerow(col for col in header)
+        for field in fields:
+            field_info = field.get('info',{})
+            row = [field['id'], field['type'], field_info.get('label',''), field_info.get('notes','')]
+            wr.writerow(item for item in row)
 
 
 def dump_to(resource_id, output, fmt, offset, limit, options):
