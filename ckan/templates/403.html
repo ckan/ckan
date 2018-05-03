@@ -1,0 +1,16 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ gettext('Error %(error_code)s', error_code=code) }}{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      <p class="text-info">{{content}}</p>
+    </div>
+  </article>
+{% endblock %}
+
+{% block breadcrumb %}
+{% endblock %}
+
+{% block secondary %}{% endblock %}

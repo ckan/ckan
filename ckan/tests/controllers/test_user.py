@@ -242,8 +242,9 @@ class TestUserEdit(helpers.FunctionalTestBase):
         app = self._get_test_app()
         response = app.get(
             url_for('user.edit', id='unknown_person'),
-            status=403
-        )
+            status=200)
+
+        assert_true('Unauthorized to edit a user.' in response)
 
     def test_user_edit_not_logged_in(self):
         '''Attempt to read edit user for an existing, not-logged in user
@@ -253,8 +254,9 @@ class TestUserEdit(helpers.FunctionalTestBase):
         username = user['name']
         response = app.get(
             url_for('user.edit', id=username),
-            status=403
+            status=200
         )
+        assert_true('Unauthorized to edit a user.' in response)
 
     def test_edit_user(self):
         user = factories.User(password='TestPassword1')
