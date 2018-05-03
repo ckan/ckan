@@ -193,10 +193,11 @@ def is_authorized(action, context, data_dict=None):
                     return {'success': True}
 
         # If the auth function is flagged as not allowing anonymous access,
-        # and an existing user object is not provided in the context, deny
-        # access straight away
+        # and an existing user object is not provided in the context, or the
+        # user is not logged in, deny access straight away
+        logged_in = context.get('auth_user_obj') or auth_is_loggedin_user()
         if not getattr(auth_function, 'auth_allow_anonymous_access', False) \
-           and not context.get('auth_user_obj'):
+           and not logged_in:
             return {
                 'success': False,
                 'msg': 'Action {0} requires an authenticated user'.format(
