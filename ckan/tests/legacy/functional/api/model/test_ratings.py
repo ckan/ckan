@@ -23,18 +23,6 @@ class RatingsTestCase(BaseModelApiTestCase):
     def teardown_class(cls):
         model.repo.rebuild_db()
 
-    def test_entity_get(self):
-        raise SkipTest('"Rating entity get" functionality is not implemented')
-        rating = model.Rating(user_ip_address='1.2.3.4',
-                              package=self.anna,
-                              rating=4.0)
-        model.Session.add(rating)
-        model.repo.commit_and_remove()
-
-        offset = self.rating_offset(self.anna.name)
-        res = self.app.get(offset, status=[200])
-        assert_equal(res, rating_opts['rating'])
-
     def test_register_post(self):
         # Test Rating Register Post 200.
         self.clear_all_tst_ratings()
