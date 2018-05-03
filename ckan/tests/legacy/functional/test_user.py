@@ -67,7 +67,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         url = url_for('user.delete', id=user.id)
         extra_environ = {'REMOTE_USER': 'an_unauthorized_user'}
 
-        self.app.post(url, status=403, extra_environ=extra_environ)
+        res = self.app.post(url, status=200, extra_environ=extra_environ)
+        assert 'Unauthorized to delete user with id' in res.body
 
     def test_user_read_without_id(self):
         offset = '/user/'
@@ -111,7 +112,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                          action='perform_reset',
                          id=user.id,
                          key='randomness') # i.e. incorrect
-        res = self.app.get(offset, status=403) # error
+        res = self.app.get(offset, status=200) # error
+        assert 'Invalid reset key. Please try again.' in res.body
 
     def test_perform_reset_user_password_link_key_missing(self):
         CreateTestData.create_user(name='jack', password='TestPassword1')
@@ -119,7 +121,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         offset = url_for(controller='user',
                          action='perform_reset',
                          id=user.id)  # not, no key specified
-        res = self.app.get(offset, status=403) # error
+        res = self.app.get(offset, status=200) # error
+        assert 'Invalid reset key. Please try again.' in res.body
 
 
     def test_perform_reset_user_password_link_user_incorrect(self):
@@ -162,7 +165,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                          action='perform_reset',
                          id=user.id,
                          key=user.reset_key)
-        res = self.app.post(offset, params=params, status=403)
-
+        res = self.app.post(offset, params=params, status=200)
+        assert 'Unauthorized to reset password.' in res.body
         user = model.User.get(user.id)
         assert user.is_deleted(), user
