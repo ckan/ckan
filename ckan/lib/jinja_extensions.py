@@ -35,7 +35,6 @@ def get_jinja_env_options():
                     ResourceExtension,
                     UrlForStaticExtension,
                     UrlForExtension],
-        bytecode_cache=FileSystemBytecodeCache()
     )
 
 
