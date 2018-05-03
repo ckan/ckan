@@ -7,6 +7,20 @@
   value='True',
   checked=data.responsive,
   ) }}
+{{ form.checkbox(
+  'export_buttons',
+  id='field-export_buttons',
+  label=_('Export buttons'),
+  value='True',
+  checked=data.export_buttons,
+  ) }}
+  {{ form.checkbox(
+    'col_reorder',
+    id='field-col_reorder',
+    label=_('Column reorder'),
+    value='True',
+    checked=data.col_reorder,
+    ) }}
 
 <div class="control-group">
   <label class="control-label">{{ _('Show Columns') }}</label>

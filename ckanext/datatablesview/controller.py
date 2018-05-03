@@ -46,7 +46,7 @@ class DataTablesController(BaseController):
             u"resource_id": resource_view[u'resource_id'],
             u"offset": offset,
             u"limit": limit,
-            u"sort": u', '.join(sort_list),
+            u"sort": sort_list,
             u"filters": filters,
         })
 

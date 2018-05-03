@@ -19,6 +19,11 @@
         data-responsive="false"
         data-scroll-x="true"
       {% endif %}
+      {% if resource_view.get('col_reorder') %}
+        data-col-reorder="true"
+      {% else %}
+        data-col-reorder="false"
+      {% endif %}
       data-fixed-header="true"
       data-fixed-columns="true"
       data-dom='"Blifrtip"'
@@ -48,4 +53,18 @@
 {% endblock %}
 
 {% block styles %}{% endblock %}
-{% block custom_styles %}{% endblock %}
+{% block custom_styles %}
+<style>
+  @media (min-width: 767px) {
+    .dt-buttons {
+      float: right;
+    }
+    div.dataTables_wrapper div.dataTables_info {
+      float: left;
+    }
+    div.dataTables_wrapper div.dataTables_filter {
+      padding-top: 8px;
+    }
+  }
+</style>
+{% endblock %}
