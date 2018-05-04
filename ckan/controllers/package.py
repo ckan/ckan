@@ -501,7 +501,7 @@ class PackageController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to create a package'))
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_new(context, package_type=package_type)
 
         data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
@@ -749,7 +749,7 @@ class PackageController(base.BaseController):
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'save': 'save' in request.params}
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_edit(id, context, package_type=package_type)
         try:
             c.pkg_dict = get_action('package_show')(dict(context,
