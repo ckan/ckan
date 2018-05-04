@@ -489,7 +489,7 @@ class GroupController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to create a group'))
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_new(context, group_type)
 
         data = data or {}
@@ -520,7 +520,7 @@ class GroupController(base.BaseController):
                    }
         data_dict = {'id': id, 'include_datasets': False}
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_edit(id, context)
 
         try:
