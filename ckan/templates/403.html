@@ -5,7 +5,7 @@
 {% block primary %}
   <article class="module">
     <div class="module-content">
-      <p class="text-warning">{{content}}</p>
+      <p class="text-info">{{content}}</p>
     </div>
   </article>
 {% endblock %}
@@ -13,10 +13,4 @@
 {% block breadcrumb %}
 {% endblock %}
 
-{% block flash %}
-  {# eat the flash messages caused by the 404 #}
-  {% set flash_messages = h.flash.pop_messages() %}
-{% endblock %}
-
 {% block secondary %}{% endblock %}
-
