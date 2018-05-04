@@ -419,7 +419,6 @@ class TestUser(object):
             "You are now following {0}".format(user_two["display_name"])
             in response
         )
-        assert_true('Unauthorized to edit a user.' in response)
 
     def test_user_follow_not_exist(self, app):
         """Pass an id for a user that doesn't exist"""
