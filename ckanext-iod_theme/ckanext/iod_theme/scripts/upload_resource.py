@@ -25,4 +25,10 @@ for package in packages:
                                             json={'user': sysadmin,
                                             'resource_id': r['id'],
                                             'ignore_hash': 'True'})
-    	print upload_resource
+            print upload_resource
+        else:
+            print 'Updating resource: ', r['id']
+            update_resource = requests.post(site + '/api/3/action/update_resource',
+                                            headers=auth,
+                                            json=r)
+            print update_resource
