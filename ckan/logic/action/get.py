@@ -53,7 +53,7 @@ _text = sqlalchemy.text
 
 def _filter_activity_by_user(activity_list, users=[]):
     '''
-    Return the given ``activity_list`` with activities from the specified
+    Return the given ``activity_list`` but with activities from the specified
     users removed. The users parameters should be a list of ids.
 
     A *new* filtered list is returned, the given ``activity_list`` itself is
@@ -65,6 +65,27 @@ def _filter_activity_by_user(activity_list, users=[]):
     for activity in activity_list:
         if activity.user_id not in users:
             new_list.append(activity)
+    return new_list
+
+
+def _filter_activity_tuples_by_user(activity_tuple_list, users=[]):
+    '''
+    This is the sister of _filter_activity_by_user, but for 'activity tuples'.
+
+    Return the given ``activity_tuple_list``, whose first in each tuple is an
+    activity, but with tuples removed where they are activities by the
+    specified users. The users parameters should be a list of ids.
+
+    A *new* filtered list is returned, the given ``activity_list`` itself is
+    not modified.
+    '''
+    if not len(users):
+        return activity_tuple_list
+    new_list = []
+    for activity_tuple in activity_tuple_list:
+        activity = activity_tuple[0]
+        if activity.user_id not in users:
+            new_list.append(activity_tuple)
     return new_list
 
 
@@ -2633,12 +2654,13 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(group_id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_tuple_objects = model.activity.group_activity_list(
+        group_id, limit=limit, offset=offset)
+    activity_tuple_objects = _filter_activity_tuples_by_user(
+        _activity_tuple_objects, _activity_stream_get_filtered_users())
 
-    return model_dictize.activity_list_dictize(activity_objects, context)
+    return model_dictize.group_activity_list_dictize(
+        activity_tuple_objects, context)
 
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2665,12 +2687,13 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(org_id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_tuple_objects = model.activity.group_activity_list(
+        org_id, limit=limit, offset=offset)
+    activity_tuple_objects = _filter_activity_tuples_by_user(
+        _activity_tuple_objects, _activity_stream_get_filtered_users())
 
-    return model_dictize.activity_list_dictize(activity_objects, context)
+    return model_dictize.group_activity_list_dictize(
+        activity_tuple_objects, context)
 
 
 @logic.validate(logic.schema.default_pagination_schema)

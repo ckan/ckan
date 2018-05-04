@@ -194,6 +194,10 @@ def _group_activity_query(group_id):
     Returns a query for all activities whose object is either the group itself
     or one of the group's datasets.
 
+    Results are tuples of type:
+        (Activity, Group.name, Group.title, Package.name, Package.title)
+    where each time one of the Group or Package is populated and one is None.
+
     '''
     import ckan.model as model
 
@@ -203,7 +207,8 @@ def _group_activity_query(group_id):
         return model.Session.query(model.Activity).filter(text('0=1'))
 
     q = model.Session.query(
-        model.Activity
+        model.Activity, model.Group.name, model.Group.title,
+        model.Package.name, model.Package.title
     ).outerjoin(
         model.Member,
         and_(
@@ -216,6 +221,12 @@ def _group_activity_query(group_id):
             model.Package.id == model.Member.table_id,
             model.Package.private == False,
             model.Package.state == 'active'
+        )
+    ).outerjoin(
+        model.Group,
+        and_(
+            model.Activity.object_id == model.Group.id,
+            model.Group.state == 'active'
         )
     ).filter(
         # We only care about activity either on the the group itself or on
@@ -235,16 +246,20 @@ def _group_activity_query(group_id):
 def group_activity_list(group_id, limit, offset):
     '''Return the given group's public activity stream.
 
-    Returns all activities where the given group or one of its datasets is the
+    Returns activities where the given group or one of its datasets is the
     object of the activity, e.g.:
 
     "{USER} updated the group {GROUP}"
     "{USER} updated the dataset {DATASET}"
     etc.
 
+    Results are tuples of type:
+        (Activity, Group.name, Group.title, Package.name, Package.title)
+    where each time one of the Group or Package is populated and one is None.
     '''
     q = _group_activity_query(group_id)
-    return _activities_at_offset(q, limit, offset)
+    results = _activities_at_offset(q, limit, offset)
+    return results
 
 
 def _activites_from_users_followed_by_user_query(user_id, limit):
