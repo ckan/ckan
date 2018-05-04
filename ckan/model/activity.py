@@ -176,7 +176,7 @@ def _package_activity_query(package_id):
 def package_activity_list(package_id, limit, offset):
     '''Return the given dataset (package)'s public activity stream.
 
-    Returns all activities  about the given dataset, i.e. where the given
+    Returns all activities about the given dataset, i.e. where the given
     dataset is the object of the activity, e.g.:
 
     "{USER} created the dataset {DATASET}"
@@ -195,8 +195,10 @@ def _group_activity_query(group_id):
     or one of the group's datasets.
 
     Results are tuples of type:
-        (Activity, Group.name, Group.title, Package.name, Package.title)
-    where each time one of the Group or Package is populated and one is None.
+        (Activity, Group.name, Group.title, Group.is_organization,
+         Package.name, Package.title)
+    where each time one of the Group or Package is populated and the other is
+    None.
 
     '''
     import ckan.model as model
@@ -207,7 +209,8 @@ def _group_activity_query(group_id):
         return model.Session.query(model.Activity).filter(text('0=1'))
 
     q = model.Session.query(
-        model.Activity, model.Group.name, model.Group.title,
+        model.Activity,
+        model.Group.name, model.Group.title, model.Group.is_organization,
         model.Package.name, model.Package.title
     ).outerjoin(
         model.Member,

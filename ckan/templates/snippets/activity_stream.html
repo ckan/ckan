@@ -6,22 +6,12 @@
 
 {% macro dataset(activity) %}
 <span class="dataset">
-  {% if activity.object_title %}
-    {# organization_activity_list #}
-    {{ h.link_to(activity.object_title,
-                 h.url_for(controller='organization', action='read', id=activity.object_name)) }}
-  {% else %}
-    {# package_activity_list #}
-    {% if 'data' in activity %}
-        {{ h.dataset_link(activity.data.package) }}
-    {% endif %}
-  {% endif %}
+  {{ h.dataset_link(activity.package) }}
 </span>
 {% endmacro %}
 
 {% macro organization(activity) %}
-  {{ h.link_to(activity.object_title,
-               h.url_for(controller='organization', action='read', id=activity.object_name)) }}
+  {{ h.organization_link(activity.organization) }}
 {% endmacro %}
 
 {% macro user(activity) %}
@@ -38,8 +28,7 @@
 
 {% macro group(activity) %}
 <span class="group">
-  {{ h.link_to(activity.object_title,
-               h.url_for(controller='group', action='read', id=activity.object_name)) }}
+  {{ h.organization_link(activity.group) }}
 </span>
 {% endmacro %}
 
@@ -47,6 +36,7 @@
 
 activity_stream - the activity data. e.g. the output from package_activity_list
 id - the id of the object (e.g. package)
+object_type - e.g. 'package'
 
 #}
 {% block activity_stream %}

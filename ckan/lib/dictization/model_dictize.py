@@ -705,14 +705,36 @@ def activity_list_dictize(activity_list, context, include_data=False):
     return [activity_dictize(activity, context, include_data)
             for activity in activity_list]
 
+def package_activity_list_dictize(activity_list, package_name, package_title,
+                                  context, include_data=False):
+    dictized_activity_list = []
+    for activity in activity_list:
+        dictized_activity = activity_dictize(activity, context, include_data)
+        dictized_activity['package'] = dict(
+            id=dictized_activity['object_id'],
+            name=package_name, title=package_title)
+        dictized_activity['object_type'] = 'package'
+        dictized_activity_list.append(dictized_activity)
+    return dictized_activity_list
+
 def group_activity_list_dictize(activity_tuple_list, context,
                                 include_data=False):
     dictized_activity_list = []
-    for activity, group_name, group_title, package_name, package_title \
+    for activity, group_name, group_title, is_org, package_name, package_title\
             in activity_tuple_list:
         dictized_activity = activity_dictize(activity, context, include_data)
-        dictized_activity['object_name'] = group_name or package_name
-        dictized_activity['object_title'] = group_title or package_title
+        if group_name and is_org:
+            dictized_activity['organization'] = dict(
+                name=group_name, title=group_title)
+            dictized_activity['object_type'] = 'organization'
+        elif group_name:
+            dictized_activity['group'] = dict(
+                name=group_name, title=group_title)
+            dictized_activity['object_type'] = 'group'
+        elif package_name:
+            dictized_activity['package'] = dict(
+                name=package_name, title=package_title)
+            dictized_activity['object_type'] = 'package'
         dictized_activity_list.append(dictized_activity)
     return dictized_activity_list
 

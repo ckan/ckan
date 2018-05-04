@@ -2609,16 +2609,17 @@ def package_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    _activity_objects = model.activity.package_activity_list(package.id,
-            limit=limit, offset=offset)
+    _activity_objects = model.activity.package_activity_list(
+        package.id, limit=limit, offset=offset)
     if not include_hidden_activity:
         activity_objects = _filter_activity_by_user(
             _activity_objects, _activity_stream_get_filtered_users())
     else:
         activity_objects = _activity_objects
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context, include_data=data_dict['include_data'])
+    return model_dictize.package_activity_list_dictize(
+        activity_objects, package.name, package.title, context,
+        include_data=data_dict['include_data'])
 
 
 @logic.validate(logic.schema.default_activity_list_schema)
