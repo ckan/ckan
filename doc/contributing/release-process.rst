@@ -93,8 +93,12 @@ become stable releases.
 
      ansible-playbook package.yml -u your_user -s
 
-   You will be prompted for the CKAN version to package (eg ``2.4.0``), the iteration (eg ``beta1``)
-   and whether to package the DataPusher (always do it on release packages).
+#. Create the documentation branch from the release branch. This branch should be named
+   just with the minor version and nothing else (eg ``2.7``, ``2.8``, etc). We will use
+   this branch to build the documentation in Read the Docs on all patch releases for
+   this version.
+
+#. Make latest translation strings available on Transifex.
 
    Packages are created by default on the `/build` folder of the publicly accessible directory of
    the packaging server.
@@ -277,11 +281,17 @@ a release.
 #. Enable the new version of the docs on Read the Docs (you will need an admin
    account):
 
-   a. Go to the `Read The Docs`_ versions page
-      and enable the relevant release (make sure to use the tag, ie ckan-X.Y,
-      not the branch, ie release-vX.Y).
+   (You will need an admin account.)
 
-   b. If it is the latest stable release, set it to be the Default Version and
+   a. Make sure the documentation branch is up to date with the latest changes in the
+      corresponding ``dev-vX.Y`` branch.
+
+   b. If this is the first time a minor version is released, go to the
+      `Read The Docs versions page <https://readthedocs.org/projects/ckan/versions/>`_
+      and make the relevant release 'active' (make sure to use the documentation branch, ie X.Y,
+      not the development branch, ie dev-vX.Y).
+
+   c. If it is the latest stable release, set it to be the Default Version and
       check it is displayed on http://docs.ckan.org.
 
 #. Write a `CKAN Blog post <http://ckan.org/wp-admin>`_ and send an email to
@@ -309,6 +319,81 @@ a release.
    problems. Run CKAN's tests, again just to be safe.  Then do ``git push
    origin master``.
 
+------------------------
+Preparing patch releases
+------------------------
+
+#. Announce the release date & time with a week's notice on ckan-announce.
+
+   Often this will be part of the announcement of a CKAN major/minor release.
+   But if patches go out separately then they will need their own announcement.
+
+#. Update ``ckan/__init__.py`` with the incremented patch number e.g. `2.5.1` becomes `2.5.2`.
+   Commit the change and push the new branch to GitHub::
+
+        git commit -am "Update version number"
+        git push origin release-v2.5.2
+
+#. Cherry-pick PRs marked for back-port.
+
+   These are usually marked on Github using the ``Backport Pending`` `labels`_ and the
+   relevant labels for the versions they should be cherry-picked to (eg ``Backport 2.5.3``).
+   Remember to look for PRs that are closed i.e. merged. Remove the ``Backport Pending`` label once the
+   cherry-picking has been done (but leave the version ones).
+
+#. Ask the tech team if there are security fixes or other fixes to include.
+
+#. Update the CHANGELOG.
+
+------------------------
+Doing the patch releases
+------------------------
+
+#. If there have been any CSS or JS changes, rebuild the front-end.
+
+   Rebuild the front-end, add new files and commit with::
+
+        paster front-end-build
+        git add ckan ckanext
+        git commit -am "Rebuild front-end"
+
+#. Review the CHANGELOG to check it is complete.
+
+#. Tag the repository with the version number.
+
+   Make sure to push it to GitHub afterwards::
+
+        git tag -a -m '[release]: Release tag' ckan-X.Y.Z
+        git push --tags
+
+#. Create and deploy the final deb package.
+
+   Create using ckan-packaging checkout e.g.::
+
+     ./ckan-package -v 2.5.2 -i 1
+
+   Make sure to rename the deb files so it follows the deb packages name convention::
+
+     python-ckan_Major.minor_amd64.deb
+
+   Note that we drop the patch version and iteration number from the package name.
+
+   Move it to the root of the
+   `publicly accessible folder <http://packaging.ckan.org/>`_ of
+   the packaging server from the `/build` folder, replacing the existing file
+   for this minor version.
+
+#. Upload the release to PyPI::
+
+        python setup.py sdist upload
+
+#. Make sure the documentation branch (``X.Y``) is up to date with the latest changes in the
+   corresponding ``dev-vX.Y`` branch.
+
+#. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
+
+   Often this will be part of the announcement of a CKAN major/minor release.
+   But if patches go out separately then they will need their own announcement.
 
 .. _Transifex: https://www.transifex.com/projects/p/ckan
 .. _`Read The Docs`: http://readthedocs.org/dashboard/ckan/versions/
