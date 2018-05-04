@@ -336,19 +336,19 @@ class BaseController(WSGIController):
         cors_origin_allowed = None
 
         if asbool(config.get('ckan.cors.origin_allow_all')):
-            cors_origin_allowed = "*"
+            cors_origin_allowed = b"*"
         elif config.get('ckan.cors.origin_whitelist') and \
                 request.headers.get('Origin') \
                 in config['ckan.cors.origin_whitelist'].split():
             # set var to the origin to allow it.
             cors_origin_allowed = request.headers.get('Origin')
         if cors_origin_allowed is not None:
-            response.headers['Access-Control-Allow-Origin'] = \
+            response.headers[b'Access-Control-Allow-Origin'] = \
                 cors_origin_allowed
-            response.headers['Access-Control-Allow-Methods'] = \
-                "POST, PUT, GET, DELETE, OPTIONS"
-            response.headers['Access-Control-Allow-Headers'] = \
-                "X-CKAN-API-KEY, Authorization, Content-Type"
+            response.headers[b'Access-Control-Allow-Methods'] = \
+                b"POST, PUT, GET, DELETE, OPTIONS"
+            response.headers[b'Access-Control-Allow-Headers'] = \
+                b"X-CKAN-API-KEY, Authorization, Content-Type"
 
     def _get_user_for_apikey(self):
         apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,

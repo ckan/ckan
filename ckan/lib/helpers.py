@@ -17,6 +17,7 @@ import pprint
 import copy
 import urlparse
 from urllib import urlencode
+import uuid
 
 from paste.deploy import converters
 from webhelpers.html import HTML, literal, tags
@@ -27,7 +28,7 @@ from markdown import markdown
 from bleach import clean as clean_html, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
 from ckan.common import config
-from routes import redirect_to as _redirect_to
+from routes import redirect_to as _routes_redirect_to
 from routes import url_for as _routes_default_url_for
 import i18n
 
@@ -147,10 +148,36 @@ def redirect_to(*args, **kw):
 
         toolkit.redirect_to('dataset_read', id='changed')
 
+    If given a single string as argument, this redirects without url parsing
+
+        toolkit.redirect_to('http://example.com')
+        toolkit.redirect_to('/dataset')
+        toolkit.redirect_to('/some/other/path')
+
     '''
     if are_there_flash_messages():
         kw['__no_cache__'] = True
-    return _redirect_to(url_for(*args, **kw))
+
+    # Routes router doesn't like unicode args
+    uargs = map(lambda arg: str(arg) if isinstance(arg, unicode) else arg,
+                args)
+
+    _url = ''
+    skip_url_parsing = False
+    parse_url = kw.pop('parse_url', False)
+    if uargs and len(uargs) is 1 and isinstance(uargs[0], basestring) \
+            and (uargs[0].startswith('/') or is_url(uargs[0])) \
+            and parse_url is False:
+        skip_url_parsing = True
+        _url = uargs[0]
+
+    if skip_url_parsing is False:
+        _url = url_for(*uargs, **kw)
+
+    if _url.startswith('/'):
+        _url = str(config['ckan.site_url'].rstrip('/') + _url)
+
+    return _routes_redirect_to(_url)
 
 
 @maintain.deprecated('h.url is deprecated please use h.url_for')
@@ -475,6 +502,7 @@ class _Flash(object):
 
     def are_there_messages(self):
         return bool(session.get(self.session_key))
+
 
 flash = _Flash()
 # this is here for backwards compatability
@@ -1035,6 +1063,7 @@ def linked_gravatar(email_hash, size=100, default=None):
         '%s</a>' % gravatar(email_hash, size, default)
     )
 
+
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid',
                             'wavatar', 'retro']
 
@@ -1465,6 +1494,7 @@ def convert_to_dict(object_type, objs):
         items.append(item)
     return items
 
+
 # these are the types of objects that can be followed
 _follow_objects = ['dataset', 'user', 'group']
 
@@ -1793,6 +1823,7 @@ def get_request_param(parameter_name, default=None):
     searches. '''
     return request.params.get(parameter_name, default)
 
+
 # find all inner text of html eg `<b>moo</b>` gets `moo` but not of <a> tags
 # as this would lead to linkifying links if they are urls.
 RE_MD_GET_INNER_HTML = re.compile(
@@ -2102,6 +2133,7 @@ def SI_number_span(number):
                          + '">')
     return output + formatters.localised_SI_number(number) + literal('</span>')
 
+
 # add some formatter functions
 localised_number = formatters.localised_number
 localised_SI_number = formatters.localised_SI_number
@@ -2201,6 +2233,7 @@ def get_site_statistics():
     stats['organization_count'] = len(
         logic.get_action('organization_list')({}, {}))
     return stats
+
 
 _RESOURCE_FORMATS = None
 
@@ -2319,6 +2352,14 @@ def radio(selected, id, checked):
             value="%s" type="radio">') % (selected, id, selected, id))
     return literal(('<input id="%s_%s" name="%s" \
         value="%s" type="radio">') % (selected, id, selected, id))
+
+
+@core_helper
+def sanitize_id(id_):
+    '''Given an id (uuid4), if it has any invalid characters it raises
+    ValueError.
+    '''
+    return str(uuid.UUID(id_))
 
 
 core_helper(flash, name='flash')

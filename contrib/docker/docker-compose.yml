@@ -16,4 +16,6 @@ services:
     image: ckan/postgresql:latest
   solr:
     container_name: solr
-    image: ckan/solr:latest
+    build:
+      context: ../../
+      dockerfile: contrib/docker/solr/Dockerfile
