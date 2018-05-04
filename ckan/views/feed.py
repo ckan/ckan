@@ -23,16 +23,6 @@ BASE_URL = config.get(u'ckan.site_url')
 SITE_TITLE = config.get(u'ckan.site_title', u'CKAN')
 
 
-@feeds.errorhandler(400)
-@feeds.errorhandler(403)
-@feeds.errorhandler(404)
-@feeds.errorhandler(500)
-@feeds.errorhandler(503)
-def error_handler(e):
-    extra_vars = {u'code': e.code, u'content': e.description}
-    return base.render(u'error_document_template.html', extra_vars), e.code
-
-
 def _package_search(data_dict):
     """
     Helper method that wraps the package_search action.
