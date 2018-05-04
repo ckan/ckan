@@ -13,6 +13,16 @@ from ckan.common import g, config, _
 home = Blueprint(u'home', __name__)
 
 
+@home.errorhandler(400)
+@home.errorhandler(403)
+@home.errorhandler(404)
+@home.errorhandler(500)
+@home.errorhandler(503)
+def error_handler(e):
+    extra_vars = {u'code': e.code, u'content': e.description}
+    return base.render(u'error_document_template.html', extra_vars), e.code
+
+
 @home.before_request
 def before_request():
     u'''set context and check authorization'''
