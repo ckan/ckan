@@ -178,7 +178,7 @@ class UserController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to create a user'))
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_new(context)
 
         if c.user and not data and not authz.is_sysadmin(c.user):
@@ -292,7 +292,7 @@ class UserController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to edit a user.'))
 
-        if (context['save']) and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_edit(id, context)
 
         try:
