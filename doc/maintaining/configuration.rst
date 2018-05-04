@@ -579,6 +579,16 @@ e.g. a particular user has the 'admin' role for group 'Department of Health'. If
 
 .. end_config-authorization
 
+ckan.auth.public_user_details
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.public_user_details = False
+
+Default value: ``True``
+
+Restricts anonymous access to users information. If is set to ``False`` accessing users details for anonymous access will rais ``Not Authorzed`` exception
 
 Search Settings
 ---------------
