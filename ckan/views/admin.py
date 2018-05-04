@@ -19,6 +19,17 @@ log = logging.getLogger(__name__)
 admin = Blueprint(u'admin', __name__, url_prefix=u'/ckan-admin')
 
 
+@admin.errorhandler(400)
+@admin.errorhandler(403)
+@admin.errorhandler(404)
+@admin.errorhandler(500)
+@admin.errorhandler(503)
+def error_handler(e):
+    extra_vars = {u'code': e.code, u'content': e.description}
+    return base.render(u'error_document_template.html',
+                       extra_vars), e.code
+
+
 def _get_sysadmins():
     q = model.Session.query(model.User).filter(model.User.sysadmin.is_(True),
                                                model.User.state == u'active')
