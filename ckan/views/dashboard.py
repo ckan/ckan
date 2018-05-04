@@ -15,15 +15,6 @@ log = logging.getLogger(__name__)
 dashboard = Blueprint(u'dashboard', __name__, url_prefix=u'/dashboard')
 
 
-@dashboard.errorhandler(400)
-@dashboard.errorhandler(403)
-@dashboard.errorhandler(404)
-@dashboard.errorhandler(500)
-@dashboard.errorhandler(503)
-def error_handler(e):
-    extra_vars = {u'code': e.code, u'content': e.description}
-    return base.render(u'error_document_template.html', extra_vars), e.code
-
 @dashboard.before_request
 def before_request():
     try:

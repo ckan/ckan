@@ -28,16 +28,6 @@ edit_user_form = u'user/edit_user_form.html'
 user = Blueprint(u'user', __name__, url_prefix=u'/user')
 
 
-@user.errorhandler(400)
-@user.errorhandler(403)
-@user.errorhandler(404)
-@user.errorhandler(500)
-@user.errorhandler(503)
-def error_handler(e):
-    extra_vars = {u'code': e.code, u'content': e.description}
-    return base.render(u'error_document_template.html', extra_vars), e.code
-
-
 def _get_repoze_handler(handler_name):
     u'''Returns the URL that repoze.who will respond to and perform a
     login or logout.'''
