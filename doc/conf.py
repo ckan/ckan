@@ -95,7 +95,7 @@ master_doc = 'contents'
 # General information about the project.
 project = u'CKAN'
 project_short_name = u'CKAN'
-copyright = u'''&copy; 2009-2017 <a href="https://okfn.org/">Open Knowledge International</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
+copyright = u'''&copy; 2009-2018 <a href="https://okfn.org/">Open Knowledge International</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
     Licensed under <a
     href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
