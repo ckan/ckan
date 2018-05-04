@@ -113,6 +113,11 @@ Turn this file into a github issue with a checklist using this command::
 
 #. Announce the branch and ask for help testing on beta.ckan.org on ckan-dev.
 
+#. Create the documentation branch from the release branch. This branch should be named
+   just with the minor version and nothing else (eg ``2.7``, ``2.8``, etc). We will use
+   this branch to build the documentation in Read the Docs on all patch releases for 
+   this version.
+
 #. Make latest translation strings available on Transifex.
 
    During beta, a translation freeze is in place (ie no changes to the translatable
@@ -408,12 +413,15 @@ a release.
 
    (You will need an admin account.)
 
-   a. Go to the
-      `Read The Docs versions page <https://readthedocs.org/projects/ckan/versions/>`_
-      and make the relevant release 'active' (make sure to use the tag, ie ckan-X.Y.Z,
-      not the branch, ie dev-vX.Y).
+   a. Make sure the documentation branch is up to date with the latest changes in the 
+      corresponding ``dev-vX.Y`` branch.
 
-   b. If it is the latest stable release, set it to be the Default Version and
+   b. If this is the first time a minor version is released, go to the
+      `Read The Docs versions page <https://readthedocs.org/projects/ckan/versions/>`_
+      and make the relevant release 'active' (make sure to use the documentation branch, ie X.Y,
+      not the development branch, ie dev-vX.Y).
+
+   c. If it is the latest stable release, set it to be the Default Version and
       check it is displayed on http://docs.ckan.org.
 
 #. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
@@ -514,10 +522,8 @@ Doing the patch releases
 
         python setup.py sdist upload
 
-#. Merge the release development branch to the relevant ``release-v2.X-latest`` branch, eg::
-
-        git checkout release-v2.7-latest
-        git merge dev-v2.7
+#. Make sure the documentation branch (``X.Y``) is up to date with the latest changes in the 
+   corresponding ``dev-vX.Y`` branch.
 
 #. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
 
