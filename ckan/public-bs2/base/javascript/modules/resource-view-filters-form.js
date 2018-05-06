@@ -24,7 +24,8 @@ ckan.module('resource-view-filters-form', function (jQuery) {
               offset: offset,
               fields: filterName,
               distinct: true,
-              sort: filterName
+              sort: filterName,
+              include_total: false
             };
 
             if (term !== '') {
