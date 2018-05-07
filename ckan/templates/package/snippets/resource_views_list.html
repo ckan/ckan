@@ -1,6 +1,6 @@
 {% set views_created = views or resource_preview %}
 {% if views_created %}
-  <ul class="nav nav-tabs {{ extra_class }}" {{ extra_attributes }}>
+  <ul class="nav {{ extra_class }}" {{ extra_attributes }}>
     {% if resource_preview %}
       <li{% if not view_id %} class="active"{% endif %}>
         <a href="{{ h.url_for(controller='package', action='resource_read', id=pkg.name, resource_id=resource.id) }}" >
