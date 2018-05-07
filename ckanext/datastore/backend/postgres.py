@@ -1230,9 +1230,9 @@ def search_data(context, data_dict):
         ).replace('%', '%%')
         sql_fmt = u'''
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
-                SELECT '[' || {select} || ']' v
+                SELECT {distinct} '[' || {select} || ']' v
                 FROM (
-                    SELECT {distinct} * FROM "{resource}" {ts_query}
+                    SELECT * FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}) as z
             ) AS j'''
     elif records_format == u'csv':
