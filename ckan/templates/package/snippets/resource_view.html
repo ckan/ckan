@@ -3,13 +3,13 @@
 {% block resource_view %}
   <div id="view-{{ resource_view['id'] }}" class="resource-view" data-id="{{ resource_view['id'] }}" data-title="{{ resource_view['title'] }}" data-description="{{ resource_view['descripion'] }}">
   <div class="actions">
-    <a class="btn"
+    <a class="btn btn-default"
        target="_blank"
        href="{{ h.url_for('resource_view', id=package['name'], resource_id=resource['id'], view_id=resource_view['id'], qualified=True) }}">
       <i class="fa fa-arrows-alt"></i>
       {{ _("Fullscreen") }}
     </a>
-    <a class="btn"
+    <a class="btn btn-default"
        href="#embed-{{ resource_view['id'] }}"
        data-module="resource-view-embed"
        data-module-id="{{ resource_view['id'] }}"
