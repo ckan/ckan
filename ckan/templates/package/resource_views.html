@@ -21,7 +21,6 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  <hr>
   {% if c.views %}
     {% snippet "package/snippets/resource_views_list.html", views=c.views, pkg=pkg, is_edit=true, extra_attributes='data-module = resource-view-reorder data-module-id=' + c.resource.id, extra_class='nav-stacked' %}
   {% else %}
