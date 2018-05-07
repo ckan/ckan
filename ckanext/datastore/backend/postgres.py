@@ -1287,9 +1287,11 @@ def search_data(context, data_dict):
     _insert_links(data_dict, limit, offset)
 
     if data_dict.get('include_total', True):
-        count_sql_string = u'''SELECT {distinct} count(*)
-            FROM "{resource}" {ts_query} {where};'''.format(
+        count_sql_string = u'''SELECT count(*) FROM (
+            SELECT {distinct} {select}
+            FROM "{resource}" {ts_query} {where}) as t;'''.format(
             distinct=distinct,
+            select=select_columns,
             resource=resource_id,
             ts_query=ts_query,
             where=where_clause)
