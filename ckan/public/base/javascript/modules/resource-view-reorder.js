@@ -20,6 +20,11 @@ this.ckan.module('resource-view-reorder', function($) {
         '<a href="javascript:;" class="save btn btn-primary"></a>',
         '</div>'
       ].join('\n'),
+      handle: [
+        '<a href="javascript:;" class="handle">',
+        '<i class="fa fa-arrows"></i>',
+        '</a>'
+      ].join('\n'),
       saving: [
         '<span class="saving text-muted m-right">',
         '<i class="fa fa-spinner fa-spin"></i>',
@@ -53,6 +58,10 @@ this.ckan.module('resource-view-reorder', function($) {
         .text(this._('Cancel'))
         .on('click', this._onHandleCancel);
 
+      this.html_handles = $(this.template.handle)
+        .hide()
+        .appendTo($('li', this.el));
+
       this.html_saving = $(this.template.saving)
         .hide()
         .insertBefore($('.save', this.html_form_actions));
@@ -69,6 +78,7 @@ this.ckan.module('resource-view-reorder', function($) {
     _onHandleStartReorder: function() {
       if (!this.is_reordering) {
         this.html_form_actions
+          .add(this.html_handles)
           .add(this.html_title)
           .show();
         this.el
@@ -89,6 +99,7 @@ this.ckan.module('resource-view-reorder', function($) {
         this.el.html(this.cache)
           .sortable()
           .sortable('disable');
+        this.html_handles = $('.handle', this.el);
       }
     },
 
@@ -116,6 +127,7 @@ this.ckan.module('resource-view-reorder', function($) {
 
     reset: function() {
       this.html_form_actions
+        .add(this.html_handles)
         .add(this.html_title)
         .hide();
       this.el
