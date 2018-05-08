@@ -577,7 +577,8 @@ Makes role permissions apply to all the groups down the hierarchy from the group
 
 e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
 
-.. end_config-authorization
+
+.. _ckan.auth.public_user_details:
 
 ckan.auth.public_user_details
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -588,7 +589,15 @@ Example::
 
 Default value: ``True``
 
-Restricts anonymous access to users information. If is set to ``False`` accessing users details for anonymous access will rais ``Not Authorzed`` exception
+Restricts anonymous access to user information. If is set to ``False`` accessing users details when not logged in will raise a ``Not Authorized`` exception.
+
+.. note:: This setting should be used when user registration is disabled (``ckan.auth.create_user_via_web = False``), otherwise users
+    can just create an account to see other users details.
+
+
+
+.. end_config-authorization
+
 
 Search Settings
 ---------------
