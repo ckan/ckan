@@ -1,4 +1,4 @@
-.. include:: /_latest_release.rst
+.. include:: /_substitutions.rst
 
 ============================
 Installing CKAN from package
