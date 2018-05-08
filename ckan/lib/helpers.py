@@ -1637,7 +1637,7 @@ def group_link(group):
 def organization_link(organization):
     url = url_for(controller='organization', action='read',
                   id=organization['name'])
-    return tags.link_to(organization['name'], url)
+    return tags.link_to(organization['title'], url)
 
 
 @core_helper
