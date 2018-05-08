@@ -1261,7 +1261,7 @@ def group_show(context, data_dict):
          (optional, default: ``True``)
     :type include_extras: bool
     :param include_users: include the group's users
-         (optional, default: ``False``)
+         (optional, default: ``True``)
     :type include_users: bool
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)
