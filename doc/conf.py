@@ -14,9 +14,12 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
+import re
 import os
 import subprocess
+
+
+import ckan
 
 # If your extensions (or modules documented by autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -95,7 +98,7 @@ master_doc = 'contents'
 # General information about the project.
 project = u'CKAN'
 project_short_name = u'CKAN'
-copyright = u'''&copy; 2009-2017 <a href="https://okfn.org/">Open Knowledge International</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
+copyright = u'''&copy; 2009-2018 <a href="https://okfn.org/">Open Knowledge International</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
     Licensed under <a
     href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
@@ -110,13 +113,77 @@ html_show_sphinx = False
 # built documents.
 #
 # The short X.Y version.
-import ckan
 version = ckan.__version__.rstrip('abcdefgh')
 # The full version, including alpha/beta/rc tags.
 release = ckan.__version__
+version_re = None
+point_releases_ = None
+
+SUPPORTED_CKAN_VERSIONS = 3
 
 
-def latest_release_tag():
+def get_release_tags():
+    git_tags = subprocess.check_output(
+        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
+
+    release_tags_ = [tag for tag in git_tags if tag.startswith('ckan-')]
+
+    # git tag -l prints out the tags in the right order anyway, but don't rely
+    # on that, sort them again here for good measure.
+    release_tags_.sort()
+
+    return release_tags_
+
+
+def parse_version(version_):
+    '''Parses version string
+        ckan-2.1.3 -> ('2', '1', '3')
+        ckan-2.1   -> ('2', '1', None)  (the occasion when we didn't do semver)
+    '''
+    global version_re
+    if version_re is None:
+        version_re = re.compile('(?:ckan-)?(\d+)\.(\d+)(?:\.(\d+))?[a-z]?')
+    return version_re.match(version_).groups()
+
+
+def get_equivalent_point_release(version_):
+    '''Returns the equivalent point release of any given version.
+
+    e.g.
+        ckan-2.1.3 -> ckan-2.1
+        ckan-2.1   -> ckan-2.1  (the occasion when we didn't do semver)
+    '''
+    return 'ckan-%s.%s' % parse_version(version_)[:2]
+
+
+def get_point_releases():
+    '''
+    returns ['ckan-1.3', 'ckan-1.4', ... 'ckan-2.0', 'ckan-2.1', ...]
+    '''
+    global point_releases_
+    if point_releases_ is None:
+        releases = get_release_tags()
+        point_releases_ = []
+        for release in releases:
+            point_release = get_equivalent_point_release(release)
+            if point_release not in point_releases_:
+                point_releases_.append(point_release)
+    return point_releases_
+
+
+def get_status_of_this_version():
+    '''Returns whether this release is supported or another category.
+    '''
+    equiv_point_release = get_equivalent_point_release(version)
+    point_releases_ = get_point_releases()
+    supported_point_releases = point_releases_[-int(SUPPORTED_CKAN_VERSIONS):]
+    if equiv_point_release in supported_point_releases:
+        return 'supported'
+    else:
+        return 'unsupported'
+
+
+def get_latest_release_tag():
     '''Return the name of the git tag for the latest stable release.
 
     e.g.: "ckan-2.1.1"
@@ -124,36 +191,28 @@ def latest_release_tag():
     This requires git to be installed.
 
     '''
-    git_tags = subprocess.check_output(
-        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
+    release_tags_ = get_release_tags()
 
-    # FIXME: We could do more careful pattern matching against ckan-X.Y.Z here.
-    release_tags = [tag for tag in git_tags if tag.startswith('ckan-')]
-
-    # git tag -l prints out the tags in the right order anyway, but don't rely
-    # on that, sort them again here for good measure.
-    release_tags.sort()
-
-    if release_tags:
-        return release_tags[-1]
+    if release_tags_:
+        return release_tags_[-1]
     else:
         return 'COULD_NOT_DETECT_VERSION_NUMBER'
 
 
-def latest_release_version():
+def get_latest_release_version():
     '''Return the version number of the latest stable release.
 
     e.g. "2.1.1"
 
     '''
-    version = latest_release_tag()[len('ckan-'):]
+    version = get_latest_release_tag()[len('ckan-'):]
 
     # TODO: We could assert here that latest_version matches X.Y.Z.
 
     return version
 
 
-def latest_package_name(distro='trusty'):
+def get_latest_package_name(distro='trusty'):
     '''Return the filename of the Ubuntu package for the latest stable release.
 
     e.g. "python-ckan_2.1-trusty_amd64.deb"
@@ -162,15 +221,15 @@ def latest_package_name(distro='trusty'):
     # We don't create a new package file name for a patch release like 2.1.1,
     # instead we just update the existing 2.1 package. So package names only
     # have the X.Y part of the version number in them, not X.Y.Z.
-    latest_minor_version = latest_release_version()[:3]
+    latest_minor_version = get_latest_release_version()[:3]
 
     return 'python-ckan_{version}-{distro}_amd64.deb'.format(
         version=latest_minor_version, distro=distro)
 
 
-def min_setuptools_version():
+def get_min_setuptools_version():
     '''
-    Get the minimum setuptools version as defined in requirement-setuptools.txt.
+    Get the minimum setuptools version as defined in requirement-setuptools.txt
     '''
     filename = os.path.join(os.path.dirname(__file__), '..',
                             'requirement-setuptools.txt')
@@ -208,13 +267,20 @@ def write_substitutions_file(**kwargs):
                     name=name, substitution=substitution))
 
 
+latest_release_tag_value = get_latest_release_tag()
+latest_release_version = get_latest_release_version()
+latest_minor_version = latest_release_version[:3]
+is_master = release.endswith('a')
+is_supported = get_status_of_this_version() == 'supported'
+is_latest_version = version == latest_release_version
+
 write_substitutions_file(
-    latest_release_tag=latest_release_tag(),
-    latest_release_version=latest_release_version(),
-    latest_package_name_precise=latest_package_name('precise'),
-    latest_package_name_trusty=latest_package_name('trusty'),
-    latest_package_name_xenial=latest_package_name('xenial'),
-    min_setuptools_version=min_setuptools_version(),
+    latest_release_tag=latest_release_tag_value,
+    latest_release_version=get_latest_release_version(),
+    latest_package_name_precise=get_latest_package_name('precise'),
+    latest_package_name_trusty=get_latest_package_name('trusty'),
+    latest_package_name_xenial=get_latest_package_name('xenial'),
+    min_setuptools_version=get_min_setuptools_version(),
 )
 
 
@@ -255,6 +321,9 @@ pygments_style = 'sphinx'
 
 # Options for HTML output
 # -----------------------
+
+extra_css_files = ['_static/css/custom.css']
+
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if not on_rtd:
     import sphinx_rtd_theme
@@ -263,6 +332,15 @@ if not on_rtd:
 
 html_sidebars = {
     '**':  ['globaltoc.html'],
+}
+
+html_context = {
+    'latest_release_tag_value': latest_release_tag_value,
+    'is_master': is_master,
+    'is_supported': is_supported,
+    'is_latest_version': is_latest_version,
+    'extra_css_files': extra_css_files,
+    'latest_minor_version': latest_minor_version,
 }
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
