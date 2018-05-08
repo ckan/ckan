@@ -7450,6 +7450,12 @@ a.tag:hover {
 .nav-simple > .nav-btn .btn {
   display: inline-block;
 }
+.nav-stacked > li {
+  float: none;
+}
+.nav-stacked > li > a {
+  margin-right: 0;
+}
 .js .js-hide {
   display: none;
 }
@@ -10412,6 +10418,9 @@ h4 small {
   font-size: 16px;
   margin: 3px 0;
 }
+.resource-view .actions {
+  right: 0;
+}
 .resource-view-filters {
   margin-bottom: 1em;
 }
@@ -10429,6 +10438,73 @@ h4 small {
 }
 .resource-view-filters .resource-view-filter-values .select2-container .select2-search-choice-close {
   left: auto;
+}
+.resource-view-list.reordering {
+  margin: -10px -10px 0;
+}
+.resource-view-list.reordering li {
+  margin-bottom: 10px;
+  border-radius: 3px;
+  cursor: move;
+}
+.resource-view-list.reordering li a {
+  cursor: inherit;
+}
+.resource-view-list.reordering li .handle {
+  padding: 0;
+  display: block;
+  position: absolute;
+  color: #888888;
+  left: -31px;
+  top: 50%;
+  margin-top: -15px;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border: 1px solid #dddddd;
+  border-width: 1px 0 1px 1px;
+  background-color: #ffffff;
+  border-radius: 20px 0 0 20px;
+}
+.resource-view-list.reordering li .handle:hover {
+  text-decoration: none;
+}
+.resource-view-list.reordering li:hover .handle {
+  background-color: #eeeeee;
+}
+.resource-view-list.reordering li.ui-sortable-helper {
+  background-color: #eeeeee;
+  border: 1px solid #e73892;
+}
+.resource-view-list.reordering li.ui-sortable-helper .handle {
+  background-color: #eeeeee;
+  border-color: #e73892;
+  color: #333333;
+}
+.resource-view-list > li > a {
+  border-radius: 0;
+}
+.resource-view-list li {
+  margin-bottom: -3px;
+  border: 1px solid #dddddd;
+}
+.resource-view-list li:first-child {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+.resource-view-list li:last-child {
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+.resource-view-list li .handle {
+  display: none;
+}
+.view-preview-container .module-content {
+  position: relative;
+}
+.view-preview-container .actions {
+  right: 15px;
 }
 .datapusher-status-link:hover {
   text-decoration: none;
