@@ -227,16 +227,6 @@ def get_latest_package_name(distro='trusty'):
         version=latest_minor_version, distro=distro)
 
 
-def get_min_setuptools_version():
-    '''
-    Get the minimum setuptools version as defined in requirement-setuptools.txt
-    '''
-    filename = os.path.join(os.path.dirname(__file__), '..',
-                            'requirement-setuptools.txt')
-    with open(filename) as f:
-        return f.read().split('==')[1].strip()
-
-
 def write_substitutions_file(**kwargs):
     '''
     Write a file in the doc/ dir containing reStructuredText substitutions.
@@ -280,7 +270,6 @@ write_substitutions_file(
     latest_package_name_precise=get_latest_package_name('precise'),
     latest_package_name_trusty=get_latest_package_name('trusty'),
     latest_package_name_xenial=get_latest_package_name('xenial'),
-    min_setuptools_version=get_min_setuptools_version(),
 )
 
 
