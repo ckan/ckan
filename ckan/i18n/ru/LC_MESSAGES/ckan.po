@@ -105,7 +105,7 @@ msgstr "Хранилище Данных"
 #: ckanext/datastore/controller.py:46
 #, python-format
 msgid "format: must be one of %s"
-msgstr ""
+msgstr "Формат: должен быть одним из %s"
 
 #: ckanext/datastore/controller.py:58
 msgid "DataStore resource not found"

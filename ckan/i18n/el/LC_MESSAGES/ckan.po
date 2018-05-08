@@ -2712,7 +2712,7 @@ msgstr "Αναζήτηση"
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
-msgstr ""
+msgstr "Μεταπήδηση στο περιεχόμενο"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
@@ -3684,6 +3684,12 @@ msgid ""
 "structured-data-the-data-explorer' target='_blank'>Data Explorer "
 "documentation</a>. "
 msgstr ""
+"Οι οπτικοποιήσεις του Data Explorer μπορεί να είναι αργές και αναξιόπιστες, "
+"εκτός εάν η επέκταση DataStore είναι ενεργοποιημένη. Για περισσότερες "
+"πληροφορίες, παρακαλώ συμβουλευτείτε την <a "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>τεκμηρίωση του Data "
+"Explorer </a>. "
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:81
@@ -3767,6 +3773,8 @@ msgstr ""
 #: ckan/templates/package/resource_read.html:121
 msgid "The site administrators may not have enabled the relevant view plugins"
 msgstr ""
+"Ο διαχειριστής της ιστοσελίδας μπορεί να μην έχει ενεργοποιήσει τα σχετικά "
+"πρόσθετα οπτικοποιήσεων. "
 
 #: ckan/templates/package/resource_read.html:122
 msgid ""
@@ -3797,7 +3805,7 @@ msgstr "Τιμή"
 
 #: ckan/templates/package/resource_read.html:154
 msgid "Data last updated"
-msgstr ""
+msgstr "Προσφάτως ενημερωμένα δεδομένα"
 
 #: ckan/templates/package/resource_read.html:155
 #: ckan/templates/package/resource_read.html:159
@@ -3808,7 +3816,7 @@ msgstr "Άγνωστος"
 
 #: ckan/templates/package/resource_read.html:158
 msgid "Metadata last updated"
-msgstr ""
+msgstr "Προσφάτως ενημερωμένα μεταδεδομένα"
 
 #: ckan/templates/package/resource_read.html:162
 #: ckan/templates/package/snippets/additional_info.html:70
@@ -3846,6 +3854,8 @@ msgid ""
 " <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
 "add some?</a></p> "
 msgstr ""
+" <p class=\"empty\">Αυτό το σύνολο δεδομένων δεν περιέχει δεδομένα, <a "
+"href=\"%(url)s\">γιατί δεν προσθέτεις κάποια;</a></p> "
 
 #: ckan/templates/package/search.html:52
 msgid "API"
@@ -4002,6 +4012,12 @@ msgid ""
 "under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
 "Database License</a>."
 msgstr ""
+"Η <i>Άδεια Χρήσης Δεδομένων</i> που επέλεξες παραπάνω, έχει ισχύ μόνο στα "
+"περιεχόμενα οποιουδήποτε αρχείου πόρου που προσθέτεις στο σύνολο δεδομένων. "
+"Καταθέτοντας αυτή την  φόρμα, συμφωνείς στη διάθεση των <i>μεταδεδομένων</i>"
+" που εισάγεις στη φόρμα υπό την άδεια <a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
+"License</a>."
 
 #: ckan/templates/package/snippets/package_form.html:39
 msgid "Are you sure you want to delete this dataset?"
@@ -4130,7 +4146,7 @@ msgstr "Ενσωματώστε"
 
 #: ckan/templates/package/snippets/resource_view.html:24
 msgid "This resource view is not available at the moment."
-msgstr ""
+msgstr "Αυτή η οπτικοποίηγση πόρου δεν είναι διαθέσιμη αυτή τη στιγμή."
 
 #: ckan/templates/package/snippets/resource_view.html:63
 msgid "Embed resource view"
@@ -4141,6 +4157,8 @@ msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
 msgstr ""
+"Μπορείς να αντιγράψεις και επικολλήσεις τον κώδικα ενσωμάτωσης σε "
+"οποιοδήποτε CMS ή λογισμικό Blog που υποστηρίζει raw HTML."
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
@@ -4282,11 +4300,11 @@ msgstr "Εμφάνιση Περισσοτέρων {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:83
 msgid "Show Only Popular {facet_type}"
-msgstr ""
+msgstr "Δείξε Μόνο Δημοφιλή {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:87
 msgid "There are no {facet_type} that match this search"
-msgstr ""
+msgstr "Δεν υπάρχουν {facet_type} που να αντιστοιχούν σε αυτή την αναζήτηση"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 msgid "Home"
@@ -4342,6 +4360,8 @@ msgid ""
 " <p id=\"search-error\"><strong>There was an error while searching.</strong>"
 " Please try again.</p> "
 msgstr ""
+" <p id=\"search-error\"><strong>Προέκυψε ένα πρόβλημα κατά την αναζήτηση. "
+"</strong> Παρακαλώ δοκιμάστε ξανά.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4716,7 +4736,7 @@ msgstr "Επαναφορά κωδικού πρόσβασης"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "Request reset"
-msgstr ""
+msgstr "Αίτηση επαναφοράς"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""

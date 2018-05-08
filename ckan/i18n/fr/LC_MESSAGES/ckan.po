@@ -2455,8 +2455,8 @@ msgstr "Aucune correspondance trouvée"
 #, python-format
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Saisie trop courte, au moins un caractère est nécessaire"
+msgstr[1] "Saisie trop courte, au moins %(num)d caractères sont nécessaires"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
@@ -2860,7 +2860,7 @@ msgstr "Medium"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium Width Input"
-msgstr "Entrée ayant la largeur du medium"
+msgstr "Entrée ayant un longueur moyenne"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full"
