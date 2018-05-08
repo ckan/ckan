@@ -203,8 +203,8 @@ msgstr "Төгсгөлийн цэгүүд"
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:37
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:39
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
 msgstr "API-н өгөгдөлд CKAN болон API-н үйлдлээр дамжиж хандах боломжтой."
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
@@ -1097,7 +1097,8 @@ msgstr "Дагагчдыг харах эрхгүй байна %s"
 
 #: ckan/controllers/home.py:35
 msgid "This site is currently off-line. Database is not initialised."
-msgstr "Тус сайт одоогоор хаалттай байна. Өгөгдлийн сангийн тохиргоо хийгдээгүй."
+msgstr ""
+"Тус сайт одоогоор хаалттай байна. Өгөгдлийн сангийн тохиргоо хийгдээгүй."
 
 #: ckan/controllers/home.py:73 ckan/views/home.py:61
 #, python-format
@@ -1326,8 +1327,8 @@ msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
 msgstr ""
-"\"%s\" хэрэглэгч бүртгэгдсэн боловч  өмнөх \"%s\" хэрэглэгчээр холбогдсон"
-" хэвээор байна."
+"\"%s\" хэрэглэгч бүртгэгдсэн боловч  өмнөх \"%s\" хэрэглэгчээр холбогдсон "
+"хэвээор байна."
 
 #: ckan/controllers/user.py:289 ckan/views/user.py:258
 msgid "Unauthorized to edit a user."
@@ -1652,8 +1653,8 @@ msgstr "Нэрийн урт хамгийн ихдээ %i тэмдэгт байх
 
 #: ckan/logic/validators.py:367
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr ""
 "Үсгийн жижиг хэлбэрээр бичигдэх үсэг, тоон тэмдэгтүүд болон -_ зэрэг "
 "тэмдэгтүүд байх ёстой"
@@ -1754,7 +1755,8 @@ msgstr "Тухайн үг ашиглагдаж байна."
 #: ckan/logic/validators.py:662
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr "%s-н утгыг %s болгон өөрчлөх боломжгүй. Энэ нь зөвхөн унших боломжтой."
+msgstr ""
+"%s-н утгыг %s болгон өөрчлөх боломжгүй. Энэ нь зөвхөн унших боломжтой."
 
 #: ckan/logic/validators.py:671
 msgid "Tag vocabulary was not found."
@@ -1935,7 +1937,8 @@ msgstr "\"%s\" шошго олдсонгүй."
 
 #: ckan/logic/action/delete.py:682 ckan/logic/action/delete.py:686
 msgid "You must be logged in to unfollow something."
-msgstr "Та ямар нэгэн зүйлийг дагахаа болихын тулд нэвтэрсэн байх шаардлагатай."
+msgstr ""
+"Та ямар нэгэн зүйлийг дагахаа болихын тулд нэвтэрсэн байх шаардлагатай."
 
 #: ckan/logic/action/delete.py:697
 msgid "You are not following {0}."
@@ -2123,7 +2126,8 @@ msgstr "%s хэрэглэгч %s бүлгийг унших эрхгүй байн
 
 #: ckan/logic/auth/get.py:249
 msgid "You must be logged in to access your dashboard."
-msgstr "Та өөрийн хяналтын самбартаа хандахын тулд нэвтэрсэн байх шаардлагатай."
+msgstr ""
+"Та өөрийн хяналтын самбартаа хандахын тулд нэвтэрсэн байх шаардлагатай."
 
 #: ckan/logic/auth/get.py:460
 #, python-format
@@ -2493,8 +2497,8 @@ msgstr "Хуулсан файлын мэдээллийг авах боломжг
 #: ckan/public/base/javascript/modules/resource-upload-field.js:275
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
 msgstr ""
 "Та яг одоо файл хуулж байна. Хуулж байгаа файлаа зогсоогоод гарахдаа "
 "итгэлтэй байна уу."
@@ -2800,8 +2804,8 @@ msgid ""
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p>"
@@ -3054,7 +3058,8 @@ msgstr "Бүлгүүд хайх..."
 msgid "There are currently no groups for this site"
 msgstr "Энэ сайтад одоогоор ямарч бүлэг байхгүй байна"
 
-#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "Нэгийг үүсгэх үү?"
 
@@ -3265,22 +3270,22 @@ msgid ""
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 msgstr ""
 "<p>CKAN нь дэлхийн тэргүүлэх нээлттэй эхийн өгөгдлийн портал платформ "
-"юм.</p><p>Мөн өгөгдлийг нийтлэх, хуваалцах, хайх, ашиглах боломжийг олгох"
-" замаар өгөгдлийг эргэлтэнд оруулдаг програм хангамжийн шийдэл. (өгөгдөл "
+"юм.</p><p>Мөн өгөгдлийг нийтлэх, хуваалцах, хайх, ашиглах боломжийг олгох "
+"замаар өгөгдлийг эргэлтэнд оруулдаг програм хангамжийн шийдэл. (өгөгдөл "
 "хадгалах, API-ийн тусламжтай нийтлэх/нийлүүлэх ч мөн багтсан ). CKAN нь "
-"өгөгдлөө нээлттэй болгохоор зорьж буй өгөгдөл түгээгчдэд ( улс болон орон"
-" нутаг дахь төрийн байгууллага, компани, бусад байгууллага) зориулагдсан."
-" </p><p>CKAN-г засгийн газрууд, дэлхийн өнцөг булан бүрт буй "
-"хэрэглэгчдийн бүлгүүд хэрэглэхээс гадна орон нутаг, улс, олон улсын "
-"засгийн газрууд албан болон нийгмийн өгөгдлийг нийтлэхэд ашиглаж байна "
-"Тухайлбал: . Английн <a href=\"http://data.gov.uk\">data.gov.uk</a>, "
-"Европын холбооны <a href=\"http://publicdata.eu/\">publicdata.eu</a>,   "
-"Бразилийн <a href=\"http://dados.gov.br/\">dados.gov.br</a>, Герман болон"
-" Нидерландын засгийн газрын сайтуудаас гадна АНУ, Англи, Аргентин, "
-"Финланд болон бусад улсын хотуудын сайт.</p> <p>CKAN: <a "
-"href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN-тай танилцах: "
-"<a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Онцлог:"
-" <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
+"өгөгдлөө нээлттэй болгохоор зорьж буй өгөгдөл түгээгчдэд ( улс болон орон "
+"нутаг дахь төрийн байгууллага, компани, бусад байгууллага) зориулагдсан. "
+"</p><p>CKAN-г засгийн газрууд, дэлхийн өнцөг булан бүрт буй хэрэглэгчдийн "
+"бүлгүүд хэрэглэхээс гадна орон нутаг, улс, олон улсын засгийн газрууд албан "
+"болон нийгмийн өгөгдлийг нийтлэхэд ашиглаж байна Тухайлбал: . Английн <a "
+"href=\"http://data.gov.uk\">data.gov.uk</a>, Европын холбооны <a "
+"href=\"http://publicdata.eu/\">publicdata.eu</a>,   Бразилийн <a "
+"href=\"http://dados.gov.br/\">dados.gov.br</a>, Герман болон Нидерландын "
+"засгийн газрын сайтуудаас гадна АНУ, Англи, Аргентин, Финланд болон бусад "
+"улсын хотуудын сайт.</p> <p>CKAN: <a "
+"href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN-тай танилцах: <a "
+"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Онцлог: <a "
+"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -3291,8 +3296,8 @@ msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will"
 msgstr ""
-"Энэ нь CKAN ны талаарх хураангуй мэдээлэл байна. Бидэнд энэ мэдээний "
-"хуулбар байхгүй байна гэхдээ удахгүй хуулбартай болох болно."
+"Энэ нь CKAN ны талаарх хураангуй мэдээлэл байна. Бидэнд энэ мэдээний хуулбар"
+" байхгүй байна гэхдээ удахгүй хуулбартай болох болно."
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -3337,8 +3342,8 @@ msgstr "Тус талбарыг бөглөх шаардлагатай"
 #: ckan/templates/macros/form.html:136
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 "<a href=\"#markdown\" title=\"Markdown quick reference\" data-"
@@ -3482,8 +3487,8 @@ msgstr ""
 "өгөгдлийн бүрдлүүдийг нэмэх болон устгах боломжтой.</p> "
 "<p><strong>Засварлагч нь:</strong> Өгөгдлийн бүрдлийг нэмэх болон устгах "
 "боломжтой боловч байгууллагын гишүүдийг тохируулах боломжгүй.</p> "
-"<p><strong>Гишүүн нь:</strong> Байгууллагын хаалттай өгөгдлийн бүрдлийг "
-"үзэх боломжтой боловч шинээр нэмэх боломжгүй.</p>"
+"<p><strong>Гишүүн нь:</strong> Байгууллагын хаалттай өгөгдлийн бүрдлийг үзэх"
+" боломжтой боловч шинээр нэмэх боломжгүй.</p>"
 
 #: ckan/templates/organization/members.html:14
 msgid "{count} member"
@@ -3536,9 +3541,9 @@ msgid ""
 "datasets. Users can have different roles within an Organization, depending "
 "on their level of authorisation to create, edit and publish."
 msgstr ""
-"CKAN дахь байгууллагууд нь өгөгдлийн бүрдлийг үүсгэх, зоион байгуулах "
-"болон нийтлэхэд ашиглагдана. Өгөгдлийн бүрдлийг үүсгэх, засварлах болон "
-"нийтлэх эрхээс хамаарч байгууллагын хэрэглэгчдийн төрөл өөр байж болно."
+"CKAN дахь байгууллагууд нь өгөгдлийн бүрдлийг үүсгэх, зоион байгуулах болон "
+"нийтлэхэд ашиглагдана. Өгөгдлийн бүрдлийг үүсгэх, засварлах болон нийтлэх "
+"эрхээс хамаарч байгууллагын хэрэглэгчдийн төрөл өөр байж болно."
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3579,9 +3584,9 @@ msgid ""
 "users see when searching for data."
 msgstr ""
 "CKAN Өгөгдлийн бүрдэл гэж тайлбар болон бусад дэлгэрэнгүй мэдээлэл бүхий "
-"материалууд (файл гэх мэт)  бөгөөд тогтсон зам дээр байршуулсан цуглуулга"
-" юм. Хэрэглэгч өгөгдөл хайж байхдаа үзэх боломжтой зүйлийг өгөгдлийн "
-"бүрдэл гэнэ."
+"материалууд (файл гэх мэт)  бөгөөд тогтсон зам дээр байршуулсан цуглуулга "
+"юм. Хэрэглэгч өгөгдөл хайж байхдаа үзэх боломжтой зүйлийг өгөгдлийн бүрдэл "
+"гэнэ."
 
 #: ckan/templates/package/changes.html:9
 #: ckan/templates/package/changes.html:17
@@ -3765,9 +3770,9 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:152
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 "Хэрэв харагдац нь Өгөгдлийн захыг шаардаж байвал, Өгөгдлийн захын плагин "
 "идэвхжүүлэгдээгүй, эсвэл өгөгдөл нь Өгөгдлийн зах дээр тавигдаагүй эсвэл "
@@ -3858,8 +3863,8 @@ msgid ""
 "You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s."
 msgstr ""
-"%(api_link)s -ийг ашиглан бүртгүүлж болно (%(api_doc_link)s -ээс харна "
-"уу) эсвэл %(dump_link)s -ээс татаж авна уу."
+"%(api_link)s -ийг ашиглан бүртгүүлж болно (%(api_doc_link)s -ээс харна уу) "
+"эсвэл %(dump_link)s -ээс татаж авна уу."
 
 #: ckan/templates/package/search.html:60
 #, python-format
@@ -3867,8 +3872,8 @@ msgid ""
 "You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s)."
 msgstr ""
-"Та %(api_link)s -ийг ашиглан бүртгүүлж болно (%(api_doc_link)s -ээс харна"
-" уу)."
+"Та %(api_link)s -ийг ашиглан бүртгүүлж болно (%(api_doc_link)s -ээс харна "
+"уу)."
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
@@ -4026,8 +4031,8 @@ msgid ""
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 msgstr ""
 "Лицензийн тодорхойлолт болон нэмэлт мэдээлллийг <a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>-с "
-"авах боломжтой."
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>-с авах "
+"боломжтой."
 
 #: ckan/templates/package/snippets/package_basic_fields.html:79
 #: ckan/templates/snippets/organization.html:23
@@ -4308,7 +4313,8 @@ msgstr "Ямар ч лиценз өгөгдөөгүй"
 
 #: ckan/templates/snippets/license.html:27
 msgid "This dataset satisfies the Open Definition."
-msgstr "Энэ өгөгдлийн бүрдэл нь Нээлттэй тодорхойлолтын шаардлагыг хангаж байна."
+msgstr ""
+"Энэ өгөгдлийн бүрдэл нь Нээлттэй тодорхойлолтын шаардлагыг хангаж байна."
 
 #: ckan/templates/snippets/organization.html:50
 msgid "There is no description for this organization"
