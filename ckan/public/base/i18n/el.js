@@ -144,6 +144,10 @@
     null,
     "Μεταφόρτωση αρχείου στον υπολογιστή σας"
   ],
+  "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
+    null,
+    "Πραγματοποιείτε μεταφόρτωση αρχείου. Είστε σίγουροι ότι θέλετε να πλοηγηθείτε σε κάτι άλλο και να σταματήσετε αυτή τη μεταφόρτωση;"
+  ],
   "error loading view": [
     null,
     "Σφάλμα κατά τη φόρτωση της προβολής"
