@@ -641,9 +641,14 @@ class GroupController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user}
 
+        data_dict = {'id': id}
         try:
-            data_dict = {'id': id}
             check_access('group_edit_permissions', context, data_dict)
+        except NotAuthorized:
+            abort(403,
+                  _('User %r not authorized to edit members of %s') % (c.user,
+                                                                       id))
+        try:
             c.members = self._action('member_list')(
                 context, {'id': id, 'object_type': 'user'}
             )
@@ -651,11 +656,6 @@ class GroupController(base.BaseController):
             c.group_dict = self._action('group_show')(context, data_dict)
         except NotFound:
             abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(
-                403,
-                _('User %r not authorized to edit members of %s') % (
-                    c.user, id))
 
         return self._render_template('group/members.html', group_type)
 

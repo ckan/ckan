@@ -101,7 +101,8 @@ def test_building_the_docs():
         u'WARNING: duplicate label ckan.auth.create_dataset_if_not_in_organization',
         u'WARNING: duplicate label ckan.auth.user_delete_groups',
         u'WARNING: duplicate label ckan.auth.user_create_organizations',
-        u'WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups'
+        u'WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups',
+        u'WARNING: duplicate label ckan.auth.public_user_details',
     ]
 
     # Remove the allowed warnings from the list of collected warnings.
