@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# Dmitry Oshkalo <dmitry.oshkalo@gmail.com>, 2015
+# Дмитрий Ошкало <dmitry.oshkalo@gmail.com>, 2015
 # Gromislav <igromislav@gmail.com>, 2013
 # Ivan Begtin <ibegtin@gmail.com>, 2013
 # mih, 2015
@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2017-07-26 08:22+0000\n"
+"PO-Revision-Date: 2017-09-22 17:55+0000\n"
 "Last-Translator: Илья i <777_2005.87@mail.ru>\n"
 "Language-Team: Russian (http://www.transifex.com/okfn/ckan/language/ru/)\n"
 "MIME-Version: 1.0\n"

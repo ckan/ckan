@@ -4,7 +4,7 @@
 # 
 # Translators:
 # EdoPlantinga <edo.plantinga@koop.wmrijk.nl>, 2012
-# egonwillighagen <egon.willighagen@gmail.com>, 2012
+# Egon Willighagen <egon.willighagen@gmail.com>, 2012
 # Gerard Persoon <mail@gpersoon.com>, 2014
 # <internet@davidread.org>, 2011
 # Marc B <mblumenfrucht@totalactivemedia.nl>, 2013
@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2017-07-26 08:22+0000\n"
+"PO-Revision-Date: 2017-09-22 17:55+0000\n"
 "Last-Translator: Peter Vos <pjmvos@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/okfn/ckan/language/nl/)\n"
 "MIME-Version: 1.0\n"
