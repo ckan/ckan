@@ -135,6 +135,7 @@ class SearchQuery(object):
     def __init__(self):
         self.results = []
         self.count = 0
+        self.highlighting = {}
 
     @property
     def open_licenses(self):
@@ -285,7 +286,6 @@ class PackageSearchQuery(SearchQuery):
         else:
             return solr_response.docs[0]
 
-
     def run(self, query, permission_labels=None, **kwargs):
         '''
         Performs a dataset search using the given query.
@@ -302,8 +302,13 @@ class PackageSearchQuery(SearchQuery):
         '''
         assert isinstance(query, (dict, MultiDict))
         # check that query keys are valid
-        if not set(query.keys()) <= VALID_SOLR_PARAMETERS:
-            invalid_params = [s for s in set(query.keys()) - VALID_SOLR_PARAMETERS]
+        valid_solr_parameters = VALID_SOLR_PARAMETERS
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            if 'update_valid_solr_parameters' in dir(item):
+                valid_solr_parameters = item.update_valid_solr_parameters(valid_solr_parameters)
+
+        if not set(query.keys()) <= valid_solr_parameters:
+            invalid_params = [s for s in set(query.keys()) - valid_solr_parameters]
             raise SearchQueryError("Invalid search parameters: %s" % invalid_params)
 
         # default query is to return all documents
@@ -384,7 +389,7 @@ class PackageSearchQuery(SearchQuery):
                               (query, e))
         self.count = solr_response.hits
         self.results = solr_response.docs
-
+        self.highlighting = solr_response.highlighting
 
         # #1683 Filter out the last row that is sometimes out of order
         self.results = self.results[:rows_to_return]
@@ -408,7 +413,12 @@ class PackageSearchQuery(SearchQuery):
         for field, values in six.iteritems(self.facets):
             self.facets[field] = dict(zip(values[0::2], values[1::2]))
 
-        return {'results': self.results, 'count': self.count}
+        query_response = {
+            'results': self.results,
+            'count': self.count,
+        }
+
+        return query_response
 
 
 def solr_literal(t):

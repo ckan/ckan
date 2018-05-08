@@ -1864,7 +1864,7 @@ def package_search(context, data_dict):
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
 
-        if result_fl:
+        if result_fl and not extras['fl_compatible']:
             for package in query.results:
                 if package.get('extras'):
                     package.update(package['extras'] )
@@ -1889,17 +1889,33 @@ def package_search(context, data_dict):
 
         count = query.count
         facets = query.facets
+        raw_solr_results = {
+            'results': query.results,
+            'highlighting': query.highlighting,
+            'count': query.count,
+            'facets': query.facets,
+        }
     else:
         count = 0
         facets = {}
         results = []
+        raw_solr_results = {}
 
     search_results = {
         'count': count,
         'facets': facets,
         'results': results,
-        'sort': data_dict['sort']
+        'sort': data_dict['sort'],
     }
+
+    include_raw_solr_results = False
+    for item in plugins.PluginImplementations(plugins.IPackageController):
+        if 'include_raw_solr_results' in dir(item):
+            include_raw_solr_results = include_raw_solr_results \
+                                       or item.include_raw_solr_results(data_dict)
+
+    if include_raw_solr_results:
+        search_results['raw_solr_results'] = raw_solr_results
 
     # create a lookup table of group name to title for all the groups and
     # organizations in the current search's facets.
