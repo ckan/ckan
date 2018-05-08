@@ -8,7 +8,7 @@
 # Hal Seki <hal@plants-web.jp>, 2015
 # Kayama Yoichi <yoichi.kayama@gmail.com>, 2015
 # nyampire  <>, 2012
-# nyampire <nyampire@gmail.com>, 2013
+# Satoshi IIDA <nyampire@gmail.com>, 2013
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 # Takayuki Miyauchi <miya0001@users.noreply.github.com>, 2015
 msgid ""
@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2017-07-26 08:22+0000\n"
+"PO-Revision-Date: 2017-09-22 17:55+0000\n"
 "Last-Translator: Fumihiro Kato <>\n"
 "Language-Team: Japanese (http://www.transifex.com/okfn/ckan/language/ja/)\n"
 "MIME-Version: 1.0\n"
