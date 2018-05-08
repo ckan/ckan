@@ -8,6 +8,12 @@ Changelog
 ---------
 
 
+v2.7.4 2018-05-09
+=================
+
+ * Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
+ * Datastore dump results are not the same as data in database (#4150)
+
 v2.7.3 2018-03-15
 =================
 
