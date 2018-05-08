@@ -7,6 +7,12 @@
 Changelog
 ---------
 
+
+v2.5.9 2018-05-09
+=================
+
+* Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
+
 v2.5.8 2018-03-15
 =================
 
