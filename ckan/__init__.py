@@ -1,4 +1,4 @@
-__version__ = '2.5.9b'
+__version__ = '2.5.9'
 
 __description__ = 'CKAN Software'
 __long_description__ = \
