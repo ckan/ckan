@@ -397,4 +397,5 @@ Doing the patch releases
 
 .. _Transifex: https://www.transifex.com/projects/p/ckan
 .. _`Read The Docs`: http://readthedocs.org/dashboard/ckan/versions/
+.. _labels: https://github.com/ckan/ckan/labels
 .. _Ansible: http://ansible.com/

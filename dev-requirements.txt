@@ -1,6 +1,6 @@
 # These are packages that required when running ckan tests and building the docs
 
-docutils==0.12
+docutils==0.8.1
 httpretty==0.8.7
 # nose==1.3.0  # already in requirements.txt
 pep8==1.4.6
@@ -10,5 +10,5 @@ factory-boy==2.1.1
 coveralls==0.4.1
 beautifulsoup4==4.3.2
 pip-tools==1.1.2
-Sphinx==1.7.1
+Sphinx==1.2.3
 sphinx-rtd-theme==0.3.1
