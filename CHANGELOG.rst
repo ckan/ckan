@@ -7,11 +7,15 @@
 Changelog
 ---------
 
-v?? (TBA)
-=========
+v.2.8.0 2018-05-09
+==================
 
-Note: This version requires re-running the 'datastore set-permissions' command
-   (assuming you run DataStore). See: :ref:`datastore-set-permissions`
+General notes:
+ * This version requires a requirements upgrade on source installations
+ * This version requires a database upgrade
+ * This version requires a Solr schema upgrade
+ * This version requires re-running the ``datastore set-permissions`` command
+   (assuming you are using the DataStore). See: :ref:`datastore-set-permissions`
 
    Otherwise new and updated datasets will not be searchable in DataStore and
    the logs will contain this error::
@@ -21,53 +25,39 @@ Note: This version requires re-running the 'datastore set-permissions' command
    CKAN developers should also re-run set-permissions on the test database:
    :ref:`datastore-test-set-permissions`
 
-Changes and deprecations:
- * The old Celery based background jobs have been removed in CKAN 2.8 in favour of the new RQ based
-   jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
-   of course use Celery but they will need to handle the management themselves.
- * `ckan.recaptcha.version` config option is removed, since v2 is the only valid
-    version now (#4061)
+ * There are several old features being officially deprecated starting from
+   this version. Check the *Deprecations* section to be prepared.
 
-v.2.8.0 2018-05-09
-==================
+Major changes:
+ * New revamped frontend templates based on Bootstrap 3, see "Changes and deprecations" (#3547) 
+ * Allow datastore_search_sql on private datasets (#2562)
+ * New Flask blueprints migrated from old Pylons controllers: user, dashboard, feeds, admin and home (#3927, #3870, #3775, #3762)
+ * Improved support for custom groups and organization types (#4032)
+ * Hide user details to anonymous users (#3915)
 
-Major fixes:
- * CKAN API documentation (#2944)
- * Foundation work for common Flask / Pylons objects and functions (#3196)
- * [#3196] i18n for Flask endpoints (#3213)
- * Migrate API controller to Flask blueprint (#3229)
- * Port feeds controller to Flask blueprint (#3567)
- * Datastore upsert performance (#3556)
- * Remove old Celery-based tasks (#4055)
-
-Minor fixes:
- * Type override for next datapusher run (#3557)
- * Problems in background workers with non-core database relations (#3606)
- * Minor issues with new Bootstrap 3 default theme (#3678)
+Minor changes:
+ * Allow chaining of authentication functions (#3679)
+ * Show custom dataset types in search pages (#3807)
  * Overriding datastore authorization system (#3679)
- * Retire Google+ social network link (#3680)
  * Standardize on url_for (#3831)
  * Deprecate notify_after_commit (#3633)
  *  _mail_recipient header override (#3781)
- * Restrict access to forms (#3684)
- * Bootstrap3 UI issues (#3754)
+ * Restrict access to member forms (#3684)
  * Clean up template rendering code (#3923)
  * Permission labels are indexed by type text in SOLR (#3863)
  * CLI commands require a Flask test request context (#3760)
- * Improve IGroupForm support (#4031)
  * Allow IValidator to override existing validators (#3865)
  * Shrink datastore_create response size (#3810)
  * Stable version URLs CKAN for documentation (#4209)
  * API Documentation update (#4136)
  * Documentation of Data Dictionary  (#3989)
  * Remove datastore legacy mode (#4041)
- * File uploads don't work on new Flask based API (#3869)
- * Datapusher extension: Custom url instead of ckan site url (#4013)
- * {% ckan_extends %} not working on templates served by Flask (#4044)
-
-
+ * Map old Pylons routes to Flask ones (#4066)
 
 Bug fixes:
+ * File uploads don't work on new Flask based API (#3869)
+ * {% ckan_extends %} not working on templates served by Flask (#4044)
+ * Problems in background workers with non-core database relations (#3606)
  * Render_datetime can't handle dates before year 1900 (#2228)
  * DatapusherPlugin implementation of notify() can call 'datapusher_submit' multiple times (#2334)
  * Dataset creation page generates incorrect URLs with Chrome autocomplete (#2501)
@@ -77,7 +67,6 @@ Bug fixes:
  * Creation of dataset - different behaviour between Web API & CKAN Interface functionality (#3528)
  * Redirecting to same page in non-root hosted ckan adds extra root_path to url  (#3499)
  * Beaker 1.8.0 exception when the code is served from OSX via Vagrant (#3512)
- * Allow datastore_search_sql on private datasets (#2562)
  * Add "Add Dataset" button to user's and group's page (#2794)
  * Some links in CKAN is not reachable (#2898)
  * Exception when specifying a directory in the ckan.i18n_directory option (#3539)
@@ -85,7 +74,7 @@ Bug fixes:
  * Recaptcha v1 will stop working 2018-3-31 (#4061)
  * "Testing coding standards" page in docs is missing code snippets (#3635)
  * Followers count not updated immediately on UI (#3639)
- * jQuery version (#3665)
+ * Increase jQuery version (#3665)
  * Search icon on many pages is not properly vertically aligned (#3654)
  * Datatables view can't be used as a default view (#3669)
  * Resource URL is not validated on create/update (#3660)
@@ -100,7 +89,6 @@ Bug fixes:
  * Embed modal window not working (#3731)
  * Frontent build command does not work on master (#3688)
  * Loading image duplicated  (#3716)
- * Support setuptools 36.x (#3738)
  * Datastore set-up error - logging getting in the way (#3694)
  * Registering a new account redirects to an unprefixed url (#3834)
  * Exception in search page when not authorized (#4081)
@@ -113,7 +101,6 @@ Bug fixes:
  * Add missing major changes to change log (#3799)
  * Paster/CLI config-tool requires _get_test_app which in turn requires a dev-only dependency (#3806)
  * Change log doesn't mention necessary Solr scheme upgrade (#3851)
- * CKAN 2.7 header not showing toggle bars (#3880)
  * TypeError: expected byte string object, value of type unicode found (#3921)
  * CKAN's state table clashes with PostGIS generated TIGER state table (#3929)
  * [Docker] entrypoint initdb.d sql files copied to root (#3939)
@@ -123,6 +110,21 @@ Bug fixes:
  * Deleting a resource sets datastore_active=False to all resources and overrides their extras (#4042)
  * Deleting first Group and Organization custom field is not possible (#4094)
 
+Changes and deprecations:
+ * The default templates included in CKAN core have been updated to use Bootstrap 3. Extensions
+   implementing custom themes are encouraged to update their templates, but they can still
+   make CKAN load the old Bootstrap 2 templates during the transition using the following
+   configuration options::
+
+        ckan.base_public_folder = public-bs2
+        ckan.base_templates_folder = templates-bs2
+
+ * The API versions 1 and 2 (also known as the REST API), ie ``/api/rest/*`` have been
+   completely removed in favour of the version 3 (action API, ``/api/action/*``).
+ * The old Celery based background jobs have been removed in CKAN 2.8 in favour of the new RQ based
+   jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
+   of course use Celery but they will need to handle the management themselves.
+ * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
 
 v2.7.3 2018-03-15
 =================
