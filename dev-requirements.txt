@@ -10,5 +10,5 @@ factory-boy==2.1.1
 coveralls==0.4.1
 beautifulsoup4==4.3.2
 pip-tools==1.1.2
-Sphinx==1.7.1
+Sphinx==1.2.3
 sphinx-rtd-theme==0.3.1
