@@ -3,6 +3,7 @@
 from nose.tools import assert_equal, assert_raises, assert_in, assert_raises
 from email.mime.text import MIMEText
 from email.parser import Parser
+from email.header import Header
 from email.header import decode_header
 import hashlib
 import base64
@@ -143,9 +144,12 @@ class TestMailer(MailerBase):
         msgs = self.get_smtp_messages()
         msg = msgs[0]
 
+        sender_name = config.get('ckan.site_title')
+        mail_from = config.get('smtp.mail_from')
+
         expected_from_header = '{0} <{1}>'.format(
-            config.get('ckan.site_title'),
-            config.get('smtp.mail_from')
+            Header(sender_name, 'utf-8'),
+            Header(mail_from, 'ascii')
         )
 
         assert_in(expected_from_header, msg[3])
