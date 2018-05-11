@@ -2551,7 +2551,9 @@ def user_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    _check_access('user_show', context, data_dict)
+    data_dict['object_type'] = 'user'
+    data_dict['include_data'] = False
+    _check_access('activity_list_show', context, data_dict)
 
     model = context['model']
 
@@ -2564,12 +2566,14 @@ def user_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    _activity_objects = model.activity.user_activity_list(user.id, limit=limit,
-            offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_tuple_objects = model.activity.user_activity_list(
+        user.id, limit=limit, offset=offset)
+    activity_tuple_objects = _filter_activity_tuples_by_user(
+        _activity_tuple_objects, _activity_stream_get_filtered_users())
 
-    return model_dictize.activity_list_dictize(activity_objects, context)
+    return model_dictize.activity_list_dictize(
+        activity_tuple_objects, context,
+        include_data=data_dict['include_data'])
 
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2643,7 +2647,10 @@ def group_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    _check_access('group_show', context, data_dict)
+    data_dict['object_type'] = 'group'
+    data_dict['include_data'] = False
+    include_hidden_activity = asbool(context.get('include_hidden_activity'))
+    _check_access('activity_list_show', context, data_dict)
 
     model = context['model']
     group_id = data_dict.get('id')
@@ -2657,11 +2664,15 @@ def group_activity_list(context, data_dict):
 
     _activity_tuple_objects = model.activity.group_activity_list(
         group_id, limit=limit, offset=offset)
-    activity_tuple_objects = _filter_activity_tuples_by_user(
-        _activity_tuple_objects, _activity_stream_get_filtered_users())
+    if not include_hidden_activity:
+        activity_tuple_objects = _filter_activity_tuples_by_user(
+            _activity_tuple_objects, _activity_stream_get_filtered_users())
+    else:
+        activity_tuple_objects = _activity_tuple_objects
 
-    return model_dictize.group_activity_list_dictize(
-        activity_tuple_objects, context)
+    return model_dictize.activity_list_dictize(
+        activity_tuple_objects, context,
+        include_data=data_dict['include_data'])
 
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2676,7 +2687,10 @@ def organization_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    _check_access('organization_show', context, data_dict)
+    data_dict['object_type'] = 'organization'
+    data_dict['include_data'] = False
+    include_hidden_activity = asbool(context.get('include_hidden_activity'))
+    _check_access('activity_list_show', context, data_dict)
 
     model = context['model']
     org_id = data_dict.get('id')
@@ -2690,11 +2704,15 @@ def organization_activity_list(context, data_dict):
 
     _activity_tuple_objects = model.activity.group_activity_list(
         org_id, limit=limit, offset=offset)
-    activity_tuple_objects = _filter_activity_tuples_by_user(
-        _activity_tuple_objects, _activity_stream_get_filtered_users())
+    if not include_hidden_activity:
+        activity_tuple_objects = _filter_activity_tuples_by_user(
+            _activity_tuple_objects, _activity_stream_get_filtered_users())
+    else:
+        activity_tuple_objects = _activity_tuple_objects
 
-    return model_dictize.group_activity_list_dictize(
-        activity_tuple_objects, context)
+    return model_dictize.activity_list_dictize(
+        activity_tuple_objects, context,
+        include_data=data_dict['include_data'])
 
 
 @logic.validate(logic.schema.default_pagination_schema)
@@ -2719,12 +2737,14 @@ def recently_changed_packages_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    _activity_objects = model.activity.recently_changed_packages_activity_list(
+    _activity_tuple_objects = \
+        model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    activity_tuple_objects = _filter_activity_tuples_by_user(
+        _activity_tuple_objects,
+        _activity_stream_get_filtered_users())
 
-    return model_dictize.activity_list_dictize(activity_objects, context)
+    return model_dictize.activity_list_dictize(activity_tuple_objects, context)
 
 
 def activity_detail_list(context, data_dict):
@@ -3249,13 +3269,13 @@ def dashboard_activity_list(context, data_dict):
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    _activity_objects = model.activity.dashboard_activity_list(user_id,
-            limit=limit, offset=offset)
+    _activity_tuple_objects = model.activity.dashboard_activity_list(
+        user_id, limit=limit, offset=offset)
 
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    activity_tuple_list = _filter_activity_tuples_by_user(
+        _activity_tuple_objects, _activity_stream_get_filtered_users())
     activity_dicts = model_dictize.activity_list_dictize(
-        activity_objects, context)
+        activity_tuple_list, context)
 
     # Mark the new (not yet seen by user) activities.
     strptime = datetime.datetime.strptime

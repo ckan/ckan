@@ -264,25 +264,28 @@ def activity_list_show(context, data_dict):
     '''
     :param id: the id or name of the object (e.g. package id)
     :type id: string
-    :param object_type: The type of the object (e.g. 'package')
+    :param object_type: The type of the object (e.g. 'package', 'organization',
+                        'group', 'user')
     :type object_type: string
     :param include_data: include the data field (or just the activity metadata)
+        (optional, default: False)
     :type include_data: boolean
     '''
+    if data_dict['object_type'] not in ('package', 'organization', 'group',
+                                        'user'):
+        return {'success': False, 'msg': 'object_type not recognized'}
     if data_dict.get('include_data'):
         # The 'data' field of the activity is restricted to users who are
         # allowed to edit the object
-        action_on_which_to_base_auth = 'package_update'
+        show_or_update = 'update'
     else:
         # the activity for an object (i.e. the activity metadata) can be viewed
         # if the user can see the object
-        action_on_which_to_base_auth = 'package_show'
-
-    if data_dict['object_type'] == 'package':
-        return authz.is_authorized(action_on_which_to_base_auth, context,
-                                   {'id': data_dict['id']})
-    else:
-        return {'success': False, 'msg': 'object_type not recognized'}
+        show_or_update = 'show'
+    action_on_which_to_base_auth = '{}_{}'.format(
+        data_dict['object_type'], show_or_update)  # e.g. 'package_update'
+    return authz.is_authorized(action_on_which_to_base_auth, context,
+                               {'id': data_dict['id']})
 
 
 def activity_show(context, data_dict):

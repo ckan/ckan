@@ -701,9 +701,6 @@ def activity_dictize(activity, context, include_data=False):
         del activity_dict['data']
     return activity_dict
 
-def activity_list_dictize(activity_list, context, include_data=False):
-    return [activity_dictize(activity, context, include_data)
-            for activity in activity_list]
 
 def package_activity_list_dictize(activity_list, package_name, package_title,
                                   context, include_data=False):
@@ -717,11 +714,12 @@ def package_activity_list_dictize(activity_list, package_name, package_title,
         dictized_activity_list.append(dictized_activity)
     return dictized_activity_list
 
-def group_activity_list_dictize(activity_tuple_list, context,
-                                include_data=False):
+
+def activity_list_dictize(activity_tuple_list, context,
+                          include_data=False):
     dictized_activity_list = []
-    for activity, group_name, group_title, is_org, package_name, package_title\
-            in activity_tuple_list:
+    for activity, group_name, group_title, is_org, \
+            package_name, package_title in activity_tuple_list:
         dictized_activity = activity_dictize(activity, context, include_data)
         if group_name and is_org:
             dictized_activity['organization'] = dict(
@@ -735,8 +733,12 @@ def group_activity_list_dictize(activity_tuple_list, context,
             dictized_activity['package'] = dict(
                 name=package_name, title=package_title)
             dictized_activity['object_type'] = 'package'
+        # we don't add in a user dict, since for privacy reasons we don't
+        # want to expose any more user info on the API, and the template
+        # queries the db for it anyway (since it needs a number of properties)
         dictized_activity_list.append(dictized_activity)
     return dictized_activity_list
+
 
 def activity_detail_dictize(activity_detail, context):
     return d.table_dictize(activity_detail, context)

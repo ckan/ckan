@@ -595,7 +595,9 @@ class UserController(base.BaseController):
             'user/activity_stream.html',
             extra_vars={
                 'activity_stream': get_action('user_activity_list')(
-                    context, {'id': id, 'offset': offset})}
+                    context, {'id': id, 'offset': offset}),
+                'id': id,
+                }
         )
 
     def _get_dashboard_context(self, filter_type=None, filter_id=None, q=None):

@@ -28,15 +28,15 @@
 
 {% macro group(activity) %}
 <span class="group">
-  {{ h.organization_link(activity.group) }}
+  {{ h.group_link(activity.group) }}
 </span>
 {% endmacro %}
 
 {# Displays an activity stream
 
 activity_stream - the activity data. e.g. the output from package_activity_list
-id - the id of the object (e.g. package)
-object_type - e.g. 'package'
+id - the id or current name of the object (e.g. package name, user id)
+object_type - 'package', 'organization', 'group', 'user'
 
 #}
 {% block activity_stream %}

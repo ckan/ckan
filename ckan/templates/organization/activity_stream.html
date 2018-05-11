@@ -3,10 +3,10 @@
 {% block subtitle %}{{ _('Activity Stream') }} - {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
-  <h2 class="hide-heading">
+  <h1 class="hide-heading">
     {% block page_heading -%}
       {{ _('Activity Stream') }}
     {%- endblock %}
-  </h2>
-  {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream %}
+  </h1>
+  {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream, id=id, object_type='organization' %}
 {% endblock %}
