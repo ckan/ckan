@@ -2734,6 +2734,7 @@ def recently_changed_packages_activity_list(context, data_dict):
     # authorized to read.
     model = context['model']
     offset = data_dict.get('offset', 0)
+    data_dict['include_data'] = False
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
@@ -2744,7 +2745,9 @@ def recently_changed_packages_activity_list(context, data_dict):
         _activity_tuple_objects,
         _activity_stream_get_filtered_users())
 
-    return model_dictize.activity_list_dictize(activity_tuple_objects, context)
+    return model_dictize.packages_activity_list_dictize(
+        activity_tuple_objects, context,
+        include_data=data_dict['include_data'])
 
 
 def activity_detail_list(context, data_dict):

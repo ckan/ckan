@@ -420,8 +420,16 @@ def _changed_packages_activity_query():
 
     '''
     import ckan.model as model
-    q = model.Session.query(model.Activity)
-    q = q.filter(model.Activity.activity_type.endswith('package'))
+    q = model.Session.query(
+        model.Activity, model.Package.name, model.Package.title) \
+        .outerjoin(
+            model.Package,
+            and_(
+                model.Activity.object_id == model.Package.id,
+                model.Package.private == False,
+                model.Package.state == 'active'
+            )) \
+        .filter(model.Activity.activity_type.endswith('package'))
     return q
 
 

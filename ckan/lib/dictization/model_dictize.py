@@ -715,6 +715,19 @@ def package_activity_list_dictize(activity_list, package_name, package_title,
     return dictized_activity_list
 
 
+def packages_activity_list_dictize(activity_tuple_list, context,
+                                   include_data=False):
+    dictized_activity_list = []
+    for activity, package_name, package_title in activity_tuple_list:
+        dictized_activity = activity_dictize(activity, context, include_data)
+        dictized_activity['package'] = dict(
+            id=dictized_activity['object_id'],
+            name=package_name, title=package_title)
+        dictized_activity['object_type'] = 'package'
+        dictized_activity_list.append(dictized_activity)
+    return dictized_activity_list
+
+
 def activity_list_dictize(activity_tuple_list, context,
                           include_data=False):
     dictized_activity_list = []
