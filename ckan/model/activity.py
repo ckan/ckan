@@ -202,15 +202,34 @@ def user_activity_list(user_id, limit, offset):
     return _activities_at_offset(q, limit, offset)
 
 
-def _package_activity_query(package_id, query_classes=None):
+def _package_activity_query(package_id):
     '''Return an SQLAlchemy query for all activities about package_id.
 
     '''
     import ckan.model as model
-    if query_classes is None:
-        query_classes = [model.Activity]
-    q = model.Session.query(*query_classes)
-    q = q.filter_by(object_id=package_id)
+    q = model.Session.query(model.Activity) \
+        .filter_by(object_id=package_id)
+    return q
+
+
+def _package_multi_activity_query(package_id):
+    '''Return an SQLAlchemy query for all activities about package_id.
+
+    '''
+    import ckan.model as model
+    query_classes = _get_activity_query_classes()
+    q = model.Session.query(*query_classes) \
+        .outerjoin(
+            model.Package,
+            and_(
+                model.Activity.object_id == model.Package.id,
+                model.Package.private == False,
+            )) \
+        .outerjoin(
+            model.Group,
+            model.Activity.object_id == model.Group.id,
+        ) \
+        .filter(model.Activity.object_id == package_id)
     return q
 
 
@@ -331,9 +350,8 @@ def _activities_from_datasets_followed_by_user_query(user_id, limit):
         return model.Session.query(*query_classes).filter(text('0=1'))
 
     return _activities_union_all(*[
-        _activities_limit(_package_activity_query(
-            follower.object_id,
-            query_classes=query_classes), limit)
+        _activities_limit(_package_multi_activity_query(follower.object_id),
+                          limit)
         for follower in follower_objects])
 
 

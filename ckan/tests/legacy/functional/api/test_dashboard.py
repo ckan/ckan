@@ -6,6 +6,8 @@ This module tests the various functions of the user dashboard, such as the
 contents of the dashboard activity stream and reporting the number of new
 activities.
 
+WARNING: tests follow on from each other, so can't be run individually
+
 '''
 import ckan
 from ckan.common import json
@@ -220,7 +222,11 @@ class TestDashboard(object):
         activity = new_activities[0]
         assert activity['activity_type'] == 'changed package'
         assert activity['user_id'] == self.joeadmin['id']
-        assert activity['data']['package']['name'] == 'warandpeace'
+        assert activity['object_id'] == \
+            ckan.model.Package.get('warandpeace').id
+
+        # new_user can't access the data of changes made by another user
+        assert not 'data' in activity
 
     def test_04_activities_from_followed_users(self):
         '''Activities from followed users should show in the dashboard.'''
@@ -241,7 +247,11 @@ class TestDashboard(object):
         activity = new_activities[0]
         assert activity['activity_type'] == 'new package'
         assert activity['user_id'] == self.annafan['id']
-        assert activity['data']['package']['name'] == 'annas_new_dataset'
+        assert activity['object_id'] == \
+            ckan.model.Package.get('annas_new_dataset').id
+
+        # new_user can't access the data of changes made by another user
+        assert not 'data' in activity
 
     def test_04_activities_from_followed_groups(self):
         '''Activities from followed groups should show in the dashboard.'''
@@ -264,7 +274,11 @@ class TestDashboard(object):
         activity = new_activities[0]
         assert activity['activity_type'] == 'changed group'
         assert activity['user_id'] == self.testsysadmin['id']
-        assert activity['data']['group']['name'] == 'roger'
+        assert activity['object_id'] == \
+            ckan.model.Group.get('roger').id
+
+        # new_user can't access the data of changes made by another user
+        assert not 'data' in activity
 
     def test_04_activities_from_datasets_of_followed_groups(self):
         '''Activities from datasets of followed groups should show in the
@@ -289,7 +303,11 @@ class TestDashboard(object):
         activity = new_activities[0]
         assert activity['activity_type'] == 'changed package'
         assert activity['user_id'] == self.joeadmin['id']
-        assert activity['data']['package']['name'] == 'annakarenina'
+        assert activity['object_id'] == \
+            ckan.model.Package.get('annakarenina').id
+
+        # new_user can't access the data of changes made by another user
+        assert not 'data' in activity
 
     def test_05_new_activities_count(self):
         '''Test that new activities from objects that a user follows increase
@@ -336,20 +354,3 @@ class TestDashboard(object):
         after = self.dashboard_activity_list(self.new_user)
 
         assert before == after
-
-    def test_10_dashboard_activity_list_html_does_not_crash(self):
-
-        params = json.dumps({'name': 'irrelevant_dataset1'})
-        response = self.app.post('/api/action/package_create', params=params,
-            extra_environ={'Authorization': str(self.annafan['apikey'])})
-        assert response.json['success'] is True
-
-        params = json.dumps({'name': 'another_irrelevant_dataset'})
-        response = self.app.post('/api/action/package_create', params=params,
-            extra_environ={'Authorization': str(self.annafan['apikey'])})
-        assert response.json['success'] is True
-
-        res = self.app.get('/api/3/action/dashboard_activity_list_html',
-                extra_environ={'Authorization':
-                    str(self.annafan['apikey'])})
-        assert res.json['success'] is True
