@@ -33,6 +33,7 @@ class DatasetActivitySessionExtension(SessionExtension):
 
     """
     def before_commit(self, session):
+        from ckan.model import Member  # imported here to avoid dependency hell
         if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
             return
 
@@ -95,6 +96,11 @@ class DatasetActivitySessionExtension(SessionExtension):
                     # skipping it
                     continue
 
+                if isinstance(obj, Member):
+                    # When you add a package to a group/org, it should only be
+                    # in the group's activity stream, not the related packages
+                    continue
+
                 for package in related_packages:
                     if package is None:
                         continue
@@ -104,13 +110,13 @@ class DatasetActivitySessionExtension(SessionExtension):
                         continue
 
                     if package.id in activities:
-                        activity = activities[package.id]
-                    else:
-                        activity = activity_stream_item(
-                            package, "changed", revision, user_id)
-                        if activity is None:
-                            continue
-                        activities[package.id] = activity
+                        continue
+
+                    activity = activity_stream_item(
+                        package, "changed", revision, user_id)
+                    if activity is None:
+                        continue
+                    activities[package.id] = activity
 
         for key, activity in activities.items():
             # Emitting activity

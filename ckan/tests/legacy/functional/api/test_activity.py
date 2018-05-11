@@ -90,7 +90,7 @@ def package_update(app, data_dict, apikey=None):
     else:
         extra_environ = None
     response = app.post('/api/action/package_update',
-            json.dumps(data_dict), extra_environ=extra_environ)
+            {json.dumps(data_dict): 1}, extra_environ=extra_environ)
     response_dict = json.loads(response.body)
     assert response_dict['success'] is True
     updated_package = response_dict['result']
@@ -858,17 +858,20 @@ class TestActivity:
             user_id = 'not logged in'
             apikey = None
 
-        before = self.record_details(user_id, package['id'], apikey=apikey)
+        group_names = [group_dict['name'] for group_dict in package['groups']]
+        before = self.record_details(
+            user_id, package['id'], group_names, apikey=apikey)
 
         # Update the package.
-        if package['title'] != 'edited':
-            package['title'] = 'edited'
+        if package['url'] != 'edited':
+            package['url'] = 'edited'
         else:
-            assert package['title'] != 'edited again'
-            package['title'] = 'edited again'
+            assert package['url'] != 'edited again'
+            package['url'] = 'edited again'
         package_update(self.app, package, user['apikey'])
 
-        after = self.record_details(user_id, package['id'], apikey=apikey)
+        after = self.record_details(
+            user_id, package['id'], group_names, apikey=apikey)
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
