@@ -254,11 +254,6 @@ class TestActivity:
         activities = response.json['result']
         return activities
 
-    def activity_details(self, activity):
-        response = self.app.get(
-                "/api/2/rest/activity/%s/details" % activity['id'])
-        return json.loads(response.body)
-
     def record_details(self, user_id, package_id=None, group_ids=None,
             apikey=None):
         details = {}
@@ -358,43 +353,6 @@ class TestActivity:
         assert timestamp >= before['time'] and timestamp <= \
             after['time'], str(activity['timestamp'])
 
-        details = self.activity_details(activity)
-        # There should be five activity details: one for the package itself,
-        # one for each of its two resources, and one for each of its two tags.
-
-        assert len(details) == 5, "There should be five activity details."
-
-        detail_ids = [detail['object_id'] for detail in details]
-        assert detail_ids.count(package_created['id']) == 1, (
-            "There should be one activity detail for the package itself.")
-        for resource in package_created['resources']:
-            assert detail_ids.count(resource['id']) == 1, (
-                "There should be one activity detail for each of the "
-                "package's resources")
-
-        for detail in details:
-            assert detail['activity_id'] == activity['id'], \
-                str(detail['activity_id'])
-
-            if detail['object_id'] == package_created['id']:
-                assert detail['activity_type'] == "new", (
-                    str(detail['activity_type']))
-                assert detail['object_type'] == "Package", \
-                    str(detail['object_type'])
-
-            elif (detail['object_id'] in
-                [resource['id'] for resource in package_created['resources']]):
-                assert detail['activity_type'] == "new", (
-                    str(detail['activity_type']))
-                assert detail['object_type'] == "Resource", (
-                    str(detail['object_type']))
-
-            else:
-                assert detail['activity_type'] == "added", (
-                    str(detail['activity_type']))
-                assert detail['object_type'] == "tag", (
-                    str(detail['object_type']))
-
     def _add_resource(self, package, user):
         if user:
             user_id = user['id']
@@ -463,24 +421,6 @@ class TestActivity:
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
                 timestamp <= after['time']), str(activity['timestamp'])
-
-        # Test for the presence of a correct activity detail item.
-        details = self.activity_details(activity)
-        assert len(details) == 1, [(detail['activity_type'],
-            detail['object_type']) for detail in details]
-        detail = details[0]
-        assert detail['activity_id'] == activity['id'], \
-            str(detail['activity_id'])
-        new_resource_ids = [id for id in resource_ids_after if id not in
-            resource_ids_before]
-        assert len(new_resource_ids) == 1
-        new_resource_id = new_resource_ids[0]
-        assert detail['object_id'] == new_resource_id, (
-            str(detail['object_id']))
-        assert detail['object_type'] == "Resource", (
-            str(detail['object_type']))
-        assert detail['activity_type'] == "new", (
-            str(detail['activity_type']))
 
     def _delete_extra(self, package_dict, user):
         if user:
@@ -553,23 +493,6 @@ class TestActivity:
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
                 timestamp <= after['time']), str(activity['timestamp'])
-
-        # Test for the presence of a correct activity detail item.
-        details = self.activity_details(activity)
-        assert len(details) == 1, (
-                "There should be 1 activity detail but found %s"
-                % len(details))
-        detail = details[0]
-        assert detail['activity_id'] == activity['id'], \
-            str(detail['activity_id'])
-        deleted_extras = [extra for extra in extras_before if extra not in
-                extras_after]
-        assert len(deleted_extras) == 1, "%s != 1" % len(deleted_extras)
-        deleted_extra = deleted_extras[0]
-        assert detail['object_type'] == "PackageExtra", (
-            str(detail['object_type']))
-        assert detail['activity_type'] == "deleted", (
-            str(detail['activity_type']))
 
     def _update_extra(self, package_dict, user):
         if user:
@@ -648,23 +571,6 @@ class TestActivity:
         assert (timestamp >= before['time'] and
                 timestamp <= after['time']), str(activity['timestamp'])
 
-        # Test for the presence of a correct activity detail item.
-        details = self.activity_details(activity)
-        assert len(details) == 1, (
-                "There should be 1 activity detail but found %s"
-                % len(details))
-        detail = details[0]
-        assert detail['activity_id'] == activity['id'], \
-            str(detail['activity_id'])
-        new_extras = [extra for extra in extras_after if extra not in
-                extras_before]
-        assert len(new_extras) == 1, "%s != 1" % len(new_extras)
-        new_extra = new_extras[0]
-        assert detail['object_type'] == "PackageExtra", (
-            str(detail['object_type']))
-        assert detail['activity_type'] == "changed", (
-            str(detail['activity_type']))
-
     def _add_extra(self, package_dict, user, key=None):
         if key is None:
             key = 'quality'
@@ -739,23 +645,6 @@ class TestActivity:
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
                 timestamp <= after['time']), str(activity['timestamp'])
-
-        # Test for the presence of a correct activity detail item.
-        details = self.activity_details(activity)
-        assert len(details) == 1, (
-                "There should be 1 activity detail but found %s"
-                % len(details))
-        detail = details[0]
-        assert detail['activity_id'] == activity['id'], \
-            str(detail['activity_id'])
-        new_extras = [extra for extra in extras_after if extra not in
-                extras_before]
-        assert len(new_extras) == 1, "%s != 1" % len(new_extras)
-        new_extra = new_extras[0]
-        assert detail['object_type'] == "PackageExtra", (
-            str(detail['object_type']))
-        assert detail['activity_type'] == "new", (
-            str(detail['activity_type']))
 
     def _create_activity(self, user, package, params):
         before = self.record_details(user['id'], package['id'],
@@ -956,20 +845,6 @@ class TestActivity:
         assert timestamp >= before['time'], str(activity['timestamp'])
         assert timestamp <= after['time'], str(activity['timestamp'])
 
-        # Test for the presence of correct activity detail items.
-        details = self.activity_details(activity)
-        assert len(details) == num_resources
-        for detail in details:
-            assert detail['activity_id'] == activity['id'], (
-                "activity_id should be %s but is %s"
-                % (activity['id'], detail['activity_id']))
-            assert detail['object_id'] in resource_ids, (
-                str(detail['object_id']))
-            assert detail['object_type'] == "Resource", (
-                str(detail['object_type']))
-            assert detail['activity_type'] == "deleted", (
-                str(detail['activity_type']))
-
     def _update_package(self, package, user):
         """
         Update the given package and test that the correct activity stream
@@ -1039,18 +914,6 @@ class TestActivity:
         assert (timestamp >= before['time'] and
                 timestamp <= after['time']), str(activity['timestamp'])
 
-        # Test for the presence of a correct activity detail item.
-        details = self.activity_details(activity)
-        assert len(details) == 1
-        detail = details[0]
-        assert detail['activity_id'] == activity['id'], \
-            str(detail['activity_id'])
-        assert detail['object_id'] == package['id'], str(detail['object_id'])
-        assert detail['object_type'] == "Package", (
-            str(detail['object_type']))
-        assert detail['activity_type'] == "changed", (
-            str(detail['activity_type']))
-
     def _update_resource(self, package, resource, user):
         """
         Update the given resource and test that the correct activity stream
@@ -1116,18 +979,6 @@ class TestActivity:
         assert (timestamp >= before['time'] and
                 timestamp <= after['time']), str(activity['timestamp'])
 
-        # Test for the presence of a correct activity detail item.
-        details = self.activity_details(activity)
-        assert len(details) == 1
-        detail = details[0]
-        assert detail['activity_id'] == activity['id'], (
-            str(detail['activity_id']))
-        assert detail['object_id'] == resource.id, str(detail['object_id'])
-        assert detail['object_type'] == "Resource", (
-            str(detail['object_type']))
-        assert detail['activity_type'] == "changed", (
-            str(detail['activity_type']))
-
     def _delete_package(self, package):
         """
         Delete the given package and test that the correct activity stream
@@ -1192,18 +1043,6 @@ class TestActivity:
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
                 timestamp <= after['time']), str(activity['timestamp'])
-
-        # Test for the presence of a correct activity detail item.
-        details = self.activity_details(activity)
-        assert len(details) == 1
-        detail = details[0]
-        assert detail['activity_id'] == activity['id'], \
-            str(detail['activity_id'])
-        assert detail['object_id'] == package['id'], str(detail['object_id'])
-        assert detail['object_type'] == "Package", (
-            str(detail['object_type']))
-        assert detail['activity_type'] == "deleted", (
-            str(detail['activity_type']))
 
     def test_01_delete_resources(self):
         """
@@ -1306,17 +1145,6 @@ class TestActivity:
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
                 timestamp <= after['time']), str(activity['timestamp'])
-
-        # Test for the presence of a correct activity detail item.
-        details = self.activity_details(activity)
-        assert len(details) == 1
-        detail = details[0]
-        assert detail['activity_id'] == activity['id'], \
-            str(detail['activity_id'])
-        assert detail['object_type'] == "tag", (
-            str(detail['object_type']))
-        assert detail['activity_type'] == "removed", (
-            str(detail['activity_type']))
 
     def test_01_update_extras(self):
         """
@@ -1450,10 +1278,6 @@ class TestActivity:
         assert timestamp >= before and timestamp <= after['time'], \
             str(activity['timestamp'])
 
-        details = self.activity_details(activity)
-        assert len(details) == 0, ("There shouldn't be any activity details"
-                " for a 'new user' activity")
-
     def test_create_group(self):
 
         user = self.normal_user
@@ -1577,17 +1401,6 @@ class TestActivity:
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
                 timestamp <= after['time']), str(activity['timestamp'])
-
-        # Test for the presence of a correct activity detail item.
-        details = self.activity_details(activity)
-        assert len(details) == 1
-        detail = details[0]
-        assert detail['activity_id'] == activity['id'], \
-            str(detail['activity_id'])
-        assert detail['object_type'] == "tag", (
-            str(detail['object_type']))
-        assert detail['activity_type'] == "added", (
-            str(detail['activity_type']))
 
     def test_activity_create_successful_no_data(self):
         """Test creating an activity via the API, without passing the optional
@@ -1999,8 +1812,6 @@ class TestActivity:
         #assert timestamp >= before['time'] and timestamp <= \
         #    after['time'], str(activity['timestamp'])
 
-        #assert len(self.activity_details(activity)) == 0
-
     def test_follow_user(self):
         user = self.normal_user
         before = self.record_details(user['id'], apikey=user['apikey'])
@@ -2044,8 +1855,6 @@ class TestActivity:
         #timestamp = datetime_from_string(activity['timestamp'])
         #assert timestamp >= before['time'] and timestamp <= \
         #    after['time'], str(activity['timestamp'])
-
-        #assert len(self.activity_details(activity)) == 0
 
     def test_user_activity_list_by_name(self):
         '''user_activity_list should accept a user name as param.'''

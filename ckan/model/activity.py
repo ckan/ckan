@@ -137,14 +137,10 @@ def _activities_from_user_query(user_id):
             and_(
                 model.Activity.object_id == model.Package.id,
                 model.Package.private == False,
-                model.Package.state == 'active'
             )) \
         .outerjoin(
             model.Group,
-            and_(
-                model.Activity.object_id == model.Group.id,
-                model.Group.state == 'active'
-            )
+            model.Activity.object_id == model.Group.id,
         )
     q = q.filter(model.Activity.user_id == user_id)
     return q
@@ -160,14 +156,10 @@ def _activities_about_user_query(user_id):
             and_(
                 model.Activity.object_id == model.Package.id,
                 model.Package.private == False,
-                model.Package.state == 'active'
             )) \
         .outerjoin(
             model.Group,
-            and_(
-                model.Activity.object_id == model.Group.id,
-                model.Group.state == 'active'
-            )
+            model.Activity.object_id == model.Group.id,
         )
     q = q.filter(model.Activity.object_id == user_id)
     return q
@@ -270,14 +262,11 @@ def _group_activity_query(group_id):
             and_(
                 model.Package.id == model.Member.table_id,
                 model.Package.private == False,
-                model.Package.state == 'active'
             )) \
         .outerjoin(
             model.Group,
-            and_(
-                model.Activity.object_id == model.Group.id,
-                model.Group.state == 'active'
-            )) \
+            model.Activity.object_id == model.Group.id
+            ) \
         .filter(
             # We only care about activity either on the the group itself or on
             # packages within that group.
@@ -426,8 +415,7 @@ def _changed_packages_activity_query():
             model.Package,
             and_(
                 model.Activity.object_id == model.Package.id,
-                model.Package.private == False,
-                model.Package.state == 'active'
+                model.Package.private == False
             )) \
         .filter(model.Activity.activity_type.endswith('package'))
     return q

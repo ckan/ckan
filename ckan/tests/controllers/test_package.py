@@ -1805,7 +1805,7 @@ class TestActivity(helpers.FunctionalTestBase):
                       action='activity',
                       id=dataset['id'])
         response = app.get(url, extra_environ=env)
-        assert_in('View raw changes', response)
+        assert_in('Changes', response)
 
     def test_public_cant_see_changes(self):
         app = self._get_test_app()
@@ -1818,4 +1818,4 @@ class TestActivity(helpers.FunctionalTestBase):
                       action='activity',
                       id=dataset['id'])
         response = app.get(url)
-        assert_not_in('View raw changes', response)
+        assert_not_in('Changes', response)

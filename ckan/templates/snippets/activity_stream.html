@@ -6,12 +6,21 @@
 
 {% macro dataset(activity) %}
 <span class="dataset">
-  {{ h.dataset_link(activity.package) }}
+  {% if activity.package %}
+    {{ h.dataset_link(activity.package) }}
+  {% else %}
+    {# For the unlikely event that the dataset is now private, or purged from the db #}
+    {{ _('unknown') }}
+  {% endif %}
 </span>
 {% endmacro %}
 
 {% macro organization(activity) %}
-  {{ h.organization_link(activity.organization) }}
+  {% if activity.organization %}
+    {{ h.organization_link(activity.organization) }}
+  {% else %}
+    {{ _('unknown') }}
+  {% endif %}
 {% endmacro %}
 
 {% macro user(activity) %}
@@ -20,15 +29,13 @@
 </span>
 {% endmacro %}
 
-{% macro tag(activity) %}
-<span class="actor">
-  {{ h.tag_link(activity.data.tag) }}
-</span>
-{% endmacro %}
-
 {% macro group(activity) %}
 <span class="group">
-  {{ h.group_link(activity.group) }}
+  {% if activity.group %}
+    {{ h.group_link(activity.group) }}
+  {% else %}
+    {{ _('unknown') }}
+  {% endif %}
 </span>
 {% endmacro %}
 
@@ -51,7 +58,6 @@ object_type - 'package', 'organization', 'group', 'user'
         'organization': organization,
         'user': user,
         'group': group,
-        'tag': tag
       }, id=id
     -%}
   {% endfor %}

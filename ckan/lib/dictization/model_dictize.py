@@ -736,14 +736,17 @@ def activity_list_dictize(activity_tuple_list, context,
         dictized_activity = activity_dictize(activity, context, include_data)
         if group_name and is_org:
             dictized_activity['organization'] = dict(
+                id=dictized_activity['object_id'],
                 name=group_name, title=group_title)
             dictized_activity['object_type'] = 'organization'
         elif group_name:
             dictized_activity['group'] = dict(
+                id=dictized_activity['object_id'],
                 name=group_name, title=group_title)
             dictized_activity['object_type'] = 'group'
         elif package_name:
             dictized_activity['package'] = dict(
+                id=dictized_activity['object_id'],
                 name=package_name, title=package_title)
             dictized_activity['object_type'] = 'package'
         # we don't add in a user dict, since for privacy reasons we don't
