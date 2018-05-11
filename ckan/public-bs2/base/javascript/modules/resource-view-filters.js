@@ -115,7 +115,7 @@ this.ckan.module('resource-view-filters', function (jQuery) {
 
             if (term !== '') {
               var q = {};
-              if (!term.includes(' ')) {
+              if (term.indexOf(' ') == -1) {
                 term = term + ':*';
                 query.plain = false;
               }

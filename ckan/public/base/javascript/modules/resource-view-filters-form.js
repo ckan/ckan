@@ -30,7 +30,7 @@ ckan.module('resource-view-filters-form', function (jQuery) {
 
             if (term !== '') {
               var q = {};
-              if (!term.includes(' ')) {
+              if (term.indexOf(' ') == -1) {
                 term = term + ':*';
                 query.plain = false;
               }
