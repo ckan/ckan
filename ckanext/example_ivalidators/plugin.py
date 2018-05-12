@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from six import text_type
+
 from ckan.plugins.toolkit import Invalid
 from ckan import plugins
 
@@ -31,4 +33,4 @@ def unicode_please(value):
             return value.decode(u'utf8')
         except UnicodeDecodeError:
             return value.decode(u'cp1252')
-    return unicode(value)
+    return text_type(value)

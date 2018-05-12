@@ -9,13 +9,12 @@
     {% set attrs = {'data-module': 'slug-preview-target', 'class': 'form-control'} %}
     {{ form.input('title', label=_('Name'), id='field-name', placeholder=_('My Group'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
-    {# Perhaps these should be moved into the controller? #}
-    {% set prefix = h.url_for(controller='group', action='read', id='') %}
-    {% set domain = h.url_for(controller='group', action='read', id='', qualified=true) %}
+    {%- set prefix = h.url_for(group_type + '_read', id='') -%}
+    {%- set domain = h.url_for(group_type + '_read', id='', qualified=true) -%}
     {% set domain = domain|replace("http://", "")|replace("https://", "") %}
-    {% set attrs = {'data-module': 'slug-preview-slug', 'class': 'form-control input-sm', 'data-module-prefix': domain, 'data-module-placeholder': '<group>'} %}
+    {% set attrs = {'data-module': 'slug-preview-slug', 'class': 'form-control input-sm', 'data-module-prefix': domain, 'data-module-placeholder': '<' + group_type + '>'} %}
 
-    {{ form.prepend('name', label=_('URL'), prepend=prefix, id='field-url', placeholder=_('my-group'), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
+    {{ form.prepend('name', label=_('URL'), prepend=prefix, id='field-url', placeholder=_('my-' + group_type), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
 
     {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=_('A little information about my group...'), value=data.description, error=errors.description) }}
 
@@ -27,29 +26,7 @@
   {% endblock %}
 
   {% block custom_fields %}
-    {% for extra in data.extras %}
-      {% set prefix = 'extras__%d__' % loop.index0 %}
-      {{ form.custom(
-        names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
-        id='field-extras-%d' % loop.index,
-        label=_('Custom Field'),
-        values=(extra.key, extra.value, extra.deleted),
-        error=errors[prefix ~ 'key'] or errors[prefix ~ 'value']
-      ) }}
-    {% endfor %}
-
-    {# Add a max if 3 empty columns #}
-    {% for extra in range(data.extras|count, 3) %}
-      {% set index = (loop.index0 + data.extras|count) %}
-      {% set prefix = 'extras__%d__' % index %}
-      {{ form.custom(
-        names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
-        id='field-extras-%d' % index,
-        label=_('Custom Field'),
-        values=(extra.key, extra.value, extra.deleted),
-        error=errors[prefix ~ 'key'] or errors[prefix ~ 'value']
-      ) }}
-    {% endfor %}
+    {% snippet 'snippets/custom_form_fields.html', extras=data.extras, errors=errors, limit=3 %}
   {% endblock %}
 
   {{ form.required_message() }}

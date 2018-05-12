@@ -55,11 +55,14 @@ class CkanextTemplate(Template):
 
         # workaround for a paster issue https://github.com/ckan/ckan/issues/2636
         # this is only used from a short-lived paster command
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
+        try:
+            reload(sys)  # Python 2
+            sys.setdefaultencoding('utf-8')
+        except NameError:
+            pass         # Python 3
 
         if not vars['project'].startswith('ckanext-'):
-            print "\nError: Project name must start with 'ckanext-'"
+            print("\nError: Project name must start with 'ckanext-'")
             sys.exit(1)
 
         # The project name without the ckanext-.

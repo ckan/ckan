@@ -5,6 +5,7 @@ Helper functions to be used in the auth check functions
 '''
 
 import ckan.logic as logic
+import ckan.authz as authz
 
 
 def _get_object(context, data_dict, name, class_name):
@@ -46,3 +47,10 @@ def get_user_object(context, data_dict=None):
 
 def get_activity_object(context, data_dict=None):
     return _get_object(context, data_dict, 'activity', 'Activity')
+
+
+def restrict_anon(context):
+    if authz.auth_is_anon_user(context):
+        return {'success': False}
+    else:
+        return {'success': True}

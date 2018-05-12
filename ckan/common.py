@@ -46,6 +46,24 @@ def is_flask_request():
              not pylons_request_available))
 
 
+def streaming_response(
+        data, mimetype=u'application/octet-stream', with_context=False):
+    iter_data = iter(data)
+    if is_flask_request():
+        # Removal of context variables for pylon's app is prevented
+        # inside `pylons_app.py`. It would be better to decide on the fly
+        # whether we need to preserve context, but it won't affect performance
+        # in any visible way and we are going to get rid of pylons anyway.
+        # Flask allows to do this in easy way.
+        if with_context:
+            iter_data = flask.stream_with_context(iter_data)
+        resp = flask.Response(iter_data, mimetype=mimetype)
+    else:
+        response.app_iter = iter_data
+        resp = response.headers['Content-type'] = mimetype
+    return resp
+
+
 def ugettext(*args, **kwargs):
     if is_flask_request():
         return flask_ugettext(*args, **kwargs)

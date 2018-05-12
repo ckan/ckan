@@ -70,15 +70,15 @@ def proxy_resource(context, data_dict):
                 base.abort(409, headers={'content-encoding': ''},
                            detail='Content is too large to be proxied.')
 
-    except requests.exceptions.HTTPError, error:
+    except requests.exceptions.HTTPError as error:
         details = 'Could not proxy resource. Server responded with %s %s' % (
             error.response.status_code, error.response.reason)
         base.abort(409, detail=details)
-    except requests.exceptions.ConnectionError, error:
+    except requests.exceptions.ConnectionError as error:
         details = '''Could not proxy resource because a
                             connection error occurred. %s''' % error
         base.abort(502, detail=details)
-    except requests.exceptions.Timeout, error:
+    except requests.exceptions.Timeout as error:
         details = 'Could not proxy resource because the connection timed out.'
         base.abort(504, detail=details)
 

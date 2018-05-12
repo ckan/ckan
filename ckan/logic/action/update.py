@@ -11,6 +11,7 @@ import os
 
 from ckan.common import config
 import paste.deploy.converters as converters
+from six import text_type
 
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
@@ -114,7 +115,7 @@ def resource_update(context, data_dict):
         context['use_cache'] = False
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
-    except ValidationError, e:
+    except ValidationError as e:
         try:
             raise ValidationError(e.error_dict['resources'][-1])
         except (KeyError, IndexError):
@@ -357,7 +358,7 @@ def package_resource_reorder(context, data_dict):
     :param id: the id or name of the package to update
     :type id: string
     :param order: a list of resource ids in the order needed
-    :type list: list
+    :type order: list
     '''
 
     id = _get_or_bust(data_dict, "id")
@@ -424,6 +425,7 @@ def package_relationship_update(context, data_dict):
     :type subject: string
     :param object: the name or id of the dataset that is the object of the
         relationship
+    :type object: string
     :param type: the type of the relationship, one of ``'depends_on'``,
         ``'dependency_of'``, ``'derives_from'``, ``'has_derivation'``,
         ``'links_to'``, ``'linked_from'``, ``'child_of'`` or ``'parent_of'``
@@ -822,9 +824,9 @@ def term_translation_update(context, data_dict):
 
     _check_access('term_translation_update', context, data_dict)
 
-    schema = {'term': [validators.not_empty, unicode],
-              'term_translation': [validators.not_empty, unicode],
-              'lang_code': [validators.not_empty, unicode]}
+    schema = {'term': [validators.not_empty, text_type],
+              'term_translation': [validators.not_empty, text_type],
+              'lang_code': [validators.not_empty, text_type]}
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -882,58 +884,6 @@ def term_translation_update_many(context, data_dict):
     return {'success': '%s rows updated' % (num + 1)}
 
 
-## Modifications for rest api
-
-def package_update_rest(context, data_dict):
-
-    model = context['model']
-    id = data_dict.get("id")
-    request_id = context['id']
-    pkg = model.Package.get(request_id)
-
-    if not pkg:
-        raise NotFound
-
-    if id and id != pkg.id:
-        pkg_from_data = model.Package.get(id)
-        if pkg_from_data != pkg:
-            error_dict = {id:('Cannot change value of key from %s to %s. '
-                'This key is read-only') % (pkg.id, id)}
-            raise ValidationError(error_dict)
-
-    context["package"] = pkg
-    context["allow_partial_update"] = False
-    dictized_package = model_save.package_api_to_dict(data_dict, context)
-
-    _check_access('package_update_rest', context, dictized_package)
-
-    dictized_after = _get_action('package_update')(context, dictized_package)
-
-    pkg = context['package']
-
-    package_dict = model_dictize.package_to_api(pkg, context)
-
-    return package_dict
-
-def group_update_rest(context, data_dict):
-
-    model = context['model']
-    id = _get_or_bust(data_dict, "id")
-    group = model.Group.get(id)
-    context["group"] = group
-    context["allow_partial_update"] = True
-    dictized_group = model_save.group_api_to_dict(data_dict, context)
-
-    _check_access('group_update_rest', context, dictized_group)
-
-    dictized_after = _get_action('group_update')(context, dictized_group)
-
-    group = context['group']
-
-    group_dict = model_dictize.group_to_api(group, context)
-
-    return group_dict
-
 def vocabulary_update(context, data_dict):
     '''Update a tag vocabulary.
 
@@ -978,23 +928,6 @@ def vocabulary_update(context, data_dict):
         model.repo.commit()
 
     return model_dictize.vocabulary_dictize(updated_vocab, context)
-
-def package_relationship_update_rest(context, data_dict):
-
-    # rename keys
-    key_map = {'id': 'subject',
-               'id2': 'object',
-               'rel': 'type'}
-
-    # We want 'destructive', so that the value of the subject,
-    # object and rel in the URI overwrite any values for these
-    # in params. This is because you are not allowed to change
-    # these values.
-    data_dict = logic.action.rename_keys(data_dict, key_map, destructive=True)
-
-    relationship_dict = _get_action('package_relationship_update')(context, data_dict)
-
-    return relationship_dict
 
 
 def dashboard_mark_activities_old(context, data_dict):
@@ -1044,7 +977,7 @@ def package_owner_org_update(context, data_dict):
     :type id: string
 
     :param organization_id: the name or id of the owning organization
-    :type id: string
+    :type organization_id: string
     '''
     model = context['model']
     user = context['user']

@@ -21,7 +21,7 @@ automate and orchestrate deployments without having to first modify the `CKAN co
 These options are only read at startup time to update the ``config`` object used by CKAN,
 but they won't be accessed any more during the lifetime of the application.
 
-CKAN environment variables names match the options in the configuration file, but they are always uppercase
+CKAN environment variable names match the options in the configuration file, but they are always uppercase
 and prefixed with `CKAN_` (this prefix is added even if
 the corresponding option in the ini file does not have it), and replacing dots with underscores.
 
@@ -46,10 +46,10 @@ CKAN configuration options are generally defined before starting the web applica
 
 A limited number of configuration options can also be edited during runtime. This can be done on the
 :ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`
-API action. Only :doc:`sysadmins </sysadmin-guide>` can edit these runtime-editable configuration options. Changes made to these configuration options will be stored on the database and persisted when the server is restarted.
+API action. Only :doc:`sysadmins </sysadmin-guide>` can edit these runtime-editable configuration options. Changes made to these configuration options will be stored in the database and persisted when the server is restarted.
 
 Extensions can add (or remove) configuration options to the ones that can be edited at runtime. For more
-details on how to this check :doc:`/extensions/remote-config-update`.
+details on how to do this check :doc:`/extensions/remote-config-update`.
 
 
 
@@ -110,6 +110,21 @@ files, and enables CKAN templates' debugging features.
    With debug mode enabled, a visitor to your site could execute malicious
    commands.
 
+ckan.legacy_route_mappings
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.legacy_route_mappings = {"home": "home.index", "about": "home.about",
+                                  "search": "dataset.search"}
+
+Default value: ``{"home": "home.index", "about": "home.about"}``
+
+This can be used when using an extension that is still using old (Pylons-based) route names to
+maintain compatibility.
+
+  .. warning:: This configuration will be removed when migration to Flask is completed. Please
+    update the extension code to use the new Flask-based route names.
 
 Repoze.who Settings
 -------------------
@@ -325,23 +340,6 @@ Example::
 Default value: 0
 
 This sets ``Cache-Control`` header's max-age value.
-
-.. _ckan.page_cache_enabled:
-
-ckan.page_cache_enabled
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.page_cache_enabled = True
-
-Default value: ``False``
-
-This enables CKAN's built-in page caching.
-
-.. warning::
-
-   Page caching is an experimental feature.
 
 .. _ckan.cache_enabled:
 
@@ -579,6 +577,25 @@ Makes role permissions apply to all the groups down the hierarchy from the group
 
 e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
 
+
+.. _ckan.auth.public_user_details:
+
+ckan.auth.public_user_details
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.public_user_details = False
+
+Default value: ``True``
+
+Restricts anonymous access to user information. If is set to ``False`` accessing users details when not logged in will raise a ``Not Authorized`` exception.
+
+.. note:: This setting should be used when user registration is disabled (``ckan.auth.create_user_via_web = False``), otherwise users
+    can just create an account to see other users details.
+
+
+
 .. end_config-authorization
 
 
@@ -658,11 +675,11 @@ Example::
 
 Default value:  ``false``
 
-Controls whether a search page (e.g. ``/dataset``) should also show 
-custom dataset types. The default is ``false`` meaning that no search 
-page for any type will show other types. ``true`` will show other types 
-on the ``/dataset`` search page. Any other value (e.g. ``dataset`` or 
-``document`` will be treated as a dataset type and that type's search 
+Controls whether a search page (e.g. ``/dataset``) should also show
+custom dataset types. The default is ``false`` meaning that no search
+page for any type will show other types. ``true`` will show other types
+on the ``/dataset`` search page. Any other value (e.g. ``dataset`` or
+``document`` will be treated as a dataset type and that type's search
 page will show datasets of all types.
 
 .. _ckan.search.default_include_private:
@@ -1049,36 +1066,23 @@ web interface. ``dumps_format`` is just a string for display. Example::
 
   ckan.dumps_format = CSV/JSON
 
-.. _ckan.recaptcha.version:
-
-ckan.recaptcha.version
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-The version of Recaptcha to use, for example::
-
- ckan.recaptcha.version = 1
-
-Default Value: 1
-
-Valid options: 1, 2
-
 .. _ckan.recaptcha.publickey:
 
 ckan.recaptcha.publickey
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The public key for your Recaptcha account, for example::
+The public key for your reCAPTCHA account, for example::
 
  ckan.recaptcha.publickey = 6Lc...-KLc
 
-To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
+To get a reCAPTCHA account, sign up at: http://www.google.com/recaptcha
 
 .. _ckan.recaptcha.privatekey:
 
 ckan.recaptcha.privatekey
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The private key for your Recaptcha account, for example::
+The private key for your reCAPTCHA account, for example::
 
  ckan.recaptcha.privatekey = 6Lc...-jP
 

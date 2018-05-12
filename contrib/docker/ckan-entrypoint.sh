@@ -33,6 +33,7 @@ set_environment () {
   export CKAN_SMTP_USER=${CKAN_SMTP_USER}
   export CKAN_SMTP_PASSWORD=${CKAN_SMTP_PASSWORD}
   export CKAN_SMTP_MAIL_FROM=${CKAN_SMTP_MAIL_FROM}
+  export CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
 }
 
 write_config () {

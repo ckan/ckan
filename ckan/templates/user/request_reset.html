@@ -3,7 +3,7 @@
 {% block subtitle %}{{ _('Reset your password') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% link_for _('Password reset'), controller='user', action='request_reset' %}</li>
+  <li class="active">{% link_for _('Password Reset'), named_route='user.request_reset' %}</li>
 {% endblock %}
 
 {% block primary_content %}
@@ -12,12 +12,16 @@
       {% block primary_content_inner %}
       <h1 class="page-heading">{{ _('Reset your password') }}</h1>
       {% block form %}
-        <form action="" method="post" class="form-inline control-medium">
-          <label for="field-username">{{ _('Username') }}</label>
-          <input id="field-username" name="user" value="" type="text" />
-          {% block form_button %}
-          <button class="btn btn-primary" type="submit" name="reset">{{ _("Request reset") }}</button>
-          {% endblock %}
+        <form action="" method="post">
+          <div class="form-group">
+            <label for="field-username">{{ _('Username') }}</label>
+            <input id="field-username" class="control-medium form-control" name="user" value="" type="text" />
+          </div>
+          <div class="form-actions">
+            {% block form_button %}
+            <button class="btn btn-primary" type="submit" name="reset">{{ _("Request Reset") }}</button>
+            {% endblock %}
+          </div>
         </form>
       {% endblock %}
       {% endblock %}

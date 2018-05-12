@@ -58,13 +58,13 @@ class CheckPoFiles(paste.script.command.Command):
     def command(self):
 
         for path in self.args:
-            print u'Checking file {}'.format(path)
+            print(u'Checking file {}'.format(path))
             errors = check_po_file(path)
             if errors:
                 for msgid, msgstr in errors:
-                    print 'Format specifiers don\'t match:'
-                    print u'    {0} -> {1}'.format(
-                        msgid, msgstr.encode('ascii', 'replace'))
+                    print("Format specifiers don't match:")
+                    print(u'    {0} -> {1}'.format(
+                        msgid, msgstr.encode('ascii', 'replace')))
 
 
 def check_po_file(path):

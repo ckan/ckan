@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import nose.tools
+from six import text_type
 
 from ckan.common import config
 
@@ -81,7 +82,7 @@ class TestConfigOptionUpdatePluginEnabled(object):
 
         # db
         obj = model.Session.query(model.SystemInfo).filter_by(key=key).first()
-        assert_equals(obj.value, unicode(value))  # all values stored as string
+        assert_equals(obj.value, text_type(value))  # all values stored as string
 
     def test_update_registered_external_value(self):
 

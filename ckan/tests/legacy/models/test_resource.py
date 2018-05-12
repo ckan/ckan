@@ -122,7 +122,7 @@ class TestResource:
         assert len(pkg.resources_all) == 3, len(pkg.resources)
         lastres = pkg.resources[2]
         assert lastres.position == 2, lastres
-        print lastres
+        print(lastres)
         assert lastres.url == self.urls[0], (self.urls, lastres.url)
 
 
@@ -169,5 +169,3 @@ class TestResource:
         all_resources = model.Session.query(model.Resource).\
                         filter_by(state=model.State.ACTIVE).all()
         assert len(all_resources) == 0, pkg.resources
-
-

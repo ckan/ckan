@@ -57,8 +57,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
 
+    app = common_middleware.CloseWSGIInputMiddleware(app, config)
     app = common_middleware.RootPathMiddleware(app, config)
-
     # Routing/Session/Cache Middleware
     app = RoutesMiddleware(app, config['routes.map'])
     # we want to be able to retrieve the routes middleware to be able to update
@@ -134,7 +134,10 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
     )
 
     # Establish the Registry for this application
-    app = RegistryManager(app)
+    # The RegistryManager includes code to pop
+    # registry values after the stream has completed,
+    # so we need to prevent this with `streaming` set to True.
+    app = RegistryManager(app, streaming=True)
 
     if asbool(static_files):
         # Serve static files
@@ -152,7 +155,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
             path = os.path.join(storage_directory, 'storage')
             try:
                 os.makedirs(path)
-            except OSError, e:
+            except OSError as e:
                 # errno 17 is file already exists
                 if e.errno != 17:
                     raise
@@ -170,10 +173,6 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
                                     cache_max_age=static_max_age)
                 )
         app = Cascade(extra_static_parsers + static_parsers)
-
-    # Page cache
-    if asbool(config.get('ckan.page_cache_enabled')):
-        app = common_middleware.PageCacheMiddleware(app, config)
 
     # Tracking
     if asbool(config.get('ckan.tracking_enabled', 'false')):

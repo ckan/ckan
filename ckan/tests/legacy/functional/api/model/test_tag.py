@@ -9,8 +9,7 @@ from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.search as search
 
 from ckan.tests.legacy.functional.api.base import BaseModelApiTestCase
-from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase
-from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase
+
 
 class TagsTestCase(BaseModelApiTestCase):
 
@@ -56,6 +55,3 @@ class TagsTestCase(BaseModelApiTestCase):
         offset = self.tag_offset('doesntexist')
         res = self.app.get(offset, status=404)
         self.assert_json_response(res, 'Not found')
-
-class TestTagsVersion1(Version1TestCase, TagsTestCase): pass
-class TestTagsVersion2(Version2TestCase, TagsTestCase): pass

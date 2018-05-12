@@ -23,6 +23,7 @@ _default_package_plugin = None
 _group_plugins = {}
 # The fallback behaviour
 _default_group_plugin = None
+_default_organization_plugin = None
 # Mapping from group-type strings to controllers
 _group_controllers = {}
 
@@ -34,6 +35,8 @@ def reset_package_plugins():
     _package_plugins = {}
     global _default_group_plugin
     _default_group_plugin = None
+    global _default_organization_plugin
+    _default_organization_plugin = None
     global _group_plugins
     _group_plugins = {}
     global _group_controllers
@@ -133,22 +136,21 @@ def register_group_plugins(map):
     This method will setup the mappings between group types and the
     registered IGroupForm instances. If it's called more than once an
     exception will be raised.
+
+    It will register IGroupForm instances for both groups and organizations
     """
     global _default_group_plugin
+    global _default_organization_plugin
 
     # This function should have not effect if called more than once.
     # This should not occur in normal deployment, but it may happen when
     # running unit tests.
-    if _default_group_plugin is not None:
+    if (_default_group_plugin is not None or
+            _default_organization_plugin is not None):
         return
 
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IGroupForm):
-        if plugin.is_fallback():
-            if _default_group_plugin is not None:
-                raise ValueError("More than one fallback IGroupForm has been "
-                                 "registered")
-            _default_group_plugin = plugin
 
         # Get group_controller from plugin if there is one,
         # otherwise use 'group'
@@ -156,6 +158,24 @@ def register_group_plugins(map):
             group_controller = plugin.group_controller()
         except AttributeError:
             group_controller = 'group'
+
+        if plugin.is_fallback():
+            if hasattr(plugin, 'is_organization'):
+                is_organization = plugin.is_organization
+            else:
+                is_organization = group_controller == 'organization'
+
+            if is_organization:
+                if _default_organization_plugin is not None:
+                    raise ValueError("More than one fallback IGroupForm for "
+                                     "organizations has been registered")
+                _default_organization_plugin = plugin
+
+            else:
+                if _default_group_plugin is not None:
+                    raise ValueError("More than one fallback IGroupForm for "
+                                     "groups has been registered")
+                _default_group_plugin = plugin
 
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
@@ -190,6 +210,14 @@ def register_group_plugins(map):
                         controller=group_controller,
                         action='members',
                         ckan_icon='users')
+            map.connect('%s_member_new' % group_type,
+                        '/%s/member_new/{id}' % group_type,
+                        controller=group_controller,
+                        action='member_new')
+            map.connect('%s_member_delete' % group_type,
+                        '/%s/member_delete/{id}' % group_type,
+                        controller=group_controller,
+                        action='member_delete')
             map.connect('%s_activity' % group_type,
                         '/%s/activity/{id}/{offset}' % group_type,
                         controller=group_controller,
@@ -223,6 +251,8 @@ def register_group_plugins(map):
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
         _default_group_plugin = DefaultGroupForm()
+    if _default_organization_plugin is None:
+        _default_organization_plugin = DefaultOrganizationForm()
     if 'group' not in _group_controllers:
         _group_controllers['group'] = 'group'
     if 'organization' not in _group_controllers:
@@ -540,8 +570,6 @@ class DefaultOrganizationForm(DefaultGroupForm):
 
     def activity_template(self):
         return 'organization/activity_stream.html'
-
-_default_organization_plugin = DefaultOrganizationForm()
 
 
 class DefaultTranslation(object):

@@ -3,10 +3,17 @@
 {% block subtitle %}{{ _('Activity Stream') }} - {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
+<<<<<<< HEAD
   <h1 class="hide-heading">
     {% block page_heading -%}
       {{ _('Activity Stream') }}
     {%- endblock %}
   </h1>
   {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream, id=id, object_type='user' %}
+=======
+  <h2 class="hide-heading">{% block page_heading %}{{ _('Activity Stream') }}{% endblock %}</h2>
+  {% block activity_stream %}
+    {{ g.user_activity_stream | safe }}
+  {% endblock %}
+>>>>>>> master
 {% endblock %}

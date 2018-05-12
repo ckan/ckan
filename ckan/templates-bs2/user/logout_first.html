@@ -1,7 +1,7 @@
 {% import 'macros/form.html' as form %}
 {% extends "user/login.html" %}
 
-{% set logout_url = h.url_for(controller='user',action='logout') %}
+{% set logout_url = h.url_for('user.logout') %}
 
 {% block actions %}{% endblock %}
 

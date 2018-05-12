@@ -1017,6 +1017,19 @@ class IAuthFunctions(Interface):
                 # Unless there is a logged in user or a valid API key provided
                 # NotAuthorized will be raised before reaching this function.
 
+        By decorating a registered auth function with the
+        'ckan.plugins.toolkit.chained_auth_function` decorator you can create a
+        chain of auth checks that are completed when auth is requested. This
+        chain starts with the last chained auth function to be registered and
+        ends with the original auth function (or a non-chained plugin override
+        version). Chained auth functions must accept an extra parameter,
+        specifically the next auth function in the chain, for example:
+
+            auth_function(next_auth, context, data_dict).
+
+        The chained auth function may call the next_auth function, optionally
+        passing different values, handling exceptions, returning different
+        values and/or raising different exceptions to the caller.
         '''
 
 
@@ -1092,7 +1105,7 @@ class IDatasetForm(Interface):
         If no IDatasetForm plugin's ``is_fallback()`` method returns ``True``,
         CKAN will use ``DefaultDatasetForm`` as the fallback.
 
-        :rtype: boolean
+        :rtype: bool
 
         '''
 

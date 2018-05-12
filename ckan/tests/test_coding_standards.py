@@ -17,8 +17,10 @@ import re
 import subprocess
 import sys
 
+from six import text_type
+from six.moves import xrange
 
-FILESYSTEM_ENCODING = unicode(
+FILESYSTEM_ENCODING = text_type(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
 
@@ -99,7 +101,8 @@ def test_building_the_docs():
         u'WARNING: duplicate label ckan.auth.create_dataset_if_not_in_organization',
         u'WARNING: duplicate label ckan.auth.user_delete_groups',
         u'WARNING: duplicate label ckan.auth.user_create_organizations',
-        u'WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups'
+        u'WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups',
+        u'WARNING: duplicate label ckan.auth.public_user_details',
     ]
 
     # Remove the allowed warnings from the list of collected warnings.
@@ -124,7 +127,7 @@ def test_source_files_specify_encoding():
 
     Empty files and files that only contain comments are ignored.
     '''
-    pattern = re.compile(ur'#.*?coding[:=][ \t]*utf-?8')
+    pattern = re.compile(u'#.*?coding[:=][ \\t]*utf-?8')
     decode_errors = []
     no_specification = []
     for abs_path, rel_path in walk_python_files():
@@ -271,7 +274,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/lib/authenticator.py',
     u'ckan/lib/base.py',
     u'ckan/lib/captcha.py',
-    u'ckan/lib/celery_app.py',
     u'ckan/lib/cli.py',
     u'ckan/lib/config_tool.py',
     u'ckan/lib/create_test_data.py',

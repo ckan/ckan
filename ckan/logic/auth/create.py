@@ -200,23 +200,6 @@ def _check_group_auth(context, data_dict):
 
     return True
 
-## Modifications for rest api
-
-def package_create_rest(context, data_dict):
-    model = context['model']
-    user = context['user']
-    if not user:
-        return {'success': False, 'msg': _('Valid API key needed to create a package')}
-
-    return authz.is_authorized('package_create', context, data_dict)
-
-def group_create_rest(context, data_dict):
-    model = context['model']
-    user = context['user']
-    if not user:
-        return {'success': False, 'msg': _('Valid API key needed to create a group')}
-
-    return authz.is_authorized('group_create', context, data_dict)
 
 def vocabulary_create(context, data_dict):
     # sysadmins only

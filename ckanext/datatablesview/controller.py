@@ -2,7 +2,9 @@
 
 import json
 
-from ckan.plugins.toolkit import BaseController, request, get_action
+from six import text_type
+
+from ckan.plugins.toolkit import BaseController, get_action, request
 
 
 class DataTablesController(BaseController):
@@ -11,11 +13,11 @@ class DataTablesController(BaseController):
             None, {u'id': resource_view_id})
 
         draw = int(request.params['draw'])
-        search_text = unicode(request.params['search[value]'])
+        search_text = text_type(request.params['search[value]'])
         offset = int(request.params['start'])
         limit = int(request.params['length'])
         view_filters = resource_view.get(u'filters', {})
-        user_filters = unicode(request.params['filters'])
+        user_filters = text_type(request.params['filters'])
         filters = merge_filters(view_filters, user_filters)
 
         datastore_search = get_action(u'datastore_search')
@@ -55,7 +57,7 @@ class DataTablesController(BaseController):
             u'iTotalRecords': unfiltered_response.get(u'total', 0),
             u'iTotalDisplayRecords': response.get(u'total', 0),
             u'aaData': [
-                [unicode(row.get(colname, u'')) for colname in cols]
+                [text_type(row.get(colname, u'')) for colname in cols]
                 for row in response['records']
             ],
         })

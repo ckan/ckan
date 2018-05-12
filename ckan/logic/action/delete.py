@@ -186,7 +186,7 @@ def resource_delete(context, data_dict):
                 r['id'] == id]
     try:
         pkg_dict = _get_action('package_update')(context, pkg_dict)
-    except ValidationError, e:
+    except ValidationError as e:
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
@@ -357,7 +357,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
             if not authz.check_config_permission('ckan.auth.create_unowned_dataset'):
                 raise ValidationError(_('Organization cannot be deleted while it '
                                       'still has datasets'))
-            
+
             pkg_table = model.package_table
             # using Core SQLA instead of the ORM should be faster
             model.Session.execute(
@@ -428,7 +428,7 @@ def _group_or_org_purge(context, data_dict, is_org=False):
 
     :param is_org: you should pass is_org=True if purging an organization,
         otherwise False (optional, default: False)
-    :type is_org: boolean
+    :type is_org: bool
 
     '''
     model = context['model']
@@ -598,19 +598,6 @@ def tag_delete(context, data_dict):
     tag_obj.delete()
     model.repo.commit()
 
-def package_relationship_delete_rest(context, data_dict):
-
-    # rename keys
-    key_map = {'id': 'subject',
-               'id2': 'object',
-               'rel': 'type'}
-    # We want 'destructive', so that the value of the subject,
-    # object and rel in the URI overwrite any values for these
-    # in params. This is because you are not allowed to change
-    # these values.
-    data_dict = ckan.logic.action.rename_keys(data_dict, key_map, destructive=True)
-
-    package_relationship_delete(context, data_dict)
 
 def _unfollow(context, data_dict, schema, FollowerClass):
     model = context['model']

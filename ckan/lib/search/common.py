@@ -5,6 +5,9 @@ import logging
 import re
 import pysolr
 import simplejson
+from six import string_types
+import urllib
+
 log = logging.getLogger(__name__)
 
 
@@ -55,7 +58,7 @@ def is_available():
     try:
         conn = make_connection()
         conn.search(q="*:*", rows=1)
-    except Exception, e:
+    except Exception as e:
         log.exception(e)
         return False
     return True
@@ -63,6 +66,16 @@ def is_available():
 
 def make_connection(decode_dates=True):
     solr_url, solr_user, solr_password = SolrSettings.get()
+
+    if solr_url and solr_user:
+        # Rebuild the URL with the username/password
+        protocol = re.search('http(?:s)?://', solr_url).group()
+        solr_url = re.sub(protocol, '', solr_url)
+        solr_url = "{}{}:{}@{}".format(protocol,
+                                       urllib.quote_plus(solr_user),
+                                       urllib.quote_plus(solr_password),
+                                       solr_url)
+
     if decode_dates:
         decoder = simplejson.JSONDecoder(object_hook=solr_datetime_decoder)
         return pysolr.Solr(solr_url, decoder=decoder)
@@ -72,7 +85,7 @@ def make_connection(decode_dates=True):
 
 def solr_datetime_decoder(d):
     for k, v in d.items():
-        if isinstance(v, basestring):
+        if isinstance(v, string_types):
             possible_datetime = re.search(pysolr.DATETIME_REGEX, v)
             if possible_datetime:
                 date_values = possible_datetime.groupdict()

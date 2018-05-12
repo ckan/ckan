@@ -17,20 +17,11 @@ import ckan.tests.factories as factories
 
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
-    rebuild_all_dbs, set_url_type, DatastoreFunctionalTestBase)
+    set_url_type, DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
 from ckan.plugins.toolkit import ValidationError
 
 
-class TestDatastoreCreateNewTests(object):
-    @classmethod
-    def setup_class(cls):
-        p.load('datastore')
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload('datastore')
-        helpers.reset_db()
-
+class TestDatastoreCreateNewTests(DatastoreFunctionalTestBase):
     def test_create_creates_index_on_primary_key(self):
         package = factories.Dataset()
         data = {
@@ -254,17 +245,14 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action('datastore_create', **data)
 
 
-class TestDatastoreCreate():
+class TestDatastoreCreate(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-
         cls.app = _get_test_app()
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+        super(TestDatastoreCreate, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -272,11 +260,6 @@ class TestDatastoreCreate():
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
-
-    @classmethod
-    def teardown_class(cls):
-        rebuild_all_dbs(cls.Session)
-        p.unload('datastore')
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]

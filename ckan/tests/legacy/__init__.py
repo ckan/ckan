@@ -21,6 +21,7 @@ import time
 from ckan.common import config
 from pylons.test import pylonsapp
 from paste.script.appinstall import SetupCommand
+from six import text_type
 
 import pkg_resources
 import paste.fixture
@@ -86,7 +87,7 @@ class BaseCase(object):
         import commands
         (status, output) = commands.getstatusoutput(cmd)
         if status:
-            raise Exception, "Couldn't execute cmd: %s: %s" % (cmd, output)
+            raise Exception("Couldn't execute cmd: %s: %s" % (cmd, output))
 
     @classmethod
     def _paster(cls, cmd, config_path_rel):
@@ -134,7 +135,7 @@ class CommonFixtureMethods(BaseCase):
     @classmethod
     def purge_packages(cls, pkg_names):
         for pkg_name in pkg_names:
-            pkg = model.Package.by_name(unicode(pkg_name))
+            pkg = model.Package.by_name(text_type(pkg_name))
             if pkg:
                 pkg.purge()
         model.repo.commit_and_remove()
@@ -279,7 +280,7 @@ class CkanServerCase(BaseCase):
         pid = process.pid
         pid = int(pid)
         if os.system("kill -9 %d" % pid):
-            raise Exception, "Can't kill foreign CKAN instance (pid: %d)." % pid
+            raise Exception("Can't kill foreign CKAN instance (pid: %d)." % pid)
 
 
 class TestController(CommonFixtureMethods, CkanServerCase, WsgiAppCase, BaseCase):

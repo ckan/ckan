@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from __future__ import print_function
+
 import datetime
 
 from ckan.common import config, c
@@ -616,4 +618,3 @@ class TestResourceListing(TestPackageBase):
     def test_resource_listing_premissions_not_logged_in(self):
         # not logged in 403
          self.app.get('/dataset/resources/crimeandpunishment', status=[403])
-

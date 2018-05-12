@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 from email.utils import encode_rfc2231
 from simplejson import dumps
+from six import text_type
 from xml.etree.cElementTree import Element, SubElement, ElementTree
 
 import unicodecsv
@@ -156,7 +157,7 @@ class XMLWriter(object):
         if v is None:
             element.attrib[u'xsi:nil'] = u'true'
         elif not isinstance(v, (list, dict)):
-            element.text = unicode(v)
+            element.text = text_type(v)
         else:
             if isinstance(v, list):
                 it = enumerate(v)
@@ -166,13 +167,13 @@ class XMLWriter(object):
                 self._insert_node(element, self._value_tag, value, key)
 
         if key_attr is not None:
-            element.attrib[self._key_attr] = unicode(key_attr)
+            element.attrib[self._key_attr] = text_type(key_attr)
 
     def write_records(self, records):
         for r in records:
             root = Element(u'row')
             if self.id_col:
-                root.attrib[u'_id'] = unicode(r[u'_id'])
+                root.attrib[u'_id'] = text_type(r[u'_id'])
             for c in self.columns:
                 self._insert_node(root, c, r[c])
             ElementTree(root).write(self.response, encoding=u'utf-8')

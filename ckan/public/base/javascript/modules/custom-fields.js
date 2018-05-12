@@ -22,9 +22,6 @@ this.ckan.module('custom-fields', function (jQuery) {
       var delegated = this.options.fieldSelector + ':last input:first';
       this.el.on('change', delegated, this._onChange);
       this.el.on('change', ':checkbox', this._onRemove);
-
-      // Style the remove checkbox like a button.
-      this.$('.checkbox').addClass("btn btn-danger fa fa-times");
     },
 
     /* Creates a new field and appends it to the list. This currently works by

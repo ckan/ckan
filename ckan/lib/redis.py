@@ -52,7 +52,7 @@ def is_redis_available():
     Check whether Redis is available.
 
     :returns: The availability of Redis.
-    :rtype: boolean
+    :rtype: bool
 
     .. seealso:: :py:func:`connect_to_redis`
     '''

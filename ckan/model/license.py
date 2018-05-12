@@ -6,6 +6,7 @@ import re
 
 from ckan.common import config
 from paste.deploy.converters import asbool
+from six import text_type
 
 from ckan.common import _, json
 import ckan.lib.maintain as maintain
@@ -117,12 +118,12 @@ class LicenseRegister(object):
         try:
             response = urllib2.urlopen(license_url)
             response_body = response.read()
-        except Exception, inst:
+        except Exception as inst:
             msg = "Couldn't connect to licenses service %r: %s" % (license_url, inst)
             raise Exception(msg)
         try:
             license_data = json.loads(response_body)
-        except Exception, inst:
+        except Exception as inst:
             msg = "Couldn't read response from licenses service %r: %s" % (response_body, inst)
             raise Exception(inst)
         self._create_license_list(license_data, license_url)
@@ -200,7 +201,7 @@ class DefaultLicense(dict):
         if key in self.keys:
             value = getattr(self, key)
             if isinstance(value, str):
-                return unicode(value)
+                return text_type(value)
             else:
                 return value
         else:
@@ -210,7 +211,7 @@ class DefaultLicense(dict):
         ''' create a dict of the license used by the licenses api '''
         out = {}
         for key in self.keys:
-            out[key] = unicode(getattr(self, key))
+            out[key] = text_type(getattr(self, key))
         return out
 
 class LicenseNotSpecified(DefaultLicense):
