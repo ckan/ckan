@@ -11,6 +11,7 @@ of datasets and changes (diffs) between them.
 # This code is not part of the main CKAN CLI because it is a one-off migration,
 # whereas the main CLI is a list of tools for more frequent use.
 
+from __future__ import print_function
 import argparse
 
 # not importing anything from ckan until after the arg parsing, to fail on bad
@@ -36,7 +37,7 @@ def migrate_all_datasets():
     dataset_names = logic.get_action(u'package_list')(get_context(), {})
     num_datasets = len(dataset_names)
     for i, dataset_name in enumerate(dataset_names):
-        print u'{}/{} {}'.format(i + 1, num_datasets, dataset_name)
+        print(u'{}/{} {}'.format(i + 1, num_datasets, dataset_name))
         migrate_dataset(dataset_name)
 
 
@@ -68,8 +69,8 @@ def migrate_dataset(dataset_name):
         #  'revision_id': u'c3e8670a-f661-40f4-9423-b011c6a3a11d',
         #  'timestamp': '2018-04-20T16:11:45.363097',
         #  'user_id': u'724273ac-a5dc-482e-add4-adaf1871f8cb'}
-        print u'  activity {}/{} {}'.format(
-            i + 1, num_activities, activity[u'timestamp'])
+        print(u'  activity {}/{} {}'.format(
+              i + 1, num_activities, activity[u'timestamp']))
 
         # get the dataset as it was at this revision
         context[u'revision_id'] = activity[u'revision_id']
@@ -99,13 +100,13 @@ def migrate_dataset(dataset_name):
         # be faster
         activity_obj = model.Session.query(model.Activity).get(activity[u'id'])
         if u'resources' in activity_obj.data.get(u'package', {}):
-            print u'    Full dataset already recorded - no action'
+            print(u'    Full dataset already recorded - no action')
         else:
             activity_obj.data = data
             # print '    {} dataset {}'.format(actor_name, repr(dataset))
     if model.Session.dirty:
         model.Session.commit()
-        print u'  saved'
+        print(u'  saved')
 
 
 if __name__ == u'__main__':
@@ -116,7 +117,7 @@ if __name__ == u'__main__':
     args = parser.parse_args()
     assert args.config, u'You must supply a --config'
     from ckan.lib.cli import load_config
-    print u'Loading config'
+    print(u'Loading config')
     load_config(args.config)
     if not args.dataset:
         migrate_all_datasets()

@@ -13,7 +13,7 @@ def upgrade(migrate_engine):
         AND p.private = false;
     ''').fetchone()[0]
     if num_unmigrated:
-        print '''
+        print('''
 !!! NOTICE !!!
 You should run the migrate_revisions.py script to fully populate the dataset
 dicts in the Activity Stream that admins can see. This can take a while but can
@@ -25,4 +25,4 @@ Run migrate_revisions.py like this:
     python ckan/migration/migrate_revisions.py -c /etc/ckan/production.ini
 
 NB This notice will not display again
-        '''
+        ''')
