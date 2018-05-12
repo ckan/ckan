@@ -260,7 +260,7 @@ def dashboard_new_activities_count(context, data_dict):
             context, data_dict)
 
 
-def activity_list_show(context, data_dict):
+def activity_list(context, data_dict):
     '''
     :param id: the id or name of the object (e.g. package id)
     :type id: string
@@ -288,6 +288,26 @@ def activity_list_show(context, data_dict):
                                {'id': data_dict['id']})
 
 
+def user_activity_list(context, data_dict):
+    data_dict['object_type'] = 'user'
+    return activity_list(context, data_dict)
+
+
+def package_activity_list(context, data_dict):
+    data_dict['object_type'] = 'package'
+    return activity_list(context, data_dict)
+
+
+def group_activity_list(context, data_dict):
+    data_dict['object_type'] = 'group'
+    return activity_list(context, data_dict)
+
+
+def organization_activity_list(context, data_dict):
+    data_dict['object_type'] = 'organization'
+    return activity_list(context, data_dict)
+
+
 def activity_show(context, data_dict):
     '''
     :param id: the id of the activity
@@ -302,11 +322,28 @@ def activity_show(context, data_dict):
         object_type = 'package'
     else:
         return {'success': False, 'msg': 'object_type not recognized'}
-    return activity_list_show(context, {
+    return _activity_list(context, {
         'id': activity.object_id,
-        'object_type': object_type,
         'include_data': data_dict['include_data'],
-        })
+        }, object_type)
+
+
+def activity_data_show(context, data_dict):
+    '''
+    :param id: the id of the activity
+    :type id: string
+    '''
+    data_dict['include_data'] = True
+    return activity_show(context, data_dict)
+
+
+def activity_diff(context, data_dict):
+    '''
+    :param id: the id of the activity
+    :type id: string
+    '''
+    data_dict['include_data'] = True
+    return activity_show(context, data_dict)
 
 
 def user_follower_list(context, data_dict):

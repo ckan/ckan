@@ -2551,9 +2551,8 @@ def user_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['object_type'] = 'user'
     data_dict['include_data'] = False
-    _check_access('activity_list_show', context, data_dict)
+    _check_access('user_activity_list', context, data_dict)
 
     model = context['model']
 
@@ -2597,10 +2596,9 @@ def package_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['object_type'] = 'package'
     data_dict['include_data'] = False
     include_hidden_activity = asbool(context.get('include_hidden_activity'))
-    _check_access('activity_list_show', context, data_dict)
+    _check_access('package_activity_list', context, data_dict)
 
     model = context['model']
 
@@ -2647,10 +2645,9 @@ def group_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['object_type'] = 'group'
     data_dict['include_data'] = False
     include_hidden_activity = asbool(context.get('include_hidden_activity'))
-    _check_access('activity_list_show', context, data_dict)
+    _check_access('group_activity_list', context, data_dict)
 
     model = context['model']
     group_id = data_dict.get('id')
@@ -2687,10 +2684,9 @@ def organization_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['object_type'] = 'organization'
     data_dict['include_data'] = False
     include_hidden_activity = asbool(context.get('include_hidden_activity'))
-    _check_access('activity_list_show', context, data_dict)
+    _check_access('organization_activity_list', context, data_dict)
 
     model = context['model']
     org_id = data_dict.get('id')
@@ -3359,14 +3355,13 @@ def activity_data_show(context, data_dict):
     user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = data_dict.get('object_type')
-    data_dict['include_data'] = True
 
     activity = model.Session.query(model.Activity).get(activity_id)
     if activity is None:
         raise NotFound
     context['activity'] = activity
 
-    _check_access(u'activity_show', context, data_dict)
+    _check_access(u'activity_data_show', context, data_dict)
 
     activity = model_dictize.activity_dictize(activity, context,
                                               include_data=True)
@@ -3402,8 +3397,7 @@ def activity_diff(context, data_dict):
     object_type = _get_or_bust(data_dict, 'object_type')
     diff_type = data_dict.get('diff_type', 'unified')
 
-    data_dict['include_data'] = True
-    _check_access(u'activity_show', context, data_dict)
+    _check_access(u'activity_diff', context, data_dict)
 
     activity = model.Session.query(model.Activity).get(activity_id)
     if activity is None:

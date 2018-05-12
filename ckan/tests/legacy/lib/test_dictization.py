@@ -643,9 +643,6 @@ class TestBasicDictize:
         assert got['id']
         assert got['timestamp']
 
-        # We didn't pass in any data so this should be empty.
-        assert not got['data']
-
 
     def test_21_package_dictization_with_deleted_group(self):
         """
