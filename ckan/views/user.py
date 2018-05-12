@@ -478,14 +478,14 @@ def activity(id, offset=0):
     extra_vars = _extra_template_variables(context, data_dict)
 
     try:
-        g.user_activity_stream = logic.get_action(u'user_activity_list_html')(
-            context, {
-                u'id': extra_vars[u'user_dict'][u'id'],
-                u'offset': offset
-            })
+        extra_vars['user_activity_stream'] = \
+            logic.get_action(u'user_activity_list')(
+                context, {
+                    u'id': extra_vars[u'user_dict'][u'id'],
+                    u'offset': offset
+                })
     except logic.ValidationError:
         base.abort(400)
-    extra_vars['user_activity_stream'] = g.user_activity_stream
     extra_vars['id'] = id
 
     return base.render(u'user/activity_stream.html', extra_vars)
