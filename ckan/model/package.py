@@ -534,11 +534,11 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             dictized_package = ckan.logic.get_action('package_show')({
                 'model': ckan.model,
                 'session': ckan.model.Session,
-                'for_view': True,
+                'for_view': False,  # avoid ckanext-multilingual translating it
                 'ignore_auth': True
             }, {
                 'id': self.id,
-                'include_tracking': True
+                'include_tracking': False
             })
         except ckan.logic.NotFound:
             # This happens if this package is being purged and therefore has no
