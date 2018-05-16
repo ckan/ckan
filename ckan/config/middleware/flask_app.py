@@ -10,7 +10,7 @@ from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 
-from werkzeug.exceptions import HTTPException
+from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.routing import Rule
 
 from flask_babel import Babel
@@ -71,9 +71,8 @@ def make_flask_stack(conf, **app_conf):
     root = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    debug = asbool(app_conf.get('debug', app_conf.get('DEBUG', False)))
+    debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
     testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
-
     app = flask_app = CKANFlask(__name__)
     app.debug = debug
     app.testing = testing
@@ -408,12 +407,12 @@ def _register_error_handler(app):
     u'''Register error handler'''
 
     def error_handler(e):
-        extra_vars = {u'code': e.code, u'content': e.description}
-        return base.render(u'error_document_template.html', extra_vars), e.code
+        if isinstance(e, HTTPException):
+            extra_vars = {u'code': e.code, u'content': e.description}
+            return base.render(u'error_document_template.html', extra_vars), e.code
+        extra_vars = {u'code': 500, u'content': e.message}
+        return base.render(u'error_document_template.html', extra_vars), 500
 
-    app.register_error_handler(400, error_handler)
-    app.register_error_handler(401, error_handler)
-    app.register_error_handler(403, error_handler)
-    app.register_error_handler(404, error_handler)
-    app.register_error_handler(500, error_handler)
-    app.register_error_handler(503, error_handler)
+    for code in default_exceptions:
+        app.register_error_handler(code, error_handler)
+    app.register_error_handler(Exception, error_handler)
