@@ -203,8 +203,9 @@ Open ``/etc/apache2/ports.conf``. We need to replace the default port 80 with th
 8. Create the Nginx config file
 -------------------------------
 
-Create your site's Nginx config file at |nginx_config_file|, with the
-following contents:
+Create your site's Nginx config file at |nginx_config_file|, 
+nginx "listens" to the default port (80), forward to port 8080,
+with the following contents:
 
 .. parsed-literal::
 
@@ -228,6 +229,38 @@ following contents:
 
     }
 
+If you'd like nginx to listen other port(not 80) forward to port 8080,
+for example, 6080(server port, used in **client web browser url**), also apply to vagrant/docker, 
+
+.. parsed-literal::
+
+    proxy_cache_path /tmp/nginx_cache levels=1:2 keys_zone=cache:30m max_size=250m;
+    proxy_temp_path /tmp/nginx_proxy 1 2;
+
+    server {
+        listen 6080; # add nginx forwarding port
+        client_max_body_size 100M;
+        location / {
+            proxy_pass http://127.0.0.1:8080/;
+            proxy_set_header X-Forwarded-For $remote_addr;
+            proxy_set_header Host $host:6080; # add nginx forwarding port
+            proxy_cache cache;
+            proxy_cache_bypass $cookie_auth_tkt;
+            proxy_no_cache $cookie_auth_tkt;
+            proxy_cache_valid 30m;
+            proxy_cache_key $host$scheme$proxy_host$request_uri;
+            # In emergency comment out line to force caching
+            # proxy_ignore_headers X-Accel-Expires Expires Cache-Control;
+        }
+
+    }
+    
+Change CKAN site url settings in /etc/ckan/default/production.ini
+(or /etc/ckan/default/production.ini) with server ip, if server ip is 10.2.20.251,
+change ckan.site_url with the following contents:
+
+  ckan.site_url = http://10.2.20.251:6080   
+
 
 ------------------------
 9. Enable your CKAN site
@@ -245,7 +278,8 @@ To prevent conflicts, disable your default nginx and apache sites.  Finally, ena
     |reload_nginx|
 
 You should now be able to visit your server in a web browser and see your new
-CKAN instance.
+CKAN instance. If server ip is 10.2.20.251, then open web browser with 
+http://10.2.20.251 or http://10.2.20.251:6080 based on your site's Nginx config file at |nginx_config_file|.
 
 
 --------------------------------------
