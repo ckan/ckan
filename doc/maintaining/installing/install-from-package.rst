@@ -123,6 +123,12 @@ set the correct password, database and database user.
    change the :ref:`solr_url` setting in your
    |production.ini| file to reference your |solr| server.
 
+Before install |solr|, stop apache2 and nginx service firstly:
+
+    sudo service nginx stop
+    
+    sudo service apache2 stop
+
 Install |solr|, running this command in a terminal::
 
     sudo apt-get install -y solr-jetty
