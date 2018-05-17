@@ -9,9 +9,8 @@
  *            from the ajax returned results
  * label    - A string of the label you want to appear within the dropdown for
  *            returned results
- * tokensep - An array (passed as string) that contains characters which will
-              be interpreted as separators for tags when typed or pasted
-              (default "[',']").
+ * tokensep - A string that contains characters which will be interpreted
+ *            as separators for tags when typed or pasted (default ",").
  * Examples
  *
  *   // <input name="tags" data-module="autocomplete" data-module-source="http://" />
@@ -26,7 +25,7 @@ this.ckan.module('autocomplete', function (jQuery) {
       label: false,
       items: 10,
       source: null,
-      tokensep: [','],
+      tokensep: ',',
       interval: 300,
       dropdownClass: '',
       containerClass: ''
@@ -54,7 +53,7 @@ this.ckan.module('autocomplete', function (jQuery) {
         formatInputTooShort: this.formatInputTooShort,
         dropdownCssClass: this.options.dropdownClass,
         containerCssClass: this.options.containerClass,
-        tokenSeparators: eval(this.options.tokensep)
+        tokenSeparators: this.options.tokensep.split('')
       };
 
       // Different keys are required depending on whether the select is
