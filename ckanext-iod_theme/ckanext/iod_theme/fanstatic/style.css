@@ -198,6 +198,13 @@ blockquote:lang(fa_IR) {
   float: right;
 }
 
+@media (max-width: 768px) {
+  .nav-tabs:lang(en) > li,
+  .nav-pills:lang(en) > li {
+    float: left;
+  }
+}
+
 .activity:lang(fa_IR) {
   background-position-x: 98.4%;
   margin-right: 0;
@@ -704,6 +711,13 @@ a:active {
 [role=main] .secondary {
   border-left: 0;
   border-right: 1px solid #dddddd;
+}
+
+@media (max-width: 768px) {
+  .resource-item .heading,
+  .module h1 {
+    word-wrap: break-word;
+  }
 }
 
 /* General */
@@ -1525,5 +1539,11 @@ a:active {
 
   .theme-list li {
     width: calc(50% - 20px);
+  }
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    margin: 0;
   }
 }
