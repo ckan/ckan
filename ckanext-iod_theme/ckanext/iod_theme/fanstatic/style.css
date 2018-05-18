@@ -423,7 +423,7 @@ blockquote:lang(fa_IR) {
   padding: 0 0 15px;
 }
 
-.usecases:not(.box) h3 {
+.usecases h3 {
   padding: 10px 10px 0;
 }
 
@@ -482,7 +482,7 @@ blockquote:lang(fa_IR) {
 
 .clamping {
   position: relative;
-  height: 6.6rem;
+  height: 6.4rem;
   width: 99%;
   margin: 0 0 1rem 0;
   overflow: hidden;
