@@ -115,11 +115,8 @@ class ConfigView(MethodView):
                     logic.tuplize_dict(
                         logic.parse_params(
                             request.form, ignore_keys=CACHE_PARAMETERS))))
-            del data_dict['save']
-            if not request.files:
-                base.abort(404, _("Upload file not found"))
-
             data_dict.update(request.files.to_dict())
+            del data_dict['save']
             data = logic.get_action(u'config_option_update')({
                 u'user': g.user
             }, data_dict)
