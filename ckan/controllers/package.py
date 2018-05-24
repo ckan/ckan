@@ -1268,7 +1268,7 @@ class PackageController(base.BaseController):
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
-            c.package_activity_stream = get_action(
+            package_activity_stream = get_action(
                 'package_activity_list')(
                 context, {'id': id})
             dataset_type = c.pkg_dict['type'] or 'dataset'
@@ -1281,7 +1281,7 @@ class PackageController(base.BaseController):
             'package/activity.html',
             extra_vars={
                 'dataset_type': dataset_type,
-                'activity_stream': c.package_activity_stream,
+                'activity_stream': package_activity_stream,
                 'id': id,  # i.e. package's current name
                 }
         )

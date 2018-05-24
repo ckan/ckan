@@ -704,6 +704,8 @@ def activity_dictize(activity, context, include_data=False):
 
 def package_activity_list_dictize(activity_list, package_name, package_title,
                                   context, include_data=False):
+    '''all the activities are to do with one specific package, given by
+    package_name/title'''
     dictized_activity_list = []
     for activity in activity_list:
         dictized_activity = activity_dictize(activity, context, include_data)

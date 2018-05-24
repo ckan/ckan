@@ -5,7 +5,7 @@ Migrates revisions into the activity stream, to allow you to view old versions
 of datasets and changes (diffs) between them.
 '''
 
-# This cost is not part of the main migrations because it takes a long time to
+# This is not part of the main migrations because it takes a long time to
 # run, and you don't want it to delay a site going live again after an upgrade.
 
 # This code is not part of the main CKAN CLI because it is a one-off migration,

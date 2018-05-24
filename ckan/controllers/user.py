@@ -670,7 +670,7 @@ class UserController(base.BaseController):
 
         c.dashboard_activity_stream_context = self._get_dashboard_context(
             filter_type, filter_id, q)
-        c.dashboard_activity_stream = h.dashboard_activity_stream(
+        dashboard_activity_stream = h.dashboard_activity_stream(
             c.userobj.id, filter_type, filter_id, offset
         )
 
@@ -679,7 +679,7 @@ class UserController(base.BaseController):
         get_action('dashboard_mark_activities_old')(context, {})
 
         return render('user/dashboard.html', extra_vars={
-            'dashboard_activity_stream': c.dashboard_activity_stream
+            'dashboard_activity_stream': dashboard_activity_stream
         })
 
     def dashboard_datasets(self):
