@@ -20,7 +20,7 @@ services:
       - solr
       - redis
     ports:
-      - "0.0.0.0:${CKAN_PORT}:5000"
+      - "0.0.0.0:${CKAN_PORT}:${HOST_PORT}"
     environment:
       # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
       - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
