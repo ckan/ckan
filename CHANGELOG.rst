@@ -29,7 +29,7 @@ General notes:
    this version. Check the *Deprecations* section to be prepared.
 
 Major changes:
- * New revamped frontend templates based on Bootstrap 3, see "Changes and deprecations" (#3547) 
+ * New revamped frontend templates based on Bootstrap 3, see "Changes and deprecations" (#3547)
  * Allow datastore_search_sql on private datasets (#2562)
  * New Flask blueprints migrated from old Pylons controllers: user, dashboard, feeds, admin and home (#3927, #3870, #3775, #3762)
  * Improved support for custom groups and organization types (#4032)
@@ -308,6 +308,13 @@ Deprecations:
  * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
+
+v2.6.6 2018-05-09
+=================
+
+* Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
+* Stable version URLs CKAN for documentation (#4209)
+* Add Warning in docs sidebar (#4209)
 
 v2.6.5 2018-03-15
 =================
