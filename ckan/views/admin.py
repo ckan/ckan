@@ -110,11 +110,14 @@ class ConfigView(MethodView):
 
     def post(self):
         try:
+            req = request.form.copy()
+            req.update(request.files.to_dict())
             data_dict = logic.clean_dict(
                 dict_fns.unflatten(
                     logic.tuplize_dict(
                         logic.parse_params(
-                            request.form, ignore_keys=CACHE_PARAMETERS))))
+                            req, ignore_keys=CACHE_PARAMETERS))))
+
             del data_dict['save']
             data = logic.get_action(u'config_option_update')({
                 u'user': g.user

@@ -20,7 +20,7 @@ class TestFeedNew(helpers.FunctionalTestBase):
         offset = url_for(u'feeds.group', id=group['name']) + u'?page=0'
 
         res = app.get(offset, status=400)
-        assert '&quot;page&quot; parameter must be a positive integer' in res, res
+        assert '&#34;page&#34; parameter must be a positive integer' in res, res
 
     def test_atom_feed_page_negative_gives_error(self):
         group = factories.Group()
@@ -28,7 +28,7 @@ class TestFeedNew(helpers.FunctionalTestBase):
         app = self._get_test_app()
         offset = url_for(u'feeds.group', id=group['name']) + '?page=-2'
         res = app.get(offset, status=400)
-        assert '&quot;page&quot; parameter must be a positive integer' in res, res
+        assert '&#34;page&#34; parameter must be a positive integer' in res, res
 
     def test_atom_feed_page_not_int_gives_error(self):
         group = factories.Group()
@@ -36,7 +36,7 @@ class TestFeedNew(helpers.FunctionalTestBase):
         app = self._get_test_app()
         offset = url_for(u'feeds.group', id=group['name']) + '?page=abc'
         res = app.get(offset, status=400)
-        assert '&quot;page&quot; parameter must be a positive integer' in res, res
+        assert '&#34;page&#34; parameter must be a positive integer' in res, res
 
     def test_general_atom_feed_works(self):
         dataset = factories.Dataset()

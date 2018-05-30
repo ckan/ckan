@@ -341,7 +341,7 @@ def search(package_type):
     extra_vars[u'dataset_type'] = package_type
 
     # TODO: remove
-    for key, value in extra_vars:
+    for key, value in extra_vars.items():
         setattr(g, key, value)
 
     return base.render(
@@ -1134,11 +1134,13 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
     blueprint.add_url_rule(u'/<id>', view_func=read)
     blueprint.add_url_rule(u'/resources/<id>', view_func=resources)
-    blueprint.add_url_rule(u'/edit/<id>', view_func=EditView.as_view(str(u'edit')))
+    blueprint.add_url_rule(
+        u'/edit/<id>', view_func=EditView.as_view(str(u'edit')))
     blueprint.add_url_rule(
         u'/delete/<id>', view_func=DeleteView.as_view(str(u'delete'))
     )
-    blueprint.add_url_rule(u'/follow/<id>', view_func=follow, methods=(u'POST', ))
+    blueprint.add_url_rule(
+        u'/follow/<id>', view_func=follow, methods=(u'POST', ))
     blueprint.add_url_rule(
         u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', )
     )

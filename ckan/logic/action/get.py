@@ -1183,11 +1183,17 @@ def _group_or_org_show(context, data_dict, is_org=False):
     else:
         packages_field = None
 
-    include_tags = asbool(data_dict.get('include_tags', True))
-    include_users = asbool(data_dict.get('include_users', True))
-    include_groups = asbool(data_dict.get('include_groups', True))
-    include_extras = asbool(data_dict.get('include_extras', True))
-    include_followers = asbool(data_dict.get('include_followers', True))
+    try:
+        include_tags = asbool(data_dict.get('include_tags', True))
+        if asbool(config.get('ckan.auth.public_user_details', True)):
+            include_users = asbool(data_dict.get('include_users', True))
+        else:
+            include_users = asbool(data_dict.get('include_users', False))
+        include_groups = asbool(data_dict.get('include_groups', True))
+        include_extras = asbool(data_dict.get('include_extras', True))
+        include_followers = asbool(data_dict.get('include_followers', True))
+    except ValueError:
+        raise logic.ValidationError(_('Parameter is not an bool'))
 
     if group is None:
         raise NotFound
@@ -1255,7 +1261,7 @@ def group_show(context, data_dict):
          (optional, default: ``True``)
     :type include_extras: bool
     :param include_users: include the group's users
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type include_users: bool
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)

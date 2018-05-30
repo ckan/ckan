@@ -274,7 +274,7 @@ def url_for(*args, **kw):
 
     URLs built by Pylons use the Routes syntax::
 
-        url_for(controller='my_controller', action='my_action', id='my_dataset')
+        url_for(controller='my_ctrl', action='my_action', id='my_dataset')
         # Returns '/dataset/my_dataset'
 
     Or, using a named route::
@@ -1643,7 +1643,7 @@ def group_link(group):
 def organization_link(organization):
     url = url_for(controller='organization', action='read',
                   id=organization['name'])
-    return tags.link_to(organization['name'], url)
+    return tags.link_to(organization['title'], url)
 
 
 @core_helper

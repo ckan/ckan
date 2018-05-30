@@ -79,15 +79,20 @@ class TestVersion3(ExampleIDatasetFormPluginBase):
 
 
 class TestVersion5(helpers.FunctionalTestBase):
-    @classmethod
-    def _apply_config_changes(cls, cfg):
-        cfg['ckan.plugins'] = 'example_idatasetform_v5'
+    # @classmethod
+    # def _apply_config_changes(cls, cfg):
+        # cfg['ckan.plugins'] = 'example_idatasetform_v5'
 
-    @classmethod
-    def teardown_class(cls):
+    def teardown(self):
         if plugins.plugin_loaded('example_idatasetform_v5'):
             plugins.unload('example_idatasetform_v5')
-        super(TestVersion5, cls).teardown_class()
+
+    def setup(self):
+        super(TestVersion5, self).setup()
+        self.app = helpers._get_test_app()
+        with self.app.flask_app.test_request_context():
+            if not plugins.plugin_loaded('example_idatasetform_v5'):
+                plugins.load('example_idatasetform_v5')
 
     def test_custom_package_type_urls(self):
         nt.eq_(url_for('fancy_type.search'), '/fancy_type/')

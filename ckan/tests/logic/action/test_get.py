@@ -1269,12 +1269,16 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
 
 class TestPackageAutocompleteWithDatasetForm(helpers.FunctionalTestBase):
-    @classmethod
-    def _apply_config_changes(cls, cfg):
-        cfg['ckan.plugins'] = 'example_idatasetform'
+    def setup(self):
+        super(TestPackageAutocompleteWithDatasetForm, self).setup()
+        if not p.plugin_loaded('example_idatasetform'):
+            p.load('example_idatasetform')
+
+    def teardown(self):
+        if p.plugin_loaded('example_idatasetform'):
+            p.unload('example_idatasetform')
 
     def test_custom_schema_returned(self):
-
         dataset1 = factories.Dataset(custom_text='foo')
 
         query = helpers.call_action('package_search',
@@ -1304,7 +1308,6 @@ class TestPackageAutocompleteWithDatasetForm(helpers.FunctionalTestBase):
             helpers.call_action,
             'package_search',
             q='{!child of="content_type:parentDoc"}')
-
 
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
