@@ -19,18 +19,22 @@ ckan.module('resource-view-filters-form', function (jQuery) {
                 query;
 
             query = {
-              plain: false,
               resource_id: resourceId,
               limit: queryLimit,
               offset: offset,
               fields: filterName,
               distinct: true,
-              sort: filterName
+              sort: filterName,
+              include_total: false
             };
 
             if (term !== '') {
               var q = {};
-              q[filterName] = term + ':*';
+              if (term.indexOf(' ') == -1) {
+                term = term + ':*';
+                query.plain = false;
+              }
+              q[filterName] = term;
               query.q = JSON.stringify(q);
             }
 
@@ -38,7 +42,7 @@ ckan.module('resource-view-filters-form', function (jQuery) {
         },
         results: function (data, page) {
           var records = data.result.records,
-              hasMore = (records.length < data.result.total),
+              hasMore = (records.length == queryLimit),
               results;
 
           results = $.map(records, function (record) {
