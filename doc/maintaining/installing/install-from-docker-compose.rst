@@ -69,9 +69,11 @@ Clone CKAN into a directory of your choice::
     git clone https://github.com/ckan/ckan.git
 
 This will use the latest CKAN master, which may not be stable enough for production use.
-To use a stable version, checkout the respective tag, e.g.::
+To use a stable version, checkout the respective tag, e.g.:
 
-    git checkout tags/|latest_release_tag|
+    .. parsed-literal::
+
+        git checkout tags/|latest_release_tag|
 
 ----------------------
 2. Build Docker images
