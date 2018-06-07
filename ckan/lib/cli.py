@@ -1920,13 +1920,17 @@ class LessCommand(CkanCommand):
     def less(self):
         ''' Compile less files '''
         import subprocess
-        command = 'npm bin'
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        command = ('npm', 'bin')
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True)
         output = process.communicate()
         directory = output[0].strip()
         if not directory:
             raise error('Command "{}" returned nothing. Check that npm is '
-                        'installed.'.format(command))
+                        'installed.'.format(' '.join(command)))
         less_bin = os.path.join(directory, 'lessc')
 
         public = config.get(u'ckan.base_public_folder')
@@ -1950,9 +1954,12 @@ class LessCommand(CkanCommand):
         main_less = os.path.join(root, 'less', 'main.less')
         main_css = os.path.join(root, 'css', '%s.css' % color)
 
-        command = '%s %s %s' % (less_bin, main_less, main_css)
-
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        command = (less_bin, main_less, main_css)
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True)
         output = process.communicate()
         print(output)
 
