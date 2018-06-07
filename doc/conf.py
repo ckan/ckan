@@ -183,10 +183,26 @@ def get_status_of_this_version():
         return 'unsupported'
 
 
+def get_current_release_tag():
+    ''' Return the name of the tag for the current release
+
+    e.g.: "ckan-2.7.4"
+
+    '''
+    release_tags_ = get_release_tags()
+
+    current_tag = "ckan-{}".format(version)
+
+    if release_tags_.__contains__(current_tag):
+        return current_tag
+    else:
+        return 'COULD_NOT_DETECT_TAG_VERSION'
+
+
 def get_latest_release_tag():
     '''Return the name of the git tag for the latest stable release.
 
-    e.g.: "ckan-2.1.1"
+    e.g.: "ckan-2.7.4"
 
     This requires git to be installed.
 
@@ -206,6 +222,19 @@ def get_latest_release_version():
 
     '''
     version = get_latest_release_tag()[len('ckan-'):]
+
+    # TODO: We could assert here that latest_version matches X.Y.Z.
+
+    return version
+
+
+def get_current_release_version():
+    '''Return the version number of the current release.
+
+    e.g. "2.1.1"
+
+    '''
+    version = get_current_release_tag()[len('ckan-'):]
 
     # TODO: We could assert here that latest_version matches X.Y.Z.
 
@@ -266,7 +295,8 @@ def write_substitutions_file(**kwargs):
             f.write('.. |{name}| replace:: {substitution}\n'.format(
                     name=name, substitution=substitution))
 
-
+current_release_tag = get_current_release_tag()
+current_release_version = get_current_release_version()
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
 latest_minor_version = latest_release_version[:3]
@@ -276,7 +306,7 @@ is_latest_version = version == latest_release_version
 
 write_substitutions_file(
     latest_release_tag=latest_release_tag_value,
-    latest_release_version=get_latest_release_version(),
+    latest_release_version=latest_release_version,
     latest_package_name_precise=get_latest_package_name('precise'),
     latest_package_name_trusty=get_latest_package_name('trusty'),
     latest_package_name_xenial=get_latest_package_name('xenial'),
