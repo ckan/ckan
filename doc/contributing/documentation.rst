@@ -492,7 +492,7 @@ is a nice way to include a list of related links::
        :doc:`The DataStore extension <datastore>`
          A CKAN extension for storing data.
 
-       CKAN's `demo site <http://demo.ckan.org/>`_
+       CKAN's `demo site <https://demo.ckan.org/>`_
          A demo site running the latest CKAN beta version.
 
 Seealso boxes are particularly useful when two pages are related, but don't
