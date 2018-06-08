@@ -42,4 +42,4 @@ Viewing the Statistics
 ======================
 
 To view the statistics reported by the stats extension, visit the ``/stats``
-page, for example: http://demo.ckan.org/stats
+page, for example: https://demo.ckan.org/stats
