@@ -187,6 +187,9 @@ class TestDatastoreSearch(DatastoreLegacyTestBase):
         assert result['total'] == len(self.data['records'])
         assert result['records'] == self.expected_records, result['records']
 
+    def test_default_sort_order(self):
+        pass
+
     def test_search_private_dataset(self):
         group = self.dataset.get_groups()[0]
         context = {
