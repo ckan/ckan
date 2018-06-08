@@ -353,7 +353,7 @@ def _alternate_url(params, **kwargs):
     # view.  So provide an alternate link to the first page, regardless
     # of the page we're looking at in the feed.
     search_params.pop(u'page', None)
-    return _feed_url(search_params, controller=u'package', action=u'search')
+    return _feed_url(search_params, controller=u'dataset', action=u'search')
 
 
 def _feed_url(query, controller, action, **kwargs):
