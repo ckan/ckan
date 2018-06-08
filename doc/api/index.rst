@@ -79,7 +79,7 @@ of all the datasets in the ``data-explorer`` group on demo.ckan.org, install
 curl and then call the ``group_list`` API function by running this command
 in a terminal::
 
-    curl http://demo.ckan.org/api/3/action/group_list
+    curl https://demo.ckan.org/api/3/action/group_list
 
 The response from CKAN will look like this::
 
