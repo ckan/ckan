@@ -1202,7 +1202,7 @@ def search_data(context, data_dict):
     select_columns = ', '.join(query_dict['select']).replace('%', '%%')
     ts_query = query_dict['ts_query'].replace('%', '%%')
     resource_id = data_dict['resource_id'].replace('%', '%%')
-    sort = query_dict['sort']
+    sort = query_dict('sort', '_id')
     limit = query_dict['limit']
     offset = query_dict['offset']
 
