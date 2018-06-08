@@ -124,12 +124,12 @@ class TestDatastoreSearch(DatastoreLegacyTestBase):
                        {'id': 'published'},
                        {'id': u'characters', u'type': u'_text'},
                        {'id': 'rating with %'}],
-            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
+            'records': [{u'b\xfck': 'warandpeace', 'author': 'tolstoy',
+                        'nested': {'a': 'b'}, 'rating with %': '99%'},
+                        {u'b\xfck': 'annakarenina', 'author': 'tolstoy',
                         'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}],
                         u'characters': [u'Princess Anna', u'Sergius'],
-                        'rating with %': '60%'},
-                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a': 'b'}, 'rating with %': '99%'}
+                        'rating with %': '60%'}
                        ]
         }
         postparams = '%s=1' % json.dumps(cls.data)
@@ -186,9 +186,6 @@ class TestDatastoreSearch(DatastoreLegacyTestBase):
         result = res_dict['result']
         assert result['total'] == len(self.data['records'])
         assert result['records'] == self.expected_records, result['records']
-
-    def test_default_sort_order(self):
-        pass
 
     def test_search_private_dataset(self):
         group = self.dataset.get_groups()[0]
