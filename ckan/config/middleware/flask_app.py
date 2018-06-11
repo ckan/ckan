@@ -408,7 +408,7 @@ def _register_error_handler(app):
 
     def error_handler(e):
         if isinstance(e, HTTPException):
-            extra_vars = {u'code': e.code, u'content': e.description}
+            extra_vars = {u'code': [e.code], u'content': e.description}
             return base.render(u'error_document_template.html', extra_vars), e.code
         extra_vars = {u'code': 500, u'content': e.message}
         return base.render(u'error_document_template.html', extra_vars), 500
