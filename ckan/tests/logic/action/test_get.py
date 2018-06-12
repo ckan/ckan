@@ -1287,7 +1287,6 @@ class TestPackageAutocompleteWithDatasetForm(helpers.FunctionalTestBase):
         eq(query['results'][0]['id'], dataset1['id'])
         eq(query['results'][0]['custom_text'], 'foo')
 
-
     def test_custom_schema_not_returned(self):
         dataset1 = factories.Dataset(custom_text='foo')
 
