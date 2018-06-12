@@ -240,7 +240,6 @@ def update_config():
     helpers.load_plugin_helpers()
     config['pylons.h'] = helpers.helper_functions
 
-
     # Templates and CSS loading from configuration
     valid_base_templates_folder_names = ['templates', 'templates-bs2']
     templates = config.get('ckan.base_templates_folder', 'templates')

@@ -60,7 +60,6 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
                                    **app_conf)
     flask_app = make_flask_stack(conf, **app_conf)
 
-
     app = AskAppDispatcherMiddleware({'pylons_app': pylons_app,
                                       'flask_app': flask_app})
 

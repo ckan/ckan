@@ -1269,12 +1269,12 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
 
 class TestPackageAutocompleteWithDatasetForm(helpers.FunctionalTestBase):
-    def setup(self):
-        super(TestPackageAutocompleteWithDatasetForm, self).setup()
-        if not p.plugin_loaded('example_idatasetform'):
-            p.load('example_idatasetform')
+    @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'example_idatasetform'
 
-    def teardown(self):
+    @classmethod
+    def teardown_class(cls):
         if p.plugin_loaded('example_idatasetform'):
             p.unload('example_idatasetform')
 
@@ -1286,6 +1286,7 @@ class TestPackageAutocompleteWithDatasetForm(helpers.FunctionalTestBase):
 
         eq(query['results'][0]['id'], dataset1['id'])
         eq(query['results'][0]['custom_text'], 'foo')
+
 
     def test_custom_schema_not_returned(self):
         dataset1 = factories.Dataset(custom_text='foo')
@@ -2154,6 +2155,9 @@ class TestFollow(helpers.FunctionalTestBase):
 
 
 class TestStatusShow(helpers.FunctionalTestBase):
+    @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'stats'
 
     def test_status_show(self):
 
