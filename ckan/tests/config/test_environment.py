@@ -101,9 +101,7 @@ class TestSiteUrlMandatory(object):
 
     @helpers.change_config('ckan.site_url', 'http://demo.ckan.org/')
     def test_siteurl_removes_backslash(self):
-        app = helpers._get_test_app()
-        with app.flask_app.test_request_context():
-            environment.update_config()
+        environment.update_config()
         nosetools.assert_equals(config['ckan.site_url'],
                                 'http://demo.ckan.org')
 
