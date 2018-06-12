@@ -341,7 +341,7 @@ def search(package_type):
     extra_vars[u'dataset_type'] = package_type
 
     # TODO: remove
-    for key, value in extra_vars.items():
+    for key, value in extra_vars.iteritems():
         setattr(g, key, value)
 
     return base.render(

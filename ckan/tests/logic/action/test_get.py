@@ -1299,8 +1299,6 @@ class TestPackageAutocompleteWithDatasetForm(helpers.FunctionalTestBase):
         eq(query['results'][0]['extras'][0]['key'], 'custom_text')
         eq(query['results'][0]['extras'][0]['value'], 'foo')
 
-        p.unload('example_idatasetform')
-
     def test_local_parameters_not_supported(self):
 
         nose.tools.assert_raises(
