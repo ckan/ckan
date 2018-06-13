@@ -37,6 +37,9 @@ def reset_package_plugins():
     _default_package_plugin = None
     global _package_plugins
     _package_plugins = {}
+
+
+def reset_group_plugins():
     global _default_group_plugin
     _default_group_plugin = None
     global _default_organization_plugin
@@ -159,7 +162,7 @@ def register_group_plugins(app):
     if (_default_group_plugin is not None or
             _default_organization_plugin is not None):
         return
-
+    from ckan.views.group import group, register_group_plugin_rules
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IGroupForm):
 
@@ -177,18 +180,20 @@ def register_group_plugins(app):
                 is_organization = group_controller == 'organization'
 
             if is_organization:
-                if _default_organization_plugin is not None:
-                    raise ValueError("More than one fallback IGroupForm for "
-                                     "organizations has been registered")
+                if _default_organization_plugin is not None and \
+                   not isinstance(_default_organization_plugin, DefaultOrganizationForm):
+                        raise ValueError("More than one fallback IGroupForm for "
+                                         "organizations has been registered")
                 _default_organization_plugin = plugin
 
             else:
-                if _default_group_plugin is not None:
-                    raise ValueError("More than one fallback IGroupForm for "
-                                     "groups has been registered")
+                if _default_group_plugin is not None and \
+                   not isinstance(_default_group_plugin, DefaultGroupForm):
+                        raise ValueError("More than one fallback IGroupForm for "
+                                         "groups has been registered")
                 _default_group_plugin = plugin
 
-        group = import_module(app.blueprints['group'].import_name)
+
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
             # allow us to have top level objects that are actually
@@ -205,7 +210,7 @@ def register_group_plugins(app):
                 blueprint = Blueprint(group_type,
                                       group.group.import_name,
                                       url_prefix='/{}'.format(group_type))
-                actions = ['member_delete', 'history', 
+                actions = ['member_delete', 'history',
                         'followers', 'follow', 'unfollow',
                         'admins', 'activity']
 
@@ -248,6 +253,7 @@ def register_group_plugins(app):
                         u'/{0}/<id>'.format(action),
                         methods=[u'GET', u'POST'],
                         view_func=getattr(group, action))
+                reset_group_plugins(blueprint)
                 app.register_blueprint(blueprint)
 
             if group_type in _group_plugins:
@@ -269,6 +275,13 @@ def register_group_plugins(app):
             if controller_obj is not None:
                 controller_obj.add_group_type(group_type)
 
+        set_default_group_plugin()
+
+
+def set_default_group_plugin():
+    global _default_group_plugin
+    global _default_organization_plugin
+    global _group_controllers
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
         _default_group_plugin = DefaultGroupForm()

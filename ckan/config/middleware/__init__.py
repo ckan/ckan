@@ -14,6 +14,7 @@ from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.config.middleware.pylons_app import make_pylons_stack
 from ckan.common import config
 from ckan.lib.i18n import get_locales_from_config
+import ckan.lib.plugins as lib_plugins
 
 import logging
 log = logging.getLogger(__name__)
@@ -60,6 +61,8 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     app = AskAppDispatcherMiddleware({'pylons_app': pylons_app,
                                       'flask_app': flask_app})
+
+    lib_plugins.register_group_plugins(flask_app._wsgi_app)
 
     # Set this internal test request context with the configured environment so
     # it can be used when calling url_for from tests

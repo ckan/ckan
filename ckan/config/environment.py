@@ -224,6 +224,9 @@ def update_config():
     search.check_solr_schema_version()
 
     routes_map = routing.make_map()
+    lib_plugins.reset_group_plugins()
+    lib_plugins.set_default_group_plugin()
+
     config['routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists
     if 'routes.middleware' in config:
