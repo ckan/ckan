@@ -410,15 +410,11 @@ def _register_error_handler(app):
     def error_handler(e):
         if isinstance(e, HTTPException):
             extra_vars = {u'code': [e.code], u'content': e.description}
-            # TODO: Remove
-            g.code = [e.code]
-
-            return base.render(
-                u'error_document_template.html', extra_vars), e.code
+            return base.render(u'error_document_template.html', extra_vars), e.code
         extra_vars = {u'code': [500], u'content': u'Internal server error'}
         return base.render(u'error_document_template.html', extra_vars), 500
 
     for code in default_exceptions:
         app.register_error_handler(code, error_handler)
-    if not app.debug and not app.testing:
+    if not app.debug:
         app.register_error_handler(Exception, error_handler)
