@@ -101,7 +101,8 @@ def test_building_the_docs():
         u'WARNING: duplicate label ckan.auth.create_dataset_if_not_in_organization',
         u'WARNING: duplicate label ckan.auth.user_delete_groups',
         u'WARNING: duplicate label ckan.auth.user_create_organizations',
-        u'WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups'
+        u'WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups',
+        u'WARNING: duplicate label ckan.auth.public_user_details',
     ]
 
     # Remove the allowed warnings from the list of collected warnings.
@@ -259,7 +260,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/controllers/package.py',
     u'ckan/controllers/partyline.py',
     u'ckan/controllers/revision.py',
-    u'ckan/controllers/storage.py',
     u'ckan/controllers/tag.py',
     u'ckan/controllers/user.py',
     u'ckan/controllers/util.py',

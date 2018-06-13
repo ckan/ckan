@@ -69,9 +69,11 @@ Clone CKAN into a directory of your choice::
     git clone https://github.com/ckan/ckan.git
 
 This will use the latest CKAN master, which may not be stable enough for production use.
-To use a stable version, checkout the respective tag, e.g.::
+To use a stable version, checkout the respective tag, e.g.:
 
-    git checkout tags/ckan-2.6.2
+    .. parsed-literal::
+
+        git checkout tags/|latest_release_tag|
 
 ----------------------
 2. Build Docker images
@@ -173,7 +175,7 @@ a. Create and configure datastore database
 
 With running CKAN containers, execute the built-in setup scripts against the ``db`` container::
 
-    docker exec -it db psql -U ckan -f 00_create_datastore.sql
+    docker exec -it db psql -U ckan -f 00_create_datastore.sh
     docker exec ckan /usr/local/bin/ckan-paster --plugin=ckan datastore set-permissions -c /etc/ckan/production.ini | docker exec -i db psql -U ckan
 
 The first script will create the datastore database and the datastore readonly user in the ``db``

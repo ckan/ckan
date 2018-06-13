@@ -10,6 +10,7 @@ class TestNoneRootCKAN():
         app = helpers._get_test_app()
         p.load(u'example_theme_v15_fanstatic')
         content = app.get(u'/en/base.html')
-        assert u'example_theme.css' in content
+        if u'example_theme.css' not in content:
+            assert u'example_theme.min.css' in content
         assert u'href="/data/fanstatic/example_theme' in content
         p.unload(u'example_theme_v15_fanstatic')

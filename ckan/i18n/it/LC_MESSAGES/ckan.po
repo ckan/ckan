@@ -1,21 +1,21 @@
 # Translations template for ckan.
-# Copyright (C) 2017 ORGANIZATION
+# Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
-# 
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 2.7.0b0\n"
+"Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2017\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
 "Language-Team: Italian (https://www.transifex.com/okfn/teams/11162/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.5.3\n"
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -111,7 +111,13 @@ msgstr ""
 msgid "DataStore resource not found"
 msgstr "Risorsa DataStore non trovata"
 
-#: ckanext/datastore/backend/postgres.py:1052
+#: ckanext/datastore/controller.py:101
+msgid ""
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
+msgstr ""
+
+#: ckanext/datastore/backend/postgres.py:1032
 msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
@@ -265,7 +271,18 @@ msgstr "Caricando..."
 msgid "Data API"
 msgstr "Data API"
 
-#: ckanext/datatablesview/plugin.py:46 ckanext/reclineview/plugin.py:128
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
+msgid ""
+" Further information in the <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr ""
+"Ulteriori informazioni presso la <a "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">documentazione principale su CKAN Data API e "
+"DataStore</a>.</p> "
+
+#: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:128
 msgid "Table"
 msgstr "Tabella"
 
@@ -863,15 +880,16 @@ msgid "Request params must be in form of a json encoded dictionary."
 msgstr ""
 "I parametri della richiesta devono essere un dizionario codificato in JSON"
 
-#: ckan/controllers/feed.py:233 ckan/controllers/group.py:137
-#: ckan/controllers/group.py:225 ckan/controllers/group.py:393
-#: ckan/controllers/group.py:503 ckan/controllers/group.py:536
-#: ckan/controllers/group.py:566 ckan/controllers/group.py:577
-#: ckan/controllers/group.py:631 ckan/controllers/group.py:649
-#: ckan/controllers/group.py:707 ckan/controllers/group.py:739
-#: ckan/controllers/group.py:772 ckan/controllers/group.py:829
-#: ckan/controllers/group.py:926 ckan/controllers/package.py:1243
-#: ckan/controllers/package.py:1258 ckan/logic/action/create.py:1396
+#: ckan/controllers/feed.py:234 ckan/controllers/group.py:128
+#: ckan/controllers/group.py:226 ckan/controllers/group.py:394
+#: ckan/controllers/group.py:504 ckan/controllers/group.py:537
+#: ckan/controllers/group.py:567 ckan/controllers/group.py:578
+#: ckan/controllers/group.py:632 ckan/controllers/group.py:653
+#: ckan/controllers/group.py:714 ckan/controllers/group.py:746
+#: ckan/controllers/group.py:779 ckan/controllers/group.py:836
+#: ckan/controllers/group.py:933 ckan/controllers/package.py:1265
+#: ckan/controllers/package.py:1280 ckan/logic/action/create.py:1373
+#: ckan/views/feed.py:143
 msgid "Group not found"
 msgstr "Gruppo non trovato"
 
@@ -2290,10 +2308,6 @@ msgid "User %s not authorized to update term_translation table"
 msgstr ""
 "L'utente %s non è autorizzato ad aggiornare la tabella term_translation"
 
-#: ckan/logic/auth/update.py:262
-msgid "Valid API key needed to edit a package"
-msgstr "È necessaria una chiave API valida per modificare il pacchetto"
-
 #: ckan/logic/auth/update.py:272
 msgid "Valid API key needed to edit a group"
 msgstr "È necessaria una chiave API valida per modificare il gruppo"
@@ -3028,21 +3042,21 @@ msgstr ""
 
 #: ckan/templates/group/member_new.html:55
 #: ckan/templates/group/members.html:15
-#: ckan/templates/organization/member_new.html:56
+#: ckan/templates/organization/member_new.html:54
 #: ckan/templates/organization/members.html:20
 msgid "Role"
 msgstr "Ruolo"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
-#: ckan/templates/organization/member_new.html:59
+#: ckan/templates/organization/member_new.html:57
 #: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
 msgstr "Sei sicuro di voler cancellare questo membro?"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
-#: ckan/templates/group/snippets/group_form.html:60
+#: ckan/templates/group/snippets/group_form.html:38
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:36
@@ -3520,8 +3534,8 @@ msgstr "Qualche informazioni sulla mia organizzazione..."
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all the "
-"public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
 msgstr ""
 "Sei sicuro che vuoi eliminare questa Organizzazione? Saranno eliminati tutti"
 " i dataset pubblici e privati associati a questa organizzazione."
@@ -4699,3 +4713,7 @@ msgstr "Nessun sostenitore"
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
 msgstr "Cerca Utenti"
+
+#: ckan/views/user.py:588
+msgid "Your password must be 8 characters or longer."
+msgstr ""

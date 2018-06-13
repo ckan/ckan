@@ -21,7 +21,7 @@ automate and orchestrate deployments without having to first modify the `CKAN co
 These options are only read at startup time to update the ``config`` object used by CKAN,
 but they won't be accessed any more during the lifetime of the application.
 
-CKAN environment variables names match the options in the configuration file, but they are always uppercase
+CKAN environment variable names match the options in the configuration file, but they are always uppercase
 and prefixed with `CKAN_` (this prefix is added even if
 the corresponding option in the ini file does not have it), and replacing dots with underscores.
 
@@ -46,10 +46,10 @@ CKAN configuration options are generally defined before starting the web applica
 
 A limited number of configuration options can also be edited during runtime. This can be done on the
 :ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`
-API action. Only :doc:`sysadmins </sysadmin-guide>` can edit these runtime-editable configuration options. Changes made to these configuration options will be stored on the database and persisted when the server is restarted.
+API action. Only :doc:`sysadmins </sysadmin-guide>` can edit these runtime-editable configuration options. Changes made to these configuration options will be stored in the database and persisted when the server is restarted.
 
 Extensions can add (or remove) configuration options to the ones that can be edited at runtime. For more
-details on how to this check :doc:`/extensions/remote-config-update`.
+details on how to do this check :doc:`/extensions/remote-config-update`.
 
 
 
@@ -110,6 +110,21 @@ files, and enables CKAN templates' debugging features.
    With debug mode enabled, a visitor to your site could execute malicious
    commands.
 
+ckan.legacy_route_mappings
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.legacy_route_mappings = {"home": "home.index", "about": "home.about",
+                                  "search": "dataset.search"}
+
+Default value: ``{"home": "home.index", "about": "home.about"}``
+
+This can be used when using an extension that is still using old (Pylons-based) route names to
+maintain compatibility.
+
+  .. warning:: This configuration will be removed when migration to Flask is completed. Please
+    update the extension code to use the new Flask-based route names.
 
 Repoze.who Settings
 -------------------
@@ -561,6 +576,25 @@ Default value: ``admin``
 Makes role permissions apply to all the groups down the hierarchy from the groups that the role is applied to.
 
 e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
+
+
+.. _ckan.auth.public_user_details:
+
+ckan.auth.public_user_details
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.public_user_details = False
+
+Default value: ``True``
+
+Restricts anonymous access to user information. If is set to ``False`` accessing users details when not logged in will raise a ``Not Authorized`` exception.
+
+.. note:: This setting should be used when user registration is disabled (``ckan.auth.create_user_via_web = False``), otherwise users
+    can just create an account to see other users details.
+
+
 
 .. end_config-authorization
 

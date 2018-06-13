@@ -2,14 +2,15 @@
  * a list of terms from an API endpoint (provided using data-module-source).
  *
  * source   - A url pointing to an API autocomplete endpoint.
- * interval - The interval between requests in milliseconds (default: 1000).
+ * interval - The interval between requests in milliseconds (default: 300).
  * items    - The max number of items to display (default: 10)
  * tags     - Boolean attribute if true will create a tag input.
  * key      - A string of the key you want to be the form value to end up on
  *            from the ajax returned results
  * label    - A string of the label you want to appear within the dropdown for
  *            returned results
- *
+ * tokensep - A string that contains characters which will be interpreted
+ *            as separators for tags when typed or pasted (default ",").
  * Examples
  *
  *   // <input name="tags" data-module="autocomplete" data-module-source="http://" />
@@ -24,6 +25,7 @@ this.ckan.module('autocomplete', function (jQuery) {
       label: false,
       items: 10,
       source: null,
+      tokensep: ',',
       interval: 300,
       dropdownClass: '',
       containerClass: ''
@@ -50,7 +52,8 @@ this.ckan.module('autocomplete', function (jQuery) {
         formatNoMatches: this.formatNoMatches,
         formatInputTooShort: this.formatInputTooShort,
         dropdownCssClass: this.options.dropdownClass,
-        containerCssClass: this.options.containerClass
+        containerCssClass: this.options.containerClass,
+        tokenSeparators: this.options.tokensep.split('')
       };
 
       // Different keys are required depending on whether the select is

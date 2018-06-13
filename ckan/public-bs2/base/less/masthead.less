@@ -24,13 +24,13 @@
           span.text {
             margin: 0 2px 0 4px;
           }
-          
+
           span.text {
             position: absolute;
             top: -9999px;
             left: -9999px;
           }
-          
+
           &:hover {
             color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 15%);
             background-color: darken(@mastheadBackgroundColor, 15%);
@@ -118,7 +118,12 @@
       white-space: nowrap;
     }
   }
-
+  .logo{
+    display: inline-block;
+    img{
+      max-height: @logoMaxHeight;
+    }
+  }
   .nav-collapse {
     padding-top:10px;
   }

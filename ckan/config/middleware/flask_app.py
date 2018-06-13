@@ -22,6 +22,7 @@ from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
 import ckan.model as model
+from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.common import config, g, request, ungettext
@@ -171,7 +172,11 @@ def make_flask_stack(conf, **app_conf):
 
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
+<<<<<<< HEAD
     _register_plugin_blueprints(app)
+=======
+    _register_error_handler(app)
+>>>>>>> master
 
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
@@ -406,3 +411,18 @@ def _register_core_blueprints(app):
 # We should register blueprint routes to the app object
 def _register_plugin_blueprints(app):
     lib_plugins.register_group_plugins(app)
+
+
+def _register_error_handler(app):
+    u'''Register error handler'''
+
+    def error_handler(e):
+        extra_vars = {u'code': e.code, u'content': e.description}
+        return base.render(u'error_document_template.html', extra_vars), e.code
+
+    app.register_error_handler(400, error_handler)
+    app.register_error_handler(401, error_handler)
+    app.register_error_handler(403, error_handler)
+    app.register_error_handler(404, error_handler)
+    app.register_error_handler(500, error_handler)
+    app.register_error_handler(503, error_handler)
