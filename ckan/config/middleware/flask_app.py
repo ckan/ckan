@@ -416,5 +416,5 @@ def _register_error_handler(app):
 
     for code in default_exceptions:
         app.register_error_handler(code, error_handler)
-    if not app.debug:
+    if not app.debug and not app.testing:
         app.register_error_handler(Exception, error_handler)
