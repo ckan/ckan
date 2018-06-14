@@ -224,6 +224,7 @@ def update_config():
     search.check_solr_schema_version()
 
     routes_map = routing.make_map()
+
     lib_plugins.reset_group_plugins()
     lib_plugins.set_default_group_plugin()
 

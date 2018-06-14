@@ -53,6 +53,7 @@ class OrganizationBlueprint(GroupBlueprint):
     def add_group_type(cls, group_type):
         cls.group_types.append(group_type)
 
+
 def _index_template(group_type):
     return lookup_group_plugin(group_type).index_template()
 
@@ -110,8 +111,9 @@ def _bulk_process_template(group_type):
 
 def _replace_group_org(string):
     u''' substitute organization for group if this is an org'''
-    return re.sub(u'^group',
-                  lookup_group_controller(_guess_group_type()), string)
+    if request.blueprint == 'organization':
+        return re.sub(u'^group', request.blueprint, string)
+    return string
 
 
 def _action(action_name):
@@ -674,86 +676,6 @@ def admins(id):
         extra_vars={u'group_type': group_type})
 
 
-def bulk_process(id):
-    u''' Allow bulk processing of datasets for an organization.  Make
-        private/public or delete. For organization admins.'''
-
-    group_type = _guess_group_type()
-
-    # check we are org admin
-
-    context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': c.user,
-        u'schema': _db_to_form_schema(group_type=group_type),
-        u'for_view': True,
-        u'extras_as_string': True
-    }
-    data_dict = {u'id': id, u'type': group_type}
-
-    try:
-        check_access(u'bulk_update_public', context, {u'org_id': id})
-        # Do not query for the group datasets when dictizing, as they will
-        # be ignored and get requested on the controller anyway
-        data_dict['include_datasets'] = False
-        c.group_dict = _action(u'group_show')(context, data_dict)
-        c.group = context['group']
-    except NotFound:
-        base.abort(404, _(u'Group not found'))
-    except NotAuthorized:
-        base.abort(403, _(u'User %r not authorized to edit %s') % (c.user, id))
-
-    if not c.group_dict['is_organization']:
-        # FIXME: better error
-        raise Exception(u'Must be an organization')
-
-    # use different form names so that ie7 can be detected
-    form_names = set(
-        [u"bulk_action.public", u"bulk_action.delete", u"bulk_action.private"])
-    actions_in_form = set(request.params.keys())
-    actions = form_names.intersection(actions_in_form)
-    # If no action then just show the datasets
-    if not actions:
-        # unicode format (decoded from utf8)
-        limit = 500
-        _read(id, limit, group_type)
-        c.packages = c.page.items
-        return base.render(
-            _bulk_process_template(group_type),
-            extra_vars={u'group_type': group_type})
-
-    # ie7 puts all buttons in form params but puts submitted one twice
-    for key, value in dict(request.params.dict_of_lists()).items():
-        if len(value) == 2:
-            action = key.split(u'.')[-1]
-            break
-    else:
-        # normal good browser form submission
-        action = actions.pop().split(u'.')[-1]
-
-    # process the action first find the datasets to perform the action on.
-    # they are prefixed by dataset_ in the form data
-    datasets = []
-    for param in request.params:
-        if param.startswith(u'dataset_'):
-            datasets.append(param[8:])
-
-    action_functions = {
-        u'private': u'bulk_update_private',
-        u'public': u'bulk_update_public',
-        u'delete': u'bulk_update_delete',
-    }
-
-    data_dict = {u'datasets': datasets, u'org_id': c.group_dict['id']}
-
-    try:
-        get_action(action_functions[action])(context, data_dict)
-    except NotAuthorized:
-        base.abort(403, _(u'Not authorized to perform bulk update'))
-    return _redirect_to_this_controller(action=u'bulk_process', id=id)
-
-
 class BulkProcessView(MethodView):
     u''' Bulk process view'''
 
@@ -783,6 +705,10 @@ class BulkProcessView(MethodView):
             c.group = context['group']
         except NotFound:
             base.abort(404, _(u'Group not found'))
+
+        if not c.group_dict['is_organization']:
+            # FIXME: better error
+            raise Exception(u'Must be an organization')
 
         # If no action then just show the datasets
         limit = 500

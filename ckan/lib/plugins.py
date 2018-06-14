@@ -159,6 +159,7 @@ def register_group_plugins(app):
     # This function should have not effect if called more than once.
     # This should not occur in normal deployment, but it may happen when
     # running unit tests.
+    import pdb; pdb.set_trace()
     if (_default_group_plugin is not None or
             _default_organization_plugin is not None):
         return
@@ -193,7 +194,6 @@ def register_group_plugins(app):
                                          "groups has been registered")
                 _default_group_plugin = plugin
 
-
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
             # allow us to have top level objects that are actually
@@ -208,52 +208,9 @@ def register_group_plugins(app):
 
             if group_type not in app.blueprints:
                 blueprint = Blueprint(group_type,
-                                      group.group.import_name,
+                                      group.import_name,
                                       url_prefix='/{}'.format(group_type))
-                actions = ['member_delete', 'history',
-                        'followers', 'follow', 'unfollow',
-                        'admins', 'activity']
-
-                blueprint.add_url_rule(u'/', view_func=group.index,
-                                       strict_slashes=False)
-                blueprint.add_url_rule(
-                    u'/new',
-                    methods=[u'GET', u'POST'],
-                    view_func=group.CreateGroupView.as_view(str('new')))
-                blueprint.add_url_rule(
-                    u'/<id>', methods=[u'GET'],
-                    view_func=group.read)
-                blueprint.add_url_rule(
-                    u'/edit/<id>',
-                    view_func=group.EditGroupView.as_view(str('edit')))
-                blueprint.add_url_rule(
-                    u'/activity/<id>/<int:offset>',
-                    methods=[u'GET'],
-                    view_func=group.activity)
-                blueprint.add_url_rule(
-                    u'/about/<id>',
-                    methods=[u'GET'],
-                    view_func=group.about)
-                blueprint.add_url_rule(
-                    u'/members/<id>',
-                    methods=[u'GET', u'POST'],
-                    view_func=group.members)
-                blueprint.add_url_rule(
-                    u'/member_new/<id>',
-                    view_func=group.MembersGroupView.as_view(str('member_new')))
-                blueprint.add_url_rule(
-                    u'/delete/<id>',
-                    methods=[u'GET', u'POST'],
-                    view_func=group.DeleteGroupView.as_view(str('delete')))
-                blueprint.add_url_rule(
-                    u'/bulk_process/<id>',
-                    view_func=group.BulkProcessView.as_view(str('bulk_process')))
-                for action in actions:
-                    blueprint.add_url_rule(
-                        u'/{0}/<id>'.format(action),
-                        methods=[u'GET', u'POST'],
-                        view_func=getattr(group, action))
-                reset_group_plugins(blueprint)
+                register_group_plugin_rules(blueprint)
                 app.register_blueprint(blueprint)
 
             if group_type in _group_plugins:
@@ -263,6 +220,11 @@ def register_group_plugins(app):
 
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
+
+            if 'group' not in _group_controllers:
+                _group_controllers['group'] = 'group'
+            if 'organization' not in _group_controllers:
+                _group_controllers['organization'] = 'organization'
 
             controller_obj = None
             # If using one of the default controllers, tell it that it is allowed
@@ -281,16 +243,11 @@ def register_group_plugins(app):
 def set_default_group_plugin():
     global _default_group_plugin
     global _default_organization_plugin
-    global _group_controllers
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
         _default_group_plugin = DefaultGroupForm()
     if _default_organization_plugin is None:
         _default_organization_plugin = DefaultOrganizationForm()
-    if 'group' not in _group_controllers:
-        _group_controllers['group'] = 'group'
-    if 'organization' not in _group_controllers:
-        _group_controllers['organization'] = 'organization'
 
 
 def plugin_validate(plugin, context, data_dict, schema, action):
