@@ -159,7 +159,6 @@ def register_group_plugins(app):
     # This function should have not effect if called more than once.
     # This should not occur in normal deployment, but it may happen when
     # running unit tests.
-    import pdb; pdb.set_trace()
     if (_default_group_plugin is not None or
             _default_organization_plugin is not None):
         return
