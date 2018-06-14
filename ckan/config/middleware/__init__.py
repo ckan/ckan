@@ -62,8 +62,6 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     app = AskAppDispatcherMiddleware({'pylons_app': pylons_app,
                                       'flask_app': flask_app})
 
-    #lib_plugins.reset_group_plugins()
-    lib_plugins.register_group_plugins(flask_app._wsgi_app)
 
     # Set this internal test request context with the configured environment so
     # it can be used when calling url_for from tests

@@ -156,12 +156,6 @@ def register_group_plugins(app):
     global _default_group_plugin
     global _default_organization_plugin
 
-    # This function should have not effect if called more than once.
-    # This should not occur in normal deployment, but it may happen when
-    # running unit tests.
-    if (_default_group_plugin is not None or
-            _default_organization_plugin is not None):
-        return
     from ckan.views.group import group, register_group_plugin_rules
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IGroupForm):

@@ -172,7 +172,6 @@ def make_flask_stack(conf, **app_conf):
 
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
-    _register_plugin_blueprints(app)
     _register_error_handler(app)
 
     # Set up each IBlueprint extension as a Flask Blueprint
@@ -180,6 +179,7 @@ def make_flask_stack(conf, **app_conf):
         if hasattr(plugin, 'get_blueprint'):
             app.register_extension_blueprint(plugin.get_blueprint())
 
+    lib_plugins.register_group_plugins(app)
     # Set flask routes in named_routes
     for rule in app.url_map.iter_rules():
         if '.' not in rule.endpoint:
@@ -403,11 +403,6 @@ def _register_core_blueprints(app):
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
             log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
-
-
-# We should register blueprint routes to the app object
-def _register_plugin_blueprints(app):
-    lib_plugins.register_group_plugins(app)
 
 
 def _register_error_handler(app):
