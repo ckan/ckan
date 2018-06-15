@@ -36,24 +36,6 @@ lookup_group_controller = lib_plugins.lookup_group_controller
 lookup_group_blueprint = lib_plugins.lookup_group_blueprints
 
 
-class GroupBlueprint(Blueprint):
-
-    group_types = ['group']
-
-    @classmethod
-    def add_group_type(cls, group_type):
-        cls.group_types.append(group_type)
-
-
-class OrganizationBlueprint(GroupBlueprint):
-
-    group_types = ['organization']
-
-    @classmethod
-    def add_group_type(cls, group_type):
-        cls.group_types.append(group_type)
-
-
 def _index_template(group_type):
     return lookup_group_plugin(group_type).index_template()
 
@@ -109,14 +91,14 @@ def _bulk_process_template(group_type):
     return lookup_group_plugin(group_type).bulk_process_template()
 
 
-def _replace_group_org(string):
+def _replace_group_org(string, is_org=False):
     u''' substitute organization for group if this is an org'''
-    if request.blueprint == 'organization':
-        return re.sub(u'^group', request.blueprint, string)
+    if is_org:
+        return re.sub(u'^group', u'organization', string)
     return string
 
 
-def _action(action_name):
+def _action(action_name, is_org=False):
     u''' select the correct group/org action '''
     return get_action(_replace_group_org(action_name))
 
@@ -162,8 +144,7 @@ def _guess_group_type(expecting_name=False):
     return gt
 
 
-def index():
-    group_type = _guess_group_type()
+def index(group_type='group', is_organization=False):
     page = h.get_page_number(request.params) or 1
     items_per_page = int(config.get(u'ckan.datasets_per_page', 20))
 
@@ -198,7 +179,7 @@ def index():
             u'type': group_type or u'group',
         }
         global_results = _action(u'group_list')(context,
-                                data_dict_global_results)
+                                                data_dict_global_results)
     except ValidationError as e:
         if e.error_dict and e.error_dict.get(u'message'):
             msg = e.error_dict['message']
@@ -475,8 +456,7 @@ def activity(id, offset=0):
         _activity_template(group_type), extra_vars={u'group_type': group_type})
 
 
-def about(id):
-    group_type = _guess_group_type()
+def about(id, group_type='group', is_organization=False):
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     c.group_dict = _get_group_dict(id, group_type)
     group_type = c.group_dict['type']
@@ -485,7 +465,7 @@ def about(id):
         _about_template(group_type), extra_vars={u'group_type': group_type})
 
 
-def members(id):
+def members(id, group_type='group', is_organization=False):
     group_type = _guess_group_type()
 
     context = {u'model': model, u'session': model.Session, u'user': c.user}
@@ -509,9 +489,7 @@ def members(id):
     return _render_template(u'group/members.html', group_type)
 
 
-def member_delete(id):
-    group_type = _guess_group_type()
-
+def member_delete(id, group_type='group', is_organization=False):
     if u'cancel' in request.params:
         return _redirect_to_this_controller(action=u'members', id=id)
 
@@ -541,8 +519,7 @@ def member_delete(id):
     return _render_template(u'group/confirm_delete_member.html', group_type)
 
 
-def history(id):
-    group_type = _guess_group_type()
+def history(id, group_type='group', is_organization=False):
     if u'diff' in request.params or u'selected1' in request.params:
         try:
             params = {
@@ -619,7 +596,7 @@ def history(id):
         _history_template(group_type), extra_vars={u'group_type': group_type})
 
 
-def follow(id):
+def follow(id, group_type='group', is_organization=False):
     u'''Start following this group.'''
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     data_dict = {u'id': id}
@@ -636,7 +613,7 @@ def follow(id):
     return h.redirect_to(u'group.read', id=id)
 
 
-def unfollow(id):
+def unfollow(id, group_type='group', is_organization=False):
     u'''Stop following this group.'''
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     data_dict = {u'id': id}
@@ -654,7 +631,7 @@ def unfollow(id):
     return h.redirect_to(u'group.read', id=id)
 
 
-def followers(id):
+def followers(id, group_type='group', is_organization=False):
     group_type = _guess_group_type()
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     c.group_dict = _get_group_dict(id, group_type)
@@ -667,7 +644,7 @@ def followers(id):
         u'group/followers.html', extra_vars={u'group_type': group_type})
 
 
-def admins(id):
+def admins(id, group_type='group', is_organization=False):
     group_type = _guess_group_type()
     c.group_dict = _get_group_dict(id, group_type)
     c.admins = authz.get_group_or_org_admin_ids(id)
@@ -679,8 +656,7 @@ def admins(id):
 class BulkProcessView(MethodView):
     u''' Bulk process view'''
 
-    def _prepare(self, id=None):
-        group_type = _guess_group_type()
+    def _prepare(self, id=None, group_type='group', is_organization=False):
 
         # check we are org admin
 
@@ -690,18 +666,16 @@ class BulkProcessView(MethodView):
             u'user': c.user,
             u'schema': _db_to_form_schema(group_type=group_type),
             u'for_view': True,
-            u'extras_as_string': True,
-            u'group_type': group_type
+            u'extras_as_string': True
         }
         return context
 
-    def get(self, id):
+    def get(self, id, group_type='group', is_organization=False):
         context = self._prepare(id)
-        group_type = context['group_type']
         data_dict = {u'id': id, u'type': group_type}
         data_dict['include_datasets'] = False
         try:
-            c.group_dict = _action(u'group_show')(context, data_dict)
+            c.group_dict = _action(u'group_show', is_organization)(context, data_dict)
             c.group = context['group']
         except NotFound:
             base.abort(404, _(u'Group not found'))
@@ -719,9 +693,8 @@ class BulkProcessView(MethodView):
             _bulk_process_template(group_type),
             extra_vars={u'group_type': group_type})
 
-    def post(self, id, data=None):
+    def post(self, id, data=None, group_type='group', is_organization=False):
         context = self._prepare()
-        group_type = context['group_type']
         data_dict = {u'id': id, u'type': group_type}
         try:
             check_access(u'bulk_update_public', context, {u'org_id': id})
@@ -1050,9 +1023,13 @@ class MembersGroupView(MethodView):
         return _render_template(u'group/member_new.html', context['group_type'])
 
 
-group = GroupBlueprint(u'group', __name__, url_prefix=u'/group')
-organization = OrganizationBlueprint(u'organization',
-                                     __name__, url_prefix=u'/organization')
+group = Blueprint(u'group', __name__, url_prefix=u'/group',
+                  url_defaults={u'group_type': 'group',
+                                u'is_organization': False})
+organization = Blueprint(u'organization', __name__,
+                         url_prefix=u'/organization',
+                         url_defaults={u'group_type': 'organization',
+                                       u'is_organization': True})
 
 
 def register_group_plugin_rules(blueprint):

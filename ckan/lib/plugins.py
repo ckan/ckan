@@ -202,7 +202,9 @@ def register_group_plugins(app):
             if group_type not in app.blueprints:
                 blueprint = Blueprint(group_type,
                                       group.import_name,
-                                      url_prefix='/{}'.format(group_type))
+                                      url_prefix='/{}'.format(group_type),
+                                      url_defaults={u'group_type': group_type,
+                                                    u'is_organization': False})
                 register_group_plugin_rules(blueprint)
                 app.register_blueprint(blueprint)
 
@@ -218,17 +220,6 @@ def register_group_plugins(app):
                 _group_controllers['group'] = 'group'
             if 'organization' not in _group_controllers:
                 _group_controllers['organization'] = 'organization'
-
-            controller_obj = None
-            # If using one of the default controllers, tell it that it is allowed
-            # to handle other group_types.
-            # Import them here to avoid circular imports.
-            if group_controller == 'group':
-                from ckan.views.group import GroupBlueprint as controller_obj
-            elif group_controller == 'organization':
-                from ckan.views.group import OrganizationBlueprint as controller_obj
-            if controller_obj is not None:
-                controller_obj.add_group_type(group_type)
 
         set_default_group_plugin()
 
