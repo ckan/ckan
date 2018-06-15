@@ -62,9 +62,6 @@ def walk_python_files():
 def test_building_the_docs():
     u'''There should be no warnings or errors when building the Sphinx docs.
 
-    This test unfortunately does take quite a long time to run - rebuilding the
-    docs from scratch just takes a long time.
-
     This test will also fail is build_sphinx exits with non-zero status.
 
     '''
@@ -72,9 +69,7 @@ def test_building_the_docs():
         output = subprocess.check_output(
             [b'python',
              b'setup.py',
-             b'build_sphinx',
-             b'--all-files',
-             b'--fresh-env'],
+             b'build_sphinx'],
             stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as err:
         assert False, (
