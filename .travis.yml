@@ -1,0 +1,25 @@
+sudo: required
+
+language: python
+
+services:
+  - docker
+
+cache:
+  directories:
+     - ~/docker
+
+before_install:
+  - docker build --rm=false -f contrib/docker/postgresql/Dockerfile -t postgresql .
+  - docker build --rm=false -f contrib/docker/solr/Dockerfile -t solr .
+  - docker pull redis:latest
+  - docker build --rm=false -t ckan .
+
+install:
+  - docker run -d --name db postgresql
+  - docker run -d --name solr solr
+  - docker run -d --name redis redis:latest
+  - docker run -d --name ckan -p 5000:5000 --link db:db --link redis:redis --link solr:solr ckan
+
+script:
+  - docker ps -a

@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from nose.tools import assert_equal
-from routes import url_for
+from ckan.lib.helpers import url_for
 
 import ckan.plugins as plugins
 import ckan.tests.helpers as helpers

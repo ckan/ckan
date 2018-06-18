@@ -1,23 +1,23 @@
 {% extends "page.html" %}
 
-{% set user = c.user_dict %}
+{% set user = user_dict %}
 
 {% block subtitle %}{{ user.display_name }} - {{ _('Users') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  {{ h.build_nav('user_index', _('Users')) }}
-  {{ h.build_nav('user_datasets', user.display_name|truncate(35), id=user.name) }}
+  {{ h.build_nav('user.index', _('Users')) }}
+  {{ h.build_nav('user.read', user.display_name|truncate(35), id=user.name) }}
 {% endblock %}
 
 {% block content_action %}
   {% if h.check_access('user_update', user) %}
-    {% link_for _('Manage'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}
+    {% link_for _('Manage'), named_route='user.edit', id=user.name, class_='btn btn-default', icon='wrench' %}
   {% endif %}
 {% endblock %}
 
 {% block content_primary_nav %}
-  {{ h.build_nav_icon('user_datasets', _('Datasets'), id=user.name) }}
-  {{ h.build_nav_icon('user_activity_stream', _('Activity Stream'), id=user.name) }}
+  {{ h.build_nav_icon('user.read', _('Datasets'), id=user.name) }}
+  {{ h.build_nav_icon('user.activity', _('Activity Stream'), id=user.name) }}
 {% endblock %}
 
 {% block secondary_content %}
@@ -31,11 +31,11 @@
       <h1 class="heading">{{ user.display_name }}</h1>
       {% endblock %}
       {% block user_about %}
-      {% if c.about_formatted %}
-        {{ c.about_formatted }}
+      {% if about_formatted %}
+        {{ about_formatted }}
       {% else %}
         <p class="empty">
-          {% if c.is_myself %}
+          {% if is_myself %}
             {% trans %}You have not provided a biography.{% endtrans %}
           {% else %}
             {% trans %}This user has no biography.{% endtrans %}
@@ -47,7 +47,7 @@
       <div class="nums">
         <dl>
           <dt>{{ _('Followers') }}</dt>
-          <dd>{{ h.SI_number_span(user.num_followers) }}</dd>
+          <dd data-module="followers-counter" data-module-id="{{ user.id }}" data-module-num_followers="{{ user.num_followers }}">{{ h.SI_number_span(user.num_followers) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>
@@ -59,7 +59,7 @@
         </dl>
       </div>
       {% endblock %}
-      {% if c.is_myself == false %}
+      {% if is_myself == false %}
         {% block user_follow %}
         <div class="follow_button">
           {{ h.follow_button('user', user.id) }}</li>
@@ -77,7 +77,7 @@
             <dd>{{ user.name }}</dd>
           {% endif %}
         </dl>
-        {% if c.is_myself %}
+        {% if is_myself %}
           <dl>
             <dt>{{ _('Email') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
             <dd>{{ user.email }}</dd>
@@ -91,9 +91,9 @@
           <dt>{{ _('State') }}</dt>
           <dd>{{ _(user.state) }}</dd>
         </dl>
-        {% if c.is_myself %}
+        {% if is_myself %}
           <dl>
-            <dt class="key">{{ _('API Key') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+            <dt class="key">{{ _('API Key') }} <span class="label label-default" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
             <dd class="value"><code>{{ user.apikey }}</code></dd>
           </dl>
         {% endif %}

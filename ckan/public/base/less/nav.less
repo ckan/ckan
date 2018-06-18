@@ -1,167 +1,190 @@
 .nav-simple,
 .nav-aside {
-  .simple-list; // Adds border and padding.
-  padding-bottom: 0;
+    .simple-list; // Adds border and padding.
+    padding-bottom: 0;
 }
 
 .nav-aside {
-  border-top: 1px dotted #DDD;
-  border-bottom: 1px dotted #DDD;
-  margin-bottom: 15px;
+    border-top: 1px dotted #DDD;
+    border-bottom: 1px dotted #DDD;
+    margin-bottom: 15px;
 }
 
-.nav-item > a,
+.nav-item>a,
 .nav-aside li a {
-  color: @navLinkColor;
-  font-size: @baseFontSize;
-  line-height: @baseLineHeight;
-  margin: -7px -@gutterX;
-  padding: 7px @gutterX;
+    color: @navLinkColor;
+    font-size: @font-size-base;
+    line-height: @line-height-base;
+    margin: -7px -@gutterX;
+    padding: 7px @gutterX;
 }
 
 .nav-item.active,
 .nav-aside li.active {
-  background-color: @navActiveBackgroundColor;
+    background-color: @navActiveBackgroundColor;
 }
 
-.nav-item.active > a,
+.nav-item.active>a,
 .nav-aside li.active a {
-  position: relative;
-  color: @navItemActiveTextColor;
-  background-color: @navItemActiveBackgroundColor;
-  &:hover {
+    position: relative;
     color: @navItemActiveTextColor;
     background-color: @navItemActiveBackgroundColor;
-  }
-}
-@media (min-width: 768px) {
-  .nav-item.active > a:before,
-  .nav-aside li.active a:before {
-    content: ' ';
-    position: absolute;
-    top: 0;
-    right: -6px;
-    width: 6px;
-    height: 34px;
-    background-image: url("@{imagePath}/nav-active.png?1");
-  }
+    &:hover {
+        color: @navItemActiveTextColor;
+        background-color: @navItemActiveBackgroundColor;
+    }
 }
 
-.nav-item.active > a span,
+@media (min-width: @screen-sm-min) {
+    .nav-item.active>a:before,
+    .nav-aside li.active a:before {
+        content: ' ';
+        position: absolute;
+        border: (@navItemActiveArrowSize*3 + 2) solid transparent;
+        border-right: none;
+        border-left-color: @navItemActiveBackgroundColor;
+        border-left-width: @navItemActiveArrowSize;
+        top: 0;
+        bottom: 0;
+        right: -@navItemActiveArrowSize;
+        width: @navItemActiveArrowSize;
+        height: 34px;
+        // background-image: url("@{imagePath}/nav-active.png?1");
+    }
+}
+
+.nav-pills>li {
+    float: none;
+    @media (min-width: @grid-float-breakpoint) {
+        float: left;
+    }
+}
+
+.nav-item.active>a span,
 .nav-aside li.active a span {
-  white-space: nowrap;
-  overflow:hidden;
-  display:block;
+    white-space: nowrap;
+    overflow: hidden;
+    // display: block;
 }
 
-.module-narrow .nav-item > a,
+.module-narrow .nav-item>a,
 .module-narrow .nav-aside li a {
-  padding-left:  @gutterSmallX;
-  padding-right: @gutterSmallX;
-  position: relative;
+    padding-left: @gutterSmallX;
+    padding-right: @gutterSmallX;
+    position: relative;
 }
 
 .module-narrow .nav-item.image,
 .module-narrow .nav-aside li.image {
-  position: relative;
+    position: relative;
 }
 
-.module-narrow .nav-item.image > a,
+.module-narrow .nav-item.image>a,
 .module-narrow .nav-aside li.image a {
-  padding-left:  @gutterSmallX + 27;
-  padding-right: @gutterSmallX + 27;
+    padding-left: @gutterSmallX + 27;
+    padding-right: @gutterSmallX + 27;
 }
 
-.module-narrow .nav-item.image > img,
+.module-narrow .nav-item.image>img,
 .module-narrow .nav-aside li.image img {
-  position: absolute;
-  top: 50%;
-  left: @gutterSmallX;
-  width: 20px;
-  height: 20px;
-  margin-top: -10px;
-  z-index: 2;
+    position: absolute;
+    top: 50%;
+    left: @gutterSmallX;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    z-index: 2;
 }
 
 // FACET NAVIGATION
-
-.nav-facet .nav-item > a:hover:after,
-.nav-facet .nav-item.active > a:after {
-  .ckan-icon;
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: 5px;
-  margin-top: -8px;
-}
-
-.nav-facet .nav-item > a:hover:after {
-  .ckan-icon-circle-add;
-}
-
-.nav-facet .nav-item.active > a:after {
-  .ckan-icon-circle-cross;
-  right: 3px;
-}
-
-.user-list {
-  .unstyled;
-  li {
-    margin: 0 0 10px 0;
-  }
-  .gravatar {
-    vertical-align: -4px;
-    margin-right: 3px;
-    .border-radius(100px);
-  }
-}
-
-.nav-facet-tertiary {
-  margin: 10px 0;
-  .module-heading {
-    margin-bottom: 5px;
-    padding: 8px 12px;
-    border-bottom-width: 0;
-    .border-radius(5px);
-    i {
-      display: none;
-    }
-  }
-  .module-footer {
-    padding: 8px 12px;
-    border-top-width: 0;
-    a {
-      font-weight: normal;
-      color: #8C8C8C;
-    }
-  }
-  .nav {
-    margin-bottom: 0;
-  }
-  .module-content.empty {
-    padding: 8px 12px;
-    margin-top: 0;
-  }
-  .nav li.active {
-    position: relative;
-  }
-  .nav li.active > a:hover:after,
-  .nav li.active > a:after {
+.nav-facet .nav-item>a:hover:after,
+.nav-facet .nav-item.active>a:after {
     .ckan-icon;
-    .ckan-icon-circle-cross;
     content: "";
     position: absolute;
     top: 50%;
     right: 5px;
     margin-top: -8px;
-  }
 }
 
-.nav-simple > .nav-btn {
-  padding-left: 0;
-  padding-right: 0;
-  text-align: center;
-  .btn {
-    display: inline-block;
-  }
+.nav-facet .nav-item>a:hover:after {
+    .ckan-icon-circle-add;
+}
+
+.nav-facet .nav-item.active>a:after {
+    .ckan-icon-circle-cross;
+    right: 3px;
+}
+
+.user-list {
+    .list-unstyled;
+    li {
+        margin: 0 0 10px 0;
+    }
+    .gravatar {
+        vertical-align: -4px;
+        margin-right: 3px;
+        .border-radius(100px);
+    }
+}
+
+.nav-facet-tertiary {
+    margin: 10px 0;
+    .module-heading {
+        margin-bottom: 5px;
+        padding: 8px 12px;
+        border-bottom-width: 0;
+        .border-radius(5px);
+        i {
+            display: none;
+        }
+    }
+    .module-footer {
+        padding: 8px 12px;
+        border-top-width: 0;
+        a {
+            font-weight: normal;
+            color: #8C8C8C;
+        }
+    }
+    .nav {
+        margin-bottom: 0;
+    }
+    .module-content.empty {
+        padding: 8px 12px;
+        margin-top: 0;
+    }
+    .nav li.active {
+        position: relative;
+    }
+    .nav li.active>a:hover:after,
+    .nav li.active>a:after {
+        .ckan-icon;
+        .ckan-icon-circle-cross;
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 5px;
+        margin-top: -8px;
+    }
+}
+
+.nav-simple>.nav-btn {
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+    .btn {
+        display: inline-block;
+    }
+}
+
+// STACKED NAV
+// -----------
+
+// Stacked tabs and pills
+.nav-stacked > li {
+    float: none;
+}
+.nav-stacked > li > a {
+    margin-right: 0; // no need for the gap between nav items
 }

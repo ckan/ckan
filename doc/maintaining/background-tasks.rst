@@ -278,14 +278,58 @@ to use non-standard queues.
     so multiple parallel CKAN instances are not a problem.
 
 
+.. _background jobs testing:
+
+Testing code that uses background jobs
+======================================
+Due to the asynchronous nature of background jobs, code that uses them needs
+to be handled specially when writing tests.
+
+A common approach is to use the `mock package`_ to replace the
+``ckan.plugins.toolkit.enqueue_job`` function with a mock that executes jobs
+synchronously instead of asynchronously:
+
+.. code-block:: python
+
+    import mock
+
+    from ckan.tests import helpers
+
+
+    def synchronous_enqueue_job(job_func, args=None, kwargs=None, title=None):
+        '''
+        Synchronous mock for ``ckan.plugins.toolkit.enqueue_job``.
+        '''
+        args = args or []
+        kwargs = kwargs or {}
+        job_func(*args, **kwargs)
+
+
+    class TestSomethingWithBackgroundJobs(helpers.FunctionalTestBase):
+
+        @mock.patch('ckan.plugins.toolkit.enqueue_job',
+                    side_effect=synchronous_enqueue_job)
+        def test_something(self, enqueue_job_mock):
+            some_function_that_enqueues_a_background_job()
+            assert something
+
+
+Depending on how the function under test calls ``enqueue_job`` you might need
+to adapt where the mock is installed. See `mock's documentation`_ for details.
+
+
+.. _mock package: https://pypi.python.org/pypi/mock
+
+.. _mock's documentation: https://docs.python.org/dev/library/unittest.mock.html
+
+
 .. _background jobs migration:
 
 Migrating from CKAN's previous background job system
 ====================================================
 Before version 2.7 (starting from 1.5), CKAN offered a different background job
-system built around Celery_. That system is still available but deprecated and
-will be removed in future versions of CKAN. You should therefore update your
-code to use the new system described above.
+system built around Celery_. As of CKAN 2.8, that system is no longer available.
+You should therefore update your code to use the new system described above.
 
 .. _Celery: http://celeryproject.org/
 
@@ -331,8 +375,14 @@ therefore make sense for you to support both the new and the old job system.
 That way you are ready when the old system is removed but can continue to
 support older CKAN installations.
 
-Such a setup might look as follows. First split your Celery-based job
-functions into the job itself and its Celery handler. That is, change
+The easiest way to do that is to use `ckanext-rq
+<https://github.com/davidread/ckanext-rq>`_, which provides a back-port of the
+new system to older CKAN versions.
+
+If you are unable to use *ckanext-rq* then you will need to write your code in
+such a way that it works on both systems. This could looks as follows. First
+split your Celery-based job functions into the job itself and its Celery
+handler. That is, change
 
 ::
 
@@ -362,8 +412,8 @@ Then use the new system if it is available and fall back to Celery otherwise::
         '''
         try:
             # Try to use RQ
-            from ckan.lib.jobs import enqueue
-            enqueue(fn, args=args)
+            from ckan.plugins.toolkit import enqueue_job
+            enqueue_job(fn, args=args)
         except ImportError:
             # Fallback to Celery
             import uuid

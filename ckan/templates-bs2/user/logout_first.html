@@ -1,0 +1,28 @@
+{% import 'macros/form.html' as form %}
+{% extends "user/login.html" %}
+
+{% set logout_url = h.url_for('user.logout') %}
+
+{% block actions %}{% endblock %}
+
+{% block form %}
+  <div class="alert alert-error">{{ _("You're already logged in as {user}.").format(user=c.user) }} <a href="{{ logout_url }}">{{ _('Logout') }}</a>?</div>
+  <div class="form-horizontal">
+    {{ form.input('login', label=_('Username'), id='field-login', value="", error="", classes=["control-full"], attrs={"disabled": "disabled"}) }}
+    {{ form.input('password', label=_('Password'), id='field-password', type="password", value="", error="", classes=["control-full"], attrs={"disabled": "disabled"}) }}
+    {{ form.checkbox('remember', label=_('Remember me'), id='field-remember', checked=true, attrs={"disabled": "disabled"}) }}
+    <div class="form-actions">
+      <button class="btn btn-primary disabled" type="submit" disabled>{{ _('Log in') }}</button>
+    </div>
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">{{ _("You're already logged in") }}</h2>
+    <div class="module-content">
+      <p>{{ _("You need to log out before you can log in with another account.") }}</p>
+      <p class="action"><a class="btn" href="{{ logout_url }}">{{ _("Log out now") }}</a></p>
+    </div>
+  </section>
+{% endblock %}

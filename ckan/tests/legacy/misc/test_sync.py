@@ -30,7 +30,7 @@ class _TestSync(TestController):
         # (clean)
 
         self._last_synced_revision_id = {'http://localhost:5050':None}
-        
+
     @classmethod
     def teardown_class(self):
         self.sub_proc.kill()
@@ -41,15 +41,15 @@ class _TestSync(TestController):
         while True:
             try:
                 f = urllib2.urlopen('http://localhost:5050%s' % offset)
-            except urllib2.URLError, e:
+            except urllib2.URLError as e:
                 if hasattr(e, 'reason') and type(e.reason) == urllib2.socket.error:
                     # i.e. process not started up yet
                     count += 1
                     time.sleep(1)
                     assert count < 5, '%s: %r; %r' % (offset, e, e.args)
                 else:
-                    print 'Error opening url: %s' % offset
-                    assert 0, e # Print exception
+                    print('Error opening url: %s' % offset)
+                    assert 0, e  # Print exception
             else:
                 break
         return f.read()
@@ -61,19 +61,10 @@ class _TestSync(TestController):
         else:
             return json.loads(res)
 
-    def test_0_check_setup(self):
-        offset = '/api/rest/package'
-        resB = self.app.get(offset).body
-        resA = self.sub_app_get(offset)
-        pkgsB = json.loads(resB or '[]')
-        pkgsA = json.loads(resA or '[]')
-        assert len(pkgsA) == 2
-        assert len(pkgsB) == 0
-
     def test_1_first_sync(self):
         server = self._last_synced_revision_id.keys()[0]
         assert server == 'http://localhost:5050'
-        
+
         # find id of last revision synced
         last_sync_rev_id = self._last_synced_revision_id[server]
         assert last_sync_rev_id == None # no syncs yet
@@ -86,10 +77,5 @@ class _TestSync(TestController):
         # get revision diffs
         diffs = self.sub_app_get_deserialized('%s/api/diff/revision?diff=%s&oldid=%s' % (server, remote_latest_rev_id, last_sync_rev_id))
         assert len(diffs) == 3
-                                      
+
         # apply diffs
-
-        
-        
-
-

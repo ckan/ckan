@@ -1,251 +1,287 @@
 .wrapper {
-  .clearfix();
-  .box();
-  position: relative;
-  background-color:#fff;
-  margin-bottom: 20px;
-  margin-left:0;
-}
-@media (min-width: 768px) {
-  .wrapper {
-    background-image:url("@{imagePath}/nav.png");
-    background-repeat:repeat-y;
-    background-position:-54px 0px;
-  }
-}
-@media (min-width: 980px) {
-  .wrapper {
-    background-position:0px 0px;
-  }
+    .clearfix();
+    .box();
+    position: relative;
+    min-height: 300px;
+    background-color: #fff;
+    @media (min-width: @screen-sm-min) {
+        &:before {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 25%;
+            border-right: 1px solid @genericBorderColor;
+            z-index: 1; // Fixes overlapping .secondary on the Resource view page
+        }
+        &.no-nav {
+            &:before {
+                display: none;
+            }
+            .module {
+                >.page-header {
+                    margin-top: 0;
+                }
+            }
+        }
+    }
 }
 
-.wrapper.no-nav {
-  background-image: none;
+// @media (min-width: @screen-md-min) {
+//   .wrapper {
+//     background-position:0px 0px;
+//   }
+// }
+// .wrapper.no-nav {
+//     background-image: none;
+// }
+[role=main],
+.main {
+    position: relative;
+    padding-bottom: 20px;
 }
 
-[role=main], .main {
-  position: relative;
-  padding-bottom: 20px;
-}
-@media (min-width: 768px) {
-  [role=main], .main {
-    padding-top: 10px;
-    background: @layoutBackgroundColor url("@{bgPath}");
-  }
+@media (min-width: @screen-sm-min) {
+    [role=main],
+    .main {
+        padding-top: 10px;
+        background: @layoutBackgroundColor url("@{bgPath}");
+    }
 }
 
 [role=main] {
-  min-height: 350px;
+    min-height: 350px;
 }
 
 .main:after,
 [role=main]:after {
-  bottom: 0;
-  border-top-width: 1px;
+    bottom: 0;
+    border-top-width: 1px;
 }
 
 [role=main] .primary {
-  float: right;
-  margin-left: 0; // Remove grid margin.
+    position: relative;
+    float: right;
+    margin-left: 0; // Remove grid margin.
 }
 
 [role=main] .secondary {
-  margin-left: 0; // Remove grid margin.
+    padding: 0;
+    z-index: 1;
+    padding-right: 1px;
 }
+
 
 /* Filters modal */
+
 .no-text .text {
-  display:none;
+    display: none;
 }
+
 .js body.filters-modal {
-  overflow:hidden;
+    overflow: hidden;
 }
+
 .show-filters.btn,
 .hide-filters {
-  display:none;
+    display: none;
 }
-@media (max-width: 768px) {
-  .wrapper {
-    margin: 0 -20px;
-    border-width: 0;
-    .box-shadow(0);
-    .border-radius(0);
-  }
-  .js [role=main] .secondary .filters {
-    display:none;
-    position:fixed;
-    overflow:auto;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    z-index:1;
-    padding:10px;
-    background-color:rgb(0,0,0);
-    background-color:rgba(0,0,0,0.50);
-  }
-  .js body.filters-modal .secondary .filters {
-    display:block;
-  }
-  .js [role=main] .secondary .filters > div {
-    background-color:#fff;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    overflow:hidden;
-  }
-  .js [role=main] .secondary .filters > div .module-footer {
-    display:none;
-  }
-  .js body.filters-modal .secondary .filters .hide-filters {
-    display:inline-block;
-    position:absolute;
-    top:14px;
-    right:17px;
-    opacity:0.6;
-    i {
-      font-size:18px;
+
+@media (max-width: @screen-xs-max) {
+    .wrapper {
+        border-width: 0;
+        .box-shadow(0);
+        .border-radius(0);
     }
-  }
-  .js .show-filters.btn {
-    display:inline-block;
-  }
+    .js [role=main] .secondary .filters {
+        display: none;
+        position: fixed;
+        overflow: auto;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        padding: 10px;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.50);
+    }
+    .js body.filters-modal .secondary .filters {
+        display: block;
+    }
+    .js [role=main] .secondary .filters>div {
+        background-color: #fff;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .js [role=main] .secondary .filters>div .module-footer {
+        display: none;
+    }
+    .js body.filters-modal .secondary .filters .hide-filters {
+        display: inline-block;
+        position: absolute;
+        top: 14px;
+        right: 17px;
+        opacity: 0.6;
+        i {
+            font-size: 18px;
+        }
+    }
+    .js .show-filters.btn {
+        display: inline-block;
+    }
 }
 
-.primary > :last-child,
-.secondary > :last-child {
-  margin-bottom: 0;
-}
-
+// .primary> :last-child,
+// .secondary> :last-child {
+//     margin-bottom: 0;
+// }
 .primary {
-  .primary {
-    float: left;
-    width: 467px;
-    margin-left: 0;
-    margin-bottom: 20px;
-    h1, h2, h3, h4 {
-      &:first-child {
-        margin-top: 0;
-      }
+    .primary {
+        float: left;
+        margin-left: 0;
+        margin-bottom: 20px;
+        h1,
+        h2,
+        h3,
+        h4 {
+            &:first-child {
+                margin-top: 0;
+            }
+        }
     }
-  }
-  .tertiary {
-    float: left;
-    width: 180px;
-    margin-left: 18px;
-    margin-bottom: 20px;
-  }
+    .tertiary {
+        margin-bottom: 20px;
+    }
 }
 
-@media (min-width: 768px) {
-  .hero {
-    background: url("@{imagePath}/background-tile.png");
-  }
+@media (min-width: @screen-sm-min) {
+    .hero {
+        background: url("@{imagePath}/background-tile.png");
+    }
 }
 
 .hero:after {
-  // Need to manually declare this here. If you pass rgba() through to
-  // #gradient it breaks the filter property in IE7.
-  .rgba-vertial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
-  background-color: @moduleHeadingBackgroundColor;
-  border-bottom: 1px solid darken(@moduleHeadingBorderColor, 5%);
-  .border-radius(3px 3px 0 0);
-  .box-shadow(inset 0 -4px 0 rgba(0, 0, 0, 0.03));
-  .back:hover {
-    text-decoration: none;
-    span {
-      text-decoration: underline;
+    // Need to manually declare this here. If you pass rgba() through to
+    // #gradient it breaks the filter property in IE7.
+    .rgba-vertial-gradient(rgba(0,
+    0,
+    0,
+    0.15),
+    rgba(0,
+    0,
+    0,
+    0));
+    background-color: @moduleHeadingBackgroundColor;
+    border-bottom: 1px solid darken(@moduleHeadingBorderColor, 5%);
+    .border-radius(3px 3px 0 0);
+    .box-shadow(inset 0 -4px 0 rgba(0,
+    0,
+    0,
+    0.03));
+    .back:hover {
+        text-decoration: none;
+        span {
+            text-decoration: underline;
+        }
     }
-  }
 }
 
 .context-info {
-  .module-content {
-    padding: 15px;
-  }
-  .image {
-    margin-bottom: 10px;
-    img,
-    a {
-      display: block;
-      .border-radius(4px);
-    }
-  }
-  p {
-    overflow: auto;
-  }
-  code {
-    display: block;
-    font-weight: normal;
-    padding: 0;
-    margin: 0;
-    overflow: auto;
-  }
-  h1.heading {
-    margin: 0 0 5px 0;
-    font-size: 18px;
-    line-height: 1.3;
-    .break-word();
-  }
-  .info {
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px dotted #DDD;
-    word-break: break-word;
-    dl dd {
-      margin-top: 3px;
-      margin-left: 0;
-    }
-  }
-  .nums {
-    .clearfix;
-    margin-top: 15px;
-    padding-top: 10px;
-    padding-bottom: 0;
-    border-top: 1px dotted #DDD;
-    dl {
-      float: left;
-      width: 50%;
-      margin: 5px 0 0 0;
-      color: @layoutTextColor;
-      dt {
-        display: block;
-        font-size: 13px;
-        font-weight: 300;
-      }
-      dd {
-        display: block;
-        font-size: 30px;
-        font-weight: 700;
-        line-height: 36px;
-        margin-left: 0;
-        .smallest {
-          font-size: 13px;
-        }
-        .smaller {
-          font-size: 16px;
-        }
-        .small {
-          font-size: 21px;
-        }
-      }
-    }
-  }
-  .follow_button {
-    margin-top: 15px;
-  }
-  &.editing {
-    .module-heading {
-
-    }
     .module-content {
-      margin-top: 0;
+        padding: 15px;
     }
-  }
+    .image {
+        margin-bottom: 10px;
+        img,
+        a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            .border-radius(4px);
+        }
+    }
+    p {
+        overflow: auto;
+    }
+    code {
+        display: block;
+        font-weight: normal;
+        padding: 0;
+        margin: 0;
+        overflow: auto;
+    }
+    h1.heading {
+        margin: 0 0 5px 0;
+        font-size: 18px;
+        line-height: 1.3;
+        .break-word();
+    }
+    .info {
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 1px dotted #DDD;
+        word-break: break-word;
+        dl dd {
+            margin-top: 3px;
+            margin-left: 0;
+        }
+    }
+    .nums {
+        .clearfix;
+        margin-top: 15px;
+        padding-top: 10px;
+        padding-bottom: 0;
+        border-top: 1px dotted #DDD;
+        dl {
+            float: left;
+            width: 50%;
+            margin: 5px 0 0 0;
+            color: @layoutTextColor;
+            dt {
+                display: block;
+                font-size: 13px;
+                font-weight: 300;
+            }
+            dd {
+                display: block;
+                font-size: 30px;
+                font-weight: 700;
+                line-height: 36px;
+                margin-left: 0;
+                .smallest {
+                    font-size: 13px;
+                }
+                .smaller {
+                    font-size: 16px;
+                }
+                .small {
+                    font-size: 21px;
+                }
+            }
+        }
+    }
+    .follow_button {
+        margin: @grid-gutter-width/2 0;
+    }
+    &.editing {
+        .module-heading {}
+        .module-content {
+            margin-top: 0;
+        }
+    }
 }
 
 .flash-messages {
-  .alert {
-    .box-shadow(0 0 0 1px white);
-  }
+    .alert {
+        .box-shadow(0 0 0 1px white);
+    }
+}
+
+.view-preview-container {
+  margin-top: 20px;
 }

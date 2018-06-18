@@ -1,0 +1,225 @@
+@notificationsBg: #C9403A;
+
+.account-masthead {
+  .clearfix();
+  min-height: 30px;
+  color: @mastheadTextColor;
+  background: darken(@mastheadBackgroundColor, 10%) url("@{bgPath}");
+  .account {
+    float: right;
+    ul {
+      .clearfix();
+      li {
+        display: block;
+        float: left;
+        border-left: 1px solid darken(@mastheadBackgroundColor, 15%);
+        a {
+          display: block;
+          color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
+          font-size: 13px;
+          font-weight: bold;
+          padding: 0 10px;
+          line-height: 31px;
+          span.username,
+          span.text {
+            margin: 0 2px 0 4px;
+          }
+
+          span.text {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+          }
+
+          &:hover {
+            color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 15%);
+            background-color: darken(@mastheadBackgroundColor, 15%);
+            text-decoration: none;
+          }
+          &.sub {
+            font-weight: 300;
+          }
+          .btn {
+            vertical-align: 1px;
+            margin-left: 3px;
+          }
+        }
+      }
+    }
+    .notifications {
+      a {
+        span.badge {
+          font-size: 12px;
+          margin-left: 3px;
+          padding: 1px 6px;
+          background-color: darken(@mastheadBackgroundColor, 15%);
+          .border-radius(4px);
+          text-shadow:none;
+          color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
+        }
+        &:hover span {
+          color: @mastheadLinkColor;
+          background-color: darken(@mastheadBackgroundColor, 20%);
+        }
+      }
+      &.notifications-important a {
+        span.badge {
+          color: @mastheadLinkColor;
+          background-color: @notificationsBg;
+        }
+      }
+    }
+    &.authed {
+      .image {
+        padding: 0 6px;
+        img {
+          vertical-align: -6px;
+          .border-radius(4px);
+        }
+      }
+    }
+  }
+}
+
+.masthead {
+  .clearfix();
+  min-height: 55px;
+  color: @mastheadTextColor;
+  background: @mastheadBackgroundColor url("@{bgPath}");
+
+  .container {
+    position: relative;
+  }
+
+  a {
+    color: @mastheadLinkColor;
+  }
+
+  hgroup {
+    h1,
+    h2 {
+      float: left;
+      font-size: 30px;
+      line-height: 1.5;
+    }
+    h1 {
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin: 3px 0;
+    }
+    h2 {
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      margin: 0;
+      font-size: 15px;
+      font-weight: normal;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+  }
+  .logo{
+    display: inline-block;
+    img{
+      max-height: @logoMaxHeight;
+    }
+  }
+  .nav-collapse {
+    padding-top:10px;
+  }
+
+  .section {
+    float: left;
+  }
+
+  input[type="text"] {
+    border-color: darken(@mastheadBackgroundColor, 5);
+  }
+
+  .navigation {
+    margin-right: 20px;
+    .nav-pills {
+      margin-bottom: 0;
+      li {
+        a:hover,
+        &.active a {
+          background-color: darken(@mastheadBackgroundColor, 10%);
+        }
+      }
+    }
+  }
+  .nav > li > a,
+  .nav > li > a:focus,
+  .nav > li > a:hover,
+  .nav > .active > a,
+  .nav > .active > a:hover,
+  .nav > .active > a:focus {
+    color: #fff;
+    text-shadow: none;
+  }
+
+  .site-search {
+    margin: 2px 8px 2px 0;
+    input {
+      width: 200px;
+      padding: 4px 10px;
+    }
+  }
+
+  .btn-navbar,
+  .btn-navbar:hover,
+  .btn-navbar:focus,
+  .btn-navbar:active,
+  .btn-navbar.active,
+  .btn-navbar.disabled,
+  .btn-navbar[disabled] {
+    background-color: darken(@mastheadBackgroundColor, 10%);
+    background-image: none;
+    border:none;
+    .box-shadow(none);
+    text-shadow: none;
+    margin-top:15px;
+    .icon-bar {
+      margin-right:0;
+    }
+  }
+
+  .debug {
+    position: absolute;
+    top: 37px;
+    left: 10px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+@media (min-width: 980px) {
+  .masthead  .nav-collapse {
+    float:right;
+  }
+}
+
+@media (max-width: 767px) {
+  .account-masthead {
+    margin-left:-20px;
+    margin-right:-20px;
+    padding-left:20px;
+    padding-right:20px;
+  }
+  .masthead .section {
+    float: none;
+    .nav-collapse {
+      margin-bottom: @gutterX;
+    }
+  }
+}
+@media (max-width: 979px) {
+  .masthead {
+    .container {
+      padding-left:20px;
+      padding-right:20px;
+    }
+    .site-search {
+      display:none;
+    }
+  }
+}

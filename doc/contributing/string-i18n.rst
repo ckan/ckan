@@ -38,6 +38,8 @@ string internationalization when reviewing a pull request.
    existing code.
 
 
+.. _jinja_i18n:
+
 ------------------------------------------------
 Internationalizating strings in Jinja2 templates
 ------------------------------------------------
@@ -148,16 +150,22 @@ Singular and plural forms are handled by ``ungettext()``:
 Internationalizing strings in Python code
 -----------------------------------------
 
-CKAN uses the :py:func:`~pylons.i18n._` and :py:func:`~pylons.i18n.ungettext`
-functions from the `pylons.i18n.translation`_ module to internationalize
+CKAN uses the :py:func:`~flask_babel._` and :py:func:`~flask_babel.ngettext`
+functions from the `Flask-Babel`_ library to internationalize
 strings in Python code.
+
+.. _Flask-Babel: https://pythonhosted.org/Flask-Babel/
+
+.. note::
+    Code running on Pylons will use the functions provided by
+    the `pylons.i18n.translation`_ module, but their behaviour is the same.
 
 .. _pylons.i18n.translation: http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/modules/i18n_translation.html#module-pylons.i18n.translation
 
 Core CKAN modules should import :py:func:`~ckan.common._` and
 :py:func:`~ckan.common.ungettext` from :py:mod:`ckan.common`,
 i.e. ``from ckan.common import _, ungettext``
-(don't import :py:func:`pylons.i18n.translation._` directly, for example).
+(don't import :py:func:`flask_babel._` or :py:func:`pylons.i18n.translation._` directly, for example).
 
 CKAN plugins should import :py:mod:`ckan.plugins.toolkit` and use
 :py:func:`ckan.plugins.toolkit._` and
@@ -197,98 +205,84 @@ To handle different plural and singular forms of a string, use ``ungettext()``:
 Internationalizing strings in JavaScript code
 ---------------------------------------------
 
-Each :ref:`CKAN JavaScript module <javascript_modules>` receives the ``_``
-translation function during construction:
+Each :ref:`CKAN JavaScript module <javascript_modules>` offers the methods
+``_`` and ``ngettext`` for translating singular and plural strings,
+respectively:
 
 .. code-block:: javascript
 
-    this.ckan.module('i18n-demo', function($, _) {  // Note the `_`
-      ...
-    };
-
-Alternatively, you can use :ref:`this.sandbox.translate <this_sandbox>` (for
-which ``_`` is a shortcut).
-
-In contrast to Python code and Jinja templates, in Javascript ``_`` does not
-directly return the translated string. Instead, it returns a Jed_ translation
-object. Use its ``fetch`` method to get the translated singular string:
-
-.. code-block:: javascript
-
-    _('Translate me!').fetch()
-
-.. _Jed: http://slexaxton.github.io/Jed/
-
-Placeholders can be `specified in the string`_, their values are passed via
-``fetch``:
-
-.. _specified in the string: http://www.diveintojavascript.com/projects/javascript-sprintf
-
-.. code-block:: javascript
-
-    _('Hello, %(name)s!').fetch({name: 'John Doe'})
-
-For plural forms, use the ``ifPlural`` method:
-
-.. code-block:: javascript
-
-    var numDeleted = deletePackages();
-    console.log(
-      _('Deleted %(number)d package')
-        .ifPlural(numDeleted, 'Deleted %(number)d packages')
-        .fetch({number: numDeleted})
-    );
-
-However, you should not distribute your translateable strings all over your
-JavaScript module. Instead, collect them in ``options.i18n`` and then use the
-``this.i18n`` function to look them up:
-
-.. code-block:: javascript
-
-    this.ckan.module('i18n-demo', function($, _) {
-      return {
-        options: {
-          i18n: {
-            deleting _('Deleting...'),
-            deleted: function (data) {
-              return _('Deleted %(number)d package')
-                .isPlural(data.number, 'Deleted %(number)d packages');
+    this.ckan.module('i18n-demo', function($) {
+        return {
+            initialize: function () {
+                console.log(this._('Translate me!'));
+                console.log(this.ngettext('%(num)d item', '%(num)d items', 3));
             }
-          }
-        },
-
-        // ...
-
-        deleteSomeStuff: function() {
-          console.log(this.i18n('deleting'));
-          var numDeleted = deletePackages();
-          console.log(this.i18n('deleted', {number: numDeleted}));
-        }
-      };
+        };
     };
 
-As you can see, each entry in ``options.i18n`` maps an identifier to either a
-prepared Jed object (as returned by ``_``) or to a function that takes an
-object and then returns a Jed object. The latter form is for passing
-placeholders and constructing plural forms. Note that you should not call
-``fetch`` for the values in ``options.i18n``, that is handled automatically by
-``this.i18n``.
+To translate a fixed singular string, use ``_``. It returns the translation of
+the string for the currently selected locale. If the current locale doesn't
+provide a translation for the string then it is returned unchanged.
+
+.. code-block:: javascript
+
+    this._('Something that should be translated')
+
+Placeholders are supported via `sprintf-syntax`_, the corresponding values are
+passed via another parameter:
+
+.. _sprintf-syntax: http://www.diveintojavascript.com/projects/javascript-sprintf
+
+.. code-block:: javascript
+
+    this._("My name is %(name)s and I'm from %(hometown)s.",
+           {name: 'Sarah', hometown: 'Cape Town'})
+
+``ngettext`` allows you to translate a string that may be either singular or
+plural, depending on some variable:
+
+.. code-block:: javascript
+
+    this.ngettext('Deleted %(num)d item',
+                  'Deleted %(num)d items',
+                  items.length)
+
+If ``items.length`` is 1 then the translation for the first argument will be
+returned, otherwise that of the second argument. ``num`` is a magical
+placeholder that is automatically provided by ``ngettext`` and contains the
+value of the third parameter.
+
+Like ``_``, ``ngettext`` can take additional placeholders:
+
+.. code-block:: javascript
+
+    this.ngettext("I'm %(name)s and I'm %(num)d year old",
+                  "I'm %(name)s and I'm %(num)d years old",
+                  age,
+                  {name: 'John'})
+
 
 .. note::
 
     CKAN's JavaScript code automatically downloads the appropriate translations
-    at request time from the CKAN server. The corresponding translation files
-    are generated beforehand using ``paster trans js``. During development you
-    need to run that command manually if you're updating JavaScript
-    translations::
+    at request time from the CKAN server. Since CKAN 2.7 the corresponding
+    translation files are regenerated automatically if necessary when CKAN
+    starts.
+
+    You can also regenerate the translation files manually using ``paster trans
+    js``::
 
         python setup.py extract_messages  # Extract translatable strings
         # Update .po files as desired
         python setup.py compile_catalog   # Compile .mo files for Python/Jinja
         paster trans js                   # Compile JavaScript catalogs
 
-    Also note that extensions currently `cannot provide translations for
-    JS strings <https://github.com/ckan/ideas-and-roadmap/issues/176>`_.
+
+.. note::
+
+    Prior to CKAN 2.7, JavaScript modules received a similar but different
+    ``_`` function for string translation as a parameter. This is still
+    supported but deprecated and will be removed in a future release.
 
 -------------------------------------------------
 General guidelines for internationalizing strings

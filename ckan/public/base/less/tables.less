@@ -1,70 +1,70 @@
 .table-selected td {
-  background-color: @formActionsBackground;
-  .edit {
-    display: block;
-  }
+    background-color: @input-bg;
+    .edit {
+        display: block;
+    }
 }
 
 .table-bulk-edit {
-  th input {
-    top: -5px;
-  }
-  .table-actions .btn-group {
-    float: left;
-    margin: 0 10px 0 0;
-  }
-  .context p {
-    margin-bottom: 0;
-  }
+    th input {
+        top: -5px;
+    }
+    .table-actions .btn-group {
+        float: left;
+        margin: 0 10px 0 0;
+    }
+    .context p {
+        margin-bottom: 0;
+    }
 }
 
 .table-header thead th {
-  background-color: @moduleHeadingBackgroundColor;
+    background-color: @moduleHeadingBackgroundColor;
 }
 
 .table-edit-hover {
-  .edit {
-    display: none;
-    float: right;
-  }
-  tr:hover .edit {
-    display: block;
-  }
+    .edit {
+        display: none;
+        float: right;
+    }
+    tr:hover .edit {
+        display: block;
+    }
 }
 
 .js {
-  .table-toggle-more {
-    .toggle-more {
-      display: none;
+    .table-toggle-more {
+        .toggle-more {
+            display: none;
+        }
+        .show-more {
+            display: inline;
+        }
+        .show-less {
+            display: none;
+        }
+        .toggle-seperator {
+            display: table-row;
+            td {
+                height: 11px;
+                padding: 0;
+                background-image: url("@{imagePath}/table-seperator.png");
+            }
+        }
     }
-    .show-more {
-      display: inline;
+    .table .toggle-show td {
+        background: none;
+        text-align: center;
     }
-    .show-less {
-      display: none;
+    .table-toggle-less {
+        .show-less {
+            display: inline;
+        }
+        .show-more {
+            display: none;
+        }
+        .toggle-seperator {
+            display: none;
+        }
     }
-    .toggle-seperator {
-      display: table-row;
-      td {
-        height: 11px;
-        padding: 0;
-        background-image: url("@{imagePath}/table-seperator.png");
-      }
-    }
-  }
-  .table .toggle-show td {
-    background: none;
-    text-align: center;
-  }
-  .table-toggle-less {
-    .show-less {
-      display: inline;
-    }
-    .show-more {
-      display: none;
-    }
-    .toggle-seperator {
-      display: none;
-    }
-  }
 }

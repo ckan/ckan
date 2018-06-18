@@ -4,14 +4,11 @@ Internationalizing strings in extensions
 
 .. seealso::
 
-   In order to internationalize your extension you must mark the strings for
-   internationalization. You can find out how to do this by reading
+   In order to internationalize your extension you must :doc:`mark its strings
+   for internationalization </contributing/string-i18n>`. See also
    :doc:`/contributing/i18n`.
 
-.. seealso::
-
-   In this tutorial we are assuming that you have read the
-   :doc:`/extensions/tutorial`.
+   This tutorial assumes that you have read the :doc:`/extensions/tutorial`.
 
 We will create a simple extension to demonstrate the translation of strings
 inside extensions. After running::
@@ -29,6 +26,12 @@ containing:
 
 This template provides a sample string that we will internationalize in this
 tutorial.
+
+.. note::
+
+    While this tutorial only covers Python/Jinja templates it is also possible
+    (since CKAN 2.7) to :ref:`translate strings in an extension's JavaScript
+    modules <javascript_i18n>`.
 
 ---------------
 Extract strings
@@ -163,13 +166,4 @@ implement the ``ITranslation`` interface yourself.
    ~ckan.plugins.interfaces.ITranslation.i18n_directory
    ~ckan.plugins.interfaces.ITranslation.i18n_locales
    ~ckan.plugins.interfaces.ITranslation.i18n_domain
-
-----------
-JavaScript
-----------
-Extensions currently `cannot provide their own translations for JavaScript
-strings <https://github.com/ckan/ideas-and-roadmap/issues/176>`_.
-
-However, they can re-use existing JavaScript translations from CKAN. See
-:ref:`javascript_i18n` for details.
 

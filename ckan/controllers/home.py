@@ -4,13 +4,12 @@ from pylons import cache
 import sqlalchemy.exc
 
 import ckan.logic as logic
-import ckan.lib.maintain as maintain
 import ckan.lib.search as search
 import ckan.lib.base as base
 import ckan.model as model
 import ckan.lib.helpers as h
 
-from ckan.common import _, g, c
+from ckan.common import _, config, c
 
 CACHE_PARAMETERS = ['__cache', '__no_cache__']
 
@@ -27,7 +26,7 @@ class HomeController(base.BaseController):
         except logic.NotAuthorized:
             base.abort(403, _('Not authorized to see this page'))
         except (sqlalchemy.exc.ProgrammingError,
-                sqlalchemy.exc.OperationalError), e:
+                sqlalchemy.exc.OperationalError) as e:
             # postgres and sqlite errors for missing tables
             msg = str(e)
             if ('relation' in msg and 'does not exist' in msg) or \
@@ -46,7 +45,7 @@ class HomeController(base.BaseController):
                        'user': c.user, 'auth_user_obj': c.userobj}
             data_dict = {
                 'q': '*:*',
-                'facet.field': g.facets,
+                'facet.field': h.facets(),
                 'rows': 4,
                 'start': 0,
                 'sort': 'views_recent desc',
@@ -57,13 +56,6 @@ class HomeController(base.BaseController):
             c.search_facets = query['search_facets']
             c.package_count = query['count']
             c.datasets = query['results']
-
-            c.facets = query['facets']
-            maintain.deprecate_context_item(
-                'facets',
-                'Use `c.search_facets` instead.')
-
-            c.search_facets = query['search_facets']
 
             c.facet_titles = {
                 'organization': _('Organizations'),
@@ -77,12 +69,12 @@ class HomeController(base.BaseController):
             c.package_count = 0
 
         if c.userobj and not c.userobj.email:
-            url = h.url_for(controller='user', action='edit')
+            url = h.url_for('user.edit')
             msg = _('Please <a href="%s">update your profile</a>'
                     ' and add your email address. ') % url + \
                 _('%s uses your email address'
                     ' if you need to reset your password.') \
-                % g.site_title
+                % config.get('ckan.site_title')
             h.flash_notice(msg, allow_html=True)
 
         return base.render('home/index.html', cache_force=True)

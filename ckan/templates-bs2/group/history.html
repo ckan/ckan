@@ -1,0 +1,10 @@
+{% extends "group/read_base.html" %}
+
+{% block subtitle %}{{ _('History') }} - {{ c.group_dict.display_name }}{% endblock %}
+
+{% block primary_content_inner %}
+  <h1 class="hide-heading">{{ _('History') }}</h1>
+  {% block group_history_revisions %}
+    {% snippet "group/snippets/history_revisions.html", group_dict=c.group_dict, group_revisions=c.group_revisions %}
+  {% endblock %}
+{% endblock %}

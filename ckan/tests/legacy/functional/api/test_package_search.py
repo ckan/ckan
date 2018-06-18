@@ -225,7 +225,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         query = {'q': '', 'tags':['tolstoy', 'russian', u'Flexible \u30a1']}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
-        print offset
+        print(offset)
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         self.assert_results(res_dict, [u'annakarenina'])
@@ -350,7 +350,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
     def test_11_pagination_syntax_error(self):
         offset = self.base_url + '?all_fields=1&q="tags:russian"&start=should_be_integer&rows=1&order_by=name' # invalid offset value
         res = self.app.get(offset, status=400)
-        print res.body
+        print(res.body)
         assert('should_be_integer' in res.body)
 
     def test_13_just_groups(self):
@@ -365,10 +365,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
 
-class TestPackageSearchApi1(Api1TestCase, PackageSearchApiTestCase,
-                            LegacyOptionsTestCase): pass
-class TestPackageSearchApi2(Api2TestCase, PackageSearchApiTestCase,
-                            LegacyOptionsTestCase): pass
+
 class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
     '''Here are tests with URIs in specifically SOLR syntax.'''
     def test_07_uri_qjson_tags(self):
@@ -393,7 +390,7 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
         query = {'q': 'tags:tolstoy tags:russian'}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
-        print offset
+        print(offset)
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         self.assert_results(res_dict, [u'annakarenina'])
@@ -465,7 +462,7 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
     def test_11_pagination_syntax_error(self):
         offset = self.base_url + '?fl=*&q=tags:russian&start=should_be_integer&rows=1&sort=name asc' # invalid offset value
         res = self.app.get(offset, status=400)
-        print res.body
+        print(res.body)
         assert('should_be_integer' in res.body)
 
     def test_12_v1_or_v2_syntax(self):

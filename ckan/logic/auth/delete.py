@@ -4,7 +4,7 @@ import ckan.logic as logic
 import ckan.authz as authz
 from ckan.logic.auth import get_group_object
 from ckan.logic.auth import get_resource_object
-from ckan.lib.base import _
+from ckan.common import _
 
 
 def user_delete(context, data_dict):

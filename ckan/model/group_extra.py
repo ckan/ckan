@@ -3,6 +3,7 @@
 import vdm.sqlalchemy
 import vdm.sqlalchemy.stateful
 from sqlalchemy import orm, types, Column, Table, ForeignKey
+from six import text_type
 
 import group
 import meta
@@ -46,10 +47,10 @@ GroupExtraRevision = vdm.sqlalchemy.create_object_version(meta.mapper, GroupExtr
     group_extra_revision_table)
 
 def _create_extra(key, value):
-    return GroupExtra(key=unicode(key), value=value)
+    return GroupExtra(key=text_type(key), value=value)
 
 _extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
-        vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of()) 
+        vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of())
 setattr(group.Group, 'extras_active', _extras_active)
 group.Group.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
             creator=_create_extra)

@@ -1,18 +1,24 @@
-this.ckan.module('basic-form', function (jQuery, _) {
+this.ckan.module('basic-form', function (jQuery) {
   return {
     initialize: function () {
-      var message = _('There are unsaved modifications to this form').fetch();
+      var message = this._('There are unsaved modifications to this form');
+
+      $.proxyAll(this, /_on/);
+
       this.el.incompleteFormWarning(message);
-      // Internet Explorer 7 fix for forms with <button type="submit">
-      if ($('html').hasClass('ie7')) {
-        this.el.on('submit', function() {
-          var form = $(this);
-          $('button', form).each(function() {
-            var button = $(this);
-            $('<input type="hidden">').prop('name', button.prop('name')).prop('value', button.val()).appendTo(form);
-          });
-        });
-      }
+
+      // Disable the submit button on form submit, to prevent multiple
+      // consecutive form submissions.
+      this.el.on('submit', this._onSubmit);
+    },
+    _onSubmit: function () {
+
+      // The button is not disabled immediately so that its value can be sent
+      // the first time the form is submitted, because the "save" field is
+      // used in the backend.
+      setTimeout(function() {
+        this.el.find('button[name="save"]').attr('disabled', true);
+      }.bind(this), 0);
     }
   };
 });

@@ -67,10 +67,6 @@ install the dependencies necessary for building CKAN. In this example we'll
 create a virtualenv in a folder called ``pyenv``. Run these commands in a
 terminal:
 
-.. versionchanged:: 2.1
-   In CKAN 2.0 and earlier the requirements file was called
-   ``pip-requirements-docs.txt``, not ``dev-requirements.txt`` as below.
-
 ::
 
     virtualenv --no-site-packages pyenv
@@ -496,7 +492,7 @@ is a nice way to include a list of related links::
        :doc:`The DataStore extension <datastore>`
          A CKAN extension for storing data.
 
-       CKAN's `demo site <http://demo.ckan.org/>`_
+       CKAN's `demo site <https://demo.ckan.org/>`_
          A demo site running the latest CKAN beta version.
 
 Seealso boxes are particularly useful when two pages are related, but don't

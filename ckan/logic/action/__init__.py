@@ -4,7 +4,7 @@ from copy import deepcopy
 import re
 
 from ckan.logic import NotFound
-from ckan.lib.base import _, abort
+from ckan.common import _
 
 
 def rename_keys(dict_, key_map, reverse=False, destructive=False):

@@ -1,33 +1,33 @@
-/* Module for reordering resources
+/* Module for reordering resource views
  */
-this.ckan.module('resource-view-reorder', function($, _) {
+this.ckan.module('resource-view-reorder', function($) {
   return {
     options: {
       id: false,
-      i18n: {
-        label: _('Reorder resource view'),
-        save: _('Save order'),
-        saving: _('Saving...'),
-        cancel: _('Cancel')
-      }
+      labelText: 'Reorder resource view'
     },
     template: {
       title: '<h1></h1>',
       button: [
-        '<a href="javascript:;" class="btn">',
-        '<i class="icon-reorder"></i>',
+        '<a href="javascript:;" class="btn btn-default">',
+        '<i class="fa fa-bars"></i>',
         '<span></span>',
         '</a>'
       ].join('\n'),
       form_actions: [
         '<div class="form-actions">',
-        '<a href="javascript:;" class="cancel btn pull-left"></a>',
+        '<a href="javascript:;" class="cancel btn btn-danger pull-left"></a>',
         '<a href="javascript:;" class="save btn btn-primary"></a>',
         '</div>'
       ].join('\n'),
+      handle: [
+        '<a href="javascript:;" class="handle">',
+        '<i class="fa fa-arrows"></i>',
+        '</a>'
+      ].join('\n'),
       saving: [
-        '<span class="saving muted m-right">',
-        '<i class="icon-spinner icon-spin"></i>',
+        '<span class="saving text-muted m-right">',
+        '<i class="fa fa-spinner fa-spin"></i>',
         '<span></span>',
         '</span>'
       ].join('\n')
@@ -38,29 +38,34 @@ this.ckan.module('resource-view-reorder', function($, _) {
     initialize: function() {
       jQuery.proxyAll(this, /_on/);
 
+      var labelText = this._(this.options.labelText);
       this.html_title = $(this.template.title)
-        .text(this.i18n('label'))
+        .text(labelText)
         .insertBefore(this.el)
         .hide();
       var button = $(this.template.button)
         .on('click', this._onHandleStartReorder)
         .appendTo('.page_primary_action');
-      $('span', button).text(this.i18n('label'));
+      $('span', button).text(labelText);
 
       this.html_form_actions = $(this.template.form_actions)
         .hide()
         .insertAfter(this.el);
       $('.save', this.html_form_actions)
-        .text(this.i18n('save'))
+        .text(this._('Save order'))
         .on('click', this._onHandleSave);
       $('.cancel', this.html_form_actions)
-        .text(this.i18n('cancel'))
+        .text(this._('Cancel'))
         .on('click', this._onHandleCancel);
+
+      this.html_handles = $(this.template.handle)
+        .hide()
+        .appendTo($('li', this.el));
 
       this.html_saving = $(this.template.saving)
         .hide()
         .insertBefore($('.save', this.html_form_actions));
-      $('span', this.html_saving).text(this.i18n('saving'));
+      $('span', this.html_saving).text(this._('Saving...'));
 
       this.cache = this.el.html();
 
@@ -73,6 +78,7 @@ this.ckan.module('resource-view-reorder', function($, _) {
     _onHandleStartReorder: function() {
       if (!this.is_reordering) {
         this.html_form_actions
+          .add(this.html_handles)
           .add(this.html_title)
           .show();
         this.el
@@ -93,6 +99,7 @@ this.ckan.module('resource-view-reorder', function($, _) {
         this.el.html(this.cache)
           .sortable()
           .sortable('disable');
+        this.html_handles = $('.handle', this.el);
       }
     },
 
@@ -120,6 +127,7 @@ this.ckan.module('resource-view-reorder', function($, _) {
 
     reset: function() {
       this.html_form_actions
+        .add(this.html_handles)
         .add(this.html_title)
         .hide();
       this.el

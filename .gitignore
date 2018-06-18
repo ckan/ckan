@@ -25,6 +25,8 @@ fl_notes.txt
 *.ini
 .noseids
 *~
+.idea
+.vscode
 
 # custom style
 ckan/public/base/less/custom.less
@@ -40,3 +42,6 @@ ckan_deb/DEBIAN/prerm
 
 # node.js
 node_modules/
+
+# docker
+contrib/docker/.env

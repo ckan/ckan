@@ -1,75 +1,89 @@
 # encoding: utf-8
 
-from __future__ import print_function
-import argparse
 import os
-import sys
 
-import ckan.lib.cli as cli
+from ckan.lib.cli import (
+    load_config,
+    parse_db_config,
+    paster_click_group,
+    click_config_option,
+)
+from ckanext.datastore.backend.postgres import identifier
+from ckanext.datastore.controller import DUMP_FORMATS, dump_to
+
+import click
 
 
-def _abort(message):
-    print(message, file=sys.stderr)
-    sys.exit(1)
+datastore_group = paster_click_group(
+    summary=u'Perform commands to set up the datastore')
 
 
-def _set_permissions(args):
-    write_url = cli.parse_db_config('ckan.datastore.write_url')
-    read_url = cli.parse_db_config('ckan.datastore.read_url')
-    db_url = cli.parse_db_config('sqlalchemy.url')
+@datastore_group.command(
+    u'set-permissions',
+    help=u'Emit an SQL script that will set the permissions for the '
+         u'datastore users as configured in your configuration file.')
+@click.help_option(u'-h', u'--help')
+@click_config_option
+@click.pass_context
+def set_permissions(ctx, config):
+    load_config(config or ctx.obj['config'])
+
+    write_url = parse_db_config(u'ckan.datastore.write_url')
+    read_url = parse_db_config(u'ckan.datastore.read_url')
+    db_url = parse_db_config(u'sqlalchemy.url')
 
     # Basic validation that read and write URLs reference the same database.
     # This obviously doesn't check they're the same database (the hosts/ports
     # could be different), but it's better than nothing, I guess.
     if write_url['db_name'] != read_url['db_name']:
-        _abort("The datastore write_url and read_url must refer to the same "
-               "database!")
+        exit(u"The datastore write_url and read_url must refer to the same "
+             u"database!")
 
-    context = {
-        'maindb': db_url['db_name'],
-        'datastoredb': write_url['db_name'],
-        'mainuser': db_url['db_user'],
-        'writeuser': write_url['db_user'],
-        'readuser': read_url['db_user'],
-    }
-
-    sql = _permissions_sql(context)
+    sql = permissions_sql(
+        maindb=db_url['db_name'],
+        datastoredb=write_url['db_name'],
+        mainuser=db_url['db_user'],
+        writeuser=write_url['db_user'],
+        readuser=read_url['db_user'])
 
     print(sql)
 
 
-def _permissions_sql(context):
+def permissions_sql(maindb, datastoredb, mainuser, writeuser, readuser):
     template_filename = os.path.join(os.path.dirname(__file__),
-                                     'set_permissions.sql')
+                                     u'set_permissions.sql')
     with open(template_filename) as fp:
         template = fp.read()
-    return template.format(**context)
+    return template.format(
+        maindb=identifier(maindb),
+        datastoredb=identifier(datastoredb),
+        mainuser=identifier(mainuser),
+        writeuser=identifier(writeuser),
+        readuser=identifier(readuser))
 
 
-parser = argparse.ArgumentParser(
-    prog='paster datastore',
-    description='Perform commands to set up the datastore',
-    epilog='Make sure that the datastore URLs are set properly before you run '
-           'these commands!')
-subparsers = parser.add_subparsers(title='commands')
+@datastore_group.command(
+    u'dump',
+    help=u'Dump a datastore resource in one of the supported formats.')
+@click.argument(u'resource-id', nargs=1)
+@click.argument(
+    u'output-file',
+    type=click.File(u'wb'),
+    default=click.get_binary_stream(u'stdout'))
+@click.help_option(u'-h', u'--help')
+@click_config_option
+@click.option(u'--format', default=u'csv', type=click.Choice(DUMP_FORMATS))
+@click.option(u'--offset', type=click.IntRange(0, None), default=0)
+@click.option(u'--limit', type=click.IntRange(0))
+@click.option(u'--bom', is_flag=True)  # FIXME: options based on format
+@click.pass_context
+def dump(ctx, resource_id, output_file, config, format, offset, limit, bom):
+    load_config(config or ctx.obj['config'])
 
-parser_set_perms = subparsers.add_parser(
-    'set-permissions',
-    description='Set the permissions on the datastore.',
-    help='This command will help ensure that the permissions for the '
-         'datastore users as configured in your configuration file are '
-         'correct at the database. It will emit an SQL script that '
-         'you can use to set these permissions.',
-    epilog='"The ships hung in the sky in much the same way that bricks '
-           'don\'t."')
-parser_set_perms.set_defaults(func=_set_permissions)
-
-
-class SetupDatastoreCommand(cli.CkanCommand):
-    summary = parser.description
-
-    def command(self):
-        self._load_config()
-
-        args = parser.parse_args(self.args)
-        args.func(args)
+    dump_to(
+        resource_id,
+        output_file,
+        fmt=format,
+        offset=offset,
+        limit=limit,
+        options={u'bom': bom})

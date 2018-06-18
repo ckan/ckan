@@ -128,7 +128,7 @@ class TestGetObject(object):
                                    context={'user': user_name},
                                    name='test_user',
                                    email='a@a.com',
-                                   password='pass')
+                                   password='TestPassword1')
         context = {'model': core_model}
         obj = logic_auth.get_user_object(context, {'id': user['id']})
 

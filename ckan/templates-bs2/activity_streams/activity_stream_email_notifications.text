@@ -1,0 +1,7 @@
+{% set num = activities|length %}{{ ungettext("You have {num} new activity on your {site_title} dashboard", "You have {num} new activities on your {site_title} dashboard", num).format(site_title=g.site_title, num=num) }} {{ _('To view your dashboard, click on this link:') }}
+
+{{ g.site_url + '/dashboard' }}
+
+{{ _('You can turn off these email notifications in your {site_title} preferences. To change your preferences, click on this link:').format(site_title=g.site_title) }}
+
+{{ g.site_url + '/user/edit' }}

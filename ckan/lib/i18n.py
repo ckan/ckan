@@ -1,6 +1,46 @@
 # encoding: utf-8
 
+'''
+Internationalization utilities.
+
+This module contains code from the pojson project, which is subject to
+the following license (see https://bitbucket.org/obviel/pojson):
+
+Copyright (c) 2010, Fanstatic Developers
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in
+      the documentation and/or other materials provided with the
+      distribution.
+    * Neither the name of the organization nor the names of its
+      contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL FANSTATIC
+DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+'''
+
+import collections
+import json
+import logging
 import os
+import os.path
 
 from babel import Locale
 from babel.core import (LOCALE_ALIASES,
@@ -10,16 +50,25 @@ from babel.support import Translations
 from paste.deploy.converters import aslist
 from pylons import i18n
 import pylons
+import polib
 
-
-from ckan.common import config
+from ckan.common import config, is_flask_request
 import ckan.i18n
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
 
+
+log = logging.getLogger(__name__)
+
 # Default Portuguese language to Brazilian territory, since
 # we don't have a Portuguese territory translation currently.
 LOCALE_ALIASES['pt'] = 'pt_BR'
+
+# CKAN root directory
+_CKAN_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), u'..'))
+
+# Output directory for generated JavaScript translations
+_JS_TRANSLATIONS_DIR = os.path.join(_CKAN_DIR, u'public', u'base', u'i18n')
 
 
 def get_locales_from_config():
@@ -27,8 +76,9 @@ def get_locales_from_config():
     the config AND also the locals available subject to the config. '''
     locales_offered = config.get('ckan.locales_offered', '').split()
     filtered_out = config.get('ckan.locales_filtered_out', '').split()
-    locale_default = config.get('ckan.locale_default', 'en')
+    locale_default = [config.get('ckan.locale_default', 'en')]
     locale_order = config.get('ckan.locale_order', '').split()
+
     known_locales = get_locales()
     all_locales = (set(known_locales) |
                    set(locales_offered) |
@@ -95,6 +145,7 @@ def _get_locales():
     ordered_list += locale_list
 
     return ordered_list
+
 
 available_locales = None
 locales = None
@@ -174,7 +225,7 @@ def _set_lang(lang):
     if config.get('ckan.i18n_directory'):
         fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
                        'pylons.package': config['pylons.package']}
-        i18n.set_lang(lang, config=fake_config, class_=Translations)
+        i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
     else:
         i18n.set_lang(lang, class_=Translations)
 
@@ -222,11 +273,14 @@ def _add_extra_translations(dirname, locales, domain):
 def get_lang():
     ''' Returns the current language. Based on babel.i18n.get_lang but
     works when set_lang has not been run (i.e. still in English). '''
-    langs = i18n.get_lang()
-    if langs:
-        return langs[0]
+    if is_flask_request():
+        from ckan.config.middleware.flask_app import get_locale
+        return get_locale()
     else:
-        return 'en'
+        langs = i18n.get_lang()
+        if langs:
+            return langs[0]
+    return 'en'
 
 
 def set_lang(language_code):
@@ -235,3 +289,120 @@ def set_lang(language_code):
         language_code = config.get('ckan.locale_default', 'en')
     if language_code != 'en':
         _set_lang(language_code)
+
+
+def _get_js_translation_entries(filename):
+    '''
+    Extract IDs of PO entries that are used in JavaScript files.
+
+    :param filename: PO filename
+    :type filename: string
+    :return: The IDs of those entries which occur in a ``*.js`` file
+    :rtype: set
+    '''
+    js_entries = set()
+    for entry in polib.pofile(filename):
+        if entry.obsolete:
+            continue
+        for occ in entry.occurrences:
+            if occ[0].endswith(u'.js'):
+                js_entries.add(entry.msgid)
+    return js_entries
+
+
+def _build_js_translation(lang, source_filenames, entries, dest_filename):
+    '''
+    Build JavaScript translations for a single language.
+
+    Collects translations for a language from several PO files and
+    stores the entries in a JSON file.
+
+    :param lang: Language code
+    :type lang: string
+    :param source_filenames: Filenames of PO files
+    :type source_filenames: List of strings
+    :param entries: List of entry IDs. Only entries whose IDs are in
+                    this list are exported.
+    :type entries: List of strings
+    :param dest_filename: Output filename
+    '''
+    pos = [polib.pofile(fn) for fn in source_filenames]
+
+    result = {}
+    result[u''] = {}
+    result[u''][u'plural-forms'] = pos[0].metadata[u'Plural-Forms']
+    result[u''][u'lang'] = lang
+    result[u''][u'domain'] = u'ckan'
+
+    for po in pos:
+        for entry in po:
+            if entry.msgid not in entries:
+                continue
+            if entry.msgstr:
+                result[entry.msgid] = [None, entry.msgstr]
+            elif entry.msgstr_plural:
+                plural = result[entry.msgid] = [entry.msgid_plural]
+                ordered_plural = sorted(entry.msgstr_plural.items())
+                for order, msgstr in ordered_plural:
+                    plural.append(msgstr)
+    with open(dest_filename, u'w') as f:
+        s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
+        f.write(s.encode(u'utf-8'))
+
+
+def build_js_translations():
+    '''
+    Build JavaScript translation files.
+
+    Takes the PO files from CKAN and from plugins that implement
+    ``ITranslation`` and creates corresponding JS translation files in
+    ``ckan.i18n_directory``. These include only those translation
+    strings that are actually used in JS files.
+    '''
+    log.debug(u'Generating JavaScript translations')
+    ckan_i18n_dir = config.get(u'ckan.i18n_directory',
+                               os.path.join(_CKAN_DIR, u'i18n'))
+
+    # Collect all language codes (an extension might add support for a
+    # language that isn't supported by CKAN core, yet).
+    langs = set()
+    i18n_dirs = collections.OrderedDict([(ckan_i18n_dir, u'ckan')])
+    for item in os.listdir(ckan_i18n_dir):
+        if os.path.isdir(os.path.join(ckan_i18n_dir, item)):
+            langs.add(item)
+    for plugin in PluginImplementations(ITranslation):
+        langs.update(plugin.i18n_locales())
+        i18n_dirs[plugin.i18n_directory()] = plugin.i18n_domain()
+
+    # Find out which translation entries are used in JS files. We use
+    # the POT files for that, since they contain all translation entries
+    # (even those for which no translation exists, yet).
+    js_entries = set()
+    for i18n_dir, domain in i18n_dirs.iteritems():
+        pot_file = os.path.join(i18n_dir, domain + u'.pot')
+        if os.path.isfile(pot_file):
+            js_entries.update(_get_js_translation_entries(pot_file))
+
+    # Build translations for each language
+    for lang in sorted(langs):
+        po_files = [
+            fn for fn in (
+                os.path.join(
+                    i18n_dir,
+                    lang,
+                    u'LC_MESSAGES',
+                    domain + u'.po'
+                )
+                for i18n_dir, domain in i18n_dirs.iteritems()
+            ) if os.path.isfile(fn)
+        ]
+        if not po_files:
+            continue
+
+        latest = max(os.path.getmtime(fn) for fn in po_files)
+        dest_file = os.path.join(_JS_TRANSLATIONS_DIR, lang + u'.js')
+        if os.path.isfile(dest_file) and os.path.getmtime(dest_file) > latest:
+            log.debug(u'JS translation for "{}" is up to date'.format(lang))
+        else:
+            log.debug(u'Generating JS translation for "{}"'.format(lang))
+            _build_js_translation(lang, po_files, js_entries, dest_file)

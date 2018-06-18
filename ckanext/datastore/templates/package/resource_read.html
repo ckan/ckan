@@ -1,0 +1,37 @@
+{% ckan_extends %}
+
+{% block resource_actions_inner %}
+  {{ super() }}
+  {% if res.datastore_active %}
+    <li>{% snippet 'package/snippets/data_api_button.html', resource=res %}</li>
+  {% endif %}
+{% endblock %}
+
+{% block resource_additional_information_inner %}
+  {% if res.datastore_active %}
+  {% block resource_data_dictionary %}
+    <div class="module-content">
+      <h2>{{ _('Data Dictionary') }}</h2>
+      <table class="table table-striped table-bordered table-condensed" data-module="table-toggle-more">
+        <thead>
+          {% block resouce_data_dictionary_headers %}
+          <tr>
+            <th scope="col">{{ _('Column') }}</th>
+            <th scope="col">{{ _('Type') }}</th>
+            <th scope="col">{{ _('Label') }}</th>
+            <th scope="col">{{ _('Description') }}</th>
+          </tr>
+          {% endblock %}
+        </thead>
+        {% block resource_data_dictionary_data %}
+          {% set dict=h.datastore_dictionary(res.id) %}
+          {% for field in dict %}
+            {% snippet "package/snippets/dictionary_table.html", field=field %}
+          {% endfor %}
+        {% endblock %}
+      </table>
+    </div>
+  {% endblock %}
+  {% endif %}
+  {{ super() }}
+{% endblock %}

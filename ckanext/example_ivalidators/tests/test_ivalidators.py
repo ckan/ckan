@@ -27,3 +27,13 @@ class TestIValidators(object):
     def test_custom_converter_converts(self):
         c = get_validator('negate')
         assert_equals(c(19), -19)
+
+    def test_overridden_validator(self):
+        v = get_validator('unicode_only')
+        assert_equals(u'Hola cómo estás', v(b'Hola c\xf3mo est\xe1s'))
+
+
+class TestNoIValidators(object):
+    def test_no_overridden_validator(self):
+        v = get_validator('unicode_only')
+        assert_raises(Invalid, v, b'Hola c\xf3mo est\xe1s')

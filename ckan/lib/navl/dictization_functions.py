@@ -4,6 +4,8 @@ import copy
 import formencode as fe
 import inspect
 import json
+
+from six import text_type
 from ckan.common import config
 
 from ckan.common import _
@@ -47,9 +49,17 @@ class State(object):
 
 class DictizationError(Exception):
     def __str__(self):
+        return text_type(self).encode('utf8')
+
+    def __unicode__(self):
         if hasattr(self, 'error') and self.error:
-            return repr(self.error)
-        return ''
+            return u'{}: {}'.format(self.__class__.__name__, repr(self.error))
+        return self.__class__.__name__
+
+    def __repr__(self):
+        if hasattr(self, 'error') and self.error:
+            return '<{} {}>'.format(self.__class__.__name__, repr(self.error))
+        return '<{}>'.format(self.__class__.__name__)
 
 
 class Invalid(DictizationError):
@@ -210,7 +220,7 @@ def convert(converter, key, converted_data, errors, context):
         try:
             value = converted_data.get(key)
             value = converter().to_python(value, state=context)
-        except fe.Invalid, e:
+        except fe.Invalid as e:
             errors[key].append(e.msg)
         return
 
@@ -218,7 +228,7 @@ def convert(converter, key, converted_data, errors, context):
         try:
             value = converted_data.get(key)
             value = converter.to_python(value, state=context)
-        except fe.Invalid, e:
+        except fe.Invalid as e:
             errors[key].append(e.msg)
         return
 
@@ -226,22 +236,22 @@ def convert(converter, key, converted_data, errors, context):
         value = converter(converted_data.get(key))
         converted_data[key] = value
         return
-    except TypeError, e:
+    except TypeError as e:
         # hack to make sure the type error was caused by the wrong
         # number of arguments given.
         if converter.__name__ not in str(e):
             raise
-    except Invalid, e:
+    except Invalid as e:
         errors[key].append(e.error)
         return
 
     try:
         converter(key, converted_data, errors, context)
         return
-    except Invalid, e:
+    except Invalid as e:
         errors[key].append(e.error)
         return
-    except TypeError, e:
+    except TypeError as e:
         # hack to make sure the type error was caused by the wrong
         # number of arguments given.
         if converter.__name__ not in str(e):
@@ -251,7 +261,7 @@ def convert(converter, key, converted_data, errors, context):
         value = converter(converted_data.get(key), context)
         converted_data[key] = value
         return
-    except Invalid, e:
+    except Invalid as e:
         errors[key].append(e.error)
         return
 

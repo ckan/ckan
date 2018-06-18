@@ -3,7 +3,7 @@
 {% block subtitle %}{{ _('Login') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{{ h.nav_link(_('Login'), controller='user', action='login') }}</li>
+  <li class="active">{{ h.nav_link(_('Login'), named_route='user.login') }}</li>
 {% endblock %}
 
 {% block primary_content %}
@@ -11,7 +11,7 @@
     <div class="module-content">
       <h1 class="page-heading">{% block page_heading %}{{ _('Login') }}{% endblock %}</h1>
       {% block form %}
-        {% snippet "user/snippets/login_form.html", action=c.login_handler, error_summary=error_summary %}
+        {% snippet "user/snippets/login_form.html", action=g.login_handler, error_summary=error_summary %}
       {% endblock %}
     </div>
   </section>
@@ -27,7 +27,7 @@
         <p>{% trans %}Then sign right up, it only takes a minute.{% endtrans %}</p>
         <p class="action">
         {% block help_register_button %}
-          <a class="btn" href="{{ h.url_for(controller='user', action='register') }}">{{ _('Create an Account') }}</a>
+          <a class="btn btn-default" href="{{ h.url_for('user.register') }}">{{ _('Create an Account') }}</a>
         {% endblock %}
         </p>
       </div>
@@ -44,7 +44,7 @@
       <p>{% trans %}No problem, use our password recovery form to reset it.{% endtrans %}</p>
       <p class="action">
         {% block help_forgotten_button %}
-        <a class="btn" href="{{ h.url_for(controller='user', action='request_reset') }}">{{ _('Forgot your password?') }}</a>
+        <a class="btn btn-default" href="{{ h.url_for('user.request_reset') }}">{{ _('Forgot your password?') }}</a>
         {% endblock %}
       </p>
     </div>

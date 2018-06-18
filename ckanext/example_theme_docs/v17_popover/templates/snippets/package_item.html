@@ -1,0 +1,16 @@
+{% ckan_extends %}
+
+{% block content %}
+  {{ super() }}
+  {% resource 'example_theme/example_theme_popover.js' %}
+
+  {# Apply our JavaScript module to an HTML <button> element.
+     The additional data-module-* attributes are options that will be passed
+     to the JavaScript module. #}
+  <button data-module="example_theme_popover"
+          data-module-title="{{ package.title }}"
+          data-module-license="{{ package.license_title }}"
+          data-module-num_resources="{{ package.num_resources }}">
+    <i class="fa fa-info-circle"></i>
+  </button>
+{% endblock %}

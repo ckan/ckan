@@ -1,24 +1,41 @@
-this.ckan.module('confirm-action', function (jQuery, _) {
+this.ckan.module('confirm-action', function (jQuery) {
   return {
     /* An object of module options */
     options: {
-      /* Locale options can be overidden with data-module-i18n attribute */
+      /* Content can be overriden by setting data-module-content to a
+       * *translated* string inside the template, e.g.
+       *
+       *     <a href="..."
+       *        data-module="confirm-action"
+       *        data-module-content="{{ _('Are you sure?') }}">
+       *    {{ _('Delete') }}
+       *    </a>
+       */
+      content: '',
+
+      /* This is part of the old i18n system and is kept for backwards-
+       * compatibility for templates which set the content via the
+       * `i18n.content` attribute instead of via the `content` attribute
+       * as described above.
+       */
       i18n: {
-        heading: _('Please Confirm Action'),
-        content: _('Are you sure you want to perform this action?'),
-        confirm: _('Confirm'),
-        cancel: _('Cancel')
+        content: '',
       },
+
       template: [
-        '<div class="modal">',
+        '<div class="modal fade">',
+        '<div class="modal-dialog">',
+        '<div class="modal-content">',
         '<div class="modal-header">',
         '<button type="button" class="close" data-dismiss="modal">×</button>',
-        '<h3></h3>',
+        '<h3 class="modal-title"></h3>',
         '</div>',
         '<div class="modal-body"></div>',
         '<div class="modal-footer">',
-        '<button class="btn btn-cancel"></button>',
+        '<button class="btn btn-default btn-cancel"></button>',
         '<button class="btn btn-primary"></button>',
+        '</div>',
+        '</div>',
         '</div>',
         '</div>'
       ].join('\n')
@@ -81,10 +98,13 @@ this.ckan.module('confirm-action', function (jQuery, _) {
         element.on('click', '.btn-cancel', this._onConfirmCancel);
         element.modal({show: false});
 
-        element.find('h3').text(this.i18n('heading'));
-        element.find('.modal-body').text(this.i18n('content'));
-        element.find('.btn-primary').text(this.i18n('confirm'));
-        element.find('.btn-cancel').text(this.i18n('cancel'));
+        element.find('.modal-title').text(this._('Please Confirm Action'));
+        var content = this.options.content ||
+                      this.options.i18n.content || /* Backwards-compatibility */
+                      this._('Are you sure you want to perform this action?');
+        element.find('.modal-body').text(content);
+        element.find('.btn-primary').text(this._('Confirm'));
+        element.find('.btn-cancel').text(this._('Cancel'));
       }
       return this.modal;
     },

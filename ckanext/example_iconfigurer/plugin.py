@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from routes.mapper import SubMapper
+from six import text_type
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
@@ -44,7 +45,8 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
             'ckan.datasets_per_page': [ignore_missing, is_positive_integer],
 
             # This is a custom configuration option
-            'ckanext.example_iconfigurer.test_conf': [ignore_missing, unicode],
+            'ckanext.example_iconfigurer.test_conf': [ignore_missing,
+                                                      text_type],
         })
 
         return schema
@@ -56,10 +58,10 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
         with SubMapper(map, controller=controller) as m:
             m.connect('ckanext_myext_config_one',
                       '/ckan-admin/myext_config_one', action='config_one',
-                      ckan_icon='picture'),
+                      ckan_icon='picture-o'),
             m.connect('ckanext_myext_config_two',
                       '/ckan-admin/myext_config_two', action='config_two',
-                      ckan_icon='picture'),
+                      ckan_icon='picture-o'),
 
             # route used for testing helper method
             m.connect('build_extra_admin_nav', '/build_extra_admin_nav',

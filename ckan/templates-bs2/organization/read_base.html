@@ -1,0 +1,30 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ c.group_dict.display_name }} - {{ _('Organizations') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Organizations'), controller='organization', action='index', named_route=group_type + '_index' %}</li>
+  <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='organization', action='read', id=c.group_dict.name, named_route=group_type + '_read' %}</li>
+{% endblock %}
+
+{% block content_action %}
+  {% if h.check_access('organization_update', {'id': c.group_dict.id}) %}
+    {% link_for _('Manage'), controller='organization', action='edit', id=c.group_dict.name, class_='btn', icon='wrench', named_route=group_type + '_edit' %}
+  {% endif %}
+{% endblock %}
+
+{% block content_primary_nav %}
+  {{ h.build_nav_icon(group_type + '_read', _('Datasets'), id=c.group_dict.name) }}
+  {{ h.build_nav_icon(group_type + '_activity', _('Activity Stream'), id=c.group_dict.name, offset=0) }}
+  {{ h.build_nav_icon(group_type + '_about', _('About'), id=c.group_dict.name) }}
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet 'snippets/organization.html', organization=c.group_dict, show_nums=true, group_type=group_type %}
+  {% block organization_facets %}{% endblock %}
+{% endblock %}
+
+{% block links %}
+  {{ super() }}
+  {% include "organization/snippets/feeds.html" %}
+{% endblock %}

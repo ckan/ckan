@@ -6,6 +6,8 @@ from itertools import count
 import re
 import mimetypes
 
+from six import string_types
+
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
 import ckan.lib.helpers as h
@@ -15,6 +17,7 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         VOCABULARY_NAME_MAX_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
 import ckan.authz as authz
+from ckan.model.core import State
 
 from ckan.common import _
 
@@ -45,7 +48,7 @@ def owner_org_validator(key, data, errors, context):
     if not group:
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
-    if not(user.sysadmin or
+    if not context.get(u'ignore_auth', False) and not(user.sysadmin or
            authz.has_user_permission_for_group_or_org(
                group_id, user.name, 'create_dataset')):
         raise Invalid(_('You cannot add a dataset to this organization'))
@@ -125,7 +128,7 @@ def isodate(value, context):
         return None
     try:
         date = h.date_str_to_datetime(value)
-    except (TypeError, ValueError), e:
+    except (TypeError, ValueError) as e:
         raise Invalid(_('Date format incorrect'))
     return date
 
@@ -326,7 +329,7 @@ def name_validator(value, context):
         a valid name
 
     '''
-    if not isinstance(value, basestring):
+    if not isinstance(value, string_types):
         raise Invalid(_('Names must be strings'))
 
     # check basic textual rules
@@ -348,15 +351,15 @@ def package_name_validator(key, data, errors, context):
     session = context['session']
     package = context.get('package')
 
-    query = session.query(model.Package.name).filter_by(name=data[key])
+    query = session.query(model.Package.state).filter_by(name=data[key])
     if package:
         package_id = package.id
     else:
         package_id = data.get(key[:-1] + ('id',))
     if package_id and package_id is not missing:
-        query = query.filter(model.Package.id <> package_id)
+        query = query.filter(model.Package.id != package_id)
     result = query.first()
-    if result:
+    if result and result.state != State.DELETED:
         errors[key].append(_('That URL is already in use.'))
 
     value = data[key]
@@ -403,7 +406,7 @@ def group_name_validator(key, data, errors, context):
     else:
         group_id = data.get(key[:-1] + ('id',))
     if group_id and group_id is not missing:
-        query = query.filter(model.Group.id <> group_id)
+        query = query.filter(model.Group.id != group_id)
     result = query.first()
     if result:
         errors[key].append(_('Group name already exists in database'))
@@ -440,7 +443,7 @@ def tag_string_convert(key, data, errors, context):
     and parses tag names. These are added to the data dict, enumerated. They
     are also validated.'''
 
-    if isinstance(data[key], basestring):
+    if isinstance(data[key], string_types):
         tags = [tag.strip() \
                 for tag in data[key].split(',') \
                 if tag.strip()]
@@ -540,14 +543,13 @@ def user_name_validator(key, data, errors, context):
     model = context['model']
     new_user_name = data[key]
 
-    if not isinstance(new_user_name, basestring):
+    if not isinstance(new_user_name, string_types):
         raise Invalid(_('User names must be strings'))
 
     user = model.User.get(new_user_name)
+    user_obj_from_context = context.get('user_obj')
     if user is not None:
         # A user with new_user_name already exists in the database.
-
-        user_obj_from_context = context.get('user_obj')
         if user_obj_from_context and user_obj_from_context.id == user.id:
             # If there's a user_obj in context with the same id as the user
             # found in the db, then we must be doing a user_update and not
@@ -558,6 +560,12 @@ def user_name_validator(key, data, errors, context):
             # name, so you can create a new user with that name or update an
             # existing user's name to that name.
             errors[key].append(_('That login name is not available.'))
+    elif user_obj_from_context:
+        old_user = model.User.get(user_obj_from_context.id)
+        if old_user is not None and old_user.state != model.State.PENDING:
+            errors[key].append(_('That login name can not be modified.'))
+        else:
+            return
 
 def user_both_passwords_entered(key, data, errors, context):
 
@@ -573,12 +581,13 @@ def user_password_validator(key, data, errors, context):
 
     if isinstance(value, Missing):
         pass
-    elif not isinstance(value, basestring):
+    elif not isinstance(value, string_types):
         errors[('password',)].append(_('Passwords must be strings'))
     elif value == '':
         pass
-    elif len(value) < 4:
-        errors[('password',)].append(_('Your password must be 4 characters or longer'))
+    elif len(value) < 8:
+        errors[('password',)].append(_('Your password must be 8 characters or '
+                                       'longer'))
 
 def user_passwords_match(key, data, errors, context):
 
@@ -745,7 +754,7 @@ def list_of_strings(key, data, errors, context):
     if not isinstance(value, list):
         raise Invalid(_('Not a list'))
     for x in value:
-        if not isinstance(x, basestring):
+        if not isinstance(x, string_types):
             raise Invalid('%s: %s' % (_('Not a string'), x))
 
 def if_empty_guess_format(key, data, errors, context):
@@ -830,3 +839,17 @@ def empty_if_not_sysadmin(key, data, errors, context):
         return
 
     empty(key, data, errors, context)
+
+#pattern from https://html.spec.whatwg.org/#e-mail-state-(type=email)
+email_pattern = re.compile(r"^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]"\
+                       "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]"\
+                       "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+
+def email_validator(value, context):
+    '''Validate email input '''
+
+    if value:
+        if not email_pattern.match(value):
+            raise Invalid(_('Email {email} is not a valid format').format(email=value))
+    return value

@@ -2,20 +2,21 @@
  * a list of terms from an API endpoint (provided using data-module-source).
  *
  * source   - A url pointing to an API autocomplete endpoint.
- * interval - The interval between requests in milliseconds (default: 1000).
+ * interval - The interval between requests in milliseconds (default: 300).
  * items    - The max number of items to display (default: 10)
  * tags     - Boolean attribute if true will create a tag input.
  * key      - A string of the key you want to be the form value to end up on
  *            from the ajax returned results
  * label    - A string of the label you want to appear within the dropdown for
  *            returned results
- *
+ * tokensep - A string that contains characters which will be interpreted
+ *            as separators for tags when typed or pasted (default ",").
  * Examples
  *
  *   // <input name="tags" data-module="autocomplete" data-module-source="http://" />
  *
  */
-this.ckan.module('autocomplete', function (jQuery, _) {
+this.ckan.module('autocomplete', function (jQuery) {
   return {
     /* Options for the module */
     options: {
@@ -24,17 +25,10 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       label: false,
       items: 10,
       source: null,
-      interval: 1000,
+      tokensep: ',',
+      interval: 300,
       dropdownClass: '',
-      containerClass: '',
-      i18n: {
-        noMatches: _('No matches found'),
-        emptySearch: _('Start typing…'),
-        inputTooShort: function (data) {
-          return _('Input is too short, must be at least one character')
-          .ifPlural(data.min, 'Input is too short, must be at least %(min)d characters');
-        }
-      }
+      containerClass: ''
     },
 
     /* Sets up the module, binding methods, creating elements etc. Called
@@ -58,7 +52,8 @@ this.ckan.module('autocomplete', function (jQuery, _) {
         formatNoMatches: this.formatNoMatches,
         formatInputTooShort: this.formatInputTooShort,
         dropdownCssClass: this.options.dropdownClass,
-        containerCssClass: this.options.containerClass
+        containerCssClass: this.options.containerClass,
+        tokenSeparators: this.options.tokensep.split('')
       };
 
       // Different keys are required depending on whether the select is
@@ -200,7 +195,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns a text string.
      */
     formatNoMatches: function (term) {
-      return !term ? this.i18n('emptySearch') : this.i18n('noMatches');
+      return !term ? this._('Start typing…') : this._('No matches found');
     },
 
     /* Formatter used by the select2 plugin that returns a string when the
@@ -209,7 +204,11 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns a string.
      */
     formatInputTooShort: function (term, min) {
-      return this.i18n('inputTooShort', {min: min});
+      return this.ngettext(
+        'Input is too short, must be at least one character',
+        'Input is too short, must be at least %(num)d characters',
+        min
+      );
     },
 
     /* Takes a string and converts it into an object used by the select2 plugin.

@@ -1,0 +1,124 @@
+{% block header_wrapper %}
+{% block header_account %}
+  <header class="account-masthead">
+    <div class="container">
+      {% block header_account_container_content %}
+        {% if c.userobj %}
+          <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
+            <ul class="unstyled">
+              {% block header_account_logged %}
+              {% if c.userobj.sysadmin %}
+                <li>
+                  <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}">
+                    <i class="fa fa-gavel" aria-hidden="true"></i>
+                    <span class="text">{{ _('Admin') }}</span>
+                  </a>
+                </li>
+              {% endif %}
+              <li>
+                <a href="{{ h.url_for('user.read', id=c.userobj.name) }}" class="image" title="{{ _('View profile') }}">
+                  {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''), size=22) }}
+                  <span class="username">{{ c.userobj.display_name }}</span>
+                </a>
+              </li>
+              {% set new_activities = h.new_activities() %}
+              <li class="notifications {% if new_activities > 0 %}notifications-important{% endif %}">
+                {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)', 'Dashboard (%(num)d new items)', new_activities) %}
+                <a href="{{ h.url_for('dashboard.index') }}" title="{{ notifications_tooltip }}">
+                  <i class="fa fa-tachometer" aria-hidden="true"></i>
+                  <span class="text">{{ _('Dashboard') }}</span>
+                  <span class="badge">{{ new_activities }}</span>
+                </a>
+              </li>
+              {% block header_account_settings_link %}
+                <li>
+                  <a href="{{ h.url_for('user.edit', id=c.userobj.name) }}" title="{{ _('Edit settings') }}">
+                    <i class="fa fa-cog" aria-hidden="true"></i>
+                    <span class="text">{{ _('Settings') }}</span>
+                  </a>
+                </li>
+              {% endblock %}
+              {% block header_account_log_out_link %}
+                <li>
+                  <a href="{{ h.url_for('user.logout') }}" title="{{ _('Log out') }}">
+                    <i class="fa fa-sign-out" aria-hidden="true"></i>
+                    <span class="text">{{ _('Log out') }}</span>
+                  </a>
+                </li>
+              {% endblock %}
+              {% endblock %}
+            </ul>
+          </div>
+        {% else %}
+          <nav class="account not-authed">
+            <ul class="unstyled">
+              {% block header_account_notlogged %}
+              <li>{% link_for _('Log in'), named_route='user.login' %}</li>
+              {% if h.check_access('user_create') %}
+                <li>{% link_for _('Register'), named_route='user.register', class_='sub' %}</li>
+              {% endif %}
+              {% endblock %}
+            </ul>
+          </nav>
+        {% endif %}
+      {% endblock %}
+    </div>
+  </header>
+{% endblock %}
+<header class="navbar navbar-static-top masthead">
+  {% block header_debug %}
+    {% if g.debug and not g.debug_supress_header %}
+      <div class="debug">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
+    {% endif %}
+  {% endblock %}
+  <div class="container">
+    <button data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar" type="button">
+      <span class="fa fa-bars"></span>
+    </button>
+    {# The .header-image class hides the main text and uses image replacement for the title #}
+    <hgroup class="{{ g.header_class }} pull-left">
+
+      {% block header_logo %}
+        {% if g.site_logo %}
+          <a class="logo" href="{{ h.url_for('home.index') }}"><img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}" title="{{ g.site_title }}" /></a>
+        {% else %}
+          <h1>
+            <a href="{{ h.url_for('home.index') }}">{{ g.site_title }}</a>
+          </h1>
+          {% if g.site_description %}<h2>{{ g.site_description }}</h2>{% endif %}
+        {% endif %}
+      {% endblock %}
+
+    </hgroup>
+
+    <div class="nav-collapse collapse">
+
+      {% block header_site_navigation %}
+        <nav class="section navigation">
+          <ul class="nav nav-pills">
+            {% block header_site_navigation_tabs %}
+              {{ h.build_nav_main(
+                ('search', _('Datasets')),
+                ('organizations_index', _('Organizations')),
+                ('group_index', _('Groups')),
+                ('home.about', _('About'))
+              ) }}
+            {% endblock %}
+          </ul>
+        </nav>
+      {% endblock %}
+
+      {% block header_site_search %}
+        <form class="section site-search simple-input" action="{% url_for controller='package', action='search' %}" method="get">
+          <div class="field">
+            <label for="field-sitewide-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
+            <input id="field-sitewide-search" type="text" name="q" placeholder="{{ _('Search') }}" />
+            <button class="btn-search" type="submit"><i class="fa fa-search"></i></button>
+          </div>
+        </form>
+      {% endblock %}
+
+    </div>
+  </div>
+</header>
+{% endblock %}

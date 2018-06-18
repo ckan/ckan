@@ -50,7 +50,7 @@ within_tertiary
         <section class="{{ wrapper_class or 'module module-narrow module-shallow' }}">
           {% block facet_list_heading %}
             <h2 class="module-heading">
-              <i class="icon-medium icon-filter"></i>
+              <i class="fa fa-filter"></i>
               {% set title = title or h.get_facet_title(name) %}
               {{ title }}
             </h2>
@@ -59,15 +59,17 @@ within_tertiary
             {% with items = items or h.get_facet_items_dict(name) %}
             {% if items %}
               <nav>
-                <ul class="{{ nav_class or 'unstyled nav nav-simple nav-facet' }}">
+                <ul class="{{ nav_class or 'list-unstyled nav nav-simple nav-facet' }}">
                   {% for item in items %}
                     {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
                     {% set label = label_function(item) if label_function else item.display_name %}
                     {% set label_truncated = h.truncate(label, 22) if not label_function else label %}
-                    {% set count = count_label(item['count']) if count_label else ('(%d)' % item['count']) %}
+                    {% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
                       <li class="{{ nav_item_class or 'nav-item' }}{% if item.active %} active{% endif %}">
                         <a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
-                          <span>{{ label_truncated }} {{ count }}</span>
+                          <span class="item-label">{{ label_truncated }}</span>
+                          <span class="hidden separator"> - </span>
+                          <span class="item-count badge">{{ count }}</span>
                         </a>
                       </li>
                   {% endfor %}

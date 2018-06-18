@@ -6,6 +6,14 @@ Testing coding standards
 before being merged into master**. This document gives some guidelines for
 developers who are writing tests or reviewing code for CKAN.
 
+.. seealso::
+
+   :doc:`Testing CKAN <test>`
+     How to set up your development environment to run CKAN's test suite
+
+   :ref:`background jobs testing`
+     How to handle asynchronous background jobs in your tests
+
 
 --------------------------------------
 Transitioning from legacy to new tests
@@ -206,8 +214,8 @@ Most CKAN tests should follow this form. Here's an example of a simple action
 function test demonstrating the recipe:
 
 .. literalinclude:: /../ckan/tests/logic/action/test_update.py
-   :start-after: ## START-AFTER
-   :end-before: ## END-BEFORE
+   :start-after: # START-AFTER
+   :end-before: # END-BEFORE
 
 One common exception is when you want to use a ``for`` loop to call the
 function being tested multiple times, passing it lots of different arguments
@@ -215,8 +223,8 @@ that should all produce the same return value and/or side effects. For example,
 this test from :py:mod:`ckan.tests.logic.action.test_update`:
 
 .. literalinclude:: /../ckan/tests/logic/action/test_update.py
-   :start-after: ## START-FOR-LOOP-EXAMPLE
-   :end-before: ## END-FOR-LOOP-EXAMPLE
+   :start-after: # START-FOR-LOOP-EXAMPLE
+   :end-before: # END-FOR-LOOP-EXAMPLE
 
 The behavior of :py:func:`~ckan.logic.action.update.user_update` is the same
 for every invalid value.
@@ -342,8 +350,8 @@ going on, but here's an example of a test from
 out :py:mod:`ckan.model`:
 
 .. literalinclude:: /../ckan/tests/logic/auth/test_update.py
-   :start-after: ## START-AFTER
-   :end-before: ## END-BEFORE
+   :start-after: # START-AFTER
+   :end-before: # END-BEFORE
 
 ----
 
@@ -412,8 +420,8 @@ make these common asserts easy. To use one of these decorators you have to:
 Here's an example of a simple validator test that uses this technique:
 
 .. literalinclude:: /../ckan/tests/logic/test_validators.py
-   :start-after: ## START-AFTER
-   :end-before: ## END-BEFORE
+   :start-after: # START-AFTER
+   :end-before: # END-BEFORE
 
 
 No tests for :mod:`ckan.logic.schema.py`

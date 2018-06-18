@@ -24,7 +24,7 @@
             <div class="flash-messages">
               {% block flash_inner %}
                 {% for message in h.flash.pop_messages() | list %}
-                  <div class="alert fade in {{ message.category }}">
+                  <div class="alert alert-warning fade in {{ message.category }}">
                     {{ h.literal(message) }}
                   </div>
                 {% endfor %}
@@ -45,8 +45,7 @@
             </div>
           {% endblock %}
 
-          <div class="row wrapper{% block wrapper_class %}{% endblock %}{% if self.secondary()|trim == '' %} no-nav{% endif %}">
-
+          <div class="row wrapper{% block wrapper_class %}{% endblock %}{% if self.secondary()|trim == '' or c.action=='resource_read' %} no-nav{% endif %}">
             {#
             The pre_primary block can be used to add content to before the
             rendering of the main content columns of the page.
@@ -54,8 +53,26 @@
             {% block pre_primary %}
             {% endblock %}
 
+            {% block secondary %}
+              <aside class="secondary col-sm-3">
+                {#
+                The secondary_content block can be used to add content to the
+                sidebar of the page. This is the main block that is likely to be
+                used within a template.
+
+                Example:
+
+                  {% block secondary_content %}
+                    <h2>A sidebar item</h2>
+                    <p>Some content for the item</p>
+                  {% endblock %}
+                #}
+                {% block secondary_content %}{% endblock %}
+              </aside>
+            {% endblock %}
+
             {% block primary %}
-              <div class="primary span9">
+              <div class="primary col-sm-9 col-xs-12">
                 {#
                 The primary_content block can be used to add content to the page.
                 This is the main block that is likely to be used within a template.
@@ -93,24 +110,6 @@
                   </article>
                 {% endblock %}
               </div>
-            {% endblock %}
-
-            {% block secondary %}
-              <aside class="secondary span3">
-                {#
-                The secondary_content block can be used to add content to the
-                sidebar of the page. This is the main block that is likely to be
-                used within a template.
-
-                Example:
-
-                  {% block secondary_content %}
-                    <h2>A sidebar item</h2>
-                    <p>Some content for the item</p>
-                  {% endblock %}
-                #}
-                {% block secondary_content %}{% endblock %}
-              </aside>
             {% endblock %}
           </div>
         {% endblock %}

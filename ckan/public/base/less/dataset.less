@@ -1,221 +1,223 @@
 .dataset-item {
-  border-bottom: 1px dotted @genericBorderColor;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+    border-bottom: 1px dotted @genericBorderColor;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
 }
-@media (max-width: 768px) {
-  .dataset-item {
-    word-wrap:break-word;
-  }
+
+@media (max-width: @screen-sm-max) {
+    .dataset-item {
+        word-wrap: break-word;
+    }
 }
 
 .dataset-item:last-of-type {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .dataset-heading {
-  font-size: 16px;
-  margin-top: 0;
-  margin-bottom: 8px;
-  line-height: 1.3;
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 8px;
+    line-height: 1.3;
 }
 
 .dataset-heading a {
-  color: @listingHeadingTextColor;
+    color: @listingHeadingTextColor;
 }
 
 .dataset-heading .label {
-  position: relative;
-  top: -1px;
+    position: relative;
+    top: -1px;
+}
+
+.label-inverse {
+    background-color: @gray;
 }
 
 .dataset-private {
-  margin-right: 10px;
-  text-transform: uppercase;
-  .icon-lock {
-    width: 9px;
-  }
-  &.pull-right {
-    margin-right: 0;
-  }
+    margin-right: 10px;
+    text-transform: uppercase;
+    .icon-lock {
+        width: 9px;
+    }
+    &.pull-right {
+        margin-right: 0;
+    }
 }
 
 .dataset-resources {
-  margin-top: 8px;
+    margin-top: 8px;
 }
 
 .dataset-resources li {
-  display: inline;
+    display: inline;
 }
 
 .dataset-resources li a {
-  background-color: @resourceFormatBackground;
+    background-color: @resourceFormatBackground;
 }
 
 .dataset-heading .popular {
-  top: 0;
+    top: 0;
 }
 
 // Resource List
-
 .resource-list {
-  .unstyled;
-  margin: -10px -10px 10px -10px;
+    .list-unstyled;
+    margin: -10px -10px 10px -10px;
 }
 
 .resource-item {
-  position: relative;
-  padding: 10px 10px 10px 60px;
-  margin-bottom: 0px;
-  .border-radius(3px);
-  &:hover {
-    background-color: @layoutBackgroundColor;
-  }
+    position: relative;
+    padding: 10px 10px 10px 60px;
+    margin-bottom: 0px;
+    .border-radius(3px);
+    &:hover {
+        background-color: @layoutBackgroundColor;
+    }
 }
 
 .resource-item .heading {
-  color: @layoutBoldColor;
-  font-size: 14px;
-  font-weight: bold;
+    color: @layoutBoldColor;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .resource-item .format-label {
-  position: absolute;
-  top: 10px;
-  left: 10px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
 }
 
 .resource-item .description {
-  font-size: 12px;
-  margin-bottom: 0;
-  min-height: 12px;
+    font-size: 12px;
+    margin-bottom: 0;
+    min-height: 12px;
 }
 
 .resource-item .btn-group {
-  position: absolute;
-  top: 14px;
-  right: 10px;
+    position: absolute;
+    top: (@grid-gutter-width/2 - 6);
+    right: 10px;
 }
-@media (max-width: 768px) {
-  .resource-item .btn-group {
-    display:none;
-  }
+
+@media (max-width: @screen-sm-max) {
+    .resource-item .btn-group {
+        display: none;
+    }
 }
 
 .resource-list.reordering {
-  .resource-item {
-    border: 1px solid @moduleHeadingBorderColor;
-    margin-bottom: 10px;
-    cursor: move;
-    .handle {
-      display: block;
-      position: absolute;
-      color: @moduleHeadingActionTextColor;
-      left: -31px;
-      top: 50%;
-      margin-top: -15px;
-      width: 30px;
-      height: 30px;
-      line-height: 30px;
-      text-align: center;
-      border: 1px solid @moduleHeadingBorderColor;
-      border-width: 1px 0 1px 1px;
-      background-color: @moduleBackgroundColor;
-      .border-radius(20px 0 0 20px);
-      &:hover {
-        text-decoration: none;
-      }
+    .resource-item {
+        border: 1px solid @moduleHeadingBorderColor;
+        margin-bottom: 10px;
+        cursor: move;
+        .handle {
+            display: block;
+            position: absolute;
+            color: @moduleHeadingActionTextColor;
+            left: -31px;
+            top: 50%;
+            margin-top: -15px;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border: 1px solid @moduleHeadingBorderColor;
+            border-width: 1px 0 1px 1px;
+            background-color: @moduleBackgroundColor;
+            .border-radius(20px 0 0 20px);
+            &:hover {
+                text-decoration: none;
+            }
+        }
+        &:hover .handle {
+            background-color: @layoutBackgroundColor;
+        }
+        &.ui-sortable-helper {
+            background-color: @layoutBackgroundColor;
+            border: 1px solid @layoutLinkColor;
+            .handle {
+                background-color: @layoutBackgroundColor;
+                border-color: @layoutLinkColor;
+                color: @navLinkColor;
+            }
+        }
     }
-    &:hover .handle {
-      background-color: @layoutBackgroundColor;
-    }
-    &.ui-sortable-helper {
-      background-color: @layoutBackgroundColor;
-      border: 1px solid @layoutLinkColor;
-      .handle {
-        background-color: @layoutBackgroundColor;
-        border-color: @layoutLinkColor;
-        color: @navLinkColor;
-      }
-    }
-  }
 }
+
 .resource-item .handle {
-  display: none;
+    display: none;
 }
 
 // Dataset Forms
-
 // Tag List
-
 .tag-list {
-  .unstyled;
-  padding: 10px 10px 5px 10px;
+    .list-unstyled;
+    padding: 10px 10px 5px 10px;
 }
 
 .tag-list li {
-  display: inline-block;
-  margin-right: 5px;
+    display: inline-block;
+    margin-right: 5px;
 }
 
 .tag-list li:last-child {
-  margin-right: 0;
+    margin-right: 0;
 }
 
 // Additional Info
-
 .additional-info td,
 .additional-info th {
-  width: 50%;
+    width: 50%;
 }
 
 // FORMATS
-
 .label[data-format=html],
 .label[data-format*=html] {
-  background-color: #55a1ce;
+    background-color: #55a1ce;
 }
 
 .label[data-format=json],
 .label[data-format*=json] {
-  background-color: #ef7100;
+    background-color: #ef7100;
 }
 
 .label[data-format=xml],
 .label[data-format*=xml] {
-  background-color: #ef7100;
+    background-color: #ef7100;
 }
 
 .label[data-format=text],
 .label[data-format*=text] {
-  background-color: #74cbec;
+    background-color: #74cbec;
 }
 
 .label[data-format=csv],
 .label[data-format*=csv] {
-  background-color: #dfb100;
+    background-color: #dfb100;
 }
 
 .label[data-format=xls],
 .label[data-format*=xls] {
-  background-color: #2db55d;
+    background-color: #2db55d;
 }
 
 .label[data-format=zip],
 .label[data-format*=zip] {
-  background-color: #686868;
+    background-color: #686868;
 }
 
 .label[data-format=api],
 .label[data-format*=api] {
-  background-color: #ec96be;
+    background-color: #ec96be;
 }
 
 .label[data-format=pdf],
 .label[data-format*=pdf] {
-  background-color: #e0051e;
+    background-color: #e0051e;
 }
 
 .label[data-format=rdf],
@@ -223,118 +225,116 @@
 .label[data-format*=nquad],
 .label[data-format*=ntriples],
 .label[data-format*=turtle] {
-  background-color: #0b4498;
+    background-color: #0b4498;
 }
 
 // Views
 .view-list {
-  .unstyled;
-  li {
-    position: relative;
-    margin-bottom: 10px;
-    a {
-      display: block;
-      min-height: 50px;
-      padding: 10px;
-      border: 1px solid @moduleHeadingBorderColor;
-      overflow: hidden;
-      .border-radius(3px);
-      .icon {
-        float: left;
-        width: 50px;
-        height: 50px;
-        overflow: hidden;
-        margin-right: 10px;
-        color: @layoutTextColor;
-        background-color: @layoutBackgroundColor;
-        .border-radius(3px);
-        i {
-          display: block;
-          text-align: center;
-          font-size: 28px;
-          line-height: 50px;
-        }
-      }
-      h3 {
-        font-weight: bold;
-        color: @layoutBoldColor;
-        font-weight: bold;
-        font-size: 16px;
-        margin: 0 0 3px 0;
-      }
-      p {
-        margin: 0;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        color: @layoutTextColor;
-      }
-      &.active,
-      &:hover {
-        text-decoration: none;
-        border-color: @layoutLinkColor;
-        .icon {
-          background-color: @layoutLinkColor;
-          color: @navActiveBackgroundColor;
-        }
-      }
-    }
-    .arrow {
-      position: absolute;
-      display: none;
-      border: 8px solid transparent;
-      border-top-color: @layoutLinkColor;
-      left: 50%;
-      bottom: -15px;
-      margin-left: -4px;
-    }
-    &.active {
-      a {
-        text-decoration: none;
-        border-color: @layoutLinkColor;
-        .icon {
-          background-color: @layoutLinkColor;
-          color: @navActiveBackgroundColor;
-        }
-      }
-      .arrow {
-        display: block;
-      }
-    }
-  }
-  &.stacked {
-    overflow-y: hidden;
-    overflow-x: auto;
-    height: 100px;
-    white-space: nowrap;
+    .list-unstyled;
     li {
-      display: inline-block;
-      width: 250px;
-      margin-right: 10px;
-      &:last-child {
-        margin-right: 0;
-      }
+        position: relative;
+        margin-bottom: 10px;
+        a {
+            display: block;
+            min-height: 50px;
+            padding: 10px;
+            border: 1px solid @moduleHeadingBorderColor;
+            overflow: hidden;
+            .border-radius(3px);
+            .icon {
+                float: left;
+                width: 50px;
+                height: 50px;
+                overflow: hidden;
+                margin-right: 10px;
+                color: @layoutTextColor;
+                background-color: @layoutBackgroundColor;
+                .border-radius(3px);
+                i {
+                    display: block;
+                    text-align: center;
+                    font-size: 28px;
+                    line-height: 50px;
+                }
+            }
+            h3 {
+                font-weight: bold;
+                color: @layoutBoldColor;
+                font-weight: bold;
+                font-size: 16px;
+                margin: 0 0 3px 0;
+            }
+            p {
+                margin: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                color: @layoutTextColor;
+            }
+            &.active,
+            &:hover {
+                text-decoration: none;
+                border-color: @layoutLinkColor;
+                .icon {
+                    background-color: @layoutLinkColor;
+                    color: @navActiveBackgroundColor;
+                }
+            }
+        }
+        .arrow {
+            position: absolute;
+            display: none;
+            border: 8px solid transparent;
+            border-top-color: @layoutLinkColor;
+            left: 50%;
+            bottom: -15px;
+            margin-left: -4px;
+        }
+        &.active {
+            a {
+                text-decoration: none;
+                border-color: @layoutLinkColor;
+                .icon {
+                    background-color: @layoutLinkColor;
+                    color: @navActiveBackgroundColor;
+                }
+            }
+            .arrow {
+                display: block;
+            }
+        }
     }
-
-    &::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
+    &.stacked {
+        overflow-y: hidden;
+        overflow-x: auto;
+        height: 100px;
+        white-space: nowrap;
+        li {
+            display: inline-block;
+            width: 250px;
+            margin-right: 10px;
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+        &::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        &::-webkit-scrollbar-track {
+            border-radius: 10px;
+            background-color: @navActiveBackgroundColor;
+        }
+        &::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            background-color: darken(@navActiveBackgroundColor, 20%);
+            &:hover {
+                background-color: @layoutLinkColor;
+            }
+        }
     }
-    &::-webkit-scrollbar-track {
-      border-radius: 10px;
-      background-color: @navActiveBackgroundColor;
-    }
-    &::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      background-color: darken(@navActiveBackgroundColor, 20%);
-      &:hover {
-        background-color: @layoutLinkColor;
-      }
-    }
-
-  }
 }
 
 .resource-view {
-  margin-top: 20px;
+    margin-top: 20px;
 }

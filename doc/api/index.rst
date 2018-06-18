@@ -60,6 +60,11 @@ code that calls the CKAN API.  For example, using the CKAN API your app can:
    legacy-api
 
 
+.. note:: On early CKAN versions, datasets were called "packages" and this name
+    has stuck in some places, specially internally and on API calls. Package has
+    exactly the same meaning as "dataset".
+
+
 ---------------------
 Making an API request
 ---------------------
@@ -68,13 +73,13 @@ To call the CKAN API, post a JSON dictionary in an HTTP POST request to one of
 CKAN's API URLs. The parameters for the API function should be given in the
 JSON dictionary. CKAN will also return its response in a JSON dictionary.
 
-One way to post a JSON dictionary to a URL is using the command-line HTTP
-client `HTTPie <http://httpie.org/>`_.  For example, to get a list of the names
+One way to post a JSON dictionary to a URL is using the command-line 
+client `Curl <https://curl.haxx.se/>`_.  For example, to get a list of the names
 of all the datasets in the ``data-explorer`` group on demo.ckan.org, install
-HTTPie and then call the ``group_list`` API function by running this command
+curl and then call the ``group_list`` API function by running this command
 in a terminal::
 
-    http http://demo.ckan.org/api/3/action/group_list id=data-explorer
+    curl https://demo.ckan.org/api/3/action/group_list
 
 The response from CKAN will look like this::
 
@@ -139,9 +144,6 @@ with this Python code::
     import json
     import pprint
 
-    # Use the json module to dump a dictionary to a string for posting.
-    data_string = urllib.quote(json.dumps({'id': 'data-explorer'}))
-
     # Make the HTTP request.
     response = urllib2.urlopen('http://demo.ckan.org/api/3/action/group_list',
             data_string)
@@ -182,6 +184,7 @@ to import datasets into CKAN.
     dataset_dict = {
         'name': 'my_dataset_name',
         'notes': 'A long description of my dataset',
+        'owner_org': 'org_id_or_name'
     }
 
     # Use the json module to dump the dictionary to a string for posting.
@@ -259,16 +262,16 @@ can be configured with the ``apikey_header_name`` option in your CKAN
 configuration file.)
 
 For example, to ask whether or not you're currently following the user
-``markw`` on demo.ckan.org using HTTPie, run this command::
+``markw`` on demo.ckan.org using curl, run this command::
 
-    http http://demo.ckan.org/api/3/action/am_following_user id=markw Authorization:XXX
+    curl -H "Authorization: XXX"  https://demo.ckan.org/api/3/action/am_following_user?id=markw 
 
 (Replacing ``XXX`` with your API key.)
 
 Or, to get the list of activities from your user dashboard on demo.ckan.org,
 run this Python code::
 
-    request = urllib2.Request('http://demo.ckan.org/api/3/action/dashboard_activity_list')
+    request = urllib2.Request('https://demo.ckan.org/api/3/action/dashboard_activity_list')
     request.add_header('Authorization', 'XXX')
     response_dict = json.loads(urllib2.urlopen(request, '{}').read())
 
@@ -334,7 +337,7 @@ A list of all tags:
 * browser: http://demo.ckan.org/api/3/action/tag_list
 * curl: ``curl http://demo.ckan.org/api/3/action/tag_list``
 * ckanapi: ``ckanapi -r http://demo.ckan.org action tag_list``
-    
+
 Top 10 tags used by datasets:
 
 * browser: http://demo.ckan.org/api/action/package_search?facet.field=[%22tags%22]&facet.limit=10&rows=0
@@ -371,9 +374,9 @@ Uploading a new version of a resource file
 You can use the ``upload`` parameter of the
 :py:func:`~ckan.logic.action.update.resource_update` function to upload a
 new version of a resource file. This requires a ``multipart/form-data``
-request, with httpie you can do this using the ``@file.csv``::
+request, with curl you can do this using the ``@file.csv``::
 
-    http --json POST http://demo.ckan.org/api/3/action/resource_update id=<resource id> upload=@updated_file.csv Authorization:<api key>
+    curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_update  
 
 
 .. _api-reference:

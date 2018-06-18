@@ -1,0 +1,28 @@
+<div class="control-group">
+  <div class="controls">
+    {% if g.recaptcha_version == '1' %}
+      <script type="text/javascript" src="//www.google.com/recaptcha/api/challenge?k={{ public_key }}"></script>
+      
+      <noscript>
+        <iframe src="//www.google.com/recaptcha/api/noscript?k={{ public_key }}" height="300" width="500" frameborder="0"></iframe><br>
+        <textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
+        <input type="hidden" name="recaptcha_response_field" value="manual_challenge">
+      </noscript>
+    {% elif g.recaptcha_version == '2' %}
+      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+      <div class="g-recaptcha" data-sitekey="{{ public_key }}"></div>
+      
+      <noscript>
+        <div style="width: 304px; height: 352px; position: relative;">
+          <div style="width: 304px; height: 352px; position: absolute;">
+            <iframe src="https://www.google.com/recaptcha/api/fallback?k={{ public_key }}" frameborder="0" scrolling="no" style="width: 304px; height:352px"></iframe>
+          </div>
+          
+          <div style="width: 250px; height: 80px; position: absolute; bottom: 21px; left: 25px; margin: 0; padding: 0; right: 25px;">
+            <textarea id="g-recaptcha-response" name="g-recaptcha-response" style="width: 250px; height: 80px; border: 1px solid #c1c1c1;	margin: 0; padding: 0; resize: none;" class="g-recaptcha-response"></textarea>
+          </div>
+        </div>
+      </noscript>
+    {% endif %}
+  </div>
+</div>

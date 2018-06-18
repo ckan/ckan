@@ -4,6 +4,10 @@ import datetime
 
 import nose.tools
 
+from six import text_type
+from six.moves import xrange
+
+from ckan import __version__
 import ckan.logic as logic
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
@@ -570,6 +574,16 @@ class TestUserList(helpers.FunctionalTestBase):
         assert len(got_users) == 1
         assert got_users[0]['name'] == user['name']
 
+    def test_user_list_not_all_fields(self):
+
+        user = factories.User()
+
+        got_users = helpers.call_action('user_list', all_fields=False)
+
+        assert len(got_users) == 1
+        got_user = got_users[0]
+        assert got_user == user['name']
+
 
 class TestUserShow(helpers.FunctionalTestBase):
 
@@ -661,7 +675,7 @@ class TestUserShow(helpers.FunctionalTestBase):
 
     def test_user_show_sysadmin_password_hash(self):
 
-        user = factories.User(password='test')
+        user = factories.User(password='TestPassword1')
 
         sysadmin = factories.User(sysadmin=True)
 
@@ -842,6 +856,14 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         eq(search_result['results'][0]['title'], 'Rivers')
         eq(search_result['count'], 1)
 
+    def test_search_fl(self):
+        factories.Dataset(title='Rivers', name='test_ri')
+        factories.Dataset(title='Lakes')
+
+        search_result = helpers.call_action('package_search', q='rivers', fl=['title', 'name'])
+
+        eq(search_result['results'], [{'title': 'Rivers', 'name': 'test_ri'}])
+
     def test_search_all(self):
         factories.Dataset(title='Rivers')
         factories.Dataset(title='Lakes')
@@ -861,7 +883,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
             SearchError,
             helpers.call_action,
             'package_search', sort='metadata_modified')
-            # SOLR doesn't like that we didn't specify 'asc' or 'desc'
+        # SOLR doesn't like that we didn't specify 'asc' or 'desc'
         # SOLR error is 'Missing sort order' or 'Missing_sort_order',
         # depending on the solr version.
 
@@ -1277,6 +1299,14 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         p.unload('example_idatasetform')
 
+    def test_local_parameters_not_supported(self):
+
+        nose.tools.assert_raises(
+            SearchError,
+            helpers.call_action,
+            'package_search',
+            q='{!child of="content_type:parentDoc"}')
+
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
     '''test class for #1258 non-int query parameters cause 500 errors
@@ -1422,9 +1452,9 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         org_ids = set(org['id'] for org in organizations)
         assert bottom_organization['id'] in org_ids
 
-    def test_does_not_return_members(self):
+    def test_does_return_members(self):
         """
-        By default organization_list_for_user() should not return organizations
+        By default organization_list_for_user() should return organizations
         that the user is just a member (not an admin) of.
         """
         user = factories.User()
@@ -1438,11 +1468,11 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         organizations = helpers.call_action('organization_list_for_user',
                                             context=context)
 
-        assert organizations == []
+        assert [org['id'] for org in organizations] == [organization['id']]
 
-    def test_does_not_return_editors(self):
+    def test_does_return_editors(self):
         """
-        By default organization_list_for_user() should not return organizations
+        By default organization_list_for_user() should return organizations
         that the user is just an editor (not an admin) of.
         """
         user = factories.User()
@@ -1456,7 +1486,7 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         organizations = helpers.call_action('organization_list_for_user',
                                             context=context)
 
-        assert organizations == []
+        assert [org['id'] for org in organizations] == [organization['id']]
 
     def test_editor_permission(self):
         """
@@ -1616,6 +1646,39 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
         organizations = helpers.call_action('organization_list_for_user')
 
         assert organizations == []
+
+    def test_organization_list_for_user_returns_all_roles(self):
+
+        user1 = factories.User()
+        user2 = factories.User()
+        user3 = factories.User()
+
+        org1 = factories.Organization(users=[
+            {'name': user1['name'], 'capacity': 'admin'},
+            {'name': user2['name'], 'capacity': 'editor'},
+        ])
+        org2 = factories.Organization(users=[
+            {'name': user1['name'], 'capacity': 'member'},
+            {'name': user2['name'], 'capacity': 'member'},
+        ])
+        org3 = factories.Organization(users=[
+            {'name': user1['name'], 'capacity': 'editor'},
+        ])
+
+        org_list_for_user1 = helpers.call_action('organization_list_for_user',
+                                                 id=user1['id'])
+
+        assert sorted([org['id'] for org in org_list_for_user1]) == sorted([org1['id'], org2['id'], org3['id']])
+
+        org_list_for_user2 = helpers.call_action('organization_list_for_user',
+                                                 id=user2['id'])
+
+        assert sorted([org['id'] for org in org_list_for_user2]) == sorted([org1['id'], org2['id']])
+
+        org_list_for_user3 = helpers.call_action('organization_list_for_user',
+                                                 id=user3['id'])
+
+        eq(org_list_for_user3, [])
 
 
 class TestShowResourceView(object):
@@ -1894,7 +1957,7 @@ class TestRevisionList(helpers.FunctionalTestBase):
         rev_ids = []
         for i in xrange(num_revisions):
             rev = model.repo.new_revision()
-            rev.id = unicode(i)
+            rev.id = text_type(i)
             model.Session.commit()
             rev_ids.append(rev.id)
         return rev_ids
@@ -2088,6 +2151,22 @@ class TestFollow(helpers.FunctionalTestBase):
 
         eq(len(followee_list), 1)
         eq(followee_list[0]['display_name'], 'Environment')
+
+
+class TestStatusShow(helpers.FunctionalTestBase):
+
+    def test_status_show(self):
+
+        status = helpers.call_action(u'status_show')
+
+        eq(status[u'ckan_version'], __version__)
+        eq(status[u'site_url'], u'http://test.ckan.net')
+        eq(status[u'site_title'], u'CKAN')
+        eq(status[u'site_description'], u'')
+        eq(status[u'locale_default'], u'en')
+
+        eq(type(status[u'extensions']), list)
+        eq(status[u'extensions'], [u'stats'])
 
 
 class TestJobList(helpers.FunctionalRQTestBase):

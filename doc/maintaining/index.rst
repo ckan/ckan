@@ -27,5 +27,3 @@ installing, upgrading and configuring CKAN and its features and extensions.
    multilingual
    stats
    configuration
-
-   solr-multicore

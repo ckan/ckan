@@ -2,6 +2,7 @@
 
 import datetime
 
+from six import text_type
 from sqlalchemy.util import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
@@ -48,7 +49,7 @@ resource_table = Table(
     Column('mimetype', types.UnicodeText),
     Column('mimetype_inner', types.UnicodeText),
     Column('size', types.BigInteger),
-    Column('created', types.DateTime, default=datetime.datetime.now),
+    Column('created', types.DateTime, default=datetime.datetime.utcnow),
     Column('last_modified', types.DateTime),
     Column('cache_url', types.UnicodeText),
     Column('cache_last_updated', types.DateTime),
@@ -189,7 +190,6 @@ meta.mapper(Resource, resource_table, properties={
                             ),
     )
 },
-order_by=[resource_table.c.package_id],
 extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
            extension.PluginMapperExtension(),
            ],
@@ -213,7 +213,7 @@ def resource_identifier(obj):
 
 class DictProxy(object):
 
-    def __init__(self, target_key, target_dict, data_type=unicode):
+    def __init__(self, target_key, target_dict, data_type=text_type):
         self.target_key = target_key
         self.target_dict = target_dict
         self.data_type = data_type

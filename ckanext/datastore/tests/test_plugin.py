@@ -21,6 +21,12 @@ class TestPluginLoadingOrder(object):
         if p.plugin_loaded('sample_datastore_plugin'):
             p.unload('sample_datastore_plugin')
 
+    def teardown(self):
+        if p.plugin_loaded('sample_datastore_plugin'):
+            p.unload('sample_datastore_plugin')
+        if p.plugin_loaded('datastore'):
+            p.unload('datastore')
+
     def test_loading_datastore_first_works(self):
         p.load('datastore')
         p.load('sample_datastore_plugin')

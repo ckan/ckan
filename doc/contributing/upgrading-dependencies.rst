@@ -60,4 +60,4 @@ work with CKAN:
 
 #. Navigate a bit on CKAN to make sure the tests didn't miss anything. Review
    the dependencies changes and their changelogs. If everything seems fine, go
-   ahead and make a pull request (see :doc`/contributing/pull-requests`).
+   ahead and make a pull request (see :doc:`/contributing/pull-requests`).

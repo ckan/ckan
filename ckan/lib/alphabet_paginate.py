@@ -18,10 +18,11 @@ Based on webhelpers.paginator, but:
 from itertools import dropwhile
 import re
 
+from six import text_type
 from sqlalchemy import  __version__ as sqav
 from sqlalchemy.orm.query import Query
 from webhelpers.html.builder import HTML
-from routes import url_for
+from ckan.lib.helpers import url_for
 
 
 class AlphaPage(object):
@@ -54,7 +55,7 @@ class AlphaPage(object):
         # because we grey-out those which aren't.
         self.available = dict( (c,0,) for c in self.letters )
         for c in self.collection:
-            if isinstance(c, unicode):
+            if isinstance(c, text_type):
                 x = c[0]
             elif isinstance(c, dict):
                 x = c[self.alpha_attribute][0]
@@ -131,7 +132,7 @@ class AlphaPage(object):
                 if self.page != self.other_text:
                     if isinstance(self.collection[0], dict):
                         items = [x for x in self.collection if x[self.alpha_attribute][0:1].lower() == self.page.lower()]
-                    elif isinstance(self.collection[0], unicode):
+                    elif isinstance(self.collection[0], text_type):
                         items = [x for x in self.collection if x[0:1].lower() == self.page.lower()]
                     else:
                         items = [x for x in self.collection if getattr(x,self.alpha_attribute)[0:1].lower() == self.page.lower()]

@@ -6,10 +6,14 @@ import logging
 import datetime
 import time
 import json
+import mimetypes
+import os
 
 from ckan.common import config
 import paste.deploy.converters as converters
+from six import text_type
 
+import ckan.lib.helpers as h
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema as schema_
@@ -60,11 +64,13 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
+
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
     resource = model.Resource.get(id)
     context["resource"] = resource
+    old_resource_format = resource.format
 
     if not resource:
         log.debug('Could not find resource %s', id)
@@ -94,6 +100,14 @@ def resource_update(context, data_dict):
 
     upload = uploader.get_resource_uploader(data_dict)
 
+    if 'mimetype' not in data_dict:
+        if hasattr(upload, 'mimetype'):
+            data_dict['mimetype'] = upload.mimetype
+
+    if 'size' not in data_dict and 'url_type' in data_dict:
+        if hasattr(upload, 'filesize'):
+            data_dict['size'] = upload.filesize
+
     pkg_dict['resources'][n] = data_dict
 
     try:
@@ -101,14 +115,23 @@ def resource_update(context, data_dict):
         context['use_cache'] = False
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
-    except ValidationError, e:
-        errors = e.error_dict['resources'][n]
-        raise ValidationError(errors)
+    except ValidationError as e:
+        try:
+            raise ValidationError(e.error_dict['resources'][-1])
+        except (KeyError, IndexError):
+            raise ValidationError(e.error_dict)
 
     upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
 
     resource = _get_action('resource_show')(context, {'id': id})
+
+    if old_resource_format != resource['format']:
+        _get_action('resource_create_default_resource_views')(
+            {'model': context['model'], 'user': context['user'],
+             'ignore_auth': True},
+            {'package': updated_pkg_dict,
+             'resource': resource})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_update(context, resource)
@@ -233,7 +256,9 @@ def package_update(context, data_dict):
     '''
     model = context['model']
     user = context['user']
-    name_or_id = data_dict.get("id") or data_dict['name']
+    name_or_id = data_dict.get('id') or data_dict.get('name')
+    if name_or_id is None:
+        raise ValidationError({'id': _('Missing value')})
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:
@@ -333,7 +358,7 @@ def package_resource_reorder(context, data_dict):
     :param id: the id or name of the package to update
     :type id: string
     :param order: a list of resource ids in the order needed
-    :type list: list
+    :type order: list
     '''
 
     id = _get_or_bust(data_dict, "id")
@@ -400,6 +425,7 @@ def package_relationship_update(context, data_dict):
     :type subject: string
     :param object: the name or id of the dataset that is the object of the
         relationship
+    :type object: string
     :param type: the type of the relationship, one of ``'depends_on'``,
         ``'dependency_of'``, ``'derives_from'``, ``'has_derivation'``,
         ``'links_to'``, ``'linked_from'``, ``'child_of'`` or ``'parent_of'``
@@ -618,7 +644,7 @@ def user_update(context, data_dict):
     '''Update a user account.
 
     Normal users can only update their own user accounts. Sysadmins can update
-    any user account.
+    any user account. Can not modify exisiting user's name.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.user_create`.
@@ -808,9 +834,9 @@ def term_translation_update(context, data_dict):
 
     _check_access('term_translation_update', context, data_dict)
 
-    schema = {'term': [validators.not_empty, unicode],
-              'term_translation': [validators.not_empty, unicode],
-              'lang_code': [validators.not_empty, unicode]}
+    schema = {'term': [validators.not_empty, text_type],
+              'term_translation': [validators.not_empty, text_type],
+              'lang_code': [validators.not_empty, text_type]}
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -868,58 +894,6 @@ def term_translation_update_many(context, data_dict):
     return {'success': '%s rows updated' % (num + 1)}
 
 
-## Modifications for rest api
-
-def package_update_rest(context, data_dict):
-
-    model = context['model']
-    id = data_dict.get("id")
-    request_id = context['id']
-    pkg = model.Package.get(request_id)
-
-    if not pkg:
-        raise NotFound
-
-    if id and id != pkg.id:
-        pkg_from_data = model.Package.get(id)
-        if pkg_from_data != pkg:
-            error_dict = {id:('Cannot change value of key from %s to %s. '
-                'This key is read-only') % (pkg.id, id)}
-            raise ValidationError(error_dict)
-
-    context["package"] = pkg
-    context["allow_partial_update"] = False
-    dictized_package = model_save.package_api_to_dict(data_dict, context)
-
-    _check_access('package_update_rest', context, dictized_package)
-
-    dictized_after = _get_action('package_update')(context, dictized_package)
-
-    pkg = context['package']
-
-    package_dict = model_dictize.package_to_api(pkg, context)
-
-    return package_dict
-
-def group_update_rest(context, data_dict):
-
-    model = context['model']
-    id = _get_or_bust(data_dict, "id")
-    group = model.Group.get(id)
-    context["group"] = group
-    context["allow_partial_update"] = True
-    dictized_group = model_save.group_api_to_dict(data_dict, context)
-
-    _check_access('group_update_rest', context, dictized_group)
-
-    dictized_after = _get_action('group_update')(context, dictized_group)
-
-    group = context['group']
-
-    group_dict = model_dictize.group_to_api(group, context)
-
-    return group_dict
-
 def vocabulary_update(context, data_dict):
     '''Update a tag vocabulary.
 
@@ -965,23 +939,6 @@ def vocabulary_update(context, data_dict):
 
     return model_dictize.vocabulary_dictize(updated_vocab, context)
 
-def package_relationship_update_rest(context, data_dict):
-
-    # rename keys
-    key_map = {'id': 'subject',
-               'id2': 'object',
-               'rel': 'type'}
-
-    # We want 'destructive', so that the value of the subject,
-    # object and rel in the URI overwrite any values for these
-    # in params. This is because you are not allowed to change
-    # these values.
-    data_dict = logic.action.rename_keys(data_dict, key_map, destructive=True)
-
-    relationship_dict = _get_action('package_relationship_update')(context, data_dict)
-
-    return relationship_dict
-
 
 def dashboard_mark_activities_old(context, data_dict):
     '''Mark all the authorized user's new dashboard activities as old.
@@ -995,7 +952,7 @@ def dashboard_mark_activities_old(context, data_dict):
     model = context['model']
     user_id = model.User.get(context['user']).id
     model.Dashboard.get(user_id).activity_stream_last_viewed = (
-            datetime.datetime.now())
+            datetime.datetime.utcnow())
     if not context.get('defer_commit'):
         model.repo.commit()
 
@@ -1030,7 +987,7 @@ def package_owner_org_update(context, data_dict):
     :type id: string
 
     :param organization_id: the name or id of the owning organization
-    :type id: string
+    :type organization_id: string
     '''
     model = context['model']
     user = context['user']
@@ -1248,12 +1205,23 @@ def config_option_update(context, data_dict):
 
         raise ValidationError(msg, error_summary={'message': msg})
 
+    upload = uploader.get_uploader('admin')
+    upload.update_data_dict(data_dict, 'ckan.site_logo',
+                            'logo_upload', 'clear_logo_upload')
+    upload.upload(uploader.get_max_image_size())
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
 
     for key, value in data.iteritems():
+
+        # Set full Logo url
+        if key == 'ckan.site_logo' and value and not value.startswith('http')\
+                and not value.startswith('/'):
+            image_path = 'uploads/admin/'
+
+            value = h.url_for_static('{0}{1}'.format(image_path, value))
 
         # Save value in database
         model.set_system_info(key, value)

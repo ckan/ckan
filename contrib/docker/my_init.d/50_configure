@@ -10,7 +10,7 @@
 
 set -eu
 
-CONFIG="${CKAN_CONFIG}/ckan.ini"
+CONFIG="${CKAN_CONFIG}/production.ini"
 
 abort () {
   echo "$@" >&2
@@ -35,7 +35,7 @@ write_config () {
 
 link_postgres_url () {
   local user=$DB_ENV_POSTGRES_USER
-  local pass=$DB_ENV_POSTGRES_PASS
+  local pass=$DB_ENV_POSTGRES_PASSWORD
   local db=$DB_ENV_POSTGRES_DB
   local host=$DB_PORT_5432_TCP_ADDR
   local port=$DB_PORT_5432_TCP_PORT

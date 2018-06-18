@@ -3,7 +3,7 @@
 from nose.tools import assert_true, assert_equal
 
 from bs4 import BeautifulSoup
-from routes import url_for
+from ckan.lib.helpers import url_for
 from ckan.common import config
 
 import ckan.model as model
@@ -31,7 +31,7 @@ def _reset_config(app):
     user = factories.Sysadmin()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
     app.post(
-        url=url_for(controller='admin', action='reset_config'),
+        url=url_for('admin.reset_config'),
         extra_environ=env,
     )
 

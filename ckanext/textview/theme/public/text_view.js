@@ -1,9 +1,6 @@
-ckan.module('text_view', function (jQuery, _) {
+ckan.module('text_view', function (jQuery) {
   return {
     options: {
-      i18n: {
-        error: _('An error occurred: %(text)s %(error)s')
-      },
       parameters: {
         json: {
           contentType: 'application/json',
@@ -64,13 +61,14 @@ ckan.module('text_view', function (jQuery, _) {
             highlighted = '<pre>' + data + '</pre>';
           }
 
-          self.el.html(highlighted);
+          self.el[0].innerHTML = highlighted;
         },
         error: function(jqXHR, textStatus, errorThrown) {
           if (textStatus == 'error' && jqXHR.responseText.length) {
             self.el.html(jqXHR.responseText);
           } else {
-            self.el.html(self.i18n('error', {text: textStatus, error: errorThrown}));
+            self.el.html(self_('An error occurred: %(text)s %(error)s',
+                               {text: textStatus, error: errorThrown}));
           }
         }
       });

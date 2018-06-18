@@ -83,21 +83,18 @@ class CkanNose(Plugin):
             help='drop database and reinitialize before tests are run')
 
     def wantClass(self, cls):
-        name = cls.__name__
-
-        wanted = (not cls.__name__.startswith('_')
-                  and (issubclass(cls, unittest.TestCase)
-                       or re.search('(?:^|[\b_\./-])[Tt]est', name)
-                      ))
-        
-        if self.segments and str(hashlib.md5(name).hexdigest())[0] not in self.segments:
+        if self.segments and str(hashlib.md5(
+                cls.__name__).hexdigest())[0] not in self.segments:
             return False
 
-        return wanted
+    def wantFunction(self, fn):
+        if self.segments and hashlib.md5(
+                fn.__name__).hexdigest()[0] not in self.segments:
+            return False
 
     def finalize(self, report):
         if self.segments:
-            print 'Segments: %s' % self.segments
+            print('Segments: %s' % self.segments)
 
     def configure(self, settings, config):
         CkanNose.settings = settings

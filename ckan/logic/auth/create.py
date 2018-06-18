@@ -104,7 +104,7 @@ def package_relationship_create(context, data_dict):
     authorized2 = authz.is_authorized_boolean(
         'package_update', context, {'id': id2})
 
-    if not authorized1 and authorized2:
+    if not (authorized1 and authorized2):
         return {'success': False, 'msg': _('User %s not authorized to edit these packages') % user}
     else:
         return {'success': True}
@@ -178,10 +178,8 @@ def _check_group_auth(context, data_dict):
     for group_blob in group_blobs:
         # group_blob might be a dict or a group_ref
         if isinstance(group_blob, dict):
-            if api_version == '1':
-                id = group_blob.get('name')
-            else:
-                id = group_blob.get('id')
+            # use group id by default, but we can accept name as well
+            id = group_blob.get('id') or group_blob.get('name')
             if not id:
                 continue
         else:
@@ -197,28 +195,11 @@ def _check_group_auth(context, data_dict):
         groups = groups - set(pkg_groups)
 
     for group in groups:
-        if not authz.has_user_permission_for_group_or_org(group.id, user, 'update'):
+        if not authz.has_user_permission_for_group_or_org(group.id, user, 'manage_group'):
             return False
 
     return True
 
-## Modifications for rest api
-
-def package_create_rest(context, data_dict):
-    model = context['model']
-    user = context['user']
-    if not user:
-        return {'success': False, 'msg': _('Valid API key needed to create a package')}
-
-    return authz.is_authorized('package_create', context, data_dict)
-
-def group_create_rest(context, data_dict):
-    model = context['model']
-    user = context['user']
-    if not user:
-        return {'success': False, 'msg': _('Valid API key needed to create a group')}
-
-    return authz.is_authorized('group_create', context, data_dict)
 
 def vocabulary_create(context, data_dict):
     # sysadmins only

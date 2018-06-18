@@ -16,3 +16,4 @@ to use:
 
 .. automodule:: ckan.plugins.interfaces
    :members:
+   :undoc-members:

@@ -2,6 +2,7 @@
 
 import json
 import nose
+import urllib
 import pprint
 
 import sqlalchemy.orm as orm
@@ -12,26 +13,20 @@ import ckan.model as model
 import ckan.tests.legacy as tests
 
 from ckan.common import config
-import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
+import ckanext.datastore.backend.postgres as db
+from ckanext.datastore.tests.helpers import (
+    extract, rebuild_all_dbs,
+    DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+assert_in = nose.tools.assert_in
 
 
-class TestDatastoreSearchNewTest(object):
-    @classmethod
-    def setup_class(cls):
-        p.load('datastore')
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload('datastore')
-        helpers.reset_db()
-
+class TestDatastoreSearchNewTest(DatastoreFunctionalTestBase):
     def test_fts_on_field_calculates_ranks_only_on_that_specific_field(self):
         resource = factories.Resource()
         data = {
@@ -66,6 +61,7 @@ class TestDatastoreSearchNewTest(object):
             ],
         }
         result = helpers.call_action('datastore_create', **data)
+
         search_data = {
             'resource_id': resource['id'],
             'fields': 'year',
@@ -106,15 +102,14 @@ class TestDatastoreSearchNewTest(object):
 
 
 
-class TestDatastoreSearch(tests.WsgiAppCase):
+class TestDatastoreSearch(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+        cls.app = helpers._get_test_app()
+        super(TestDatastoreSearch, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -165,15 +160,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                                  u'characters': None,
                                  u'rating with %': u'99%'}]
 
-        engine = db._get_engine(
-                {'connection_url': config['ckan.datastore.write_url']}
-            )
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    @classmethod
-    def teardown_class(cls):
-        rebuild_all_dbs(cls.Session)
-        p.unload('datastore')
 
     def test_search_basic(self):
         data = {'resource_id': self.data['resource_id']}
@@ -512,14 +500,13 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         ) for record in result['records']]
         assert results == self.expected_records, result['records']
 
-        expected_fields = [{u'type': u'int4', u'id': u'_id'},
+        expected_fields = [{u'type': u'int', u'id': u'_id'},
                         {u'type': u'text', u'id': u'b\xfck'},
                         {u'type': u'text', u'id': u'author'},
                         {u'type': u'timestamp', u'id': u'published'},
-                        {u'type': u'json', u'id': u'nested'},
-                        {u'type': u'float4', u'id': u'rank'}]
+                        {u'type': u'json', u'id': u'nested'}]
         for field in expected_fields:
-            assert field in result['fields'], field
+            assert_in(field, result['fields'])
 
         # test multiple word queries (connected with and)
         data = {'resource_id': self.data['resource_id'],
@@ -648,12 +635,11 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['error'].get('fields') is not None, res_dict['error']
 
 
-class TestDatastoreFullTextSearch(tests.WsgiAppCase):
+class TestDatastoreFullTextSearch(DatastoreLegacyTestBase):
     @classmethod
     def setup_class(cls):
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+        cls.app = helpers._get_test_app()
+        super(TestDatastoreFullTextSearch, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -687,11 +673,6 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
                            extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
-
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-        p.unload('datastore')
 
     def test_search_full_text(self):
         data = {'resource_id': self.data['resource_id'],
@@ -775,19 +756,14 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
         assert res_dict['success'], pprint.pformat(res_dict)
 
 
-class TestDatastoreSQL(tests.WsgiAppCase):
+class TestDatastoreSQL(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
-        plugin = p.load('datastore')
-        if plugin.legacy_mode:
-            # make sure we undo adding the plugin
-            p.unload('datastore')
-            raise nose.SkipTest("SQL tests are not supported in legacy mode")
+        cls.app = helpers._get_test_app()
+        super(TestDatastoreSQL, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -838,14 +814,8 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                                  u'published': None}]
         cls.expected_join_results = [{u'first': 1, u'second': 1}, {u'first': 1, u'second': 2}]
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    @classmethod
-    def teardown_class(cls):
-        rebuild_all_dbs(cls.Session)
-        p.unload('datastore')
 
     def test_validates_sql_has_a_single_statement(self):
         sql = 'SELECT * FROM public."{0}"; SELECT * FROM public."{0}";'.format(self.data['resource_id'])
@@ -926,36 +896,14 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             where a.author = b.author
             limit 2
             '''.format(self.data['resource_id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
+        data = urllib.urlencode({'sql': query})
         auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+        res = self.app.post('/api/action/datastore_search_sql', params=data,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['records'] == self.expected_join_results
-
-    def test_read_private(self):
-        context = {
-            'user': self.sysadmin_user.name,
-            'model': model}
-        data_dict = {
-            'resource_id': self.data['resource_id'],
-            'connection_url': config['ckan.datastore.write_url']}
-        p.toolkit.get_action('datastore_make_private')(context, data_dict)
-        query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        # make it public for the other tests
-        p.toolkit.get_action('datastore_make_public')(context, data_dict)
 
     def test_new_datastore_table_from_private_resource(self):
         # make a private CKAN resource
@@ -999,86 +947,6 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         assert res_dict['success'] is False
         assert res_dict['error']['__type'] == 'Authorization Error'
 
-    def test_making_resource_private_makes_datastore_private(self):
-        group = self.dataset.get_groups()[0]
-        context = {
-            'user': self.sysadmin_user.name,
-            'ignore_auth': True,
-            'model': model}
-        package = p.toolkit.get_action('package_create')(
-            context,
-            {'name': 'privatedataset2',
-             'private': False,
-             'owner_org': self.organization['id'],
-             'groups': [{
-                 'id': group.id
-             }]})
-        resource = p.toolkit.get_action('resource_create')(
-            context,
-            {'name': 'privateresource2',
-             'url': 'https://www.example.co.uk/',
-             'package_id': package['id']})
-
-        postparams = '%s=1' % json.dumps({
-            'resource_id': resource['id'],
-            'force': True
-        })
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
-        # Test public resource
-        query = 'SELECT * FROM "{0}"'.format(resource['id'])
-        data = {'sql': query}
-        postparams_sql = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
-        # Make resource private
-        package = p.toolkit.get_action('package_show')(
-            context, {'id': package.get('id')})
-        package['private'] = True
-        package = p.toolkit.get_action('package_update')(context, package)
-
-        # Test private
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        postparams = json.dumps({'resource_id': resource['id']})
-        res = self.app.post('/api/action/datastore_search', params=postparams,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        # we should not be able to make the private resource it public
-        postparams = json.dumps({'resource_id': resource['id']})
-        res = self.app.post('/api/action/datastore_make_public', params=postparams,
-                            extra_environ=auth, status=403)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-        assert res_dict['error']['__type'] == 'Authorization Error'
-
-        # Make resource public
-        package = p.toolkit.get_action('package_show')(
-            context, {'id': package.get('id')})
-        package['private'] = False
-        package = p.toolkit.get_action('package_update')(context, package)
-
-        # Test public again
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
     def test_not_authorized_to_access_system_tables(self):
         test_cases = [
             'SELECT * FROM pg_roles',
@@ -1091,10 +959,79 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         ]
         for query in test_cases:
             data = {'sql': query.replace('\n', '')}
-            postparams = json.dumps(data)
+            postparams = urllib.urlencode(data)
             res = self.app.post('/api/action/datastore_search_sql',
                                 params=postparams,
                                 status=403)
             res_dict = json.loads(res.body)
             assert res_dict['success'] is False
             assert res_dict['error']['__type'] == 'Authorization Error'
+
+
+class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
+    def test_search_sql_enforces_private(self):
+        user1 = factories.User()
+        user2 = factories.User()
+        user3 = factories.User()
+        ctx1 = {u'user': user1['name'], u'ignore_auth': False}
+        ctx2 = {u'user': user2['name'], u'ignore_auth': False}
+        ctx3 = {u'user': user3['name'], u'ignore_auth': False}
+
+        org1 = factories.Organization(
+            user=user1,
+            users=[{u'name': user3['name'], u'capacity': u'member'}])
+        org2 = factories.Organization(
+            user=user2,
+            users=[{u'name': user3['name'], u'capacity': u'member'}])
+        ds1 = factories.Dataset(owner_org=org1['id'], private=True)
+        ds2 = factories.Dataset(owner_org=org2['id'], private=True)
+        r1 = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds1['id']},
+            fields=[{u'id': u'spam', u'type': u'text'}])
+        r2 = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds2['id']},
+            fields=[{u'id': u'ham', u'type': u'text'}])
+
+        sql1 = 'SELECT spam FROM "{0}"'.format(r1['resource_id'])
+        sql2 = 'SELECT ham FROM "{0}"'.format(r2['resource_id'])
+        sql3 = 'SELECT spam, ham FROM "{0}", "{1}"'.format(
+            r1['resource_id'], r2['resource_id'])
+
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx2,
+            sql=sql1)
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx1,
+            sql=sql2)
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx1,
+            sql=sql3)
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action,
+            'datastore_search_sql',
+            context=ctx2,
+            sql=sql3)
+        helpers.call_action(
+            'datastore_search_sql',
+            context=ctx1,
+            sql=sql1)
+        helpers.call_action(
+            'datastore_search_sql',
+            context=ctx2,
+            sql=sql2)
+        helpers.call_action(
+            'datastore_search_sql',
+            context=ctx3,
+            sql=sql3)

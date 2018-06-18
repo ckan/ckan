@@ -78,7 +78,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         # Register a new user.
         sara = tests.call_action_api(self.app, 'user_create',
                 apikey=self.testsysadmin['apikey'], name='sara',
-                email='sara@sararollins.com', password='sara',
+                email='sara@sararollins.com', password='TestPassword1',
                 fullname='Sara Rollins',
                 activity_streams_email_notifications=True)
 
@@ -220,7 +220,7 @@ class TestEmailNotificationsUserPreference(
         # Register a new user.
         sara = tests.call_action_api(self.app, 'user_create',
                 apikey=self.testsysadmin['apikey'], name='sara',
-                email='sara@sararollins.com', password='sara',
+                email='sara@sararollins.com', password='TestPassword1',
                 fullname='Sara Rollins')
 
         # Save the user for later tests to use.
@@ -367,7 +367,7 @@ class TestEmailNotificationsIniSetting(
         # Register a new user.
         sara = tests.call_action_api(self.app, 'user_create',
                 apikey=self.testsysadmin['apikey'], name='sara',
-                email='sara@sararollins.com', password='sara',
+                email='sara@sararollins.com', password='TestPassword1',
                 fullname='Sara Rollins')
 
         # Save the user for later tests to use.
@@ -453,7 +453,7 @@ class TestEmailNotificationsSinceIniSetting(
         # Register a new user.
         sara = tests.call_action_api(self.app, 'user_create',
                 apikey=self.testsysadmin['apikey'], name='sara',
-                email='sara@sararollins.com', password='sara',
+                email='sara@sararollins.com', password='TestPassword1',
                 fullname='Sara Rollins')
 
         # Save the user for later tests to use.

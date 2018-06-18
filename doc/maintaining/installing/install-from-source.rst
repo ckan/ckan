@@ -1,14 +1,14 @@
-.. include:: /_latest_release.rst
+.. include:: /_substitutions.rst
 
 ===========================
 Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 14.04 64-bit or
-Ubuntu 12.04 64-bit. Installing CKAN from source works with other versions of
-Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X).
-If you install CKAN from source on your own operating system, please share your
+:doc:`install-from-package` is simpler, it requires Ubuntu 16.04 64-bit or
+Ubuntu 14.04 64-bit. Installing CKAN from source works with other versions of
+Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
+you install CKAN from source on your own operating system, please share your
 experiences on our
 `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
@@ -21,7 +21,11 @@ work on CKAN.
 --------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
-required packages with this command::
+required packages with this command for Ubuntu 16.04::
+
+    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
+
+or for Ubuntu 14.04::
 
     sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk redis-server
 
@@ -34,14 +38,14 @@ wiki page for help):
 Package                Description
 =====================  ===============================================
 Python                 `The Python programming language, v2.7 <http://www.python.org/getit/>`_
-|postgres|             `The PostgreSQL database system, v8.4 or newer <http://www.postgresql.org/download/>`_
+|postgres|             `The PostgreSQL database system, v9.3 or newer <http://www.postgresql.org/download/>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
 virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
 Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
 Apache Solr            `A search platform <http://lucene.apache.org/solr>`_
-Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr).
-OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
+Jetty                  `An HTTP server <http://www.eclipse.org/jetty/>`_ (used for Solr).
+OpenJDK JDK            `The Java Development Kit <http://openjdk.java.net/install/>`_ (used by Jetty)
 Redis                  `An in-memory data structure store <http://redis.io/>`_
 =====================  ===============================================
 
@@ -94,7 +98,14 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the CKAN source code into your virtualenv.
+b. Install the recommended ``setuptools`` version:
+
+   .. parsed-literal::
+
+       pip install setuptools==\ |min_setuptools_version|
+
+c. Install the CKAN source code into your virtualenv.
+
    To install the latest stable release of CKAN (CKAN |latest_release_version|),
    run:
 
@@ -116,17 +127,13 @@ b. Install the CKAN source code into your virtualenv.
       production websites! Only install this version if you're doing CKAN
       development.
 
-c. Install the Python modules that CKAN requires into your virtualenv:
-
-   .. versionchanged:: 2.1
-      In CKAN 2.0 and earlier the requirement file was called
-      ``pip-requirements.txt`` not ``requirements.txt`` as below.
+d. Install the Python modules that CKAN requires into your virtualenv:
 
    .. parsed-literal::
 
        pip install -r |virtualenv|/src/ckan/requirements.txt
 
-d. Deactivate and reactivate your virtualenv, to make sure you're using the
+e. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
    installed copies:
 
@@ -141,47 +148,7 @@ d. Deactivate and reactivate your virtualenv, to make sure you're using the
 3. Setup a PostgreSQL database
 ------------------------------
 
-List existing databases::
-
-    sudo -u postgres psql -l
-
-Check that the encoding of databases is ``UTF8``, if not internationalisation
-may be a problem. Since changing the encoding of |postgres| may mean deleting
-existing databases, it is suggested that this is fixed before continuing with
-the CKAN install.
-
-Next you'll need to create a database user if one doesn't already exist.
-Create a new |postgres| database user called |database_user|, and enter a
-password for the user when prompted. You'll need this password later:
-
-.. parsed-literal::
-
-    sudo -u postgres createuser -S -D -R -P |database_user|
-
-Create a new |postgres| database, called |database|, owned by the
-database user you just created:
-
-.. parsed-literal::
-
-    sudo -u postgres createdb -O |database_user| |database| -E utf-8
-
-.. note::
-
-    If PostgreSQL is run on a separate server, you will need to edit
-    `postgresql.conf` and `pg_hba.conf`. For PostgreSQL 9.1 on Ubuntu, these
-    files are located in `etc/postgresql/9.1/main`.
-
-    Uncomment the `listen_addresses` parameter and specify a comma-separated
-    list of IP addresses of the network interfaces PostgreSQL should listen on
-    or '*' to listen on all interfaces. For example,
-
-    ``listen_addresses = 'localhost,192.168.1.21'``
-
-    Add a line similar to the line below to the bottom of `pg_hba.conf` to
-    allow the machine running Apache to connect to PostgreSQL. Please change
-    the IP address as desired according to your network settings.
-
-    ``host    all             all             192.168.1.22/32                 md5``
+.. include:: postgres.rst
 
 ----------------------------
 4. Create a CKAN config file
@@ -243,86 +210,24 @@ site_url
 5. Setup Solr
 -------------
 
-CKAN uses Solr_ as its search platform, and uses a customized Solr schema file
-that takes into account CKAN's specific search needs. Now that we have CKAN
-installed, we need to install and configure Solr.
+.. include:: solr.rst
 
-.. _Solr: http://lucene.apache.org/solr/
-
-.. note::
-
-   These instructions explain how to setup |solr| with a single core.
-   If you want multiple applications, or multiple instances of CKAN, to share
-   the same |solr| server then you probably want a multi-core |solr| setup
-   instead. See :doc:`/maintaining/solr-multicore`.
-
-.. note::
-
-   These instructions explain how to deploy Solr using the Jetty web
-   server, but CKAN doesn't require Jetty - you can deploy Solr to another web
-   server, such as Tomcat, if that's convenient on your operating system.
-
-#. Edit the Jetty configuration file (``/etc/default/jetty``) and change the
-   following variables::
-
-    NO_START=0            # (line 4)
-    JETTY_HOST=127.0.0.1  # (line 16)
-    JETTY_PORT=8983       # (line 19)
-
-   .. note::
-
-    This ``JETTY_HOST`` setting will only allow connections from the same machine.
-    If CKAN is not installed on the same machine as Jetty/Solr you will need to
-    change it to the relevant host or to 0.0.0.0 (and probably set up your firewall
-    accordingly).
-
-   Start the Jetty server::
-
-    sudo service jetty start
-
-   You should now see a welcome page from Solr if you open
-   http://localhost:8983/solr/ in your web browser (replace localhost with
-   your server address if needed).
-
-   .. note::
-
-    If you get the message ``Could not start Jetty servlet engine because no
-    Java Development Kit (JDK) was found.`` then you will have to edit the
-    ``JAVA_HOME`` setting in ``/etc/default/jetty`` to point to your machine's
-    JDK install location. For example::
-
-        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
-
-    or::
-
-        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
-
-#. Replace the default ``schema.xml`` file with a symlink to the CKAN schema
-   file included in the sources.
-
-   .. parsed-literal::
-
-      sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
-      sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-
-   Now restart Solr:
-
-   .. parsed-literal::
-
-      |restart_solr|
-
-   and check that Solr is running by opening http://localhost:8983/solr/.
-
-
-#. Finally, change the :ref:`solr_url` setting in your CKAN config file to
-   point to your Solr server, for example::
-
-       solr_url=http://127.0.0.1:8983/solr
 
 .. _postgres-init:
 
+----------------------
+6. Link to ``who.ini``
+----------------------
+
+``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
+same directory as your CKAN config file, so create a symlink to it:
+
+.. parsed-literal::
+
+    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
+
 -------------------------
-6. Create database tables
+7. Create database tables
 -------------------------
 
 Now that you have a configuration file that has the correct settings for your
@@ -342,7 +247,7 @@ You should see ``Initialising DB: SUCCESS``.
     See `4. Create a CKAN config file`_.
 
 -----------------------
-7. Set up the DataStore
+8. Set up the DataStore
 -----------------------
 
 .. note ::
@@ -353,17 +258,6 @@ You should see ``Initialising DB: SUCCESS``.
 Follow the instructions in :doc:`/maintaining/datastore` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
-
-----------------------
-8. Link to ``who.ini``
-----------------------
-
-``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
-same directory as your CKAN config file, so create a symlink to it:
-
-.. parsed-literal::
-
-    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
 
 ---------------
 9. You're done!
@@ -434,9 +328,13 @@ If ``javac`` isn't installed, do::
 
 and then restart Solr:
 
-.. parsed-literal::
+For Ubuntu 16.04::
 
-   |restart_solr|
+     sudo service jetty8 restart
+
+or for Ubuntu 14.04::
+
+     sudo service jetty restart
 
 AttributeError: 'module' object has no attribute 'css/main.debug.css'
 ---------------------------------------------------------------------
@@ -444,11 +342,21 @@ AttributeError: 'module' object has no attribute 'css/main.debug.css'
 This error is likely to show up when `debug` is set to `True`. To fix this
 error, install frontend dependencies. See :doc:`/contributing/frontend/index`.
 
-After installing the dependencies, run `bin/less` and then start paster server
+After installing the dependencies, run ``bin/less`` and then start paster server
 again.
 
 If you do not want to compile CSS, you can also copy the main.css to
-main.debug.css to get CKAN running.
+main.debug.css to get CKAN running::
 
     cp /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.css \
     /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.debug.css
+
+JSP support not configured
+--------------------------
+
+This is seen occasionally with Jetty and Ubuntu 14.04. It requires a solr-jetty fix::
+
+    cd /tmp
+    wget https://launchpad.net/~vshn/+archive/ubuntu/solr/+files/solr-jetty-jsp-fix_1.0.2_all.deb
+    sudo dpkg -i solr-jetty-jsp-fix_1.0.2_all.deb
+    sudo service jetty restart

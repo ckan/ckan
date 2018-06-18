@@ -3,19 +3,34 @@
 '''Unit tests for ckan/logic/auth/create.py.
 
 '''
+import __builtin__ as builtins
 
-from ckan.common import config
+import ckan
+import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins as p
+import ckan.tests.factories as factories
+import ckan.tests.helpers as helpers
 import mock
 import nose.tools
-
-import ckan.tests.helpers as helpers
-import ckan.tests.factories as factories
-import ckan.model as model
-import ckan.logic as logic
-import ckan.plugins as p
+from ckan.common import config
+from pyfakefs import fake_filesystem
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+assert_not_equals = nose.tools.assert_not_equals
+
+real_open = open
+fs = fake_filesystem.FakeFilesystem()
+fake_os = fake_filesystem.FakeOsModule(fs)
+fake_open = fake_filesystem.FakeFileOpen(fs)
+
+
+def mock_open_if_open_fails(*args, **kwargs):
+    try:
+        return real_open(*args, **kwargs)
+    except (OSError, IOError):
+        return fake_open(*args, **kwargs)
 
 
 class TestUserInvite(object):
@@ -55,8 +70,10 @@ class TestUserInvite(object):
     @mock.patch('ckan.lib.mailer.send_invite')
     @mock.patch('random.SystemRandom')
     def test_works_even_if_username_already_exists(self, rand, _):
-        rand.return_value.random.side_effect = [1000, 1000, 1000, 2000,
-                                                3000, 4000, 5000]
+        # usernames
+        rand.return_value.random.side_effect = [1000, 1000, 2000, 3000]
+        # passwords (need to set something, otherwise choice will break)
+        rand.return_value.choice.side_effect = 'TestPassword1' * 3
 
         for _ in range(3):
             invited_user = self._invite_user_to_group(email='same@email.com')
@@ -394,6 +411,13 @@ class TestCreateDefaultResourceViews(object):
 
 
 class TestResourceCreate(object):
+    import cgi
+
+    class FakeFileStorage(cgi.FieldStorage):
+        def __init__(self, fp, filename):
+            self.file = fp
+            self.filename = filename
+            self.name = 'upload'
 
     @classmethod
     def setup_class(cls):
@@ -442,6 +466,213 @@ class TestResourceCreate(object):
         stored_resource = helpers.call_action('resource_show', **data_dict)
 
         assert not stored_resource['url']
+
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_mimetype_by_url(self, mock_open):
+        '''
+        The mimetype is guessed from the url
+
+        Real world usage would be externally linking the resource and the mimetype would
+        be guessed, based on the url
+        '''
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://localhost/data.csv',
+            'name': 'A nice resource',
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+
+        assert mimetype
+        assert_equals(mimetype, 'text/csv')
+
+    def test_mimetype_by_user(self):
+        '''
+        The mimetype is supplied by the user
+
+        Real world usage would be using the FileStore API or web UI form to create a resource
+        and the user wanted to specify the mimetype themselves
+        '''
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://localhost/data.csv',
+            'name': 'A nice resource',
+            'mimetype': 'application/csv'
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+        assert_equals(mimetype, 'application/csv')
+
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_mimetype_by_upload_by_filename(self, mock_open):
+        '''
+        The mimetype is guessed from an uploaded file with a filename
+
+        Real world usage would be using the FileStore API or web UI form to upload a file, with a filename plus extension
+        If there's no url or the mimetype can't be guessed by the url, mimetype will be guessed by the extension in the filename
+        '''
+        import StringIO
+        test_file = StringIO.StringIO()
+        test_file.write('''
+        "info": {
+            "title": "BC Data Catalogue API",
+            "description": "This API provides information about datasets in the BC Data Catalogue.",
+            "termsOfService": "http://www.data.gov.bc.ca/local/dbc/docs/license/API_Terms_of_Use.pdf",
+            "contact": {
+                "name": "Data BC",
+                "url": "http://data.gov.bc.ca/",
+                "email": ""
+            },
+            "license": {
+                "name": "Open Government License - British Columbia",
+                "url": "http://www.data.gov.bc.ca/local/dbc/docs/license/OGL-vbc2.0.pdf"
+            },
+            "version": "3.0.0"
+        }
+        ''')
+        test_resource = TestResourceCreate.FakeFileStorage(test_file, 'test.json')
+
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'upload': test_resource
+        }
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+
+        assert mimetype
+        assert_equals(mimetype, 'application/json')
+
+    @helpers.change_config('ckan.mimetype_guess', 'file_contents')
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_mimetype_by_upload_by_file(self, mock_open):
+        '''
+        The mimetype is guessed from an uploaded file by the contents inside
+
+        Real world usage would be using the FileStore API or web UI form to upload a file, that has no extension
+        If the mimetype can't be guessed by the url or filename, mimetype will be guessed by the contents inside the file
+        '''
+        import StringIO
+        test_file = StringIO.StringIO()
+        test_file.write('''
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
+        NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
+        ''')
+        test_resource = TestResourceCreate.FakeFileStorage(test_file, '')
+
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'upload': test_resource
+        }
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            result = helpers.call_action('resource_create', context, **params)
+
+        mimetype = result.pop('mimetype')
+
+        assert mimetype
+        assert_equals(mimetype, 'text/plain')
+
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
+    def test_size_of_resource_by_upload(self, mock_open):
+        '''
+        The size of the resource determined by the uploaded file
+        '''
+        import StringIO
+        test_file = StringIO.StringIO()
+        test_file.write('''
+        Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
+        SKINS LAKE,1B05,890,2015/12/30,34,53,,98,16,JAN-01,54
+        MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
+        NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
+        ''')
+        test_resource = TestResourceCreate.FakeFileStorage(test_file, 'test.csv')
+
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'upload': test_resource
+        }
+
+        # Mock url_for as using a test request context interferes with the FS mocking
+        with mock.patch('ckan.lib.helpers.url_for'):
+            result = helpers.call_action('resource_create', context, **params)
+
+        size = result.pop('size')
+
+        assert size
+        assert size > 0
+
+    def test_size_of_resource_by_user(self):
+        '''
+        The size of the resource is provided by the users
+
+        Real world usage would be using the FileStore API and the user provides a size for the resource
+        '''
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+            'size': 500
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        size = int(result.pop('size'))
+        assert_equals(size, 500)
+
+    def test_extras(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        resource = helpers.call_action(
+            'resource_create',
+            package_id=dataset['id'],
+            somekey='somevalue',  # this is how to do resource extras
+            extras={u'someotherkey': u'alt234'},  # this isnt
+            format=u'plain text',
+            url=u'http://datahub.io/download/',
+        )
+
+        assert_equals(resource['somekey'], 'somevalue')
+        assert 'extras' not in resource
+        assert 'someotherkey' not in resource
+        resource = helpers.call_action(
+            'package_show', id=dataset['id'])['resources'][0]
+        assert_equals(resource['somekey'], 'somevalue')
+        assert 'extras' not in resource
+        assert 'someotherkey' not in resource
 
 
 class TestMemberCreate(object):
@@ -568,6 +799,173 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             id=dataset['id'],
             name='test-dataset',
         )
+
+    def test_name_not_changed_during_deletion(self):
+        dataset = factories.Dataset()
+        helpers.call_action('package_delete', id=dataset['id'])
+        deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(deleted_dataset['name'], dataset['name'])
+
+    def test_name_not_changed_after_restoring(self):
+        dataset = factories.Dataset()
+        context = {
+            'user': factories.Sysadmin()['name']
+        }
+        helpers.call_action('package_delete', id=dataset['id'])
+        deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
+        restored_dataset = helpers.call_action(
+            'package_patch', context=context, id=dataset['id'], state='active')
+        assert_equals(deleted_dataset['name'], restored_dataset['name'])
+        assert_equals(deleted_dataset['id'], restored_dataset['id'])
+
+    def test_creation_of_dataset_with_name_same_as_of_previously_removed(self):
+        dataset = factories.Dataset()
+        initial_name = dataset['name']
+        helpers.call_action('package_delete', id=dataset['id'])
+        new_dataset = helpers.call_action(
+            'package_create',
+            name=initial_name
+        )
+        assert_equals(new_dataset['name'], initial_name)
+        deleted_dataset = helpers.call_action('package_show', id=dataset['id'])
+
+        assert_not_equals(new_dataset['id'], deleted_dataset['id'])
+        assert_equals(deleted_dataset['name'], deleted_dataset['id'])
+
+    def test_missing_id(self):
+        assert_raises(
+            logic.ValidationError, helpers.call_action,
+            'package_create'
+        )
+
+    def test_name(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='some-name',
+        )
+
+        assert_equals(dataset['name'], 'some-name')
+        assert_equals(
+            helpers.call_action('package_show', id=dataset['id'])['name'],
+            'some-name')
+
+    def test_title(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test_title',
+            title='New Title',
+        )
+
+        assert_equals(dataset['title'], 'New Title')
+        assert_equals(
+            helpers.call_action('package_show', id=dataset['id'])['title'],
+            'New Title')
+
+    def test_extras(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-extras',
+            title='Test Extras',
+            extras=[{'key': u'original media',
+                     'value': u'"book"'}],
+        )
+
+        assert_equals(dataset['extras'][0]['key'], 'original media')
+        assert_equals(dataset['extras'][0]['value'], '"book"')
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(dataset['extras'][0]['key'], 'original media')
+        assert_equals(dataset['extras'][0]['value'], '"book"')
+
+    def test_license(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-license',
+            title='Test License',
+            license_id='other-open',
+        )
+
+        assert_equals(dataset['license_id'], 'other-open')
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(dataset['license_id'], 'other-open')
+
+    def test_notes(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-notes',
+            title='Test Notes',
+            notes='some notes',
+        )
+
+        assert_equals(dataset['notes'], 'some notes')
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        assert_equals(dataset['notes'], 'some notes')
+
+    def test_resources(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-resources',
+            title='Test Resources',
+            resources=[
+                {'alt_url': u'alt123',
+                 'description': u'Full text.',
+                 'somekey': 'somevalue',  # this is how to do resource extras
+                 'extras': {u'someotherkey': u'alt234'},  # this isnt
+                 'format': u'plain text',
+                 'hash': u'abc123',
+                 'position': 0,
+                 'url': u'http://datahub.io/download/'},
+                {'description': u'Index of the novel',
+                 'format': u'JSON',
+                 'position': 1,
+                 'url': u'http://datahub.io/index.json'}
+            ],
+        )
+
+        resources = dataset['resources']
+        assert_equals(resources[0]['alt_url'], 'alt123')
+        assert_equals(resources[0]['description'], 'Full text.')
+        assert_equals(resources[0]['somekey'], 'somevalue')
+        assert 'extras' not in resources[0]
+        assert 'someotherkey' not in resources[0]
+        assert_equals(resources[0]['format'], 'plain text')
+        assert_equals(resources[0]['hash'], 'abc123')
+        assert_equals(resources[0]['position'], 0)
+        assert_equals(resources[0]['url'], 'http://datahub.io/download/')
+        assert_equals(resources[1]['description'], 'Index of the novel')
+        assert_equals(resources[1]['format'], 'JSON')
+        assert_equals(resources[1]['url'], 'http://datahub.io/index.json')
+        assert_equals(resources[1]['position'], 1)
+        resources = helpers.call_action(
+            'package_show', id=dataset['id'])['resources']
+        assert_equals(resources[0]['alt_url'], 'alt123')
+        assert_equals(resources[0]['description'], 'Full text.')
+        assert_equals(resources[0]['somekey'], 'somevalue')
+        assert 'extras' not in resources[0]
+        assert 'someotherkey' not in resources[0]
+        assert_equals(resources[0]['format'], 'plain text')
+        assert_equals(resources[0]['hash'], 'abc123')
+        assert_equals(resources[0]['position'], 0)
+        assert_equals(resources[0]['url'], 'http://datahub.io/download/')
+        assert_equals(resources[1]['description'], 'Index of the novel')
+        assert_equals(resources[1]['format'], 'JSON')
+        assert_equals(resources[1]['url'], 'http://datahub.io/index.json')
+        assert_equals(resources[1]['position'], 1)
+
+    def test_tags(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-tags',
+            title='Test Tags',
+            tags=[{'name': u'russian'}, {'name': u'tolstoy'}],
+        )
+
+        tag_names = sorted([tag_dict['name']
+                            for tag_dict in dataset['tags']])
+        assert_equals(tag_names, ['russian', 'tolstoy'])
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        tag_names = sorted([tag_dict['name']
+                            for tag_dict in dataset['tags']])
+        assert_equals(tag_names, ['russian', 'tolstoy'])
 
 
 class TestGroupCreate(helpers.FunctionalTestBase):

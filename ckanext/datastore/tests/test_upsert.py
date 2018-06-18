@@ -15,23 +15,14 @@ import ckan.tests.factories as factories
 
 from ckan.common import config
 
-import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
+import ckanext.datastore.backend.postgres as db
+from ckanext.datastore.tests.helpers import (
+    set_url_type, DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
 
 assert_equal = nose.tools.assert_equal
 
 
-class TestDatastoreUpsertNewTests(object):
-    @classmethod
-    def setup_class(cls):
-        if not p.plugin_loaded('datastore'):
-            p.load('datastore')
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload('datastore')
-        helpers.reset_db()
-
+class TestDatastoreUpsertNewTests(DatastoreFunctionalTestBase):
     def test_upsert_doesnt_crash_with_json_field(self):
         resource = factories.Resource()
         data = {
@@ -77,15 +68,14 @@ class TestDatastoreUpsertNewTests(object):
         helpers.call_action('datastore_upsert', **data)
 
 
-class TestDatastoreUpsert(tests.WsgiAppCase):
+class TestDatastoreUpsert(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+        cls.app = helpers._get_test_app()
+        super(TestDatastoreUpsert, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -113,14 +103,8 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    @classmethod
-    def teardown_class(cls):
-        rebuild_all_dbs(cls.Session)
-        p.unload('datastore')
 
     def test_upsert_requires_auth(self):
         data = {
@@ -329,15 +313,14 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 
 
 
-class TestDatastoreInsert(tests.WsgiAppCase):
+class TestDatastoreInsert(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+        cls.app = helpers._get_test_app()
+        super(TestDatastoreInsert, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -365,14 +348,8 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload('datastore')
-        rebuild_all_dbs(cls.Session)
 
     def test_insert_non_existing_field(self):
         data = {
@@ -431,15 +408,14 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         assert results.rowcount == 3
 
 
-class TestDatastoreUpdate(tests.WsgiAppCase):
+class TestDatastoreUpdate(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-        if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+        cls.app = helpers._get_test_app()
+        super(TestDatastoreUpdate, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -472,14 +448,8 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload('datastore')
-        rebuild_all_dbs(cls.Session)
 
     def test_update_basic(self):
         c = self.Session.connection()

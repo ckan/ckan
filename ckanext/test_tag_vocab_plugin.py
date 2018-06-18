@@ -4,7 +4,7 @@
 Currently this is used in tests/functional/test_tag_vocab.py'''
 
 
-from pylons import request, tmpl_context as c
+from ckan.common import c
 from ckan.logic import get_action
 from ckan.logic.converters import convert_to_tags, convert_from_tags, free_tags_only
 from ckan.logic.schema import default_create_package_schema, default_update_package_schema, default_show_package_schema

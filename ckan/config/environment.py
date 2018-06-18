@@ -22,6 +22,7 @@ import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
+from ckan.lib.i18n import build_js_translations
 
 from ckan.common import _, ungettext, config
 from ckan.exceptions import CkanConfigurationException
@@ -68,9 +69,21 @@ def load_environment(global_conf, app_conf):
 
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    valid_base_public_folder_names = ['public', 'public-bs2']
+    static_files = app_conf.get('ckan.base_public_folder', 'public')
+    app_conf['ckan.base_public_folder'] = static_files
+
+    if static_files not in valid_base_public_folder_names:
+        raise CkanConfigurationException(
+            'You provided an invalid value for ckan.base_public_folder. '
+            'Possible values are: "public" and "public-bs2".'
+        )
+
+    log.info('Loading static files from %s' % static_files)
     paths = dict(root=root,
                  controllers=os.path.join(root, 'controllers'),
-                 static_files=os.path.join(root, 'public'),
+                 static_files=os.path.join(root, static_files),
                  templates=[])
 
     # Initialize main CKAN config object
@@ -81,7 +94,7 @@ def load_environment(global_conf, app_conf):
     pylons_config.init_app(global_conf, app_conf, package='ckan', paths=paths)
 
     # Update the main CKAN config object with the Pylons specific stuff, as it
-    # quite hard to keep them separated. This should be removed once Pylons
+    # is quite hard to keep them separated. This should be removed once Pylons
     # support is dropped
     config.update(pylons_config)
 
@@ -94,14 +107,24 @@ def load_environment(global_conf, app_conf):
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
+    # load all CKAN plugins
+    p.load_all()
+
     # Check Redis availability
     if not is_redis_available():
         log.critical('Could not connect to Redis.')
 
-    # load all CKAN plugins
-    p.load_all()
-
     app_globals.reset()
+
+    # issue #3260: remove idle transaction
+    # Session that was used for getting all config params nor committed,
+    # neither removed and we have idle connection as result
+    model.Session.commit()
+
+    # Build JavaScript translations. Must be done after plugins have
+    # been loaded.
+    build_js_translations()
+
 
 # A mapping of config settings that can be overridden by env vars.
 # Note: Do not remove the following lines, they are used in the docs
@@ -112,6 +135,8 @@ CONFIG_FROM_ENV_VARS = {
     'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
     'ckan.redis.url': 'CKAN_REDIS_URL',
     'solr_url': 'CKAN_SOLR_URL',
+    'solr_user': 'CKAN_SOLR_USER',
+    'solr_password': 'CKAN_SOLR_PASSWORD',
     'ckan.site_id': 'CKAN_SITE_ID',
     'ckan.site_url': 'CKAN_SITE_URL',
     'ckan.storage_path': 'CKAN_STORAGE_PATH',
@@ -120,7 +145,8 @@ CONFIG_FROM_ENV_VARS = {
     'smtp.starttls': 'CKAN_SMTP_STARTTLS',
     'smtp.user': 'CKAN_SMTP_USER',
     'smtp.password': 'CKAN_SMTP_PASSWORD',
-    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM'
+    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM',
+    'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB'
 }
 # End CONFIG_FROM_ENV_VARS
 
@@ -209,14 +235,26 @@ def update_config():
     helpers.load_plugin_helpers()
     config['pylons.h'] = helpers.helper_functions
 
-    jinja2_templates_path = os.path.join(root, 'templates')
+    # Templates and CSS loading from configuration
+    valid_base_templates_folder_names = ['templates', 'templates-bs2']
+    templates = config.get('ckan.base_templates_folder', 'templates')
+    config['ckan.base_templates_folder'] = templates
+
+    if templates not in valid_base_templates_folder_names:
+        raise CkanConfigurationException(
+            'You provided an invalid value for ckan.base_templates_folder. '
+            'Possible values are: "templates" and "templates-bs2".'
+        )
+
+    jinja2_templates_path = os.path.join(root, templates)
+    log.info('Loading templates from %s' % jinja2_templates_path)
     template_paths = [jinja2_templates_path]
 
     extra_template_paths = config.get('extra_template_paths', '')
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
-    config['pylons.app_globals'].template_paths = template_paths
+    config['computed_template_paths'] = template_paths
 
     # Set the default language for validation messages from formencode
     # to what is set as the default locale in the config
@@ -231,21 +269,10 @@ def update_config():
 
     # Create Jinja2 environment
     env = jinja_extensions.Environment(
-        loader=jinja_extensions.CkanFileSystemLoader(template_paths),
-        autoescape=True,
-        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
-                    jinja_extensions.SnippetExtension,
-                    jinja_extensions.CkanExtend,
-                    jinja_extensions.CkanInternationalizationExtension,
-                    jinja_extensions.LinkForExtension,
-                    jinja_extensions.ResourceExtension,
-                    jinja_extensions.UrlForStaticExtension,
-                    jinja_extensions.UrlForExtension]
-    )
+        **jinja_extensions.get_jinja_env_options())
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
     env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
-    env.filters['truncate'] = jinja_extensions.truncate
     config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
@@ -278,6 +305,8 @@ def update_config():
     except sqlalchemy.exc.InternalError:
         # The database is not initialised.  Travis hits this
         pass
-    # if an extension or our code does not finish
-    # transaction properly db cli commands can fail
+
+    # Close current session and open database connections to ensure a clean
+    # clean environment even if an error occurs later on
     model.Session.remove()
+    model.Session.bind.dispose()

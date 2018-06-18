@@ -1,0 +1,36 @@
+# Manually maintained helper file for `ckan/tests/lib/test_i18n.py`.
+
+msgid ""
+msgstr ""
+"Project-Id-Version: ckan 2.5.0b\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2015-11-26 13:42+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.1.1\n"
+
+# Overriding a JS translation from CKAN core
+#: ckan/public/base/javascript/modules/activity-stream.js:20
+#: ckan/public/base/javascript/modules/popover-context.js:45
+#: ckan/templates/package/snippets/data_api_button.html:8
+#: ckan/templates/tests/mock_json_resource_preview_template.html:7
+#: ckan/templates/tests/mock_resource_preview_template.html:7
+#: ckanext/reclineview/theme/templates/recline_view.html:12
+#: ckanext/textview/theme/templates/text_view.html:9
+msgid "Loading..."
+msgstr ""
+
+# Introducing a (fake) JS translation string that doesn't occur in CKAN core
+#: ckanext/test_js_translations/does-not-exist.js:1
+msgid "Test JS Translations 1"
+msgstr ""
+
+# Introducing a (fake) translation string that doesn't occur in JS
+#: ckanext/test_js_translations/does-not-exist.py:1
+msgid "Test JS Translations 2"
+msgstr ""
+

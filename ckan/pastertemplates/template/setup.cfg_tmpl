@@ -1,21 +1,21 @@
 [extract_messages]
 keywords = translate isPlural
 add_comments = TRANSLATORS:
-output_file = i18n/ckanext-{{ project_shortname }}.pot
+output_file = ckanext/{{ project_shortname }}/i18n/ckanext-{{ project_shortname }}.pot
 width = 80
 
 [init_catalog]
 domain = ckanext-{{ project_shortname }}
-input_file = i18n/ckanext-{{ project_shortname }}.pot
-output_dir = i18n
+input_file = ckanext/{{ project_shortname }}/i18n/ckanext-{{ project_shortname }}.pot
+output_dir = ckanext/{{ project_shortname }}/i18n
 
 [update_catalog]
 domain = ckanext-{{ project_shortname }}
-input_file = i18n/ckanext-{{ project_shortname }}.pot
-output_dir = i18n
+input_file = ckanext/{{ project_shortname }}/i18n/ckanext-{{ project_shortname }}.pot
+output_dir = ckanext/{{ project_shortname }}/i18n
 previous = true
 
 [compile_catalog]
 domain = ckanext-{{ project_shortname }}
-directory = i18n
+directory = ckanext/{{ project_shortname }}/i18n
 statistics = true

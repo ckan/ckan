@@ -4,25 +4,18 @@
 
 '''
 import copy
-import fractions
 import decimal
+import fractions
 import warnings
-
-import mock
-import nose.tools
-
-# Import some test helper functions from another module.
-# This is bad (test modules shouldn't share code with eachother) but because of
-# the way validator functions are organised in CKAN (in different modules in
-# different places in the code) we have to either do this or introduce a shared
-# test helper functions module (which we also don't want to do).
-import ckan.tests.lib.navl.test_validators as t
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
+import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-import ckan.model as model
+import ckan.tests.lib.navl.test_validators as t
+import mock
+import nose.tools
 
 assert_equals = nose.tools.assert_equals
 
@@ -158,7 +151,7 @@ class TestValidators(object):
             # Non-string names aren't allowed as names.
             13,
             23.7,
-            100L,
+            100,
             1.0j,
             None,
             True,
@@ -226,7 +219,7 @@ class TestValidators(object):
                 return validators.name_validator(*args, **kwargs)
             call_validator(valid_name)
 
-    ## START-AFTER
+    # START-AFTER
 
     def test_user_name_validator_with_non_string_value(self):
         '''user_name_validator() should raise Invalid if given a non-string
@@ -236,7 +229,7 @@ class TestValidators(object):
         non_string_values = [
             13,
             23.7,
-            100L,
+            100,
             1.0j,
             None,
             True,
@@ -265,7 +258,7 @@ class TestValidators(object):
                 return validators.user_name_validator(*args, **kwargs)
             call_validator(key, data, errors, context={'model': mock_model})
 
-    ## END-BEFORE
+    # END-BEFORE
 
     def test_user_name_validator_with_a_name_that_already_exists(self):
         '''user_name_validator() should add to the errors dict if given a
@@ -592,5 +585,30 @@ class TestExistsValidator(helpers.FunctionalTestBase):
         v = validators.role_exists('', ctx)
 
 
-#TODO: Need to test when you are not providing owner_org and the validator
-#      queries for the dataset with package_show
+class TestPasswordValidator(object):
+
+    def test_ok(self):
+        passwords = ['MyPassword1', 'my1Password', '1PasswordMY']
+        key = ('password',)
+
+        @t.does_not_modify_errors_dict
+        def call_validator(*args, **kwargs):
+            return validators.user_password_validator(*args, **kwargs)
+        for password in passwords:
+            errors = factories.validator_errors_dict()
+            errors[key] = []
+            call_validator(key, {key: password}, errors, None)
+
+    def test_too_short(self):
+        password = 'MyPass1'
+        key = ('password',)
+
+        @adds_message_to_errors_dict('Your password must be 8 characters or '
+                                     'longer')
+        def call_validator(*args, **kwargs):
+            return validators.user_password_validator(*args, **kwargs)
+        errors = factories.validator_errors_dict()
+        errors[key] = []
+        call_validator(key, {key: password}, errors, None)
+
+# TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show

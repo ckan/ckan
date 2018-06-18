@@ -1,7 +1,7 @@
-/* Image Upload
+ /* Image Upload
  *
  */
-this.ckan.module('image-upload', function($, _) {
+this.ckan.module('image-upload', function($) {
   return {
     /* options object can be extended using data-module-* attributes */
     options: {
@@ -11,17 +11,7 @@ this.ckan.module('image-upload', function($, _) {
       field_url: 'image_url',
       field_clear: 'clear_upload',
       field_name: 'name',
-      upload_label: '',
-      i18n: {
-        upload: _('Upload'),
-        url: _('Link'),
-        remove: _('Remove'),
-        upload_label: _('Image'),
-        label_for_url: _('URL'),
-        label_for_upload: _('File'),
-        upload_tooltip: _('Upload a file on your computer'),
-        url_tooltip: _('Link to a URL on the internet (you can also link to an API)')
-      }
+      upload_label: ''
     },
 
     /* Should be changed to true if user modifies resource's name
@@ -45,8 +35,8 @@ this.ckan.module('image-upload', function($, _) {
       var field_name = 'input[name="' + options.field_name + '"]';
 
       this.input = $(field_upload, this.el);
-      this.field_url = $(field_url, this.el).parents('.control-group');
-      this.field_image = this.input.parents('.control-group');
+      this.field_url = $(field_url, this.el).parents('.form-group');
+      this.field_image = this.input.parents('.form-group');
       this.field_url_input = $('input', this.field_url);
       this.field_name = this.el.parents('form').find(field_name);
       // this is the location for the upload/link data/image label
@@ -57,38 +47,44 @@ this.ckan.module('image-upload', function($, _) {
       // Is there a clear checkbox on the form already?
       var checkbox = $(field_clear, this.el);
       if (checkbox.length > 0) {
-        checkbox.parents('.control-group').remove();
+        checkbox.parents('.form-group').remove();
       }
 
       // Adds the hidden clear input to the form
-      this.field_clear = $('<input type="hidden" name="clear_upload">')
+      this.field_clear = $('<input type="hidden" name="' + options.field_clear +'">')
         .appendTo(this.el);
 
       // Button to set the field to be a URL
-      this.button_url = $('<a href="javascript:;" class="btn"><i class="icon-globe"></i>'+this.i18n('url')+'</a>')
-        .prop('title', this.i18n('url_tooltip'))
+      this.button_url = $('<a href="javascript:;" class="btn btn-default">' +
+                          '<i class="fa fa-globe"></i>' +
+                          this._('Link') + '</a>')
+        .prop('title', this._('Link to a URL on the internet (you can also link to an API)'))
         .on('click', this._onFromWeb)
         .insertAfter(this.input);
 
       // Button to attach local file to the form
-      this.button_upload = $('<a href="javascript:;" class="btn"><i class="icon-cloud-upload"></i>'+this.i18n('upload')+'</a>')
+      this.button_upload = $('<a href="javascript:;" class="btn btn-default">' +
+                             '<i class="fa fa-cloud-upload"></i>' +
+                             this._('Upload') + '</a>')
         .insertAfter(this.input);
 
       // Button for resetting the form when there is a URL set
-      $('<a href="javascript:;" class="btn btn-danger btn-remove-url">'+this.i18n('remove')+'</a>')
-        .prop('title', this.i18n('remove'))
+      var removeText = this._('Remove');
+      $('<a href="javascript:;" class="btn btn-danger btn-remove-url">'
+        + removeText + '</a>')
+        .prop('title', removeText)
         .on('click', this._onRemove)
         .insertBefore(this.field_url_input);
 
       // Update the main label (this is displayed when no data/image has been uploaded/linked)
-      $('label[for="field-image-upload"]').text(options.upload_label || this.i18n('upload_label'));
+      $('label[for="field-image-upload"]').text(options.upload_label || this._('Image'));
 
       // Setup the file input
       this.input
         .on('mouseover', this._onInputMouseOver)
         .on('mouseout', this._onInputMouseOut)
         .on('change', this._onInputChange)
-        .prop('title', this.i18n('upload_tooltip'))
+        .prop('title', this._('Upload a file on your computer'))
         .css('width', this.button_upload.outerWidth());
 
       // Fields storage. Used in this.changeState
@@ -111,7 +107,7 @@ this.ckan.module('image-upload', function($, _) {
       if (options.is_url) {
         this._showOnlyFieldUrl();
 
-        this._updateUrlLabel(this.i18n('label_for_url'));
+        this._updateUrlLabel(this._('URL'));
       } else if (options.is_upload) {
         this._showOnlyFieldUrl();
 
@@ -120,7 +116,7 @@ this.ckan.module('image-upload', function($, _) {
         var filename = this._fileNameFromUpload(this.field_url_input.val());
         this.field_url_input.val(filename);
 
-        this._updateUrlLabel(this.i18n('label_for_upload'));
+        this._updateUrlLabel(this._('File'));
       } else {
         this._showOnlyButtons();
       }
@@ -133,6 +129,11 @@ this.ckan.module('image-upload', function($, _) {
      * Returns String.
      */
     _fileNameFromUpload: function(url) {
+      // If it's a local CKAN image return the entire URL.
+      if (/^\/base\/images/.test(url)) {
+        return url;
+      }
+
       // remove fragment (#)
       url = url.substring(0, (url.indexOf("#") === -1) ? url.length : url.indexOf("#"));
       // remove query string
@@ -174,7 +175,7 @@ this.ckan.module('image-upload', function($, _) {
         this.field_clear.val('true');
       }
 
-      this._updateUrlLabel(this.i18n('label_for_url'));
+      this._updateUrlLabel(this._('URL'));
     },
 
     /* Event listener for resetting the field back to the blank state
@@ -205,7 +206,7 @@ this.ckan.module('image-upload', function($, _) {
 
       this._autoName(file_name);
 
-      this._updateUrlLabel(this.i18n('label_for_upload'));
+      this._updateUrlLabel(this._('File'));
     },
 
     /* Show only the buttons, hiding all others

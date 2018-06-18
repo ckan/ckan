@@ -17,8 +17,8 @@ continues as normal (just as if the generated reStructuredText had been entered
 into plugins-toolkit.rst manually before running Sphinx).
 
 '''
-import types
 import inspect
+import types
 
 import ckan.plugins.toolkit as toolkit
 
@@ -184,4 +184,4 @@ def source_read(app, docname, source):
     source[0] += source_
 
     # This is useful for debugging the generated RST.
-    #open('/tmp/source', 'w').write(source[0])
+    # open('/tmp/source', 'w').write(source[0])

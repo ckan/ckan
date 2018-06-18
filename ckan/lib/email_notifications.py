@@ -192,7 +192,7 @@ def get_and_send_notifications_for_user(user):
             'ckan.email_notifications_since', '2 days')
     email_notifications_since = string_to_timedelta(
             email_notifications_since)
-    email_notifications_since = (datetime.datetime.now()
+    email_notifications_since = (datetime.datetime.utcnow()
             - email_notifications_since)
 
     # FIXME: We are accessing model from lib here but I'm not sure what
@@ -214,7 +214,7 @@ def get_and_send_notifications_for_user(user):
     # else to do unless we add a update_email_last_sent()
     # logic function which would only be needed by this lib.
     dash = model.Dashboard.get(user['id'])
-    dash.email_last_sent = datetime.datetime.now()
+    dash.email_last_sent = datetime.datetime.utcnow()
     model.repo.commit()
 
 

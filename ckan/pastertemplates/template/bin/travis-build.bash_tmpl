@@ -5,7 +5,7 @@ echo "This is travis-build.bash..."
 
 echo "Installing the packages that CKAN requires..."
 sudo apt-get update -qq
-sudo apt-get install postgresql-$PGVERSION solr-jetty libcommons-fileupload-java:amd64=1.2.2-1
+sudo apt-get install solr-jetty
 
 echo "Installing CKAN and its Python dependencies..."
 git clone https://github.com/ckan/ckan

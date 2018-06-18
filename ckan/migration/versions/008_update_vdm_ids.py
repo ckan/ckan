@@ -41,7 +41,10 @@ def drop_constraints_and_alter_types():
                     dropped_fk_constraints.append((constraint.columns, foreign_key_cols, constraint.name, table.name))
 
     # 2 alter type of revision id and foreign keys
-                    id_col = constraint.table.columns[constraint.columns[0]]
+                    # Sanity check
+                    if len(constraint.columns.keys()) != 1:
+                        raise ValueError()
+                    id_col = constraint.table.columns[constraint.columns.keys()[0]]
                     id_col.alter(type=UnicodeText)
 
     revision_table = Table('revision', metadata, autoload=True)
@@ -65,12 +68,16 @@ def upgrade2(migrate_engine, dropped_fk_constraints):
 
         # So we create via hand ...
         constraint_columns, foreign_key_cols, constraint_name, table_name = fk_constraint
+        # Sanity check
+        if len(constraint_columns.keys()) != 1:
+            raise ValueError()
+
         oursql = '''ALTER TABLE %(table)s
             ADD CONSTRAINT %(fkeyname)s
             FOREIGN KEY (%(col_name)s)
             REFERENCES revision (id)
             ''' % {'table':table_name, 'fkeyname':constraint_name,
-                    'col_name':constraint_columns[0] }
+                    'col_name':constraint_columns.keys()[0] }
         migrate_engine.execute(oursql)
 
     # 4 create uuids for revisions and in related tables

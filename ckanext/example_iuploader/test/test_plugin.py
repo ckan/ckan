@@ -10,7 +10,7 @@ from nose.tools import (
     assert_is_instance
 )
 from pyfakefs import fake_filesystem
-from routes import url_for
+from ckan.lib.helpers import url_for
 
 import ckan.lib.uploader
 import ckan.model as model

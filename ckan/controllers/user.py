@@ -1,10 +1,10 @@
 # encoding: utf-8
 
 import logging
-from urllib import quote
 
 from ckan.common import config
 from paste.deploy.converters import asbool
+from six import text_type
 
 import ckan.lib.base as base
 import ckan.model as model
@@ -18,7 +18,7 @@ import ckan.lib.navl.dictization_functions as dictization_functions
 import ckan.lib.authenticator as authenticator
 import ckan.plugins as p
 
-from ckan.common import _, c, g, request, response
+from ckan.common import _, c, request, response
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class UserController(base.BaseController):
             if c.action not in ('login', 'request_reset', 'perform_reset',):
                 abort(403, _('Not authorized to see this page'))
 
-    ## hooks for subclasses
+    # hooks for subclasses
     new_user_form = 'user/new_user_form.html'
     edit_user_form = 'user/edit_user_form.html'
 
@@ -80,7 +80,8 @@ class UserController(base.BaseController):
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
-            abort(404, _('User not found'))
+            h.flash_error(_('Not authorized to see this page'))
+            h.redirect_to(controller='user', action='login')
         except NotAuthorized:
             abort(403, _('Not authorized to see this page'))
 
@@ -88,7 +89,7 @@ class UserController(base.BaseController):
         c.is_myself = user_dict['name'] == c.user
         c.about_formatted = h.render_markdown(user_dict['about'])
 
-    ## end hooks
+    # end hooks
 
     def _get_repoze_handler(self, handler_name):
         '''Returns the URL that repoze.who will respond to and perform a
@@ -178,7 +179,7 @@ class UserController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to create a user'))
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_new(context)
 
         if c.user and not data and not authz.is_sysadmin(c.user):
@@ -243,7 +244,7 @@ class UserController(base.BaseController):
             user = get_action('user_create')(context, data_dict)
         except NotAuthorized:
             abort(403, _('Unauthorized to create user %s') % '')
-        except NotFound, e:
+        except NotFound as e:
             abort(404, _('User not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
@@ -251,14 +252,14 @@ class UserController(base.BaseController):
             error_msg = _(u'Bad Captcha. Please try again.')
             h.flash_error(error_msg)
             return self.new(data_dict)
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
         if not c.user:
             # log the user in programatically
             set_repoze_user(data_dict['name'])
-            h.redirect_to(controller='user', action='me', __ckan_no_root=True)
+            h.redirect_to(controller='user', action='me')
         else:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
@@ -292,7 +293,7 @@ class UserController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to edit a user.'))
 
-        if (context['save']) and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_edit(id, context)
 
         try:
@@ -373,11 +374,11 @@ class UserController(base.BaseController):
             h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
             abort(403, _('Unauthorized to edit user %s') % id)
-        except NotFound, e:
+        except NotFound as e:
             abort(404, _('User not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             return self.edit(id, data_dict, errors, error_summary)
@@ -397,8 +398,7 @@ class UserController(base.BaseController):
         if not c.user:
             came_from = request.params.get('came_from')
             if not came_from:
-                came_from = h.url_for(controller='user', action='logged_in',
-                                      __ckan_no_root=True)
+                came_from = h.url_for(controller='user', action='logged_in')
             c.login_handler = h.url_for(
                 self._get_repoze_handler('login_handler_path'),
                 came_from=came_from)
@@ -436,10 +436,9 @@ class UserController(base.BaseController):
         # Do any plugin logout stuff
         for item in p.PluginImplementations(p.IAuthenticator):
             item.logout()
-        url = h.url_for(controller='user', action='logged_out_page',
-                        __ckan_no_root=True)
+        url = h.url_for(controller='user', action='logged_out_page')
         h.redirect_to(self._get_repoze_handler('logout_handler_path') +
-                      '?came_from=' + url)
+                      '?came_from=' + url, parse_url=True)
 
     def logged_out(self):
         # redirect if needed
@@ -499,9 +498,9 @@ class UserController(base.BaseController):
                     h.flash_success(_('Please check your inbox for '
                                     'a reset code.'))
                     h.redirect_to('/')
-                except mailer.MailerException, e:
+                except mailer.MailerException as e:
                     h.flash_error(_('Could not send reset link: %s') %
-                                  unicode(e))
+                                  text_type(e))
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
@@ -520,7 +519,7 @@ class UserController(base.BaseController):
             user_dict = get_action('user_show')(context, data_dict)
 
             user_obj = context['user_obj']
-        except NotFound, e:
+        except NotFound as e:
             abort(404, _('User not found'))
 
         c.reset_key = request.params.get('key')
@@ -531,8 +530,12 @@ class UserController(base.BaseController):
         if request.method == 'POST':
             try:
                 context['reset_password'] = True
+                user_state = user_dict['state']
                 new_password = self._get_form_password()
                 user_dict['password'] = new_password
+                username = request.params.get('name')
+                if (username is not None and username != ''):
+                    user_dict['name'] = username
                 user_dict['reset_key'] = c.reset_key
                 user_dict['state'] = model.State.ACTIVE
                 user = get_action('user_update')(context, user_dict)
@@ -542,14 +545,15 @@ class UserController(base.BaseController):
                 h.redirect_to('/')
             except NotAuthorized:
                 h.flash_error(_('Unauthorized to edit user %s') % id)
-            except NotFound, e:
+            except NotFound as e:
                 h.flash_error(_('User not found'))
             except DataError:
                 h.flash_error(_(u'Integrity Error'))
-            except ValidationError, e:
+            except ValidationError as e:
                 h.flash_error(u'%r' % e.error_dict)
-            except ValueError, ve:
-                h.flash_error(unicode(ve))
+            except ValueError as ve:
+                h.flash_error(text_type(ve))
+            user_dict['state'] = user_state
 
         c.user_dict = user_dict
         return render('user/perform_reset.html')

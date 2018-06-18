@@ -10,8 +10,8 @@ searching first to see if there's already an issue for your bug).
 If you can fix the bug yourself, please
 :doc:`send a pull request <pull-requests>`!
 
-Do not use an issue to ask how to do something - for that use StackOverflow
-with the 'ckan' tag.
+Do not use an issue to ask how to do something - for that use `StackOverflow
+with the 'ckan' tag <https://stackoverflow.com/questions/tagged/ckan>`_.
 
 Do not use an issue to suggest an significant change to CKAN - instead create
 an issue at https://github.com/ckan/ideas-and-roadmap.

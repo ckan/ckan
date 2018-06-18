@@ -17,14 +17,14 @@ current coding standards.  Please add comments by files that fail if there
 are legitimate reasons for the failure.
 '''
 
-import sys
-import os
-import re
 import cStringIO
 import inspect
 import itertools
+import os
+import re
+import sys
 
-import pep8
+import pycodestyle
 
 file_path = os.path.dirname(__file__)
 base_path = os.path.abspath(os.path.join(file_path, '..', '..', '..'))
@@ -520,7 +520,6 @@ class TestPep8(object):
         'ckan/tests/legacy/ckantestplugins.py',
         'ckan/tests/legacy/functional/api/base.py',
         'ckan/tests/legacy/functional/api/model/test_group.py',
-        'ckan/tests/legacy/functional/api/model/test_licenses.py',
         'ckan/tests/legacy/functional/api/model/test_package.py',
         'ckan/tests/legacy/functional/api/model/test_ratings.py',
         'ckan/tests/legacy/functional/api/model/test_relationships.py',
@@ -553,6 +552,7 @@ class TestPep8(object):
         'ckan/tests/legacy/functional/test_search.py',
         'ckan/tests/legacy/functional/test_tag.py',
         'ckan/tests/legacy/functional/test_tag_vocab.py',
+        'ckan/tests/legacy/functional/test_tracking.py',
         'ckan/tests/legacy/functional/test_upload.py',
         'ckan/tests/legacy/functional/test_user.py',
         'ckan/tests/legacy/html_check.py',
@@ -599,7 +599,6 @@ class TestPep8(object):
         'ckan/websetup.py',
         'ckanext/datastore/bin/datastore_setup.py',
         'ckanext/datastore/logic/action.py',
-        'ckanext/datastore/plugin.py',
         'ckanext/datastore/tests/test_create.py',
         'ckanext/datastore/tests/test_search.py',
         'ckanext/datastore/tests/test_upsert.py',
@@ -610,7 +609,6 @@ class TestPep8(object):
         'ckanext/stats/controller.py',
         'ckanext/stats/plugin.py',
         'ckanext/stats/stats.py',
-        'ckanext/stats/tests/__init__.py',
         'ckanext/stats/tests/test_stats_lib.py',
         'ckanext/stats/tests/test_stats_plugin.py',
         'ckanext/test_tag_vocab_plugin.py',
@@ -660,8 +658,8 @@ class TestPep8(object):
             if cls._is_test(filename):
                 config['ignore'] = ['E501']
 
-            checker = pep8.Checker(filename=filename, lines=lines,
-                                   **config)
+            checker = pycodestyle.Checker(filename=filename, lines=lines,
+                                          **config)
             checker.check_all()
             output = sys.stdout.getvalue()
         finally:
@@ -695,8 +693,6 @@ class TestActionAuth(object):
         'create: follow_dataset',
         'create: follow_group',
         'create: follow_user',
-        'create: package_relationship_create_rest',
-        'delete: package_relationship_delete_rest',
         'delete: unfollow_dataset',
         'delete: unfollow_group',
         'delete: unfollow_user',
@@ -730,7 +726,6 @@ class TestActionAuth(object):
         'get: user_activity_list_html',
         'get: user_followee_count',
         'get: user_follower_count',
-        'update: package_relationship_update_rest',
         'update: task_status_update_many',
         'update: term_translation_update_many',
     ]
@@ -739,7 +734,6 @@ class TestActionAuth(object):
         'create: file_upload',
         'delete: revision_delete',
         'delete: revision_undelete',
-        'get: group_autocomplete',
         'get: group_list_available',
         'get: sysadmin',
         'get: request_reset',
@@ -751,17 +745,7 @@ class TestActionAuth(object):
     ]
 
     ACTION_NO_DOC_STR_BLACKLIST = [
-        'create: group_create_rest',
-        'create: package_create_rest',
-        'create: package_relationship_create_rest',
-        'delete: package_relationship_delete_rest',
         'get: get_site_user',
-        'get: group_show_rest',
-        'get: package_show_rest',
-        'get: tag_show_rest',
-        'update: group_update_rest',
-        'update: package_relationship_update_rest',
-        'update: package_update_rest',
     ]
 
     done = False
@@ -826,9 +810,9 @@ class TestActionAuth(object):
         errors = []
         for name, fn in self.actions.iteritems():
             args_info = inspect.getargspec(fn)
-            if (args_info.args != ['context', 'data_dict']
-                    or args_info.varargs is not None
-                    or args_info.keywords is not None):
+            if args_info.args != ['context', 'data_dict'] \
+                    or args_info.varargs is not None \
+                    or args_info.keywords is not None:
                 if name not in self.ACTION_FN_SIGNATURES_BLACKLIST:
                     errors.append(name)
         assert not errors, 'These action functions have the wrong function' + \

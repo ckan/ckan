@@ -46,11 +46,15 @@ Setting up the DataStore
 
 .. note::
 
-   The DataStore requires PostgreSQL 9.0 or later. It is possible to use the
-   DataStore on versions prior to 9.0 (for example 8.4). However, the
-   :meth:`~ckanext.datastore.logic.action.datastore_search_sql` will not be
-   available and the set-up is slightly different. Make sure, you read
-   :ref:`legacy-mode` for more details.
+   The DataStore (like CKAN) requires |postgres| 9.2 or later. This was
+   released in 2012, is widely available. At the time of writing, the only version
+   that is not supported by CKAN that has not been made 'end-of-life' by the
+   |postgres| community is 9.1.
+
+.. versionchanged:: 2.6
+
+   Previous CKAN (and DataStore) versions were compatible with earlier versions
+   of |postgres|.
 
 1. Enable the plugin
 ====================
@@ -116,10 +120,10 @@ if necessary, for example:
 Replace ``pass`` with the passwords you created for your |database_user| and
 |datastore_user| database users.
 
+.. _datastore-set-permissions:
+
 Set permissions
 ---------------
-
-.. tip:: See :ref:`legacy-mode` if these steps continue to fail or seem too complicated for your set-up. However, keep in mind that the legacy mode is limited in its capabilities.
 
 Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a paster command to help you correctly set these permissions.
 
@@ -139,7 +143,7 @@ Then you can use this connection to set the permissions::
 .. note::
    If you performed a source install, you will need to replace all references to
    ``sudo ckan ...`` with ``paster --plugin=ckan ...`` and provide the path to
-   the config file, e.g. ``paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/development.ini``
+   the config file, e.g. ``paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/development.ini | sudo -u postgres psql --set ON_ERROR_STOP=1``
 
 If your database server is not local, but you can access it over SSH, you can
 pipe the permissions script over SSH::
@@ -188,29 +192,6 @@ You can now delete the DataStore table with::
 To find out more about the DataStore API, see `The DataStore API`_.
 
 
-.. _legacy-mode:
-
-Legacy mode: use the DataStore with old PostgreSQL versions
-===========================================================
-
-.. tip:: The legacy mode can also be used to simplify the set-up since it does not require you to set the permissions or create a separate user.
-
-The DataStore can be used with a PostgreSQL version prior to 9.0 in *legacy mode*. Due to the lack of some functionality, the :meth:`~ckanext.datastore.logic.action.datastore_search_sql` and consequently the :ref:`datastore_search_htsql` cannot be used. To enable the legacy mode, remove the declaration of the ``ckan.datastore.read_url``.
-
-The set-up for legacy mode is analogous to the normal set-up as described above with a few changes and consists of the following steps:
-
-1. Enable the plugin
-2. The legacy mode is enabled by **not** setting the ``ckan.datastore.read_url``
-#. Set-Up the database
-
-   a) Create a separate database
-   #) Create a write user on the DataStore database (optional since the CKAN user can be used)
-
-#. Test the set-up
-
-There is no need for a read-only user or special permissions. Therefore the legacy mode can be used for simple set-ups as well.
-
-
 ---------------------------------------------------
 DataPusher: Automatically Add Data to the DataStore
 ---------------------------------------------------
@@ -226,6 +207,51 @@ alongside CKAN.
 
 To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
 
+.. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
+   not support duplicate column headers. That includes blank column headings.
+
+.. _data_dictionary:
+
+---------------
+Data Dictionary
+---------------
+
+DataStore columns may be described with a Data Dictionary. A Data Dictionary tab
+will appear when editing any resource with a DataStore table.
+The Data Dictionary form allows entering the following values for
+each column:
+
+* **Type Override:** the type to be used the next time DataPusher is run to load
+  data into this column
+* **Label:** a human-friendly label for this column
+* **Description:** a full description for this column in markdown format
+
+Extension developers may add new fields to this form by overriding the default
+Data Dictionary form template ``datastore/snippets/dictionary_form.html``.
+
+The Data Dictionary is set through the API as part of the :ref:`fields` passed
+to :meth:`~ckanext.datastore.logic.action.datastore_create` and
+returned from :meth:`~ckanext.datastore.logic.action.datastore_search`.
+
+
+.. _dump:
+
+---------------------
+Downloading Resources
+---------------------
+
+A DataStore resource can be downloaded in the `CSV`_ file format from ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}``.
+
+For an Excel-compatible CSV file use ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?bom=true``.
+
+Other formats supported include tab-separated values (``?format=tsv``),
+JSON (``?format=json``) and XML (``?format=xml``). E.g. to download an Excel-compatible
+tab-separated file use
+``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?format=tsv&bom=true``.
+
+.. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
+
+
 
 -----------------
 The DataStore API
@@ -240,6 +266,10 @@ across DataStore resources.
 Data can be written incrementally to the DataStore through the API. New data can be
 inserted, existing data can be updated or deleted. You can also add a new column to
 an existing table even if the DataStore resource already contains some data.
+
+Triggers may be added to enforce validation, clean data as it is loaded or
+even record histories. Triggers are PL/pgSQL functions that must be
+created by a sysadmin.
 
 You will notice that we tried to keep the layer between the underlying PostgreSQL
 database and the API as thin as possible to allow you to use the features you would
@@ -269,16 +299,6 @@ API reference
    :members:
 
 
-.. _dump:
-
-Download resource as CSV
-------------------------
-
-A DataStore resource can be downloaded in the `CSV`_ file format from ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}``.
-
-.. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
-
-
 .. _fields:
 
 Fields
@@ -287,22 +307,40 @@ Fields
 Fields define the column names and the type of the data in a column. A field is defined as follows::
 
     {
-        "id":    # a string which defines the column name
+        "id":  # the column name (required)
         "type":  # the data type for the column
+        "info": {
+            "label":  # human-readable label for column
+            "notes":  # markdown description of column
+            "type_override":  # type for datapusher to use when importing data
+            ...:  # other user-defined fields
+	}
     }
 
-Field **types are optional** and will be guessed by the DataStore from the provided data. However, setting the types ensures that future inserts will not fail because of wrong types. See :ref:`valid-types` for details on which types are valid.
+Field types not provided will be guessed based on the first row of provided data.
+Set the types to ensure that future inserts will not fail because of an incorrectly
+guessed type. See :ref:`valid-types` for details on which types are valid.
+
+Extra ``"info"`` field values will be stored along with the column. ``"label"``,
+``"notes"`` and ``"type_override"`` can be managed from the default :ref:`data_dictionary`
+form.  Additional fields can be stored by customizing the Data Dictionary form or by
+passing their values to the API directly.
 
 Example::
 
     [
         {
-            "id": "foo",
-            "type": "int4"
+            "id": "code_number",
+            "type": "numeric"
         },
         {
-            "id": "bar"
-            # type is optional
+            "id": "description"
+            "type": "text",
+            "info": {
+                "label": "Description",
+                "notes": "A brief usage description for this code",
+                "example": "Used for temporary service interruptions"
+            }
         }
     ]
 
@@ -314,19 +352,21 @@ Records
 A record is the data to be inserted in a DataStore resource and is defined as follows::
 
     {
-        "<id>":  # data to be set
-        # .. more data
+        column_1_id: value_1,
+        columd_2_id: value_2,
+        ...
     }
 
 Example::
 
     [
         {
-            "foo": 100,
-            "bar": "Here's some text"
+            "code_number": 10,
+            "description": "Submitted successfully"
         },
         {
-            "foo": 42
+            "code_number": 42,
+            "description": "In progress"
         }
     ]
 
@@ -419,3 +459,15 @@ name
     Contains the name of the alias if alias_of is not null. Otherwise, this is the resource id of the CKAN resource for the DataStore resource.
 oid
     The PostgreSQL object ID of the table that belongs to name.
+
+
+-------------------
+Extending DataStore
+-------------------
+
+Starting from CKAN version 2.7, backend used in DataStore can be replaced with custom one. For this purpose, custom extension must implement `ckanext.datastore.interfaces.IDatastoreBackend`, which provides one method - `register_backends`. It should return dictonary with names of custom backends as keys and classes, that represent those backends as values. Each class supposed to be inherited from `ckanext.datastore.backend.DatastoreBackend`.
+
+.. note:: Example of custom implementation can be found at `ckanext.example_idatastorebackend`
+
+.. automodule:: ckanext.datastore.backend
+   :members:

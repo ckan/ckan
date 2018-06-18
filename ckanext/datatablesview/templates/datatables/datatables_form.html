@@ -1,0 +1,37 @@
+{% import 'macros/form.html' as form %}
+
+{{ form.checkbox(
+  'responsive',
+  id='field-responsive',
+  label=_('Responsive display'),
+  value='True',
+  checked=data.responsive,
+  ) }}
+
+<div class="control-group">
+  <label class="control-label">{{ _('Show Columns') }}</label>
+  <div class="controls">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">{{ _('Column') }}</th>
+          <th scope="col">{{ _('Label') }}</th>
+        </tr>
+      </thead>
+      {% for f in [{'id': '_id'}] + h.datastore_dictionary(resource.id) %}
+        <tr>
+          <td>
+            <label class="checkbox">
+            <input type="checkbox"
+            name="show_fields"
+            id="field-show_fields_{{ loop.index }}"
+            value="{{ f.id }}"
+            {{ 'checked' if 'show_fields' not in data else
+              'checked' if f.id in data.show_fields else '' }}
+            />{{ f.id }}</label></td>
+          <td>{{ f.get('info', {}).label }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>

@@ -62,7 +62,7 @@ Adding custom fields to datasets
 
 Create a new plugin named ``ckanext-extrafields`` and create a class named
 ``ExampleIDatasetFormPlugins`` inside
-``ckanext-extrafields/ckanext/extrafields/plugins.py`` that implements the
+``ckanext-extrafields/ckanext/extrafields/plugin.py`` that implements the
 ``IDatasetForm`` interface and inherits from ``SingletonPlugin`` and
 ``DefaultDatasetForm``.
 

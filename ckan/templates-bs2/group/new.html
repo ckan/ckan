@@ -1,0 +1,13 @@
+{% extends "group/base_form_page.html" %}
+
+{% block subtitle %}{{ _('Create a Group') }}{% endblock %}
+
+{% block breadcrumb_link %}{{ h.nav_link(_('Create a Group'), controller='group', action='edit', id=c.group.name) }}{% endblock %}
+
+{% block page_heading %}{{ _('Create a Group') }}{% endblock %}
+
+{% block page_header %}{% endblock %}
+
+{% block secondary_content %}
+  {% snippet "group/snippets/helper.html" %}
+{% endblock %}

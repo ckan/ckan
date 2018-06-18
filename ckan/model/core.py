@@ -2,16 +2,15 @@
 
 import datetime
 
-from sqlalchemy import Column, DateTime, Text, Boolean
-import vdm.sqlalchemy
-
-import meta
 import domain_object
+import meta
+import vdm.sqlalchemy
+from sqlalchemy import Column, DateTime, Text, Boolean
 
 
 __all__ = ['System', 'Revision', 'State', 'revision_table']
 
-## VDM-specific tables
+# VDM-specific tables
 revision_table = vdm.sqlalchemy.make_revision_table(meta.metadata)
 revision_table.append_column(Column('approved_timestamp', DateTime))
 
@@ -29,6 +28,7 @@ class System(domain_object.DomainObject):
     @classmethod
     def by_name(cls, name):
         return System()
+
 
 # VDM-specific domain objects
 State = vdm.sqlalchemy.State

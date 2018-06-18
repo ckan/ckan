@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+
+{% block subtitle %}{{ _("Confirm Reset") }}{% endblock %}
+
+{% block primary_content_inner %}
+  <form action="{% url_for 'admin.reset_config' %}" method="post">
+    <p>{{ _('Are you sure you want to reset the config?') }}</p>
+    <p class="form-actions">
+      <button class="btn" type="submit" name="cancel" >{{ _('Cancel') }}</button>
+      <button class="btn btn-primary" type="submit" name="delete" >{{ _('Confirm Reset') }}</button>
+    </p>
+  </form>
+{% endblock %}

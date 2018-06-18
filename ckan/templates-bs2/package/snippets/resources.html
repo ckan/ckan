@@ -1,0 +1,34 @@
+{#
+Displays a sidebard module with navigation containing the provided resources.
+If no resources are provided then the module will not be displayed.
+
+pkg       - The package dict that owns the resources.
+active    - The id of the currently displayed resource.
+action    - The controller action to use (default: 'resource_read').
+
+Example:
+
+  {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id %}
+
+#}
+{% set resources = pkg.resources or [] %}
+{% if resources %}
+  {% block resources %}
+    <section class="module module-narrow resources">
+      {% block resources_inner %}
+        {% block resources_title %}
+          <h2 class="module-heading"><i class="fa fa-files-o"></i> {{ _("Resources") }}</h2>
+        {% endblock %}
+        {% block resources_list %}
+          <ul class="unstyled nav nav-simple">
+            {% for resource in resources %}
+              <li class="nav-item{{ ' active' if active == resource.id }}">
+                {% link_for h.resource_display_name(resource)|truncate(25), controller='package', action=action or 'resource_read', id=pkg.name, resource_id=resource.id, inner_span=true %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endblock %}
+      {% endblock %}
+    </section>
+  {% endblock %}
+{% endif %}

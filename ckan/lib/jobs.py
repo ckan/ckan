@@ -29,6 +29,8 @@ from rq.utils import ensure_list
 from ckan.lib.redis import connect_to_redis
 from ckan.common import config
 from ckan.config.environment import load_environment
+from ckan.model import meta
+import ckan.plugins as plugins
 
 
 log = logging.getLogger(__name__)
@@ -206,6 +208,14 @@ def test_job(*args):
 class Worker(rq.Worker):
     u'''
     CKAN-specific worker.
+
+    Note that starting an instance of this class (via the ``work``
+    method) disposes the currently active database engine and the
+    associated session. This is necessary to prevent their corruption by
+    the forked worker process. Both the engine and the session
+    automatically re-initialize afterwards once they are used. However,
+    non-committed changes are rolled back and instance variables bound
+    to the old session have to be re-fetched from the database.
     '''
     def __init__(self, queues=None, *args, **kwargs):
         u'''
@@ -233,12 +243,29 @@ class Worker(rq.Worker):
         return result
 
     def execute_job(self, job, *args, **kwargs):
+        # We shut down all database connections and the engine to make sure
+        # that they are not shared with the child process and closed there
+        # while still being in use in the main process, see
+        #
+        #   https://github.com/ckan/ckan/issues/3365
+        #
+        # Note that this rolls back any non-committed changes in the session.
+        # Both `Session` and `engine` automatically re-initialize themselve
+        # when they are used the next time.
+        log.debug(u'Disposing database engine before fork')
+        meta.Session.remove()
+        meta.engine.dispose()
+
+        # The original implementation performs the actual fork
         queue = remove_queue_name_prefix(job.origin)
-        log.info(u'Worker {} has started job {} from queue "{}"'.format(
+        log.info(u'Worker {} starts job {} from queue "{}"'.format(
                  self.key, job.id, queue))
+        for plugin in plugins.PluginImplementations(plugins.IForkObserver):
+            plugin.before_fork()
         result = super(Worker, self).execute_job(job, *args, **kwargs)
         log.info(u'Worker {} has finished job {} from queue "{}"'.format(
                  self.key, job.id, queue))
+
         return result
 
     def register_death(self, *args, **kwargs):
@@ -256,3 +283,18 @@ class Worker(rq.Worker):
         # after forking.
         load_environment(config[u'global_conf'], config)
         return super(Worker, self).main_work_horse(job, queue)
+
+    def perform_job(self, *args, **kwargs):
+        result = super(Worker, self).perform_job(*args, **kwargs)
+        # rq.Worker.main_work_horse does a hard exit via os._exit directly
+        # after its call to perform_job returns. Hence here is the correct
+        # location to clean up.
+        try:
+            meta.Session.remove()
+        except Exception:
+            log.exception(u'Error while closing database session')
+        try:
+            meta.engine.dispose()
+        except Exception:
+            log.exception(u'Error while disposing database engine')
+        return result

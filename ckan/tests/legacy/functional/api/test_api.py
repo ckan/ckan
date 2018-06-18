@@ -51,9 +51,3 @@ class TestApi3(Api3TestCase, ApiTestCase):
         assert_in('Bad request - JSON Error: Invalid request.'\
                   ' Please use POST method for your request',
                   res.body)
-
-# Tests for Version 1 of the API.
-class TestApi1(Api1TestCase, ApiTestCase): pass
-
-# Tests for Version 2 of the API.
-class TestApi2(Api2TestCase, ApiTestCase): pass

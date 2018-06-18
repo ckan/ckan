@@ -10,15 +10,20 @@
 {% block primary_content %}
   <article class="module">
     {% block primary_content_inner %}
-    <h1 class="module-heading">
-      {% block page_heading %}{{ _('Reset Your Password') }}{% endblock %}
-    </h1>
     <div class="module-content">
+      <h1 class="page-heading">
+        {% block page_heading %}{{ _('Reset Your Password') }}{% endblock %}
+      </h1>
       {% block form %}
-        <form class="form-horizontal" action="" method="post">
+        <form action="" method="post">
           {{ form.errors(error_summary) }}
-          {{ form.input("password1", id="field-password", label=_("Password"), type="password", value='', error='', attrs={'autocomplete': 'no'}, classes=["control-medium"]) }}
-          {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", value='', error='', attrs={'autocomplete': 'no'}, classes=["control-medium"]) }}
+          {% if user_dict['state'] == 'pending' %}
+            <p>{{ _('You can also change username. It can not be modified later.') }}</p>
+            {{ form.input("name", id="field-name", label=_("Username"), type="text", value=user_dict["name"],
+               error='', attrs={'autocomplete': 'no', 'class': 'form-control control-medium'}, classes=["form-group"]) }}
+          {% endif %}
+          {{ form.input("password1", id="field-password", label=_("Password"), type="password", value='', error='', attrs={'autocomplete': 'no', 'class': 'form-control control-medium'}, classes=["form-group"]) }}
+          {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", value='', error='', attrs={'autocomplete': 'no', 'class': 'form-control control-medium'}, classes=["form-group"]) }}
           <div class="form-actions">
             {% block form_button %}
             <button class="btn btn-primary" type="submit" name="save">{{ _("Update Password") }}</button>

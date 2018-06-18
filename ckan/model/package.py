@@ -24,7 +24,7 @@ import ckan.lib.dictization as dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTag', 'PackageTagRevision',
+           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision',
            'PackageRevision']
 
 
@@ -232,16 +232,18 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         if type_ in package_relationship.PackageRelationship.get_forward_types():
             subject = self
             object_ = related_package
+            direction = "forward"
         elif type_ in package_relationship.PackageRelationship.get_reverse_types():
             type_ = package_relationship.PackageRelationship.reverse_to_forward_type(type_)
             assert type_
             subject = related_package
             object_ = self
+            direction = "reverse"
         else:
-            raise KeyError, 'Package relationship type: %r' % type_
+            raise KeyError('Package relationship type: %r' % type_)
 
         rels = self.get_relationships(with_package=related_package,
-                                      type=type_, active=False, direction="forward")
+                                      type=type_, active=False, direction=direction)
         if rels:
             rel = rels[0]
             if comment:
@@ -362,7 +364,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             self.license_id = license['id']
         else:
             msg = "Value not a license object or entity: %s" % repr(license)
-            raise Exception, msg
+            raise Exception(msg)
 
     license = property(get_license, set_license)
 
@@ -393,9 +395,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 results[obj_rev.revision].append(obj_rev)
 
         result_list = results.items()
-        ourcmp = lambda rev_tuple1, rev_tuple2: \
-                 cmp(rev_tuple2[0].timestamp, rev_tuple1[0].timestamp)
-        return sorted(result_list, cmp=ourcmp)
+        return sorted(result_list, key=lambda x: x[0].timestamp, reverse=True)
 
     @property
     def latest_related_revision(self):

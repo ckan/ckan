@@ -5,12 +5,13 @@
 # packages changing name on reimport, but these ones can be changed and
 # improved.
 
-import re
 import os.path
+import re
+
+from six import text_type
 
 from ckan import model
 from ckan.lib.io import decode_path
-
 
 # Maximum length of a filename's extension (including the '.')
 MAX_FILENAME_EXTENSION_LENGTH = 21
@@ -25,7 +26,7 @@ MIN_FILENAME_TOTAL_LENGTH = 3
 def munge_name(name):
     '''Munges the package name field in case it is not to spec.'''
     # substitute non-ascii characters
-    if isinstance(name, unicode):
+    if isinstance(name, text_type):
         name = substitute_ascii_equivalents(name)
     # separators become dashes
     name = re.sub('[ .:/]', '-', name)
@@ -40,7 +41,7 @@ def munge_name(name):
 def munge_title_to_name(name):
     '''Munge a package title into a package name.'''
     # substitute non-ascii characters
-    if isinstance(name, unicode):
+    if isinstance(name, text_type):
         name = substitute_ascii_equivalents(name)
     # convert spaces and separators
     name = re.sub('[ .:/]', '-', name)
@@ -95,15 +96,15 @@ def substitute_ascii_equivalents(text_unicode):
         0xf2: 'o', 0xf3: 'o', 0xf4: 'o', 0xf5: 'o', 0xf6: 'o', 0xf8: 'o',
         0xf9: 'u', 0xfa: 'u', 0xfb: 'u', 0xfc: 'u',
         0xfd: 'y', 0xfe: 'th', 0xff: 'y',
-        #0xa1: '!', 0xa2: '{cent}', 0xa3: '{pound}', 0xa4: '{currency}',
-        #0xa5: '{yen}', 0xa6: '|', 0xa7: '{section}', 0xa8: '{umlaut}',
-        #0xa9: '{C}', 0xaa: '{^a}', 0xab: '<<', 0xac: '{not}',
-        #0xad: '-', 0xae: '{R}', 0xaf: '_', 0xb0: '{degrees}',
-        #0xb1: '{+/-}', 0xb2: '{^2}', 0xb3: '{^3}', 0xb4:"'",
-        #0xb5: '{micro}', 0xb6: '{paragraph}', 0xb7: '*', 0xb8: '{cedilla}',
-        #0xb9: '{^1}', 0xba: '{^o}', 0xbb: '>>',
-        #0xbc: '{1/4}', 0xbd: '{1/2}', 0xbe: '{3/4}', 0xbf: '?',
-        #0xd7: '*', 0xf7: '/'
+        # 0xa1: '!', 0xa2: '{cent}', 0xa3: '{pound}', 0xa4: '{currency}',
+        # 0xa5: '{yen}', 0xa6: '|', 0xa7: '{section}', 0xa8: '{umlaut}',
+        # 0xa9: '{C}', 0xaa: '{^a}', 0xab: '<<', 0xac: '{not}',
+        # 0xad: '-', 0xae: '{R}', 0xaf: '_', 0xb0: '{degrees}',
+        # 0xb1: '{+/-}', 0xb2: '{^2}', 0xb3: '{^3}', 0xb4:"'",
+        # 0xb5: '{micro}', 0xb6: '{paragraph}', 0xb7: '*', 0xb8: '{cedilla}',
+        # 0xb9: '{^1}', 0xba: '{^o}', 0xbb: '>>',
+        # 0xbc: '{1/4}', 0xbd: '{1/2}', 0xbe: '{3/4}', 0xbf: '?',
+        # 0xd7: '*', 0xf7: '/'
     }
 
     r = ''
@@ -148,7 +149,7 @@ def munge_filename(filename):
 
     Returns a Unicode string.
     '''
-    if not isinstance(filename, unicode):
+    if not isinstance(filename, text_type):
         filename = decode_path(filename)
 
     # Ignore path
@@ -157,8 +158,8 @@ def munge_filename(filename):
     # Clean up
     filename = filename.lower().strip()
     filename = substitute_ascii_equivalents(filename)
-    filename = re.sub(ur'[^a-zA-Z0-9_. -]', '', filename).replace(u' ', u'-')
-    filename = re.sub(ur'-+', u'-', filename)
+    filename = re.sub(u'[^a-zA-Z0-9_. -]', '', filename).replace(u' ', u'-')
+    filename = re.sub(u'-+', u'-', filename)
 
     # Enforce length constraints
     name, ext = os.path.splitext(filename)

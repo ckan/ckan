@@ -71,6 +71,11 @@ respectively.
    disabling all extensions on your ini file and re-enable them one by one
    to make sure they are working fine.
 
+#. If new configuration options have been introduced (check the
+   :doc:`/changelog` to find out) then check whether you need to change them
+   from their default values. See :doc:`/maintaining/configuration` for
+   details.
+
 #. Rebuild your search index by running the ``ckan search-index rebuild``
    command:
 

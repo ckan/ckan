@@ -66,7 +66,7 @@ See :ref:`avoid name clashes`.
 A |javascript| module should have a docstring at the top of the file, briefly
 documentating what the module does and what options it takes. For example:
 
-.. literalinclude:: /../ckanext/example_theme/v17_popover/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v17_popover/fanstatic/example_theme_popover.js
    :language: javascript
 
 
@@ -118,5 +118,5 @@ Snippets should have docstrings
 A snippet should have a docstring comment at the top of the file that briefly
 documents what the snippet does and what parameters it requires. For example:
 
-.. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
+.. literalinclude:: /../ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
    :language: django

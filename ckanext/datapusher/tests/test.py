@@ -1,23 +1,19 @@
 # encoding: utf-8
 
+import datetime
 import json
+
+import ckan.lib.create_test_data as ctd
+import ckan.model as model
+import ckan.plugins as p
+import ckan.tests.legacy as tests
+from ckan.tests import helpers
+import ckanext.datastore.backend.postgres as db
 import httpretty
 import httpretty.core
 import nose
-import datetime
-
 import sqlalchemy.orm as orm
-import paste.fixture
-
-import ckan.plugins as p
-import ckan.lib.create_test_data as ctd
-import ckan.model as model
-import ckan.tests.legacy as tests
-import ckan.config.middleware as middleware
-
 from ckan.common import config
-
-import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
@@ -52,17 +48,17 @@ class HTTPrettyFix(httpretty.core.fakesock.socket):
 
         self.truesock = SetTimeoutPatch()
 
+
 httpretty.core.fakesock.socket = HTTPrettyFix
 
 
-class TestDatastoreCreate(tests.WsgiAppCase):
+class TestDatastoreCreate():
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
@@ -70,8 +66,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        engine = db._get_engine(
-            {'connection_url': config['ckan.datastore.write_url']})
+        engine = db.get_write_engine()
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
@@ -98,7 +93,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         res = tests.call_action_api(
             self.app, 'resource_show', id=res_dict['result']['resource_id'])
-        assert res['url'] == '/datastore/dump/' + res['id'], res
+        assert res['url'].endswith('/datastore/dump/' + res['id']), res
 
     @httpretty.activate
     def test_providing_res_with_url_calls_datapusher_correctly(self):
@@ -220,7 +215,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         auth = {'Authorization': str(user.apikey)}
         res = self.app.post('/api/action/datapusher_hook', params=postparams,
                             extra_environ=auth, status=200)
-        print res.body
+        print(res.body)
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is True

@@ -1,0 +1,29 @@
+{#
+
+Renders a list of the site's most popular groups.
+
+groups - the list of groups to render
+
+#}
+<h3>Most popular groups</h3>
+<ul>
+  {% for group in groups %}
+    <li>
+      <a href="{{ h.url_for('group_read', action='read', id=group.name) }}">
+        <h3>{{ group.display_name }}</h3>
+      </a>
+      {% if group.description %}
+        <p>
+          {{ h.markdown_extract(group.description, extract_length=80) }}
+        </p>
+      {% else %}
+        <p>{{ _('This group has no description') }}</p>
+      {% endif %}
+      {% if group.package_count %}
+        <strong>{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</strong>
+      {% else %}
+        <span>{{ _('0 Datasets') }}</span>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>

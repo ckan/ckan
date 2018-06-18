@@ -2,6 +2,8 @@
 
 import json
 
+from six import string_types, text_type
+
 import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
@@ -44,7 +46,7 @@ def convert_from_extras(key, data, errors, context):
 
 def extras_unicode_convert(extras, context):
     for extra in extras:
-        extras[extra] = unicode(extras[extra])
+        extras[extra] = text_type(extras[extra])
     return extras
 
 def free_tags_only(key, data, errors, context):
@@ -60,7 +62,7 @@ def convert_to_tags(vocab):
         new_tags = data.get(key)
         if not new_tags:
             return
-        if isinstance(new_tags, basestring):
+        if isinstance(new_tags, string_types):
             new_tags = [new_tags]
 
         # get current number of tags
@@ -173,7 +175,7 @@ def convert_group_name_or_id_to_id(group_name_or_id, context):
 
 
 def convert_to_json_if_string(value, context):
-    if isinstance(value, basestring):
+    if isinstance(value, string_types):
         try:
             return json.loads(value)
         except ValueError:
@@ -183,13 +185,13 @@ def convert_to_json_if_string(value, context):
 
 
 def convert_to_list_if_string(value, context=None):
-    if isinstance(value, basestring):
+    if isinstance(value, string_types):
         return [value]
     else:
         return value
 
 
 def remove_whitespace(value, context):
-    if isinstance(value, basestring):
+    if isinstance(value, string_types):
         return value.strip()
     return value

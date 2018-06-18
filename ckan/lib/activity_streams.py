@@ -8,7 +8,7 @@ import ckan.lib.helpers as h
 import ckan.lib.base as base
 import ckan.logic as logic
 
-from ckan.common import _
+from ckan.common import _, is_flask_request
 
 # get_snippet_*() functions replace placeholders like {user}, {dataset}, etc.
 # in activity strings with HTML representations of particular users, datasets,
@@ -165,24 +165,24 @@ activity_stream_string_functions = {
 # A dictionary mapping activity types to the icons associated to them
 activity_stream_string_icons = {
   'added tag': 'tag',
-  'changed group': 'group',
+  'changed group': 'users',
   'changed package': 'sitemap',
-  'changed package_extra': 'edit',
+  'changed package_extra': 'pencil-square-o',
   'changed resource': 'file',
   'changed user': 'user',
-  'deleted group': 'group',
+  'deleted group': 'users',
   'deleted package': 'sitemap',
-  'deleted package_extra': 'edit',
+  'deleted package_extra': 'pencil-square-o',
   'deleted resource': 'file',
-  'new group': 'group',
+  'new group': 'users',
   'new package': 'sitemap',
-  'new package_extra': 'edit',
+  'new package_extra': 'pencil-square-o',
   'new resource': 'file',
   'new user': 'user',
   'removed tag': 'tag',
   'follow dataset': 'sitemap',
   'follow user': 'user',
-  'follow group': 'group',
+  'follow group': 'users',
   'changed organization': 'briefcase',
   'deleted organization': 'briefcase',
   'new organization': 'briefcase',
@@ -252,5 +252,11 @@ def activity_list_to_html(context, activity_stream, extra_vars):
                               'timestamp': activity['timestamp'],
                               'is_new': activity.get('is_new', False)})
     extra_vars['activities'] = activity_list
-    return literal(base.render('activity_streams/activity_stream_items.html',
-        extra_vars=extra_vars))
+
+    # TODO: Do this properly without having to check if it's Flask or not
+    if is_flask_request():
+        return base.render('activity_streams/activity_stream_items.html',
+                           extra_vars=extra_vars)
+    else:
+        return literal(base.render('activity_streams/activity_stream_items.html',
+                       extra_vars=extra_vars))

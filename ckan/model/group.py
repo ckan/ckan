@@ -2,7 +2,7 @@
 
 import datetime
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_
+from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_, text
 import vdm.sqlalchemy
 
 import meta
@@ -198,7 +198,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         '''
         results = meta.Session.query(Group.id, Group.name, Group.title,
                                      'parent_id').\
-            from_statement(HIERARCHY_DOWNWARDS_CTE).\
+            from_statement(text(HIERARCHY_DOWNWARDS_CTE)).\
             params(id=self.id, type=type).all()
         return results
 
@@ -221,7 +221,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Returns this group's parent, parent's parent, parent's parent's
         parent etc.. Sorted with the top level parent first.'''
         return meta.Session.query(Group).\
-            from_statement(HIERARCHY_UPWARDS_CTE).\
+            from_statement(text(HIERARCHY_UPWARDS_CTE)).\
             params(id=self.id, type=type).all()
 
     @classmethod
@@ -263,14 +263,14 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         Returns all packages in this group with VDM revision state ACTIVE
 
         :param with_private: if True, include the group's private packages
-        :type with_private: boolean
+        :type with_private: bool
 
         :param limit: the maximum number of packages to return
         :type limit: int
 
         :param return_query: if True, return the SQLAlchemy query object
             instead of the list of Packages resulting from the query
-        :type return_query: boolean
+        :type return_query: bool
 
         :returns: a list of this group's packages
         :rtype: list of ckan.model.package.Package objects
@@ -317,7 +317,8 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             return query.all()
 
     @classmethod
-    def search_by_name_or_title(cls, text_query, group_type=None, is_org=False):
+    def search_by_name_or_title(cls, text_query, group_type=None,
+                                is_org=False, limit=20):
         text_query = text_query.strip().lower()
         q = meta.Session.query(cls) \
             .filter(or_(cls.name.contains(text_query),
@@ -329,7 +330,9 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             if group_type:
                 q = q.filter(cls.type == group_type)
         q = q.filter(cls.state == 'active')
-        return q.order_by(cls.title)
+        q.order_by(cls.title)
+        q = q.limit(limit)
+        return q
 
     def add_package_by_name(self, package_name):
         if not package_name:
@@ -361,9 +364,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                     results[obj_rev.revision] = []
                 results[obj_rev.revision].append(obj_rev)
         result_list = results.items()
-        ourcmp = lambda rev_tuple1, rev_tuple2: \
-            cmp(rev_tuple2[0].timestamp, rev_tuple1[0].timestamp)
-        return sorted(result_list, cmp=ourcmp)
+        return sorted(result_list, key=lambda x: x[0].timestamp, reverse=True)
 
     def __repr__(self):
         return '<Group %s>' % self.name
@@ -428,4 +429,3 @@ SELECT G.*, PT.depth FROM parenttree AS PT
     INNER JOIN public.group G ON G.id = PT.table_id
     WHERE G.type = :type AND G.state='active'
     ORDER BY PT.depth DESC;""".format(max_recurses=MAX_RECURSES)
-

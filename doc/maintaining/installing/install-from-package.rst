@@ -1,17 +1,34 @@
-.. include:: /_latest_release.rst
+.. include:: /_substitutions.rst
 
 ============================
 Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 14.04 64-bit** or **Ubuntu 12.04 64-bit**. If
-you're not using Ubuntu 14.04 64-bit or Ubuntu 12.04 64-bit, or if you're installing CKAN for
+and easiest way to install CKAN, but it requires **Ubuntu 16.04 64-bit** or **Ubuntu 14.04 64-bit**. If
+you're not using Ubuntu 16.04 64-bit or Ubuntu 14.04 64-bit, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
 At the end of the installation process you will end up with two running web
 applications, CKAN itself and the DataPusher, a separate service for automatically
 importing data to CKAN's :doc:`/maintaining/datastore`.
+
+
+Host ports requirements:
+
+    +------------+------------+-----------+
+    | Service    | Port       | Used for  |
+    +============+============+===========+
+    | NGINX      | 80         | Proxy     |
+    +------------+------------+-----------+
+    | Apache2    | 8080       | Web Server|
+    +------------+------------+-----------+
+    | Solr/Jetty | 8983       | Search    |
+    +------------+------------+-----------+
+    | PostgreSQL | 5432       | Database  |
+    +------------+------------+-----------+
+    | Redis      | 6379       | Search    |
+    +------------+------------+-----------+
 
 
 .. _run-package-installer:
@@ -20,8 +37,9 @@ importing data to CKAN's :doc:`/maintaining/datastore`.
 1. Install the CKAN package
 ---------------------------
 
-On your Ubuntu 14.04 or 12.04 system, open a terminal and run these commands to install
+On your Ubuntu system, open a terminal and run these commands to install
 CKAN:
+
 
 #. Update Ubuntu's package index::
 
@@ -29,9 +47,21 @@ CKAN:
 
 #. Install the Ubuntu packages that CKAN requires (and 'git', to enable you to install CKAN extensions)::
 
-    sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5 redis-server git-core
+    sudo apt-get install -y apache2 libapache2-mod-wsgi libpq5 redis-server git-core
+    
+#. Then stop apache2 service to install nginx
+    
+    sudo service apache2 stop
+    
+    sudo apt-get install -y nginx
 
 #. Download the CKAN package:
+
+    - On Ubuntu 16.04:
+
+       .. parsed-literal::
+
+           wget \http://packaging.ckan.org/|latest_package_name_xenial|
 
    - On Ubuntu 14.04:
 
@@ -39,31 +69,20 @@ CKAN:
 
            wget \http://packaging.ckan.org/|latest_package_name_trusty|
 
-   - On Ubuntu 12.04:
+
+#. Install the CKAN package:
+
+   - On Ubuntu 16.04:
 
        .. parsed-literal::
 
-           wget \http://packaging.ckan.org/|latest_package_name_precise|
-
-
-   .. note:: If ``wget`` is not present, you can install it
-       via::
-
-        sudo apt-get install wget
-
-#. Install the CKAN package:
+           sudo dpkg -i |latest_package_name_xenial|
 
    - On Ubuntu 14.04:
 
        .. parsed-literal::
 
            sudo dpkg -i |latest_package_name_trusty|
-
-   - On Ubuntu 12.04:
-
-       .. parsed-literal::
-
-           sudo dpkg -i |latest_package_name_precise|
 
     .. note:: If you get the following error it means that for some reason the
      Apache WSGI module was not enabled::
@@ -80,32 +99,48 @@ CKAN:
         sudo service apache2 restart
 
 
-------------------------------
-2. Install PostgreSQL and Solr
-------------------------------
+-----------------------------------
+2. Install and configure PostgreSQL
+-----------------------------------
 
 .. tip::
 
-   You can install |postgres|, |solr| and CKAN on different servers. Just
-   change the :ref:`sqlalchemy.url` and :ref:`solr_url` settings in your
-   |production.ini| file to reference your |postgres| and |solr| servers.
+   You can install |postgres| and CKAN on different servers. Just
+   change the :ref:`sqlalchemy.url` setting in your
+   |production.ini| file to reference your |postgres| server.
 
-#. Install |postgres| and |solr|, run this command in a terminal::
+Install |postgres|, running this command in a terminal::
 
-    sudo apt-get install -y postgresql solr-jetty
+    sudo apt-get install -y postgresql
 
-   The install will whirr away, then towards the end you'll see this::
+.. include:: postgres.rst
 
-     * Not starting jetty - edit /etc/default/jetty and change NO_START to be 0 (or comment it out).
+Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|production.ini|) file and
+set the correct password, database and database user.
 
-#. Follow the instructions in :ref:`setting up solr` to setup |solr|.
 
-#. Follow the instructions in :ref:`postgres-setup` to setup |postgres|,
-   then edit the :ref:`sqlalchemy.url` option in your |production.ini| file and
-   set the correct password, database and database user.
+-----------------------------
+3. Install and configure Solr
+-----------------------------
+
+.. tip::
+
+   You can install |solr| and CKAN on different servers. Just
+   change the :ref:`solr_url` setting in your
+   |production.ini| file to reference your |solr| server.
+
+Install |solr|, running this command in a terminal::
+
+    sudo apt-get install -y solr-jetty
+
+The install will whirr away, then towards the end you'll see this::
+
+     * Not starting jetty - edit /etc/default/jetty (or /etc/default/jetty8) and change NO_START to be 0 (or comment it out).
+
+.. include:: solr.rst
 
 -------------------------------------------------------
-3. Update the configuration and initialize the database
+4. Update the configuration and initialize the database
 -------------------------------------------------------
 
 #. Edit the :ref:`config_file` (|production.ini|) to set up the following options:
@@ -131,7 +166,7 @@ CKAN:
    instructions in :doc:`/maintaining/filestore`.
 
 ---------------------------
-4. Restart Apache and Nginx
+5. Restart Apache and Nginx
 ---------------------------
 
 Restart Apache and Nginx by running this command in a terminal::
@@ -140,7 +175,7 @@ Restart Apache and Nginx by running this command in a terminal::
     sudo service nginx restart
 
 ---------------
-5. You're done!
+6. You're done!
 ---------------
 
 Open http://localhost in your web browser. You should see the CKAN front

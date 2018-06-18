@@ -1,4 +1,4 @@
-this.ckan.module('resource-view-filters', function (jQuery, _) {
+this.ckan.module('resource-view-filters', function (jQuery) {
   'use strict';
 
   function initialize() {
@@ -6,12 +6,13 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         resourceId = self.options.resourceId,
         fields = self.options.fields,
         dropdownTemplate = self.options.dropdownTemplate,
-        addFilterTemplate = self.options.addFilterTemplate,
+        addFilterTemplate = '<a class="btn btn-primary" href="#">' + self._('Add Filter') + '</a>',
         filtersDiv = $('<div></div>');
 
     var filters = ckan.views.filters.get();
     _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fields, filters);
-    var addFilterButton = _buildAddFilterButton(filtersDiv, addFilterTemplate, fields, filters, function (evt) {
+    var addFilterButton = _buildAddFilterButton(self, filtersDiv, addFilterTemplate,
+                                                fields, filters, function (evt) {
       // Build filters object with this element's val as key and a placeholder
       // value so _appendDropdowns() will create its dropdown
       var filters = {};
@@ -25,7 +26,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
     self.el.append(addFilterButton);
   }
 
-  function _buildAddFilterButton(el, template, fields, filters, onChangeCallback) {
+  function _buildAddFilterButton(self, el, template, fields, filters, onChangeCallback) {
     var addFilterButton = $(template),
         currentFilters = Object.keys(filters),
         fieldsNotFiltered = $.grep(fields, function (field) {
@@ -48,7 +49,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
       // TODO: Remove element from "data" when some select selects it.
       addFilterInput.select2({
         data: data,
-        placeholder: 'Select a field',
+        placeholder: self._('Select a field'),
         width: 'resolve',
       }).on('change', onChangeCallback);
 
@@ -93,7 +94,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         width: 'resolve',
         minimumInputLength: 0,
         ajax: {
-          url: '/api/3/action/datastore_search',
+          url: ckan.url('/api/3/action/datastore_search'),
           datatype: 'json',
           quietMillis: 200,
           cache: true,
@@ -102,18 +103,22 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
                 query;
 
             query = {
-              plain: false,
               resource_id: resourceId,
               limit: queryLimit,
               offset: offset,
               fields: filterName,
               distinct: true,
-              sort: filterName
+              sort: filterName,
+              include_total: false
             };
 
             if (term !== '') {
               var q = {};
-              q[filterName] = term + ':*';
+              if (term.indexOf(' ') == -1) {
+                term = term + ':*';
+                query.plain = false;
+              }
+              q[filterName] = term;
               query.q = JSON.stringify(q);
             }
 
@@ -121,7 +126,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
           },
           results: function (data, page) {
             var records = data.result.records,
-                hasMore = (records.length < data.result.total),
+                hasMore = (records.length == queryLimit),
                 results;
 
             results = $.map(records, function (record) {
@@ -175,9 +180,6 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         '  {filter}:',
         '  <div class="resource-view-filter-values"></div>',
         '</div>',
-      ].join('\n'),
-      addFilterTemplate: [
-        '<a href="#">Add Filter</a>',
       ].join('\n')
     }
   };

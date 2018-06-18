@@ -1,73 +1,721 @@
 # Translations template for ckan.
-# Copyright (C) 2015 ORGANIZATION
+# Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# 
-# Translators:
-# Baldur Már Helgason <baldur.helgason@gmail.com>, 2013
-# Bjarki Sigursveinsson <bjarki@gmail.com>, 2013
-# Dagsson <dagsson@gmail.com>, 2014
-# Finnur Magnusson <gommit@gmail.com>, 2013
-# Hjörtur Einarsson <hjortur@gmail.com>, 2014
-# Jakob <jakobjs@gmail.com>, 2013
-# Páll Hilmarsson <pallih@kaninka.net>, 2012
-# Sean Hammond <sean.hammond@okfn.org>, 2013
-# Sigurður Fjalar Sigurðarson <fjalars@gmail.com>, 2013
-# Stefan Thor <stefan.thor.finnsson@reykjavik.is>, 2013
-# Tryggvi Björgvinsson <tryggvib@fsfi.is>, 2014-2015
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CKAN\n"
+"Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2015-12-28 21:17+0000\n"
-"Last-Translator: Tryggvi Björgvinsson <tryggvib@fsfi.is>\n"
-"Language-Team: Icelandic (http://www.transifex.com/okfn/ckan/language/is/)\n"
+"POT-Creation-Date: 2017-06-21 15:47+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
+"Language-Team: Icelandic (https://www.transifex.com/okfn/teams/11162/is/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
+"Generated-By: Babel 2.5.3\n"
 "Language: is\n"
 "Plural-Forms: nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);\n"
 
-#: ckan/authz.py:177
+#: ckanext/datapusher/helpers.py:21
+msgid "Complete"
+msgstr "Lokið"
+
+#: ckanext/datapusher/helpers.py:22
+msgid "Pending"
+msgstr "Í bið"
+
+#: ckanext/datapusher/helpers.py:23
+msgid "Submitting"
+msgstr "Sendi"
+
+#: ckan/controllers/package.py:659 ckanext/datapusher/helpers.py:24
+msgid "Error"
+msgstr "Villa"
+
+#: ckanext/datapusher/helpers.py:29
+msgid "Not Uploaded Yet"
+msgstr "Upphleðslu er ekki lokið"
+
+#: ckan/controllers/package.py:591 ckan/controllers/package.py:1054
+#: ckan/controllers/package.py:1074 ckan/controllers/package.py:1141
+#: ckan/controllers/package.py:1324 ckan/controllers/package.py:1402
+#: ckan/controllers/package.py:1433 ckan/controllers/package.py:1541
+#: ckan/controllers/package.py:1592 ckanext/datapusher/plugin.py:59
+#: ckanext/datastore/controller.py:73 ckanext/resourceproxy/controller.py:33
+msgid "Resource not found"
+msgstr "Tilfang fannst ekki"
+
+#: ckan/controllers/api.py:64 ckan/controllers/group.py:165
+#: ckan/controllers/home.py:27 ckan/controllers/package.py:143
+#: ckan/controllers/revision.py:33 ckan/controllers/tag.py:27
+#: ckan/controllers/user.py:57 ckan/controllers/user.py:82
+#: ckan/controllers/user.py:85 ckan/controllers/user.py:116
+#: ckan/controllers/user.py:594 ckanext/datapusher/plugin.py:68
+msgid "Not authorized to see this page"
+msgstr "Þú hefur ekki heimild til að opna síðuna"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:12
+msgid "Upload to DataStore"
+msgstr "Hlaða inn í DataStore"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:19
+msgid "Upload error:"
+msgstr "Villa í upphleðslu:"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:25
+#: ckanext/datapusher/templates/datapusher/resource_data.html:27
+msgid "Error:"
+msgstr "Villa:"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:36
+msgid "Error traceback:"
+msgstr ""
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:48
+msgid "Status"
+msgstr "Staða"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:52
+msgid "Last updated"
+msgstr "Síðast uppfært"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:56
+msgid "Never"
+msgstr "Aldrei"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:62
+msgid "Upload Log"
+msgstr "Upphleðsluskrá"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:76
+msgid "Details"
+msgstr "Upplýsingar"
+
+#: ckanext/datapusher/templates/datapusher/resource_data.html:83
+msgid "End of log"
+msgstr "Endir á skrá"
+
+#: ckanext/datapusher/templates/package/resource_edit_base.html:5
+msgid "DataStore"
+msgstr "DataStore"
+
+#: ckanext/datastore/controller.py:46
+#, python-format
+msgid "format: must be one of %s"
+msgstr ""
+
+#: ckanext/datastore/controller.py:58
+msgid "DataStore resource not found"
+msgstr "Tilfang DataStore fannst ekki"
+
+#: ckanext/datastore/controller.py:101
+msgid ""
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
+msgstr ""
+
+#: ckanext/datastore/backend/postgres.py:1032
+msgid ""
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
+msgstr ""
+"Þessi gögn eru ógild (til dæmis: tölugildi er ekki innan marka eða var "
+"slegið inn í textareit)."
+
+#: ckanext/datastore/logic/action.py:262 ckanext/datastore/logic/action.py:290
+#: ckanext/datastore/logic/action.py:348 ckanext/datastore/logic/action.py:459
+#: ckanext/datastore/logic/action.py:534 ckanext/datastore/logic/action.py:559
+msgid "Resource \"{0}\" was not found."
+msgstr "Tilfangið „{0}“ fannst ekki."
+
+#: ckanext/datastore/logic/auth.py:19
+msgid "User {0} not authorized to update resource {1}"
+msgstr "Notandinn {0} hefur ekki heimild til að uppfæra tilfangið {1}"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:19
+msgid "CKAN Data API"
+msgstr "CKAN Data API"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:23
+msgid "Access resource data via a web API with powerful query support"
+msgstr "Opnaðu tilfangsgögn í gegnum nettengt API með öflugum leitarstuðningi"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:24
+msgid ""
+" Further information in the <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr ""
+"Ítarlegri upplýsingar má finna í <a "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">aðalleiðbeiningum CKAN gagnaforritaskila og "
+"gagnabankans</a>.</p> "
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:33
+msgid "Endpoints"
+msgstr "Viðmið"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:37
+msgid ""
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
+msgstr "Hægt er opna Data API með eftirfarandi aðgerðum CKAN action API."
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:42
+msgid "Create"
+msgstr "Stofna"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:46
+msgid "Update / Insert"
+msgstr "Uppfæra / Færa inn"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:50
+msgid "Query"
+msgstr "Fyrirspurn"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:54
+msgid "Query (via SQL)"
+msgstr "Fyrirspurn (með SQL)"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:66
+msgid "Querying"
+msgstr "Athugar"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:70
+msgid "Query example (first 5 results)"
+msgstr "Dæmi um fyrirspurn (fyrstu 5 niðurstöður)"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:75
+msgid "Query example (results containing 'jones')"
+msgstr "Dæmi um fyrirspurn (niðurstöður sem innihalda 'jones') "
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:80
+msgid "Query example (via SQL statement)"
+msgstr "Dæmi um fyrirspurn (með SQL yfirlýsingu)"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:91
+msgid "Example: Javascript"
+msgstr "Dæmi: Javascript"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:95
+msgid "A simple ajax (JSONP) request to the data API using jQuery."
+msgstr "Einföld ajax (JSONP) fyrirspurn til data API með jQuery."
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:116
+msgid "Example: Python"
+msgstr "Dæmi: Kyrkislanga"
+
+#: ckanext/datastore/templates/datastore/dictionary.html:16
+msgid "Field {num}."
+msgstr ""
+
+#: ckanext/datastore/templates/datastore/dictionary.html:18
+#: ckanext/datastore/templates/package/resource_read.html:20
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:18
+msgid "Label"
+msgstr ""
+
+#: ckan/templates/group/snippets/group_form.html:20
+#: ckan/templates/organization/snippets/organization_form.html:20
+#: ckan/templates/package/snippets/package_basic_fields.html:19
+#: ckan/templates/package/snippets/resource_form.html:32
+#: ckan/templates/package/snippets/view_form.html:9
+#: ckanext/datastore/templates/datastore/dictionary.html:21
+#: ckanext/datastore/templates/package/resource_read.html:21
+msgid "Description"
+msgstr "Lýsing"
+
+#: ckan/templates/group/member_new.html:60
+#: ckanext/datastore/templates/datastore/dictionary.html:26
+msgid "Save"
+msgstr "Vista"
+
+#: ckanext/datastore/templates/package/resource_edit_base.html:6
+#: ckanext/datastore/templates/package/resource_read.html:14
+msgid "Data Dictionary"
+msgstr ""
+
+#: ckanext/datastore/templates/package/resource_read.html:18
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:17
+msgid "Column"
+msgstr ""
+
+#: ckanext/datastore/templates/package/resource_read.html:19
+msgid "Type"
+msgstr ""
+
+#: ckan/public/base/javascript/modules/activity-stream.js:97
+#: ckan/public/base/javascript/modules/popover-context.js:62
+#: ckan/templates/tests/mock_json_resource_preview_template.html:7
+#: ckan/templates/tests/mock_resource_preview_template.html:7
+#: ckanext/datastore/templates/package/snippets/data_api_button.html:8
+#: ckanext/example_theme_docs/v18_snippet_api/fanstatic/example_theme_popover.js:21
+#: ckanext/example_theme_docs/v19_01_error/fanstatic/example_theme_popover.js:21
+#: ckanext/example_theme_docs/v19_02_error_handling/fanstatic/example_theme_popover.js:8
+#: ckanext/example_theme_docs/v20_pubsub/fanstatic/example_theme_popover.js:8
+#: ckanext/example_theme_docs/v21_custom_jquery_plugin/fanstatic/example_theme_popover.js:8
+#: ckanext/reclineview/theme/templates/recline_view.html:14
+#: ckanext/textview/theme/templates/text_view.html:9
+msgid "Loading..."
+msgstr "Hleð..."
+
+#: ckanext/datastore/templates/package/snippets/data_api_button.html:10
+msgid "Data API"
+msgstr "Data API"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
+msgid ""
+" Further information in the <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr ""
+"Ítarlegri upplýsingar má finna í <a "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">aðalleiðbeiningum CKAN gagnaforritaskila og "
+"gagnabankans</a>.</p> "
+
+#: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:128
+msgid "Table"
+msgstr "Tafla"
+
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:6
+msgid "Responsive display"
+msgstr ""
+
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:12
+msgid "Show Columns"
+msgstr ""
+
+#: ckanext/datatablesview/templates/datatables/datatables_view.html:28
+msgid "Hide/Unhide Columns"
+msgstr ""
+
+#: ckanext/example_iconfigurer/templates/admin/config.html:11
+msgid "Datasets per page"
+msgstr "Gagnapakkar á hverri síðu"
+
+#: ckanext/example_iconfigurer/templates/admin/config.html:13
+msgid "Test conf"
+msgstr "Prófunarstillingar"
+
+#: ckan/templates/group/read.html:15 ckan/templates/organization/read.html:19
+#: ckan/templates/package/search.html:29
+#: ckan/templates/snippets/sort_by.html:14
+#: ckanext/example_idatasetform/templates/package/search.html:12
+msgid "Relevance"
+msgstr "Samsvörun"
+
+#: ckan/templates/group/index.html:20 ckan/templates/group/read.html:16
+#: ckan/templates/organization/bulk_process.html:97
+#: ckan/templates/organization/index.html:20
+#: ckan/templates/organization/read.html:20
+#: ckan/templates/package/search.html:30
+#: ckan/templates/snippets/search_form.html:4
+#: ckan/templates/snippets/simple_search.html:10
+#: ckan/templates/snippets/sort_by.html:15
+#: ckanext/example_idatasetform/templates/package/search.html:13
+msgid "Name Ascending"
+msgstr "Nöfn í stafrófsröð"
+
+#: ckan/templates/group/index.html:20 ckan/templates/group/read.html:17
+#: ckan/templates/organization/bulk_process.html:98
+#: ckan/templates/organization/index.html:20
+#: ckan/templates/organization/read.html:21
+#: ckan/templates/package/search.html:31
+#: ckan/templates/snippets/search_form.html:4
+#: ckan/templates/snippets/simple_search.html:10
+#: ckan/templates/snippets/sort_by.html:16
+#: ckanext/example_idatasetform/templates/package/search.html:14
+msgid "Name Descending"
+msgstr "Öfug stafrófsröð"
+
+#: ckan/templates/group/read.html:18
+#: ckan/templates/organization/bulk_process.html:99
+#: ckan/templates/organization/read.html:22
+#: ckan/templates/package/search.html:32
+#: ckan/templates/package/snippets/resource_form.html:51
+#: ckan/templates/snippets/sort_by.html:17
+#: ckanext/example_idatasetform/templates/package/search.html:15
+msgid "Last Modified"
+msgstr "Síðast breytt"
+
+#: ckanext/example_idatasetform/templates/package/search.html:16
+msgid "Custom Field Ascending"
+msgstr "Viðbótarupplýsingar í vaxandi röð"
+
+#: ckanext/example_idatasetform/templates/package/search.html:17
+msgid "Custom Field Descending"
+msgstr "Viðbótarupplýsingar í lækkandi röð"
+
+#: ckan/templates/group/read.html:19 ckan/templates/organization/read.html:23
+#: ckan/templates/package/search.html:33
+#: ckan/templates/snippets/package_item.html:50
+#: ckan/templates/snippets/popular.html:3
+#: ckan/templates/snippets/sort_by.html:19
+#: ckanext/example_idatasetform/templates/package/search.html:18
+msgid "Popular"
+msgstr "Vinsælt"
+
+#: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
+#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
+#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
+msgid "Custom Text"
+msgstr "Valfrjáls texti"
+
+#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
+msgid "custom text"
+msgstr "valfrjáls texti"
+
+#: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
+msgid "Country Code"
+msgstr "Landskóði"
+
+#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
+msgid "custom resource text"
+msgstr "valfrjáls tilfangstexti"
+
+#: ckanext/example_itranslation/templates/home/index.html:4
+msgid "This is an untranslated string"
+msgstr ""
+
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
+msgid "This group has no description"
+msgstr "Engin lýsing á safninu"
+
+#: ckan/templates/group/snippets/group_item.html:32
+#: ckan/templates/organization/snippets/organization_item.html:31
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:23
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
+msgid "{num} Dataset"
+msgid_plural "{num} Datasets"
+msgstr[0] "{num} gagnapakki"
+msgstr[1] "{num} gagnapakkar"
+
+#: ckan/templates/group/snippets/group_item.html:34
+#: ckan/templates/organization/snippets/organization_item.html:33
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
+msgid "0 Datasets"
+msgstr "0 gagnapakkar"
+
+#: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
+msgid "CKAN's data previewing tool has many powerful features"
+msgstr "Gagnaforskoðunartól CKAN býður upp á mikla möguleika"
+
+#: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
+#: ckan/templates/group/snippets/info.html:32
+#: ckan/templates/package/followers.html:3
+#: ckan/templates/package/followers.html:6
+#: ckan/templates/package/snippets/info.html:23
+#: ckan/templates/snippets/context/group.html:13
+#: ckan/templates/snippets/context/user.html:15
+#: ckan/templates/snippets/organization.html:55
+#: ckan/templates/user/followers.html:3 ckan/templates/user/followers.html:7
+#: ckan/templates/user/read_base.html:49
+#: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:12
+msgid "Followers"
+msgstr "Fylgjendur"
+
+#: ckan/logic/__init__.py:98 ckan/logic/action/__init__.py:60
+#: ckan/templates/package/edit_base.html:21
+#: ckan/templates/package/resources.html:5
+#: ckan/templates/package/snippets/package_context.html:12
+#: ckan/templates/package/snippets/resources.html:20
+#: ckan/templates/snippets/context/dataset.html:13
+#: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:15
+msgid "Resources"
+msgstr "Tilföng"
+
+#: ckan/public/base/javascript/modules/image-upload.js:80
+#: ckan/templates/macros/form.html:412 ckanext/imageview/plugin.py:26
+#: ckanext/imageview/plugin.py:31
+msgid "Image"
+msgstr "Mynd"
+
+#: ckanext/imageview/theme/templates/image_form.html:3
+msgid "Image url"
+msgstr "Slóð á mynd"
+
+#: ckanext/imageview/theme/templates/image_form.html:3
+msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
+msgstr ""
+"t.d. http://example.com/myndin-min.jpg (ef tómt er vefslóð tilfangs notuð)"
+
+#: ckanext/reclineview/plugin.py:101
+msgid "Data Explorer"
+msgstr "Gagnaskoðandi"
+
+#: ckanext/reclineview/plugin.py:171
+#: ckanext/reclineview/theme/public/recline_view.js:200
+msgid "Graph"
+msgstr "Myndrit"
+
+#: ckanext/reclineview/plugin.py:231
+#: ckanext/reclineview/theme/public/recline_view.js:207
+msgid "Map"
+msgstr "Kort"
+
+#: ckanext/reclineview/theme/public/recline_view.js:28
+msgid "error loading view"
+msgstr ""
+
+#: ckanext/reclineview/theme/public/recline_view.js:75
+msgid "Could not load view"
+msgstr ""
+
+#: ckanext/reclineview/theme/public/recline_view.js:77
+msgid "DataStore returned an error"
+msgstr ""
+
+#: ckanext/reclineview/theme/public/recline_view.js:79
+msgid "DataProxy returned an error"
+msgstr ""
+
+#: ckanext/reclineview/theme/public/recline_view.js:193
+msgid "Grid"
+msgstr ""
+
+#: ckan/templates/package/snippets/view_form_filters.html:46
+#: ckanext/reclineview/theme/public/recline_view.js:215
+msgid "Filters"
+msgstr "Síur"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
+#: ckanext/reclineview/theme/templates/recline_map_form.html:3
+msgid "Row offset"
+msgstr "raðahliðrun"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
+#: ckanext/reclineview/theme/templates/recline_map_form.html:3
+msgid "eg: 0"
+msgstr "t.d. 0"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
+#: ckanext/reclineview/theme/templates/recline_map_form.html:4
+msgid "Number of rows"
+msgstr "Fjöldi raða"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
+#: ckanext/reclineview/theme/templates/recline_map_form.html:4
+msgid "eg: 100"
+msgstr "t.d. 100"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:6
+msgid "Graph type"
+msgstr "Gerð myndrits"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:7
+msgid "Group (Axis 1)"
+msgstr "Hópur (ás 1)"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:8
+msgid "Series (Axis 2)"
+msgstr "Röð (ás 2)"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:6
+msgid "Field type"
+msgstr "Gerð svæðis"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:7
+msgid "Latitude field"
+msgstr "Breiddargráðureitur"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:8
+msgid "Longitude field"
+msgstr "Lengdargráðureitur"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:9
+msgid "GeoJSON field"
+msgstr "GeoJSON-reitur"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:10
+msgid "Auto zoom to features"
+msgstr "Sjálfvirk þysjun að eiginleikum"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:11
+msgid "Cluster markers"
+msgstr "Klasamerkingar"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:10
+msgid "Total number of Datasets"
+msgstr "Heildarfjöldi gagnapakka"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:17
+#: ckanext/stats/templates/ckanext/stats/index.html:40
+msgid "Date"
+msgstr "Dagsetning"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:18
+msgid "Total datasets"
+msgstr "Fjöldi gagnapakka"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:33
+#: ckanext/stats/templates/ckanext/stats/index.html:179
+msgid "Dataset Revisions per Week"
+msgstr "Uppfærslur gagnapakka á viku"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:41
+msgid "All dataset revisions"
+msgstr "Allar uppfærslur gagnapakka"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:42
+msgid "New datasets"
+msgstr "Nýir gagnapakkar"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:58
+#: ckanext/stats/templates/ckanext/stats/index.html:180
+msgid "Top Rated Datasets"
+msgstr "Gagnapakkar með hæstu einkunn"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:64
+msgid "Average rating"
+msgstr "Meðaleinkunn"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:65
+msgid "Number of ratings"
+msgstr "Fjöldi einkunna"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:79
+msgid "No ratings"
+msgstr "Engar einkunnir"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:84
+#: ckanext/stats/templates/ckanext/stats/index.html:181
+msgid "Most Edited Datasets"
+msgstr "Gagnapakkar sem hafa verið uppfærðir oftast"
+
+#: ckan/logic/converters.py:146 ckan/logic/validators.py:149
+#: ckan/logic/validators.py:191 ckan/templates/package/read_base.html:19
+#: ckanext/stats/templates/ckanext/stats/index.html:89
+msgid "Dataset"
+msgstr "Gagnapakki"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:90
+msgid "Number of edits"
+msgstr "Fjöldi breytinga"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:103
+msgid "No edited datasets"
+msgstr "Engir gagnapakkar uppfærðir"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:108
+#: ckanext/stats/templates/ckanext/stats/index.html:182
+msgid "Largest Groups"
+msgstr "Stærstu söfn"
+
+#: ckan/logic/converters.py:171 ckan/logic/validators.py:244
+#: ckanext/stats/templates/ckanext/stats/index.html:113
+msgid "Group"
+msgstr "Safn"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:114
+msgid "Number of datasets"
+msgstr "Fjöldi gagnapakka"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:127
+msgid "No groups"
+msgstr "Engin söfn"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:132
+#: ckanext/stats/templates/ckanext/stats/index.html:183
+msgid "Top Tags"
+msgstr "Algengustu efnisorðin"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:136
+msgid "Tag Name"
+msgstr "Heiti efnisorðs"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:137
+#: ckanext/stats/templates/ckanext/stats/index.html:157
+msgid "Number of Datasets"
+msgstr "Fjöldi gagnapakka"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:152
+#: ckanext/stats/templates/ckanext/stats/index.html:184
+msgid "Users Creating Most Datasets"
+msgstr ""
+
+#: ckan/logic/converters.py:121 ckan/logic/validators.py:214
+#: ckan/logic/validators.py:231 ckan/logic/validators.py:706
+#: ckan/templates/group/members.html:14
+#: ckan/templates/organization/members.html:19
+#: ckanext/stats/templates/ckanext/stats/index.html:156
+msgid "User"
+msgstr "Notandi"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:175
+msgid "Statistics Menu"
+msgstr "Talnagögn"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:178
+msgid "Total Number of Datasets"
+msgstr "Heildarfjöldi gagnapakka"
+
+#: ckanext/textview/plugin.py:67 ckanext/textview/plugin.py:69
+msgid "Text"
+msgstr "Texti"
+
+#: ckanext/webpageview/plugin.py:21 ckanext/webpageview/plugin.py:26
+msgid "Website"
+msgstr "Vefsíða"
+
+#: ckanext/webpageview/theme/templates/webpage_form.html:3
+msgid "Web Page url"
+msgstr "Vefsíðuslóð"
+
+#: ckanext/webpageview/theme/templates/webpage_form.html:3
+msgid "eg. http://example.com (if blank uses resource url)"
+msgstr "t.d. http://example.com (ef tómt er vefslóð tilfangs notuð)"
+
+#: ckan/templates/dataviewer/snippets/data_preview.html:23
+#: ckan/templates/package/snippets/resource_view.html:56
+#: ckanext/webpageview/theme/templates/webpage_view.html:2
+msgid "Your browser does not support iframes."
+msgstr "Vafrinn þinn styður ekki iframes."
+
+#: ckan/authz.py:182
 #, python-format
 msgid "Authorization function not found: %s"
 msgstr "Virkni aðgangsheimildar fannst ekki: %s"
 
-#: ckan/authz.py:189 ckan/templates/header.html:14
+#: ckan/authz.py:194 ckan/templates/header.html:14
 msgid "Admin"
 msgstr "Kerfisstjóri"
 
-#: ckan/authz.py:193
+#: ckan/authz.py:198
 msgid "Editor"
 msgstr "Útgefandi"
 
-#: ckan/authz.py:197
+#: ckan/authz.py:202
 msgid "Member"
 msgstr "Meðlimur"
 
-#: ckan/controllers/admin.py:31
+#: ckan/controllers/admin.py:34
 msgid "Need to be system administrator to administer"
 msgstr "Þú þarft að vera kerfisstjóri til að geta stjórnað"
 
-#: ckan/controllers/admin.py:47
+#: ckan/controllers/admin.py:50
 msgid "Site Title"
 msgstr "Titill síðu"
 
-#: ckan/controllers/admin.py:48
+#: ckan/controllers/admin.py:51
 msgid "Style"
 msgstr "Útlit"
 
-#: ckan/controllers/admin.py:49
+#: ckan/controllers/admin.py:52
 msgid "Site Tag Line"
 msgstr "Slagorð vefsins"
 
-#: ckan/controllers/admin.py:50
+#: ckan/controllers/admin.py:53
 msgid "Site Tag Logo"
 msgstr "Merki vefsins"
 
-#: ckan/controllers/admin.py:51 ckan/templates/header.html:106
-#: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:19
+#: ckan/controllers/admin.py:55 ckan/templates/group/about.html:3
+#: ckan/templates/group/read_base.html:19 ckan/templates/header.html:106
 #: ckan/templates/home/about.html:3 ckan/templates/home/about.html:6
 #: ckan/templates/home/about.html:16 ckan/templates/organization/about.html:3
 #: ckan/templates/organization/read_base.html:19
@@ -75,194 +723,179 @@ msgstr "Merki vefsins"
 msgid "About"
 msgstr "Um vefinn"
 
-#: ckan/controllers/admin.py:51
+#: ckan/controllers/admin.py:55
 msgid "About page text"
 msgstr "Texti um vefinn"
 
-#: ckan/controllers/admin.py:52
+#: ckan/controllers/admin.py:56
 msgid "Intro Text"
 msgstr "Kynningartexti"
 
-#: ckan/controllers/admin.py:52
+#: ckan/controllers/admin.py:56
 msgid "Text on home page"
 msgstr "Texti á heimasíðu"
 
-#: ckan/controllers/admin.py:53
+#: ckan/controllers/admin.py:57
 msgid "Custom CSS"
 msgstr "Sérsniðið CSS"
 
-#: ckan/controllers/admin.py:53
+#: ckan/controllers/admin.py:57
 msgid "Customisable css inserted into the page header"
 msgstr "Sérsníðanlegt CSS var sett inn í haus síðunnar"
 
-#: ckan/controllers/admin.py:54
+#: ckan/controllers/admin.py:58
 msgid "Homepage"
 msgstr "Heimasíða"
 
-#: ckan/controllers/admin.py:157
+#: ckan/controllers/admin.py:161
 #, python-format
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr "Get ekki varanlega eytt %s þar sem tengd útgáfa %s inniheldur pakka %s sem á eftir að eyða út"
+msgstr ""
+"Get ekki varanlega eytt %s þar sem tengd útgáfa %s inniheldur pakka %s sem á"
+" eftir að eyða út"
 
-#: ckan/controllers/admin.py:179
+#: ckan/controllers/admin.py:183
 #, python-format
 msgid "Problem purging revision %s: %s"
 msgstr "Vandamál við að eyða útgáfu %s: %s"
 
-#: ckan/controllers/admin.py:181
+#: ckan/controllers/admin.py:185
 msgid "Purge complete"
 msgstr "Hreinsun lokið"
 
-#: ckan/controllers/admin.py:183
+#: ckan/controllers/admin.py:187
 msgid "Action not implemented."
 msgstr "Aðgerð ekki framkvæmd."
 
-#: ckan/controllers/api.py:60 ckan/controllers/group.py:163
-#: ckan/controllers/home.py:26 ckan/controllers/package.py:142
-#: ckan/controllers/revision.py:31 ckan/controllers/tag.py:23
-#: ckan/controllers/user.py:46 ckan/controllers/user.py:73
-#: ckan/controllers/user.py:102 ckan/controllers/user.py:563
-#: ckanext/datapusher/plugin.py:68
-msgid "Not authorized to see this page"
-msgstr "Þú hefur ekki heimild til að opna síðuna"
-
-#: ckan/controllers/api.py:120 ckan/controllers/api.py:214
+#: ckan/controllers/api.py:124 ckan/controllers/api.py:221
 msgid "Access denied"
 msgstr "Aðgangur óheimill"
 
-#: ckan/controllers/api.py:126 ckan/controllers/api.py:223
-#: ckan/logic/converters.py:119 ckan/logic/converters.py:144
-#: ckan/logic/converters.py:169 ckan/logic/validators.py:146
-#: ckan/logic/validators.py:167 ckan/logic/validators.py:188
-#: ckan/logic/validators.py:197 ckan/logic/validators.py:211
-#: ckan/logic/validators.py:228 ckan/logic/validators.py:241
-#: ckan/logic/validators.py:255 ckan/logic/validators.py:279
-#: ckan/logic/validators.py:288 ckan/logic/validators.py:729
-#: ckan/logic/action/create.py:966
+#: ckan/controllers/api.py:130 ckan/controllers/api.py:230
+#: ckan/logic/action/create.py:908 ckan/logic/converters.py:121
+#: ckan/logic/converters.py:146 ckan/logic/converters.py:171
+#: ckan/logic/validators.py:149 ckan/logic/validators.py:170
+#: ckan/logic/validators.py:191 ckan/logic/validators.py:200
+#: ckan/logic/validators.py:214 ckan/logic/validators.py:231
+#: ckan/logic/validators.py:244 ckan/logic/validators.py:268
+#: ckan/logic/validators.py:706
 msgid "Not found"
 msgstr "Fannst ekki"
 
-#: ckan/controllers/api.py:132
+#: ckan/controllers/api.py:136
 msgid "Bad request"
 msgstr "Villa í fyrirspurn"
 
-#: ckan/controllers/api.py:166
+#: ckan/controllers/api.py:170
 #, python-format
 msgid "Action name not known: %s"
 msgstr "Heiti aðgerðar ekki þekkt: %s"
 
-#: ckan/controllers/api.py:188 ckan/controllers/api.py:358
-#: ckan/controllers/api.py:421
+#: ckan/controllers/api.py:191 ckan/controllers/api.py:362
+#: ckan/controllers/api.py:425
 #, python-format
 msgid "JSON Error: %s"
 msgstr "JSON-villa: %s"
 
-#: ckan/controllers/api.py:194
+#: ckan/controllers/api.py:197
 #, python-format
 msgid "Bad request data: %s"
 msgstr "Gagnavilla fyrirspurnar: %s"
 
-#: ckan/controllers/api.py:294
+#: ckan/controllers/api.py:300
 #, python-format
 msgid "Cannot list entity of this type: %s"
 msgstr "Ekki hægt að birta útgáfu af þessari tegund: %s"
 
-#: ckan/controllers/api.py:324
+#: ckan/controllers/api.py:329
 #, python-format
 msgid "Cannot read entity of this type: %s"
 msgstr "Ekki hægt að lesa einingu af þessari tegund: %s"
 
-#: ckan/controllers/api.py:363
+#: ckan/controllers/api.py:367
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr "Get ekki stofnað nýja einingu af þessari tegund: %s %s"
 
-#: ckan/controllers/api.py:396
+#: ckan/controllers/api.py:400
 msgid "Unable to add package to search index"
 msgstr "Ekki tókst að bæta pakka við uppflettitöflu leitarvélar"
 
-#: ckan/controllers/api.py:426
+#: ckan/controllers/api.py:430
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr "Ekki tókst að uppfæra einingu af þessari tegund: %s"
 
-#: ckan/controllers/api.py:450
+#: ckan/controllers/api.py:454
 msgid "Unable to update search index"
 msgstr "Ekki tókst að uppfæra uppflettitöflu leitarvélar"
 
-#: ckan/controllers/api.py:474
+#: ckan/controllers/api.py:477
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr "Get ekki eytt einingu af þessari tegund: %s %s"
 
-#: ckan/controllers/api.py:497
+#: ckan/controllers/api.py:500
 msgid "No revision specified"
 msgstr "Engin útgáfa tilgreind"
 
-#: ckan/controllers/api.py:501
+#: ckan/controllers/api.py:504
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr "Það er engin útgáfa með þetta auðkenni: %s"
 
-#: ckan/controllers/api.py:511
+#: ckan/controllers/api.py:514
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
 msgstr "Leitarstreng vantar ('since_id=UUID' eða 'since_time=TIMESTAMP')"
 
-#: ckan/controllers/api.py:523
+#: ckan/controllers/api.py:526
 #, python-format
 msgid "Could not read parameters: %r"
 msgstr "Gat ekki lesið breytur: %r"
 
-#: ckan/controllers/api.py:584
+#: ckan/controllers/api.py:587
 #, python-format
 msgid "Bad search option: %s"
 msgstr "Villa í leitarvalkosti: %s"
 
-#: ckan/controllers/api.py:587
+#: ckan/controllers/api.py:590
 #, python-format
 msgid "Unknown register: %s"
 msgstr "Óþekkt skráning: %s"
 
-#: ckan/controllers/api.py:596
+#: ckan/controllers/api.py:599
 #, python-format
 msgid "Malformed qjson value: %r"
 msgstr "Villa í qjson gildi: %r"
 
-#: ckan/controllers/api.py:606
+#: ckan/controllers/api.py:609
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr "Fyrirspurnarbreytur verða að vera á json kóðuðu dictionary sniði"
 
-#: ckan/controllers/feed.py:223 ckan/controllers/group.py:136
-#: ckan/controllers/group.py:222 ckan/controllers/group.py:408
-#: ckan/controllers/group.py:516 ckan/controllers/group.py:563
-#: ckan/controllers/group.py:595 ckan/controllers/group.py:606
-#: ckan/controllers/group.py:660 ckan/controllers/group.py:679
-#: ckan/controllers/group.py:731 ckan/controllers/group.py:763
-#: ckan/controllers/group.py:796 ckan/controllers/group.py:855
-#: ckan/controllers/group.py:951 ckan/controllers/package.py:1270
-#: ckan/controllers/package.py:1285
+#: ckan/controllers/feed.py:233 ckan/controllers/group.py:137
+#: ckan/controllers/group.py:225 ckan/controllers/group.py:393
+#: ckan/controllers/group.py:503 ckan/controllers/group.py:536
+#: ckan/controllers/group.py:566 ckan/controllers/group.py:577
+#: ckan/controllers/group.py:631 ckan/controllers/group.py:649
+#: ckan/controllers/group.py:707 ckan/controllers/group.py:739
+#: ckan/controllers/group.py:772 ckan/controllers/group.py:829
+#: ckan/controllers/group.py:926 ckan/controllers/package.py:1243
+#: ckan/controllers/package.py:1258 ckan/logic/action/create.py:1396
 msgid "Group not found"
 msgstr "Safn fannst ekki"
 
-#: ckan/controllers/feed.py:234
+#: ckan/controllers/feed.py:244 ckan/logic/action/create.py:1396
 msgid "Organization not found"
 msgstr "Stofnun fannst ekki"
 
-#: ckan/controllers/group.py:138 ckan/controllers/group.py:609
+#: ckan/controllers/group.py:139 ckan/controllers/group.py:580
 msgid "Incorrect group type"
 msgstr "Röng safnategund"
 
-#: ckan/controllers/group.py:224 ckan/controllers/group.py:410
-#: ckan/controllers/group.py:518 ckan/controllers/group.py:561
-#: ckan/controllers/group.py:593 ckan/controllers/group.py:953
-#, python-format
-msgid "Unauthorized to read group %s"
-msgstr "Þú hefur ekki lesaðgang að safninu %s"
-
-#: ckan/controllers/group.py:310 ckan/controllers/home.py:67
-#: ckan/controllers/package.py:239 ckan/lib/helpers.py:755
+#: ckan/controllers/group.py:305 ckan/controllers/home.py:61
+#: ckan/controllers/package.py:240 ckan/lib/helpers.py:833
 #: ckan/templates/header.html:104 ckan/templates/organization/edit_base.html:5
 #: ckan/templates/organization/edit_base.html:8
 #: ckan/templates/organization/index.html:3
@@ -274,23 +907,23 @@ msgstr "Þú hefur ekki lesaðgang að safninu %s"
 msgid "Organizations"
 msgstr "Stofnanir"
 
-#: ckan/controllers/group.py:311 ckan/controllers/home.py:68
-#: ckan/controllers/package.py:240 ckan/lib/helpers.py:756
-#: ckan/templates/header.html:105 ckan/templates/group/base_form_page.html:6
-#: ckan/templates/group/edit.html:4 ckan/templates/group/edit_base.html:3
-#: ckan/templates/group/edit_base.html:8 ckan/templates/group/index.html:3
+#: ckan/controllers/group.py:306 ckan/controllers/home.py:62
+#: ckan/controllers/package.py:241 ckan/lib/helpers.py:834
+#: ckan/templates/group/base_form_page.html:6 ckan/templates/group/edit.html:4
+#: ckan/templates/group/edit_base.html:4
+#: ckan/templates/group/edit_base.html:10 ckan/templates/group/index.html:3
 #: ckan/templates/group/index.html:6 ckan/templates/group/index.html:18
 #: ckan/templates/group/members.html:3 ckan/templates/group/read_base.html:3
-#: ckan/templates/group/read_base.html:6
+#: ckan/templates/group/read_base.html:6 ckan/templates/header.html:105
 #: ckan/templates/package/group_list.html:5
 #: ckan/templates/package/read_base.html:20
 #: ckan/templates/revision/diff.html:16 ckan/templates/revision/read.html:84
 msgid "Groups"
 msgstr "Söfn"
 
-#: ckan/controllers/group.py:312 ckan/controllers/home.py:69
-#: ckan/controllers/package.py:241 ckan/lib/helpers.py:757
-#: ckan/logic/__init__.py:100
+#: ckan/controllers/group.py:307 ckan/controllers/home.py:63
+#: ckan/controllers/package.py:242 ckan/lib/helpers.py:835
+#: ckan/logic/__init__.py:109
 #: ckan/templates/package/snippets/package_basic_fields.html:24
 #: ckan/templates/snippets/context/dataset.html:17
 #: ckan/templates/tag/index.html:3 ckan/templates/tag/index.html:6
@@ -298,584 +931,526 @@ msgstr "Söfn"
 msgid "Tags"
 msgstr "Efnisorð"
 
-#: ckan/controllers/group.py:313 ckan/controllers/home.py:70
-#: ckan/controllers/package.py:242 ckan/lib/helpers.py:758
+#: ckan/controllers/group.py:308 ckan/controllers/home.py:64
+#: ckan/controllers/package.py:243 ckan/lib/helpers.py:836
 msgid "Formats"
 msgstr "Snið"
 
-#: ckan/controllers/group.py:314 ckan/controllers/home.py:71
-#: ckan/controllers/package.py:243 ckan/lib/helpers.py:759
+#: ckan/controllers/group.py:309 ckan/controllers/home.py:65
+#: ckan/controllers/package.py:244 ckan/lib/helpers.py:837
 msgid "Licenses"
 msgstr "Leyfi"
 
-#: ckan/controllers/group.py:453
-msgid "Not authorized to perform bulk update"
-msgstr "Heimild vantar til að framkvæma uppfærslu á magni"
-
-#: ckan/controllers/group.py:473
-msgid "Unauthorized to create a group"
-msgstr "Þú hefur ekki heimild til að stofna safn"
-
-#: ckan/controllers/group.py:527 ckan/controllers/package.py:319
-#: ckan/controllers/package.py:779 ckan/controllers/package.py:1418
-#: ckan/controllers/package.py:1454
+#: ckan/controllers/group.py:395 ckan/controllers/group.py:512
+#: ckan/controllers/package.py:326 ckan/controllers/package.py:767
+#: ckan/controllers/package.py:1387 ckan/controllers/package.py:1421
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr "Notandinn %r hefur ekki heimild til að breyta %s"
 
-#: ckan/controllers/group.py:565 ckan/controllers/group.py:597
-#: ckan/controllers/package.py:945 ckan/controllers/package.py:993
-#: ckan/controllers/user.py:236 ckan/controllers/user.py:348
-#: ckan/controllers/user.py:517
+#: ckan/controllers/group.py:442
+msgid "Not authorized to perform bulk update"
+msgstr "Heimild vantar til að framkvæma uppfærslu á magni"
+
+#: ckan/controllers/group.py:460
+msgid "Unauthorized to create a group"
+msgstr "Þú hefur ekki heimild til að stofna safn"
+
+#: ckan/controllers/group.py:538 ckan/controllers/group.py:568
+#: ckan/controllers/package.py:922 ckan/controllers/package.py:970
+#: ckan/controllers/user.py:249 ckan/controllers/user.py:379
+#: ckan/controllers/user.py:548
 msgid "Integrity Error"
 msgstr "Villa í heilindum gagna"
 
-#: ckan/controllers/group.py:623
+#: ckan/controllers/group.py:594
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
 msgstr "Notandinn %r hefur ekki heimild til að breyta %s aðgangsheimildum"
 
-#: ckan/controllers/group.py:643 ckan/controllers/group.py:658
-#: ckan/controllers/group.py:677 ckan/controllers/group.py:761
+#: ckan/controllers/group.py:614 ckan/controllers/group.py:629
 #, python-format
 msgid "Unauthorized to delete group %s"
 msgstr "Þú hefur ekki heimild til að eyða safninu %s"
 
-#: ckan/controllers/group.py:649
+#: ckan/controllers/group.py:620
 msgid "Organization has been deleted."
 msgstr "Stofnuninni hefur verið eytt"
 
-#: ckan/controllers/group.py:651
+#: ckan/controllers/group.py:622
 msgid "Group has been deleted."
 msgstr "Safninu hefur verið eytt."
 
-#: ckan/controllers/group.py:653
+#: ckan/controllers/group.py:624
 #, python-format
 msgid "%s has been deleted."
-msgstr "%s hefur verið eytt."
+msgstr "%s hefur verið eytt"
 
-#: ckan/controllers/group.py:729
+#: ckan/controllers/group.py:653
+#, python-format
+msgid "User %r not authorized to edit members of %s"
+msgstr ""
+
+#: ckan/controllers/group.py:705
 #, python-format
 msgid "Unauthorized to add member to group %s"
 msgstr "Þú hefur ekki heimild til að bæta notanda við safnið %s"
 
-#: ckan/controllers/group.py:748
+#: ckan/controllers/group.py:724 ckan/controllers/group.py:737
 #, python-format
 msgid "Unauthorized to delete group %s members"
 msgstr "Þú hefur ekki heimild til til að eyða notendum safnsins %s"
 
-#: ckan/controllers/group.py:755
+#: ckan/controllers/group.py:731
 msgid "Group member has been deleted."
 msgstr "Meðlimi safns hefur verið eytt."
 
-#: ckan/controllers/group.py:779 ckan/controllers/package.py:412
+#: ckan/controllers/group.py:755 ckan/controllers/package.py:417
 msgid "Select two revisions before doing the comparison."
 msgstr "Veljið tvær útgáfur til að hefja samanburð."
 
-#: ckan/controllers/group.py:798
-#, python-format
-msgid "User %r not authorized to edit %r"
-msgstr "Notandinn %r hefur ekki heimild til að breyta %r"
-
-#: ckan/controllers/group.py:805
+#: ckan/controllers/group.py:779
 msgid "CKAN Group Revision History"
 msgstr "Útgáfusaga CKAN safnsins"
 
-#: ckan/controllers/group.py:809
+#: ckan/controllers/group.py:783
 msgid "Recent changes to CKAN Group: "
 msgstr "Nýlegar breytingar á CKAN safninu:"
 
-#: ckan/controllers/group.py:830 ckan/controllers/package.py:462
+#: ckan/controllers/group.py:804 ckan/controllers/package.py:468
 msgid "Log message: "
 msgstr "Skilaboð úr kerfisskrá:"
 
-#: ckan/controllers/group.py:858
-msgid "Unauthorized to read group {group_id}"
-msgstr "Þú hefur ekki lesaðgang að safninu {group_id}"
-
-#: ckan/controllers/group.py:879 ckan/controllers/package.py:1195
-#: ckan/controllers/user.py:684
+#: ckan/controllers/group.py:854 ckan/controllers/package.py:1171
+#: ckan/controllers/user.py:715
 msgid "You are now following {0}"
 msgstr "Þú fylgist nú með {0}"
 
-#: ckan/controllers/group.py:899 ckan/controllers/package.py:1214
-#: ckan/controllers/user.py:704
+#: ckan/controllers/group.py:874 ckan/controllers/package.py:1190
+#: ckan/controllers/user.py:735
 msgid "You are no longer following {0}"
 msgstr "Þú ert ekki lengur að fylgjast með {0}"
 
-#: ckan/controllers/group.py:919 ckan/controllers/user.py:549
+#: ckan/controllers/group.py:894 ckan/controllers/user.py:580
 #, python-format
 msgid "Unauthorized to view followers %s"
 msgstr "Ekki heimild til að að skoða fylgjendur %s"
 
-#: ckan/controllers/home.py:34
+#: ckan/controllers/home.py:35
 msgid "This site is currently off-line. Database is not initialised."
 msgstr "Vefurinn er ekki virkur. Það á eftir að setja upp gagnagrunninn."
 
-#: ckan/controllers/home.py:79
+#: ckan/controllers/home.py:73
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr "<a href=\"%s\">Uppfærðu prófílinn</a> og bættu við netfangi. "
 
-#: ckan/controllers/home.py:81
+#: ckan/controllers/home.py:75
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
 msgstr "%s notar netfangið þitt ef þú þarft að breyta aðgangsorðinu."
 
-#: ckan/controllers/package.py:293
+#: ckan/controllers/package.py:288
+msgid "Invalid search query: {error_message}"
+msgstr ""
+
+#: ckan/controllers/package.py:304
 msgid "Parameter \"{parameter_name}\" is not an integer"
 msgstr "Breytan „{parameter_name}“ er ekki heiltala"
 
-#: ckan/controllers/package.py:317 ckan/controllers/package.py:325
-#: ckan/controllers/package.py:365 ckan/controllers/package.py:431
-#: ckan/controllers/package.py:765 ckan/controllers/package.py:824
-#: ckan/controllers/package.py:842 ckan/controllers/package.py:943
-#: ckan/controllers/package.py:991 ckan/controllers/package.py:1043
-#: ckan/controllers/package.py:1085 ckan/controllers/package.py:1240
-#: ckan/controllers/package.py:1256 ckan/controllers/package.py:1323
-#: ckan/controllers/package.py:1424 ckan/controllers/package.py:1461
-#: ckan/controllers/package.py:1574
+#: ckan/controllers/package.py:324 ckan/controllers/package.py:332
+#: ckan/controllers/package.py:370 ckan/controllers/package.py:437
+#: ckan/controllers/package.py:753 ckan/controllers/package.py:801
+#: ckan/controllers/package.py:819 ckan/controllers/package.py:920
+#: ckan/controllers/package.py:968 ckan/controllers/package.py:1020
+#: ckan/controllers/package.py:1067 ckan/controllers/package.py:1215
+#: ckan/controllers/package.py:1231 ckan/controllers/package.py:1294
+#: ckan/controllers/package.py:1393 ckan/controllers/package.py:1428
+#: ckan/controllers/package.py:1535
 msgid "Dataset not found"
 msgstr "Gagnapakki fannst ekki"
 
-#: ckan/controllers/package.py:327 ckan/controllers/package.py:367
-#: ckan/controllers/package.py:429 ckan/controllers/package.py:763
-#: ckan/controllers/package.py:822 ckan/controllers/package.py:840
-#: ckan/controllers/package.py:941 ckan/controllers/package.py:989
-#: ckan/controllers/package.py:1242
-#, python-format
-msgid "Unauthorized to read package %s"
-msgstr "Ekki heimild til að lesa pakkann %s"
-
-#: ckan/controllers/package.py:353 ckan/controllers/package.py:355
-#: ckan/controllers/package.py:357
+#: ckan/controllers/package.py:358 ckan/controllers/package.py:360
+#: ckan/controllers/package.py:362
 #, python-format
 msgid "Invalid revision format: %r"
 msgstr "Ógilt snið á útgáfu: %r"
 
-#: ckan/controllers/package.py:393
-msgid ""
-"Viewing {package_type} datasets in {format} format is not supported "
-"(template file {file} not found)."
-msgstr "Skoðun á {package_type} gagnasöfnun á {format} sniði er ekki studd (sniðmátsskráin {file} fannst ekki)."
+#: ckan/controllers/package.py:396
+msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
+msgstr ""
 
-#: ckan/controllers/package.py:438
+#: ckan/controllers/package.py:435 ckan/controllers/package.py:817
+#: ckan/controllers/package.py:918 ckan/controllers/package.py:966
+#: ckan/controllers/package.py:1217
+#, python-format
+msgid "Unauthorized to read package %s"
+msgstr "Ekki heimild til að lesa pakkann %s"
+
+#: ckan/controllers/package.py:444
 msgid "CKAN Dataset Revision History"
 msgstr "Útgáfusaga CKAN  gagnapakka"
 
-#: ckan/controllers/package.py:441
+#: ckan/controllers/package.py:447
 msgid "Recent changes to CKAN Dataset: "
 msgstr "Nýlegar breytingar á CKAN gagnapakka:"
 
-#: ckan/controllers/package.py:498
+#: ckan/controllers/package.py:503
 msgid "Unauthorized to create a package"
 msgstr "Þú hefur ekki heimild til að búa til pakka"
 
-#: ckan/controllers/package.py:576 ckanext/datapusher/plugin.py:59
+#: ckan/controllers/package.py:573
 msgid "Unauthorized to edit this resource"
 msgstr "Þú hefur ekki heimild til að breyta þessu tilfangi"
 
-#: ckan/controllers/package.py:599 ckan/controllers/package.py:1072
-#: ckan/controllers/package.py:1094 ckan/controllers/package.py:1163
-#: ckan/controllers/package.py:1353 ckan/controllers/package.py:1435
-#: ckan/controllers/package.py:1468 ckan/controllers/package.py:1582
-#: ckan/controllers/package.py:1638 ckanext/datapusher/plugin.py:57
-#: ckanext/resourceproxy/controller.py:31
-msgid "Resource not found"
-msgstr "Tilfang fannst ekki"
-
-#: ckan/controllers/package.py:653
+#: ckan/controllers/package.py:644
 msgid "Unauthorized to update dataset"
 msgstr "Þú hefur ekki heimild til að uppfæra gagnapakka"
 
-#: ckan/controllers/package.py:655 ckan/controllers/package.py:692
-#: ckan/controllers/package.py:721
+#: ckan/controllers/package.py:646 ckan/controllers/package.py:683
+#: ckan/controllers/package.py:709
 msgid "The dataset {id} could not be found."
 msgstr "Gagnapakkinn {id} fannst ekki."
 
-#: ckan/controllers/package.py:659
+#: ckan/controllers/package.py:650
 msgid "You must add at least one data resource"
 msgstr "Þú verður að bæta við a.m.k. einu tilfangi"
 
-#: ckan/controllers/package.py:667 ckanext/datapusher/helpers.py:22
-msgid "Error"
-msgstr "Villa"
-
-#: ckan/controllers/package.py:690
+#: ckan/controllers/package.py:681
 msgid "Unauthorized to create a resource"
 msgstr "Þú hefur ekki heimild til að búa til tilfang"
 
-#: ckan/controllers/package.py:726
+#: ckan/controllers/package.py:714
 msgid "Unauthorized to create a resource for this package"
 msgstr "Þú hefur ekki heimild til að búa til tilfang fyrir þennan pakka"
 
-#: ckan/controllers/package.py:951
+#: ckan/controllers/package.py:928
 msgid "Unable to add package to search index."
 msgstr "Ekki tókst að bæta pakka við uppflettitöflu leitarvélar."
 
-#: ckan/controllers/package.py:999
+#: ckan/controllers/package.py:976
 msgid "Unable to update search index."
 msgstr "Ekki tókst að uppfæra uppflettitöflu leitarvélar."
 
-#: ckan/controllers/package.py:1036
+#: ckan/controllers/package.py:1013
 msgid "Dataset has been deleted."
 msgstr "Gagnapakka hefur verið eytt."
 
-#: ckan/controllers/package.py:1041 ckan/controllers/package.py:1059
+#: ckan/controllers/package.py:1018 ckan/controllers/package.py:1036
 #, python-format
 msgid "Unauthorized to delete package %s"
 msgstr "Óheimilt að eyða pakka %s"
 
-#: ckan/controllers/package.py:1064
+#: ckan/controllers/package.py:1041
 msgid "Resource has been deleted."
 msgstr "Tilfangi hefur verið eytt."
 
-#: ckan/controllers/package.py:1070
+#: ckan/controllers/package.py:1052
 #, python-format
 msgid "Unauthorized to delete resource %s"
 msgstr "Þú hefur ekki heimild til að eyða tilfanginu %s"
 
-#: ckan/controllers/package.py:1087 ckan/controllers/package.py:1258
-#: ckan/controllers/package.py:1325 ckan/controllers/package.py:1426
-#: ckan/controllers/package.py:1463 ckan/controllers/package.py:1576
+#: ckan/controllers/package.py:1111 ckan/controllers/package.py:1554
+msgid "Resource view not found"
+msgstr "Tilfangssýn fannst ekki"
+
+#: ckan/controllers/package.py:1150
+msgid "Resource data not found"
+msgstr "Tilfangsgögn fundust ekki"
+
+#: ckan/controllers/package.py:1159
+msgid "No download is available"
+msgstr "Engar skrár til niðurhals"
+
+#: ckan/controllers/package.py:1296
 #, python-format
 msgid "Unauthorized to read dataset %s"
 msgstr "Óheimilt að lesa gagnapakka %s"
 
-#: ckan/controllers/package.py:1133 ckan/controllers/package.py:1597
-msgid "Resource view not found"
-msgstr "Tilfangssýn fannst ekki"
-
-#: ckan/controllers/package.py:1165 ckan/controllers/package.py:1355
-#: ckan/controllers/package.py:1437 ckan/controllers/package.py:1470
-#: ckan/controllers/package.py:1584 ckan/controllers/package.py:1640
+#: ckan/controllers/package.py:1404
 #, python-format
 msgid "Unauthorized to read resource %s"
 msgstr "Þú hefur ekki lesaðgang að tilfanginu %s"
 
-#: ckan/controllers/package.py:1174
-msgid "Resource data not found"
-msgstr "Tilfangsgögn fundust ekki"
-
-#: ckan/controllers/package.py:1183
-msgid "No download is available"
-msgstr "Engar skrár til niðurhals"
-
-#: ckan/controllers/package.py:1505
+#: ckan/controllers/package.py:1468
 msgid "Unauthorized to edit resource"
 msgstr "Þú hefur ekki heimild til að breyta þessu tilfangi"
 
-#: ckan/controllers/package.py:1523
+#: ckan/controllers/package.py:1486
 msgid "View not found"
 msgstr "Sýn fannst ekki"
 
-#: ckan/controllers/package.py:1525
-#, python-format
-msgid "Unauthorized to view View %s"
-msgstr "Þú hefur ekki heimild til að skoða sýnina %s"
-
-#: ckan/controllers/package.py:1531
+#: ckan/controllers/package.py:1492
 msgid "View Type Not found"
 msgstr "Sýnartegund fannst ekki"
 
-#: ckan/controllers/package.py:1591
+#: ckan/controllers/package.py:1548
 msgid "Bad resource view data"
 msgstr "Villa í tilfangssýnargögnum"
 
-#: ckan/controllers/package.py:1600
-#, python-format
-msgid "Unauthorized to read resource view %s"
-msgstr "Þú hefur ekki lesaðgang að tilfangssýn %s"
-
-#: ckan/controllers/package.py:1603
+#: ckan/controllers/package.py:1557
 msgid "Resource view not supplied"
 msgstr "Tilfangssýn ekki uppgefin"
 
-#: ckan/controllers/package.py:1632
+#: ckan/controllers/package.py:1586
 msgid "No preview has been defined."
 msgstr "Forskoðun hefur ekki verið skilgreind."
 
-#: ckan/controllers/revision.py:42
+#: ckan/controllers/revision.py:44
 msgid "CKAN Repository Revision History"
 msgstr "Útgáfusaga CKAN gagnageymslu"
 
-#: ckan/controllers/revision.py:44
+#: ckan/controllers/revision.py:46
 msgid "Recent changes to the CKAN repository."
 msgstr "Nýlegar breytingar á CKAN gagnageymslu."
 
-#: ckan/controllers/revision.py:108
+#: ckan/controllers/revision.py:110
 #, python-format
 msgid "Datasets affected: %s.\n"
 msgstr "Hefur áhrif á gagnapakka: %s. \n"
 
-#: ckan/controllers/revision.py:188
+#: ckan/controllers/revision.py:190
 msgid "Revision updated"
 msgstr "Útgáfa uppfærð"
 
-#: ckan/controllers/tag.py:56
+#: ckan/controllers/tag.py:60
 msgid "Other"
 msgstr "Annað"
 
-#: ckan/controllers/tag.py:70
+#: ckan/controllers/tag.py:74
 msgid "Tag not found"
 msgstr "Efnisorð fannst ekki"
 
-#: ckan/controllers/user.py:71 ckan/controllers/user.py:219
-#: ckan/controllers/user.py:234 ckan/controllers/user.py:297
-#: ckan/controllers/user.py:346 ckan/controllers/user.py:493
-#: ckan/controllers/user.py:515 ckan/logic/auth/update.py:198
-msgid "User not found"
-msgstr "Notandi fannst ekki"
-
-#: ckan/controllers/user.py:149
+#: ckan/controllers/user.py:161
 msgid "Unauthorized to register as a user."
 msgstr "Þú hefur ekki heimild til að skrá þig sem notandi."
 
-#: ckan/controllers/user.py:166
+#: ckan/controllers/user.py:179
 msgid "Unauthorized to create a user"
 msgstr "Þú hefur ekki heimild til að stofna notanda"
 
-#: ckan/controllers/user.py:197
+#: ckan/controllers/user.py:210
 msgid "Unauthorized to delete user with id \"{user_id}\"."
 msgstr "Þú hefur ekki heimild til að eyða notanda með auðkenninu „{user_id}“."
 
-#: ckan/controllers/user.py:211 ckan/controllers/user.py:270
+#: ckan/controllers/user.py:224 ckan/controllers/user.py:287
 msgid "No user specified"
 msgstr "Enginn notandi var tilgreindur"
 
-#: ckan/controllers/user.py:217 ckan/controllers/user.py:295
-#: ckan/controllers/user.py:344 ckan/controllers/user.py:513
+#: ckan/controllers/user.py:230 ckan/controllers/user.py:312
+#: ckan/controllers/user.py:375 ckan/controllers/user.py:544
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr "Þú hefur ekki heimild til að breyta notandanum %s"
 
-#: ckan/controllers/user.py:221 ckan/controllers/user.py:341
+#: ckan/controllers/user.py:232 ckan/controllers/user.py:247
+#: ckan/controllers/user.py:314 ckan/controllers/user.py:377
+#: ckan/controllers/user.py:524 ckan/controllers/user.py:546
+#: ckan/logic/auth/update.py:179
+msgid "User not found"
+msgstr "Notandi fannst ekki"
+
+#: ckan/controllers/user.py:234 ckan/controllers/user.py:367
 msgid "Profile updated"
 msgstr "Prófíllinn var uppfærður"
 
-#: ckan/controllers/user.py:232
+#: ckan/controllers/user.py:245
 #, python-format
 msgid "Unauthorized to create user %s"
 msgstr "Þú hefur ekki heimild til að stofna notanda %s"
 
-#: ckan/controllers/user.py:238
+#: ckan/controllers/user.py:251
 msgid "Bad Captcha. Please try again."
 msgstr "Villa í stafarugli. Reyndu aftur."
 
-#: ckan/controllers/user.py:255
+#: ckan/controllers/user.py:265
 #, python-format
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
 msgstr "Notandinn „%s“ hefur verið stofnaður en þú ert ennþá inni sem „%s“"
 
-#: ckan/controllers/user.py:276
+#: ckan/controllers/user.py:293
 msgid "Unauthorized to edit a user."
 msgstr "Þú hefur ekki heimild til að breyta notanda."
 
-#: ckan/controllers/user.py:303
+#: ckan/controllers/user.py:320
 #, python-format
 msgid "User %s not authorized to edit %s"
 msgstr "Notandinn %s hefur ekki heimild til að breyta %s"
 
-#: ckan/controllers/user.py:354
+#: ckan/controllers/user.py:385
 msgid "Password entered was incorrect"
-msgstr "Innslegið aðgangsorð er rangt"
+msgstr "Innslegið lykilorð er rangt"
 
-#: ckan/controllers/user.py:355 ckan/templates/user/edit_user_form.html:27
+#: ckan/controllers/user.py:386 ckan/templates/user/edit_user_form.html:29
 msgid "Old Password"
-msgstr "Eldra aðgangsorð"
+msgstr "Gamalt lykilorð"
 
-#: ckan/controllers/user.py:355
+#: ckan/controllers/user.py:386
 msgid "incorrect password"
-msgstr "rangt aðgangsorð"
+msgstr "rangt lykilorð"
 
-#: ckan/controllers/user.py:396
+#: ckan/controllers/user.py:427
 msgid "Login failed. Bad username or password."
 msgstr "Innskráning mistókst. Rangt notandanafn eða aðgangsorð."
 
-#: ckan/controllers/user.py:430
+#: ckan/controllers/user.py:461
 msgid "Unauthorized to request reset password."
 msgstr "Þú hefur ekki heimild til að biðja um endurstillingu aðgangsorðs."
 
-#: ckan/controllers/user.py:459
+#: ckan/controllers/user.py:490
 #, python-format
 msgid "\"%s\" matched several users"
 msgstr "„%s“ samræmist fleiri en einum notanda"
 
-#: ckan/controllers/user.py:461 ckan/controllers/user.py:463
+#: ckan/controllers/user.py:492 ckan/controllers/user.py:494
 #, python-format
 msgid "No such user: %s"
 msgstr "Enginn notandi fannst: %s"
 
-#: ckan/controllers/user.py:468
+#: ckan/controllers/user.py:499
 msgid "Please check your inbox for a reset code."
 msgstr "Endurstillingarkóði hefur verið sendur til þín í tölvupósti."
 
-#: ckan/controllers/user.py:472
+#: ckan/controllers/user.py:503
 #, python-format
 msgid "Could not send reset link: %s"
 msgstr "Ekki tókst að senda endurstillingartengil: %s"
 
-#: ckan/controllers/user.py:485
+#: ckan/controllers/user.py:516
 msgid "Unauthorized to reset password."
 msgstr "Þú hefur ekki heimild til að endurstilla aðgangsorð."
 
-#: ckan/controllers/user.py:497
+#: ckan/controllers/user.py:528
 msgid "Invalid reset key. Please try again."
 msgstr "Ógildur endurstillingarkóði. Reyndu aftur."
 
-#: ckan/controllers/user.py:510
+#: ckan/controllers/user.py:541
 msgid "Your password has been reset."
 msgstr "Aðgangsorðinu þínu hefur verið breytt."
 
-#: ckan/controllers/user.py:531
+#: ckan/controllers/user.py:562
 msgid "Your password must be 4 characters or longer."
 msgstr "Aðgangsorð verður að vera 4 stafir eða lengra."
 
-#: ckan/controllers/user.py:534
+#: ckan/controllers/user.py:565
 msgid "The passwords you entered do not match."
 msgstr "Aðgangsorðin sem þú slóst inn stemma ekki."
 
-#: ckan/controllers/user.py:537
+#: ckan/controllers/user.py:568
 msgid "You must provide a password"
 msgstr "Þú verður að slá inn aðgangsorð"
 
-#: ckan/controllers/user.py:602
+#: ckan/controllers/user.py:636
 msgid "Follow item not found"
 msgstr "Eftirfarandi atriði fannst ekki"
 
-#: ckan/controllers/user.py:606
+#: ckan/controllers/user.py:640
 msgid "{0} not found"
 msgstr "{0} fannst ekki"
 
-#: ckan/controllers/user.py:608
-msgid "Unauthorized to read {0} {1}"
-msgstr "Óheimilt að lesa {0} {1}"
-
-#: ckan/controllers/user.py:623
+#: ckan/controllers/user.py:654
 msgid "Everything"
 msgstr "Allt"
 
-#: ckan/controllers/util.py:16 ckan/logic/action/__init__.py:60
+#: ckan/controllers/util.py:18 ckan/logic/action/__init__.py:62
 msgid "Missing Value"
 msgstr "Gildi vantar"
 
-#: ckan/controllers/util.py:21
+#: ckan/controllers/util.py:23
 msgid "Redirecting to external site is not allowed."
 msgstr "Áframsending á ytri síðu er ekki heimil"
 
-#: ckan/lib/activity_streams.py:64
+#: ckan/lib/activity_streams.py:60
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
 msgstr "{actor} bætti efnisorðinu {tag} við gagnapakkann {dataset}"
 
-#: ckan/lib/activity_streams.py:67
+#: ckan/lib/activity_streams.py:63
 msgid "{actor} updated the group {group}"
 msgstr "{actor} uppfærði safnið {group}"
 
-#: ckan/lib/activity_streams.py:70
+#: ckan/lib/activity_streams.py:66
 msgid "{actor} updated the organization {organization}"
 msgstr "{actor} uppfærði stofnunina {organization}"
 
-#: ckan/lib/activity_streams.py:73
+#: ckan/lib/activity_streams.py:69
 msgid "{actor} updated the dataset {dataset}"
 msgstr "{actor} uppfærði gagnapakkann {dataset}"
 
-#: ckan/lib/activity_streams.py:76
+#: ckan/lib/activity_streams.py:72
 msgid "{actor} changed the extra {extra} of the dataset {dataset}"
 msgstr "{actor} hefur breytt viðbótinni {extra} við gagnapakkann {dataset}"
 
-#: ckan/lib/activity_streams.py:79
+#: ckan/lib/activity_streams.py:75
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
 msgstr "{actor} uppfærði tilfangið {resource} í gagnapakkanum {dataset}"
 
-#: ckan/lib/activity_streams.py:82
+#: ckan/lib/activity_streams.py:78
 msgid "{actor} updated their profile"
 msgstr "{actor} uppfærði prófílinn sinn"
 
-#: ckan/lib/activity_streams.py:86
-msgid ""
-"{actor} updated the {related_type} {related_item} of the dataset {dataset}"
-msgstr "{actor} uppfærði {related_type} {related_item} í gagnapakkanum {dataset}"
-
-#: ckan/lib/activity_streams.py:89
-msgid "{actor} updated the {related_type} {related_item}"
-msgstr "{actor} uppfærði {related_type} {related_item}"
-
-#: ckan/lib/activity_streams.py:92
+#: ckan/lib/activity_streams.py:81
 msgid "{actor} deleted the group {group}"
 msgstr "{actor} eyddi safninu {group}"
 
-#: ckan/lib/activity_streams.py:95
+#: ckan/lib/activity_streams.py:84
 msgid "{actor} deleted the organization {organization}"
 msgstr "{actor} eyddi stofnuninni {organization}"
 
-#: ckan/lib/activity_streams.py:98
+#: ckan/lib/activity_streams.py:87
 msgid "{actor} deleted the dataset {dataset}"
 msgstr "{actor} eyddi gagnapakkanum {dataset}"
 
-#: ckan/lib/activity_streams.py:101
+#: ckan/lib/activity_streams.py:90
 msgid "{actor} deleted the extra {extra} from the dataset {dataset}"
 msgstr "{actor} eyddi viðbótinni {extra} við gagnapakkann {dataset}"
 
-#: ckan/lib/activity_streams.py:104
+#: ckan/lib/activity_streams.py:93
 msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
 msgstr "{actor} eyddi skránni {resource} úr gagnapakkanum {dataset}"
 
-#: ckan/lib/activity_streams.py:108
+#: ckan/lib/activity_streams.py:97
 msgid "{actor} created the group {group}"
 msgstr "{actor} stofnaði safnið {group}"
 
-#: ckan/lib/activity_streams.py:111
+#: ckan/lib/activity_streams.py:100
 msgid "{actor} created the organization {organization}"
 msgstr "{actor} stofnaði stofnunina {organization}"
 
-#: ckan/lib/activity_streams.py:114
+#: ckan/lib/activity_streams.py:103
 msgid "{actor} created the dataset {dataset}"
 msgstr "{actor} stofnaði gagnapakkann {dataset}"
 
-#: ckan/lib/activity_streams.py:117
+#: ckan/lib/activity_streams.py:106
 msgid "{actor} added the extra {extra} to the dataset {dataset}"
 msgstr "{actor} hefur sett inn viðbótina {extra} við gagnapakkann {dataset}"
 
-#: ckan/lib/activity_streams.py:120
+#: ckan/lib/activity_streams.py:109
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
 msgstr "{actor} bætti skránni {resource} við gagnapakkann {dataset}"
 
-#: ckan/lib/activity_streams.py:123
+#: ckan/lib/activity_streams.py:112
 msgid "{actor} signed up"
 msgstr "{actor} skráði sig"
 
-#: ckan/lib/activity_streams.py:126
+#: ckan/lib/activity_streams.py:115
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
 msgstr "{actor} fjarlægði efnisorðið {tag} af gagnapakkanum {dataset}"
 
-#: ckan/lib/activity_streams.py:129
-msgid "{actor} deleted the related item {related_item}"
-msgstr "{actor} eyddi ítarefninu {related_item}"
-
-#: ckan/lib/activity_streams.py:132
+#: ckan/lib/activity_streams.py:118
 msgid "{actor} started following {dataset}"
 msgstr "{actor} fylgist nú með gagnapakkanum {dataset}"
 
-#: ckan/lib/activity_streams.py:135
+#: ckan/lib/activity_streams.py:121
 msgid "{actor} started following {user}"
 msgstr "{actor} fylgist nú með notandanum {user}"
 
-#: ckan/lib/activity_streams.py:138
+#: ckan/lib/activity_streams.py:124
 msgid "{actor} started following {group}"
 msgstr "{actor} fylgist nú með safninu {group}"
 
-#: ckan/lib/activity_streams.py:142
-msgid ""
-"{actor} added the {related_type} {related_item} to the dataset {dataset}"
-msgstr "{actor} bætti {related_type} {related_item} við gagnapakkann {dataset}"
-
-#: ckan/lib/activity_streams.py:145
-msgid "{actor} added the {related_type} {related_item}"
-msgstr "{actor} bætti {related_type} við {related_item}"
-
-#: ckan/lib/datapreview.py:265 ckan/templates/group/edit_base.html:16
+#: ckan/lib/datapreview.py:265 ckan/templates/group/edit_base.html:18
 #: ckan/templates/organization/edit_base.html:17
 #: ckan/templates/package/resource_read.html:37
 #: ckan/templates/package/resource_views.html:4
@@ -885,54 +1460,54 @@ msgstr "Skoða"
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] "{n} ný uppfærsla á {site_title}"
-msgstr[1] "{n} nýjar uppfærslur á {site_title}"
+msgstr[0] ""
+msgstr[1] ""
 
-#: ckan/lib/formatters.py:17
+#: ckan/lib/formatters.py:19
 msgid "January"
 msgstr "janúar"
 
-#: ckan/lib/formatters.py:21
+#: ckan/lib/formatters.py:23
 msgid "February"
 msgstr "febrúar"
 
-#: ckan/lib/formatters.py:25
+#: ckan/lib/formatters.py:27
 msgid "March"
 msgstr "mars"
 
-#: ckan/lib/formatters.py:29
+#: ckan/lib/formatters.py:31
 msgid "April"
 msgstr "apríl"
 
-#: ckan/lib/formatters.py:33
+#: ckan/lib/formatters.py:35
 msgid "May"
 msgstr "maí"
 
-#: ckan/lib/formatters.py:37
+#: ckan/lib/formatters.py:39
 msgid "June"
 msgstr "júní"
 
-#: ckan/lib/formatters.py:41
+#: ckan/lib/formatters.py:43
 msgid "July"
 msgstr "júlí"
 
-#: ckan/lib/formatters.py:45
+#: ckan/lib/formatters.py:47
 msgid "August"
 msgstr "ágúst"
 
-#: ckan/lib/formatters.py:49
+#: ckan/lib/formatters.py:51
 msgid "September"
 msgstr "september"
 
-#: ckan/lib/formatters.py:53
+#: ckan/lib/formatters.py:55
 msgid "October"
 msgstr "október"
 
-#: ckan/lib/formatters.py:57
+#: ckan/lib/formatters.py:59
 msgid "November"
 msgstr "nóvember"
 
-#: ckan/lib/formatters.py:61
+#: ckan/lib/formatters.py:63
 msgid "December"
 msgstr "desember"
 
@@ -972,7 +1547,7 @@ msgstr[1] "meira en {years} ár síðan"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr "{day}.{month}.{year}, {hour:02}:{min:02} ({timezone})"
+msgstr ""
 
 #: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
@@ -1034,1011 +1609,888 @@ msgstr "{z}Z"
 msgid "{y}Y"
 msgstr "{y}Y"
 
-#: ckan/lib/helpers.py:939
+#: ckan/lib/helpers.py:1048
 msgid "Update your avatar at gravatar.com"
 msgstr "Uppfærðu myndina á gravatar.com"
 
-#: ckan/lib/helpers.py:1145 ckan/lib/helpers.py:1157
+#: ckan/lib/helpers.py:1297 ckan/lib/helpers.py:1310
 msgid "Unknown"
 msgstr "Óþekkt"
 
-#: ckan/lib/helpers.py:1202
+#: ckan/lib/helpers.py:1361
 msgid "Unnamed resource"
 msgstr "Nafnlaus skrá"
 
-#: ckan/lib/helpers.py:1250
+#: ckan/lib/helpers.py:1401
 msgid "Created new dataset."
 msgstr "Stofnaði nýjan gagnapakka."
 
-#: ckan/lib/helpers.py:1252
+#: ckan/lib/helpers.py:1403
 msgid "Edited resources."
 msgstr "Breytti tilföngum."
 
-#: ckan/lib/helpers.py:1254
+#: ckan/lib/helpers.py:1405
 msgid "Edited settings."
 msgstr "Breytti stillingum."
 
-#: ckan/lib/helpers.py:1518
+#: ckan/lib/helpers.py:1648
 msgid "{number} view"
 msgid_plural "{number} views"
 msgstr[0] "{number} fletting"
 msgstr[1] "{number} flettingar"
 
-#: ckan/lib/helpers.py:1520
+#: ckan/lib/helpers.py:1650
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
 msgstr[0] "{number} nýleg fletting"
 msgstr[1] "{number} nýlegar flettingar"
 
-#: ckan/lib/mailer.py:25
-#, python-format
-msgid "Dear %s,"
-msgstr "Kæri/kæra %s,"
-
-#: ckan/lib/mailer.py:38
+#: ckan/lib/mailer.py:39
 #, python-format
 msgid "%s <%s>"
 msgstr "%s <%s>"
 
-#: ckan/lib/mailer.py:99
+#: ckan/lib/mailer.py:109
 msgid "No recipient email address available!"
 msgstr "Netfang viðtakanda vantar!"
 
-#: ckan/lib/mailer.py:104
-msgid ""
-"You have requested your password on {site_title} to be reset.\n"
-"\n"
-"Please click the following link to confirm this request:\n"
-"\n"
-"   {reset_link}\n"
-msgstr "Þú hefur óskað eftir að breyta aðgangsorðinu þínu á  {site_title}.\n\nSmelltu á þennan hlekk til að breyta aðgangsorðinu:\n\n   {reset_link}\n"
+#: ckan/lib/mailer.py:127 ckan/templates/home/snippets/stats.html:17
+msgid "organization"
+msgstr "stofnun"
 
-#: ckan/lib/mailer.py:119
-msgid ""
-"You have been invited to {site_title}. A user has already been created to you with the username {user_name}. You can change it later.\n"
-"\n"
-"To accept this invite, please reset your password at:\n"
-"\n"
-"   {reset_link}\n"
-msgstr "Þér hefur verið boðið á {site_title}. Það er þegar búið að stofna notanda fyrir þig með notandanafninu {user_name}. Þú getur breytt því síðar.\n\n    Til að samþykkja boðið skaltu endurstilla aðgangsorðið þitt á:\n\n       {reset_link}\n    \n"
+#: ckan/lib/mailer.py:128 ckan/templates/home/snippets/stats.html:23
+msgid "group"
+msgstr "safn"
 
-#: ckan/lib/mailer.py:145 ckan/templates/user/request_reset.html:3
-#: ckan/templates/user/request_reset.html:13
-msgid "Reset your password"
-msgstr "Endurstilltu aðgangsorðið þitt"
-
-#: ckan/lib/mailer.py:151
-msgid "Invite for {site_title}"
-msgstr "Boð á síðuna {site_title}"
-
-#: ckan/lib/navl/dictization_functions.py:11
-#: ckan/lib/navl/dictization_functions.py:13
-#: ckan/lib/navl/dictization_functions.py:15
+#: ckan/lib/navl/dictization_functions.py:14
 #: ckan/lib/navl/dictization_functions.py:17
-#: ckan/lib/navl/dictization_functions.py:19
-#: ckan/lib/navl/dictization_functions.py:21
+#: ckan/lib/navl/dictization_functions.py:20
 #: ckan/lib/navl/dictization_functions.py:23
-#: ckan/lib/navl/dictization_functions.py:25 ckan/lib/navl/validators.py:23
-#: ckan/lib/navl/validators.py:30 ckan/lib/navl/validators.py:50
-#: ckan/logic/validators.py:630 ckan/logic/action/get.py:2107
+#: ckan/lib/navl/dictization_functions.py:26
+#: ckan/lib/navl/dictization_functions.py:29
+#: ckan/lib/navl/dictization_functions.py:32
+#: ckan/lib/navl/dictization_functions.py:35 ckan/lib/navl/validators.py:25
+#: ckan/lib/navl/validators.py:32 ckan/lib/navl/validators.py:52
+#: ckan/logic/action/get.py:2083 ckan/logic/action/update.py:257
+#: ckan/logic/validators.py:607
 msgid "Missing value"
 msgstr "Gildi vantar"
 
-#: ckan/lib/navl/validators.py:64
+#: ckan/lib/navl/validators.py:66
 #, python-format
 msgid "The input field %(name)s was not expected."
 msgstr "Ekki gert ráð fyrir innsláttarsvæðinu %(name)s hér."
 
-#: ckan/lib/navl/validators.py:116
+#: ckan/lib/navl/validators.py:118
 msgid "Please enter an integer value"
 msgstr "Vinsamlegast sláðu inn heiltölu"
 
-#: ckan/logic/__init__.py:89 ckan/logic/action/__init__.py:58
-#: ckan/templates/package/edit_base.html:21
-#: ckan/templates/package/resources.html:5
-#: ckan/templates/package/snippets/package_context.html:12
-#: ckan/templates/package/snippets/resources.html:20
-#: ckan/templates/snippets/context/dataset.html:13
-#: ckanext/example_theme/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:15
-msgid "Resources"
-msgstr "Tilföng"
+#: ckan/lib/navl/validators.py:124
+msgid "Must be a Unicode string value"
+msgstr ""
 
-#: ckan/logic/__init__.py:89 ckan/logic/action/__init__.py:58
+#: ckan/logic/__init__.py:98 ckan/logic/action/__init__.py:60
 msgid "Package resource(s) invalid"
 msgstr "Tilföng pakkans eru ógild"
 
-#: ckan/logic/__init__.py:96 ckan/logic/__init__.py:98
-#: ckan/logic/action/__init__.py:60 ckan/logic/action/__init__.py:62
+#: ckan/logic/__init__.py:105 ckan/logic/__init__.py:107
+#: ckan/logic/action/__init__.py:62 ckan/logic/action/__init__.py:64
 msgid "Extras"
 msgstr "Viðbætur"
 
-#: ckan/logic/converters.py:72 ckan/logic/converters.py:87
+#: ckan/logic/converters.py:74 ckan/logic/converters.py:89
 #, python-format
 msgid "Tag vocabulary \"%s\" does not exist"
 msgstr "Efnisorðið „%s“ er ekki til"
 
-#: ckan/logic/converters.py:119 ckan/logic/validators.py:211
-#: ckan/logic/validators.py:228 ckan/logic/validators.py:729
-#: ckan/templates/group/members.html:17
-#: ckan/templates/organization/members.html:17
-#: ckanext/stats/templates/ckanext/stats/index.html:156
-msgid "User"
-msgstr "Notandi"
-
-#: ckan/logic/converters.py:144 ckan/logic/validators.py:146
-#: ckan/logic/validators.py:188 ckan/templates/package/read_base.html:19
-#: ckanext/stats/templates/ckanext/stats/index.html:89
-msgid "Dataset"
-msgstr "Gagnapakki"
-
-#: ckan/logic/converters.py:169 ckan/logic/validators.py:241
-#: ckanext/stats/templates/ckanext/stats/index.html:113
-msgid "Group"
-msgstr "Safn"
-
-#: ckan/logic/converters.py:178
+#: ckan/logic/converters.py:180
 msgid "Could not parse as valid JSON"
 msgstr "Tókst ekki að greina sem gilt JSON"
 
-#: ckan/logic/validators.py:30 ckan/logic/validators.py:39
-msgid "A organization must be supplied"
-msgstr "Þú verður að velja stofnun"
+#: ckan/logic/validators.py:33 ckan/logic/validators.py:42
+msgid "An organization must be provided"
+msgstr ""
 
-#: ckan/logic/validators.py:44
+#: ckan/logic/validators.py:47
 msgid "Organization does not exist"
 msgstr "Stofnun er ekki til"
 
-#: ckan/logic/validators.py:49
+#: ckan/logic/validators.py:52
 msgid "You cannot add a dataset to this organization"
 msgstr "Þú getur ekki bætt gagnapakka við þessa stofnun"
 
-#: ckan/logic/validators.py:89
+#: ckan/logic/validators.py:92
 msgid "Invalid integer"
 msgstr "Ógild heiltala"
 
-#: ckan/logic/validators.py:94
+#: ckan/logic/validators.py:97
 msgid "Must be a natural number"
 msgstr "Þarf að vera náttúruleg tala"
 
-#: ckan/logic/validators.py:100
+#: ckan/logic/validators.py:103
 msgid "Must be a postive integer"
 msgstr "Þarf að vera jákvæð heiltala"
 
-#: ckan/logic/validators.py:127
+#: ckan/logic/validators.py:130
 msgid "Date format incorrect"
 msgstr "Snið dagsetningar er ekki rétt"
 
-#: ckan/logic/validators.py:136
+#: ckan/logic/validators.py:139
 msgid "No links are allowed in the log_message."
 msgstr "Engir tenglar eru leyfðir í log_message."
 
-#: ckan/logic/validators.py:156
+#: ckan/logic/validators.py:159
 msgid "Dataset id already exists"
 msgstr "Auðkenni gagnapakka er nú þegar til"
 
-#: ckan/logic/validators.py:197 ckan/logic/validators.py:288
+#: ckan/logic/validators.py:200
 msgid "Resource"
 msgstr "Skrá"
 
-#: ckan/logic/validators.py:255 ckan/templates/package/related_list.html:4
-#: ckan/templates/snippets/related.html:2
-msgid "Related"
-msgstr "Ítarefni"
-
-#: ckan/logic/validators.py:265
+#: ckan/logic/validators.py:254
 msgid "That group name or ID does not exist."
 msgstr "Ekkert safn með þetta heiti eða auðkenni."
 
-#: ckan/logic/validators.py:279
+#: ckan/logic/validators.py:268
 msgid "Activity type"
 msgstr "Tegund virkni"
 
-#: ckan/logic/validators.py:354
+#: ckan/logic/validators.py:331
 msgid "Names must be strings"
 msgstr "Nöfn þurfa að vera strengir"
 
-#: ckan/logic/validators.py:358
+#: ckan/logic/validators.py:335
 msgid "That name cannot be used"
 msgstr "Það er ekki hægt að nota þetta heiti"
 
-#: ckan/logic/validators.py:361
+#: ckan/logic/validators.py:338
 #, python-format
 msgid "Must be at least %s characters long"
 msgstr "Þarf að vera að minnsta kosti %s stafir"
 
-#: ckan/logic/validators.py:363 ckan/logic/validators.py:646
+#: ckan/logic/validators.py:340 ckan/logic/validators.py:623
 #, python-format
 msgid "Name must be a maximum of %i characters long"
 msgstr "Heiti má ekki vera lengra en %i bókstafir"
 
-#: ckan/logic/validators.py:366
+#: ckan/logic/validators.py:343
 msgid ""
 "Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
 "-_"
-msgstr "Verður að vera skrifuð með enskum lágstöfum (ascii), tölustöfum eða þessum táknum: -_"
+msgstr ""
+"Verður að vera skrifuð með enskum lágstöfum, tölustöfum eða þessum táknum: "
+"-_"
 
-#: ckan/logic/validators.py:384
+#: ckan/logic/validators.py:361
 msgid "That URL is already in use."
 msgstr "Þessi slóð er nú þegar skráð."
 
-#: ckan/logic/validators.py:389
+#: ckan/logic/validators.py:366
 #, python-format
 msgid "Name \"%s\" length is less than minimum %s"
 msgstr "Heitið „%s“ er styttra en %s stafa lágmarkslengd"
 
-#: ckan/logic/validators.py:393
+#: ckan/logic/validators.py:370
 #, python-format
 msgid "Name \"%s\" length is more than maximum %s"
 msgstr "Heitið „%s“ er lengra en %s stafa hámarkslengdin"
 
-#: ckan/logic/validators.py:399
+#: ckan/logic/validators.py:376
 #, python-format
 msgid "Version must be a maximum of %i characters long"
 msgstr "Útgáfa má að hámarki vera %i stafir að lengd"
 
-#: ckan/logic/validators.py:417
+#: ckan/logic/validators.py:394
 #, python-format
 msgid "Duplicate key \"%s\""
 msgstr "Lykillinn „%s“ er nú þegar til"
 
-#: ckan/logic/validators.py:433
+#: ckan/logic/validators.py:410
 msgid "Group name already exists in database"
 msgstr "Safn með þessu heiti er þegar til staðar í gagnapakkanum"
 
-#: ckan/logic/validators.py:439
+#: ckan/logic/validators.py:416
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
 msgstr "Efnisorðið „%s“ nær ekki %s stafa lágmarkslengd "
 
-#: ckan/logic/validators.py:443
+#: ckan/logic/validators.py:420
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
 msgstr "Efnisorðið „%s“ fer yfir %i stafa hámarkslengd"
 
-#: ckan/logic/validators.py:451
+#: ckan/logic/validators.py:428
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr "Efnisorðið „%s“ verður að vera gert úr bókstöfum, tölustöfum eða táknunum: -_."
+msgstr ""
+"Efnisorðið „%s“ verður að vera gert úr bókstöfum, tölustöfum eða táknunum: "
+"-_."
 
-#: ckan/logic/validators.py:459
+#: ckan/logic/validators.py:436
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
 msgstr "Efnisorðið „%s\" má ekki vera í hástöfum"
 
-#: ckan/logic/validators.py:568
+#: ckan/logic/validators.py:545
 msgid "User names must be strings"
 msgstr "Notendanöfn þurfa að vera strengir"
 
-#: ckan/logic/validators.py:584
+#: ckan/logic/validators.py:561
 msgid "That login name is not available."
 msgstr "Þetta notandanafn er ekki laust."
 
-#: ckan/logic/validators.py:593
+#: ckan/logic/validators.py:570
 msgid "Please enter both passwords"
 msgstr "Vinsamlegast sláðu inn bæði aðgangsorðin"
 
-#: ckan/logic/validators.py:601
+#: ckan/logic/validators.py:578
 msgid "Passwords must be strings"
 msgstr "Aðgangsorð þurfa að vera strengir"
 
-#: ckan/logic/validators.py:605
+#: ckan/logic/validators.py:582
 msgid "Your password must be 4 characters or longer"
 msgstr "Aðgangsorðið verður að vera 4 stafir eða lengra"
 
-#: ckan/logic/validators.py:613
+#: ckan/logic/validators.py:590
 msgid "The passwords you entered do not match"
 msgstr "Aðgangsorðin sem þú slóst inn stemma ekki"
 
-#: ckan/logic/validators.py:634
+#: ckan/logic/validators.py:611
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
-msgstr "Breytingin er ekki leyfð þar sem hún lítur út fyrir að vera ruslefni. Forðastu að nota tengla í lýsingunni."
+msgstr ""
+"Breytingin er ekki leyfð þar sem hún lítur út fyrir að vera ruslefni. "
+"Forðastu að nota tengla í lýsingunni."
 
-#: ckan/logic/validators.py:643
+#: ckan/logic/validators.py:620
 #, python-format
 msgid "Name must be at least %s characters long"
 msgstr "Heiti þarf að vera að minnsta kosti %s stafir"
 
-#: ckan/logic/validators.py:651
+#: ckan/logic/validators.py:628
 msgid "That vocabulary name is already in use."
 msgstr "Þetta heiti er þegar í notkun."
 
-#: ckan/logic/validators.py:657
+#: ckan/logic/validators.py:634
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr "Ekki er hægt að breyta gildinu á lyklinum úr %s í %s. Þessi lykill er aðeins með lesaðgang."
+msgstr ""
+"Ekki er hægt að breyta gildinu á lyklinum úr %s í %s. Þessi lykill er aðeins"
+" með lesaðgang."
 
-#: ckan/logic/validators.py:666
+#: ckan/logic/validators.py:643
 msgid "Tag vocabulary was not found."
 msgstr "Efnisorðið fannst ekki."
 
-#: ckan/logic/validators.py:679
+#: ckan/logic/validators.py:656
 #, python-format
 msgid "Tag %s does not belong to vocabulary %s"
 msgstr "Efnisorðið %s tilheyrir ekki orðasafninu %s"
 
-#: ckan/logic/validators.py:685
+#: ckan/logic/validators.py:662
 msgid "No tag name"
 msgstr "Ekkert efnisorð"
 
-#: ckan/logic/validators.py:698
+#: ckan/logic/validators.py:675
 #, python-format
 msgid "Tag %s already belongs to vocabulary %s"
 msgstr "Efnisorðið %s tilheyrir nú þegar orðasafninu %s"
 
-#: ckan/logic/validators.py:721
+#: ckan/logic/validators.py:698
 msgid "Please provide a valid URL"
 msgstr "Vinsamlegast gefðu upp gilda vefslóð"
 
-#: ckan/logic/validators.py:735
+#: ckan/logic/validators.py:712
 msgid "role does not exist."
 msgstr "hlutverkið er ekki til."
 
-#: ckan/logic/validators.py:764
+#: ckan/logic/validators.py:741
 msgid "Datasets with no organization can't be private."
 msgstr "Gagnapakkar með engar stofnanir geta ekki verið lokaðir."
 
-#: ckan/logic/validators.py:770
+#: ckan/logic/validators.py:747
 msgid "Not a list"
 msgstr "Ekki listi"
 
-#: ckan/logic/validators.py:773
+#: ckan/logic/validators.py:750
 msgid "Not a string"
 msgstr "Ekki strengur"
 
-#: ckan/logic/validators.py:805
+#: ckan/logic/validators.py:782
 msgid "This parent would create a loop in the hierarchy"
 msgstr "Þetta foreldri myndi skapa lykkju í stigveldinu"
 
-#: ckan/logic/validators.py:815
+#: ckan/logic/validators.py:792
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
 msgstr "\"filter_fields\" og \"filter_values\" ættu að vera af sömu lengd"
 
-#: ckan/logic/validators.py:826
+#: ckan/logic/validators.py:803
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
 msgstr "\"filter_fields\" er nauðsynlegt þegar \"filter_values\" er útfyllt"
 
-#: ckan/logic/validators.py:829
+#: ckan/logic/validators.py:806
 msgid "\"filter_values\" is required when \"filter_fields\" is filled"
 msgstr "\"filter_values\" er nauðsynlegt þegar \"filter_fields\" er útfyllt"
 
-#: ckan/logic/validators.py:843
+#: ckan/logic/validators.py:820
 msgid "There is a schema field with the same name"
 msgstr "Það er til skemareitur með sama nafni"
 
-#: ckan/logic/action/create.py:178 ckan/logic/action/create.py:723
+#: ckan/logic/validators.py:846
+msgid "Email {email} is not a valid format"
+msgstr ""
+
+#: ckan/logic/action/create.py:183 ckan/logic/action/create.py:665
 #, python-format
 msgid "REST API: Create object %s"
 msgstr "REST API: Búa til object %s"
 
-#: ckan/logic/action/create.py:602
+#: ckan/logic/action/create.py:544
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
 msgstr "REST API: Stofna vensl milli pakka: %s %s %s"
 
-#: ckan/logic/action/create.py:643
+#: ckan/logic/action/create.py:585
 #, python-format
 msgid "REST API: Create member object %s"
 msgstr "REST API: Stofna member object %s"
 
-#: ckan/logic/action/create.py:862
+#: ckan/logic/action/create.py:804
 msgid "Trying to create an organization as a group"
 msgstr "Reyni að stofna stofnun sem safn"
 
-#: ckan/logic/action/create.py:951
+#: ckan/logic/action/create.py:893
 msgid "You must supply a package id or name (parameter \"package\")."
 msgstr "Þú þarft að gefa upp auðkenni eða heiti pakka (breytan „pakki“)."
 
-#: ckan/logic/action/create.py:954
+#: ckan/logic/action/create.py:896
 msgid "You must supply a rating (parameter \"rating\")."
 msgstr "Þú verður að tilgreina einkunn (breytan „rating“)."
 
-#: ckan/logic/action/create.py:959
+#: ckan/logic/action/create.py:901
 msgid "Rating must be an integer value."
 msgstr "Einkunn verður að vera heiltala."
 
-#: ckan/logic/action/create.py:963
+#: ckan/logic/action/create.py:905
 #, python-format
 msgid "Rating must be between %i and %i."
 msgstr "Einkunn verður að vera á milli %i og %i"
 
-#: ckan/logic/action/create.py:1312 ckan/logic/action/create.py:1319
+#: ckan/logic/action/create.py:1064
+msgid "Error sending the invite email, the user was not created: {0}"
+msgstr ""
+
+#: ckan/logic/action/create.py:1277 ckan/logic/action/create.py:1284
 msgid "You must be logged in to follow users"
 msgstr "Vinsamlegast skráðu þig inn til að fylgjast með notendum"
 
-#: ckan/logic/action/create.py:1332
+#: ckan/logic/action/create.py:1297
 msgid "You cannot follow yourself"
 msgstr "Þú getur ekki fylgst með sjálfum þér"
 
-#: ckan/logic/action/create.py:1340 ckan/logic/action/create.py:1397
-#: ckan/logic/action/create.py:1530
+#: ckan/logic/action/create.py:1305 ckan/logic/action/create.py:1362
+#: ckan/logic/action/create.py:1501
 msgid "You are already following {0}"
 msgstr "Þú fylgist nú þegar með {0}"
 
-#: ckan/logic/action/create.py:1371 ckan/logic/action/create.py:1379
+#: ckan/logic/action/create.py:1336 ckan/logic/action/create.py:1344
 msgid "You must be logged in to follow a dataset."
 msgstr "Vinsamlegast skráðu þig inn til að fylgjast með gagnapakka."
 
-#: ckan/logic/action/create.py:1431
+#: ckan/logic/action/create.py:1402
 msgid "User {username} does not exist."
 msgstr "Notandinn {username} er ekki til."
 
-#: ckan/logic/action/create.py:1506 ckan/logic/action/create.py:1514
+#: ckan/logic/action/create.py:1477 ckan/logic/action/create.py:1485
 msgid "You must be logged in to follow a group."
 msgstr "Vinsamlegast skráðu þig inn til að fylgjast með safni."
 
-#: ckan/logic/action/delete.py:72
+#: ckan/logic/action/delete.py:54
+msgid " Delete User: {0}"
+msgstr ""
+
+#: ckan/logic/action/delete.py:92
 #, python-format
 msgid "REST API: Delete Package: %s"
 msgstr "REST API: Eyða pakka: %s"
 
-#: ckan/logic/action/delete.py:241 ckan/logic/action/delete.py:370
+#: ckan/logic/action/delete.py:276 ckan/logic/action/delete.py:358
 #, python-format
 msgid "REST API: Delete %s"
 msgstr "REST API: Eyða %s"
 
-#: ckan/logic/action/delete.py:330
+#: ckan/logic/action/delete.py:318
 #, python-format
 msgid "REST API: Delete Member: %s"
 msgstr "REST API: Eyða meðlimi: %s"
 
-#: ckan/logic/action/delete.py:556 ckan/logic/action/delete.py:582
-#: ckan/logic/action/get.py:2506 ckan/logic/action/update.py:993
+#: ckan/logic/action/delete.py:544 ckan/logic/action/delete.py:570
+#: ckan/logic/action/get.py:2482 ckan/logic/action/update.py:953
 msgid "id not in data"
 msgstr "auðkenni ekki í gögnum"
 
-#: ckan/logic/action/delete.py:560 ckan/logic/action/get.py:2509
-#: ckan/logic/action/update.py:997
+#: ckan/logic/action/delete.py:548 ckan/logic/action/get.py:2485
+#: ckan/logic/action/update.py:957
 #, python-format
 msgid "Could not find vocabulary \"%s\""
 msgstr "Fann ekki orðasafnið „%s“"
 
-#: ckan/logic/action/delete.py:590
+#: ckan/logic/action/delete.py:578
 #, python-format
 msgid "Could not find tag \"%s\""
 msgstr "Fann ekki efnisorðið „%s“"
 
-#: ckan/logic/action/delete.py:616 ckan/logic/action/delete.py:620
+#: ckan/logic/action/delete.py:604 ckan/logic/action/delete.py:608
 msgid "You must be logged in to unfollow something."
 msgstr "Vinsamlegast skráðu þig inn til að hætta að fylgjast með einhverju."
 
-#: ckan/logic/action/delete.py:631
+#: ckan/logic/action/delete.py:619
 msgid "You are not following {0}."
 msgstr "Þú ert ekki að fylgjast með {0}."
 
-#: ckan/logic/action/get.py:1147 ckan/logic/action/update.py:133
-#: ckan/logic/action/update.py:147
+#: ckan/logic/action/get.py:1097 ckan/logic/action/update.py:75
+#: ckan/logic/action/update.py:89
 msgid "Resource was not found."
 msgstr "Skrá fannst ekki."
 
-#: ckan/logic/action/get.py:2111
+#: ckan/logic/action/get.py:2087
 msgid "Do not specify if using \"query\" parameter"
 msgstr "Ekki tilgreina ef þú notar breytuna „query“"
 
-#: ckan/logic/action/get.py:2120
+#: ckan/logic/action/get.py:2096
 msgid "Must be <field>:<value> pair(s)"
 msgstr "Verður að vera <field>:<value> par"
 
-#: ckan/logic/action/get.py:2152
+#: ckan/logic/action/get.py:2128
 msgid "Field \"{field}\" not recognised in resource_search."
 msgstr "Svæðið „{field}“ virkar ekki í resource_search."
 
-#: ckan/logic/action/update.py:68
-msgid "Item was not found."
-msgstr "Atriði fannst ekki."
-
-#: ckan/logic/action/update.py:297 ckan/logic/action/update.py:1094
+#: ckan/logic/action/update.py:261 ckan/logic/action/update.py:1055
 msgid "Package was not found."
 msgstr "Pakkinn fannst ekki."
 
-#: ckan/logic/action/update.py:340 ckan/logic/action/update.py:561
+#: ckan/logic/action/update.py:304 ckan/logic/action/update.py:521
+#: ckan/logic/action/update.py:1073
 #, python-format
 msgid "REST API: Update object %s"
 msgstr "REST API: Uppfæra object %s"
 
-#: ckan/logic/action/update.py:443
+#: ckan/logic/action/update.py:401
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
 msgstr "REST API: Uppfæra vensl pakka: %s %s %s"
 
-#: ckan/logic/action/update.py:801
+#: ckan/logic/action/update.py:761
 msgid "TaskStatus was not found."
 msgstr "TaskStatus fannst ekki."
 
-#: ckan/logic/action/update.py:1098
+#: ckan/logic/action/update.py:1059
 msgid "Organization was not found."
 msgstr "Stofnun fannst ekki."
 
-#: ckan/logic/auth/create.py:25 ckan/logic/auth/create.py:43
+#: ckan/logic/auth/create.py:27 ckan/logic/auth/create.py:45
 #, python-format
 msgid "User %s not authorized to create packages"
 msgstr "Notandinn %s hefur ekki heimild til þess að stofna pakka"
 
-#: ckan/logic/auth/create.py:29 ckan/logic/auth/update.py:43
+#: ckan/logic/auth/create.py:31 ckan/logic/auth/update.py:45
 #, python-format
 msgid "User %s not authorized to edit these groups"
 msgstr "Notandinn %s hefur ekki heimild til að breyta þessum söfnum"
 
-#: ckan/logic/auth/create.py:36
+#: ckan/logic/auth/create.py:38
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
-msgstr "Notandinn %s hefur ekki leyfi til að bæta gagnapakka við þessa stofnun"
+msgstr ""
+"Notandinn %s hefur ekki leyfi til að bæta gagnapakka við þessa stofnun"
 
-#: ckan/logic/auth/create.py:58
-msgid "You must be a sysadmin to create a featured related item"
-msgstr "Þú verður að hafa réttindi kerfisstjóra til að búa til ítarefni sem sett verður í kastljósið"
-
-#: ckan/logic/auth/create.py:62
-msgid "You must be logged in to add a related item"
-msgstr "Skráðu þig inn til að bæta við ítarefni"
-
-#: ckan/logic/auth/create.py:77
+#: ckan/logic/auth/create.py:61
 msgid "No dataset id provided, cannot check auth."
 msgstr "Auðkenni gagnapakka ekki gefið upp, get ekki athugað heimildir"
 
-#: ckan/logic/auth/create.py:84 ckan/logic/auth/delete.py:32
-#: ckan/logic/auth/get.py:135 ckan/logic/auth/update.py:61
+#: ckan/logic/auth/create.py:68 ckan/logic/auth/delete.py:34
+#: ckan/logic/auth/get.py:137 ckan/logic/auth/update.py:63
 msgid "No package found for this resource, cannot check auth."
-msgstr "Enginn pakki fannst fyrir þessa skrá. Ekki hægt að virkja auðkenningu."
+msgstr ""
+"Enginn pakki fannst fyrir þessa skrá. Ekki hægt að virkja auðkenningu."
 
-#: ckan/logic/auth/create.py:92
+#: ckan/logic/auth/create.py:76
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
-msgstr "Notandinn %s hefur ekki heimild til að búa til tilfang fyrir gagnapakkann %s"
+msgstr ""
+"Notandinn %s hefur ekki heimild til að búa til tilfang fyrir gagnapakkann %s"
 
-#: ckan/logic/auth/create.py:124
+#: ckan/logic/auth/create.py:108
 #, python-format
 msgid "User %s not authorized to edit these packages"
 msgstr "Notandinn %s hefur ekki heimild til að breyta þessum pökkum"
 
-#: ckan/logic/auth/create.py:135
+#: ckan/logic/auth/create.py:119
 #, python-format
 msgid "User %s not authorized to create groups"
 msgstr "Notandinn %s hefur ekki heimild til að stofna söfn"
 
-#: ckan/logic/auth/create.py:145
+#: ckan/logic/auth/create.py:129
 #, python-format
 msgid "User %s not authorized to create organizations"
 msgstr "Notandinn %s hefur ekki heimild til að búa til stofnanir"
 
-#: ckan/logic/auth/create.py:161
+#: ckan/logic/auth/create.py:145
 msgid "User {user} not authorized to create users via the API"
 msgstr "Notandinn {user} hefur ekki heimild til að stofna notendur með API"
 
-#: ckan/logic/auth/create.py:164
+#: ckan/logic/auth/create.py:148
 msgid "Not authorized to create users"
 msgstr "Þú hefur ekki heimild til að búa til notendur"
 
-#: ckan/logic/auth/create.py:207
+#: ckan/logic/auth/create.py:189
 msgid "Group was not found."
 msgstr "Safnið fannst ekki."
 
-#: ckan/logic/auth/create.py:227
+#: ckan/logic/auth/create.py:209
 msgid "Valid API key needed to create a package"
 msgstr "Þú verður að hafa gildan API lykil til að stofna pakka"
 
-#: ckan/logic/auth/create.py:235
+#: ckan/logic/auth/create.py:217
 msgid "Valid API key needed to create a group"
 msgstr "Þú verður að hafa gildan API lykil til að stofna safn"
 
-#: ckan/logic/auth/create.py:255
+#: ckan/logic/auth/create.py:237
 #, python-format
 msgid "User %s not authorized to add members"
 msgstr "Notandinn %s hefur ekki heimild til að bæta við notendum"
 
-#: ckan/logic/auth/create.py:279 ckan/logic/auth/update.py:113
+#: ckan/logic/auth/create.py:261 ckan/logic/auth/update.py:115
 #, python-format
 msgid "User %s not authorized to edit group %s"
 msgstr "Notandinn %s hefur ekki heimild til að breyta safninu %s"
 
-#: ckan/logic/auth/delete.py:38
+#: ckan/logic/auth/delete.py:40
 #, python-format
 msgid "User %s not authorized to delete resource %s"
 msgstr "Notandinn %s hefur ekki heimild til að eyða tilfanginu %s"
 
-#: ckan/logic/auth/delete.py:54
+#: ckan/logic/auth/delete.py:56
 msgid "Resource view not found, cannot check auth."
 msgstr "Tilfangssýn fannst ekki, get ekki athugað heimildir"
 
-#: ckan/logic/auth/delete.py:69 ckan/logic/auth/delete.py:83
-msgid "Only the owner can delete a related item"
-msgstr "Eigandinn er sá eini sem getur eytt ítarefni"
-
-#: ckan/logic/auth/delete.py:95
+#: ckan/logic/auth/delete.py:73
 #, python-format
 msgid "User %s not authorized to delete relationship %s"
 msgstr "Notandinn %s hefur ekki heimild til að eyða venslunum %s"
 
-#: ckan/logic/auth/delete.py:104
+#: ckan/logic/auth/delete.py:82
 #, python-format
 msgid "User %s not authorized to delete groups"
 msgstr "Notandinn %s hefur ekki heimild til að eyða söfnum"
 
-#: ckan/logic/auth/delete.py:108
+#: ckan/logic/auth/delete.py:86
 #, python-format
 msgid "User %s not authorized to delete group %s"
 msgstr "Notandinn %s hefur ekki heimild til að eyða safninu %s"
 
-#: ckan/logic/auth/delete.py:125
+#: ckan/logic/auth/delete.py:103
 #, python-format
 msgid "User %s not authorized to delete organizations"
 msgstr "Notandinn %s hefur ekki heimild til að eyða stofnunum"
 
-#: ckan/logic/auth/delete.py:129
+#: ckan/logic/auth/delete.py:107
 #, python-format
 msgid "User %s not authorized to delete organization %s"
 msgstr "Notandinn %s hefur ekki heimild til að eyða stofnuninni %s"
 
-#: ckan/logic/auth/delete.py:142
+#: ckan/logic/auth/delete.py:120
 #, python-format
 msgid "User %s not authorized to delete task_status"
 msgstr "Notandinn %s hefur ekki heimild til að eyða task_status"
 
-#: ckan/logic/auth/get.py:10 ckan/logic/auth/get.py:270
+#: ckan/logic/auth/get.py:13 ckan/logic/auth/get.py:285
 msgid "Not authorized"
 msgstr "Óheimilt"
 
-#: ckan/logic/auth/get.py:97
+#: ckan/logic/auth/get.py:109
 #, python-format
 msgid "User %s not authorized to read these packages"
 msgstr "Notandinn %s hefur ekki heimild til að lesa þessa pakka"
 
-#: ckan/logic/auth/get.py:119
+#: ckan/logic/auth/get.py:124
 #, python-format
 msgid "User %s not authorized to read package %s"
 msgstr "Notandinn %s hefur ekki aðgang til að lesa pakkann %s"
 
-#: ckan/logic/auth/get.py:141
+#: ckan/logic/auth/get.py:143
 #, python-format
 msgid "User %s not authorized to read resource %s"
 msgstr "Notandinn %s hefur ekki heimild til að lesa tilfangið %s"
 
-#: ckan/logic/auth/get.py:166
+#: ckan/logic/auth/get.py:170
 #, python-format
 msgid "User %s not authorized to read group %s"
 msgstr "Notandinn %s hefur ekki lesaðgang að safninu %s"
 
-#: ckan/logic/auth/get.py:237
+#: ckan/logic/auth/get.py:252
 msgid "You must be logged in to access your dashboard."
 msgstr "Skráðu þig inn ef þú vilt skoða stjórnborðið."
 
-#: ckan/logic/auth/update.py:37
+#: ckan/logic/auth/update.py:39
 #, python-format
 msgid "User %s not authorized to edit package %s"
 msgstr "Notandinn %s hefur ekki heimild til þess að breyta pakkanum %s"
 
-#: ckan/logic/auth/update.py:69
+#: ckan/logic/auth/update.py:71
 #, python-format
 msgid "User %s not authorized to edit resource %s"
 msgstr "Notandinn %s hefur ekki heimild til að breyta skránni %s"
 
-#: ckan/logic/auth/update.py:98
+#: ckan/logic/auth/update.py:100
 #, python-format
 msgid "User %s not authorized to change state of package %s"
 msgstr "Notandinn %s hefur ekki heimild til að breyta stöðu á pakkanum %s"
 
-#: ckan/logic/auth/update.py:126
+#: ckan/logic/auth/update.py:128
 #, python-format
 msgid "User %s not authorized to edit organization %s"
 msgstr "Notandinn %s hefur ekki heimild til að eyða stofnuninni %s"
 
-#: ckan/logic/auth/update.py:137 ckan/logic/auth/update.py:143
-msgid "Only the owner can update a related item"
-msgstr "Eigandinn er sá eini sem getur uppfært ítarefni"
-
-#: ckan/logic/auth/update.py:148
-msgid "You must be a sysadmin to change a related item's featured field."
-msgstr "Þú verður að hafa réttindi kerfisstjóra til að breyta kastljóssreit ítarefnis."
-
-#: ckan/logic/auth/update.py:165
+#: ckan/logic/auth/update.py:145
 #, python-format
 msgid "User %s not authorized to change state of group %s"
 msgstr "Notandinn %s hefur ekki heimild til að breyta stöðu á safninu %s"
 
-#: ckan/logic/auth/update.py:182
+#: ckan/logic/auth/update.py:162
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
 msgstr "Notandinn %s hefur ekki heimild til að breyta heimildum í safninu %s"
 
-#: ckan/logic/auth/update.py:209
+#: ckan/logic/auth/update.py:190
 msgid "Have to be logged in to edit user"
 msgstr "Þú þarf að skrá þig inn til að breyta notanda"
 
-#: ckan/logic/auth/update.py:217
+#: ckan/logic/auth/update.py:198
 #, python-format
 msgid "User %s not authorized to edit user %s"
 msgstr "Notandinn %s hefur ekki heimild til að breyta notandanum %s"
 
-#: ckan/logic/auth/update.py:228
+#: ckan/logic/auth/update.py:209
 msgid "User {0} not authorized to update user {1}"
 msgstr "Notandinn {0} hefur ekki hemild til að uppfæra notandann {1}"
 
-#: ckan/logic/auth/update.py:236
+#: ckan/logic/auth/update.py:217
 #, python-format
 msgid "User %s not authorized to change state of revision"
 msgstr "Notandinn %s hefur ekki heimild til að breyta stöðu útgáfu"
 
-#: ckan/logic/auth/update.py:245
+#: ckan/logic/auth/update.py:226
 #, python-format
 msgid "User %s not authorized to update task_status table"
 msgstr "Notandinn %s hefur ekki heimild til að uppfæra töfluna task_status"
 
-#: ckan/logic/auth/update.py:259
+#: ckan/logic/auth/update.py:240
 #, python-format
 msgid "User %s not authorized to update term_translation table"
-msgstr "Notandinn %s hefur ekki réttindi til að uppfæra töfluna term_translation"
+msgstr ""
+"Notandinn %s hefur ekki réttindi til að uppfæra töfluna term_translation"
 
-#: ckan/logic/auth/update.py:281
-msgid "Valid API key needed to edit a package"
-msgstr "Til að breyta pakka þarftu gildan API lykil"
-
-#: ckan/logic/auth/update.py:291
+#: ckan/logic/auth/update.py:272
 msgid "Valid API key needed to edit a group"
 msgstr "Þú verður að hafa gildan API lykil til að breyta safni"
 
-#: ckan/model/license.py:220
+#: ckan/model/license.py:222
 msgid "License not specified"
 msgstr "Skilmálar ekki tilgreindir"
 
-#: ckan/model/license.py:230
+#: ckan/model/license.py:232
 msgid "Open Data Commons Public Domain Dedication and License (PDDL)"
 msgstr "Open Data Commons Public Domain Dedication and License (PDDL)"
 
-#: ckan/model/license.py:240
+#: ckan/model/license.py:242
 msgid "Open Data Commons Open Database License (ODbL)"
 msgstr "Open Data Commons Open Database License (ODbL)"
 
-#: ckan/model/license.py:250
+#: ckan/model/license.py:252
 msgid "Open Data Commons Attribution License"
 msgstr "Open Data Commons Attribution License"
 
-#: ckan/model/license.py:261
+#: ckan/model/license.py:263
 msgid "Creative Commons CCZero"
 msgstr "Creative Commons CCZero"
 
-#: ckan/model/license.py:270
+#: ckan/model/license.py:272
 msgid "Creative Commons Attribution"
 msgstr "Creative Commons Attribution"
 
-#: ckan/model/license.py:280
+#: ckan/model/license.py:282
 msgid "Creative Commons Attribution Share-Alike"
 msgstr "Creative Commons Attribution Share-Alike"
 
-#: ckan/model/license.py:289
+#: ckan/model/license.py:291
 msgid "GNU Free Documentation License"
 msgstr "GNU Free Documentation License"
 
-#: ckan/model/license.py:299
+#: ckan/model/license.py:301
 msgid "Other (Open)"
 msgstr "Annað (opið)"
 
-#: ckan/model/license.py:309
+#: ckan/model/license.py:311
 msgid "Other (Public Domain)"
 msgstr "Annað (í almannaeigu)"
 
-#: ckan/model/license.py:319
+#: ckan/model/license.py:321
 msgid "Other (Attribution)"
 msgstr "Annað (tilvísun)"
 
-#: ckan/model/license.py:331
+#: ckan/model/license.py:333
 msgid "UK Open Government Licence (OGL)"
 msgstr "UK Open Government Licence (OGL)"
 
-#: ckan/model/license.py:339
+#: ckan/model/license.py:341
 msgid "Creative Commons Non-Commercial (Any)"
 msgstr "Creative Commons Non-Commercial (Any)"
 
-#: ckan/model/license.py:347
+#: ckan/model/license.py:349
 msgid "Other (Non-Commercial)"
 msgstr "Annað (ekki til endursölu)"
 
-#: ckan/model/license.py:355
+#: ckan/model/license.py:357
 msgid "Other (Not Open)"
 msgstr "Annað (ekki opið)"
 
-#: ckan/model/package_relationship.py:52
+#: ckan/model/package_relationship.py:54
 #, python-format
 msgid "depends on %s"
 msgstr "er háð %s"
 
-#: ckan/model/package_relationship.py:52
+#: ckan/model/package_relationship.py:54
 #, python-format
 msgid "is a dependency of %s"
 msgstr "er háð %s"
 
-#: ckan/model/package_relationship.py:53
+#: ckan/model/package_relationship.py:55
 #, python-format
 msgid "derives from %s"
 msgstr "dregið af %s"
 
-#: ckan/model/package_relationship.py:53
+#: ckan/model/package_relationship.py:55
 #, python-format
 msgid "has derivation %s"
 msgstr "hefur tengingu %s"
 
-#: ckan/model/package_relationship.py:54
+#: ckan/model/package_relationship.py:56
 #, python-format
 msgid "links to %s"
 msgstr "tengir á %s"
 
-#: ckan/model/package_relationship.py:54
+#: ckan/model/package_relationship.py:56
 #, python-format
 msgid "is linked from %s"
 msgstr "tengt frá %s"
 
-#: ckan/model/package_relationship.py:55
+#: ckan/model/package_relationship.py:57
 #, python-format
 msgid "is a child of %s"
 msgstr "er barn %s"
 
-#: ckan/model/package_relationship.py:55
+#: ckan/model/package_relationship.py:57
 #, python-format
 msgid "is a parent of %s"
 msgstr "er foreldri %s"
 
-#: ckan/model/package_relationship.py:59
+#: ckan/model/package_relationship.py:61
 #, python-format
 msgid "has sibling %s"
 msgstr "hefur systkini %s"
 
-#: ckan/public/base/javascript/modules/activity-stream.js:20
-#: ckan/public/base/javascript/modules/popover-context.js:45
-#: ckan/templates/package/snippets/data_api_button.html:8
-#: ckan/templates/tests/mock_json_resource_preview_template.html:7
-#: ckan/templates/tests/mock_resource_preview_template.html:7
-#: ckanext/reclineview/theme/templates/recline_view.html:12
-#: ckanext/textview/theme/templates/text_view.html:9
-msgid "Loading..."
-msgstr "Hleð..."
-
-#: ckan/public/base/javascript/modules/api-info.js:20
+#: ckan/public/base/javascript/modules/api-info.js:96
 msgid "There is no API data to load for this resource"
 msgstr "Það eru engin API gögn sem er hægt að hlaða inn fyrir þessa skrá"
 
-#: ckan/public/base/javascript/modules/api-info.js:21
+#: ckan/public/base/javascript/modules/api-info.js:124
 msgid "Failed to load data API information"
 msgstr "Villa kom upp við að sækja upplýsingar um API gögn"
 
-#: ckan/public/base/javascript/modules/autocomplete.js:31
-msgid "No matches found"
-msgstr "Ekkert fannst"
-
-#: ckan/public/base/javascript/modules/autocomplete.js:32
+#: ckan/public/base/javascript/modules/autocomplete.js:195
 msgid "Start typing…"
 msgstr "Sláðu inn fyrstu stafina..."
 
-#: ckan/public/base/javascript/modules/autocomplete.js:34
+#: ckan/public/base/javascript/modules/autocomplete.js:195
+msgid "No matches found"
+msgstr "Ekkert fannst"
+
+#: ckan/public/base/javascript/modules/autocomplete.js:204
+#, python-format
 msgid "Input is too short, must be at least one character"
-msgstr "Of stutt, verður að vera í það minnsta einn stafur"
+msgid_plural "Input is too short, must be at least %(num)d characters"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
 msgstr "Það eru óvistaðar breytingar í þessu formi"
 
-#: ckan/public/base/javascript/modules/confirm-action.js:7
+#: ckan/public/base/javascript/modules/confirm-action.js:97
 msgid "Please Confirm Action"
 msgstr "Vinsamlegast staðfestu aðgerðina"
 
-#: ckan/public/base/javascript/modules/confirm-action.js:8
+#: ckan/public/base/javascript/modules/confirm-action.js:100
 msgid "Are you sure you want to perform this action?"
 msgstr "Ertu viss um að þú viljir framkvæma þessa aðgerð?"
 
-#: ckan/public/base/javascript/modules/confirm-action.js:9
+#: ckan/public/base/javascript/modules/confirm-action.js:102
 #: ckan/templates/user/new_user_form.html:9
 #: ckan/templates/user/perform_reset.html:21
 msgid "Confirm"
 msgstr "Staðfesta"
 
-#: ckan/public/base/javascript/modules/confirm-action.js:10
-#: ckan/public/base/javascript/modules/resource-reorder.js:11
-#: ckan/public/base/javascript/modules/resource-view-reorder.js:11
+#: ckan/public/base/javascript/modules/confirm-action.js:103
+#: ckan/public/base/javascript/modules/resource-reorder.js:59
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:53
 #: ckan/templates/admin/confirm_reset.html:9
 #: ckan/templates/group/confirm_delete.html:14
 #: ckan/templates/group/confirm_delete_member.html:15
 #: ckan/templates/organization/confirm_delete.html:14
 #: ckan/templates/organization/confirm_delete_member.html:15
-#: ckan/templates/package/confirm_delete.html:14
+#: ckan/templates/package/confirm_delete.html:15
 #: ckan/templates/package/confirm_delete_resource.html:14
 msgid "Cancel"
 msgstr "Hætta við"
 
-#: ckan/public/base/javascript/modules/follow.js:23
-#: ckan/templates/snippets/follow_button.html:14
-msgid "Follow"
-msgstr "Fylgjast með"
-
-#: ckan/public/base/javascript/modules/follow.js:24
+#: ckan/public/base/javascript/modules/follow.js:69
 #: ckan/templates/snippets/follow_button.html:9
 msgid "Unfollow"
 msgstr "Hætta að fylgjast með"
 
-#: ckan/public/base/javascript/modules/image-upload.js:15
-msgid "Upload"
-msgstr "Hlaða inn"
+#: ckan/public/base/javascript/modules/follow.js:72
+#: ckan/templates/snippets/follow_button.html:14
+msgid "Follow"
+msgstr "Fylgjast með"
 
-#: ckan/public/base/javascript/modules/image-upload.js:16
+#: ckan/public/base/javascript/modules/image-upload.js:60
 msgid "Link"
 msgstr "Tengill"
 
-#: ckan/public/base/javascript/modules/image-upload.js:17
-#: ckan/templates/group/snippets/group_item.html:43
-#: ckan/templates/macros/form.html:235
-#: ckan/templates/snippets/search_form.html:66
-msgid "Remove"
-msgstr "Fjarlægja"
-
-#: ckan/public/base/javascript/modules/image-upload.js:18
-#: ckan/templates/macros/form.html:412 ckanext/imageview/plugin.py:21
-#: ckanext/imageview/plugin.py:26
-msgid "Image"
-msgstr "Mynd"
-
-#: ckan/public/base/javascript/modules/image-upload.js:19
-msgid "Upload a file on your computer"
-msgstr "Sæktu skrá á tölvuna þína"
-
-#: ckan/public/base/javascript/modules/image-upload.js:20
+#: ckan/public/base/javascript/modules/image-upload.js:61
 msgid "Link to a URL on the internet (you can also link to an API)"
 msgstr "Farðu inn á vefslóð á netinu (þú getur líka tengst API)"
 
-#: ckan/public/base/javascript/modules/related-item.js:25
-msgid "show more"
-msgstr "sýna fleiri"
+#: ckan/public/base/javascript/modules/image-upload.js:68
+msgid "Upload"
+msgstr "Hlaða inn"
 
-#: ckan/public/base/javascript/modules/related-item.js:26
-msgid "show less"
-msgstr "sýna færri"
+#: ckan/public/base/javascript/modules/image-upload.js:72
+#: ckan/templates/group/snippets/group_item.html:43
+#: ckan/templates/macros/form.html:235
+#: ckan/templates/snippets/search_form.html:68
+msgid "Remove"
+msgstr "Fjarlægja"
 
-#: ckan/public/base/javascript/modules/resource-reorder.js:8
-msgid "Reorder resources"
-msgstr "Endurpantaðu tilföng"
+#: ckan/public/base/javascript/modules/image-upload.js:87
+msgid "Upload a file on your computer"
+msgstr "Sæktu skrá á tölvuna þína"
 
-#: ckan/public/base/javascript/modules/resource-reorder.js:9
-#: ckan/public/base/javascript/modules/resource-view-reorder.js:9
-msgid "Save order"
-msgstr "Vistaðu pöntun"
-
-#: ckan/public/base/javascript/modules/resource-reorder.js:10
-#: ckan/public/base/javascript/modules/resource-view-reorder.js:10
-msgid "Saving..."
-msgstr "Vistun í gangi..."
-
-#: ckan/public/base/javascript/modules/resource-upload-field.js:25
-msgid "Upload a file"
-msgstr "Hlaða inn skrá"
-
-#: ckan/public/base/javascript/modules/resource-upload-field.js:26
-msgid "An Error Occurred"
-msgstr "Villa kom upp"
-
-#: ckan/public/base/javascript/modules/resource-upload-field.js:27
-msgid "Resource uploaded"
-msgstr "Skránni hefur verið hlaðið inn"
-
-#: ckan/public/base/javascript/modules/resource-upload-field.js:28
-msgid "Unable to upload file"
-msgstr "Ekki tókst að hlaða inn skrá"
-
-#: ckan/public/base/javascript/modules/resource-upload-field.js:29
-msgid "Unable to authenticate upload"
-msgstr "Ekki fékkst heimild til að hlaða inn skrá"
-
-#: ckan/public/base/javascript/modules/resource-upload-field.js:30
-msgid "Unable to get data for uploaded file"
-msgstr "Ekki tókst að sækja gögn úr skránni sem þú hlóðst inn"
-
-#: ckan/public/base/javascript/modules/resource-upload-field.js:31
-msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop "
-"this upload?"
-msgstr "Þú ert að sækja skrá. Ertu viss um að viljir fara af síðunni og stöðva niðurhalið? "
-
-#: ckan/public/base/javascript/modules/resource-view-reorder.js:8
-msgid "Reorder resource view"
-msgstr "Endurraða tilfangssýnum"
-
-#: ckan/public/base/javascript/modules/slug-preview.js:35
+#: ckan/public/base/javascript/modules/image-upload.js:110
+#: ckan/public/base/javascript/modules/image-upload.js:173
+#: ckan/public/base/javascript/modules/slug-preview.js:56
 #: ckan/templates/group/snippets/group_form.html:18
 #: ckan/templates/organization/snippets/organization_form.html:18
 #: ckan/templates/package/snippets/package_basic_fields.html:13
@@ -2046,24 +2498,80 @@ msgstr "Endurraða tilfangssýnum"
 msgid "URL"
 msgstr "Vefslóð"
 
-#: ckan/public/base/javascript/modules/slug-preview.js:36
-#: ckan/templates/group/edit_base.html:20 ckan/templates/group/members.html:32
+#: ckan/public/base/javascript/modules/image-upload.js:119
+#: ckan/public/base/javascript/modules/image-upload.js:204
+msgid "File"
+msgstr "Skrá"
+
+#: ckan/public/base/javascript/modules/resource-reorder.js:56
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:50
+msgid "Save order"
+msgstr "Vistaðu pöntun"
+
+#: ckan/public/base/javascript/modules/resource-reorder.js:69
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:59
+msgid "Saving..."
+msgstr "Vistun í gangi..."
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:57
+msgid "Upload a file"
+msgstr "Hlaða inn skrá"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:144
+msgid "An Error Occurred"
+msgstr "Villa kom upp"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:201
+msgid "Unable to upload file"
+msgstr "Ekki tókst að hlaða inn skrá"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:252
+msgid "Unable to authenticate upload"
+msgstr "Ekki fékkst heimild til að hlaða inn skrá"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:260
+msgid "Resource uploaded"
+msgstr "Skránni hefur verið hlaðið inn"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:266
+msgid "Unable to get data for uploaded file"
+msgstr "Ekki tókst að sækja gögn úr skránni sem þú hlóðst inn"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:272
+msgid ""
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
+msgstr ""
+"Þú ert að sækja skrá. Ertu viss um að viljir fara af síðunni og stöðva "
+"niðurhalið? "
+
+#: ckan/public/base/javascript/modules/resource-view-filters.js:9
+#: ckan/templates/package/snippets/view_form_filters.html:16
+msgid "Add Filter"
+msgstr "Bæta við síu"
+
+#: ckan/public/base/javascript/modules/resource-view-filters.js:52
+msgid "Select a field"
+msgstr ""
+
+#: ckan/public/base/javascript/modules/slug-preview.js:57
+#: ckan/templates/group/edit_base.html:22 ckan/templates/group/members.html:28
 #: ckan/templates/organization/bulk_process.html:65
 #: ckan/templates/organization/edit.html:3
 #: ckan/templates/organization/edit_base.html:22
-#: ckan/templates/organization/members.html:32
+#: ckan/templates/organization/members.html:33
 #: ckan/templates/package/edit_base.html:11
 #: ckan/templates/package/resource_edit.html:3
 #: ckan/templates/package/resource_edit_base.html:12
-#: ckan/templates/package/snippets/resource_item.html:57
+#: ckan/templates/package/snippets/resource_item.html:56
 msgid "Edit"
 msgstr "Breyta"
 
-#: ckan/public/base/javascript/modules/table-toggle-more.js:9
+#: ckan/public/base/javascript/modules/table-toggle-more.js:25
 msgid "Show more"
 msgstr "Sýna fleiri"
 
-#: ckan/public/base/javascript/modules/table-toggle-more.js:10
+#: ckan/public/base/javascript/modules/table-toggle-more.js:26
 msgid "Hide"
 msgstr "Fela"
 
@@ -2081,14 +2589,16 @@ msgid "CKAN API"
 msgstr "CKAN API"
 
 #: ckan/templates/footer.html:16
-msgid "Open Knowledge Foundation"
-msgstr "Open Knowledge Foundation"
+msgid "CKAN Association"
+msgstr ""
 
 #: ckan/templates/footer.html:24
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
-msgstr "<strong>Keyrir á</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
+msgstr ""
+"<strong>Keyrir á</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
@@ -2129,8 +2639,8 @@ msgstr "Innskráning"
 msgid "Register"
 msgstr "Skráning"
 
-#: ckan/templates/header.html:103 ckan/templates/group/read_base.html:17
-#: ckan/templates/group/snippets/info.html:36
+#: ckan/templates/group/read_base.html:17
+#: ckan/templates/group/snippets/info.html:36 ckan/templates/header.html:103
 #: ckan/templates/organization/bulk_process.html:20
 #: ckan/templates/organization/edit_base.html:23
 #: ckan/templates/organization/read_base.html:17
@@ -2139,9 +2649,9 @@ msgstr "Skráning"
 #: ckan/templates/package/search.html:7
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:1
 #: ckan/templates/revision/diff.html:11 ckan/templates/revision/read.html:65
-#: ckan/templates/snippets/organization.html:59
 #: ckan/templates/snippets/context/group.html:17
 #: ckan/templates/snippets/context/user.html:19
+#: ckan/templates/snippets/organization.html:59
 #: ckan/templates/user/read.html:5 ckan/templates/user/read_base.html:19
 #: ckan/templates/user/read_base.html:53
 msgid "Datasets"
@@ -2194,19 +2704,19 @@ msgstr "Rusl"
 msgid "Are you sure you want to reset the config?"
 msgstr "Ertu viss um að þú viljir færa stillingar í upprunalegt horf?"
 
-#: ckan/templates/admin/config.html:17
+#: ckan/templates/admin/config.html:16
 msgid "Reset"
 msgstr "Núllstilla"
 
-#: ckan/templates/admin/config.html:18
+#: ckan/templates/admin/config.html:17
 msgid "Update Config"
 msgstr "Uppfæra stillingar"
 
-#: ckan/templates/admin/config.html:27
+#: ckan/templates/admin/config.html:26
 msgid "CKAN config options"
 msgstr "CKAN stillingar"
 
-#: ckan/templates/admin/config.html:34
+#: ckan/templates/admin/config.html:33
 #, python-format
 msgid ""
 " <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
@@ -2224,7 +2734,21 @@ msgid ""
 "target=\"_blank\">reading the documentation</a>.</p> "
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p> "
-msgstr " <p><strong>Titill svæðis:</strong> Þetta er heiti vefsvæðisins og er notað víða innan CKAN uppsetningarinnar.</p> <p><strong>Útlit:</strong> Veldu úr lista yfir fölbreytt litaþemu til að breyta útliti svæðisins með fljótlegum hætti. </p> <p><strong>Merki svæðisins:</strong> Þetta er myndin sem birtist í haus vefsvæðisins á öllum síðum.</p> <p><strong>Um:</strong> Þessi texti er notaður á síðunni <a href=\"%(about_url)s\">um vefinn</a>.</p> <p><strong>Kynningartexti:</strong> Þessi texti birtist á <a href=\"%(home_url)s\">forsíðunni</a> til að bjóða gesti velkomna. </p> <p><strong>Sérsniðið CSS:</strong> Þessi kóði birtist í <code>&lt;head&gt;</code> taginu á öllum síðum. Ef þú hefur áhuga á að krukka meira í sniðmátinu mælum við með að þú <a href=\"%(docs_url)s\" target=\"_blank\">lesir leiðbeiningarnar</a>.</p> <p><strong>Forsíða:</strong> Þetta er notað til að velja tilbúið sniðmát fyrir mismunandi þætti á forsíðunni þinni.</p>"
+msgstr ""
+" <p><strong>Titill svæðis:</strong> Þetta er heiti vefsvæðisins og er notað "
+"víða innan CKAN uppsetningarinnar.</p> <p><strong>Útlit:</strong> Veldu úr "
+"lista yfir fölbreytt litaþemu til að breyta útliti svæðisins með fljótlegum "
+"hætti. </p> <p><strong>Merki svæðisins:</strong> Þetta er myndin sem birtist"
+" í haus vefsvæðisins á öllum síðum.</p> <p><strong>Um:</strong> Þessi texti "
+"er notaður á síðunni <a href=\"%(about_url)s\">um vefinn</a>.</p> "
+"<p><strong>Kynningartexti:</strong> Þessi texti birtist á <a "
+"href=\"%(home_url)s\">forsíðunni</a> til að bjóða gesti velkomna. </p> "
+"<p><strong>Sérsniðið CSS:</strong> Þessi kóði birtist í "
+"<code>&lt;head&gt;</code> taginu á öllum síðum. Ef þú hefur áhuga á að "
+"krukka meira í sniðmátinu mælum við með að þú <a href=\"%(docs_url)s\" "
+"target=\"_blank\">lesir leiðbeiningarnar</a>.</p> "
+"<p><strong>Forsíða:</strong> Þetta er notað til að velja tilbúið sniðmát "
+"fyrir mismunandi þætti á forsíðunni þinni.</p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2241,7 +2765,11 @@ msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
 "Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
 "CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
-msgstr "<p>Sem kerfisstjóri hefur þú fulla stjórn á þessari CKAN-uppsetningu. Farðu mjög varlega!</p> <p>Fyrir aðstoð við að nota kerfisstjórnarmöguleika, skoðaðu CKAN <a href=\"%(docs_url)s\" target=\"_blank\">kerfisstjóraleiðbeiningarnar</a></p>"
+msgstr ""
+"<p>Sem kerfisstjóri hefur þú fulla stjórn á þessari CKAN-uppsetningu. Farðu "
+"mjög varlega!</p> <p>Fyrir aðstoð við að nota kerfisstjórnarmöguleika, "
+"skoðaðu CKAN <a href=\"%(docs_url)s\" "
+"target=\"_blank\">kerfisstjóraleiðbeiningarnar</a></p>"
 
 #: ckan/templates/admin/trash.html:20
 msgid "Purge"
@@ -2251,81 +2779,12 @@ msgstr "Eyða varanlega"
 msgid " <p>Purge deleted datasets forever and irreversibly.</p> "
 msgstr "<p>Hreinsa varanlega burt eyddum gagnapökkum.</p>"
 
-#: ckan/templates/ajax_snippets/api_info.html:19
-msgid "CKAN Data API"
-msgstr "CKAN Data API"
-
-#: ckan/templates/ajax_snippets/api_info.html:23
-msgid "Access resource data via a web API with powerful query support"
-msgstr "Opnaðu tilfangsgögn í gegnum nettengt API með öflugum leitarstuðningi"
-
-#: ckan/templates/ajax_snippets/api_info.html:24
-msgid ""
-" Further information in the <a       "
-"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
-msgstr "Ítarlegri upplýsingar má finna í <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">aðalleiðbeiningum CKAN gagnaforritaskila og gagnabankans</a>.</p> "
-
-#: ckan/templates/ajax_snippets/api_info.html:33
-msgid "Endpoints"
-msgstr "Viðmið"
-
-#: ckan/templates/ajax_snippets/api_info.html:37
-msgid ""
-"The Data API can be accessed via the following actions of the CKAN action "
-"API."
-msgstr "Hægt er opna Data API með eftirfarandi aðgerðum CKAN action API."
-
-#: ckan/templates/ajax_snippets/api_info.html:42
-msgid "Create"
-msgstr "Stofna"
-
-#: ckan/templates/ajax_snippets/api_info.html:46
-msgid "Update / Insert"
-msgstr "Uppfæra / Færa inn"
-
-#: ckan/templates/ajax_snippets/api_info.html:50
-msgid "Query"
-msgstr "Fyrirspurn"
-
-#: ckan/templates/ajax_snippets/api_info.html:54
-msgid "Query (via SQL)"
-msgstr "Fyrirspurn (með SQL)"
-
-#: ckan/templates/ajax_snippets/api_info.html:66
-msgid "Querying"
-msgstr "Athugar"
-
-#: ckan/templates/ajax_snippets/api_info.html:70
-msgid "Query example (first 5 results)"
-msgstr "Dæmi um fyrirspurn (fyrstu 5 niðurstöður)"
-
-#: ckan/templates/ajax_snippets/api_info.html:75
-msgid "Query example (results containing 'jones')"
-msgstr "Dæmi um fyrirspurn (niðurstöður sem innihalda 'jones') "
-
-#: ckan/templates/ajax_snippets/api_info.html:81
-msgid "Query example (via SQL statement)"
-msgstr "Dæmi um fyrirspurn (með SQL yfirlýsingu)"
-
-#: ckan/templates/ajax_snippets/api_info.html:93
-msgid "Example: Javascript"
-msgstr "Dæmi: Javascript"
-
-#: ckan/templates/ajax_snippets/api_info.html:97
-msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr "Einföld ajax (JSONP) fyrirspurn til data API með jQuery."
-
-#: ckan/templates/ajax_snippets/api_info.html:118
-msgid "Example: Python"
-msgstr "Dæmi: Kyrkislanga"
-
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
 msgstr "Það er ekki hægt að forskoða þessa skrá í augnablikinu."
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:11
-#: ckan/templates/package/resource_read.html:118
+#: ckan/templates/package/resource_read.html:115
 #: ckan/templates/package/snippets/resource_view.html:26
 msgid "Click here for more information."
 msgstr "Smelltu hér til að fá meiri upplýsingar."
@@ -2334,12 +2793,6 @@ msgstr "Smelltu hér til að fá meiri upplýsingar."
 #: ckan/templates/package/snippets/resource_view.html:33
 msgid "Download resource"
 msgstr "Hlaða niður skrá"
-
-#: ckan/templates/dataviewer/snippets/data_preview.html:23
-#: ckan/templates/package/snippets/resource_view.html:56
-#: ckanext/webpageview/theme/templates/webpage_view.html:2
-msgid "Your browser does not support iframes."
-msgstr "Vafrinn þinn styður ekki iframes."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "No preview available."
@@ -2458,7 +2911,7 @@ msgstr "Form fyrir söfn"
 #: ckan/templates/organization/confirm_delete_member.html:3
 #: ckan/templates/organization/confirm_delete_member.html:16
 #: ckan/templates/package/confirm_delete.html:3
-#: ckan/templates/package/confirm_delete.html:15
+#: ckan/templates/package/confirm_delete.html:16
 #: ckan/templates/package/confirm_delete_resource.html:3
 #: ckan/templates/package/confirm_delete_resource.html:15
 msgid "Confirm Delete"
@@ -2473,8 +2926,8 @@ msgstr "Ertu viss um að þú viljir eyða safninu - {name}?"
 msgid "Are you sure you want to delete member - {name}?"
 msgstr "Ertu viss um að þú viljir eyða meðlimi - {name}?"
 
-#: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:3
-#: ckan/templates/group/edit_base.html:11
+#: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:4
+#: ckan/templates/group/edit_base.html:13
 #: ckan/templates/group/read_base.html:12
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
@@ -2489,25 +2942,11 @@ msgstr "Stjórna"
 msgid "Edit Group"
 msgstr "Breyta safni"
 
-#: ckan/templates/group/edit_base.html:21 ckan/templates/group/members.html:3
+#: ckan/templates/group/edit_base.html:23 ckan/templates/group/members.html:3
 #: ckan/templates/organization/edit_base.html:24
 #: ckan/templates/organization/members.html:3
 msgid "Members"
 msgstr "Meðlimir"
-
-#: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
-#: ckan/templates/group/snippets/info.html:32
-#: ckan/templates/package/followers.html:3
-#: ckan/templates/package/followers.html:6
-#: ckan/templates/package/snippets/info.html:23
-#: ckan/templates/snippets/organization.html:55
-#: ckan/templates/snippets/context/group.html:13
-#: ckan/templates/snippets/context/user.html:15
-#: ckan/templates/user/followers.html:3 ckan/templates/user/followers.html:7
-#: ckan/templates/user/read_base.html:49
-#: ckanext/example_theme/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:12
-msgid "Followers"
-msgstr "Fylgjendur"
 
 #: ckan/templates/group/history.html:3 ckan/templates/group/history.html:6
 #: ckan/templates/package/history.html:3 ckan/templates/package/history.html:6
@@ -2522,28 +2961,6 @@ msgstr "Bæta við safni"
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
 msgstr "Leita í söfnum..."
-
-#: ckan/templates/group/index.html:20 ckan/templates/group/read.html:16
-#: ckan/templates/organization/bulk_process.html:97
-#: ckan/templates/organization/read.html:20
-#: ckan/templates/package/search.html:30
-#: ckan/templates/snippets/search_form.html:4
-#: ckan/templates/snippets/simple_search.html:10
-#: ckan/templates/snippets/sort_by.html:15
-#: ckanext/example_idatasetform/templates/package/search.html:13
-msgid "Name Ascending"
-msgstr "Nöfn í stafrófsröð"
-
-#: ckan/templates/group/index.html:20 ckan/templates/group/read.html:17
-#: ckan/templates/organization/bulk_process.html:98
-#: ckan/templates/organization/read.html:21
-#: ckan/templates/package/search.html:31
-#: ckan/templates/snippets/search_form.html:4
-#: ckan/templates/snippets/simple_search.html:10
-#: ckan/templates/snippets/sort_by.html:16
-#: ckanext/example_idatasetform/templates/package/search.html:14
-msgid "Name Descending"
-msgstr "Öfug stafrófsröð"
 
 #: ckan/templates/group/index.html:29
 msgid "There are currently no groups for this site"
@@ -2566,11 +2983,11 @@ msgid "Edit Member"
 msgstr "Breyta meðlim"
 
 #: ckan/templates/group/member_new.html:10
-#: ckan/templates/group/member_new.html:65 ckan/templates/group/members.html:6
+#: ckan/templates/group/member_new.html:64 ckan/templates/group/members.html:6
 #: ckan/templates/organization/member_new.html:7
 #: ckan/templates/organization/member_new.html:12
-#: ckan/templates/organization/member_new.html:66
-#: ckan/templates/organization/members.html:6
+#: ckan/templates/organization/member_new.html:65
+#: ckan/templates/organization/members.html:8
 msgid "Add Member"
 msgstr "Bæta við meðlim"
 
@@ -2582,7 +2999,9 @@ msgstr "Núverandi notandi"
 #: ckan/templates/group/member_new.html:21
 #: ckan/templates/organization/member_new.html:23
 msgid "If you wish to add an existing user, search for their username below."
-msgstr "Ef þú vilt bæta við nýjum núverandi notanda skaltu leita að notandanafni þeirra hér að neðan."
+msgstr ""
+"Ef þú vilt bæta við nýjum núverandi notanda skaltu leita að notandanafni "
+"þeirra hér að neðan."
 
 #: ckan/templates/group/member_new.html:38
 #: ckan/templates/organization/member_new.html:40
@@ -2600,49 +3019,48 @@ msgid "If you wish to invite a new user, enter their email address."
 msgstr "Ef þú vilt bjóða nýjum notanda skaltu slá inn netfang hans."
 
 #: ckan/templates/group/member_new.html:55
-#: ckan/templates/group/members.html:18
-#: ckan/templates/organization/member_new.html:56
-#: ckan/templates/organization/members.html:18
+#: ckan/templates/group/members.html:15
+#: ckan/templates/organization/member_new.html:54
+#: ckan/templates/organization/members.html:20
 msgid "Role"
 msgstr "Hlutverk"
 
 #: ckan/templates/group/member_new.html:58
-#: ckan/templates/group/members.html:30
-#: ckan/templates/organization/member_new.html:59
-#: ckan/templates/organization/members.html:30
+#: ckan/templates/group/members.html:31
+#: ckan/templates/organization/member_new.html:57
+#: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
 msgstr "Ertu viss um að þú viljir eyða þessum meðlim?"
 
-#: ckan/templates/group/member_new.html:59
-#: ckan/templates/group/members.html:35
-#: ckan/templates/group/snippets/group_form.html:61
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:31
+#: ckan/templates/group/snippets/group_form.html:38
 #: ckan/templates/organization/bulk_process.html:47
-#: ckan/templates/organization/member_new.html:60
-#: ckan/templates/organization/members.html:35
-#: ckan/templates/organization/snippets/organization_form.html:61
+#: ckan/templates/organization/member_new.html:59
+#: ckan/templates/organization/members.html:36
+#: ckan/templates/organization/snippets/organization_form.html:60
 #: ckan/templates/package/edit_view.html:19
-#: ckan/templates/package/snippets/package_form.html:40
-#: ckan/templates/package/snippets/resource_form.html:66
+#: ckan/templates/package/snippets/package_form.html:39
+#: ckan/templates/package/snippets/resource_form.html:65
 #: ckan/templates/revision/read.html:24
-#: ckan/templates/user/edit_user_form.html:38
+#: ckan/templates/user/edit_user_form.html:45
 msgid "Delete"
 msgstr "Eyða"
 
-#: ckan/templates/group/member_new.html:61
-msgid "Save"
-msgstr "Vista"
-
-#: ckan/templates/group/member_new.html:78
-#: ckan/templates/organization/member_new.html:79
+#: ckan/templates/group/member_new.html:77
+#: ckan/templates/organization/member_new.html:78
 msgid "What are roles?"
 msgstr "Hvað eru hlutverk?"
 
-#: ckan/templates/group/member_new.html:81
+#: ckan/templates/group/member_new.html:80
 msgid ""
 " <p><strong>Admin:</strong> Can edit group information, as well as manage "
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
-msgstr " <p><strong>Sjórnandi:</strong> Getur breytt upplýsingum safns og stýrt aðgangi meðlima í stofnun.</p> <p><strong>Member:</strong> Getur bætt við/fjarlægt gagnapakka úr söfnum</p>"
+msgstr ""
+" <p><strong>Sjórnandi:</strong> Getur breytt upplýsingum safns og stýrt "
+"aðgangi meðlima í stofnun.</p> <p><strong>Member:</strong> Getur bætt "
+"við/fjarlægt gagnapakka úr söfnum</p>"
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -2656,32 +3074,6 @@ msgstr "Uppfæra safn"
 #: ckan/templates/group/new_group_form.html:19
 msgid "Create Group"
 msgstr "Stofna safn"
-
-#: ckan/templates/group/read.html:15 ckan/templates/organization/read.html:19
-#: ckan/templates/package/search.html:29
-#: ckan/templates/snippets/sort_by.html:14
-#: ckanext/example_idatasetform/templates/package/search.html:12
-msgid "Relevance"
-msgstr "Samsvörun"
-
-#: ckan/templates/group/read.html:18
-#: ckan/templates/organization/bulk_process.html:99
-#: ckan/templates/organization/read.html:22
-#: ckan/templates/package/search.html:32
-#: ckan/templates/package/snippets/resource_form.html:51
-#: ckan/templates/snippets/sort_by.html:17
-#: ckanext/example_idatasetform/templates/package/search.html:15
-msgid "Last Modified"
-msgstr "Síðast breytt"
-
-#: ckan/templates/group/read.html:19 ckan/templates/organization/read.html:23
-#: ckan/templates/package/search.html:33
-#: ckan/templates/snippets/package_item.html:50
-#: ckan/templates/snippets/popular.html:3
-#: ckan/templates/snippets/sort_by.html:19
-#: ckanext/example_idatasetform/templates/package/search.html:18
-msgid "Popular"
-msgstr "Vinsælt"
 
 #: ckan/templates/group/read.html:21 ckan/templates/organization/read.html:25
 #: ckan/templates/snippets/search_form.html:3
@@ -2712,14 +3104,6 @@ msgid "my-group"
 msgstr "mitt-safn"
 
 #: ckan/templates/group/snippets/group_form.html:20
-#: ckan/templates/organization/snippets/organization_form.html:20
-#: ckan/templates/package/snippets/package_basic_fields.html:19
-#: ckan/templates/package/snippets/resource_form.html:32
-#: ckan/templates/package/snippets/view_form.html:9
-msgid "Description"
-msgstr "Lýsing"
-
-#: ckan/templates/group/snippets/group_form.html:20
 msgid "A little information about my group..."
 msgstr "Smá upplýsingar um safnið mitt..."
 
@@ -2727,25 +3111,9 @@ msgstr "Smá upplýsingar um safnið mitt..."
 msgid "Are you sure you want to delete this Group?"
 msgstr "Ertu viss um að þú viljir eyða þessu safni?"
 
-#: ckan/templates/group/snippets/group_form.html:64
+#: ckan/templates/group/snippets/group_form.html:63
 msgid "Save Group"
 msgstr "Vista safn"
-
-#: ckan/templates/group/snippets/group_item.html:32
-#: ckan/templates/organization/snippets/organization_item.html:31
-#: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:23
-#: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
-msgid "{num} Dataset"
-msgid_plural "{num} Datasets"
-msgstr[0] "{num} gagnapakki"
-msgstr[1] "{num} gagnapakkar"
-
-#: ckan/templates/group/snippets/group_item.html:34
-#: ckan/templates/organization/snippets/organization_item.html:33
-#: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
-#: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
-msgid "0 Datasets"
-msgstr "0 gagnapakkar"
 
 #: ckan/templates/group/snippets/group_item.html:38
 #: ckan/templates/group/snippets/group_item.html:39
@@ -2766,7 +3134,11 @@ msgid ""
 "could be to catalogue datasets for a particular project or team, or on a "
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets. "
-msgstr "Þú getur notað CKAN söfn til að búa til og stjórna gagnapakkasöfnum. Þannig er hægt að skrá gagnapakka fyrir tiltekið verkefni eða lið, eða í tilteknu þema, og þannig geturðu einnig hjálpað fólki við að finna og leita að þínum útgefnu gagnapökkum."
+msgstr ""
+"Þú getur notað CKAN söfn til að búa til og stjórna gagnapakkasöfnum. Þannig "
+"er hægt að skrá gagnapakka fyrir tiltekið verkefni eða lið, eða í tilteknu "
+"þema, og þannig geturðu einnig hjálpað fólki við að finna og leita að þínum "
+"útgefnu gagnapökkum."
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
@@ -2844,7 +3216,24 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr " <p>CKAN er leiðandi opinn hugbúnaður fyrir hýsingu á gögnum.</p> <p>CKAN er heildarlausn tilbúin til uppsetningar og gerir gögn bæði aðgengileg og gagnleg - með því að bjóða upp á lausn sem einfaldar útgáfu, deilingu, leit og notkun á gögnum (þ.m.t. geymslu gagna). CKAN er hannað fyrir útgefendur gagna (ríki og sveitarfélög, fyrirtæki og stofnanir) sem vilja gera eigin gögn opinber og aðgengileg.</p> <p>CKAN er notað af ríkisstjórnum og öðrum aðilum víðs vegar um heiminn og keyrir alls konar opinberar og samfélagslegar gagnaveitur, þ.m.t. gagnagáttir fyrir staðbundna og alþjóðlega stjórnsýslu, t.d. <a href=\"http://data.gov.uk\">data.gov.uk</a> í Bretlandi og <a href=\"http://publicdata.eu/\">publicdata.eu</a> fyrir ESB, <a href=\"http://dados.gov.br/\">dados.gov.br</a> í Brasilíu og hollenskar stjórnsýslugáttir, og auk þess vefsíður fyrir borgir og sveitarfélög í BNA, Bretlandi, Argentínu, Finnlandi og annars staðar. </p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Yfirlit yfir það helsta: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+msgstr ""
+" <p>CKAN er leiðandi opinn hugbúnaður fyrir hýsingu á gögnum.</p> <p>CKAN er"
+" heildarlausn tilbúin til uppsetningar og gerir gögn bæði aðgengileg og "
+"gagnleg - með því að bjóða upp á lausn sem einfaldar útgáfu, deilingu, leit "
+"og notkun á gögnum (þ.m.t. geymslu gagna). CKAN er hannað fyrir útgefendur "
+"gagna (ríki og sveitarfélög, fyrirtæki og stofnanir) sem vilja gera eigin "
+"gögn opinber og aðgengileg.</p> <p>CKAN er notað af ríkisstjórnum og öðrum "
+"aðilum víðs vegar um heiminn og keyrir alls konar opinberar og "
+"samfélagslegar gagnaveitur, þ.m.t. gagnagáttir fyrir staðbundna og "
+"alþjóðlega stjórnsýslu, t.d. <a href=\"http://data.gov.uk\">data.gov.uk</a> "
+"í Bretlandi og <a href=\"http://publicdata.eu/\">publicdata.eu</a> fyrir "
+"ESB, <a href=\"http://dados.gov.br/\">dados.gov.br</a> í Brasilíu og "
+"hollenskar stjórnsýslugáttir, og auk þess vefsíður fyrir borgir og "
+"sveitarfélög í BNA, Bretlandi, Argentínu, Finnlandi og annars staðar. </p> "
+"<p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: "
+"<a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Yfirlit "
+"yfir það helsta: <a "
+"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -2854,7 +3243,9 @@ msgstr "Velkomin(n) í CKAN"
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will "
-msgstr "Þetta er fínn inngangstexti um CKAN. Við höfum ekkert til að setja hér ennþá en það kemur"
+msgstr ""
+"Þetta er fínn inngangstexti um CKAN. Við höfum ekkert til að setja hér ennþá"
+" en það kemur"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -2885,20 +3276,16 @@ msgid "datasets"
 msgstr "gagnapakkar"
 
 #: ckan/templates/home/snippets/stats.html:17
-msgid "organization"
-msgstr "stofnun"
-
-#: ckan/templates/home/snippets/stats.html:17
 msgid "organizations"
 msgstr "stofnanir"
 
 #: ckan/templates/home/snippets/stats.html:23
-msgid "group"
-msgstr "safn"
-
-#: ckan/templates/home/snippets/stats.html:23
 msgid "groups"
 msgstr "söfn"
+
+#: ckan/templates/macros/autoform.html:62
+msgid "Site logo"
+msgstr ""
 
 #: ckan/templates/macros/form.html:126
 #, python-format
@@ -2906,7 +3293,10 @@ msgid ""
 "You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
 "target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
-msgstr "Þú getur notað <a href=\"#markdown\" title=\"Markdown flýtivísir\" data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-html=\"true\">Markdown sniðmát</a> hér"
+msgstr ""
+"Þú getur notað <a href=\"#markdown\" title=\"Markdown flýtivísir\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"html=\"true\">Markdown sniðmát</a> hér"
 
 #: ckan/templates/macros/form.html:265
 msgid "This field is required"
@@ -3021,18 +3411,29 @@ msgstr "Notandanafn"
 msgid "Email address"
 msgstr "Tölvupóstfang"
 
-#: ckan/templates/organization/member_new.html:62
+#: ckan/templates/organization/member_new.html:61
 msgid "Update Member"
 msgstr "Uppfæra meðlim"
 
-#: ckan/templates/organization/member_new.html:82
+#: ckan/templates/organization/member_new.html:81
 msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
 "<p><strong>Member:</strong> Can view the organization's private datasets, "
 "but not add new datasets.</p> "
-msgstr " <p><strong>Stjórnandi:</strong> Getur bætt við, breytt og eytt gagnapökkum, auk þess að stýra aðgangi meðlima í stofnun.</p> <p><strong>Útgefandi:</strong> Getur bætt við og breytt gagnapökkum en ekki stýrt aðgangi notenda.</p> <p><strong>Meðlimur:</strong> Getur skoðað óútgefna gagnapakka stofnunar en ekki bætt við nýjum gagnapökkum.</p> "
+msgstr ""
+" <p><strong>Stjórnandi:</strong> Getur bætt við, breytt og eytt gagnapökkum,"
+" auk þess að stýra aðgangi meðlima í stofnun.</p> "
+"<p><strong>Útgefandi:</strong> Getur bætt við og breytt gagnapökkum en ekki "
+"stýrt aðgangi notenda.</p> <p><strong>Meðlimur:</strong> Getur skoðað "
+"óútgefna gagnapakka stofnunar en ekki bætt við nýjum gagnapökkum.</p> "
+
+#: ckan/templates/organization/members.html:14
+msgid "{count} member"
+msgid_plural "{count} members"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3072,14 +3473,22 @@ msgid ""
 "organizations, admins can assign roles and authorise its members, giving "
 "individual users the right to publish datasets from that particular "
 "organisation (e.g. Office of National Statistics).</p> "
-msgstr " <p>Stofnanir eru útgefendur gagnapakka (til dæmis Fjármálaráðuneytið).  Gagnapakkar eru gefnir út undir stofnun frekar en í nafni einstaklinga.</p> <p>Stjórnendur geta úthlutað hlutverkum og aðgangsheimildum innan stofnana og þannig gefið notendum réttindi til að gefa út gagnapakka fyrir viðkomandi stofnun (t.d. Hagstofa Íslands).</p> "
+msgstr ""
+" <p>Stofnanir eru útgefendur gagnapakka (til dæmis Fjármálaráðuneytið).  "
+"Gagnapakkar eru gefnir út undir stofnun frekar en í nafni einstaklinga.</p> "
+"<p>Stjórnendur geta úthlutað hlutverkum og aðgangsheimildum innan stofnana "
+"og þannig gefið notendum réttindi til að gefa út gagnapakka fyrir viðkomandi"
+" stofnun.</p> "
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
 " CKAN Organizations are used to create, manage and publish collections of "
 "datasets. Users can have different roles within an Organization, depending "
 "on their level of authorisation to create, edit and publish. "
-msgstr "CKAN stofnanir eru notaðar til að búa til, stýra og gefa út gagnapakkasöfn. Notendur geta gegnt mismunandi hlutverkum innan stofnanna, í samræmi við heimildir sem þeir hafa til að búa til, breyta og gefa út."
+msgstr ""
+"CKAN stofnanir eru notaðar til að búa til, stýra og gefa út gagnapakkasöfn. "
+"Notendur geta gegnt mismunandi hlutverkum innan stofnanna, í samræmi við "
+"heimildir sem þeir hafa til að búa til, breyta og gefa út."
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3095,20 +3504,22 @@ msgstr "Stutt lýsing á stofnuninni..."
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all the "
-"public and private datasets belonging to this organization."
-msgstr "Ertu viss um að þú viljir eyða þessari stofnun? Þetta mun eyða öllum opinberum og lokuðum gagnapökkum sem tilheyra þessari stofnun."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
+msgstr ""
+"Ertu viss um að þú viljir eyða þessari stofnun? Þetta mun eyða öllum "
+"opinberum og lokuðum gagnapökkum sem tilheyra þessari stofnun."
 
-#: ckan/templates/organization/snippets/organization_form.html:64
+#: ckan/templates/organization/snippets/organization_form.html:63
 msgid "Save Organization"
 msgstr "Vista stofnun"
 
-#: ckan/templates/organization/snippets/organization_item.html:37
-#: ckan/templates/organization/snippets/organization_item.html:38
+#: ckan/templates/organization/snippets/organization_item.html:42
+#: ckan/templates/organization/snippets/organization_item.html:43
 msgid "View {organization_name}"
 msgstr "Skoða {organization_name}"
 
-#: ckan/templates/package/base.html:22 ckan/templates/package/new.html:3
+#: ckan/templates/package/base.html:22 ckan/templates/package/new.html:9
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
 msgid "Create Dataset"
 msgstr "Stofna gagnapakka"
@@ -3122,9 +3533,12 @@ msgid ""
 " A CKAN Dataset is a collection of data resources (such as files), together "
 "with a description and other information, at a fixed URL. Datasets are what "
 "users see when searching for data. "
-msgstr "CKAN gagnapakki er safn tilfanga gagna (t.d. skrár), ásamt lýsingu og öðrum upplýsingum, á ákveðinni vefslóð. Gagnapakkar eru það sem notendur sjá þegar þeir leita að gögnum."
+msgstr ""
+"CKAN gagnapakki er safn tilfanga gagna (t.d. skrár), ásamt lýsingu og öðrum "
+"upplýsingum, á ákveðinni vefslóð. Gagnapakkar eru það sem notendur sjá þegar"
+" þeir leita að gögnum."
 
-#: ckan/templates/package/confirm_delete.html:11
+#: ckan/templates/package/confirm_delete.html:12
 msgid "Are you sure you want to delete dataset - {name}?"
 msgstr "Ertu viss um að þú viljir eyða gagnapakkanum - {name}?"
 
@@ -3149,7 +3563,7 @@ msgstr "Breyta sýn"
 
 #: ckan/templates/package/edit_view.html:20
 #: ckan/templates/package/new_view.html:28
-#: ckan/templates/package/snippets/resource_item.html:33
+#: ckan/templates/package/snippets/resource_item.html:32
 #: ckan/templates/snippets/datapreview_embed_dialog.html:16
 msgid "Preview"
 msgstr "Forskoða"
@@ -3206,10 +3620,15 @@ msgid ""
 "href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
 "structured-data-the-data-explorer' target='_blank'>Data Explorer "
 "documentation</a>. "
-msgstr "Gagnaskoðandasýnir geta verið hægar og óáreiðanlegar nema DataStore viðbótin sé virk. Fyrir frekari upplýsingar skoðaðu <a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-structured-data-the-data-explorer' target='_blank'>leiðbeiningar fyrir gagnaskoðandann</a>. "
+msgstr ""
+"Gagnaskoðandasýnir getur verið hægar og óáreiðanlegar nema DataStore "
+"viðbótin sé virk. Fyrir frekari upplýsingar skoðaðu <a "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>leiðbeiningar fyrir "
+"gagnaskoðandann (Data Explorer)</a>. "
 
 #: ckan/templates/package/new_view.html:29
-#: ckan/templates/package/snippets/resource_form.html:82
+#: ckan/templates/package/snippets/resource_form.html:81
 msgid "Add"
 msgstr "Bæta við"
 
@@ -3218,61 +3637,9 @@ msgstr "Bæta við"
 msgid ""
 "This is an old revision of this dataset, as edited at %(timestamp)s. It may "
 "differ significantly from the <a href=\"%(url)s\">current revision</a>."
-msgstr "Þetta er gömul útgáfa af gagnapakkanum, breytt %(timestamp)s. Hún getur verið töluvert frábrugðin <a href=\"%(url)s\">núgildandi útgáfu</a>."
-
-#: ckan/templates/package/related_list.html:7
-msgid "Related Media for {dataset}"
-msgstr "Tengdar upplýsingar fyrir {dataset}"
-
-#: ckan/templates/package/related_list.html:12
-msgid "No related items"
-msgstr "Ekkert ítarefni"
-
-#: ckan/templates/package/related_list.html:17
-msgid "Add Related Item"
-msgstr "Bæta við ítarefni"
-
-#: ckan/templates/package/resource_data.html:12
-msgid "Upload to DataStore"
-msgstr "Hlaða inn í DataStore"
-
-#: ckan/templates/package/resource_data.html:19
-msgid "Upload error:"
-msgstr "Villa í upphleðslu:"
-
-#: ckan/templates/package/resource_data.html:25
-#: ckan/templates/package/resource_data.html:27
-msgid "Error:"
-msgstr "Villa:"
-
-#: ckan/templates/package/resource_data.html:36
-msgid "Error traceback:"
-msgstr "Villumelding:"
-
-#: ckan/templates/package/resource_data.html:48
-msgid "Status"
-msgstr "Staða"
-
-#: ckan/templates/package/resource_data.html:52
-#: ckan/templates/package/resource_read.html:157
-msgid "Last updated"
-msgstr "Síðast uppfært"
-
-#: ckan/templates/package/resource_data.html:56
-msgid "Never"
-msgstr "Aldrei"
-
-#: ckan/templates/package/resource_data.html:62
-msgid "Upload Log"
-msgstr "Upphleðsluskrá"
-
-#: ckan/templates/package/resource_data.html:74
-msgid "Details"
-msgstr "Upplýsingar"
-
-#: ckan/templates/package/resource_data.html:81
-msgid "End of log"
-msgstr "Endir á skrá"
+msgstr ""
+"Þetta er gömul útgáfa af gagnapakkanum, breytt %(timestamp)s. Hún getur "
+"verið töluvert frábrugðin <a href=\"%(url)s\">núgildandi útgáfu</a>."
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
@@ -3283,15 +3650,11 @@ msgid "View resource"
 msgstr "Skoða skrá"
 
 #: ckan/templates/package/resource_edit_base.html:24
-#: ckan/templates/package/resource_edit_base.html:32
+#: ckan/templates/package/resource_edit_base.html:30
 msgid "Edit resource"
 msgstr "Breyta tilfangi"
 
 #: ckan/templates/package/resource_edit_base.html:26
-msgid "DataStore"
-msgstr "DataStore"
-
-#: ckan/templates/package/resource_edit_base.html:28
 msgid "Views"
 msgstr "Sýnir"
 
@@ -3300,91 +3663,103 @@ msgid "API Endpoint"
 msgstr "API Endpoint"
 
 #: ckan/templates/package/resource_read.html:41
-#: ckan/templates/package/snippets/resource_item.html:48
+#: ckan/templates/package/snippets/resource_item.html:47
 msgid "Go to resource"
 msgstr "Fara í tilfang"
 
 #: ckan/templates/package/resource_read.html:43
-#: ckan/templates/package/snippets/resource_item.html:45
+#: ckan/templates/package/snippets/resource_item.html:44
 msgid "Download"
 msgstr "Sækja"
 
-#: ckan/templates/package/resource_read.html:59
-#: ckan/templates/package/resource_read.html:61
+#: ckan/templates/package/resource_read.html:56
+#: ckan/templates/package/resource_read.html:58
 msgid "URL:"
 msgstr "Vefslóð:"
 
-#: ckan/templates/package/resource_read.html:69
+#: ckan/templates/package/resource_read.html:66
 msgid "From the dataset abstract"
 msgstr "Úr útdrætti gagnapakka"
 
-#: ckan/templates/package/resource_read.html:71
+#: ckan/templates/package/resource_read.html:68
 #, python-format
 msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
 msgstr "Heimild: <a href=\"%(url)s\">%(dataset)s</a>"
 
-#: ckan/templates/package/resource_read.html:112
+#: ckan/templates/package/resource_read.html:109
 msgid "There are no views created for this resource yet."
 msgstr "Það hafa engar sýnir verið búnar til fyrir þetta tilfang."
 
-#: ckan/templates/package/resource_read.html:116
+#: ckan/templates/package/resource_read.html:113
 msgid "Not seeing the views you were expecting?"
 msgstr "Sérðu ekki sýnirnar sem þú bjóst við?"
 
-#: ckan/templates/package/resource_read.html:121
+#: ckan/templates/package/resource_read.html:118
 msgid "Here are some reasons you may not be seeing expected views:"
 msgstr "Hér eru nokkrar ástæður fyrir því að þú sjáir ekki sýnirnar:"
 
-#: ckan/templates/package/resource_read.html:123
+#: ckan/templates/package/resource_read.html:120
 msgid "No view has been created that is suitable for this resource"
 msgstr "Engin sýn hefur verið búin til sem virkar fyrir þetta tilfang"
 
-#: ckan/templates/package/resource_read.html:124
+#: ckan/templates/package/resource_read.html:121
 msgid "The site administrators may not have enabled the relevant view plugins"
 msgstr "Kerfisstjórar hafa mögulega ekki bætt við viðeigandi sýnisviðbótum"
 
-#: ckan/templates/package/resource_read.html:125
+#: ckan/templates/package/resource_read.html:122
 msgid ""
 "If a view requires the DataStore, the DataStore plugin may not be enabled, "
 "or the data may not have been pushed to the DataStore, or the DataStore "
 "hasn't finished processing the data yet"
-msgstr "Ef sýn býst við DataStore viðbótinni, gæti DataStore viðbótin verið óvirk, gögnin ekki sett inn í gagnabankann eða gagnabankinn hefur ekki enn klárað að vinna gögnin"
+msgstr ""
+"Ef sýn býst við DataStore viðbótinni, gæti DataStore viðbótin verið óvirk, "
+"gögnin ekki sett inn í gagnabankann eða gagnabankinn hefur ekki enn klárað "
+"að vinna gögnin"
 
-#: ckan/templates/package/resource_read.html:147
+#: ckan/templates/package/resource_read.html:144
 msgid "Additional Information"
 msgstr "Viðbótarupplýsingar"
 
-#: ckan/templates/package/resource_read.html:151
+#: ckan/templates/package/resource_read.html:148
 #: ckan/templates/package/snippets/additional_info.html:6
 #: ckan/templates/revision/diff.html:43
 #: ckan/templates/snippets/additional_info.html:11
 msgid "Field"
 msgstr "Svæði"
 
-#: ckan/templates/package/resource_read.html:152
+#: ckan/templates/package/resource_read.html:149
 #: ckan/templates/package/snippets/additional_info.html:7
 #: ckan/templates/snippets/additional_info.html:12
 msgid "Value"
 msgstr "Gildi"
 
-#: ckan/templates/package/resource_read.html:158
-#: ckan/templates/package/resource_read.html:162
-#: ckan/templates/package/resource_read.html:166
+#: ckan/templates/package/resource_read.html:154
+msgid "Data last updated"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:155
+#: ckan/templates/package/resource_read.html:159
+#: ckan/templates/package/resource_read.html:163
+#: ckan/templates/package/resource_read.html:167
 msgid "unknown"
 msgstr "óþekkt"
 
-#: ckan/templates/package/resource_read.html:161
+#: ckan/templates/package/resource_read.html:158
+msgid "Metadata last updated"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:162
 #: ckan/templates/package/snippets/additional_info.html:70
 msgid "Created"
 msgstr "Stofnað"
 
-#: ckan/templates/package/resource_read.html:165
+#: ckan/templates/package/resource_read.html:166
 #: ckan/templates/package/snippets/resource_form.html:37
 #: ckan/templates/package/snippets/resource_info.html:16
 msgid "Format"
 msgstr "Skráasnið"
 
-#: ckan/templates/package/resource_read.html:169
+#: ckan/templates/package/resource_read.html:170
 #: ckan/templates/package/snippets/package_basic_fields.html:30
 #: ckan/templates/snippets/license.html:21
 msgid "License"
@@ -3402,13 +3777,15 @@ msgstr "Þetta tilfang hefur enga sýn"
 msgid "Add new resource"
 msgstr "Bæta við nýju tilfangi"
 
-#: ckan/templates/package/resources.html:19
-#: ckan/templates/package/snippets/resources_list.html:25
+#: ckan/templates/package/resources.html:20
+#: ckan/templates/package/snippets/resources_list.html:26
 #, python-format
 msgid ""
 " <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
 "add some?</a></p> "
-msgstr " <p class=\"empty\">Þessi gagnapakki er ekki með nein gögn. <a href=\"%(url)s\">Viltu ekki bæta nokkrum við?</a></p> "
+msgstr ""
+" <p class=\"empty\">Þessi gagnapakki er ekki með nein gögn. <a "
+"href=\"%(url)s\">Viltu ekki bæta nokkrum við?</a></p> "
 
 #: ckan/templates/package/search.html:52
 msgid "API"
@@ -3427,14 +3804,18 @@ msgstr "fullt {format} úrtak"
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr "Þú getur líka fengið aðgang að skránni með %(api_link)s (sjá %(api_doc_link)s) eða hlaðið niður %(dump_link)s."
+msgstr ""
+"Þú getur líka fengið aðgang að skránni með %(api_link)s (sjá "
+"%(api_doc_link)s) eða hlaðið niður %(dump_link)s."
 
 #: ckan/templates/package/search.html:60
 #, python-format
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
-msgstr "Þú getur líka fengið aðgang að skránni með %(api_link)s (sjá %(api_doc_link)s). "
+msgstr ""
+"Þú getur líka fengið aðgang að skránni með %(api_link)s (sjá "
+"%(api_doc_link)s). "
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
@@ -3473,15 +3854,29 @@ msgstr "Útgáfa"
 #: ckan/templates/package/snippets/package_basic_fields.html:108
 #: ckan/templates/user/read_base.html:91
 msgid "State"
-msgstr "Staða"
+msgstr "Ríki"
 
 #: ckan/templates/package/snippets/additional_info.html:62
 msgid "Last Updated"
-msgstr "Seinast uppfært"
+msgstr "Síðast uppfært"
 
-#: ckan/templates/package/snippets/data_api_button.html:10
-msgid "Data API"
-msgstr "Data API"
+#: ckan/templates/package/snippets/cannot_create_package.html:10
+msgid "Before you can create a dataset you need to create an organization."
+msgstr ""
+
+#: ckan/templates/package/snippets/cannot_create_package.html:13
+msgid "Create a new organization"
+msgstr ""
+
+#: ckan/templates/package/snippets/cannot_create_package.html:18
+msgid "There are no organizations to which you can assign this dataset."
+msgstr ""
+
+#: ckan/templates/package/snippets/cannot_create_package.html:19
+msgid ""
+"Ask a system administrator to create an organization before you can "
+"continue."
+msgstr ""
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 #: ckan/templates/package/snippets/view_form.html:8
@@ -3508,7 +3903,9 @@ msgstr "t.d. efnahagur, geðheilsa, stjórnvöld"
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr "Skilgreiningar á leyfisskilmálum má finna á <a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
+msgstr ""
+"Skilgreiningar á leyfisskilmálum má finna á <a "
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:70
 #: ckan/templates/snippets/organization.html:23
@@ -3538,13 +3935,19 @@ msgid ""
 "agree to release the <i>metadata</i> values that you enter into the form "
 "under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
 "Database License</a>."
-msgstr "<i>Notkunarskilmálarnir</i> sem þú valdir hér fyrir ofan eiga aðeins við um innihald tilfangaskráa sem þú bætir við í gagnapakkann. Með því að senda inn þessar upplýsingar samþykkir þú að birta <i>lýsigögnin</i> sem þú hefur fyllt inn undir notkunarskilmálum <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database License</a>."
+msgstr ""
+"<i>Notkunarskilmálarnir</i> sem þú valdir hér fyrir ofan eiga aðeins við um "
+"innihald tilfangaskráa sem þú bætir við í gagnapakkann. Með því að senda inn"
+" þessar upplýsingar samþykkir þú að birta <i>lýsigögnin</i> sem þú hefur "
+"fyllt inn undir notkunarskilmálum <a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
+"License</a>."
 
 #: ckan/templates/package/snippets/package_form.html:39
 msgid "Are you sure you want to delete this dataset?"
 msgstr "Ertu viss um að þú viljir eyða þessum gagnapakka?"
 
-#: ckan/templates/package/snippets/package_form.html:44
+#: ckan/templates/package/snippets/package_form.html:43
 msgid "Next: Add Data"
 msgstr "Næst: Bæta við gögnum"
 
@@ -3581,8 +3984,12 @@ msgid "Update Resource"
 msgstr "Uppfæra skrá"
 
 #: ckan/templates/package/snippets/resource_form.html:24
-msgid "File"
-msgstr "Skrá"
+msgid "Data"
+msgstr ""
+
+#: ckan/templates/package/snippets/resource_form.html:24
+msgid "http://example.com/external-data.csv"
+msgstr ""
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
@@ -3626,15 +4033,15 @@ msgstr "t.d. application/json"
 msgid "Are you sure you want to delete this resource?"
 msgstr "Ertu viss um að þú viljir eyða þessu tilfangi?"
 
-#: ckan/templates/package/snippets/resource_form.html:72
+#: ckan/templates/package/snippets/resource_form.html:71
 msgid "Previous"
 msgstr "Fyrra"
 
-#: ckan/templates/package/snippets/resource_form.html:75
+#: ckan/templates/package/snippets/resource_form.html:74
 msgid "Save & add another"
 msgstr "Vista og bæta meiru við"
 
-#: ckan/templates/package/snippets/resource_form.html:78
+#: ckan/templates/package/snippets/resource_form.html:77
 msgid "Finish"
 msgstr "Ljúka"
 
@@ -3644,13 +4051,15 @@ msgstr "Hvað er tilfang?"
 
 #: ckan/templates/package/snippets/resource_help.html:4
 msgid "A resource can be any file or link to a file containing useful data."
-msgstr "Tilfang getur verið skjal, hlekkur á skjal eða tilvísun í gagnaveitu með nýtanlegum gögnum."
+msgstr ""
+"Tilfang getur verið skjal, hlekkur á skjal eða tilvísun í gagnaveitu með "
+"nýtanlegum gögnum."
 
-#: ckan/templates/package/snippets/resource_item.html:24
+#: ckan/templates/package/snippets/resource_item.html:23
 msgid "Explore"
 msgstr "Skoða"
 
-#: ckan/templates/package/snippets/resource_item.html:36
+#: ckan/templates/package/snippets/resource_item.html:35
 msgid "More information"
 msgstr "Frekari upplýsingar"
 
@@ -3670,7 +4079,9 @@ msgstr "Fella þess tilfangssýn inn í vefsíðu"
 msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
-msgstr "Þú getur afritað og límt inn ívafskóðann í vefumsjónarkerfi eða blogghugbúnað sem styður hreint HTML"
+msgstr ""
+"Þú getur afritað og límt inn ívafskóðann í vefumsjónarkerfi eða "
+"blogghugbúnað sem styður hreint HTML"
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
@@ -3692,7 +4103,7 @@ msgstr "Forskoðun tilfangs"
 msgid "Data and Resources"
 msgstr "Gögn og tilföng"
 
-#: ckan/templates/package/snippets/resources_list.html:29
+#: ckan/templates/package/snippets/resources_list.html:30
 msgid "This dataset has no data"
 msgstr "Þessi gagnapakki hefur engin gögn"
 
@@ -3720,17 +4131,9 @@ msgstr "t.d. Mín sýn"
 msgid "eg. Information about my view"
 msgstr "t.d. Upplýsingar um mína sýn"
 
-#: ckan/templates/package/snippets/view_form_filters.html:16
-msgid "Add Filter"
-msgstr "Bæta við síu"
-
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
 msgstr "Fjarlægja síu"
-
-#: ckan/templates/package/snippets/view_form_filters.html:46
-msgid "Filters"
-msgstr "Síur"
 
 #: ckan/templates/package/snippets/view_help.html:2
 msgid "What's a view?"
@@ -3830,11 +4233,11 @@ msgstr "Engar {facet_type} samræmast þessu leitarorði"
 msgid "Home"
 msgstr "Heim"
 
-#: ckan/templates/snippets/language_selector.html:4
+#: ckan/templates/snippets/language_selector.html:3
 msgid "Language"
 msgstr "Tungumál"
 
-#: ckan/templates/snippets/language_selector.html:12
+#: ckan/templates/snippets/language_selector.html:11
 #: ckan/templates/snippets/search_form.html:41
 #: ckan/templates/snippets/simple_search.html:15
 #: ckan/templates/snippets/sort_by.html:22
@@ -3857,16 +4260,6 @@ msgstr "Það er engin lýsing á þessari stofnun"
 msgid "This dataset has no description"
 msgstr "Engin lýsing er til á þessum gagnapakka"
 
-#: ckan/templates/snippets/related.html:15
-msgid ""
-"No apps, ideas, news stories or images have been related to this dataset "
-"yet."
-msgstr "Engin forrit, hugmyndir, fréttir eða myndir eru tengdar þessum gagnapakka enn."
-
-#: ckan/templates/snippets/related.html:18
-msgid "Add Item"
-msgstr "Bæta við"
-
 #: ckan/templates/snippets/search_form.html:17
 msgid "Submit"
 msgstr "Senda"
@@ -3877,19 +4270,19 @@ msgstr "Senda"
 msgid "Order by"
 msgstr "Raða eftir"
 
-#: ckan/templates/snippets/search_form.html:71
+#: ckan/templates/snippets/search_form.html:73
 msgid "Filter Results"
 msgstr "Takmarka leitarniðurstöður"
 
-#: ckan/templates/snippets/search_form.html:78
+#: ckan/templates/snippets/search_form.html:80
 msgid " <p class=\"extra\">Please try another search.</p> "
 msgstr " <p class=\"extra\">Reyndu aðra leit.</p> "
 
-#: ckan/templates/snippets/search_form.html:84
+#: ckan/templates/snippets/search_form.html:86
 msgid ""
-" <p><strong>There was an error while searching.</strong> Please try "
-"again.</p> "
-msgstr " <p><strong>Það kom upp villa við leitina.</strong> Vinsamlegast reyndu aftur.</p> "
+" <p id=\"search-error\"><strong>There was an error while searching.</strong>"
+" Please try again.</p> "
+msgstr ""
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4009,7 +4402,7 @@ msgstr "Þú hefur ekki búið til neina gagnapakka."
 
 #: ckan/templates/user/dashboard_datasets.html:19
 #: ckan/templates/user/dashboard_groups.html:22
-#: ckan/templates/user/dashboard_organizations.html:22
+#: ckan/templates/user/dashboard_organizations.html:23
 #: ckan/templates/user/read.html:16
 msgid "Create one now?"
 msgstr "Viltu búa til gagnapakka?"
@@ -4018,7 +4411,7 @@ msgstr "Viltu búa til gagnapakka?"
 msgid "You are not a member of any groups."
 msgstr "Þú ert ekki meðlimur í neinu safni."
 
-#: ckan/templates/user/dashboard_organizations.html:20
+#: ckan/templates/user/dashboard_organizations.html:21
 msgid "You are not a member of any organizations."
 msgstr "Þú ert ekki meðlimur í neinni stofnun."
 
@@ -4067,6 +4460,10 @@ msgid "Change password"
 msgstr "Breyta aðgangsorði"
 
 #: ckan/templates/user/edit_user_form.html:29
+msgid "Sysadmin Password"
+msgstr ""
+
+#: ckan/templates/user/edit_user_form.html:37
 #: ckan/templates/user/logout_first.html:12
 #: ckan/templates/user/new_user_form.html:8
 #: ckan/templates/user/perform_reset.html:20
@@ -4074,23 +4471,23 @@ msgstr "Breyta aðgangsorði"
 msgid "Password"
 msgstr "Aðgangsorð"
 
-#: ckan/templates/user/edit_user_form.html:31
+#: ckan/templates/user/edit_user_form.html:39
 msgid "Confirm Password"
 msgstr "Staðfesta aðgangsorð"
 
-#: ckan/templates/user/edit_user_form.html:37
+#: ckan/templates/user/edit_user_form.html:45
 msgid "Are you sure you want to delete this User?"
 msgstr "Ertu viss um að þú viljir eyða þessum notanda?"
 
-#: ckan/templates/user/edit_user_form.html:43
+#: ckan/templates/user/edit_user_form.html:50
 msgid "Are you sure you want to regenerate the API key?"
-msgstr "Ertu viss um að þú viljir endurstilla API-lykilinn þinn?"
+msgstr "Ertu viss um að þú viljir endurstilla API lykilinn þinn?"
 
-#: ckan/templates/user/edit_user_form.html:44
+#: ckan/templates/user/edit_user_form.html:50
 msgid "Regenerate API Key"
 msgstr "Endurstilla API-lykil"
 
-#: ckan/templates/user/edit_user_form.html:48
+#: ckan/templates/user/edit_user_form.html:54
 msgid "Update Profile"
 msgstr "Uppfæra prófíl"
 
@@ -4156,7 +4553,9 @@ msgstr "Þú ert þegar innskráð(ur)"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
-msgstr "Þú verður að skrá þig út áður en þú getur skráð þig aftur inn sem annar notandi."
+msgstr ""
+"Þú verður að skrá þig út áður en þú getur skráð þig aftur inn sem annar "
+"notandi."
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
@@ -4240,19 +4639,26 @@ msgstr "Notandi síðan"
 msgid "API Key"
 msgstr "API lykill"
 
+#: ckan/templates/user/request_reset.html:3
+#: ckan/templates/user/request_reset.html:13
+msgid "Reset your password"
+msgstr "Endurstilltu aðgangsorðið þitt"
+
 #: ckan/templates/user/request_reset.html:6
 msgid "Password reset"
 msgstr "Breyta aðgangsorði"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "Request reset"
-msgstr "Óska eftir aðgangsorðsbreytingu"
+msgstr "Breyta aðgangsorði"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
-msgstr "Sláðu notandanafnið þitt inn í svæðið. Við munum senda þér tölvupóst með tengil á síðu þar sem þú getur valið nýtt aðgangsorð."
+msgstr ""
+"Sláðu notandanafnið þitt inn í svæðið. Við munum senda þér tölvupóst með "
+"tengil á síðu þar sem þú getur valið nýtt aðgangsorð."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
 #: ckan/templates/user/snippets/followee_dropdown.html:15
@@ -4275,286 +4681,6 @@ msgstr "Engir fylgjendur"
 msgid "Search Users"
 msgstr "Leita að notanda"
 
-#: ckanext/datapusher/helpers.py:19
-msgid "Complete"
-msgstr "Lokið"
-
-#: ckanext/datapusher/helpers.py:20
-msgid "Pending"
-msgstr "Í bið"
-
-#: ckanext/datapusher/helpers.py:21
-msgid "Submitting"
-msgstr "Sendi"
-
-#: ckanext/datapusher/helpers.py:27
-msgid "Not Uploaded Yet"
-msgstr "Upphleðslu er ekki lokið"
-
-#: ckanext/datastore/controller.py:31
-msgid "DataStore resource not found"
-msgstr "Tilfang DataStore fannst ekki"
-
-#: ckanext/datastore/db.py:663
-msgid ""
-"The data was invalid (for example: a numeric value is out of range or was "
-"inserted into a text field)."
-msgstr "Þessi gögn eru ógild (til dæmis: tölugildi er ekki innan marka eða var slegið inn í textareit)."
-
-#: ckanext/datastore/logic/action.py:215 ckanext/datastore/logic/action.py:255
-#: ckanext/datastore/logic/action.py:332 ckanext/datastore/logic/action.py:422
-#: ckanext/datastore/logic/action.py:504 ckanext/datastore/logic/action.py:530
-msgid "Resource \"{0}\" was not found."
-msgstr "Tilfangið „{0}“ fannst ekki."
-
-#: ckanext/datastore/logic/auth.py:16
-msgid "User {0} not authorized to update resource {1}"
-msgstr "Notandinn {0} hefur ekki heimild til að uppfæra tilfangið {1}"
-
-#: ckanext/example_iconfigurer/templates/admin/config.html:11
-msgid "Datasets per page"
-msgstr "Gagnapakkar á hverri síðu"
-
-#: ckanext/example_iconfigurer/templates/admin/config.html:13
-msgid "Test conf"
-msgstr "Prófunarstillingar"
-
-#: ckanext/example_idatasetform/templates/package/search.html:16
-msgid "Custom Field Ascending"
-msgstr "Viðbótarupplýsingar í vaxandi röð"
-
-#: ckanext/example_idatasetform/templates/package/search.html:17
-msgid "Custom Field Descending"
-msgstr "Viðbótarupplýsingar í lækkandi röð"
-
-#: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
-#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
-#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
-msgid "Custom Text"
-msgstr "Valfrjáls texti"
-
-#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
-msgid "custom text"
-msgstr "valfrjáls texti"
-
-#: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
-msgid "Country Code"
-msgstr "Landskóði"
-
-#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
-msgid "custom resource text"
-msgstr "valfrjáls tilfangstexti"
-
-#: ckanext/example_itranslation/templates/home/index.html:4
-msgid "This is an untranslated string"
-msgstr "Þetta er óþýddur strengur"
-
-#: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
-#: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
-msgid "This group has no description"
-msgstr "Engin lýsing á safninu"
-
-#: ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html:4
-msgid "CKAN's data previewing tool has many powerful features"
-msgstr "Gagnaforskoðunartól CKAN býður upp á mikla möguleika"
-
-#: ckanext/imageview/theme/templates/image_form.html:3
-msgid "Image url"
-msgstr "Slóð á mynd"
-
-#: ckanext/imageview/theme/templates/image_form.html:3
-msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
-msgstr "t.d. http://example.com/image.jpg (ef tómt er vefslóð tilfangs notuð)"
-
-#: ckanext/reclineview/plugin.py:84
-msgid "Data Explorer"
-msgstr "Gagnaskoðandi"
-
-#: ckanext/reclineview/plugin.py:111
-msgid "Table"
-msgstr "Tafla"
-
-#: ckanext/reclineview/plugin.py:154
-msgid "Graph"
-msgstr "Myndrit"
-
-#: ckanext/reclineview/plugin.py:214
-msgid "Map"
-msgstr "Kort"
-
-#: ckanext/reclineview/theme/public/recline_view.js:34
-msgid "error loading view"
-msgstr "villa við að hlaða sýn"
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
-#: ckanext/reclineview/theme/templates/recline_map_form.html:3
-msgid "Row offset"
-msgstr "Raðahliðrun"
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
-#: ckanext/reclineview/theme/templates/recline_map_form.html:3
-msgid "eg: 0"
-msgstr "t.d. 0"
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
-#: ckanext/reclineview/theme/templates/recline_map_form.html:4
-msgid "Number of rows"
-msgstr "Fjöldi raða"
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
-#: ckanext/reclineview/theme/templates/recline_map_form.html:4
-msgid "eg: 100"
-msgstr "t.d. 100"
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:6
-msgid "Graph type"
-msgstr "Gerð myndrits"
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:7
-msgid "Group (Axis 1)"
-msgstr "Hópur (ás 1)"
-
-#: ckanext/reclineview/theme/templates/recline_graph_form.html:8
-msgid "Series (Axis 2)"
-msgstr "Röð (ás 2)"
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:6
-msgid "Field type"
-msgstr "Gerð svæðis"
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:7
-msgid "Latitude field"
-msgstr "Breiddargráðureitur"
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:8
-msgid "Longitude field"
-msgstr "Lengdargráðureitur"
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:9
-msgid "GeoJSON field"
-msgstr "GeoJSON-reitur"
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:10
-msgid "Auto zoom to features"
-msgstr "Sjálfvirk þysjun að eiginleikum"
-
-#: ckanext/reclineview/theme/templates/recline_map_form.html:11
-msgid "Cluster markers"
-msgstr "Klasamerkingar"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:10
-msgid "Total number of Datasets"
-msgstr "Heildarfjöldi gagnapakka"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:17
-#: ckanext/stats/templates/ckanext/stats/index.html:40
-msgid "Date"
-msgstr "Dagsetning"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:18
-msgid "Total datasets"
-msgstr "Fjöldi gagnapakka"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:33
-#: ckanext/stats/templates/ckanext/stats/index.html:179
-msgid "Dataset Revisions per Week"
-msgstr "Uppfærslur gagnapakka á viku"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:41
-msgid "All dataset revisions"
-msgstr "Allar uppfærslur gagnapakka"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:42
-msgid "New datasets"
-msgstr "Nýir gagnapakkar"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:58
-#: ckanext/stats/templates/ckanext/stats/index.html:180
-msgid "Top Rated Datasets"
-msgstr "Gagnapakkar með hæstu einkunn"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:64
-msgid "Average rating"
-msgstr "Meðaleinkunn"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:65
-msgid "Number of ratings"
-msgstr "Fjöldi einkunna"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:79
-msgid "No ratings"
-msgstr "Engar einkunnir"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:84
-#: ckanext/stats/templates/ckanext/stats/index.html:181
-msgid "Most Edited Datasets"
-msgstr "Gagnapakkar sem hafa verið uppfærðir oftast"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:90
-msgid "Number of edits"
-msgstr "Fjöldi breytinga"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:103
-msgid "No edited datasets"
-msgstr "Engir gagnapakkar uppfærðir"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:108
-#: ckanext/stats/templates/ckanext/stats/index.html:182
-msgid "Largest Groups"
-msgstr "Stærstu söfn"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:114
-msgid "Number of datasets"
-msgstr "Fjöldi gagnapakka"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:127
-msgid "No groups"
-msgstr "Engin söfn"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:132
-#: ckanext/stats/templates/ckanext/stats/index.html:183
-msgid "Top Tags"
-msgstr "Algengustu efnisorðin"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:136
-msgid "Tag Name"
-msgstr "Heiti efnisorðs"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:137
-#: ckanext/stats/templates/ckanext/stats/index.html:157
-msgid "Number of Datasets"
-msgstr "Fjöldi gagnapakka"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:152
-#: ckanext/stats/templates/ckanext/stats/index.html:184
-msgid "Users Creating Most Datasets"
-msgstr "Notendur sem hafa búið til flesta gagnapakka"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:175
-msgid "Statistics Menu"
-msgstr "Talnagögn"
-
-#: ckanext/stats/templates/ckanext/stats/index.html:178
-msgid "Total Number of Datasets"
-msgstr "Heildarfjöldi gagnapakka"
-
-#: ckanext/textview/plugin.py:65 ckanext/textview/plugin.py:67
-msgid "Text"
-msgstr "Texti"
-
-#: ckanext/textview/theme/public/text_view.js:5
-#, python-format
-msgid "An error occurred: %(text)s %(error)s"
-msgstr "Villa kom upp: %(text)s %(error)s"
-
-#: ckanext/webpageview/plugin.py:19 ckanext/webpageview/plugin.py:24
-msgid "Website"
-msgstr "Vefsíða"
-
-#: ckanext/webpageview/theme/templates/webpage_form.html:3
-msgid "Web Page url"
-msgstr "Vefsíðuslóð"
-
-#: ckanext/webpageview/theme/templates/webpage_form.html:3
-msgid "eg. http://example.com (if blank uses resource url)"
-msgstr "t.d. http://example.com (ef tómt er vefslóð tilfangs notuð)"
+#: ckan/views/user.py:588
+msgid "Your password must be 8 characters or longer."
+msgstr ""

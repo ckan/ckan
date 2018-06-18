@@ -1,11 +1,10 @@
 # encoding: utf-8
 
 from nose.tools import assert_equal
-from pylons import session
 import pylons
 
 import ckan.lib.i18n
-from ckan.common import config
+from ckan.common import config, session
 
 from ckan.tests.legacy.pylons_controller import PylonsTestCase
 

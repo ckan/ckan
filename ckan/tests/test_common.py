@@ -3,10 +3,12 @@
 import flask
 import pylons
 
-from nose.tools import eq_, assert_not_equal as neq_
+from nose.tools import eq_, assert_not_equal as neq_, assert_raises
+from six import text_type
 
 from ckan.tests import helpers
-from ckan.common import CKANConfig, config as ckan_config
+from ckan.common import (CKANConfig, config as ckan_config,
+                         request as ckan_request, g as ckan_g, c as ckan_c)
 
 
 class TestConfigObject(object):
@@ -212,3 +214,60 @@ class TestCommonConfig(object):
             helpers.call_action(u'config_option_update', {}, **params)
 
             eq_(pylons.config[u'ckan.site_title'], u'Example title action')
+
+
+class TestCommonRequest(object):
+
+    def test_params_also_works_on_flask_request(self):
+
+        app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context(u'/hello?a=1'):
+
+            assert u'a' in ckan_request.args
+            assert u'a' in ckan_request.params
+
+    def test_other_missing_attributes_raise_attributeerror_exceptions(self):
+
+        app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context(u'/hello?a=1'):
+
+            assert_raises(AttributeError, getattr, ckan_request, u'not_here')
+
+
+class TestCommonG(object):
+
+    def test_flask_g_is_used_on_a_flask_request(self):
+
+        app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+
+            assert u'flask.g' in text_type(ckan_g)
+
+            flask.g.user = u'example'
+
+            eq_(ckan_g.user, u'example')
+
+    def test_can_also_use_c_on_a_flask_request(self):
+
+        app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+
+            flask.g.user = u'example'
+
+            eq_(ckan_c.user, u'example')
+
+            ckan_g.user = u'example2'
+
+            eq_(ckan_c.user, u'example2')
+
+    def test_accessing_missing_key_raises_error_on_flask_request(self):
+
+        app = helpers._get_test_app()
+
+        with app.flask_app.test_request_context():
+
+            assert_raises(AttributeError, getattr, ckan_g, u'user')

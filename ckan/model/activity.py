@@ -3,7 +3,17 @@
 import datetime
 
 from sqlalchemy import (
-    orm, types, Column, Table, ForeignKey, desc, or_, union_all)
+    orm,
+    types,
+    Column,
+    Table,
+    ForeignKey,
+    desc,
+    or_,
+    and_,
+    union_all,
+    text,
+)
 
 import ckan.model
 import meta
@@ -180,16 +190,35 @@ def _group_activity_query(group_id):
     group = model.Group.get(group_id)
     if not group:
         # Return a query with no results.
-        return model.Session.query(model.Activity).filter("0=1")
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
-    dataset_ids = [dataset.id for dataset in group.packages()]
+    q = model.Session.query(
+        model.Activity
+    ).outerjoin(
+        model.Member,
+        and_(
+            model.Activity.object_id == model.Member.table_id,
+            model.Member.state == 'active'
+        )
+    ).outerjoin(
+        model.Package,
+        and_(
+            model.Package.id == model.Member.table_id,
+            model.Package.private == False,
+            model.Package.state == 'active'
+        )
+    ).filter(
+        # We only care about activity either on the the group itself or on
+        # packages within that group.
+        # FIXME: This means that activity that occured while a package belonged
+        # to a group but was then removed will not show up. This may not be
+        # desired but is consistent with legacy behaviour.
+        or_(
+            model.Member.group_id == group_id,
+            model.Activity.object_id == group_id
+        ),
+    )
 
-    q = model.Session.query(model.Activity)
-    if dataset_ids:
-        q = q.filter(or_(model.Activity.object_id == group_id,
-            model.Activity.object_id.in_(dataset_ids)))
-    else:
-        q = q.filter(model.Activity.object_id == group_id)
     return q
 
 
@@ -216,7 +245,7 @@ def _activites_from_users_followed_by_user_query(user_id, limit):
     follower_objects = model.UserFollowingUser.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
-        return model.Session.query(model.Activity).filter("0=1")
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     return _activities_union_all(*[
         _user_activity_query(follower.object_id, limit)
@@ -231,7 +260,7 @@ def _activities_from_datasets_followed_by_user_query(user_id, limit):
     follower_objects = model.UserFollowingDataset.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
-        return model.Session.query(model.Activity).filter("0=1")
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     return _activities_union_all(*[
         _activities_limit(_package_activity_query(follower.object_id), limit)
@@ -252,7 +281,7 @@ def _activities_from_groups_followed_by_user_query(user_id, limit):
     follower_objects = model.UserFollowingGroup.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
-        return model.Session.query(model.Activity).filter("0=1")
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     return _activities_union_all(*[
         _activities_limit(_group_activity_query(follower.object_id), limit)

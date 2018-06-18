@@ -402,10 +402,10 @@ than escaping newlines within a string::
       '</li>'
     ].join('');
 
-Always localise text strings within your templates. If you are including them
-inline this can always be done with jQuery::
+Always :ref:`localise text strings <javascript_i18n>` within your template. If
+you are including them inline this can be done with jQuery::
 
-    jQuery(template).find('span').text(_('This is my text string'));
+    jQuery(template).find('span').text(this._('This is my text string'));
 
 Larger templates can be loaded in using the CKAN snippet API. Modules get
 access to this functionality via the ``sandbox.client`` object::

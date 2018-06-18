@@ -6,16 +6,20 @@ Provides the BaseController class for subclassing.
 """
 import logging
 import time
+import inspect
+import sys
 
-from paste.deploy.converters import asbool
-from pylons import cache, session
+from pylons import cache
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.decorators import jsonify
-from pylons.i18n import N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
 from webhelpers.html import literal
 
+from flask import (
+    render_template as flask_render_template,
+    abort as flask_abort
+)
 import ckan.exceptions
 import ckan
 import ckan.lib.i18n as i18n
@@ -24,12 +28,17 @@ import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
 import ckan.model as model
-import ckan.lib.maintain as maintain
+
+from ckan.views import (identify_user,
+                        set_cors_headers_for_response,
+                        check_session_cookie,
+                        )
 
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
 # plugins.toolkit for extensions.
-from ckan.common import json, _, ungettext, c, g, request, response, config
+from ckan.common import (json, _, ungettext, c, request, response, config,
+                         session, is_flask_request)
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +66,9 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
     # with Lucid) causes an exception when unicode is received.
     detail = detail.encode('utf8')
+    if is_flask_request():
+        flask_abort(status_code, detail)
+
     return _abort(status_code=status_code,
                   detail=detail,
                   headers=headers,
@@ -68,10 +80,8 @@ def render_snippet(template_name, **kw):
     comment tags added to show the template used. NOTE: unlike other
     render functions this takes a list of keywords instead of a dict for
     the extra template variables. '''
-    # allow cache_force to be set in render function
-    cache_force = kw.pop('cache_force', None)
-    output = render(template_name, extra_vars=kw, cache_force=cache_force,
-                    renderer='snippet')
+
+    output = render(template_name, extra_vars=kw)
     if config.get('debug'):
         output = ('\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n'
                   % (template_name, output, template_name))
@@ -84,17 +94,42 @@ def render_jinja2(template_name, extra_vars):
     return template.render(**extra_vars)
 
 
-def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
-           cache_expire=None, cache_force=None, renderer=None):
+def render(template_name, extra_vars=None, *pargs, **kwargs):
     '''Render a template and return the output.
 
     This is CKAN's main template rendering function.
 
-    .. todo::
-
-       Document the parameters of :py:func:`ckan.plugins.toolkit.render`.
+    :params template_name: relative path to template inside registered tpl_dir
+    :type template_name: str
+    :params extra_vars: additional variables available in template
+    :type extra_vars: dict
+    :params pargs: DEPRECATED
+    :type pargs: tuple
+    :params kwargs: DEPRECATED
+    :type kwargs: dict
 
     '''
+    if pargs or kwargs:
+        tb = inspect.getframeinfo(sys._getframe(1))
+        log.warning(
+            'Extra arguments to `base.render` are deprecated: ' +
+            '<{0.filename}:{0.lineno}>'.format(tb)
+        )
+
+    if extra_vars is None:
+        extra_vars = {}
+
+    if not is_flask_request():
+        renderer = _pylons_prepare_renderer(template_name, extra_vars,
+                                            *pargs, **kwargs)
+        return cached_template(template_name, renderer)
+
+    return flask_render_template(template_name, **extra_vars)
+
+
+def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
+                             cache_type=None, cache_expire=None,
+                             cache_force=None, renderer=None):
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
@@ -126,10 +161,23 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         del globs['config']
         return render_jinja2(template_name, globs)
 
-    if 'Pragma' in response.headers:
-        del response.headers["Pragma"]
+    def set_pylons_response_headers(allow_cache):
+        if 'Pragma' in response.headers:
+            del response.headers["Pragma"]
+        if allow_cache:
+            response.headers["Cache-Control"] = "public"
+            try:
+                cache_expire = int(config.get('ckan.cache_expires', 0))
+                response.headers["Cache-Control"] += \
+                    ", max-age=%s, must-revalidate" % cache_expire
+            except ValueError:
+                pass
+        else:
+            # We do not want caching.
+            response.headers["Cache-Control"] = "private"
 
-    ## Caching Logic
+    # Caching Logic
+
     allow_cache = True
     # Force cache or not if explicit.
     if cache_force is not None:
@@ -146,37 +194,21 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     # Don't cache if we have set the __no_cache__ param in the query string.
     elif request.params.get('__no_cache__'):
         allow_cache = False
-   # Don't cache if we have extra vars containing data.
+    # Don't cache if we have extra vars containing data.
     elif extra_vars:
         for k, v in extra_vars.iteritems():
             allow_cache = False
             break
-    # Record cachability for the page cache if enabled
-    request.environ['CKAN_PAGE_CACHABLE'] = allow_cache
 
-    if allow_cache:
-        response.headers["Cache-Control"] = "public"
-        try:
-            cache_expire = int(config.get('ckan.cache_expires', 0))
-            response.headers["Cache-Control"] += \
-                ", max-age=%s, must-revalidate" % cache_expire
-        except ValueError:
-            pass
-    else:
-        # We do not want caching.
-        response.headers["Cache-Control"] = "private"
+    # TODO: replicate this logic in Flask once we start looking at the
+    # rendering for the frontend controllers
+    set_pylons_response_headers(allow_cache)
+
+    if not allow_cache:
         # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
 
-    # Render Time :)
-    try:
-        return cached_template(template_name, render_template)
-    except ckan.exceptions.CkanUrlException, e:
-        raise ckan.exceptions.CkanUrlException(
-            '\nAn Exception has been raised for template %s\n%s' %
-            (template_name, e.message))
-    except render_.TemplateNotFound:
-        raise
+    return render_template
 
 
 class ValidationException(Exception):
@@ -194,92 +226,9 @@ class BaseController(WSGIController):
         c.__timer = time.time()
         app_globals.app_globals._check_uptodate()
 
-        self._identify_user()
+        identify_user()
 
         i18n.handle_request(request, c)
-
-        maintain.deprecate_context_item(
-            'new_activities',
-            'Use `h.new_activities` instead.')
-
-    def _identify_user(self):
-        '''Try to identify the user
-        If the user is identified then:
-          c.user = user name (unicode)
-          c.userobj = user object
-          c.author = user name
-        otherwise:
-          c.user = None
-          c.userobj = None
-          c.author = user's IP address (unicode)'''
-        # see if it was proxied first
-        c.remote_addr = request.environ.get('HTTP_X_FORWARDED_FOR', '')
-        if not c.remote_addr:
-            c.remote_addr = request.environ.get('REMOTE_ADDR',
-                                                'Unknown IP Address')
-
-        # Authentication plugins get a chance to run here break as soon as a
-        # user is identified.
-        authenticators = p.PluginImplementations(p.IAuthenticator)
-        if authenticators:
-            for item in authenticators:
-                item.identify()
-                if c.user:
-                    break
-
-        # We haven't identified the user so try the default methods
-        if not c.user:
-            self._identify_user_default()
-
-        # If we have a user but not the userobj let's get the userobj.  This
-        # means that IAuthenticator extensions do not need to access the user
-        # model directly.
-        if c.user and not c.userobj:
-            c.userobj = model.User.by_name(c.user)
-
-        # general settings
-        if c.user:
-            c.author = c.user
-        else:
-            c.author = c.remote_addr
-        c.author = unicode(c.author)
-
-    def _identify_user_default(self):
-        '''
-        Identifies the user using two methods:
-        a) If they logged into the web interface then repoze.who will
-           set REMOTE_USER.
-        b) For API calls they may set a header with an API key.
-        '''
-
-        # environ['REMOTE_USER'] is set by repoze.who if it authenticates a
-        # user's cookie. But repoze.who doesn't check the user (still) exists
-        # in our database - we need to do that here. (Another way would be
-        # with an userid_checker, but that would mean another db access.
-        # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
-        # .plugins.sql )
-        c.user = request.environ.get('REMOTE_USER', '')
-        if c.user:
-            c.user = c.user.decode('utf8')
-            c.userobj = model.User.by_name(c.user)
-            if c.userobj is None or not c.userobj.is_active():
-
-                # This occurs when a user that was still logged in is deleted,
-                # or when you are logged in, clean db and then restart (or
-                # when you change your username) There is no user object, so
-                # even though repoze thinks you are logged in and your cookie
-                # has ckan_display_name, we need to force user to logout and
-                # login again to get the User object.
-
-                ev = request.environ
-                if 'repoze.who.plugins' in ev:
-                    pth = getattr(ev['repoze.who.plugins']['friendlyform'],
-                                  'logout_handler_path')
-                    h.redirect_to(pth)
-        else:
-            c.userobj = self._get_user_for_apikey()
-            if c.userobj is not None:
-                c.user = c.userobj.name
 
     def __call__(self, environ, start_response):
         """Invoke the Controller"""
@@ -292,84 +241,17 @@ class BaseController(WSGIController):
         finally:
             model.Session.remove()
 
-        for cookie in request.cookies:
-            # Remove the ckan session cookie if not used e.g. logged out
-            if cookie == 'ckan' and not c.user:
-                # Check session for valid data (including flash messages)
-                # (DGU also uses session for a shopping basket-type behaviour)
-                is_valid_cookie_data = False
-                for key, value in session.items():
-                    if not key.startswith('_') and value:
-                        is_valid_cookie_data = True
-                        break
-                if not is_valid_cookie_data:
-                    if session.id:
-                        self.log.debug('No valid session data - '
-                                       'deleting session')
-                        self.log.debug('Session: %r', session.items())
-                        session.delete()
-                    else:
-                        self.log.debug('No session id - '
-                                       'deleting session cookie')
-                        response.delete_cookie(cookie)
-            # Remove auth_tkt repoze.who cookie if user not logged in.
-            elif cookie == 'auth_tkt' and not session.id:
-                response.delete_cookie(cookie)
+        check_session_cookie(response)
 
         return res
 
     def __after__(self, action, **params):
-        # Do we have CORS settings in config?
-        if config.get('ckan.cors.origin_allow_all') \
-                and request.headers.get('Origin'):
-            self._set_cors()
+
+        set_cors_headers_for_response(response)
+
         r_time = time.time() - c.__timer
         url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
         log.info(' %s render time %.3f seconds' % (url, r_time))
-
-    def _set_cors(self):
-        '''
-        Set up Access Control Allow headers if either origin_allow_all is
-        True, or the request Origin is in the origin_whitelist.
-        '''
-        cors_origin_allowed = None
-
-        if asbool(config.get('ckan.cors.origin_allow_all')):
-            cors_origin_allowed = "*"
-        elif config.get('ckan.cors.origin_whitelist') and \
-                request.headers.get('Origin') \
-                in config['ckan.cors.origin_whitelist'].split():
-            # set var to the origin to allow it.
-            cors_origin_allowed = request.headers.get('Origin')
-        if cors_origin_allowed is not None:
-            response.headers['Access-Control-Allow-Origin'] = \
-                cors_origin_allowed
-            response.headers['Access-Control-Allow-Methods'] = \
-                "POST, PUT, GET, DELETE, OPTIONS"
-            response.headers['Access-Control-Allow-Headers'] = \
-                "X-CKAN-API-KEY, Authorization, Content-Type"
-
-    def _get_user_for_apikey(self):
-        apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
-                                        APIKEY_HEADER_NAME_DEFAULT)
-        apikey = request.headers.get(apikey_header_name, '')
-        if not apikey:
-            apikey = request.environ.get(apikey_header_name, '')
-        if not apikey:
-            # For misunderstanding old documentation (now fixed).
-            apikey = request.environ.get('HTTP_AUTHORIZATION', '')
-        if not apikey:
-            apikey = request.environ.get('Authorization', '')
-            # Forget HTTP Auth credentials (they have spaces).
-            if ' ' in apikey:
-                apikey = ''
-        if not apikey:
-            return None
-        self.log.debug("Received API Key: %s" % apikey)
-        apikey = unicode(apikey)
-        query = model.Session.query(model.User)
-        user = query.filter_by(apikey=apikey).first()
-        return user
 
 
 # Include the '_' function in the public names

@@ -1,2 +1,2 @@
-*.po -diff
+#*.po -diff
 *.mo -diff

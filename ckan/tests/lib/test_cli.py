@@ -58,11 +58,9 @@ def paster(*args, **kwargs):
         stdout, stderr = sys.stdout.getvalue(), sys.stderr.getvalue()
         sys.stdout, sys.stderr = sys.__stdout__, sys.__stderr__
     if code != 0 and fail_on_error:
-        raise AssertionError(u'Paster command exited with non-zero '
-                             + u'return code {}: {}'.format(code, stderr))
+        raise AssertionError(u'Paster command exited with non-zero return code {}: {}'.format(code, stderr))
     if stderr.strip() and fail_on_error:
-        raise AssertionError(u'Paster command wrote to STDERR: {}'.format(
-                             stderr))
+        raise AssertionError(u'Paster command wrote to STDERR: {}'.format(stderr))
     return code, stdout, stderr
 
 

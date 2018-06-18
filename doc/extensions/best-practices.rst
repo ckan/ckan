@@ -63,14 +63,14 @@ the name of your extension. For example:
 * The names of *template helper functions* introduced by your extension should
   begin with the name of your extension. For example:
 
-  .. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/plugin.py
+  .. literalinclude:: /../ckanext/example_theme_docs/v08_custom_helper_function/plugin.py
      :pyobject: ExampleThemePlugin.get_helpers
 
 * The names of *JavaScript modules* introduced by your extension should begin
   with the name of your extension. For example
   ``fanstatic/example_theme_popover.js``:
 
-  .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
+  .. literalinclude:: /../ckanext/example_theme_docs/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
 
 * The names of *API action functions* introduced by your extension should begin
   with the name of your extension. For example

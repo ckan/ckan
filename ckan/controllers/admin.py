@@ -50,7 +50,8 @@ class AdminController(base.BaseController):
             {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': ''},
             {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': ''},
             {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': ''},
-            {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': ''},
+            {'name': 'ckan.site_logo', 'control': 'image_upload', 'label': _('Site Tag Logo'), 'placeholder': '', 'upload_enabled':h.uploads_enabled(),
+                'field_url': 'ckan.site_logo', 'field_upload': 'logo_upload', 'field_clear': 'clear_logo_upload'},
             {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
             {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
             {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
@@ -99,7 +100,7 @@ class AdminController(base.BaseController):
 
                 data = logic.get_action('config_option_update')(
                     {'user': c.user}, data_dict)
-            except logic.ValidationError, e:
+            except logic.ValidationError as e:
                 errors = e.error_dict
                 error_summary = e.error_summary
                 vars = {'data': data, 'errors': errors,
@@ -178,7 +179,7 @@ class AdminController(base.BaseController):
                         # page Ensure that whatever 'head' pointer is used
                         # gets moved down to the next revision
                         model.repo.purge_revision(revision, leave_record=False)
-                    except Exception, inst:
+                    except Exception as inst:
                         msg = _('Problem purging revision %s: %s') % (id, inst)
                         msgs.append(msg)
                 h.flash_success(_('Purge complete'))

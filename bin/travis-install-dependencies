@@ -29,6 +29,7 @@ sudo -E -u postgres ./bin/postgres_init/1_create_ckan_db.sh
 sudo -E -u postgres ./bin/postgres_init/2_create_ckan_datastore_db.sh
 
 export PIP_USE_MIRRORS=true
+pip install -r requirement-setuptools.txt --allow-all-external
 pip install -r requirements.txt --allow-all-external
 pip install -r dev-requirements.txt --allow-all-external
 

@@ -1,0 +1,27 @@
+{#
+Embeds a group within the sidebar of a page.
+
+group    - The group dict.
+truncate - A max length for the group description. If not provided the description
+           will be full length.
+
+Example:
+
+    {% snippet 'snippets/group, group=c.group_dict %}
+
+#}
+{% with truncate=truncate or 0, url=h.url_for(controller='group', action='read', id=group.name) %}
+  <section class="module module-narrow module-shallow group">
+    <div class="module-content media media-vertical">
+      <a class="media-image" href="{{ url }}">
+        <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="200" height="125" alt="{{ group.name }}" />
+      </a>
+      <div class="media-content">
+        <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>
+        {% if group.description %}
+          <p>{{ h.markdown_extract(group.description, truncate) }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endwith %}

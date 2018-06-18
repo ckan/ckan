@@ -186,8 +186,8 @@ class ApiTestCase(object):
     def loads(self, chars):
         try:
             return json.loads(chars)
-        except ValueError, inst:
-            raise Exception, "Couldn't loads string '%s': %s" % (chars, inst)
+        except ValueError as inst:
+            raise Exception("Couldn't loads string '%s': %s" % (chars, inst))
 
     def assert_json_response(self, res, expected_in_body=None):
         content_type = res.header_dict['Content-Type']
@@ -199,114 +199,6 @@ class ApiTestCase(object):
                    'Expected to find %r in JSON response %r' % \
                    (expected_in_body, res_json)
 
-class Api1and2TestCase(object):
-    ''' Utils for v1 and v2 API.
-          * RESTful URL utils
-    '''
-    def package_offset(self, package_name=None):
-        if package_name is None:
-            # Package Register
-            return self.offset('/rest/dataset')
-        else:
-            # Package Entity
-            package_ref = self.package_ref_from_name(package_name)
-            return self.offset('/rest/dataset/%s' % package_ref)
-
-    def group_offset(self, group_name=None):
-        if group_name is None:
-            # Group Register
-            return self.offset('/rest/group')
-        else:
-            # Group Entity
-            group_ref = self.group_ref_from_name(group_name)
-            return self.offset('/rest/group/%s' % group_ref)
-
-    def group_ref_from_name(self, group_name):
-        group = self.get_group_by_name(unicode(group_name))
-        if group is None:
-            return group_name
-        else:
-            return self.ref_group(group)
-
-    def ref_group(self, group):
-        assert self.ref_group_by in ['id', 'name']
-        return getattr(group, self.ref_group_by)
-
-    def revision_offset(self, revision_id=None):
-        if revision_id is None:
-            # Revision Register
-            return self.offset('/rest/revision')
-        else:
-            # Revision Entity
-            return self.offset('/rest/revision/%s' % revision_id)
-
-    def rating_offset(self, package_name=None):
-        if package_name is None:
-            # Revision Register
-            return self.offset('/rest/rating')
-        else:
-            # Revision Entity
-            package_ref = self.package_ref_from_name(package_name)
-            return self.offset('/rest/rating/%s' % package_ref)
-
-    def anna_offset(self, postfix=''):
-        return self.package_offset('annakarenina') + postfix
-
-    def tag_offset(self, tag_name=None):
-        if tag_name is None:
-            # Tag Register
-            return self.offset('/rest/tag')
-        else:
-            # Tag Entity
-            tag_ref = self.tag_ref_from_name(tag_name)
-            return self.offset('/rest/tag/%s' % tag_ref)
-
-    def tag_ref_from_name(self, tag_name):
-        tag = self.get_tag_by_name(unicode(tag_name))
-        if tag is None:
-            return tag_name
-        else:
-            return self.ref_tag(tag)
-
-    def ref_tag(self, tag):
-        assert self.ref_tag_by in ['id', 'name']
-        return getattr(tag, self.ref_tag_by)
-
-    @classmethod
-    def _ref_package(cls, package):
-        assert cls.ref_package_by in ['id', 'name']
-        return getattr(package, cls.ref_package_by)
-
-    @classmethod
-    def _ref_group(cls, group):
-        assert cls.ref_group_by in ['id', 'name']
-        return getattr(group, cls.ref_group_by)
-
-
-class Api1TestCase(Api1and2TestCase):
-
-    api_version = 1
-    ref_package_by = 'name'
-    ref_group_by = 'name'
-    ref_tag_by = 'name'
-
-    def assert_msg_represents_anna(self, msg):
-        super(Api1TestCase, self).assert_msg_represents_anna(msg)
-        assert '"download_url": "http://datahub.io/download/x=1&y=2"' in msg, msg
-
-
-
-class Api2TestCase(Api1and2TestCase):
-
-    api_version = 2
-    ref_package_by = 'id'
-    ref_group_by = 'id'
-    ref_tag_by = 'id'
-
-    def assert_msg_represents_anna(self, msg):
-        super(Api2TestCase, self).assert_msg_represents_anna(msg)
-        assert 'download_url' not in msg, msg
-
 
 class Api3TestCase(ApiTestCase):
 
@@ -316,7 +208,7 @@ class Api3TestCase(ApiTestCase):
     ref_tag_by = 'name'
 
     def assert_msg_represents_anna(self, msg):
-        super(Api2TestCase, self).assert_msg_represents_anna(msg)
+        super(ApiTestCase, self).assert_msg_represents_anna(msg)
         assert 'download_url' not in msg, msg
 
 
@@ -324,29 +216,33 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
 
     testpackage_license_id = u'gpl-3.0'
     package_fixture_data = {
-        'name' : u'testpkg',
-        'title': u'Some Title',
-        'url': u'http://blahblahblah.mydomain',
+        'name':
+        u'testpkg',
+        'title':
+        u'Some Title',
+        'url':
+        u'http://blahblahblah.mydomain',
         'resources': [{
-            u'url':u'http://blah.com/file.xml',
-            u'format':u'XML',
-            u'description':u'Main file',
-            u'hash':u'abc123',
-            u'alt_url':u'alt_url',
-            u'size_extra':u'200',
+            u'url': u'http://blah.com/file.xml',
+            u'format': u'XML',
+            u'description': u'Main file',
+            u'hash': u'abc123',
+            u'alt_url': u'alt_url',
+            u'size_extra': u'200',
         }, {
-            u'url':u'http://blah.com/file2.xml',
-            u'format':u'XML',
-            u'description':u'Second file',
-            u'hash':u'def123',
-            u'alt_url':u'alt_url',
-            u'size_extra':u'200',
+            u'url': u'http://blah.com/file2.xml',
+            u'format': u'XML',
+            u'description': u'Second file',
+            u'hash': u'def123',
+            u'alt_url': u'alt_url',
+            u'size_extra': u'200',
         }],
         'tags': [u'russion', u'novel'],
-        'license_id': testpackage_license_id,
+        'license_id':
+        testpackage_license_id,
         'extras': {
-            'genre' : u'horror',
-            'media' : u'dvd',
+            'genre': u'horror',
+            'media': u'dvd',
         },
     }
     testgroupvalues = {
@@ -355,7 +251,7 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
         'description' : u'Great group!',
         'packages' : [u'annakarenina', u'warandpeace'],
     }
-    user_name = u'http://myrandom.openidservice.org/'
+    user_name = u'myrandom'
 
     def setup(self):
         super(BaseModelApiTestCase, self).setup()
@@ -364,7 +260,7 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
 
     def teardown(self):
         model.Session.remove()
-#        model.repo.rebuild_db()
+        #        model.repo.rebuild_db()
         super(BaseModelApiTestCase, self).teardown()
 
     @classmethod

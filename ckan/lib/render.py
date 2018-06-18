@@ -17,7 +17,7 @@ def reset_template_info_cache():
 def find_template(template_name):
     ''' looks through the possible template paths to find a template
     returns the full path is it exists. '''
-    template_paths = config['pylons.app_globals'].template_paths
+    template_paths = config['computed_template_paths']
     for path in template_paths:
         if os.path.exists(os.path.join(path, template_name.encode('utf-8'))):
             return os.path.join(path, template_name)

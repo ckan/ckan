@@ -153,14 +153,15 @@ def group_edit_permissions(context, data_dict):
     user = context['user']
     group = logic_auth.get_group_object(context, data_dict)
 
-    authorized = authz.has_user_permission_for_group_or_org(group.id,
-                                                                user,
-                                                                'update')
+    authorized = authz.has_user_permission_for_group_or_org(
+        group.id, user, 'update')
 
     if not authorized:
-        return {'success': False,
-                'msg': _('User %s not authorized to edit permissions of group %s') %
-                        (str(user), group.id)}
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to'
+                     ' edit permissions of group %s') %
+            (str(user), group.id)}
     else:
         return {'success': True}
 
@@ -249,28 +250,6 @@ def dashboard_mark_activities_old(context, data_dict):
 def send_email_notifications(context, data_dict):
     # Only sysadmins are authorized to send email notifications.
     return {'success': False}
-
-
-## Modifications for rest api
-
-def package_update_rest(context, data_dict):
-    model = context['model']
-    user = context['user']
-    if not user:
-        return {'success': False,
-                'msg': _('Valid API key needed to edit a package')}
-
-    return authz.is_authorized('package_update', context, data_dict)
-
-
-def group_update_rest(context, data_dict):
-    model = context['model']
-    user = context['user']
-    if not user:
-        return {'success': False,
-                'msg': _('Valid API key needed to edit a group')}
-
-    return authz.is_authorized('group_update', context, data_dict)
 
 
 def package_owner_org_update(context, data_dict):

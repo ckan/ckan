@@ -15,22 +15,46 @@ new CKAN release.
 Process overview
 ----------------
 
-The process of a new release starts with the creation of a new release branch.
-A release branch is the one that will be stabilized and eventually become the actual
-released version. Release branches are always named ``release-vM.m.p``, after the
-:ref:`major, minor and patch versions <releases>` they include. Major and minor versions are
-always branched from master. Patch releases are always branched from the most recent tip
-of the previous patch release branch.
+.. versionchanged:: 2.6
+
+The process of a new release starts with the creation of a new release development branch.
+A release development branch is the one that will be stabilized and eventually become the actual
+released version. Release branches are always named ``dev-vM.m``, after the
+:ref:`major and minor versions <releases>` they include. Major and minor versions are
+always branched from master. When the release is actually published a patch version number is added
+and the release is tagged in the form ``ckan-M.m.p``. All backports are cherry-picked on the ``dev-vM.m`` branch.
+
 
  ::
 
-     +--+---------------------------------------+------------->  Master
-        |                                       |
-        +----------------->  release-v2.4.0     +---------->  release-v2.5.0
-                          |
-                          +--------->  release-v2.4.1
-                                    |
-                                    +------>  release-v2.4.2
+     +--+-----------------------------------------+------------->  Master
+        |                                         |
+        +-----+-------------+------>  dev-v2.6    +------->  dev-v2.7
+              |             |
+          ckan-2.6.0    ckan-2.6.1       
+
+
+Additionally, the ``release-vM.m-latest`` branches always contain the latest
+published release for that version (eg ``2.6.1`` on the example above).
+
+
+.. note::
+
+    Prior to CKAN 2.6, release branches were named ``release-vM.m.p``, after the
+    :ref:`major, minor and patch versions <releases>` they included, and patch releases 
+    were always branched from the most recent tip of the previous patch release branch
+    (tags were created with the same convention).
+    Starting from CKAN 2.6, the convention is the one described above.
+
+     ::
+
+         +--+---------------------------------------+------------->  Master
+            |                                       |
+            +----------------->  release-v2.4.0     +---------->  release-v2.5.0
+                              |
+                              +--------->  release-v2.4.1
+                                        |
+                                        +------>  release-v2.4.2
 
 Once a release branch has been created there is generally a three-four week period until
 the actual release. During this period the branch is tested and fixes cherry-picked. The whole
@@ -52,14 +76,14 @@ Turn this file into a github issue with a checklist using this command::
 
 #. Create a new release branch::
 
-        git checkout -b release-v2.5.0
+        git checkout -b dev-v2.7
 
    Update ``ckan/__init__.py`` to change the version number to the new version
-   with a *b* after it, e.g. *2.5.0b*.
+   with a *b* after it, e.g. *2.7.0b* (Make sure to include 0 as the patch version number).
    Commit the change and push the new branch to GitHub::
 
         git commit -am "Update version number"
-        git push origin release-v2.5.0
+        git push origin dev-v2.7
 
    You will probably need to update the same file on master to increase the
    version number, in this case ending with an *a* (for alpha).
@@ -88,6 +112,11 @@ Turn this file into a github issue with a checklist using this command::
    a syadmin here: http://beta.ckan.org/ckan-admin/config
 
 #. Announce the branch and ask for help testing on beta.ckan.org on ckan-dev.
+
+#. Create the documentation branch from the release branch. This branch should be named
+   just with the minor version and nothing else (eg ``2.7``, ``2.8``, etc). We will use
+   this branch to build the documentation in Read the Docs on all patch releases for 
+   this version.
 
 #. Make latest translation strings available on Transifex.
 
@@ -159,7 +188,6 @@ Turn this file into a github issue with a checklist using this command::
 
    g. Run our script that checks for mistakes in the ckan.po files::
 
-        pip install polib
         paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
 
       If the script finds any mistakes then at some point before release you
@@ -385,12 +413,15 @@ a release.
 
    (You will need an admin account.)
 
-   a. Go to the
-      `Read The Docs versions page <https://readthedocs.org/projects/ckan/versions/>`_
-      and make the relevant release 'active' (make sure to use the tag, ie ckan-X.Y.Z,
-      not the branch, ie release-vX.Y.Z).
+   a. Make sure the documentation branch is up to date with the latest changes in the 
+      corresponding ``dev-vX.Y`` branch.
 
-   b. If it is the latest stable release, set it to be the Default Version and
+   b. If this is the first time a minor version is released, go to the
+      `Read The Docs versions page <https://readthedocs.org/projects/ckan/versions/>`_
+      and make the relevant release 'active' (make sure to use the documentation branch, ie X.Y,
+      not the development branch, ie dev-vX.Y).
+
+   c. If it is the latest stable release, set it to be the Default Version and
       check it is displayed on http://docs.ckan.org.
 
 #. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
@@ -413,7 +444,7 @@ a release.
    To find out what i18n commits there are on the release-v* branch that are
    not on master, do::
 
-     git log master..release-v* ckan/i18n
+     git log master..dev-v* ckan/i18n
 
    Then ``checkout`` the master branch, do a ``git status`` and a ``git pull``
    to make sure you have the latest commits on master and no local changes.
@@ -432,12 +463,7 @@ Preparing patch releases
    Often this will be part of the announcement of a CKAN major/minor release.
    But if patches go out separately then they will need their own announcement.
 
-#. Create a new branch off the existing release branch::
-
-        git checkout release-v2.5.1
-        git checkout -b release-v2.5.2
-
-   Update ``ckan/__init__.py`` with the incremented patch number e.g. `2.5.1` becomes `2.5.2`.
+#. Update ``ckan/__init__.py`` with the incremented patch number e.g. `2.5.1` becomes `2.5.2`.
    Commit the change and push the new branch to GitHub::
 
         git commit -am "Update version number"
@@ -445,8 +471,10 @@ Preparing patch releases
 
 #. Cherry-pick PRs marked for back-port.
 
-   These are usually marked on Github using a label: https://github.com/ckan/ckan/labels
-   and remember to look for PRs that are closed i.e. merged.
+   These are usually marked on Github using the ``Backport Pending`` `labels`_ and the
+   relevant labels for the versions they should be cherry-picked to (eg ``Backport 2.5.3``).
+   Remember to look for PRs that are closed i.e. merged. Remove the ``Backport Pending`` label once the 
+   cherry-picking has been done (but leave the version ones).
 
 #. Ask the tech team if there are security fixes or other fixes to include.
 
@@ -494,10 +522,8 @@ Doing the patch releases
 
         python setup.py sdist upload
 
-#. Merge the patch release branch to the relevant ``release-v2.X-latest`` branch, eg::
-
-        git checkout release-v2.5-latest
-        git merge release-v2.5.2
+#. Make sure the documentation branch (``X.Y``) is up to date with the latest changes in the 
+   corresponding ``dev-vX.Y`` branch.
 
 #. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
 
@@ -506,4 +532,5 @@ Doing the patch releases
 
 .. _Transifex: https://www.transifex.com/projects/p/ckan
 .. _`Read The Docs`: http://readthedocs.org/dashboard/ckan/versions/
+.. _labels: https://github.com/ckan/ckan/labels
 .. _Ansible: http://ansible.com/
