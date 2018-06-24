@@ -1035,3 +1035,140 @@ class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
             'datastore_search_sql',
             context=ctx3,
             sql=sql3)
+
+
+class TestDatastoreSearchRecordsFormat(DatastoreFunctionalTestBase):
+    def test_sort_results_objects(self):
+        ds = factories.Dataset()
+        r = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[
+                {u'id': u'num', u'type': u'numeric'},
+                {u'id': u'dt', u'type': u'timestamp'},
+                {u'id': u'txt', u'type': u'text'}],
+            records=[
+                {u'num': 10, u'dt': u'2020-01-01', u'txt': 'aaab'},
+                {u'num': 9, u'dt': u'2020-01-02', u'txt': 'aaab'},
+                {u'num': 9, u'dt': u'2020-01-01', u'txt': 'aaac'}])
+        assert_equals(
+            helpers.call_action(
+                'datastore_search',
+                resource_id=r['resource_id'],
+                sort=u'num, dt')['records'],
+            [
+                {u'_id': 3, u'num': 9, u'dt': u'2020-01-01T00:00:00', u'txt': u'aaac'},
+                {u'_id': 2, u'num': 9, u'dt': u'2020-01-02T00:00:00', u'txt': u'aaab'},
+                {u'_id': 1, u'num': 10, u'dt': u'2020-01-01T00:00:00', u'txt': u'aaab'},
+            ])
+        assert_equals(
+            helpers.call_action(
+                'datastore_search',
+                resource_id=r['resource_id'],
+                sort=u'dt, txt')['records'],
+            [
+                {u'_id': 1, u'num': 10, u'dt': u'2020-01-01T00:00:00', u'txt': u'aaab'},
+                {u'_id': 3, u'num': 9, u'dt': u'2020-01-01T00:00:00', u'txt': u'aaac'},
+                {u'_id': 2, u'num': 9, u'dt': u'2020-01-02T00:00:00', u'txt': u'aaab'},
+            ])
+        assert_equals(
+            helpers.call_action(
+                'datastore_search',
+                resource_id=r['resource_id'],
+                sort=u'txt, num')['records'],
+            [
+                {u'_id': 2, u'num': 9, u'dt': u'2020-01-02T00:00:00', u'txt': u'aaab'},
+                {u'_id': 1, u'num': 10, u'dt': u'2020-01-01T00:00:00', u'txt': u'aaab'},
+                {u'_id': 3, u'num': 9, u'dt': u'2020-01-01T00:00:00', u'txt': u'aaac'},
+            ])
+
+    def test_sort_results_lists(self):
+        ds = factories.Dataset()
+        r = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[
+                {u'id': u'num', u'type': u'numeric'},
+                {u'id': u'dt', u'type': u'timestamp'},
+                {u'id': u'txt', u'type': u'text'}],
+            records=[
+                {u'num': 10, u'dt': u'2020-01-01', u'txt': u'aaab'},
+                {u'num': 9, u'dt': u'2020-01-02', u'txt': u'aaab'},
+                {u'num': 9, u'dt': u'2020-01-01', u'txt': u'aaac'}])
+        assert_equals(
+            helpers.call_action(
+                'datastore_search',
+                resource_id=r['resource_id'],
+                records_format=u'lists',
+                sort=u'num, dt')['records'],
+            [
+                [3, 9, u'2020-01-01T00:00:00', u'aaac'],
+                [2, 9, u'2020-01-02T00:00:00', u'aaab'],
+                [1, 10, u'2020-01-01T00:00:00', u'aaab'],
+            ])
+        assert_equals(
+            helpers.call_action(
+                'datastore_search',
+                resource_id=r['resource_id'],
+                records_format=u'lists',
+                sort=u'dt, txt')['records'],
+            [
+                [1, 10, u'2020-01-01T00:00:00', u'aaab'],
+                [3, 9, u'2020-01-01T00:00:00', u'aaac'],
+                [2, 9, u'2020-01-02T00:00:00', u'aaab'],
+            ])
+        assert_equals(
+            helpers.call_action(
+                'datastore_search',
+                resource_id=r['resource_id'],
+                records_format=u'lists',
+                sort=u'txt, num')['records'],
+            [
+                [2, 9, u'2020-01-02T00:00:00', u'aaab'],
+                [1, 10, u'2020-01-01T00:00:00', u'aaab'],
+                [3, 9, u'2020-01-01T00:00:00', u'aaac'],
+            ])
+
+    def test_sort_results_csv(self):
+        ds = factories.Dataset()
+        r = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[
+                {u'id': u'num', u'type': u'numeric'},
+                {u'id': u'dt', u'type': u'timestamp'},
+                {u'id': u'txt', u'type': u'text'}],
+            records=[
+                {u'num': 10, u'dt': u'2020-01-01', u'txt': u'aaab'},
+                {u'num': 9, u'dt': u'2020-01-02', u'txt': u'aaab'},
+                {u'num': 9, u'dt': u'2020-01-01', u'txt': u'aaac'}])
+        assert_equals(
+            helpers.call_action(
+                'datastore_search',
+                resource_id=r['resource_id'],
+                records_format=u'csv',
+                sort=u'num, dt')['records'],
+            u'3,9,2020-01-01T00:00:00,aaac\n'
+            u'2,9,2020-01-02T00:00:00,aaab\n'
+            u'1,10,2020-01-01T00:00:00,aaab\n'
+            )
+        assert_equals(
+            helpers.call_action(
+                'datastore_search',
+                resource_id=r['resource_id'],
+                records_format=u'csv',
+                sort=u'dt, txt')['records'],
+            u'1,10,2020-01-01T00:00:00,aaab\n'
+            u'3,9,2020-01-01T00:00:00,aaac\n'
+            u'2,9,2020-01-02T00:00:00,aaab\n'
+            )
+        assert_equals(
+            helpers.call_action(
+                'datastore_search',
+                resource_id=r['resource_id'],
+                records_format=u'csv',
+                sort=u'txt, num')['records'],
+            u'2,9,2020-01-02T00:00:00,aaab\n'
+            u'1,10,2020-01-01T00:00:00,aaab\n'
+            u'3,9,2020-01-01T00:00:00,aaac\n'
+            )
