@@ -22,6 +22,9 @@ def before_request():
         return h.redirect_to(u'user.login')
 
     try:
+        if not g.userobj:
+            raise logic.NotAuthorized()
+
         context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
