@@ -6,23 +6,16 @@ import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
+from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
+
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
 
 
-class TestInterfaces(object):
-    @classmethod
-    def setup_class(cls):
-        p.load('datastore')
-        p.load('sample_datastore_plugin')
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload('sample_datastore_plugin')
-        p.unload('datastore')
-
-    def setup(self):
-        helpers.reset_db()
+class TestInterfaces(DatastoreFunctionalTestBase):
+    _load_plugins = (
+        u'datastore',
+        u'sample_datastore_plugin')
 
     def test_datastore_search_can_create_custom_filters(self):
         records = [

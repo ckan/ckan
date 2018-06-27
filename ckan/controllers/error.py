@@ -41,12 +41,13 @@ class ErrorController(BaseController):
         if not original_response.charset and original_response.default_charset:
             original_response.charset = original_response.default_charset
         # Otherwise, decorate original response with error template.
-        c.content = literal(original_response.unicode_body) or \
+        content = literal(original_response.unicode_body) or \
             cgi.escape(request.GET.get('message', ''))
-        c.prefix = request.environ.get('SCRIPT_NAME', ''),
-        c.code = cgi.escape(request.GET.get('code',
-                            str(original_response.status_int))),
-        return render('error_document_template.html')
+        prefix = request.environ.get('SCRIPT_NAME', ''),
+        code = cgi.escape(request.GET.get('code',
+                          str(original_response.status_int))),
+        extra_vars = {'code': code, 'content': content, 'prefix': prefix}
+        return render('error_document_template.html', extra_vars=extra_vars)
 
     def img(self, id):
         """Serve Pylons' stock images"""

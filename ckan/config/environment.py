@@ -94,7 +94,7 @@ def load_environment(global_conf, app_conf):
     pylons_config.init_app(global_conf, app_conf, package='ckan', paths=paths)
 
     # Update the main CKAN config object with the Pylons specific stuff, as it
-    # quite hard to keep them separated. This should be removed once Pylons
+    # is quite hard to keep them separated. This should be removed once Pylons
     # support is dropped
     config.update(pylons_config)
 
@@ -135,6 +135,8 @@ CONFIG_FROM_ENV_VARS = {
     'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
     'ckan.redis.url': 'CKAN_REDIS_URL',
     'solr_url': 'CKAN_SOLR_URL',
+    'solr_user': 'CKAN_SOLR_USER',
+    'solr_password': 'CKAN_SOLR_PASSWORD',
     'ckan.site_id': 'CKAN_SITE_ID',
     'ckan.site_url': 'CKAN_SITE_URL',
     'ckan.storage_path': 'CKAN_STORAGE_PATH',
@@ -143,7 +145,8 @@ CONFIG_FROM_ENV_VARS = {
     'smtp.starttls': 'CKAN_SMTP_STARTTLS',
     'smtp.user': 'CKAN_SMTP_USER',
     'smtp.password': 'CKAN_SMTP_PASSWORD',
-    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM'
+    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM',
+    'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB'
 }
 # End CONFIG_FROM_ENV_VARS
 

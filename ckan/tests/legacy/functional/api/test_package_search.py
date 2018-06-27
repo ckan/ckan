@@ -365,10 +365,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
 
-class TestPackageSearchApi1(Api1TestCase, PackageSearchApiTestCase,
-                            LegacyOptionsTestCase): pass
-class TestPackageSearchApi2(Api2TestCase, PackageSearchApiTestCase,
-                            LegacyOptionsTestCase): pass
+
 class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
     '''Here are tests with URIs in specifically SOLR syntax.'''
     def test_07_uri_qjson_tags(self):

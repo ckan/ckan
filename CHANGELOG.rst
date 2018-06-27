@@ -7,11 +7,15 @@
 Changelog
 ---------
 
-v?? (TBA)
-=========
+v.2.8.0 2018-05-09
+==================
 
-Note: This version requires re-running the 'datastore set-permissions' command
-   (assuming you run DataStore). See: :ref:`datastore-set-permissions`
+General notes:
+ * This version requires a requirements upgrade on source installations
+ * This version requires a database upgrade
+ * This version requires a Solr schema upgrade
+ * This version requires re-running the ``datastore set-permissions`` command
+   (assuming you are using the DataStore). See: :ref:`datastore-set-permissions`
 
    Otherwise new and updated datasets will not be searchable in DataStore and
    the logs will contain this error::
@@ -20,6 +24,172 @@ Note: This version requires re-running the 'datastore set-permissions' command
 
    CKAN developers should also re-run set-permissions on the test database:
    :ref:`datastore-test-set-permissions`
+
+ * There are several old features being officially deprecated starting from
+   this version. Check the *Deprecations* section to be prepared.
+
+Major changes:
+ * New revamped frontend templates based on Bootstrap 3, see "Changes and deprecations" (#3547)
+ * Allow datastore_search_sql on private datasets (#2562)
+ * New Flask blueprints migrated from old Pylons controllers: user, dashboard, feeds, admin and home (#3927, #3870, #3775, #3762)
+ * Improved support for custom groups and organization types (#4032)
+ * Hide user details to anonymous users (#3915)
+
+Minor changes:
+ * Allow chaining of authentication functions (#3679)
+ * Show custom dataset types in search pages (#3807)
+ * Overriding datastore authorization system (#3679)
+ * Standardize on url_for (#3831)
+ * Deprecate notify_after_commit (#3633)
+ *  _mail_recipient header override (#3781)
+ * Restrict access to member forms (#3684)
+ * Clean up template rendering code (#3923)
+ * Permission labels are indexed by type text in SOLR (#3863)
+ * CLI commands require a Flask test request context (#3760)
+ * Allow IValidator to override existing validators (#3865)
+ * Shrink datastore_create response size (#3810)
+ * Stable version URLs CKAN for documentation (#4209)
+ * API Documentation update (#4136)
+ * Documentation of Data Dictionary  (#3989)
+ * Remove datastore legacy mode (#4041)
+ * Map old Pylons routes to Flask ones (#4066)
+
+Bug fixes:
+ * File uploads don't work on new Flask based API (#3869)
+ * {% ckan_extends %} not working on templates served by Flask (#4044)
+ * Problems in background workers with non-core database relations (#3606)
+ * Render_datetime can't handle dates before year 1900 (#2228)
+ * DatapusherPlugin implementation of notify() can call 'datapusher_submit' multiple times (#2334)
+ * Dataset creation page generates incorrect URLs with Chrome autocomplete (#2501)
+ * Search buttons need accessible labels (#2550)
+ * Column name length limit for datastore upload (#2804)
+ * #2373: Do not validate packages or resources from database to views (#3016)
+ * Creation of dataset - different behaviour between Web API & CKAN Interface functionality (#3528)
+ * Redirecting to same page in non-root hosted ckan adds extra root_path to url  (#3499)
+ * Beaker 1.8.0 exception when the code is served from OSX via Vagrant (#3512)
+ * Add "Add Dataset" button to user's and group's page (#2794)
+ * Some links in CKAN is not reachable (#2898)
+ * Exception when specifying a directory in the ckan.i18n_directory option (#3539)
+ * Resource view filter user filters JS error (#3590)
+ * Recaptcha v1 will stop working 2018-3-31 (#4061)
+ * "Testing coding standards" page in docs is missing code snippets (#3635)
+ * Followers count not updated immediately on UI (#3639)
+ * Increase jQuery version (#3665)
+ * Search icon on many pages is not properly vertically aligned (#3654)
+ * Datatables view can't be used as a default view (#3669)
+ * Resource URL is not validated on create/update (#3660)
+ * Upload to Datastore tab shows incorrect time at Upload Log (#3588)
+ * Filter results button is not working (#3593)
+ * Broken link in "Upgrading CKAN’s dependencies" doc page (#3637)
+ * Default logo image not properly saved (#3656)
+ * Activity test relies on datetime.now() (#3644)
+ * Info block text for Format field not properly aligned in resource form page (#3663)
+ * Issue upon creating new organization/group through UI form (#3661)
+ * In API docs "package_create" lists "owner_org" as optional (#3647)
+ * Embed modal window not working (#3731)
+ * Frontent build command does not work on master (#3688)
+ * Loading image duplicated  (#3716)
+ * Datastore set-up error - logging getting in the way (#3694)
+ * Registering a new account redirects to an unprefixed url (#3834)
+ * Exception in search page when not authorized (#4081)
+ * Datastore full-text-search column is populated by postgres trigger rather than python (#3785)
+ * Datastore dump results are not the same as data in database (#4150)
+ * Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
+ * No such file or directory: '/usr/lib/ckan/default/src/ckan/requirement-setuptools.txt' during installation from source (#3641)
+ * Register user form missing required field indicators (#3658)
+ * Datastore full-text-search column is populated by postgres trigger rather than python  (#3786)
+ * Add missing major changes to change log (#3799)
+ * Paster/CLI config-tool requires _get_test_app which in turn requires a dev-only dependency (#3806)
+ * Change log doesn't mention necessary Solr scheme upgrade (#3851)
+ * TypeError: expected byte string object, value of type unicode found (#3921)
+ * CKAN's state table clashes with PostGIS generated TIGER state table (#3929)
+ * [Docker] entrypoint initdb.d sql files copied to root (#3939)
+ * DataStore status page throws TypeError - Bleach upgrade regression (#3968)
+ * Source install error with who.ini (#4020)
+ * making a JSONP call to the CKAN API returns the wrong mime type (#4022)
+ * Deleting a resource sets datastore_active=False to all resources and overrides their extras (#4042)
+ * Deleting first Group and Organization custom field is not possible (#4094)
+
+Changes and deprecations:
+ * The default templates included in CKAN core have been updated to use Bootstrap 3. Extensions
+   implementing custom themes are encouraged to update their templates, but they can still
+   make CKAN load the old Bootstrap 2 templates during the transition using the following
+   configuration options::
+
+        ckan.base_public_folder = public-bs2
+        ckan.base_templates_folder = templates-bs2
+
+ * The API versions 1 and 2 (also known as the REST API), ie ``/api/rest/*`` have been
+   completely removed in favour of the version 3 (action API, ``/api/action/*``).
+ * The old Celery based background jobs have been removed in CKAN 2.8 in favour of the new RQ based
+   jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
+   of course use Celery but they will need to handle the management themselves.
+ * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
+
+v2.7.4 2018-05-09
+=================
+
+ * Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
+ * Datastore dump results are not the same as data in database (#4150)
+
+v2.7.3 2018-03-15
+=================
+
+General notes:
+ * As with all patch releases this one does not include requirement changes.
+   However in some scenarios you might encounter the following error while
+   installing or upgrading this version of CKAN::
+
+     Error: could not determine PostgreSQL version from '10.2'
+
+   This is due to a bug in the psycopg2 version pinned to the release. To solve
+   it, upgrade psycopg2 with the following command::
+
+     pip install --upgrade psycopg2==2.7.3.2
+
+ * This release does not require a Solr schema upgrade, but if you are having the
+   issues described in #3863 (datasets wrongly indexed in multilingual setups),
+   you can upgrade the Solr schema and reindex to solve them.
+
+ * #3422 (implemented in #3425) introduced a major bug where if a resource was
+   deleted and the DataStore was active extras from all resources on the site where
+   changed. This is now fixed as part of this release but if your database is already
+   affected you will need to run a script to restore the extras to their
+   previous state. Remember, you only need to run the script if all the following are
+   true:
+
+   1. You are currently running CKAN 2.7.0 or 2.7.2, and
+   2. You have enabled the DataStore, and
+   3. One or more resources with data on the DataStore have been deleted (or you
+      suspect they might have been)
+
+   If all these are true you can run the following script to restore the extras to
+   their previous state:
+
+   https://github.com/ckan/ckan/blob/dev-v2.7/scripts/4042_fix_resource_extras.py
+
+   This issue is described in #4042
+
+Fixes:
+ * Fix toggle bars header icon (#3880)
+ * Change CORS header keys and values to string instead of unicode (#3855)
+ * Fix cors header when all origins are allowed (#3898)
+ * Update SOLR schema.xml reference in Dockerfile
+ * Build local SOLR container by default
+ * Create datastore indexes only if they are not exist
+ * Properly close file responses
+ * Use javascript content-type for jsonp responses (#4022)
+ * Add Data Dictionary documentation (#3989)
+ * Fix SOLR index delete_package implementation
+ * Add second half of DataStore set-permissions command(Docs)
+ * Fix extras overriding for removed resources (#4042)
+ * Return a 403 if not authorized on the search page (#4081)
+ * Add support for user/pass for Solr as ENV var
+ * Change permission_labels type to string in schema.xml (#3863)
+ * Disallow solr local parameters
+ * Improve text view rendering
+ * Update Orgs/Groups logic for custom fields delete and update (#4094)
+ * Upgrade Solr Docker image
 
 v2.7.2 2017-09-28
 =================
@@ -138,6 +308,35 @@ Deprecations:
  * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
+
+v2.6.6 2018-05-09
+=================
+
+* Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
+* Stable version URLs CKAN for documentation (#4209)
+* Add Warning in docs sidebar (#4209)
+
+v2.6.5 2018-03-15
+=================
+
+Note: This version requires a database upgrade
+
+* Activity Time stored in UTC (#2882)
+* Migration script to adjust current activity timestamps to UTC
+* Change CORS header keys and values to string instead of unicode (#3855)
+* Fix cors header when all origins are allowed (#3898)
+* Update SOLR schema.xml reference in Dockerfile
+* Build local SOLR container by default
+* Create datastore indexes only if they don't exist
+* Properly close file responses
+* Use javascript content-type for jsonp responses (#4022)
+* Fix SOLR index delete_package implementation
+* Add second half of DataStore set-permissions command (Docs)
+* Return a 403 if not authorized on the search page (#4081)
+* Add support for user/pass for Solr as ENV var
+* Disallow solr local parameters
+* Improve text view rendering
+* Update Orgs/Groups logic for custom fields delete and update (#4094)
 
 v2.6.4 2017-09-27
 =================
@@ -287,6 +486,34 @@ Bug fixes:
 
 API changes and deprecations:
  * Replace `c.__version__` with new helper `h.ckan_version()` (`#3103 <https://github.com/ckan/ckan/pull/3103>`_)
+
+v2.5.9 2018-05-09
+=================
+
+* Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
+* Add Warning in docs sidebar (#4209)
+* Point API docs to stable URL (#4209)
+
+v2.5.8 2018-03-15
+=================
+
+Note: This version requires a database upgrade
+
+* Fix language switcher
+* Activity Time stored in UTC (#2882)
+* Migration script to adjust current activity timestamps to UTC
+* Change CORS header keys and values to string instead of unicode (#3855)
+* Fix cors header when all origins are allowed (#3898)
+* Create datastore indexes only if they are not exist
+* Use javascript content-type for jsonp responses (#4022)
+* Fix SOLR index delete_package implementation
+* Add second half of DataStore set-permissions command(Docs)
+* Update SOLR client (pysolr -> solrpy)
+* Return a 403 if not authorized on the search page (#4081)
+* Add support for user/pass for Solr as ENV var
+* Disallow solr local parameters
+* Improve text view rendering
+* Update Orgs/Groups logic for custom fields delete and update (#4094)
 
 v2.5.7 2017-09-27
 =================

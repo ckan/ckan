@@ -131,36 +131,6 @@ def make_map():
                    ver='/1') as m:
         m.connect('/search/{register}', action='search')
 
-    # /api ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
-                   ver='/1') as m:
-        m.connect('/rest', action='index')
-
-    # /api/rest ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
-                   ver='/1', requirements=dict(register=register_list_str)
-                   ) as m:
-
-        m.connect('/rest/{register}', action='list', conditions=GET)
-        m.connect('/rest/{register}', action='create', conditions=POST)
-        m.connect('/rest/{register}/{id}', action='show', conditions=GET)
-        m.connect('/rest/{register}/{id}', action='update', conditions=PUT)
-        m.connect('/rest/{register}/{id}', action='update', conditions=POST)
-        m.connect('/rest/{register}/{id}', action='delete', conditions=DELETE)
-        m.connect('/rest/{register}/{id}/:subregister', action='list',
-                  conditions=GET)
-        m.connect('/rest/{register}/{id}/:subregister', action='create',
-                  conditions=POST)
-        m.connect('/rest/{register}/{id}/:subregister/{id2}', action='create',
-                  conditions=POST)
-        m.connect('/rest/{register}/{id}/:subregister/{id2}', action='show',
-                  conditions=GET)
-        m.connect('/rest/{register}/{id}/:subregister/{id2}', action='update',
-                  conditions=PUT)
-        m.connect('/rest/{register}/{id}/:subregister/{id2}', action='delete',
-                  conditions=DELETE)
-
-
     # /api/util ver 1, 2 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
                    ver='/1') as m:
@@ -338,10 +308,6 @@ def make_map():
         m.connect('/revision/diff/{id}', action='diff')
         m.connect('/revision/list', action='list')
         m.connect('/revision/{id}', action='read')
-
-    with SubMapper(map, controller='ckan.controllers.storage:StorageController') as m:
-        m.connect('storage_file', '/storage/f/{label:.*}',
-                  action='file')
 
     with SubMapper(map, controller='util') as m:
         m.connect('/i18n/strings_{lang}.js', action='i18n_js_strings')

@@ -140,7 +140,7 @@ Adding a new dataset
 
     You may need to be a member of an organization in order to add and edit
     datsets. See the section :ref:`creating_an_organization` below. On
-    http://demo.ckan.org, you can add a dataset without being in an organization,
+    https://demo.ckan.org, you can add a dataset without being in an organization,
     but dataset features relating to authorization and organizations will not be
     available.
 

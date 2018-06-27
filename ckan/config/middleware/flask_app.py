@@ -10,7 +10,7 @@ from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 
-from werkzeug.exceptions import HTTPException
+from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.routing import Rule
 
 from flask_babel import Babel
@@ -22,6 +22,7 @@ from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
 import ckan.model as model
+from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.common import config, g, request, ungettext
@@ -70,9 +71,8 @@ def make_flask_stack(conf, **app_conf):
     root = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    debug = asbool(app_conf.get('debug', app_conf.get('DEBUG', False)))
+    debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
     testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
-
     app = flask_app = CKANFlask(__name__)
     app.debug = debug
     app.testing = testing
@@ -171,6 +171,7 @@ def make_flask_stack(conf, **app_conf):
 
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
+    _register_error_handler(app)
 
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
@@ -400,3 +401,20 @@ def _register_core_blueprints(app):
         for blueprint in inspect.getmembers(module, is_blueprint):
             app.register_blueprint(blueprint[1])
             log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
+
+
+def _register_error_handler(app):
+    u'''Register error handler'''
+
+    def error_handler(e):
+        if isinstance(e, HTTPException):
+            extra_vars = {u'code': [e.code], u'content': e.description}
+            return base.render(
+                u'error_document_template.html', extra_vars), e.code
+        extra_vars = {u'code': [500], u'content': u'Internal server error'}
+        return base.render(u'error_document_template.html', extra_vars), 500
+
+    for code in default_exceptions:
+        app.register_error_handler(code, error_handler)
+    if not app.debug and not app.testing:
+        app.register_error_handler(Exception, error_handler)

@@ -9,8 +9,6 @@ from ckan.lib import search
 from nose.tools import assert_equal
 
 from ckan.tests.legacy.functional.api.base import BaseModelApiTestCase
-from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase
-from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase
 
 
 class GroupsTestCase(BaseModelApiTestCase):
@@ -99,43 +97,6 @@ class GroupsTestCase(BaseModelApiTestCase):
                             extra_environ=self.admin_extra_environ)
         res = self.set_env(self.extra_environ)
 
-    def test_05_get_group_entity_not_found(self):
-        offset = self.offset('/rest/group/22222')
-        res = self.app.get(offset, status=404)
-        self.assert_json_response(res, 'Not found')
-
-    def test_10_edit_group(self):
-        # create a group with testgroupvalues
-        group = model.Group.by_name(self.testgroupvalues['name'])
-        if not group:
-            offset = self.offset('/rest/group')
-            postparams = '%s=1' % self.dumps(self.testgroupvalues)
-            res = self.app.post(offset, params=postparams, status=[201],
-                    extra_environ=self.extra_environ)
-            model.Session.remove()
-            group = model.Group.by_name(self.testgroupvalues['name'])
-        assert group
-        assert len(group.member_all) == 3, group.member_all
-        user = model.User.by_name(self.user_name)
-
-        # edit it
-        group_vals = {'name':u'somethingnew', 'title':u'newtesttitle',
-                      'packages':[u'annakarenina']}
-        offset = self.group_offset(self.testgroupvalues['name'])
-        postparams = '%s=1' % self.dumps(group_vals)
-        res = self.app.post(offset, params=postparams, status=[200],
-                            extra_environ=self.extra_environ)
-        model.Session.remove()
-        group = model.Session.query(model.Group).filter_by(name=group_vals['name']).one()
-        package = model.Session.query(model.Package).filter_by(name='annakarenina').one()
-        assert group.name == group_vals['name']
-        assert group.title == group_vals['title']
-        assert len(group.member_all) == 3, group.member_all
-        assert len([mem for mem in group.member_all if mem.state == 'active']) == 2, group.member_all
-        for mem in group.member_all:
-            if mem.state == 'active' and mem.capacity == 'package':
-                assert mem.table_id == package.id
-
     def test_10_edit_group_name_duplicate(self):
         # create a group with testgroupvalues
         if not model.Group.by_name(self.testgroupvalues['name']):
@@ -221,7 +182,3 @@ class GroupsTestCase(BaseModelApiTestCase):
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
         self.assert_json_response(res, 'not found')
-
-
-class TestGroupsVersion1(Version1TestCase, GroupsTestCase): pass
-class TestGroupsVersion2(Version2TestCase, GroupsTestCase): pass

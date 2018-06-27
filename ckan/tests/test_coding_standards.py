@@ -62,9 +62,6 @@ def walk_python_files():
 def test_building_the_docs():
     u'''There should be no warnings or errors when building the Sphinx docs.
 
-    This test unfortunately does take quite a long time to run - rebuilding the
-    docs from scratch just takes a long time.
-
     This test will also fail is build_sphinx exits with non-zero status.
 
     '''
@@ -72,9 +69,7 @@ def test_building_the_docs():
         output = subprocess.check_output(
             [b'python',
              b'setup.py',
-             b'build_sphinx',
-             b'--all-files',
-             b'--fresh-env'],
+             b'build_sphinx'],
             stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as err:
         assert False, (
@@ -101,7 +96,8 @@ def test_building_the_docs():
         u'WARNING: duplicate label ckan.auth.create_dataset_if_not_in_organization',
         u'WARNING: duplicate label ckan.auth.user_delete_groups',
         u'WARNING: duplicate label ckan.auth.user_create_organizations',
-        u'WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups'
+        u'WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups',
+        u'WARNING: duplicate label ckan.auth.public_user_details',
     ]
 
     # Remove the allowed warnings from the list of collected warnings.
@@ -259,7 +255,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/controllers/package.py',
     u'ckan/controllers/partyline.py',
     u'ckan/controllers/revision.py',
-    u'ckan/controllers/storage.py',
     u'ckan/controllers/tag.py',
     u'ckan/controllers/user.py',
     u'ckan/controllers/util.py',
@@ -273,7 +268,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/lib/authenticator.py',
     u'ckan/lib/base.py',
     u'ckan/lib/captcha.py',
-    u'ckan/lib/celery_app.py',
     u'ckan/lib/cli.py',
     u'ckan/lib/config_tool.py',
     u'ckan/lib/create_test_data.py',

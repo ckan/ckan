@@ -196,9 +196,9 @@ def revision_list(context, data_dict):
     parameter ``since_id``.
 
     :param since_id: the revision ID after which you want the revisions
-    :type id: string
+    :type since_id: string
     :param since_time: the timestamp after which you want the revisions
-    :type id: string
+    :type since_time: string
     :param sort: the order to sort the related items in, possible values are
       'time_asc', 'time_desc' (default). (optional)
     :type sort: string
@@ -517,7 +517,7 @@ def organization_list(context, data_dict):
     :param include_groups: if all_fields, include the organizations the
         organizations are in
         (optional, default: ``False``)
-    :type all_fields: bool
+    :type include_groups: bool
     :param include_users: if all_fields, include the organization users
         (optional, default: ``False``).
     :type include_users: bool
@@ -542,7 +542,7 @@ def group_list_authz(context, data_dict):
       a member of, otherwise return all groups that the user is authorized to
       edit (for example, sysadmin users are authorized to edit all groups)
       (optional, default: ``False``)
-    :type am-member: bool
+    :type am_member: bool
 
     :returns: list of dictized groups that the user is authorized to edit
     :rtype: list of dicts
@@ -623,7 +623,7 @@ def organization_list_for_user(context, data_dict):
     :param id: the name or id of the user to get the organization list for
         (optional, defaults to the currently authorized user (logged in or via
         API key))
-    :type permission: string
+    :type id: string
 
     :param permission: the permission the user has against the
         returned organizations, for example ``"read"`` or ``"create_dataset"``
@@ -908,7 +908,7 @@ def package_relationships_list(context, data_dict):
     :param id: the id or name of the first package
     :type id: string
     :param id2: the id or name of the second package
-    :type id: string
+    :type id2: string
     :param rel: relationship as string see
         :py:func:`~ckan.logic.action.create.package_relationship_create` for
         the relationship types (optional)
@@ -1147,46 +1147,6 @@ def resource_view_list(context, data_dict):
     return model_dictize.resource_view_list_dictize(resource_views, context)
 
 
-def resource_status_show(context, data_dict):
-    '''Return the statuses of a resource's tasks.
-
-    This function is DEPRECATED.
-
-    :param id: the id of the resource
-    :type id: string
-
-    :rtype: list of (status, date_done, traceback, task_status) dictionaries
-
-    '''
-
-    _check_access('resource_status_show', context, data_dict)
-
-    try:
-        import ckan.lib.celery_app as celery_app
-    except ImportError:
-        return {'message': 'queue is not installed on this instance'}
-
-    model = context['model']
-    id = _get_or_bust(data_dict, 'id')
-
-    # needs to be text query as celery tables are not in our model
-    q = _text("""
-        select status, date_done, traceback, task_status.*
-        from task_status left join celery_taskmeta
-        on task_status.value = celery_taskmeta.task_id
-           and key = 'celery_task_id'
-        where entity_id = :entity_id
-    """)
-    try:
-        result = model.Session.connection().execute(q, entity_id=id)
-    except sqlalchemy.exc.ProgrammingError:
-        # celery tables (celery_taskmeta) may not be created even with celery
-        # installed, causing ProgrammingError exception.
-        return {'message': 'queue tables not installed on this instance'}
-    result_list = [_table_dictize(row, context) for row in result]
-    return result_list
-
-
 @logic.auth_audit_exempt
 def revision_show(context, data_dict):
     '''Return the details of a revision.
@@ -1223,11 +1183,17 @@ def _group_or_org_show(context, data_dict, is_org=False):
     else:
         packages_field = None
 
-    include_tags = asbool(data_dict.get('include_tags', True))
-    include_users = asbool(data_dict.get('include_users', True))
-    include_groups = asbool(data_dict.get('include_groups', True))
-    include_extras = asbool(data_dict.get('include_extras', True))
-    include_followers = asbool(data_dict.get('include_followers', True))
+    try:
+        include_tags = asbool(data_dict.get('include_tags', True))
+        if asbool(config.get('ckan.auth.public_user_details', True)):
+            include_users = asbool(data_dict.get('include_users', True))
+        else:
+            include_users = asbool(data_dict.get('include_users', False))
+        include_groups = asbool(data_dict.get('include_groups', True))
+        include_extras = asbool(data_dict.get('include_extras', True))
+        include_followers = asbool(data_dict.get('include_followers', True))
+    except ValueError:
+        raise logic.ValidationError(_('Parameter is not an bool'))
 
     if group is None:
         raise NotFound
@@ -1293,19 +1259,19 @@ def group_show(context, data_dict):
     :type include_dataset_count: bool
     :param include_extras: include the group's extra fields
          (optional, default: ``True``)
-    :type id: bool
+    :type include_extras: bool
     :param include_users: include the group's users
-         (optional, default: ``True``)
-    :type id: bool
+         (optional, default: ``False``)
+    :type include_users: bool
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)
-    :type id: bool
+    :type include_groups: bool
     :param include_tags: include the group's tags
          (optional, default: ``True``)
-    :type id: bool
+    :type include_tags: bool
     :param include_followers: include the group's number of followers
          (optional, default: ``True``)
-    :type id: bool
+    :type include_followers: bool
 
     :rtype: dictionary
 
@@ -1328,19 +1294,19 @@ def organization_show(context, data_dict):
     :type include_dataset_count: bool
     :param include_extras: include the organization's extra fields
          (optional, default: ``True``)
-    :type id: bool
+    :type include_extras: bool
     :param include_users: include the organization's users
          (optional, default: ``True``)
-    :type id: bool
+    :type include_users: bool
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
-    :type id: bool
+    :type include_groups: bool
     :param include_tags: include the organization's tags
          (optional, default: ``True``)
-    :type id: bool
+    :type include_tags: bool
     :param include_followers: include the organization's number of followers
          (optional, default: ``True``)
-    :type id: bool
+    :type include_followers: bool
 
 
     :rtype: dictionary
@@ -1518,40 +1484,6 @@ def user_show(context, data_dict):
             {'id': user_dict['id']})
 
     return user_dict
-
-
-def package_show_rest(context, data_dict):
-    _check_access('package_show_rest', context, data_dict)
-
-    logic.get_action('package_show')(context, data_dict)
-
-    pkg = context['package']
-
-    package_dict = model_dictize.package_to_api(pkg, context)
-
-    return package_dict
-
-
-def group_show_rest(context, data_dict):
-    _check_access('group_show_rest', context, data_dict)
-
-    logic.get_action('group_show')(context, data_dict)
-    group = context['group']
-
-    group_dict = model_dictize.group_to_api(group, context)
-
-    return group_dict
-
-
-def tag_show_rest(context, data_dict):
-    _check_access('tag_show_rest', context, data_dict)
-
-    logic.get_action('tag_show')(context, data_dict)
-    tag = context['tag']
-
-    tag_dict = model_dictize.tag_to_api(tag, context)
-
-    return tag_dict
 
 
 @logic.validate(logic.schema.default_autocomplete_schema)
@@ -1789,6 +1721,7 @@ def package_search(context, data_dict):
         the results. Only private datasets from the user's organizations will
         be returned and sysadmins will be returned all private datasets.
         Optional, the default is ``False``.
+    :type include_private: bool
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
     :type use_default_schema: bool
@@ -2341,7 +2274,7 @@ def task_status_show(context, data_dict):
     :param entity_id: the entity_id of the task status (optional)
     :type entity_id: string
     :param task_type: the task_type of the task status (optional)
-    :type tast_type: string
+    :type task_type: string
     :param key: the key of the task status (optional)
     :type key: string
 
@@ -3354,6 +3287,7 @@ def dashboard_activity_list(context, data_dict):
     :param limit: the maximum number of activities to return
         (optional, default: ``31``, the default value is configurable via the
         :ref:`ckan.activity_list_limit` setting)
+    :type limit: int
 
     :rtype: list of activity dictionaries
 
@@ -3475,7 +3409,7 @@ def member_roles_list(context, data_dict):
 
     :param group_type: the group type, either ``"group"`` or ``"organization"``
         (optional, default ``"organization"``)
-    :type id: string
+    :type group_type: string
     :returns: a list of dictionaries each with two keys: ``"text"`` (the
         display name of the role, e.g. ``"Admin"``) and ``"value"`` (the
         internal name of the role, e.g. ``"admin"``)

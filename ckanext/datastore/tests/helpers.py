@@ -4,9 +4,10 @@ from sqlalchemy import orm
 
 import ckan.model as model
 import ckan.lib.cli as cli
+from ckan.lib import search
 
 import ckan.plugins as p
-from ckan.tests.helpers import FunctionalTestBase
+from ckan.tests.helpers import FunctionalTestBase, reset_db
 import ckanext.datastore.backend.postgres as db
 
 
@@ -67,3 +68,21 @@ class DatastoreFunctionalTestBase(FunctionalTestBase):
         engine = db.get_write_engine()
         rebuild_all_dbs(orm.scoped_session(orm.sessionmaker(bind=engine)))
         super(DatastoreFunctionalTestBase, cls).setup_class()
+
+
+class DatastoreLegacyTestBase(object):
+    u"""
+    Tests that rely on data created in setup_class. No cleanup done between
+    each test method. Not recommended for new tests.
+    """
+    @classmethod
+    def setup_class(cls):
+        p.load(u'datastore')
+        reset_db()
+        search.clear_all()
+        engine = db.get_write_engine()
+        rebuild_all_dbs(orm.scoped_session(orm.sessionmaker(bind=engine)))
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload(u'datastore')

@@ -5,8 +5,7 @@
   <form class="module-content search-form" method="get" action="{% url_for controller='package', action='search' %}">
     <h3 class="heading">{{ _("Search data") }}</h3>
     <div class="search-input form-group search-giant">
-      <label for="field-main-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
-      <input id="field-main-search" type="text" class="form-control" name="q" value="" autocomplete="off" placeholder="{% block search_placeholder %}{{ placeholder }}{% endblock %}" />
+      <input aria-label="{% block header_site_search_label %}{{ _('Search datasets') }}{% endblock %}" id="field-main-search" type="text" class="form-control" name="q" value="" autocomplete="off" placeholder="{% block search_placeholder %}{{ placeholder }}{% endblock %}" />
       <button type="submit">
         <i class="fa fa-search"></i>
         <span class="sr-only">{{ _('Search') }}</span>
