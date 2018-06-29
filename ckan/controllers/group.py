@@ -225,6 +225,11 @@ class GroupController(base.BaseController):
         except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
 
+        # if the user specified a group id, redirect to the group name
+        if data_dict['id'] == c.group_dict['id']:
+            h.redirect_to(controller=group_type, action='read',
+                          id=c.group_dict['name'])
+
         self._read(id, limit, group_type)
         return render(self._read_template(c.group_dict['type']),
                       extra_vars={'group_type': group_type})

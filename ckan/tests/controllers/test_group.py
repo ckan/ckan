@@ -189,21 +189,28 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
 
 
 class TestGroupRead(helpers.FunctionalTestBase):
-    def setup(self):
-        super(TestGroupRead, self).setup()
-        self.app = helpers._get_test_app()
-        self.user = factories.User()
-        self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
-        self.group = factories.Group(user=self.user)
 
     def test_group_read(self):
-        response = self.app.get(url=url_for(controller='group',
-                                            action='read',
-                                            id=self.group['id']),
-                                status=200,
-                                extra_environ=self.user_env)
-        assert_in(self.group['title'], response)
-        assert_in(self.group['description'], response)
+        group = factories.Group()
+        app = helpers._get_test_app()
+        response = app.get(url=url_for(controller='group',
+                                       action='read',
+                                       id=group['name']))
+        assert_in(group['title'], response)
+        assert_in(group['description'], response)
+
+    def test_read_redirect_when_given_id(self):
+        group = factories.Group()
+        app = helpers._get_test_app()
+        response = app.get(url_for(controller='group', action='read',
+                                   id=group['id']),
+                           status=302)
+        # redirect replaces the ID with the name in the URL
+        redirected_response = response.follow()
+        expected_url = url_for(controller='group', action='read',
+                               id=group['name'])
+        assert_equal(redirected_response.request.path, expected_url)
+
 
 
 class TestGroupDelete(helpers.FunctionalTestBase):

@@ -388,6 +388,11 @@ class PackageController(base.BaseController):
         except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
 
+        # if the user specified a package id, redirect to the package name
+        if data_dict['id'] == c.pkg_dict['id']:
+            h.redirect_to(controller='package', action='read',
+                          id=c.pkg_dict['name'])
+
         # used by disqus plugin
         c.current_package_id = c.pkg.id
 

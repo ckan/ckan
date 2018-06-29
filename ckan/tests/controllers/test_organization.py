@@ -82,21 +82,35 @@ class TestOrganizationList(helpers.FunctionalTestBase):
 
 
 class TestOrganizationRead(helpers.FunctionalTestBase):
-    def setup(self):
-        super(TestOrganizationRead, self).setup()
-        self.app = helpers._get_test_app()
-        self.user = factories.User()
-        self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
-        self.organization = factories.Organization(user=self.user)
+    def test_group_read(self):
+        org = factories.Organization()
+        app = helpers._get_test_app()
+        response = app.get(url=url_for(controller='organization',
+                                       action='read',
+                                       id=org['name']))
+        assert_in(org['title'], response)
+        assert_in(org['description'], response)
 
-    def test_organization_read(self):
-        response = self.app.get(url=url_for(controller='organization',
-                                            action='read',
-                                            id=self.organization['id']),
-                                status=200,
-                                extra_environ=self.user_env)
-        assert_in(self.organization['title'], response)
-        assert_in(self.organization['description'], response)
+    def test_read_redirect_when_given_id(self):
+        org = factories.Organization()
+        app = helpers._get_test_app()
+        response = app.get(url_for(controller='organization', action='read',
+                                   id=org['id']),
+                           status=302)
+        # redirect replaces the ID with the name in the URL
+        redirected_response = response.follow()
+        expected_url = url_for(controller='organization', action='read',
+                               id=org['name'])
+        assert_equal(redirected_response.request.path, expected_url)
+
+    # def test_organization_read(self):
+    #     response = self.app.get(url=url_for(controller='organization',
+    #                                         action='read',
+    #                                         id=self.organization['id']),
+    #                             status=200,
+    #                             extra_environ=self.user_env)
+    #     assert_in(self.organization['title'], response)
+    #     assert_in(self.organization['description'], response)
 
 
 class TestOrganizationEdit(helpers.FunctionalTestBase):

@@ -9,12 +9,10 @@ from nose.tools import (
     assert_in
 )
 
-from mock import patch, MagicMock
 from ckan.lib.helpers import url_for
 
 import ckan.model as model
 import ckan.plugins as p
-from ckan.lib import search
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -564,6 +562,18 @@ class TestPackageRead(helpers.FunctionalTestBase):
                                    id=dataset['name']))
         response.mustcontain('Test Dataset')
         response.mustcontain('Just another test dataset')
+
+    def test_read_redirect_when_given_id(self):
+        dataset = factories.Dataset()
+        app = helpers._get_test_app()
+        response = app.get(url_for(controller='package', action='read',
+                                   id=dataset['id']),
+                           status=302)
+        # redirect replaces the ID with the name in the URL
+        redirected_response = response.follow()
+        expected_url = url_for(controller='package', action='read',
+                               id=dataset['name'])
+        assert_equal(redirected_response.request.path, expected_url)
 
     def test_organization_members_can_read_private_datasets(self):
         members = {
