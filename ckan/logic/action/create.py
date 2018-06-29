@@ -225,15 +225,18 @@ def package_create(context, data_dict):
         model.repo.commit()
 
     # need to let rest api create
-    context["package"] = pkg
     # this is added so that the rest controller can make a new location
-    context["id"] = pkg.id
+    api_context = context.copy()
+    api_context["package"] = pkg
+    api_context["id"] = pkg.id
     log.debug('Created object %s' % pkg.name)
 
-    return_id_only = context.get('return_id_only', False)
+    return_id_only = api_context.get('return_id_only', False)
 
-    output = context['id'] if return_id_only \
-        else _get_action('package_show')(context, {'id': context['id']})
+    output = api_context['id'] if return_id_only \
+        else _get_action('package_show')(
+                api_context, {'id': api_context['id']}
+            )
 
     return output
 
