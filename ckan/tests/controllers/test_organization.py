@@ -411,7 +411,7 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
                           owner_org=org['id'])
 
         org_url = url_for(controller='organization', action='read',
-                          id=org['id'])
+                          id=org['name'])
         org_response = app.get(org_url)
         org_response_html = BeautifulSoup(org_response.body)
 
@@ -440,7 +440,7 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
                           owner_org=org['id'])
 
         org_url = url_for(controller='organization', action='read',
-                          id=org['id'])
+                          id=org['name'])
         org_response = app.get(org_url)
         search_form = org_response.forms['organization-datasets-search-form']
         search_form['q'] = 'One'
@@ -473,7 +473,7 @@ class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
                           owner_org=org['id'])
 
         org_url = url_for(controller='organization', action='read',
-                          id=org['id'])
+                          id=org['name'])
         org_response = app.get(org_url)
         search_form = org_response.forms['organization-datasets-search-form']
         search_form['q'] = 'Nout'

@@ -1197,6 +1197,7 @@ class PackageController(base.BaseController):
             package_dict = get_action('package_show')(context, data_dict)
             h.flash_success(_("You are now following {0}").format(
                 package_dict['title']))
+            id = package_dict['name']
         except ValidationError as e:
             error_message = (e.message or e.error_summary
                              or e.error_dict)
@@ -1216,6 +1217,7 @@ class PackageController(base.BaseController):
             package_dict = get_action('package_show')(context, data_dict)
             h.flash_success(_("You are no longer following {0}").format(
                 package_dict['title']))
+            id = package_dict['name']
         except ValidationError as e:
             error_message = (e.message or e.error_summary
                              or e.error_dict)

@@ -212,7 +212,6 @@ class TestGroupRead(helpers.FunctionalTestBase):
         assert_equal(redirected_response.request.path, expected_url)
 
 
-
 class TestGroupDelete(helpers.FunctionalTestBase):
     def setup(self):
         super(TestGroupDelete, self).setup()
@@ -544,7 +543,8 @@ class TestGroupFollow(helpers.FunctionalTestBase):
                                id=group['id'])
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
-        unfollow_response = unfollow_response.follow()
+        unfollow_response = unfollow_response.follow()  # /group/[id] 302s to:
+        unfollow_response = unfollow_response.follow()  # /group/[name]
 
         assert_true('You are not following {0}'.format(group['id'])
                     in unfollow_response)
@@ -667,7 +667,7 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
                           groups=[{'id': grp['id']}])
 
         grp_url = url_for(controller='group', action='read',
-                          id=grp['id'])
+                          id=grp['name'])
         grp_response = app.get(grp_url)
         grp_response_html = BeautifulSoup(grp_response.body)
 
@@ -695,7 +695,7 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
                           groups=[{'id': grp['id']}])
 
         grp_url = url_for(controller='group', action='read',
-                          id=grp['id'])
+                          id=grp['name'])
         grp_response = app.get(grp_url)
         search_form = grp_response.forms['group-datasets-search-form']
         search_form['q'] = 'One'
@@ -728,7 +728,7 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
                           groups=[{'id': grp['id']}])
 
         grp_url = url_for(controller='group', action='read',
-                          id=grp['id'])
+                          id=grp['name'])
         grp_response = app.get(grp_url)
         search_form = grp_response.forms['group-datasets-search-form']
         search_form['q'] = 'Nout'
