@@ -1,21 +1,21 @@
 # Translations template for ckan.
-# Copyright (C) 2017 ORGANIZATION
+# Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
-# 
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 2.7.0b0\n"
+"Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2017\n"
+"Last-Translator: Sotirios Karampatakis <s.karampatakis@gmail.com>, 2018\n"
 "Language-Team: Greek (https://www.transifex.com/okfn/teams/11162/el/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.5.3\n"
 "Language: el\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -113,13 +113,22 @@ msgstr "Δεν βρέθηκε ο πόρος DataStore"
 
 #: ckanext/datastore/backend/postgres.py:1052
 msgid ""
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
+msgstr ""
+"Το Λεξικό Δεδομένων αποθηκεύτηκε. Οποιαδήποτε παράκαμψη τύπου θα έχει "
+"επίδραση όταν ο πόρος μεταφορτωθεί στο DataStore. "
+
+#: ckanext/datastore/backend/postgres.py:1032
+msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
 msgstr ""
+"Τα δεδομένα ήταν μη έγκυρα (για παράδειγμα: μία αριθμητική τιμή ήταν εκτός "
+"ορίων ή καταχωρήθηκε σε πεδίο κειμένου)."
 
-#: ckanext/datastore/logic/action.py:262 ckanext/datastore/logic/action.py:290
-#: ckanext/datastore/logic/action.py:348 ckanext/datastore/logic/action.py:459
-#: ckanext/datastore/logic/action.py:534 ckanext/datastore/logic/action.py:559
+#: ckanext/datastore/logic/action.py:258 ckanext/datastore/logic/action.py:286
+#: ckanext/datastore/logic/action.py:344 ckanext/datastore/logic/action.py:457
 msgid "Resource \"{0}\" was not found."
 msgstr "Ο πόρος \"{0}\" δεν βρέθηκε."
 
@@ -143,6 +152,10 @@ msgid ""
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
+" Περισσότερες πληροφορίες στην <a             "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">κεντρική τεκμηρίωση του CKAN Data API και του "
+"DataStore</a>.</p> "
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
@@ -203,7 +216,11 @@ msgstr "Παράδειγμα: Python"
 
 #: ckanext/datastore/templates/datastore/dictionary.html:16
 msgid "Field {num}."
-msgstr ""
+msgstr "Πεδίο {num}"
+
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:12
+msgid "Type Override"
+msgstr "Παράκαμψη τύπου"
 
 #: ckanext/datastore/templates/datastore/dictionary.html:18
 #: ckanext/datastore/templates/package/resource_read.html:20
@@ -259,7 +276,18 @@ msgstr "Φορτώνει...."
 msgid "Data API"
 msgstr "Data API"
 
-#: ckanext/datatablesview/plugin.py:46 ckanext/reclineview/plugin.py:128
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
+msgid ""
+" Further information in the <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr ""
+" Περισσότερες πληροφορίες στην <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">κεντρική τεκμηρίωση του CKAN Data API και  του DataStore "
+"</a>.</p> "
+
+#: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:128
 msgid "Table"
 msgstr "Πίνακας"
 
@@ -974,6 +1002,12 @@ msgstr "%s έχει διαγραφεί."
 #, python-format
 msgid "User %r not authorized to edit members of %s"
 msgstr ""
+"Ο χρήστης %r δεν είναι εξουσιοδοτημένος να επεξεργάζεται τα μέλη του %s"
+
+#: ckan/controllers/group.py:670
+#, python-format
+msgid "Unauthorized to create group %s members"
+msgstr "Μη εξουσιοδοτημένος για τη δημιουργία μελών της ομάδας %s"
 
 #: ckan/controllers/group.py:705
 #, python-format
@@ -1069,6 +1103,8 @@ msgstr "Μη έγκυρη μορφή αναθεώρησης:%r"
 #: ckan/controllers/package.py:396
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
 msgstr ""
+"Η προβολή συνόλων δεδομένων του τύπου \"{package_type}\" δεν υποστηρίζεται "
+"({file_!r})."
 
 #: ckan/controllers/package.py:435 ckan/controllers/package.py:817
 #: ckan/controllers/package.py:918 ckan/controllers/package.py:966
@@ -1775,6 +1811,8 @@ msgid ""
 "Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
 "-_"
 msgstr ""
+"Πρέπει να αποτελείται μόνο από πεζούς αλφαρηθμητικούς χαρακτήρες (ascii) και"
+" αυτά τα σύμβολα: -_"
 
 #: ckan/logic/validators.py:361
 msgid "That URL is already in use."
@@ -1834,7 +1872,11 @@ msgstr "Τα ονόματα χρηστών πρέπει να αποτελούν�
 msgid "That login name is not available."
 msgstr "Αυτό το όνομα σύνδεσης δεν είναι διαθέσιμο."
 
-#: ckan/logic/validators.py:570
+#: ckan/logic/validators.py:566
+msgid "That login name can not be modified."
+msgstr "Αυτό το όνομα σύνδεσης δεν μπορεί να τροποποιηθεί."
+
+#: ckan/logic/validators.py:577
 msgid "Please enter both passwords"
 msgstr "Παρακαλώ εισάγετε και τους δύο κωδικούς πρόσβασης"
 
@@ -1842,11 +1884,9 @@ msgstr "Παρακαλώ εισάγετε και τους δύο κωδικού�
 msgid "Passwords must be strings"
 msgstr "Οι κωδικοί πρόσβασης πρέπει να αποτελούνται από αλφαριθμητικά"
 
-#: ckan/logic/validators.py:582
-msgid "Your password must be 4 characters or longer"
-msgstr ""
-"Ο κωδικός πρόσβασής σας θα πρέπει να αποτελείται από 4 τουλάχιστον "
-"χαρακτήρες"
+#: ckan/logic/validators.py:589
+msgid "Your password must be 8 characters or longer"
+msgstr "Ο κωδικός πρόσβασής σας πρέπει αν έχει τουλάχιστον 8 χαρακτήρες."
 
 #: ckan/logic/validators.py:590
 msgid "The passwords you entered do not match"
@@ -2025,8 +2065,14 @@ msgstr "REST API: Διαγραφή %s"
 msgid "REST API: Delete Member: %s"
 msgstr "REST API: Διαγραφή Μέλους: %s"
 
-#: ckan/logic/action/delete.py:544 ckan/logic/action/delete.py:570
-#: ckan/logic/action/get.py:2482 ckan/logic/action/update.py:953
+#: ckan/logic/action/delete.py:358
+msgid "Organization cannot be deleted while it still has datasets"
+msgstr ""
+"Ο οργανισμός δεν μπορεί να διαγραφεί όσο υπάρχουν ακόμα σύνολα δεδομένων που"
+" του ανήκουν."
+
+#: ckan/logic/action/delete.py:560 ckan/logic/action/delete.py:586
+#: ckan/logic/action/get.py:2432 ckan/logic/action/update.py:906
 msgid "id not in data"
 msgstr "όχι id στα δεδομένα"
 
@@ -2447,6 +2493,7 @@ msgstr "Δεν βρέθηκε"
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] ""
+"Η καταχώρηση είναι πολύ μικρή, πρέπει να είναι τουλάχιστον ένας χαρακτήρας"
 msgstr[1] ""
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
@@ -2569,6 +2616,8 @@ msgid ""
 "You are uploading a file. Are you sure you want to navigate away and stop "
 "this upload?"
 msgstr ""
+"Αυτή τη στιγμή μεταφορτώνετε ένα αρχείο. Είσαστε σίγουρος/η ό,τι θέλετε να "
+"μεταβείτε σε άλλη σελίδα και να διακόψετε τη μεταφόρτωση;"
 
 #: ckan/public/base/javascript/modules/resource-view-filters.js:9
 #: ckan/templates/package/snippets/view_form_filters.html:16
@@ -2599,6 +2648,99 @@ msgstr "Προβολή περισσοτέρων"
 #: ckan/public/base/javascript/modules/table-toggle-more.js:26
 msgid "Hide"
 msgstr "Απόκρυψη"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:13
+#: ckan/public-bs2/base/test/spec/module.spec.js:385
+#: ckan/public/base/test/spec/i18n.spec.js:13
+#: ckan/public/base/test/spec/module.spec.js:385
+msgid "foo"
+msgstr "foo"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:17
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:46
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:50
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:54
+#: ckan/public/base/test/spec/i18n.spec.js:17
+#: ckan/public/base/test/spec/i18n.spec.js:46
+#: ckan/public/base/test/spec/i18n.spec.js:50
+#: ckan/public/base/test/spec/i18n.spec.js:54
+msgid "no translation"
+msgid_plural "no translations"
+msgstr[0] "καμία μετάφραση"
+msgstr[1] "χωρίς μεταφράσεις"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:22
+#: ckan/public/base/test/spec/i18n.spec.js:22
+#, python-format
+msgid "hello %(name)s!"
+msgstr "Γειά σου %(name)s!"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:29
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:76
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:81
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:86
+#: ckan/public/base/test/spec/i18n.spec.js:29
+#: ckan/public/base/test/spec/i18n.spec.js:76
+#: ckan/public/base/test/spec/i18n.spec.js:81
+#: ckan/public/base/test/spec/i18n.spec.js:86
+#, python-format
+msgid "no %(attr)s translation"
+msgid_plural "no %(attr)s translations"
+msgstr[0] "Δεν υπάρχει μετάφραση του %(attr)s"
+msgstr[1] "Δεν υπάρχουν μεταφράσεις του %(attr)s"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:39
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:40
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:41
+#: ckan/public-bs2/base/test/spec/module.spec.js:395
+#: ckan/public-bs2/base/test/spec/module.spec.js:396
+#: ckan/public-bs2/base/test/spec/module.spec.js:397
+#: ckan/public/base/test/spec/i18n.spec.js:39
+#: ckan/public/base/test/spec/i18n.spec.js:40
+#: ckan/public/base/test/spec/i18n.spec.js:41
+#: ckan/public/base/test/spec/module.spec.js:395
+#: ckan/public/base/test/spec/module.spec.js:396
+#: ckan/public/base/test/spec/module.spec.js:397
+msgid "bar"
+msgid_plural "bars"
+msgstr[0] "μπάρα"
+msgstr[1] "μπάρες"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:61
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:65
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:69
+#: ckan/public/base/test/spec/i18n.spec.js:61
+#: ckan/public/base/test/spec/i18n.spec.js:65
+#: ckan/public/base/test/spec/i18n.spec.js:69
+#, python-format
+msgid "%(color)s shirt"
+msgid_plural "%(color)s shirts"
+msgstr[0] "%(color)s πουκάμισο"
+msgstr[1] "%(color)s πουκάμισα"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:93
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:94
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:95
+#: ckan/public/base/test/spec/i18n.spec.js:93
+#: ckan/public/base/test/spec/i18n.spec.js:94
+#: ckan/public/base/test/spec/i18n.spec.js:95
+#, python-format
+msgid "%(num)d item"
+msgid_plural "%(num)d items"
+msgstr[0] "%(num)d αντικείμενο"
+msgstr[1] "%(num)d αντικείμενα"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:100
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:105
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:110
+#: ckan/public/base/test/spec/i18n.spec.js:100
+#: ckan/public/base/test/spec/i18n.spec.js:105
+#: ckan/public/base/test/spec/i18n.spec.js:110
+#, python-format
+msgid "%(num)d missing translation"
+msgid_plural "%(num)d missing translations"
+msgstr[0] "%(num)d υπολειπόμενη μετάφραση"
+msgstr[1] "%(num)d υπολειπόμενες μεταφράσεις"
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
@@ -2694,7 +2836,7 @@ msgstr "Αναζήτηση"
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
-msgstr ""
+msgstr "Μεταπήδηση στο περιεχόμενο"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
@@ -3046,21 +3188,21 @@ msgstr ""
 
 #: ckan/templates/group/member_new.html:55
 #: ckan/templates/group/members.html:15
-#: ckan/templates/organization/member_new.html:56
+#: ckan/templates/organization/member_new.html:54
 #: ckan/templates/organization/members.html:20
 msgid "Role"
 msgstr "Ρόλος"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
-#: ckan/templates/organization/member_new.html:59
+#: ckan/templates/organization/member_new.html:57
 #: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
 msgstr "Είστε σίγουροι ότι θέλετε να διαγράψετε το μέλος;"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
-#: ckan/templates/group/snippets/group_form.html:60
+#: ckan/templates/group/snippets/group_form.html:38
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:36
@@ -3292,6 +3434,10 @@ msgstr "Π.χ. Περιβάλλον"
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
 msgstr "Αναζήτηση δεδομένων"
+
+#: ckan/templates/home/snippets/search.html:8
+msgid "Search datasets"
+msgstr "Αναζήτησε σύνολα δεδομένων"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
@@ -3542,12 +3688,12 @@ msgstr "Λίγες πληροφορίες σχετικά με τον φορέα.
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all the "
-"public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
 msgstr ""
-"Είστε σίγουροι ότι θέλετε να διαγράψετε αυτόν το Φορέα; Με αυτή την ενέργεια"
-" θα διαγραφούν όλα τα δημόσια και ιδιωτικά σύνολα δεδομένων που ανήκουν σε "
-"αυτόν."
+"Είσαι σίγουρος ότι θέλεις να διαγράψεις αυτό τον Οργανισμό; Σημείωση*: Η "
+"διαγραφή Οργανισμού δεν μπορεί αν εκτελεστεί ενόσω δημόσια ή ιδιωτικά σύνολα"
+" δεδομένων ανήκουν στον Οργανισμό. "
 
 #: ckan/templates/organization/snippets/organization_form.html:63
 msgid "Save Organization"
@@ -3662,6 +3808,12 @@ msgid ""
 "structured-data-the-data-explorer' target='_blank'>Data Explorer "
 "documentation</a>. "
 msgstr ""
+"Οι οπτικοποιήσεις του Data Explorer μπορεί να είναι αργές και αναξιόπιστες, "
+"εκτός εάν η επέκταση DataStore είναι ενεργοποιημένη. Για περισσότερες "
+"πληροφορίες, παρακαλώ συμβουλευτείτε την <a "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>τεκμηρίωση του Data "
+"Explorer </a>. "
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:81
@@ -3745,6 +3897,8 @@ msgstr ""
 #: ckan/templates/package/resource_read.html:121
 msgid "The site administrators may not have enabled the relevant view plugins"
 msgstr ""
+"Ο διαχειριστής της ιστοσελίδας μπορεί να μην έχει ενεργοποιήσει τα σχετικά "
+"πρόσθετα οπτικοποιήσεων. "
 
 #: ckan/templates/package/resource_read.html:122
 msgid ""
@@ -3775,7 +3929,7 @@ msgstr "Τιμή"
 
 #: ckan/templates/package/resource_read.html:154
 msgid "Data last updated"
-msgstr ""
+msgstr "Προσφάτως ενημερωμένα δεδομένα"
 
 #: ckan/templates/package/resource_read.html:155
 #: ckan/templates/package/resource_read.html:159
@@ -3786,7 +3940,7 @@ msgstr "Άγνωστος"
 
 #: ckan/templates/package/resource_read.html:158
 msgid "Metadata last updated"
-msgstr ""
+msgstr "Προσφάτως ενημερωμένα μεταδεδομένα"
 
 #: ckan/templates/package/resource_read.html:162
 #: ckan/templates/package/snippets/additional_info.html:70
@@ -3824,6 +3978,8 @@ msgid ""
 " <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
 "add some?</a></p> "
 msgstr ""
+" <p class=\"empty\">Αυτό το σύνολο δεδομένων δεν περιέχει δεδομένα, <a "
+"href=\"%(url)s\">γιατί δεν προσθέτεις κάποια;</a></p> "
 
 #: ckan/templates/package/search.html:52
 msgid "API"
@@ -3980,6 +4136,12 @@ msgid ""
 "under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
 "Database License</a>."
 msgstr ""
+"Η <i>Άδεια Χρήσης Δεδομένων</i> που επέλεξες παραπάνω, έχει ισχύ μόνο στα "
+"περιεχόμενα οποιουδήποτε αρχείου πόρου που προσθέτεις στο σύνολο δεδομένων. "
+"Καταθέτοντας αυτή την  φόρμα, συμφωνείς στη διάθεση των <i>μεταδεδομένων</i>"
+" που εισάγεις στη φόρμα υπό την άδεια <a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
+"License</a>."
 
 #: ckan/templates/package/snippets/package_form.html:39
 msgid "Are you sure you want to delete this dataset?"
@@ -4102,13 +4264,17 @@ msgstr "Εξερευνήστε"
 msgid "More information"
 msgstr "Περισσότερες πληροφορίες"
 
-#: ckan/templates/package/snippets/resource_view.html:11
+#: ckan/templates/package/snippets/resource_view.html:10
+msgid "Fullscreen"
+msgstr "Πλήρης Οθόνη"
+
+#: ckan/templates/package/snippets/resource_view.html:18
 msgid "Embed"
 msgstr "Ενσωματώστε"
 
 #: ckan/templates/package/snippets/resource_view.html:24
 msgid "This resource view is not available at the moment."
-msgstr ""
+msgstr "Αυτή η οπτικοποίηγση πόρου δεν είναι διαθέσιμη αυτή τη στιγμή."
 
 #: ckan/templates/package/snippets/resource_view.html:63
 msgid "Embed resource view"
@@ -4119,6 +4285,8 @@ msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
 msgstr ""
+"Μπορείς να αντιγράψεις και επικολλήσεις τον κώδικα ενσωμάτωσης σε "
+"οποιοδήποτε CMS ή λογισμικό Blog που υποστηρίζει raw HTML."
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
@@ -4260,11 +4428,11 @@ msgstr "Εμφάνιση Περισσοτέρων {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:83
 msgid "Show Only Popular {facet_type}"
-msgstr ""
+msgstr "Δείξε Μόνο Δημοφιλή {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:87
 msgid "There are no {facet_type} that match this search"
-msgstr ""
+msgstr "Δεν υπάρχουν {facet_type} που ταιριάζουν με αυτή την αναζήτηση"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 msgid "Home"
@@ -4320,6 +4488,8 @@ msgid ""
 " <p id=\"search-error\"><strong>There was an error while searching.</strong>"
 " Please try again.</p> "
 msgstr ""
+" <p id=\"search-error\"><strong>Προέκυψε ένα πρόβλημα κατά την αναζήτηση. "
+"</strong> Παρακαλώ δοκιμάστε ξανά.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4641,7 +4811,13 @@ msgstr "Επαναφορά Κωδικού Πρόσβασης"
 msgid "Password Reset"
 msgstr "Επαναφορά Κωδικού Πρόσβασης"
 
-#: ckan/templates/user/perform_reset.html:24
+#: ckan/templates/user/perform_reset.html:21
+msgid "You can also change username. It can not be modified later."
+msgstr ""
+"Μπορείς να αλλάξεις επίσης το όνομα χρήστη. Δεν μπορεί να τροποποιηθεί "
+"αργότερα."
+
+#: ckan/templates/user/perform_reset.html:29
 msgid "Update Password"
 msgstr "Ενημέρωση Κωδικού Πρόσβασης"
 
@@ -4694,7 +4870,7 @@ msgstr "Επαναφορά κωδικού πρόσβασης"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "Request reset"
-msgstr ""
+msgstr "Αίτηση επαναφοράς"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
@@ -4724,3 +4900,7 @@ msgstr "Δεν υπάρχουν ακόλουθοι"
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
 msgstr "Αναζήτηση χρηστών"
+
+#: ckan/views/user.py:588
+msgid "Your password must be 8 characters or longer."
+msgstr "Ο κωδικός σύνδεσης πρέπει να αποτελείτε από τουλάχιστον 8 χαρακτήρες."
