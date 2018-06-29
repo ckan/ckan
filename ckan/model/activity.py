@@ -115,8 +115,7 @@ def _activities_union_all(*qlist):
     and remove duplicates
     '''
     import ckan.model as model
-    query_classes = _get_activity_query_classes()
-    return model.Session.query(*query_classes).select_entity_from(
+    return model.Session.query(model.Activity).select_entity_from(
         union_all(*[q.subquery().select() for q in qlist])
         ).distinct(model.Activity.timestamp)
 
@@ -130,18 +129,7 @@ def _activities_at_offset(q, limit, offset):
 def _activities_from_user_query(user_id):
     '''Return an SQLAlchemy query for all activities from user_id.'''
     import ckan.model as model
-    query_classes = _get_activity_query_classes()
-    q = model.Session.query(*query_classes) \
-        .outerjoin(
-            model.Package,
-            and_(
-                model.Activity.object_id == model.Package.id,
-                model.Package.private == False,
-            )) \
-        .outerjoin(
-            model.Group,
-            model.Activity.object_id == model.Group.id,
-        )
+    q = model.Session.query(model.Activity)
     q = q.filter(model.Activity.user_id == user_id)
     return q
 
@@ -149,35 +137,9 @@ def _activities_from_user_query(user_id):
 def _activities_about_user_query(user_id):
     '''Return an SQLAlchemy query for all activities about user_id.'''
     import ckan.model as model
-    query_classes = _get_activity_query_classes()
-    q = model.Session.query(*query_classes) \
-        .outerjoin(
-            model.Package,
-            and_(
-                model.Activity.object_id == model.Package.id,
-                model.Package.private == False,
-            )) \
-        .outerjoin(
-            model.Group,
-            model.Activity.object_id == model.Group.id,
-        )
+    q = model.Session.query(model.Activity)
     q = q.filter(model.Activity.object_id == user_id)
     return q
-
-
-def _get_activity_query_classes():
-    '''In general when doing an Activities query, these are the classes to
-    query on, so that Activities can be rendered with all the relevant info
-    (excluding user properties, since these are queried separately by a helper)
-    '''
-    from ckan import model
-    # use .label() to avoid error about ambiguous column names
-    return (
-        model.Activity,
-        model.Group.name.label('g_name'), model.Group.title.label('g_title'),
-        model.Group.is_organization,
-        model.Package.name, model.Package.title
-    )
 
 
 def _user_activity_query(user_id, limit):
@@ -212,27 +174,6 @@ def _package_activity_query(package_id):
     return q
 
 
-def _package_multi_activity_query(package_id):
-    '''Return an SQLAlchemy query for all activities about package_id.
-
-    '''
-    import ckan.model as model
-    query_classes = _get_activity_query_classes()
-    q = model.Session.query(*query_classes) \
-        .outerjoin(
-            model.Package,
-            and_(
-                model.Activity.object_id == model.Package.id,
-                model.Package.private == False,
-            )) \
-        .outerjoin(
-            model.Group,
-            model.Activity.object_id == model.Group.id,
-        ) \
-        .filter(model.Activity.object_id == package_id)
-    return q
-
-
 def package_activity_list(package_id, limit, offset):
     '''Return the given dataset (package)'s public activity stream.
 
@@ -254,49 +195,39 @@ def _group_activity_query(group_id):
     Returns a query for all activities whose object is either the group itself
     or one of the group's datasets.
 
-    Results are tuples of type:
-        (Activity, Group.name, Group.title, Group.is_organization,
-         Package.name, Package.title)
-    where each time one of the Group or Package is populated and the other is
-    None.
-
     '''
     import ckan.model as model
-    query_classes = _get_activity_query_classes()
 
     group = model.Group.get(group_id)
     if not group:
         # Return a query with no results.
         return model.Session.query(model.Activity).filter(text('0=1'))
 
-    q = model.Session.query(*query_classes) \
-        .outerjoin(
-            model.Member,
-            and_(
-                model.Activity.object_id == model.Member.table_id,
-                model.Member.state == 'active'
-            )) \
-        .outerjoin(
-            model.Package,
-            and_(
-                model.Package.id == model.Member.table_id,
-                model.Package.private == False,
-            )) \
-        .outerjoin(
-            model.Group,
-            model.Activity.object_id == model.Group.id
-            ) \
-        .filter(
-            # We only care about activity either on the the group itself or on
-            # packages within that group.
-            # FIXME: This means that activity that occured while a package belonged
-            # to a group but was then removed will not show up. This may not be
-            # desired but is consistent with legacy behaviour.
-            or_(
-                model.Member.group_id == group_id,
-                model.Activity.object_id == group_id
-            )
+    q = model.Session.query(
+        model.Activity
+    ).outerjoin(
+        model.Member,
+        and_(
+            model.Activity.object_id == model.Member.table_id,
+            model.Member.state == 'active'
         )
+    ).outerjoin(
+        model.Package,
+        and_(
+            model.Package.id == model.Member.table_id,
+            model.Package.private == False,
+        )
+    ).filter(
+        # We only care about activity either on the the group itself or on
+        # packages within that group.
+        # FIXME: This means that activity that occured while a package belonged
+        # to a group but was then removed will not show up. This may not be
+        # desired but is consistent with legacy behaviour.
+        or_(
+            model.Member.group_id == group_id,
+            model.Activity.object_id == group_id
+        )
+    )
 
     return q
 
@@ -311,14 +242,9 @@ def group_activity_list(group_id, limit, offset):
     "{USER} updated the dataset {DATASET}"
     etc.
 
-    Results are tuples of type:
-        (Activity, Group.name, Group.title, Group.is_org, Package.name,
-         Package.title)
-    where each time one of the Group or Package is populated and one is None.
     '''
     q = _group_activity_query(group_id)
-    results = _activities_at_offset(q, limit, offset)
-    return results
+    return _activities_at_offset(q, limit, offset)
 
 
 def _activities_from_users_followed_by_user_query(user_id, limit):
@@ -326,16 +252,14 @@ def _activities_from_users_followed_by_user_query(user_id, limit):
     import ckan.model as model
 
     # Get a list of the users that the given user is following.
-    query_classes = _get_activity_query_classes()
     follower_objects = model.UserFollowingUser.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
-        return model.Session.query(*query_classes).filter(text('0=1'))
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     return _activities_union_all(*[
         _user_activity_query(follower.object_id, limit)
-        for follower in follower_objects]
-    )
+        for follower in follower_objects])
 
 
 def _activities_from_datasets_followed_by_user_query(user_id, limit):
@@ -343,15 +267,13 @@ def _activities_from_datasets_followed_by_user_query(user_id, limit):
     import ckan.model as model
 
     # Get a list of the datasets that the user is following.
-    query_classes = _get_activity_query_classes()
     follower_objects = model.UserFollowingDataset.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
-        return model.Session.query(*query_classes).filter(text('0=1'))
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     return _activities_union_all(*[
-        _activities_limit(_package_multi_activity_query(follower.object_id),
-                          limit)
+        _activities_limit(_package_activity_query(follower.object_id), limit)
         for follower in follower_objects])
 
 
@@ -366,15 +288,13 @@ def _activities_from_groups_followed_by_user_query(user_id, limit):
     import ckan.model as model
 
     # Get a list of the group's that the user is following.
-    query_classes = _get_activity_query_classes()
     follower_objects = model.UserFollowingGroup.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
-        return model.Session.query(*query_classes).filter(text('0=1'))
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     return _activities_union_all(*[
-        _activities_limit(_group_activity_query(
-            follower.object_id), limit)
+        _activities_limit(_group_activity_query(follower.object_id), limit)
         for follower in follower_objects])
 
 
@@ -427,15 +347,8 @@ def _changed_packages_activity_query():
 
     '''
     import ckan.model as model
-    q = model.Session.query(
-        model.Activity, model.Package.name, model.Package.title) \
-        .outerjoin(
-            model.Package,
-            and_(
-                model.Activity.object_id == model.Package.id,
-                model.Package.private == False
-            )) \
-        .filter(model.Activity.activity_type.endswith('package'))
+    q = model.Session.query(model.Activity)
+    q = q.filter(model.Activity.activity_type.endswith('package'))
     return q
 
 

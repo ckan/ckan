@@ -2499,13 +2499,13 @@ def user_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    _activity_tuple_objects = model.activity.user_activity_list(
+    _activity_objects = model.activity.user_activity_list(
         user.id, limit=limit, offset=offset)
-    activity_tuple_objects = _filter_activity_tuples_by_user(
-        _activity_tuple_objects, _activity_stream_get_filtered_users())
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(
-        activity_tuple_objects, context,
+        activity_objects, context,
         include_data=data_dict['include_data'])
 
 
@@ -2553,9 +2553,8 @@ def package_activity_list(context, data_dict):
     else:
         activity_objects = _activity_objects
 
-    return model_dictize.package_activity_list_dictize(
-        activity_objects, package.name, package.title, context,
-        include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(
+        activity_objects, context, include_data=data_dict['include_data'])
 
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2593,16 +2592,16 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    _activity_tuple_objects = model.activity.group_activity_list(
+    _activity_objects = model.activity.group_activity_list(
         group_id, limit=limit, offset=offset)
     if not include_hidden_activity:
-        activity_tuple_objects = _filter_activity_tuples_by_user(
-            _activity_tuple_objects, _activity_stream_get_filtered_users())
+        activity_objects = _filter_activity_by_user(
+            _activity_objects, _activity_stream_get_filtered_users())
     else:
-        activity_tuple_objects = _activity_tuple_objects
+        activity_objects = _activity_objects
 
     return model_dictize.activity_list_dictize(
-        activity_tuple_objects, context,
+        activity_objects, context,
         include_data=data_dict['include_data'])
 
 
@@ -2632,16 +2631,16 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    _activity_tuple_objects = model.activity.group_activity_list(
+    _activity_objects = model.activity.group_activity_list(
         org_id, limit=limit, offset=offset)
     if not include_hidden_activity:
-        activity_tuple_objects = _filter_activity_tuples_by_user(
-            _activity_tuple_objects, _activity_stream_get_filtered_users())
+        activity_objects = _filter_activity_by_user(
+            _activity_objects, _activity_stream_get_filtered_users())
     else:
-        activity_tuple_objects = _activity_tuple_objects
+        activity_objects = _activity_objects
 
     return model_dictize.activity_list_dictize(
-        activity_tuple_objects, context,
+        activity_objects, context,
         include_data=data_dict['include_data'])
 
 
@@ -2668,15 +2667,15 @@ def recently_changed_packages_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    _activity_tuple_objects = \
+    _activity_objects = \
         model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
-    activity_tuple_objects = _filter_activity_tuples_by_user(
-        _activity_tuple_objects,
+    activity_objects = _filter_activity_by_user(
+        _activity_objects,
         _activity_stream_get_filtered_users())
 
-    return model_dictize.packages_activity_list_dictize(
-        activity_tuple_objects, context,
+    return model_dictize.activity_list_dictize(
+        activity_objects, context,
         include_data=data_dict['include_data'])
 
 
@@ -3206,7 +3205,7 @@ def dashboard_activity_list(context, data_dict):
     _activity_tuple_objects = model.activity.dashboard_activity_list(
         user_id, limit=limit, offset=offset)
 
-    activity_tuple_list = _filter_activity_tuples_by_user(
+    activity_tuple_list = _filter_activity_by_user(
         _activity_tuple_objects, _activity_stream_get_filtered_users())
     activity_dicts = model_dictize.activity_list_dictize(
         activity_tuple_list, context)

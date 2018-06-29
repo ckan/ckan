@@ -6,21 +6,16 @@
 
 {% macro dataset(activity) %}
 <span class="dataset">
-  {% if activity.package %}
-    {{ h.dataset_link(activity.package) }}
-  {% else %}
-    {# For the unlikely event that the dataset is now private, or purged from the db #}
-    {{ _('unknown') }}
-  {% endif %}
+  {{ h.link_to(activity.data.package.title if activity.data.package else _('unknown'),
+               h.url_for(controller='package', action='read', id=activity.object_id)) }}
+               {# object_id because the object_name may be out of date) #}
 </span>
 {% endmacro %}
 
 {% macro organization(activity) %}
-  {% if activity.organization %}
-    {{ h.organization_link(activity.organization) }}
-  {% else %}
-    {{ _('unknown') }}
-  {% endif %}
+  {{ h.link_to(activity.data.group.title if activity.data.group else _('unknown'),
+               h.url_for(controller='organization', action='read', id=activity.object_id)) }}
+               {# object_id because the object_name may be out of date) #}
 {% endmacro %}
 
 {% macro user(activity) %}
@@ -31,11 +26,9 @@
 
 {% macro group(activity) %}
 <span class="group">
-  {% if activity.group %}
-    {{ h.group_link(activity.group) }}
-  {% else %}
-    {{ _('unknown') }}
-  {% endif %}
+  {{ h.link_to(activity.data.group.title if activity.data.group else _('unknown'),
+               h.url_for(controller='group', action='read', id=activity.object_id)) }}
+               {# object_id because the object_name may be out of date) #}
 </span>
 {% endmacro %}
 

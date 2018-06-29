@@ -6,12 +6,16 @@
 
 {% macro dataset(activity) %}
 <span class="dataset">
-  {{ h.dataset_link(activity.data.package) }}
+  {{ h.link_to(activity.data.package.title if activity.data.package else _('unknown'),
+               h.url_for(controller='package', action='read', id=activity.object_id)) }}
+               {# object_id because the object_name may be out of date) #}
 </span>
 {% endmacro %}
 
 {% macro organization(activity) %}
-{{ h.organization_link(activity.data.group) }}
+  {{ h.link_to(activity.data.group.title if activity.data.group else _('unknown'),
+               h.url_for(controller='organization', action='read', id=activity.object_id)) }}
+               {# object_id because the object_name may be out of date) #}
 {% endmacro %}
 
 {% macro user(activity) %}
@@ -20,15 +24,11 @@
 </span>
 {% endmacro %}
 
-{% macro tag(activity) %}
-<span class="actor">
-  {{ h.tag_link(activity.data.tag) }}
-</span>
-{% endmacro %}
-
 {% macro group(activity) %}
 <span class="group">
-  {{ h.group_link(activity.data.group) }}
+  {{ h.link_to(activity.data.group.title if activity.data.group else _('unknown'),
+               h.url_for(controller='group', action='read', id=activity.object_id)) }}
+               {# object_id because the object_name may be out of date) #}
 </span>
 {% endmacro %}
 

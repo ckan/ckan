@@ -698,64 +698,23 @@ def vocabulary_list_dictize(vocabulary_list, context):
 def activity_dictize(activity, context, include_data=False):
     activity_dict = d.table_dictize(activity, context)
     if not include_data:
-        del activity_dict['data']
+        # delete all the date apart from the title field on each data object,
+        # because that is needed to display it in the activity stream
+        for obj_key in activity_dict['data'].keys():
+            obj_data = activity_dict['data'][obj_key]
+            if isinstance(obj_data, dict):
+                for key in obj_data.keys():
+                    if key != 'title':
+                        del obj_data[key]
+            else:
+                del activity_dict['data'][obj_key]
     return activity_dict
 
 
-def package_activity_list_dictize(activity_list, package_name, package_title,
-                                  context, include_data=False):
-    '''all the activities are to do with one specific package, given by
-    package_name/title'''
-    dictized_activity_list = []
-    for activity in activity_list:
-        dictized_activity = activity_dictize(activity, context, include_data)
-        dictized_activity['package'] = dict(
-            id=dictized_activity['object_id'],
-            name=package_name, title=package_title)
-        dictized_activity['object_type'] = 'package'
-        dictized_activity_list.append(dictized_activity)
-    return dictized_activity_list
-
-
-def packages_activity_list_dictize(activity_tuple_list, context,
-                                   include_data=False):
-    dictized_activity_list = []
-    for activity, package_name, package_title in activity_tuple_list:
-        dictized_activity = activity_dictize(activity, context, include_data)
-        dictized_activity['package'] = dict(
-            id=dictized_activity['object_id'],
-            name=package_name, title=package_title)
-        dictized_activity['object_type'] = 'package'
-        dictized_activity_list.append(dictized_activity)
-    return dictized_activity_list
-
-
-def activity_list_dictize(activity_tuple_list, context,
+def activity_list_dictize(activity_list, context,
                           include_data=False):
-    dictized_activity_list = []
-    for activity, group_name, group_title, is_org, \
-            package_name, package_title in activity_tuple_list:
-        dictized_activity = activity_dictize(activity, context, include_data)
-        if group_name and is_org:
-            dictized_activity['organization'] = dict(
-                id=dictized_activity['object_id'],
-                name=group_name, title=group_title)
-            dictized_activity['object_type'] = 'organization'
-        elif group_name:
-            dictized_activity['group'] = dict(
-                id=dictized_activity['object_id'],
-                name=group_name, title=group_title)
-            dictized_activity['object_type'] = 'group'
-        elif package_name:
-            dictized_activity['package'] = dict(
-                id=dictized_activity['object_id'],
-                name=package_name, title=package_title)
-            dictized_activity['object_type'] = 'package'
-        # we don't add in a user dict, since for privacy reasons we don't
-        # want to expose any more user info on the API, and the template
-        # queries the db for it anyway (since it needs a number of properties)
-        dictized_activity_list.append(dictized_activity)
-    return dictized_activity_list
+    return [activity_dictize(activity, context, include_data)
+            for activity in activity_list]
 
 
 def activity_detail_dictize(activity_detail, context):
