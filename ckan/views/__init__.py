@@ -179,3 +179,12 @@ def _get_user_for_apikey():
     query = model.Session.query(model.User)
     user = query.filter_by(apikey=apikey).first()
     return user
+
+
+def set_controller_and_action():
+    try:
+        controller, action = request.endpoint.split('.')
+    except ValueError:
+        log.debug('Endpoint does not contain dot: {}'.format(request.endpoint))
+        controller = action = request.endpoint
+    g.controller, g.action = controller, action

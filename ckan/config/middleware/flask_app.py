@@ -32,6 +32,7 @@ from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
+                        set_controller_and_action
                         )
 
 
@@ -278,6 +279,10 @@ def ckan_before_request():
     # Identify the user from the repoze cookie or the API header
     # Sets g.user and g.userobj
     identify_user()
+
+    # Provide g.controller and g.action for backward compatibility
+    # with extensions
+    set_controller_and_action()
 
 
 def ckan_after_request(response):
