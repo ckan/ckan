@@ -378,6 +378,10 @@ def ckan_before_request():
 
     return response
 
+    # Provide g.controller and g.action for backward compatibility
+    # with extensions
+    set_controller_and_action()
+
 
 def ckan_after_request(response):
     u'''Common handler executed after all Flask requests'''
