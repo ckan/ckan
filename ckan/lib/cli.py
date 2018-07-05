@@ -339,10 +339,6 @@ class ManageDb(CkanCommand):
                                      search index
     db upgrade [version no.]       - Data migrate
     db version                     - returns current version of data schema
-    db dump FILE_PATH              - dump to a pg_dump file [DEPRECATED]
-    db load FILE_PATH              - load a pg_dump from a file [DEPRECATED]
-    db load-only FILE_PATH         - load a pg_dump from a file but don\'t do
-                                     the schema upgrade or search indexing [DEPRECATED]
     db create-from-model           - create database from the model (indexes not made)
     db migrate-filestore           - migrate all uploaded data from the 2.1 filesore.
     '''
@@ -384,12 +380,6 @@ class ManageDb(CkanCommand):
                 model.repo.upgrade_db()
         elif cmd == 'version':
             self.version()
-        elif cmd == 'dump':
-            self.dump()
-        elif cmd == 'load':
-            self.load()
-        elif cmd == 'load-only':
-            self.load(only_load=True)
         elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
@@ -398,79 +388,6 @@ class ManageDb(CkanCommand):
             self.migrate_filestore()
         else:
             error('Command %s not recognized' % cmd)
-
-    def _get_db_config(self):
-        return parse_db_config()
-
-    def _get_postgres_cmd(self, command):
-        self.db_details = self._get_db_config()
-        if self.db_details.get('db_type') not in ('postgres', 'postgresql'):
-            raise AssertionError('Expected postgres database - not %r' % self.db_details.get('db_type'))
-        pg_cmd = command
-        pg_cmd += ' -U %(db_user)s' % self.db_details
-        if self.db_details.get('db_pass') not in (None, ''):
-            pg_cmd = 'export PGPASSWORD=%(db_pass)s && ' % self.db_details + pg_cmd
-        if self.db_details.get('db_host') not in (None, ''):
-            pg_cmd += ' -h %(db_host)s' % self.db_details
-        if self.db_details.get('db_port') not in (None, ''):
-            pg_cmd += ' -p %(db_port)s' % self.db_details
-        return pg_cmd
-
-    def _get_psql_cmd(self):
-        psql_cmd = self._get_postgres_cmd('psql')
-        psql_cmd += ' -d %(db_name)s' % self.db_details
-        return psql_cmd
-
-    def _postgres_dump(self, filepath):
-        pg_dump_cmd = self._get_postgres_cmd('pg_dump')
-        pg_dump_cmd += ' %(db_name)s' % self.db_details
-        pg_dump_cmd += ' > %s' % filepath
-        self._run_cmd(pg_dump_cmd)
-        print('Dumped database to: %s' % filepath)
-
-    def _postgres_load(self, filepath):
-        import ckan.model as model
-        assert not model.repo.are_tables_created(), "Tables already found. You need to 'db clean' before a load."
-        pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
-        self._run_cmd(pg_cmd)
-        print('Loaded CKAN database: %s' % filepath)
-
-    def _run_cmd(self, command_line):
-        import subprocess
-        retcode = subprocess.call(command_line, shell=True)
-        if retcode != 0:
-            raise SystemError('Command exited with errorcode: %i' % retcode)
-
-    def dump(self):
-        deprecation_warning(u"Use PostgreSQL's pg_dump instead.")
-        if len(self.args) < 2:
-            print('Need pg_dump filepath')
-            return
-        dump_path = self.args[1]
-
-        psql_cmd = self._get_psql_cmd() + ' -f %s'
-        pg_cmd = self._postgres_dump(dump_path)
-
-    def load(self, only_load=False):
-        deprecation_warning(u"Use PostgreSQL's pg_restore instead.")
-        if len(self.args) < 2:
-            print('Need pg_dump filepath')
-            return
-        dump_path = self.args[1]
-
-        psql_cmd = self._get_psql_cmd() + ' -f %s'
-        pg_cmd = self._postgres_load(dump_path)
-        if not only_load:
-            print('Upgrading DB')
-            import ckan.model as model
-            model.repo.upgrade_db()
-
-            print('Rebuilding search index')
-            import ckan.lib.search
-            ckan.lib.search.rebuild()
-        else:
-            print('Now remember you have to call \'db upgrade\' and then \'search-index rebuild\'.')
-        print('Done')
 
     def migrate_filestore(self):
         from ckan.model import Session
@@ -2003,13 +1920,17 @@ class LessCommand(CkanCommand):
     def less(self):
         ''' Compile less files '''
         import subprocess
-        command = 'npm bin'
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        command = ('npm', 'bin')
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True)
         output = process.communicate()
         directory = output[0].strip()
         if not directory:
             raise error('Command "{}" returned nothing. Check that npm is '
-                        'installed.'.format(command))
+                        'installed.'.format(' '.join(command)))
         less_bin = os.path.join(directory, 'lessc')
 
         public = config.get(u'ckan.base_public_folder')
@@ -2033,9 +1954,12 @@ class LessCommand(CkanCommand):
         main_less = os.path.join(root, 'less', 'main.less')
         main_css = os.path.join(root, 'css', '%s.css' % color)
 
-        command = '%s %s %s' % (less_bin, main_less, main_css)
-
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        command = (less_bin, main_less, main_css)
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True)
         output = process.communicate()
         print(output)
 

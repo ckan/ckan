@@ -90,13 +90,6 @@ the database schema <db upgrade>` after the import.
 Once the import (and a potential upgrade) is complete you should :ref:`rebuild
 the search index <rebuild search index>`.
 
-.. note::
-
-    Earlier versions of CKAN offered the ``paster`` commands ``db dump`` and
-    ``db load``. These are still available but are deprecated in favor of
-    the native tools of PostgreSQL mentioned above. ``db dump`` and ``db load``
-    will be removed in future versions of CKAN.
-
 .. _pg_dump: https://www.postgresql.org/docs/current/static/app-pgdump.html
 .. _pg_restore: https://www.postgresql.org/docs/current/static/app-pgrestore.html
 
