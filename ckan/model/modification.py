@@ -5,9 +5,9 @@ import logging
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
 from ckan.lib.search import SearchIndexError
+from ckan.common import g
 
 import ckan.plugins as plugins
-from ckan.common import g
 import ckan.model as model
 
 domain_object = model.domain_object
@@ -93,6 +93,7 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 # UnmappedInstanceError - g.userobj is None or empty string.
                 except (AttributeError, UnmappedInstanceError):
                     pass
+
                 # Reraise, since it's pretty crucial to ckan if it can't index
                 # a dataset
                 raise

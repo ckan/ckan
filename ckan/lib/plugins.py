@@ -54,6 +54,7 @@ def lookup_package_plugin(package_type=None):
 
     If the package type is None or cannot be found in the mapping, then the
     fallback behaviour is used.
+
     """
     if package_type is None:
         return _default_package_plugin
@@ -91,18 +92,13 @@ def register_package_plugins(app):
     """
     global _default_package_plugin
 
-    # This function should have not effect if called more than once.
-    # This should not occur in normal deployment, but it may happen when
-    # running unit tests.
-    if _default_package_plugin is not None:
-        return
-    from ckan.views import dataset
-    from ckan.views import resource
+    from ckan.views.dataset import dataset, register_dataset_plugin_rules
+    from ckan.views.resource import resource, register_dataset_plugin_rules as dataset_resource_rules
 
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         if plugin.is_fallback():
-            if _default_package_plugin is not None:
+            if _default_package_plugin is not None and not isinstance(_default_package_plugin, DefaultDatasetForm):
                 raise ValueError("More than one fallback "
                                  "IDatasetForm has been registered")
             _default_package_plugin = plugin
@@ -111,18 +107,18 @@ def register_package_plugins(app):
             # package controller
             dataset_blueprint = Blueprint(
                 package_type,
-                dataset.dataset.import_name,
+                dataset.import_name,
                 url_prefix='/{}'.format(package_type),
                 url_defaults={'package_type': package_type})
-            dataset.register_dataset_plugin_rules(dataset_blueprint)
+            register_dataset_plugin_rules(dataset_blueprint)
             app.register_blueprint(dataset_blueprint)
 
             resource_blueprint = Blueprint(
                 u'{}_resource'.format(package_type),
-                resource.resource.import_name,
+                resource.import_name,
                 url_prefix=u'/{}/<id>/resource'.format(package_type),
                 url_defaults={u'package_type': package_type})
-            resource.register_dataset_plugin_rules(resource_blueprint)
+            dataset_resource_rules(resource_blueprint)
             app.register_blueprint(resource_blueprint)
 
             if package_type in _package_plugins:
@@ -132,6 +128,11 @@ def register_package_plugins(app):
             _package_plugins[package_type] = plugin
 
     # Setup the fallback behaviour if one hasn't been defined.
+    set_default_package_plugin()
+
+
+def set_default_package_plugin():
+    global _default_package_plugin
     if _default_package_plugin is None:
         _default_package_plugin = DefaultDatasetForm()
 
