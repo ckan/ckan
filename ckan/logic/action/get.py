@@ -1497,9 +1497,18 @@ def package_autocomplete(context, data_dict):
 
     '''
     _check_access('package_autocomplete', context, data_dict)
+    user = context.get('user')
 
     limit = data_dict.get('limit', 10)
     q = data_dict['q']
+
+    # enforce permission filter based on user
+    if context.get('ignore_auth') or (user and authz.is_sysadmin(user)):
+        labels = None
+    else:
+        labels = lib_plugins.get_permission_labels().get_user_dataset_labels(
+            context['auth_user_obj']
+        )
 
     data_dict = {
         'fq': '+capacity:public',
@@ -1513,7 +1522,8 @@ def package_autocomplete(context, data_dict):
         'rows': limit
     }
     query = search.query_for(model.Package)
-    results = query.run(data_dict)['results']
+
+    results = query.run(data_dict, permission_labels=labels)['results']
 
     q_lower = q.lower()
     pkg_list = []
