@@ -183,8 +183,8 @@ def _get_user_for_apikey():
 
 def set_controller_and_action():
     try:
-        controller, action = request.endpoint.split('.')
+        controller, action = request.endpoint.split(u'.')
     except ValueError:
-        log.debug('Endpoint does not contain dot: {}'.format(request.endpoint))
+        log.debug(u'Endpoint does not contain dot: {}'.format(request.endpoint))
         controller = action = request.endpoint
     g.controller, g.action = controller, action
