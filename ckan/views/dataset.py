@@ -1158,7 +1158,9 @@ def register_dataset_plugin_rules(blueprint):
     # use resource.CreateView directly here, because of circular import.
     blueprint.add_url_rule(
         u'/new_resource/<id>',
-        view_func=LazyView('ckan.views.resource.CreateView', str(u'new_resource'))
+        view_func=LazyView(
+            u'ckan.views.resource.CreateView', str(u'new_resource')
+        )
     )
 
 
