@@ -226,7 +226,8 @@ class GroupController(base.BaseController):
             abort(404, _('Group not found'))
 
         # if the user specified a group id, redirect to the group name
-        if data_dict['id'] == c.group_dict['id']:
+        if data_dict['id'] == c.group_dict['id'] and \
+                data_dict['id'] != c.group_dict['name']:
             h.redirect_to(controller=group_type, action='read',
                           id=c.group_dict['name'])
 

@@ -199,7 +199,7 @@ class TestGroupRead(helpers.FunctionalTestBase):
         assert_in(group['title'], response)
         assert_in(group['description'], response)
 
-    def test_read_redirect_when_given_id(self):
+    def test_redirect_when_given_id(self):
         group = factories.Group()
         app = helpers._get_test_app()
         response = app.get(url_for(controller='group', action='read',
@@ -210,6 +210,13 @@ class TestGroupRead(helpers.FunctionalTestBase):
         expected_url = url_for(controller='group', action='read',
                                id=group['name'])
         assert_equal(redirected_response.request.path, expected_url)
+
+    def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
+        group = factories.Group(id='abc', name='abc')
+        app = helpers._get_test_app()
+        app.get(url_for(controller='group', action='read',
+                        id=group['id']),
+                status=200)  # ie no redirect
 
 
 class TestGroupDelete(helpers.FunctionalTestBase):

@@ -103,14 +103,12 @@ class TestOrganizationRead(helpers.FunctionalTestBase):
                                id=org['name'])
         assert_equal(redirected_response.request.path, expected_url)
 
-    # def test_organization_read(self):
-    #     response = self.app.get(url=url_for(controller='organization',
-    #                                         action='read',
-    #                                         id=self.organization['id']),
-    #                             status=200,
-    #                             extra_environ=self.user_env)
-    #     assert_in(self.organization['title'], response)
-    #     assert_in(self.organization['description'], response)
+    def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
+        org = factories.Organization(id='abc', name='abc')
+        app = helpers._get_test_app()
+        app.get(url_for(controller='organization', action='read',
+                        id=org['id']),
+                status=200)  # ie no redirect
 
 
 class TestOrganizationEdit(helpers.FunctionalTestBase):

@@ -13,6 +13,7 @@ from ckan.lib.helpers import url_for
 
 import ckan.model as model
 import ckan.plugins as p
+from ckan.logic import get_action
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -563,7 +564,7 @@ class TestPackageRead(helpers.FunctionalTestBase):
         response.mustcontain('Test Dataset')
         response.mustcontain('Just another test dataset')
 
-    def test_read_redirect_when_given_id(self):
+    def test_redirect_when_given_id(self):
         dataset = factories.Dataset()
         app = helpers._get_test_app()
         response = app.get(url_for(controller='package', action='read',
@@ -574,6 +575,13 @@ class TestPackageRead(helpers.FunctionalTestBase):
         expected_url = url_for(controller='package', action='read',
                                id=dataset['name'])
         assert_equal(redirected_response.request.path, expected_url)
+
+    def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
+        dataset = factories.Dataset(id='abc', name='abc')
+        app = helpers._get_test_app()
+        app.get(url_for(controller='package', action='read',
+                        id=dataset['id']),
+                status=200)  # ie no redirect
 
     def test_organization_members_can_read_private_datasets(self):
         members = {

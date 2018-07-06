@@ -389,7 +389,8 @@ class PackageController(base.BaseController):
             abort(404, _('Dataset not found'))
 
         # if the user specified a package id, redirect to the package name
-        if data_dict['id'] == c.pkg_dict['id']:
+        if data_dict['id'] == c.pkg_dict['id'] and \
+                data_dict['id'] != c.pkg_dict['name']:
             h.redirect_to(controller='package', action='read',
                           id=c.pkg_dict['name'])
 
