@@ -225,8 +225,9 @@ class TestDashboard(object):
         assert activity['object_id'] == \
             ckan.model.Package.get('warandpeace').id
 
-        # new_user can't access the data of changes made by another user
-        assert not 'data' in activity
+        # new_user can't access the detail of the data of changes made by
+        # another user - they can only see the titles
+        assert activity['data'] == {'package': {'title': 'A Wonderful Story'}}
 
     def test_04_activities_from_followed_users(self):
         '''Activities from followed users should show in the dashboard.'''
@@ -250,8 +251,9 @@ class TestDashboard(object):
         assert activity['object_id'] == \
             ckan.model.Package.get('annas_new_dataset').id
 
-        # new_user can't access the data of changes made by another user
-        assert not 'data' in activity
+        # new_user can't access the detail of the data in changes made by
+        # another user - they can only see the titles
+        assert activity['data'] == {'package': {'title': 'annas_new_dataset'}}
 
     def test_04_activities_from_followed_groups(self):
         '''Activities from followed groups should show in the dashboard.'''
@@ -277,8 +279,9 @@ class TestDashboard(object):
         assert activity['object_id'] == \
             ckan.model.Group.get('roger').id
 
-        # new_user can't access the data of changes made by another user
-        assert not 'data' in activity
+        # new_user can't access the detail of the data in changes made by
+        # another user - they can only see the titles
+        assert activity['data'] == {'group': {'title': 'Roger\'s books'}}
 
     def test_04_activities_from_datasets_of_followed_groups(self):
         '''Activities from datasets of followed groups should show in the
@@ -306,8 +309,9 @@ class TestDashboard(object):
         assert activity['object_id'] == \
             ckan.model.Package.get('annakarenina').id
 
-        # new_user can't access the data of changes made by another user
-        assert not 'data' in activity
+        # new_user can't access the detail of the data of changes made by
+        # another user - they can only see the titles
+        assert activity['data'] == {'package': {'title': 'A Novel By Tolstoy'}}
 
     def test_05_new_activities_count(self):
         '''Test that new activities from objects that a user follows increase
