@@ -22,16 +22,13 @@ class TestGroupController(helpers.FunctionalTestBase):
 
     def test_bulk_process_throws_404_for_nonexistent_org(self):
         app = self._get_test_app()
-        bulk_process_url = url_for(controller='organization',
-                                   action='bulk_process', id='does-not-exist')
+        bulk_process_url = url_for('organization.bulk_process', id='does-not-exist')
         app.get(url=bulk_process_url, status=404)
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self):
         orgs = [factories.Organization() for _ in range(35)]
         app = self._get_test_app()
-        org_url = url_for(controller='organization',
-                          action='index',
-                          sort='name desc')
+        org_url = url_for('organization.index', sort='name desc')
         response = app.get(url=org_url)
         assert orgs[-1]['name'] in response
         assert orgs[0]['name'] not in response
