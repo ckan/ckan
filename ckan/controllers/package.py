@@ -388,12 +388,6 @@ class PackageController(base.BaseController):
         except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
 
-        # if the user specified a package id, redirect to the package name
-        if data_dict['id'] == c.pkg_dict['id'] and \
-                data_dict['id'] != c.pkg_dict['name']:
-            h.redirect_to(controller='package', action='read',
-                          id=c.pkg_dict['name'])
-
         # used by disqus plugin
         c.current_package_id = c.pkg.id
 
@@ -1198,7 +1192,6 @@ class PackageController(base.BaseController):
             package_dict = get_action('package_show')(context, data_dict)
             h.flash_success(_("You are now following {0}").format(
                 package_dict['title']))
-            id = package_dict['name']
         except ValidationError as e:
             error_message = (e.message or e.error_summary
                              or e.error_dict)
@@ -1218,7 +1211,6 @@ class PackageController(base.BaseController):
             package_dict = get_action('package_show')(context, data_dict)
             h.flash_success(_("You are no longer following {0}").format(
                 package_dict['title']))
-            id = package_dict['name']
         except ValidationError as e:
             error_message = (e.message or e.error_summary
                              or e.error_dict)

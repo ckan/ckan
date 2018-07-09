@@ -834,6 +834,7 @@ def follow(package_type, id):
     try:
         get_action(u'follow_dataset')(context, data_dict)
         package_dict = get_action(u'package_show')(context, data_dict)
+        id = package_dict['name']
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
@@ -860,6 +861,7 @@ def unfollow(package_type, id):
     try:
         get_action(u'unfollow_dataset')(context, data_dict)
         package_dict = get_action(u'package_show')(context, data_dict)
+        id = package_dict['name']
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
