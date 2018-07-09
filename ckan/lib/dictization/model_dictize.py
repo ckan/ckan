@@ -109,8 +109,7 @@ def resource_dictize(res, context):
     ## in the frontend. Without for_edit the whole qualified url is returned.
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
         cleaned_name = munge.munge_filename(url)
-        resource['url'] = h.url_for(controller='package',
-                                    action='resource_download',
+        resource['url'] = h.url_for('resource.download',
                                     id=resource['package_id'],
                                     resource_id=res.id,
                                     filename=cleaned_name,
@@ -764,4 +763,3 @@ def resource_view_list_dictize(resource_views, context):
     for view in resource_views:
         resource_view_dicts.append(resource_view_dictize(view, context))
     return resource_view_dicts
-

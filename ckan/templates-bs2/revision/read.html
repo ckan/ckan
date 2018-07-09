@@ -66,7 +66,7 @@
       <ul>
         {% for pkg in c.packages %}
           <li>
-            {{ h.link_to(pkg.name, h.url_for(controller='package', action='read', id=pkg.name)) }}
+            {{ h.link_to(pkg.name, h.url_for('dataset.read', id=pkg.name)) }}
           </li>
         {% endfor %}
       </ul>
@@ -75,7 +75,7 @@
       <ul>
         {% for pkgtag in c.pkgtags %}
           <li>
-            Dataset - {{ h.link_to(pkgtag.package.name, h.url_for(controller='package', action='read', id=pkgtag.package.name)) }},
+            Dataset - {{ h.link_to(pkgtag.package.name, h.url_for('dataset.read', id=pkgtag.package.name)) }},
             Tag - {{ h.link_to(pkgtag.tag.name, h.url_for(controller='tag', action='read', id=pkgtag.tag.name)) }}
           </li>
         {% endfor %}

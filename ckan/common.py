@@ -24,6 +24,8 @@ from pylons import response
 
 import simplejson as json
 
+current_app = flask.current_app
+
 try:
     from collections import OrderedDict  # from python 2.7
 except ImportError:

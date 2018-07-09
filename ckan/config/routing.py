@@ -12,7 +12,7 @@ import re
 from routes.mapper import SubMapper, Mapper as _Mapper
 
 import ckan.plugins as p
-from ckan.common import config
+from ckan.common import config, current_app
 
 named_routes = {}
 
@@ -86,7 +86,7 @@ def make_map():
     OPTIONS = dict(method=['OPTIONS'])
 
     import ckan.lib.plugins as lib_plugins
-    lib_plugins.reset_package_plugins()
+    lib_plugins.reset_group_plugins()
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
@@ -147,79 +147,6 @@ def make_map():
     map.redirect('/packages/{url:.*}', '/dataset/{url}')
     map.redirect('/package', '/dataset')
     map.redirect('/package/{url:.*}', '/dataset/{url}')
-
-    with SubMapper(map, controller='package') as m:
-        m.connect('search', '/dataset', action='search',
-                  highlight_actions='index search')
-        m.connect('dataset_new', '/dataset/new', action='new')
-        m.connect('/dataset/{action}',
-                  requirements=dict(action='|'.join([
-                      'list',
-                      'autocomplete',
-                      'search'
-                  ])))
-
-        m.connect('/dataset/{action}/{id}/{revision}', action='read_ajax',
-                  requirements=dict(action='|'.join([
-                      'read',
-                      'edit',
-                      'history',
-                  ])))
-        m.connect('/dataset/{action}/{id}',
-                  requirements=dict(action='|'.join([
-                      'new_resource',
-                      'history',
-                      'read_ajax',
-                      'history_ajax',
-                      'follow',
-                      'activity',
-                      'groups',
-                      'unfollow',
-                      'delete',
-                      'api_data',
-                  ])))
-        m.connect('dataset_edit', '/dataset/edit/{id}', action='edit',
-                  ckan_icon='pencil-square-o')
-        m.connect('dataset_followers', '/dataset/followers/{id}',
-                  action='followers', ckan_icon='users')
-        m.connect('dataset_activity', '/dataset/activity/{id}',
-                  action='activity', ckan_icon='clock-o')
-        m.connect('/dataset/activity/{id}/{offset}', action='activity')
-        m.connect('dataset_groups', '/dataset/groups/{id}',
-                  action='groups', ckan_icon='users')
-        m.connect('dataset_resources', '/dataset/resources/{id}',
-                  action='resources', ckan_icon='bars')
-        m.connect('dataset_read', '/dataset/{id}', action='read',
-                  ckan_icon='sitemap')
-        m.connect('/dataset/{id}/resource/{resource_id}',
-                  action='resource_read')
-        m.connect('/dataset/{id}/resource_delete/{resource_id}',
-                  action='resource_delete')
-        m.connect('resource_edit', '/dataset/{id}/resource_edit/{resource_id}',
-                  action='resource_edit', ckan_icon='pencil-square-o')
-        m.connect('/dataset/{id}/resource/{resource_id}/download',
-                  action='resource_download')
-        m.connect('/dataset/{id}/resource/{resource_id}/download/{filename}',
-                  action='resource_download')
-        m.connect('/dataset/{id}/resource/{resource_id}/embed',
-                  action='resource_embedded_dataviewer')
-        m.connect('/dataset/{id}/resource/{resource_id}/viewer',
-                  action='resource_embedded_dataviewer', width="960",
-                  height="800")
-        m.connect('/dataset/{id}/resource/{resource_id}/preview',
-                  action='resource_datapreview')
-        m.connect('views', '/dataset/{id}/resource/{resource_id}/views',
-                  action='resource_views', ckan_icon='bars')
-        m.connect('new_view', '/dataset/{id}/resource/{resource_id}/new_view',
-                  action='edit_view', ckan_icon='pencil-square-o')
-        m.connect('edit_view',
-                  '/dataset/{id}/resource/{resource_id}/edit_view/{view_id}',
-                  action='edit_view', ckan_icon='pencil-square-o')
-        m.connect('resource_view',
-                  '/dataset/{id}/resource/{resource_id}/view/{view_id}',
-                  action='resource_view')
-        m.connect('/dataset/{id}/resource/{resource_id}/view/',
-                  action='resource_view')
 
     # group
     map.redirect('/groups', '/group')
@@ -289,7 +216,8 @@ def make_map():
         m.connect('organization_bulk_process',
                   '/organization/bulk_process/{id}',
                   action='bulk_process', ckan_icon='sitemap')
-    lib_plugins.register_package_plugins(map)
+
+
     lib_plugins.register_group_plugins(map)
 
     # tags
