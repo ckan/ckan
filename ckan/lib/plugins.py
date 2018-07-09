@@ -5,8 +5,9 @@ import os
 import sys
 from importlib import import_module
 
-from ckan.common import c
-from ckan.lib import base
+from flask import Blueprint
+
+from ckan.common import c, g
 from ckan import logic
 import logic.schema
 from ckan import plugins
@@ -56,6 +57,7 @@ def lookup_package_plugin(package_type=None):
 
     If the package type is None or cannot be found in the mapping, then the
     fallback behaviour is used.
+
     """
     if package_type is None:
         return _default_package_plugin
@@ -90,7 +92,7 @@ def lookup_group_blueprints(group_type=None):
     return _group_blueprints.get(group_type)
 
 
-def register_package_plugins(map):
+def register_package_plugins(app):
     """
     Register the various IDatasetForm instances.
 
@@ -100,45 +102,52 @@ def register_package_plugins(map):
     """
     global _default_package_plugin
 
-    # This function should have not effect if called more than once.
-    # This should not occur in normal deployment, but it may happen when
-    # running unit tests.
-    if _default_package_plugin is not None:
-        return
+    from ckan.views.dataset import dataset, register_dataset_plugin_rules
+    from ckan.views.resource import resource, register_dataset_plugin_rules as dataset_resource_rules
 
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         if plugin.is_fallback():
-            if _default_package_plugin is not None:
+            if _default_package_plugin is not None and not isinstance(_default_package_plugin, DefaultDatasetForm):
                 raise ValueError("More than one fallback "
                                  "IDatasetForm has been registered")
             _default_package_plugin = plugin
-
         for package_type in plugin.package_types():
-            # Create a connection between the newly named type and the
-            # package controller
 
-            map.connect('%s_search' % package_type, '/%s' % package_type,
-                        controller='package', action='search')
+            if package_type == u'dataset':
+                # The default routes are registered with the core
+                # 'dataset' blueprint
+                continue
 
-            map.connect('%s_new' % package_type, '/%s/new' % package_type,
-                        controller='package', action='new')
-            map.connect('%s_read' % package_type, '/%s/{id}' % package_type,
-                        controller='package', action='read')
-
-            for action in ['edit', 'authz', 'history']:
-                map.connect('%s_%s' % (package_type, action),
-                            '/%s/%s/{id}' % (package_type, action),
-                            controller='package',
-                            action=action)
-
-            if package_type in _package_plugins:
+            elif package_type in _package_plugins:
                 raise ValueError("An existing IDatasetForm is "
                                  "already associated with the package type "
                                  "'%s'" % package_type)
+
             _package_plugins[package_type] = plugin
 
+            dataset_blueprint = Blueprint(
+                package_type,
+                dataset.import_name,
+                url_prefix='/{}'.format(package_type),
+                url_defaults={'package_type': package_type})
+            register_dataset_plugin_rules(dataset_blueprint)
+            app.register_blueprint(dataset_blueprint)
+
+            resource_blueprint = Blueprint(
+                u'{}_resource'.format(package_type),
+                resource.import_name,
+                url_prefix=u'/{}/<id>/resource'.format(package_type),
+                url_defaults={u'package_type': package_type})
+            dataset_resource_rules(resource_blueprint)
+            app.register_blueprint(resource_blueprint)
+
     # Setup the fallback behaviour if one hasn't been defined.
+    set_default_package_plugin()
+
+
+def set_default_package_plugin():
+    global _default_package_plugin
     if _default_package_plugin is None:
         _default_package_plugin = DefaultDatasetForm()
 
@@ -288,35 +297,15 @@ class DefaultDatasetForm(object):
         return ckan.logic.schema.default_show_package_schema()
 
     def setup_template_variables(self, context, data_dict):
-        authz_fn = logic.get_action('group_list_authz')
-        c.groups_authz = authz_fn(context, data_dict)
         data_dict.update({'available_only': True})
-
-        c.groups_available = authz_fn(context, data_dict)
-
-        c.licenses = [('', '')] + base.model.Package.get_license_options()
-        c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
-
-        if context.get('revision_id') or context.get('revision_date'):
-            if context.get('revision_id'):
-                rev = base.model.Session.query(base.model.Revision) \
-                                .filter_by(id=context['revision_id']) \
-                                .first()
-                c.revision_date = rev.timestamp if rev else '?'
-            else:
-                c.revision_date = context.get('revision_date')
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
-        pkg = context_pkg or c.pkg
+        pkg = context_pkg or getattr(g, 'pkg', None)
+
         if pkg:
-            try:
-                if not context_pkg:
-                    context['package'] = pkg
-                logic.check_access('package_change_state', context)
-                c.auth_for_change_state = True
-            except logic.NotAuthorized:
-                c.auth_for_change_state = False
+            if not context_pkg:
+                context['package'] = pkg
 
     def new_template(self):
         return 'package/new.html'

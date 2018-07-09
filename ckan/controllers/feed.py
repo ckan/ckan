@@ -401,8 +401,7 @@ class FeedController(base.BaseController):
 
             feed.add_item(
                 title=pkg.get('title', ''),
-                link=self.base_url + h.url_for(controller='package',
-                                               action='read',
+                link=self.base_url + h.url_for('dataset.read',
                                                id=pkg['id']),
                 description=pkg.get('notes', ''),
                 updated=h.date_str_to_datetime(pkg.get('metadata_modified')),
