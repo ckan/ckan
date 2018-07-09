@@ -1154,13 +1154,22 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/activity/<id>', view_func=activity)
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
 
-    # duplicate resource create for backward compatibility. Note, we cannot
-    # use resource.CreateView directly here, because of circular import.
+    # Duplicate resource create and edit for backward compatibility. Note,
+    # we cannot use resource.CreateView directly here, because of
+    # circular imports
     blueprint.add_url_rule(
         u'/new_resource/<id>',
         view_func=LazyView(
             u'ckan.views.resource.CreateView', str(u'new_resource')
         )
+    )
+
+    blueprint.add_url_rule(
+        u'/<id>/resource_edit/<resource_id>',
+        view_func=LazyView(
+            u'ckan.views.resource.EditView', str(u'edit_resource')
+        )
+
     )
 
 
