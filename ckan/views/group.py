@@ -144,7 +144,7 @@ def _guess_group_type(expecting_name=False):
     return gt
 
 
-def index(group_type='group', is_organization=False):
+def index(group_type, is_organization):
     page = h.get_page_number(request.params) or 1
     items_per_page = int(config.get(u'ckan.datasets_per_page', 20))
 
@@ -178,8 +178,8 @@ def index(group_type='group', is_organization=False):
             u'sort': sort_by,
             u'type': group_type or u'group',
         }
-        global_results = _action(u'group_list')(context,
-                                                data_dict_global_results)
+        global_results = _action(u'group_list', is_organization)(context,
+                                    data_dict_global_results)
     except ValidationError as e:
         if e.error_dict and e.error_dict.get(u'message'):
             msg = e.error_dict['message']
@@ -188,7 +188,7 @@ def index(group_type='group', is_organization=False):
         h.flash_error(msg)
         c.page = h.Page([], 0)
         return base.render(
-            _index_template(group_type), extra_vars={u'group_type': group_type})
+            _index_template(group_type, is_organization), extra_vars={u'group_type': group_type})
 
     data_dict_page_results = {
         u'all_fields': True,
@@ -395,8 +395,7 @@ def _url_for_this_controller(*args, **kw):
     return h.url_for(*args, **kw)
 
 
-def read(id=None, limit=20):
-    group_type = _guess_group_type()
+def read(group_type, is_organization, id=None, limit=20):
     context = {
         u'model': model,
         u'session': model.Session,
@@ -424,10 +423,9 @@ def read(id=None, limit=20):
         extra_vars={u'group_type': group_type})
 
 
-def activity(id, offset=0):
+def activity(id, group_type, is_organization, offset=0):
     u'''Render this group's public activity stream page.'''
 
-    group_type = _guess_group_type()
     context = {
         u'model': model,
         u'session': model.Session,
@@ -456,7 +454,7 @@ def activity(id, offset=0):
         _activity_template(group_type), extra_vars={u'group_type': group_type})
 
 
-def about(id, group_type='group', is_organization=False):
+def about(id, group_type, is_organization):
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     c.group_dict = _get_group_dict(id, group_type)
     group_type = c.group_dict['type']
@@ -465,7 +463,7 @@ def about(id, group_type='group', is_organization=False):
         _about_template(group_type), extra_vars={u'group_type': group_type})
 
 
-def members(id, group_type='group', is_organization=False):
+def members(id, group_type, is_organization):
     group_type = _guess_group_type()
 
     context = {u'model': model, u'session': model.Session, u'user': c.user}
@@ -489,7 +487,7 @@ def members(id, group_type='group', is_organization=False):
     return _render_template(u'group/members.html', group_type)
 
 
-def member_delete(id, group_type='group', is_organization=False):
+def member_delete(id, group_type, is_organization):
     if u'cancel' in request.params:
         return _redirect_to_this_controller(action=u'members', id=id)
 
@@ -519,7 +517,7 @@ def member_delete(id, group_type='group', is_organization=False):
     return _render_template(u'group/confirm_delete_member.html', group_type)
 
 
-def history(id, group_type='group', is_organization=False):
+def history(id, group_type, is_organization):
     if u'diff' in request.params or u'selected1' in request.params:
         try:
             params = {
@@ -596,7 +594,7 @@ def history(id, group_type='group', is_organization=False):
         _history_template(group_type), extra_vars={u'group_type': group_type})
 
 
-def follow(id, group_type='group', is_organization=False):
+def follow(id, group_type, is_organization):
     u'''Start following this group.'''
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     data_dict = {u'id': id}
@@ -613,7 +611,7 @@ def follow(id, group_type='group', is_organization=False):
     return h.redirect_to(u'group.read', id=id)
 
 
-def unfollow(id, group_type='group', is_organization=False):
+def unfollow(id, group_type, is_organization):
     u'''Stop following this group.'''
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     data_dict = {u'id': id}
@@ -631,7 +629,7 @@ def unfollow(id, group_type='group', is_organization=False):
     return h.redirect_to(u'group.read', id=id)
 
 
-def followers(id, group_type='group', is_organization=False):
+def followers(id, group_type, is_organization):
     group_type = _guess_group_type()
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     c.group_dict = _get_group_dict(id, group_type)
@@ -644,7 +642,7 @@ def followers(id, group_type='group', is_organization=False):
         u'group/followers.html', extra_vars={u'group_type': group_type})
 
 
-def admins(id, group_type='group', is_organization=False):
+def admins(id, group_type, is_organization):
     group_type = _guess_group_type()
     c.group_dict = _get_group_dict(id, group_type)
     c.admins = authz.get_group_or_org_admin_ids(id)
@@ -656,7 +654,7 @@ def admins(id, group_type='group', is_organization=False):
 class BulkProcessView(MethodView):
     u''' Bulk process view'''
 
-    def _prepare(self, id=None, group_type='group', is_organization=False):
+    def _prepare(self, group_type, id=None):
 
         # check we are org admin
 
@@ -670,8 +668,8 @@ class BulkProcessView(MethodView):
         }
         return context
 
-    def get(self, id, group_type='group', is_organization=False):
-        context = self._prepare(id)
+    def get(self, id, group_type, is_organization):
+        context = self._prepare(id, group_type)
         data_dict = {u'id': id, u'type': group_type}
         data_dict['include_datasets'] = False
         try:
@@ -693,7 +691,7 @@ class BulkProcessView(MethodView):
             _bulk_process_template(group_type),
             extra_vars={u'group_type': group_type})
 
-    def post(self, id, data=None, group_type='group', is_organization=False):
+    def post(self, id, group_type, is_organization, data=None):
         context = self._prepare()
         data_dict = {u'id': id, u'type': group_type}
         try:
@@ -778,12 +776,12 @@ class CreateGroupView(MethodView):
 
         return context
 
-    def post(self):
+    def post(self, group_type, is_organization):
         context = self._prepare()
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
-            data_dict['type'] = context['group_type'] or u'group'
+            data_dict['type'] = group_type or u'group'
             context['message'] = data_dict.get(u'log_message', u'')
             data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
             group = _action(u'group_create')(context, data_dict)
@@ -795,13 +793,12 @@ class CreateGroupView(MethodView):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
-            return self.get(data_dict, errors, error_summary)
+            return self.get(group_type, data_dict, errors, error_summary)
 
         return h.redirect_to(group['type'] + u'.read', id=group['name'])
 
-    def get(self, data=None, errors=None, error_summary=None):
+    def get(self, group_type, is_organization, data=None, errors=None, error_summary=None):
         context = self._prepare()
-
         data = data or {}
         if not data.get(u'image_url', u'').startswith(u'http'):
             data.pop(u'image_url', None)
@@ -812,27 +809,21 @@ class CreateGroupView(MethodView):
             u'errors': errors,
             u'error_summary': error_summary,
             u'action': u'new',
-            u'group_type': context['group_type']
+            u'group_type': group_type
         }
         _setup_template_variables(
-            context, data, group_type=context['group_type'])
+            context, data, group_type=group_type)
         c.form = base.render(
-            _group_form(group_type=context['group_type']), extra_vars=vars)
+            _group_form(group_type=group_type), extra_vars=vars)
         return base.render(
-            _new_template(context['group_type']),
-            extra_vars={u'group_type': context['group_type']})
+            _new_template(group_type),
+            extra_vars={u'group_type': group_type})
 
 
 class EditGroupView(MethodView):
     u''' Edit group view'''
 
     def _prepare(self, id, data=None):
-        if data and u'type' in data:
-            group_type = data['type']
-        else:
-            group_type = _guess_group_type()
-        if data:
-            data['type'] = group_type
         data_dict = {u'id': id, u'include_datasets': False}
 
         context = {
@@ -842,7 +833,6 @@ class EditGroupView(MethodView):
             u'save': u'save' in request.params,
             u'for_edit': True,
             u'parent': request.params.get(u'parent', None),
-            u'group_type': group_type,
             u'id': id
         }
 
@@ -856,9 +846,8 @@ class EditGroupView(MethodView):
 
         return context
 
-    def post(self, id=None):
+    def post(self, group_type, is_organization, id=None):
         context = self._prepare(id)
-        group_type = context['group_type']
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
@@ -876,12 +865,11 @@ class EditGroupView(MethodView):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
-            return self.get(id, data_dict, errors, error_summary)
+            return self.get(id, group_type, data_dict, errors, error_summary)
         return h.redirect_to(group['type'] + u'.read', id=group['name'])
 
-    def get(self, id, data=None, errors=None, error_summary=None):
+    def get(self, id, group_type, is_organization, data=None, errors=None, error_summary=None):
         context = self._prepare(id)
-        group_type = context['group_type']
         data_dict = {u'id': id, u'include_datasets': False}
         try:
             data_dict['include_datasets'] = False
@@ -911,12 +899,10 @@ class DeleteGroupView(MethodView):
     u'''Delete group view '''
 
     def _prepare(self, id=None):
-        group_type = _guess_group_type()
         context = {
             u'model': model,
             u'session': model.Session,
             u'user': c.user,
-            u'group_type': group_type
         }
         try:
             _check_access(u'group_delete', context, {u'id': id})
@@ -924,9 +910,8 @@ class DeleteGroupView(MethodView):
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
         return context
 
-    def post(self, id=None):
+    def post(self, group_type, is_organization, id=None):
         context = self._prepare(id)
-        group_type = context['group_type']
         try:
             _action(u'group_delete')(context, {u'id': id})
             if group_type == u'organization':
@@ -946,13 +931,11 @@ class DeleteGroupView(MethodView):
             return h.redirect_to(u'organization.read', id=id)
         return _redirect_to_this_controller(action=u'index')
 
-    def get(self, id=None):
+    def get(self, group_type, is_organization, id=None):
         context = self._prepare(id)
-        group_type = context['group_type']
         c.group_dict = _action(u'group_show')(context, {u'id': id})
         if u'cancel' in request.params:
             return _redirect_to_this_controller(action=u'edit', id=id)
-        group_type = context['group_type']
         return _render_template(u'group/confirm_delete.html', group_type)
 
 
@@ -960,12 +943,10 @@ class MembersGroupView(MethodView):
     u'''New members group view'''
 
     def _prepare(self, id=None):
-        group_type = _guess_group_type()
         context = {
             u'model': model,
             u'session': model.Session,
-            u'user': c.user,
-            u'group_type': group_type
+            u'user': c.user
         }
         try:
             _check_access(u'group_member_create', context, {u'id': id})
@@ -974,9 +955,8 @@ class MembersGroupView(MethodView):
 
         return context
 
-    def post(self, id=None):
+    def post(self, group_type, is_organization, id=None):
         context = self._prepare(id)
-        group_type = context['group_type']
         data_dict = clean_dict(
             dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
         data_dict['id'] = id
@@ -1004,9 +984,8 @@ class MembersGroupView(MethodView):
 
         return _redirect_to_this_controller(action=u'members', id=id)
 
-    def get(self, id=None):
+    def get(self, group_type, is_organization, id=None):
         context = self._prepare(id)
-        group_type = context['group_type']
         user = request.params.get(u'user')
         data_dict = {u'id': id}
         data_dict['include_datasets'] = False
@@ -1020,7 +999,7 @@ class MembersGroupView(MethodView):
                 authz.users_role_for_group_or_org(id, user) or u'member'
         else:
             c.user_role = u'member'
-        return _render_template(u'group/member_new.html', context['group_type'])
+        return _render_template(u'group/member_new.html', group_type)
 
 
 group = Blueprint(u'group', __name__, url_prefix=u'/group',
@@ -1037,7 +1016,7 @@ def register_group_plugin_rules(blueprint):
         u'member_delete', u'history', u'followers', u'follow',
         u'unfollow', u'admins', u'activity'
     ]
-    blueprint.add_url_rule(u'/', view_func=index, strict_slashes=False)
+    blueprint.add_url_rule(u'/', view_func=index, strict_slashes=True)
     blueprint.add_url_rule(
         u'/new',
         methods=[u'GET', u'POST'],
