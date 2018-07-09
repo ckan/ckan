@@ -1,10 +1,7 @@
 {% extends 'package/edit_base.html' %}
 
 {% block primary_content_inner %}
-  {% block form %}
-  {#- passing c to a snippet is bad but is required here
-      for backwards compatibility with old templates and
-      plugins using setup_template_variables() -#}
-  {{- h.snippet(form_snippet, c=c, **form_vars) -}}
+    {% block form %}
+	{{- h.snippet(form_snippet, pkg_dict=pkg_dict, **form_vars) -}}
   {% endblock %}
 {% endblock %}

@@ -1,11 +1,11 @@
-{% set action = 'edit_view' if is_edit else 'resource_read' %}
+{% set action = 'resource.edit_view' if is_edit else 'resource.read' %}
 
 {% if current_filters %}
-  {% set url = h.url_for(controller='package', action=action, id=pkg.name,
+  {% set url = h.url_for(action, id=pkg.name,
                          resource_id=view.resource_id, view_id=view.id,
                          filters=current_filters) %}
 {% else %}
-  {% set url = h.url_for(controller='package', action=action, id=pkg.name,
+  {% set url = h.url_for(action, id=pkg.name,
                          resource_id=view.resource_id, view_id=view.id) %}
 {% endif %}
 

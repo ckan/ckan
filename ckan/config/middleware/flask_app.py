@@ -27,6 +27,9 @@ from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.common import config, g, request, ungettext
 import ckan.lib.app_globals as app_globals
+import ckan.lib.plugins as lib_plugins
+
+
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
 from ckan.views import (identify_user,
@@ -177,6 +180,8 @@ def make_flask_stack(conf, **app_conf):
     for plugin in PluginImplementations(IBlueprint):
         if hasattr(plugin, 'get_blueprint'):
             app.register_extension_blueprint(plugin.get_blueprint())
+
+    lib_plugins.register_package_plugins(app)
 
     # Set flask routes in named_routes
     for rule in app.url_map.iter_rules():

@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block package_basic_fields_url %}
-  {% set prefix = h.url_for(controller='package', action='read', id='') %}
-  {% set domain = h.url_for(controller='package', action='read', id='', qualified=true) %}
+  {% set prefix = h.url_for('dataset.read', id='') %}
+  {% set domain = h.url_for('dataset.read', id='', qualified=true) %}
   {% set domain = domain|replace("http://", "")|replace("https://", "") %}
   {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>'} %}
 
