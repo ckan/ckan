@@ -35,6 +35,8 @@ lookup_group_plugin = lib_plugins.lookup_group_plugin
 lookup_group_controller = lib_plugins.lookup_group_controller
 lookup_group_blueprint = lib_plugins.lookup_group_blueprints
 
+is_org = False
+
 
 def _index_template(group_type):
     return lookup_group_plugin(group_type).index_template()
@@ -91,14 +93,14 @@ def _bulk_process_template(group_type):
     return lookup_group_plugin(group_type).bulk_process_template()
 
 
-def _replace_group_org(string, is_org=False):
+def _replace_group_org(string):
     u''' substitute organization for group if this is an org'''
     if is_org:
         return re.sub(u'^group', u'organization', string)
     return string
 
 
-def _action(action_name, is_org=False):
+def _action(action_name):
     u''' select the correct group/org action '''
     return get_action(_replace_group_org(action_name))
 
@@ -144,7 +146,13 @@ def _guess_group_type(expecting_name=False):
     return gt
 
 
+def set_org(is_organization):
+    global is_org
+    is_org = is_organization
+
+
 def index(group_type, is_organization):
+    set_org(is_organization)
     page = h.get_page_number(request.params) or 1
     items_per_page = int(config.get(u'ckan.datasets_per_page', 20))
 
@@ -178,8 +186,7 @@ def index(group_type, is_organization):
             u'sort': sort_by,
             u'type': group_type or u'group',
         }
-        global_results = _action(u'group_list', is_organization)(context,
-                                    data_dict_global_results)
+        global_results = _action(u'group_list')(context, data_dict_global_results)
     except ValidationError as e:
         if e.error_dict and e.error_dict.get(u'message'):
             msg = e.error_dict['message']
@@ -188,7 +195,7 @@ def index(group_type, is_organization):
         h.flash_error(msg)
         c.page = h.Page([], 0)
         return base.render(
-            _index_template(group_type, is_organization), extra_vars={u'group_type': group_type})
+            _index_template(group_type), extra_vars={u'group_type': group_type})
 
     data_dict_page_results = {
         u'all_fields': True,
@@ -396,6 +403,7 @@ def _url_for_this_controller(*args, **kw):
 
 
 def read(group_type, is_organization, id=None, limit=20):
+    set_org(is_organization)
     context = {
         u'model': model,
         u'session': model.Session,
@@ -425,7 +433,7 @@ def read(group_type, is_organization, id=None, limit=20):
 
 def activity(id, group_type, is_organization, offset=0):
     u'''Render this group's public activity stream page.'''
-
+    set_org(is_organization)
     context = {
         u'model': model,
         u'session': model.Session,
@@ -455,6 +463,7 @@ def activity(id, group_type, is_organization, offset=0):
 
 
 def about(id, group_type, is_organization):
+    set_org(is_organization)
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     c.group_dict = _get_group_dict(id, group_type)
     group_type = c.group_dict['type']
@@ -464,6 +473,7 @@ def about(id, group_type, is_organization):
 
 
 def members(id, group_type, is_organization):
+    set_org(is_organization)
     group_type = _guess_group_type()
 
     context = {u'model': model, u'session': model.Session, u'user': c.user}
@@ -488,6 +498,7 @@ def members(id, group_type, is_organization):
 
 
 def member_delete(id, group_type, is_organization):
+    set_org(is_organization)
     if u'cancel' in request.params:
         return _redirect_to_this_controller(action=u'members', id=id)
 
@@ -518,6 +529,7 @@ def member_delete(id, group_type, is_organization):
 
 
 def history(id, group_type, is_organization):
+    set_org(is_organization)
     if u'diff' in request.params or u'selected1' in request.params:
         try:
             params = {
@@ -596,6 +608,7 @@ def history(id, group_type, is_organization):
 
 def follow(id, group_type, is_organization):
     u'''Start following this group.'''
+    set_org(is_organization)
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     data_dict = {u'id': id}
     try:
@@ -613,6 +626,7 @@ def follow(id, group_type, is_organization):
 
 def unfollow(id, group_type, is_organization):
     u'''Stop following this group.'''
+    set_org(is_organization)
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     data_dict = {u'id': id}
     try:
@@ -630,7 +644,7 @@ def unfollow(id, group_type, is_organization):
 
 
 def followers(id, group_type, is_organization):
-    group_type = _guess_group_type()
+    set_org(is_organization)
     context = {u'model': model, u'session': model.Session, u'user': c.user}
     c.group_dict = _get_group_dict(id, group_type)
     try:
@@ -643,7 +657,7 @@ def followers(id, group_type, is_organization):
 
 
 def admins(id, group_type, is_organization):
-    group_type = _guess_group_type()
+    set_org(is_organization)
     c.group_dict = _get_group_dict(id, group_type)
     c.admins = authz.get_group_or_org_admin_ids(id)
     return base.render(
@@ -669,11 +683,12 @@ class BulkProcessView(MethodView):
         return context
 
     def get(self, id, group_type, is_organization):
-        context = self._prepare(id, group_type)
+        set_org(is_organization)
+        context = self._prepare(group_type, id)
         data_dict = {u'id': id, u'type': group_type}
         data_dict['include_datasets'] = False
         try:
-            c.group_dict = _action(u'group_show', is_organization)(context, data_dict)
+            c.group_dict = _action(u'group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
             base.abort(404, _(u'Group not found'))
@@ -692,7 +707,8 @@ class BulkProcessView(MethodView):
             extra_vars={u'group_type': group_type})
 
     def post(self, id, group_type, is_organization, data=None):
-        context = self._prepare()
+        set_org(is_organization)
+        context = self._prepare(group_type)
         data_dict = {u'id': id, u'type': group_type}
         try:
             check_access(u'bulk_update_public', context, {u'org_id': id})
@@ -777,6 +793,7 @@ class CreateGroupView(MethodView):
         return context
 
     def post(self, group_type, is_organization):
+        set_org(is_organization)
         context = self._prepare()
         try:
             data_dict = clean_dict(
@@ -793,11 +810,12 @@ class CreateGroupView(MethodView):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
-            return self.get(group_type, data_dict, errors, error_summary)
+            return self.get(group_type, is_organization, data_dict, errors, error_summary)
 
         return h.redirect_to(group['type'] + u'.read', id=group['name'])
 
     def get(self, group_type, is_organization, data=None, errors=None, error_summary=None):
+        set_org(is_organization)
         context = self._prepare()
         data = data or {}
         if not data.get(u'image_url', u'').startswith(u'http'):
@@ -823,7 +841,7 @@ class CreateGroupView(MethodView):
 class EditGroupView(MethodView):
     u''' Edit group view'''
 
-    def _prepare(self, id, data=None):
+    def _prepare(self, id, is_organization, data=None):
         data_dict = {u'id': id, u'include_datasets': False}
 
         context = {
@@ -847,7 +865,8 @@ class EditGroupView(MethodView):
         return context
 
     def post(self, group_type, is_organization, id=None):
-        context = self._prepare(id)
+        set_org(is_organization)
+        context = self._prepare(id, is_organization)
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
@@ -865,11 +884,12 @@ class EditGroupView(MethodView):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
-            return self.get(id, group_type, data_dict, errors, error_summary)
+            return self.get(id, group_type, is_organization, data_dict, errors, error_summary)
         return h.redirect_to(group['type'] + u'.read', id=group['name'])
 
     def get(self, id, group_type, is_organization, data=None, errors=None, error_summary=None):
-        context = self._prepare(id)
+        set_org(is_organization)
+        context = self._prepare(id, is_organization)
         data_dict = {u'id': id, u'include_datasets': False}
         try:
             data_dict['include_datasets'] = False
@@ -911,6 +931,7 @@ class DeleteGroupView(MethodView):
         return context
 
     def post(self, group_type, is_organization, id=None):
+        set_org(is_organization)
         context = self._prepare(id)
         try:
             _action(u'group_delete')(context, {u'id': id})
@@ -932,6 +953,7 @@ class DeleteGroupView(MethodView):
         return _redirect_to_this_controller(action=u'index')
 
     def get(self, group_type, is_organization, id=None):
+        set_org(is_organization)
         context = self._prepare(id)
         c.group_dict = _action(u'group_show')(context, {u'id': id})
         if u'cancel' in request.params:
@@ -956,6 +978,7 @@ class MembersGroupView(MethodView):
         return context
 
     def post(self, group_type, is_organization, id=None):
+        set_org(is_organization)
         context = self._prepare(id)
         data_dict = clean_dict(
             dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
@@ -985,6 +1008,7 @@ class MembersGroupView(MethodView):
         return _redirect_to_this_controller(action=u'members', id=id)
 
     def get(self, group_type, is_organization, id=None):
+        set_org(is_organization)
         context = self._prepare(id)
         user = request.params.get(u'user')
         data_dict = {u'id': id}
