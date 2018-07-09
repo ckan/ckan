@@ -22,6 +22,7 @@ from ckan.controllers.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.render import TemplateNotFound
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
+from ckan.views import LazyView
 from ckan.views.api import CONTENT_TYPES
 
 NotFound = logic.NotFound
@@ -1135,12 +1136,14 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/<id>', view_func=read)
     blueprint.add_url_rule(u'/resources/<id>', view_func=resources)
     blueprint.add_url_rule(
-        u'/edit/<id>', view_func=EditView.as_view(str(u'edit')))
+        u'/edit/<id>', view_func=EditView.as_view(str(u'edit'))
+    )
     blueprint.add_url_rule(
         u'/delete/<id>', view_func=DeleteView.as_view(str(u'delete'))
     )
     blueprint.add_url_rule(
-        u'/follow/<id>', view_func=follow, methods=(u'POST', ))
+        u'/follow/<id>', view_func=follow, methods=(u'POST', )
+    )
     blueprint.add_url_rule(
         u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', )
     )
@@ -1150,6 +1153,15 @@ def register_dataset_plugin_rules(blueprint):
     )
     blueprint.add_url_rule(u'/activity/<id>', view_func=activity)
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
+
+    # duplicate resource create for backward compatibility. Note, we cannot
+    # use resource.CreateView directly here, because of circular import.
+    blueprint.add_url_rule(
+        u'/new_resource/<id>',
+        view_func=LazyView(
+            u'ckan.views.resource.CreateView', str(u'new_resource')
+        )
+    )
 
 
 register_dataset_plugin_rules(dataset)

@@ -103,8 +103,19 @@ def register_package_plugins(app):
                                  "IDatasetForm has been registered")
             _default_package_plugin = plugin
         for package_type in plugin.package_types():
-            # Create a connection between the newly named type and the
-            # package controller
+
+            if package_type == u'dataset':
+                # The default routes are registered with the core
+                # 'dataset' blueprint
+                continue
+
+            elif package_type in _package_plugins:
+                raise ValueError("An existing IDatasetForm is "
+                                 "already associated with the package type "
+                                 "'%s'" % package_type)
+
+            _package_plugins[package_type] = plugin
+
             dataset_blueprint = Blueprint(
                 package_type,
                 dataset.import_name,
@@ -120,12 +131,6 @@ def register_package_plugins(app):
                 url_defaults={u'package_type': package_type})
             dataset_resource_rules(resource_blueprint)
             app.register_blueprint(resource_blueprint)
-
-            if package_type in _package_plugins:
-                raise ValueError("An existing IDatasetForm is "
-                                 "already associated with the package type "
-                                 "'%s'" % package_type)
-            _package_plugins[package_type] = plugin
 
     # Setup the fallback behaviour if one hasn't been defined.
     set_default_package_plugin()
