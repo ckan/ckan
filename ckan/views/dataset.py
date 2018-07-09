@@ -415,7 +415,7 @@ def read(package_type, id):
     # if the user specified a package id, redirect to the package name
     if data_dict['id'] == pkg_dict['id'] and \
             data_dict['id'] != pkg_dict['name']:
-        return h.redirect_to('dataset.read',
+        return h.redirect_to(u'dataset.read',
                              id=pkg_dict['name'])
 
     # can the resources be previewed?
