@@ -167,11 +167,12 @@ def register_group_plugins(app):
         except AttributeError:
             group_controller = 'group'
 
+        if hasattr(plugin, 'is_organization'):
+            is_organization = plugin.is_organization
+        else:
+            is_organization = group_controller == 'organization'
+
         if plugin.is_fallback():
-            if hasattr(plugin, 'is_organization'):
-                is_organization = plugin.is_organization
-            else:
-                is_organization = group_controller == 'organization'
 
             if is_organization:
                 if _default_organization_plugin is not None and \
@@ -204,7 +205,7 @@ def register_group_plugins(app):
                                       group.import_name,
                                       url_prefix='/{}'.format(group_type),
                                       url_defaults={u'group_type': group_type,
-                                                    u'is_organization': False})
+                                                    u'is_organization': is_organization})
                 register_group_plugin_rules(blueprint)
                 app.register_blueprint(blueprint)
 
