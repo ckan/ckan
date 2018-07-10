@@ -1027,11 +1027,11 @@ class MembersGroupView(MethodView):
 
 
 group = Blueprint(u'group', __name__, url_prefix=u'/group',
-                  url_defaults={u'group_type': 'group',
+                  url_defaults={u'group_type': u'group',
                                 u'is_organization': False})
 organization = Blueprint(u'organization', __name__,
                          url_prefix=u'/organization',
-                         url_defaults={u'group_type': 'organization',
+                         url_defaults={u'group_type': u'organization',
                                        u'is_organization': True})
 
 

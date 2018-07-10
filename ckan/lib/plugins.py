@@ -226,22 +226,22 @@ def register_group_plugins(app):
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
 
-            if 'group' not in _group_controllers:
-                _group_controllers['group'] = 'group'
-            if 'organization' not in _group_controllers:
-                _group_controllers['organization'] = 'organization'
-
         set_default_group_plugin()
 
 
 def set_default_group_plugin():
     global _default_group_plugin
     global _default_organization_plugin
+    global _group_controllers
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
         _default_group_plugin = DefaultGroupForm()
     if _default_organization_plugin is None:
         _default_organization_plugin = DefaultOrganizationForm()
+    if 'group' not in _group_controllers:
+        _group_controllers['group'] = 'group'
+    if 'organization' not in _group_controllers:
+        _group_controllers['organization'] = 'organization'
 
 
 def plugin_validate(plugin, context, data_dict, schema, action):
