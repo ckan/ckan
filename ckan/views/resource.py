@@ -572,7 +572,7 @@ class EditResourceViewView(MethodView):
         try:
             check_access(u'resource_update', context, {u'id': resource_id})
         except NotAuthorized:
-            return bgase.abort(
+            return base.abort(
                 403,
                 _(u'User %r not authorized to edit %s') % (g.user, id)
             )
