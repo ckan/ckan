@@ -12,7 +12,7 @@ v.2.9.0 TBA
 
 Deprecations:
  * ``c.action`` and ``c.controller`` variables should be avoided.
-   Refer to either ``request.enpoint`` (generally it will be string in format
+   Refer to either ``request.endpoint`` (generally it will be string in format
    ``BLUEPRINT_NAME.VIEW_NAME``, where blueprint is an alternative of
    controller and view is an alternative of action) or ``request.url_rule``
    (which is object with additional information about current rule).
