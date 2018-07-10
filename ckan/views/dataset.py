@@ -528,9 +528,9 @@ class CreateView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
-                exc_str = unicode(repr(e.args))
+                exc_str = text_type(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = unicode(str(e))
+                exc_str = text_type(str(e))
             return base.abort(
                 500,
                 _(u'Unable to add package to search index.') + exc_str
@@ -660,9 +660,9 @@ class EditView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
-                exc_str = unicode(repr(e.args))
+                exc_str = text_type(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = unicode(str(e))
+                exc_str = text_type(str(e))
             return base.abort(
                 500,
                 _(u'Unable to update search index.') + exc_str
