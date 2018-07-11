@@ -202,6 +202,7 @@ def register_group_plugins(app):
             if group_type in (u'group', u'organization'):
                 # The default routes are registered with the core
                 # 'group' or 'organization' blueprint
+                _group_plugins[group_type] = plugin
                 continue
             elif group_type in _group_plugins:
                 raise ValueError("An existing IGroupForm is "
