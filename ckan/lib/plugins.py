@@ -198,33 +198,25 @@ def register_group_plugins(app):
                 _default_group_plugin = plugin
 
         for group_type in plugin.group_types():
-            # Create the routes based on group_type here, this will
-            # allow us to have top level objects that are actually
-            # Groups, but first we need to make sure we are not
-            # clobbering an existing domain
 
-            # Our version of routes doesn't allow the environ to be
-            # passed into the match call and so we have to set it on the
-            # map instead. This looks like a threading problem waiting
-            # to happen but it is executed sequentially from inside the
-            # routing setup
-
-            if group_type not in app.blueprints:
-                blueprint = Blueprint(group_type,
-                                      group.import_name,
-                                      url_prefix='/{}'.format(group_type),
-                                      url_defaults={u'group_type': group_type,
-                                                    u'is_organization': is_organization})
-                register_group_plugin_rules(blueprint)
-                app.register_blueprint(blueprint)
-
-            if group_type in _group_plugins:
+            if group_type in (u'group', u'organization'):
+                # The default routes are registered with the core
+                # 'group' or 'organization' blueprint
+                continue
+            elif group_type in _group_plugins:
                 raise ValueError("An existing IGroupForm is "
                                  "already associated with the group type "
                                  "'%s'" % group_type)
-
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
+
+            blueprint = Blueprint(group_type,
+                                  group.import_name,
+                                  url_prefix='/{}'.format(group_type),
+                                  url_defaults={u'group_type': group_type,
+                                                u'is_organization': is_organization})
+            register_group_plugin_rules(blueprint)
+            app.register_blueprint(blueprint)
 
         set_default_group_plugin()
 
