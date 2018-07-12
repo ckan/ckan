@@ -36,6 +36,8 @@ from ckan.logic.action import get_domain_object
 import ckan.model as model
 from ckan import ckan_nose_plugin
 from ckan.common import json
+import ckan.tests.helpers as helpers
+
 
 # evil hack as url_for is passed out
 url_for = h.url_for
@@ -238,7 +240,8 @@ class WsgiAppCase(BaseCase):
     # Either that, or this file got imported somehow before the tests started
     # running, meaning the pylonsapp wasn't setup yet (which is done in
     # pylons.test.py:begin())
-    app = paste.fixture.TestApp(wsgiapp)
+    # app = paste.fixture.TestApp(wsgiapp)
+    app = helpers._get_test_app()
 
 
 def config_abspath(file_path):
