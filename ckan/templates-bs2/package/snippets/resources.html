@@ -4,7 +4,7 @@ If no resources are provided then the module will not be displayed.
 
 pkg       - The package dict that owns the resources.
 active    - The id of the currently displayed resource.
-action    - The controller action to use (default: 'resource_read').
+action    - The resource action to use (default: 'read', meaning route 'resource.read').
 
 Example:
 
@@ -23,7 +23,7 @@ Example:
           <ul class="unstyled nav nav-simple">
             {% for resource in resources %}
               <li class="nav-item{{ ' active' if active == resource.id }}">
-                <a href="{{ h.url_for(controller='package', action=action or 'resource_read', id=pkg.name, resource_id=resource.id, inner_span=true, **({'activity_id': request.params['activity_id']} if 'activity_id' in request.params else {})) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
+                <a href="{{ h.url_for('resource.%s' % (action or 'read'), id=pkg.name, resource_id=resource.id, inner_span=true, **({'activity_id': request.params['activity_id']} if 'activity_id' in request.params else {})) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
               </li>
             {% endfor %}
           </ul>

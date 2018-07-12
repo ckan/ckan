@@ -71,17 +71,17 @@ Example
               <div class="panel-body">
                 <strong>{{ _('Query example (first 5 results)') }}</strong>
                 <p>
-                <code>{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}</code>
+                <code><a href="{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}" target="_blank" rel="nofollow">{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}</a></code>
                 </p>
 
                 <strong>{{ _('Query example (results containing \'jones\')') }}</strong>
                 <p>
-                <code>{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</code>
+                <code><a href="{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}" target="_blank" rel="nofollow">{{ h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</a></code>
                 </p>
 
                 <strong>{{ _('Query example (via SQL statement)') }}</strong>
                 <p>
-                <code>{{sql_example_url}}</code>
+                <code><a href="{{sql_example_url}}" target="_blank" rel="nofollow">{{ sql_example_url }}</a></code>
                 </p>
 
               </div>

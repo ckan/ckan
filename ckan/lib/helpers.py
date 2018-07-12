@@ -153,12 +153,12 @@ def redirect_to(*args, **kw):
         import ckan.plugins.toolkit as toolkit
 
         # Redirect to /dataset/my_dataset.
-        toolkit.redirect_to(controller='package', action='read',
+        toolkit.redirect_to('dataset.read',
                             id='my_dataset')
 
     Or, using a named route::
 
-        toolkit.redirect_to('dataset_read', id='changed')
+        toolkit.redirect_to('dataset.read', id='changed')
 
     If given a single string as argument, this redirects without url parsing
 
@@ -274,12 +274,12 @@ def url_for(*args, **kw):
 
     URLs built by Pylons use the Routes syntax::
 
-        url_for(controller='package', action='read', id='my_dataset')
+        url_for(controller='my_ctrl', action='my_action', id='my_dataset')
         # Returns '/dataset/my_dataset'
 
     Or, using a named route::
 
-        url_for('dataset_read', id='changed')
+        url_for('dataset.read', id='changed')
         # Returns '/dataset/changed'
 
     Use ``qualified=True`` for a fully qualified URL when targeting a Pylons
@@ -953,7 +953,8 @@ def default_group_type():
 
 
 @core_helper
-def get_facet_items_dict(facet, limit=None, exclude_active=False):
+def get_facet_items_dict(
+        facet, search_facets=None, limit=None, exclude_active=False):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
 
@@ -968,15 +969,19 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
 
     Arguments:
     facet -- the name of the facet to filter.
+    search_facets -- dict with search facets(c.search_facets in Pylons)
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
 
     '''
-    if not hasattr(c, u'search_facets') or not c.search_facets.get(
-                                               facet, {}).get(u'items'):
+    if search_facets is None:
+        search_facets = getattr(c, u'search_facets', None)
+
+    if not search_facets or not search_facets.get(
+            facet, {}).get('items'):
         return []
     facets = []
-    for facet_item in c.search_facets.get(facet)['items']:
+    for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
         if not (facet, facet_item['name']) in request.params.items():
@@ -995,7 +1000,7 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
 
 
 @core_helper
-def has_more_facets(facet, limit=None, exclude_active=False):
+def has_more_facets(facet, search_facets, limit=None, exclude_active=False):
     '''
     Returns True if there are more facet items for the given facet than the
     limit.
@@ -1006,12 +1011,13 @@ def has_more_facets(facet, limit=None, exclude_active=False):
 
     Arguments:
     facet -- the name of the facet to filter.
+    search_facets -- dict with search facets(c.search_facets in Pylons)
     limit -- the max. number of facet items.
     exclude_active -- only return unselected facets.
 
     '''
     facets = []
-    for facet_item in c.search_facets.get(facet)['items']:
+    for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
         if not (facet, facet_item['name']) in request.params.items():
@@ -1044,7 +1050,8 @@ def unselected_facet_items(facet, limit=10):
     limit -- the max. number of facet items to return.
 
     '''
-    return get_facet_items_dict(facet, limit=limit, exclude_active=True)
+    return get_facet_items_dict(
+        facet, c.search_facets, limit=limit, exclude_active=True)
 
 
 @core_helper
@@ -1082,7 +1089,7 @@ def _url_with_params(url, params):
 
 
 def _search_url(params):
-    url = url_for(controller='package', action='search')
+    url = url_for('dataset.search')
     return _url_with_params(url, params)
 
 
@@ -1594,7 +1601,7 @@ def dataset_link(package_or_package_dict):
     text = dataset_display_name(package_or_package_dict)
     return tags.link_to(
         text,
-        url_for(controller='package', action='read', id=name)
+        url_for('dataset.read', id=name)
     )
 
 
@@ -1618,8 +1625,7 @@ def resource_display_name(resource_dict):
 @core_helper
 def resource_link(resource_dict, package_id):
     text = resource_display_name(resource_dict)
-    url = url_for(controller='package',
-                  action='resource_read',
+    url = url_for('resource.read',
                   id=package_id,
                   resource_id=resource_dict['id'])
     return tags.link_to(text, url)
@@ -1777,9 +1783,9 @@ def _create_url_with_params(params=None, controller=None, action=None,
     ''' internal function for building urls with parameters. '''
 
     if not controller:
-        controller = c.controller
+        controller = getattr(c, 'controller', False) or request.blueprint
     if not action:
-        action = c.action
+        action = getattr(c, 'action', False) or request.endpoint.split('.')[1]
     if not extras:
         extras = {}
 
@@ -2201,7 +2207,7 @@ def resource_preview(resource, package):
     data_dict = {'resource': resource, 'package': package}
 
     if datapreview.get_preview_plugin(data_dict, return_first=True):
-        url = url_for(controller='package', action='resource_datapreview',
+        url = url_for('resource.datapreview',
                       resource_id=resource['id'], id=package['id'],
                       qualified=True)
     else:

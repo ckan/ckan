@@ -1,6 +1,6 @@
 {% extends "package/read_base.html" %}
 
-{% set pkg = c.pkg_dict %}
+{% set pkg = pkg_dict or c.pkg_dict %}
 
 {% block primary_content_inner %}
   {{ super() }}

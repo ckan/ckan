@@ -1267,10 +1267,25 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         '''
         logic.get_action('package_search')({}, dict(q='anything'))
 
-    def test_custom_schema_returned(self):
-        if not p.plugin_loaded('example_idatasetform'):
-            p.load('example_idatasetform')
+    def test_local_parameters_not_supported(self):
+        nose.tools.assert_raises(
+            SearchError,
+            helpers.call_action,
+            'package_search',
+            q='{!child of="content_type:parentDoc"}')
 
+
+class TestPackageAutocompleteWithDatasetForm(helpers.FunctionalTestBase):
+    @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'example_idatasetform'
+
+    @classmethod
+    def teardown_class(cls):
+        if p.plugin_loaded('example_idatasetform'):
+            p.unload('example_idatasetform')
+
+    def test_custom_schema_returned(self):
         dataset1 = factories.Dataset(custom_text='foo')
 
         query = helpers.call_action('package_search',
@@ -1279,13 +1294,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         eq(query['results'][0]['id'], dataset1['id'])
         eq(query['results'][0]['custom_text'], 'foo')
 
-        p.unload('example_idatasetform')
-
     def test_custom_schema_not_returned(self):
-
-        if not p.plugin_loaded('example_idatasetform'):
-            p.load('example_idatasetform')
-
         dataset1 = factories.Dataset(custom_text='foo')
 
         query = helpers.call_action('package_search',
@@ -1296,16 +1305,6 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         assert 'custom_text' not in query['results'][0]
         eq(query['results'][0]['extras'][0]['key'], 'custom_text')
         eq(query['results'][0]['extras'][0]['value'], 'foo')
-
-        p.unload('example_idatasetform')
-
-    def test_local_parameters_not_supported(self):
-
-        nose.tools.assert_raises(
-            SearchError,
-            helpers.call_action,
-            'package_search',
-            q='{!child of="content_type:parentDoc"}')
 
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
@@ -2149,6 +2148,9 @@ class TestFollow(helpers.FunctionalTestBase):
 
 
 class TestStatusShow(helpers.FunctionalTestBase):
+    @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'stats'
 
     def test_status_show(self):
 
