@@ -11,12 +11,12 @@ from ckan.tests.legacy import TestController, url_for, setup_test_search_index
 def scrape_search_results(response, object_type):
     assert object_type in ('dataset', 'group_dataset', 'group', 'user')
     if object_type is not 'group_dataset':
-        results = re.findall('href="/%s/%s_(\d\d)"' % (object_type, object_type),
-                             str(response))
+        results = re.findall('a href="/%s/%s_(\d\d)' % (object_type, object_type),
+                             str(response.body))
     else:
         object_type = 'dataset'
-        results = re.findall('href="/%s/%s_(\d\d)"' % (object_type, object_type),
-                             str(response))
+        results = re.findall('href="/%s/%s_(\d\d)' % (object_type, object_type),
+                             str(response.body))
     return results
 
 def test_scrape_user():
@@ -104,12 +104,12 @@ class TestPaginationGroup(TestController):
         res = self.app.get(url_for('group.index'))
         assert 'href="/group/?q=&amp;sort=&amp;page=2"' in res, res
         grp_numbers = scrape_search_results(res, 'group')
-        assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'], grp_numbers)
+        assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'], grp_numbers)
 
         res = self.app.get(url_for('group.index', page=2))
         assert 'href="/group/?q=&amp;sort=&amp;page=1"' in res
         grp_numbers = scrape_search_results(res, 'group')
-        assert_equal(['21'], grp_numbers)
+        assert_equal(['20', '21'], grp_numbers)
 
 class TestPaginationUsers(TestController):
     @classmethod

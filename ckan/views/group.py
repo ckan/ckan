@@ -186,7 +186,8 @@ def index(group_type, is_organization):
             u'sort': sort_by,
             u'type': group_type or u'group',
         }
-        global_results = _action(u'group_list')(context, data_dict_global_results)
+        global_results = _action(u'group_list')(context,
+                                                data_dict_global_results)
     except ValidationError as e:
         if e.error_dict and e.error_dict.get(u'message'):
             msg = e.error_dict['message']
@@ -195,7 +196,8 @@ def index(group_type, is_organization):
         h.flash_error(msg)
         c.page = h.Page([], 0)
         return base.render(
-            _index_template(group_type), extra_vars={u'group_type': group_type})
+            _index_template(group_type),
+            extra_vars={u'group_type': group_type})
 
     data_dict_page_results = {
         u'all_fields': True,
@@ -729,7 +731,9 @@ class BulkProcessView(MethodView):
 
         # use different form names so that ie7 can be detected
         form_names = set([
-            u"bulk_action.public", u"bulk_action.delete", u"bulk_action.private"
+            u"bulk_action.public",
+            u"bulk_action.delete",
+            u"bulk_action.private"
         ])
         actions_in_form = set(request.form.keys())
         actions = form_names.intersection(actions_in_form)
@@ -810,11 +814,13 @@ class CreateGroupView(MethodView):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
-            return self.get(group_type, is_organization, data_dict, errors, error_summary)
+            return self.get(group_type, is_organization,
+                            data_dict, errors, error_summary)
 
         return h.redirect_to(group['type'] + u'.read', id=group['name'])
 
-    def get(self, group_type, is_organization, data=None, errors=None, error_summary=None):
+    def get(self, group_type, is_organization,
+            data=None, errors=None, error_summary=None):
         set_org(is_organization)
         context = self._prepare()
         data = data or {}
@@ -884,10 +890,12 @@ class EditGroupView(MethodView):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
-            return self.get(id, group_type, is_organization, data_dict, errors, error_summary)
+            return self.get(id, group_type, is_organization,
+                            data_dict, errors, error_summary)
         return h.redirect_to(group['type'] + u'.read', id=group['name'])
 
-    def get(self, id, group_type, is_organization, data=None, errors=None, error_summary=None):
+    def get(self, id, group_type, is_organization,
+            data=None, errors=None, error_summary=None):
         set_org(is_organization)
         context = self._prepare(id, is_organization)
         data_dict = {u'id': id, u'include_datasets': False}
@@ -973,7 +981,8 @@ class MembersGroupView(MethodView):
         try:
             _check_access(u'group_member_create', context, {u'id': id})
         except NotAuthorized:
-            base.abort(403, _(u'Unauthorized to create group %s members') % u'')
+            base.abort(403,
+                       _(u'Unauthorized to create group %s members') % u'')
 
         return context
 
