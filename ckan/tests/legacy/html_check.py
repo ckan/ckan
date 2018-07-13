@@ -7,6 +7,7 @@ from six import string_types, text_type
 
 
 import paste.fixture
+import webtest
 
 
 class HtmlCheckMethods(object):

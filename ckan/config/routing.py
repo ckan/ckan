@@ -84,9 +84,6 @@ def make_map():
     PUT_POST_DELETE = dict(method=['PUT', 'POST', 'DELETE'])
     OPTIONS = dict(method=['OPTIONS'])
 
-    import ckan.lib.plugins as lib_plugins
-    lib_plugins.reset_group_plugins()
-
     map = Mapper(
         directory=config['pylons.paths']['controllers'],
         always_scan=config['debug'])
