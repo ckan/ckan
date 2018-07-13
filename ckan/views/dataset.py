@@ -412,6 +412,12 @@ def read(package_type, id):
     g.pkg_dict = pkg_dict
     g.pkg = pkg
 
+    # if the user specified a package id, redirect to the package name
+    if data_dict['id'] == pkg_dict['id'] and \
+            data_dict['id'] != pkg_dict['name']:
+        return h.redirect_to(u'dataset.read',
+                             id=pkg_dict['name'])
+
     # can the resources be previewed?
     for resource in pkg_dict[u'resources']:
         resource_views = get_action(u'resource_view_list')(
@@ -828,6 +834,7 @@ def follow(package_type, id):
     try:
         get_action(u'follow_dataset')(context, data_dict)
         package_dict = get_action(u'package_show')(context, data_dict)
+        id = package_dict['name']
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
@@ -854,6 +861,7 @@ def unfollow(package_type, id):
     try:
         get_action(u'unfollow_dataset')(context, data_dict)
         package_dict = get_action(u'package_show')(context, data_dict)
+        id = package_dict['name']
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)

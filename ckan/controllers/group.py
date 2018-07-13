@@ -225,6 +225,12 @@ class GroupController(base.BaseController):
         except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
 
+        # if the user specified a group id, redirect to the group name
+        if data_dict['id'] == c.group_dict['id'] and \
+                data_dict['id'] != c.group_dict['name']:
+            h.redirect_to(controller=group_type, action='read',
+                          id=c.group_dict['name'])
+
         self._read(id, limit, group_type)
         return render(self._read_template(c.group_dict['type']),
                       extra_vars={'group_type': group_type})
@@ -860,6 +866,7 @@ class GroupController(base.BaseController):
             group_dict = get_action('group_show')(context, data_dict)
             h.flash_success(_("You are now following {0}").format(
                 group_dict['title']))
+            id = group_dict['name']
         except ValidationError as e:
             error_message = (e.message or e.error_summary
                              or e.error_dict)
@@ -880,6 +887,7 @@ class GroupController(base.BaseController):
             group_dict = get_action('group_show')(context, data_dict)
             h.flash_success(_("You are no longer following {0}").format(
                 group_dict['title']))
+            id = group_dict['name']
         except ValidationError as e:
             error_message = (e.message or e.error_summary
                              or e.error_dict)
