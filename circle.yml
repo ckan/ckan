@@ -23,6 +23,7 @@ dependencies:
            && chmod +x ~/.local/bin/circleci-matrix"
 
     override:
+        - python --version ; pip --version
         - pip install -r requirement-setuptools.txt
         - pip install -r requirements.txt
         - pip install -r dev-requirements.txt
