@@ -99,6 +99,7 @@ jobs:
     - run: sudo -E -u postgres ./bin/postgres_init/2_create_ckan_datastore_db.sh
     - run: sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/datastore_default:pass@\/datastore_test/' test-core.ini
     - run: paster datastore -c test-core.ini set-permissions | sudo -u postgres psql
+    - run: ls /opt  # TODO: cclauss
     - run: cp -R /opt/solr-4.3.1 $SOLR_HOME
     - run:
         command: cd $SOLR_HOME/example; java -jar start.jar >> $HOME/solr.log
