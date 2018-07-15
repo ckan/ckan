@@ -1,0 +1,128 @@
+# This configuration was automatically generated from a CircleCI 1.0 config.
+# It should include any build commands you had along with commands that CircleCI
+# inferred from your project structure. We strongly recommend you read all the
+# comments in this file to understand the structure of CircleCI 2.0, as the idiom
+# for configuration has changed substantially in 2.0 to allow arbitrary jobs rather
+# than the prescribed lifecycle of 1.0. In general, we recommend using this generated
+# configuration as a reference rather than using it in production, though in most
+# cases it should duplicate the execution of your original 1.0 config.
+version: 2
+jobs:
+  build:
+    working_directory: ~/cclauss/ckan
+    parallelism: 1
+    shell: /bin/bash --login
+    # CircleCI 2.0 does not support environment variables that refer to each other the same way as 1.0 did.
+    # If any of these refer to each other, rewrite them so that they don't or see https://circleci.com/docs/2.0/env-vars/#interpolating-environment-variables-to-set-other-environment-variables .
+    environment:
+      CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+      CKAN_DATASTORE_POSTGRES_READ_USER: datastore_default
+      CKAN_POSTGRES_USER: ckan_default
+      CKAN_DATASTORE_POSTGRES_DB: datastore_test
+      CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
+      PIP_USE_MIRRORS: true
+      CKAN_DATASTORE_POSTGRES_READ_PWD: pass
+      SOLR_HOME: $HOME/solr
+      CKAN_POSTGRES_PWD: pass
+      CKAN_DATASTORE_POSTGRES_WRITE_USER: ckan_default
+      CKAN_POSTGRES_DB: ckan_test
+    # In CircleCI 1.0 we used a pre-configured image with a large number of languages and other packages.
+    # In CircleCI 2.0 you can now specify your own image, or use one of our pre-configured images.
+    # The following configuration line tells CircleCI to use the specified docker image as the runtime environment for you job.
+    # We have selected a pre-built image that mirrors the build environment we use on
+    # the 1.0 platform, but we recommend you choose an image more tailored to the needs
+    # of each job. For more information on choosing an image (or alternatively using a
+    # VM instead of a container) see https://circleci.com/docs/2.0/executor-types/
+    # To see the list of pre-built images that CircleCI provides for most common languages see
+    # https://circleci.com/docs/2.0/circleci-images/
+    docker:
+    - image: circleci/build-image:ubuntu-14.04-XXL-upstart-1189-5614f37
+      command: /sbin/init
+    steps:
+    # Machine Setup
+    #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
+    # The following `checkout` command checks out your code to your working directory. In 1.0 we did this implicitly. In 2.0 you can choose where in the course of a job your code should be checked out.
+    - checkout
+    # Prepare for artifact and test results  collection equivalent to how it was done on 1.0.
+    # In many cases you can simplify this from what is generated here.
+    # 'See docs on artifact collection here https://circleci.com/docs/2.0/artifacts/'
+    - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
+    # This is based on your 1.0 configuration file or project settings
+    - run:
+        working_directory: ~/cclauss/ckan
+        command: nvm install 0.10.33 && nvm alias default 0.10.33
+    # Dependencies
+    #   This would typically go in either a build or a build-and-test job when using workflows
+    # Restore the dependency cache
+    - restore_cache:
+        keys:
+        # This branch if available
+        - v1-dep-{{ .Branch }}-
+        # Default branch if not
+        - v1-dep-master-
+        # Any branch if there are none on the default branch - this should be unnecessary if you have your default branch configured correctly
+        - v1-dep-
+    # This is based on your 1.0 configuration file or project settings
+    - run: '[ -e ~/.local/bin/circleci-matrix ] || mkdir -p ~/.local/bin && curl -fsSL
+        https://raw.githubusercontent.com/michaelcontento/circleci-matrix/master/src/circleci-matrix.sh
+        -o ~/.local/bin/circleci-matrix && chmod +x ~/.local/bin/circleci-matrix'
+    # This is based on your 1.0 configuration file or project settings
+    - run: pip install -r requirement-setuptools.txt
+    - run: pip install -r requirements.txt
+    - run: pip install -r dev-requirements.txt
+    - run: python setup.py develop
+    # This is based on your 1.0 configuration file or project settings
+    - run: '[ -e ~/nvm/v0.10.33/lib/node_modules/mocha-phantomjs ] || npm install
+        -g mocha-phantomjs@3.5.0 phantomjs@~1.9.1'
+    # Save dependency cache
+    - save_cache:
+        key: v1-dep-{{ .Branch }}-{{ epoch }}
+        paths:
+        # This is a broad list of cache paths to include many possible development environments
+        # You can probably delete some of these entries
+        - vendor/bundle
+        - ~/virtualenvs
+        - ~/.m2
+        - ~/.ivy2
+        - ~/.bundle
+        - ~/.go_workspace
+        - ~/.gradle
+        - ~/.cache/bower
+        # These cache paths were specified in the 1.0 config
+        - ~/.local/bin/circleci-matrix
+        - ~/nvm/v0.10.33/lib/node_modules/mocha-phantomjs
+        - ~/nvm/v0.10.33/lib/node_modules/phantomjs
+        - ~/nvm/v0.10.33/bin/mocha-phantomjs
+        - ~/nvm/v0.10.33/bin/phantomjs
+    # This is based on your 1.0 configuration file or project settings
+    - run: sudo -E -u postgres ./bin/postgres_init/1_create_ckan_db.sh
+    - run: sudo -E -u postgres ./bin/postgres_init/2_create_ckan_datastore_db.sh
+    - run: sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/datastore_default:pass@\/datastore_test/' test-core.ini
+    - run: paster datastore -c test-core.ini set-permissions | sudo -u postgres psql
+    - run: cp -R /opt/solr-4.3.1 $SOLR_HOME
+    - run:
+        command: cd $SOLR_HOME/example; java -jar start.jar >> $HOME/solr.log
+        background: true
+    - run: while ! grep "Started" $HOME/solr.log; do sleep 0.1; done
+    - run: ./bin/solr_init/create_core.sh
+    - run: paster db init -c test-core.ini
+    # Test
+    #   This would typically be a build job when using workflows, possibly combined with build
+    # This is based on your 1.0 configuration file or project settings
+    - run: circleci-matrix
+    # This is based on your 1.0 configuration file or project settings
+    - run:
+        command: paster serve test-core.ini
+        background: true
+    - run: sleep 5
+    - run: mocha-phantomjs http://localhost:5000/base/test/index.html
+    # Teardown
+    #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
+    # Save test results
+    - store_test_results:
+        path: /tmp/circleci-test-results
+    # Save artifacts
+    - store_artifacts:
+        path: /tmp/circleci-artifacts
+    - store_artifacts:
+        path: /tmp/circleci-test-results
