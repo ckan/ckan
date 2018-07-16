@@ -9,12 +9,11 @@ from nose.tools import (
     assert_in
 )
 
-from mock import patch, MagicMock
 from ckan.lib.helpers import url_for
 
 import ckan.model as model
 import ckan.plugins as p
-from ckan.lib import search
+from ckan.logic import get_action
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -1655,7 +1654,8 @@ class TestPackageFollow(helpers.FunctionalTestBase):
                                id=package['id'])
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
-        unfollow_response = unfollow_response.follow()
+        unfollow_response = unfollow_response.follow()  # /package/[id] 302s to
+        unfollow_response = unfollow_response.follow()  # /package/[name]
 
         assert_true('You are not following {0}'.format(package['id'])
                     in unfollow_response)
@@ -1703,6 +1703,22 @@ class TestDatasetRead(helpers.FunctionalTestBase):
         dataset = factories.Dataset()
 
         url = url_for('dataset.read',
-                      id=dataset['id'])
+                      id=dataset['name'])
         response = app.get(url)
         assert_in(dataset['title'], response)
+
+    def test_redirect_when_given_id(self):
+        dataset = factories.Dataset()
+        app = helpers._get_test_app()
+        response = app.get(url_for('dataset.read', id=dataset['id']),
+                           status=302)
+        # redirect replaces the ID with the name in the URL
+        redirected_response = response.follow()
+        expected_url = url_for('dataset.read', id=dataset['name'])
+        assert_equal(redirected_response.request.path, expected_url)
+
+    def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
+        dataset = factories.Dataset(id='abc', name='abc')
+        app = helpers._get_test_app()
+        app.get(url_for('dataset.read', id=dataset['id']),
+                status=200)  # ie no redirect
