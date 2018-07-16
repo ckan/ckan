@@ -199,7 +199,8 @@ class TestGroupRead(helpers.FunctionalTestBase):
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
         group = factories.Group(id='abc', name='abc')
         app = helpers._get_test_app()
-        app.get(url_for('group.read', id=group['id']), status=200) # ie no redirect
+        # 200 == no redirect
+        app.get(url_for('group.read', id=group['id']), status=200)
 
 
 class TestGroupDelete(helpers.FunctionalTestBase):
@@ -671,7 +672,7 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="ds-three", title="Dataset Three",
                           groups=[{'id': grp['id']}])
 
-        grp_url = url_for('group', action='read', id=grp['name'])
+        grp_url = url_for('group.read', id=grp['name'])
         grp_response = app.get(grp_url)
         search_form = grp_response.forms['group-datasets-search-form']
         search_form['q'] = 'One'
