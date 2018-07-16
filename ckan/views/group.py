@@ -427,6 +427,12 @@ def read(group_type, is_organization, id=None, limit=20):
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
 
+    # if the user specified a group id, redirect to the group name
+    if data_dict['id'] == c.group_dict['id'] and \
+            data_dict['id'] != c.group_dict['name']:
+        return h.redirect_to(u'{}.read'.format(group_type),
+                             id=c.group_dict['name'])
+
     _read(id, limit, group_type)
     return base.render(
         _read_template(c.group_dict['type']),
@@ -618,6 +624,8 @@ def follow(id, group_type, is_organization):
         group_dict = get_action(u'group_show')(context, data_dict)
         h.flash_success(
             _(u"You are now following {0}").format(group_dict['title']))
+
+        id = group_dict['name']
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
@@ -636,6 +644,7 @@ def unfollow(id, group_type, is_organization):
         group_dict = get_action(u'group_show')(context, data_dict)
         h.flash_success(
             _(u"You are no longer following {0}").format(group_dict['title']))
+        id = group_dict['name']
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
