@@ -57,6 +57,8 @@ def _db_to_form_schema(group_type=None):
 
 
 def _setup_template_variables(context, data_dict, group_type=None):
+    if 'type' not in data_dict:
+        data_dict['type'] = group_type
     return lookup_group_plugin(group_type).\
         setup_template_variables(context, data_dict)
 
@@ -247,10 +249,10 @@ def _read(id, limit, group_type):
     g.q = q
 
     # Search within group
-    if g.group_dict.get(u'is_organization'):
-        q += u' owner_org:"%s"' % g.group_dict.get(u'id')
+    if c.group_dict.get(u'is_organization'):
+        fq = u' owner_org:"%s"' % g.group_dict.get(u'id')
     else:
-        q += u' groups:"%s"' % c.group_dict.get(u'name')
+        fq = u' groups:"%s"' % g.group_dict.get(u'name')
 
     extra_vars[u"q"] = q
 
@@ -342,7 +344,7 @@ def _read(id, limit, group_type):
 
         data_dict = {
             u'q': q,
-            u'fq': u'',
+            u'fq': fq,
             u'include_private': True,
             u'facet.field': facets.keys(),
             u'rows': limit,
@@ -441,6 +443,12 @@ def read(group_type, is_organization, id=None, limit=20):
         c.group = context['group']
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
+
+    # if the user specified a group id, redirect to the group name
+    if data_dict['id'] == c.group_dict['id'] and \
+            data_dict['id'] != c.group_dict['name']:
+        return h.redirect_to(u'{}.read'.format(group_type),
+                             id=c.group_dict['name'])
 
     _read(id, limit, group_type)
     return base.render(
@@ -633,6 +641,8 @@ def follow(id, group_type, is_organization):
         group_dict = get_action(u'group_show')(context, data_dict)
         h.flash_success(
             _(u"You are now following {0}").format(group_dict['title']))
+
+        id = group_dict['name']
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
@@ -651,6 +661,7 @@ def unfollow(id, group_type, is_organization):
         group_dict = get_action(u'group_show')(context, data_dict)
         h.flash_success(
             _(u"You are no longer following {0}").format(group_dict['title']))
+        id = group_dict['name']
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
@@ -1064,7 +1075,7 @@ def register_group_plugin_rules(blueprint):
         u'member_delete', u'history', u'followers', u'follow',
         u'unfollow', u'admins', u'activity'
     ]
-    blueprint.add_url_rule(u'/', view_func=index, strict_slashes=True)
+    blueprint.add_url_rule(u'/', view_func=index, strict_slashes=False)
     blueprint.add_url_rule(
         u'/new',
         methods=[u'GET', u'POST'],
