@@ -152,6 +152,7 @@ def set_org(is_organization):
 
 
 def index(group_type, is_organization):
+    extra_vars = {}
     set_org(is_organization)
     page = h.get_page_number(request.params) or 1
     items_per_page = int(config.get(u'ckan.datasets_per_page', 20))
@@ -170,14 +171,21 @@ def index(group_type, is_organization):
     except NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
-    q = c.q = request.params.get(u'q', u'')
-    sort_by = c.sort_by_selected = request.params.get(u'sort')
+    q = request.params.get(u'q', u'')
+    sort_by = request.params.get(u'sort')
+
+    # TODO: Remove
+    g.q = q
+    g.sort_by_selected = sort_by
+
+    extra_vars[u"q"] = q
+    extra_vars[u"sort_by"] = sort_by
 
     # pass user info to context as needed to view private datasets of
     # orgs correctly
-    if c.userobj:
-        context['user_id'] = c.userobj.id
-        context['user_is_admin'] = c.userobj.sysadmin
+    if g.userobj:
+        context['user_id'] = g.userobj.id
+        context['user_is_admin'] = g.userobj.sysadmin
 
     try:
         data_dict_global_results = {
@@ -194,10 +202,10 @@ def index(group_type, is_organization):
         else:
             msg = str(e)
         h.flash_error(msg)
-        c.page = h.Page([], 0)
+        extra_vars[u"page"] = h.Page([], 0)
+        extra_vars[u"group_type"] = group_type
         return base.render(
-            _index_template(group_type),
-            extra_vars={u'group_type': group_type})
+            _index_template(group_type), extra_vars)
 
     data_dict_page_results = {
         u'all_fields': True,
@@ -210,34 +218,41 @@ def index(group_type, is_organization):
     }
     page_results = _action(u'group_list')(context, data_dict_page_results)
 
-    c.page = h.Page(
+    extra_vars[u"page"] = h.Page(
         collection=global_results,
         page=page,
         url=h.pager_url,
         items_per_page=items_per_page, )
 
-    c.page.items = page_results
-    vars = dict(group_type=group_type)
-    return base.render(_index_template(group_type), extra_vars=vars)
+    extra_vars[u"page"].items = page_results
+    extra_vars[u"group_type"] = group_type
+    return base.render(_index_template(group_type), extra_vars)
 
 
 def _read(id, limit, group_type):
     u''' This is common code used by both read and bulk_process'''
+    extra_vars = {}
     context = {
         u'model': model,
         u'session': model.Session,
-        u'user': c.user,
+        u'user': g.user,
         u'schema': _db_to_form_schema(group_type=group_type),
         u'for_view': True,
         u'extras_as_string': True
     }
 
-    q = c.q = request.params.get(u'q', u'')
+    q = request.params.get(u'q', u'')
+
+    # TODO: Remove
+    g.q = q
+
     # Search within group
-    if c.group_dict.get(u'is_organization'):
-        q += u' owner_org:"%s"' % c.group_dict.get(u'id')
+    if g.group_dict.get(u'is_organization'):
+        q += u' owner_org:"%s"' % g.group_dict.get(u'id')
     else:
         q += u' groups:"%s"' % c.group_dict.get(u'name')
+
+    extra_vars[u"q"] = q
 
     c.description_formatted = \
         h.render_markdown(c.group_dict.get(u'description'))
@@ -253,7 +268,7 @@ def _read(id, limit, group_type):
     def search_url(params):
         controller = lookup_group_controller(group_type)
         action = u'bulk_process' if getattr(
-            c, u'action', u'') == u'bulk_process' else u'read'
+            g, u'action', u'') == u'bulk_process' else u'read'
         url = h.url_for(u'.'.join([controller, action]), id=id)
         params = [(k, v.encode(u'utf-8')
                    if isinstance(v, basestring) else str(v))
@@ -265,10 +280,10 @@ def _read(id, limit, group_type):
             alternative_url=None,
             controller=u'group',
             action=u'read',
-            extras=dict(id=c.group_dict.get(u'name')),
+            extras=dict(id=g.group_dict.get(u'name')),
             new_params=by)
 
-    c.drill_down_url = drill_down_url
+    extra_vars[u"drill_down_url"] = drill_down_url
 
     def remove_field(key, value=None, replace=None):
         controller = lookup_group_controller(group_type)
@@ -280,7 +295,7 @@ def _read(id, limit, group_type):
             action=u'read',
             extras=dict(id=c.group_dict.get(u'name')))
 
-    c.remove_field = remove_field
+    extra_vars[u"remove_field"] = remove_field
 
     def pager_url(q=None, page=None):
         params = list(params_nopage)
