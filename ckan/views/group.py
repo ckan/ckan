@@ -249,15 +249,15 @@ def _read(id, limit, group_type):
     g.q = q
 
     # Search within group
-    if c.group_dict.get(u'is_organization'):
+    if g.group_dict.get(u'is_organization'):
         fq = u' owner_org:"%s"' % g.group_dict.get(u'id')
     else:
         fq = u' groups:"%s"' % g.group_dict.get(u'name')
 
     extra_vars[u"q"] = q
 
-    c.description_formatted = \
-        h.render_markdown(c.group_dict.get(u'description'))
+    g.description_formatted = \
+        h.render_markdown(g.group_dict.get(u'description'))
 
     context['return_query'] = True
 
@@ -295,7 +295,7 @@ def _read(id, limit, group_type):
             replace=replace,
             controller=controller,
             action=u'read',
-            extras=dict(id=c.group_dict.get(u'name')))
+            extras=dict(id=g.group_dict.get(u'name')))
 
     extra_vars[u"remove_field"] = remove_field
 
@@ -305,19 +305,19 @@ def _read(id, limit, group_type):
         return search_url(params)
 
     try:
-        c.fields = []
-        c.fields_grouped = {}
+        extra_vars[u"fields"] = fields = []
+        extra_vars[u"fields_grouped"] = fields_grouped = {}
         search_extras = {}
         for (param, value) in request.params.items():
             if param not in [u'q', u'page', u'sort'] \
                     and len(value) and not param.startswith(u'_'):
                 if not param.startswith(u'ext_'):
-                    c.fields.append((param, value))
+                    fields.append((param, value))
                     q += u' %s: "%s"' % (param, value)
-                    if param not in c.fields_grouped:
-                        c.fields_grouped[param] = [value]
+                    if param not in fields_grouped:
+                        fields_grouped[param] = [value]
                     else:
-                        c.fields_grouped[param].append(value)
+                        fields_grouped[param].append(value)
                 else:
                     search_extras[param] = value
 
@@ -340,7 +340,9 @@ def _read(id, limit, group_type):
         # Facet titles
         _update_facet_titles(facets, group_type)
 
-        c.facet_titles = facets
+        extra_vars[u"facet_titles"] = facets
+        # TODO: Rempve
+        g.facet_titles = facets
 
         data_dict = {
             u'q': q,
@@ -356,32 +358,33 @@ def _read(id, limit, group_type):
         context_ = dict((k, v) for (k, v) in context.items() if k != u'schema')
         query = get_action(u'package_search')(context_, data_dict)
 
-        c.page = h.Page(
+        extra_vars[u"page"] = h.Page(
             collection=query['results'],
             page=page,
             url=pager_url,
             item_count=query['count'],
             items_per_page=limit)
 
-        c.group_dict['package_count'] = query['count']
+        g.group_dict['package_count'] = query['count']
 
-        c.search_facets = query['search_facets']
-        c.search_facets_limits = {}
-        for facet in c.search_facets.keys():
+        extra_vars[u"search_facets"] = g.search_facets = query['search_facets']
+        extra_vars[u"search_facets_limits"] = g.search_facets_limits = {}
+        for facet in g.search_facets.keys():
             limit = int(
                 request.params.get(u'_%s_limit' % facet,
                                    config.get(u'search.facets.default', 10)))
-            c.search_facets_limits[facet] = limit
-        c.page.items = query['results']
+            g.search_facets_limits[facet] = limit
+        extra_vars[u"page"].items = query['results']
 
-        c.sort_by_selected = sort_by
+        extra_vars[u"sort_by_selected"] = sort_by
 
     except search.SearchError, se:
         log.error(u'Group search error: %r', se.args)
-        c.query_error = True
-        c.page = h.Page(collection=[])
+        extra_vars[u"query_error"] = True
+        extra_vars[u"page"] = h.Page(collection=[])
 
-    _setup_template_variables(context, {u'id': id}, group_type=group_type)
+    extra_vars[u"group_type"]=group_type
+    _setup_template_variables(context, {u'id': id}, extra_vars)
 
 
 def _update_facet_titles(facets, group_type):
@@ -395,7 +398,7 @@ def _get_group_dict(id, group_type):
     context = {
         u'model': model,
         u'session': model.Session,
-        u'user': c.user,
+        u'user': g.user,
         u'for_view': True
     }
     try:
@@ -422,31 +425,37 @@ def _url_for_this_controller(*args, **kw):
 
 
 def read(group_type, is_organization, id=None, limit=20):
+    extra_vars = {}
     set_org(is_organization)
     context = {
         u'model': model,
         u'session': model.Session,
-        u'user': c.user,
+        u'user': g.user,
         u'schema': _db_to_form_schema(group_type=group_type),
         u'for_view': True
     }
     data_dict = {u'id': id, u'type': group_type}
 
     # unicode format (decoded from utf8)
-    c.q = request.params.get(u'q', u'')
+    q = request.params.get(u'q', u'')
+
+    # TODO: Remove
+    g.q = q
+
+    extra_vars[u"q"] = q
 
     try:
         # Do not query for the group datasets when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
-        c.group_dict = _action(u'group_show')(context, data_dict)
-        c.group = context['group']
+        g.group_dict = _action(u'group_show')(context, data_dict)
+        g.group = context['group']
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
 
     # if the user specified a group id, redirect to the group name
-    if data_dict['id'] == c.group_dict['id'] and \
-            data_dict['id'] != c.group_dict['name']:
+    if data_dict['id'] == g.group_dict['id'] and \
+            data_dict['id'] != g.group_dict['name']:
         return h.redirect_to(u'{}.read'.format(group_type),
                              id=c.group_dict['name'])
 
