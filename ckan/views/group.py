@@ -1078,5 +1078,6 @@ def register_group_plugin_rules(blueprint):
             methods=[u'GET', u'POST'],
             view_func=globals()[action])
 
+
 register_group_plugin_rules(group)
 register_group_plugin_rules(organization)

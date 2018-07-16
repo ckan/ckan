@@ -12,11 +12,11 @@ def scrape_search_results(response, object_type):
     assert object_type in ('dataset', 'group_dataset', 'group', 'user')
     if object_type is not 'group_dataset':
         results = re.findall('a href="/%s/%s_(\d\d)' % (object_type, object_type),
-                             str(response.body))
+                             str(response))
     else:
         object_type = 'dataset'
         results = re.findall('href="/%s/%s_(\d\d)' % (object_type, object_type),
-                             str(response.body))
+                             str(response))
     return results
 
 def test_scrape_user():
