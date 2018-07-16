@@ -410,20 +410,6 @@ def _get_group_dict(id, group_type):
         base.abort(404, _(u'Group not found'))
 
 
-def _redirect_to_this_controller(*args, **kw):
-    u''' wrapper around redirect_to but it adds in this request's controller
-    (so that it works for Organization or other derived controllers)'''
-    kw['controller'] = request.endpoint.split(u'.')[0]
-    return h.redirect_to(*args, **kw)
-
-
-def _url_for_this_controller(*args, **kw):
-    u''' wrapper around url_for but it adds in this request's controller
-    (so that it works for Organization or other derived controllers)'''
-    kw['controller'] = request.endpoint.split(u'.')[0]
-    return h.url_for(*args, **kw)
-
-
 def read(group_type, is_organization, id=None, limit=20):
     extra_vars = {}
     set_org(is_organization)
@@ -534,7 +520,7 @@ def members(id, group_type, is_organization):
 def member_delete(id, group_type, is_organization):
     set_org(is_organization)
     if u'cancel' in request.params:
-        return _redirect_to_this_controller(action=u'members', id=id)
+        return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     context = {u'model': model, u'session': model.Session, u'user': c.user}
 
@@ -551,7 +537,7 @@ def member_delete(id, group_type, is_organization):
                 u'user_id': user_id
             })
             h.flash_notice(_(u'Group member has been deleted.'))
-            return _redirect_to_this_controller(action=u'members', id=id)
+            return h.redirect_to(u'{}.members'.format(group_type), id=id)
         c.user_dict = _action(u'group_show')(context, {u'id': user_id})
         c.user_id = user_id
         c.group_id = id
@@ -603,8 +589,8 @@ def history(id, group_type, is_organization):
         from webhelpers.feedgenerator import Atom1Feed
         feed = Atom1Feed(
             title=_(u'CKAN Group Revision History'),
-            link=_url_for_this_controller(
-                action=u'read', id=c.group_dict['name']),
+            link=h.url_for(
+                group_type + '.read', id=c.group_dict['name']),
             description=_(u'Recent changes to CKAN Group: ') +
             c.group_dict['display_name'],
             language=unicode(get_lang()), )
@@ -801,7 +787,7 @@ class BulkProcessView(MethodView):
             get_action(action_functions[action])(context, data_dict)
         except NotAuthorized:
             base.abort(403, _(u'Not authorized to perform bulk update'))
-        return _redirect_to_this_controller(action=u'bulk_process', id=id)
+        return h.redirect_to(u'{}.bulk_process'.format(group_type), id=id)
 
 
 class CreateGroupView(MethodView):
@@ -1000,7 +986,7 @@ class DeleteGroupView(MethodView):
         context = self._prepare(id)
         c.group_dict = _action(u'group_show')(context, {u'id': id})
         if u'cancel' in request.params:
-            return _redirect_to_this_controller(action=u'edit', id=id)
+            return h.redirect_to(u'{}.edit'.format(group_type), id=id)
         return _render_template(u'group/confirm_delete.html', group_type)
 
 
@@ -1049,7 +1035,7 @@ class MembersGroupView(MethodView):
         except ValidationError, e:
             h.flash_error(e.error_summary)
 
-        return _redirect_to_this_controller(action=u'members', id=id)
+        return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     def get(self, group_type, is_organization, id=None):
         set_org(is_organization)
