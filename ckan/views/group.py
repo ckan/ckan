@@ -57,6 +57,8 @@ def _db_to_form_schema(group_type=None):
 
 
 def _setup_template_variables(context, data_dict, group_type=None):
+    if 'type' not in data_dict:
+        data_dict['type'] = group_type
     return lookup_group_plugin(group_type).\
         setup_template_variables(context, data_dict)
 
