@@ -235,9 +235,9 @@ def _read(id, limit, group_type):
     q = c.q = request.params.get(u'q', u'')
     # Search within group
     if c.group_dict.get(u'is_organization'):
-        q += u' owner_org:"%s"' % c.group_dict.get(u'id')
+        fq = u' owner_org:"%s"' % c.group_dict.get(u'id')
     else:
-        q += u' groups:"%s"' % c.group_dict.get(u'name')
+        fq = u' groups:"%s"' % c.group_dict.get(u'name')
 
     c.description_formatted = \
         h.render_markdown(c.group_dict.get(u'description'))
@@ -327,7 +327,7 @@ def _read(id, limit, group_type):
 
         data_dict = {
             u'q': q,
-            u'fq': u'',
+            u'fq': fq,
             u'include_private': True,
             u'facet.field': facets.keys(),
             u'rows': limit,
