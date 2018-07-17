@@ -58,7 +58,11 @@ def _db_to_form_schema(group_type=None):
 
 def _setup_template_variables(context, data_dict, group_type=None):
     if u'type' not in data_dict:
+<<<<<<< HEAD
         data_dict['type'] = group_type
+=======
+        data_dict[u'type'] = group_type
+>>>>>>> 8e2d25e022fa71c101650337464036ba1922be45
     return lookup_group_plugin(group_type).\
         setup_template_variables(context, data_dict)
 
@@ -538,7 +542,11 @@ def members(id, group_type, is_organization):
     g.members = members
     g.group_dict = group_dict
 
-    extra_vars = {u"members": members, u"group_dict": group_dict}
+    extra_vars = {
+        u"members": members,
+        u"group_dict": group_dict,
+        u"group_type": group_type
+        }
     return base.render(_replace_group_org(u'group/members.html'), extra_vars)
 
 
@@ -628,12 +636,12 @@ def history(id, group_type, is_organization):
         feed = Atom1Feed(
             title=_(u'CKAN Group Revision History'),
             link=h.url_for(
-                group_type + '.read', id=c.group_dict['name']),
+                group_type + u'.read', id=c.group_dict[u'name']),
             description=_(u'Recent changes to CKAN Group: ') +
             c.group_dict['display_name'],
             language=unicode(get_lang()), )
         for revision_dict in c.group_revisions:
-            revision_date = h.date_str_to_datetime(revision_dict['timestamp'])
+            revision_date = h.date_str_to_datetime(revision_dict[u'timestamp'])
             try:
                 dayHorizon = int(request.params.get(u'days'))
             except:
@@ -984,7 +992,7 @@ class EditGroupView(MethodView):
             error_summary = e.error_summary
             return self.get(id, group_type, is_organization,
                             data_dict, errors, error_summary)
-        return h.redirect_to(group['type'] + u'.read', id=group['name'])
+        return h.redirect_to(group[u'type'] + u'.read', id=group[u'name'])
 
     def get(self, id, group_type, is_organization,
             data=None, errors=None, error_summary=None):
@@ -993,7 +1001,7 @@ class EditGroupView(MethodView):
         context = self._prepare(id, is_organization)
         data_dict = {u'id': id, u'include_datasets': False}
         try:
-            old_data = _action('group_show')(context, data_dict)
+            old_data = _action(u'group_show')(context, data_dict)
             grouptitle = old_data.get(u'title')
             groupname = old_data.get(u'name')
             data = data or old_data
