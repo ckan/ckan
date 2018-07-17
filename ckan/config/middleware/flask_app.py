@@ -37,7 +37,7 @@ from ckan.views import (identify_user,
                         check_session_cookie,
                         )
 
-
+import ckan.lib.plugins as lib_plugins
 import logging
 log = logging.getLogger(__name__)
 
@@ -181,6 +181,7 @@ def make_flask_stack(conf, **app_conf):
         if hasattr(plugin, 'get_blueprint'):
             app.register_extension_blueprint(plugin.get_blueprint())
 
+    lib_plugins.register_group_plugins(app)
     lib_plugins.register_package_plugins(app)
 
     # Set flask routes in named_routes

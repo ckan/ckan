@@ -9,8 +9,9 @@
     {% set attrs = {'data-module': 'slug-preview-target', 'class': 'form-control'} %}
     {{ form.input('title', label=_('Name'), id='field-name', placeholder=_('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
-    {%- set prefix = h.url_for(group_type + '_read', id='') -%}
-    {%- set domain = h.url_for(group_type + '_read', id='', qualified=true) -%}
+    {# Perhaps these should be moved into the controller? #}
+    {% set prefix = h.url_for(group_type + '.read', id='') %}
+    {% set domain = h.url_for(group_type + '.read', id='', qualified=true) %}
     {% set domain = domain|replace("http://", "")|replace("https://", "") %}
     {% set attrs = {'data-module': 'slug-preview-slug', 'class': 'form-control input-sm', 'data-module-prefix': domain, 'data-module-placeholder': '<' + group_type + '>'} %}
 
@@ -34,7 +35,7 @@
   <div class="form-actions">
     {% block delete_button %}
       {% if h.check_access('organization_delete', {'id': data.id})  %}
-        <a class="btn btn-danger pull-left" href="{% url_for controller='organization', action='delete', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this Organization? Note*: Deleting cannot be performed while public or private datasets belong to this organization.') }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+        <a class="btn btn-danger pull-left" href="{% url_for group_type+'.delete', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this Organization? Note*: Deleting cannot be performed while public or private datasets belong to this organization.') }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
       {% endif %}
     {% endblock %}
     <button class="btn btn-primary" name="save" type="submit">{% block save_text %}{{ _('Save Organization') }}{% endblock %}</button>

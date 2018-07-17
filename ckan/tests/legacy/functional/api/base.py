@@ -190,7 +190,7 @@ class ApiTestCase(object):
             raise Exception("Couldn't loads string '%s': %s" % (chars, inst))
 
     def assert_json_response(self, res, expected_in_body=None):
-        content_type = res.header_dict['Content-Type']
+        content_type = res.headers.get('Content-Type')
         assert 'application/json' in content_type, content_type
         res_json = self.loads(res.body)
         if expected_in_body:

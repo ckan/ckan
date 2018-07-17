@@ -7,6 +7,7 @@ from six import string_types, text_type
 
 
 import paste.fixture
+import webtest
 
 
 class HtmlCheckMethods(object):
@@ -69,6 +70,8 @@ class HtmlCheckMethods(object):
             html_str = html
         elif isinstance(html, str):
             html_str = html.decode('utf8')
+        elif isinstance(html, webtest.app.TestResponse):
+            html_str = html.body.decode('utf-8')
         else:
             raise TypeError
         return html_str  # always unicode

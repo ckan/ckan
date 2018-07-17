@@ -6,6 +6,7 @@ from paste.deploy.converters import asbool
 import paste.fixture
 from ckan.lib.helpers import url_for
 from nose import SkipTest
+import ckan.tests.helpers as helpers
 
 import ckan
 from ckan.logic.action.create import package_create, user_create, group_create
@@ -15,6 +16,7 @@ from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
 from ckan.tests.legacy.html_check import HtmlCheckMethods
 from ckan.tests.legacy import CreateTestData
+
 
 class TestActivity(HtmlCheckMethods):
     """Test the rendering of activity streams into HTML pages.
@@ -29,7 +31,7 @@ class TestActivity(HtmlCheckMethods):
             raise SkipTest('Activity streams not enabled')
         CreateTestData.create()
         cls.sysadmin_user = ckan.model.User.get('testsysadmin')
-        cls.app = paste.fixture.TestApp(pylonsapp)
+        cls.app = helpers._get_test_app()
 
     @classmethod
     def teardown(cls):
