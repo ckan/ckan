@@ -25,11 +25,15 @@ CKAN release you're upgrading to:
 #. Checkout the new CKAN version from git, for example::
 
     git fetch
-    git checkout release-v2.0
+    git checkout 2.7
 
    If you have any CKAN extensions installed from source, you may need to
    checkout newer versions of the extensions at this point as well. Refer to
    the documentation for each extension.
+   
+   As of CKAN 2.6 branch naming has changed. See :doc:`/contributing/release-process`
+   for naming conventions. Specific patches and minor versions can be checked-out
+   using tags. 
 
 #. Update CKAN's dependencies:
 
