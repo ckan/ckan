@@ -58,11 +58,7 @@ def _db_to_form_schema(group_type=None):
 
 def _setup_template_variables(context, data_dict, group_type=None):
     if u'type' not in data_dict:
-<<<<<<< HEAD
-        data_dict['type'] = group_type
-=======
         data_dict[u'type'] = group_type
->>>>>>> 8e2d25e022fa71c101650337464036ba1922be45
     return lookup_group_plugin(group_type).\
         setup_template_variables(context, data_dict)
 
@@ -166,7 +162,7 @@ def index(group_type, is_organization):
     context = {
         u'model': model,
         u'session': model.Session,
-        u'user': c.user,
+        u'user': g.user,
         u'for_view': True,
         u'with_private': False
     }
@@ -524,7 +520,7 @@ def members(id, group_type, is_organization):
 
     try:
         data_dict = {u'id': id}
-        _check_access(u'group_edit_permissions', context, data_dict)
+        check_access(u'group_edit_permissions', context, data_dict)
         members = get_action(u'member_list')(context, {
             u'id': id,
             u'object_type': u'user'
@@ -556,7 +552,7 @@ def member_delete(id, group_type, is_organization):
     if u'cancel' in request.params:
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
-    context = {u'model': model, u'session': model.Session, u'user': c.user}
+    context = {u'model': model, u'session': model.Session, u'user': g.user}
 
     try:
         _check_access(u'group_member_delete', context, {u'id': id})
@@ -606,26 +602,28 @@ def history(id, group_type, is_organization):
         except KeyError:
             if u'group_name' in dict(request.params):
                 id = request.params.getone(u'group_name')
-            c.error = \
+            error = \
                 _(u'Select two revisions before doing the comparison.')
         else:
             params[u'diff_entity'] = u'group'
             return h.redirect_to(controller=u'revision',
                                  action=u'diff', **params)
+    # TODO: Remove
+    g.error = error
 
     context = {
         u'model': model,
         u'session': model.Session,
-        u'user': c.user,
+        u'user': g.user,
         u'schema': _db_to_form_schema()
     }
     data_dict = {u'id': id}
     try:
-        c.group_dict = _action(u'group_show')(context, data_dict)
-        c.group_revisions = _action(u'group_revision_list')(context, data_dict)
+        group_dict = _action(u'group_show')(context, data_dict)
+        group_revisions = _action(u'group_revision_list')(context, data_dict)
         # TODO: remove
         # Still necessary for the authz check in group/layout.html
-        c.group = context['group']
+        group = context['group']
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
 
@@ -636,11 +634,11 @@ def history(id, group_type, is_organization):
         feed = Atom1Feed(
             title=_(u'CKAN Group Revision History'),
             link=h.url_for(
-                group_type + u'.read', id=c.group_dict[u'name']),
+                group_type + u'.read', id=group_dict[u'name']),
             description=_(u'Recent changes to CKAN Group: ') +
-            c.group_dict['display_name'],
+            group_dict['display_name'],
             language=unicode(get_lang()), )
-        for revision_dict in c.group_revisions:
+        for revision_dict in group_revisions:
             revision_date = h.date_str_to_datetime(revision_dict[u'timestamp'])
             try:
                 dayHorizon = int(request.params.get(u'days'))
@@ -668,14 +666,25 @@ def history(id, group_type, is_organization):
                 pubdate=item_pubdate, )
         feed.content_type = u'application/atom+xml'
         return feed.writeString(u'utf-8')
-    return base.render(
-        _history_template(group_type), extra_vars={u'group_type': group_type})
+
+    # TODO: Remove
+    g.group_dict = group_dict
+    g.group_revisions = group_revisions
+    g.group = group
+    extra_vars = {
+        u"group_dict": group_dict,
+        u"group_revisions": group_revisions,
+        u"group": group,
+        u"group_type": group_type
+
+    }
+    return base.render(_history_template(group_type), extra_vars)
 
 
 def follow(id, group_type, is_organization):
     u'''Start following this group.'''
     set_org(is_organization)
-    context = {u'model': model, u'session': model.Session, u'user': c.user}
+    context = {u'model': model, u'session': model.Session, u'user': g.user}
     data_dict = {u'id': id}
     try:
         get_action(u'follow_group')(context, data_dict)
@@ -695,7 +704,7 @@ def follow(id, group_type, is_organization):
 def unfollow(id, group_type, is_organization):
     u'''Stop following this group.'''
     set_org(is_organization)
-    context = {u'model': model, u'session': model.Session, u'user': c.user}
+    context = {u'model': model, u'session': model.Session, u'user': g.user}
     data_dict = {u'id': id}
     try:
         get_action(u'unfollow_group')(context, data_dict)
@@ -751,7 +760,7 @@ def admins(id, group_type, is_organization):
         u"admins": admins
     }
 
-    return base.render(_admins_template(c.group_dict['type']), extra_vars)
+    return base.render(_admins_template(group_dict['type']), extra_vars)
 
 
 class BulkProcessView(MethodView):
@@ -798,6 +807,7 @@ class BulkProcessView(MethodView):
         extra_vars = {
             u"group_dict": group_dict,
             u"group": group,
+            u"page": g.page,
             u"packages": g.page.items,
             u'group_type': group_type
         }
@@ -813,17 +823,21 @@ class BulkProcessView(MethodView):
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
-            c.group_dict = _action(u'group_show')(context, data_dict)
-            c.group = context['group']
+            group_dict = _action(u'group_show')(context, data_dict)
+            group = context['group']
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except NotAuthorized:
             base.abort(403,
-                       _(u'User %r not authorized to edit %s') % (c.user, id))
+                       _(u'User %r not authorized to edit %s') % (g.user, id))
 
-        if not c.group_dict['is_organization']:
+        if not group_dict['is_organization']:
             # FIXME: better error
             raise Exception(u'Must be an organization')
+
+        # TODO: Remove
+        g.group_dict = group_dict
+        g.group = group
 
         # use different form names so that ie7 can be detected
         form_names = set([
@@ -856,7 +870,7 @@ class BulkProcessView(MethodView):
             u'delete': u'bulk_update_delete',
         }
 
-        data_dict = {u'datasets': datasets, u'org_id': c.group_dict['id']}
+        data_dict = {u'datasets': datasets, u'org_id': group_dict['id']}
 
         try:
             get_action(action_functions[action])(context, data_dict)
@@ -1011,6 +1025,7 @@ class EditGroupView(MethodView):
         errors = errors or {}
         extra_vars = {
             u'data': data,
+            u"group_dict": group_dict,
             u'errors': errors,
             u'error_summary': error_summary,
             u'action': u'edit',
@@ -1038,7 +1053,7 @@ class DeleteGroupView(MethodView):
         context = {
             u'model': model,
             u'session': model.Session,
-            u'user': c.user,
+            u'user': g.user,
         }
         try:
             _check_access(u'group_delete', context, {u'id': id})
@@ -1058,7 +1073,7 @@ class DeleteGroupView(MethodView):
             else:
                 h.flash_notice(
                     _(u'%s has been deleted.') % _(group_type.capitalize()))
-            c.group_dict = _action(u'group_show')(context, {u'id': id})
+            group_dict = _action(u'group_show')(context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
         except NotFound:
@@ -1068,16 +1083,27 @@ class DeleteGroupView(MethodView):
             return h.redirect_to(u'organization.read', id=id)
 
             return h.redirect_to(u'{}.read'.format(group_type), id=id)
+        # TODO: Remove
+        g.group_dict = group_dict
 
         return h.redirect_to(u'{}.index'.format(group_type))
 
     def get(self, group_type, is_organization, id=None):
+        extra_vars = {}
         set_org(is_organization)
         context = self._prepare(id)
-        c.group_dict = _action(u'group_show')(context, {u'id': id})
+        group_dict = _action(u'group_show')(context, {u'id': id})
         if u'cancel' in request.params:
             return h.redirect_to(u'{}.edit'.format(group_type), id=id)
-        return _render_template(u'group/confirm_delete.html', group_type)
+
+        # TODO: Remove
+        g.group_dict = group_dict
+        extra_vars = {
+            u"group_dict": group_dict,
+            u"group_type": group_type
+        }
+        return base.render(_replace_group_org(u'group/confirm_delete.html'),
+                           extra_vars)
 
 
 class MembersGroupView(MethodView):
@@ -1087,7 +1113,7 @@ class MembersGroupView(MethodView):
         context = {
             u'model': model,
             u'session': model.Session,
-            u'user': c.user
+            u'user': g.user
         }
         try:
             _check_access(u'group_member_create', context, {u'id': id})
@@ -1117,7 +1143,7 @@ class MembersGroupView(MethodView):
             data_dict['username'] = user_dict['name']
 
         try:
-            c.group_dict = _action(u'group_member_create')(context, data_dict)
+            group_dict = _action(u'group_member_create')(context, data_dict)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to add member to group %s') % u'')
         except NotFound:
@@ -1125,25 +1151,44 @@ class MembersGroupView(MethodView):
         except ValidationError, e:
             h.flash_error(e.error_summary)
 
+        # TODO: Remove
+        g.group_dict = group_dict
+
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     def get(self, group_type, is_organization, id=None):
+        extra_vars = {}
         set_org(is_organization)
         context = self._prepare(id)
         user = request.params.get(u'user')
         data_dict = {u'id': id}
         data_dict['include_datasets'] = False
-        c.group_dict = _action(u'group_show')(context, data_dict)
-        c.roles = _action(u'member_roles_list')(context, {
+        group_dict = _action(u'group_show')(context, data_dict)
+        roles = _action(u'member_roles_list')(context, {
             u'group_type': group_type
         })
         if user:
-            c.user_dict = get_action(u'user_show')(context, {u'id': user})
-            c.user_role =\
+            user_dict = get_action(u'user_show')(context, {u'id': user})
+            user_role =\
                 authz.users_role_for_group_or_org(id, user) or u'member'
         else:
-            c.user_role = u'member'
-        return _render_template(u'group/member_new.html', group_type)
+            user_role = u'member'
+
+        # TODO: Remove
+        g.group_dict = group_dict
+        g.roles = roles
+        g.user_dict = user_dict
+        g.user_role = user_role
+
+        extra_vars = {
+            u"group_dict": group_dict,
+            u"roles": roles,
+            u"user_dict": user_dict,
+            u"user_role": user_role,
+            u"group_type": group_type
+        }
+        return base.render(_replace_group_org(u'group/member_new.html'),
+                           extra_vars)
 
 
 group = Blueprint(u'group', __name__, url_prefix=u'/group',
