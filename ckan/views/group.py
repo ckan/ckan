@@ -181,7 +181,7 @@ def index(group_type, is_organization):
     g.sort_by_selected = sort_by
 
     extra_vars["q"] = q
-    extra_vars["sort_by"] = sort_by
+    extra_vars["sort_by_selected"] = sort_by
 
     # pass user info to context as needed to view private datasets of
     # orgs correctly
@@ -320,6 +320,10 @@ def _read(id, limit, group_type):
                 else:
                     search_extras[param] = value
 
+        # TODO: Remove
+        g.fields = fields
+        g.fields_grouped = fields_grouped
+
         facets = OrderedDict()
 
         default_facet_titles = {
@@ -362,6 +366,7 @@ def _read(id, limit, group_type):
             item_count=query['count'],
             items_per_page=limit)
 
+        # TODO: Remove
         g.group_dict['package_count'] = query['count']
 
         extra_vars["search_facets"] = g.search_facets = query['search_facets']
@@ -385,7 +390,7 @@ def _read(id, limit, group_type):
     g.page = extra_vars["page"]
 
     extra_vars["group_type"] = group_type
-    _setup_template_variables(context, {u'id': id}, extra_vars["group_type"])
+    _setup_template_variables(context, {u'id': id}, group_type=group_type)
     return extra_vars
 
 
@@ -580,9 +585,9 @@ def member_delete(id, group_type, is_organization):
     except NotFound:
         base.abort(404, _(u'Group not found'))
     extra_vars = {
-        "user_id": user_id,
-        "user_dict": user_dict,
-        "group_id": id
+        u"user_id": user_id,
+        u"user_dict": user_dict,
+        u"group_id": id
     }
     return base.render(_replace_group_org(u'group/confirm_delete_member.html'),
                        extra_vars)
@@ -604,12 +609,12 @@ def history(id, group_type, is_organization):
                 id = request.params.getone(u'group_name')
             error = \
                 _(u'Select two revisions before doing the comparison.')
+            # TODO: Remove
+            g.error = error
         else:
             params[u'diff_entity'] = u'group'
             return h.redirect_to(controller=u'revision',
                                  action=u'diff', **params)
-    # TODO: Remove
-    g.error = error
 
     context = {
         u'model': model,
@@ -1171,19 +1176,20 @@ class MembersGroupView(MethodView):
             user_dict = get_action(u'user_show')(context, {u'id': user})
             user_role =\
                 authz.users_role_for_group_or_org(id, user) or u'member'
+            # TODO: Remove
+            g.user_dict = user_dict
+            extra_vars["user_dict"] = user_dict
         else:
             user_role = u'member'
 
         # TODO: Remove
         g.group_dict = group_dict
         g.roles = roles
-        g.user_dict = user_dict
         g.user_role = user_role
 
         extra_vars = {
             u"group_dict": group_dict,
             u"roles": roles,
-            u"user_dict": user_dict,
             u"user_role": user_role,
             u"group_type": group_type
         }
