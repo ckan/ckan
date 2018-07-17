@@ -586,6 +586,7 @@ def member_delete(id, group_type, is_organization):
 
 def history(id, group_type, is_organization):
     ''' Do we need this? '''
+    extra_vars = {}
     set_org(is_organization)
     if u'diff' in request.params or u'selected1' in request.params:
         try:
@@ -706,20 +707,22 @@ def unfollow(id, group_type, is_organization):
 def followers(id, group_type, is_organization):
     extra_vars = {}
     set_org(is_organization)
-    context = {u'model': model, u'session': model.Session, u'user': c.user}
+    context = {u'model': model, u'session': model.Session, u'user': g.user}
     group_dict = _get_group_dict(id, group_type)
     try:
-        c.followers = \
+        followers = \
             get_action(u'group_follower_list')(context, {u'id': id})
     except NotAuthorized:
         base.abort(403, _(u'Unauthorized to view followers %s') % u'')
 
     # TODO: Remove
     g.group_dict = group_dict
+    g.followers = followers
 
     extra_vars = {
         u"group_dict": group_dict,
-        u'group_type': group_type
+        u"group_type": group_type,
+        u"followers": followers
         }
     return base.render(u'group/followers.html', extra_vars)
 
@@ -906,6 +909,7 @@ class CreateGroupView(MethodView):
 
     def get(self, group_type, is_organization,
             data=None, errors=None, error_summary=None):
+        extra_vars = {}
         set_org(is_organization)
         context = self._prepare()
         data = data or {}
@@ -913,7 +917,7 @@ class CreateGroupView(MethodView):
             data.pop(u'image_url', None)
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {
+        extra_vars = {
             u'data': data,
             u'errors': errors,
             u'error_summary': error_summary,
@@ -922,11 +926,14 @@ class CreateGroupView(MethodView):
         }
         _setup_template_variables(
             context, data, group_type=group_type)
-        c.form = base.render(
-            _group_form(group_type=group_type), extra_vars=vars)
-        return base.render(
-            _new_template(group_type),
-            extra_vars={u'group_type': group_type})
+        form = base.render(
+            _group_form(group_type=group_type), extra_vars)
+
+        # TODO: Remove
+        g.form = form
+
+        extra_vars["form"] = form
+        return base.render(_new_template(group_type), extra_vars)
 
 
 class EditGroupView(MethodView):
@@ -981,20 +988,20 @@ class EditGroupView(MethodView):
 
     def get(self, id, group_type, is_organization,
             data=None, errors=None, error_summary=None):
+        extra_vars = {}
         set_org(is_organization)
         context = self._prepare(id, is_organization)
         data_dict = {u'id': id, u'include_datasets': False}
         try:
-            data_dict['include_datasets'] = False
-            old_data = context['group']
-            c.grouptitle = old_data.title
-            c.groupname = old_data.name
+            old_data = _action('group_show')(context, data_dict)
+            grouptitle = old_data.get(u'title')
+            groupname = old_data.get(u'name')
             data = data or old_data
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
-        c.group_dict = data
+        group_dict = data
         errors = errors or {}
-        vars = {
+        extra_vars = {
             u'data': data,
             u'errors': errors,
             u'error_summary': error_summary,
@@ -1003,9 +1010,17 @@ class EditGroupView(MethodView):
         }
 
         _setup_template_variables(context, data, group_type=group_type)
-        c.form = base.render(_group_form(group_type), extra_vars=vars)
+        form = base.render(_group_form(group_type), extra_vars)
+
+        # TODO: Remove
+        g.grouptitle = grouptitle
+        g.groupname = groupname
+        g.data = data
+        g.group_dict = group_dict
+
+        extra_vars["form"] = form
         return base.render(
-            _edit_template(group_type), extra_vars={u'group_type': group_type})
+            _edit_template(group_type), extra_vars)
 
 
 class DeleteGroupView(MethodView):
@@ -1043,7 +1058,10 @@ class DeleteGroupView(MethodView):
         except ValidationError as e:
             h.flash_error(e.error_dict['message'])
             return h.redirect_to(u'organization.read', id=id)
-        return _redirect_to_this_controller(action=u'index')
+
+            return h.redirect_to(u'{}.read'.format(group_type), id=id)
+
+        return h.redirect_to(u'{}.index'.format(group_type))
 
     def get(self, group_type, is_organization, id=None):
         set_org(is_organization)
