@@ -897,8 +897,7 @@ class EditGroupView(MethodView):
         context = self._prepare(id, is_organization)
         data_dict = {u'id': id, u'include_datasets': False}
         try:
-            data_dict['include_datasets'] = False
-            old_data = context['group']
+            old_data = _action('group_show')(context, data_dict)
             c.grouptitle = old_data.get(u'title')
             c.groupname = old_data.get(u'name')
             data = data or old_data
@@ -955,7 +954,10 @@ class DeleteGroupView(MethodView):
         except ValidationError as e:
             h.flash_error(e.error_dict['message'])
             return h.redirect_to(u'organization.read', id=id)
-        return _redirect_to_this_controller(action=u'index')
+
+            return h.redirect_to(u'{}.read'.format(group_type), id=id)
+
+        return h.redirect_to(u'{}.index'.format(group_type))
 
     def get(self, group_type, is_organization, id=None):
         set_org(is_organization)
