@@ -594,7 +594,7 @@ def member_delete(id, group_type, is_organization):
 
 
 def history(id, group_type, is_organization):
-    ''' Do we need this? '''
+    u''' Do we need this? '''
     extra_vars = {}
     set_org(is_organization)
     if u'diff' in request.params or u'selected1' in request.params:
