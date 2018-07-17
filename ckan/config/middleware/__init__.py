@@ -15,7 +15,6 @@ from ckan.config.middleware.pylons_app import make_pylons_stack
 from ckan.common import config
 
 from ckan.lib.i18n import get_locales_from_config
-import ckan.lib.plugins as lib_plugins
 
 import logging
 log = logging.getLogger(__name__)
