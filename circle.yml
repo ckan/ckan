@@ -22,6 +22,7 @@ dependencies:
            || mkdir -p ~/.local/bin
            && curl -fsSL https://raw.githubusercontent.com/michaelcontento/circleci-matrix/master/src/circleci-matrix.sh -o ~/.local/bin/circleci-matrix
            && chmod +x ~/.local/bin/circleci-matrix"
+           && sudo apt-get -y install solr-common
 
     override:
         - pip install -r requirement-setuptools.txt
