@@ -1,7 +1,7 @@
 # encoding: utf-8
 
-import logging
 import datetime
+import logging
 import re
 from urllib import urlencode
 
