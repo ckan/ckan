@@ -68,6 +68,8 @@ MARKDOWN_ATTRIBUTES.setdefault('img', []).extend(['src', 'alt', 'title'])
 LEGACY_ROUTE_NAMES = {
     'home': 'home.index',
     'about': 'home.about',
+    'search': 'dataset.search',
+    'organizations_index': 'organization.index'
 }
 
 
