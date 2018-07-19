@@ -1,7 +1,7 @@
 # encoding: utf-8
 
-import logging
 import datetime
+import logging
 import re
 from urllib import urlencode
 
@@ -380,7 +380,7 @@ def _read(id, limit, group_type):
 
         extra_vars["sort_by_selected"] = sort_by
 
-    except search.SearchError, se:
+    except search.SearchError as se:
         log.error(u'Group search error: %r', se.args)
         extra_vars["query_error"] = True
         extra_vars["page"] = h.Page(collection=[])
@@ -647,7 +647,7 @@ def history(id, group_type, is_organization):
             revision_date = h.date_str_to_datetime(revision_dict[u'timestamp'])
             try:
                 dayHorizon = int(request.params.get(u'days'))
-            except:
+            except Exception:
                 dayHorizon = 30
             dayAge = (datetime.datetime.now() - revision_date).days
             if dayAge >= dayHorizon:
@@ -922,11 +922,11 @@ class CreateGroupView(MethodView):
             data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
             group = _action(u'group_create')(context, data_dict)
 
-        except (NotFound, NotAuthorized), e:
+        except (NotFound, NotAuthorized) as e:
             base.abort(404, _(u'Group not found'))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             return self.get(group_type, is_organization,
@@ -1002,11 +1002,11 @@ class EditGroupView(MethodView):
             if id != group['name']:
                 _force_reindex(group)
 
-        except (NotFound, NotAuthorized), e:
+        except (NotFound, NotAuthorized) as e:
             base.abort(404, _(u'Group not found'))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
-        except ValidationError, e:
+        except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             return self.get(id, group_type, is_organization,
@@ -1153,7 +1153,7 @@ class MembersGroupView(MethodView):
             base.abort(403, _(u'Unauthorized to add member to group %s') % u'')
         except NotFound:
             base.abort(404, _(u'Group not found'))
-        except ValidationError, e:
+        except ValidationError as e:
             h.flash_error(e.error_summary)
 
         # TODO: Remove
