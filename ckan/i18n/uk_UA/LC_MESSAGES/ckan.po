@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.5.3\n"
 "Language: uk_UA\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
@@ -439,6 +439,7 @@ msgid_plural "{num} Datasets"
 msgstr[0] "{num} набір даних"
 msgstr[1] "{num} набори даних"
 msgstr[2] "{num} наборів даних"
+msgstr[3] "{num} наборів даних"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -1519,6 +1520,7 @@ msgid_plural "{n} new activities from {site_title}"
 msgstr[0] "{n} нова активність від {site_title}"
 msgstr[1] "{n} нові активності від {site_title}"
 msgstr[2] "{n} нових активностей від {site_title}"
+msgstr[3] "{n} нових активностей від {site_title}"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -1578,6 +1580,7 @@ msgid_plural "{mins} minutes ago"
 msgstr[0] "{mins} хвилину тому"
 msgstr[1] "{mins} хвилини тому"
 msgstr[2] "{mins} хвилин тому"
+msgstr[3] "{mins} хвилин тому"
 
 #: ckan/lib/formatters.py:119
 msgid "{hours} hour ago"
@@ -1585,6 +1588,7 @@ msgid_plural "{hours} hours ago"
 msgstr[0] "{hours} годину тому"
 msgstr[1] "{hours} години тому"
 msgstr[2] "{hours} годин тому"
+msgstr[3] "{hours} годин тому"
 
 #: ckan/lib/formatters.py:125
 msgid "{days} day ago"
@@ -1592,6 +1596,7 @@ msgid_plural "{days} days ago"
 msgstr[0] "{days} день тому"
 msgstr[1] "{days} дні тому"
 msgstr[2] "{days} днів тому"
+msgstr[3] "{days} днів тому"
 
 #: ckan/lib/formatters.py:128
 msgid "{months} month ago"
@@ -1599,6 +1604,7 @@ msgid_plural "{months} months ago"
 msgstr[0] "{months} місяць назад"
 msgstr[1] "{months} місяці назад"
 msgstr[2] "{months} місяців назад"
+msgstr[3] "{months} місяців назад"
 
 #: ckan/lib/formatters.py:130
 msgid "over {years} year ago"
@@ -1606,6 +1612,7 @@ msgid_plural "over {years} years ago"
 msgstr[0] "більше {years} року назад"
 msgstr[1] "більше {years} років назад"
 msgstr[2] "більше {years} років назад"
+msgstr[3] "більше {years} років назад"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
@@ -1701,6 +1708,7 @@ msgid_plural "{number} views"
 msgstr[0] "{number} перегляд"
 msgstr[1] "{number} перегляди"
 msgstr[2] "{number} переглядів"
+msgstr[3] "{number} переглядів"
 
 #: ckan/lib/helpers.py:1879
 msgid "{number} recent view"
@@ -1708,6 +1716,7 @@ msgid_plural "{number} recent views"
 msgstr[0] "{number} недавній перегляд"
 msgstr[1] "{number} недавніх переглядів"
 msgstr[2] "{number} недавніх переглядів"
+msgstr[3] "{number} недавніх переглядів"
 
 #: ckan/lib/mailer.py:46
 #, python-format
@@ -2497,6 +2506,7 @@ msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] "Ввід надто короткий, має бути хоча би один символ"
 msgstr[1] "Ввід надто короткий, має бути хоча би %(num)d символа"
 msgstr[2] "Ввід надто короткий, має бути хоча би %(num)d символ"
+msgstr[3] "Ввід надто короткий, має бути хоча би %(num)d символ"
 
 #: ckan/public-bs2/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.js:4
@@ -2704,6 +2714,7 @@ msgid_plural "no translations"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:22
 #: ckan/public/base/test/spec/i18n.spec.js:22
@@ -2725,6 +2736,7 @@ msgid_plural "no %(attr)s translations"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:39
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:40
@@ -2743,6 +2755,7 @@ msgid_plural "bars"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:61
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:65
@@ -2756,6 +2769,7 @@ msgid_plural "%(color)s shirts"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:93
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:94
@@ -2769,6 +2783,7 @@ msgid_plural "%(num)d items"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:100
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:105
@@ -2782,6 +2797,7 @@ msgid_plural "%(num)d missing translations"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
@@ -2823,6 +2839,7 @@ msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Панель приладів (%(num)d новий елемент)"
 msgstr[1] "Панель приладів (%(num)d нові елементи)"
 msgstr[2] "Панель приладів (%(num)d нових елементів)"
+msgstr[3] "Панель приладів (%(num)d нових елементів)"
 
 #: ckan/templates/header.html:27 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -3628,6 +3645,7 @@ msgid_plural "{count} members"
 msgstr[0] "{count} член"
 msgstr[1] "{count} члена"
 msgstr[2] "{count} членів"
+msgstr[3] "{count} членів"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -4464,6 +4482,7 @@ msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] "{number} набір даних знайдений за запитом \"{query}\""
 msgstr[1] "{number} набори даних знайдено за запитом \"{query}\""
 msgstr[2] "{number} наборів даних знайдено за запитом \"{query}\""
+msgstr[3] "{number} наборів даних знайдено за запитом \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -4475,6 +4494,7 @@ msgid_plural "{number} datasets found"
 msgstr[0] "{number} набір даних знайдено"
 msgstr[1] "{number} набори даних знайдено"
 msgstr[2] "{number} наборів даних знайдено"
+msgstr[3] "{number} наборів даних знайдено"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -4486,6 +4506,7 @@ msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] "{number} групу знайдено за запитом \"{query}\""
 msgstr[1] "{number} групи знайдено за запитом \"{query}\""
 msgstr[2] "{number} груп знайдено за запитом \"{query}\""
+msgstr[3] "{number} груп знайдено за запитом \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -4497,6 +4518,7 @@ msgid_plural "{number} groups found"
 msgstr[0] "{number} групу знайдено"
 msgstr[1] "{number} групи знайдено"
 msgstr[2] "{number} груп знайдено"
+msgstr[3] "{number} груп знайдено"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4508,6 +4530,7 @@ msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] "{number} організацію знайдено за запитом \"{query}\""
 msgstr[1] "{number} організації знайдено за запитом \"{query}\""
 msgstr[2] "{number} організацій знайдено за запитом \"{query}\""
+msgstr[3] "{number} організацій знайдено за запитом \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -4519,6 +4542,7 @@ msgid_plural "{number} organizations found"
 msgstr[0] "{number} організацію знайдено"
 msgstr[1] "{number} організації знайдено"
 msgstr[2] "{number} організацій знайдено"
+msgstr[3] "{number} організацій знайдено"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
