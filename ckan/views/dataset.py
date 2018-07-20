@@ -401,7 +401,7 @@ def read(package_type, id):
         u'auth_user_obj': g.userobj
     }
     data_dict = {u'id': id, u'include_tracking': True}
-    activity_id = request.params.get('activity_id')
+    activity_id = request.params.get(u'activity_id')
 
     # check if package exists
     try:
@@ -419,31 +419,31 @@ def read(package_type, id):
         # view an 'old' version of the package, as recorded in the
         # activity stream
         try:
-            activity = get_action('activity_show')(
-                context, {'id': activity_id, 'include_data': True})
+            activity = get_action(u'activity_show')(
+                context, {u'id': activity_id, u'include_data': True})
         except NotFound:
-            base.abort(404, _('Activity not found'))
+            base.abort(404, _(u'Activity not found'))
         except NotAuthorized:
-            base.abort(403, _('Unauthorized to view activity data'))
+            base.abort(403, _(u'Unauthorized to view activity data'))
         current_pkg = pkg_dict
         try:
-            pkg_dict = activity['data']['package']
+            pkg_dict = activity[u'data'][u'package']
         except KeyError:
-            base.abort(404, _('Dataset not found'))
-        if pkg_dict['id'] != current_pkg['id']:
-            log.info('Mismatch between pkg id in activity and URL {} {}'
-                     .format(pkg_dict['id'], current_pkg['id']))
+            base.abort(404, _(u'Dataset not found'))
+        if pkg_dict[u'id'] != current_pkg[u'id']:
+            log.info(u'Mismatch between pkg id in activity and URL {} {}'
+                     .format(pkg_dict[u'id'], current_pkg[u'id']))
             # the activity is not for the package in the URL - don't allow
             # misleading URLs as could be malicious
-            base.abort(404, _('Activity not found'))
+            base.abort(404, _(u'Activity not found'))
         # The name is used lots in the template for links, so fix it to be
         # the current one. It's not displayed to the user anyway.
-        pkg_dict['name'] = current_pkg['name']
+        pkg_dict[u'name'] = current_pkg[u'name']
 
         # Earlier versions of CKAN only stored the package table in the
         # activity, so add a placeholder for resources, or the template
         # will crash.
-        pkg_dict.setdefault('resources', [])
+        pkg_dict.setdefault(u'resources', [])
 
     # if the user specified a package id, redirect to the package name
     if data_dict['id'] == pkg_dict['id'] and \
@@ -1049,8 +1049,8 @@ def activity(package_type, id):
         pkg_dict = get_action(u'package_show')(context, data_dict)
         pkg = context[u'package']
         package_activity_stream = get_action(
-            'package_activity_list')(
-            context, {'id': id})
+            u'package_activity_list')(
+            context, {u'id': id})
         dataset_type = pkg_dict[u'type'] or u'dataset'
     except NotFound:
         return base.abort(404, _(u'Dataset not found'))
@@ -1077,13 +1077,13 @@ def changes(activity_id):
     Shows the changes to a dataset in one particular activity stream item.
     '''
     context = {
-        'model': model, 'session': model.Session,
-        'user': g.user, 'auth_user_obj': g.userobj
+        u'model': model, u'session': model.Session,
+        u'user': g.user, u'auth_user_obj': g.userobj
     }
     try:
-        activity_diff = get_action('activity_diff')(
-            context, {'id': activity_id, 'object_type': 'package',
-                      'diff_type': 'html'})
+        activity_diff = get_action(u'activity_diff')(
+            context, {u'id': activity_id, u'object_type': u'package',
+                      u'diff_type': u'html'})
     except NotFound:
         return base.abort(404, _(u'Activity not found'))
     except NotAuthorized:
@@ -1092,20 +1092,20 @@ def changes(activity_id):
     # 'pkg_dict' needs to go to the templates for page title & breadcrumbs.
     # Use the current version of the package, in case the name/title have
     # changed, and we need a link to it which works
-    pkg_id = activity_diff['activities'][1]['data']['package']['id']
-    current_pkg_dict = get_action('package_show')(context, {'id': pkg_id})
+    pkg_id = activity_diff[u'activities'][1][u'data'][u'package'][u'id']
+    current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
 
     return base.render(
-        'package/changes.html', {
-            'activity_diff': activity_diff,
-            'pkg_dict': current_pkg_dict,
+        u'package/changes.html', {
+            u'activity_diff': activity_diff,
+            u'pkg_dict': current_pkg_dict,
         }
     )
 
 
 # deprecated
 def history(package_type, id):
-    h.redirect_to('dataset.activities', id=id)
+    h.redirect_to(u'dataset.activities', id=id)
 
 
 def register_dataset_plugin_rules(blueprint):
