@@ -697,7 +697,7 @@ def vocabulary_list_dictize(vocabulary_list, context):
 def activity_dictize(activity, context, include_data=False):
     activity_dict = d.table_dictize(activity, context)
     if not include_data:
-        # delete all the date apart from the title field on each data object,
+        # delete all the data apart from the title field on each data object,
         # because that is needed to display it in the activity stream
         for obj_key in activity_dict['data'].keys():
             obj_data = activity_dict['data'][obj_key]

@@ -69,27 +69,6 @@ def _filter_activity_by_user(activity_list, users=[]):
     return new_list
 
 
-def _filter_activity_tuples_by_user(activity_tuple_list, users=[]):
-    '''
-    This is the sister of _filter_activity_by_user, but for 'activity tuples'.
-
-    Return the given ``activity_tuple_list``, whose first in each tuple is an
-    activity, but with tuples removed where they are activities by the
-    specified users. The users parameters should be a list of ids.
-
-    A *new* filtered list is returned, the given ``activity_list`` itself is
-    not modified.
-    '''
-    if not len(users):
-        return activity_tuple_list
-    new_list = []
-    for activity_tuple in activity_tuple_list:
-        activity = activity_tuple[0]
-        if activity.user_id not in users:
-            new_list.append(activity_tuple)
-    return new_list
-
-
 def _activity_stream_get_filtered_users():
     '''
     Get the list of users from the :ref:`ckan.hide_activity_from_users` config
