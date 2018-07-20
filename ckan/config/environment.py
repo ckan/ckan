@@ -20,6 +20,7 @@ import ckan.lib.app_globals as app_globals
 from ckan.lib.redis import is_redis_available
 import ckan.lib.render as render
 import ckan.lib.search as search
+import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
@@ -226,6 +227,8 @@ def update_config():
 
     lib_plugins.reset_package_plugins()
     lib_plugins.set_default_package_plugin()
+    lib_plugins.reset_group_plugins()
+    lib_plugins.set_default_group_plugin()
 
     config['routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists

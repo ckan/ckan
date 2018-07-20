@@ -445,6 +445,12 @@ def read(package_type, id):
         # will crash.
         pkg_dict.setdefault('resources', [])
 
+    # if the user specified a package id, redirect to the package name
+    if data_dict['id'] == pkg_dict['id'] and \
+            data_dict['id'] != pkg_dict['name']:
+        return h.redirect_to(u'dataset.read',
+                             id=pkg_dict['name'])
+
     # can the resources be previewed?
     for resource in pkg_dict[u'resources']:
         resource_views = get_action(u'resource_view_list')(
@@ -562,9 +568,9 @@ class CreateView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
-                exc_str = unicode(repr(e.args))
+                exc_str = text_type(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = unicode(str(e))
+                exc_str = text_type(str(e))
             return base.abort(
                 500,
                 _(u'Unable to add package to search index.') + exc_str
@@ -694,9 +700,9 @@ class EditView(MethodView):
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
-                exc_str = unicode(repr(e.args))
+                exc_str = text_type(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = unicode(str(e))
+                exc_str = text_type(str(e))
             return base.abort(
                 500,
                 _(u'Unable to update search index.') + exc_str
@@ -862,6 +868,7 @@ def follow(package_type, id):
     try:
         get_action(u'follow_dataset')(context, data_dict)
         package_dict = get_action(u'package_show')(context, data_dict)
+        id = package_dict['name']
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
@@ -888,6 +895,7 @@ def unfollow(package_type, id):
     try:
         get_action(u'unfollow_dataset')(context, data_dict)
         package_dict = get_action(u'package_show')(context, data_dict)
+        id = package_dict['name']
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)

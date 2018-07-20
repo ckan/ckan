@@ -28,6 +28,7 @@ import ckan.lib.search as search
 from ckan import plugins
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 
+
 class TestAction(WsgiAppCase):
 
     sysadmin_user = None
@@ -80,7 +81,7 @@ class TestAction(WsgiAppCase):
         assert len(res['result']) == 1
         assert 'warandpeace' in res['result'] or 'annakarenina' in res['result']
 
-		# Test GET request
+        # Test GET request
         res = json.loads(self.app.get('/api/action/package_list').body)
         assert len(res['result']) == 2
         assert 'warandpeace' in res['result']
@@ -114,10 +115,10 @@ class TestAction(WsgiAppCase):
         assert 'warandpeace' in res
         assert 'annakarenina' in res
         assert 'public_dataset' in res
-        assert not 'private_dataset' in res
+        assert 'private_dataset' not in res
 
     def test_02_package_autocomplete_match_name(self):
-        postparams = '%s=1' % json.dumps({'q':'war', 'limit': 5})
+        postparams = '%s=1' % json.dumps({'q': 'war', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)

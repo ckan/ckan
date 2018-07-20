@@ -3,38 +3,38 @@
 {% block subtitle %}{{ _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% link_for _('Groups'), controller='group', action='index', named_route=group_type + '_index' %}</li>
+  <li class="active">{% link_for _('Groups'), named_route=group_type+'.index' %}</li>
 {% endblock %}
 
 {% block page_header %}{% endblock %}
 
 {% block page_primary_action %}
   {% if h.check_access('group_create') %}
-    {% link_for _('Add Group'), controller='group', action='new', class_='btn btn-primary', icon='plus-square', named_route=group_type + '_new' %}
+    {% link_for _('Add Group'), named_route=group_type+'.new', class_='btn btn-primary', icon='plus-square' %}
   {% endif %}
 {% endblock %}
 
 {% block primary_content_inner %}
   <h1 class="hide-heading">{{ _('Groups') }}</h1>
   {% block groups_search_form %}
-    {% snippet 'snippets/search_form.html', form_id='group-search-form', type='group', query=c.q, sorting_selected=c.sort_by_selected, count=c.page.item_count, placeholder=_('Search groups...'), show_empty=request.params, no_bottom_border=true if c.page.items, sorting = [(_('Name Ascending'), 'title asc'), (_('Name Descending'), 'title desc')] %}
+    {% snippet 'snippets/search_form.html', form_id='group-search-form', type='group', query=q, sorting_selected=sort_by_selected, count=page.item_count, placeholder=_('Search groups...'), show_empty=request.params, no_bottom_border=true if page.items, sorting = [(_('Name Ascending'), 'title asc'), (_('Name Descending'), 'title desc')] %}
   {% endblock %}
   {% block groups_list %}
-    {% if c.page.items or request.params %}
-      {% if c.page.items %}
-        {% snippet "group/snippets/group_list.html", groups=c.page.items %}
+    {% if page.items or request.params %}
+      {% if page.items %}
+        {% snippet "group/snippets/group_list.html", groups=page.items %}
       {% endif %}
     {% else %}
       <p class="empty">
         {{ _('There are currently no groups for this site') }}.
         {% if h.check_access('group_create') %}
-          {% link_for _('How about creating one?'), controller='group', action='new' %}</a>.
+          {% link_for _('How about creating one?'), named_route=group_type+'.new' %}</a>.
         {% endif %}
       </p>
     {% endif %}
   {% endblock %}
   {% block page_pagination %}
-    {{ c.page.pager(q=c.q or '', sort=c.sort_by_selected or '') }}
+    {{ page.pager(q=q or '', sort=sort_by_selected or '') }}
   {% endblock %}
 {% endblock %}
 

@@ -13,6 +13,7 @@ import logic.schema
 from ckan import plugins
 import ckan.authz
 import ckan.plugins.toolkit as toolkit
+from flask import Blueprint
 
 log = logging.getLogger(__name__)
 
@@ -28,6 +29,8 @@ _default_group_plugin = None
 _default_organization_plugin = None
 # Mapping from group-type strings to controllers
 _group_controllers = {}
+# Mapping from group-type strings to blueprints
+_group_blueprints = {}
 
 
 def reset_package_plugins():
@@ -80,6 +83,13 @@ def lookup_group_controller(group_type=None):
     controller is expressed as a string that you'd pass to url_to(controller=x)
     """
     return _group_controllers.get(group_type)
+
+
+def lookup_group_blueprints(group_type=None):
+    """
+    Returns the group blueprint
+    """
+    return _group_blueprints.get(group_type)
 
 
 def register_package_plugins(app):
@@ -142,7 +152,7 @@ def set_default_package_plugin():
         _default_package_plugin = DefaultDatasetForm()
 
 
-def register_group_plugins(map):
+def register_group_plugins(app):
     """
     Register the various IGroupForm instances.
 
@@ -155,13 +165,7 @@ def register_group_plugins(map):
     global _default_group_plugin
     global _default_organization_plugin
 
-    # This function should have not effect if called more than once.
-    # This should not occur in normal deployment, but it may happen when
-    # running unit tests.
-    if (_default_group_plugin is not None or
-            _default_organization_plugin is not None):
-        return
-
+    from ckan.views.group import group, register_group_plugin_rules
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IGroupForm):
 
@@ -172,95 +176,56 @@ def register_group_plugins(map):
         except AttributeError:
             group_controller = 'group'
 
+        if hasattr(plugin, 'is_organization'):
+            is_organization = plugin.is_organization
+        else:
+            is_organization = group_controller == 'organization'
+
         if plugin.is_fallback():
-            if hasattr(plugin, 'is_organization'):
-                is_organization = plugin.is_organization
-            else:
-                is_organization = group_controller == 'organization'
 
             if is_organization:
-                if _default_organization_plugin is not None:
-                    raise ValueError("More than one fallback IGroupForm for "
-                                     "organizations has been registered")
+                if _default_organization_plugin is not None and \
+                   not isinstance(_default_organization_plugin, DefaultOrganizationForm):
+                        raise ValueError("More than one fallback IGroupForm for "
+                                         "organizations has been registered")
                 _default_organization_plugin = plugin
 
             else:
-                if _default_group_plugin is not None:
-                    raise ValueError("More than one fallback IGroupForm for "
-                                     "groups has been registered")
+                if _default_group_plugin is not None and \
+                   not isinstance(_default_group_plugin, DefaultGroupForm):
+                        raise ValueError("More than one fallback IGroupForm for "
+                                         "groups has been registered")
                 _default_group_plugin = plugin
 
         for group_type in plugin.group_types():
-            # Create the routes based on group_type here, this will
-            # allow us to have top level objects that are actually
-            # Groups, but first we need to make sure we are not
-            # clobbering an existing domain
 
-            # Our version of routes doesn't allow the environ to be
-            # passed into the match call and so we have to set it on the
-            # map instead. This looks like a threading problem waiting
-            # to happen but it is executed sequentially from inside the
-            # routing setup
-
-            map.connect('%s_index' % group_type, '/%s' % group_type,
-                        controller=group_controller, action='index')
-            map.connect('%s_new' % group_type, '/%s/new' % group_type,
-                        controller=group_controller, action='new')
-            map.connect('%s_read' % group_type, '/%s/{id}' % group_type,
-                        controller=group_controller, action='read')
-            map.connect('%s_action' % group_type,
-                        '/%s/{action}/{id}' % group_type,
-                        controller=group_controller,
-                        requirements=dict(action='|'.join(
-                            ['edit', 'authz', 'delete', 'history', 'member_new',
-                             'member_delete', 'followers', 'follow',
-                             'unfollow', 'admins', 'activity'])))
-            map.connect('%s_edit' % group_type, '/%s/edit/{id}' % group_type,
-                        controller=group_controller, action='edit',
-                        ckan_icon='pencil-square-o')
-            map.connect('%s_members' % group_type,
-                        '/%s/members/{id}' % group_type,
-                        controller=group_controller,
-                        action='members',
-                        ckan_icon='users')
-            map.connect('%s_member_new' % group_type,
-                        '/%s/member_new/{id}' % group_type,
-                        controller=group_controller,
-                        action='member_new')
-            map.connect('%s_member_delete' % group_type,
-                        '/%s/member_delete/{id}' % group_type,
-                        controller=group_controller,
-                        action='member_delete')
-            map.connect('%s_activity' % group_type,
-                        '/%s/activity/{id}/{offset}' % group_type,
-                        controller=group_controller,
-                        action='activity', ckan_icon='clock-o'),
-            map.connect('%s_about' % group_type, '/%s/about/{id}' % group_type,
-                        controller=group_controller,
-                        action='about', ckan_icon='info-circle')
-            map.connect('%s_bulk_process' % group_type,
-                        '/%s/bulk_process/{id}' % group_type,
-                        controller=group_controller,
-                        action='bulk_process', ckan_icon='sitemap')
-
-            if group_type in _group_plugins:
+            if group_type in (u'group', u'organization'):
+                # The default routes are registered with the core
+                # 'group' or 'organization' blueprint
+                _group_plugins[group_type] = plugin
+                continue
+            elif group_type in _group_plugins:
                 raise ValueError("An existing IGroupForm is "
                                  "already associated with the group type "
                                  "'%s'" % group_type)
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
 
-            controller_obj = None
-            # If using one of the default controllers, tell it that it is allowed
-            # to handle other group_types.
-            # Import them here to avoid circular imports.
-            if group_controller == 'group':
-                from ckan.controllers.group import GroupController as controller_obj
-            elif group_controller == 'organization':
-                from ckan.controllers.organization import OrganizationController as controller_obj
-            if controller_obj is not None:
-                controller_obj.add_group_type(group_type)
+            blueprint = Blueprint(group_type,
+                                  group.import_name,
+                                  url_prefix='/{}'.format(group_type),
+                                  url_defaults={u'group_type': group_type,
+                                                u'is_organization': is_organization})
+            register_group_plugin_rules(blueprint)
+            app.register_blueprint(blueprint)
 
+        set_default_group_plugin()
+
+
+def set_default_group_plugin():
+    global _default_group_plugin
+    global _default_organization_plugin
+    global _group_controllers
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
         _default_group_plugin = DefaultGroupForm()
@@ -517,7 +482,7 @@ class DefaultGroupForm(object):
 
         ## This is messy as auths take domain object not data_dict
         context_group = context.get('group', None)
-        group = context_group or c.group
+        group = context_group or getattr(c, 'group', '')
         if group:
             try:
                 if not context_group:
@@ -526,6 +491,9 @@ class DefaultGroupForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
+        else:
+            # needs to be set to get template displayed when flask request
+            c.group = ''
 
 
 class DefaultOrganizationForm(DefaultGroupForm):

@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 """Routes configuration
 
 The more specific and detailed routes should be defined first so they
@@ -85,11 +84,9 @@ def make_map():
     PUT_POST_DELETE = dict(method=['PUT', 'POST', 'DELETE'])
     OPTIONS = dict(method=['OPTIONS'])
 
-    import ckan.lib.plugins as lib_plugins
-    lib_plugins.reset_group_plugins()
-
-    map = Mapper(directory=config['pylons.paths']['controllers'],
-                 always_scan=config['debug'])
+    map = Mapper(
+        directory=config['pylons.paths']['controllers'],
+        always_scan=config['debug'])
     map.minimization = False
     map.explicit = True
 
@@ -102,8 +99,12 @@ def make_map():
     map.connect('/error/{action}', controller='error', ckan_core=True)
     map.connect('/error/{action}/{id}', controller='error', ckan_core=True)
 
-    map.connect('*url', controller='home', action='cors_options',
-                conditions=OPTIONS, ckan_core=True)
+    map.connect(
+        '*url',
+        controller='home',
+        action='cors_options',
+        conditions=OPTIONS,
+        ckan_core=True)
 
     # Mark all routes added from extensions on the `before_map` extension point
     # as non-core
@@ -113,30 +114,25 @@ def make_map():
 
     # CKAN API versioned.
     register_list = [
-        'package',
-        'dataset',
-        'resource',
-        'tag',
-        'group',
-        'revision',
-        'licenses',
-        'rating',
-        'user',
-        'activity'
+        'package', 'dataset', 'resource', 'tag', 'group', 'revision',
+        'licenses', 'rating', 'user', 'activity'
     ]
     register_list_str = '|'.join(register_list)
 
     # /api ver 1, 2, 3 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}',
-                   ver='/1') as m:
+    with SubMapper(
+            map, controller='api', path_prefix='/api{ver:/1|/2|/3|}',
+            ver='/1') as m:
         m.connect('/search/{register}', action='search')
 
     # /api/util ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
-                   ver='/1') as m:
+    with SubMapper(
+            map, controller='api', path_prefix='/api{ver:/1|/2|}',
+            ver='/1') as m:
         m.connect('/util/dataset/munge_name', action='munge_package_name')
-        m.connect('/util/dataset/munge_title_to_name',
-                  action='munge_title_to_package_name')
+        m.connect(
+            '/util/dataset/munge_title_to_name',
+            action='munge_title_to_package_name')
         m.connect('/util/tag/munge', action='munge_tag')
 
     ###########
@@ -148,83 +144,14 @@ def make_map():
     map.redirect('/package', '/dataset')
     map.redirect('/package/{url:.*}', '/dataset/{url}')
 
-    # group
-    map.redirect('/groups', '/group')
-    map.redirect('/groups/{url:.*}', '/group/{url}')
-
-    # These named routes are used for custom group forms which will use the
-    # names below based on the group.type ('group' is the default type)
-    with SubMapper(map, controller='group') as m:
-        m.connect('group_index', '/group', action='index',
-                  highlight_actions='index search')
-        m.connect('group_list', '/group/list', action='list')
-        m.connect('group_new', '/group/new', action='new')
-
-        for action in [
-              'edit',
-              'delete',
-              'member_new',
-              'member_delete',
-              'history',
-              'followers',
-              'follow',
-              'unfollow',
-              'admins',
-              'activity',
-          ]:
-            m.connect('group_' + action,
-                      '/group/' + action + '/{id}',
-                      action=action)
-
-        m.connect('group_about', '/group/about/{id}', action='about',
-                  ckan_icon='info-circle'),
-        m.connect('group_edit', '/group/edit/{id}', action='edit',
-                  ckan_icon='pencil-square-o')
-        m.connect('group_members', '/group/members/{id}', action='members',
-                  ckan_icon='users'),
-        m.connect('group_activity', '/group/activity/{id}/{offset}',
-                  action='activity', ckan_icon='clock-o'),
-        m.connect('group_read', '/group/{id}', action='read',
-                  ckan_icon='sitemap')
-
-    # organizations these basically end up being the same as groups
-    with SubMapper(map, controller='organization') as m:
-        m.connect('organizations_index', '/organization', action='index')
-        m.connect('organization_index', '/organization', action='index')
-        m.connect('organization_new', '/organization/new', action='new')
-        for action in [
-          'delete',
-          'admins',
-          'member_new',
-          'member_delete',
-          'history']:
-            m.connect('organization_' + action,
-                      '/organization/' + action + '/{id}',
-                      action=action)
-
-        m.connect('organization_activity', '/organization/activity/{id}/{offset}',
-                  action='activity', ckan_icon='clock-o')
-        m.connect('organization_read', '/organization/{id}', action='read')
-        m.connect('organization_about', '/organization/about/{id}',
-                  action='about', ckan_icon='info-circle')
-        m.connect('organization_read', '/organization/{id}', action='read',
-                  ckan_icon='sitemap')
-        m.connect('organization_edit', '/organization/edit/{id}',
-                  action='edit', ckan_icon='pencil-square-o')
-        m.connect('organization_members', '/organization/members/{id}',
-                  action='members', ckan_icon='users')
-        m.connect('organization_bulk_process',
-                  '/organization/bulk_process/{id}',
-                  action='bulk_process', ckan_icon='sitemap')
-
-
-    lib_plugins.register_group_plugins(map)
 
     # tags
     map.redirect('/tags', '/tag')
     map.redirect('/tags/{url:.*}', '/tag/{url}')
-    map.redirect('/tag/read/{url:.*}', '/tag/{url}',
-                 _redirect_code='301 Moved Permanently')
+    map.redirect(
+        '/tag/read/{url:.*}',
+        '/tag/{url}',
+        _redirect_code='301 Moved Permanently')
     map.connect('/tag', controller='tag', action='index')
     map.connect('/tag/{id}', controller='tag', action='read')
     # users
@@ -264,8 +191,7 @@ def make_map():
     # the real favicon location.
     map.redirect('/favicon.ico', config.get('ckan.favicon'))
 
-    map.redirect('/*(url)/', '/{url}',
-                 _redirect_code='301 Moved Permanently')
+    map.redirect('/*(url)/', '/{url}', _redirect_code='301 Moved Permanently')
     map.connect('/*url', controller='template', action='view', ckan_core=True)
 
     return map

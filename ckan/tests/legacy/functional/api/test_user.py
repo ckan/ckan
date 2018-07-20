@@ -35,7 +35,7 @@ class TestUserApi(ControllerTestCase):
         print(response.json)
         assert set(response.json[0].keys()) == set(['id', 'name', 'fullname'])
         assert_equal(response.json[0]['name'], u'testsysadmin')
-        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+        assert_equal(response.headers.get('Content-Type'), 'application/json;charset=utf-8')
 
     def test_autocomplete_multiple(self):
         response = self.app.get(
