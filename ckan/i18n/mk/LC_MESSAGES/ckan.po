@@ -2583,7 +2583,7 @@ msgstr "Сокријте"
 #: ckan/public/base/test/spec/i18n.spec.js:13
 #: ckan/public/base/test/spec/module.spec.js:385
 msgid "foo"
-msgstr ""
+msgstr "фоо"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:17
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:46
@@ -2595,14 +2595,14 @@ msgstr ""
 #: ckan/public/base/test/spec/i18n.spec.js:54
 msgid "no translation"
 msgid_plural "no translations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "нема превод"
+msgstr[1] "нема преводи"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:22
 #: ckan/public/base/test/spec/i18n.spec.js:22
 #, python-format
 msgid "hello %(name)s!"
-msgstr ""
+msgstr "здраво %(name)s"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:29
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:76
@@ -2615,8 +2615,8 @@ msgstr ""
 #, python-format
 msgid "no %(attr)s translation"
 msgid_plural "no %(attr)s translations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "нема %(attr)sпревод"
+msgstr[1] "нема %(attr)sпреводи"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:39
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:40
@@ -2632,8 +2632,8 @@ msgstr[1] ""
 #: ckan/public/base/test/spec/module.spec.js:397
 msgid "bar"
 msgid_plural "bars"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "бар"
+msgstr[1] "бар"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:61
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:65
@@ -2644,8 +2644,8 @@ msgstr[1] ""
 #, python-format
 msgid "%(color)s shirt"
 msgid_plural "%(color)s shirts"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(color)sмаица"
+msgstr[1] "%(color)sмаици"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:93
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:94
@@ -2656,8 +2656,8 @@ msgstr[1] ""
 #, python-format
 msgid "%(num)d item"
 msgid_plural "%(num)d items"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)dставка"
+msgstr[1] "%(num)dставки"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:100
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:105
@@ -2668,8 +2668,8 @@ msgstr[1] ""
 #, python-format
 msgid "%(num)d missing translation"
 msgid_plural "%(num)d missing translations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)dнедостасува превод"
+msgstr[1] "%(num)dнедостасуваат преводи"
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
@@ -2923,6 +2923,7 @@ msgstr ""
 #: ckan/templates/admin/snippets/data_type.html:11
 msgid "Deleted groups"
 msgstr ""
+"<p>Исчистете ги избришаните податочни сетови засекогаш и неповратно.</p>"
 
 #: ckan/templates/admin/snippets/data_type.html:41
 msgid "Purge"
@@ -3352,7 +3353,7 @@ msgstr "Пребарувај податоци"
 
 #: ckan/templates/home/snippets/search.html:8
 msgid "Search datasets"
-msgstr ""
+msgstr "Пребарувај податочни сетови"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
@@ -3748,6 +3749,9 @@ msgid ""
 "You're currently viewing an old version of this dataset. To see the current "
 "version, click <a href=\"%(url)s\">here</a>."
 msgstr ""
+"Ова е стара ревизија на овој податочен сет, како што е изменето во "
+"%(timestamp)s. Може да се разликува значително од <a "
+"href=\"%(url)s\">тековната ревизија</a>"
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
@@ -4593,6 +4597,8 @@ msgid ""
 "Set author email of {pkg_link} to {new_author_email} (previously "
 "{old_author_email})"
 msgstr ""
+"Можете да го копирате и залепите вметнатиот код во системот за управување со"
+" податоци или блог софтвер кој поддржува чист HTML"
 
 #: ckan/templates/snippets/changes/author_email.html:23
 msgid "Set author email of {pkg_link} to {new_author_email}"
@@ -4654,6 +4660,7 @@ msgstr ""
 #: ckan/templates/snippets/changes/extra_fields.html:100
 msgid "<q>{key}</q>"
 msgstr ""
+"Приказот претставува репрезентација на податоците содржани во ресурсот"
 
 #: ckan/templates/snippets/changes/license.html:6
 msgid ""
@@ -4788,6 +4795,8 @@ msgstr ""
 msgid ""
 "Removed the following fields from resource {resource_link} in {pkg_link}"
 msgstr ""
+"<p id=\"search-error\"><strong>Се појави грешка при "
+"пребарувањето.</strong>Ве молиме обидете се повторно.</p>"
 
 #: ckan/templates/snippets/changes/resource_extras.html:110
 msgid ""
@@ -5210,6 +5219,8 @@ msgstr ""
 #: ckan/templates/user/snippets/api_token_list.html:40
 msgid "Revoke"
 msgstr ""
+"Внесете го Вашето корисничко име во полето и ние ќе Ви испратиме електронска"
+" порака со линк за влез и нова лозинка."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:15
 #: ckan/templates/user/snippets/followee_dropdown.html:16

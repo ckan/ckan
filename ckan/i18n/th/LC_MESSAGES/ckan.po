@@ -160,6 +160,8 @@ msgstr ""
 #: ckanext/datastore/backend/postgres.py:1067
 msgid "The data was invalid: {}"
 msgstr ""
+"ข้อมูลไม่ถูกต้อง (ตัวอย่างเช่น "
+"ค่าของตัวเลขอยู่นอกขอบเขตที่กำหนดหรือถูกนำไปใส่ในฟิลด์สำหรับข้อความ)"
 
 #: ckanext/datastore/logic/action.py:277 ckanext/datastore/logic/action.py:309
 #: ckanext/datastore/logic/action.py:373 ckanext/datastore/logic/action.py:509

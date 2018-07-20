@@ -2575,6 +2575,7 @@ msgid_plural "no translations"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:22
 #: ckan/public/base/test/spec/i18n.spec.js:22
@@ -2596,6 +2597,7 @@ msgid_plural "no %(attr)s translations"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:39
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:40
@@ -2614,6 +2616,7 @@ msgid_plural "bars"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:61
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:65
@@ -2627,6 +2630,7 @@ msgid_plural "%(color)s shirts"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:93
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:94
@@ -2640,6 +2644,7 @@ msgid_plural "%(num)d items"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:100
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:105
@@ -2653,6 +2658,7 @@ msgid_plural "%(num)d missing translations"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/error_document_template.html:3
 #, python-format

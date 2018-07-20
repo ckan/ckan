@@ -2604,6 +2604,7 @@ msgid_plural "no translations"
 msgstr[0] "žádný překlad"
 msgstr[1] "žádné překlady"
 msgstr[2] "žádné překlady"
+msgstr[3] "žádné překlady"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:22
 #: ckan/public/base/test/spec/i18n.spec.js:22
@@ -2625,6 +2626,7 @@ msgid_plural "no %(attr)s translations"
 msgstr[0] "chybí překlad %(attr)s"
 msgstr[1] "chybí překlady %(attr)s"
 msgstr[2] "chybí překlady %(attr)s"
+msgstr[3] "chybí překlady %(attr)s"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:39
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:40
@@ -2643,6 +2645,7 @@ msgid_plural "bars"
 msgstr[0] "něco"
 msgstr[1] "něco"
 msgstr[2] "něco"
+msgstr[3] "něco"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:61
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:65
@@ -2656,6 +2659,7 @@ msgid_plural "%(color)s shirts"
 msgstr[0] "%(color)s košile"
 msgstr[1] "%(color)s košile"
 msgstr[2] "%(color)s košil"
+msgstr[3] "%(color)s košil"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:93
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:94
@@ -2669,6 +2673,7 @@ msgid_plural "%(num)d items"
 msgstr[0] "%(num)d položka"
 msgstr[1] "%(num)d položky"
 msgstr[2] "%(num)d položek"
+msgstr[3] "%(num)d položek"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:100
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:105
@@ -2682,6 +2687,7 @@ msgid_plural "%(num)d missing translations"
 msgstr[0] "%(num)d chybějící překlad"
 msgstr[1] "%(num)d chybějící překlady"
 msgstr[2] "%(num)d chybějících překladů"
+msgstr[3] "%(num)d chybějících překladů"
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
