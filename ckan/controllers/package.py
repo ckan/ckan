@@ -2,16 +2,18 @@
 
 import logging
 from urllib import urlencode
+import datetime
 import mimetypes
 import cgi
 
+from ckan.common import config
 from paste.deploy.converters import asbool
 import paste.fileapp
 from six import string_types, text_type
 
-from ckan.common import config
 import ckan.logic as logic
 import ckan.lib.base as base
+import ckan.lib.i18n as i18n
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.helpers as h
@@ -360,45 +362,13 @@ class PackageController(base.BaseController):
                    'user': c.user, 'for_view': True,
                    'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'include_tracking': True}
-        activity_id = request.params.get('activity_id')
 
-        # get the package dict
+        # check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            # NB templates should not use c.pkg, because it takes no account
-            # of activity_id (among other reasons)
         except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
-        if activity_id:
-            # view an 'old' version of the package, as recorded in the
-            # activity stream
-            try:
-                activity = get_action('activity_show')(
-                    context, {'id': activity_id, 'include_data': True})
-            except NotFound:
-                abort(404, _('Activity not found'))
-            except NotAuthorized:
-                abort(403, _('Unauthorized to view activity data'))
-            current_pkg = c.pkg_dict
-            try:
-                c.pkg_dict = activity['data']['package']
-            except KeyError:
-                abort(404, _('Dataset not found'))
-            if c.pkg_dict['id'] != current_pkg['id']:
-                log.info('Mismatch between pkg id in activity and URL {} {}'
-                         .format(c.pkg_dict['id'], current_pkg['id']))
-                # the activity is not for the package in the URL - don't allow
-                # misleading URLs as could be malicious
-                abort(404, _('Activity not found'))
-            # The name is used lots in the template for links, so fix it to be
-            # the current one. It's not displayed to the user anyway.
-            c.pkg_dict['name'] = current_pkg['name']
-
-            # Earlier versions of CKAN only stored the package table in the
-            # activity, so add a placeholder for resources, or the template
-            # will crash.
-            c.pkg_dict.setdefault('resources', [])
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
@@ -420,10 +390,7 @@ class PackageController(base.BaseController):
         template = self._read_template(package_type)
         try:
             return render(template,
-                          extra_vars={
-                              'dataset_type': package_type,
-                              'is_activity_archive': bool(activity_id),
-                          })
+                          extra_vars={'dataset_type': package_type})
         except ckan.lib.render.TemplateNotFound as e:
             msg = _(
                 "Viewing datasets of type \"{package_type}\" is "
@@ -437,6 +404,8 @@ class PackageController(base.BaseController):
         assert False, "We should never get here"
 
     def history(self, id):
+        # revisions removed in favour of the activity stream and diff
+        # functionality in the dataset view.
         h.redirect_to(controller='package', action='activities', id=id)
 
     def new(self, data=None, errors=None, error_summary=None):
@@ -1022,31 +991,6 @@ class PackageController(base.BaseController):
             c.package = get_action('package_show')(context, {'id': id})
         except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
-        activity_id = request.params.get('activity_id')
-        if activity_id:
-            # view an 'old' version of the package, as recorded in the
-            # activity stream
-            current_pkg = c.package
-            try:
-                c.package = context['session'].query(model.Activity).get(
-                    activity_id
-                ).data['package']
-            except AttributeError:
-                abort(404, _('Dataset not found'))
-
-            if c.package['id'] != current_pkg['id']:
-                log.info('Mismatch between pkg id in activity and URL {} {}'
-                         .format(c.package['id'], current_pkg['id']))
-                # the activity is not for the package in the URL - don't allow
-                # misleading URLs as could be malicious
-                abort(404, _('Activity not found'))
-            # The name is used lots in the template for links, so fix it to be
-            # the current one. It's not displayed to the user anyway.
-            c.package['name'] = current_pkg['name']
-
-            # Don't crash on old (unmigrated) activity records, which do not
-            # include resources or extras.
-            c.package.setdefault('resources', [])
 
         for resource in c.package.get('resources', []):
             if resource['id'] == resource_id:
@@ -1096,8 +1040,7 @@ class PackageController(base.BaseController):
 
         vars = {'resource_views': resource_views,
                 'current_resource_view': current_resource_view,
-                'dataset_type': dataset_type,
-                'is_activity_archive': bool(activity_id)}
+                'dataset_type': dataset_type}
 
         template = self._resource_template(dataset_type)
         return render(template, extra_vars=vars)
