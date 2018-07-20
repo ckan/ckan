@@ -10,7 +10,7 @@ from flask import Flask, Blueprint
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 
-from werkzeug.exceptions import HTTPException
+from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.routing import Rule
 
 from flask_babel import Babel
@@ -71,7 +71,7 @@ def make_flask_stack(conf, **app_conf):
     root = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    debug = asbool(app_conf.get('debug', app_conf.get('DEBUG', False)))
+    debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
     testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
 
     app = flask_app = CKANFlask(__name__)
