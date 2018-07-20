@@ -7,6 +7,17 @@
 Changelog
 ---------
 
+v2.9.0 TBC
+==========
+
+ * This version requires script 'migrate-revisions.py' to be run after CKAN is
+   upgraded and operating again. This is because this script takes a while to
+   run, adding in the Activity Stream detail, visible only to admins by default.
+   This is a separate step to the database upgrade.
+   Run migrate_revisions.py like this:
+    python ckan/migration/migrate_revisions.py -c /etc/ckan/production.ini
+
+
 v.2.8.0 2018-05-09
 ==================
 

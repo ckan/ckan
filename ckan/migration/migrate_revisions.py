@@ -3,10 +3,21 @@
 '''
 Migrates revisions into the activity stream, to allow you to view old versions
 of datasets and changes (diffs) between them.
-'''
 
-# This is not part of the main migrations because it takes a long time to
-# run, and you don't want it to delay a site going live again after an upgrade.
+This should be run once you've upgraded to CKAN 2.9.
+
+This script is not part of the main migrations because it takes a long time to
+run, and you don't want it to delay a site going live again after an upgrade.
+In the period between upgrading CKAN and this script completes, the Activity
+Stream's view of old versions of datasets and diffs between them will be
+incomplete - it won't show resources, extras or tags.
+
+This script is idempotent - there is no harm in running this multiple times, or
+stopping and restarting it.
+
+We won't delete the revision tables in the database yet, since we haven't
+converted the group, package_relationship to activity objects yet.
+'''
 
 # This code is not part of the main CKAN CLI because it is a one-off migration,
 # whereas the main CLI is a list of tools for more frequent use.
@@ -48,7 +59,7 @@ def migrate_dataset(dataset_name):
     context = get_context()
     # 'hidden' activity is that by site_user, such as harvests, which are
     # not shown in the activity stream because they can be too numerous.
-    # However thes do have Activity objects, and if a hidden Activity is
+    # However these do have Activity objects, and if a hidden Activity is
     # followed be a non-hidden one and you look at the changes of that
     # non-hidden Activity, then it does a diff with the hidden one (rather than
     # the most recent non-hidden one), so it is important to store the
