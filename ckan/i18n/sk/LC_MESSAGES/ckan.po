@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.5.3\n"
 "Language: sk\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);\n"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
@@ -397,6 +397,7 @@ msgid_plural "{num} Datasets"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -1474,6 +1475,7 @@ msgid_plural "{n} new activities from {site_title}"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -1533,6 +1535,7 @@ msgid_plural "{mins} minutes ago"
 msgstr[0] "pred {mins} minutami"
 msgstr[1] "pred {mins} minútou"
 msgstr[2] "pred {mins} minutami"
+msgstr[3] "pred {mins} minutami"
 
 #: ckan/lib/formatters.py:119
 msgid "{hours} hour ago"
@@ -1540,6 +1543,7 @@ msgid_plural "{hours} hours ago"
 msgstr[0] "pred {hours} hodinami"
 msgstr[1] "pred {hours} hodinou"
 msgstr[2] "pred {hours} hodinami"
+msgstr[3] "pred {hours} hodinami"
 
 #: ckan/lib/formatters.py:125
 msgid "{days} day ago"
@@ -1547,6 +1551,7 @@ msgid_plural "{days} days ago"
 msgstr[0] "pred {days} dňami"
 msgstr[1] "pred {days} dňom"
 msgstr[2] "pred {days} dňami"
+msgstr[3] "pred {days} dňami"
 
 #: ckan/lib/formatters.py:128
 msgid "{months} month ago"
@@ -1554,6 +1559,7 @@ msgid_plural "{months} months ago"
 msgstr[0] "pred {months} mesiacmi"
 msgstr[1] "pred {months} mesiacom"
 msgstr[2] "pred {months} mesiacmi"
+msgstr[3] "pred {months} mesiacmi"
 
 #: ckan/lib/formatters.py:130
 msgid "over {years} year ago"
@@ -1561,6 +1567,7 @@ msgid_plural "over {years} years ago"
 msgstr[0] "pred viac než {years} rokmi"
 msgstr[1] "pred viac než {years} rokom"
 msgstr[2] "pred viac než {years} rokmi"
+msgstr[3] "pred viac než {years} rokmi"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
@@ -1656,6 +1663,7 @@ msgid_plural "{number} views"
 msgstr[0] "{number} videní"
 msgstr[1] "{number} videnie"
 msgstr[2] "{number} videní"
+msgstr[3] "{number} videní"
 
 #: ckan/lib/helpers.py:1650
 msgid "{number} recent view"
@@ -1663,6 +1671,7 @@ msgid_plural "{number} recent views"
 msgstr[0] "{number} nedávnych videní"
 msgstr[1] "{number} nedávne videnie"
 msgstr[2] "{number} nedávnych videní"
+msgstr[3] "{number} nedávnych videní"
 
 #: ckan/lib/mailer.py:39
 #, python-format
@@ -2445,6 +2454,7 @@ msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
@@ -2595,6 +2605,111 @@ msgstr "Ukázať viac"
 msgid "Hide"
 msgstr "Skryť"
 
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:13
+#: ckan/public-bs2/base/test/spec/module.spec.js:385
+#: ckan/public/base/test/spec/i18n.spec.js:13
+#: ckan/public/base/test/spec/module.spec.js:385
+msgid "foo"
+msgstr ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:17
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:46
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:50
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:54
+#: ckan/public/base/test/spec/i18n.spec.js:17
+#: ckan/public/base/test/spec/i18n.spec.js:46
+#: ckan/public/base/test/spec/i18n.spec.js:50
+#: ckan/public/base/test/spec/i18n.spec.js:54
+msgid "no translation"
+msgid_plural "no translations"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:22
+#: ckan/public/base/test/spec/i18n.spec.js:22
+#, python-format
+msgid "hello %(name)s!"
+msgstr ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:29
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:76
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:81
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:86
+#: ckan/public/base/test/spec/i18n.spec.js:29
+#: ckan/public/base/test/spec/i18n.spec.js:76
+#: ckan/public/base/test/spec/i18n.spec.js:81
+#: ckan/public/base/test/spec/i18n.spec.js:86
+#, python-format
+msgid "no %(attr)s translation"
+msgid_plural "no %(attr)s translations"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:39
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:40
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:41
+#: ckan/public-bs2/base/test/spec/module.spec.js:395
+#: ckan/public-bs2/base/test/spec/module.spec.js:396
+#: ckan/public-bs2/base/test/spec/module.spec.js:397
+#: ckan/public/base/test/spec/i18n.spec.js:39
+#: ckan/public/base/test/spec/i18n.spec.js:40
+#: ckan/public/base/test/spec/i18n.spec.js:41
+#: ckan/public/base/test/spec/module.spec.js:395
+#: ckan/public/base/test/spec/module.spec.js:396
+#: ckan/public/base/test/spec/module.spec.js:397
+msgid "bar"
+msgid_plural "bars"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:61
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:65
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:69
+#: ckan/public/base/test/spec/i18n.spec.js:61
+#: ckan/public/base/test/spec/i18n.spec.js:65
+#: ckan/public/base/test/spec/i18n.spec.js:69
+#, python-format
+msgid "%(color)s shirt"
+msgid_plural "%(color)s shirts"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:93
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:94
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:95
+#: ckan/public/base/test/spec/i18n.spec.js:93
+#: ckan/public/base/test/spec/i18n.spec.js:94
+#: ckan/public/base/test/spec/i18n.spec.js:95
+#, python-format
+msgid "%(num)d item"
+msgid_plural "%(num)d items"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:100
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:105
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:110
+#: ckan/public/base/test/spec/i18n.spec.js:100
+#: ckan/public/base/test/spec/i18n.spec.js:105
+#: ckan/public/base/test/spec/i18n.spec.js:110
+#, python-format
+msgid "%(num)d missing translation"
+msgid_plural "%(num)d missing translations"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
@@ -2635,6 +2750,7 @@ msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Zobraziť (%(num)d novú položku)"
 msgstr[1] "Zobraziť (%(num)d nové položky)"
 msgstr[2] "Zobraziť (%(num)d nové položky)"
+msgstr[3] "Zobraziť (%(num)d nové položky)"
 
 #: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -3456,6 +3572,7 @@ msgid_plural "{count} members"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -4306,6 +4423,7 @@ msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] "{number} dataset nájdený na dopyt \"{query}\""
 msgstr[1] "{number} datasety nájdené na dopyt \"{query}\""
 msgstr[2] "{number} datasetov nájdených na dopyt\"{query}\""
+msgstr[3] "{number} datasetov nájdených na dopyt\"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -4317,6 +4435,7 @@ msgid_plural "{number} datasets found"
 msgstr[0] "{number} dataset nájdený"
 msgstr[1] "{number} datasety nájdené"
 msgstr[2] "{number} datasetov nájdených"
+msgstr[3] "{number} datasetov nájdených"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -4328,6 +4447,7 @@ msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] "{number} skupina nájdená na dopyt \"{query}\""
 msgstr[1] "{number} skupiny nájdené na dopyt \"{query}\""
 msgstr[2] "{number} skupín nájdených na dopyt \"{query}\""
+msgstr[3] "{number} skupín nájdených na dopyt \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -4339,6 +4459,7 @@ msgid_plural "{number} groups found"
 msgstr[0] "{number} skupina nájdená"
 msgstr[1] "{number} skupiny nájdené"
 msgstr[2] "{number} skupín nájdených"
+msgstr[3] "{number} skupín nájdených"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4350,6 +4471,7 @@ msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] "{number} organizácia nájdená na dopyt \"{query}\""
 msgstr[1] "{number} organizácie nájdené na dopyt \"{query}\""
 msgstr[2] "{number} organizácií nájdených na dopyt \"{query}\""
+msgstr[3] "{number} organizácií nájdených na dopyt \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -4361,6 +4483,7 @@ msgid_plural "{number} organizations found"
 msgstr[0] "{number} organizácia nájdená"
 msgstr[1] "{number} organizácie nájdené"
 msgstr[2] "{number} organizácií nájdených"
+msgstr[3] "{number} organizácií nájdených"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
