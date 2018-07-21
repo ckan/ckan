@@ -25,7 +25,7 @@ dependencies:
         #- sudo apt-get -y install solr-common  # =4.3.1 current is 3.6.2
         - sudo apt-get install -y openjdk-6-jdk solr-jetty
         #- sudo apt-get install -y python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk redis-server
-        - which solr
+        #- which solr
         - whereis solr
         - ls /opt
         - ls $HOME
