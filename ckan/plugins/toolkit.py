@@ -44,6 +44,8 @@ class _Toolkit(object):
         'literal',
         # get logic action function
         'get_action',
+        # get flask/pylons endpoint fragments
+        'get_endpoint',
         # decorator for chained action
         'chained_action',
         # get navl schema converter
@@ -283,6 +285,7 @@ content type, cookies, etc.
         t['add_ckan_admin_tab'] = self._add_ckan_admin_tabs
         t['requires_ckan_version'] = self._requires_ckan_version
         t['check_ckan_version'] = self._check_ckan_version
+        t['get_endpoint'] = self._get_endpoint
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
@@ -455,6 +458,26 @@ content type, cookies, etc.
                     max_version
                 )
             raise CkanVersionException(error)
+
+    @classmethod
+    def _get_endpoint(cls):
+        """Returns tuple in format: (controller|blueprint, action|view).
+        """
+        import ckan.common as common
+        try:
+            # CKAN >= 2.8
+            endpoint = tuple(common.request.endpoint.split('.'))
+        except AttributeError:
+            try:
+                return common.c.controller, common.c.action
+            except AttributeError:
+                return (None, None)
+        # there are some routes('hello_world') that are not using blueprint
+        # For such case, let's assume that view function is a controller
+        # itself and action is None.
+        if len(endpoint) is 1:
+            return endpoint + (None,)
+        return endpoint
 
     def __getattr__(self, name):
         ''' return the function/object requested '''
