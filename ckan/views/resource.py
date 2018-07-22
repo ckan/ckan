@@ -662,7 +662,7 @@ class EditResourceViewView(MethodView):
             extra_vars.update(post_extra)
 
         package_type = _get_package_type(id)
-
+        view_type = None
         # view_id exists only when updating
         if view_id:
             try:
@@ -685,7 +685,7 @@ class EditResourceViewView(MethodView):
         if not view_plugin:
             return base.abort(404, _(u'View Type Not found'))
 
-        self._setup_template_variables(
+        _setup_template_variables(
             context, {u'id': id}, package_type=package_type
         )
 
