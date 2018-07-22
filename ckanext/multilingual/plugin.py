@@ -335,13 +335,17 @@ class MultilingualDataset(SingletonPlugin):
         # retrieve them later.
         desired_lang_code = request.environ['CKAN_LANG']
         fallback_lang_code = config.get('ckan.locale_default', 'en')
-        terms = [value for param, value in c.fields]
+        try:
+            fields = c.fields
+        except AttributeError:
+            return translate_data_dict(dataset_dict)
+        terms = [value for param, value in fields]
         translations = get_action('term_translation_show')(
                 {'model': ckan.model},
                 {'terms': terms,
                  'lang_codes': (desired_lang_code, fallback_lang_code)})
         c.translated_fields = {}
-        for param, value in c.fields:
+        for param, value in fields:
             matching_translations = [translation for translation in
                     translations if translation['term'] == value and
                     translation['lang_code'] == desired_lang_code]
