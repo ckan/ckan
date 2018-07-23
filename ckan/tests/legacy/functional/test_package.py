@@ -231,12 +231,10 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         offset = url_for('dataset.read', id=pkg_name)
         res = self.app.get(offset)
         def check_link(res, controller, id):
-            id_in_uri = id.strip('"').replace(' ', '%20') # remove quotes and percent-encode spaces
+            id_in_uri = id.strip('"').replace(' ', '+') # remove quotes and percent-encode spaces
             self.check_tag_and_data(res, 'a ', '%s/%s' % (controller, id_in_uri),
                                     '%s:%s' % (controller, id.replace('"', '&#34;')))
         check_link(res, 'dataset', 'pkg-1')
-        check_link(res, 'tag', 'tag_1')
-        check_link(res, 'tag', '"multi word with punctuation."')
         check_link(res, 'group', 'test-group-1')
         assert 'decoy</a>' not in res, res
         assert 'decoy"' not in res, res

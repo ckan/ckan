@@ -350,14 +350,6 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
         p.unload('test_routing_plugin')
 
-    def test_pylons_core_route_is_served_by_pylons(self):
-
-        app = self._get_test_app()
-
-        res = app.get('/tags')
-
-        eq_(res.environ['ckan.app'], 'pylons_app')
-
     def test_pylons_extension_route_is_served_by_pylons(self):
 
         if not p.plugin_loaded('test_routing_plugin'):

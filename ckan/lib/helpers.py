@@ -1631,7 +1631,7 @@ def resource_link(resource_dict, package_id):
 
 @core_helper
 def tag_link(tag):
-    url = url_for(controller='tag', action='read', id=tag['name'])
+    url = url_for('dataset.search', tags=tag['name'])
     return tags.link_to(tag.get('title', tag['name']), url)
 
 

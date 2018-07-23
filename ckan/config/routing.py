@@ -114,7 +114,7 @@ def make_map():
 
     # CKAN API versioned.
     register_list = [
-        'package', 'dataset', 'resource', 'tag', 'group', 'revision',
+        'package', 'dataset', 'resource', 'group', 'revision',
         'licenses', 'rating', 'user', 'activity'
     ]
     register_list_str = '|'.join(register_list)
@@ -144,16 +144,6 @@ def make_map():
     map.redirect('/package', '/dataset')
     map.redirect('/package/{url:.*}', '/dataset/{url}')
 
-
-    # tags
-    map.redirect('/tags', '/tag')
-    map.redirect('/tags/{url:.*}', '/tag/{url}')
-    map.redirect(
-        '/tag/read/{url:.*}',
-        '/tag/{url}',
-        _redirect_code='301 Moved Permanently')
-    map.connect('/tag', controller='tag', action='index')
-    map.connect('/tag/{id}', controller='tag', action='read')
     # users
     map.redirect('/users/{url:.*}', '/user/{url}')
 
