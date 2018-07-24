@@ -1,3 +1,5 @@
+.. include:: /_substitutions.rst
+
 ==========================
 Upgrading a source install
 ==========================
@@ -22,10 +24,12 @@ CKAN release you're upgrading to:
     |activate|
     cd |virtualenv|/src/ckan
 
-#. Checkout the new CKAN version from git, for example::
+#. Checkout the new CKAN version from git, for example:
+
+   .. parsed-literal::
 
     git fetch
-    git checkout 2.7
+    git checkout |latest_release_tag|
 
    If you have any CKAN extensions installed from source, you may need to
    checkout newer versions of the extensions at this point as well. Refer to
