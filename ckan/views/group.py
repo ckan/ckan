@@ -6,6 +6,7 @@ import re
 from urllib import urlencode
 
 from pylons.i18n import get_lang
+from six import string_types, text_type
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -272,7 +273,7 @@ def _read(id, limit, group_type):
             g, u'action', u'') == u'bulk_process' else u'read'
         url = h.url_for(u'.'.join([controller, action]), id=id)
         params = [(k, v.encode(u'utf-8')
-                   if isinstance(v, basestring) else str(v))
+                   if isinstance(v, string_types) else str(v))
                   for k, v in params]
         return url + u'?' + urlencode(params)
 
@@ -642,7 +643,7 @@ def history(id, group_type, is_organization):
                 group_type + u'.read', id=group_dict[u'name']),
             description=_(u'Recent changes to CKAN Group: ') +
             group_dict['display_name'],
-            language=unicode(get_lang()), )
+            language=text_type(get_lang()), )
         for revision_dict in group_revisions:
             revision_date = h.date_str_to_datetime(revision_dict[u'timestamp'])
             try:
