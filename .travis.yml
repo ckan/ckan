@@ -31,6 +31,7 @@ matrix:
         - docker ps -a
 
     - python: "2.7"
+      env: FLAKE8=true
       cache: pip
       install:
         - pip install flake8
@@ -44,6 +45,7 @@ matrix:
         - true
 
     - python: "3.7"
+      env: FLAKE8=true
       dist: xenial    # required for Python 3.7
       sudo: required  # required for Python 3.7
       cache: pip
