@@ -2,8 +2,6 @@ group: travis_latest
 language: python
 
 matrix:
-  allow_failures:
-    - python: "3.7"  # pending #4357
   include:
     - python: "2.7"
       sudo: required
