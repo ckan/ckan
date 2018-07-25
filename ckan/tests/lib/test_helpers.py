@@ -541,7 +541,7 @@ class TestBuildNavMain(object):
             ('group.index', 'Groups'),
             ('home.about', 'About')
         )
-        eq_(h.build_nav_main(menu), (
+        eq_(h.build_nav_main(*menu), (
             '<li><a href="/">Home</a></li>'
             '<li><a href="/dataset">Datasets</a></li>'
             '<li><a href="/organization">Organizations</a></li>'
@@ -556,7 +556,7 @@ class TestBuildNavMain(object):
             ('group_index', 'Groups'),
             ('about', 'About')
         )
-        eq_(h.build_nav_main(menu), (
+        eq_(h.build_nav_main(*menu), (
             '<li><a href="/">Home</a></li>'
             '<li><a href="/dataset">Datasets</a></li>'
             '<li><a href="/organization">Organizations</a></li>'
