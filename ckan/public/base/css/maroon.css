@@ -9716,14 +9716,17 @@ h4 small {
   line-height: 1.2;
   white-space: nowrap;
 }
+.masthead .logo {
+  display: inline-block;
+}
+.masthead .logo img {
+  max-height: 60px;
+}
 .masthead .navbar-collapse {
   padding: 10px 0;
 }
 .masthead .section {
   float: left;
-}
-.masthead input[type="text"] {
-  border-color: #690505;
 }
 @media (min-width: 768px) and (max-width: 991px) {
   .masthead .navigation.section {
@@ -9869,14 +9872,17 @@ h4 small {
   line-height: 1.2;
   white-space: nowrap;
 }
+.site-footer .logo {
+  display: inline-block;
+}
+.site-footer .logo img {
+  max-height: 60px;
+}
 .site-footer .navbar-collapse {
   padding: 10px 0;
 }
 .site-footer .section {
   float: left;
-}
-.site-footer input[type="text"] {
-  border-color: #690505;
 }
 @media (min-width: 768px) and (max-width: 991px) {
   .site-footer .navigation.section {

@@ -336,6 +336,13 @@ def action(logic_function, ver=API_DEFAULT_VERSION):
                        str(e)}
         return_dict[u'success'] = False
         return _finish(500, return_dict, content_type=u'json')
+    except Exception as e:
+        return_dict[u'error'] = {
+            u'__type': u'Internal Server Error',
+            u'message': u'Internal Server Error'}
+        return_dict[u'success'] = False
+        log.exception(e)
+        return _finish(500, return_dict, content_type=u'json')
 
     return _finish_ok(return_dict)
 
