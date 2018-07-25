@@ -532,6 +532,38 @@ class TestCleanHtml(object):
             u'2018-01-05 10:48:23.463511')
 
 
+class TestBuildNavMain(object):
+    def test_flask_routes(self):
+        menu = (
+            ('home.index', 'Home'),
+            ('dataset.search', 'Datasets'),
+            ('organization.index', 'Organizations'),
+            ('group.index', 'Groups'),
+            ('home.about', 'About')
+        )
+        eq_(h.build_nav_main(menu), (
+            '<li><a href="/">Home</a></li>'
+            '<li><a href="/dataset">Datasets</a></li>'
+            '<li><a href="/organization">Organizations</a></li>'
+            '<li><a href="/group">Groups</a></li>'
+            '<li><a href="/about">About</a></li>'))
+
+    def test_legacy_pylon_routes(self):
+        menu = (
+            ('home', 'Home'),
+            ('search', 'Datasets'),
+            ('organizations_index', 'Organizations'),
+            ('group_index', 'Groups'),
+            ('about', 'About')
+        )
+        eq_(h.build_nav_main(menu), (
+            '<li><a href="/">Home</a></li>'
+            '<li><a href="/dataset">Datasets</a></li>'
+            '<li><a href="/organization">Organizations</a></li>'
+            '<li><a href="/group">Groups</a></li>'
+            '<li><a href="/about">About</a></li>'))
+
+
 class TestHelperException(helpers.FunctionalTestBase):
 
     @raises(ckan.exceptions.HelperError)
