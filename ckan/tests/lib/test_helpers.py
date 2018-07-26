@@ -543,9 +543,9 @@ class TestBuildNavMain(object):
         )
         eq_(h.build_nav_main(*menu), (
             '<li><a href="/">Home</a></li>'
-            '<li><a href="/dataset">Datasets</a></li>'
-            '<li><a href="/organization">Organizations</a></li>'
-            '<li><a href="/group">Groups</a></li>'
+            '<li><a href="/dataset/">Datasets</a></li>'
+            '<li><a href="/organization/">Organizations</a></li>'
+            '<li><a href="/group/">Groups</a></li>'
             '<li><a href="/about">About</a></li>'))
 
     def test_legacy_pylon_routes(self):
@@ -558,9 +558,9 @@ class TestBuildNavMain(object):
         )
         eq_(h.build_nav_main(*menu), (
             '<li><a href="/">Home</a></li>'
-            '<li><a href="/dataset">Datasets</a></li>'
-            '<li><a href="/organization">Organizations</a></li>'
-            '<li><a href="/group">Groups</a></li>'
+            '<li><a href="/dataset/">Datasets</a></li>'
+            '<li><a href="/organization/">Organizations</a></li>'
+            '<li><a href="/group/">Groups</a></li>'
             '<li><a href="/about">About</a></li>'))
 
 
