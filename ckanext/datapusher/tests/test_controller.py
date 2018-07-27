@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose
 
 import ckan.tests.legacy as tests
@@ -9,13 +11,13 @@ class TestController(FunctionalTestBase):
     sysadmin_user = None
     normal_user = None
 
-    _load_plugins = ['datastore', 'datapusher']
+    _load_plugins = [u'datastore', u'datapusher']
 
     @classmethod
     def setup_class(cls):
         cls.app = cls._get_test_app()
         if not tests.is_datastore_supported():
-            raise nose.SkipTest("Datastore not supported")
+            raise nose.SkipTest(u'Datastore not supported')
         super(TestController, cls).setup_class()
 
     def test_resource_data(self):
@@ -23,10 +25,10 @@ class TestController(FunctionalTestBase):
         dataset = factories.Dataset(creator_user_id=user['id'])
         resource = factories.Resource(package_id=dataset['id'],
                                       creator_user_id=user['id'])
-        auth = {'Authorization': str(user['apikey'])}
+        auth = {u'Authorization': str(user['apikey'])}
 
         self.app.get(
-            url='/dataset/{id}/resource_data/{resource_id}'
+            url=u'/dataset/{id}/resource_data/{resource_id}'
             .format(id=str(dataset['name']),
                     resource_id=str(resource['id'])),
             extra_environ=auth)
