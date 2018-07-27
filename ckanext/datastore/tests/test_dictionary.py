@@ -26,9 +26,6 @@ class TestDatastoreDictionary(DatastoreLegacyTestBase):
         helpers.call_action('datastore_create', **data)
         auth = {'Authorization': str(user['apikey'])}
         self.app.get(
-            # url='resource_dictionary',
-            # params=dict(id=str(dataset['name']),
-            #             resource_id=str(resource['id'])),
             url='/dataset/{id}/dictionary/{resource_id}'
             .format(id=str(dataset['name']),
                     resource_id=str(resource['id'])),
