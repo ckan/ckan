@@ -111,6 +111,7 @@ class DatastoreController(BaseController):
             'datastore/dictionary.html',
             extra_vars={
                 'fields': fields,
+                'pkg_dict': c.pkg_dict,
                 'resource': c.resource,
             })
 
