@@ -94,7 +94,7 @@ this.ckan.module('resource-view-filters', function (jQuery) {
         width: 'resolve',
         minimumInputLength: 0,
         ajax: {
-          url: '/api/3/action/datastore_search',
+          url: ckan.url('/api/3/action/datastore_search'),
           datatype: 'json',
           quietMillis: 200,
           cache: true,
@@ -103,18 +103,23 @@ this.ckan.module('resource-view-filters', function (jQuery) {
                 query;
 
             query = {
-              plain: false,
               resource_id: resourceId,
               limit: queryLimit,
               offset: offset,
               fields: filterName,
               distinct: true,
-              sort: filterName
+              sort: filterName,
+              include_total: false
             };
+
 
             if (term !== '') {
               var q = {};
-              q[filterName] = term + ':*';
+              if (term.indexOf(' ') == -1) {
+                term = term + ':*';
+                query.plain = false;
+              }
+              q[filterName] = term;
               query.q = JSON.stringify(q);
             }
 
@@ -122,7 +127,7 @@ this.ckan.module('resource-view-filters', function (jQuery) {
           },
           results: function (data, page) {
             var records = data.result.records,
-                hasMore = (records.length < data.result.total),
+                hasMore = (records.length == queryLimit),
                 results;
 
             results = $.map(records, function (record) {

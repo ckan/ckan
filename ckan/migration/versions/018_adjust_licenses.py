@@ -88,7 +88,7 @@ map = {
 def upgrade(migrate_engine):
     metadata = MetaData()
     metadata.bind = migrate_engine
-    #print "Changing package license_ids to strings."
+    #print("Changing package license_ids to strings.")
 
     # Get licenses, package license ids, and package revision license ids.
     old_license_titles = _get_old_license_titles(migrate_engine)
@@ -160,7 +160,7 @@ def _switch_package_license_ids(old_ids, old_license_titles, map):
             old_license_title = old_license_titles[old_license_id]
             new_license_id = map[old_license_title]
             new_ids[package_id] = new_license_id
-            print "Switched license_id %s to %s" % (old_license_id, new_license_id)
+            print("Switched license_id %s to %s" % (old_license_id, new_license_id))
     return new_ids
 
 def _set_new_package_license_ids(migrate_engine, new_ids):

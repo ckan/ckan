@@ -60,7 +60,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.post(url, status=302, extra_environ=extra_environ)
 
         assert user.is_deleted(), user
-        assert res.header('Location').startswith(redirect_url), res.header('Location')
+        assert res.headers.get('Location').startswith(redirect_url), res.headers.get('Location')
 
     def test_user_delete_by_unauthorized_user(self):
         user = model.User.by_name(u'annafan')

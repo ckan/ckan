@@ -15,6 +15,8 @@ import hashlib
 import json
 from cStringIO import StringIO
 
+from six import string_types, text_type
+
 import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -301,38 +303,6 @@ def _get_read_only_user(data_dict):
     return parsed['db_user']
 
 
-def _change_privilege(context, data_dict, what):
-    ''' We need a transaction for this code to work '''
-    read_only_user = _get_read_only_user(data_dict)
-    if what == 'REVOKE':
-        sql = u'REVOKE SELECT ON TABLE "{0}" FROM "{1}"'.format(
-            data_dict['resource_id'],
-            read_only_user)
-    elif what == 'GRANT':
-        sql = u'GRANT SELECT ON TABLE "{0}" TO "{1}"'.format(
-            data_dict['resource_id'],
-            read_only_user)
-    else:
-        raise ValidationError({
-            'privileges': [
-                u'Can only GRANT or REVOKE but not {0}'.format(what)
-            ]
-        })
-    try:
-        context['connection'].execute(sql)
-    except ProgrammingError as e:
-        log.critical("Error making resource private. {0!r}".format(e.message))
-        raise ValidationError({
-            'privileges': [
-                u'cannot make "{resource_id}" private'.format(**data_dict)
-            ],
-            'info': {
-                'orig': str(e.orig),
-                'pgcode': e.orig.pgcode
-            }
-        })
-
-
 def _is_array_type(field_type):
     return field_type.startswith('_')
 
@@ -374,7 +344,7 @@ def _where_clauses(data_dict, fields_types):
     # add full-text search where clause
     q = data_dict.get('q')
     if q:
-        if isinstance(q, basestring):
+        if isinstance(q, string_types):
             ts_query_alias = _ts_query_alias()
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
             clauses.append((clause_str,))
@@ -409,7 +379,7 @@ def _textsearch_query(data_dict):
     statements = []
     rank_columns = []
     plain = data_dict.get('plain', True)
-    if isinstance(q, basestring):
+    if isinstance(q, string_types):
         query, rank = _build_query_and_rank_statements(
             lang, q, plain)
         statements.append(query)
@@ -469,7 +439,7 @@ def _sort(data_dict, fields_types):
     if not sort:
         q = data_dict.get('q')
         if q:
-            if isinstance(q, basestring):
+            if isinstance(q, string_types):
                 return [_ts_rank_alias()]
             elif isinstance(q, dict):
                 return [_ts_rank_alias(field) for field in q
@@ -737,12 +707,12 @@ def convert(data, type_name):
         sub_type = type_name[1:]
         return [convert(item, sub_type) for item in data]
     if type_name == 'tsvector':
-        return unicode(data, 'utf-8')
+        return text_type(data, 'utf-8')
     if isinstance(data, datetime.datetime):
         return data.isoformat()
     if isinstance(data, (int, float)):
         return data
-    return unicode(data)
+    return text_type(data)
 
 
 def check_fields(context, fields):
@@ -1196,7 +1166,7 @@ def validate(context, data_dict):
     for key, values in data_dict_copy.iteritems():
         if not values:
             continue
-        if isinstance(values, basestring):
+        if isinstance(values, string_types):
             value = values
         elif isinstance(values, (list, tuple)):
             value = values[0]
@@ -1476,7 +1446,7 @@ def upsert(context, data_dict):
 
 def search(context, data_dict):
     backend = DatastorePostgresqlBackend.get_active_backend()
-    engine = backend._get_write_engine()
+    engine = backend._get_read_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1520,11 +1490,11 @@ def search_sql(context, data_dict):
         table_names = datastore_helpers.get_table_names_from_sql(context, sql)
         log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
 
-        system_tables = [t for t in table_names if t.startswith('pg_')]
-        if len(system_tables):
+        if any(t.startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to access system tables']
             })
+        context['check_access'](table_names)
 
         results = context['connection'].execute(sql)
 
@@ -1537,7 +1507,7 @@ def search_sql(context, data_dict):
             })
 
         def _remove_explain(msg):
-            return (msg.replace('EXPLAIN (FORMAT JSON) ', '')
+            return (msg.replace('EXPLAIN (VERBOSE, FORMAT JSON) ', '')
                        .replace('EXPLAIN ', ''))
 
         raise ValidationError({
@@ -1580,16 +1550,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             self._log_or_raise(
                 'CKAN and DataStore database cannot be the same.')
 
-        # in legacy mode, the read and write url are the same (both write url)
-        # consequently the same url check and and write privilege check
-        # don't make sense
-        if not self.legacy_mode:
-            if self._same_read_and_write_url():
-                self._log_or_raise('The write and read-only database '
-                                   'connection urls are the same.')
+        if self._same_read_and_write_url():
+            self._log_or_raise('The write and read-only database '
+                               'connection urls are the same.')
 
-            if not self._read_connection_has_correct_privileges():
-                self._log_or_raise('The read-only user has write privileges.')
+        if not self._read_connection_has_correct_privileges():
+            self._log_or_raise('The read-only user has write privileges.')
 
     def _is_read_only_database(self):
         ''' Returns True if no connection has CREATE privileges on the public
@@ -1644,25 +1610,14 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             write_connection.close()
         return True
 
-    def is_legacy_mode(self, config):
-        '''
-            Decides if the DataStore should run on legacy mode
-
-            Returns True if `ckan.datastore.read_url` is not set in the
-            provided config object or CKAN is running on Postgres < 9.x
-        '''
-
-        engine = self._get_write_engine()
-        connection = engine.connect()
-
-        return (not config.get('ckan.datastore.read_url') or
-                not _pg_version_is_at_least(connection, '9.0'))
-
     def configure(self, config):
         self.config = config
         # check for ckan.datastore.write_url and ckan.datastore.read_url
         if ('ckan.datastore.write_url' not in config):
             error_msg = 'ckan.datastore.write_url not found in config'
+            raise DatastoreException(error_msg)
+        if ('ckan.datastore.read_url' not in config):
+            error_msg = 'ckan.datastore.read_url not found in config'
             raise DatastoreException(error_msg)
 
         # Check whether users have disabled datastore_search_sql
@@ -1679,15 +1634,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore.write_url']
-
-        self.legacy_mode = self.is_legacy_mode(config)
-
-        if self.legacy_mode:
-            self.read_url = self.write_url
-            log.warn('Legacy mode active. '
-                     'The sql search will not be available.')
-        else:
-            self.read_url = self.config['ckan.datastore.read_url']
+        self.read_url = self.config['ckan.datastore.read_url']
 
         self.read_engine = self._get_read_engine()
         if not model.engine_is_pg(self.read_engine):
@@ -1725,7 +1672,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         select_cols = []
         records_format = data_dict.get(u'records_format')
-        json_values = records_format in (u'objects', u'lists')
         for field_id in field_ids:
             fmt = u'to_json({0})' if records_format == u'lists' else u'{0}'
             typ = fields_types.get(field_id)
@@ -1733,7 +1679,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 fmt = u'({0}).json'
             elif typ == u'timestamp':
                 fmt = u"to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
-                if json_values:
+                if records_format == u'lists':
                     fmt = u"to_json({0})".format(fmt)
             elif typ.startswith(u'_') or typ.endswith(u'[]'):
                 fmt = u'array_to_json({0})'
@@ -1827,8 +1773,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             insert_data(context, data_dict)
             create_indexes(context, data_dict)
             create_alias(context, data_dict)
-            if data_dict.get('private'):
-                _change_privilege(context, data_dict, 'REVOKE')
             trans.commit()
             return _unrename_json_field(data_dict)
         except IntegrityError as e:
@@ -1878,34 +1822,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             })
         return search_sql(context, data_dict)
 
-    def make_private(self, context, data_dict):
-        data_dict['connection_url'] = self.write_url
-        log.info('Making resource {resource_id!r} private'.format(**data_dict))
-        engine = self._get_write_engine()
-        context['connection'] = engine.connect()
-        trans = context['connection'].begin()
-        try:
-            _change_privilege(context, data_dict, 'REVOKE')
-            trans.commit()
-        finally:
-            context['connection'].close()
-
-    def make_public(self, context, data_dict):
-        log.info('Making resource {resource_id!r} public'.format(**data_dict))
-        engine = self._get_write_engine()
-        context['connection'] = engine.connect()
-        trans = context['connection'].begin()
-        try:
-            _change_privilege(context, data_dict, 'GRANT')
-            trans.commit()
-        finally:
-            context['connection'].close()
-
     def resource_exists(self, id):
         resources_sql = sqlalchemy.text(
             u'''SELECT 1 FROM "_table_metadata"
             WHERE name = :id AND alias_of IS NULL''')
-        results = self._get_write_engine().execute(resources_sql, id=id)
+        results = self._get_read_engine().execute(resources_sql, id=id)
         res_exists = results.rowcount > 0
         return res_exists
 
@@ -1913,7 +1834,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         real_id = None
         resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
                                         WHERE name = :id''')
-        results = self._get_write_engine().execute(resources_sql, id=alias)
+        results = self._get_read_engine().execute(resources_sql, id=alias)
 
         res_exists = results.rowcount > 0
         if res_exists:
@@ -1941,7 +1862,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE table_name = :resource_id;
             ''')
-            schema_results = self._get_write_engine().execute(
+            schema_results = self._get_read_engine().execute(
                 schema_sql, resource_id=id)
             for row in schema_results.fetchall():
                 k = row[0]
@@ -1955,7 +1876,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             meta_sql = sqlalchemy.text(u'''
                 SELECT count(_id) FROM "{0}";
             '''.format(id))
-            meta_results = self._get_write_engine().execute(
+            meta_results = self._get_read_engine().execute(
                 meta_sql, resource_id=id)
             info['meta']['count'] = meta_results.fetchone()[0]
         finally:
@@ -1969,7 +1890,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         resources_sql = sqlalchemy.text(
             u'''SELECT name FROM "_table_metadata"
             WHERE alias_of IS NULL''')
-        query = self._get_write_engine().execute(resources_sql)
+        query = self._get_read_engine().execute(resources_sql)
         return [q[0] for q in query.fetchall()]
 
     def create_function(self, *args, **kwargs):

@@ -21,7 +21,7 @@
     {% if h.get_translated(group, 'description') %}
       <p>
         {{ h.markdown_extract(h.get_translated(group, 'description'), 180) }}
-        {% link_for _('read more'), controller='group', action='about', id=group.name %}
+        {% link_for _('read more'), named_route=group_type+'.about', id=group.name %}
       </p>
     {% endif %}
     {% endblock %}

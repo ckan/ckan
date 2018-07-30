@@ -1,21 +1,21 @@
 # Translations template for ckan.
-# Copyright (C) 2017 ORGANIZATION
+# Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
-# 
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 2.7.0b0\n"
+"Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2017\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
 "Language-Team: Catalan (https://www.transifex.com/okfn/teams/11162/ca/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.5.3\n"
 "Language: ca\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -111,7 +111,15 @@ msgstr "format: ha de ser un de %s"
 msgid "DataStore resource not found"
 msgstr "Recurs de la DataStore no trobat"
 
-#: ckanext/datastore/backend/postgres.py:1052
+#: ckanext/datastore/controller.py:101
+msgid ""
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
+msgstr ""
+"S'ha desat el diccionari de dades. Qualsevol nou canvi de tipus de camp "
+"tindrà efecte el proper cop que el recurs es pugi a la DataStore"
+
+#: ckanext/datastore/backend/postgres.py:1032
 msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
@@ -145,9 +153,9 @@ msgid ""
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
-"Més informació a la  <a       "
+"Més informació a la <a             "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">documentació de la API de dades i la DataStore</a>.</p> "
+"target=\"_blank\">documentació de la DataStore i API de dades </a>.</p> "
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
@@ -209,8 +217,14 @@ msgstr "Exemple: Python"
 msgid "Field {num}."
 msgstr "Camp {num}"
 
-#: ckanext/datastore/templates/datastore/dictionary.html:18
-#: ckanext/datastore/templates/package/resource_read.html:20
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:12
+msgid "Type Override"
+msgstr "Substitució de tipus de camp"
+
+#: ckanext/datastore/templates-bs2/datastore/dictionary.html:18
+#: ckanext/datastore/templates-bs2/package/resource_read.html:20
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:20
+#: ckanext/datastore/templates/package/resource_read.html:21
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:18
 msgid "Label"
 msgstr "Etiqueta"
@@ -263,7 +277,17 @@ msgstr "Carregant..."
 msgid "Data API"
 msgstr "API de dades"
 
-#: ckanext/datatablesview/plugin.py:46 ckanext/reclineview/plugin.py:128
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
+msgid ""
+" Further information in the <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr ""
+"Més informació a la  <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">documentació de la API de dades i la DataStore</a>.</p> "
+
+#: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:128
 msgid "Table"
 msgstr "Taula"
 
@@ -983,7 +1007,12 @@ msgstr "%s ha sigut esborrat."
 msgid "User %r not authorized to edit members of %s"
 msgstr "Usuari %r no autoritzat per a editar els membres de %s"
 
-#: ckan/controllers/group.py:705
+#: ckan/controllers/group.py:670
+#, python-format
+msgid "Unauthorized to create group %s members"
+msgstr "No autoritzat a crear membres per al grup %s"
+
+#: ckan/controllers/group.py:712
 #, python-format
 msgid "Unauthorized to add member to group %s"
 msgstr "No teniu autorització per a afegir un membre al grup %s"
@@ -1845,7 +1874,11 @@ msgstr "Els noms d'usuari han de ser cadenes de text"
 msgid "That login name is not available."
 msgstr "Aquest nom de registre no es troba disponible."
 
-#: ckan/logic/validators.py:570
+#: ckan/logic/validators.py:566
+msgid "That login name can not be modified."
+msgstr "No es pot modificar el nom d'usuari."
+
+#: ckan/logic/validators.py:577
 msgid "Please enter both passwords"
 msgstr "Si us plau, introduïu les dues contrasenyes"
 
@@ -1853,9 +1886,9 @@ msgstr "Si us plau, introduïu les dues contrasenyes"
 msgid "Passwords must be strings"
 msgstr "Les contrasenyes han de ser cadenes de text"
 
-#: ckan/logic/validators.py:582
-msgid "Your password must be 4 characters or longer"
-msgstr "La vostra contrasenya ha de tenir 4 caràcters o més"
+#: ckan/logic/validators.py:589
+msgid "Your password must be 8 characters or longer"
+msgstr "La vostra contrasenya ha de tenir 8 o més caràcters"
 
 #: ckan/logic/validators.py:590
 msgid "The passwords you entered do not match"
@@ -2033,8 +2066,12 @@ msgstr "API REST: Esborrat %s"
 msgid "REST API: Delete Member: %s"
 msgstr "API REST: Esborrar el membre: %s"
 
-#: ckan/logic/action/delete.py:544 ckan/logic/action/delete.py:570
-#: ckan/logic/action/get.py:2482 ckan/logic/action/update.py:953
+#: ckan/logic/action/delete.py:358
+msgid "Organization cannot be deleted while it still has datasets"
+msgstr "No es pot eliminar l'organització si encara té conjunts de dades"
+
+#: ckan/logic/action/delete.py:560 ckan/logic/action/delete.py:586
+#: ckan/logic/action/get.py:2432 ckan/logic/action/update.py:906
 msgid "id not in data"
 msgstr "id no present a les dades"
 
@@ -2594,6 +2631,99 @@ msgstr "Mostra més"
 msgid "Hide"
 msgstr "Oculta"
 
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:13
+#: ckan/public-bs2/base/test/spec/module.spec.js:385
+#: ckan/public/base/test/spec/i18n.spec.js:13
+#: ckan/public/base/test/spec/module.spec.js:385
+msgid "foo"
+msgstr "foo"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:17
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:46
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:50
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:54
+#: ckan/public/base/test/spec/i18n.spec.js:17
+#: ckan/public/base/test/spec/i18n.spec.js:46
+#: ckan/public/base/test/spec/i18n.spec.js:50
+#: ckan/public/base/test/spec/i18n.spec.js:54
+msgid "no translation"
+msgid_plural "no translations"
+msgstr[0] "no translation"
+msgstr[1] "no translations"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:22
+#: ckan/public/base/test/spec/i18n.spec.js:22
+#, python-format
+msgid "hello %(name)s!"
+msgstr "hola %(name)s!"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:29
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:76
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:81
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:86
+#: ckan/public/base/test/spec/i18n.spec.js:29
+#: ckan/public/base/test/spec/i18n.spec.js:76
+#: ckan/public/base/test/spec/i18n.spec.js:81
+#: ckan/public/base/test/spec/i18n.spec.js:86
+#, python-format
+msgid "no %(attr)s translation"
+msgid_plural "no %(attr)s translations"
+msgstr[0] "no %(attr)s translation"
+msgstr[1] "no %(attr)s translations"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:39
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:40
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:41
+#: ckan/public-bs2/base/test/spec/module.spec.js:395
+#: ckan/public-bs2/base/test/spec/module.spec.js:396
+#: ckan/public-bs2/base/test/spec/module.spec.js:397
+#: ckan/public/base/test/spec/i18n.spec.js:39
+#: ckan/public/base/test/spec/i18n.spec.js:40
+#: ckan/public/base/test/spec/i18n.spec.js:41
+#: ckan/public/base/test/spec/module.spec.js:395
+#: ckan/public/base/test/spec/module.spec.js:396
+#: ckan/public/base/test/spec/module.spec.js:397
+msgid "bar"
+msgid_plural "bars"
+msgstr[0] "bar"
+msgstr[1] "bars"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:61
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:65
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:69
+#: ckan/public/base/test/spec/i18n.spec.js:61
+#: ckan/public/base/test/spec/i18n.spec.js:65
+#: ckan/public/base/test/spec/i18n.spec.js:69
+#, python-format
+msgid "%(color)s shirt"
+msgid_plural "%(color)s shirts"
+msgstr[0] "%(color)s shirt"
+msgstr[1] "%(color)s shirts"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:93
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:94
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:95
+#: ckan/public/base/test/spec/i18n.spec.js:93
+#: ckan/public/base/test/spec/i18n.spec.js:94
+#: ckan/public/base/test/spec/i18n.spec.js:95
+#, python-format
+msgid "%(num)d item"
+msgid_plural "%(num)d items"
+msgstr[0] "%(num)d item"
+msgstr[1] "%(num)d items"
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:100
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:105
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:110
+#: ckan/public/base/test/spec/i18n.spec.js:100
+#: ckan/public/base/test/spec/i18n.spec.js:105
+#: ckan/public/base/test/spec/i18n.spec.js:110
+#, python-format
+msgid "%(num)d missing translation"
+msgid_plural "%(num)d missing translations"
+msgstr[0] "%(num)d missing translation"
+msgstr[1] "%(num)d missing translations"
+
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
@@ -3041,21 +3171,21 @@ msgstr "Si voleu convidar un nou usuari, introduïu el seu correu electrònic. "
 
 #: ckan/templates/group/member_new.html:55
 #: ckan/templates/group/members.html:15
-#: ckan/templates/organization/member_new.html:56
+#: ckan/templates/organization/member_new.html:54
 #: ckan/templates/organization/members.html:20
 msgid "Role"
 msgstr "Rol"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
-#: ckan/templates/organization/member_new.html:59
+#: ckan/templates/organization/member_new.html:57
 #: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
 msgstr "Segur que voleu eliminar aquest membre?"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
-#: ckan/templates/group/snippets/group_form.html:60
+#: ckan/templates/group/snippets/group_form.html:38
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:36
@@ -3281,6 +3411,10 @@ msgstr "p.ex. medi ambient"
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
 msgstr "Cercar dades"
+
+#: ckan/templates/home/snippets/search.html:8
+msgid "Search datasets"
+msgstr "Cercar conjunts de dades"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
@@ -3531,11 +3665,12 @@ msgstr "Una mica d'informació sobre la meva organització..."
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all the "
-"public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
 msgstr ""
-"Esteu segurs que voleu eliminar aquesta organització? Això eliminarà tots "
-"els seus conjunts de dades, tant públics com privats."
+"Esteu segurs que voleu esborrar aquesta organització? Atenció: no es pot "
+"eliminar un organització mentre contingui conjunts de dades, públics o "
+"privats."
 
 #: ckan/templates/organization/snippets/organization_form.html:63
 msgid "Save Organization"
@@ -4095,7 +4230,11 @@ msgstr "Explora"
 msgid "More information"
 msgstr "Més informació"
 
-#: ckan/templates/package/snippets/resource_view.html:11
+#: ckan/templates/package/snippets/resource_view.html:10
+msgid "Fullscreen"
+msgstr "Pantalla sencera"
+
+#: ckan/templates/package/snippets/resource_view.html:18
 msgid "Embed"
 msgstr "Incrustar"
 
@@ -4634,7 +4773,11 @@ msgstr "Reinicia la teva contrasenya"
 msgid "Password Reset"
 msgstr "Reinicia la contrasenya"
 
-#: ckan/templates/user/perform_reset.html:24
+#: ckan/templates/user/perform_reset.html:21
+msgid "You can also change username. It can not be modified later."
+msgstr "Podeu canviar el nom d'usuari. No es pot modificar més endavant."
+
+#: ckan/templates/user/perform_reset.html:29
 msgid "Update Password"
 msgstr "Modifica la contrasenya"
 
@@ -4717,3 +4860,7 @@ msgstr "Cap seguidor"
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
 msgstr "Cercar usuaris"
+
+#: ckan/views/user.py:588
+msgid "Your password must be 8 characters or longer."
+msgstr "La vostra contrasenya ha de tenir 8 o més caràcters."

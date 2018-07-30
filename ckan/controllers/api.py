@@ -9,6 +9,7 @@ import urllib
 
 from webob.multidict import UnicodeMultiDict
 from paste.util.multidict import MultiDict
+from six import text_type
 
 import ckan.model as model
 import ckan.logic as logic
@@ -38,6 +39,7 @@ CONTENT_TYPES = {
     'text': 'text/plain;charset=utf-8',
     'html': 'text/html;charset=utf-8',
     'json': 'application/json;charset=utf-8',
+    'javascript': 'application/javascript;charset=utf-8',
 }
 
 
@@ -99,6 +101,7 @@ class ApiController(base.BaseController):
                 # escape callback to remove '<', '&', '>' chars
                 callback = cgi.escape(request.params['callback'])
                 response_msg = self._wrap_jsonp(callback, response_msg)
+                response.headers['Content-Type'] = CONTENT_TYPES['javascript']
         return response_msg
 
     def _finish_ok(self, response_data=None,
@@ -215,14 +218,14 @@ class ApiController(base.BaseController):
                                     'message': _('Access denied')}
             return_dict['success'] = False
 
-            if unicode(e):
+            if text_type(e):
                 return_dict['error']['message'] += u': %s' % e
 
             return self._finish(403, return_dict, content_type='json')
         except NotFound as e:
             return_dict['error'] = {'__type': 'Not Found Error',
                                     'message': _('Not found')}
-            if unicode(e):
+            if text_type(e):
                 return_dict['error']['message'] += u': %s' % e
             return_dict['success'] = False
             return self._finish(404, return_dict, content_type='json')
@@ -267,216 +270,6 @@ class ApiController(base.BaseController):
             action = action_map.get(register)
         if action:
             return get_action(action)
-
-    def list(self, ver=None, register=None, subregister=None, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'api_version': ver,
-                   'auth_user_obj': c.userobj}
-        log.debug('listing: %s', context)
-        action_map = {
-            'revision': 'revision_list',
-            'group': 'group_list',
-            'dataset': 'package_list',
-            'tag': 'tag_list',
-            'licenses': 'license_list',
-            ('dataset', 'relationships'): 'package_relationships_list',
-            ('dataset', 'revisions'): 'package_revision_list',
-            ('dataset', 'activity'): 'package_activity_list',
-            ('group', 'activity'): 'group_activity_list',
-            ('user', 'activity'): 'user_activity_list',
-            ('user', 'dashboard_activity'): 'dashboard_activity_list',
-            ('activity', 'details'): 'activity_detail_list',
-        }
-
-        action = self._get_action_from_map(action_map, register, subregister)
-        if not action:
-            return self._finish_bad_request(
-                _('Cannot list entity of this type: %s') % register)
-        try:
-            return self._finish_ok(action(context, {'id': id}))
-        except NotFound as e:
-            return self._finish_not_found(unicode(e))
-        except NotAuthorized as e:
-            return self._finish_not_authz(unicode(e))
-
-    def show(self, ver=None, register=None, subregister=None,
-             id=None, id2=None):
-        action_map = {
-            'revision': 'revision_show',
-            'group': 'group_show_rest',
-            'tag': 'tag_show_rest',
-            'dataset': 'package_show_rest',
-            ('dataset', 'relationships'): 'package_relationships_list',
-        }
-        for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = 'package_relationships_list'
-
-        context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'auth_user_obj': c.userobj}
-        data_dict = {'id': id, 'id2': id2, 'rel': subregister}
-
-        log.debug('show: %s', context)
-
-        action = self._get_action_from_map(action_map, register, subregister)
-        if not action:
-            return self._finish_bad_request(
-                _('Cannot read entity of this type: %s') % register)
-        try:
-            return self._finish_ok(action(context, data_dict))
-        except NotFound as e:
-            return self._finish_not_found(unicode(e))
-        except NotAuthorized as e:
-            return self._finish_not_authz(unicode(e))
-
-    def create(self, ver=None, register=None, subregister=None,
-               id=None, id2=None):
-
-        action_map = {
-            'group': 'group_create_rest',
-            'dataset': 'package_create_rest',
-            'rating': 'rating_create',
-            ('dataset', 'relationships'): 'package_relationship_create_rest',
-        }
-        for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = 'package_relationship_create_rest'
-
-        context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'auth_user_obj': c.userobj}
-        log.debug('create: %s', (context))
-        try:
-            request_data = self._get_request_data()
-            data_dict = {'id': id, 'id2': id2, 'rel': subregister}
-            data_dict.update(request_data)
-        except ValueError as inst:
-            return self._finish_bad_request(
-                _('JSON Error: %s') % inst)
-
-        action = self._get_action_from_map(action_map, register, subregister)
-        if not action:
-            return self._finish_bad_request(
-                _('Cannot create new entity of this type: %s %s') %
-                (register, subregister))
-
-        try:
-            response_data = action(context, data_dict)
-            location = None
-            if "id" in data_dict:
-                location = str('%s/%s' % (request.path.replace('package',
-                                                               'dataset'),
-                                          data_dict.get("id")))
-            return self._finish_ok(response_data,
-                                   resource_location=location)
-        except NotAuthorized as e:
-            return self._finish_not_authz(unicode(e))
-        except NotFound as e:
-            return self._finish_not_found(unicode(e))
-        except ValidationError as e:
-            # CS: nasty_string ignore
-            log.info('Validation error (REST create): %r', str(e.error_dict))
-            return self._finish(409, e.error_dict, content_type='json')
-        except DataError as e:
-            log.info('Format incorrect (REST create): %s - %s',
-                     e.error, request_data)
-            error_dict = {
-                'success': False,
-                'error': {'__type': 'Integrity Error',
-                                    'message': e.error,
-                                    'data': request_data}}
-            return self._finish(400, error_dict, content_type='json')
-        except search.SearchIndexError:
-            log.error('Unable to add package to search index: %s',
-                      request_data)
-            return self._finish(500,
-                                _(u'Unable to add package to search index') %
-                                request_data)
-        except:
-            model.Session.rollback()
-            raise
-
-    def update(self, ver=None, register=None, subregister=None,
-               id=None, id2=None):
-        action_map = {
-            'dataset': 'package_update_rest',
-            'group': 'group_update_rest',
-            ('dataset', 'relationships'): 'package_relationship_update_rest',
-        }
-        for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = 'package_relationship_update_rest'
-
-        context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'id': id, 'auth_user_obj': c.userobj}
-        log.debug('update: %s', context)
-        try:
-            request_data = self._get_request_data()
-            data_dict = {'id': id, 'id2': id2, 'rel': subregister}
-            data_dict.update(request_data)
-        except ValueError as inst:
-            return self._finish_bad_request(
-                _('JSON Error: %s') % inst)
-
-        action = self._get_action_from_map(action_map, register, subregister)
-        if not action:
-            return self._finish_bad_request(
-                _('Cannot update entity of this type: %s') %
-                register.encode('utf-8'))
-        try:
-            response_data = action(context, data_dict)
-            return self._finish_ok(response_data)
-        except NotAuthorized as e:
-            return self._finish_not_authz(unicode(e))
-        except NotFound as e:
-            return self._finish_not_found(unicode(e))
-        except ValidationError as e:
-            # CS: nasty_string ignore
-            log.info('Validation error (REST update): %r', str(e.error_dict))
-            return self._finish(409, e.error_dict, content_type='json')
-        except DataError as e:
-            log.info('Format incorrect (REST update): %s - %s',
-                     e.error, request_data)
-            error_dict = {
-                'success': False,
-                'error': {'__type': 'Integrity Error',
-                                    'message': e.error,
-                                    'data': request_data}}
-            return self._finish(400, error_dict, content_type='json')
-        except search.SearchIndexError:
-            log.error('Unable to update search index: %s', request_data)
-            return self._finish(500, _(u'Unable to update search index') %
-                                request_data)
-
-    def delete(self, ver=None, register=None, subregister=None,
-               id=None, id2=None):
-        action_map = {
-            'group': 'group_delete',
-            'dataset': 'package_delete',
-            ('dataset', 'relationships'): 'package_relationship_delete_rest',
-        }
-        for type in model.PackageRelationship.get_all_types():
-            action_map[('dataset', type)] = 'package_relationship_delete_rest'
-
-        context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'auth_user_obj': c.userobj}
-
-        data_dict = {'id': id, 'id2': id2, 'rel': subregister}
-
-        log.debug('delete %s/%s/%s/%s', register, id, subregister, id2)
-
-        action = self._get_action_from_map(action_map, register, subregister)
-        if not action:
-            return self._finish_bad_request(
-                _('Cannot delete entity of this type: %s %s') %
-                (register, subregister or ''))
-        try:
-            response_data = action(context, data_dict)
-            return self._finish_ok(response_data)
-        except NotAuthorized as e:
-            return self._finish_not_authz(unicode(e))
-        except NotFound as e:
-            return self._finish_not_found(unicode(e))
-        except ValidationError as e:
-            # CS: nasty_string ignore
-            log.info('Validation error (REST delete): %r', str(e.error_dict))
-            return self._finish(409, e.error_dict, content_type='json')
 
     def search(self, ver=None, register=None):
 
@@ -669,7 +462,7 @@ class ApiController(base.BaseController):
 
     def tag_autocomplete(self):
         q = request.str_params.get('incomplete', '')
-        q = unicode(urllib.unquote(q), 'utf-8')
+        q = text_type(urllib.unquote(q), 'utf-8')
         limit = request.params.get('limit', 10)
         tag_names = []
         if q:
@@ -756,7 +549,7 @@ class ApiController(base.BaseController):
         def make_unicode(entity):
             '''Cast bare strings and strings in lists or dicts to Unicode. '''
             if isinstance(entity, str):
-                return unicode(entity)
+                return text_type(entity)
             elif isinstance(entity, list):
                 new_items = []
                 for item in entity:

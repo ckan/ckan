@@ -6,6 +6,7 @@ import re
 
 from ckan.common import config
 from paste.deploy.converters import asbool
+from six import text_type
 
 from ckan.common import _, json
 import ckan.lib.maintain as maintain
@@ -200,7 +201,7 @@ class DefaultLicense(dict):
         if key in self.keys:
             value = getattr(self, key)
             if isinstance(value, str):
-                return unicode(value)
+                return text_type(value)
             else:
                 return value
         else:
@@ -210,7 +211,7 @@ class DefaultLicense(dict):
         ''' create a dict of the license used by the licenses api '''
         out = {}
         for key in self.keys:
-            out[key] = unicode(getattr(self, key))
+            out[key] = text_type(getattr(self, key))
         return out
 
 class LicenseNotSpecified(DefaultLicense):

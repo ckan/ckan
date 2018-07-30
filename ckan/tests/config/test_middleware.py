@@ -106,7 +106,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
             return 'This was served from Flask'
 
         # This endpoint is defined both in Flask and in Pylons core
-        flask_app.add_url_rule('/about', view_func=test_view)
+        flask_app.add_url_rule('/flask_core', view_func=test_view)
 
         # This endpoint is defined both in Flask and a Pylons extension
         flask_app.add_url_rule('/pylons_and_flask', view_func=test_view)
@@ -116,7 +116,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         app = self._get_test_app()
         with mock.patch.object(AskAppDispatcherMiddleware, 'ask_around') as \
                 mock_ask_around:
-            app.get('/')
+            app.get('/', status=404)
 
             assert mock_ask_around.called
 
@@ -186,7 +186,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         app = app.app
 
         environ = {
-            'PATH_INFO': '/dataset',
+            'PATH_INFO': '/tag',
             'REQUEST_METHOD': 'GET',
         }
         wsgiref.util.setup_testing_defaults(environ)
@@ -203,7 +203,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         app = app.app
 
         environ = {
-            'PATH_INFO': '/dataset/new',
+            'PATH_INFO': '/tag',
             'REQUEST_METHOD': 'POST',
         }
         wsgiref.util.setup_testing_defaults(environ)
@@ -354,7 +354,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
 
-        res = app.get('/dataset')
+        res = app.get('/tags')
 
         eq_(res.environ['ckan.app'], 'pylons_app')
 
@@ -391,8 +391,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         This should never happen in core, but just in case
         '''
         app = self._get_test_app()
-
-        res = app.get('/about')
+        res = app.get('/flask_core')
 
         eq_(res.environ['ckan.app'], 'flask_app')
         eq_(res.body, 'This was served from Flask')

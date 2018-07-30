@@ -48,8 +48,8 @@ class _TestSync(TestController):
                     time.sleep(1)
                     assert count < 5, '%s: %r; %r' % (offset, e, e.args)
                 else:
-                    print 'Error opening url: %s' % offset
-                    assert 0, e # Print exception
+                    print('Error opening url: %s' % offset)
+                    assert 0, e  # Print exception
             else:
                 break
         return f.read()
@@ -60,15 +60,6 @@ class _TestSync(TestController):
             return None
         else:
             return json.loads(res)
-
-    def test_0_check_setup(self):
-        offset = '/api/rest/package'
-        resB = self.app.get(offset).body
-        resA = self.sub_app_get(offset)
-        pkgsB = json.loads(resB or '[]')
-        pkgsA = json.loads(resA or '[]')
-        assert len(pkgsA) == 2
-        assert len(pkgsB) == 0
 
     def test_1_first_sync(self):
         server = self._last_synced_revision_id.keys()[0]

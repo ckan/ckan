@@ -39,7 +39,7 @@ class TestImageView(helpers.FunctionalTestBase):
             resource_id=resource['id'],
             image_url='http://some.image.png')
 
-        url = url_for(controller='package', action='resource_read',
+        url = url_for('resource.read',
                       id=dataset['name'], resource_id=resource['id'])
 
         response = app.get(url)

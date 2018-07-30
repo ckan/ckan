@@ -5,6 +5,7 @@ import cgi
 import logging
 
 from flask import Blueprint, make_response
+from six import text_type
 from werkzeug.exceptions import BadRequest
 
 import ckan.model as model
@@ -23,6 +24,7 @@ CONTENT_TYPES = {
     u'text': u'text/plain;charset=utf-8',
     u'html': u'text/html;charset=utf-8',
     u'json': u'application/json;charset=utf-8',
+    u'javascript': u'application/javascript;charset=utf-8',
 }
 
 API_REST_DEFAULT_VERSION = 1
@@ -69,6 +71,7 @@ def _finish(status_int, response_data=None,
             # escape callback to remove '<', '&', '>' chars
             callback = cgi.escape(request.args[u'callback'])
             response_msg = _wrap_jsonp(callback, response_msg)
+            headers[u'Content-Type'] = CONTENT_TYPES[u'javascript']
     return make_response((response_msg, status_int, headers))
 
 
@@ -296,14 +299,14 @@ def action(logic_function, ver=API_DEFAULT_VERSION):
                                  u'message': _(u'Access denied')}
         return_dict[u'success'] = False
 
-        if unicode(e):
+        if text_type(e):
             return_dict[u'error'][u'message'] += u': %s' % e
 
         return _finish(403, return_dict, content_type=u'json')
     except NotFound as e:
         return_dict[u'error'] = {u'__type': u'Not Found Error',
                                  u'message': _(u'Not found')}
-        if unicode(e):
+        if text_type(e):
             return_dict[u'error'][u'message'] += u': %s' % e
         return_dict[u'success'] = False
         return _finish(404, return_dict, content_type=u'json')
@@ -332,6 +335,13 @@ def action(logic_function, ver=API_DEFAULT_VERSION):
             u'message': u'Unable to add package to search index: %s' %
                        str(e)}
         return_dict[u'success'] = False
+        return _finish(500, return_dict, content_type=u'json')
+    except Exception as e:
+        return_dict[u'error'] = {
+            u'__type': u'Internal Server Error',
+            u'message': u'Internal Server Error'}
+        return_dict[u'success'] = False
+        log.exception(e)
         return _finish(500, return_dict, content_type=u'json')
 
     return _finish_ok(return_dict)

@@ -1,13 +1,12 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal 
+from nose.tools import assert_equal
 
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 
 from ckan.tests.legacy.functional.api.base import BaseModelApiTestCase
-from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase 
-from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase 
+
 
 class RevisionsTestCase(BaseModelApiTestCase):
 
@@ -20,7 +19,7 @@ class RevisionsTestCase(BaseModelApiTestCase):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-    
+
     def test_register_get_ok(self):
         # Comparison list - newest first
         revs = model.Session.query(model.Revision).\
@@ -62,6 +61,3 @@ class RevisionsTestCase(BaseModelApiTestCase):
         offset = self.revision_offset(revision_id)
         res = self.app.get(offset, status=301)
         # redirects "/api/revision/" to "/api/revision"
-
-class TestRevisionsVersion1(Version1TestCase, RevisionsTestCase): pass
-class TestRevisionsVersion2(Version2TestCase, RevisionsTestCase): pass

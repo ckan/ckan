@@ -2,7 +2,7 @@
 
 {% block subtitle %}{{ _('Create an Organization') }}{% endblock %}
 
-{% block breadcrumb_link %}{{ h.nav_link(_('Create an Organization'), controller='organization', action='edit', id=c.organization.name) }}{% endblock %}
+{% block breadcrumb_link %}{{ h.nav_link(_('Create an Organization'), named_route=group_type+'.edit', id=c.organization.name) }}{% endblock %}
 
 {% block page_heading %}{{ _('Create an Organization') }}{% endblock %}
 

@@ -364,9 +364,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                     results[obj_rev.revision] = []
                 results[obj_rev.revision].append(obj_rev)
         result_list = results.items()
-        ourcmp = lambda rev_tuple1, rev_tuple2: \
-            cmp(rev_tuple2[0].timestamp, rev_tuple1[0].timestamp)
-        return sorted(result_list, cmp=ourcmp)
+        return sorted(result_list, key=lambda x: x[0].timestamp, reverse=True)
 
     def __repr__(self):
         return '<Group %s>' % self.name
@@ -431,4 +429,3 @@ SELECT G.*, PT.depth FROM parenttree AS PT
     INNER JOIN public.group G ON G.id = PT.table_id
     WHERE G.type = :type AND G.state='active'
     ORDER BY PT.depth DESC;""".format(max_recurses=MAX_RECURSES)
-

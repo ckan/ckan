@@ -221,11 +221,11 @@ def check():
     pkgs = set([pkg.id for pkg in pkgs_q])
     indexed_pkgs = set(package_query.get_all_entity_ids(max_results=len(pkgs)))
     pkgs_not_indexed = pkgs - indexed_pkgs
-    print 'Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),
-                                                   len(pkgs))
+    print('Packages not indexed = %i out of %i' % (len(pkgs_not_indexed),
+                                                   len(pkgs)))
     for pkg_id in pkgs_not_indexed:
         pkg = model.Session.query(model.Package).get(pkg_id)
-        print pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name
+        print(pkg.revision.timestamp.strftime('%Y-%m-%d'), pkg.name)
 
 
 def show(package_reference):

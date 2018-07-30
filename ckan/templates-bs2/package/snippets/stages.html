@@ -33,7 +33,7 @@ Example:
         {# stage 1 #}
         <button class="highlight" name="save" value="go-resources" type="submit">{{ _('Add data') }}</button>
       {% else %}
-        {% link_for _('Add data'), controller='package', action='new', class_="highlight" %}
+        {% link_for _('Add data'), named_route='dataset.new', class_="highlight" %}
       {% endif %}
     {% endif %}
   </li>

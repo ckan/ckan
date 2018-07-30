@@ -2,6 +2,9 @@
 
 import json
 
+from six import string_types, text_type
+
+
 import ckan.plugins as p
 import ckan.lib.navl.dictization_functions as df
 
@@ -48,13 +51,13 @@ def list_of_strings_or_lists(key, data, errors, context):
     if not isinstance(value, list):
         raise df.Invalid('Not a list')
     for x in value:
-        if not isinstance(x, basestring) and not isinstance(x, list):
+        if not isinstance(x, string_types) and not isinstance(x, list):
             raise df.Invalid('%s: %s' % ('Neither a string nor a list', x))
 
 
 def list_of_strings_or_string(key, data, errors, context):
     value = data.get(key)
-    if isinstance(value, basestring):
+    if isinstance(value, string_types):
         return
     list_of_strings_or_lists(key, data, errors, context)
 
@@ -88,21 +91,21 @@ def unicode_or_json_validator(value, context):
         v = json_validator(value, context)
         # json.loads will parse literals; however we want literals as unicode.
         if not isinstance(v, dict):
-            return unicode(value)
+            return text_type(value)
         else:
             return v
     except df.Invalid:
-        return unicode(value)
+        return text_type(value)
 
 
 def datastore_create_schema():
     schema = {
-        'resource_id': [ignore_missing, unicode, resource_id_exists],
+        'resource_id': [ignore_missing, text_type, resource_id_exists],
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         'aliases': [ignore_missing, list_of_strings_or_string],
         'fields': {
-            'id': [not_empty, unicode],
+            'id': [not_empty, text_type],
             'type': [ignore_missing],
             'info': [ignore_missing],
         },
@@ -127,10 +130,10 @@ def datastore_create_schema():
 
 def datastore_upsert_schema():
     schema = {
-        'resource_id': [not_missing, not_empty, unicode],
+        'resource_id': [not_missing, not_empty, text_type],
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
-        'method': [ignore_missing, unicode, OneOf(
+        'method': [ignore_missing, text_type, OneOf(
             ['upsert', 'insert', 'update'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
@@ -140,7 +143,7 @@ def datastore_upsert_schema():
 
 def datastore_delete_schema():
     schema = {
-        'resource_id': [not_missing, not_empty, unicode],
+        'resource_id': [not_missing, not_empty, text_type],
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         '__junk': [empty],
@@ -151,12 +154,12 @@ def datastore_delete_schema():
 
 def datastore_search_schema():
     schema = {
-        'resource_id': [not_missing, not_empty, unicode],
+        'resource_id': [not_missing, not_empty, text_type],
         'id': [ignore_missing],
         'q': [ignore_missing, unicode_or_json_validator],
         'plain': [ignore_missing, boolean_validator],
         'filters': [ignore_missing, json_validator],
-        'language': [ignore_missing, unicode],
+        'language': [ignore_missing, text_type],
         'limit': [ignore_missing, int_validator],
         'offset': [ignore_missing, int_validator],
         'fields': [ignore_missing, list_of_strings_or_string],

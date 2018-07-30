@@ -1,23 +1,23 @@
 # Translations template for ckan.
-# Copyright (C) 2017 ORGANIZATION
+# Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
-# 
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 2.7.0b0\n"
+"Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Zoriana Zaiats <sorenabell@quintagroup.com>, 2017\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
 "Language-Team: Ukrainian (Ukraine) (https://www.transifex.com/okfn/teams/11162/uk_UA/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.5.3\n"
 "Language: uk_UA\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
@@ -111,7 +111,13 @@ msgstr "Формат: має бути один з %s"
 msgid "DataStore resource not found"
 msgstr "Ресурс DataStore не знайдено"
 
-#: ckanext/datastore/backend/postgres.py:1052
+#: ckanext/datastore/controller.py:101
+msgid ""
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
+msgstr ""
+
+#: ckanext/datastore/backend/postgres.py:1032
 msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
@@ -261,7 +267,18 @@ msgstr "Завантаження..."
 msgid "Data API"
 msgstr "API даних"
 
-#: ckanext/datatablesview/plugin.py:46 ckanext/reclineview/plugin.py:128
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
+msgid ""
+" Further information in the <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr ""
+"Більше інформаціі в <a "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">головній документації по CKAN Data API та "
+"DataStore</a>.</p>"
+
+#: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:128
 msgid "Table"
 msgstr "Таблиця"
 
@@ -379,6 +396,7 @@ msgid_plural "{num} Datasets"
 msgstr[0] "{num} набір даних"
 msgstr[1] "{num} набори даних"
 msgstr[2] "{num} наборів даних"
+msgstr[3] "{num} наборів даних"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -1461,6 +1479,7 @@ msgid_plural "{n} new activities from {site_title}"
 msgstr[0] "{n} нова активність від {site_title}"
 msgstr[1] "{n} нові активності від {site_title}"
 msgstr[2] "{n} нових активностей від {site_title}"
+msgstr[3] "{n} нових активностей від {site_title}"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -1520,6 +1539,7 @@ msgid_plural "{mins} minutes ago"
 msgstr[0] "{mins} хвилину тому"
 msgstr[1] "{mins} хвилини тому"
 msgstr[2] "{mins} хвилин тому"
+msgstr[3] "{mins} хвилин тому"
 
 #: ckan/lib/formatters.py:119
 msgid "{hours} hour ago"
@@ -1527,6 +1547,7 @@ msgid_plural "{hours} hours ago"
 msgstr[0] "{hours} годину тому"
 msgstr[1] "{hours} години тому"
 msgstr[2] "{hours} годин тому"
+msgstr[3] "{hours} годин тому"
 
 #: ckan/lib/formatters.py:125
 msgid "{days} day ago"
@@ -1534,6 +1555,7 @@ msgid_plural "{days} days ago"
 msgstr[0] "{days} день тому"
 msgstr[1] "{days} дні тому"
 msgstr[2] "{days} днів тому"
+msgstr[3] "{days} днів тому"
 
 #: ckan/lib/formatters.py:128
 msgid "{months} month ago"
@@ -1541,6 +1563,7 @@ msgid_plural "{months} months ago"
 msgstr[0] "{months} місяць назад"
 msgstr[1] "{months} місяці назад"
 msgstr[2] "{months} місяців назад"
+msgstr[3] "{months} місяців назад"
 
 #: ckan/lib/formatters.py:130
 msgid "over {years} year ago"
@@ -1548,6 +1571,7 @@ msgid_plural "over {years} years ago"
 msgstr[0] "більше {years} року назад"
 msgstr[1] "більше {years} років назад"
 msgstr[2] "більше {years} років назад"
+msgstr[3] "більше {years} років назад"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
@@ -1643,6 +1667,7 @@ msgid_plural "{number} views"
 msgstr[0] "{number} перегляд"
 msgstr[1] "{number} перегляди"
 msgstr[2] "{number} переглядів"
+msgstr[3] "{number} переглядів"
 
 #: ckan/lib/helpers.py:1650
 msgid "{number} recent view"
@@ -1650,6 +1675,7 @@ msgid_plural "{number} recent views"
 msgstr[0] "{number} недавній перегляд"
 msgstr[1] "{number} недавніх переглядів"
 msgstr[2] "{number} недавніх переглядів"
+msgstr[3] "{number} недавніх переглядів"
 
 #: ckan/lib/mailer.py:39
 #, python-format
@@ -2306,10 +2332,6 @@ msgid "User %s not authorized to update term_translation table"
 msgstr ""
 "Користувач %s не має достатньо прав для оновлення таблиці term_translation"
 
-#: ckan/logic/auth/update.py:262
-msgid "Valid API key needed to edit a package"
-msgstr "Для редагування пакету необхідний дійсний ключ API"
-
 #: ckan/logic/auth/update.py:272
 msgid "Valid API key needed to edit a group"
 msgstr "Для редагування групи необхідний дійсний ключ API"
@@ -2442,6 +2464,7 @@ msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] "Ввід надто короткий, має бути хоча би один символ"
 msgstr[1] "Ввід надто короткий, має бути хоча би %(num)d символа"
 msgstr[2] "Ввід надто короткий, має бути хоча би %(num)d символ"
+msgstr[3] "Ввід надто короткий, має бути хоча би %(num)d символ"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
@@ -2594,6 +2617,111 @@ msgstr "Показати більше"
 msgid "Hide"
 msgstr "Сховати"
 
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:13
+#: ckan/public-bs2/base/test/spec/module.spec.js:385
+#: ckan/public/base/test/spec/i18n.spec.js:13
+#: ckan/public/base/test/spec/module.spec.js:385
+msgid "foo"
+msgstr ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:17
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:46
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:50
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:54
+#: ckan/public/base/test/spec/i18n.spec.js:17
+#: ckan/public/base/test/spec/i18n.spec.js:46
+#: ckan/public/base/test/spec/i18n.spec.js:50
+#: ckan/public/base/test/spec/i18n.spec.js:54
+msgid "no translation"
+msgid_plural "no translations"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:22
+#: ckan/public/base/test/spec/i18n.spec.js:22
+#, python-format
+msgid "hello %(name)s!"
+msgstr ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:29
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:76
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:81
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:86
+#: ckan/public/base/test/spec/i18n.spec.js:29
+#: ckan/public/base/test/spec/i18n.spec.js:76
+#: ckan/public/base/test/spec/i18n.spec.js:81
+#: ckan/public/base/test/spec/i18n.spec.js:86
+#, python-format
+msgid "no %(attr)s translation"
+msgid_plural "no %(attr)s translations"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:39
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:40
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:41
+#: ckan/public-bs2/base/test/spec/module.spec.js:395
+#: ckan/public-bs2/base/test/spec/module.spec.js:396
+#: ckan/public-bs2/base/test/spec/module.spec.js:397
+#: ckan/public/base/test/spec/i18n.spec.js:39
+#: ckan/public/base/test/spec/i18n.spec.js:40
+#: ckan/public/base/test/spec/i18n.spec.js:41
+#: ckan/public/base/test/spec/module.spec.js:395
+#: ckan/public/base/test/spec/module.spec.js:396
+#: ckan/public/base/test/spec/module.spec.js:397
+msgid "bar"
+msgid_plural "bars"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:61
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:65
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:69
+#: ckan/public/base/test/spec/i18n.spec.js:61
+#: ckan/public/base/test/spec/i18n.spec.js:65
+#: ckan/public/base/test/spec/i18n.spec.js:69
+#, python-format
+msgid "%(color)s shirt"
+msgid_plural "%(color)s shirts"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:93
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:94
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:95
+#: ckan/public/base/test/spec/i18n.spec.js:93
+#: ckan/public/base/test/spec/i18n.spec.js:94
+#: ckan/public/base/test/spec/i18n.spec.js:95
+#, python-format
+msgid "%(num)d item"
+msgid_plural "%(num)d items"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:100
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:105
+#: ckan/public-bs2/base/test/spec/i18n.spec.js:110
+#: ckan/public/base/test/spec/i18n.spec.js:100
+#: ckan/public/base/test/spec/i18n.spec.js:105
+#: ckan/public/base/test/spec/i18n.spec.js:110
+#, python-format
+msgid "%(num)d missing translation"
+msgid_plural "%(num)d missing translations"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
@@ -2634,6 +2762,7 @@ msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Панель приладів (%(num)d новий елемент)"
 msgstr[1] "Панель приладів (%(num)d нові елементи)"
 msgstr[2] "Панель приладів (%(num)d нових елементів)"
+msgstr[3] "Панель приладів (%(num)d нових елементів)"
 
 #: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -3027,21 +3156,21 @@ msgstr ""
 
 #: ckan/templates/group/member_new.html:55
 #: ckan/templates/group/members.html:15
-#: ckan/templates/organization/member_new.html:56
+#: ckan/templates/organization/member_new.html:54
 #: ckan/templates/organization/members.html:20
 msgid "Role"
 msgstr "Роль"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
-#: ckan/templates/organization/member_new.html:59
+#: ckan/templates/organization/member_new.html:57
 #: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
 msgstr "Ви впевнені, що хочете видалити цього учасника?"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
-#: ckan/templates/group/snippets/group_form.html:60
+#: ckan/templates/group/snippets/group_form.html:38
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:36
@@ -3443,6 +3572,7 @@ msgid_plural "{count} members"
 msgstr[0] "{count} член"
 msgstr[1] "{count} члена"
 msgstr[2] "{count} членів"
+msgstr[3] "{count} членів"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3514,8 +3644,8 @@ msgstr "Коротко про мою організацію..."
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all the "
-"public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
 msgstr ""
 "Ви впевнені, що хочете видалити цю Організацію? Це призведе до видалення "
 "всіх публічних і приватних наборів даних, що належать до цієї організації."
@@ -4304,6 +4434,7 @@ msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] "{number} набір даних знайдений за запитом \"{query}\""
 msgstr[1] "{number} набори даних знайдено за запитом \"{query}\""
 msgstr[2] "{number} наборів даних знайдено за запитом \"{query}\""
+msgstr[3] "{number} наборів даних знайдено за запитом \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -4315,6 +4446,7 @@ msgid_plural "{number} datasets found"
 msgstr[0] "{number} набір даних знайдено"
 msgstr[1] "{number} набори даних знайдено"
 msgstr[2] "{number} наборів даних знайдено"
+msgstr[3] "{number} наборів даних знайдено"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -4326,6 +4458,7 @@ msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] "{number} групу знайдено за запитом \"{query}\""
 msgstr[1] "{number} групи знайдено за запитом \"{query}\""
 msgstr[2] "{number} груп знайдено за запитом \"{query}\""
+msgstr[3] "{number} груп знайдено за запитом \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -4337,6 +4470,7 @@ msgid_plural "{number} groups found"
 msgstr[0] "{number} групу знайдено"
 msgstr[1] "{number} групи знайдено"
 msgstr[2] "{number} груп знайдено"
+msgstr[3] "{number} груп знайдено"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4348,6 +4482,7 @@ msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] "{number} організацію знайдено за запитом \"{query}\""
 msgstr[1] "{number} організації знайдено за запитом \"{query}\""
 msgstr[2] "{number} організацій знайдено за запитом \"{query}\""
+msgstr[3] "{number} організацій знайдено за запитом \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -4359,6 +4494,7 @@ msgid_plural "{number} organizations found"
 msgstr[0] "{number} організацію знайдено"
 msgstr[1] "{number} організації знайдено"
 msgstr[2] "{number} організацій знайдено"
+msgstr[3] "{number} організацій знайдено"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
@@ -4703,3 +4839,7 @@ msgstr "Підписників немає"
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
 msgstr "Шукати користувача"
+
+#: ckan/views/user.py:588
+msgid "Your password must be 8 characters or longer."
+msgstr ""

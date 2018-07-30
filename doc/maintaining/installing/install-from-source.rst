@@ -5,8 +5,8 @@ Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 14.04 64-bit or
-Ubuntu 12.04 64-bit. Installing CKAN from source works with other versions of
+:doc:`install-from-package` is simpler, it requires Ubuntu 16.04 64-bit or
+Ubuntu 14.04 64-bit. Installing CKAN from source works with other versions of
 Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
 you install CKAN from source on your own operating system, please share your
 experiences on our
@@ -38,7 +38,7 @@ wiki page for help):
 Package                Description
 =====================  ===============================================
 Python                 `The Python programming language, v2.7 <http://www.python.org/getit/>`_
-|postgres|             `The PostgreSQL database system, v9.2 or newer <http://www.postgresql.org/download/>`_
+|postgres|             `The PostgreSQL database system, v9.3 or newer <http://www.postgresql.org/download/>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
 virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
@@ -105,6 +105,7 @@ b. Install the recommended ``setuptools`` version:
        pip install setuptools==\ |min_setuptools_version|
 
 c. Install the CKAN source code into your virtualenv.
+
    To install the latest stable release of CKAN (CKAN |latest_release_version|),
    run:
 

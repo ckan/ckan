@@ -12,6 +12,43 @@ import ckan.logic as logic
 from ckan import model
 
 
+class TestUserListAuth(object):
+
+    @helpers.change_config(u'ckan.auth.public_user_details', u'false')
+    def test_auth_user_list(self):
+        context = {'user': None,
+                   'model': model}
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'user_list', context=context)
+
+    def test_authed_user_list(self):
+        context = {'user': None,
+                   'model': model}
+        assert helpers.call_auth('user_list', context=context)
+
+
+class TestUserShowAuth(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+    @helpers.change_config(u'ckan.auth.public_user_details', u'false')
+    def test_auth_user_show(self):
+        fred = factories.User(name='fred')
+        fred['capacity'] = 'editor'
+        context = {'user': None,
+                   'model': model}
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'user_show', context=context, id=fred['id'])
+
+    def test_authed_user_show(self):
+        fred = factories.User(name='fred')
+        fred['capacity'] = 'editor'
+        context = {'user': None,
+                   'model': model}
+        assert helpers.call_auth('user_show', context=context, id=fred['id'])
+
+
 class TestPackageShowAuth(object):
 
     def setup(self):
@@ -57,7 +94,8 @@ class TestGroupShowAuth(object):
     def test_group_show__deleted_group_is_visible_to_its_member(self):
 
         fred = factories.User(name='fred')
-        org = factories.Group(users=[fred])
+        fred['capacity'] = 'editor'
+        org = factories.Group(users=[fred], state='deleted')
         context = {'model': model}
         context['user'] = 'fred'
 
@@ -69,13 +107,31 @@ class TestGroupShowAuth(object):
 
         fred = factories.User(name='fred')
         fred['capacity'] = 'editor'
-        org = factories.Organization(users=[fred])
+        org = factories.Organization(users=[fred], state='deleted')
         context = {'model': model}
         context['user'] = 'fred'
 
         ret = helpers.call_auth('group_show', context=context,
                                 id=org['name'])
         assert ret
+
+    @helpers.change_config(u'ckan.auth.public_user_details', u'false')
+    def test_group_show__user_is_hidden_to_public(self):
+        group = factories.Group()
+        context = {'model': model}
+        context['user'] = ''
+
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'group_show', context=context,
+                      id=group['name'], include_users=True)
+
+    def test_group_show__user_is_avail_to_public(self):
+        group = factories.Group()
+        context = {'model': model}
+        context['user'] = ''
+
+        assert helpers.call_auth('group_show', context=context,
+                                 id=group['name'])
 
 
 class TestConfigOptionShowAuth(object):

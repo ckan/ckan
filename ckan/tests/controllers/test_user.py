@@ -192,6 +192,15 @@ class TestLogout(helpers.FunctionalTestBase):
 
 class TestUser(helpers.FunctionalTestBase):
 
+    def test_not_logged_in_dashboard(self):
+        app = self._get_test_app()
+
+        for route in ['index', 'organizations', 'datasets', 'groups']:
+            app.get(
+                url=url_for(u'dashboard.{}'.format(route)),
+                status=403
+            )
+
     def test_own_datasets_show_up_on_user_dashboard(self):
         user = factories.User()
         dataset_title = 'My very own dataset'
@@ -242,8 +251,7 @@ class TestUserEdit(helpers.FunctionalTestBase):
         app = self._get_test_app()
         response = app.get(
             url_for('user.edit', id='unknown_person'),
-            status=403
-        )
+            status=403)
 
     def test_user_edit_not_logged_in(self):
         '''Attempt to read edit user for an existing, not-logged in user

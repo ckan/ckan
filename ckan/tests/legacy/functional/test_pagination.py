@@ -11,11 +11,11 @@ from ckan.tests.legacy import TestController, url_for, setup_test_search_index
 def scrape_search_results(response, object_type):
     assert object_type in ('dataset', 'group_dataset', 'group', 'user')
     if object_type is not 'group_dataset':
-        results = re.findall('href="/%s/%s_(\d\d)"' % (object_type, object_type),
+        results = re.findall('a href="/%s/%s_(\d\d)' % (object_type, object_type),
                              str(response))
     else:
         object_type = 'dataset'
-        results = re.findall('href="/%s/%s_(\d\d)"' % (object_type, object_type),
+        results = re.findall('href="/%s/%s_(\d\d)' % (object_type, object_type),
                              str(response))
     return results
 
@@ -59,14 +59,14 @@ class TestPaginationPackage(TestController):
         model.repo.rebuild_db()
 
     def test_package_search_p1(self):
-        res = self.app.get(url_for(controller='package', action='search', q='groups:group_00'))
-        assert 'href="/dataset?q=groups%3Agroup_00&amp;page=2"' in res
+        res = self.app.get(url_for('dataset.search', q='groups:group_00'))
+        assert 'href="/dataset/?q=groups%3Agroup_00&amp;page=2"' in res
         pkg_numbers = scrape_search_results(res, 'dataset')
         assert_equal(['50', '49', '48', '47', '46', '45', '44', '43', '42', '41', '40', '39', '38', '37', '36', '35', '34', '33', '32', '31'], pkg_numbers)
 
     def test_package_search_p2(self):
-        res = self.app.get(url_for(controller='package', action='search', q='groups:group_00', page=2))
-        assert 'href="/dataset?q=groups%3Agroup_00&amp;page=1"' in res
+        res = self.app.get(url_for('dataset.search', q='groups:group_00', page=2))
+        assert 'href="/dataset/?q=groups%3Agroup_00&amp;page=1"' in res
         pkg_numbers = scrape_search_results(res, 'dataset')
         assert_equal(['30', '29', '28', '27', '26', '25', '24', '23', '22', '21', '20', '19', '18', '17', '16', '15', '14', '13', '12', '11'], pkg_numbers)
 
@@ -101,15 +101,15 @@ class TestPaginationGroup(TestController):
         model.repo.rebuild_db()
 
     def test_group_index(self):
-        res = self.app.get(url_for(controller='group', action='index'))
-        assert 'href="/group?q=&amp;sort=&amp;page=2"' in res, res
+        res = self.app.get(url_for('group.index'))
+        assert 'href="/group/?q=&amp;sort=&amp;page=2"' in res, res
         grp_numbers = scrape_search_results(res, 'group')
-        assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'], grp_numbers)
+        assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'], grp_numbers)
 
-        res = self.app.get(url_for(controller='group', action='index', page=2))
-        assert 'href="/group?q=&amp;sort=&amp;page=1"' in res
+        res = self.app.get(url_for('group.index', page=2))
+        assert 'href="/group/?q=&amp;sort=&amp;page=1"' in res
         grp_numbers = scrape_search_results(res, 'group')
-        assert_equal(['21'], grp_numbers)
+        assert_equal(['20', '21'], grp_numbers)
 
 class TestPaginationUsers(TestController):
     @classmethod

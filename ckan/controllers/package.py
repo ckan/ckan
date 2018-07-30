@@ -9,6 +9,7 @@ import cgi
 from ckan.common import config
 from paste.deploy.converters import asbool
 import paste.fileapp
+from six import string_types, text_type
 
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -45,7 +46,7 @@ lookup_package_plugin = ckan.lib.plugins.lookup_package_plugin
 
 
 def _encode_params(params):
-    return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v))
+    return [(k, v.encode('utf-8') if isinstance(v, string_types) else str(v))
             for k, v in params]
 
 
@@ -310,6 +311,9 @@ class PackageController(base.BaseController):
             c.query_error = True
             c.search_facets = {}
             c.page = h.Page(collection=[])
+        except NotAuthorized:
+            abort(403, _('Not authorized to see this page'))
+
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
             try:
@@ -461,7 +465,7 @@ class PackageController(base.BaseController):
                                id=c.pkg_dict['name']),
                 description=_(u'Recent changes to CKAN Dataset: ') +
                 (c.pkg_dict['title'] or ''),
-                language=unicode(i18n.get_lang()),
+                language=text_type(i18n.get_lang()),
             )
             for revision_dict in c.pkg_revisions:
                 revision_date = h.date_str_to_datetime(
@@ -517,7 +521,7 @@ class PackageController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to create a package'))
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_new(context, package_type=package_type)
 
         data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
@@ -754,7 +758,7 @@ class PackageController(base.BaseController):
                    'user': c.user, 'auth_user_obj': c.userobj,
                    'save': 'save' in request.params}
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_edit(id, context, package_type=package_type)
         try:
             c.pkg_dict = get_action('package_show')(dict(context,
@@ -940,9 +944,9 @@ class PackageController(base.BaseController):
             abort(400, _(u'Integrity Error'))
         except SearchIndexError as e:
             try:
-                exc_str = unicode(repr(e.args))
+                exc_str = text_type(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = unicode(str(e))
+                exc_str = text_type(str(e))
             abort(500, _(u'Unable to add package to search index.') + exc_str)
         except ValidationError as e:
             errors = e.error_dict
@@ -988,9 +992,9 @@ class PackageController(base.BaseController):
             abort(400, _(u'Integrity Error'))
         except SearchIndexError as e:
             try:
-                exc_str = unicode(repr(e.args))
+                exc_str = text_type(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = unicode(str(e))
+                exc_str = text_type(str(e))
             abort(500, _(u'Unable to update search index.') + exc_str)
         except ValidationError as e:
             errors = e.error_dict

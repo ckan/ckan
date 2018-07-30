@@ -21,6 +21,7 @@ import time
 from ckan.common import config
 from pylons.test import pylonsapp
 from paste.script.appinstall import SetupCommand
+from six import text_type
 
 import pkg_resources
 import paste.fixture
@@ -35,6 +36,8 @@ from ckan.logic.action import get_domain_object
 import ckan.model as model
 from ckan import ckan_nose_plugin
 from ckan.common import json
+import ckan.tests.helpers as helpers
+
 
 # evil hack as url_for is passed out
 url_for = h.url_for
@@ -134,7 +137,7 @@ class CommonFixtureMethods(BaseCase):
     @classmethod
     def purge_packages(cls, pkg_names):
         for pkg_name in pkg_names:
-            pkg = model.Package.by_name(unicode(pkg_name))
+            pkg = model.Package.by_name(text_type(pkg_name))
             if pkg:
                 pkg.purge()
         model.repo.commit_and_remove()
@@ -237,7 +240,8 @@ class WsgiAppCase(BaseCase):
     # Either that, or this file got imported somehow before the tests started
     # running, meaning the pylonsapp wasn't setup yet (which is done in
     # pylons.test.py:begin())
-    app = paste.fixture.TestApp(wsgiapp)
+    # app = paste.fixture.TestApp(wsgiapp)
+    app = helpers._get_test_app()
 
 
 def config_abspath(file_path):

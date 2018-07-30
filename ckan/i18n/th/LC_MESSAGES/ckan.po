@@ -1,21 +1,21 @@
 # Translations template for ckan.
-# Copyright (C) 2017 ORGANIZATION
+# Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
-# 
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 2.7.0b0\n"
+"Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2017\n"
+"Last-Translator: Pongkiat Jongtriluck <pongkiatc@yahoo.com>, 2018\n"
 "Language-Team: Thai (https://www.transifex.com/okfn/teams/11162/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.5.3\n"
 "Language: th\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -109,13 +109,21 @@ msgstr ""
 
 #: ckanext/datastore/controller.py:58
 msgid "DataStore resource not found"
-msgstr "ไม่พบคลังข้อมูลทรัพยากร"
+msgstr "ไม่พบทรัพยากรที่จัดเก็บข้อมูล"
 
-#: ckanext/datastore/backend/postgres.py:1052
+#: ckanext/datastore/controller.py:101
+msgid ""
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
+msgstr ""
+
+#: ckanext/datastore/backend/postgres.py:1032
 msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
 msgstr ""
+"ข้อมูลไม่ถูกต้อง (ตัวอย่างเช่น "
+"ค่าของตัวเลขอยู่นอกขอบเขตที่กำหนดหรือถูกนำไปใส่ในฟิลด์สำหรับข้อความ)"
 
 #: ckanext/datastore/logic/action.py:262 ckanext/datastore/logic/action.py:290
 #: ckanext/datastore/logic/action.py:348 ckanext/datastore/logic/action.py:459
@@ -204,7 +212,7 @@ msgstr ""
 #: ckanext/datastore/templates/package/resource_read.html:20
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:18
 msgid "Label"
-msgstr ""
+msgstr "ป้ายกำกับ"
 
 #: ckan/templates/group/snippets/group_form.html:20
 #: ckan/templates/organization/snippets/organization_form.html:20
@@ -229,11 +237,11 @@ msgstr ""
 #: ckanext/datastore/templates/package/resource_read.html:18
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:17
 msgid "Column"
-msgstr ""
+msgstr "หลัก"
 
 #: ckanext/datastore/templates/package/resource_read.html:19
 msgid "Type"
-msgstr ""
+msgstr "ประเภท"
 
 #: ckan/public/base/javascript/modules/activity-stream.js:97
 #: ckan/public/base/javascript/modules/popover-context.js:62
@@ -254,25 +262,32 @@ msgstr "กำลังโหลด..."
 msgid "Data API"
 msgstr "Data API"
 
-#: ckanext/datatablesview/plugin.py:46 ckanext/reclineview/plugin.py:128
-msgid "Table"
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
+msgid ""
+" Further information in the <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
+
+#: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:128
+msgid "Table"
+msgstr "ตาราง"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:6
 msgid "Responsive display"
-msgstr ""
+msgstr "การแสดงผลแบบ Responsive"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:12
 msgid "Show Columns"
-msgstr ""
+msgstr "แสดงหลัก"
 
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:28
 msgid "Hide/Unhide Columns"
-msgstr ""
+msgstr "แสดง/ซ่อนหลัก"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
-msgstr ""
+msgstr "ชุดข้อมูลต่อหน้า"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:13
 msgid "Test conf"
@@ -381,6 +396,7 @@ msgstr "0 ชุดข้อมูล"
 #: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
 msgstr ""
+"เครื่องมือสำหรับการดูตัวอย่างข้อมูลของ CKAN มีฟีเจอร์ที่ทรงพลังจำนวนมาก"
 
 #: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
 #: ckan/templates/group/snippets/info.html:32
@@ -427,12 +443,12 @@ msgstr ""
 #: ckanext/reclineview/plugin.py:171
 #: ckanext/reclineview/theme/public/recline_view.js:200
 msgid "Graph"
-msgstr ""
+msgstr "กราฟ"
 
 #: ckanext/reclineview/plugin.py:231
 #: ckanext/reclineview/theme/public/recline_view.js:207
 msgid "Map"
-msgstr ""
+msgstr "แผนที่"
 
 #: ckanext/reclineview/theme/public/recline_view.js:28
 msgid "error loading view"
@@ -440,7 +456,7 @@ msgstr ""
 
 #: ckanext/reclineview/theme/public/recline_view.js:75
 msgid "Could not load view"
-msgstr ""
+msgstr "ไม่สามารถโหลดวิวได้"
 
 #: ckanext/reclineview/theme/public/recline_view.js:77
 msgid "DataStore returned an error"
@@ -472,7 +488,7 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "จำนวนแถว"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
@@ -481,7 +497,7 @@ msgstr ""
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:6
 msgid "Graph type"
-msgstr ""
+msgstr "ประเภทกราฟ"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:7
 msgid "Group (Axis 1)"
@@ -493,19 +509,19 @@ msgstr ""
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:6
 msgid "Field type"
-msgstr ""
+msgstr "ประเภทฟิลด์"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:7
 msgid "Latitude field"
-msgstr ""
+msgstr "ฟิลด์ละติจูด"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:8
 msgid "Longitude field"
-msgstr ""
+msgstr "ฟิลด์ลองจิจูด"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:9
 msgid "GeoJSON field"
-msgstr ""
+msgstr "ฟิลด์ GeoJSON"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:10
 msgid "Auto zoom to features"
@@ -632,19 +648,20 @@ msgstr "จำนวนชุดข้อมูลทั้งหมด"
 
 #: ckanext/textview/plugin.py:67 ckanext/textview/plugin.py:69
 msgid "Text"
-msgstr ""
+msgstr "ข้อความ"
 
 #: ckanext/webpageview/plugin.py:21 ckanext/webpageview/plugin.py:26
 msgid "Website"
-msgstr ""
+msgstr "เว็บไซต์"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "Web Page url"
-msgstr ""
+msgstr "URL ของเว็บเพจ"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
 msgstr ""
+"ตัวอย่างเช่น http://example.com (ถ้าปล่อยว่างจะใช้ URL ของแหล่งข้อมูล)"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:23
 #: ckan/templates/package/snippets/resource_view.html:56
@@ -958,17 +975,22 @@ msgstr "กลุ่มถูกลบออกแล้ว"
 #: ckan/controllers/group.py:624
 #, python-format
 msgid "%s has been deleted."
-msgstr ""
+msgstr "%s ถูกลบไปแล้ว"
 
 #: ckan/controllers/group.py:653
 #, python-format
 msgid "User %r not authorized to edit members of %s"
-msgstr ""
+msgstr "ผู้ใช้ %r ไม่ได้รับอนุญาตให้แก้ไขสมาชิกของ %s"
 
-#: ckan/controllers/group.py:705
+#: ckan/controllers/group.py:670
+#, python-format
+msgid "Unauthorized to create group %s members"
+msgstr "ไม่ได้รับอนุญาตให้สร้างสมาชิกในกลุ่ม %s"
+
+#: ckan/controllers/group.py:712
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr "ไม่ได้รับการอนุญาตให้เพิ่มสมาชิกลงในกลุ่ม %s"
+msgstr "ไม่ได้รับอนุญาตให้เพิ่มสมาชิกในกลุ่ม %s"
 
 #: ckan/controllers/group.py:724 ckan/controllers/group.py:737
 #, python-format
@@ -1026,11 +1048,11 @@ msgstr "%s ใช้อีเมลสำหรับการตั้งค่
 
 #: ckan/controllers/package.py:288
 msgid "Invalid search query: {error_message}"
-msgstr ""
+msgstr "คำค้นไม่ถูกต้อง:{error_message}"
 
 #: ckan/controllers/package.py:304
 msgid "Parameter \"{parameter_name}\" is not an integer"
-msgstr "พารามิเตอร์  \"{parameter_name}\" ไม่ใช่ตัวเลข"
+msgstr "พารามิเตอร์  \"{parameter_name}\" ไม่ใช่เลขจำนวนเต็ม"
 
 #: ckan/controllers/package.py:324 ckan/controllers/package.py:332
 #: ckan/controllers/package.py:370 ckan/controllers/package.py:437
@@ -1052,7 +1074,7 @@ msgstr "รูปแบบรุ่นไม่ถูกต้อง: %r"
 
 #: ckan/controllers/package.py:396
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
-msgstr ""
+msgstr "({file_!r}) ไม่สนับสนุนการดูชุดข้อมูลประเภท \"{package_type}\""
 
 #: ckan/controllers/package.py:435 ckan/controllers/package.py:817
 #: ckan/controllers/package.py:918 ckan/controllers/package.py:966
@@ -1096,7 +1118,7 @@ msgstr "ไม่ได้รับการอนุญาตให้สร้
 
 #: ckan/controllers/package.py:714
 msgid "Unauthorized to create a resource for this package"
-msgstr ""
+msgstr "ไม่ได้รับอนุญาตให้สร้างทรัพยากรสำหรับแพกเกจนี้"
 
 #: ckan/controllers/package.py:928
 msgid "Unable to add package to search index."
@@ -1148,7 +1170,7 @@ msgstr "ไม่ได้รับการอนุญาตให้อ่า
 
 #: ckan/controllers/package.py:1468
 msgid "Unauthorized to edit resource"
-msgstr ""
+msgstr "ไม่ได้รับอนุญาตให้แก้ไขทรัพยากร"
 
 #: ckan/controllers/package.py:1486
 msgid "View not found"
@@ -2971,21 +2993,21 @@ msgstr "ถ้าคุณต้องการเชิญผู้ใช้ใ
 
 #: ckan/templates/group/member_new.html:55
 #: ckan/templates/group/members.html:15
-#: ckan/templates/organization/member_new.html:56
+#: ckan/templates/organization/member_new.html:54
 #: ckan/templates/organization/members.html:20
 msgid "Role"
 msgstr "หน้าที่"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
-#: ckan/templates/organization/member_new.html:59
+#: ckan/templates/organization/member_new.html:57
 #: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
 msgstr "คุณแน่ใจว่าต้องการลบสมาชิกนี้?"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
-#: ckan/templates/group/snippets/group_form.html:60
+#: ckan/templates/group/snippets/group_form.html:38
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:36
@@ -3447,9 +3469,9 @@ msgstr "ข้อมูลเบื้องต้นเกี่ยวกับ
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all the "
-"public and private datasets belonging to this organization."
-msgstr "คุณแน่ใจว่าคุณต้องการลบองค์กรนี้ ซึ่งจะลบชุดข้อมูลทั้งหมดขององค์กรนี้"
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
+msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:63
 msgid "Save Organization"
@@ -3623,7 +3645,7 @@ msgstr "แหล่ง: <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckan/templates/package/resource_read.html:109
 msgid "There are no views created for this resource yet."
-msgstr ""
+msgstr "ยังไม่มีการสร้างวิวสำหรับทรัพยากรนี้"
 
 #: ckan/templates/package/resource_read.html:113
 msgid "Not seeing the views you were expecting?"
@@ -3635,7 +3657,7 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:120
 msgid "No view has been created that is suitable for this resource"
-msgstr ""
+msgstr "ไม่มีวิวที่สร้างไว้แล้วซึ่งเหมาะสมกับทรัพยากรนี้"
 
 #: ckan/templates/package/resource_read.html:121
 msgid "The site administrators may not have enabled the relevant view plugins"
@@ -3703,7 +3725,7 @@ msgstr ""
 
 #: ckan/templates/package/resource_views.html:28
 msgid "This resource has no views"
-msgstr ""
+msgstr "ทรัพยากรนี้ยังไม่มีวิว"
 
 #: ckan/templates/package/resources.html:8
 msgid "Add new resource"
@@ -3971,7 +3993,7 @@ msgstr "สิ้นสุด"
 
 #: ckan/templates/package/snippets/resource_help.html:2
 msgid "What's a resource?"
-msgstr "อะไรคือทรัพยากร"
+msgstr "อะไรคือทรัพยากร?"
 
 #: ckan/templates/package/snippets/resource_help.html:4
 msgid "A resource can be any file or link to a file containing useful data."
@@ -3996,7 +4018,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_view.html:63
 msgid "Embed resource view"
-msgstr ""
+msgstr "ฝังวิวของทรัพยากร"
 
 #: ckan/templates/package/snippets/resource_view.html:66
 msgid ""
@@ -4593,3 +4615,7 @@ msgstr "ไม่มีผู้ติดตาม"
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
 msgstr "ค้นหาผู้ใช้"
+
+#: ckan/views/user.py:588
+msgid "Your password must be 8 characters or longer."
+msgstr ""
