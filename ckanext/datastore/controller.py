@@ -155,7 +155,7 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
         bom = options.get(u'bom', False)
         return writer_factory(output, fields, resource_id, bom)
 
-    def result_page(offs, lim):
+    def result_page(offs, lim, field_list):
         return get_action('datastore_search')(None, {
             'resource_id': resource_id,
             'limit':
@@ -164,11 +164,22 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
             'offset': offs,
             'records_format': records_format,
             'include_total': 'false',  # XXX: default() is broken
+            'fields': field_list,
         })
 
-    result = result_page(offset, limit)
+    try:
+        rec = get_action('datastore_search')(None, {
+            'resource_id': resource_id,
+            'limit': 0})
+    except (ObjectNotFound, NotAuthorized):
+        abort(404, _('Resource not found'))
 
-    with start_writer(result['fields']) as wr:
+    field_list = [f['id'] for f in rec['fields'] if f['id'] != '_id']
+
+    result = result_page(offset, limit, field_list)
+    fields = [f for f in result['fields'] if f['id'] != '_id']
+
+    with start_writer(fields) as wr:
         while True:
             if limit is not None and limit <= 0:
                 break
@@ -189,4 +200,4 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
                 if limit <= 0:
                     break
 
-            result = result_page(offset, limit)
+            result = result_page(offset, limit, field_list)
