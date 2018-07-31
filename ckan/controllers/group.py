@@ -370,7 +370,6 @@ class GroupController(base.BaseController):
         self._setup_template_variables(context, {'id': id},
                                        group_type=group_type)
 
-
     def bulk_process(self, id):
         ''' Allow bulk processing of datasets for an organization.  Make
         private/public or delete. For organization admins.'''
