@@ -311,6 +311,9 @@ class PackageSearchQuery(SearchQuery):
         if not q or q == '""' or q == "''":
             query['q'] = "*:*"
 
+        # Set default search field
+        query['df'] = 'text'
+        
         # number of results
         rows_to_return = min(1000, int(query.get('rows', 10)))
         if rows_to_return > 0:
