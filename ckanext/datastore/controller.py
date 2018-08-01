@@ -174,9 +174,13 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
     except (ObjectNotFound, NotAuthorized):
         abort(404, _('Resource not found'))
 
+    # Get a list of field names, excluding "_id", to pass to result_page
     field_list = [f['id'] for f in rec['fields'] if f['id'] != '_id']
 
+    # Get the first set of records
     result = result_page(offset, limit, field_list)
+
+    # Get a list of dict with field names and type, excluding "_id"
     fields = [f for f in result['fields'] if f['id'] != '_id']
 
     with start_writer(fields) as wr:
