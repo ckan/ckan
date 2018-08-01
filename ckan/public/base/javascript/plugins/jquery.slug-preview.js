@@ -70,7 +70,7 @@
       '<div class="slug-preview">',
       '<strong></strong>',
       '<span class="slug-preview-prefix"></span><span class="slug-preview-value"></span>',
-      '<button class="btn btn-xs"></button>',
+      '<button class="btn btn-default btn-xs"></button>',
       '</div>'
     ].join('\n')
   };
