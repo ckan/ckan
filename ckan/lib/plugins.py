@@ -3,7 +3,6 @@
 import logging
 import os
 import sys
-from importlib import import_module
 
 from flask import Blueprint
 
@@ -13,7 +12,6 @@ import logic.schema
 from ckan import plugins
 import ckan.authz
 import ckan.plugins.toolkit as toolkit
-from flask import Blueprint
 
 log = logging.getLogger(__name__)
 
@@ -92,7 +90,7 @@ def lookup_group_blueprints(group_type=None):
     return _group_blueprints.get(group_type)
 
 
-def register_package_plugins(app):
+def register_package_plugins():
     """
     Register the various IDatasetForm instances.
 
@@ -102,9 +100,6 @@ def register_package_plugins(app):
     """
     global _default_package_plugin
 
-    from ckan.views.dataset import dataset, register_dataset_plugin_rules
-    from ckan.views.resource import resource, register_dataset_plugin_rules as dataset_resource_rules
-
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         if plugin.is_fallback():
@@ -113,18 +108,38 @@ def register_package_plugins(app):
                                  "IDatasetForm has been registered")
             _default_package_plugin = plugin
         for package_type in plugin.package_types():
+            if package_type in _package_plugins:
+                raise ValueError("An existing IDatasetForm is "
+                                 "already associated with the package type "
+                                 "'%s'" % package_type)
+
+            _package_plugins[package_type] = plugin
+
+    # Setup the fallback behaviour if one hasn't been defined.
+    set_default_package_plugin()
+
+
+def register_package_blueprints(app):
+    """
+    Register the various IDatasetForm instances.
+
+    """
+
+    from ckan.views.dataset import dataset, register_dataset_plugin_rules
+    from ckan.views.resource import resource, register_dataset_plugin_rules as dataset_resource_rules
+
+    # Create the mappings and register the fallback behaviour if one is found.
+    for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
+        for package_type in plugin.package_types():
 
             if package_type == u'dataset':
                 # The default routes are registered with the core
                 # 'dataset' blueprint
                 continue
 
-            elif package_type in _package_plugins:
-                raise ValueError("An existing IDatasetForm is "
-                                 "already associated with the package type "
-                                 "'%s'" % package_type)
-
-            _package_plugins[package_type] = plugin
+            elif package_type in app.blueprints:
+                raise ValueError(
+                    "A blueprint for has already been associated for the package type ()".format(package_type))
 
             dataset_blueprint = Blueprint(
                 package_type,
@@ -141,9 +156,6 @@ def register_package_plugins(app):
                 url_defaults={u'package_type': package_type})
             dataset_resource_rules(resource_blueprint)
             app.register_blueprint(resource_blueprint)
-
-    # Setup the fallback behaviour if one hasn't been defined.
-    set_default_package_plugin()
 
 
 def set_default_package_plugin():
