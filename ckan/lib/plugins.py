@@ -95,8 +95,7 @@ def register_package_plugins():
     Register the various IDatasetForm instances.
 
     This method will setup the mappings between package types and the
-    registered IDatasetForm instances. If it's called more than once an
-    exception will be raised.
+    registered IDatasetForm instances.
     """
     global _default_package_plugin
 
@@ -121,8 +120,10 @@ def register_package_plugins():
 
 def register_package_blueprints(app):
     """
-    Register the various IDatasetForm instances.
+    Register a Flask blueprint for the various IDatasetForm instances.
 
+    Actually two blueprints per IDatasetForm instance, one for the dataset routes
+    and one for the resources one.
     """
 
     from ckan.views.dataset import dataset, register_dataset_plugin_rules
@@ -139,7 +140,8 @@ def register_package_blueprints(app):
 
             elif package_type in app.blueprints:
                 raise ValueError(
-                    "A blueprint for has already been associated for the package type ()".format(package_type))
+                    'A blueprint for has already been associated for the '
+                    'package type {}'.format(package_type))
 
             dataset_blueprint = Blueprint(
                 package_type,
@@ -156,6 +158,9 @@ def register_package_blueprints(app):
                 url_defaults={u'package_type': package_type})
             dataset_resource_rules(resource_blueprint)
             app.register_blueprint(resource_blueprint)
+            log.debug(
+                'Registered blueprints for custom dataset type \'{}\''.format(
+                    package_type))
 
 
 def set_default_package_plugin():
@@ -164,21 +169,18 @@ def set_default_package_plugin():
         _default_package_plugin = DefaultDatasetForm()
 
 
-def register_group_plugins(app):
+def register_group_plugins():
     """
     Register the various IGroupForm instances.
 
     This method will setup the mappings between group types and the
-    registered IGroupForm instances. If it's called more than once an
-    exception will be raised.
+    registered IGroupForm instances.
 
     It will register IGroupForm instances for both groups and organizations
     """
     global _default_group_plugin
     global _default_organization_plugin
 
-    from ckan.views.group import group, register_group_plugin_rules
-    # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IGroupForm):
 
         # Get group_controller from plugin if there is one,
@@ -211,17 +213,49 @@ def register_group_plugins(app):
 
         for group_type in plugin.group_types():
 
-            if group_type in (u'group', u'organization'):
-                # The default routes are registered with the core
-                # 'group' or 'organization' blueprint
-                _group_plugins[group_type] = plugin
-                continue
-            elif group_type in _group_plugins:
+            if group_type in _group_plugins:
                 raise ValueError("An existing IGroupForm is "
                                  "already associated with the group type "
                                  "'%s'" % group_type)
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
+
+        set_default_group_plugin()
+
+
+def register_group_blueprints(app):
+    """
+    Register a Flask blueprint for the various IGroupForm instances.
+
+    It will register blueprints for both groups and organizations
+    """
+
+    from ckan.views.group import group, register_group_plugin_rules
+
+    for plugin in plugins.PluginImplementations(plugins.IGroupForm):
+
+        # Get group_controller from plugin if there is one,
+        # otherwise use 'group'
+        try:
+            group_controller = plugin.group_controller()
+        except AttributeError:
+            group_controller = 'group'
+
+        if hasattr(plugin, 'is_organization'):
+            is_organization = plugin.is_organization
+        else:
+            is_organization = group_controller == 'organization'
+
+        for group_type in plugin.group_types():
+
+            if group_type in (u'group', u'organization'):
+                # The default routes are registered with the core
+                # 'group' or 'organization' blueprint
+                continue
+            elif group_type in app.blueprints:
+                raise ValueError(
+                    'A blueprint for has already been associated for the '
+                    'group type {}'.format(group_type))
 
             blueprint = Blueprint(group_type,
                                   group.import_name,
@@ -230,8 +264,6 @@ def register_group_plugins(app):
                                                 u'is_organization': is_organization})
             register_group_plugin_rules(blueprint)
             app.register_blueprint(blueprint)
-
-        set_default_group_plugin()
 
 
 def set_default_group_plugin():
