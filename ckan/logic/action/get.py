@@ -1815,7 +1815,7 @@ def package_search(context, data_dict):
         data_dict['extras'][key] = data_dict.pop(key)
 
     # set default search field
-    data_dict.setdefault('df', 'text')
+    data_dict['df'] = 'text'
 
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
