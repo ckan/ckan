@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 
 
 def resource_dict_save(res_dict, context):
+
     model = context["model"]
     session = context["session"]
 
