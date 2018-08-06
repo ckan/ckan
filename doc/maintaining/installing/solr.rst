@@ -66,6 +66,33 @@ installed, we need to install and configure Solr.
       sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
       sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
 
+
+   .. note::
+
+    If you are going to use SOLR>=7.0.0, you need to use schema.xml-2.7 as well as make
+    few changes to solrconfig.xml::
+
+      sudo ln -sf |virtualenv|/src/ckan/ckan/config/solr/schema.xml-2.7 /etc/solr/conf/schema.xml
+      rm -f /etc/solr/conf/managed-schema
+
+    Open /etc/solr/conf/solrconfig.xml and update next sections::
+
+      # //requestHandler[@name="/select"]/lst[@name="defaults"]
+      # add two lines after `<int name"rows">10</int>`
+
+      <str name="df">text</str>
+      <str name="q.op">AND</str>
+
+      # add next line before `<updateProcessor class="solr.UUIDUpdateProcessorFactory" name="uuid"/>`
+
+      <schemaFactory class="ClassicIndexSchemaFactory" />
+
+      # change `default` attribute of `<updateRequestProcessorChain>` to `false`:
+
+      <updateRequestProcessorChain name="add-unknown-fields-to-the-schema" default="${update.autoCreateFields:false}"
+           processor="uuid,remove-blank,field-name-mutating,parse-boolean,parse-long,parse-double,parse-date,add-schema-fields">
+
+
    Now restart Solr:
 
    For Ubuntu 16.04::
@@ -83,4 +110,3 @@ installed, we need to install and configure Solr.
    point to your Solr server, for example::
 
        solr_url=http://127.0.0.1:8983/solr
-

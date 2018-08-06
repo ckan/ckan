@@ -415,7 +415,7 @@ class ApiController(base.BaseController):
         limit = request.params.get('limit', 20)
         try:
             limit = int(limit)
-        except:
+        except Exception:
             limit = 20
         limit = min(50, limit)
 
