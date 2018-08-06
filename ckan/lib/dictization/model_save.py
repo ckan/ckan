@@ -33,9 +33,8 @@ def resource_dict_save(res_dict, context):
     fields = [field.name for field in table.c]
 
     # Strip the full url for resources of type 'upload'
-    if res_dict.get('url_type') == u'upload':
-        url = res_dict.get('url')
-        res_dict[u'url'] = url[url.rfind(u"/")+1:]
+    if res_dict.get('url') and res_dict.get('url_type') == u'upload':
+        res_dict['url'] = res_dict['url'].rsplit('/')[-1]
 
     # Resource extras not submitted will be removed from the existing extras
     # dict
