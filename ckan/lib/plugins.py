@@ -220,7 +220,8 @@ def register_group_plugins():
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
 
-        set_default_group_plugin()
+    # Setup the fallback behaviour if one hasn't been defined.
+    set_default_group_plugin()
 
 
 def register_group_blueprints(app):
