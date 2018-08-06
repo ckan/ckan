@@ -26,13 +26,14 @@ dependencies:
         #- sudo apt-get -y install solr-common  # =4.3.1 current is 3.6.2
         #- sudo apt-get install -y openjdk-6-jdk solr-jetty
         #- sudo apt-get install -y python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk redis-server
-        #- which solr  # returned exit code 1
-        - whereis solr
-        - ls /etc/solr
-        - ls /usr/share/solr
-        - ls /opt
-        - ls $HOME
-        - ls $HOME/solr
+        #- which solr         # returned exit code 1
+        - whereis solr        # solr: /etc/solr /usr/share/solr
+        - ls /etc/solr        # conf  solr.xml	web.xml
+        - ls /usr/share/solr  # bin  conf  data  logs  scripts	solr.xml  web
+        - ls /opt             # alex   circleci			   firefox  google	      happy
+        #                     # cabal  circleci-provision-scripts  ghc	    google-cloud-sdk  qt55
+        - ls $HOME            # bin  ckan  virtualenvs
+        #- ls $HOME/solr
 
     override:
         - pip install -r requirement-setuptools.txt
@@ -61,6 +62,7 @@ database:
 
         #- cp -R /opt/solr-4.3.1 $SOLR_HOME
         - cp -R /usr/share/solr $SOLR_HOME
+        - lf -r $SOLR_HOME  # PROBLEM: No directory named example
         - cd $SOLR_HOME/example; java -jar start.jar >> $HOME/solr.log:
             background: true
         - while ! grep "Started" $HOME/solr.log; do sleep 0.1; done
