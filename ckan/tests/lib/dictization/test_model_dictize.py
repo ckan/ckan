@@ -5,7 +5,7 @@ import copy
 
 from nose.tools import assert_equal
 
-from ckan.lib.dictization import model_dictize
+from ckan.lib.dictization import model_dictize, model_save
 from ckan import model
 from ckan.lib import search
 
@@ -401,8 +401,7 @@ class TestPackageDictize:
 
         result = model_dictize.package_dictize(dataset_obj, context)
 
-        assert_equal_for_keys(result['resources'][0], resource,
-                              'name', 'url')
+        assert_equal_for_keys(result['resources'][0], resource, 'name', 'url')
         expected_dict = {
             u'cache_last_updated': None,
             u'cache_url': None,
@@ -421,6 +420,40 @@ class TestPackageDictize:
             u'url_type': None
         }
         self.assert_equals_expected(expected_dict, result['resources'][0])
+
+    def test_package_dictize_resource_upload_and_striped(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset['id'],
+                                      name='test_pkg_dictize',
+                                      url_type='upload',
+                                      url='some_filename.csv')
+
+        context = {'model': model, 'session': model.Session}
+
+        result = model_save.resource_dict_save(resource, context)
+
+        expected_dict = {
+            u'url': u'some_filename.csv',
+            u'url_type': u'upload'
+        }
+        assert expected_dict['url'] == result.url
+
+    def test_package_dictize_resource_upload_with_url_and_striped(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset['id'],
+                                      name='test_pkg_dictize',
+                                      url_type='upload',
+                                      url='http://some_filename.csv')
+
+        context = {'model': model, 'session': model.Session}
+
+        result = model_save.resource_dict_save(resource, context)
+
+        expected_dict = {
+            u'url': u'some_filename.csv',
+            u'url_type': u'upload'
+        }
+        assert expected_dict['url'] == result.url
 
     def test_package_dictize_tags(self):
         dataset = factories.Dataset(tags=[{'name': 'fish'}])
