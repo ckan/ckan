@@ -25,7 +25,7 @@ dependencies:
         - cd /opt
         - wget http://archive.apache.org/dist/lucene/solr/${SOLR_VERS}/solr-${SOLR_VERS}.tgz
         - tar -xvf solr-${SOLR_VERS}.tgz
-        - cp -R solr-${SOLR_VERS}/example /opt/solr
+        - sudo cp -R solr-${SOLR_VERS}/example /opt/solr
 
     override:
         - pip install -r requirement-setuptools.txt
