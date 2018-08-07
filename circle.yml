@@ -22,12 +22,7 @@ dependencies:
            || mkdir -p ~/.local/bin
            && curl -fsSL https://raw.githubusercontent.com/michaelcontento/circleci-matrix/master/src/circleci-matrix.sh -o ~/.local/bin/circleci-matrix
            && chmod +x ~/.local/bin/circleci-matrix"
-        - cd /opt
-        - wget http://archive.apache.org/dist/lucene/solr/${SOLR_VERS}/solr-${SOLR_VERS}.tgz
-        - tar -xvf solr-${SOLR_VERS}.tgz
-        - pwd
-        - ls
-        - sudo cp -R solr-${SOLR_VERS}/example /opt/solr
+        - cd /opt ; wget http://archive.apache.org/dist/lucene/solr/${SOLR_VERS}/solr-${SOLR_VERS}.tgz ; tar -xvf solr-${SOLR_VERS}.tgz
 
     override:
         - pip install -r requirement-setuptools.txt
