@@ -22,6 +22,8 @@ dependencies:
            || mkdir -p ~/.local/bin
            && curl -fsSL https://raw.githubusercontent.com/michaelcontento/circleci-matrix/master/src/circleci-matrix.sh -o ~/.local/bin/circleci-matrix
            && chmod +x ~/.local/bin/circleci-matrix"
+        - sudo apt-get update
+        - sudo apt-get install -y apache2 libapache2-mod-wsgi libpq5 redis-server git-core
         - cd /opt ; sudo wget http://archive.apache.org/dist/lucene/solr/${SOLR_VERS}/solr-${SOLR_VERS}.tgz ; sudo tar -xvf solr-${SOLR_VERS}.tgz
 
     override:
