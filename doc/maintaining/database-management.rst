@@ -64,7 +64,7 @@ and restoring a database and its content to/from a file.
 
 For example, first dump your CKAN database::
 
-    sudo -u postgres pg_dump --format=custom -d ckan_default > ckan.dump
+    sudo pg_dump -U postgres --format=custom --file=ckan.dump ckan_default
 
 .. warning::
 
