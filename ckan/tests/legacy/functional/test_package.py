@@ -11,7 +11,6 @@ from nose.tools import assert_equal
 from ckan.tests.legacy import *
 import ckan.tests.legacy as tests
 from ckan.tests.legacy.html_check import HtmlCheckMethods
-from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
@@ -203,11 +202,10 @@ class TestPackageForm(TestPackageBase):
                     pkg.purge()
                 model.repo.commit_and_remove()
 
-class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
+class TestReadOnly(TestPackageForm, HtmlCheckMethods):
 
     @classmethod
     def setup_class(cls):
-        PylonsTestCase.setup_class()
         CreateTestData.create()
 
     @classmethod

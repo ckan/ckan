@@ -6,9 +6,11 @@ import ckan.model as model
 import ckan.lib.base
 import ckan.lib.mailer
 import ckan.tests.legacy as tests
+import ckan.tests.helpers as helpers
 import ckan.tests.legacy.mock_mail_server as mock_mail_server
-import ckan.tests.legacy.pylons_controller as pylons_controller
 import ckan.config.middleware
+from ckan.tests.legacy import TestController as ControllerTestCase
+
 
 import paste
 import paste.deploy
@@ -17,15 +19,13 @@ import pylons.test
 from ckan.common import config
 
 
-class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
-        pylons_controller.PylonsTestCase):
+class TestEmailNotifications(mock_mail_server.SmtpServerHarness, ControllerTestCase):
 
     @classmethod
     def setup_class(cls):
         mock_mail_server.SmtpServerHarness.setup_class()
-        pylons_controller.PylonsTestCase.setup_class()
         tests.CreateTestData.create()
-        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        cls.app = helpers._get_test_app()
         joeadmin = model.User.get('joeadmin')
         cls.joeadmin = {'id': joeadmin.id,
                 'apikey': joeadmin.apikey,
@@ -42,7 +42,6 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
     @classmethod
     def teardown_class(cls):
         mock_mail_server.SmtpServerHarness.teardown_class()
-        pylons_controller.PylonsTestCase.teardown_class()
         model.repo.rebuild_db()
 
     def check_email(self, email, address, name, subject):
@@ -190,15 +189,14 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
 # It's just easier to separate these tests into their own test class.
 class TestEmailNotificationsUserPreference(
         mock_mail_server.SmtpServerHarness,
-        pylons_controller.PylonsTestCase):
+        ControllerTestCase):
     '''Tests for the email notifications (on/off) user preference.'''
 
     @classmethod
     def setup_class(cls):
         mock_mail_server.SmtpServerHarness.setup_class()
-        pylons_controller.PylonsTestCase.setup_class()
         tests.CreateTestData.create()
-        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        cls.app = helpers._get_test_app()
         joeadmin = model.User.get('joeadmin')
         cls.joeadmin = {'id': joeadmin.id,
                 'apikey': joeadmin.apikey,
@@ -211,7 +209,6 @@ class TestEmailNotificationsUserPreference(
     @classmethod
     def teardown_class(self):
         mock_mail_server.SmtpServerHarness.teardown_class()
-        pylons_controller.PylonsTestCase.teardown_class()
         model.repo.rebuild_db()
 
     def test_00_email_notifications_disabled_by_default(self):
@@ -324,24 +321,18 @@ class TestEmailNotificationsUserPreference(
 
 
 class TestEmailNotificationsIniSetting(
-        mock_mail_server.SmtpServerHarness,
-        pylons_controller.PylonsTestCase):
+        mock_mail_server.SmtpServerHarness, ControllerTestCase):
     '''Tests for the ckan.activity_streams_email_notifications config setting.
 
     '''
     @classmethod
     def setup_class(cls):
-        cls._original_config = config.copy()
 
         # Disable the email notifications feature.
-        config['ckan.activity_streams_email_notifications'] = False
 
-        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
-                **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
 
         mock_mail_server.SmtpServerHarness.setup_class()
-        pylons_controller.PylonsTestCase.setup_class()
         tests.CreateTestData.create()
 
         joeadmin = model.User.get('joeadmin')
@@ -355,12 +346,10 @@ class TestEmailNotificationsIniSetting(
 
     @classmethod
     def teardown_class(cls):
-        config.clear()
-        config.update(cls._original_config)
         mock_mail_server.SmtpServerHarness.teardown_class()
-        pylons_controller.PylonsTestCase.teardown_class()
         model.repo.rebuild_db()
 
+    @helpers.change_config('ckan.activity_streams_email_notifications', False)
     def test_00_send_email_notifications_feature_disabled(self):
         '''Send_email_notifications API should error when feature disabled.'''
 
@@ -400,6 +389,7 @@ class TestEmailNotificationsIniSetting(
         tests.call_action_api(self.app, 'send_email_notifications',
                 apikey=self.testsysadmin['apikey'], status=409)
 
+    @helpers.change_config('ckan.activity_streams_email_notifications', False)
     def test_01_no_emails_sent_if_turned_off(self):
         '''No emails should be sent if the feature is disabled site-wide.'''
 
@@ -409,23 +399,17 @@ class TestEmailNotificationsIniSetting(
 
 class TestEmailNotificationsSinceIniSetting(
         mock_mail_server.SmtpServerHarness,
-        pylons_controller.PylonsTestCase):
+        ControllerTestCase):
     '''Tests for the ckan.email_notifications_since config setting.'''
 
     @classmethod
     def setup_class(cls):
-        cls._original_config = config.copy()
 
         # Don't send email notifications for activities older than 1
         # microsecond.
-        config['ckan.email_notifications_since'] = '.000001'
 
-        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
-                **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
-
+        cls.app = helpers._get_test_app()
         mock_mail_server.SmtpServerHarness.setup_class()
-        pylons_controller.PylonsTestCase.setup_class()
         tests.CreateTestData.create()
 
         joeadmin = model.User.get('joeadmin')
@@ -439,12 +423,10 @@ class TestEmailNotificationsSinceIniSetting(
 
     @classmethod
     def teardown_class(self):
-        config.clear()
-        config.update(self._original_config)
         mock_mail_server.SmtpServerHarness.teardown_class()
-        pylons_controller.PylonsTestCase.teardown_class()
         model.repo.rebuild_db()
 
+    @helpers.change_config('ckan.email_notifications_since', '.000001')
     def test_00_email_notifications_since(self):
         '''No emails should be sent for activities older than
         email_notifications_since.

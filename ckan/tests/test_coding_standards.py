@@ -519,7 +519,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/tests/legacy/models/test_resource.py',
     u'ckan/tests/legacy/models/test_revision.py',
     u'ckan/tests/legacy/models/test_user.py',
-    u'ckan/tests/legacy/pylons_controller.py',
     u'ckan/tests/legacy/schema/test_schema.py',
     u'ckan/tests/legacy/test_coding_standards.py',
     u'ckan/tests/legacy/test_plugins.py',

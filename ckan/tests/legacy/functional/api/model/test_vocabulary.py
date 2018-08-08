@@ -2,8 +2,8 @@
 
 import ckan
 import pylons.test
-import paste.fixture
 import ckan.lib.helpers as helpers
+import ckan.tests.helpers as h
 import ckan.lib.dictization.model_dictize as model_dictize
 
 
@@ -11,7 +11,7 @@ class TestVocabulary(object):
 
     @classmethod
     def setup_class(self):
-        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        self.app = h._get_test_app()
 
     @classmethod
     def teardown_class(self):
