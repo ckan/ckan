@@ -405,9 +405,6 @@ class TestEmailNotificationsSinceIniSetting(
     @classmethod
     def setup_class(cls):
 
-        # Don't send email notifications for activities older than 1
-        # microsecond.
-
         cls.app = helpers._get_test_app()
         mock_mail_server.SmtpServerHarness.setup_class()
         tests.CreateTestData.create()
@@ -426,6 +423,8 @@ class TestEmailNotificationsSinceIniSetting(
         mock_mail_server.SmtpServerHarness.teardown_class()
         model.repo.rebuild_db()
 
+    # Don't send email notifications for activities older than 1
+    # microsecond
     @helpers.change_config('ckan.email_notifications_since', '.000001')
     def test_00_email_notifications_since(self):
         '''No emails should be sent for activities older than
