@@ -15,14 +15,14 @@ def upgrade(migrate_engine):
     if num_unmigrated:
         print('''
 !!! NOTICE !!!
-You should run the migrate_revisions.py script to fully populate the dataset
-dicts in the Activity Stream that admins can see. This can take a while but can
-be run safely while CKAN is live, which is why this is not done automatically
-as part of this 'paster db upgrade'.
+You should run the migrate_package_activity.py script to fully populate the
+dataset dicts in the Activity Stream that admins can see. This can take a while
+but can be run safely while CKAN is live, which is why this is not done
+automatically as part of this 'paster db upgrade'.
 
-Run migrate_revisions.py like this:
+Run migrate_package_activity.py like this:
 
-    python ckan/migration/migrate_revisions.py -c /etc/ckan/production.ini
+  python ckan/migration/migrate_package_activity.py -c /etc/ckan/production.ini
 
 NB This notice will not display again
         ''')

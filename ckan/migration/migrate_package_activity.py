@@ -72,6 +72,7 @@ def migrate_dataset(dataset_name):
         print(u'  No activities')
 
     context[u'for_view'] = False
+    # Iterate over this package's existing activity stream objects
     for i, activity in enumerate(package_activity_stream):
         # e.g. activity =
         # {'activity_type': u'changed package',
