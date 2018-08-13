@@ -339,6 +339,9 @@ class PackageController(base.BaseController):
             c.facets = {}
             c.search_facets = {}
             c.page = h.Page(collection=[])
+        except NotAuthorized:
+            abort(403, _('Not authorized to see this page'))
+
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
             try:
@@ -478,7 +481,7 @@ class PackageController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to create a package'))
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_new(context, package_type=package_type)
 
         data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
@@ -726,7 +729,7 @@ class PackageController(base.BaseController):
                    'user': c.user, 'auth_user_obj': c.userobj,
                    'save': 'save' in request.params}
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_edit(id, context, package_type=package_type)
         try:
             c.pkg_dict = get_action('package_show')(dict(context,

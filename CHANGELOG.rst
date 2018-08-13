@@ -7,6 +7,36 @@
 Changelog
 ---------
 
+
+v2.6.6 2018-05-09
+=================
+
+* Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
+* Stable version URLs CKAN for documentation (#4209)
+* Add Warning in docs sidebar (#4209)
+
+v2.6.5 2018-03-15
+=================
+
+Note: This version requires a database upgrade
+
+* Activity Time stored in UTC (#2882)
+* Migration script to adjust current activity timestamps to UTC
+* Change CORS header keys and values to string instead of unicode (#3855)
+* Fix cors header when all origins are allowed (#3898)
+* Update SOLR schema.xml reference in Dockerfile
+* Build local SOLR container by default
+* Create datastore indexes only if they don't exist
+* Properly close file responses
+* Use javascript content-type for jsonp responses (#4022)
+* Fix SOLR index delete_package implementation
+* Add second half of DataStore set-permissions command (Docs)
+* Return a 403 if not authorized on the search page (#4081)
+* Add support for user/pass for Solr as ENV var
+* Disallow solr local parameters
+* Improve text view rendering
+* Update Orgs/Groups logic for custom fields delete and update (#4094)
+
 v2.6.4 2017-09-27
 =================
 
