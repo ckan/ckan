@@ -186,7 +186,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         app = app.app
 
         environ = {
-            'PATH_INFO': '/dataset',
+            'PATH_INFO': '/tag',
             'REQUEST_METHOD': 'GET',
         }
         wsgiref.util.setup_testing_defaults(environ)
@@ -203,7 +203,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         app = app.app
 
         environ = {
-            'PATH_INFO': '/dataset/new',
+            'PATH_INFO': '/tag',
             'REQUEST_METHOD': 'POST',
         }
         wsgiref.util.setup_testing_defaults(environ)
@@ -349,14 +349,6 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         eq_(res.environ['ckan.app'], 'flask_app')
 
         p.unload('test_routing_plugin')
-
-    def test_pylons_core_route_is_served_by_pylons(self):
-
-        app = self._get_test_app()
-
-        res = app.get('/dataset')
-
-        eq_(res.environ['ckan.app'], 'pylons_app')
 
     def test_pylons_extension_route_is_served_by_pylons(self):
 

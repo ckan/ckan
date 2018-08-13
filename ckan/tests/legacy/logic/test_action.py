@@ -24,9 +24,11 @@ from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
 from ckan.tests.legacy import call_action_api
 import ckan.lib.search as search
+import ckan.tests.helpers as helpers
 
 from ckan import plugins
 from ckan.plugins import SingletonPlugin, implements, IPackageController
+
 
 class TestAction(WsgiAppCase):
 
@@ -80,7 +82,7 @@ class TestAction(WsgiAppCase):
         assert len(res['result']) == 1
         assert 'warandpeace' in res['result'] or 'annakarenina' in res['result']
 
-		# Test GET request
+        # Test GET request
         res = json.loads(self.app.get('/api/action/package_list').body)
         assert len(res['result']) == 2
         assert 'warandpeace' in res['result']
@@ -114,10 +116,10 @@ class TestAction(WsgiAppCase):
         assert 'warandpeace' in res
         assert 'annakarenina' in res
         assert 'public_dataset' in res
-        assert not 'private_dataset' in res
+        assert 'private_dataset' not in res
 
     def test_02_package_autocomplete_match_name(self):
-        postparams = '%s=1' % json.dumps({'q':'war', 'limit': 5})
+        postparams = '%s=1' % json.dumps({'q': 'war', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)
@@ -753,7 +755,7 @@ class TestAction(WsgiAppCase):
 
         # Posting a dataset dict to package_create containing two extras dicts
         # with the same key, should return a Validation Error.
-        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        app = helpers._get_test_app()
         error = call_action_api(app, 'package_create',
                 apikey=self.sysadmin_user.apikey, status=409,
                 name='foobar', extras=[{'key': 'foo', 'value': 'bar'},
@@ -765,7 +767,7 @@ class TestAction(WsgiAppCase):
         import paste.fixture
         import pylons.test
 
-        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        app = helpers._get_test_app()
         org = call_action_api(app, 'organization_create',
                 apikey=self.sysadmin_user.apikey, name='myorganization')
         package = call_action_api(app, 'package_create',
@@ -782,7 +784,7 @@ class TestAction(WsgiAppCase):
         import pylons.test
 
         # We need to create a package first, so that we can update it.
-        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        app = helpers._get_test_app()
         package = call_action_api(app, 'package_create',
                 apikey=self.sysadmin_user.apikey, name='foobar')
 

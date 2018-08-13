@@ -230,7 +230,7 @@ options     - A list/tuple of fields to be used as <options>.
   <div class="row">
     <div class="col-md-6">
       <div class="input-group" {{ attributes(attrs) }}>
-        <label for="{{ label_id }}" class="input-group-addon">Key</label>
+        <label for="{{ label_id }}" class="input-group-addon">{{ _('Key') }}</label>
         <input class="form-control" id="{{ id or names[0] }}-key" type="text" name="{{ names[0] }}" value="{{ values[0] | empty_and_escape }}" placeholder="{{ placeholders[0] }}" />
       </div>
     </div>
@@ -242,7 +242,7 @@ options     - A list/tuple of fields to be used as <options>.
       </label>
       {% endif %}
       <div class="input-group" {{ attributes(attrs) }}>
-        <label for="{{ id or names[1] }}-value" class="input-group-addon">Value</label>
+        <label for="{{ id or names[1] }}-value" class="input-group-addon">{{ _('Value') }}</label>
         <input class="form-control" id="{{ id or names[1] }}-value" type="text" name="{{ names[1] }}" value="{{ values[1] | empty_and_escape }}" placeholder="{{ placeholders[1] }}" />
       </div>
     </div>

@@ -109,7 +109,11 @@ class DatastoreController(BaseController):
 
         return render(
             'datastore/dictionary.html',
-            extra_vars={'fields': fields})
+            extra_vars={
+                'fields': fields,
+                'pkg_dict': c.pkg_dict,
+                'resource': c.resource,
+            })
 
 
 def dump_to(resource_id, output, fmt, offset, limit, options):

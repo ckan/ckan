@@ -14,11 +14,13 @@ import formencode
 import ckan.config.routing as routing
 import ckan.model as model
 import ckan.plugins as p
+import ckan.lib.plugins as lib_plugins
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
 from ckan.lib.redis import is_redis_available
 import ckan.lib.render as render
 import ckan.lib.search as search
+import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
@@ -222,6 +224,12 @@ def update_config():
     search.check_solr_schema_version()
 
     routes_map = routing.make_map()
+
+    lib_plugins.reset_package_plugins()
+    lib_plugins.set_default_package_plugin()
+    lib_plugins.reset_group_plugins()
+    lib_plugins.set_default_group_plugin()
+
     config['routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists
     if 'routes.middleware' in config:
@@ -279,7 +287,7 @@ def update_config():
     # any Pylons config options)
 
     # Initialize SQLAlchemy
-    engine = sqlalchemy.engine_from_config(config, client_encoding='utf8')
+    engine = sqlalchemy.engine_from_config(config)
     model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):

@@ -7,7 +7,7 @@ tags: list of tags
   <ul class="{{ _class }}">
     {% for tag in tags %}
       <li>
-        <a class="{% block tag_list_item_class %}tag{% endblock %}" href="{% url_for controller='package', action='search', tags=tag.name %}">{{ h.truncate(tag.display_name, 22) }}</a>
+        <a class="{% block tag_list_item_class %}tag{% endblock %}" href="{% url_for 'dataset.search', tags=tag.name %}">{{ h.truncate(tag.display_name, 22) }}</a>
       </li>
     {% endfor %}
   </ul>

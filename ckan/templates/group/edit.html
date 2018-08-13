@@ -1,10 +1,10 @@
 {% extends "group/base_form_page.html" %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
+  <li>{% link_for _('Groups'), named_route=group_type+'.index' %}</li>
   {% block breadcrumb_content_inner %}
-    <li>{% link_for group.display_name|truncate(35), controller='group', action='read', id=group.name %}</li>
-    <li class="active">{% link_for _('Manage'), controller='group', action='edit', id=group.name %}</li>
+    <li>{% link_for group.display_name|truncate(35), named_route=group_type+'.read', id=group.name %}</li>
+    <li class="active">{% link_for _('Manage'), named_route=group_type+'.edit', id=group.name %}</li>
   {% endblock %}
 {% endblock %}
 

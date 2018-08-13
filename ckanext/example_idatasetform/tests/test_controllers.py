@@ -15,7 +15,7 @@ def _get_package_edit_page(app, package_name):
     user = factories.User()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
     response = app.get(
-        url=url_for(controller='package', action='edit', id=package_name),
+        url=url_for('dataset.edit', id=package_name),
         extra_environ=env,
     )
     return env, response
@@ -23,13 +23,17 @@ def _get_package_edit_page(app, package_name):
 
 class TestPackageController(helpers.FunctionalTestBase):
     @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'example_idatasetform'
+
+    @classmethod
     def setup_class(cls):
         super(TestPackageController, cls).setup_class()
-        plugins.load('example_idatasetform')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_idatasetform')
+        if plugins.plugin_loaded('example_idatasetform'):
+            plugins.unload('example_idatasetform')
         super(TestPackageController, cls).teardown_class()
 
     def test_edit_converted_extra_field(self):
@@ -42,7 +46,7 @@ class TestPackageController(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
         # just check it has finished the edit, rather than being sent on to the
         # resource create/edit form.
-        assert_equal(response.req.path, '/dataset/%s' % dataset['name'])
+        assert_equal(response.request.path, '/dataset/%s' % dataset['name'])
 
         pkg = model.Package.by_name(dataset['name'])
         assert_equal(pkg.extras['custom_text'], u'bar')
@@ -60,7 +64,7 @@ class TestPackageController(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
         # just check it has finished the edit, rather than being sent on to the
         # resource create/edit form.
-        assert_equal(response.req.path, '/dataset/%s' % dataset['name'])
+        assert_equal(response.request.path, '/dataset/%s' % dataset['name'])
 
         pkg = model.Package.by_name(dataset['name'])
         assert_equal(pkg.extras['testkey'], u'bar')

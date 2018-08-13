@@ -27,14 +27,18 @@ from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.common import config, g, request, ungettext
 import ckan.lib.app_globals as app_globals
+import ckan.lib.plugins as lib_plugins
+
+
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
+                        set_controller_and_action
                         )
 
-
+import ckan.lib.plugins as lib_plugins
 import logging
 log = logging.getLogger(__name__)
 
@@ -178,6 +182,9 @@ def make_flask_stack(conf, **app_conf):
         if hasattr(plugin, 'get_blueprint'):
             app.register_extension_blueprint(plugin.get_blueprint())
 
+    lib_plugins.register_group_plugins(app)
+    lib_plugins.register_package_plugins(app)
+
     # Set flask routes in named_routes
     for rule in app.url_map.iter_rules():
         if '.' not in rule.endpoint:
@@ -278,6 +285,10 @@ def ckan_before_request():
     # Identify the user from the repoze cookie or the API header
     # Sets g.user and g.userobj
     identify_user()
+
+    # Provide g.controller and g.action for backward compatibility
+    # with extensions
+    set_controller_and_action()
 
 
 def ckan_after_request(response):
@@ -409,6 +420,9 @@ def _register_error_handler(app):
     def error_handler(e):
         if isinstance(e, HTTPException):
             extra_vars = {u'code': [e.code], u'content': e.description}
+            # TODO: Remove
+            g.code = [e.code]
+
             return base.render(
                 u'error_document_template.html', extra_vars), e.code
         extra_vars = {u'code': [500], u'content': u'Internal server error'}

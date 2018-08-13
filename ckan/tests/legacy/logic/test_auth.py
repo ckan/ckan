@@ -10,17 +10,38 @@ import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
 import json
 
+from ckan.tests.helpers import FunctionalTestBase, reset_db
 
-class TestAuth(tests.WsgiAppCase):
+
+class TestAuth(FunctionalTestBase):
+
     @classmethod
     def setup_class(cls):
+
+        super(TestAuth, cls).setup_class()
+
         admin_api = get_action('get_site_user')(
             {'model': model, 'ignore_auth': True}, {})['apikey']
         ## This is a mutable dict on the class level so tests can
         ## add apikeys as they go along
         cls.apikeys = {'sysadmin': str(admin_api), 'random_key': 'moo'}
 
-        cls._original_config = config.copy()
+        cls.app = cls._get_test_app()
+
+    @classmethod
+    def teardown_class(cls):
+
+        super(TestAuth, cls).teardown_class()
+
+        reset_db()
+
+    def setup(self):
+        # Override default setup as these tests don't work if we reset the
+        # database after each test
+        pass
+
+    @classmethod
+    def _apply_config_changes(cls, config):
 
         config['ckan.auth.anon_create_dataset'] = False
         config['ckan.auth.create_dataset_if_not_in_organization'] = False
@@ -33,17 +54,6 @@ class TestAuth(tests.WsgiAppCase):
         config['ckan.auth.create_user_via_web'] = True
         config['ckan.auth.roles_that_cascade_to_sub_groups'] = 'admin'
 
-        wsgiapp = ckan.config.middleware.make_app(
-            config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
-
-    @classmethod
-    def teardown_class(cls):
-        config.clear()
-        config.update(cls._original_config)
-
-        model.repo.rebuild_db()
-
     @classmethod
     def _call_api(cls, action, data, user, status=None):
         params = '%s=1' % json.dumps(data)
@@ -51,7 +61,7 @@ class TestAuth(tests.WsgiAppCase):
                             params=params,
                             extra_environ={'Authorization': cls.apikeys[user]},
                             status=[200, 403, 409])
-        if res.status != (status or 200):
+        if res.status_int != (status or 200):
             error = json.loads(res.body)['error']
             raise AssertionError('Status was %s but should be %s. Error: %s' %
                                  (res.status, status, error))
@@ -244,7 +254,9 @@ class TestAuthOrgHierarchy(TestAuth):
 
     @classmethod
     def setup_class(cls):
-#        TestAuth.setup_class()
+
+        super(TestAuth, cls).setup_class()
+
         CreateTestData.create_group_hierarchy_test_data()
 
         cls.apikeys = {}
@@ -254,23 +266,17 @@ class TestAuthOrgHierarchy(TestAuth):
         cls.sysadmin = get_action('get_site_user')(
             {'model': model, 'ignore_auth': True}, {})
 
-        cls._original_config = config.copy()
-
-        config['ckan.auth.roles_that_cascade_to_sub_groups'] = 'admin'
-
-        wsgiapp = ckan.config.middleware.make_app(
-            config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
-
         CreateTestData.create_arbitrary(
             package_dicts= [{'name': 'adataset',
                              'groups': ['national-health-service']}],
             extra_user_names=['john'])
 
+        cls.app = cls._get_test_app()
+
     @classmethod
-    def teardown_class(cls):
-        config.clear()
-        config.update(cls._original_config)
+    def _apply_config_changes(cls, config):
+
+        config['ckan.auth.roles_that_cascade_to_sub_groups'] = 'admin'
 
     def _reset_a_datasets_owner_org(self):
         rev = model.repo.new_revision()

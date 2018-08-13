@@ -20,7 +20,7 @@
         <td class="dataset-details">{{ h.linked_user(rev.author) }}</td>
         <td>
           {% for pkg in rev.packages %}
-            <a href="{{ h.url_for(controller='package', action='read', id=pkg.name) }}">{{ pkg.title }}</a>
+            <a href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ pkg.title }}</a>
           {% endfor %}
           {% for group in rev.groups %}
             <a href="{{ h.url_for(controller='group', action='read', id=group.name) }}">{{ group.display_name }}</a>

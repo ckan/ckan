@@ -1,11 +1,10 @@
 {# Data API Help Button
 
 resource: the resource
-datastore_root_url: the root url of the datastore
 
 #}
 {% if resource.datastore_active %}
   {% set loading_text = _('Loading...') %}
-  {% set api_info_url = h.url_for(controller='api', action='snippet', ver=1, snippet_path='api_info.html', datastore_root_url=datastore_root_url, resource_id=resource.id) %}
+  {% set api_info_url = h.url_for(controller='api', action='snippet', ver=1, snippet_path='api_info.html', resource_id=resource.id) %}
   <a class="btn btn-success" href="{{ api_info_url }}" data-module="api-info" data-module-template="{{ api_info_url }}" data-loading-text="{{ loading_text }}"><i class="fa fa-flask fa-lg"></i> {{ _('Data API') }}</a>
 {% endif %}
