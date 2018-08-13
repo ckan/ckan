@@ -1,9 +1,0 @@
-env:
-- SEGMENTS="01234"
-- SEGMENTS="567"
-- SEGMENTS="89ab"
-- SEGMENTS="cdef"
-
-command:
-- mkdir -p $CIRCLE_TEST_REPORTS/nose
-- nosetests --ckan --reset-db --with-pylons=test-core.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/nose/junit.xml --segments=$SEGMENTS ckan ckanext
