@@ -1,0 +1,69 @@
+version: 2
+jobs:
+  python2:
+    docker:
+      - image: python:2
+        environment:
+          CKAN_DATASTORE_POSTGRES_DB: datastore_test
+          CKAN_DATASTORE_POSTGRES_READ_USER: datastore_read
+          CKAN_DATASTORE_POSTGRES_READ_PWD: pass
+          CKAN_DATASTORE_POSTGRES_WRITE_USER: datastore_write
+          CKAN_DATASTORE_POSTGRES_WRITE_PWD: pass
+          CKAN_POSTGRES_DB: ckan_test
+          CKAN_POSTGRES_USER: ckan_default
+          CKAN_POSTGRES_PWD: pass
+          PGPASSWORD: ckan
+      - image: postgres:10
+        environment:
+          POSTGRES_USER: ckan
+          POSTGRES_PASSWORD: ckan
+        name: ckan-postgres
+      - image: redis:3
+        name: ckan-redis
+      - image: ckan/solr:latest
+        name: ckan-solr
+
+    steps:
+      - checkout
+
+      # SO Dependencies
+      - run: curl -sL https://deb.nodesource.com/setup_10.x | bash -
+      - run: apt update
+      - run: apt install -y nodejs postgresql-client
+
+      # Python Dependencies
+      - run: pip install -r requirement-setuptools.txt
+      - run: pip install -r requirements.txt
+      - run: pip install -r dev-requirements.txt
+      - run: python setup.py develop
+
+      # Database Creation
+      - run: psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
+      - run: createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_POSTGRES_USER} ${CKAN_POSTGRES_DB}
+      - run: psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_READ_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_READ_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
+      - run: psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_WRITE_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_WRITE_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
+      - run: createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_DATASTORE_POSTGRES_WRITE_USER} ${CKAN_DATASTORE_POSTGRES_DB}
+
+      # Database Initialization
+      - run: paster datastore -c test-core-circle-ci.ini set-permissions | psql --host=ckan-postgres --username=ckan
+      - run: paster db init -c test-core-circle-ci.ini
+
+      # Tests Backend
+      - run: nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext
+
+      # Tests Frontend
+      - run:
+          command: paster serve test-core-circle-ci.ini
+          background: true
+      - run:
+          command: npm install
+          working_directory: ./ckan/public/base/
+      - run:
+          command: npm test
+          working_directory: ./ckan/public/base/
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - python2
