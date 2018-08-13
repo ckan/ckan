@@ -12,6 +12,7 @@ jobs:
           CKAN_POSTGRES_DB: ckan_test
           CKAN_POSTGRES_USER: ckan_default
           CKAN_POSTGRES_PWD: pass
+          PGPASSWORD: ckan
       - image: postgres:10
         environment:
           POSTGRES_USER: ckan
