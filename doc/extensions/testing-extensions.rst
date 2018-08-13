@@ -61,10 +61,10 @@ Some notes on how these tests work:
 
 * The Pylons book also has a `chapter on testing <http://pylonsbook.com/en/1.0/testing.html>`_.
 
-* Avoid importing the plugin modules directly into your test modules 
+* Avoid importing the plugin modules directly into your test modules
   (e.g from example_iauthfunctions import plugin_v5_custom_config_setting).
   This causes the plugin to be registered and loaded before the entire test run,
-  so the plugin will be loaded for all tests. This can cause conflicts and 
+  so the plugin will be loaded for all tests. This can cause conflicts and
   test failures.
 
 .. todo::
