@@ -99,13 +99,6 @@ def make_map():
     map.connect('/error/{action}', controller='error', ckan_core=True)
     map.connect('/error/{action}/{id}', controller='error', ckan_core=True)
 
-    map.connect(
-        '*url',
-        controller='home',
-        action='cors_options',
-        conditions=OPTIONS,
-        ckan_core=True)
-
     # Mark all routes added from extensions on the `before_map` extension point
     # as non-core
     for route in map.matchlist:
