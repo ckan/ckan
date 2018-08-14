@@ -175,6 +175,5 @@ def make_map():
     map.redirect('/favicon.ico', config.get('ckan.favicon'))
 
     map.redirect('/*(url)/', '/{url}', _redirect_code='301 Moved Permanently')
-    map.connect('/*url', controller='template', action='view', ckan_core=True)
 
     return map
