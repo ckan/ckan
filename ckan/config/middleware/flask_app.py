@@ -182,8 +182,8 @@ def make_flask_stack(conf, **app_conf):
         if hasattr(plugin, 'get_blueprint'):
             app.register_extension_blueprint(plugin.get_blueprint())
 
-    lib_plugins.register_group_plugins(app)
-    lib_plugins.register_package_plugins(app)
+    lib_plugins.register_package_blueprints(app)
+    lib_plugins.register_group_blueprints(app)
 
     # Set flask routes in named_routes
     for rule in app.url_map.iter_rules():
