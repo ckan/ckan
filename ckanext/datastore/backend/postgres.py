@@ -1412,7 +1412,10 @@ def upsert(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         upsert_data(context, data_dict)
-        trans.commit()
+        if data_dict.get(u'dry_run', False):
+            trans.rollback()
+        else:
+            trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError as e:
         if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
