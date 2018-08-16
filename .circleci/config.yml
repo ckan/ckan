@@ -49,7 +49,7 @@ jobs:
       - run: paster db init -c test-core-circle-ci.ini
 
       # Tests Backend
-      - run: nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext
+      - run: nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext
 
       # Tests Frontend
       - run:
