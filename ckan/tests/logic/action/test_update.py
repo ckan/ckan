@@ -1,7 +1,5 @@
 # encoding: utf-8
-
-'''Unit tests for ckan/logic/action/update.py.'''
-import __builtin__ as builtins
+"""Unit tests for ckan/logic/action/update.py."""
 import datetime
 
 import ckan
@@ -14,22 +12,9 @@ import mock
 import nose.tools
 from ckan import model
 from ckan.common import config
-from pyfakefs import fake_filesystem
 
 assert_equals = eq_ = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
-
-real_open = open
-fs = fake_filesystem.FakeFilesystem()
-fake_os = fake_filesystem.FakeOsModule(fs)
-fake_open = fake_filesystem.FakeFileOpen(fs)
-
-
-def mock_open_if_open_fails(*args, **kwargs):
-    try:
-        return real_open(*args, **kwargs)
-    except (OSError, IOError):
-        return fake_open(*args, **kwargs)
 
 
 def datetime_from_string(s):
@@ -979,11 +964,7 @@ class TestResourceUpdate(object):
 
         assert 'datastore_active' not in res_returned
 
-    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
-    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
-    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
-    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
-    def test_mimetype_by_url(self, mock_open):
+    def test_mimetype_by_url(self):
         '''
         The mimetype is guessed from the url
 
@@ -1029,11 +1010,7 @@ class TestResourceUpdate(object):
         assert_equals(upd_mimetype, 'text/plain')
 
     @helpers.change_config('ckan.mimetype_guess', 'file_contents')
-    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
-    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
-    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
-    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
-    def test_mimetype_by_upload_by_file(self, mock_open):
+    def test_mimetype_by_upload_by_file(self):
         '''
         The mimetype is guessed from an uploaded file by the contents inside
 
@@ -1068,11 +1045,7 @@ class TestResourceUpdate(object):
         assert org_mimetype != upd_mimetype
         assert_equals(upd_mimetype, 'text/plain')
 
-    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
-    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
-    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
-    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
-    def test_mimetype_by_upload_by_filename(self, mock_open):
+    def test_mimetype_by_upload_by_filename(self):
         '''
         The mimetype is guessed from an uploaded file with a filename
 
@@ -1151,11 +1124,7 @@ class TestResourceUpdate(object):
 
         assert org_size < upd_size
 
-    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
-    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
-    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
-    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
-    def test_size_of_resource_by_upload(self, mock_open):
+    def test_size_of_resource_by_upload(self):
         '''
         The size of the resource determined by the uploaded file
         '''
