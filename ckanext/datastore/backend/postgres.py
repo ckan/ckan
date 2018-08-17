@@ -1230,9 +1230,9 @@ def search_data(context, data_dict):
         ).replace('%', '%%')
         sql_fmt = u'''
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
-                SELECT '[' || {select} || ']' v
+                SELECT {distinct} '[' || {select} || ']' v
                 FROM (
-                    SELECT {distinct} * FROM "{resource}" {ts_query}
+                    SELECT * FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}) as z
             ) AS j'''
     elif records_format == u'csv':
@@ -1287,9 +1287,11 @@ def search_data(context, data_dict):
     _insert_links(data_dict, limit, offset)
 
     if data_dict.get('include_total', True):
-        count_sql_string = u'''SELECT {distinct} count(*)
-            FROM "{resource}" {ts_query} {where};'''.format(
+        count_sql_string = u'''SELECT count(*) FROM (
+            SELECT {distinct} {select}
+            FROM "{resource}" {ts_query} {where}) as t;'''.format(
             distinct=distinct,
+            select=select_columns,
             resource=resource_id,
             ts_query=ts_query,
             where=where_clause)
