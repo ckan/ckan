@@ -6,12 +6,8 @@ controller itself.
 '''
 import json
 import re
-import mock
-import __builtin__ as builtins
-from StringIO import StringIO
 
 from nose.tools import assert_equal, assert_in, eq_
-from pyfakefs import fake_filesystem
 
 from six import text_type
 from six.moves import xrange
@@ -19,30 +15,11 @@ from six.moves import xrange
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
-from ckan.lib import helpers as template_helpers, uploader as ckan_uploader
-import ckan.plugins as p
 from ckan import model
-
-fs = fake_filesystem.FakeFilesystem()
-fake_os = fake_filesystem.FakeOsModule(fs)
-fake_open = fake_filesystem.FakeFileOpen(fs)
-real_open = open
-
-
-def mock_open_if_open_fails(*args, **kwargs):
-    try:
-        return real_open(*args, **kwargs)
-    except (OSError, IOError):
-        return fake_open(*args, **kwargs)
 
 
 class TestApiController(helpers.FunctionalTestBase):
-
-    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
-    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
-    @mock.patch.object(ckan_uploader, 'os', fake_os)
-    @mock.patch.object(ckan_uploader, '_storage_path', new='/doesnt_exist')
-    def test_resource_create_upload_file(self, _):
+    def test_resource_create_upload_file(self):
         user = factories.User()
         pkg = factories.Dataset(creator_user_id=user['id'])
         # upload_content = StringIO()
