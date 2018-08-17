@@ -1,11 +1,5 @@
 # encoding: utf-8
-
-'''Unit tests for ckan/logic/auth/create.py.
-
-'''
-import __builtin__ as builtins
-
-import ckan
+"""Unit tests for ckan/logic/auth/create.py."""
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
@@ -14,23 +8,11 @@ import ckan.tests.helpers as helpers
 import mock
 import nose.tools
 from ckan.common import config
-from pyfakefs import fake_filesystem
+from ckan.lib.navl.dictization_functions import Invalid
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
 assert_not_equals = nose.tools.assert_not_equals
-
-real_open = open
-fs = fake_filesystem.FakeFilesystem()
-fake_os = fake_filesystem.FakeOsModule(fs)
-fake_open = fake_filesystem.FakeFileOpen(fs)
-
-
-def mock_open_if_open_fails(*args, **kwargs):
-    try:
-        return real_open(*args, **kwargs)
-    except (OSError, IOError):
-        return fake_open(*args, **kwargs)
 
 
 class TestUserInvite(object):
@@ -467,11 +449,7 @@ class TestResourceCreate(object):
 
         assert not stored_resource['url']
 
-    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
-    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
-    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
-    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
-    def test_mimetype_by_url(self, mock_open):
+    def test_mimetype_by_url(self):
         '''
         The mimetype is guessed from the url
 
@@ -510,11 +488,7 @@ class TestResourceCreate(object):
         mimetype = result.pop('mimetype')
         assert_equals(mimetype, 'application/csv')
 
-    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
-    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
-    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
-    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
-    def test_mimetype_by_upload_by_filename(self, mock_open):
+    def test_mimetype_by_upload_by_filename(self):
         '''
         The mimetype is guessed from an uploaded file with a filename
 
@@ -560,11 +534,7 @@ class TestResourceCreate(object):
         assert_equals(mimetype, 'application/json')
 
     @helpers.change_config('ckan.mimetype_guess', 'file_contents')
-    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
-    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
-    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
-    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
-    def test_mimetype_by_upload_by_file(self, mock_open):
+    def test_mimetype_by_upload_by_file(self):
         '''
         The mimetype is guessed from an uploaded file by the contents inside
 
@@ -598,11 +568,7 @@ class TestResourceCreate(object):
         assert mimetype
         assert_equals(mimetype, 'text/plain')
 
-    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
-    @mock.patch.object(ckan.lib.uploader, 'os', fake_os)
-    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
-    @mock.patch.object(ckan.lib.uploader, '_storage_path', new='/doesnt_exist')
-    def test_size_of_resource_by_upload(self, mock_open):
+    def test_size_of_resource_by_upload(self):
         '''
         The size of the resource determined by the uploaded file
         '''
@@ -847,11 +813,9 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
         assert_not_equals(new_dataset['id'], deleted_dataset['id'])
         assert_equals(deleted_dataset['name'], deleted_dataset['id'])
 
+    @nose.tools.raises(logic.ValidationError, Invalid)
     def test_missing_id(self):
-        assert_raises(
-            logic.ValidationError, helpers.call_action,
-            'package_create'
-        )
+        helpers.call_action('package_create')
 
     def test_name(self):
         dataset = helpers.call_action(
