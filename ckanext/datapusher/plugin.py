@@ -70,6 +70,7 @@ class ResourceDataController(base.BaseController):
         return base.render('datapusher/resource_data.html',
                            extra_vars={
                                'status': datapusher_status,
+                               'pkg_dict': toolkit.c.pkg_dict,
                                'resource': toolkit.c.resource,
                            })
 

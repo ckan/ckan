@@ -1282,6 +1282,7 @@ class TestPackageAutocompleteWithDatasetForm(helpers.FunctionalTestBase):
 
     @classmethod
     def teardown_class(cls):
+        super(TestPackageAutocompleteWithDatasetForm, cls).teardown_class()
         if p.plugin_loaded('example_idatasetform'):
             p.unload('example_idatasetform')
 

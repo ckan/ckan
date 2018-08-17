@@ -367,31 +367,31 @@ class TestHelpersRenderMarkdown(object):
     def test_internal_tag_link(self):
         """Asserts links like 'tag:test-tag' work"""
         data = 'tag:test-tag foobar'
-        output = '<p><a href="/tag/test-tag">tag:test-tag</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=test-tag">tag:test-tag</a> foobar</p>'
         eq_(h.render_markdown(data), output)
 
     def test_internal_tag_linked_with_quotes(self):
         """Asserts links like 'tag:"test-tag"' work"""
         data = 'tag:"test-tag" foobar'
-        output = '<p><a href="/tag/test-tag">tag:&#34;test-tag&#34;</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=test-tag">tag:&#34;test-tag&#34;</a> foobar</p>'
         eq_(h.render_markdown(data), output)
 
     def test_internal_tag_linked_with_quotes_and_space(self):
         """Asserts links like 'tag:"test tag"' work"""
         data = 'tag:"test tag" foobar'
-        output = '<p><a href="/tag/test%20tag">tag:&#34;test tag&#34;</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=test+tag">tag:&#34;test tag&#34;</a> foobar</p>'
         eq_(h.render_markdown(data), output)
 
     def test_internal_tag_with_no_opening_quote_only_matches_single_word(self):
         """Asserts that without an opening quote only one word is matched"""
         data = 'tag:test tag" foobar'  # should match 'tag:test'
-        output = '<p><a href="/tag/test">tag:test</a> tag" foobar</p>'
+        output = '<p><a href="/dataset/?tags=test">tag:test</a> tag" foobar</p>'
         eq_(h.render_markdown(data), output)
 
     def test_internal_tag_with_no_opening_quote_wont_match_the_closing_quote(self):
         """Asserts that 'tag:test" tag' is matched, but to 'tag:test'"""
         data = 'tag:test" foobar'  # should match 'tag:test'
-        output = '<p><a href="/tag/test">tag:test</a>" foobar</p>'
+        output = '<p><a href="/dataset/?tags=test">tag:test</a>" foobar</p>'
         eq_(h.render_markdown(data), output)
 
     def test_internal_tag_with_no_closing_quote_does_not_match(self):
@@ -403,13 +403,13 @@ class TestHelpersRenderMarkdown(object):
     def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
         data = 'tag:"Test- _." foobar'
-        output = '<p><a href="/tag/Test-%20_.">tag:&#34;Test- _.&#34;</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&#34;Test- _.&#34;</a> foobar</p>'
         eq_(h.render_markdown(data), output)
 
     def test_tag_names_do_not_match_commas(self):
         """Asserts commas don't get matched as part of a tag name"""
         data = 'tag:Test,tag foobar'
-        output = '<p><a href="/tag/Test">tag:Test</a>,tag foobar</p>'
+        output = '<p><a href="/dataset/?tags=Test">tag:Test</a>,tag foobar</p>'
         eq_(h.render_markdown(data), output)
 
     def test_tag_names_dont_match_non_space_whitespace(self):
@@ -417,14 +417,14 @@ class TestHelpersRenderMarkdown(object):
         whitespace_characters = '\t\n\r\f\v'
         for ch in whitespace_characters:
             data = 'tag:Bad' + ch + 'space'
-            output = '<p><a href="/tag/Bad">tag:Bad</a>'
+            output = '<p><a href="/dataset/?tags=Bad">tag:Bad</a>'
             result = h.render_markdown(data)
             assert output in result, '\nGot: %s\nWanted: %s' % (result, output)
 
     def test_tag_names_with_unicode_alphanumeric(self):
         """Asserts that unicode alphanumeric characters are captured"""
         data = u'tag:"Japanese katakana \u30a1" blah'
-        output = u'<p><a href="/tag/Japanese%20katakana%20%E3%82%A1">tag:&#34;Japanese katakana \u30a1&#34;</a> blah</p>'
+        output = u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&#34;Japanese katakana \u30a1&#34;</a> blah</p>'
         eq_(h.render_markdown(data), output)
 
     def test_normal_link(self):
@@ -567,6 +567,38 @@ class TestCleanHtml(object):
         # allow a datetime for compatibility with older ckanext-datapusher
         eq_(h.clean_html(datetime.datetime(2018, 1, 5, 10, 48, 23, 463511)),
             u'2018-01-05 10:48:23.463511')
+
+
+class TestBuildNavMain(object):
+    def test_flask_routes(self):
+        menu = (
+            ('home.index', 'Home'),
+            ('dataset.search', 'Datasets'),
+            ('organization.index', 'Organizations'),
+            ('group.index', 'Groups'),
+            ('home.about', 'About')
+        )
+        eq_(h.build_nav_main(*menu), (
+            '<li><a href="/">Home</a></li>'
+            '<li><a href="/dataset/">Datasets</a></li>'
+            '<li><a href="/organization/">Organizations</a></li>'
+            '<li><a href="/group/">Groups</a></li>'
+            '<li><a href="/about">About</a></li>'))
+
+    def test_legacy_pylon_routes(self):
+        menu = (
+            ('home', 'Home'),
+            ('search', 'Datasets'),
+            ('organizations_index', 'Organizations'),
+            ('group_index', 'Groups'),
+            ('about', 'About')
+        )
+        eq_(h.build_nav_main(*menu), (
+            '<li><a href="/">Home</a></li>'
+            '<li><a href="/dataset/">Datasets</a></li>'
+            '<li><a href="/organization/">Organizations</a></li>'
+            '<li><a href="/group/">Groups</a></li>'
+            '<li><a href="/about">About</a></li>'))
 
 
 class TestHelperException(helpers.FunctionalTestBase):

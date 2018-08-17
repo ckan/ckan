@@ -69,6 +69,7 @@ LEGACY_ROUTE_NAMES = {
     'home': 'home.index',
     'about': 'home.about',
     'search': 'dataset.search',
+    'group_index': 'group.index',
     'organizations_index': 'organization.index'
 }
 
@@ -1635,7 +1636,7 @@ def resource_link(resource_dict, package_id):
 
 @core_helper
 def tag_link(tag):
-    url = url_for(controller='tag', action='read', id=tag['name'])
+    url = url_for('dataset.search', tags=tag['name'])
     return tags.link_to(tag.get('title', tag['name']), url)
 
 

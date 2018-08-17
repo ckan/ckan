@@ -7,13 +7,14 @@ import hashlib
 
 from ckan.tests.legacy import CreateTestData
 from ckan.tests.legacy.html_check import HtmlCheckMethods
-from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
+from ckan.tests.legacy import TestController as ControllerTestCase
+
 import ckan.model as model
 from base import FunctionalTestCase
 from ckan.lib.mailer import get_reset_link, create_reset_key
 
-class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):
+class TestUserController(FunctionalTestCase, HtmlCheckMethods, SmtpServerHarness):
     @classmethod
     def setup_class(cls):
         smtp_server = config.get('smtp.test_server')
@@ -22,7 +23,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
             port = int(port) + int(str(hashlib.md5(cls.__name__).hexdigest())[0], 16)
             config['smtp.test_server'] = '%s:%s' % (host, port)
 
-        PylonsTestCase.setup_class()
         SmtpServerHarness.setup_class()
         CreateTestData.create()
 

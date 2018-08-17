@@ -315,7 +315,6 @@ class TestImportStar(object):
         'ckan/tests/legacy/models/test_resource.py',
         'ckan/tests/legacy/models/test_revision.py',
         'ckan/tests/legacy/models/test_user.py',
-        'ckan/tests/legacy/pylons_controller.py',
         'fabfile.py',
     ]
     fails = {}
@@ -379,7 +378,6 @@ class TestPep8(object):
         'ckan/include/rcssmin.py',
         'ckan/include/rjsmin.py',
         'ckan/lib/activity_streams.py',
-        'ckan/lib/alphabet_paginate.py',
         'ckan/lib/app_globals.py',
         'ckan/lib/captcha.py',
         'ckan/lib/cli.py',
@@ -591,7 +589,6 @@ class TestPep8(object):
         'ckan/tests/legacy/models/test_revision.py',
         'ckan/tests/legacy/models/test_user.py',
         'ckan/tests/legacy/monkey.py',
-        'ckan/tests/legacy/pylons_controller.py',
         'ckan/tests/legacy/schema/test_schema.py',
         'ckan/tests/legacy/test_plugins.py',
         'ckan/tests/legacy/test_versions.py',

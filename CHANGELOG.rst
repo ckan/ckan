@@ -7,8 +7,8 @@
 Changelog
 ---------
 
-v2.9.0 TBC
-==========
+v.2.9.0 TBA
+==================
 
  * This version requires script 'migrate-revisions.py' to be run after CKAN is
    upgraded and operating again. This is because this script takes a while to
@@ -16,6 +16,50 @@ v2.9.0 TBC
    This is a separate step to the database upgrade.
    Run migrate_revisions.py like this:
     python ckan/migration/migrate_revisions.py -c /etc/ckan/production.ini
+
+Deprecations:
+ * ``c.action`` and ``c.controller`` variables should be avoided.
+   ``ckan.plugins.toolkit.get_endpoint`` can be used instead. This function
+   returns tuple of two items(depending on request handler):
+   1. Flask blueprint name / Pylons controller name
+   2. Flask view name / Pylons action name
+   In some cases, Flask blueprints have names that are differs from their
+   Pylons equivalents. For example, 'package' controller is divided between
+   'dataset' and 'resource' blueprints. For such cases you may need to perform
+   additional check of returned value:
+
+   >>> if toolkit.get_endpoint()[0] in ['dataset', 'package']:
+   >>>     do_something()
+
+   In this code snippet, will be called if current request is handled via Flask's
+   dataset blueprint in CKAN>=2.9, and, in the same time, it's still working for
+   Pylons package controller in CKAN<2.9
+
+
+v.2.8.1 2018-07-25
+==================
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+ * "Add Filter" Performance Issue (`#4162 <https://github.com/ckan/ckan/issues/4162>`_)
+ * Error handler update (`#4257 <https://github.com/ckan/ckan/issues/4257>`_)
+ * "New view" button does not work (`#4260 <https://github.com/ckan/ckan/issues/4260>`_)
+ * Upload logo is not working (`#4262 <https://github.com/ckan/ckan/issues/4262>`_)
+ * Unable to pip install ckan (`#4271 <https://github.com/ckan/ckan/issues/4271>`_)
+ * The "License" Icon in 2.8 is wrong (`#4272 <https://github.com/ckan/ckan/issues/4272>`_)
+ * Search - input- border color is overly specific in CSS (`#4273 <https://github.com/ckan/ckan/issues/4273>`_)
+ * Site logo image does not scale down when very large (`#4283 <https://github.com/ckan/ckan/issues/4283>`_)
+ * Validation Error on datastore_search when sorting timestamp fields (`#4288 <https://github.com/ckan/ckan/issues/4288>`_)
+ * Undocumented changes breaking error_document_template (`#4303 <https://github.com/ckan/ckan/issues/4303>`_)
+ * Internal server error when viewing /dashboard when logged out (`#4305 <https://github.com/ckan/ckan/issues/4305>`_)
+ * Missing c.action attribute in 2.8.0 templates (`#4310 <https://github.com/ckan/ckan/issues/4310>`_)
+ * [multilingual] AttributeError: '_Globals' object has no attribute 'fields' (`#4338 <https://github.com/ckan/ckan/issues/4338>`_)
+ * `search` legacy route missing (`#4346 <https://github.com/ckan/ckan/issues/4346>`_)
 
 
 v.2.8.0 2018-05-09
