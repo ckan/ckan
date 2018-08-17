@@ -15,7 +15,8 @@ v.2.9.0 TBA
    run, adding in the Activity Stream detail, visible only to admins by default.
    This is a separate step to the database upgrade.
    Run migrate_revisions.py like this:
-    python ckan/migration/migrate_revisions.py -c /etc/ckan/production.ini
+
+     python ckan/migration/migrate_revisions.py -c /etc/ckan/production.ini
 
 Deprecations:
  * ``c.action`` and ``c.controller`` variables should be avoided.

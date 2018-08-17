@@ -17,6 +17,11 @@ stopping and restarting it.
 
 We won't delete the revision tables in the database yet, since we haven't
 converted the group, package_relationship to activity objects yet.
+
+(In a future version of CKAN we will remove the 'package_revision' table from
+the codebase. We'll need a step in the main migration which checks that
+migrate_package_activity.py has been done, before it removes the
+package_revision table.)
 '''
 
 # This code is not part of the main CKAN CLI because it is a one-off migration,
