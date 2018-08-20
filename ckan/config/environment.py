@@ -226,9 +226,9 @@ def update_config():
     routes_map = routing.make_map()
 
     lib_plugins.reset_package_plugins()
-    lib_plugins.set_default_package_plugin()
+    lib_plugins.register_package_plugins()
     lib_plugins.reset_group_plugins()
-    lib_plugins.set_default_group_plugin()
+    lib_plugins.register_group_plugins()
 
     config['routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists
