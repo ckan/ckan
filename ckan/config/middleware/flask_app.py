@@ -107,6 +107,10 @@ def make_flask_stack(conf, **app_conf):
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
         DebugToolbarExtension(app)
 
+        from werkzeug.debug import DebuggedApplication
+        app = DebuggedApplication(app, True)
+        app = app.app
+
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
         def open_session(self, app, request):
