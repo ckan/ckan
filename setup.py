@@ -77,7 +77,7 @@ entry_points = {
         'jobs = ckan.lib.cli:JobsCommand',
     ],
     'console_scripts': [
-        'ckan = ckan.lib.flask_cli:run',
+        'ckan = ckan.lib.flask_cli:main',
         'ckan-admin = bin.ckan_admin:Command',
     ],
     'paste.paster_create_template': [

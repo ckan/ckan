@@ -53,6 +53,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     middleware.
     '''
 
+    import pdb; pdb.set_trace()
     load_environment(conf, app_conf)
 
     pylons_app = make_pylons_stack(conf, full_stack, static_files,
