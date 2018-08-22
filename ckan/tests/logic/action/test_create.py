@@ -817,7 +817,7 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             id='1234',
             name='test-dataset',
         )
-        assert(returned_id, '1234')
+        assert_equals(returned_id, '1234')
         # check against context pollution
         assert('id' not in context)
         assert('package' not in context)
