@@ -804,6 +804,24 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
         assert('id' not in context)
         assert('package' not in context)
 
+    def test_package_return_id_only(self):
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+            'return_id_only': True,
+        }
+        returned_id = helpers.call_action(
+            'package_create',
+            context=context,
+            id='1234',
+            name='test-dataset',
+        )
+        assert(returned_id, '1234')
+        # check against context pollution
+        assert('id' not in context)
+        assert('package' not in context)
+
     def test_id_cant_already_exist(self):
         dataset = factories.Dataset()
         user = factories.Sysadmin()
