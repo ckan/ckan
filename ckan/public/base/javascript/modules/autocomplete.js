@@ -266,7 +266,7 @@ this.ckan.module('autocomplete', function (jQuery) {
      * Returns nothing.
      */
     _onKeydown: function (event) {
-      if (event.which === 188) {
+      if (typeof event.key !== 'undefined' ? event.key === ',' : event.which === 188) {
         event.preventDefault();
         setTimeout(function () {
           var e = jQuery.Event("keydown", { which: 13 });
