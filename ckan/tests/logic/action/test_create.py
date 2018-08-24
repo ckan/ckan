@@ -5,6 +5,8 @@
 '''
 import __builtin__ as builtins
 
+import six
+
 import ckan
 import ckan.logic as logic
 import ckan.model as model
@@ -981,6 +983,15 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
         tag_names = sorted([tag_dict['name']
                             for tag_dict in dataset['tags']])
         assert_equals(tag_names, ['russian', 'tolstoy'])
+
+    def test_return_id_only(self):
+        dataset = helpers.call_action(
+            'package_create',
+            name='test-id',
+            context={'return_id_only': True},
+        )
+
+        assert isinstance(dataset, six.string_types)
 
 
 class TestGroupCreate(helpers.FunctionalTestBase):
