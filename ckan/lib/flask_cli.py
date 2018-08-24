@@ -8,6 +8,8 @@ from flask.cli import AppGroup, with_appcontext
 from werkzeug.serving import run_simple
 
 from ckan.common import config
+from ckan.config.environment import load_environment
+
 from ckan.config.middleware import make_app
 from ckan.lib.cli import (click_config_option, load_config, parse_db_config,
                           paster_click_group)
@@ -49,9 +51,7 @@ def _load_config(config=None):
 
 @click.group()
 @click.help_option(u'-h', u'--help')
-@click.pass_context
-def main(ctx, *args, **kwargs):
-    # ctx.obj['CUSTOM_CKAN_DEV_SERVER'] = True
+def main(*args, **kwargs):
     pass
 
 
@@ -66,3 +66,19 @@ def run(config, host, port, reloader):
     conf = _load_config(config)
     app = make_app(conf.global_conf, **conf.local_conf)
     run_simple(host, port, app, use_reloader=reloader, use_evalex=True)
+
+
+@main.command(u'db', short_help=u'Initialize the database')
+@click.help_option(u'-h', u'--help')
+@click_config_option
+@click.argument(u'init')
+def initdb(config, init):
+    '''Initialising the database'''
+    conf = _load_config(config)
+    # app = make_app(conf.global_conf, **conf.local_conf)
+    try:
+        import ckan.model as model
+        model.repo.init_db()
+    except Exception as e:
+        print e
+    print('Initialising DB: SUCCESS')
