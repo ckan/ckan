@@ -75,7 +75,7 @@ def run(config, host, port, reloader):
 def initdb(config, init):
     '''Initialising the database'''
     conf = _load_config(config)
-    # app = make_app(conf.global_conf, **conf.local_conf)
+    load_environment(conf.global_conf, conf.local_conf)
     try:
         import ckan.model as model
         model.repo.init_db()
