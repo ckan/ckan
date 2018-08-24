@@ -62,7 +62,7 @@ def main(*args, **kwargs):
 @click.option(u'-p', u'--port', default=5000, help=u'Set port')
 @click.option(u'-r', u'--reloader', default=True, help=u'Use reloader')
 def run(config, host, port, reloader):
-    '''Runs development server'''
+    u'''Runs development server'''
     conf = _load_config(config)
     app = make_app(conf.global_conf, **conf.local_conf)
     run_simple(host, port, app, use_reloader=reloader, use_evalex=True)
@@ -73,7 +73,7 @@ def run(config, host, port, reloader):
 @click_config_option
 @click.argument(u'init')
 def initdb(config, init):
-    '''Initialising the database'''
+    u'''Initialising the database'''
     conf = _load_config(config)
     load_environment(conf.global_conf, conf.local_conf)
     try:
@@ -81,4 +81,4 @@ def initdb(config, init):
         model.repo.init_db()
     except Exception as e:
         print e
-    print('Initialising DB: SUCCESS')
+    print(u'Initialising DB: SUCCESS')
