@@ -80,5 +80,5 @@ def initdb(config, init):
         import ckan.model as model
         model.repo.init_db()
     except Exception as e:
-        print e
+        print(e)
     print(u'Initialising DB: SUCCESS')
