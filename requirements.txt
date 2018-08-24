@@ -11,8 +11,9 @@ bleach==1.5.0
 click==6.7
 decorator==4.0.6          # via pylons, sqlalchemy-migrate
 fanstatic==0.12
-Flask==0.11.1
-FormEncode==1.3.0         # via pylons
+Flask-Babel==0.11.2
+Flask==0.12.4             # via flask-babel
+FormEncode==1.3.1         # via pylons
 funcsigs==1.0.2           # via beaker
 html5lib==0.9999999       # via bleach
 itsdangerous==0.24        # via flask
