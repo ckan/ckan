@@ -53,9 +53,9 @@ jobs:
       # Tests Backend, split across containers by segments
       - run: |
           case $CIRCLE_NODE_INDEX in
-            0) nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext --segments 0123
+            0) nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext --segments 01234
             ;;
-            1) nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext --segments 4567
+            1) nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext --segments 567
             ;;
             2) nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext --segments 89ab
             ;;
