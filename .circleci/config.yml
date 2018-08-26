@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  python2:
+  test:
     docker:
       - image: python:2
         environment:
@@ -22,6 +22,8 @@ jobs:
         name: ckan-redis
       - image: ckan/solr:latest
         name: ckan-solr
+
+    parallelism: 4
 
     steps:
       - checkout
@@ -48,22 +50,37 @@ jobs:
       - run: paster datastore -c test-core-circle-ci.ini set-permissions | psql --host=ckan-postgres --username=ckan
       - run: paster db init -c test-core-circle-ci.ini
 
-      # Tests Backend
-      - run: nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext
+      # Tests Backend, split across containers by segments
+      - run: |
+          case $CIRCLE_NODE_INDEX in
+            0) nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext --segments 0123
+            ;;
+            1) nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext --segments 4567
+            ;;
+            2) nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext --segments 89ab
+            ;;
+            3) nosetests -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext --segments cdef
+            ;;
+          esac
 
-      # Tests Frontend
+      # Tests Frontend, only in one container
       - run:
-          command: paster serve test-core-circle-ci.ini
+          command: |
+            case $CIRCLE_NODE_INDEX in
+              0) paster serve test-core-circle-ci.ini
+              ;;
+            esac
           background: true
       - run:
-          command: npm install
-          working_directory: ./ckan/public/base/
-      - run:
-          command: npm test
-          working_directory: ./ckan/public/base/
+          command: |
+            case $CIRCLE_NODE_INDEX in
+              0) npm install
+                 npm test
+              ;;
+            esac
 
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - python2
+      - test
