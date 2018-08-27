@@ -13,6 +13,7 @@ from nose.tools import (
 from ckan.lib.helpers import url_for
 
 import ckan.model as model
+import ckan.model.activity as activity_model
 import ckan.plugins as p
 from ckan.logic import get_action
 
@@ -1717,6 +1718,23 @@ class TestDatasetRead(helpers.FunctionalTestBase):
         redirected_response = response.follow()
         expected_url = url_for('dataset.read', id=dataset['name'])
         assert_equal(redirected_response.request.path, expected_url)
+
+    def test_redirect_also_with_activity_parameter(self):
+        dataset = factories.Dataset()
+        activity = activity_model.package_activity_list(dataset['id'], limit=1,
+                                                        offset=0)[0]
+        # view as an admin because viewing the old versions of a dataset
+        sysadmin = factories.Sysadmin()
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        app = helpers._get_test_app()
+        response = app.get(url_for('dataset.read', id=dataset['id'],
+                                   activity_id=activity.id),
+                           status=302, extra_environ=env)
+        redirected_response = response.follow(extra_environ=env)
+        expected_path = url_for('dataset.read', id=dataset['name'])
+        assert_equal(redirected_response.request.path, expected_path)
+        assert_equal(redirected_response.request.query_string,
+                     'activity_id={}'.format(activity.id))
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
         dataset = factories.Dataset(id='abc', name='abc')

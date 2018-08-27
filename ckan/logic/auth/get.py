@@ -330,10 +330,10 @@ def activity_show(context, data_dict):
         object_type = 'package'
     else:
         return {'success': False, 'msg': 'object_type not recognized'}
-    return _activity_list(context, {
+    return activity_list(context, {
         'id': activity.object_id,
         'include_data': data_dict['include_data'],
-        }, object_type)
+        'object_type': object_type})
 
 
 def activity_data_show(context, data_dict):
