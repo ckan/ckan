@@ -1243,13 +1243,9 @@ class IDatasetForm(Interface):
         '''
 
     def history_template(self):
-        u'''Return the path to the template for the dataset history page.
-
-        The path should be relative to the plugin's templates dir, e.g.
-        ``'package/history.html'``.
-
-        :rtype: string
-
+        u'''
+        .. warning:: This template is removed. The function exists for
+        compatibility. It now returns None.
         '''
 
     def resource_template(self):

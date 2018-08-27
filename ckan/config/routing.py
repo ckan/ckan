@@ -147,13 +147,6 @@ def make_map():
     # users
     map.redirect('/users/{url:.*}', '/user/{url}')
 
-    with SubMapper(map, controller='revision') as m:
-        m.connect('/revision', action='index')
-        m.connect('/revision/edit/{id}', action='edit')
-        m.connect('/revision/diff/{id}', action='diff')
-        m.connect('/revision/list', action='list')
-        m.connect('/revision/{id}', action='read')
-
     with SubMapper(map, controller='util') as m:
         m.connect('/i18n/strings_{lang}.js', action='i18n_js_strings')
         m.connect('/util/redirect', action='redirect')

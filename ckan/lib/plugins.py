@@ -358,7 +358,7 @@ class DefaultDatasetForm(object):
         return 'package/search.html'
 
     def history_template(self):
-        return 'package/history.html'
+        return None
 
     def resource_template(self):
         return 'package/resource_read.html'
