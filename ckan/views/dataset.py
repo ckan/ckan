@@ -1107,7 +1107,7 @@ def changes(id, package_type=None):
 
 # deprecated
 def history(package_type, id):
-    h.redirect_to(u'dataset.activities', id=id)
+    return h.redirect_to(u'dataset.activity', id=id)
 
 
 def register_dataset_plugin_rules(blueprint):

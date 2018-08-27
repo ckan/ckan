@@ -753,82 +753,10 @@ class GroupController(base.BaseController):
         return self._render_template('group/confirm_delete_member.html',
                                      group_type)
 
+
+    # deprecated
     def history(self, id):
-        group_type = self._ensure_controller_matches_group_type(id)
-        if 'diff' in request.params or 'selected1' in request.params:
-            try:
-                params = {'id': request.params.getone('group_name'),
-                          'diff': request.params.getone('selected1'),
-                          'oldid': request.params.getone('selected2'),
-                          }
-            except KeyError:
-                if 'group_name' in dict(request.params):
-                    id = request.params.getone('group_name')
-                c.error = \
-                    _('Select two revisions before doing the comparison.')
-            else:
-                params['diff_entity'] = 'group'
-                h.redirect_to(controller='revision', action='diff', **params)
-
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user,
-                   'schema': self._db_to_form_schema()}
-        data_dict = {'id': id}
-        try:
-            c.group_dict = self._action('group_show')(context, data_dict)
-            c.group_revisions = self._action('group_revision_list')(context,
-                                                                    data_dict)
-            # TODO: remove
-            # Still necessary for the authz check in group/layout.html
-            c.group = context['group']
-        except (NotFound, NotAuthorized):
-            abort(404, _('Group not found'))
-
-        format = request.params.get('format', '')
-        if format == 'atom':
-            # Generate and return Atom 1.0 document.
-            from webhelpers.feedgenerator import Atom1Feed
-            feed = Atom1Feed(
-                title=_(u'CKAN Group Revision History'),
-                link=h.url_for(
-                    group_type + '_read',
-                    id=c.group_dict['name']),
-                description=_(u'Recent changes to CKAN Group: ') +
-                c.group_dict['display_name'],
-                language=text_type(get_lang()),
-            )
-            for revision_dict in c.group_revisions:
-                revision_date = h.date_str_to_datetime(
-                    revision_dict['timestamp'])
-                try:
-                    dayHorizon = int(request.params.get('days'))
-                except:
-                    dayHorizon = 30
-                dayAge = (datetime.datetime.now() - revision_date).days
-                if dayAge >= dayHorizon:
-                    break
-                if revision_dict['message']:
-                    item_title = u'%s' % revision_dict['message'].\
-                        split('\n')[0]
-                else:
-                    item_title = u'%s' % revision_dict['id']
-                item_link = h.url_for(controller='revision', action='read',
-                                      id=revision_dict['id'])
-                item_description = _('Log message: ')
-                item_description += '%s' % (revision_dict['message'] or '')
-                item_author_name = revision_dict['author']
-                item_pubdate = revision_date
-                feed.add_item(
-                    title=item_title,
-                    link=item_link,
-                    description=item_description,
-                    author_name=item_author_name,
-                    pubdate=item_pubdate,
-                )
-            feed.content_type = 'application/atom+xml'
-            return feed.writeString('utf-8')
-        return render(self._history_template(group_type),
-                      extra_vars={'group_type': group_type})
+        return h.redirect_to(controller=u'group', action='activity', id=id)
 
     def activity(self, id, offset=0):
         '''Render this group's public activity stream page.'''
