@@ -10,13 +10,13 @@ Changelog
 v.2.9.0 TBA
 ==================
 
- * This version requires script 'migrate-revisions.py' to be run after CKAN is
-   upgraded and operating again. This is because this script takes a while to
-   run, adding in the Activity Stream detail, visible only to admins by default.
-   This is a separate step to the database upgrade.
-   Run migrate_revisions.py like this:
+ * This version requires script 'migrate_package_activity.py' to be run after
+   CKAN is upgraded and operating again. This is because this script takes a
+   while to run, adding in the Activity Stream detail, visible only to admins by
+   default. This is a separate step to the database upgrade.
+   Run migrate_package_activity.py like this:
 
-     python ckan/migration/migrate_revisions.py -c /etc/ckan/production.ini
+     python ckan/migration/migrate_package_activity.py -c /etc/ckan/default/production.ini
 
 Deprecations:
  * ``c.action`` and ``c.controller`` variables should be avoided.
