@@ -1718,6 +1718,7 @@ class TestDatasetRead(helpers.FunctionalTestBase):
         redirected_response = response.follow()
         expected_url = url_for('dataset.read', id=dataset['name'])
         assert_equal(redirected_response.request.path, expected_url)
+        assert_equal(redirected_response.request.query_string, '')
 
     def test_redirect_also_with_activity_parameter(self):
         dataset = factories.Dataset()
@@ -1795,6 +1796,7 @@ class TestActivity(helpers.FunctionalTestBase):
                       id=dataset['id'])
         response = app.get(url, extra_environ=env)
         assert_in('Changes', response)
+        changes_page = response.click('Changes', extra_environ=env)
 
     def test_public_cant_see_changes(self):
         app = self._get_test_app()

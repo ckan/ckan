@@ -449,7 +449,8 @@ def read(package_type, id):
     if data_dict['id'] == pkg_dict['id'] and \
             data_dict['id'] != pkg_dict['name']:
         return h.redirect_to(u'dataset.read',
-                             id=pkg_dict['name'])
+                             id=pkg_dict['name'],
+                             activity_id=activity_id)
 
     # can the resources be previewed?
     for resource in pkg_dict[u'resources']:
@@ -1072,10 +1073,11 @@ def activity(package_type, id):
     )
 
 
-def changes(activity_id):
+def changes(id, package_type=None):
     '''
     Shows the changes to a dataset in one particular activity stream item.
     '''
+    activity_id = id
     context = {
         u'model': model, u'session': model.Session,
         u'user': g.user, u'auth_user_obj': g.userobj

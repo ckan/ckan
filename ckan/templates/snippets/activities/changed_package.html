@@ -14,7 +14,7 @@
           {{ _('View this version') }}
         </a>
         &nbsp;|&nbsp;
-        <a href="{{ h.url_for('dataset.read', activity_id=activity.id) }}">
+        <a href="{{ h.url_for('dataset.changes', id=activity.id) }}">
           {{ _('Changes') }}
         </a>
       {% endif %}
