@@ -20,7 +20,7 @@ _open_licenses = None
 VALID_SOLR_PARAMETERS = set([
     'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf', 'boost',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field',
-    'extras', 'fq_list', 'tie', 'defType', 'mm'
+    'extras', 'fq_list', 'tie', 'defType', 'mm', 'df'
 ])
 
 # for (solr) package searches, this specifies the fields that are searched

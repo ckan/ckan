@@ -227,7 +227,7 @@ def package_create(context, data_dict):
     return_id_only = context.get('return_id_only', False)
 
     if return_id_only:
-        return context['id']
+        return pkg.id
 
     return _get_action('package_show')(
                 context.copy(), {'id': pkg.id}

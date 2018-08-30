@@ -652,6 +652,20 @@ class TestDatasetUpdate(helpers.FunctionalTestBase):
                             for tag_dict in dataset_['tags']])
         assert_equals(tag_names, ['russian', 'tolstoy'])
 
+    def test_return_id_only(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            user=user)
+
+        updated_dataset = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            notes='Test',
+            context={'return_id_only': True},
+        )
+
+        assert_equals(updated_dataset, dataset['id'])
+
 
 class TestUpdateSendEmailNotifications(object):
     @classmethod
