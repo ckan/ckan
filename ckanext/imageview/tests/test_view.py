@@ -11,20 +11,19 @@ from ckan.tests import helpers, factories
 class TestImageView(helpers.FunctionalTestBase):
 
     @classmethod
+    def _apply_config_changes(cls, cfg):
+        cfg['ckan.plugins'] = 'image_view'
+
+    @classmethod
     def setup_class(cls):
-
         super(TestImageView, cls).setup_class()
-
-        if not p.plugin_loaded('image_view'):
-            p.load('image_view')
 
     @classmethod
     def teardown_class(cls):
-        p.unload('image_view')
+        if p.plugin_loaded('example_idatasetform'):
+            p.unload('example_idatasetform')
 
         super(TestImageView, cls).teardown_class()
-
-        helpers.reset_db()
 
     @helpers.change_config('ckan.views.default_views', '')
     def test_view_shown_on_resource_page_with_image_url(self):

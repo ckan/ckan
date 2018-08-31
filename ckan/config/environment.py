@@ -35,6 +35,8 @@ log = logging.getLogger(__name__)
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
 
+monkey_patched = False
+
 
 def load_environment(global_conf, app_conf):
     """
@@ -65,7 +67,10 @@ def load_environment(global_conf, app_conf):
             self.controller_classes[controller] = mycontroller
             return mycontroller
         return find_controller_generic(self, controller)
-    PylonsApp.find_controller = find_controller
+    global monkey_patched
+    if not monkey_patched:
+        PylonsApp.find_controller = find_controller
+    monkey_patched = True
 
     os.environ['CKAN_CONFIG'] = global_conf['__file__']
 
@@ -226,9 +231,9 @@ def update_config():
     routes_map = routing.make_map()
 
     lib_plugins.reset_package_plugins()
-    lib_plugins.set_default_package_plugin()
+    lib_plugins.register_package_plugins()
     lib_plugins.reset_group_plugins()
-    lib_plugins.set_default_group_plugin()
+    lib_plugins.register_group_plugins()
 
     config['routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists
