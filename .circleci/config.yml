@@ -14,6 +14,7 @@ jobs:
           CKAN_POSTGRES_PWD: pass
           PGPASSWORD: ckan
           NODE_TESTS_CONTAINER: 2
+          NOSETEST_COMMON_OPTIONS: -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=/root/junit/junit.xml ckan ckanext
       - image: postgres:10
         environment:
           POSTGRES_USER: ckan
@@ -64,13 +65,13 @@ jobs:
       - run: |
           mkdir -p ~/junit
           case $CIRCLE_NODE_INDEX in
-            0) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$HOME/junit/junit.xml ckan ckanext --segments 01234
+            0) nosetests $NOSETEST_COMMON_OPTIONS --segments 0123
             ;;
-            1) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$HOME/junit/junit.xml ckan ckanext --segments 567
+            1) nosetests $NOSETEST_COMMON_OPTIONS --segments 4567
             ;;
-            2) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$HOME/junit/junit.xml ckan ckanext --segments 89ab
+            2) nosetests $NOSETEST_COMMON_OPTIONS --segments 89ab
             ;;
-            3) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$HOME/junit/junit.xml ckan ckanext --segments cdef
+            3) nosetests $NOSETEST_COMMON_OPTIONS --segments cdef
             ;;
           esac
       - store_test_results:
