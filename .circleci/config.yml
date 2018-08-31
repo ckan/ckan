@@ -89,7 +89,8 @@ jobs:
             case $CIRCLE_NODE_INDEX in
               $NODE_TESTS_CONTAINER)
                 sleep 5
-                /root/node_modules/mocha-phantomjs/bin/mocha-phantomjs  http://localhost:5000/base/test/index.html
+                /root/project/node_modules/mocha-phantomjs/bin/mocha-phantomjs \
+                  http://localhost:5000/base/test/index.html
               ;;
             esac
 
