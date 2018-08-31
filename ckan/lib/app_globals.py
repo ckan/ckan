@@ -56,6 +56,7 @@ app_globals_from_config_details = {
                       'name': 'facets'},
     'package_hide_extras': {'type': 'split'},
     'ckan.plugins': {'type': 'split'},
+    'ckan.i18n.rtl_languages': {'type': 'split'},
 
     # bool
     'debug': {'default': 'false', 'type' : 'bool'},
@@ -82,6 +83,12 @@ def set_main_css(css_file):
     # FIXME we should check the css file exists
     app_globals.main_css = str(new_css)
 
+def set_rtl_globals(rtl_css_file, rtl_languages):
+    assert rtl_css_file.endswith('.css')
+    new_css = rtl_css_file
+    # FIXME we should check the css file exists
+    app_globals.rtl_css = str(new_css)
+    app_globals.rtl_languages = rtl_languages
 
 def set_app_global(key, value):
     '''
@@ -173,6 +180,10 @@ def reset():
     # custom styling
     main_css = get_config_value('ckan.main_css', '/base/css/main.css')
     set_main_css(main_css)
+
+    rtl_css_file = get_config_value('ckan.i18n.rtl_css', '/base/css/rtl.css')
+    rtl_languages = get_config_value('ckan.i18n.rtl_languages', 'he ar')
+    set_rtl_globals(rtl_css_file, rtl_languages)
 
     if app_globals.site_logo:
         app_globals.header_class = 'header-image'
