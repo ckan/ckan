@@ -61,13 +61,13 @@ jobs:
       - run: |
           mkdir -p ~/junit
           case $CIRCLE_NODE_INDEX in
-            0) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=~/junit/junit.xml ckan ckanext --segments 01234
+            0) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$HOME/junit/junit.xml ckan ckanext --segments 01234
             ;;
-            1) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=~/junit/junit.xml ckan ckanext --segments 567
+            1) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$HOME/junit/junit.xml ckan ckanext --segments 567
             ;;
-            2) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=~/junit/junit.xml ckan ckanext --segments 89ab
+            2) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$HOME/junit/junit.xml ckan ckanext --segments 89ab
             ;;
-            3) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=~/junit/junit.xml ckan ckanext --segments cdef
+            3) nosetests --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$HOME/junit/junit.xml ckan ckanext --segments cdef
             ;;
           esac
       - store_test_results:
