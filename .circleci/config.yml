@@ -37,8 +37,8 @@ jobs:
       - run: python setup.py develop
 
       # SOLR config
-      - cp ~/project/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-      - service jetty9 restart || true  # erroring out but does seem to work
+      - run: cp ~/project/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
+      - run: service jetty9 restart || true  # erroring out but does seem to work
 
       # Database Creation
       - run: psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
