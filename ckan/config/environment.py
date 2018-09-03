@@ -35,6 +35,8 @@ log = logging.getLogger(__name__)
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
 
+monkey_patched = False
+
 
 def load_environment(global_conf, app_conf):
     """
@@ -65,7 +67,10 @@ def load_environment(global_conf, app_conf):
             self.controller_classes[controller] = mycontroller
             return mycontroller
         return find_controller_generic(self, controller)
-    PylonsApp.find_controller = find_controller
+    global monkey_patched
+    if not monkey_patched:
+        PylonsApp.find_controller = find_controller
+    monkey_patched = True
 
     os.environ['CKAN_CONFIG'] = global_conf['__file__']
 
