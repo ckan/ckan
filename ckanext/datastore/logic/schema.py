@@ -135,6 +135,7 @@ def datastore_upsert_schema():
         'id': [ignore_missing],
         'method': [ignore_missing, text_type, OneOf(
             ['upsert', 'insert', 'update'])],
+        'dry_run': [ignore_missing, boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }

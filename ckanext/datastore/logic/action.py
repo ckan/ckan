@@ -229,6 +229,9 @@ def datastore_upsert(context, data_dict):
                    Possible options are: upsert, insert, update
                    (optional, default: upsert)
     :type method: string
+    :param dry_run: set to True to abort transaction instead of committing,
+                    e.g. to check for validation or type errors.
+    :type dry_run: bool (optional, default: False)
 
     **Results:**
 

@@ -210,6 +210,8 @@ def make_flask_stack(conf, **app_conf):
         app = plugin.make_middleware(app, config)
 
     # Fanstatic
+    fanstatic_enable_rollup = asbool(app_conf.get('fanstatic_enable_rollup',
+                                                  False))
     if debug:
         fanstatic_config = {
             'versioning': True,
@@ -217,6 +219,7 @@ def make_flask_stack(conf, **app_conf):
             'minified': False,
             'bottom': True,
             'bundle': False,
+            'rollup': fanstatic_enable_rollup,
         }
     else:
         fanstatic_config = {
@@ -225,6 +228,7 @@ def make_flask_stack(conf, **app_conf):
             'minified': True,
             'bottom': True,
             'bundle': True,
+            'rollup': fanstatic_enable_rollup,
         }
     root_path = config.get('ckan.root_path', None)
     if root_path:
@@ -312,7 +316,8 @@ def ckan_after_request(response):
 
 def helper_functions():
     u'''Make helper functions (`h`) available to Flask templates'''
-    helpers.load_plugin_helpers()
+    if not helpers.helper_functions:
+        helpers.load_plugin_helpers()
     return dict(h=helpers.helper_functions)
 
 
