@@ -20,8 +20,7 @@ jobs:
         name: ckan-postgres
       - image: redis:3
         name: ckan-redis
-      - image: ckan/solr:latest
-        name: ckan-solr
+
 
     steps:
       - checkout
@@ -29,13 +28,17 @@ jobs:
       # SO Dependencies
       - run: curl -sL https://deb.nodesource.com/setup_10.x | bash -
       - run: apt update
-      - run: apt install -y nodejs postgresql-client
+      - run: apt install -y nodejs postgresql-client solr-jetty openjdk-8-jdk
 
       # Python Dependencies
       - run: pip install -r requirement-setuptools.txt
       - run: pip install -r requirements.txt
       - run: pip install -r dev-requirements.txt
       - run: python setup.py develop
+
+      # SOLR config
+      - cp ~/project/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
+      - service jetty9 restart || true  # erroring out but does seem to work
 
       # Database Creation
       - run: psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
