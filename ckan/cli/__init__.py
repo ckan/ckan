@@ -56,4 +56,5 @@ def _load_config(config=None):
     log.debug(u"Using " + filename)
     return appconfig(u'config:' + filename)
 
+
 load_config = _load_config

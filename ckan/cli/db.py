@@ -32,11 +32,11 @@ def initdb(config):
         print(e)
     print(u'Initialising DB: SUCCESS')
 
-
+prompt_msg =u'This will delete all of your data!\nDo you want to continue?'
 @db.command(u'clean', short_help=u'Clean the database')
 @click.help_option(u'-h', u'--help')
 @click_config_option
-@click.confirmation_option(prompt=u'This will delete all the data! Do you want to continue?')
+@click.confirmation_option(prompt=prompt_msg)
 def cleandb(config):
     u'''Cleaning  the database'''
     conf = load_config(config)
