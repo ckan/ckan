@@ -42,7 +42,7 @@ class TestFlaskStreaming(helpers.FunctionalTestBase):
         bound = 7
         url = str(u'/stream/template/{}'.format(bound))  # produces nums list
         resp = self._get_resp(url)
-        content = ''.join(resp.app_iter)
+        content = u''.join(resp.app_iter)
         for i in range(bound):
             ok_(str(i) in content)
         resp._app_iter.close()
