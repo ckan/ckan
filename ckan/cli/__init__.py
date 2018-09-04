@@ -3,6 +3,7 @@
 import os
 
 import click
+import logging
 from flask import Flask, current_app
 from flask.cli import AppGroup, with_appcontext
 from werkzeug.serving import run_simple
@@ -11,12 +12,13 @@ from ckan.common import config
 from ckan.config.environment import load_environment
 from ckan.config.middleware import make_app
 
+log = logging.getLogger(__name__)
 
 click_config_option = click.option(
-    '-c',
-    '--config',
+    u'-c',
+    u'--config',
     default=None,
-    metavar='CONFIG',
+    metavar=u'CONFIG',
     help=u'Config file to use (default: development.ini)')
 
 
@@ -49,6 +51,7 @@ def _load_config(config=None):
         exit(msg)
 
     fileConfig(filename)
+    log.debug("Using " + filename)
     return appconfig(u'config:' + filename)
 
 load_config = _load_config

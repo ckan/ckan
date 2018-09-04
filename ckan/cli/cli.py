@@ -4,7 +4,7 @@ import os
 
 import click
 from ckan.cli.server.server import run
-from ckan.cli.database.db import initdb
+from ckan.cli.database.db import db
 
 
 @click.group()
@@ -13,4 +13,4 @@ def ckan(*args, **kwargs):
     pass
 
 ckan.add_command(run)
-ckan.add_command(initdb)
+ckan.add_command(db)
