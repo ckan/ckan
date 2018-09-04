@@ -36,7 +36,8 @@ def initdb(config):
 @db.command(u'clean', short_help=u'Clean the database')
 @click.help_option(u'-h', u'--help')
 @click_config_option
-def initdb(config):
+@click.confirmation_option(prompt=u'This will delete all the data! Do you want to continue?')
+def cleandb(config):
     u'''Cleaning  the database'''
     conf = load_config(config)
     load_environment(conf.global_conf, conf.local_conf)
@@ -51,7 +52,7 @@ def initdb(config):
 @db.command(u'upgrade', short_help=u'Upgrade the database')
 @click.help_option(u'-h', u'--help')
 @click_config_option
-def initdb(config):
+def updatedb(config):
     u'''Upgrading the database'''
     conf = load_config(config)
     load_environment(conf.global_conf, conf.local_conf)
