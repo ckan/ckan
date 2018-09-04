@@ -12,7 +12,9 @@ from ckan.common import config
 from ckan.config.environment import load_environment
 from ckan.config.middleware import make_app
 
+
 log = logging.getLogger(__name__)
+
 
 click_config_option = click.option(
     u'-c',
@@ -51,7 +53,7 @@ def _load_config(config=None):
         exit(msg)
 
     fileConfig(filename)
-    log.debug("Using " + filename)
+    log.debug(u"Using " + filename)
     return appconfig(u'config:' + filename)
 
 load_config = _load_config

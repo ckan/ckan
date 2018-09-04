@@ -57,7 +57,7 @@ def initdb(config):
     load_environment(conf.global_conf, conf.local_conf)
     try:
         import ckan.model as model
-        model.repo.clean_db()
+        model.repo.upgrade_db()
     except Exception as e:
         print(e)
     print(u'Upgrading DB: SUCCESS')
