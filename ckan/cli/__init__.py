@@ -20,7 +20,7 @@ click_config_option = click.option(
     help=u'Config file to use (default: development.ini)')
 
 
-def load_config(config=None):
+def _load_config(config=None):
 
     from paste.deploy import appconfig
     from paste.script.util.logging_config import fileConfig
@@ -50,3 +50,5 @@ def load_config(config=None):
 
     fileConfig(filename)
     return appconfig(u'config:' + filename)
+
+load_config = _load_config

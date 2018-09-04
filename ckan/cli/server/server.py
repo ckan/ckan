@@ -4,17 +4,13 @@ import os
 
 import click
 from flask import Flask, current_app
-from flask.cli import AppGroup, with_appcontext
 from werkzeug.serving import run_simple
-
-from ckan.common import config
-from ckan.config.environment import load_environment
 
 from ckan.config.middleware import make_app
 from ckan.cli import load_config, click_config_option
-from ckan.cli.cli import ckan
 
-@ckan.command(u'run', short_help=u'Start development server')
+
+@click.command(u'run', short_help=u'Start development server')
 @click.help_option(u'-h', u'--help')
 @click_config_option
 @click.option(u'-H', u'--host', default=u'localhost', help=u'Set host')
