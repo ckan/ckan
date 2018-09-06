@@ -67,8 +67,8 @@
     #}
     {%- block styles %}
       {% resource g.main_css[6:] %}
-      {% if h.lang() in g.rtl_languages %}
-        {% resource g.rtl_css[6:] %}
+      {% if h.is_rtl_language() %}
+        {% resource h.get_rtl_css()[6:] %}
       {% endif %}
     {% endblock %}
 

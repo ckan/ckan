@@ -578,13 +578,23 @@ def ckan_version():
 
 @core_helper
 def lang_native_name(lang=None):
-    ''' Return the langage name currently used in it's localised form
+    ''' Return the language name currently used in it's localised form
         either from parameter or current environ setting'''
     lang = lang or lang()
     locale = i18n.get_locales_dict().get(lang)
     if locale:
         return locale.display_name or locale.english_name
     return lang
+
+
+@core_helper
+def is_rtl_language():
+    return lang() in config.get('ckan.i18n.rtl_languages', ['he', 'ar'])
+
+
+@core_helper
+def get_rtl_css():
+    return config.get('ckan.i18n.rtl_css', '/base/css/rtl.css')
 
 
 class Message(object):
