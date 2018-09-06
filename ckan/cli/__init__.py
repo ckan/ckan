@@ -24,7 +24,7 @@ click_config_option = click.option(
     help=u'Config file to use (default: development.ini)')
 
 
-def _load_config(config=None):
+def load_config(config=None):
 
     from paste.deploy import appconfig
     from paste.script.util.logging_config import fileConfig
@@ -48,13 +48,10 @@ def _load_config(config=None):
             exit(msg)
 
     if not os.path.exists(filename):
-        msg = u'Config file not found: %s' % filename
-        msg += u'\n(Given by: %s)' % config_source
+        msg = 'Config file not found: %s' % filename
+        msg += '\n(Given by: %s)' % config_source
         exit(msg)
 
     fileConfig(filename)
     log.debug(u"Using " + filename)
     return appconfig(u'config:' + filename)
-
-
-load_config = _load_config
