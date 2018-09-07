@@ -74,11 +74,12 @@ def ignore(key, data, errors, context):
     raise StopOnError
 
 def default(default_value):
-
+    '''
+    Return default_value if key is missing or None.
+    '''
     def callable(key, data, errors, context):
-
         value = data.get(key)
-        if not value or value is missing:
+        if value is None or value is missing:
             data[key] = default_value
 
     return callable
