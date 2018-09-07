@@ -78,7 +78,7 @@ def default(default_value):
     def callable(key, data, errors, context):
 
         value = data.get(key)
-        if not value or value is missing:
+        if value is None or value == '' or value is missing:
             data[key] = default_value
 
     return callable
