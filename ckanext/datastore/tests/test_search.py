@@ -634,6 +634,18 @@ class TestDatastoreSearch(DatastoreLegacyTestBase):
         assert res_dict['success'] is False
         assert res_dict['error'].get('fields') is not None, res_dict['error']
 
+    def test_search_without_total(self):
+        data = {'resource_id': self.data['resource_id'],
+                'include_total': False}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert 'total' not in result
+
 
 class TestDatastoreFullTextSearch(DatastoreLegacyTestBase):
     @classmethod
