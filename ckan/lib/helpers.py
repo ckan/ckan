@@ -589,12 +589,12 @@ def lang_native_name(lang=None):
 
 @core_helper
 def is_rtl_language():
-    return lang() in config.get('ckan.i18n.rtl_languages', ['he', 'ar'])
+    return lang() in config.get('ckan.i18n.rtl_languages', ['he', 'ar', 'fa_IR'])
 
 
 @core_helper
 def get_rtl_css():
-    return config.get('ckan.i18n.rtl_css', '/base/css/rtl.css')
+    return config.get('ckan.i18n.rtl_css', '/base/css/main-rtl.css')
 
 
 class Message(object):

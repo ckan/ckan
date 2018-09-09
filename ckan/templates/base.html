@@ -66,10 +66,7 @@
       {% endblock %}
     #}
     {%- block styles %}
-      {% resource g.main_css[6:] %}
-      {% if h.is_rtl_language() %}
-        {% resource h.get_rtl_css()[6:] %}
-      {% endif %}
+      {% if h.is_rtl_language() %}{% resource h.get_rtl_css()[6:] %}{% else %}{% resource g.main_css[6:] %}{% endif %}
     {% endblock %}
 
     {% block head_extras %}
