@@ -1288,7 +1288,7 @@ def delete(context, data_dict):
 
 
 def search(context, data_dict):
-    engine = get_read_engine()
+    engine = get_write_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
