@@ -62,7 +62,7 @@ def version():
     u'''Return current version'''
     try:
         from ckan.model import Session
-        print(Session.execute('select version from '
-                              'migrate_version;').fetchall())
+        print(Session.execute(u'select version from '
+                              u'migrate_version;').fetchall())
     except Exception as e:
         print(e)
