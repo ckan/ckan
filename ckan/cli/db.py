@@ -31,8 +31,8 @@ prompt_msg = u'This will delete all of your data!\nDo you want to continue?'
 
 
 @db.command(u'clean', short_help=u'Clean the database')
-@click.help_option(u'-h', u'--help')
 @click.confirmation_option(prompt=prompt_msg)
+@click.help_option(u'-h', u'--help')
 def cleandb():
     u'''Cleaning  the database'''
     try:
@@ -44,12 +44,25 @@ def cleandb():
 
 
 @db.command(u'upgrade', short_help=u'Upgrade the database')
+@click.option(u'-v', u'--version', help='Migration version')
 @click.help_option(u'-h', u'--help')
-def updatedb():
+def updatedb(version=None):
     u'''Upgrading the database'''
     try:
         import ckan.model as model
-        model.repo.upgrade_db()
+        model.repo.upgrade_db(version)
     except Exception as e:
         print(e)
     print(u'Upgrading DB: SUCCESS')
+
+
+@db.command(u'version', short_help=u'Returns current version of data schema')
+@click.help_option(u'-h', u'--help')
+def version():
+    u'''Return current version'''
+    try:
+        from ckan.model import Session
+        print(Session.execute('select version from '
+                              'migrate_version;').fetchall())
+    except Exception as e:
+        print(e)

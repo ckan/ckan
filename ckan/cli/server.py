@@ -8,6 +8,7 @@ from werkzeug.serving import run_simple
 
 from ckan.cli import load_config, click_config_option
 
+
 @click.command(u'run', short_help=u'Start development server')
 @click.help_option(u'-h', u'--help')
 @click_config_option
