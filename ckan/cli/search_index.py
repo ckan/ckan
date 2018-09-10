@@ -21,7 +21,7 @@ def search_index():
 @click.option(u'-r', u'--refresh')
 @click.option(u'-o', u'--only-missing')
 def rebuild(force, only_missing):
-    ''' Rebuild search index '''
+    u''' Rebuild search index '''
     from ckan.lib.search import rebuild, commit
     # if force:
     #   rebuild()

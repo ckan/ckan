@@ -44,7 +44,7 @@ def cleandb():
 
 
 @db.command(u'upgrade', short_help=u'Upgrade the database')
-@click.option(u'-v', u'--version', help='Migration version')
+@click.option(u'-v', u'--version', help=u'Migration version')
 @click.help_option(u'-h', u'--help')
 def updatedb(version=None):
     u'''Upgrading the database'''

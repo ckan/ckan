@@ -48,8 +48,8 @@ def load_config(config=None):
             exit(msg)
 
     if not os.path.exists(filename):
-        msg = 'Config file not found: %s' % filename
-        msg += '\n(Given by: %s)' % config_source
+        msg = u'Config file not found: %s' % filename
+        msg += u'\n(Given by: %s)' % config_source
         exit(msg)
 
     fileConfig(filename)
