@@ -4,6 +4,7 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
+alembic==1.0.0
 argparse==1.4.0           # via ofs
 babel==2.3.4
 beaker==1.10.0            # via pylons
