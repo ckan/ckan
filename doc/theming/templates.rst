@@ -137,25 +137,7 @@ This new code does a few things:
    name as one of CKAN's default template files, will be used instead of the
    default file.
 
-Now, let's customize the CKAN front page. We first need to discover which
-template file CKAN uses to render the front page, so we can replace it.
-Set :ref:`debug` to ``true`` in your |development.ini| file::
-
-    [DEFAULT]
-
-    # WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
-    debug = true
-
-.. _debug footer:
-
-Reload the `CKAN front page`_ in your browser, and you should see a *Debug*
-link in the footer at the bottom of the page. Click on this link to open the
-debug footer. The debug footer displays various information useful for CKAN
-frontend development and debugging, including the names of the template files
-that were used to render the current page:
-
-.. image:: /images/debug-footer.png
-   :alt: The debug footer.
+Now, let's customize the CKAN front page.
 
 The first template file listed is the one we're interested in::
 
@@ -163,17 +145,13 @@ The first template file listed is the one we're interested in::
  Template path: /usr/lib/ckan/default/src/ckan/ckan/templates/home/index.html
 
 This tells us that ``home/index.html`` is the root template file used to render
-the front page. The debug footer appears at the bottom of every CKAN page, and
-can always be used to find the page's template files, and other information
-about the page.
+the front page.
 
 .. note::
 
-   Most CKAN pages are rendered from multiple template files.
-   The first file listed in the debug footer is the root template file of the
-   page. All other template files used to render the page (listed further down
-   in the debug footer) are either included by the root file, or included by
-   another file that is included by the root file.
+   Most CKAN pages are rendered from multiple template files. All other 
+   template files used to render the page are either included by the root file,
+    or included by another file that is included by the root file.
 
    To figure out which template file renders a particular part of the page you
    have to inspect the
