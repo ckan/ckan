@@ -563,6 +563,21 @@ class TestBuildNavMain(object):
             '<li><a href="/group/">Groups</a></li>'
             '<li><a href="/about">About</a></li>'))
 
+    def test_dataset_navigation(self):
+        dataset_name = 'test-dataset'
+        eq_(
+            h.build_nav_icon('dataset_read', 'Dataset', id=dataset_name),
+            '<li><a href="/dataset/test-dataset">Datasets</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('dataset_groups', 'Groups', id=dataset_name),
+            '<li><a href="/dataset/groups/test-dataset">Groups</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('dataset_activity', 'Activity Stream', id=dataset_name),
+            '<li><a href="/dataset/activity/test-dataset">Activity Stream</a></li>'
+        )
+
 
 class TestHelperException(helpers.FunctionalTestBase):
 
