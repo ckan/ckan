@@ -563,10 +563,10 @@ class TestBuildNavMain(object):
             '<li><a href="/group/">Groups</a></li>'
             '<li><a href="/about">About</a></li>'))
 
-    def test_dataset_navigation(self):
+    def test_dataset_navigation_legacy_routes(self):
         dataset_name = 'test-dataset'
         eq_(
-            h.build_nav_icon('dataset_read', 'Dataset', id=dataset_name),
+            h.build_nav_icon('dataset_read', 'Datasets', id=dataset_name),
             '<li><a href="/dataset/test-dataset">Datasets</a></li>'
         )
         eq_(
@@ -576,6 +576,36 @@ class TestBuildNavMain(object):
         eq_(
             h.build_nav_icon('dataset_activity', 'Activity Stream', id=dataset_name),
             '<li><a href="/dataset/activity/test-dataset">Activity Stream</a></li>'
+        )
+
+    def test_group_navigation_legacy_routes(self):
+        group_name = 'test-group'
+        eq_(
+            h.build_nav_icon('group_read', 'Datasets', id=group_name),
+            '<li><a href="/group/test-group">Datasets</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('group_activity', 'Activity Stream', id=group_name),
+            '<li><a href="/group/activity/test-group">Activity Stream</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('group_about', 'About', id=group_name),
+            '<li><a href="/group/about/test-group">About</a></li>'
+        )
+
+    def test_organization_navigation_legacy_routes(self):
+        org_name = 'test-org'
+        eq_(
+            h.build_nav_icon('organization_read', 'Datasets', id=org_name),
+            '<li><a href="/organization/test-org">Datasets</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('organization_activity', 'Activity Stream', id=org_name),
+            '<li><a href="/organization/activity/test-org">Activity Stream</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('organization_about', 'About', id=org_name),
+            '<li><a href="/organization/about/test-org">About</a></li>'
         )
 
 
