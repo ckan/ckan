@@ -56,7 +56,6 @@ app_globals_from_config_details = {
                       'name': 'facets'},
     'package_hide_extras': {'type': 'split'},
     'ckan.plugins': {'type': 'split'},
-    'ckan.i18n.rtl_languages': {'type': 'split'},
 
     # bool
     'debug': {'default': 'false', 'type' : 'bool'},

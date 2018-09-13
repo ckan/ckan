@@ -1766,9 +1766,9 @@ ckan.i18n.rtl_languages
 
 Example::
 
-  ckan.i18n.rtl_languages = he ar
+  ckan.i18n.rtl_languages = he ar fa_IR
 
-Default value: ``he ar``
+Default value: ``he ar fa_IR``
 
 Allows to modify the right-to-left languages
 

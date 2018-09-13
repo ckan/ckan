@@ -590,7 +590,7 @@ def lang_native_name(lang=None):
 @core_helper
 def is_rtl_language():
     return lang() in config.get('ckan.i18n.rtl_languages',
-                                ['he', 'ar', 'fa_IR'])
+                                'he ar fa_IR').split()
 
 
 @core_helper
