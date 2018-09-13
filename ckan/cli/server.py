@@ -18,4 +18,5 @@ from ckan.cli import load_config, click_config_option
 @click.pass_context
 def run(ctx, config, host, port, reloader):
     u'''Runs development server'''
+    # click.secho(u"Starting CKAN", fg='yellow')
     run_simple(host, port, ctx.obj.app, use_reloader=reloader, use_evalex=True)

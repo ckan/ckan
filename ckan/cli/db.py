@@ -23,15 +23,15 @@ def initdb():
         import ckan.model as model
         model.repo.init_db()
     except Exception as e:
-        print(e)
+        click.echo(e, err=True)
     print(u'Initialising DB: SUCCESS')
 
 
-prompt_msg = u'This will delete all of your data!\nDo you want to continue?'
+PROMPT_MSG = u'This will delete all of your data!\nDo you want to continue?'
 
 
 @db.command(u'clean', short_help=u'Clean the database')
-@click.confirmation_option(prompt=prompt_msg)
+@click.confirmation_option(prompt=PROMPT_MSG)
 @click.help_option(u'-h', u'--help')
 def cleandb():
     u'''Cleaning  the database'''
@@ -39,8 +39,8 @@ def cleandb():
         import ckan.model as model
         model.repo.clean_db()
     except Exception as e:
-        print(e)
-    print(u'Cleaning DB: SUCCESS')
+        click.echo(e, err=True)
+    click.secho(u'Cleaning DB: SUCCESS', color="green", bold=True)
 
 
 @db.command(u'upgrade', short_help=u'Upgrade the database')
@@ -52,8 +52,8 @@ def updatedb(version=None):
         import ckan.model as model
         model.repo.upgrade_db(version)
     except Exception as e:
-        print(e)
-    print(u'Upgrading DB: SUCCESS')
+        click.echo(e, err=True)
+    click.secho(u'Upgrading DB: SUCCESS', fg='green', bold=True)
 
 
 @db.command(u'version', short_help=u'Returns current version of data schema')
@@ -62,7 +62,9 @@ def version():
     u'''Return current version'''
     try:
         from ckan.model import Session
-        print(Session.execute(u'select version from '
-                              u'migrate_version;').fetchall())
+        ver = Session.execute(u'select version from '
+                              u'migrate_version;').fetchall()
+        click.secho(u"Latest data schema version: {0}".format(ver[0][0]),
+                    fg="green", bold=True)
     except Exception as e:
-        print(e)
+        click.echo(e, err=True)
