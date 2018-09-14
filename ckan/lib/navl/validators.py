@@ -74,6 +74,8 @@ def ignore(key, data, errors, context):
     raise StopOnError
 
 def default(default_value):
+    '''When key is missing or value is 'empty', set it with a default value.
+    See the code for how 'empty' is defined.'''
 
     def callable(key, data, errors, context):
 

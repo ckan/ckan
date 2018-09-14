@@ -10,6 +10,16 @@ Changelog
 v.2.9.0 TBA
 ==================
 
+Minor changes:
+
+ * For navl schemas, the 'default' validator no longer applies the default when
+   the value is False, (), [] or {} (#4448)
+
+Bugfixes:
+
+ * Action function "datastore_search" would calculate the total, even if you
+   set include_total=False (#4448)
+
 Deprecations:
  * ``c.action`` and ``c.controller`` variables should be avoided.
    ``ckan.plugins.toolkit.get_endpoint`` can be used instead. This function
