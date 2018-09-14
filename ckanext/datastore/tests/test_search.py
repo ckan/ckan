@@ -100,6 +100,23 @@ class TestDatastoreSearchNewTest(DatastoreFunctionalTestBase):
         result_years = [r['the year'] for r in result['records']]
         assert_equals(result_years, [2013])
 
+    def test_search_without_total(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'include_total': False
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        assert 'total' not in result
 
 
 class TestDatastoreSearch(DatastoreLegacyTestBase):
