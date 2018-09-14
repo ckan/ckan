@@ -69,8 +69,17 @@ LEGACY_ROUTE_NAMES = {
     'home': 'home.index',
     'about': 'home.about',
     'search': 'dataset.search',
+    'dataset_read': 'dataset.read',
+    'dataset_activity': 'dataset.activity',
+    'dataset_groups': 'dataset.groups',
     'group_index': 'group.index',
-    'organizations_index': 'organization.index'
+    'group_about': 'group.about',
+    'group_read': 'group.read',
+    'group_activity': 'group.activity',
+    'organizations_index': 'organization.index',
+    'organization_activity': 'organization.activity',
+    'organization_read': 'organization.read',
+    'organization_about': 'organization.about',
 }
 
 
