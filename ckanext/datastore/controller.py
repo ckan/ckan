@@ -21,6 +21,11 @@ from ckanext.datastore.writer import (
     json_writer,
     xml_writer,
 )
+from ckanext.datastore.logic.schema import (
+    list_of_strings_or_string,
+    json_validator,
+    unicode_or_json_validator,
+)
 from ckan.logic import (
     tuplize_dict,
     parse_params,
@@ -31,36 +36,57 @@ from itertools import izip_longest
 
 int_validator = get_validator('int_validator')
 boolean_validator = get_validator('boolean_validator')
+ignore_missing = get_validator('ignore_missing')
+OneOf = get_validator('OneOf')
+default = get_validator('default')
+unicode_only = get_validator('unicode_only')
+
 
 DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
 PAGINATE_BY = 32000
 
 
+def dump_schema():
+    return {
+        'offset': [default(0), int_validator],
+        'limit': [ignore_missing, int_validator],
+        'format': [default('csv'), OneOf(DUMP_FORMATS)],
+        'bom': [default(False), boolean_validator],
+        'filters': [ignore_missing, json_validator],
+        'q': [ignore_missing, unicode_or_json_validator],
+        'distinct': [ignore_missing, boolean_validator],
+        'plain': [ignore_missing, boolean_validator],
+        'language': [ignore_missing, unicode_only],
+        'fields': [ignore_missing, list_of_strings_or_string],
+        'sort': [default('_id'), list_of_strings_or_string],
+    }
+
+
 class DatastoreController(BaseController):
     def dump(self, resource_id):
-        try:
-            offset = int_validator(request.GET.get('offset', 0), {})
-        except Invalid as e:
-            abort(400, u'offset: ' + e.error)
-        try:
-            limit = int_validator(request.GET.get('limit'), {})
-        except Invalid as e:
-            abort(400, u'limit: ' + e.error)
-        bom = boolean_validator(request.GET.get('bom'), {})
-        fmt = request.GET.get('format', 'csv')
-
-        if fmt not in DUMP_FORMATS:
-            abort(400, _(
-                u'format: must be one of %s') % u', '.join(DUMP_FORMATS))
+        data, errors = dict_fns.validate(dict(request.GET), dump_schema())
+        if errors:
+            abort(400, u'\n'.join(u'{0}: {1}'.format(k, ' '.join(e))
+                for k, e in errors.items()))
 
         try:
             dump_to(
                 resource_id,
                 response,
-                fmt=fmt,
-                offset=offset,
-                limit=limit,
-                options={u'bom': bom})
+                fmt=data['format'],
+                offset=data['offset'],
+                limit=data.get('limit'),
+                options={u'bom': data['bom']},
+                sort=data['sort'],
+                search_params={
+                    k: v for k, v in data.items() if k in [
+                        'filters',
+                        'q',
+                        'distinct',
+                        'plain',
+                        'language',
+                        'fields']},
+                )
         except ObjectNotFound:
             abort(404, _('DataStore resource not found'))
 
@@ -116,7 +142,7 @@ class DatastoreController(BaseController):
             })
 
 
-def dump_to(resource_id, output, fmt, offset, limit, options):
+def dump_to(resource_id, output, fmt, offset, limit, options, sort, search_params):
     if fmt == 'csv':
         writer_factory = csv_writer
         records_format = 'csv'
@@ -135,16 +161,16 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
         return writer_factory(output, fields, resource_id, bom)
 
     def result_page(offs, lim):
-        return get_action('datastore_search')(None, {
+        return get_action('datastore_search')(None, dict({
             'resource_id': resource_id,
             'limit':
                 PAGINATE_BY if limit is None
                 else min(PAGINATE_BY, lim),
             'offset': offs,
-            'sort': '_id',
+            'sort': sort,
             'records_format': records_format,
             'include_total': False,
-        })
+            }, **search_params))
 
     result = result_page(offset, limit)
 
