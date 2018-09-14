@@ -13,7 +13,7 @@ v.2.9.0 TBA
 Minor changes:
 
  * For navl schemas, the 'default' validator no longer applies the default when
-   the value is False, (), [] or {} (#4448)
+   the value is False, 0, [] or {} (#4448)
 
 Bugfixes:
 
