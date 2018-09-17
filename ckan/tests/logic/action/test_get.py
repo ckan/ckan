@@ -1358,7 +1358,6 @@ class TestPackageSearch(object):
         search_result = helpers.call_action('package_search', q='rivers', fl=['id'])
         eq(search_result['results'], [{'id': d1['id']}])
 
-
     def test_search_all(self):
         factories.Dataset(title="Rivers")
         factories.Dataset(title="Lakes")
