@@ -588,7 +588,7 @@ def default_autocomplete_schema():
 def default_package_search_schema():
     schema = {
         'q': [ignore_missing, unicode],
-        'fl': [ignore_missing, list_of_strings],
+        'fl': [ignore_missing, convert_to_list_if_string],
         'fq': [ignore_missing, unicode],
         'rows': [ignore_missing, natural_number_validator],
         'sort': [ignore_missing, unicode],
