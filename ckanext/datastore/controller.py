@@ -143,7 +143,7 @@ def dump_to(resource_id, output, fmt, offset, limit, options):
             'offset': offs,
             'sort': '_id',
             'records_format': records_format,
-            'include_total': 'false',  # XXX: default() is broken
+            'include_total': False,
         })
 
     result = result_page(offset, limit)
