@@ -1,3 +1,4 @@
+# encoding: utf-8
 """035 Harvesting doc versioning
 
 Revision ID: 81148ccebd6c
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:01.017635
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '81148ccebd6c'
 down_revision = '6c600693af5b'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_table(
         'harvested_document_revision',
         sa.Column('id', sa.UnicodeText, nullable=False),

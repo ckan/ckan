@@ -267,7 +267,7 @@ def execute_on_completion(application, config, callback):
     def inner(environ, start_response):
         try:
             result = application(environ, start_response)
-        except:
+        except Exception:
             callback(environ)
             raise
         # paste.fileapp converts non-file responses into list

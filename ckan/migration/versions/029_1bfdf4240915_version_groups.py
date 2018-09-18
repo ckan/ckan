@@ -1,3 +1,4 @@
+# encoding: utf-8
 """029 Version groups
 
 Revision ID: 1bfdf4240915
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:48:59.007126
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '1bfdf4240915'
 down_revision = 'cdd68fe9ba21'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_table(
         'group_revision', sa.Column('id', sa.UnicodeText, primary_key=True),
         sa.Column('name', sa.UnicodeText, nullable=False),

@@ -1,3 +1,4 @@
+# encoding: utf-8
 """070 Add activity and resource_indexes
 
 Revision ID: cfb544112fa7
@@ -6,7 +7,7 @@ Create Date: 2018-09-04 18:49:13.010411
 
 """
 from alembic import op
-import sqlalchemy as sa
+from ckan.migration import skip_based_on_legacy_engine_version
 
 # revision identifiers, used by Alembic.
 revision = 'cfb544112fa7'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_index(
         'idx_activity_user_id', 'activity', ['user_id', 'timestamp']
     )

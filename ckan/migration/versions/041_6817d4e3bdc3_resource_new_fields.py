@@ -1,3 +1,4 @@
+# encoding: utf-8
 """041 Resource new fields
 
 Revision ID: 6817d4e3bdc3
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:03.042528
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '6817d4e3bdc3'
 down_revision = '500a08f4818e'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     for table in ('resource', 'resource_revision'):
         op.add_column(table, sa.Column('name', sa.UnicodeText))
         op.add_column(table, sa.Column('resource_type', sa.UnicodeText))

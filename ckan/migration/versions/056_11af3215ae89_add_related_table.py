@@ -1,3 +1,4 @@
+# encoding: utf-8
 """056 Add related table
 
 Revision ID: 11af3215ae89
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:08.239860
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '11af3215ae89'
 down_revision = '048f7db947bf'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_table(
         'related', sa.Column('id', sa.UnicodeText, nullable=False),
         sa.Column('type', sa.UnicodeText, nullable=False),

@@ -1,3 +1,4 @@
+# encoding: utf-8
 """083 Remove related items
 
 Revision ID: f98d8fa2a7f7
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:17.615242
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = 'f98d8fa2a7f7'
 down_revision = '8ea886d0ede4'
@@ -28,6 +29,8 @@ tables using:
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     conn = op.get_bind()
     existing = conn.execute("SELECT COUNT(*) FROM related;").fetchone()
     if existing[0] > 0:

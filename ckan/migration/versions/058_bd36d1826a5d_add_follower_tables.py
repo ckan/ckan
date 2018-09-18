@@ -1,3 +1,4 @@
+# encoding: utf-8
 """058 Add follower tables
 
 Revision ID: bd36d1826a5d
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:08.908624
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = 'bd36d1826a5d'
 down_revision = '660a5aae527e'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_table(
         'user_following_dataset',
         sa.Column('follower_id', sa.UnicodeText, nullable=False),

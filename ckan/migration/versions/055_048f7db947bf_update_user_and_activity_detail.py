@@ -1,3 +1,4 @@
+# encoding: utf-8
 """055 Update user and activity_detail
 
 Revision ID: 048f7db947bf
@@ -6,8 +7,7 @@ Create Date: 2018-09-04 18:49:07.896968
 
 """
 from alembic import op
-import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '048f7db947bf'
 down_revision = 'da21b38da4db'
@@ -16,6 +16,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.alter_column('activity_detail', 'activity_id', nullable=True)
     op.alter_column('user', 'name', nullable=False)
 

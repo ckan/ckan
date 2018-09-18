@@ -5,12 +5,21 @@ import logging
 import re
 from datetime import datetime
 from time import sleep
+from os.path import splitext
 
 from six import text_type
 import vdm.sqlalchemy
 from vdm.sqlalchemy.base import SQLAlchemySession
 from sqlalchemy import MetaData, __version__ as sqav, Table
 from sqlalchemy.util import OrderedDict
+from sqlalchemy.exc import ProgrammingError
+
+from alembic.command import (
+    upgrade as alembic_upgrade,
+    downgrade as alembic_downgrade,
+    current as alembic_current
+)
+from alembic.config import Config as AlembicConfig
 
 import meta
 from meta import (
@@ -136,13 +145,10 @@ from dashboard import (
 
 import ckan.migration
 
+
 log = logging.getLogger(__name__)
 
-
 DB_CONNECT_RETRIES = 10
-
-# set up in init_model after metadata is bound
-version_table = None
 
 
 def init_model(engine):
@@ -156,8 +162,7 @@ def init_model(engine):
     import sqlalchemy.exc
     for i in reversed(range(DB_CONNECT_RETRIES)):
         try:
-            global version_table
-            version_table = Table('migrate_version', meta.metadata, autoload=True)
+            Table('alembic_version', meta.metadata, autoload=True)
             break
         except sqlalchemy.exc.NoSuchTableError:
             break
@@ -169,7 +174,8 @@ def init_model(engine):
 
 
 class Repository(vdm.sqlalchemy.Repository):
-    migrate_repository = ckan.migration.__path__[0]
+    _repo_path, _dot_repo_name = splitext(ckan.migration.__name__)
+    migrate_repository = _repo_path + ':' + _dot_repo_name[1:]
 
     # note: tables_created value is not sustained between instantiations
     #       so only useful for tests. The alternative is to use
@@ -217,11 +223,6 @@ class Repository(vdm.sqlalchemy.Repository):
         self.metadata.create_all(bind=self.metadata.bind)
         log.info('Database tables created')
 
-    def latest_migration_version(self):
-        import migrate.versioning.api as mig
-        version = mig.version(self.migrate_repository)
-        return version
-
     def rebuild_db(self):
         '''Clean and init the db'''
         if self.tables_created_and_initialised:
@@ -245,44 +246,80 @@ class Repository(vdm.sqlalchemy.Repository):
         else:
             tables = reversed(self.metadata.sorted_tables)
         for table in tables:
-            if table.name == 'migrate_version':
+            if table.name == 'alembic_version':
                 continue
             connection.execute('delete from "%s"' % table.name)
         self.session.commit()
         log.info('Database table data deleted')
 
-    def setup_migration_version_control(self, version=None):
-        import migrate.exceptions
-        import migrate.versioning.api as mig
-        # set up db version control (if not already)
-        try:
-            mig.version_control(self.metadata.bind,
-                    self.migrate_repository, version)
-        except migrate.exceptions.DatabaseAlreadyControlledError:
-            pass
+    def reset_alembic_output(self):
+        self._alembic_output = []
 
-    def upgrade_db(self, version=None):
+    def add_alembic_output(self, *args):
+        self._alembic_output.append(args)
+
+    def take_alembic_output(self, with_reset=True):
+        output = self._alembic_output
+        self._alembic_config = []
+        return output
+
+    def setup_migration_version_control(self):
+        self.reset_alembic_output()
+        alembic_config = AlembicConfig()
+        alembic_config.set_main_option(
+            "script_location", self.migrate_repository
+        )
+        alembic_config.set_main_option(
+            "sqlalchemy.url", str(self.metadata.bind.url)
+        )
+        try:
+            sqlalchemy_migrate_version = self.metadata.bind.execute(
+                u'select version from migrate_version'
+            ).scalar()
+        except ProgrammingError:
+            sqlalchemy_migrate_version = 0
+        alembic_config.set_main_option(
+            "sqlalchemy_migrate_version", str(sqlalchemy_migrate_version)
+        )
+        alembic_config.print_stdout = self.add_alembic_output
+
+        self.alembic_config = alembic_config
+
+    def downgrade_db(self, version='base'):
+        self.setup_migration_version_control()
+        alembic_downgrade(self.alembic_config, version)
+        log.info(u'CKAN database version set to: %s', version)
+
+    def upgrade_db(self, version='head'):
         '''Upgrade db using sqlalchemy migrations.
 
         @param version: version to upgrade to (if None upgrade to latest)
         '''
-        assert meta.engine.name in ('postgres', 'postgresql'), \
-            'Database migration - only Postgresql engine supported (not %s).' \
-                % meta.engine.name
-        import migrate.versioning.api as mig
+        _assert_engine_msg = (
+            u'Database migration - only Postgresql engine supported (not %s).'
+        ) % meta.engine.name
+        assert meta.engine.name in (
+            u'postgres', u'postgresql'
+        ), _assert_engine_msg
         self.setup_migration_version_control()
-        version_before = mig.db_version(self.metadata.bind, self.migrate_repository)
-        mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
-        version_after = mig.db_version(self.metadata.bind, self.migrate_repository)
-        if version_after != version_before:
-            log.info('CKAN database version upgraded: %s -> %s', version_before, version_after)
-        else:
-            log.info('CKAN database version remains as: %s', version_after)
+        try:
+            alembic_current(self.alembic_config)
+            version_before = self.take_alembic_output()[0][0]
+        except (TypeError, IndexError):
+            # alembic is not initialized yet
+            version_before = 'base'
+        alembic_upgrade(self.alembic_config, version)
+        alembic_current(self.alembic_config)
 
-        ##this prints the diffs in a readable format
-        ##import pprint
-        ##from migrate.versioning.schemadiff import getDiffOfModelAgainstDatabase
-        ##pprint.pprint(getDiffOfModelAgainstDatabase(self.metadata, self.metadata.bind).colDiffs)
+        version_after = self.take_alembic_output()[0][0]
+        if version_after != version_before:
+            log.info(
+                u'CKAN database version upgraded: %s -> %s',
+                version_before,
+                version_after
+            )
+        else:
+            log.info(u'CKAN database version remains as: %s', version_after)
 
     def are_tables_created(self):
         meta.metadata = MetaData(self.metadata.bind)

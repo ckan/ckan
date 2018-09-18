@@ -1,3 +1,4 @@
+# encoding: utf-8
 """034 Resource group table
 
 Revision ID: 6c600693af5b
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:00.683101
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '6c600693af5b'
 down_revision = '6da92ef2df15'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_table(
         'resource_group',
         sa.Column('id', sa.UnicodeText, primary_key=True),
@@ -59,7 +62,8 @@ def upgrade():
     op.rename_table('package_resource_revision', 'resource_revision')
     op.execute('ALTER INDEX package_resource_pkey RENAME TO resource_pkey')
     op.execute(
-        'ALTER INDEX package_resource_revision_pkey RENAME TO resource_revision_pkey'
+        'ALTER INDEX package_resource_revision_pkey '
+        'RENAME TO resource_revision_pkey'
     )
 
     op.drop_constraint(
@@ -113,7 +117,8 @@ def downgrade():
     op.rename_table('resource', 'package_resource')
     op.execute('ALTER INDEX resource_pkey RENAME TO package_resource_pkey')
     op.execute(
-        'ALTER INDEX resource_revision_pkey RENAME TO package_resource_revision_pkey'
+        'ALTER INDEX resource_revision_pkey '
+        'RENAME TO package_resource_revision_pkey'
     )
 
     op.alter_column(

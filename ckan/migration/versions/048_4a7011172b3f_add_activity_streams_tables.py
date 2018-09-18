@@ -1,3 +1,4 @@
+# encoding: utf-8
 """048 Add activity streams tables
 
 Revision ID: 4a7011172b3f
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:05.463765
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '4a7011172b3f'
 down_revision = '883a7c406926'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_table(
         'activity',
         sa.Column('id', sa.UnicodeText, nullable=False),

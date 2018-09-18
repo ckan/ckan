@@ -1,3 +1,4 @@
+# encoding: utf-8
 """074 Remove resource groups
 
 Revision ID: a4ca55f0f45e
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:14.423978
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = 'a4ca55f0f45e'
 down_revision = '011f51208be3'
@@ -35,6 +36,8 @@ resource_indexes = ((
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.add_column(
         'resource',
         sa.Column(

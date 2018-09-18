@@ -1,3 +1,4 @@
+# encoding: utf-8
 """008 Update vdm ids
 
 Revision ID: e8283ffb257e
@@ -9,7 +10,7 @@ to UnicodeText
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = 'e8283ffb257e'
 down_revision = '1928d4af1cda'
@@ -23,9 +24,13 @@ foreign_tables = (
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     for table in foreign_tables:
         op.drop_column(table, 'revision_id')
-    op.alter_column('revision', 'id', type_=sa.UnicodeText, server_default=None)
+    op.alter_column(
+        'revision', 'id', type_=sa.UnicodeText, server_default=None
+    )
     for table in foreign_tables:
         op.add_column(
             table,

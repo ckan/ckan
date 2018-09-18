@@ -1,3 +1,4 @@
+# encoding: utf-8
 """072 Add resource view
 
 Revision ID: 08dcb9233ad7
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:13.697490
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '08dcb9233ad7'
 down_revision = 'c16f081ef73a'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_table(
         'resource_view',
         sa.Column('id', sa.UnicodeText, nullable=False),

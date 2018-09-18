@@ -1,3 +1,4 @@
+# encoding: utf-8
 """027 Adjust harvester
 
 Revision ID: 11e5745c6fc9
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:48:58.333396
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '11e5745c6fc9'
 down_revision = '3615b25af443'
@@ -18,6 +19,8 @@ table = 'harvested_document'
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.add_column(table, sa.Column('guid', sa.UnicodeText, server_default=u''))
     op.add_column(
         table,

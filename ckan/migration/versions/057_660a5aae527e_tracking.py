@@ -1,3 +1,4 @@
+# encoding: utf-8
 """057 Tracking
 
 Revision ID: 660a5aae527e
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:08.573692
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '660a5aae527e'
 down_revision = '11af3215ae89'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_table(
         'tracking_raw', sa.Column('user_key', sa.String(100), nullable=False),
         sa.Column('url', sa.UnicodeText, nullable=False),

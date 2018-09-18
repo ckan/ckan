@@ -1,3 +1,4 @@
+# encoding: utf-8
 """051 Add tag vocabulary
 
 Revision ID: a4fb0d85ced6
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:06.480087
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = 'a4fb0d85ced6'
 down_revision = '01a6b058cb7f'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.drop_constraint('tag_name_key', 'tag')
     op.create_table(
         'vocabulary', sa.Column('id', sa.UnicodeText, nullable=False),

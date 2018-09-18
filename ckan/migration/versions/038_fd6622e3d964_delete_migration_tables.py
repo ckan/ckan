@@ -1,3 +1,4 @@
+# encoding: utf-8
 """038 Delete migration tables
 
 Revision ID: fd6622e3d964
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:02.023123
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = 'fd6622e3d964'
 down_revision = 'edcf3b8c3c1b'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.drop_table('harvested_document_revision')
     op.drop_table('harvested_document')
     op.drop_table('harvesting_job')
@@ -59,7 +62,8 @@ def downgrade():
         sa.Column('package_id', sa.UnicodeText),
         sa.Column('state', sa.UnicodeText),
         sa.Column('revision_id', sa.UnicodeText, nullable=False),
-        sa.Column('guid', sa.UnicodeText), sa.Column('created', sa.TIMESTAMP),
+        sa.Column('guid', sa.UnicodeText),
+        sa.Column('created', sa.TIMESTAMP),
     )
 
     op.create_table(

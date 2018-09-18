@@ -1,3 +1,4 @@
+# encoding: utf-8
 """047 Rename package_group_member
 
 Revision ID: 883a7c406926
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:05.130215
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '883a7c406926'
 down_revision = 'b69e9b80396f'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.rename_table('package_group', 'member')
     op.rename_table('package_group_revision', 'member_revision')
 

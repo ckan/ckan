@@ -1,3 +1,4 @@
+# encoding: utf-8
 """012 Add resources
 
 Revision ID: e5ca33a5d445
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:48:52.303211
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = 'e5ca33a5d445'
 down_revision = '866f6370b4ac'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
 
     op.create_table(
         'package_resource', sa.Column('id', sa.Integer, primary_key=True),

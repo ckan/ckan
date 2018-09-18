@@ -1,3 +1,4 @@
+# encoding: utf-8
 """Create existing tables
 
 Revision ID: 103676e0a497
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 16:57:42.622504
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '103676e0a497'
 down_revision = None
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
 
     op.create_table(
         'state',

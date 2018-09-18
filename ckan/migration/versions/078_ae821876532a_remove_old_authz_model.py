@@ -1,3 +1,4 @@
+# encoding: utf-8
 """078 Remove old authz model
 
 Revision ID: ae821876532a
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:15.812926
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = 'ae821876532a'
 down_revision = '51171a04d86d'
@@ -25,7 +26,10 @@ indexes = (
     ('idx_ra_role_action', 'role_action', ['action', 'role']),
 )
 
+
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.drop_table('role_action')
     op.drop_table('package_role')
     op.drop_table('group_role')

@@ -1,3 +1,4 @@
+# encoding: utf-8
 """016 Uuids everywhere
 
 Revision ID: 37ada738328e
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:48:53.632517
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '37ada738328e'
 down_revision = '6d8ffebcaf54'
@@ -50,6 +51,8 @@ combined_primary_keys = [
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     for table, column in foreign_keys:
         op.drop_column(table, column)
     for table in continuity:

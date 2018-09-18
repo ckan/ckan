@@ -1,3 +1,4 @@
+# encoding: utf-8
 """025 Add authorization groups
 
 Revision ID: b581622ad327
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:48:57.649187
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = 'b581622ad327'
 down_revision = '12981fe12484'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_table(
         'authorization_group',
         sa.Column('id', sa.UnicodeText, primary_key=True),

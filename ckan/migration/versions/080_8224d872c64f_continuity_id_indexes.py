@@ -1,3 +1,4 @@
+# encoding: utf-8
 """080 Continuity id indexes
 
 Revision ID: 8224d872c64f
@@ -6,8 +7,7 @@ Create Date: 2018-09-04 18:49:16.546952
 
 """
 from alembic import op
-import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '8224d872c64f'
 down_revision = 'e0177a15d2c9'
@@ -16,6 +16,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_index(
         'idx_member_continuity_id', 'member_revision', ['continuity_id']
     )

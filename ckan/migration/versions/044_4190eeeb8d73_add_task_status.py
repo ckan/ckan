@@ -1,3 +1,4 @@
+# encoding: utf-8
 """044 Add task status
 
 Revision ID: 4190eeeb8d73
@@ -7,7 +8,7 @@ Create Date: 2018-09-04 18:49:04.084036
 """
 from alembic import op
 import sqlalchemy as sa
-
+from ckan.migration import skip_based_on_legacy_engine_version
 # revision identifiers, used by Alembic.
 revision = '4190eeeb8d73'
 down_revision = 'bd38cd6502b2'
@@ -16,6 +17,8 @@ depends_on = None
 
 
 def upgrade():
+    if skip_based_on_legacy_engine_version(op, __name__):
+        return
     op.create_table(
         'task_status', sa.Column('id', sa.UnicodeText, nullable=False),
         sa.Column('entity_id', sa.UnicodeText, nullable=False),
