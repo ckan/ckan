@@ -24,8 +24,12 @@
       {% else %}
         data-col-reorder="false"
       {% endif %}
+      {% if resource_view.get('fixed_columns') %}
+        data-fixed-columns="true"
+      {% else %}
+        data-fixed-columns="false"
+      {% endif %}
       data-fixed-header="true"
-      data-fixed-columns="true"
       data-dom='"Blifrtip"'
       data-buttons='[
         {

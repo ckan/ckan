@@ -14,13 +14,20 @@
   value='True',
   checked=data.export_buttons,
   ) }}
-  {{ form.checkbox(
-    'col_reorder',
-    id='field-col_reorder',
-    label=_('Column reorder'),
-    value='True',
-    checked=data.col_reorder,
-    ) }}
+{{ form.checkbox(
+  'col_reorder',
+  id='field-col_reorder',
+  label=_('Column reorder'),
+  value='True',
+  checked=data.col_reorder,
+  ) }}
+{{ form.checkbox(
+  'fixed_columns',
+  id='field-fixed_columns',
+  label=_('Fixed left column'),
+  value='True',
+  checked=data.fixed_columns,
+  ) }}
 
 <div class="control-group">
   <label class="control-label">{{ _('Show Columns') }}</label>
