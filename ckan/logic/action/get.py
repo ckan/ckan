@@ -1869,6 +1869,8 @@ def package_search(context, data_dict):
 
         if result_fl:
             for package in query.results:
+                if isinstance(package, text_type):
+                    package = {result_fl[0]: package}
                 if package.get('extras'):
                     package.update(package['extras'] )
                     package.pop('extras')
