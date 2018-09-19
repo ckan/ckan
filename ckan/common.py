@@ -1,3 +1,4 @@
+
 # encoding: utf-8
 
 # This file contains commonly used parts of external libraries. The idea is
@@ -67,10 +68,9 @@ def streaming_response(
 
 
 def ugettext(*args, **kwargs):
-    if is_flask_request():
-        return flask_ugettext(*args, **kwargs)
-    else:
-        return pylons_ugettext(*args, **kwargs)
+    # this is on purpose, as we have a problem to check
+    # for pylons or flask request
+    return flask_ugettext(*args, **kwargs)
 
 
 _ = ugettext
