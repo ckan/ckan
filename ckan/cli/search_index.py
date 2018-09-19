@@ -35,13 +35,41 @@ def rebuild(ctx, verbose, force, refresh, only_missing, quiet, commit_each):
     u''' Rebuild search index '''
     from ckan.lib.search import rebuild, commit
     try:
-        with ctx.obj.app.apps.get('flask_app').app.app.app.test_request_context():
-            rebuild(only_missing=only_missing,
-                    force=force,
-                    refresh=refresh,
-                    defer_commit=(not commit_each),
-                    quiet=quiet)
+        rebuild(only_missing=only_missing,
+                force=force,
+                refresh=refresh,
+                defer_commit=(not commit_each),
+                quiet=quiet)
     except Exception as e:
         click.echo(e, err=True)
     if not commit_each:
         commit()
+
+
+@search_index.command(name=u'check', short_help=u'Check search index')
+@click.help_option(u'-h', u'--help')
+def check():
+    from ckan.lib.search import check
+    check()
+
+
+@search_index.command(name=u'show', short_help=u'Show index of a dataset')
+@click.help_option(u'-h', u'--help')
+@click.argument(u'dataset_name')
+def show(dataset_name):
+    from ckan.lib.search import show
+
+    index = show(dataset_name)
+    click.echo(index)
+
+
+@search_index.command(name=u'clear', short_help=u'Clear the search index')
+@click.help_option(u'-h', u'--help')
+@click.argument(u'dataset_name', required=False)
+def clear(dataset_name):
+    from ckan.lib.search import clear, clear_all
+
+    if dataset_name:
+        clear(dataset_name)
+    else:
+        clear_all()
