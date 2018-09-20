@@ -306,8 +306,8 @@ def _cache_types(connection):
 
             backend = DatastorePostgresqlBackend.get_active_backend()
             engine = backend._get_write_engine()
-            with engine.begin() as connection:
-                connection.execute(
+            with engine.begin() as write_connection:
+                write_connection.execute(
                     'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
                         'json' if native_json else 'text'))
             _pg_types.clear()
