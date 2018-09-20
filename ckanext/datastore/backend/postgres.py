@@ -161,7 +161,7 @@ def _rename_field(data_dict, term, replace):
 
 
 def _get_fields_types(context, data_dict):
-    all_fields = _get_fields(context, data_dict)
+    all_fields = _get_fields(context['connection'], data_dict['resource_id'])
     all_fields.insert(0, {'id': '_id', 'type': 'int'})
     field_types = OrderedDict([(f['id'], f['type']) for f in all_fields])
     return field_types
@@ -244,16 +244,20 @@ def _get_field_info(connection, resource_id):
         return {}
 
 
-def _get_fields(context, data_dict):
+def _get_fields(connection, resource_id):
+    u'''
+    return a list of {'id': column_name, 'type': column_type} dicts
+    for the passed resource_id, excluding '_'-prefixed columns.
+    '''
     fields = []
-    all_fields = context['connection'].execute(
-        u'SELECT * FROM "{0}" LIMIT 1'.format(data_dict['resource_id'])
+    all_fields = connection.execute(
+        u'SELECT * FROM "{0}" LIMIT 1'.format(resource_id)
     )
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
             fields.append({
                 'id': field[0].decode('utf-8'),
-                'type': _get_type(context['connection'], field[1])
+                'type': _get_type(connection, field[1])
             })
     return fields
 
@@ -741,7 +745,7 @@ def create_indexes(context, data_dict):
     sql_index_string = sql_index_tmpl + u' ({fields})'
     sql_index_strings = []
 
-    fields = _get_fields(context, data_dict)
+    fields = _get_fields(connection, data_dict['resource_id'])
     field_ids = _pluck('id', fields)
     json_fields = [x['id'] for x in fields if x['type'] == 'nested']
 
@@ -906,7 +910,8 @@ def alter_table(context, data_dict):
     :type records: list of dicts
     '''
     supplied_fields = data_dict.get('fields', [])
-    current_fields = _get_fields(context, data_dict)
+    current_fields = _get_fields(
+        context['connection'], data_dict['resource_id'])
     if not supplied_fields:
         supplied_fields = current_fields
     check_fields(context, supplied_fields)
@@ -997,7 +1002,7 @@ def upsert_data(context, data_dict):
 
     method = data_dict.get('method', _UPSERT)
 
-    fields = _get_fields(context, data_dict)
+    fields = _get_fields(context['connection'], data_dict['resource_id'])
     field_names = _pluck('id', fields)
     records = data_dict['records']
     sql_columns = ", ".join(
