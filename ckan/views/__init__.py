@@ -98,11 +98,8 @@ def identify_user():
     if authenticators:
         for item in authenticators:
             item.identify()
-            try:
-                if g.user:
-                    break
-            except AttributeError:
-                continue
+            if g.user:
+                break
 
     # We haven't identified the user so try the default methods
     if not getattr(g, u'user', None):
