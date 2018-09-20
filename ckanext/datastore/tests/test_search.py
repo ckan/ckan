@@ -126,7 +126,7 @@ class TestDatastoreSearchLegacyTests(DatastoreLegacyTestBase):
     @classmethod
     def setup_class(cls):
         cls.app = helpers._get_test_app()
-        super(TestDatastoreSearch, cls).setup_class()
+        super(TestDatastoreSearchLegacyTests, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -656,7 +656,7 @@ class TestDatastoreFullTextSearchLegacyTests(DatastoreLegacyTestBase):
     @classmethod
     def setup_class(cls):
         cls.app = helpers._get_test_app()
-        super(TestDatastoreFullTextSearch, cls).setup_class()
+        super(TestDatastoreFullTextSearchLegacyTests, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -780,7 +780,7 @@ class TestDatastoreSQLLegacyTests(DatastoreLegacyTestBase):
     @classmethod
     def setup_class(cls):
         cls.app = helpers._get_test_app()
-        super(TestDatastoreSQL, cls).setup_class()
+        super(TestDatastoreSQLLegacyTests, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
