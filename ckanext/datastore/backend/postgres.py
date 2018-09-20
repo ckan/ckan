@@ -150,8 +150,12 @@ def _rename_field(data_dict, term, replace):
     return data_dict
 
 
-def _get_fields_types(context, data_dict):
-    all_fields = _get_fields(context['connection'], data_dict['resource_id'])
+def _get_fields_types(connection, resource_id):
+    u'''
+    return a {column_name: column_type} dict for the passed resource_id
+    including '_id' but excluding other '_'-prefixed columns.
+    '''
+    all_fields = _get_fields(connection, resource_id)
     all_fields.insert(0, {'id': '_id', 'type': 'int'})
     field_types = OrderedDict([(f['id'], f['type']) for f in all_fields])
     return field_types
@@ -1173,7 +1177,8 @@ def upsert_data(context, data_dict):
 
 
 def validate(context, data_dict):
-    fields_types = _get_fields_types(context, data_dict)
+    fields_types = _get_fields_types(
+        context['connection'], data_dict['resource_id'])
     data_dict_copy = copy.deepcopy(data_dict)
 
     # TODO: Convert all attributes that can be a comma-separated string to
@@ -1219,7 +1224,8 @@ def validate(context, data_dict):
 
 def search_data(context, data_dict):
     validate(context, data_dict)
-    fields_types = _get_fields_types(context, data_dict)
+    fields_types = _get_fields_types(
+        context['connection'], data_dict['resource_id'])
 
     query_dict = {
         'select': [],
@@ -1369,7 +1375,8 @@ def format_results(context, results, data_dict):
 
 def delete_data(context, data_dict):
     validate(context, data_dict)
-    fields_types = _get_fields_types(context, data_dict)
+    fields_types = _get_fields_types(
+        context['connection'], data_dict['resource_id'])
 
     query_dict = {
         'where': []
