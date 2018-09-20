@@ -162,13 +162,37 @@ def _rename_field(data_dict, term, replace):
 
 def _get_fields_types(connection, resource_id):
     u'''
-    return a {column_name: column_type} dict for the passed resource_id
-    including '_id' but excluding other '_'-prefixed columns.
+    return a OrderedDict([(column_name, column_type)...]) for the passed
+    resource_id including '_id' but excluding other '_'-prefixed columns.
     '''
     all_fields = _get_fields(connection, resource_id)
     all_fields.insert(0, {'id': '_id', 'type': 'int'})
     field_types = OrderedDict([(f['id'], f['type']) for f in all_fields])
     return field_types
+
+
+def _result_fields(fields_types, field_info, fields, q):
+    u'''
+    return a list of field information based on the fields present,
+    passed and query passed.
+
+    :param fields_types: OrderedDict returned from _get_fields_types(..)
+    :param field_info: dict returned from _get_field_info(..)
+    :param fields: list of field names passed to datastore_search
+        or None for all
+    :param q: dict or string q parameter passed to datastore_search
+    '''
+    result_fields = []
+
+    if fields is None:
+        fields = list(fields_types)
+
+    for field_id in fields:
+        f = {u'id': field_id, u'type': fields_types[field_id]}
+        if field_id in field_info:
+            f['info'] = field_info[f['id']]
+        result_fields.append(f)
+    return result_fields
 
 
 def _get_type(connection, oid):
@@ -1283,15 +1307,12 @@ def search_data(context, data_dict):
             records = LazyJSONObject(v)
     data_dict['records'] = records
 
-    field_info = _get_field_info(
-        context['connection'], data_dict['resource_id'])
-    result_fields = []
-    for field_id, field_type in fields_types.iteritems():
-        f = {u'id': field_id, u'type': field_type}
-        if field_id in field_info:
-            f['info'] = field_info[f['id']]
-        result_fields.append(f)
-    data_dict['fields'] = result_fields
+    data_dict['fields'] = _result_fields(
+        fields_types,
+        _get_field_info(context['connection'], data_dict['resource_id']),
+        datastore_helpers.get_list(data_dict.get('fields')),
+        data_dict.get('q'))
+
     _unrename_json_field(data_dict)
 
     _insert_links(data_dict, limit, offset)
