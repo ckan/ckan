@@ -173,7 +173,7 @@ def _get_fields_types(context, data_dict):
 
 
 def _get_type(context, oid):
-    _cache_types(context)
+    _cache_types(context['connection'])
     return _pg_types[oid]
 
 
@@ -263,9 +263,8 @@ def _get_fields(context, data_dict):
     return fields
 
 
-def _cache_types(context):
+def _cache_types(connection):
     if not _pg_types:
-        connection = context['connection']
         results = connection.execute(
             'SELECT oid, typname FROM pg_type;'
         )
@@ -287,7 +286,7 @@ def _cache_types(context):
             _pg_types.clear()
 
             # redo cache types with json now available.
-            return _cache_types(context)
+            return _cache_types(connection)
 
         try:
             register_composite(
@@ -1464,7 +1463,7 @@ def search(context, data_dict):
     engine = backend._get_read_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
-    _cache_types(context)
+    _cache_types(context['connection'])
 
     try:
         context['connection'].execute(
@@ -1493,7 +1492,7 @@ def search_sql(context, data_dict):
 
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
-    _cache_types(context)
+    _cache_types(context['connection'])
 
     sql = data_dict['sql'].replace('%', '%%')
 
@@ -1753,7 +1752,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     def delete(self, context, data_dict):
         engine = self._get_write_engine()
         context['connection'] = engine.connect()
-        _cache_types(context)
+        _cache_types(context['connection'])
 
         trans = context['connection'].begin()
         try:
@@ -1795,7 +1794,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         engine = get_write_engine()
         context['connection'] = engine.connect()
         timeout = context.get('query_timeout', _TIMEOUT)
-        _cache_types(context)
+        _cache_types(context['connection'])
 
         _rename_json_field(data_dict)
 
