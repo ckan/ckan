@@ -157,8 +157,8 @@ def _get_fields_types(context, data_dict):
     return field_types
 
 
-def _get_type(context, oid):
-    _cache_types(context['connection'])
+def _get_type(connection, oid):
+    _cache_types(connection)
     return _pg_types[oid]
 
 
@@ -243,7 +243,7 @@ def _get_fields(context, data_dict):
         if not field[0].startswith('_'):
             fields.append({
                 'id': field[0].decode('utf-8'),
-                'type': _get_type(context, field[1])
+                'type': _get_type(context['connection'], field[1])
             })
     return fields
 
@@ -1346,7 +1346,7 @@ def format_results(context, results, data_dict):
     for field in results.cursor.description:
         result_fields.append({
             'id': field[0].decode('utf-8'),
-            'type': _get_type(context, field[1])
+            'type': _get_type(context['connection'], field[1])
         })
 
     records = []
