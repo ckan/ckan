@@ -35,7 +35,7 @@ rst_epilog = '''
 .. |virtualenv| replace:: |virtualenv_parent_dir|/default
 .. |activate| replace:: . |virtualenv|/bin/activate
 .. |config_parent_dir| replace:: /etc/ckan
-.. |config_dir| replace:: |config_parent_dir|/default
+.. |config_dir| replace:: |config_parent_dir|
 .. |production.ini| replace:: |config_dir|/production.ini
 .. |development.ini| replace:: |config_dir|/development.ini
 .. |git_url| replace:: \https://github.com/ckan/ckan.git
