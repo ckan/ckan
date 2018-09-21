@@ -278,9 +278,14 @@ class Repository(vdm.sqlalchemy.Repository):
             ).scalar()
         except ProgrammingError:
             sqlalchemy_migrate_version = 0
+
+        # this value is used for graceful upgrade from
+        # sqlalchemy-migrate to alembic
         alembic_config.set_main_option(
             "sqlalchemy_migrate_version", str(sqlalchemy_migrate_version)
         )
+        # This is an interceptor for alembic output. Otherwise,
+        # everything will be printed to stdout
         alembic_config.print_stdout = self.add_alembic_output
 
         self.alembic_config = alembic_config

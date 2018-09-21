@@ -16,8 +16,21 @@ depends_on = None
 
 
 def upgrade():
+    '''Drop version table, created by sqlalchemy-migrate.
+
+    There is a chance, that we are initializing a new instance and
+    there is no `migrate_version` table, so DO NOT remove `IF EXISTS`
+    clause.
+    '''
     op.execute('DROP TABLE IF EXISTS migrate_version')
 
 
 def downgrade():
+    '''We aren't going to recreate `migrate_version` here.
+
+    There is a chance, that this table even never was created for
+    target database. This migration tries to seamlessly upgrade
+    existing instance from usage of sqlalchemy-migrate to alembic. And
+    we don't want to downgrade to sqlalchemy-migrate back again.
+    '''
     pass
