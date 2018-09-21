@@ -10,6 +10,19 @@ Changelog
 v.2.9.0 TBA
 ==================
 
+General notes:
+
+ * This version requires re-running the ``datastore set-permissions`` command
+   (assuming you are using the DataStore). See: :ref:`datastore-set-permissions`
+
+   Otherwise datasets will not be viewable or searchable in DataStore and
+   the logs will contain this error::
+
+      ValidationError: ... function count_estimate(unknown) does not exist ...
+
+   CKAN developers should also re-run set-permissions on the test database:
+   :ref:`datastore-test-set-permissions`
+
 Minor changes:
 
  * For navl schemas, the 'default' validator no longer applies the default when

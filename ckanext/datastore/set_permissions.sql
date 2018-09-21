@@ -106,3 +106,18 @@ DO $body$
     END;
 $body$;
 
+-- estimates the number of rows returned by a query
+CREATE OR REPLACE FUNCTION count_estimate(query text) RETURNS INTEGER
+AS $body$
+    DECLARE
+        rec record;
+        ROWS INTEGER;
+    BEGIN
+        FOR rec IN EXECUTE 'EXPLAIN ' || query LOOP
+            ROWS := SUBSTRING(rec."QUERY PLAN" FROM ' rows=([[:digit:]]+)');
+            EXIT WHEN ROWS IS NOT NULL;
+        END LOOP;
+
+        RETURN ROWS;
+    END
+$body$ LANGUAGE plpgsql;

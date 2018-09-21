@@ -167,6 +167,7 @@ def datastore_search_schema():
         'sort': [ignore_missing, list_of_strings_or_string],
         'distinct': [ignore_missing, boolean_validator],
         'include_total': [default(True), boolean_validator],
+        'total_estimation_threshold': [default(0), int_validator],
         'records_format': [
             default(u'objects'),
             OneOf([u'objects', u'lists', u'csv', u'tsv'])],
