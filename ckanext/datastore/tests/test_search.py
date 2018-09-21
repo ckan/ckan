@@ -141,12 +141,12 @@ class TestDatastoreSearch(DatastoreLegacyTestBase):
                        {'id': 'published'},
                        {'id': u'characters', u'type': u'_text'},
                        {'id': 'rating with %'}],
-            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
+            'records': [{u'b\xfck': 'warandpeace', 'author': 'tolstoy',
+                        'nested': {'a': 'b'}, 'rating with %': '99%'},
+                        {u'b\xfck': 'annakarenina', 'author': 'tolstoy',
                         'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}],
                         u'characters': [u'Princess Anna', u'Sergius'],
-                        'rating with %': '60%'},
-                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a': 'b'}, 'rating with %': '99%'}
+                        'rating with %': '60%'}
                        ]
         }
         postparams = '%s=1' % json.dumps(cls.data)
