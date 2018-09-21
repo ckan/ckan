@@ -400,16 +400,12 @@ def _where_clauses(data_dict, fields_types):
     return clauses
 
 
-def _textsearch_query(data_dict):
-    q = data_dict.get('q')
-    lang = _fts_lang(data_dict.get('lang'))
-
+def _textsearch_query(lang, q, plain):
     if not q:
         return '', ''
 
     statements = []
     rank_columns = []
-    plain = data_dict.get('plain', True)
     if isinstance(q, string_types):
         query, rank = _build_query_and_rank_statements(
             lang, q, plain)
@@ -1700,7 +1696,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         else:
             field_ids = fields_types.keys()
 
-        ts_query, rank_column = _textsearch_query(data_dict)
+        ts_query, rank_column = _textsearch_query(
+            _fts_lang(data_dict.get('lang')),
+            data_dict.get('q'),
+            data_dict.get('plain', True))
         limit = data_dict.get('limit', 100)
         offset = data_dict.get('offset', 0)
 
