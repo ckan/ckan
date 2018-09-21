@@ -14,7 +14,6 @@ import datetime
 import hashlib
 import json
 from cStringIO import StringIO
-import sqlparse
 
 from six import string_types, text_type
 
@@ -1218,17 +1217,14 @@ def search_data(context, data_dict):
     else:
         sort_clause = ''
 
-    core_query = u'''
-        SELECT {distinct} {select}
-        FROM "{resource}" {ts_query}
-        {where} {sort} LIMIT {limit} OFFSET {offset}'''
-
     records_format = data_dict['records_format']
     if records_format == u'objects':
         sql_fmt = u'''
             SELECT array_to_json(array_agg(j))::text FROM (
-                CORE_QUERY
-            ) AS j'''.replace('CORE_QUERY', core_query)
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) AS j'''
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
             s for s in query_dict['select']
@@ -1243,16 +1239,19 @@ def search_data(context, data_dict):
     elif records_format == u'csv':
         sql_fmt = u'''
             COPY (
-                CORE_QUERY
-            ) TO STDOUT csv DELIMITER ',' '''.replace('CORE_QUERY', core_query)
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) TO STDOUT csv DELIMITER ',' '''
     elif records_format == u'tsv':
         sql_fmt = u'''
             COPY (
-                CORE_QUERY
-            ) TO STDOUT csv DELIMITER '\t' ''' \
-            .replace('CORE_QUERY', core_query)
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query}
+                {where} {sort} LIMIT {limit} OFFSET {offset}
+            ) TO STDOUT csv DELIMITER '\t' '''
 
-    sql_params = dict(
+    sql_string = sql_fmt.format(
         distinct=distinct,
         select=select_columns,
         resource=resource_id,
@@ -1260,9 +1259,7 @@ def search_data(context, data_dict):
         where=where_clause,
         sort=sort_clause,
         limit=limit,
-        offset=offset
-    )
-    sql_string = sql_fmt.format(**sql_params)
+        offset=offset)
     if records_format == u'csv' or records_format == u'tsv':
         buf = StringIO()
         _execute_single_statement_copy_to(
@@ -1293,7 +1290,8 @@ def search_data(context, data_dict):
     if data_dict.get('include_total', True):
         total_estimation_threshold = \
             data_dict.get('total_estimation_threshold') or 0
-        if total_estimation_threshold != 0:
+        estimated_total = None
+        if total_estimation_threshold != 0 and not (where_clause or distinct):
             # Estimate the total (result row count)
             # See: https://wiki.postgresql.org/wiki/Count_estimate
 
@@ -1305,46 +1303,33 @@ def search_data(context, data_dict):
                 WHERE relname=:resource;
                 ''')
             result = context['connection'].execute(
-                when_was_last_analyze_sql, **sql_params)
+                when_was_last_analyze_sql, resource=resource_id)
             last_analyze, last_autoanalyze = result.fetchall()[0]
             if not (last_analyze or last_autoanalyze):
                 analyze_sql = '''
                     ANALYZE "{resource}";
-                '''.format(**sql_params)
+                '''.format(resource=resource_id)
                 context['connection'].execute(analyze_sql)
 
-            if not (where_clause or distinct):
-                # there are no filters, so we can use the table row count from
-                # pg stats
-                analyze_count_sql = sqlalchemy.text('''
-                SELECT reltuples::BIGINT AS approximate_row_count
-                FROM pg_class
-                WHERE relname=:resource;
-                ''')
-                count_result = context['connection'].execute(analyze_count_sql,
-                                                             **sql_params)
-            else:
-                # use EXPLAIN to get an estimate of the row count for this
-                # filtered query
-                explain_count_sql = '''
-                SELECT count_estimate('{query}');
-                '''.format(query=core_query.format(**sql_params))
-                if len(sqlparse.split(explain_count_sql)) > 2:
-                    raise toolkit.ValidationError({
-                        'query': ['Query is not a single statement.']
-                    })
-                # count_estimate() is defined by 'datastore set-permissions'
-                # - see datastore.rst
-                count_result = context['connection'].execute(explain_count_sql,
-                                                             [where_values])
+            # there are no filters, so we can use the table row count from
+            # pg stats
+            # (We also tried using the EXPLAIN to estimate filtered queries but
+            #  it didn't estimate well in tests)
+            analyze_count_sql = sqlalchemy.text('''
+            SELECT reltuples::BIGINT AS approximate_row_count
+            FROM pg_class
+            WHERE relname=:resource;
+            ''')
+            count_result = context['connection'].execute(analyze_count_sql,
+                                                         resource=resource_id)
             estimated_total = count_result.fetchall()[0][0]
 
-        if total_estimation_threshold != 0 and \
-                estimated_total >= total_estimation_threshold:
+        if estimated_total is not None \
+                and estimated_total >= total_estimation_threshold:
             data_dict['total'] = estimated_total
             data_dict['total_was_estimated'] = True
         else:
-            # this is slow for large results, hence the 'estimate' alternative
+            # this is slow for large results
             count_sql_string = u'''SELECT count(*) FROM (
                 SELECT {distinct} {select}
                 FROM "{resource}" {ts_query} {where}) as t;'''.format(
@@ -1370,13 +1355,6 @@ def _execute_single_statement_copy_to(context, sql_string, where_values, buf):
     cursor = context['connection'].connection.cursor()
     cursor.copy_expert(cursor.mogrify(sql_string, where_values), buf)
     cursor.close()
-
-
-def _execute(context, sql_string):
-    cursor = context['connection'].connection.cursor()
-    cursor.copy_expert(cursor.mogrify(sql_string, where_values), buf)
-    cursor.close()
-
 
 
 def format_results(context, results, data_dict):

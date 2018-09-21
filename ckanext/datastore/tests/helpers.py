@@ -28,7 +28,6 @@ def clear_db(Session):
         FROM pg_proc
         INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid)
         WHERE ns.nspname = 'public' AND proname != 'populate_full_text_trigger'
-              AND proname != 'count_estimate'
         '''
     drop_functions = u''.join(r[0] for r in c.execute(drop_functions_sql))
     if drop_functions:

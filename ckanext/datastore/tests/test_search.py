@@ -175,12 +175,33 @@ class TestDatastoreSearchNewTest(DatastoreFunctionalTestBase):
             'filters': {u'the year': 1901},
             'total_estimation_threshold': 5,
         }
-        # if this fails with: "ValidationError: ... function
-        #                      count_estimate(unknown) does not exist ..."
-        # then you need to rerun set-permissions for the test db- see test.rst
         result = helpers.call_action('datastore_search', **search_data)
-        assert 8 <= result['total'] <= 12, result['total']
-        assert_equals(result.get('total_was_estimated'), True)
+        assert_equals(result['total'], 10)
+        # estimation is not compatible with filters
+        assert_equals(result.get('total_was_estimated'), False)
+
+    def test_estimate_total_with_distinct(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [{'the year': 1900 + i} for i in range(3)] * 10,
+        }
+        result = helpers.call_action('datastore_create', **data)
+        analyze_sql = '''
+                    ANALYZE "{resource}";
+            '''.format(resource=resource['id'])
+        db.get_write_engine().execute(analyze_sql)
+        search_data = {
+            'resource_id': resource['id'],
+            'fields': ['the year'],
+            'distinct': True,
+            'total_estimation_threshold': 1,
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        assert_equals(result['total'], 3)
+        # estimation is not compatible with distinct
+        assert_equals(result.get('total_was_estimated'), False)
 
     def test_estimate_total_where_analyze_is_not_already_done(self):
         # ANALYSE is done by latest datapusher/xloader, but need to cope in
