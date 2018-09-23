@@ -167,6 +167,7 @@ def _result_fields(fields_types, field_info, fields, q):
     passed and query passed.
 
     :param fields_types: OrderedDict returned from _get_fields_types(..)
+        with rank column types added by plugins' datastore_search
     :param field_info: dict returned from _get_field_info(..)
     :param fields: list of field names passed to datastore_search
         or None for all
@@ -180,7 +181,7 @@ def _result_fields(fields_types, field_info, fields, q):
     for field_id in fields:
         f = {u'id': field_id, u'type': fields_types[field_id]}
         if field_id in field_info:
-            f['info'] = field_info[f['id']]
+            f[u'info'] = field_info[f['id']]
         result_fields.append(f)
     return result_fields
 
@@ -431,42 +432,50 @@ def _where_clauses(data_dict, fields_types):
                     clause_str = u'_full_text @@ {0}'.format(query_field)
                     clauses.append((clause_str,))
 
-                clause_str = (u'to_tsvector({0}, cast("{1}" as text)) '
-                              u'@@ {2}').format(
-                                  literal_string(lang),
-                                  field, query_field)
+                clause_str = (
+                    u'to_tsvector({0}, cast({1} as text)) @@ {2}').format(
+                        literal_string(lang),
+                        identifier(field),
+                        query_field)
                 clauses.append((clause_str,))
 
     return clauses
 
 
 def _textsearch_query(lang, q, plain):
+    u'''
+    :param lang: language for to_tsvector
+    :param q: string to search _full_text or dict to search columns
+    :param plain: True to use plainto_tsquery, False for to_tsquery
+
+    return (query, rank_columns) based on passed text/dict query
+    rank_columns is a {alias: statement} dict where alias is "rank" for
+    _full_text queries, and "rank <column-name>" for column search
+    '''
     if not q:
-        return '', ''
+        return '', {}
 
     statements = []
-    rank_columns = []
     plain = data_dict.get('plain', True)
+    rank_columns = {}
     if isinstance(q, string_types):
         query, rank = _build_query_and_rank_statements(
             lang, q, plain)
         statements.append(query)
-        rank_columns.append(rank)
+        rank_columns[u'rank'] = rank
     elif isinstance(q, dict):
         for field, value in q.iteritems():
             query, rank = _build_query_and_rank_statements(
                 lang, value, plain, field)
             statements.append(query)
-            rank_columns.append(rank)
+            rank_columns[u'rank ' + field] = rank
 
     statements_str = ', ' + ', '.join(statements)
-    rank_columns_str = ', '.join(rank_columns)
-    return statements_str, rank_columns_str
+    return statements_str, rank_columns
 
 
 def _build_query_and_rank_statements(lang, query, plain, field=None):
     query_alias = _ts_query_alias(field)
-    rank_alias = _ts_rank_alias(field)
     lang_literal = literal_string(lang)
     query_literal = literal_string(query)
     if plain:
@@ -477,14 +486,12 @@ def _build_query_and_rank_statements(lang, query, plain, field=None):
         lang_literal=lang_literal,
         literal=query_literal, alias=query_alias)
     if field is None:
-        rank_field = '_full_text'
+        rank_field = u'_full_text'
     else:
-        rank_field = u'to_tsvector({lang_literal}, cast("{field}" as text))'
-        rank_field = rank_field.format(lang_literal=lang_literal, field=field)
-    rank_statement = u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
-    rank_statement = rank_statement.format(rank_field=rank_field,
-                                           query_alias=query_alias,
-                                           alias=rank_alias)
+        rank_field = u'to_tsvector({0}, cast({1} as text))'.format(
+            lang_literal, identifier(field))
+    rank_statement = u'ts_rank({0}, {1}, 32)'.format(
+        rank_field, query_alias)
     return statement, rank_statement
 
 
@@ -495,25 +502,18 @@ def _fts_lang(lang=None):
     return lang or default_fts_lang
 
 
-def _ts_rank_alias(field=None):
-    rank_alias = u'rank'
-    if field:
-        rank_alias += u' ' + field
-    return u'"{0}"'.format(rank_alias)
+def _sort(sort, fields_types, rank_columns):
+    u'''
+    :param sort: string or list sort parameter passed to datastore_search,
+        use None if not given
+    :param fields_types: OrderedDict returned from _get_fields_types(..)
+    :param rank_columns: rank_columns returned from _ts_query(..)
 
-
-def _sort(data_dict, fields_types):
-    sort = data_dict.get('sort')
+    returns sort expression as a string. When sort is None use rank_columns
+    to order by best text search match
+    '''
     if not sort:
-        q = data_dict.get('q')
-        if q:
-            if isinstance(q, basestring):
-                return [_ts_rank_alias()]
-            elif isinstance(q, dict):
-                return [_ts_rank_alias(field) for field in q
-                        if field not in fields_types]
-        else:
-            return []
+        return rank_columns.values()
 
     clauses = datastore_helpers.get_list(sort, False)
 
@@ -531,7 +531,7 @@ def _ts_query_alias(field=None):
     query_alias = u'query'
     if field:
         query_alias += u' ' + field
-    return u'"{0}"'.format(query_alias)
+    return identifier(query_alias)
 
 
 def _get_aliases(context, data_dict):
@@ -1732,19 +1732,26 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         fields = data_dict.get('fields')
 
+        ts_query, rank_columns = _textsearch_query(
+            _fts_lang(data_dict.get('lang')),
+            data_dict.get('q'),
+            data_dict.get('plain', True))
+        # mutate parameter to add rank columns for _result_fields
+        for rank_alias in rank_columns:
+            fields_types[rank_alias] = u'float'
+
         if fields:
             field_ids = datastore_helpers.get_list(fields)
         else:
             field_ids = fields_types.keys()
 
-        ts_query, rank_column = _textsearch_query(
-            _fts_lang(data_dict.get('lang')),
-            data_dict.get('q'),
-            data_dict.get('plain', True))
         limit = data_dict.get('limit', 100)
         offset = data_dict.get('offset', 0)
 
-        sort = _sort(data_dict, fields_types)
+        sort = _sort(
+            data_dict.get('sort'),
+            fields_types,
+            rank_columns)
         where = _where_clauses(data_dict, fields_types)
 
         select_cols = []
@@ -1761,12 +1768,15 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                     fmt = u"to_json({0})".format(fmt)
             elif typ.startswith(u'_') or typ.endswith(u'[]'):
                 fmt = u'array_to_json({0})'
+
+            if field_id in rank_columns:
+                select_cols.append((fmt + ' as {1}').format(
+                    rank_columns[field_id], identifier(field_id)))
+                continue
+
             if records_format == u'objects':
                 fmt += u' as {0}'
-            select_cols.append(fmt.format(
-                identifier(field_id)))
-        if rank_column:
-            select_cols.append(rank_column)
+            select_cols.append(fmt.format(identifier(field_id)))
 
         query_dict['distinct'] = data_dict.get('distinct', False)
         query_dict['select'] += select_cols
