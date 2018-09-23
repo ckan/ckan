@@ -40,7 +40,7 @@ class TestDatastoreSearch(DatastoreFunctionalTestBase):
         result = helpers.call_action('datastore_create', **data)
         search_data = {
             'resource_id': resource['id'],
-            'fields': 'from',
+            'fields': 'from, rank from',
             'q': {
                 'from': 'Brazil'
             },
@@ -1215,5 +1215,20 @@ class TestDatastoreSearchRecordsFormat(DatastoreFunctionalTestBase):
         assert_equals(
             r['records'],
             u'2020-01-02T00:00:00,9,aaab\n'
+            u'2020-01-01T00:00:00,9,aaac\n'
+            )
+        r = helpers.call_action(
+            'datastore_search',
+            resource_id=r['resource_id'],
+            records_format=u'csv',
+            fields=u'dt, num, txt',
+            q=u'aaac',
+            )
+        assert_equals(r['fields'], [
+            {u'id': u'dt', u'type': u'timestamp'},
+            {u'id': u'num', u'type': u'numeric'},
+            {u'id': u'txt', u'type': u'text'}])
+        assert_equals(
+            r['records'],
             u'2020-01-01T00:00:00,9,aaac\n'
             )
