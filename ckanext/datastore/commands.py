@@ -87,5 +87,5 @@ def dump(ctx, resource_id, output_file, config, format, offset, limit, bom):
         offset=offset,
         limit=limit,
         options={u'bom': bom},
-        sort='_id',
+        sort=u'_id',
         search_params={})
