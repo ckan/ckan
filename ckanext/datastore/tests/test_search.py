@@ -1221,14 +1221,28 @@ class TestDatastoreSearchRecordsFormat(DatastoreFunctionalTestBase):
             'datastore_search',
             resource_id=r['resource_id'],
             records_format=u'csv',
-            fields=u'dt, num, txt',
+            fields=u'dt',
             q=u'aaac',
             )
         assert_equals(r['fields'], [
             {u'id': u'dt', u'type': u'timestamp'},
-            {u'id': u'num', u'type': u'numeric'},
-            {u'id': u'txt', u'type': u'text'}])
+            ])
         assert_equals(
             r['records'],
-            u'2020-01-01T00:00:00,9,aaac\n'
+            u'2020-01-01T00:00:00\n'
+            )
+        r = helpers.call_action(
+            'datastore_search',
+            resource_id=r['resource_id'],
+            records_format=u'csv',
+            fields=u'txt, rank txt',
+            q={u'txt': u'aaac'},
+            )
+        assert_equals(r['fields'], [
+            {u'id': u'txt', u'type': u'text'},
+            {u'id': u'rank txt', u'type': u'float'},
+            ])
+        assert_equals(
+            r['records'][:7],
+            u'aaac,0.'
             )
