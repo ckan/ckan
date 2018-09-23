@@ -66,8 +66,8 @@ class DatastoreController(BaseController):
     def dump(self, resource_id):
         data, errors = dict_fns.validate(dict(request.GET), dump_schema())
         if errors:
-            abort(400, u'\n'.join(u'{0}: {1}'.format(k, ' '.join(e))
-                for k, e in errors.items()))
+            abort(400, u'\n'.join(
+                u'{0}: {1}'.format(k, ' '.join(e)) for k, e in errors.items()))
 
         try:
             dump_to(
@@ -142,7 +142,8 @@ class DatastoreController(BaseController):
             })
 
 
-def dump_to(resource_id, output, fmt, offset, limit, options, sort, search_params):
+def dump_to(
+        resource_id, output, fmt, offset, limit, options, sort, search_params):
     if fmt == 'csv':
         writer_factory = csv_writer
         records_format = 'csv'
