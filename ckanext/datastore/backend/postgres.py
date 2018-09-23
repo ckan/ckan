@@ -171,7 +171,7 @@ def _get_fields_types(connection, resource_id):
     return field_types
 
 
-def _result_fields(fields_types, field_info, fields, q):
+def _result_fields(fields_types, field_info, fields):
     u'''
     return a list of field information based on the fields present,
     passed and query passed.
@@ -181,7 +181,6 @@ def _result_fields(fields_types, field_info, fields, q):
     :param field_info: dict returned from _get_field_info(..)
     :param fields: list of field names passed to datastore_search
         or None for all
-    :param q: dict or string q parameter passed to datastore_search
     '''
     result_fields = []
 
@@ -1306,8 +1305,7 @@ def search_data(context, data_dict):
     data_dict['fields'] = _result_fields(
         fields_types,
         _get_field_info(context['connection'], data_dict['resource_id']),
-        datastore_helpers.get_list(data_dict.get('fields')),
-        data_dict.get('q'))
+        datastore_helpers.get_list(data_dict.get('fields')))
 
     _unrename_json_field(data_dict)
 
