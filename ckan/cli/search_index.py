@@ -94,15 +94,12 @@ def rebuild_fast(ctx):
         package_ids.append(row[0])
 
     def start(ids):
-        ## load actual enviroment for each subprocess, so each have thier own
-        ## sa session
         from ckan.lib.search import rebuild, commit
         rebuild(package_ids=ids)
         commit()
 
     def chunks(l, n):
-        u""" Yield n successive chunks from l.
-        u"""
+        u""" Yield n successive chunks from l."""
         newn = int(len(l) / n)
         for i in xrange(0, n-1):
             yield l[i*newn:i*newn+newn]

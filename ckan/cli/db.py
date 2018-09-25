@@ -40,7 +40,7 @@ def cleandb():
         model.repo.clean_db()
     except Exception as e:
         click.echo(e, err=True)
-    click.secho(u'Cleaning DB: SUCCESS', color="green", bold=True)
+    click.secho(u'Cleaning DB: SUCCESS', color=u"green", bold=True)
 
 
 @db.command(u'upgrade', short_help=u'Upgrade the database')
@@ -53,7 +53,7 @@ def updatedb(version=None):
         model.repo.upgrade_db(version)
     except Exception as e:
         click.echo(e, err=True)
-    click.secho(u'Upgrading DB: SUCCESS', fg='green', bold=True)
+    click.secho(u'Upgrading DB: SUCCESS', fg=u'green', bold=True)
 
 
 @db.command(u'version', short_help=u'Returns current version of data schema')
@@ -65,6 +65,6 @@ def version():
         ver = Session.execute(u'select version from '
                               u'migrate_version;').fetchall()
         click.secho(u"Latest data schema version: {0}".format(ver[0][0]),
-                    fg="green", bold=True)
+                    fg=u"green", bold=True)
     except Exception as e:
         click.echo(e, err=True)
