@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import multiprocessing as mp
 import os
 
 import click
@@ -84,6 +85,7 @@ def clear(dataset_name):
 @click.pass_context
 def rebuild_fast(ctx):
     conf = ctx.obj.config
+    flask_app = ctx.obj.app.apps['flask_app']._wsgi_app
     db_url = conf['sqlalchemy.url']
     engine = sa.create_engine(db_url)
     package_ids = []
@@ -94,7 +96,6 @@ def rebuild_fast(ctx):
     def start(ids):
         ## load actual enviroment for each subprocess, so each have thier own
         ## sa session
-        self._load_config()
         from ckan.lib.search import rebuild, commit
         rebuild(package_ids=ids)
         commit()
@@ -108,11 +109,15 @@ def rebuild_fast(ctx):
         yield l[n*newn-newn:]
 
     processes = []
-    for chunk in chunks(package_ids, mp.cpu_count()):
-        process = mp.Process(target=start, args=(chunk,))
-        processes.append(process)
-        process.daemon = True
-        process.start()
+    with flask_app.test_request_context():
+        try:
+            for chunk in chunks(package_ids, mp.cpu_count()):
+                process = mp.Process(target=start, args=(chunk,))
+                processes.append(process)
+                process.daemon = True
+                process.start()
 
-    for process in processes:
-        process.join()
+            for process in processes:
+                process.join()
+        except Exception as e:
+            click.echo(e.message)

@@ -556,9 +556,6 @@ Default is false.''')
             package_ids.append(row[0])
 
         def start(ids):
-            ## load actual enviroment for each subprocess, so each have thier own
-            ## sa session
-            self._load_config()
             from ckan.lib.search import rebuild, commit
             rebuild(package_ids=ids)
             commit()
