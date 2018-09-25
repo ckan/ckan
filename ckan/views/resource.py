@@ -611,11 +611,10 @@ class EditResourceViewView(MethodView):
 
     def post(self, package_type, id, resource_id, view_id=None):
         context, extra_vars = self._prepare(id, resource_id)
-
-        to_preview = request.POST.pop(u'preview', False)
+        to_preview = request.form.get(u'preview', False)
         if to_preview:
             context[u'preview'] = True
-        to_delete = request.POST.pop(u'delete', None)
+        to_delete = request.form.get(u'delete', None)
         data = clean_dict(
             dict_fns.unflatten(
                 tuplize_dict(
@@ -624,7 +623,10 @@ class EditResourceViewView(MethodView):
             )
         )
         data.pop(u'save', None)
+        data.pop(u'preview', None)
+        data.pop(u'delete', None)
         data[u'resource_id'] = resource_id
+        data[u'view_type'] = request.args.get(u'view_type')
 
         try:
             if to_delete:
@@ -662,22 +664,24 @@ class EditResourceViewView(MethodView):
             extra_vars.update(post_extra)
 
         package_type = _get_package_type(id)
+        data = extra_vars[u'data']
         view_type = None
         # view_id exists only when updating
         if view_id:
-            try:
-                old_data = get_action(u'resource_view_show')(
-                    context, {
-                        u'id': view_id
-                    }
-                )
-                data = extra_vars[u'data'] or old_data
-                view_type = old_data.get(u'view_type')
-                # might as well preview when loading good existing view
-                if not extra_vars[u'errors']:
-                    to_preview = True
-            except (NotFound, NotAuthorized):
-                return base.abort(404, _(u'View not found'))
+            if not data:
+                try:
+                    data = get_action(u'resource_view_show')(
+                        context, {
+                            u'id': view_id
+                        }
+                    )
+                except (NotFound, NotAuthorized):
+                    return base.abort(404, _(u'View not found'))
+
+            view_type = data.get(u'view_type')
+            # might as well preview when loading good existing view
+            if not extra_vars[u'errors']:
+                to_preview = True
 
         view_type = view_type or request.args.get(u'view_type')
         data[u'view_type'] = view_type
