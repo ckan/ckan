@@ -611,10 +611,6 @@ class EditResourceViewView(MethodView):
 
     def post(self, package_type, id, resource_id, view_id=None):
         context, extra_vars = self._prepare(id, resource_id)
-        to_preview = request.form.get(u'preview', False)
-        if to_preview:
-            context[u'preview'] = True
-        to_delete = request.form.get(u'delete', None)
         data = clean_dict(
             dict_fns.unflatten(
                 tuplize_dict(
@@ -623,8 +619,11 @@ class EditResourceViewView(MethodView):
             )
         )
         data.pop(u'save', None)
-        data.pop(u'preview', None)
-        data.pop(u'delete', None)
+
+        to_preview = data.pop(u'preview', False)
+        if to_preview:
+            context[u'preview'] = True
+        to_delete = data.pop(u'delete', None)
         data[u'resource_id'] = resource_id
         data[u'view_type'] = request.args.get(u'view_type')
 
