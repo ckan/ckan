@@ -7,6 +7,11 @@ import click
 from ckan.cli import db, load_config, click_config_option, search_index, server
 from ckan.config.middleware import make_app
 
+import logging
+
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+
 
 class CkanCommand(object):
 
@@ -20,6 +25,7 @@ class CkanCommand(object):
 @click_config_option
 @click.pass_context
 def ckan(ctx, config, *args, **kwargs):
+    log.info(u'Loading configuration')
     ctx.obj = CkanCommand(config)
 
 
