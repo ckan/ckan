@@ -65,7 +65,7 @@ def updatedb(version=None):
 @click.help_option(u'-h', u'--help')
 def version():
     u'''Return current version'''
-    log.info("Returning current DB version")
+    log.info("Returning current DB")
     try:
         from ckan.model import Session
         ver = Session.execute(u'select version from '

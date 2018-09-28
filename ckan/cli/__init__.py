@@ -13,7 +13,7 @@ from ckan.config.environment import load_environment
 from ckan.config.middleware import make_app
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('werkzeug')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 
