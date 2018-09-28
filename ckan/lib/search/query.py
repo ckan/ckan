@@ -312,7 +312,9 @@ class PackageSearchQuery(SearchQuery):
             query['q'] = "*:*"
 
         # number of results
-        rows_to_return = query['rows']  # defaulted & made an int by schema
+        rows_to_return = int(query.get('rows', 10))
+        # query['rows'] should be a defaulted int, due to schema, but make
+        # certain, for legacy tests
         if rows_to_return > 0:
             # #1683 Work around problem of last result being out of order
             #       in SOLR 1.4

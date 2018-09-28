@@ -2463,8 +2463,8 @@ def user_activity_list(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: ``31`` unless set in site's configuration
-         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-         site's configuration ``ckan.activity_list_limit_max``)
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -2505,8 +2505,8 @@ def package_activity_list(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: ``31`` unless set in site's configuration
-         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-         site's configuration ``ckan.activity_list_limit_max``)
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -2547,8 +2547,8 @@ def group_activity_list(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: ``31`` unless set in site's configuration
-         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-         site's configuration ``ckan.activity_list_limit_max``)
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -2586,8 +2586,8 @@ def organization_activity_list(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: ``31`` unless set in site's configuration
-         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-         site's configuration ``ckan.activity_list_limit_max``)
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -2623,8 +2623,8 @@ def recently_changed_packages_activity_list(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: ``31`` unless set in site's configuration
-         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-         site's configuration ``ckan.activity_list_limit_max``)
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -2674,8 +2674,8 @@ def user_activity_list_html(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: ``31`` unless set in site's configuration
-         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-         site's configuration ``ckan.activity_list_limit_max``)
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: string
@@ -2706,8 +2706,8 @@ def package_activity_list_html(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: ``31`` unless set in site's configuration
-         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-         site's configuration ``ckan.activity_list_limit_max``)
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: string
@@ -2738,8 +2738,8 @@ def group_activity_list_html(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: ``31`` unless set in site's configuration
-         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-         site's configuration ``ckan.activity_list_limit_max``)
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: string
@@ -2770,8 +2770,8 @@ def organization_activity_list_html(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: ``31`` unless set in site's configuration
-         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-         site's configuration ``ckan.activity_list_limit_max``)
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: string
@@ -2802,8 +2802,8 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: ``31`` unless set in site's configuration
-         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-         site's configuration ``ckan.activity_list_limit_max``)
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: string
