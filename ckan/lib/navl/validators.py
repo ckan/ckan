@@ -85,6 +85,16 @@ def default(default_value):
 
     return callable
 
+def configured_default(config_name, default_value_if_not_configured):
+    '''When key is missing or value is an empty string or None, replace it with
+    a default value from config, or if that isn't set from the
+    default_value_if_not_configured.'''
+
+    default_value = config.get(config_name)
+    if default_value is None:
+        default_value = default_value_if_not_configured
+    return default(default_value)
+
 def ignore_missing(key, data, errors, context):
     '''If the key is missing from the data, ignore the rest of the key's
     schema.

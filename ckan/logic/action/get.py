@@ -2482,10 +2482,7 @@ def user_activity_list(context, data_dict):
         raise logic.NotFound
 
     offset = data_dict.get('offset', 0)
-    limit = min(
-        int(data_dict.get('limit', config.get('ckan.activity_list_limit', 31))),
-        int(config.get('ckan.activity_list_limit_max', 100))
-    )
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     _activity_objects = model.activity.user_activity_list(user.id, limit=limit,
             offset=offset)
@@ -2527,10 +2524,7 @@ def package_activity_list(context, data_dict):
         raise logic.NotFound
 
     offset = int(data_dict.get('offset', 0))
-    limit = min(
-        int(data_dict.get('limit', config.get('ckan.activity_list_limit', 31))),
-        int(config.get('ckan.activity_list_limit_max', 100))
-    )
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     _activity_objects = model.activity.package_activity_list(package.id,
             limit=limit, offset=offset)
@@ -2567,10 +2561,7 @@ def group_activity_list(context, data_dict):
     model = context['model']
     group_id = data_dict.get('id')
     offset = data_dict.get('offset', 0)
-    limit = min(
-        int(data_dict.get('limit', config.get('ckan.activity_list_limit', 31))),
-        int(config.get('ckan.activity_list_limit_max', 100))
-    )
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     # Convert group_id (could be id or name) into id.
     group_show = logic.get_action('group_show')
@@ -2609,10 +2600,7 @@ def organization_activity_list(context, data_dict):
     model = context['model']
     org_id = data_dict.get('id')
     offset = data_dict.get('offset', 0)
-    limit = min(
-        int(data_dict.get('limit', config.get('ckan.activity_list_limit', 31))),
-        int(config.get('ckan.activity_list_limit_max', 100))
-    )
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     # Convert org_id (could be id or name) into id.
     org_show = logic.get_action('organization_show')
@@ -2626,7 +2614,7 @@ def organization_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
-@logic.validate(logic.schema.default_pagination_schema)
+@logic.validate(logic.schema.default_dashboard_activity_list_schema)
 def recently_changed_packages_activity_list(context, data_dict):
     '''Return the activity stream of all recently added or changed packages.
 
@@ -2646,10 +2634,7 @@ def recently_changed_packages_activity_list(context, data_dict):
     # authorized to read.
     model = context['model']
     offset = data_dict.get('offset', 0)
-    limit = min(
-        int(data_dict.get('limit', config.get('ckan.activity_list_limit', 31))),
-        int(config.get('ckan.activity_list_limit_max', 100))
-    )
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     _activity_objects = model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
@@ -3309,7 +3294,7 @@ def _group_or_org_followee_list(context, data_dict, is_org=False):
     return [model_dictize.group_dictize(group, context) for group in groups]
 
 
-@logic.validate(logic.schema.default_pagination_schema)
+@logic.validate(logic.schema.default_dashboard_activity_list_schema)
 def dashboard_activity_list(context, data_dict):
     '''Return the authorized (via login or API key) user's dashboard activity
        stream.
@@ -3337,8 +3322,7 @@ def dashboard_activity_list(context, data_dict):
     model = context['model']
     user_id = model.User.get(context['user']).id
     offset = data_dict.get('offset', 0)
-    limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
@@ -3365,7 +3349,7 @@ def dashboard_activity_list(context, data_dict):
     return activity_dicts
 
 
-@logic.validate(ckan.logic.schema.default_pagination_schema)
+@logic.validate(ckan.logic.schema.default_dashboard_activity_list_schema)
 def dashboard_activity_list_html(context, data_dict):
     '''Return the authorized (via login or API key) user's dashboard activity
        stream as HTML.

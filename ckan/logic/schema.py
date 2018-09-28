@@ -601,16 +601,27 @@ def default_pagination_schema(ignore_missing, natural_number_validator):
 
 
 @validator_args
-def default_dashboard_activity_list_schema(unicode_safe):
+def default_dashboard_activity_list_schema(
+        configured_default, natural_number_validator,
+        limit_to_configured_maximum):
     schema = default_pagination_schema()
-    schema['id'] = [unicode_safe]
+    schema['limit'] = [
+        configured_default('ckan.activity_list_limit', 31),
+        natural_number_validator,
+        limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
     return schema
 
 
 @validator_args
-def default_activity_list_schema(not_missing, unicode_safe):
+def default_activity_list_schema(
+        not_missing, unicode_safe, configured_default,
+        natural_number_validator, limit_to_configured_maximum):
     schema = default_pagination_schema()
     schema['id'] = [not_missing, unicode_safe]
+    schema['limit'] = [
+        configured_default('ckan.activity_list_limit', 31),
+        natural_number_validator,
+        limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
     return schema
 
 

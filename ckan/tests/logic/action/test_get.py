@@ -2253,10 +2253,11 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
     def _create_bulk_package_activities(self, count):
         dataset = factories.Dataset()
         from ckan import model
-        objs = [model.Activity(
-            user_id=None, object_id=dataset['id'], revision_id=None,
-            activity_type=None, data=None)
-                for i in range(count)]
+        objs = [
+            model.Activity(
+                user_id=None, object_id=dataset['id'], revision_id=None,
+                activity_type=None, data=None)
+            for i in range(count)]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
         return dataset['id']
@@ -2285,10 +2286,11 @@ class TestUserActivityList(helpers.FunctionalTestBase):
     def _create_bulk_user_activities(self, count):
         user = factories.User()
         from ckan import model
-        objs = [model.Activity(
-            user_id=user['id'], object_id=None, revision_id=None,
-            activity_type=None, data=None)
-                for i in range(count)]
+        objs = [
+            model.Activity(
+                user_id=user['id'], object_id=None, revision_id=None,
+                activity_type=None, data=None)
+            for i in range(count)]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
         return user['id']
@@ -2317,10 +2319,11 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
     def _create_bulk_group_activities(self, count):
         group = factories.Group()
         from ckan import model
-        objs = [model.Activity(
-            user_id=None, object_id=group['id'], revision_id=None,
-            activity_type=None, data=None)
-                for i in range(count)]
+        objs = [
+            model.Activity(
+                user_id=None, object_id=group['id'], revision_id=None,
+                activity_type=None, data=None)
+            for i in range(count)]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
         return group['id']
@@ -2349,10 +2352,11 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
     def _create_bulk_org_activities(self, count):
         org = factories.Organization()
         from ckan import model
-        objs = [model.Activity(
-            user_id=None, object_id=org['id'], revision_id=None,
-            activity_type=None, data=None)
-                for i in range(count)]
+        objs = [
+            model.Activity(
+                user_id=None, object_id=org['id'], revision_id=None,
+                activity_type=None, data=None)
+            for i in range(count)]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
         return org['id']
@@ -2380,10 +2384,11 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
 class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
     def _create_bulk_package_activities(self, count):
         from ckan import model
-        objs = [model.Activity(
-            user_id=None, object_id=None, revision_id=None,
-            activity_type='new_package', data=None)
-                for i in range(count)]
+        objs = [
+            model.Activity(
+                user_id=None, object_id=None, revision_id=None,
+                activity_type='new_package', data=None)
+            for i in range(count)]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
 
