@@ -745,7 +745,10 @@ Example::
 
 Default value:  ``1000``
 
-Maximum allowed value for ``package_search``'s ``rows`` parameter.
+Maximum allowed value for rows returned. Specifically this limits:
+
+* ``package_search``'s ``rows`` parameter
+* ``group_show`` and ``organization_show``'s number of datasets returned when specifying ``include_datasets=true``
 
 Redis Settings
 ---------------

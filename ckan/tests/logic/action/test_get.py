@@ -393,6 +393,17 @@ class TestGroupShow(helpers.FunctionalTestBase):
                                                  in group['packages']], (
                 "group_show() should never show private datasets")
 
+    @helpers.change_config('ckan.search.rows_max', '5')
+    def test_package_limit_configured(self):
+        group = factories.Group()
+        for i in range(7):
+            factories.Dataset(groups=[{'id': group['id']}])
+        id = group['id']
+
+        results = helpers.call_action('group_show', id=id,
+                                      include_datasets=1)
+        eq(len(results['packages']), 5)  # i.e. ckan.search.rows_max
+
 
 class TestOrganizationList(helpers.FunctionalTestBase):
 
@@ -521,6 +532,17 @@ class TestOrganizationShow(helpers.FunctionalTestBase):
         assert len(org_dict['packages']) == 1
         assert org_dict['packages'][0]['name'] == 'dataset_1'
         assert org_dict['package_count'] == 1
+
+    @helpers.change_config('ckan.search.rows_max', '5')
+    def test_package_limit_configured(self):
+        org = factories.Organization()
+        for i in range(7):
+            factories.Dataset(owner_org=org['id'])
+        id = org['id']
+
+        results = helpers.call_action('organization_show', id=id,
+                                      include_datasets=1)
+        eq(len(results['packages']), 5)  # i.e. ckan.search.rows_max
 
 
 class TestUserList(helpers.FunctionalTestBase):

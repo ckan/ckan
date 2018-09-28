@@ -240,6 +240,19 @@ class TestGroupDictize:
 
         assert_equal(len(group['packages']), 3)
 
+    @helpers.change_config('ckan.search.rows_max', '4')
+    def test_group_dictize_with_package_list_limited_by_config(self):
+        group_ = factories.Group()
+        for _ in range(5):
+            factories.Dataset(groups=[{'name': group_['name']}])
+        group_obj = model.Session.query(model.Group).filter_by().first()
+        context = {'model': model, 'session': model.Session}
+
+        group = model_dictize.group_dictize(group_obj, context)
+
+        assert_equal(len(group['packages']), 4)
+        # limited by ckan.search.rows_max
+
     def test_group_dictize_with_package_count(self):
         # group_list_dictize calls it like this by default
         group_ = factories.Group()

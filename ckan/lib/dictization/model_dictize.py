@@ -388,11 +388,12 @@ def group_dictize(group, context,
                     q['include_private'] = True
 
             if not just_the_count:
-                # Is there a packages limit in the context?
+                # package_search limits 'rows' anyway, so this is only if you
+                # want even fewer
                 try:
                     packages_limit = context['limits']['packages']
                 except KeyError:
-                    q['rows'] = 1000  # Only the first 1000 datasets are returned
+                    del q['rows']  # leave it to package_search to limit it
                 else:
                     q['rows'] = packages_limit
 

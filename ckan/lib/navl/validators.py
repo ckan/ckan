@@ -175,6 +175,11 @@ def unicode_safe(value):
             return u'\N{REPLACEMENT CHARACTER}'
 
 def limit_to_configured_maximum(config_option, default_limit):
+    '''
+    If the value is over a limit, it changes it to the limit. The limit is
+    defined by a configuration option, or if that is not set, a given int
+    default_limit.
+    '''
     def callable(key, data, errors, context):
 
         value = data.get(key)
