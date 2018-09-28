@@ -163,6 +163,24 @@ class TestGroupList(helpers.FunctionalTestBase):
         assert 'users' not in group_list[0]
         assert 'datasets' not in group_list[0]
 
+    def _create_bulk_groups(self, name, count):
+        from ckan import model
+        model.repo.new_revision()
+        groups = [model.Group(name='{}_{}'.format(name, i))
+                for i in range(count)]
+        model.Session.add_all(groups)
+        model.repo.commit_and_remove()
+
+    def test_no_default_limit(self):
+        self._create_bulk_groups('group_default', 30)
+        results = helpers.call_action('group_list')
+        eq(len(results), 30)  # i.e. not limited
+
+    def test_all_fields_limit(self):
+        self._create_bulk_groups('group_all_fields_default', 30)
+        results = helpers.call_action('group_list', all_fields=True)
+        eq(len(results), 25)  # i.e. default value
+
     def test_group_list_extras_returned(self):
 
         group = factories.Group(extras=[{'key': 'key1', 'value': 'val1'}])
@@ -461,6 +479,26 @@ class TestOrganizationList(helpers.FunctionalTestBase):
 
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org2]])), '{}'.format(org_list)
+
+    def _create_bulk_orgs(self, name, count):
+        from ckan import model
+        model.repo.new_revision()
+        orgs = [model.Group(name='{}_{}'.format(name, i), is_organization=True,
+                            type='organization')
+                for i in range(count)]
+        model.Session.add_all(orgs)
+        model.repo.commit_and_remove()
+
+    def test_no_default_limit(self):
+        self._create_bulk_orgs('org_default', 30)
+        results = helpers.call_action('organization_list')
+        eq(len(results), 30)  # i.e. not limited
+
+    def test_all_fields_limit(self):
+        self._create_bulk_orgs('org_all_fields_default', 30)
+        results = helpers.call_action('organization_list', all_fields=True)
+        eq(len(results), 25)  # i.e. default value
+
 
 
 class TestOrganizationShow(helpers.FunctionalTestBase):

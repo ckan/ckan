@@ -750,6 +750,22 @@ Maximum allowed value for rows returned. Specifically this limits:
 * ``package_search``'s ``rows`` parameter
 * ``group_show`` and ``organization_show``'s number of datasets returned when specifying ``include_datasets=true``
 
+.. _ckan.search.group_and_org_all_fields_max:
+
+ckan.search.group_and_org_all_fields_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.search.group_and_org_all_fields_max = 100
+
+Default value: ``25``
+
+Maximum number of groups/organizations returned when listing them in detail. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=true``
+* ``organization_list``'s ``limit`` when ``all_fields=true``
+
 Redis Settings
 ---------------
 
