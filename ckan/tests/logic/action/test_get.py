@@ -892,6 +892,25 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         # SOLR error is 'Missing sort order' or 'Missing_sort_order',
         # depending on the solr version.
 
+    def _create_bulk_datasets(self, name, count):
+        from ckan import model
+        model.repo.new_revision()
+        pkgs = [model.Package(name='{}_{}'.format(name, i))
+                for i in range(count)]
+        model.Session.add_all(pkgs)
+        model.repo.commit_and_remove()
+
+    def test_rows_returned_default(self):
+        self._create_bulk_datasets('rows_default', 11)
+        results = logic.get_action('package_search')({}, {})
+        eq(len(results['results']), 10)  # i.e. 'rows' default value
+
+    @helpers.change_config('ckan.search.rows_max', '12')
+    def test_rows_returned_limited(self):
+        self._create_bulk_datasets('rows_limited', 14)
+        results = logic.get_action('package_search')({}, {'rows': '15'})
+        eq(len(results['results']), 12)  # i.e. ckan.search.rows_max
+
     def test_facets(self):
         org = factories.Organization(name='test-org-facet', title='Test Org')
         factories.Dataset(owner_org=org['id'])

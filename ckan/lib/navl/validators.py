@@ -4,7 +4,7 @@ from six import text_type
 
 import ckan.lib.navl.dictization_functions as df
 
-from ckan.common import _, json
+from ckan.common import _, json, config
 
 missing = df.missing
 StopOnError = df.StopOnError
@@ -163,3 +163,13 @@ def unicode_safe(value):
             return text_type(value)
         except Exception:
             return u'\N{REPLACEMENT CHARACTER}'
+
+def limit_to_configured_maximum(config_option, default_limit):
+    def callable(key, data, errors, context):
+
+        value = data.get(key)
+        limit = int(config.get(config_option, default_limit))
+        if value > limit:
+            data[key] = limit
+
+    return callable
