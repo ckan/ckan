@@ -362,6 +362,11 @@ class ApiController(base.BaseController):
                     # the search
                     if 'callback' in params:
                         del params['callback']
+
+                    params['rows'] = min(
+                        int(params.get('rows', 10)),
+                        int(config.get('ckan.search.rows_max', 1000)))
+
                     results = query.run(params)
                 return self._finish_ok(results)
             except search.SearchError as e:
