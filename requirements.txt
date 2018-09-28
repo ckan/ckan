@@ -34,7 +34,7 @@ psycopg2==2.7.3.2
 pygments==2.2.0           # via weberror
 pylons==0.9.7
 pysolr==3.6.0
-python-dateutil==1.5
+python-dateutil==2.7.3
 python-magic==0.4.15
 pytz==2016.7
 pyutilib.component.core==4.6.4
