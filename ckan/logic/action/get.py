@@ -1694,8 +1694,8 @@ def package_search(context, data_dict):
         documentation, this is a comma-separated string of field names and
         sort-orderings.
     :type sort: string
-    :param rows: the number of matching rows to return. There is a hard limit
-        of 1000 datasets per query.
+    :param rows: the number of matching rows (datasets) to return. Default is
+        10. Upper limit is 1000, depending on site configuration.
     :type rows: int
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.

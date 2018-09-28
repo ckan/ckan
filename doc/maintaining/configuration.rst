@@ -734,6 +734,18 @@ Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
 
+.. _ckan.search.rows_max:
+
+ckan.search.rows_max
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.search.rows_max = 1000
+
+Default value:  ``1000``
+
+Maximum allowed value for ``package_search``'s ``rows`` parameter.
 
 Redis Settings
 ---------------
