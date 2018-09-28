@@ -111,7 +111,6 @@ def make_flask_stack(conf, **app_conf):
         app = DebuggedApplication(app, True)
         app = app.app
 
-
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
         def open_session(self, app, request):
@@ -270,8 +269,6 @@ def make_flask_stack(conf, **app_conf):
 
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
-    app.logger.propagate = True
-    # app.logger.propagate = True
 
     return app
 
