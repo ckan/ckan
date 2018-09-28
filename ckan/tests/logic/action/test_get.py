@@ -167,19 +167,31 @@ class TestGroupList(helpers.FunctionalTestBase):
         from ckan import model
         model.repo.new_revision()
         groups = [model.Group(name='{}_{}'.format(name, i))
-                for i in range(count)]
+                  for i in range(count)]
         model.Session.add_all(groups)
         model.repo.commit_and_remove()
 
-    def test_no_default_limit(self):
-        self._create_bulk_groups('group_default', 30)
+    def test_limit_default(self):
+        self._create_bulk_groups('group_default', 1010)
         results = helpers.call_action('group_list')
-        eq(len(results), 30)  # i.e. not limited
+        eq(len(results), 1000)  # i.e. default value
 
-    def test_all_fields_limit(self):
-        self._create_bulk_groups('group_all_fields_default', 30)
+    @helpers.change_config('ckan.group_and_organization_list_max', '5')
+    def test_limit_configured(self):
+        self._create_bulk_groups('group_default', 7)
+        results = helpers.call_action('group_list')
+        eq(len(results), 5)  # i.e. configured limit
+
+    def test_all_fields_limit_default(self):
+        self._create_bulk_groups('org_all_fields_default', 30)
         results = helpers.call_action('group_list', all_fields=True)
         eq(len(results), 25)  # i.e. default value
+
+    @helpers.change_config('ckan.group_and_organization_list_all_fields_max', '5')
+    def test_all_fields_limit_configured(self):
+        self._create_bulk_groups('org_all_fields_default', 30)
+        results = helpers.call_action('group_list', all_fields=True)
+        eq(len(results), 5)  # i.e. configured limit
 
     def test_group_list_extras_returned(self):
 
@@ -489,16 +501,27 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         model.Session.add_all(orgs)
         model.repo.commit_and_remove()
 
-    def test_no_default_limit(self):
-        self._create_bulk_orgs('org_default', 30)
+    def test_limit_default(self):
+        self._create_bulk_orgs('org_default', 1010)
         results = helpers.call_action('organization_list')
-        eq(len(results), 30)  # i.e. not limited
+        eq(len(results), 1000)  # i.e. default value
 
-    def test_all_fields_limit(self):
+    @helpers.change_config('ckan.group_and_organization_list_max', '5')
+    def test_limit_configured(self):
+        self._create_bulk_orgs('org_default', 7)
+        results = helpers.call_action('organization_list')
+        eq(len(results), 5)  # i.e. configured limit
+
+    def test_all_fields_limit_default(self):
         self._create_bulk_orgs('org_all_fields_default', 30)
         results = helpers.call_action('organization_list', all_fields=True)
         eq(len(results), 25)  # i.e. default value
 
+    @helpers.change_config('ckan.group_and_organization_list_all_fields_max', '5')
+    def test_all_fields_limit_configured(self):
+        self._create_bulk_orgs('org_all_fields_default', 30)
+        results = helpers.call_action('organization_list', all_fields=True)
+        eq(len(results), 5)  # i.e. configured limit
 
 
 class TestOrganizationShow(helpers.FunctionalTestBase):

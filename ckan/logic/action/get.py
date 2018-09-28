@@ -342,11 +342,14 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     all_fields = asbool(data_dict.get('all_fields', None))
 
-    # all_fields is really computationally expensive, so need a tight limit
     if all_fields:
-        max_limit = config.get('ckan.search.group_and_org_all_fields_max', 25)
-        if limit is None or limit > max_limit:
-            limit = max_limit
+        # all_fields is really computationally expensive, so need a tight limit
+        max_limit = config.get(
+            'ckan.group_and_organization_list_all_fields_max', 25)
+    else:
+        max_limit = config.get('ckan.group_and_organization_list_max', 1000)
+    if limit is None or limit > max_limit:
+        limit = max_limit
 
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
@@ -458,7 +461,7 @@ def group_list(context, data_dict):
         core fields are returned - get some more using the include_* options.
         Because ``all_fields`` is computationally expensive, using it will set
         the ``limit`` to a max of ``25`` or whatever the site has configured:
-        ``ckan.search.group_and_org_all_fields_max``.
+        ``ckan.group_and_organization_list_all_fields_max``.
         Returning a list of packages is too expensive, so the `packages`
         property for each group is deprecated, but there is a count of the
         packages in the `package_count` property.
@@ -511,7 +514,7 @@ def organization_list(context, data_dict):
         core fields are returned - get some more using the include_* options.
         Because ``all_fields`` is computationally expensive, using it will set
         the ``limit`` to a max of ``25`` or whatever the site has configured:
-        ``ckan.search.group_and_org_all_fields_max``.
+        ``ckan.group_and_organization_list_all_fields_max``.
         Returning a list of packages is too expensive, so the `packages`
         property for each group is deprecated, but there is a count of the
         packages in the `package_count` property.

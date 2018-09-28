@@ -750,14 +750,30 @@ Maximum allowed value for rows returned. Specifically this limits:
 * ``package_search``'s ``rows`` parameter
 * ``group_show`` and ``organization_show``'s number of datasets returned when specifying ``include_datasets=true``
 
-.. _ckan.search.group_and_org_all_fields_max:
+.. _ckan.group_and_organization_list_max:
 
-ckan.search.group_and_org_all_fields_max
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ckan.group_and_organization_list_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  ckan.search.group_and_org_all_fields_max = 100
+  ckan.group_and_organization_list_max = 1000
+
+Default value: ``1000``
+
+Maximum number of groups/organizations returned when listing them. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=false``
+* ``organization_list``'s ``limit`` when ``all_fields=false``
+
+.. _ckan.group_and_organization_list_all_fields_max:
+
+ckan.group_and_organization_list_all_fields_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_all_fields_max = 100
 
 Default value: ``25``
 
