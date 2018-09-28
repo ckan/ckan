@@ -734,6 +734,18 @@ Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
 
+.. _ckan.search.rows_max:
+
+ckan.search.rows_max
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.search.rows_max = 1000
+
+Default value:  ``1000``
+
+Maximum allowed value for ``package_search``'s ``rows`` parameter.
 
 Redis Settings
 ---------------
@@ -1549,10 +1561,22 @@ Example::
 
   ckan.activity_list_limit = 31
 
-Default value: ``infinite``
+Default value: ``31``
 
-This controls the number of activities to show in the Activity Stream. By default, it shows everything.
+This controls the number of activities to show in the Activity Stream.
 
+.. _ckan.activity_list_limit_max:
+
+ckan.activity_list_limit_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.activity_list_limit_max = 100
+
+Default value: ``100``
+
+Maximum allowed value for Activity Stream ``limit`` parameter.
 
 .. _ckan.email_notifications_since:
 
