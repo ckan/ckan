@@ -10,7 +10,14 @@ from ckan.config.middleware import make_app
 import logging
 
 log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+
+
+# class CliLoggingHandler(logging.Handler):
+
+#     def __init__(self):
+#         super(CliLoggingHandler, self).__init__()
+
+#     def emit(self, record):
 
 
 class CkanCommand(object):

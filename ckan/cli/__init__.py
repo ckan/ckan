@@ -14,6 +14,7 @@ from ckan.config.middleware import make_app
 
 
 log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 
 click_config_option = click.option(
@@ -28,7 +29,7 @@ def load_config(config=None):
 
     from paste.deploy import appconfig
     from paste.script.util.logging_config import fileConfig
-
+    log.info("Searching for configuration file")
     if config:
         filename = os.path.abspath(config)
         config_source = u'-c parameter'
@@ -53,5 +54,4 @@ def load_config(config=None):
         exit(msg)
 
     fileConfig(filename)
-    log.debug(u"Using " + filename)
     return appconfig(u'config:' + filename)

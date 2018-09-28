@@ -7,6 +7,10 @@ from flask import Flask, current_app
 from werkzeug.serving import run_simple
 
 from ckan.cli import click_config_option
+import logging
+
+
+log = logging.getLogger(__name__)
 
 
 @click.group(name=u'db', short_help=u'Database commands')
@@ -19,6 +23,7 @@ def db():
 @click.help_option(u'-h', u'--help')
 def initdb():
     u'''Initialising the database'''
+    log.info("Initialize the Database")
     try:
         import ckan.model as model
         model.repo.init_db()
@@ -60,6 +65,7 @@ def updatedb(version=None):
 @click.help_option(u'-h', u'--help')
 def version():
     u'''Return current version'''
+    log.info("Returning current DB version")
     try:
         from ckan.model import Session
         ver = Session.execute(u'select version from '
