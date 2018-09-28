@@ -2264,21 +2264,20 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
 
     def test_limit_default(self):
         id = self._create_bulk_package_activities(35)
-        results = logic.get_action('package_activity_list')({}, {'id': id})
+        results = helpers.call_action('package_activity_list', id=id)
         eq(len(results), 31)  # i.e. default value
 
     @helpers.change_config('ckan.activity_list_limit', '5')
     def test_limit_configured(self):
         id = self._create_bulk_package_activities(7)
-        results = logic.get_action('package_activity_list')({}, {'id': id})
+        results = helpers.call_action('package_activity_list', id=id)
         eq(len(results), 5)  # i.e. ckan.activity_list_limit
 
     @helpers.change_config('ckan.activity_list_limit', '5')
     @helpers.change_config('ckan.activity_list_limit_max', '7')
     def test_limit_hits_max(self):
         id = self._create_bulk_package_activities(9)
-        results = logic.get_action('package_activity_list')(
-            {}, {'id': id, 'limit': '9'})
+        results = helpers.call_action('package_activity_list', id=id, limit='9')
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
 
 
@@ -2297,21 +2296,20 @@ class TestUserActivityList(helpers.FunctionalTestBase):
 
     def test_limit_default(self):
         id = self._create_bulk_user_activities(35)
-        results = logic.get_action('user_activity_list')({}, {'id': id})
+        results = helpers.call_action('user_activity_list', id=id)
         eq(len(results), 31)  # i.e. default value
 
     @helpers.change_config('ckan.activity_list_limit', '5')
     def test_limit_configured(self):
         id = self._create_bulk_user_activities(7)
-        results = logic.get_action('user_activity_list')({}, {'id': id})
+        results = helpers.call_action('user_activity_list', id=id)
         eq(len(results), 5)  # i.e. ckan.activity_list_limit
 
     @helpers.change_config('ckan.activity_list_limit', '5')
     @helpers.change_config('ckan.activity_list_limit_max', '7')
     def test_limit_hits_max(self):
         id = self._create_bulk_user_activities(9)
-        results = logic.get_action('user_activity_list')(
-            {}, {'id': id, 'limit': '9'})
+        results = helpers.call_action('user_activity_list', id=id, limit='9')
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
 
 
@@ -2330,21 +2328,20 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
 
     def test_limit_default(self):
         id = self._create_bulk_group_activities(35)
-        results = logic.get_action('group_activity_list')({}, {'id': id})
+        results = helpers.call_action('group_activity_list', id=id)
         eq(len(results), 31)  # i.e. default value
 
     @helpers.change_config('ckan.activity_list_limit', '5')
     def test_limit_configured(self):
         id = self._create_bulk_group_activities(7)
-        results = logic.get_action('group_activity_list')({}, {'id': id})
+        results = helpers.call_action('group_activity_list', id=id)
         eq(len(results), 5)  # i.e. ckan.activity_list_limit
 
     @helpers.change_config('ckan.activity_list_limit', '5')
     @helpers.change_config('ckan.activity_list_limit_max', '7')
     def test_limit_hits_max(self):
         id = self._create_bulk_group_activities(9)
-        results = logic.get_action('group_activity_list')(
-            {}, {'id': id, 'limit': '9'})
+        results = helpers.call_action('group_activity_list', id=id, limit='9')
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
 
 
@@ -2363,21 +2360,20 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
 
     def test_limit_default(self):
         id = self._create_bulk_org_activities(35)
-        results = logic.get_action('organization_activity_list')({}, {'id': id})
+        results = helpers.call_action('organization_activity_list', id=id)
         eq(len(results), 31)  # i.e. default value
 
     @helpers.change_config('ckan.activity_list_limit', '5')
     def test_limit_configured(self):
         id = self._create_bulk_org_activities(7)
-        results = logic.get_action('organization_activity_list')({}, {'id': id})
+        results = helpers.call_action('organization_activity_list', id=id)
         eq(len(results), 5)  # i.e. ckan.activity_list_limit
 
     @helpers.change_config('ckan.activity_list_limit', '5')
     @helpers.change_config('ckan.activity_list_limit_max', '7')
     def test_limit_hits_max(self):
         id = self._create_bulk_org_activities(9)
-        results = logic.get_action('organization_activity_list')(
-            {}, {'id': id, 'limit': '9'})
+        results = helpers.call_action('organization_activity_list', id=id, limit='9')
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
 
 
@@ -2394,19 +2390,53 @@ class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
 
     def test_limit_default(self):
         self._create_bulk_package_activities(35)
-        results = logic.get_action('recently_changed_packages_activity_list')({}, {})
+        results = helpers.call_action('recently_changed_packages_activity_list')
         eq(len(results), 31)  # i.e. default value
 
     @helpers.change_config('ckan.activity_list_limit', '5')
     def test_limit_configured(self):
         self._create_bulk_package_activities(7)
-        results = logic.get_action('recently_changed_packages_activity_list')({}, {})
+        results = helpers.call_action('recently_changed_packages_activity_list')
         eq(len(results), 5)  # i.e. ckan.activity_list_limit
 
     @helpers.change_config('ckan.activity_list_limit', '5')
     @helpers.change_config('ckan.activity_list_limit_max', '7')
     def test_limit_hits_max(self):
         self._create_bulk_package_activities(9)
-        results = logic.get_action('recently_changed_packages_activity_list')(
-            {}, {'limit': '9'})
+        results = helpers.call_action('recently_changed_packages_activity_list', limit='9')
+        eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
+
+
+class TestDashboardActivityList(helpers.FunctionalTestBase):
+    def _create_bulk_package_activities(self, count):
+        user = factories.User()
+        from ckan import model
+        objs = [
+            model.Activity(
+                user_id=user['id'], object_id=None, revision_id=None,
+                activity_type=None, data=None)
+            for i in range(count)]
+        model.Session.add_all(objs)
+        model.repo.commit_and_remove()
+        return user['id']
+
+    def test_limit_default(self):
+        id = self._create_bulk_package_activities(35)
+        results = helpers.call_action('dashboard_activity_list',
+                                      context={'user': id})
+        eq(len(results), 31)  # i.e. default value
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    def test_limit_configured(self):
+        id = self._create_bulk_package_activities(7)
+        results = helpers.call_action('dashboard_activity_list',
+                                      context={'user': id})
+        eq(len(results), 5)  # i.e. ckan.activity_list_limit
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    @helpers.change_config('ckan.activity_list_limit_max', '7')
+    def test_limit_hits_max(self):
+        id = self._create_bulk_package_activities(9)
+        results = helpers.call_action('dashboard_activity_list', limit='9',
+                                      context={'user': id})
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max

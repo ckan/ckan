@@ -3310,8 +3310,9 @@ def dashboard_activity_list(context, data_dict):
         (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: ``31``, the default value is configurable via the
-        :ref:`ckan.activity_list_limit` setting)
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: list of activity dictionaries
