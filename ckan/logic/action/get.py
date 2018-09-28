@@ -447,9 +447,11 @@ def group_list(context, data_dict):
         "name asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
-    :param limit: if given, the list of groups will be broken into pages of
-        at most ``limit`` groups per page and only one page will be returned
-        at a time (optional)
+    :param limit: the maximum number of groups returned (optional)
+        Default: ``1000`` when all_fields=false unless set in site's
+        configuration ``ckan.group_and_organization_list_max``
+        Default: ``25`` when all_fields=true unless set in site's
+        configuration ``ckan.group_and_organization_list_all_fields_max``
     :type limit: int
     :param offset: when ``limit`` is given, the offset to start
         returning groups from
@@ -459,9 +461,6 @@ def group_list(context, data_dict):
     :type groups: list of strings
     :param all_fields: return group dictionaries instead of just names. Only
         core fields are returned - get some more using the include_* options.
-        Because ``all_fields`` is computationally expensive, using it will set
-        the ``limit`` to a max of ``25`` or whatever the site has configured:
-        ``ckan.group_and_organization_list_all_fields_max``.
         Returning a list of packages is too expensive, so the `packages`
         property for each group is deprecated, but there is a count of the
         packages in the `package_count` property.
@@ -499,9 +498,11 @@ def organization_list(context, data_dict):
         "name asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
-    :param limit: if given, the list of organizations will be broken into pages
-        of at most ``limit`` organizations per page and only one page will be
-        returned at a time (optional)
+    :param limit: the maximum number of organizations returned (optional)
+        Default: ``1000`` when all_fields=false unless set in site's
+        configuration ``ckan.group_and_organization_list_max``
+        Default: ``25`` when all_fields=true unless set in site's
+        configuration ``ckan.group_and_organization_list_all_fields_max``
     :type limit: int
     :param offset: when ``limit`` is given, the offset to start
         returning organizations from
@@ -512,9 +513,6 @@ def organization_list(context, data_dict):
     :type organizations: list of strings
     :param all_fields: return group dictionaries instead of just names. Only
         core fields are returned - get some more using the include_* options.
-        Because ``all_fields`` is computationally expensive, using it will set
-        the ``limit`` to a max of ``25`` or whatever the site has configured:
-        ``ckan.group_and_organization_list_all_fields_max``.
         Returning a list of packages is too expensive, so the `packages`
         property for each group is deprecated, but there is a count of the
         packages in the `package_count` property.
