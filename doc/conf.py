@@ -100,10 +100,10 @@ project = u'CKAN'
 project_short_name = u'CKAN'
 copyright = u'''&copy; 2009-2018 <a href="https://okfn.org/">Open Knowledge International</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
     Licensed under <a
-    href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
+    href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
-    <img src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" alt="CC License Logo" />
-    <a href="http://opendefinition.org/"><img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
+    <img src="https://licensebuttons.net/l/by-sa/3.0/80x15.png" alt="CC License Logo" />
+    <a href="https://opendefinition.org/"><img src="https://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
       alt="{{ _('Open Content') }}" /></a>
   '''
 html_show_sphinx = False
