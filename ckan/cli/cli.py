@@ -4,7 +4,7 @@ import os
 
 import click
 
-from ckan.cli import db, load_config, click_config_option, search_index, server
+from ckan.cli import db, load_config, search_index, server
 from ckan.config.middleware import make_app
 
 import logging
@@ -22,18 +22,20 @@ log = logging.getLogger(__name__)
 
 class CkanCommand(object):
 
-    def __init__(self, config=None):
-        self.config = load_config(config)
+    def __init__(self, conf=None):
+        self.config = load_config(conf)
         self.app = make_app(self.config.global_conf, **self.config.local_conf)
 
 
 @click.group()
 @click.help_option(u'-h', u'--help')
-@click_config_option
+@click.option(u'--conf', envvar=u'CKANINI',
+                type=click.File())
 @click.pass_context
-def ckan(ctx, config, *args, **kwargs):
+def ckan(ctx, conf, *args, **kwargs):
     log.info(u'Loading configuration')
-    ctx.obj = CkanCommand(config)
+    import pdb; pdb.set_trace()
+    ctx.obj = CkanCommand(conf)
 
 
 ckan.add_command(server.run)

@@ -6,7 +6,7 @@ import click
 from flask import Flask, current_app
 from werkzeug.serving import run_simple
 
-from ckan.cli import load_config, click_config_option
+from ckan.cli import click_config_option
 
 
 @click.command(u'run', short_help=u'Start development server')
@@ -16,7 +16,7 @@ from ckan.cli import load_config, click_config_option
 @click.option(u'-p', u'--port', default=5000, help=u'Set port')
 @click.option(u'-r', u'--reloader', default=True, help=u'Use reloader')
 @click.pass_context
-def run(ctx, config, host, port, reloader):
+def run(ctx, host, port, reloader):
     u'''Runs development server'''
     # click.secho(u"Starting CKAN", fg='yellow')
     run_simple(host, port, ctx.obj.app, use_reloader=reloader, use_evalex=True)
