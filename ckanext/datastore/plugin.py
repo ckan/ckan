@@ -168,9 +168,6 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def datastore_validate(self, context, data_dict, fields_types):
         column_names = fields_types.keys()
-        fields = data_dict.get('fields')
-        if fields:
-            data_dict['fields'] = list(set(fields) - set(column_names))
 
         filters = data_dict.get('filters', {})
         for key in filters.keys():
@@ -181,11 +178,17 @@ class DatastorePlugin(p.SingletonPlugin):
         if q:
             if isinstance(q, string_types):
                 del data_dict['q']
+                column_names.append(u'rank')
             elif isinstance(q, dict):
                 for key in q.keys():
                     if key in fields_types and isinstance(q[key],
                                                           string_types):
+                        column_names.append(u'rank ' + key)
                         del q[key]
+
+        fields = data_dict.get('fields')
+        if fields:
+            data_dict['fields'] = list(set(fields) - set(column_names))
 
         language = data_dict.get('language')
         if language:

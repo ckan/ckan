@@ -69,7 +69,17 @@ LEGACY_ROUTE_NAMES = {
     'home': 'home.index',
     'about': 'home.about',
     'search': 'dataset.search',
-    'organizations_index': 'organization.index'
+    'dataset_read': 'dataset.read',
+    'dataset_activity': 'dataset.activity',
+    'dataset_groups': 'dataset.groups',
+    'group_index': 'group.index',
+    'group_about': 'group.about',
+    'group_read': 'group.read',
+    'group_activity': 'group.activity',
+    'organizations_index': 'organization.index',
+    'organization_activity': 'organization.activity',
+    'organization_read': 'organization.read',
+    'organization_about': 'organization.about',
 }
 
 
@@ -577,13 +587,24 @@ def ckan_version():
 
 @core_helper
 def lang_native_name(lang=None):
-    ''' Return the langage name currently used in it's localised form
+    ''' Return the language name currently used in it's localised form
         either from parameter or current environ setting'''
     lang = lang or lang()
     locale = i18n.get_locales_dict().get(lang)
     if locale:
         return locale.display_name or locale.english_name
     return lang
+
+
+@core_helper
+def is_rtl_language():
+    return lang() in config.get('ckan.i18n.rtl_languages',
+                                'he ar fa_IR').split()
+
+
+@core_helper
+def get_rtl_css():
+    return config.get('ckan.i18n.rtl_css', '/base/css/main-rtl.css')
 
 
 class Message(object):
@@ -1631,7 +1652,7 @@ def resource_link(resource_dict, package_id):
 
 @core_helper
 def tag_link(tag):
-    url = url_for(controller='tag', action='read', id=tag['name'])
+    url = url_for('dataset.search', tags=tag['name'])
     return tags.link_to(tag.get('title', tag['name']), url)
 
 
@@ -2279,7 +2300,8 @@ def resource_view_get_fields(resource):
 
     data = {
         'resource_id': resource['id'],
-        'limit': 0
+        'limit': 0,
+        'include_total': False,
     }
     result = logic.get_action('datastore_search')({}, data)
 

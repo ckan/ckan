@@ -1814,6 +1814,9 @@ def package_search(context, data_dict):
     for key in [key for key in data_dict.keys() if key.startswith('ext_')]:
         data_dict['extras'][key] = data_dict.pop(key)
 
+    # set default search field
+    data_dict['df'] = 'text'
+
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
         data_dict = item.before_search(data_dict)
@@ -1866,6 +1869,8 @@ def package_search(context, data_dict):
 
         if result_fl:
             for package in query.results:
+                if isinstance(package, text_type):
+                    package = {result_fl[0]: package}
                 if package.get('extras'):
                     package.update(package['extras'] )
                     package.pop('extras')

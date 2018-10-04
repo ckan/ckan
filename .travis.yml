@@ -1,25 +1,59 @@
-sudo: required
-
+group: travis_latest
 language: python
 
-services:
-  - docker
+matrix:
+  include:
+    - python: "2.7"
+      sudo: required
 
-cache:
-  directories:
-     - ~/docker
+      services:
+        - docker
 
-before_install:
-  - docker build --rm=false -f contrib/docker/postgresql/Dockerfile -t postgresql .
-  - docker build --rm=false -f contrib/docker/solr/Dockerfile -t solr .
-  - docker pull redis:latest
-  - docker build --rm=false -t ckan .
+      cache:
+        directories:
+          - ~/docker
 
-install:
-  - docker run -d --name db postgresql
-  - docker run -d --name solr solr
-  - docker run -d --name redis redis:latest
-  - docker run -d --name ckan -p 5000:5000 --link db:db --link redis:redis --link solr:solr ckan
+      before_install:
+        - docker build --rm=false -f contrib/docker/postgresql/Dockerfile -t postgresql .
+        - docker build --rm=false -f contrib/docker/solr/Dockerfile -t solr .
+        - docker pull redis:latest
+        - docker build --rm=false -t ckan .
 
-script:
-  - docker ps -a
+      install:
+        - docker run -d --name db postgresql
+        - docker run -d --name solr solr
+        - docker run -d --name redis redis:latest
+        - docker run -d --name ckan -p 5000:5000 --link db:db --link redis:redis --link solr:solr ckan
+
+      script:
+        - docker ps -a
+
+    - python: "2.7"
+      env: FLAKE8=true
+      cache: pip
+      install:
+        - pip install flake8
+      before_script:
+        - flake8 --version
+        # stop the build if there are Python syntax errors or undefined names
+        - flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics
+        # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide
+        - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      script:
+        - true
+
+    - python: "3.7"
+      env: FLAKE8=true
+      dist: xenial    # required for Python 3.7
+      sudo: required  # required for Python 3.7
+      cache: pip
+      install:
+        - pip install flake8
+      before_script:
+        - flake8 --version
+        # stop the build if there are Python syntax errors or undefined names
+        - flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics
+        # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide
+        - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      script:
+        - true

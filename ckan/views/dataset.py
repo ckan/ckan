@@ -1098,7 +1098,7 @@ def history(package_type, id):
             revision_date = h.date_str_to_datetime(revision_dict[u'timestamp'])
             try:
                 dayHorizon = int(request.args.get(u'days'))
-            except:
+            except Exception:
                 dayHorizon = 30
             dayAge = (datetime.datetime.now() - revision_date).days
             if dayAge >= dayHorizon:

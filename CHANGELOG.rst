@@ -10,6 +10,16 @@ Changelog
 v.2.9.0 TBA
 ==================
 
+Minor changes:
+
+ * For navl schemas, the 'default' validator no longer applies the default when
+   the value is False, 0, [] or {} (#4448)
+
+Bugfixes:
+
+ * Action function "datastore_search" would calculate the total, even if you
+   set include_total=False (#4448)
+
 Deprecations:
  * ``c.action`` and ``c.controller`` variables should be avoided.
    ``ckan.plugins.toolkit.get_endpoint`` can be used instead. This function
@@ -172,8 +182,6 @@ Changes and deprecations:
  * The old Celery based background jobs have been removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
- * `ckan.recaptcha.version` config option is removed, since v2 is the only valid
-    version now (#4061)
  * After introducing dataset blueprint, `h.get_facet_items_dict` takes search_facets as second argument.
    This change is aimed to reduce usage of global variables in context. For a while, it has default value
    of None, in which case, `c.search_facets` will be used. But all template designers are strongly advised

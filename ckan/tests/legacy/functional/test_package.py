@@ -11,7 +11,6 @@ from nose.tools import assert_equal
 from ckan.tests.legacy import *
 import ckan.tests.legacy as tests
 from ckan.tests.legacy.html_check import HtmlCheckMethods
-from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
@@ -203,11 +202,10 @@ class TestPackageForm(TestPackageBase):
                     pkg.purge()
                 model.repo.commit_and_remove()
 
-class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
+class TestReadOnly(TestPackageForm, HtmlCheckMethods):
 
     @classmethod
     def setup_class(cls):
-        PylonsTestCase.setup_class()
         CreateTestData.create()
 
     @classmethod
@@ -231,12 +229,10 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         offset = url_for('dataset.read', id=pkg_name)
         res = self.app.get(offset)
         def check_link(res, controller, id):
-            id_in_uri = id.strip('"').replace(' ', '%20') # remove quotes and percent-encode spaces
+            id_in_uri = id.strip('"').replace(' ', '+') # remove quotes and percent-encode spaces
             self.check_tag_and_data(res, 'a ', '%s/%s' % (controller, id_in_uri),
                                     '%s:%s' % (controller, id.replace('"', '&#34;')))
         check_link(res, 'dataset', 'pkg-1')
-        check_link(res, 'tag', 'tag_1')
-        check_link(res, 'tag', '"multi word with punctuation."')
         check_link(res, 'group', 'test-group-1')
         assert 'decoy</a>' not in res, res
         assert 'decoy"' not in res, res

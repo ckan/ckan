@@ -224,18 +224,14 @@ def package_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    # need to let rest api create
-    context["package"] = pkg
-    # this is added so that the rest controller can make a new location
-    context["id"] = pkg.id
-    log.debug('Created object %s' % pkg.name)
-
     return_id_only = context.get('return_id_only', False)
 
-    output = context['id'] if return_id_only \
-        else _get_action('package_show')(context, {'id': context['id']})
+    if return_id_only:
+        return pkg.id
 
-    return output
+    return _get_action('package_show')(
+                context.copy(), {'id': pkg.id}
+            )
 
 
 def resource_create(context, data_dict):
