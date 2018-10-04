@@ -205,7 +205,8 @@ def is_authorized(action, context, data_dict=None):
             return {
                 'success': False,
                 'msg': 'Action {0} requires an authenticated user'.format(
-                    auth_function.__name__)
+                    (auth_function if not isinstance(auth_function, functools.partial)
+                        else auth_function.func).__name__)
             }
 
         return auth_function(context, data_dict)
