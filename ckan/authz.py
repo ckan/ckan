@@ -102,8 +102,8 @@ class AuthFunctions:
                     fetched_auth_functions[name] = auth_function
 
         for name, func_list in chained_auth_functions.iteritems():
-            if name not in fetched_auth_functions and\
-                    name not in self._functions:
+            if (name not in fetched_auth_functions
+                    and name not in self._functions):
                 raise Exception('The auth %r is not found for chained auth' % (
                     name))
             # create the chain of functions in the correct order
@@ -113,8 +113,7 @@ class AuthFunctions:
                 else:
                     # fallback to chaining off the builtin auth function
                     prev_func = self._functions[name]
-                fetched_auth_functions[name] =\
-                    functools.partial(func, prev_func)
+                fetched_auth_functions[name] = functools.partial(func, prev_func)
 
         # Use the updated ones in preference to the originals.
         self._functions.update(fetched_auth_functions)
