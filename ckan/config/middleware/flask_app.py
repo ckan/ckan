@@ -367,6 +367,12 @@ class CKANFlask(Flask):
         the route was defined.
         '''
 
+        # Disable built-in flask's ability to prepend site root to
+        # generated url, as we are going to use locale and existing
+        # logic is not flexible enough for this purpose
+        if 'SCRIPT_NAME' in environ:
+            environ['SCRIPT_NAME'] = ''
+
         urls = self.url_map.bind_to_environ(environ)
         try:
             rule, args = urls.match(return_rule=True)
