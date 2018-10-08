@@ -366,7 +366,7 @@ def url_for(*args, **kw):
 
     # Add back internal params
     kw['__ckan_no_root'] = no_root
-    kw['__is_url_generated_by_werkzeug'] = is_url_generated_by_werkzeug
+
     # Rewrite the URL to take the locale and root_path into account
     return _local_url(my_url, locale=locale, **kw)
 
@@ -548,16 +548,6 @@ def _local_url(url_to_amend, **kw):
     default_locale = False
     locale = kw.pop('locale', None)
     no_root = kw.pop('__ckan_no_root', False)
-
-    # Werkzeug adds generates url that includes enviroment variable
-    # SCRIPT_NAME. This means we have conflict with our custom logic
-    # that attaches site_root. Anyway, Werkzeug cannot handle current
-    # locale, so we are going to make some cleanup.
-    is_url_generated_by_werkzeug = kw.pop(
-        '__is_url_generated_by_werkzeug', False
-    )
-    is_script_name_added = False
-
     allowed_locales = ['default'] + i18n.get_locales()
     if locale and locale not in allowed_locales:
         locale = None
@@ -571,20 +561,11 @@ def _local_url(url_to_amend, **kw):
         if locale == 'default':
             default_locale = True
     else:
-        # Test environment doesn't have request object configured
-        # in many cases, that's why next try/except block is required.
         try:
             locale = request.environ.get('CKAN_LANG')
             default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
-            script_name = request.environ.get('SCRIPT_NAME', None)
-            is_script_name_added = (
-                script_name and url_to_amend.startswith(script_name)
-            )
         except TypeError:
             default_locale = True
-
-    if is_url_generated_by_werkzeug and is_script_name_added:
-        url_to_amend = url_to_amend[len(script_name):]
 
     root = ''
     if kw.get('qualified', False) or kw.get('_external', False):
@@ -635,6 +616,7 @@ def _local_url(url_to_amend, **kw):
     if url == '/packages':
         error = 'There is a broken url being created %s' % kw
         raise ckan.exceptions.CkanUrlException(error)
+
     return url
 
 
