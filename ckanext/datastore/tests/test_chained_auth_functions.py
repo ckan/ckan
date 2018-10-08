@@ -70,4 +70,6 @@ class TestChainedAuth(DatastoreFunctionalTestBase):
         assert_equals(raise_context.exception.message, user_list_message)
         # check that the 'auth failed' msg doesn't fail because it's a partial
         assert_raises(NotAuthorized,
-                      lambda: check_access(u'user_list', {}, {}))
+                      lambda: check_access(u'user_list',
+                                           {u'ignore_auth': False,
+                                            u'user': u'not_a_real_user'}, {}))
