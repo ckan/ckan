@@ -27,8 +27,6 @@ click_config_option = click.option(
 
 
 def load_config(config=None):
-
-    import pdb; pdb.set_trace()
     from paste.deploy import appconfig
     from paste.script.util.logging_config import fileConfig
     log.info("Searching for configuration file")

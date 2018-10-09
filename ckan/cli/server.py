@@ -11,7 +11,6 @@ from ckan.cli import click_config_option
 
 @click.command(u'run', short_help=u'Start development server')
 @click.help_option(u'-h', u'--help')
-@click_config_option
 @click.option(u'-H', u'--host', default=u'localhost', help=u'Set host')
 @click.option(u'-p', u'--port', default=5000, help=u'Set port')
 @click.option(u'-r', u'--reloader', default=True, help=u'Use reloader')
