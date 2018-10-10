@@ -314,4 +314,3 @@ class TestApiController(helpers.FunctionalTestBase):
         eq_(res_dict['success'], True)
         eq_(sorted(res_dict['result']),
             sorted([dataset1['name'], dataset2['name']]))
-
