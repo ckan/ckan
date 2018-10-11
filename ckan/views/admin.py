@@ -161,7 +161,8 @@ class TrashView(MethodView):
                 u'purge-revisions' in request.form):
             if u'purge-packages' in request.form:
                 revs_to_purge = []
-                for pkg in self.deleted_packages:
+                limit = 10
+                for index, pkg in zip(range(limit), self.deleted_packages):
                     revisions = [x[0] for x in pkg.all_related_revisions]
                     # ensure no accidental purging of other(non-deleted)
                     # packages initially just avoided purging revisions
@@ -199,7 +200,7 @@ class TrashView(MethodView):
                 except Exception as inst:
                     msg = _(u'Problem purging revision %s: %s') % (id, inst)
                     msgs.append(msg)
-            h.flash_success(_(u'Purge complete'))
+            h.flash_success(_(u'Purge %s complete') % (limit))
         else:
             msgs.append(_(u'Action not implemented.'))
 
