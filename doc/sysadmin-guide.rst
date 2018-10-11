@@ -116,7 +116,8 @@ To permanently delete ("purge") a dataset:
 * Navigate to the dataset's "Edit" page, and delete it.
 * Visit ``http://<my-ckan-url>/ckan-admin/trash/``.
 
-This page shows all deleted datasets and allows you to delete them permanently.
+This page shows all deleted datasets and allows you to delete them permanently, 
+10 datasets at a time.
 
 .. warning::
 
