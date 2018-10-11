@@ -347,7 +347,7 @@ class TestTrashView(helpers.FunctionalTestBase):
                                         status=302, extra_environ=env)
         purge_response = purge_response.follow(extra_environ=env)
         # redirected back to trash page
-        assert_true('Purge 3 complete' in purge_response)
+        assert_true('Purge 2 complete' in purge_response)
 
         # how many datasets after purge
         pkgs_before_purge = model.Session.query(model.Package).count()
