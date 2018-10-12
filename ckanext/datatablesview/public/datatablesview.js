@@ -1,7 +1,7 @@
 const run_query = function(params, format) {
-  const form = $('#filtered-datatables-download')[0];
+  const form = $('#filtered-datatables-download');
   const p = $('<input name="params" type="hidden"/>');
-  p.attr("value", params);
+  p.attr("value", JSON.stringify(params));
   form.append(p);
   const f = $('<input name="format" type="hidden"/>');
   f.attr("value", format);
