@@ -196,3 +196,9 @@ def datastore_function_delete_schema():
         'name': [unicode_only, not_empty],
         'if_exists': [default(False), boolean_validator],
     }
+
+
+def datastore_analyze_schema():
+    return {
+        'resource_id': [text_type, resource_id_exists],
+    }

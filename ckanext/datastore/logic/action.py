@@ -651,3 +651,24 @@ def datastore_function_delete(context, data_dict):
     p.toolkit.check_access('datastore_function_delete', context, data_dict)
     backend = DatastoreBackend.get_active_backend()
     backend.drop_function(data_dict['name'], data_dict['if_exists'])
+
+
+@logic.validate(dsschema.datastore_analyze_schema)
+def datastore_analyze(context, data_dict):
+    '''Runs postgres's ANALYZE
+
+    :param resource_id: resource id for the table that will be analyzed
+    :type resource_id: string
+    '''
+    p.toolkit.check_access('datastore_analyze', context, data_dict)
+    backend = DatastoreBackend.get_active_backend()
+    connection = backend._get_write_engine().connect()
+
+    result = backend.analyze(context, data_dict)
+    #move to backend/postgres.py
+    sql = 'ANALYZE "{}"'.format(data_dict['resource_id'])
+    try:
+        results = connection.execute(sql)
+    except sqlalchemy.exc.DatabaseError as err:
+        raise p.toolkit.ValidationError({
+                u'records': [message.split(u') ', 1)[-1]]})
