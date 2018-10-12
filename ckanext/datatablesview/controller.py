@@ -99,7 +99,7 @@ class DataTablesController(BaseController):
                 controller=u'ckanext.datastore.controller:DatastoreController',
                 action=u'dump',
                 resource_id=resource_view[u'resource_id'])
-            + '?' + urlencode({
+            + u'?' + urlencode({
                 u'q': search_text,
                 u'sort': u', '.join(sort_list),
                 u'filters': json.dumps(filters),
