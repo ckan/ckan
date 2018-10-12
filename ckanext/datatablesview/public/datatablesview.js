@@ -1,7 +1,13 @@
 const run_query = function(params, format) {
-  console.log(format, params);
+  const form = $('#filtered-datatables-download')[0];
+  const p = $('<input name="params" type="hidden"/>');
+  p.attr("value", params);
+  form.append(p);
+  const f = $('<input name="format" type="hidden"/>');
+  f.attr("value", format);
+  form.append(f);
+  form.submit();
 }
-
 
 this.ckan.module('datatables_view', function (jQuery) {
   return {
