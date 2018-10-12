@@ -604,6 +604,9 @@ my.Dataset = Backbone.Model.extend({
     var self = this;
     self.recordCount = queryResult.total;
     self.recordCountWasEstimated = queryResult.total_was_estimated;
+    if (self.recordCountWasEstimated) {
+      self.recordCount = Math.floor((self.recordCount + 500)/1000) + '000';
+    }
     var docs = _.map(queryResult.hits, function(hit) {
       var _doc = new my.Record(hit);
       _doc.fields = self.fields;
