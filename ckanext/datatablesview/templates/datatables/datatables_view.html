@@ -13,7 +13,7 @@
             action='ajax',
             resource_view_id=resource_view.id) }}",
           "type": "POST",
-          "data": { "filters": "{{ request.args.get('filters', '')|e }}" }
+          "data": { "filters": "{{ request.params.get('filters', '')|e }}" }
         }'
       {% if resource_view.get('responsive') %}
         data-responsive="true"
@@ -50,7 +50,7 @@
       controller='ckanext.datatablesview.controller:DataTablesController',
       action='filtered_download',
       resource_view_id=resource_view.id) }}">
-    <input type="hidden" name="filters" value="{{ request.args.get('filters', '')|e }}" />
+    <input type="hidden" name="filters" value="{{ request.params.get('filters', '')|e }}" />
   </form>
 
   {% resource 'ckanext-datatablesview/main' %}
