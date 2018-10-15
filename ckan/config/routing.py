@@ -158,7 +158,6 @@ def make_map():
         m.connect('/i18n/strings_{lang}.js', action='i18n_js_strings')
         m.connect('/util/redirect', action='redirect')
         m.connect('/testing/primer', action='primer')
-        m.connect('/testing/markup', action='markup')
 
     # robots.txt
     map.connect('/(robots.txt)', controller='template', action='view')
