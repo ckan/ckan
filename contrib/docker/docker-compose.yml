@@ -44,6 +44,8 @@ volumes:
 
 services:
   ckan:
+    depends_on:
+      - db
     <<: *ckan_app
     <<: *ckan_build
 
