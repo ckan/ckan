@@ -183,7 +183,7 @@ class AdminController(base.BaseController):
                     except Exception as inst:
                         msg = _('Problem purging revision %s: %s') % (id, inst)
                         msgs.append(msg)
-                h.flash_success(_('Purge %s complete') % (limit))
+                h.flash_success(_('Purge %s complete') % (index))
             else:
                 msgs.append(_('Action not implemented.'))
 
