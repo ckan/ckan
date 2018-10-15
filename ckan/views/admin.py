@@ -200,7 +200,7 @@ class TrashView(MethodView):
                 except Exception as inst:
                     msg = _(u'Problem purging revision %s: %s') % (id, inst)
                     msgs.append(msg)
-            h.flash_success(_(u'Purge %s complete') % (index))
+            h.flash_success(_(u'Purge %s complete') % (index + 1))
         else:
             msgs.append(_(u'Action not implemented.'))
 
