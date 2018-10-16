@@ -1,0 +1,2 @@
+[submodule "contrib/docker/src/ckanext-harvest"]
+	url = https://github.com/canadian-ioos/ckanext-harvest.git
