@@ -1,10 +1,12 @@
-const run_query = function(params, format) {
+const run_query = function(params, columns, format) {
+  console.log(columns);
+  console.log(columns.visible());
   const form = $('#filtered-datatables-download');
-  const p = $('<input name="params" type="hidden"/>');
   p.attr("value", JSON.stringify(params));
+  const p = $('<input name="params" type="hidden"/>');
   form.append(p);
-  const f = $('<input name="format" type="hidden"/>');
   f.attr("value", format);
+  const f = $('<input name="format" type="hidden"/>');
   form.append(f);
   form.submit();
 }
@@ -22,25 +24,29 @@ this.ckan.module('datatables_view', function (jQuery) {
           text: 'CSV',
           action: function (e, dt, button, config) {
             const params = datatable.ajax.params();
-            run_query(params, 'csv');
+            const columns = datatable.columns();
+            run_query(params, columns, 'csv');
           }
         }, {
           text: 'TSV',
           action: function (e, dt, button, config) {
             const params = datatable.ajax.params();
-            run_query(params, 'tsv');
+            const columns = datatable.columns();
+            run_query(params, columns, 'tsv');
           }
         }, {
           text: 'JSON',
           action: function (e, dt, button, config) {
             const params = datatable.ajax.params();
-            run_query(params, 'json');
+            const columns = datatable.columns();
+            run_query(params, columns, 'json');
           }
         }, {
           text: 'XML',
           action: function (e, dt, button, config) {
             const params = datatable.ajax.params();
-            run_query(params, 'xml');
+            const columns = datatable.columns();
+            run_query(params, columns, 'xml');
           }
         }]
       });
