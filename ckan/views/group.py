@@ -918,6 +918,9 @@ class CreateGroupView(MethodView):
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
+            data_dict.update(clean_dict(
+                dict_fns.unflatten(tuplize_dict(parse_params(request.files)))
+            ))
             data_dict['type'] = group_type or u'group'
             context['message'] = data_dict.get(u'log_message', u'')
             data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
@@ -996,6 +999,9 @@ class EditGroupView(MethodView):
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
+            data_dict.update(clean_dict(
+                dict_fns.unflatten(tuplize_dict(parse_params(request.files)))
+            ))
             context['message'] = data_dict.get(u'log_message', u'')
             data_dict['id'] = context['id']
             context['allow_partial_update'] = True
