@@ -14,6 +14,11 @@ package_list_message = u"The content of this message is largely irrelevant"
 class TestActionException(Exception):
     pass
 
+package_list_message = u'The content of this message is largely irrelevant'
+
+class TestActionException(Exception):
+    pass
+
 
 @p.toolkit.chained_action
 def datastore_delete(up_func, context, data_dict):
