@@ -81,6 +81,17 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        sudo mkdir -p |virtualenv|
        sudo chown \`whoami\` |virtualenv|
+       virtualenv --no-site-packages |virtualenv|
+       |activate|
+    
+    .. note::
+
+       If you are using ``python3`` and if you are having problems installing the
+       requirements using ``pip`` inside the virtual environment, explicitly
+       install ``python2.7`` inside the virtual environment. 
+
+       sudo mkdir -p |virtualenv|
+       sudo chown \`whoami\` |virtualenv|
        virtualenv --python=/usr/bin/python2.7 --no-site-packages |virtualenv|
        |activate|
 

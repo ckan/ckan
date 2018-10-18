@@ -12,7 +12,7 @@ installed, we need to install and configure Solr.
    server, but CKAN doesn't require Jetty - you can deploy Solr to another web
    server, such as Tomcat, if that's convenient on your operating system.
 
-.. important::
+.. tip::
 
    Do this step only if your system is using ``jetty9``.
 
