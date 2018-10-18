@@ -13,6 +13,7 @@ assert_raises = nose.tools.assert_raises
 
 package_list_message = u'The content of this message is largely irrelevant'
 
+
 class TestActionException(Exception):
     pass
 
