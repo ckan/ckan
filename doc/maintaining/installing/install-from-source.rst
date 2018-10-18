@@ -378,7 +378,7 @@ This is seen occasionally with Jetty and Ubuntu 14.04. It requires a solr-jetty 
     sudo service jetty restart
 
 ImportError: No module named 'flask_debugtoolbar'
---------------------------
+-------------------------------------------------
 
 This may show up if you are creating the database tables and you have enabled debug
 mode in the config file. Simply install the development requirements::
