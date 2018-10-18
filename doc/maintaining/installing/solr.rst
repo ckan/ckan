@@ -14,7 +14,7 @@ installed, we need to install and configure Solr.
 
 .. tip::
 
-   Do this step only if your system is using ``jetty9``.
+   Do this step only if you are using Ubuntu 18.04.
 
    Ubuntu 18.04 64-bit uses ``jetty9`` which does not observe the symlink created
    by the Solr package. As a result, Jetty is unable to serve Solr content. To

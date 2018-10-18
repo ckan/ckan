@@ -20,11 +20,7 @@ work on CKAN.
 --------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
-required packages with this command for Ubuntu 18.04::
-
-    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
-
-or for Ubuntu 16.04::
+required packages with this command for Ubuntu 18.04 and Ubuntu 16.04::
 
     sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
 
@@ -86,9 +82,8 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
     
 .. note::
 
-    If you are using ``python3`` and if you are having problems installing the
-    requirements using ``pip`` inside the virtual environment, explicitly
-    instruct it to use ``python2.7``. 
+    If your system uses Python3 by default (e.g. Ubuntu 18.04) make sure to create
+    the virtualenv using the Python2.7 executable with the ``--python`` option: 
 
     .. parsed-literal::
 
