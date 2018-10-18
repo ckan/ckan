@@ -88,7 +88,7 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
     If you are using ``python3`` and if you are having problems installing the
     requirements using ``pip`` inside the virtual environment, explicitly
-    install ``python2.7`` inside the virtual environment. 
+    instruct it to use ``python2.7``. 
 
     .. parsed-literal::
 
