@@ -92,7 +92,7 @@ class DataTablesController(BaseController):
                 else u'asc')
             sort_list.append(cols[sort_by_num] + u' ' + sort_order)
 
-        assert 0
+        cols = [c for (c, v) in zip(cols, params['visible']) if v]
 
         h.redirect_to(
             h.url_for(
@@ -101,9 +101,10 @@ class DataTablesController(BaseController):
                 resource_id=resource_view[u'resource_id'])
             + u'?' + urlencode({
                 u'q': search_text,
-                u'sort': u', '.join(sort_list),
+                u'sort': u','.join(sort_list),
                 u'filters': json.dumps(filters),
                 u'format': request.params['format'],
+                u'fields': u','.join(cols),
                 }))
 
 
