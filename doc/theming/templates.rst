@@ -679,7 +679,7 @@ use the right HTML tags and CSS classes.
 
 There are two places to look for CSS classes available in CKAN:
 
-1. The `Bootstrap 2.3.2 docs <http://getbootstrap.com/2.3.2/components.html>`_. All of the HTML, CSS and JavaScript
+1. The `Bootstrap 3.3.7 docs <https://getbootstrap.com/docs/3.3/components/>`_. All of the HTML, CSS and JavaScript
    provided by Bootstrap is available to use in CKAN.
 
 2. CKAN's development primer page, which can be found on any CKAN site at

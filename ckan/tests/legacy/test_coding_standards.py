@@ -835,7 +835,6 @@ class TestBadExceptions(object):
     # and so should be translated.
 
     NASTY_EXCEPTION_BLACKLIST_FILES = [
-        'ckan/controllers/api.py',
         'ckan/controllers/user.py',
         'ckan/lib/mailer.py',
         'ckan/logic/action/create.py',
