@@ -55,6 +55,9 @@ def _get_config_options():
     }, {
         u'value': u'3',
         u'text': u'Search, introductory area and stats'
+    }, {
+        u'value': u'4',
+        u'text': u'CIOOS'
     }]
 
     return dict(styles=styles, homepages=homepages)

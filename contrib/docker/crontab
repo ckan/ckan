@@ -1,0 +1,2 @@
+*/5 * * * *  /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester run --config=/etc/ckan/production.ini >> /var/log/ckan/std/harvest_run.log 2>&1 
+0   5 * * *  /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester clean_harvest_log --config=/etc/ckan/production.ini >> /var/log/ckan/std/harvest_cleanup.log 2>&1
