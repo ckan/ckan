@@ -1,12 +1,10 @@
-const run_query = function(params, columns, format) {
-  console.log(columns);
-  console.log(columns.visible());
+const run_query = function(params, format) {
   const form = $('#filtered-datatables-download');
-  p.attr("value", JSON.stringify(params));
   const p = $('<input name="params" type="hidden"/>');
+  p.attr("value", JSON.stringify(params));
   form.append(p);
-  f.attr("value", format);
   const f = $('<input name="format" type="hidden"/>');
+  f.attr("value", format);
   form.append(f);
   form.submit();
 }
@@ -24,29 +22,29 @@ this.ckan.module('datatables_view', function (jQuery) {
           text: 'CSV',
           action: function (e, dt, button, config) {
             const params = datatable.ajax.params();
-            const columns = datatable.columns();
-            run_query(params, columns, 'csv');
+            params.visible = datatable.columns().visible().toArray();
+            run_query(params, 'csv');
           }
         }, {
           text: 'TSV',
           action: function (e, dt, button, config) {
             const params = datatable.ajax.params();
-            const columns = datatable.columns();
-            run_query(params, columns, 'tsv');
+            params.visible = datatable.columns().visible().toArray();
+            run_query(params, 'tsv');
           }
         }, {
           text: 'JSON',
           action: function (e, dt, button, config) {
             const params = datatable.ajax.params();
-            const columns = datatable.columns();
-            run_query(params, columns, 'json');
+            params.visible = datatable.columns().visible().toArray();
+            run_query(params, 'json');
           }
         }, {
           text: 'XML',
           action: function (e, dt, button, config) {
             const params = datatable.ajax.params();
-            const columns = datatable.columns();
-            run_query(params, columns, 'xml');
+            params.visible = datatable.columns().visible().toArray();
+            run_query(params, 'xml');
           }
         }]
       });
