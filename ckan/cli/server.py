@@ -1,12 +1,15 @@
 # encoding: utf-8
 
 import os
+import logging
 
 import click
 from flask import Flask, current_app
 from werkzeug.serving import run_simple
 
 from ckan.cli import click_config_option
+
+log = logging.getLogger(__name__)
 
 
 @click.command(u'run', short_help=u'Start development server')
@@ -17,4 +20,5 @@ from ckan.cli import click_config_option
 @click.pass_context
 def run(ctx, host, port, reloader):
     u'''Runs development server'''
+    log.info(u"Running server {0} on port {1}".format(host, port))
     run_simple(host, port, ctx.obj.app, use_reloader=reloader, use_evalex=True)
