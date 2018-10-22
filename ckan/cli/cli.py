@@ -24,7 +24,6 @@ class CkanCommand(object):
 @click_config_option
 @click.pass_context
 def ckan(ctx, config, *args, **kwargs):
-    log.info(u'Loading configuration')
     ctx.obj = CkanCommand(config)
 
 
