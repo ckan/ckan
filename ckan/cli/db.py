@@ -23,7 +23,7 @@ def db():
 @click.help_option(u'-h', u'--help')
 def initdb():
     u'''Initialising the database'''
-    log.info("Initialize the Database")
+    log.info(u"Initialize the Database")
     try:
         import ckan.model as model
         model.repo.init_db()
@@ -65,7 +65,7 @@ def updatedb(version=None):
 @click.help_option(u'-h', u'--help')
 def version():
     u'''Return current version'''
-    log.info("Returning current DB")
+    log.info(u"Returning current DB version")
     try:
         from ckan.model import Session
         ver = Session.execute(u'select version from '

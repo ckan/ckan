@@ -101,7 +101,7 @@ def rebuild_fast(ctx):
     def chunks(l, n):
         u""" Yield n successive chunks from l."""
         newn = int(len(l) / n)
-        for i in xrange(0, n-1):
+        for i in range(0, n-1):
             yield l[i*newn:i*newn+newn]
         yield l[n*newn-newn:]
 
