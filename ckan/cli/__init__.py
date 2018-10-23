@@ -47,5 +47,5 @@ def load_config(config=None):
         exit(msg)
 
     loggingFileConfig(filename)
-    log.info('Using configuration file {}'.format(filename))
+    log.info(u'Using configuration file {}'.format(filename))
     return appconfig(u'config:' + filename)
