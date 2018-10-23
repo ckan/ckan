@@ -15,7 +15,7 @@ class TestMungeFilenameLegacy(object):
         ('bad spaces', 'bad-spaces'),
         ('s', 's__'),  # too short
         ('random:other%character&', 'randomothercharacter'),
-        (u'u with umlaut \xfc', 'u-with-umlaut-u'),
+        (u'u with umlaut \xfc', u'u-with-umlaut-\xfc'),
         ('2014-11-10 12:24:05.340603my_image.jpeg',
          '2014-11-10-122405.340603myimage.jpeg'),
         ('file.csv', 'file.csv'),
@@ -49,7 +49,7 @@ class TestMungeFilename(object):
         ('bad spaces', 'bad-spaces'),
         ('s', 's__'),  # too short
         ('random:other%character&', 'randomothercharacter'),
-        (u'u with umlaut \xfc', 'u-with-umlaut-u'),
+        (u'u with umlaut \xfc', u'u-with-umlaut-\xfc'),
         ('2014-11-10 12:24:05.340603my_image.jpeg',
          '2014-11-10-122405.340603my_image.jpeg'),
         ('file.csv', 'file.csv'),
@@ -86,7 +86,7 @@ class TestMungeName(object):
         ('bad spaces', 'bad-spaces'),
         ('s', 's_'),  # too short
         ('random:other%character&', 'random-othercharacter'),
-        (u'u with umlaut \xfc', 'u-with-umlaut-u'),
+        (u'u with umlaut \xfc', u'u-with-umlaut-\xfc'),
         ('2014-11-10 12:24:05.my_image', '2014-11-10-12-24-05-my_image')
     ]
 
@@ -113,7 +113,7 @@ class TestMungeTitleToName(object):
         ('some spaces  here    &here', 'some-spaces-here-here'),
         ('s', 's_'),  # too short
         ('random:other%character&', 'random-othercharacter'),
-        (u'u with umlaut \xfc', 'u-with-umlaut-u'),
+        (u'u with umlaut \xfc', u'u-with-umlaut-\xfc'),
         ('reallylong' * 12, 'reallylong' * 9 + 'reall'),
         ('reallylong' * 12 + ' - 2012', 'reallylong' * 9 + '-2012'),
         ('10cm - 50cm Near InfraRed (NI) Digital Aerial Photography (AfA142)',
