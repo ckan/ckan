@@ -126,6 +126,7 @@ def _munge_to_length(string, min_length, max_length):
 
 
 def _unicode_cleanup(text, keep=''):
+    '''Remove unwanted Unicode characters'''
     text_unicode = text if isinstance(text, text_type) else u(text)
     r = u''
     for char in text_unicode:
