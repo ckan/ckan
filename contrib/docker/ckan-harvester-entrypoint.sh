@@ -11,8 +11,6 @@ set -e
 # URL for datapusher (required unless linked to a container called 'datapusher')
 : ${CKAN_DATAPUSHER_URL:=}
 
-CONFIG="${CKAN_CONFIG}/production.ini"
-
 abort () {
   echo "$@" >&2
   exit 1
@@ -36,40 +34,6 @@ set_environment () {
   export CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
 }
 
-write_config () {
-  echo "Generating config at ${CONFIG}..."
-  ckan generate config "$CONFIG"
-}
+printenv | grep -v "no_proxy" >> /etc/environment
 
-# Wait for PostgreSQL
-while ! pg_isready -h db -U ckan; do
-  sleep 1;
-done
-
-# If we don't already have a config file, bootstrap
-if [ ! -e "$CONFIG" ]; then
-  write_config
-fi
-
-# Get or create CKAN_SQLALCHEMY_URL
-if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
-  abort "ERROR: no CKAN_SQLALCHEMY_URL specified in docker-compose.yml"
-fi
-
-if [ -z "$CKAN_SOLR_URL" ]; then
-    abort "ERROR: no CKAN_SOLR_URL specified in docker-compose.yml"
-fi
-
-if [ -z "$CKAN_REDIS_URL" ]; then
-    abort "ERROR: no CKAN_REDIS_URL specified in docker-compose.yml"
-fi
-
-if [ -z "$CKAN_DATAPUSHER_URL" ]; then
-    abort "ERROR: no CKAN_DATAPUSHER_URL specified in docker-compose.yml"
-fi
-
-set_environment
-ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
-ckan-paster --plugin=ckanext-harvest harvester initdb -c "${CKAN_CONFIG}/production.ini"
-ckan-paster --plugin=ckanext-spatial spatial initdb -c "${CKAN_CONFIG}/production.ini"
 exec "$@"

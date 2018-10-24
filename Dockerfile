@@ -62,13 +62,21 @@ RUN ckan-pip install -U pip && \
     ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
+    cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-harvester-entrypoint.sh /ckan-harvester-entrypoint.sh && \
+    chmod +x /ckan-harvester-entrypoint.sh && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+
+# Install needed libraries
+RUN ckan-pip install factory_boy
+RUN ckan-pip install mock
+
 
 WORKDIR $CKAN_VENV/src
 COPY ./contrib/docker/src/ckanext-harvest $CKAN_VENV/src/ckanext-harvest
 COPY ./contrib/docker/src/ckanext-spatial $CKAN_VENV/src/ckanext-spatial
 COPY ./contrib/docker/src/ckanext-cioos_theme $CKAN_VENV/src/ckanext-cioos_theme
 RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+
 
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-harvest/pip-requirements.txt"
 RUN chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
@@ -86,26 +94,14 @@ COPY ./contrib/docker/ckan_harvesting.conf /etc/supervisor/conf.d/ckan_harvestin
 RUN  mkdir /var/log/ckan && mkdir /var/log/ckan/std
 
 # setup harvesting cron job
-COPY ./contrib/docker/crontab /etc/cron.d/ckan_harvesting
-RUN chmod 0644 /etc/cron.d/ckan_harvesting
+#COPY ./contrib/docker/crontab /etc/cron.d/ckan_harvesting
+#RUN chmod 0644 /etc/cron.d/ckan_harvesting
+
+COPY ./contrib/docker/crontab  /var/spool/cron/crontabs/root
+RUN chmod 0600 /var/spool/cron/crontabs/root
+
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
-
-# init database
-CMD ["ckan-paster","--plugin=ckanext db init -c /etc/ckan/production.ini"]
-CMD ["ckan-paster","--plugin=ckanext-harvest harvester initdb -c /etc/ckan/production.ini"]
-CMD ["ckan-paster","--plugin=ckanext-spatial spatial initdb -c /etc/ckan/production.ini"]
-
-# setup harvest gather and fetch services
-CMD ["service","supervisor","restart"]
-CMD ["supervisorctl","reread"]
-CMD ["supervisorctl","add","ckan_gather_consumer"]
-CMD ["supervisorctl","add","ckan_fetch_consumer"]
-CMD ["supervisorctl","start","ckan_gather_consumer"]
-CMD ["supervisorctl","start","ckan_fetch_consumer"]
-
-# start harvesting cron job
-CMD ["crontab","/etc/cron.d/ckan_harvesting"]
 
 USER ckan
 EXPOSE 5000
