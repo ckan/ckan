@@ -39,6 +39,7 @@ python-magic==0.4.15
 pytz==2016.7
 pyutilib.component.core==4.6.4
 redis==2.10.6             # via rq
+regex==2018.08.29
 repoze.lru==0.7           # via routes
 repoze.who-friendlyform==1.0.8
 repoze.who==2.3
@@ -46,7 +47,7 @@ requests==2.11.1
 routes==1.13
 rq==0.6.0
 simplejson==3.10.0
-six==1.11.0               # via bleach, html5lib, pastescript, pyutilib.component.core, sqlalchemy-migrate
+six==1.11.0               # via bleach, html5lib, pastescript, python-dateutil, pyutilib.component.core, sqlalchemy-migrate
 sqlalchemy-migrate==0.10.0
 sqlalchemy==1.1.11
 sqlparse==0.2.2

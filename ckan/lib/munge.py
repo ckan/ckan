@@ -7,8 +7,8 @@
 
 import os.path
 import re
-import unicodedata
 
+import regex
 from six import text_type, u
 
 from ckan import model
@@ -22,9 +22,6 @@ MAX_FILENAME_TOTAL_LENGTH = 100
 
 # Minimum total length of a filename (including extension)
 MIN_FILENAME_TOTAL_LENGTH = 3
-
-# Accepted Unicode categories
-UNICODE_CATEGORIES = ['Ll', 'Lm', 'Lo', 'Lt', 'Lu', 'Nd']
 
 
 def munge_name(name):
@@ -127,14 +124,5 @@ def _munge_to_length(string, min_length, max_length):
 
 def _unicode_cleanup(text, keep=''):
     '''Remove unwanted Unicode characters'''
-    text_unicode = text if isinstance(text, text_type) else u(text)
-    r = u''
-    for char in text_unicode:
-        if char in keep:
-            r += char
-            continue
-        for valid in UNICODE_CATEGORIES:
-            if unicodedata.category(char) == valid:
-                r += char
-                break
-    return r
+    keep = ''.join(['\\'+c for c in keep])
+    return regex.sub(u(r'[^\p{NUMBER}\p{LETTER}%s]' % keep), '', text)
