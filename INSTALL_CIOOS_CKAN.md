@@ -23,7 +23,7 @@ sudo apt-get install docker-compose
 ### Clone with ssh key
 ```
 cd ~
-git clone git@github.com:canadian-ioos/ckan.git
+git clone -b cioos git@github.com:canadian-ioos/ckan.git
 cd ckan
 git checkout cioos
 ```
@@ -31,7 +31,7 @@ git checkout cioos
 ### Clone with https
 ```
 cd ~
-git clone https://github.com/canadian-ioos/ckan.git
+git clone -b cioos https://github.com/canadian-ioos/ckan.git
 cd ckan
 git checkout cioos
 ```
