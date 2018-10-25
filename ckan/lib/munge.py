@@ -69,20 +69,6 @@ def munge_tag(tag):
     return tag
 
 
-def munge_filename_legacy(filename):
-    ''' Tidies a filename. NB: deprecated
-
-    Unfortunately it mangles any path or filename extension, so is deprecated.
-    It needs to remain unchanged for use by group_dictize() and
-    Upload.update_data_dict() because if this routine changes then group images
-    uploaded previous to the change may not be viewable.
-    '''
-    filename = filename.strip()
-    filename = _unicode_cleanup(filename, keep='.- ').replace(' ', '-')
-    filename = _munge_to_length(filename, 3, 100)
-    return filename
-
-
 def munge_filename(filename):
     ''' Tidies a filename
 
