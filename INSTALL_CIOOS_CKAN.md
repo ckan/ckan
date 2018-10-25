@@ -1,3 +1,23 @@
+# Setup
+### Install Docker
+```
+sudo apt-get update
+sudo apt-get install docker
+```
+
+### Install latest docker-compose
+```
+sudo curl -L "https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
+or
+```
+sudo apt-get update
+sudo apt-get install docker-compose
+```
+
+---
 # Download CKAN git repo
 
 ### Clone with ssh key
@@ -14,6 +34,34 @@ cd ~
 git clone https://github.com/canadian-ioos/ckan.git
 cd ckan
 git checkout cioos
+```
+### add submodules
+```
+cd ~/ckan/contrib/docker/src
+git submodule add -f https://github.com/canadian-ioos/ckanext-harvest.git
+git submodule add -f https://github.com/canadian-ioos/ckanext-spatial.git
+git submodule add -f https://github.com/canadian-ioos/ckanext-cioos_theme.git
+```
+---
+# Create config files
+create enviroment file and populate with approperit values
+```
+cd ~/ckan/contrib/docker/
+cp .env.template .env
+nano .env
+```
+
+create ckan config files for later import into ckan
+```
+cd ~/ckan/contrib/docker/
+cp production_non_root_url.ini production.ini
+cp who_non_root_url.ini who.ini
+```
+or
+```
+cd ~/ckan/contrib/docker/
+cp production_root_url.ini production.ini
+cp who_root_url.ini who.ini
 ```
 
 ---
@@ -46,11 +94,29 @@ update ckan/contrib/docker/production.ini
 sudo nano $VOL_CKAN_CONFIG/production.ini
 ```
 
+# Setup Apache proxy
+add the following to your sites configs
+```
+# CKAN
+		<location /ckan>
+      		    ProxyPass http://localhost:5000/
+      		    ProxyPassReverse http://localhost:5000/
+   		</location>
+```
+or
 
-### Create ckan admin user
+```
+# CKAN
+		<location />
+      		    ProxyPass http://localhost:5000/
+      		    ProxyPassReverse http://localhost:5000/
+   		</location>
+```
+
+# Create ckan admin user
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add admin
 
-### Configure admin settings
+# Configure admin settings
 in the admin page of ckan set style to default and homepage to CIOOS to get the full affect of the cioos_theme extention
 
 ---
@@ -188,5 +254,15 @@ or remove only the images you want with
 ```
 	docker image ls
 	docker rmi [image name]
+```
+
+### When creating orginizations or updating admin config settings you get a 500 Internal Server Error
+This can be caused by ckan not having perissions to write to the intnernal storage of the ckan container. This should be setup during the build process. You can debug this by setting debug = true in the production.ini file. No error messages will be reported in the ckan logs for this issue without turning on debug.
+
+To fix chage the owner of the ckan storage folder and its children
+```
+  sudo docker exec -u root -it ckan /bin/bash -c "export TERM=xterm; exec bash"
+  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+  exit
 ```
 ---

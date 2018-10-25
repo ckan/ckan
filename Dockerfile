@@ -90,7 +90,7 @@ RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-ci
 
 RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
-COPY ./contrib/docker/ckan_harvesting.conf /etc/supervisor/conf.d/ckan_harvesting.conf
+#COPY ./contrib/docker/ckan_harvesting.conf /etc/supervisor/conf.d/ckan_harvesting.conf
 RUN  mkdir /var/log/ckan && mkdir /var/log/ckan/std
 
 # setup harvesting cron job
@@ -100,6 +100,7 @@ RUN  mkdir /var/log/ckan && mkdir /var/log/ckan/std
 COPY ./contrib/docker/crontab  /var/spool/cron/crontabs/root
 RUN chmod 0600 /var/spool/cron/crontabs/root
 
+RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 
