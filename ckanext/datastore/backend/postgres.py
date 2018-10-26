@@ -1956,9 +1956,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
     def calculate_record_count(self, resource_id):
         '''
-        Calculate an estimate of the record/row count and store it in Postgresql's
-        pg_stat_user_tables. This number will be used when specifying
-        `total_estimation_threshold`
+        Calculate an estimate of the record/row count and store it in
+        Postgresql's pg_stat_user_tables. This number will be used when
+        specifying `total_estimation_threshold`
         '''
         connection = get_write_engine().connect()
         sql = 'ANALYZE "{}"'.format(resource_id)
