@@ -3,9 +3,7 @@
 import logging
 import urlparse
 
-from datetime import datetime
-import dateutil.parser
-import dateutil.tz
+import iso8601
 
 from flask import Blueprint, make_response
 from six import text_type
@@ -112,8 +110,8 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                           ver=3,
                           _external=True))
         fe.description(pkg.get(u'notes', u''))
-        fe.updated()
-        fe.published() # TODO: fix published datetime using the datetime lib
+        fe.updated(iso8601.parse_date(pkg.get(u'metadata_modified')))
+        fe.published(iso8601.parse_date(pkg.get(u'metadata_created')))
         fe.id(_create_atom_id(u'/dataset/%s' % pkg['id']))
         fe.author({'name': pkg.get(u'author', u''),
                    'email': pkg.get(u'author_email', u'')})
