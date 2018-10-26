@@ -1084,13 +1084,13 @@ def history(package_type, id):
     format = request.args.get(u'format', u'')
     if format == u'atom':
         # Generate and return Atom 1.0 document.
-        from webhelpers.feedgenerator import Atom1Feed
-        feed = Atom1Feed(
+        from feedgen.feed import FeedGenerator
+        feed = FeedGenerator(
             title=_(u'CKAN Dataset Revision History'),
             link=h.url_for(
                 controller=u'revision', action=u'read', id=g.pkg_dict[u'name']
             ),
-            description=_(u'Recent changes to CKAN Dataset: ') +
+            subtitle=_(u'Recent changes to CKAN Dataset: ') +
             (g.pkg_dict[u'title'] or u''),
             language=text_type(i18n.get_lang()),
         )
@@ -1121,11 +1121,11 @@ def history(package_type, id):
                 title=item_title,
                 link=item_link,
                 description=item_description,
-                author_name=item_author_name,
-                pubdate=item_pubdate,
+                author={'name': item_author_name},
+                pubDate=item_pubdate,
             )
-        response = make_response(feed.writeString(u'utf-8'))
-        response.headers[u'Content-Type'] = u'application/atom+xml'
+        response = make_response(feed.atom_str(encoding=u'utf-8'))
+        response.heaatom_strders[u'Content-Type'] = u'application/atom+xml'
         return response
 
     package_type = g.pkg_dict[u'type'] or u'dataset'

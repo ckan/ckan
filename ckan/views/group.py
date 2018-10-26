@@ -663,12 +663,12 @@ def history(id, group_type, is_organization):
     format = request.params.get(u'format', u'')
     if format == u'atom':
         # Generate and return Atom 1.0 document.
-        from webhelpers.feedgenerator import Atom1Feed
-        feed = Atom1Feed(
+        from feedgen.feed import FeedGenerator
+        feed = FeedGenerator(
             title=_(u'CKAN Group Revision History'),
             link=h.url_for(
                 group_type + u'.read', id=group_dict[u'name']),
-            description=_(u'Recent changes to CKAN Group: ') +
+            subtitle=_(u'Recent changes to CKAN Group: ') +
             group_dict['display_name'],
             language=text_type(get_lang()), )
         for revision_dict in group_revisions:
@@ -695,8 +695,9 @@ def history(id, group_type, is_organization):
                 title=item_title,
                 link=item_link,
                 description=item_description,
-                author_name=item_author_name,
-                pubdate=item_pubdate, )
+                author={'name': item_author_name},
+                pubDate=item_pubdate,
+            )
         feed.content_type = u'application/atom+xml'
         return feed.writeString(u'utf-8')
 

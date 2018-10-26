@@ -3,9 +3,13 @@
 import logging
 import urlparse
 
+from datetime import datetime
+import dateutil.parser
+import dateutil.tz
+
 from flask import Blueprint, make_response
 from six import text_type
-import webhelpers.feedgenerator
+from feedgen.feed import FeedGenerator
 from ckan.common import _, config, g, request, response
 import ckan.lib.helpers as h
 import ckan.lib.base as base
@@ -78,20 +82,20 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             feed_class = plugin.get_feed_class()
 
     if not feed_class:
-        feed_class = _FixedAtom1Feed
+        feed_class = FeedGenerator
 
-    feed = feed_class(
-        feed_title,
-        feed_link,
-        feed_description,
-        language=u'en',
-        author_name=author_name,
-        feed_guid=feed_guid,
-        feed_url=feed_url,
-        previous_page=navigation_urls[u'previous'],
-        next_page=navigation_urls[u'next'],
-        first_page=navigation_urls[u'first'],
-        last_page=navigation_urls[u'last'], )
+    feed = feed_class()
+    feed.title(feed_title)
+    # TODO: fix link, it shows up on the feed, this line might not be
+    # while using python-feedgen instead of webhelpers
+    try:
+        feed.link(feed_link)
+    except ValueError:
+        pass
+    feed.subtitle(feed_description)
+    feed.language(u'en')
+    feed.author({'name': author_name})
+    feed.id(feed_guid)
 
     for pkg in results:
         additional_fields = {}
@@ -100,32 +104,35 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             if hasattr(plugin, u'get_item_additional_fields'):
                 additional_fields = plugin.get_item_additional_fields(pkg)
 
-        feed.add_item(
-            title=pkg.get(u'title', u''),
-            link=h.url_for(
-                u'api.action',
-                logic_function=u'package_read',
-                id=pkg['id'],
-                ver=3,
-                _external=True),
-            description=pkg.get(u'notes', u''),
-            updated=h.date_str_to_datetime(pkg.get(u'metadata_modified')),
-            published=h.date_str_to_datetime(pkg.get(u'metadata_created')),
-            unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
-            author_name=pkg.get(u'author', u''),
-            author_email=pkg.get(u'author_email', u''),
-            categories=[t['name'] for t in pkg.get(u'tags', [])],
-            enclosure=webhelpers.feedgenerator.Enclosure(
-                h.url_for(
-                    u'api.action',
-                    logic_function=u'package_show',
-                    id=pkg['name'],
-                    ver=3,
-                    _external=True),
-                text_type(len(json.dumps(pkg))), u'application/json'),
-            **additional_fields)
+        fe = feed.add_entry()
+        fe.title(pkg.get(u'title', u''))
+        fe.link(href=h.url_for(u'api.action',
+                          logic_function=u'package_read',
+                          id=pkg['id'],
+                          ver=3,
+                          _external=True))
+        fe.description(pkg.get(u'notes', u''))
+        fe.updated()
+        fe.published() # TODO: fix published datetime using the datetime lib
+        fe.id(_create_atom_id(u'/dataset/%s' % pkg['id']))
+        fe.author({'name': pkg.get(u'author', u''),
+                   'email': pkg.get(u'author_email', u'')})
+        # TODO: fix category, feedgen's ensure_format() requires dict/list
+        try:
+            fe.category(t['name'] for t in pkg.get(u'tags', []))
+        except ValueError:
+            pass
+        fe.enclosure(h.url_for(u'api.action',
+                               logic_function=u'package_show',
+                               id=pkg['name'],
+                               ver=3,
+                               _external=True),
+                               text_type(len(json.dumps(pkg))),
+                               u'application/json')
+        # TODO: webhelpers allowed **additional_fields because it was using
+        # args instead of methods, a fix might be needed for this
 
-    resp = make_response(feed.writeString(u'utf-8'), 200)
+    resp = make_response(feed.atom_str(encoding=u'utf-8'), 200)
     resp.headers['Content-Type'] = u'application/atom+xml'
     return resp
 
@@ -498,78 +505,6 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
 
     tagging_entity = u','.join([authority_name, date_string])
     return u':'.join(['tag', tagging_entity, resource_path])
-
-
-class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
-    """
-    The Atom1Feed defined in webhelpers doesn't provide all the fields we
-    might want to publish.
-     * In Atom1Feed, each <entry> is created with identical <updated> and
-       <published> fields.  See [1] (webhelpers 1.2) for details.
-       So, this class fixes that by allow an item to set both an <updated> and
-       <published> field.
-     * In Atom1Feed, the feed description is not used.  So this class uses the
-       <subtitle> field to publish that.
-       [1] https://bitbucket.org/bbangert/webhelpers/src/f5867a319abf/\
-       webhelpers/feedgenerator.py#cl-373
-    """
-
-    def add_item(self, *args, **kwargs):
-        """
-        Drop the pubdate field from the new item.
-        """
-        if u'pubdate' in kwargs:
-            kwargs.pop(u'pubdate')
-        defaults = {u'updated': None, u'published': None}
-        defaults.update(kwargs)
-        super(_FixedAtom1Feed, self).add_item(*args, **defaults)
-
-    def latest_post_date(self):
-        """
-        Calculates the latest post date from the 'updated' fields,
-        rather than the 'pubdate' fields.
-        """
-        updates = [
-            item['updated'] for item in self.items
-            if item['updated'] is not None
-        ]
-        if not len(updates):  # delegate to parent for default behaviour
-            return super(_FixedAtom1Feed, self).latest_post_date()
-        return max(updates)
-
-    def add_item_elements(self, handler, item):
-        """
-        Add the <updated> and <published> fields to each entry that's written
-        to the handler.
-        """
-        super(_FixedAtom1Feed, self).add_item_elements(handler, item)
-
-        dfunc = webhelpers.feedgenerator.rfc3339_date
-
-        if (item['updated']):
-            handler.addQuickElement(u'updated',
-                                    dfunc(item['updated']).decode(u'utf-8'))
-
-        if (item['published']):
-            handler.addQuickElement(u'published',
-                                    dfunc(item['published']).decode(u'utf-8'))
-
-    def add_root_elements(self, handler):
-        """
-        Add additional feed fields.
-         * Add the <subtitle> field from the feed description
-         * Add links other pages of the logical feed.
-        """
-        super(_FixedAtom1Feed, self).add_root_elements(handler)
-
-        handler.addQuickElement(u'subtitle', self.feed['description'])
-
-        for page in [u'previous', u'next', u'first', u'last']:
-            if self.feed.get(page + u'_page', None):
-                handler.addQuickElement(u'link', u'', {
-                    u'rel': page,
-                    u'href': self.feed.get(page + u'_page')
-                })
 
 
 # Routing
