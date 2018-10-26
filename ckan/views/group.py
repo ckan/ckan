@@ -695,7 +695,7 @@ def history(id, group_type, is_organization):
                 title=item_title,
                 link=item_link,
                 description=item_description,
-                author={'name': item_author_name},
+                author={u'name': item_author_name},
                 pubDate=item_pubdate,
             )
         feed.content_type = u'application/atom+xml'

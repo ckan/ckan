@@ -92,7 +92,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
         pass
     feed.subtitle(feed_description)
     feed.language(u'en')
-    feed.author({'name': author_name})
+    feed.author({u'name': author_name})
     feed.id(feed_guid)
 
     for pkg in results:
@@ -113,8 +113,8 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
         fe.updated(iso8601.parse_date(pkg.get(u'metadata_modified')))
         fe.published(iso8601.parse_date(pkg.get(u'metadata_created')))
         fe.id(_create_atom_id(u'/dataset/%s' % pkg['id']))
-        fe.author({'name': pkg.get(u'author', u''),
-                   'email': pkg.get(u'author_email', u'')})
+        fe.author({u'name': pkg.get(u'author', u''),
+                   u'email': pkg.get(u'author_email', u'')})
         # TODO: fix category, feedgen's ensure_format() requires dict/list
         try:
             fe.category(t['name'] for t in pkg.get(u'tags', []))
