@@ -18,7 +18,7 @@ from cStringIO import StringIO
 import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-from ckan.lib.lazyjson import LazyJSONObject
+import simplejson as json
 
 import ckanext.datastore.helpers as datastore_helpers
 import ckanext.datastore.interfaces as interfaces
@@ -1301,7 +1301,7 @@ def search_data(context, data_dict):
         if v is None:
             records = []
         else:
-            records = LazyJSONObject(v)
+            records = json.loads(v)
     data_dict['records'] = records
 
     field_info = _get_field_info(
