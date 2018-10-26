@@ -105,10 +105,10 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
         fe = feed.add_entry()
         fe.title(pkg.get(u'title', u''))
         fe.link(href=h.url_for(u'api.action',
-                          logic_function=u'package_read',
-                          id=pkg['id'],
-                          ver=3,
-                          _external=True))
+                logic_function=u'package_read',
+                id=pkg['id'],
+                ver=3,
+                _external=True))
         fe.description(pkg.get(u'notes', u''))
         fe.updated(iso8601.parse_date(pkg.get(u'metadata_modified')))
         fe.published(iso8601.parse_date(pkg.get(u'metadata_created')))
@@ -125,8 +125,8 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
                                id=pkg['name'],
                                ver=3,
                                _external=True),
-                               text_type(len(json.dumps(pkg))),
-                               u'application/json')
+                     text_type(len(json.dumps(pkg))),
+                     u'application/json')
         # TODO: webhelpers allowed **additional_fields because it was using
         # args instead of methods, a fix might be needed for this
 
