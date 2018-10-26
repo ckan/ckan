@@ -1953,6 +1953,19 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         # to avoid sharing them between parent and child processes.
         _dispose_engines()
 
+    def calculate_record_count(self, resource_id):
+        '''
+        Calculate an estimate of the record/row count and store it in Postgresql's
+        pg_stat_user_tables. This number will be used when specifying
+        `total_estimation_threshold`
+        '''
+        connection = get_write_engine().connect()
+        sql = 'ANALYZE "{}"'.format(resource_id)
+        try:
+            results = connection.execute(sql)
+        except sqlalchemy.exc.DatabaseError as err:
+            raise DatastoreException(err)
+
 
 def create_function(name, arguments, rettype, definition, or_replace):
     sql = u'''

@@ -70,6 +70,12 @@ def datastore_create(context, data_dict):
         {"function": "trigger_clean_reference"},
         {"function": "trigger_check_codes"}]
     :type triggers: list of dictionaries
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
     replaces the exising aliases or constraints. Setting ``records`` appends
@@ -152,6 +158,9 @@ def datastore_create(context, data_dict):
     except InvalidDataError as err:
         raise p.toolkit.ValidationError(text_type(err))
 
+    if data_dict.get('calculate_record_count', False):
+        backend.calculate_record_count(data_dict['resource_id'])
+
     # Set the datastore_active flag on the resource if necessary
     model = _get_or_bust(context, 'model')
     resobj = model.Resource.get(data_dict['resource_id'])
@@ -229,6 +238,12 @@ def datastore_upsert(context, data_dict):
                    Possible options are: upsert, insert, update
                    (optional, default: upsert)
     :type method: string
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
     :param dry_run: set to True to abort transaction instead of committing,
                     e.g. to check for validation or type errors.
     :type dry_run: bool (optional, default: False)
@@ -264,6 +279,10 @@ def datastore_upsert(context, data_dict):
     result = backend.upsert(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
+
+    if data_dict.get('calculate_record_count', False):
+        backend.calculate_record_count(data_dict['resource_id'])
+
     return result
 
 
@@ -306,6 +325,12 @@ def datastore_delete(context, data_dict):
                    If missing delete whole table and all dependent views.
                    (optional)
     :type filters: dictionary
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
 
     **Results:**
 
@@ -348,6 +373,9 @@ def datastore_delete(context, data_dict):
         ))
 
     result = backend.delete(context, data_dict)
+
+    if data_dict.get('calculate_record_count', False):
+        backend.calculate_record_count(data_dict['resource_id'])
 
     # Set the datastore_active flag on the resource if necessary
     model = _get_or_bust(context, 'model')
@@ -651,24 +679,3 @@ def datastore_function_delete(context, data_dict):
     p.toolkit.check_access('datastore_function_delete', context, data_dict)
     backend = DatastoreBackend.get_active_backend()
     backend.drop_function(data_dict['name'], data_dict['if_exists'])
-
-
-@logic.validate(dsschema.datastore_analyze_schema)
-def datastore_analyze(context, data_dict):
-    '''Runs postgres's ANALYZE
-
-    :param resource_id: resource id for the table that will be analyzed
-    :type resource_id: string
-    '''
-    p.toolkit.check_access('datastore_analyze', context, data_dict)
-    backend = DatastoreBackend.get_active_backend()
-    connection = backend._get_write_engine().connect()
-
-    result = backend.analyze(context, data_dict)
-    #move to backend/postgres.py
-    sql = 'ANALYZE "{}"'.format(data_dict['resource_id'])
-    try:
-        results = connection.execute(sql)
-    except sqlalchemy.exc.DatabaseError as err:
-        raise p.toolkit.ValidationError({
-                u'records': [message.split(u') ', 1)[-1]]})

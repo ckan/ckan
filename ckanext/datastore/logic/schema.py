@@ -122,6 +122,8 @@ def datastore_create_schema():
                 OneOf([u'row'])],
             'function': [not_empty, unicode_only],
         },
+        'calculate_record_count': [ignore_missing, default(False),
+                                   boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }

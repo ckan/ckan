@@ -2,7 +2,7 @@
 
 import json
 import nose
-from nose.tools import assert_equal, raises
+from nose.tools import assert_equal, assert_not_equal, raises
 
 import sqlalchemy.orm as orm
 from ckan.tests.helpers import _get_test_app
@@ -243,6 +243,48 @@ class TestDatastoreCreateNewTests(DatastoreFunctionalTestBase):
             }]
         }
         result = helpers.call_action('datastore_create', **data)
+
+    def test_analyze_not_run_by_default(self):
+        package = factories.Dataset(resources=[
+            {'url': 'https://example.com/file.csv', 'format': 'csv', 'name': 'Image 1'}])
+        resource_id = package['resources'][0]['id']
+        data = {
+            'resource_id': resource_id,
+            'fields': [{'id': 'name', 'type': 'text'},
+                       {'id': 'age', 'type': 'text'}],
+            'records': [{"name": "Sunita", "age": "51"},
+                        {"name": "Bowan", "age": "68"}],
+            'force': True,
+        }
+        helpers.call_action('datastore_create', **data)
+        last_analyze = self._when_was_last_analyze(resource_id)
+        assert_equal(last_analyze, None)
+
+    def test_create_with_records(self):
+        # how datapusher loads data (send_resource_to_datastore)
+        package = factories.Dataset(resources=[
+            {'url': 'https://example.com/file.csv', 'format': 'csv', 'name': 'Image 1'}])
+        resource_id = package['resources'][0]['id']
+        data = {
+            'resource_id': resource_id,
+            'fields': [{'id': 'name', 'type': 'text'},
+                       {'id': 'age', 'type': 'text'}],
+            'records': [{"name": "Sunita", "age": "51"},
+                        {"name": "Bowan", "age": "68"}],
+            'calculate_record_count': True,
+            'force': True,
+        }
+        helpers.call_action('datastore_create', **data)
+        last_analyze = self._when_was_last_analyze(resource_id)
+        assert_not_equal(last_analyze, None)
+
+    def _when_was_last_analyze(self, resource_id):
+        results = self._execute_sql(
+            '''SELECT last_analyze
+            FROM pg_stat_user_tables
+            WHERE relname=%s;
+            ''', resource_id).fetchall()
+        return results[0][0]
 
 
 class TestDatastoreCreate(DatastoreLegacyTestBase):
