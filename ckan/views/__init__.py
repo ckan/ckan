@@ -122,7 +122,6 @@ def identify_user():
                     break
             except AttributeError:
                 continue
-            
 
     # We haven't identified the user so try the default methods
     if not getattr(g, u'user', None):
