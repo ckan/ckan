@@ -338,7 +338,7 @@ def datastore_delete(context, data_dict):
     :rtype: dictionary
 
     '''
-    schema = context.get('schema', dsschema.datastore_upsert_schema())
+    schema = context.get('schema', dsschema.datastore_delete_schema())
     backend = DatastoreBackend.get_active_backend()
 
     # Remove any applied filters before running validation.

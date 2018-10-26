@@ -60,6 +60,21 @@ def set_url_type(resources, user):
         p.toolkit.get_action('resource_update')(context, resource)
 
 
+def execute_sql(sql, *args):
+    engine = db.get_write_engine()
+    session = orm.scoped_session(orm.sessionmaker(bind=engine))
+    return session.connection().execute(sql, *args)
+
+
+def when_was_last_analyze(resource_id):
+    results = execute_sql(
+        '''SELECT last_analyze
+        FROM pg_stat_user_tables
+        WHERE relname=%s;
+        ''', resource_id).fetchall()
+    return results[0][0]
+
+
 class DatastoreFunctionalTestBase(FunctionalTestBase):
     _load_plugins = (u'datastore', )
 

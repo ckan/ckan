@@ -1163,6 +1163,7 @@ def validate(context, data_dict):
     data_dict_copy.pop('include_total', None)
     data_dict_copy.pop('total_estimation_threshold', None)
     data_dict_copy.pop('records_format', None)
+    data_dict_copy.pop('calculate_record_count', None)
 
     for key, values in data_dict_copy.iteritems():
         if not values:

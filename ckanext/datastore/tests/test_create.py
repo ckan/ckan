@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import json
-import nose
 from nose.tools import assert_equal, assert_not_equal, raises
 
 import sqlalchemy.orm as orm
@@ -11,13 +10,13 @@ from ckan.common import config
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
-import ckan.tests.legacy as tests
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
-    set_url_type, DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
+    set_url_type, DatastoreFunctionalTestBase, DatastoreLegacyTestBase,
+    execute_sql, when_was_last_analyze)
 from ckan.plugins.toolkit import ValidationError
 
 
@@ -163,7 +162,7 @@ class TestDatastoreCreateNewTests(DatastoreFunctionalTestBase):
                 pg_class.relname = %s
             """
         index_name = db._generate_index_name(resource_id, field)
-        results = self._execute_sql(sql, index_name).fetchone()
+        results = execute_sql(sql, index_name).fetchone()
         return bool(results)
 
     def _get_index_names(self, resource_id):
@@ -180,13 +179,8 @@ class TestDatastoreCreateNewTests(DatastoreFunctionalTestBase):
                 AND t.relkind = 'r'
                 AND t.relname = %s
             """
-        results = self._execute_sql(sql, resource_id).fetchall()
+        results = execute_sql(sql, resource_id).fetchall()
         return [result[0] for result in results]
-
-    def _execute_sql(self, sql, *args):
-        engine = db.get_write_engine()
-        session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        return session.connection().execute(sql, *args)
 
     def test_sets_datastore_active_on_resource_on_create(self):
         resource = factories.Resource()
@@ -244,12 +238,10 @@ class TestDatastoreCreateNewTests(DatastoreFunctionalTestBase):
         }
         result = helpers.call_action('datastore_create', **data)
 
-    def test_analyze_not_run_by_default(self):
-        package = factories.Dataset(resources=[
-            {'url': 'https://example.com/file.csv', 'format': 'csv', 'name': 'Image 1'}])
-        resource_id = package['resources'][0]['id']
+    def test_calculate_record_count_is_false(self):
+        resource = factories.Resource()
         data = {
-            'resource_id': resource_id,
+            'resource_id': resource['id'],
             'fields': [{'id': 'name', 'type': 'text'},
                        {'id': 'age', 'type': 'text'}],
             'records': [{"name": "Sunita", "age": "51"},
@@ -257,16 +249,14 @@ class TestDatastoreCreateNewTests(DatastoreFunctionalTestBase):
             'force': True,
         }
         helpers.call_action('datastore_create', **data)
-        last_analyze = self._when_was_last_analyze(resource_id)
+        last_analyze = when_was_last_analyze(resource['id'])
         assert_equal(last_analyze, None)
 
-    def test_create_with_records(self):
+    def test_calculate_record_count(self):
         # how datapusher loads data (send_resource_to_datastore)
-        package = factories.Dataset(resources=[
-            {'url': 'https://example.com/file.csv', 'format': 'csv', 'name': 'Image 1'}])
-        resource_id = package['resources'][0]['id']
+        resource = factories.Resource()
         data = {
-            'resource_id': resource_id,
+            'resource_id': resource['id'],
             'fields': [{'id': 'name', 'type': 'text'},
                        {'id': 'age', 'type': 'text'}],
             'records': [{"name": "Sunita", "age": "51"},
@@ -275,16 +265,8 @@ class TestDatastoreCreateNewTests(DatastoreFunctionalTestBase):
             'force': True,
         }
         helpers.call_action('datastore_create', **data)
-        last_analyze = self._when_was_last_analyze(resource_id)
+        last_analyze = when_was_last_analyze(resource['id'])
         assert_not_equal(last_analyze, None)
-
-    def _when_was_last_analyze(self, resource_id):
-        results = self._execute_sql(
-            '''SELECT last_analyze
-            FROM pg_stat_user_tables
-            WHERE relname=%s;
-            ''', resource_id).fetchall()
-        return results[0][0]
 
 
 class TestDatastoreCreate(DatastoreLegacyTestBase):
