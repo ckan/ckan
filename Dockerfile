@@ -69,6 +69,8 @@ RUN ckan-pip install -U pip && \
 # Install needed libraries
 RUN ckan-pip install factory_boy
 RUN ckan-pip install mock
+# for debugging
+RUN ckan-pip install flask_debugtoolbar
 
 
 WORKDIR $CKAN_VENV/src

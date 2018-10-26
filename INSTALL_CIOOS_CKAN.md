@@ -37,10 +37,9 @@ git checkout cioos
 ```
 ### add submodules
 ```
-cd ~/ckan/contrib/docker/src
-git submodule add -f https://github.com/canadian-ioos/ckanext-harvest.git
-git submodule add -f https://github.com/canadian-ioos/ckanext-spatial.git
-git submodule add -f https://github.com/canadian-ioos/ckanext-cioos_theme.git
+cd ~/ckan
+git submodule init
+git submodule update
 ```
 ---
 # Create config files
@@ -83,7 +82,15 @@ if this fails try manually pulling the images first e.g.:
  docker pull --disable-content-trust clementmouchet/datapusher
  docker pull --disable-content-trust redis:latest
 ```
-
+Sometimes the containers start in the wrong order. This often results in strange sql errors in the db logs. If this happens you can manually start the containers by first building then using docker-compose up
+```
+sudo docker-compose build
+sudo docker-compose up db
+sudo docker-compose up solr redis
+sudo docker-compose up ckan
+sudo docker-compose up datapusher
+sudo docker-compose up ckan_gather_harvester ckan_fetch_harvester ckan_run_harvester
+```
 if you need to change the production.ini in the repo and rebuild then you may need to  delete the volume first. volume does not update during dockerfile run if it already exists.
 ```
 docker-compose down
@@ -112,9 +119,16 @@ or
       		    ProxyPassReverse http://localhost:5000/
    		</location>
 ```
-
+If you use rewrite rules to redirect none ssl trafic to https and you are using a non-root install, such as /ckan, then you will likely need to add a no escape flag to your rewite rules. something like the following should work, not the NE.
+```
+  RewriteEngine on
+  ReWriteCond %{SERVER_PORT} !^443$
+  RewriteRule ^/(.*) https://%{HTTP_HOST}/$1 [NC,R,L,NE]
+```
 # Create ckan admin user
+```
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add admin
+```
 
 # Configure admin settings
 in the admin page of ckan set style to default and homepage to CIOOS to get the full affect of the cioos_theme extention
