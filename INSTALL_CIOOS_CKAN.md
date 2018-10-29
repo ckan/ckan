@@ -280,3 +280,40 @@ To fix chage the owner of the ckan storage folder and its children
   exit
 ```
 ---
+
+# Update CKAN and its extensions
+
+### enable colume enviroment variables to make accessing the volumes easier
+```
+export VOL_CKAN_HOME=`sudo docker volume inspect docker_ckan_home | jq -r -c '.[] | .Mountpoint'`
+export VOL_CKAN_CONFIG=`sudo docker volume inspect docker_ckan_config | jq -r -c '.[] | .Mountpoint'`
+export VOL_CKAN_STORAGE=`sudo docker volume inspect docker_ckan_storage | jq -r -c '.[] | .Mountpoint'`
+echo $VOL_CKAN_HOME
+echo $VOL_CKAN_CONFIG
+echo $VOL_CKAN_STORAGE
+```
+
+### update submodules
+```
+cd ~/ckan
+git pull
+git submodule update
+```
+
+### copy updated extension code to the volumes
+```
+cd ~/ckan/contrib/docker
+sudo cp -r src/ckanext-cioos_theme/ $VOL_CKAN_HOME/venv/src/
+sudo cp -r src/ckanext-harvest/ $VOL_CKAN_HOME/venv/src/
+sudo cp -r src/ckanext-spatial/ $VOL_CKAN_HOME/venv/src/
+```
+
+### update permissions
+```
+sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/
+```
+
+### restart ckan
+```
+sudo docker-compose restart ckan
+```
