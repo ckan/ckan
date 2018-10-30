@@ -48,7 +48,7 @@ rq==0.6.0
 simplejson==3.10.0
 six==1.10.0               # via bleach, html5lib, pastescript, pyutilib.component.core, sqlalchemy-migrate
 sqlalchemy-migrate==0.10.0
-SQLAlchemy==0.9.6         # via sqlalchemy-migrate
+SQLAlchemy==0.9.8         # via sqlalchemy-migrate
 sqlparse==0.2.2
 Tempita==0.5.2            # via pylons, sqlalchemy-migrate, weberror
 tzlocal==1.3
