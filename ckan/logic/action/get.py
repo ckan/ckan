@@ -1689,6 +1689,8 @@ def package_search(context, data_dict):
     :param fq: any filter queries to apply.  Note: ``+site_id:{ckan_site_id}``
         is added to this string prior to the query being executed.
     :type fq: string
+    :param fq_list: additional filter queries to apply.
+    :type fq_list: list of strings
     :param sort: sorting of the search results.  Optional.  Default:
         ``'relevance asc, metadata_modified desc'``.  As per the solr
         documentation, this is a comma-separated string of field names and
