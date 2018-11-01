@@ -840,9 +840,38 @@ class TestPackageAutocomplete(helpers.FunctionalTestBase):
         dataset2 = factories.Dataset(user=user, owner_org=org['name'],
                                      private=True, title='Some private stuff')
 
-        package_list = helpers.call_action('package_autocomplete',
-                                           q='some')
+        package_list = helpers.call_action(
+            'package_autocomplete', context={'ignore_auth': False}, q='some'
+        )
         eq(len(package_list), 1)
+
+    def test_package_autocomplete_does_return_private_datasets_from_my_org(self):
+        user = factories.User()
+        org = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'member'}]
+        )
+        factories.Dataset(
+            user=user, owner_org=org['id'], title='Some public stuff'
+        )
+        factories.Dataset(
+            user=user, owner_org=org['id'], private=True,
+            title='Some private stuff'
+        )
+        package_list = helpers.call_action(
+            'package_autocomplete',
+            context={'user': user['name'], 'ignore_auth': False},
+            q='some'
+        )
+        eq(len(package_list), 2)
+
+    def test_package_autocomplete_works_for_the_middle_part_of_title(self):
+        factories.Dataset(title='Some public stuff')
+        factories.Dataset(title='Some random stuff')
+
+        package_list = helpers.call_action('package_autocomplete', q='bli')
+        eq(len(package_list), 1)
+        package_list = helpers.call_action('package_autocomplete', q='tuf')
+        eq(len(package_list), 2)
 
 
 class TestPackageSearch(helpers.FunctionalTestBase):

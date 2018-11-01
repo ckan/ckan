@@ -1511,7 +1511,6 @@ def package_autocomplete(context, data_dict):
         )
 
     data_dict = {
-        'fq': '+capacity:public',
         'q': ' OR '.join([
             'name_ngram:{0}',
             'title_ngram:{0}',
