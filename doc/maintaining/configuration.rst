@@ -1859,6 +1859,20 @@ example.
 Form Settings
 -------------
 
+.. ckan.dataset.create.require.resource
+
+ckan.dataset.create.require.resource
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ckan.dataset.create.require.resource = False
+
+Default value: True
+
+If False, there is no need to add any resources when creating a new dataset.
+
+
 .. _package_new_return_url:
 
 package_new_return_url
