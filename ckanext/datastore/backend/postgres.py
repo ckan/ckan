@@ -1293,27 +1293,9 @@ def search_data(context, data_dict):
             data_dict.get('total_estimation_threshold') or 0
         estimated_total = None
         if total_estimation_threshold != 0 and not (where_clause or distinct):
-            # Estimate the total (result row count)
+            # there are no filters, so we can try to use the estimated table
+            # row count from pg stats
             # See: https://wiki.postgresql.org/wiki/Count_estimate
-
-            # Estimates rely on postgres having run ANALYZE on the table, so
-            # ensure that has been done.
-            when_was_last_analyze_sql = sqlalchemy.text('''
-                SELECT last_analyze, last_autoanalyze
-                FROM pg_stat_user_tables
-                WHERE relname=:resource;
-                ''')
-            result = context['connection'].execute(
-                when_was_last_analyze_sql, resource=resource_id)
-            last_analyze, last_autoanalyze = result.fetchall()[0]
-            if not (last_analyze or last_autoanalyze):
-                analyze_sql = '''
-                    ANALYZE "{resource}";
-                '''.format(resource=resource_id)
-                context['connection'].execute(analyze_sql)
-
-            # there are no filters, so we can use the table row count from
-            # pg stats
             # (We also tried using the EXPLAIN to estimate filtered queries but
             #  it didn't estimate well in tests)
             analyze_count_sql = sqlalchemy.text('''
@@ -1323,7 +1305,17 @@ def search_data(context, data_dict):
             ''')
             count_result = context['connection'].execute(analyze_count_sql,
                                                          resource=resource_id)
-            estimated_total = count_result.fetchall()[0][0]
+            try:
+                estimated_total = count_result.fetchall()[0][0]
+            except ValueError:
+                # the table doesn't have the stats calculated yet. (This should
+                # be done by xloader/datapusher at the end of loading.)
+                # We could provoke their creation with an ANALYZE, but that
+                # takes 10x the time to run, compared to SELECT COUNT(*) so
+                # we'll just revert to the latter. At some point the autovacuum
+                # will run and create the stats so we can use an estimate in
+                # future.
+                pass
 
         if estimated_total is not None \
                 and estimated_total >= total_estimation_threshold:
@@ -1963,7 +1955,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         connection = get_write_engine().connect()
         sql = 'ANALYZE "{}"'.format(resource_id)
         try:
-            results = connection.execute(sql)
+            connection.execute(sql)
         except sqlalchemy.exc.DatabaseError as err:
             raise DatastoreException(err)
 
