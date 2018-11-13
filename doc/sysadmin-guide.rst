@@ -126,7 +126,8 @@ This page shows all deleted datasets and allows you to delete them permanently.
 
     At present, it is not possible to purge organizations or groups using the
     web UI. This can only be done with access to the server, by directly deleting
-    them from CKAN's database.
+    them from CKAN's database. However,a design on how to purge org on GUI is
+    https://github.com/ckan/ckan/wiki/How-to-Purge-an-Organization-on-CKAN-GUI
 
 --------------
 Managing users
