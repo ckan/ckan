@@ -1671,6 +1671,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore.write_url']
+        self.write_url_search = self.config.get('ckan.datastore.write_url_search') \
+                                or self.config['ckan.datastore.write_url']
 
         self.legacy_mode = self.is_legacy_mode(config)
 
@@ -1853,7 +1855,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return upsert(context, data_dict)
 
     def search(self, context, data_dict):
-        data_dict['connection_url'] = self.write_url
+        data_dict['connection_url'] = self.write_url_search
         return search(context, data_dict)
 
     def search_sql(self, context, data_dict):
@@ -1893,7 +1895,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         resources_sql = sqlalchemy.text(
             u'''SELECT 1 FROM "_table_metadata"
             WHERE name = :id AND alias_of IS NULL''')
-        results = self._get_write_engine().execute(resources_sql, id=id)
+        results = self._get_read_engine().execute(resources_sql, id=id)
         res_exists = results.rowcount > 0
         return res_exists
 
@@ -1901,7 +1903,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         real_id = None
         resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
                                         WHERE name = :id''')
-        results = self._get_write_engine().execute(resources_sql, id=alias)
+        results = self._get_read_engine().execute(resources_sql, id=alias)
 
         res_exists = results.rowcount > 0
         if res_exists:
@@ -1929,7 +1931,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE table_name = :resource_id;
             ''')
-            schema_results = self._get_write_engine().execute(
+            schema_results = self._get_read_engine().execute(
                 schema_sql, resource_id=id)
             for row in schema_results.fetchall():
                 k = row[0]
@@ -1943,7 +1945,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             meta_sql = sqlalchemy.text(u'''
                 SELECT count(_id) FROM "{0}";
             '''.format(id))
-            meta_results = self._get_write_engine().execute(
+            meta_results = self._get_read_engine().execute(
                 meta_sql, resource_id=id)
             info['meta']['count'] = meta_results.fetchone()[0]
         finally:
@@ -1957,7 +1959,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         resources_sql = sqlalchemy.text(
             u'''SELECT name FROM "_table_metadata"
             WHERE alias_of IS NULL''')
-        query = self._get_write_engine().execute(resources_sql)
+        query = self._get_read_engine().execute(resources_sql)
         return [q[0] for q in query.fetchall()]
 
     def create_function(self, *args, **kwargs):
