@@ -10,10 +10,22 @@
     controller='ckanext.datastore.controller:DatastoreController',
     action='dictionary', id=pkg.name, resource_id=res.id) %}
 
+  <p>
+    {% block collapse_buttons %}
+      {{ _("Show controls:") }}
+      <button class="btn" type="button" data-toggle="collapse"
+        data-target=".ddict-description">{{ _("Description") }}</button>
+      <button class="btn" type="button" data-toggle="collapse"
+        data-target=".ddict-type-override">{{ _("Type Override") }}</button>
+      <button class="btn" type="button" data-toggle="collapse"
+        data-target=".ddict-view-filter">{{ _("View Filter") }}</button>
+    {% endblock %}
+  </p>
+
   <form method="post" action="{{ action }}" >
     {% block dictionary_form %}
       {% for field in fields %}
-          {% snippet "datastore/snippets/dictionary_form.html", field=field, position=loop.index %}
+        {% snippet "datastore/snippets/dictionary_form.html", field=field, position=loop.index %}
       {% endfor %}
     {% endblock %}
     <button class="btn btn-primary" name="save" type="submit">
