@@ -46,7 +46,7 @@ class TestDatastoreSearchNewTest(object):
         result = helpers.call_action('datastore_create', **data)
         search_data = {
             'resource_id': resource['id'],
-            'fields': 'from',
+            'fields': 'from, rank from',
             'q': {
                 'from': 'Brazil'
             },

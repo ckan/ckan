@@ -47,7 +47,7 @@ class DataTablesView(p.SingletonPlugin):
             u'default_title': p.toolkit._(u'Data Table'),
             u'schema': {
                 u'responsive': [default(False), boolean_validator],
-                u'export_buttons': [default(True), boolean_validator],
+                u'export_buttons': [default(False), boolean_validator],
                 u'col_reorder': [default(False), boolean_validator],
                 u'fixed_columns': [default(False), boolean_validator],
                 u'show_fields': [ignore_missing],
@@ -61,4 +61,9 @@ class DataTablesView(p.SingletonPlugin):
             controller=u'ckanext.datatablesview.controller'
                        u':DataTablesController',
             action=u'ajax')
+        m.connect(
+            u'/datatables/filtered-download/{resource_view_id}',
+            controller=u'ckanext.datatablesview.controller'
+                       u':DataTablesController',
+            action=u'filtered_download')
         return m

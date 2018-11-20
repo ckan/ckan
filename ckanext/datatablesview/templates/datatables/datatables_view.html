@@ -8,7 +8,10 @@
       data-server-side="true"
       data-processing="true"
       data-ajax='{
-          "url": "/datatables/ajax/{{ resource_view.id }}",
+          "url": "{{ h.url_for(
+            controller='ckanext.datatablesview.controller:DataTablesController',
+            action='ajax',
+            resource_view_id=resource_view.id) }}",
           "type": "POST",
           "data": { "filters": "{{ request.params.get('filters', '')|e }}" }
         }'
@@ -35,7 +38,7 @@
         {
           "extend": "colvis",
           "text": "{{ _('Hide/Unhide Columns') }}"
-        }{{ ', "copy", "excel", "print"' | safe
+        }{{ ', "copy", "print"' | safe
           if resource_view.get('export_buttons') else ''}}
         ]'
       data-keys='true'>
@@ -52,6 +55,12 @@
     <tbody>
     </tbody>
   </table>
+  <form id="filtered-datatables-download" method="POST" action="{{ h.url_for(
+      controller='ckanext.datatablesview.controller:DataTablesController',
+      action='filtered_download',
+      resource_view_id=resource_view.id) }}">
+    <input type="hidden" name="filters" value="{{ request.params.get('filters', '')|e }}" />
+  </form>
 
   {% resource 'ckanext-datatablesview/main' %}
 {% endblock %}
