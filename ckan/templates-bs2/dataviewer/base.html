@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 
-{% block subtitle %}{{ h.dataset_display_name(package) }} - {{h.resource_display_name(resource) }}{% endblock %}
+{% block subtitle %}{{ h.dataset_display_name(package) }} {{ g.template_title_delimiter }} {{h.resource_display_name(resource) }}{% endblock %}
 
 {# remove any scripts #}
 {% block scripts %}
