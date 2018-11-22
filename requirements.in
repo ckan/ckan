@@ -22,7 +22,7 @@ pytz==2016.7
 pyutilib.component.core==4.6.4
 repoze.who-friendlyform==1.0.8
 repoze.who==2.3
-requests==2.11.1
+requests==2.20.0
 Routes==1.13
 rq==0.6.0
 simplejson==3.10.0

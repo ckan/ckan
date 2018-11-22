@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ _('Manage') }} - {{ user_dict.display_name }} - {{ _('Users') }}{% endblock %}
+{% block subtitle %}{{ _('Manage') }} {{ g.template_title_delimiter }} {{ user_dict.display_name }} {{ g.template_title_delimiter }} {{ _('Users') }}{% endblock %}
 
 {% block primary_content %}
   <article class="module">
