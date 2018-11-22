@@ -5,10 +5,6 @@ import os
 import click
 import logging
 from logging.config import fileConfig as loggingFileConfig
-from flask import Flask, current_app
-from flask.cli import AppGroup, with_appcontext
-from werkzeug.serving import run_simple
-
 
 log = logging.getLogger(__name__)
 

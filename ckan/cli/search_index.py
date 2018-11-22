@@ -9,7 +9,6 @@ from werkzeug.serving import run_simple
 
 @click.group(name=u'search-index', short_help=u'Search index commands')
 @click.help_option(u'-h', u'--help')
-
 def search_index():
     pass
 
