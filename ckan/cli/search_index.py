@@ -1,24 +1,20 @@
 # encoding: utf-8
 
 import multiprocessing as mp
-import os
 
 import click
 import sqlalchemy as sa
-from flask import Flask, current_app
 from werkzeug.serving import run_simple
-
-from ckan.cli import click_config_option
 
 
 @click.group(name=u'search-index', short_help=u'Search index commands')
 @click.help_option(u'-h', u'--help')
+
 def search_index():
     pass
 
 
 @search_index.command(name=u'rebuild', short_help=u'Rebuild search index')
-@click.help_option(u'-h', u'--help')
 @click.option(u'-v', u'--verbose', is_flag=True)
 @click.option(u'-i', u'--force', is_flag=True,
               help=u'Ignore exceptions when rebuilding the index')
@@ -51,14 +47,12 @@ def rebuild(ctx, verbose, force, refresh, only_missing, quiet, commit_each):
 
 
 @search_index.command(name=u'check', short_help=u'Check search index')
-@click.help_option(u'-h', u'--help')
 def check():
     from ckan.lib.search import check
     check()
 
 
 @search_index.command(name=u'show', short_help=u'Show index of a dataset')
-@click.help_option(u'-h', u'--help')
 @click.argument(u'dataset_name')
 def show(dataset_name):
     from ckan.lib.search import show
@@ -68,7 +62,6 @@ def show(dataset_name):
 
 
 @search_index.command(name=u'clear', short_help=u'Clear the search index')
-@click.help_option(u'-h', u'--help')
 @click.argument(u'dataset_name', required=False)
 def clear(dataset_name):
     from ckan.lib.search import clear, clear_all
@@ -81,7 +74,6 @@ def clear(dataset_name):
 
 @search_index.command(name=u'rebuild-fast',
                       short_help=u'Reindex with multiprocessing')
-@click.help_option(u'-h', u'--help')
 @click.pass_context
 def rebuild_fast(ctx):
     conf = ctx.obj.config

@@ -1,4 +1,3 @@
-
 # encoding: utf-8
 
 # This file contains commonly used parts of external libraries. The idea is

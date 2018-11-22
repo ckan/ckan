@@ -1,13 +1,11 @@
 # encoding: utf-8
 
-import os
+import logging
 
 import click
 
-from ckan.cli import db, load_config, search_index, server, click_config_option
+from ckan.cli import click_config_option, db, load_config, search_index, server
 from ckan.config.middleware import make_app
-
-import logging
 
 log = logging.getLogger(__name__)
 
