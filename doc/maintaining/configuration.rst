@@ -1285,14 +1285,14 @@ Example (showing insertion of Google Analytics code)::
 
 .. note:: This is only for legacy code, and shouldn't be used anymore.
 
-.. _ckan.template_title_deliminater:
+.. _ckan.template_title_delimiter:
 
-ckan.template_title_deliminater
+ckan.template_title_delimiter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.template_title_deliminater = |
+ ckan.template_title_delimiter = |
 
 Default value:  ``-``
 

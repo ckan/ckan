@@ -4,7 +4,7 @@
 
 {% set user = user_dict %}
 
-{% block subtitle %}{{ _('Edit Member') if user else _('Add Member') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Edit Member') if user else _('Add Member') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
   {% link_for _('Back to all members'), named_route=group_type+'.members', id=organization.name, class_='btn btn-default pull-right', icon='arrow-left' %}
