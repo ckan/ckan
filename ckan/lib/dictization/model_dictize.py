@@ -115,8 +115,8 @@ def resource_dictize(res, context):
                                     resource_id=res.id,
                                     filename=cleaned_name,
                                     qualified=True)
-    elif resource['url'] and not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
-        resource['url'] = u'http://' + url.lstrip('/')
+    elif resource['url'] and not urlparse.urlsplit(url).scheme:
+        res_dict['url'] = res_dict['url'].rsplit('/')[-1]
     return resource
 
 
