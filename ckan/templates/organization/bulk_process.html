@@ -1,6 +1,6 @@
 {% extends "organization/edit_base.html" %}
 
-{% block subtitle %}{{ _('Edit datasets') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Edit datasets') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block page_primary_action %}
   {% snippet 'snippets/add_dataset.html', group=group_dict.id %}

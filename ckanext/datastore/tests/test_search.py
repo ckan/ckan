@@ -26,7 +26,7 @@ assert_raises = nose.tools.assert_raises
 assert_in = nose.tools.assert_in
 
 
-class TestDatastoreSearchNewTest(DatastoreFunctionalTestBase):
+class TestDatastoreSearch(DatastoreFunctionalTestBase):
     def test_fts_on_field_calculates_ranks_only_on_that_specific_field(self):
         resource = factories.Resource()
         data = {
@@ -40,7 +40,7 @@ class TestDatastoreSearchNewTest(DatastoreFunctionalTestBase):
         result = helpers.call_action('datastore_create', **data)
         search_data = {
             'resource_id': resource['id'],
-            'fields': 'from',
+            'fields': 'from, rank from',
             'q': {
                 'from': 'Brazil'
             },
@@ -100,16 +100,33 @@ class TestDatastoreSearchNewTest(DatastoreFunctionalTestBase):
         result_years = [r['the year'] for r in result['records']]
         assert_equals(result_years, [2013])
 
+    def test_search_without_total(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'include_total': False
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        assert 'total' not in result
 
 
-class TestDatastoreSearch(DatastoreLegacyTestBase):
+class TestDatastoreSearchLegacyTests(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
         cls.app = helpers._get_test_app()
-        super(TestDatastoreSearch, cls).setup_class()
+        super(TestDatastoreSearchLegacyTests, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -284,7 +301,7 @@ class TestDatastoreSearch(DatastoreLegacyTestBase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         result = res_dict['result']
-        assert result['total'] == 2
+        assert result['total'] == 1
         assert result['records'] == [{u'author': 'tolstoy'}], result['records']
 
     def test_search_filters(self):
@@ -635,11 +652,11 @@ class TestDatastoreSearch(DatastoreLegacyTestBase):
         assert res_dict['error'].get('fields') is not None, res_dict['error']
 
 
-class TestDatastoreFullTextSearch(DatastoreLegacyTestBase):
+class TestDatastoreFullTextSearchLegacyTests(DatastoreLegacyTestBase):
     @classmethod
     def setup_class(cls):
         cls.app = helpers._get_test_app()
-        super(TestDatastoreFullTextSearch, cls).setup_class()
+        super(TestDatastoreFullTextSearchLegacyTests, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -756,14 +773,14 @@ class TestDatastoreFullTextSearch(DatastoreLegacyTestBase):
         assert res_dict['success'], pprint.pformat(res_dict)
 
 
-class TestDatastoreSQL(DatastoreLegacyTestBase):
+class TestDatastoreSQLLegacyTests(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
         cls.app = helpers._get_test_app()
-        super(TestDatastoreSQL, cls).setup_class()
+        super(TestDatastoreSQLLegacyTests, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -1171,4 +1188,61 @@ class TestDatastoreSearchRecordsFormat(DatastoreFunctionalTestBase):
             u'2,9,2020-01-02T00:00:00,aaab\n'
             u'1,10,2020-01-01T00:00:00,aaab\n'
             u'3,9,2020-01-01T00:00:00,aaac\n'
+            )
+
+    def test_fields_results_csv(self):
+        ds = factories.Dataset()
+        r = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[
+                {u'id': u'num', u'type': u'numeric'},
+                {u'id': u'dt', u'type': u'timestamp'},
+                {u'id': u'txt', u'type': u'text'}],
+            records=[
+                {u'num': 9, u'dt': u'2020-01-02', u'txt': u'aaab'},
+                {u'num': 9, u'dt': u'2020-01-01', u'txt': u'aaac'}])
+        r = helpers.call_action(
+            'datastore_search',
+            resource_id=r['resource_id'],
+            records_format=u'csv',
+            fields=u'dt, num, txt',
+            )
+        assert_equals(r['fields'], [
+            {u'id': u'dt', u'type': u'timestamp'},
+            {u'id': u'num', u'type': u'numeric'},
+            {u'id': u'txt', u'type': u'text'}])
+        assert_equals(
+            r['records'],
+            u'2020-01-02T00:00:00,9,aaab\n'
+            u'2020-01-01T00:00:00,9,aaac\n'
+            )
+        r = helpers.call_action(
+            'datastore_search',
+            resource_id=r['resource_id'],
+            records_format=u'csv',
+            fields=u'dt',
+            q=u'aaac',
+            )
+        assert_equals(r['fields'], [
+            {u'id': u'dt', u'type': u'timestamp'},
+            ])
+        assert_equals(
+            r['records'],
+            u'2020-01-01T00:00:00\n'
+            )
+        r = helpers.call_action(
+            'datastore_search',
+            resource_id=r['resource_id'],
+            records_format=u'csv',
+            fields=u'txt, rank txt',
+            q={u'txt': u'aaac'},
+            )
+        assert_equals(r['fields'], [
+            {u'id': u'txt', u'type': u'text'},
+            {u'id': u'rank txt', u'type': u'float'},
+            ])
+        assert_equals(
+            r['records'][:7],
+            u'aaac,0.'
             )

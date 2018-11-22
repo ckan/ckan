@@ -1,0 +1,102 @@
+version: 2
+jobs:
+  test:
+    docker:
+      - image: python:2
+        environment:
+          CKAN_DATASTORE_POSTGRES_DB: datastore_test
+          CKAN_DATASTORE_POSTGRES_READ_USER: datastore_read
+          CKAN_DATASTORE_POSTGRES_READ_PWD: pass
+          CKAN_DATASTORE_POSTGRES_WRITE_USER: datastore_write
+          CKAN_DATASTORE_POSTGRES_WRITE_PWD: pass
+          CKAN_POSTGRES_DB: ckan_test
+          CKAN_POSTGRES_USER: ckan_default
+          CKAN_POSTGRES_PWD: pass
+          PGPASSWORD: ckan
+          NODE_TESTS_CONTAINER: 2
+          NOSETEST_COMMON_OPTIONS: -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=/root/junit/junit.xml ckan ckanext
+      - image: postgres:10
+        environment:
+          POSTGRES_USER: ckan
+          POSTGRES_PASSWORD: ckan
+        name: ckan-postgres
+      - image: redis:3
+        name: ckan-redis
+
+    parallelism: 4
+
+    steps:
+      - checkout
+
+      - run: |
+          # SO Dependencies
+          apt update
+          case $CIRCLE_NODE_INDEX in
+            $NODE_TESTS_CONTAINER)
+            curl -sL https://deb.nodesource.com/setup_10.x | bash -
+            apt install -y nodejs
+            npm install mocha-phantomjs@3.5.0 phantomjs@~1.9.1
+            ;;
+          esac
+          apt install -y postgresql-client solr-jetty openjdk-8-jdk
+
+          # Python Dependencies
+          pip install -r requirement-setuptools.txt
+          pip install -r requirements.txt
+          pip install -r dev-requirements.txt
+          python setup.py develop
+
+          # SOLR config
+          cp ~/project/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
+          service jetty9 restart || true  # erroring out but does seem to work
+
+          # Database Creation
+          psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
+          createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_POSTGRES_USER} ${CKAN_POSTGRES_DB}
+          psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_READ_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_READ_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
+          psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_WRITE_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_WRITE_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
+          createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_DATASTORE_POSTGRES_WRITE_USER} ${CKAN_DATASTORE_POSTGRES_DB}
+
+          # Database Initialization
+          paster datastore -c test-core-circle-ci.ini set-permissions | psql --host=ckan-postgres --username=ckan
+          paster db init -c test-core-circle-ci.ini
+
+      # Tests Backend, split across containers by segments
+      - run: |
+          mkdir -p ~/junit
+          case $CIRCLE_NODE_INDEX in
+            0) nosetests $NOSETEST_COMMON_OPTIONS --segments 0123
+            ;;
+            1) nosetests $NOSETEST_COMMON_OPTIONS --segments 4567
+            ;;
+            2) nosetests $NOSETEST_COMMON_OPTIONS --segments 89ab
+            ;;
+            3) nosetests $NOSETEST_COMMON_OPTIONS --segments cdef
+            ;;
+          esac
+      - store_test_results:
+          path: ~/junit
+
+      # Tests Frontend, only in one container
+      - run:
+          command: |
+            case $CIRCLE_NODE_INDEX in
+              $NODE_TESTS_CONTAINER) paster serve test-core-circle-ci.ini
+              ;;
+            esac
+          background: true
+      - run:
+          command: |
+            case $CIRCLE_NODE_INDEX in
+              $NODE_TESTS_CONTAINER)
+                sleep 5
+                /root/project/node_modules/mocha-phantomjs/bin/mocha-phantomjs \
+                  http://localhost:5000/base/test/index.html
+              ;;
+            esac
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - test

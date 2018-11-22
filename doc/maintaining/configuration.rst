@@ -1285,14 +1285,14 @@ Example (showing insertion of Google Analytics code)::
 
 .. note:: This is only for legacy code, and shouldn't be used anymore.
 
-.. _ckan.template_title_deliminater:
+.. _ckan.template_title_delimiter:
 
-ckan.template_title_deliminater
+ckan.template_title_delimiter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.template_title_deliminater = |
+ ckan.template_title_delimiter = |
 
 Default value:  ``-``
 
@@ -1758,6 +1758,33 @@ Default value: (none)
 If you have set an extra i18n directory using ``ckan.i18n.extra_directory``, you
 should specify the locales that have been translated in that directory in this
 option.
+
+.. _ckan.i18n.rtl_languages:
+
+ckan.i18n.rtl_languages
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.i18n.rtl_languages = he ar fa_IR
+
+Default value: ``he ar fa_IR``
+
+Allows to modify the right-to-left languages
+
+.. _ckan.i18n.rtl_css:
+
+ckan.i18n.rtl_css
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.i18n.rtl_css = /base/css/my-custom-rtl.css
+
+Default value: ``/base/css/rtl.css``
+
+Allows to override the default rtl css file used for the languages defined
+in ``ckan.i18n.rtl_languages``.
 
 .. _ckan.display_timezone:
 

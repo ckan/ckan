@@ -5,12 +5,11 @@ Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 16.04 64-bit or
-Ubuntu 14.04 64-bit. Installing CKAN from source works with other versions of
-Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
-you install CKAN from source on your own operating system, please share your
-experiences on our
-`How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
+:doc:`install-from-package` is simpler, it requires Ubuntu 18.04 64-bit, Ubuntu
+16.04 64-bit, or Ubuntu 14.04 64-bit. Installing CKAN from source works with other
+versions of Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X).
+If you install CKAN from source on your own operating system, please share your
+experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
 From source is also the right installation method for developers who want to
@@ -21,7 +20,7 @@ work on CKAN.
 --------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
-required packages with this command for Ubuntu 16.04::
+required packages with this command for Ubuntu 18.04 and Ubuntu 16.04::
 
     sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
 
@@ -80,6 +79,18 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
        sudo chown \`whoami\` |virtualenv|
        virtualenv --no-site-packages |virtualenv|
        |activate|
+    
+.. note::
+
+    If your system uses Python3 by default (e.g. Ubuntu 18.04) make sure to create
+    the virtualenv using the Python2.7 executable with the ``--python`` option: 
+
+    .. parsed-literal::
+
+        sudo mkdir -p |virtualenv|
+        sudo chown \`whoami\` |virtualenv|
+        virtualenv --python=/usr/bin/python2.7 --no-site-packages |virtualenv|
+        |activate|
 
 .. important::
 
@@ -360,3 +371,11 @@ This is seen occasionally with Jetty and Ubuntu 14.04. It requires a solr-jetty 
     wget https://launchpad.net/~vshn/+archive/ubuntu/solr/+files/solr-jetty-jsp-fix_1.0.2_all.deb
     sudo dpkg -i solr-jetty-jsp-fix_1.0.2_all.deb
     sudo service jetty restart
+
+ImportError: No module named 'flask_debugtoolbar'
+-------------------------------------------------
+
+This may show up if you are creating the database tables and you have enabled debug
+mode in the config file. Simply install the development requirements::
+
+    pip install -r /usr/lib/ckan/default/src/ckan/dev-requirements.txt

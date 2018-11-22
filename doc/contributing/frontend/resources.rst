@@ -111,6 +111,11 @@ the same as for the .ini config file.
         bootstrap/js/bootstrap-button.js
         font-awesome/css/font-awesome-ie7.css
 
+    [supersedes]
+
+    select2-upgraded.js = vendor/select2/select2.js
+
+
 
 [main]
 ~~~~~~
@@ -187,3 +192,9 @@ used.
 
 Groups can be referred to in many places in the
 resource.config file eg. [depends]
+
+[supersedes]
+~~~~~~~~~~~~
+
+Allows to override static files from other resources. Has to be enabled at the
+app config by setting fanstatic_enable_rollup = yes

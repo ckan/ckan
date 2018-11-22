@@ -178,6 +178,8 @@ def index(group_type, is_organization):
     sort_by = request.params.get(u'sort')
 
     # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
     g.q = q
     g.sort_by_selected = sort_by
 
@@ -228,6 +230,11 @@ def index(group_type, is_organization):
 
     extra_vars["page"].items = page_results
     extra_vars["group_type"] = group_type
+
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
+    g.page = extra_vars["page"]
     return base.render(_index_template(group_type), extra_vars)
 
 
@@ -246,6 +253,8 @@ def _read(id, limit, group_type):
     q = request.params.get(u'q', u'')
 
     # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
     g.q = q
 
     # Search within group
@@ -322,6 +331,8 @@ def _read(id, limit, group_type):
                     search_extras[param] = value
 
         # TODO: Remove
+        # ckan 2.9: Adding variables that were removed from c object for
+        # compatibility with templates in existing extensions
         g.fields = fields
         g.fields_grouped = fields_grouped
 
@@ -368,6 +379,8 @@ def _read(id, limit, group_type):
             items_per_page=limit)
 
         # TODO: Remove
+        # ckan 2.9: Adding variables that were removed from c object for
+        # compatibility with templates in existing extensions
         g.group_dict['package_count'] = query['count']
 
         extra_vars["search_facets"] = g.search_facets = query['search_facets']
@@ -386,7 +399,9 @@ def _read(id, limit, group_type):
         extra_vars["query_error"] = True
         extra_vars["page"] = h.Page(collection=[])
 
-    # TODO: Rempve
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
     g.facet_titles = facets
     g.page = extra_vars["page"]
 
@@ -451,6 +466,8 @@ def read(group_type, is_organization, id=None, limit=20):
                              id=group_dict['name'])
 
     # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
     g.q = q
     g.group_dict = group_dict
     g.group = group
@@ -493,6 +510,8 @@ def activity(id, group_type, is_organization, offset=0):
         base.abort(400, error.message)
 
     # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
     g.group_activity_stream = extra_vars["group_activity_stream"]
     g.group_dict = group_dict
 
@@ -510,6 +529,8 @@ def about(id, group_type, is_organization):
     _setup_template_variables(context, {u'id': id}, group_type=group_type)
 
     # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
     g.group_dict = group_dict
     g.group_type = group_type
 
@@ -540,7 +561,9 @@ def members(id, group_type, is_organization):
                    _(u'User %r not authorized to edit members of %s') %
                    (g.user, id))
 
-    # TODO:Remove
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
     g.members = members
     g.group_dict = group_dict
 
@@ -577,6 +600,8 @@ def member_delete(id, group_type, is_organization):
         user_dict = _action(u'group_show')(context, {u'id': user_id})
 
         # TODO: Remove
+        # ckan 2.9: Adding variables that were removed from c object for
+        # compatibility with templates in existing extensions
         g.user_dict = user_dict
         g.user_id = user_id
         g.group_id = id
@@ -611,6 +636,8 @@ def history(id, group_type, is_organization):
             error = \
                 _(u'Select two revisions before doing the comparison.')
             # TODO: Remove
+            # ckan 2.9: Adding variables that were removed from c object for
+            # compatibility with templates in existing extensions
             g.error = error
         else:
             params[u'diff_entity'] = u'group'
@@ -674,9 +701,12 @@ def history(id, group_type, is_organization):
         return feed.writeString(u'utf-8')
 
     # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
     g.group_dict = group_dict
     g.group_revisions = group_revisions
     g.group = group
+
     extra_vars = {
         u"group_dict": group_dict,
         u"group_revisions": group_revisions,
@@ -739,6 +769,8 @@ def followers(id, group_type, is_organization):
         base.abort(403, _(u'Unauthorized to view followers %s') % u'')
 
     # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
     g.group_dict = group_dict
     g.followers = followers
 
@@ -757,6 +789,8 @@ def admins(id, group_type, is_organization):
     admins = authz.get_group_or_org_admin_ids(id)
 
     # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
     g.group_dict = group_dict
     g.admins = admins
 
@@ -805,6 +839,8 @@ class BulkProcessView(MethodView):
         # If no action then just show the datasets
         limit = 500
         # TODO: Remove
+        # ckan 2.9: Adding variables that were removed from c object for
+        # compatibility with templates in existing extensions
         g.group_dict = group_dict
         g.group = group
         extra_vars = _read(id, limit, group_type)
@@ -842,6 +878,8 @@ class BulkProcessView(MethodView):
             raise Exception(u'Must be an organization')
 
         # TODO: Remove
+        # ckan 2.9: Adding variables that were removed from c object for
+        # compatibility with templates in existing extensions
         g.group_dict = group_dict
         g.group = group
 
@@ -918,6 +956,9 @@ class CreateGroupView(MethodView):
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
+            data_dict.update(clean_dict(
+                dict_fns.unflatten(tuplize_dict(parse_params(request.files)))
+            ))
             data_dict['type'] = group_type or u'group'
             context['message'] = data_dict.get(u'log_message', u'')
             data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
@@ -958,6 +999,8 @@ class CreateGroupView(MethodView):
             _group_form(group_type=group_type), extra_vars)
 
         # TODO: Remove
+        # ckan 2.9: Adding variables that were removed from c object for
+        # compatibility with templates in existing extensions
         g.form = form
 
         extra_vars["form"] = form
@@ -996,6 +1039,9 @@ class EditGroupView(MethodView):
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
+            data_dict.update(clean_dict(
+                dict_fns.unflatten(tuplize_dict(parse_params(request.files)))
+            ))
             context['message'] = data_dict.get(u'log_message', u'')
             data_dict['id'] = context['id']
             context['allow_partial_update'] = True
@@ -1042,6 +1088,8 @@ class EditGroupView(MethodView):
         form = base.render(_group_form(group_type), extra_vars)
 
         # TODO: Remove
+        # ckan 2.9: Adding variables that were removed from c object for
+        # compatibility with templates in existing extensions
         g.grouptitle = grouptitle
         g.groupname = groupname
         g.data = data

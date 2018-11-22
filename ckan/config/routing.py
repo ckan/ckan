@@ -112,19 +112,6 @@ def make_map():
         if not hasattr(route, '_ckan_core'):
             route._ckan_core = False
 
-    # CKAN API versioned.
-    register_list = [
-        'package', 'dataset', 'resource', 'group', 'revision',
-        'licenses', 'rating', 'user', 'activity'
-    ]
-    register_list_str = '|'.join(register_list)
-
-    # /api ver 1, 2, 3 or none
-    with SubMapper(
-            map, controller='api', path_prefix='/api{ver:/1|/2|/3|}',
-            ver='/1') as m:
-        m.connect('/search/{register}', action='search')
-
     # /api/util ver 1, 2 or none
     with SubMapper(
             map, controller='api', path_prefix='/api{ver:/1|/2|}',
@@ -158,7 +145,6 @@ def make_map():
         m.connect('/i18n/strings_{lang}.js', action='i18n_js_strings')
         m.connect('/util/redirect', action='redirect')
         m.connect('/testing/primer', action='primer')
-        m.connect('/testing/markup', action='markup')
 
     # robots.txt
     map.connect('/(robots.txt)', controller='template', action='view')
