@@ -21,6 +21,8 @@ int_validator = get_validator('int_validator')
 OneOf = get_validator('OneOf')
 unicode_only = get_validator('unicode_only')
 default = get_validator('default')
+natural_number_validator = get_validator('natural_number_validator')
+limit_to_configured_maximum = get_validator('limit_to_configured_maximum')
 
 
 def rename(old, new):
@@ -161,7 +163,9 @@ def datastore_search_schema():
         'plain': [ignore_missing, boolean_validator],
         'filters': [ignore_missing, json_validator],
         'language': [ignore_missing, text_type],
-        'limit': [ignore_missing, int_validator],
+        'limit': [default(100), natural_number_validator,
+                  limit_to_configured_maximum('ckan.datastore.search.rows_max',
+                                              10000)],
         'offset': [ignore_missing, int_validator],
         'fields': [ignore_missing, list_of_strings_or_string],
         'sort': [ignore_missing, list_of_strings_or_string],

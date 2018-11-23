@@ -1702,6 +1702,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         else:
             field_ids = fields_types.keys()
 
+        # add default limit here just in case - already defaulted in the schema
         limit = data_dict.get('limit', 100)
         offset = data_dict.get('offset', 0)
 

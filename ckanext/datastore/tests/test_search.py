@@ -10,6 +10,7 @@ import sqlalchemy.orm as orm
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
+import ckan.logic as logic
 import ckan.tests.legacy as tests
 
 from ckan.common import config
@@ -117,6 +118,83 @@ class TestDatastoreSearch(DatastoreFunctionalTestBase):
         }
         result = helpers.call_action('datastore_search', **search_data)
         assert 'total' not in result
+
+    def test_search_limit(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'limit': 1
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        assert_equals(result['total'], 2)
+        assert_equals(result['records'], [{u'the year': 2014, u'_id': 1}])
+
+    def test_search_limit_invalid(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'limit': 'bad'
+        }
+        with assert_raises(logic.ValidationError) as exc:
+            helpers.call_action('datastore_search', **search_data)
+            assert_equals(exc.error_msg, {'limit': [u'Invalid integer']})
+
+    def test_search_limit_invalid_negative(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'limit': -1
+        }
+        with assert_raises(logic.ValidationError) as exc:
+            helpers.call_action('datastore_search', **search_data)
+            assert_equals(exc.error_msg, {'limit': [u'Invalid integer']})
+
+    @helpers.change_config('ckan.datastore.search.rows_max', '1')
+    def test_search_limit_config_default(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            # limit not specified - leaving to the configured default of 1
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        assert_equals(result['total'], 2)
+        assert_equals(result['records'], [{u'the year': 2014, u'_id': 1}])
 
 
 class TestDatastoreSearchLegacyTests(DatastoreLegacyTestBase):
@@ -417,38 +495,6 @@ class TestDatastoreSearchLegacyTests(DatastoreLegacyTestBase):
         error_msg = res_dict['error']['sort'][0]
         assert u'f\xfc\xfc' in error_msg, \
             'Expected "{0}" to contain "{1}"'.format(error_msg, u'f\xfc\xfc')
-
-    def test_search_limit(self):
-        data = {'resource_id': self.data['resource_id'],
-                'limit': 1}
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-        result = res_dict['result']
-        assert result['total'] == 2
-        assert result['records'] == [self.expected_records[0]]
-
-    def test_search_invalid_limit(self):
-        data = {'resource_id': self.data['resource_id'],
-                'limit': 'bad'}
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-
-        data = {'resource_id': self.data['resource_id'],
-                'limit': -1}
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
 
     def test_search_offset(self):
         data = {'resource_id': self.data['resource_id'],

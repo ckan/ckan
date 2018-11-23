@@ -392,7 +392,9 @@ def datastore_search(context, data_dict):
     :param language: language of the full text query
                      (optional, default: english)
     :type language: string
-    :param limit: maximum number of rows to return (optional, default: 100)
+    :param limit: maximum number of rows to return
+        (optional, default: ``100``, upper limit: ``10000`` unless set in
+        site's configuration ``ckan.datastore.search.rows_max``)
     :type limit: int
     :param offset: offset this number of rows (optional)
     :type offset: int
