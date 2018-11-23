@@ -70,6 +70,12 @@ def datastore_create(context, data_dict):
         {"function": "trigger_clean_reference"},
         {"function": "trigger_check_codes"}]
     :type triggers: list of dictionaries
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
     replaces the exising aliases or constraints. Setting ``records`` appends
@@ -152,6 +158,9 @@ def datastore_create(context, data_dict):
     except InvalidDataError as err:
         raise p.toolkit.ValidationError(text_type(err))
 
+    if data_dict.get('calculate_record_count', False):
+        backend.calculate_record_count(data_dict['resource_id'])
+
     # Set the datastore_active flag on the resource if necessary
     model = _get_or_bust(context, 'model')
     resobj = model.Resource.get(data_dict['resource_id'])
@@ -229,6 +238,12 @@ def datastore_upsert(context, data_dict):
                    Possible options are: upsert, insert, update
                    (optional, default: upsert)
     :type method: string
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
     :param dry_run: set to True to abort transaction instead of committing,
                     e.g. to check for validation or type errors.
     :type dry_run: bool (optional, default: False)
@@ -264,6 +279,10 @@ def datastore_upsert(context, data_dict):
     result = backend.upsert(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
+
+    if data_dict.get('calculate_record_count', False):
+        backend.calculate_record_count(data_dict['resource_id'])
+
     return result
 
 
@@ -306,6 +325,12 @@ def datastore_delete(context, data_dict):
                    If missing delete whole table and all dependent views.
                    (optional)
     :type filters: dictionary
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
 
     **Results:**
 
@@ -313,7 +338,7 @@ def datastore_delete(context, data_dict):
     :rtype: dictionary
 
     '''
-    schema = context.get('schema', dsschema.datastore_upsert_schema())
+    schema = context.get('schema', dsschema.datastore_delete_schema())
     backend = DatastoreBackend.get_active_backend()
 
     # Remove any applied filters before running validation.
@@ -348,6 +373,9 @@ def datastore_delete(context, data_dict):
         ))
 
     result = backend.delete(context, data_dict)
+
+    if data_dict.get('calculate_record_count', False):
+        backend.calculate_record_count(data_dict['resource_id'])
 
     # Set the datastore_active flag on the resource if necessary
     model = _get_or_bust(context, 'model')
@@ -405,6 +433,17 @@ def datastore_search(context, data_dict):
     :param include_total: True to return total matching record count
                           (optional, default: true)
     :type include_total: bool
+    :param total_estimation_threshold: If "include_total" is True and
+        "total_estimation_threshold" is not None and the estimated total
+        (matching record count) is above the "total_estimation_threshold" then
+        this datastore_search will return an *estimate* of the total, rather
+        than a precise one. This is often good enough, and saves
+        computationally expensive row counting for larger results (e.g. >100000
+        rows). The estimated total comes from the PostgreSQL table statistics,
+        generated when Express Loader or DataPusher finishes a load, or by
+        autovacuum. NB Currently estimation can't be done if the user specifies
+        'filters' or 'distinct' options. (optional, default: None)
+    :type total_estimation_threshold: int or None
     :param records_format: the format for the records return value:
         'objects' (default) list of {fieldname1: value1, ...} dicts,
         'lists' list of [value1, value2, ...] lists,
@@ -438,6 +477,8 @@ def datastore_search(context, data_dict):
     :type filters: list of dictionaries
     :param total: number of total matching records
     :type total: int
+    :param total_was_estimated: whether or not the total was estimated
+    :type total_was_estimated: bool
     :param records: list of matching results
     :type records: depends on records_format value passed
 
