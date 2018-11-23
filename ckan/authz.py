@@ -115,6 +115,8 @@ class AuthFunctions:
                     prev_func = self._functions[name]
                 fetched_auth_functions[name] =\
                     functools.partial(func, prev_func)
+                new_name = func.__name__ or prev_func.__name__
+                fetched_auth_functions[name].__name__ = new_name
 
         # Use the updated ones in preference to the originals.
         self._functions.update(fetched_auth_functions)
