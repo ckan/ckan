@@ -22,7 +22,7 @@ import ckan.lib.munge as munge
 
 from ckan.views import identify_user
 
-from ckan.common import _, c, request, response
+from ckan.common import _, c, request, response, config
 
 
 log = logging.getLogger(__name__)
