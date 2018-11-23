@@ -13,10 +13,9 @@ import ckan.model as model
 import ckan.logic as logic
 import ckan.tests.legacy as tests
 
-from ckan.common import config
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
-    extract, rebuild_all_dbs,
+    extract,
     DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
 
 import ckan.tests.helpers as helpers
@@ -24,6 +23,7 @@ import ckan.tests.factories as factories
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+assert_raises_regexp = nose.tools.assert_raises_regexp
 assert_in = nose.tools.assert_in
 
 
@@ -153,8 +153,8 @@ class TestDatastoreSearch(DatastoreFunctionalTestBase):
             'resource_id': resource['id'],
             'limit': 'bad'
         }
-        with assert_raises(logic.ValidationError) as exc:
-            exc.expected_regexp = "{'limit': \[u'Invalid integer'\]}"
+        with assert_raises_regexp(logic.ValidationError,
+                                  "Invalid integer"):
             helpers.call_action('datastore_search', **search_data)
 
     def test_search_limit_invalid_negative(self):
@@ -172,8 +172,9 @@ class TestDatastoreSearch(DatastoreFunctionalTestBase):
             'resource_id': resource['id'],
             'limit': -1
         }
-        with assert_raises(logic.ValidationError) as exc:
-            exc.expected_regexp = "{'limit': \[u'Must be a natural number'\]}"
+        with assert_raises_regexp(
+                logic.ValidationError,
+                "Must be a natural number"):
             helpers.call_action('datastore_search', **search_data)
 
     @helpers.change_config('ckan.datastore.search.rows_max', '1')
@@ -1062,8 +1063,9 @@ class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
         helpers.call_action('datastore_create', **data)
         sql = 'SELECT * FROM public."{0}"; SELECT * FROM public."{0}";' \
             .format(resource['id'])
-        assert_raises(p.toolkit.ValidationError,
-                      helpers.call_action, 'datastore_search_sql', sql=sql)
+        with assert_raises_regexp(p.toolkit.ValidationError,
+                                  'Query is not a single statement'):
+            helpers.call_action('datastore_search_sql', sql=sql)
 
     def test_works_with_semicolons_inside_strings(self):
         resource = factories.Resource()
@@ -1082,8 +1084,8 @@ class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
 
     def test_invalid_statement(self):
         sql = 'SELECT ** FROM foobar'
-        with assert_raises(logic.ValidationError) as exc:
-            exc.expected_regexp = 'syntax error at or near "FROM"'
+        with assert_raises_regexp(
+                logic.ValidationError, 'syntax error at or near "FROM"'):
             helpers.call_action('datastore_search_sql', sql=sql)
 
     def test_select_basic(self):
