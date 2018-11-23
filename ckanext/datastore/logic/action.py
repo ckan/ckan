@@ -441,8 +441,8 @@ def datastore_search(context, data_dict):
         computationally expensive row counting for larger results (e.g. >100000
         rows). The estimated total comes from the PostgreSQL table statistics,
         generated when Express Loader or DataPusher finishes a load, or by
-        autovacuum. NB Total estimation is currently not compatible when
-        specifying 'filters' or 'distinct' options. (optional, default: None)
+        autovacuum. NB Currently estimation can't be done if the user specifies
+        'filters' or 'distinct' options. (optional, default: None)
     :type total_estimation_threshold: int or None
     :param records_format: the format for the records return value:
         'objects' (default) list of {fieldname1: value1, ...} dicts,
