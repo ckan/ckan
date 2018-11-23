@@ -483,13 +483,15 @@ def datastore_search_sql(context, data_dict):
     engine is the
     `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
+    The number of results returned is limited to 10000, unless set in the
+    site's configuration ``ckan.datastore.search.rows_max``
     Queries are only allowed if you have access to the all the CKAN resources
     in the query and send the appropriate authorization.
 
     .. note:: This action is not available when
         :ref:`ckan.datastore.sqlsearch.enabled` is set to false
 
-    .. note:: When source data columns (i.e. CSV) heading names are provdied
+    .. note:: When source data columns (i.e. CSV) heading names are provided
         in all UPPERCASE you need to double quote them in the SQL select
         statement to avoid returning null results.
 
