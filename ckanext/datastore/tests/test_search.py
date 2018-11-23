@@ -221,6 +221,67 @@ class TestDatastoreSearchNewTest(DatastoreFunctionalTestBase):
         assert_equals(result.get('total_was_estimated'), True)
         assert 95 < result['total'] < 105, result['total']
 
+    def test_estimate_total_with_zero_threshold(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [{'the year': 1900 + i} for i in range(100)],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        analyze_sql = '''
+                    ANALYZE "{resource}";
+            '''.format(resource=resource['id'])
+        db.get_write_engine().execute(analyze_sql)
+        search_data = {
+            'resource_id': resource['id'],
+            'total_estimation_threshold': 0,
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        # threshold of 0 means always estimate
+        assert_equals(result.get('total_was_estimated'), True)
+        assert 95 < result['total'] < 105, result['total']
+
+    def test_estimate_total_off(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [{'the year': 1900 + i} for i in range(100)],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        analyze_sql = '''
+                    ANALYZE "{resource}";
+            '''.format(resource=resource['id'])
+        db.get_write_engine().execute(analyze_sql)
+        search_data = {
+            'resource_id': resource['id'],
+            'total_estimation_threshold': None,
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        # threshold of None means don't estimate
+        assert_equals(result.get('total_was_estimated'), False)
+
+    def test_estimate_total_default_off(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [{'the year': 1900 + i} for i in range(100)],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        analyze_sql = '''
+                    ANALYZE "{resource}";
+            '''.format(resource=resource['id'])
+        db.get_write_engine().execute(analyze_sql)
+        search_data = {
+            'resource_id': resource['id'],
+            # don't specify total_estimation_threshold
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        # default threshold is None, meaning don't estimate
+        assert_equals(result.get('total_was_estimated'), False)
+
 
 class TestDatastoreSearch(DatastoreLegacyTestBase):
     sysadmin_user = None

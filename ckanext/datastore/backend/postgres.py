@@ -1290,9 +1290,10 @@ def search_data(context, data_dict):
 
     if data_dict.get('include_total', True):
         total_estimation_threshold = \
-            data_dict.get('total_estimation_threshold') or 0
+            data_dict.get('total_estimation_threshold')
         estimated_total = None
-        if total_estimation_threshold != 0 and not (where_clause or distinct):
+        if total_estimation_threshold is not None and \
+                not (where_clause or distinct):
             # there are no filters, so we can try to use the estimated table
             # row count from pg stats
             # See: https://wiki.postgresql.org/wiki/Count_estimate
