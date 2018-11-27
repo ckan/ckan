@@ -92,7 +92,7 @@ class DataTablesController(BaseController):
                 else u'asc')
             sort_list.append(cols[sort_by_num] + u' ' + sort_order)
 
-        cols = [c for (c, v) in zip(cols, params['visible']) if v]
+        cols = [c for (c, v) in zip(cols, params['visible']) if v and c != '_id']
 
         h.redirect_to(
             h.url_for(
