@@ -19,7 +19,14 @@ def package_patch(context, data_dict):
     The difference between the update and patch methods is that the patch will
     perform an update of the provided parameters, while leaving all other
     parameters unchanged, whereas the update methods deletes all parameters
-    not explicitly provided in the data_dict
+    not explicitly provided in the data_dict.
+
+    You are able to partially update and/or create resources with
+    package_patch. If you are updating existing resources be sure to provide
+    the resource id. Existing resources excluded from the package_patch
+    data_dict will be removed. Resources in the package data_dict without
+    an id will be treated as new resources and will be added. New resources
+    added with the patch method do not create the default views.
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
