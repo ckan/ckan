@@ -108,6 +108,7 @@ def resource_dictize(res, context):
     ## for_edit is only called at the times when the dataset is to be edited
     ## in the frontend. Without for_edit the whole qualified url is returned.
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
+        url = url.rsplit('/')[-1]
         cleaned_name = munge.munge_filename(url)
         resource['url'] = h.url_for(controller='package',
                                     action='resource_download',
@@ -115,8 +116,8 @@ def resource_dictize(res, context):
                                     resource_id=res.id,
                                     filename=cleaned_name,
                                     qualified=True)
-    elif resource['url'] and not urlparse.urlsplit(url).scheme:
-        res_dict['url'] = res_dict['url'].rsplit('/')[-1]
+    elif resource['url'] and not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
+        resource['url'] = u'http://' + url.lstrip('/')
     return resource
 
 
