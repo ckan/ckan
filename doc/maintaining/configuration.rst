@@ -1859,14 +1859,13 @@ example.
 Form Settings
 -------------
 
-.. ckan.dataset.create.require.resource
+.. ckan.dataset.create_on_ui_requires_resources
 
-ckan.dataset.create.require.resource
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ckan.dataset.create_on_ui_requires_resources
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
-
-ckan.dataset.create.require.resource = False
+    ckan.dataset.create_on_ui_requires_resources = False
 
 Default value: True
 
