@@ -1,0 +1,7 @@
+[style]
+based_on_style = pep8
+coalesce_brackets = true
+dedent_closing_brackets = true
+allow_split_before_dict_value = false
+blank_line_before_nested_class_or_def = true
+split_complex_comprehension = true
