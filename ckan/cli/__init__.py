@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 
 def error_shout(exception):
-    click.secho(str(exception), fg='red', err=True)
+    click.secho(str(exception), fg=u'red', err=True)
 
 
 click_config_option = click.option(
