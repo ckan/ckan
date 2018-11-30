@@ -2,16 +2,19 @@
 
 import re
 import logging
-
-from ckan.common import config
-import pysolr
-from paste.deploy.converters import asbool
-from paste.util.multidict import MultiDict
 import six
+import pysolr
 
-from ckan.lib.search.common import make_connection, SearchError, SearchQueryError
+from paste.deploy.converters import asbool
+from werkzeug.datastructures import MultiDict
+
 import ckan.logic as logic
 import ckan.model as model
+
+from ckan.common import config
+from ckan.lib.search.common import (
+    make_connection, SearchError, SearchQueryError
+)
 
 log = logging.getLogger(__name__)
 
@@ -211,7 +214,7 @@ class ResourceSearchQuery(SearchQuery):
             options.update(kwargs)
 
         context = {
-            'model':model,
+            'model': model,
             'session': model.Session,
             'search_query': True,
         }
@@ -219,6 +222,7 @@ class ResourceSearchQuery(SearchQuery):
         # Transform fields into structure required by the resource_search
         # action.
         query = []
+
         for field, terms in fields.items():
             if isinstance(terms, six.string_types):
                 terms = terms.split()
