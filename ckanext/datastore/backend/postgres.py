@@ -455,7 +455,6 @@ def _textsearch_query(lang, q, plain):
         return '', {}
 
     statements = []
-    plain = data_dict.get('plain', True)
     rank_columns = {}
     if isinstance(q, basestring):
         query, rank = _build_query_and_rank_statements(
