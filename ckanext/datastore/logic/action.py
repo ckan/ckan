@@ -507,6 +507,10 @@ def datastore_search_sql(context, data_dict):
     :type fields: list of dictionaries
     :param records: list of matching results
     :type records: list of dictionaries
+    :param records_truncated: whether or not the number of records returned was
+        limited by the internal limit of 10000 records (or limit set in the
+        site's configuration ``ckan.datastore.search.rows_max``)
+    :type records_truncated: bool
 
     '''
     backend = DatastoreBackend.get_active_backend()

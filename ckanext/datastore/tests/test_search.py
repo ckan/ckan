@@ -1131,6 +1131,7 @@ class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
                         assert ft_value in row['_full_text']
                 else:
                     assert_equals(row[field], expected_row[field])
+        assert_equals(result[u'records_truncated'], False)
 
     def test_alias_search(self):
         resource = factories.Resource()
@@ -1155,6 +1156,27 @@ class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
         result_with_alias = helpers.call_action('datastore_search_sql',
                                                 sql=sql)
         assert result['records'] == result_with_alias['records']
+
+    @helpers.change_config('ckan.datastore.search.rows_max', '2')
+    def test_search_limit(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+                {'the year': 2015},
+                {'the year': 2016},
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        sql = 'SELECT * FROM "{0}"'.format(resource['id'])
+        result = helpers.call_action('datastore_search_sql', sql=sql)
+        assert_equals(len(result['records']), 2)
+        assert_equals([res[u'the year'] for res in result['records']],
+                      [2014, 2013])
+        assert_equals(result[u'records_truncated'], True)
 
 
 class TestDatastoreSearchRecordsFormat(DatastoreFunctionalTestBase):

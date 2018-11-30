@@ -1515,8 +1515,9 @@ def search_sql(context, data_dict):
 
     sql = data_dict['sql'].replace('%', '%%')
 
-    # limit the number of results to ckan.datastore.search.rows_max
-    rows_max = config.get('ckan.datastore.search.rows_max', 10000)
+    # limit the number of results to ckan.datastore.search.rows_max + 1
+    # (the +1 is so that we know if the results went over the limit or not)
+    rows_max = int(config.get('ckan.datastore.search.rows_max', 10000))
     sql = 'SELECT * FROM ({0}) AS blah LIMIT {1} ;'.format(sql, rows_max + 1)
 
     try:
@@ -1537,6 +1538,8 @@ def search_sql(context, data_dict):
 
         if results.rowcount == rows_max + 1:
             data_dict['records_truncated'] = True
+        else:
+            data_dict['records_truncated'] = False
 
         return format_results(context, results, data_dict, rows_max)
 
@@ -1689,6 +1692,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                      'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
+
+        # check rows_max is valid on CKAN start-up
+        rows_max = config.get('ckan.datastore.search.rows_max')
+        if rows_max is not None:
+            int(rows_max)
 
     def datastore_delete(self, context, data_dict, fields_types, query_dict):
         query_dict['where'] += _where_clauses(data_dict, fields_types)
