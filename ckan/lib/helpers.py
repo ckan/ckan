@@ -731,7 +731,7 @@ def _link_active_pylons(kwargs):
 
 
 def _link_active_flask(kwargs):
-    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    blueprint, endpoint = p.toolkit.get_endpoint()
     return(kwargs.get('controller') == blueprint and
            kwargs.get('action') == endpoint)
 
@@ -785,7 +785,7 @@ def nav_link(text, *args, **kwargs):
 def nav_link_flask(text, *args, **kwargs):
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
-    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    blueprint, endpoint = p.toolkit.get_endpoint()
     if args:
         kwargs['controller'] = blueprint or None
         kwargs['action'] = endpoint or None
@@ -1805,7 +1805,7 @@ def _create_url_with_params(params=None, controller=None, action=None,
     if not controller:
         controller = getattr(c, 'controller', False) or request.blueprint
     if not action:
-        action = getattr(c, 'action', False) or request.endpoint.split('.')[1]
+        action = getattr(c, 'action', False) or p.toolkit.get_endpoint()[1]
     if not extras:
         extras = {}
 
