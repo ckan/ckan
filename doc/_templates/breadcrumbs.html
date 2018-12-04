@@ -1,0 +1,38 @@
+{# Support for Sphinx 1.3+ page_source_suffix, but don't break old builds. #}
+
+{% if page_source_suffix %}
+{% set suffix = page_source_suffix %}
+{% else %}
+{% set suffix = source_suffix %}
+{% endif %}
+
+{% if meta is defined and meta is not none %}
+{% set check_meta = True %}
+{% else %}
+{% set check_meta = False %}
+{% endif %}
+
+{% if check_meta and 'github_url' in meta %}
+{% set display_github = True %}
+{% endif %}
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+    {% block breadcrumbs_aside %}
+      <li class="wy-breadcrumbs-aside">
+        {% if hasdoc(pagename) %}
+            {% if display_github %}
+            {% if check_meta and 'github_url' in meta %}
+              <!-- User defined GitHub URL -->
+              <a href="{{ meta['github_url'] }}" class="fa fa-github"> {{ _('Edit on GitHub') }}</a>
+            {% else %}
+              <a href="https://{{ github_host|default("github.com") }}/{{ github_user }}/{{ github_repo }}/{{ theme_vcs_pageview_mode|default("blob") }}/{{ github_version }}{{ conf_py_path }}{{ pagename }}{{ suffix }}" class="fa fa-github"> {{ _('Edit on GitHub') }}</a>
+            {% endif %}
+          {% elif show_source and has_source and sourcename %}
+            <a href="https://{{ github_host|default("github.com") }}/{{ github_user|default("ckan") }}/{{ github_repo|default("ckan") }}/{{ theme_vcs_pageview_mode|default("blob") }}/{{ github_version|default("master")}}/{{"doc"}}/{{ pagename }}{{ suffix }}"rel="nofollow"> {{ _('Edit on Github') }}</a>
+          {% endif %}
+        {% endif %}
+      </li>
+    {% endblock %}
+   <hr/>
+</div>
