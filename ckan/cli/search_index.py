@@ -4,7 +4,8 @@ import multiprocessing as mp
 
 import click
 import sqlalchemy as sa
-from werkzeug.serving import run_simple
+
+from ckan.cli import error_shout
 
 
 @click.group(name=u'search-index', short_help=u'Search index commands')
@@ -40,7 +41,7 @@ def rebuild(ctx, verbose, force, refresh, only_missing, quiet, commit_each):
                     defer_commit=(not commit_each),
                     quiet=quiet)
     except Exception as e:
-        click.echo(e, err=True)
+        error_shout(e)
     if not commit_each:
         commit()
 

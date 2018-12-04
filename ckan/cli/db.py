@@ -3,7 +3,8 @@
 import logging
 
 import click
-from werkzeug.serving import run_simple
+
+from ckan.cli import error_shout
 
 log = logging.getLogger(__name__)
 
@@ -13,7 +14,7 @@ def db():
     pass
 
 
-@db.command(u'init', short_help=u'Initialaze the database')
+@db.command(u'init', short_help=u'Initialize the database')
 def initdb():
     u'''Initialising the database'''
     log.info(u"Initialize the Database")
@@ -21,8 +22,9 @@ def initdb():
         import ckan.model as model
         model.repo.init_db()
     except Exception as e:
-        click.secho(e, err=True)
-    print(u'Initialising DB: SUCCESS')
+        error_shout(e)
+    else:
+        click.secho(u'Initialising DB: SUCCESS', fg=u'green', bold=True)
 
 
 PROMPT_MSG = u'This will delete all of your data!\nDo you want to continue?'
@@ -36,8 +38,9 @@ def cleandb():
         import ckan.model as model
         model.repo.clean_db()
     except Exception as e:
-        click.secho(e, err=True)
-    click.secho(u'Cleaning DB: SUCCESS', color=u"green", bold=True)
+        error_shout(e)
+    else:
+        click.secho(u'Cleaning DB: SUCCESS', fg=u'green', bold=True)
 
 
 @db.command(u'upgrade', short_help=u'Upgrade the database')
@@ -48,8 +51,9 @@ def updatedb(version=None):
         import ckan.model as model
         model.repo.upgrade_db(version)
     except Exception as e:
-        click.secho(e, err=True)
-    click.secho(u'Upgrading DB: SUCCESS', fg=u'green', bold=True)
+        error_shout(e)
+    else:
+        click.secho(u'Upgrading DB: SUCCESS', fg=u'green', bold=True)
 
 
 @db.command(u'version', short_help=u'Returns current version of data schema')
@@ -60,7 +64,9 @@ def version():
         from ckan.model import Session
         ver = Session.execute(u'select version from '
                               u'migrate_version;').fetchall()
-        click.secho(u"Latest data schema version: {0}".format(ver[0][0]),
-                    fg=u"green", bold=True)
+        click.secho(
+            u"Latest data schema version: {0}".format(ver[0][0]),
+            bold=True
+        )
     except Exception as e:
-        click.secho(e, err=True)
+        error_shout(e)
