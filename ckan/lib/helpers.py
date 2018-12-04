@@ -1154,6 +1154,8 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
 @core_helper
 def check_access(action, data_dict=None):
+    if not getattr(c, u'user', None):
+        c.user = None
     context = {'model': model,
                'user': c.user}
     if not data_dict:
