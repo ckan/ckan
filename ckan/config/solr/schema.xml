@@ -84,12 +84,12 @@ schema. In this case the version should be set to the next CKAN version number.
 
     <fieldType name="text_ngram" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
-	<tokenizer class="solr.NGramTokenizerFactory" minGramSize="2" maxGramSize="10"/>
-	<filter class="solr.LowerCaseFilterFactory"/>
+        <tokenizer class="solr.NGramTokenizerFactory" minGramSize="2" maxGramSize="10"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
       <analyzer type="query">
-	<tokenizer class="solr.EdgeNGramTokenizerFactory" minGramSize="2" maxGramSize="10"/>
-	<filter class="solr.LowerCaseFilterFactory"/>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
 
