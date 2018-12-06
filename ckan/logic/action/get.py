@@ -1536,7 +1536,7 @@ def package_autocomplete(context, data_dict):
             'name:{0}',
             'title:{0}',
         ]).format(search.query.solr_literal(q)),
-        'fl': ['name', 'title'],
+        'fl': 'name,title',
         'rows': limit
     }
     query = search.query_for(model.Package)
