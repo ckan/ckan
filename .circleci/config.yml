@@ -49,7 +49,9 @@ jobs:
           # SOLR config
           cp ~/project/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
           service jetty9 restart || true  # erroring out but does seem to work
-
+          echo 'Printing SOLR schema'
+          cat /etc/solr/conf/schema.xml
+          echo '----------------------------------'
           # Database Creation
           psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
           createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_POSTGRES_USER} ${CKAN_POSTGRES_DB}
