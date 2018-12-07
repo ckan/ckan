@@ -443,6 +443,6 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
         app = self._get_test_app()
         response = app.get('/datastore/dump/{0}'.format(str(resource['id'])))
         assert_equals('_id,book\r\n'
-                      '1,annakarenina\n'
-                      '2,warandpeace\n',
+                      '1,annakarenina\n',
                       response.body)
+        assert response.headers['X-Records-Truncated'] == 'true'

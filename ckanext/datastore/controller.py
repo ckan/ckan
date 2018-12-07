@@ -44,8 +44,7 @@ unicode_only = get_validator('unicode_only')
 
 
 DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
-PAGINATE_BY = min(32000,
-                  int(config.get('ckan.datastore.search.rows_max', 32000)))
+PAGINATE_BY = 32000
 
 
 def dump_schema():
@@ -175,6 +174,10 @@ def dump_to(
             'include_total': False,
             }, **search_params))
 
+    # number of records the user can get is bounded by rows_max
+    limit = min(limit,
+                int(config.get('ckan.datastore.search.rows_max', 32000)))
+
     result = result_page(offset, limit)
 
     with start_writer(result['fields']) as wr:
@@ -185,6 +188,11 @@ def dump_to(
             records = result['records']
 
             wr.write_records(records)
+
+            # NB broken because 'records_truncated' is not returned by datastore_search
+            if result.get('records_truncated', False):
+                response.headers['X-Records-Truncated'] = 'true'
+                break
 
             if records_format == 'objects' or records_format == 'lists':
                 if len(records) < PAGINATE_BY:

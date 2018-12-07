@@ -460,7 +460,7 @@ def datastore_search(context, data_dict):
     rows_max = int(config.get('ckan.datastore.search.rows_max', 32000))
     if data_dict['limit'] > rows_max:
         limit_reduced_by_rows_max = True
-        data_dict['limit'] = rows_max + 1
+        data_dict['limit'] = rows_max
     else:
         limit_reduced_by_rows_max = False
 
@@ -485,7 +485,9 @@ def datastore_search(context, data_dict):
     result = backend.search(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
-    if limit_reduced_by_rows_max and len(result['records']) == rows_max + 1:
+
+    # NB this is broken as result['records'] is a string - need total
+    if limit_reduced_by_rows_max and len(result['records']) == rows_max:
         result['records'] = result['records'][:-1]
         # result['total'] == rows_max
         assert result['total'] == rows_max + 1
