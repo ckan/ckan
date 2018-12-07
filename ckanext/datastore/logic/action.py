@@ -473,8 +473,9 @@ def datastore_search(context, data_dict):
     :type fields: list of dictionaries
     :param offset: query offset value
     :type offset: int
-    :param limit: query limit value (which is bounded to site configuration
-        value ``ckan.datastore.search.rows_max`` which has default of 32000)
+    :param limit: queried limit value (if the requested ``limit`` was above the
+        ``ckan.datastore.search.rows_max`` value then this response ``limit``
+        will be set to the value of ``ckan.datastore.search.rows_max``)
     :type limit: int
     :param filters: query filters
     :type filters: list of dictionaries
@@ -484,12 +485,6 @@ def datastore_search(context, data_dict):
     :type total_was_estimated: bool
     :param records: list of matching results
     :type records: depends on records_format value passed
-    :param records_truncated: indicates whether the number of records returned
-        was limited by the internal limit, which is 32000 records (or other
-        value set in the site's configuration
-        ``ckan.datastore.search.rows_max``). If records are truncated by this,
-        this key has value True, otherwise the key is not returned at all.
-    :type records_truncated: bool
 
     '''
     backend = DatastoreBackend.get_active_backend()
@@ -497,13 +492,6 @@ def datastore_search(context, data_dict):
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise p.toolkit.ValidationError(errors)
-
-    rows_max = int(config.get('ckan.datastore.search.rows_max', 32000))
-    if data_dict['limit'] > rows_max:
-        limit_reduced_by_rows_max = True
-        data_dict['limit'] = rows_max
-    else:
-        limit_reduced_by_rows_max = False
 
     res_id = data_dict['resource_id']
 
@@ -527,12 +515,6 @@ def datastore_search(context, data_dict):
     result.pop('id', None)
     result.pop('connection_url', None)
 
-    # NB this is broken as result['records'] is a string - need total
-    if limit_reduced_by_rows_max and len(result['records']) == rows_max:
-        result['records'] = result['records'][:-1]
-        # result['total'] == rows_max
-        assert result['total'] == rows_max + 1
-        data_dict['records_truncated'] = True
     return result
 
 
