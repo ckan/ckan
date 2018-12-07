@@ -294,7 +294,7 @@ Example::
 
  ckan.datastore.search.rows_max = 1000000
 
-Default value:  ``10000``
+Default value:  ``32000``
 
 Maximum allowed value for the number of rows returned by the datastore.
 
