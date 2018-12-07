@@ -2,6 +2,7 @@
 
 from nose.tools import assert_equals, assert_in
 import mock
+import json
 
 from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
 import ckan.tests.helpers as helpers
@@ -428,25 +429,20 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
         )
         assert_equals(content, expected_content)
 
-    @helpers.change_config('ckan.datastore.search.rows_max', '1')
+    @helpers.change_config('ckan.datastore.search.rows_max', '3')
     def test_dump_with_low_rows_max(self):
         resource = factories.Resource()
         data = {
             'resource_id': resource['id'],
             'force': True,
-            'records': [
-                {u'book': 'annakarenina'},
-                {u'book': 'warandpeace'},
-            ],
+            'records': [{u'record': str(num)} for num in range(12)],
         }
         helpers.call_action('datastore_create', **data)
 
         app = self._get_test_app()
         response = app.get('/datastore/dump/{0}'.format(str(resource['id'])))
-        assert_equals('_id,book\r\n'
-                      '1,annakarenina\n'
-                      '2,warandpeace\n',
-                      response.body)
+        assert_equals(get_csv_record_values(response.body),
+                      range(12))
 
     @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
     def test_dump_pagination(self):
@@ -460,11 +456,8 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
 
         app = self._get_test_app()
         response = app.get('/datastore/dump/{0}'.format(str(resource['id'])))
-        assert_equals(
-            '_id,record\r\n'
-            '1,0\n2,1\n3,2\n4,3\n5,4\n6,5\n7,6\n8,7\n9,8\n10,9\n'
-            '11,10\n12,11\n',
-            response.body)
+        assert_equals(get_csv_record_values(response.body),
+                      range(12))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '7')
     @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
@@ -478,12 +471,10 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
         helpers.call_action('datastore_create', **data)
 
         app = self._get_test_app()
-        response = app.get('/datastore/dump/{0}?limit=6'.format(
+        response = app.get('/datastore/dump/{0}?limit=11'.format(
             str(resource['id'])))
-        assert_equals(
-            '_id,record\r\n'
-            '1,0\n2,1\n3,2\n4,3\n5,4\n6,5\n',
-            response.body)
+        assert_equals(get_csv_record_values(response.body),
+                      range(11))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '7')
     @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 6)
@@ -499,10 +490,8 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
         app = self._get_test_app()
         response = app.get('/datastore/dump/{0}?limit=6'.format(
             str(resource['id'])))
-        assert_equals(
-            '_id,record\r\n'
-            '1,0\n2,1\n3,2\n4,3\n5,4\n6,5\n',
-            response.body)
+        assert_equals(get_csv_record_values(response.body),
+                      range(6))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '6')
     @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
@@ -517,10 +506,9 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
 
         app = self._get_test_app()
         response = app.get('/datastore/dump/{0}?limit=7'.format(str(resource['id'])))
-        assert_equals(
-            '_id,record\r\n'
-            '1,0\n2,1\n3,2\n4,3\n5,4\n6,5\n7,6\n',
-            response.body)
+        assert_equals(get_csv_record_values(response.body),
+                      range(7))
+
 
     @helpers.change_config('ckan.datastore.search.rows_max', '6')
     @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 6)
@@ -535,10 +523,8 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
 
         app = self._get_test_app()
         response = app.get('/datastore/dump/{0}?limit=7'.format(str(resource['id'])))
-        assert_equals(
-            '_id,record\r\n'
-            '1,0\n2,1\n3,2\n4,3\n5,4\n6,5\n7,6\n',
-            response.body)
+        assert_equals(get_csv_record_values(response.body),
+                      range(7))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '7')
     @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
@@ -554,12 +540,8 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
         app = self._get_test_app()
         response = app.get('/datastore/dump/{0}?limit=6&format=json'.format(
             str(resource['id'])))
-        assert_equals(
-            '{\n  "fields": [{"type":"int","id":"_id"},'
-            '{"type":"int4","id":"record"}],\n'
-            '  "records": [\n    [1,0],\n    [2,1],\n    [3,2],\n    [4,3],\n'
-            '    [5,4],\n    [6,5]\n]}\n',
-            response.body)
+        assert_equals(get_json_record_values(response.body),
+                      range(6))
 
     @helpers.change_config('ckan.datastore.search.rows_max', '6')
     @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
@@ -575,9 +557,15 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
         app = self._get_test_app()
         response = app.get('/datastore/dump/{0}?limit=7&format=json'.format(
             str(resource['id'])))
-        assert_equals(
-            '{\n  "fields": [{"type":"int","id":"_id"},'
-            '{"type":"int4","id":"record"}],\n'
-            '  "records": [\n    [1,0],\n    [2,1],\n    [3,2],\n    [4,3],\n'
-            '    [5,4],\n    [6,5],\n    [7,6]\n]}\n',
-            response.body)
+        assert_equals(get_json_record_values(response.body),
+                      range(7))
+
+
+def get_csv_record_values(response_body):
+    return [int(record.split(',')[1])
+            for record in response_body.split()[1:]]
+
+
+def get_json_record_values(response_body):
+    return [record[1]
+            for record in json.loads(response_body)['records']]

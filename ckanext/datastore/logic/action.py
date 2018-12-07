@@ -514,7 +514,6 @@ def datastore_search(context, data_dict):
     result = backend.search(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
-
     return result
 
 

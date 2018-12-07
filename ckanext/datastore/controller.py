@@ -177,8 +177,10 @@ def dump_to(
     result = result_page(offset, limit)
 
     if result['limit'] != limit:
-        # The limit has been reduced to ckan.datastore.search.rows_max
-        # so let's page over that amount instead
+        # `limit` (from PAGINATE_BY) must have been more than
+        # ckan.datastore.search.rows_max, so datastore_search responded with a
+        # limit matching ckan.datastore.search.rows_max. So we need to paginate
+        # by that amount instead, otherwise we'll have gaps in the records.
         paginate_by = result['limit']
     else:
         paginate_by = PAGINATE_BY
