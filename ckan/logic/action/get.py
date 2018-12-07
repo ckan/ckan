@@ -1515,34 +1515,46 @@ def package_autocomplete(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    model = context['model']
-
     _check_access('package_autocomplete', context, data_dict)
+    user = context.get('user')
 
     limit = data_dict.get('limit', 10)
     q = data_dict['q']
 
-    like_q = u"%s%%" % q
+    # enforce permission filter based on user
+    if context.get('ignore_auth') or (user and authz.is_sysadmin(user)):
+        labels = None
+    else:
+        labels = lib_plugins.get_permission_labels().get_user_dataset_labels(
+            context['auth_user_obj']
+        )
 
-    query = model.Session.query(model.Package)
-    query = query.filter(model.Package.state == 'active')
-    query = query.filter(model.Package.private == False)
-    query = query.filter(_or_(model.Package.name.ilike(like_q),
-                              model.Package.title.ilike(like_q)))
-    query = query.limit(limit)
+    data_dict = {
+        'q': ' OR '.join([
+            'name_ngram:{0}',
+            'title_ngram:{0}',
+            'name:{0}',
+            'title:{0}',
+        ]).format(search.query.solr_literal(q)),
+        'fl': 'name,title',
+        'rows': limit
+    }
+    query = search.query_for(model.Package)
+
+    results = query.run(data_dict, permission_labels=labels)['results']
 
     q_lower = q.lower()
     pkg_list = []
-    for package in query:
-        if package.name.startswith(q_lower):
+    for package in results:
+        if q_lower in package['name']:
             match_field = 'name'
-            match_displayed = package.name
+            match_displayed = package['name']
         else:
             match_field = 'title'
-            match_displayed = '%s (%s)' % (package.title, package.name)
+            match_displayed = '%s (%s)' % (package['title'], package['name'])
         result_dict = {
-            'name': package.name,
-            'title': package.title,
+            'name': package['name'],
+            'title': package['title'],
             'match_field': match_field,
             'match_displayed': match_displayed}
         pkg_list.append(result_dict)

@@ -77,7 +77,7 @@ entry_points = {
         'jobs = ckan.lib.cli:JobsCommand',
     ],
     'console_scripts': [
-        'ckan-admin = bin.ckan_admin:Command',
+        'ckan = ckan.cli.cli:ckan',
     ],
     'paste.paster_create_template': [
         'ckanext = ckan.pastertemplates:CkanextTemplate',

@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from nose.tools import assert_equals, assert_in
+import mock
 
 from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
 import ckan.tests.helpers as helpers
@@ -446,3 +447,59 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
                       '1,annakarenina\n',
                       response.body)
         assert response.headers['X-Records-Truncated'] == 'true'
+
+    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    def test_dump_pagination(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [{u'record': str(num)} for num in range(12)],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        response = app.get('/datastore/dump/{0}'.format(str(resource['id'])))
+        assert_equals(
+            '_id,record\r\n'
+            '1,0\n2,1\n3,2\n4,3\n5,4\n6,5\n7,6\n8,7\n9,8\n10,9\n'
+            '11,10\n12,11\n',
+            response.body)
+
+    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    def test_dump_pagination_csv_with_limit(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [{u'record': str(num)} for num in range(12)],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        response = app.get('/datastore/dump/{0}?limit=6'.format(
+            str(resource['id'])))
+        assert_equals(
+            '_id,record\r\n'
+            '1,0\n2,1\n3,2\n4,3\n5,4\n6,5\n',
+            response.body)
+
+    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    def test_dump_pagination_json_with_limit(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [{u'record': str(num)} for num in range(12)],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        response = app.get('/datastore/dump/{0}?limit=6&format=json'.format(
+            str(resource['id'])))
+        assert_equals(
+            '{\n  "fields": [{"type":"int","id":"_id"},'
+            '{"type":"int4","id":"record"}],\n'
+            '  "records": [\n    [1,0],\n    [2,1],\n    [3,2],\n    [4,3],\n'
+            '    [5,4],\n    [6,5]\n]}\n',
+            response.body)
