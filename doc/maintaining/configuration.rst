@@ -299,6 +299,7 @@ Default value:  ``32000``
 Maximum allowed value for the number of rows returned by the datastore.
 
 Specifically this limits:
+
 * ``datastore_search``'s ``limit`` parameter.
 * ``datastore_search_sql`` queries have this limit inserted.
 

@@ -509,7 +509,6 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
         assert_equals(get_csv_record_values(response.body),
                       range(7))
 
-
     @helpers.change_config('ckan.datastore.search.rows_max', '6')
     @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 6)
     def test_dump_pagination_with_rows_max_same_as_paginate(self):
