@@ -4,36 +4,36 @@ this.ckan.module('resource-view-filters', function (jQuery) {
   function initialize() {
     var self = this,
         resourceId = self.options.resourceId,
-        fields = self.options.fields,
+        fieldFilters = self.options.fieldFilters,
         dropdownTemplate = self.options.dropdownTemplate,
         addFilterTemplate = '<a class="btn btn-primary" href="#">' + self._('Add Filter') + '</a>',
         filtersDiv = $('<div></div>');
 
     var filters = ckan.views.filters.get();
-    _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fields, filters);
+    _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fieldFilters, filters);
     var addFilterButton = _buildAddFilterButton(self, filtersDiv, addFilterTemplate,
-                                                fields, filters, function (evt) {
+                                                fieldFilters, filters, function (evt) {
       // Build filters object with this element's val as key and a placeholder
       // value so _appendDropdowns() will create its dropdown
       var filters = {};
       filters[evt.val] = [];
 
       $(this).select2('destroy');
-      _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fields, filters);
+      _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fieldFilters, filters);
       evt.preventDefault();
     });
     self.el.append(filtersDiv);
     self.el.append(addFilterButton);
   }
 
-  function _buildAddFilterButton(self, el, template, fields, filters, onChangeCallback) {
+  function _buildAddFilterButton(self, el, template, fieldFilters, filters, onChangeCallback) {
     var addFilterButton = $(template),
         currentFilters = Object.keys(filters),
-        fieldsNotFiltered = $.grep(fields, function (field) {
-          return !filters.hasOwnProperty(field);
+        fieldsNotFiltered = $.grep(fieldFilters, function (field) {
+          return !filters.hasOwnProperty(field.id);
         }),
         data = $.map(fieldsNotFiltered, function (d) {
-          return { id: d, text: d };
+          return { id: d.id, text: d.id };
         });
 
     if (data.length === 0) {
@@ -59,10 +59,14 @@ this.ckan.module('resource-view-filters', function (jQuery) {
     return addFilterButton;
   }
 
-  function _appendDropdowns(dropdowns, resourceId, template, fields, filters) {
-    $.each(fields, function (i, field) {
-      if (filters.hasOwnProperty(field)) {
-        dropdowns.append(_buildDropdown(self.el, template, field));
+  function _appendDropdowns(dropdowns, resourceId, template, fieldFilters, filters) {
+    $.each(fieldFilters, function (i, field) {
+      if (filters.hasOwnProperty(field.id)) {
+        if (field.filter === 'search') {
+          dropdowns.append('<b>text search here</b>');
+        } else {
+          dropdowns.append(_buildDropdown(self.el, template, field.id));
+        }
       }
     });
 

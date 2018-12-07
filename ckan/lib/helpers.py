@@ -2313,6 +2313,30 @@ def resource_view_get_fields(resource):
 
 
 @core_helper
+def resource_view_get_field_filters(resource):
+    '''
+    Returns [{'id': field_id, 'filter': view_filter_type or None}, ...]
+    with all columns in the resource, or [] if resource is not stored
+    in datastore
+    '''
+
+    if not resource.get('datastore_active'):
+        return []
+
+    data = {
+        'resource_id': resource['id'],
+        'limit': 0,
+        'include_total': False,
+    }
+    result = logic.get_action('datastore_search')({}, data)
+
+    return [{
+        'id': field['id'],
+        'filter': field.get('info', {}).get('view_filter') or None}
+        for field in result.get('fields', [])]
+
+
+@core_helper
 def resource_view_is_iframed(resource_view):
     '''
     Returns true if the given resource view should be displayed in an iframe.
