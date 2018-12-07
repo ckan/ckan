@@ -175,35 +175,40 @@ def dump_to(
             }, **search_params))
 
     # number of records the user can get is bounded by rows_max
-    limit = min(limit,
-                int(config.get('ckan.datastore.search.rows_max', 32000)))
+    rows_max = int(config.get('ckan.datastore.search.rows_max', 32000))
+    if limit > rows_max:
+        limit = rows_max
+
+    def set_header(num_records_written):
+        records_are_up_to_the_limit = num_records_written >= rows_max
+        response.headers['X-Records-Up-To-Rows-Max'] = \
+            str(records_are_up_to_the_limit).lower()
 
     result = result_page(offset, limit)
 
     with start_writer(result['fields']) as wr:
         while True:
             if limit is not None and limit <= 0:
+                set_header(num_records_written=offset)
                 break
 
             records = result['records']
 
             wr.write_records(records)
 
-            # NB broken because 'records_truncated' is not returned by datastore_search
-            if result.get('records_truncated', False):
-                response.headers['X-Records-Truncated'] = 'true'
-                break
-
             if records_format == 'objects' or records_format == 'lists':
                 if len(records) < PAGINATE_BY:
+                    set_header(num_records_written=offset + len(records))
                     break
             elif not records:
+                set_header(num_records_written=offset)
                 break
 
             offset += PAGINATE_BY
             if limit is not None:
                 limit -= PAGINATE_BY
                 if limit <= 0:
+                    set_header(num_records_written=offset + limit)
                     break
 
             result = result_page(offset, limit)

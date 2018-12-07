@@ -249,6 +249,16 @@ JSON (``?format=json``) and XML (``?format=xml``). E.g. to download an Excel-com
 tab-separated file use
 ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?format=tsv&bom=true``.
 
+A number of parameters from :meth:`~ckanext.datastore.logic.action.datastore_search` can be used:
+    ``offset``, ``limit``, ``filters``, ``q``, ``distinct``, ``plain``, ``language``, ``fields``, ``sort``
+
+The number of records returned is limited by site configuration
+``ckan.datastore.search.rows_max``, which has a default of 32000.
+Whether or not the number of records returned reaches this limit is indicated
+by a HTTP header:
+
+    X-Records-Up-To-Rows-Max: true
+
 .. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
 
 
