@@ -1572,11 +1572,11 @@ msgstr[3] "больше {years} лет назад"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr "{месяц} {день}, {год}, {часов:02}:{минут:02} ({timezone})"
+msgstr "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
-msgstr "{месяц} {день}, {год}"
+msgstr "{month} {day}, {year}"
 
 #: ckan/lib/formatters.py:167
 msgid "{bytes} bytes"

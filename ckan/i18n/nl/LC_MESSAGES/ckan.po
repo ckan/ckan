@@ -1553,7 +1553,7 @@ msgstr[1] "meer dan {years} jaren geleden"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr "{maand} {dag}, {jaar}, {uur:02}:{min:02} ({tijdzone})"
+msgstr "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
 
 #: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
