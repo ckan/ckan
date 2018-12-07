@@ -48,7 +48,7 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
-from ckan.common import _, ungettext, c, request, session, json
+from ckan.common import _, ungettext, c, g, request, session, json
 from markupsafe import Markup, escape
 
 
@@ -1154,8 +1154,10 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
 @core_helper
 def check_access(action, data_dict=None):
+    if not getattr(g, u'user', None):
+        g.user = ''
     context = {'model': model,
-               'user': c.user}
+               'user': g.user}
     if not data_dict:
         data_dict = {}
     try:
