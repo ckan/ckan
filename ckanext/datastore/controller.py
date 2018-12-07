@@ -14,6 +14,7 @@ from ckan.plugins.toolkit import (
     render,
     c,
     h,
+    config,
 )
 from ckanext.datastore.writer import (
     csv_writer,
@@ -43,7 +44,8 @@ unicode_only = get_validator('unicode_only')
 
 
 DUMP_FORMATS = 'csv', 'tsv', 'json', 'xml'
-PAGINATE_BY = 32000
+PAGINATE_BY = min(32000,
+                  int(config.get('ckan.datastore.search.rows_max', 32000)))
 
 
 def dump_schema():

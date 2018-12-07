@@ -393,7 +393,7 @@ def datastore_search(context, data_dict):
                      (optional, default: english)
     :type language: string
     :param limit: maximum number of rows to return
-        (optional, default: ``100``, upper limit: ``10000`` unless set in
+        (optional, default: ``100``, upper limit: ``32000`` unless set in
         site's configuration ``ckan.datastore.search.rows_max``)
     :type limit: int
     :param offset: offset this number of rows (optional)
@@ -483,7 +483,7 @@ def datastore_search_sql(context, data_dict):
     engine is the
     `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
-    The number of results returned is limited to 10000, unless set in the
+    The number of results returned is limited to 32000, unless set in the
     site's configuration ``ckan.datastore.search.rows_max``
     Queries are only allowed if you have access to the all the CKAN resources
     in the query and send the appropriate authorization.

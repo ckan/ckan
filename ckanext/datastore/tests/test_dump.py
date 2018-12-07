@@ -426,3 +426,23 @@ class TestDatastoreDump(DatastoreFunctionalTestBase):
             u'</data>\n'
         )
         assert_equals(content, expected_content)
+
+    @helpers.change_config('ckan.datastore.search.rows_max', '1')
+    def test_dump_with_low_rows_max(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {u'book': 'annakarenina'},
+                {u'book': 'warandpeace'},
+            ],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        response = app.get('/datastore/dump/{0}'.format(str(resource['id'])))
+        assert_equals('_id,book\r\n'
+                      '1,annakarenina\n'
+                      '2,warandpeace\n',
+                      response.body)

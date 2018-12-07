@@ -165,7 +165,7 @@ def datastore_search_schema():
         'language': [ignore_missing, text_type],
         'limit': [default(100), natural_number_validator,
                   limit_to_configured_maximum('ckan.datastore.search.rows_max',
-                                              10000)],
+                                              32000)],
         'offset': [ignore_missing, int_validator],
         'fields': [ignore_missing, list_of_strings_or_string],
         'sort': [ignore_missing, list_of_strings_or_string],
