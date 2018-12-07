@@ -1536,7 +1536,8 @@ def search_sql(context, data_dict):
 
         results = context['connection'].execute(sql)
 
-        data_dict['records_truncated'] = results.rowcount == rows_max + 1
+        if results.rowcount == rows_max + 1:
+            data_dict['records_truncated'] = True
 
         return format_results(context, results, data_dict, rows_max)
 
