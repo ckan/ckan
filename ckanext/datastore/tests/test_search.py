@@ -137,6 +137,9 @@ class TestDatastoreSearch(DatastoreFunctionalTestBase):
         result = helpers.call_action('datastore_search', **search_data)
         assert_equals(result['total'], 2)
         assert_equals(result['records'], [{u'the year': 2014, u'_id': 1}])
+        # it's limited by the user-given limit, rather than the rows_max
+        # setting, so it is not records_truncated
+        assert 'records_truncated' not in result
 
     def test_search_limit_invalid(self):
         resource = factories.Resource()
@@ -196,6 +199,7 @@ class TestDatastoreSearch(DatastoreFunctionalTestBase):
         result = helpers.call_action('datastore_search', **search_data)
         assert_equals(result['total'], 2)
         assert_equals(result['records'], [{u'the year': 2014, u'_id': 1}])
+        assert_equals(result[u'records_truncated'], True)
 
 
 class TestDatastoreSearchLegacyTests(DatastoreLegacyTestBase):
@@ -1131,7 +1135,7 @@ class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
                         assert ft_value in row['_full_text']
                 else:
                     assert_equals(row[field], expected_row[field])
-        assert_equals(result[u'records_truncated'], False)
+        assert u'records_truncated' not in result
 
     def test_alias_search(self):
         resource = factories.Resource()
