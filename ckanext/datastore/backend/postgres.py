@@ -1054,11 +1054,10 @@ def upsert_data(context, data_dict):
 
         try:
             context['connection'].execute(sql_string, rows)
-        except sqlalchemy.exc.DataError:
+        except sqlalchemy.exc.DataError as err:
             raise InvalidDataError(
-                toolkit._("The data was invalid (for example: a numeric value "
-                          "is out of range or was inserted into a text field)."
-                          ))
+                toolkit._("The data was invalid: {}"
+                          ).format(_programming_error_summary(err)))
         except sqlalchemy.exc.DatabaseError as err:
             raise ValidationError(
                 {u'records': [_programming_error_summary(err)]})
