@@ -1,23 +1,28 @@
-# Translations template for ckan.
+# Lithuanian translations for ckan.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
-# 
+#
+# Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2018
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.6.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-10-18 10:37+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2016\n"
-"Language-Team: Lithuanian (https://www.transifex.com/okfn/teams/11162/lt/)\n"
+"PO-Revision-Date: 2016-10-18 09:51+0000\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
+"Language: lt\n"
+"Language-Team: Lithuanian "
+"(https://www.transifex.com/okfn/teams/11162/lt/)\n"
+"Plural-Forms: nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100"
+" < 11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < "
+"11) ? 1 : n % 1 != 0 ? 2: 3)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
-"Language: lt\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: ckan/authz.py:179
 #, python-format
@@ -199,8 +204,7 @@ msgstr "Negzistuoja poversijis, kurio id: %s"
 
 #: ckan/controllers/api.py:512
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
-msgstr ""
-"Trūkstamas paieškos termas ('since_id=UUID' arba 'since_time=TIMESTAMP')"
+msgstr "Trūkstamas paieškos termas ('since_id=UUID' arba 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:524
 #, python-format
@@ -632,8 +636,8 @@ msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
 msgstr ""
-"Naudotojas \"%s\" jau yra priregistruotas, bet Jūs vis dar esate prisijungę "
-"kaip \"%s\" iš anksčiau"
+"Naudotojas \"%s\" jau yra priregistruotas, bet Jūs vis dar esate "
+"prisijungę kaip \"%s\" iš anksčiau"
 
 #: ckan/controllers/user.py:293
 msgid "Unauthorized to edit a user."
@@ -828,6 +832,7 @@ msgid_plural "{n} new activities from {site_title}"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -887,6 +892,7 @@ msgid_plural "{mins} minutes ago"
 msgstr[0] "prieš {mins} minutę"
 msgstr[1] "prieš {mins} minutes"
 msgstr[2] "prieš {mins} minutes"
+msgstr[3] "prieš {mins} minutes"
 
 #: ckan/lib/formatters.py:121
 msgid "{hours} hour ago"
@@ -894,6 +900,7 @@ msgid_plural "{hours} hours ago"
 msgstr[0] "prieš {hours} valandą"
 msgstr[1] "prieš {hours} valandas"
 msgstr[2] "prieš {hours} valandas"
+msgstr[3] "prieš {hours} valandas"
 
 #: ckan/lib/formatters.py:127
 msgid "{days} day ago"
@@ -901,6 +908,7 @@ msgid_plural "{days} days ago"
 msgstr[0] "prieš vieną dieną"
 msgstr[1] "prieš {days} dienas"
 msgstr[2] "prieš {days} dienas"
+msgstr[3] "prieš {days} dienas"
 
 #: ckan/lib/formatters.py:130
 msgid "{months} month ago"
@@ -908,6 +916,7 @@ msgid_plural "{months} months ago"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/lib/formatters.py:132
 msgid "over {years} year ago"
@@ -915,6 +924,7 @@ msgid_plural "over {years} years ago"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/lib/formatters.py:148
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
@@ -1010,6 +1020,7 @@ msgid_plural "{number} views"
 msgstr[0] "{number} peržiūra"
 msgstr[1] "{number} peržiūrų"
 msgstr[2] "{number} peržiūrų"
+msgstr[3] "{number} peržiūrų"
 
 #: ckan/lib/helpers.py:1618
 msgid "{number} recent view"
@@ -1017,6 +1028,7 @@ msgid_plural "{number} recent views"
 msgstr[0] "{number} pastaroji peržiūra"
 msgstr[1] "{number} pastarųjų peržiūrų"
 msgstr[2] "{number} pastarūjų peržiūrų"
+msgstr[3] "{number} pastarūjų peržiūrų"
 
 #: ckan/lib/mailer.py:39
 #, python-format
@@ -1172,8 +1184,8 @@ msgstr "Vardas turi būti daugiausiai %i simbolių ilgio"
 
 #: ckan/logic/validators.py:342
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
-"-_"
+"Must be purely lowercase alphanumeric (ascii) characters and these "
+"symbols: -_"
 msgstr ""
 
 #: ckan/logic/validators.py:360
@@ -1217,7 +1229,9 @@ msgstr "Gairės \"%s\" ilgis yra didesnis nei maksimalus %i"
 #: ckan/logic/validators.py:427
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr "Gairė \"%s\" turi būti sudaryta iš raidinių-skaitinių arba \"-_\" simbolių."
+msgstr ""
+"Gairė \"%s\" turi būti sudaryta iš raidinių-skaitinių arba \"-_\" "
+"simbolių."
 
 #: ckan/logic/validators.py:435
 #, python-format
@@ -1253,8 +1267,8 @@ msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
 msgstr ""
-"Redagavimas neleidžiamas, nes panašus į brukalą. Prašome vengti nuorodų savo"
-" aprašyme."
+"Redagavimas neleidžiamas, nes panašus į brukalą. Prašome vengti nuorodų "
+"savo aprašyme."
 
 #: ckan/logic/validators.py:619
 #, python-format
@@ -1941,8 +1955,8 @@ msgstr "Nepavyko gauti duomenų iš įkelto failo"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop "
-"this upload?"
+"You are uploading a file. Are you sure you want to navigate away and stop"
+" this upload?"
 msgstr ""
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:8
@@ -2010,6 +2024,7 @@ msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Valdymo pultas (%(num)d naujas įrašas)"
 msgstr[1] "Valdymo pultas (%(num)d naujų įrašų)"
 msgstr[2] "Valdymo pultas (%(num)d naujų įrašų)"
+msgstr[3] "Valdymo pultas (%(num)d naujų įrašų)"
 
 #: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -2047,9 +2062,8 @@ msgstr "Registruotis"
 #: ckan/templates/revision/diff.html:11 ckan/templates/revision/read.html:65
 #: ckan/templates/snippets/context/group.html:17
 #: ckan/templates/snippets/context/user.html:19
-#: ckan/templates/snippets/organization.html:59
-#: ckan/templates/user/read.html:5 ckan/templates/user/read_base.html:19
-#: ckan/templates/user/read_base.html:53
+#: ckan/templates/snippets/organization.html:59 ckan/templates/user/read.html:5
+#: ckan/templates/user/read_base.html:19 ckan/templates/user/read_base.html:53
 msgid "Datasets"
 msgstr "Rinkmenos"
 
@@ -2115,21 +2129,22 @@ msgstr "CKAN konfigūracijos parinktys"
 #: ckan/templates/admin/config.html:34
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
-"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
-"Choose from a list of simple variations of the main colour scheme to get a "
-"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
-" is the logo that appears in the header of all the CKAN instance "
-"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
-" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
+"It appears in various places throughout CKAN.</p> "
+"<p><strong>Style:</strong> Choose from a list of simple variations of the"
+" main colour scheme to get a very quick custom theme working.</p> "
+"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
+"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
+" This text will appear on this CKAN instances <a "
+"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
-"templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
+" templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
-"the modules that appear on your homepage.</p> "
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout "
+"for the modules that appear on your homepage.</p> "
 msgstr ""
 
 #: ckan/templates/admin/confirm_reset.html:3
@@ -2145,8 +2160,9 @@ msgstr ""
 #, python-format
 msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
-"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
+"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin "
+"guide</a></p> "
 msgstr ""
 
 #: ckan/templates/admin/trash.html:20
@@ -2169,7 +2185,8 @@ msgstr ""
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
+" "
 msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:33
@@ -2178,8 +2195,8 @@ msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action "
-"API."
+"The Data API can be accessed via the following actions of the CKAN action"
+" API."
 msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:42
@@ -2387,9 +2404,8 @@ msgstr "Ar tikrai norite ištrinti narį - {name}?"
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
 #: ckan/templates/package/read_base.html:14
-#: ckan/templates/package/resource_read.html:31
-#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
-#: ckan/templates/user/read_base.html:14
+#: ckan/templates/package/resource_read.html:31 ckan/templates/user/edit.html:8
+#: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:14
 msgid "Manage"
 msgstr ""
 
@@ -2457,8 +2473,7 @@ msgstr ""
 msgid "There are currently no groups for this site"
 msgstr "Grupių šiam tinklapiui kol kas nėra"
 
-#: ckan/templates/group/index.html:31
-#: ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "Gal sukurkite vieną?"
 
@@ -2507,22 +2522,19 @@ msgstr ""
 msgid "If you wish to invite a new user, enter their email address."
 msgstr ""
 
-#: ckan/templates/group/member_new.html:55
-#: ckan/templates/group/members.html:18
+#: ckan/templates/group/member_new.html:55 ckan/templates/group/members.html:18
 #: ckan/templates/organization/member_new.html:56
 #: ckan/templates/organization/members.html:18
 msgid "Role"
 msgstr "Vaidmuo"
 
-#: ckan/templates/group/member_new.html:58
-#: ckan/templates/group/members.html:30
+#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:30
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
 msgstr "Ar tikrai norite ištrinti šį narį?"
 
-#: ckan/templates/group/member_new.html:59
-#: ckan/templates/group/members.html:35
+#: ckan/templates/group/member_new.html:59 ckan/templates/group/members.html:35
 #: ckan/templates/group/snippets/group_form.html:61
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:60
@@ -2547,8 +2559,8 @@ msgstr "Kas yra vaidmenys?"
 
 #: ckan/templates/group/member_new.html:81
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage "
-"organization members.</p> <p><strong>Member:</strong> Can add/remove "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage"
+" organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
 msgstr ""
 
@@ -2648,6 +2660,7 @@ msgid_plural "{num} Datasets"
 msgstr[0] "{num} rinkmena"
 msgstr[1] "{num} rinkmenos"
 msgstr[2] "{num} rinkmenos"
+msgstr[3] "{num} rinkmenos"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -2671,10 +2684,10 @@ msgstr "Kas yra grupės?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. This "
-"could be to catalogue datasets for a particular project or team, or on a "
-"particular theme, or as a very simple way to help people find and search "
-"your own published datasets. "
+" You can use CKAN Groups to create and manage collections of datasets. "
+"This could be to catalogue datasets for a particular project or team, or "
+"on a particular theme, or as a very simple way to help people find and "
+"search your own published datasets. "
 msgstr ""
 
 #: ckan/templates/group/snippets/history_revisions.html:10
@@ -2738,13 +2751,14 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision of "
-"robust data APIs). CKAN is aimed at data publishers (national and regional "
-"governments, companies and organizations) wanting to make their data open "
-"and available.</p> <p>CKAN is used by governments and user groups worldwide "
-"and powers a variety of official and community data portals including "
-"portals for local, national and international government, such as the UK’s "
-"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision "
+"of robust data APIs). CKAN is aimed at data publishers (national and "
+"regional governments, companies and organizations) wanting to make their "
+"data open and available.</p> <p>CKAN is used by governments and user "
+"groups worldwide and powers a variety of official and community data "
+"portals including portals for local, national and international "
+"government, such as the UK’s <a "
+"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2754,24 +2768,25 @@ msgid ""
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 msgstr ""
-"<p>CKAN yra pasaulyje pirmaujanti atviro-kodo duomenų portalo platforma.</p>"
-" <p>CKAN yra visiškai paruoštas darbui programinės įrangos sprendimas, kuris"
-" padaro duomenis pasiekiamus ir panaudojamus, suteikdamas įrankius "
-"srautiniam publikavimui, dalinimuisi, paieškai ir duomenų naudojimui "
-"(įskaitant duomenų talpinimą ir stabilaus duomenų API suteikimą). CKAN "
-"taikinys yra duomenų publikuotojai (nacionalinės ir regioninės valdžios, "
-"kompanijos ir organizacijos), norinčios atverti ir padaryti prieinamais savo"
-" duomenis.</p> <p>CKAN naudoja valdžios ir naudotojų grupės pasaulio mastu "
-"ir palaiko įvairovę oficialių ir bendruomeninių duomenų portalų, įskaitant "
-"portalus, skirtus vietinei, nacionalinei ar tarptautinei valdžiai, tokiai "
-"kaip UK <a href=\"http://data.gov.uk\">data.gov.uk</a> ir Europos sąjungos "
-"<a href=\"http://publicdata.eu/\">publicdata.eu</a>, Brazilijos <a "
+"<p>CKAN yra pasaulyje pirmaujanti atviro-kodo duomenų portalo "
+"platforma.</p> <p>CKAN yra visiškai paruoštas darbui programinės įrangos "
+"sprendimas, kuris padaro duomenis pasiekiamus ir panaudojamus, "
+"suteikdamas įrankius srautiniam publikavimui, dalinimuisi, paieškai ir "
+"duomenų naudojimui (įskaitant duomenų talpinimą ir stabilaus duomenų API "
+"suteikimą). CKAN taikinys yra duomenų publikuotojai (nacionalinės ir "
+"regioninės valdžios, kompanijos ir organizacijos), norinčios atverti ir "
+"padaryti prieinamais savo duomenis.</p> <p>CKAN naudoja valdžios ir "
+"naudotojų grupės pasaulio mastu ir palaiko įvairovę oficialių ir "
+"bendruomeninių duomenų portalų, įskaitant portalus, skirtus vietinei, "
+"nacionalinei ar tarptautinei valdžiai, tokiai kaip UK <a "
+"href=\"http://data.gov.uk\">data.gov.uk</a> ir Europos sąjungos <a "
+"href=\"http://publicdata.eu/\">publicdata.eu</a>, Brazilijos <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Olandijos ir Nyderlandų "
-"valdžių portalams, taip pat ir miestų bei savivaldybių tinklapiams US, UK, "
-"Argentinoje, Suomijoje ir kitur.</p> <p>CKAN: <a "
+"valdžių portalams, taip pat ir miestų bei savivaldybių tinklapiams US, "
+"UK, Argentinoje, Suomijoje ir kitur.</p> <p>CKAN: <a "
 "href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN gidas: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Funkcionalumo"
-" apžvalga: <a "
+"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> "
+"Funkcionalumo apžvalga: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 
 #: ckan/templates/home/snippets/promoted.html:8
@@ -2780,11 +2795,11 @@ msgstr "Sveiki atvykę į CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. We "
-"don't have any copy to go here yet but soon we will "
+"This is a nice introductory paragraph about CKAN or the site in general. "
+"We don't have any copy to go here yet but soon we will "
 msgstr ""
-"Tai graži įžanginė pastraipa apie CKAN ar apskritai šį tinklapį. Mes kol kas"
-" neturime jokios kopijos, kad patektumėme čia, bet greitai turėsime"
+"Tai graži įžanginė pastraipa apie CKAN ar apskritai šį tinklapį. Mes kol "
+"kas neturime jokios kopijos, kad patektumėme čia, bet greitai turėsime"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -2825,8 +2840,8 @@ msgstr ""
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
-"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
+"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
@@ -2897,8 +2912,8 @@ msgstr "Eskizas"
 #: ckan/templates/package/read.html:11
 #: ckan/templates/package/snippets/package_basic_fields.html:92
 #: ckan/templates/snippets/package_item.html:31
-#: ckan/templates/snippets/private.html:2
-#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
+#: ckan/templates/snippets/private.html:2 ckan/templates/user/read_base.html:82
+#: ckan/templates/user/read_base.html:96
 msgid "Private"
 msgstr "Privatus"
 
@@ -2952,14 +2967,15 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets, "
-"but not add new datasets.</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets,"
+" but not add new datasets.</p> "
 msgstr ""
 "<p><strong>Administratorius:</strong> Gali pridėti/redaguoti ir trinti "
 "rinkmenas, taip pat valdyti organizacijos narius.</p> "
-"<p><strong>Redaguotojas:</strong> Gali pridėti ir redaguoti rinkmenas, bet "
-"ne valdyti organizacijos narius.</p> <p><strong>Narys:</strong> Gali matyti "
-"organizacijos privačias rinkmenas, bet ne pridėti naujas rinkmenas.</p>"
+"<p><strong>Redaguotojas:</strong> Gali pridėti ir redaguoti rinkmenas, "
+"bet ne valdyti organizacijos narius.</p> <p><strong>Narys:</strong> Gali "
+"matyti organizacijos privačias rinkmenas, bet ne pridėti naujas "
+"rinkmenas.</p>"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -2993,19 +3009,19 @@ msgstr "Kas yra organizacijos?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for example,"
-" the Department of Health). This means that datasets can be published by and"
-" belong to a department instead of an individual user.</p> <p>Within "
-"organizations, admins can assign roles and authorise its members, giving "
-"individual users the right to publish datasets from that particular "
-"organisation (e.g. Office of National Statistics).</p> "
+" <p>Organizations act like publishing departments for datasets (for "
+"example, the Department of Health). This means that datasets can be "
+"published by and belong to a department instead of an individual "
+"user.</p> <p>Within organizations, admins can assign roles and authorise "
+"its members, giving individual users the right to publish datasets from "
+"that particular organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of "
-"datasets. Users can have different roles within an Organization, depending "
-"on their level of authorisation to create, edit and publish. "
+" CKAN Organizations are used to create, manage and publish collections of"
+" datasets. Users can have different roles within an Organization, "
+"depending on their level of authorisation to create, edit and publish. "
 msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:10
@@ -3022,8 +3038,8 @@ msgstr "Truputis informacijos apie mano organizaciją..."
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all the "
-"public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? This will delete all "
+"the public and private datasets belonging to this organization."
 msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:64
@@ -3046,9 +3062,9 @@ msgstr "Kas yra rinkmena?"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), together "
-"with a description and other information, at a fixed URL. Datasets are what "
-"users see when searching for data. "
+" A CKAN Dataset is a collection of data resources (such as files), "
+"together with a description and other information, at a fixed URL. "
+"Datasets are what users see when searching for data. "
 msgstr ""
 
 #: ckan/templates/package/confirm_delete.html:12
@@ -3130,9 +3146,9 @@ msgstr ""
 msgid ""
 " Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
-"structured-data-the-data-explorer' target='_blank'>Data Explorer "
-"documentation</a>. "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
+"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
+" documentation</a>. "
 msgstr ""
 
 #: ckan/templates/package/new_view.html:29
@@ -3143,11 +3159,12 @@ msgstr "Pridėti"
 #: ckan/templates/package/read_base.html:32
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
-"differ significantly from the <a href=\"%(url)s\">current revision</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It "
+"may differ significantly from the <a href=\"%(url)s\">current "
+"revision</a>."
 msgstr ""
-"Tai senas rinkmenos poversijis, redaguojant %(timestamp)s. Jis gali stipriai"
-" skirtis nuo <a href=\"%(url)s\">naujausio poversijo</a>."
+"Tai senas rinkmenos poversijis, redaguojant %(timestamp)s. Jis gali "
+"stipriai skirtis nuo <a href=\"%(url)s\">naujausio poversijo</a>."
 
 #: ckan/templates/package/resource_data.html:12
 msgid "Upload to DataStore"
@@ -3262,9 +3279,9 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be enabled, "
-"or the data may not have been pushed to the DataStore, or the DataStore "
-"hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be "
+"enabled, or the data may not have been pushed to the DataStore, or the "
+"DataStore hasn't finished processing the data yet"
 msgstr ""
 
 #: ckan/templates/package/resource_read.html:147
@@ -3323,8 +3340,8 @@ msgstr ""
 #: ckan/templates/package/snippets/resources_list.html:25
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
-"add some?</a></p> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
+" add some?</a></p> "
 msgstr ""
 
 #: ckan/templates/package/search.html:52
@@ -3345,8 +3362,8 @@ msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
 msgstr ""
-"Šį registrą taip pat galite pasiekti naudodamiesi %(api_link)s (žiūrėkite "
-"%(api_doc_link)s) arba parsisiųskite %(dump_link)s."
+"Šį registrą taip pat galite pasiekti naudodamiesi %(api_link)s (žiūrėkite"
+" %(api_doc_link)s) arba parsisiųskite %(dump_link)s."
 
 #: ckan/templates/package/search.html:60
 #, python-format
@@ -3354,8 +3371,8 @@ msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
 msgstr ""
-"Šį registrą taip pat galite pasiekti pasinaudodami %(api_link)s (žiūrėkite "
-"%(api_doc_link)s)."
+"Šį registrą taip pat galite pasiekti pasinaudodami %(api_link)s "
+"(žiūrėkite %(api_doc_link)s)."
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
@@ -3474,11 +3491,12 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of any"
-" resource files that you add to this dataset. By submitting this form, you "
-"agree to release the <i>metadata</i> values that you enter into the form "
-"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
-"Database License</a>."
+"The <i>data license</i> you select above only applies to the contents of "
+"any resource files that you add to this dataset. By submitting this form,"
+" you agree to release the <i>metadata</i> values that you enter into the "
+"form under the <a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
+"License</a>."
 msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:39
@@ -3824,8 +3842,8 @@ msgstr "<p class=\"extra\">Prašome pabandyti kitą paiešką.</p>"
 
 #: ckan/templates/snippets/search_form.html:86
 msgid ""
-" <p id=\"search-error\"><strong>There was an error while searching.</strong>"
-" Please try again.</p> "
+" <p id=\"search-error\"><strong>There was an error while "
+"searching.</strong> Please try again.</p> "
 msgstr ""
 
 #: ckan/templates/snippets/search_result_text.html:15
@@ -3834,6 +3852,7 @@ msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -3845,6 +3864,7 @@ msgid_plural "{number} datasets found"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -3856,6 +3876,7 @@ msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -3867,6 +3888,7 @@ msgid_plural "{number} groups found"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -3878,6 +3900,7 @@ msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -3889,6 +3912,7 @@ msgid_plural "{number} organizations found"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
@@ -3978,7 +4002,8 @@ msgstr ""
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you do. "
+" Your profile lets other CKAN users know about who you are and what you "
+"do. "
 msgstr ""
 
 #: ckan/templates/user/edit_user_form.html:7
@@ -4202,8 +4227,8 @@ msgstr ""
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
-"Enter your username into the box and we will send you an email with a link "
-"to enter a new password."
+"Enter your username into the box and we will send you an email with a "
+"link to enter a new password."
 msgstr ""
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
@@ -4249,8 +4274,8 @@ msgstr ""
 
 #: ckanext/datastore/db.py:663
 msgid ""
-"The data was invalid (for example: a numeric value is out of range or was "
-"inserted into a text field)."
+"The data was invalid (for example: a numeric value is out of range or was"
+" inserted into a text field)."
 msgstr ""
 
 #: ckanext/datastore/logic/action.py:221 ckanext/datastore/logic/action.py:261
@@ -4510,3 +4535,4 @@ msgstr ""
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
 msgstr ""
+
