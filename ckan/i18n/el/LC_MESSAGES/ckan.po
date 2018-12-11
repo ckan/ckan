@@ -16,6 +16,7 @@ msgstr ""
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
 "Last-Translator: Yannis Kaskamanidis <kiolalis@gmail.com>, 2020\n"
 "Language-Team: Greek (https://www.transifex.com/okfn/teams/11162/el/)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -159,8 +160,8 @@ msgstr "Δεν βρέθηκε ο πόρος DataStore"
 
 #: ckanext/datastore/blueprint.py:151
 msgid ""
-"Data Dictionary saved. Any type overrides will take effect when the resource"
-" is next uploaded to DataStore"
+"Data Dictionary saved. Any type overrides will take effect when the "
+"resource is next uploaded to DataStore"
 msgstr ""
 "Το Λεξικό Δεδομένων αποθηκεύτηκε. Οποιαδήποτε παράκαμψη τύπου θα έχει "
 "επίδραση όταν ο πόρος μεταφορτωθεί στο DataStore. "
@@ -210,11 +211,11 @@ msgstr "Σημεία πρόσβασης"
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:37
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:39
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action "
-"API."
+"The Data API can be accessed via the following actions of the CKAN action"
+" API."
 msgstr ""
-"Η πρόσβαση στο API δεδομένων είναι δυνατή μέσω των παρακάτω ενεργειών στο "
-"API ενεργειών του CKAN."
+"Η πρόσβαση στο API δεδομένων είναι δυνατή μέσω των παρακάτω ενεργειών στο"
+" API ενεργειών του CKAN."
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:44
@@ -264,8 +265,7 @@ msgstr "Παράδειγμα: Javascript"
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:95
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:97
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr ""
-"Ένα απλό αίτημα ajax (JSONP) προς το API δεδομένων με χρήση του jQuery"
+msgstr "Ένα απλό αίτημα ajax (JSONP) προς το API δεδομένων με χρήση του jQuery"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:116
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:118
@@ -549,8 +549,7 @@ msgstr "URL εικόνας"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
-msgstr ""
-"π.χ. http://example.com/image.jpg (χρήση του url πόρου αν μείνει κενό)"
+msgstr "π.χ. http://example.com/image.jpg (χρήση του url πόρου αν μείνει κενό)"
 
 #: ckanext/reclineview/plugin.py:113
 msgid "Data Explorer"
@@ -862,8 +861,8 @@ msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
 msgstr ""
-"Δεν είναι δυνατή η εκκαθάριση του πακέτου %s καθως η συνδεόμενη αναθεώρηση "
-"%s  περιλαμβάνει μη διεγραμμένα πακέτα%s"
+"Δεν είναι δυνατή η εκκαθάριση του πακέτου %s καθως η συνδεόμενη "
+"αναθεώρηση %s  περιλαμβάνει μη διεγραμμένα πακέτα%s"
 
 #: ckan/controllers/admin.py:182
 #, python-format
@@ -1050,8 +1049,7 @@ msgstr "%s έχει διαγραφεί."
 #: ckan/controllers/group.py:661 ckan/views/group.py:539
 #, python-format
 msgid "User %r not authorized to edit members of %s"
-msgstr ""
-"Ο χρήστης %r δεν είναι εξουσιοδοτημένος να επεξεργάζεται τα μέλη του %s"
+msgstr "Ο χρήστης %r δεν είναι εξουσιοδοτημένος να επεξεργάζεται τα μέλη του %s"
 
 #: ckan/controllers/group.py:670
 #, python-format
@@ -1123,15 +1121,15 @@ msgstr ""
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr ""
-"Παρακαλούμε <a href=\"%s\"> ενημερώστε το προφίλ σας </ a> και προσθέστε τη "
-"διεύθυνση ηλεκτρονικού ταχυδρομείου σας."
+"Παρακαλούμε <a href=\"%s\"> ενημερώστε το προφίλ σας </ a> και προσθέστε "
+"τη διεύθυνση ηλεκτρονικού ταχυδρομείου σας."
 
 #: ckan/controllers/home.py:75 ckan/views/home.py:63
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
 msgstr ""
-" %s χρησιμοποιείστε τη διεύθυνση ηλεκτρονικού ταχυδρομείου σας εάν θέλετε να"
-" επαναφέρετε τον κωδικό πρόσβασής σας."
+" %s χρησιμοποιείστε τη διεύθυνση ηλεκτρονικού ταχυδρομείου σας εάν θέλετε"
+" να επαναφέρετε τον κωδικό πρόσβασής σας."
 
 #: ckan/controllers/package.py:304 ckan/views/dataset.py:335
 msgid "Invalid search query: {error_message}"
@@ -1171,8 +1169,8 @@ msgstr "Μη έγκυρη μορφή αναθεώρησης:%r"
 #: ckan/controllers/package.py:414 ckan/views/dataset.py:512
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
 msgstr ""
-"Η προβολή συνόλων δεδομένων του τύπου \"{package_type}\" δεν υποστηρίζεται "
-"({file_!r})."
+"Η προβολή συνόλων δεδομένων του τύπου \"{package_type}\" δεν "
+"υποστηρίζεται ({file_!r})."
 
 #: ckan/controllers/package.py:453 ckan/controllers/package.py:842
 #: ckan/controllers/package.py:943 ckan/controllers/package.py:991
@@ -1353,8 +1351,8 @@ msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
 msgstr ""
-"Ο χρήστης \"%s\"  έχει εγγραφεί αλλά είστε ακόμα συνδεδεμένοι ως \"%s\" από "
-"πριν"
+"Ο χρήστης \"%s\"  έχει εγγραφεί αλλά είστε ακόμα συνδεδεμένοι ως \"%s\" "
+"από πριν"
 
 #: ckan/controllers/user.py:289 ckan/views/user.py:258
 msgid "Unauthorized to edit a user."
@@ -1679,11 +1677,11 @@ msgstr " Το όνομα πρέπει να είναι κατ 'ανώτατο ό�
 
 #: ckan/logic/validators.py:367
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
-"-_"
+"Must be purely lowercase alphanumeric (ascii) characters and these "
+"symbols: -_"
 msgstr ""
-"Πρέπει να αποτελείται μόνο από πεζούς αλφαρηθμητικούς χαρακτήρες (ascii) και"
-" αυτά τα σύμβολα: -_"
+"Πρέπει να αποτελείται μόνο από πεζούς αλφαρηθμητικούς χαρακτήρες (ascii) "
+"και αυτά τα σύμβολα: -_"
 
 #: ckan/logic/validators.py:385
 msgid "That URL is already in use."
@@ -1768,8 +1766,8 @@ msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
 msgstr ""
-"Η επεξεργασία δεν επιτρέπεται, δεδομένου ότι μοιάζει με spam. Παρακαλούμε "
-"αποφύγετε συνδέσεις στην περιγραφή σας."
+"Η επεξεργασία δεν επιτρέπεται, δεδομένου ότι μοιάζει με spam. Παρακαλούμε"
+" αποφύγετε συνδέσεις στην περιγραφή σας."
 
 #: ckan/logic/validators.py:648
 #, python-format
@@ -1815,8 +1813,7 @@ msgstr "ο ρόλος δεν υπάρχει."
 
 #: ckan/logic/validators.py:768
 msgid "Datasets with no organization can't be private."
-msgstr ""
-"Τα σύνολα δεδομένων που δεν ανήκουν σε φορέα δε μπορούν να είναι ιδιωτικά."
+msgstr "Τα σύνολα δεδομένων που δεν ανήκουν σε φορέα δε μπορούν να είναι ιδιωτικά."
 
 #: ckan/logic/validators.py:774
 msgid "Not a list"
@@ -1950,8 +1947,8 @@ msgstr ""
 #: ckan/logic/action/delete.py:418
 msgid "Organization cannot be deleted while it still has datasets"
 msgstr ""
-"Ο οργανισμός δεν μπορεί να διαγραφεί όσο υπάρχουν ακόμα σύνολα δεδομένων που"
-" του ανήκουν."
+"Ο οργανισμός δεν μπορεί να διαγραφεί όσο υπάρχουν ακόμα σύνολα δεδομένων "
+"που του ανήκουν."
 
 #: ckan/logic/action/delete.py:635 ckan/logic/action/delete.py:661
 #: ckan/logic/action/get.py:2455 ckan/logic/action/update.py:1084
@@ -2032,8 +2029,8 @@ msgstr "Ο χρήστης %s δεν έχει δικαίωμα επεξεργασ
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
 msgstr ""
-"Ο χρήστης %s δεν έχει εξουσιοδότηση να προσθέσει σύνολο δεδομένων σε αυτόν "
-"το φορέα"
+"Ο χρήστης %s δεν έχει εξουσιοδότηση να προσθέσει σύνολο δεδομένων σε "
+"αυτόν το φορέα"
 
 #: ckan/logic/auth/create.py:61
 msgid "No dataset id provided, cannot check auth."
@@ -2045,8 +2042,8 @@ msgstr ""
 #: ckan/logic/auth/get.py:137 ckan/logic/auth/update.py:79
 msgid "No package found for this resource, cannot check auth."
 msgstr ""
-"Δε βρέθηκε κανένα πακέτο για αυτόν τον πόρο, δεν μπορεί να γίνει έλεγχος στο"
-" auth."
+"Δε βρέθηκε κανένα πακέτο για αυτόν τον πόρο, δεν μπορεί να γίνει έλεγχος "
+"στο auth."
 
 #: ckan/logic/auth/create.py:76
 #, python-format
@@ -2073,8 +2070,8 @@ msgstr "Ο χρήστης %s δεν έχει εξουσιοδότηση για �
 #: ckan/logic/auth/create.py:145
 msgid "User {user} not authorized to create users via the API"
 msgstr ""
-"Ο χρήστης {user} δεν έχει εξουσιοδότηση για τη δημιουργία χρηστών μέσω του "
-"API"
+"Ο χρήστης {user} δεν έχει εξουσιοδότηση για τη δημιουργία χρηστών μέσω "
+"του API"
 
 #: ckan/logic/auth/create.py:148
 msgid "Not authorized to create users"
@@ -2092,8 +2089,7 @@ msgstr "Ο χρήστης %s δεν έχει εξουσιοδότηση για �
 #: ckan/logic/auth/create.py:252 ckan/logic/auth/update.py:131
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr ""
-"Ο χρήστης %s δεν έχει εξουσιοδότηση για την επεξεργασία της ομάδας %s."
+msgstr "Ο χρήστης %s δεν έχει εξουσιοδότηση για την επεξεργασία της ομάδας %s."
 
 #: ckan/logic/auth/create.py:280
 #, python-format
@@ -2107,8 +2103,7 @@ msgstr "Ο χρήστης %s δεν έχει εξουσιοδότηση για �
 
 #: ckan/logic/auth/delete.py:56 ckan/logic/auth/get.py:154
 msgid "Resource view not found, cannot check auth."
-msgstr ""
-"Δε βρέθηκε η προβολή πόρους, δεν είναι δυνατός ο έλεγχος εξουσιοδότησης"
+msgstr "Δε βρέθηκε η προβολή πόρους, δεν είναι δυνατός ο έλεγχος εξουσιοδότησης"
 
 #: ckan/logic/auth/delete.py:73
 #, python-format
@@ -2183,8 +2178,7 @@ msgstr ""
 #: ckan/logic/auth/update.py:50
 #, python-format
 msgid "User %s not authorized to edit package %s"
-msgstr ""
-"Ο χρήστης %s δεν έχει εξουσιοδότηση για την επεξεργασία του πακέτου %s."
+msgstr "Ο χρήστης %s δεν έχει εξουσιοδότηση για την επεξεργασία του πακέτου %s."
 
 #: ckan/logic/auth/update.py:87
 #, python-format
@@ -2195,20 +2189,20 @@ msgstr "Ο χρήστης %s δεν έχει δικαίωμα επεξεργασ
 #, python-format
 msgid "User %s not authorized to change state of package %s"
 msgstr ""
-"Ο χρήστης %s δεν έχει εξουσιοδότηση για την αλλαγή κατάστασης του πακέτου "
-"%s."
+"Ο χρήστης %s δεν έχει εξουσιοδότηση για την αλλαγή κατάστασης του πακέτου"
+" %s."
 
 #: ckan/logic/auth/update.py:144
 #, python-format
 msgid "User %s not authorized to edit organization %s"
-msgstr ""
-"Ο χρήστης %s δεν έχει εξουσιοδότηση για την επεξεργασία του οργανισμού %s"
+msgstr "Ο χρήστης %s δεν έχει εξουσιοδότηση για την επεξεργασία του οργανισμού %s"
 
 #: ckan/logic/auth/update.py:161
 #, python-format
 msgid "User %s not authorized to change state of group %s"
 msgstr ""
-"Ο χρήστης %s δεν έχει εξουσιοδότηση για την αλλαγή κατάστασης της ομάδας %s."
+"Ο χρήστης %s δεν έχει εξουσιοδότηση για την αλλαγή κατάστασης της ομάδας "
+"%s."
 
 #: ckan/logic/auth/update.py:178
 #, python-format
@@ -2224,8 +2218,7 @@ msgstr "Απαιτείται σύνδεση για την επεξεργασία
 #: ckan/logic/auth/update.py:214
 #, python-format
 msgid "User %s not authorized to edit user %s"
-msgstr ""
-"Ο χρήστης %s δεν έχει εξουσιοδότηση για την επεξεργασία του χρήστη %s."
+msgstr "Ο χρήστης %s δεν έχει εξουσιοδότηση για την επεξεργασία του χρήστη %s."
 
 #: ckan/logic/auth/update.py:225
 msgid "User {0} not authorized to update user {1}"
@@ -2242,7 +2235,8 @@ msgstr ""
 #, python-format
 msgid "User %s not authorized to update task_status table"
 msgstr ""
-"Ο χρήστης %s δεν έχει εξουσιοδότηση για την ανανέωση του πίνακα task_status."
+"Ο χρήστης %s δεν έχει εξουσιοδότηση για την ανανέωση του πίνακα "
+"task_status."
 
 #: ckan/logic/auth/update.py:256
 #, python-format
@@ -2387,8 +2381,7 @@ msgstr "Δεν βρέθηκε"
 #, python-format
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
-msgstr[0] ""
-"Η καταχώρηση είναι πολύ μικρή, πρέπει να είναι τουλάχιστον ένας χαρακτήρας"
+msgstr[0] "Η καταχώρηση είναι πολύ μικρή, πρέπει να είναι τουλάχιστον ένας χαρακτήρας"
 msgstr[1] ""
 "Η καταχόρηση είναι πολύ μικρή, πρέπει να είναι το λιγότερο %(num)d "
 "χαρακτήρες"
@@ -2453,8 +2446,8 @@ msgstr "Σύνδεσμος"
 #: ckan/public/base/javascript/modules/image-upload.min.js:3
 msgid "Link to a URL on the internet (you can also link to an API)"
 msgstr ""
-"Σύνδεσμος σε URL (μπορείτε να παρέχετε σύνδεσμο σε προγραμματιστικη διεπαφή "
-"- API)"
+"Σύνδεσμος σε URL (μπορείτε να παρέχετε σύνδεσμο σε προγραμματιστικη "
+"διεπαφή - API)"
 
 #: ckan/public/base/javascript/modules/image-upload.js:70
 #: ckan/public/base/javascript/modules/image-upload.min.js:4
@@ -2561,11 +2554,11 @@ msgstr "Αδυναμία λήψης δεδομένων του αρχείου μ�
 #: ckan/public/base/javascript/modules/resource-upload-field.js:275
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop "
-"this upload?"
+"You are uploading a file. Are you sure you want to navigate away and stop"
+" this upload?"
 msgstr ""
-"Αυτή τη στιγμή μεταφορτώνετε ένα αρχείο. Είσαστε σίγουρος/η ό,τι θέλετε να "
-"μεταβείτε σε άλλη σελίδα και να διακόψετε τη μεταφόρτωση;"
+"Αυτή τη στιγμή μεταφορτώνετε ένα αρχείο. Είσαστε σίγουρος/η ό,τι θέλετε "
+"να μεταβείτε σε άλλη σελίδα και να διακόψετε τη μεταφόρτωση;"
 
 #: ckan/public-bs2/base/javascript/modules/resource-view-filters.js:9
 #: ckan/public/base/javascript/modules/resource-view-filters.js:9
@@ -2868,29 +2861,29 @@ msgid ""
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
-"templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
+" templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p>"
 msgstr ""
-" <p><strong>Τίτλος Ιστοσελίδας:</strong> Αυτός είναι ο τίτλος του καταλόγου."
-" Εμφανίζεται σε διάφορα σημεία σε ολόκληρο τον ιστότοπο.</p> "
+" <p><strong>Τίτλος Ιστοσελίδας:</strong> Αυτός είναι ο τίτλος του "
+"καταλόγου. Εμφανίζεται σε διάφορα σημεία σε ολόκληρο τον ιστότοπο.</p> "
 "<p><strong>Στυλ:</strong> Επιλέξτε από μια λίστα με απλές παραλλαγές του "
-"βασικού συνδυασμού χρωμάτων, προκειμένου να έχετε άμεσα ένα προσαρμοσμένο "
-"θέμα σε λειτουργία.</p> <p><strong>Λογότυπο Ιστοσελίδας:</strong> Αυτό είναι"
-" το λογότυπο που εμφανίζεται στην κεφαλίδα όλων των προτύπων αυτής του "
-"καταλόγου.</p> <p><strong>Σχετικά:</strong> Αυτό το κείμενο θα εμφανίζεται "
-"στη <a href=\"%(about_url)s\">σελίδα Σχετικά</a> του καταλόγου.</p> "
-"<p><strong>Εισαγωγικό Κείμενο:</strong> Αυτό το κείμενο θα εμφανίζεται στην "
-"<a href=\"%(home_url)s\">αρχική σελίδα</a> του καταλόγου ως καλωσόρισμα "
-"στους επισκέπτες.</p> <p><strong>Προσαρμοσμένο CSS:</strong> Αυτή είναι μια "
-"δέσμη εντολών CSS, η οποία εμφανίζεται στην <code><head></code> ετικέτα κάθε"
-" σελίδας. Αν θέλετε να προσαρμόσετε τα πρότυπα σε μεγαλύτερο βαθμό σας "
-"συνιστούμε την <a href=\"%(docs_url)s\" target=\"_blank\">ανάγνωση του "
-"εγχειριδίου</a>.</p> <p><strong>Αρχική Σελίδα:</strong> Η επιλογή αφορά σε "
-"προκαθορισμένες διατάξεις των λειτουργικών μονάδων που εμφανίζονται στην "
-"αρχική σελίδα σας.</p> "
+"βασικού συνδυασμού χρωμάτων, προκειμένου να έχετε άμεσα ένα προσαρμοσμένο"
+" θέμα σε λειτουργία.</p> <p><strong>Λογότυπο Ιστοσελίδας:</strong> Αυτό "
+"είναι το λογότυπο που εμφανίζεται στην κεφαλίδα όλων των προτύπων αυτής "
+"του καταλόγου.</p> <p><strong>Σχετικά:</strong> Αυτό το κείμενο θα "
+"εμφανίζεται στη <a href=\"%(about_url)s\">σελίδα Σχετικά</a> του "
+"καταλόγου.</p> <p><strong>Εισαγωγικό Κείμενο:</strong> Αυτό το κείμενο θα"
+" εμφανίζεται στην <a href=\"%(home_url)s\">αρχική σελίδα</a> του "
+"καταλόγου ως καλωσόρισμα στους επισκέπτες.</p> <p><strong>Προσαρμοσμένο "
+"CSS:</strong> Αυτή είναι μια δέσμη εντολών CSS, η οποία εμφανίζεται στην "
+"<code><head></code> ετικέτα κάθε σελίδας. Αν θέλετε να προσαρμόσετε τα "
+"πρότυπα σε μεγαλύτερο βαθμό σας συνιστούμε την <a href=\"%(docs_url)s\" "
+"target=\"_blank\">ανάγνωση του εγχειριδίου</a>.</p> <p><strong>Αρχική "
+"Σελίδα:</strong> Η επιλογή αφορά σε προκαθορισμένες διατάξεις των "
+"λειτουργικών μονάδων που εμφανίζονται στην αρχική σελίδα σας.</p> "
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -3126,8 +3119,7 @@ msgstr "Αναζήτηση σε ομάδες..."
 msgid "There are currently no groups for this site"
 msgstr "Δεν έχουν οριστεί ομάδες προς το παρόν."
 
-#: ckan/templates/group/index.html:31
-#: ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "Τι θα λέγατε για τη δημιουργία ενός;"
 
@@ -3162,8 +3154,8 @@ msgstr "Υπάρχων χρήστης"
 #: ckan/templates/package/collaborators/collaborator_new.html:22
 msgid "If you wish to add an existing user, search for their username below."
 msgstr ""
-"Αν θέλετε να προσθέσετε έναν υπάρχοντα χρήστη, αναζητήστε το όνομα χρήστη "
-"παρακάτω."
+"Αν θέλετε να προσθέσετε έναν υπάρχοντα χρήστη, αναζητήστε το όνομα χρήστη"
+" παρακάτω."
 
 #: ckan/templates/group/member_new.html:41
 #: ckan/templates/organization/member_new.html:43
@@ -3229,8 +3221,8 @@ msgid ""
 msgstr ""
 "<p><strong>Διαχειριστής:</strong> Μπορεί να τροποποιήσει τις πληροφορίες "
 "ομάδας, καθώς και να διαχειριστεί τα μέλη ενός φορέα</p> "
-"<p><strong>Μέλος:</strong> Μπορεί να προσθέσει/αφαιρέσει σύνολα δεδομένων "
-"από ομάδες</p>"
+"<p><strong>Μέλος:</strong> Μπορεί να προσθέσει/αφαιρέσει σύνολα δεδομένων"
+" από ομάδες</p>"
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -3297,11 +3289,11 @@ msgid ""
 "your own published datasets."
 msgstr ""
 " Μπορείτε να χρησιμοποιήσετε τις Ομάδες για να δημιουργήσετε και να "
-"διαχειριστείτε συλλογές από σύνολα δεδομένων. Αυτό θα ήταν χρήσιμο για να "
-"δημιουργήσετε καταλόγους από σύνολα δεδομένων για ένα συγκεκριμένο έργο ή "
-"κάποια ομάδα, είτε για ένα συγκεκριμένο θεμα, είτε ως έναν πολύ απλό τρόπο "
-"με τον οποίο να βοηθήσετε άλλους να βρίσκουν και να αναζητούν τα δικά σας "
-"δημοσιευμένα σύνολα δεδομένων. "
+"διαχειριστείτε συλλογές από σύνολα δεδομένων. Αυτό θα ήταν χρήσιμο για να"
+" δημιουργήσετε καταλόγους από σύνολα δεδομένων για ένα συγκεκριμένο έργο "
+"ή κάποια ομάδα, είτε για ένα συγκεκριμένο θεμα, είτε ως έναν πολύ απλό "
+"τρόπο με τον οποίο να βοηθήσετε άλλους να βρίσκουν και να αναζητούν τα "
+"δικά σας δημοσιευμένα σύνολα δεδομένων. "
 
 #: ckan/templates/group/snippets/info.html:16
 #: ckan/templates/organization/bulk_process.html:82
@@ -3343,26 +3335,27 @@ msgid ""
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 msgstr ""
 " <p>Το CKAN είναι η κορυφαία στον κόσμο πλατφόρμα ανοιχτού κώδικα για "
-"ανοιχτά δεδομένα.</p> <p>Το CKAN είναι μία ολοκληρωμένη λύση λογισμικού που "
-"είναι έτοιμο για χρήση και το οποίο καθιστά τα δεδομένα προσβάσιμα και "
-"εύχρηστα – καθώς παρέχει εργαλεία για τον εξορθολογισμό της δημοσίευσης, του"
-" διαμοιρασμού, της εύρεσης και της χρήσης δεδομένων (συμπεριλαμβανομένης της"
-" αποθήκευσης δεδομένων και της παροχής προγραμματισικών διεπαφών δεδομένων "
-"με μεγάλες δυνατότητες). Το CKAN απευθύνεται σε παρόχους δεδομένων (εθνικές "
-"και περιφερειακές κυβερνήσεις, εταιρείες και οργανισμούς) που θέλουν να "
-"καταστήσουν τα δεδομένα τους ανοιχτά και διαθέσιμα.</p> <p>Το CKAN "
-"χρησιμοποιείται από κυβερνήσεις και ομάδες χρηστών σε όλο τον κόσμο και "
-"τροφοδοτεί μια πληθώρα από επίσημες και κοινοτικές πύλες συμπεριλαμβανομένων"
-" και πυλών για τοπικές, εθνικές, και διεθνείς κυβερνήσεις, όπως του Ηνωμένου"
-" Βασιλείου <a href=\"http://data.gov.uk\">data.gov.uk</a> και της Ευρωπαϊκής"
-" Ένωσης <a href=\"http://publicdata.eu/\">publicdata.eu</a>, της Βραζιλίας "
-"<a href=\"http://dados.gov.br/\">dados.gov.br</a>, οι πύλες των κυβερνήσεων "
+"ανοιχτά δεδομένα.</p> <p>Το CKAN είναι μία ολοκληρωμένη λύση λογισμικού "
+"που είναι έτοιμο για χρήση και το οποίο καθιστά τα δεδομένα προσβάσιμα "
+"και εύχρηστα – καθώς παρέχει εργαλεία για τον εξορθολογισμό της "
+"δημοσίευσης, του διαμοιρασμού, της εύρεσης και της χρήσης δεδομένων "
+"(συμπεριλαμβανομένης της αποθήκευσης δεδομένων και της παροχής "
+"προγραμματισικών διεπαφών δεδομένων με μεγάλες δυνατότητες). Το CKAN "
+"απευθύνεται σε παρόχους δεδομένων (εθνικές και περιφερειακές κυβερνήσεις,"
+" εταιρείες και οργανισμούς) που θέλουν να καταστήσουν τα δεδομένα τους "
+"ανοιχτά και διαθέσιμα.</p> <p>Το CKAN χρησιμοποιείται από κυβερνήσεις και"
+" ομάδες χρηστών σε όλο τον κόσμο και τροφοδοτεί μια πληθώρα από επίσημες "
+"και κοινοτικές πύλες συμπεριλαμβανομένων και πυλών για τοπικές, εθνικές, "
+"και διεθνείς κυβερνήσεις, όπως του Ηνωμένου Βασιλείου <a "
+"href=\"http://data.gov.uk\">data.gov.uk</a> και της Ευρωπαϊκής Ένωσης <a "
+"href=\"http://publicdata.eu/\">publicdata.eu</a>, της Βραζιλίας <a "
+"href=\"http://dados.gov.br/\">dados.gov.br</a>, οι πύλες των κυβερνήσεων "
 "της Ολλανδίας και των Κάτω Χωρών, καθώς και ιστοσελίδες για πόλεις και "
 "δήμους στις ΗΠΑ, στο Ηνωμένο Βασίλειο, στην Αργεντινή, τη Φινλανδία και "
 "άλλες χώρες.</p> <p>CKAN: <a "
-"href=\"http://ckan.org/\">http://ckan.org/</a><br /> Περιήγηση στο CKAN: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Επισκόπηση "
-"Χαρακτηριστικών: <a "
+"href=\"http://ckan.org/\">http://ckan.org/</a><br /> Περιήγηση στο CKAN: "
+"<a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> "
+"Επισκόπηση Χαρακτηριστικών: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/home/snippets/promoted.html:8
@@ -3378,8 +3371,8 @@ msgstr "Μία ωραία μικρή εισαγωγική παράγραφος �
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
 msgstr ""
-"Αυτό είναι μια ενότητα στην οποία μπορείτε να αναδείξετε το περιεχόμενο που "
-"θεωρείτε σημαντικό."
+"Αυτό είναι μια ενότητα στην οποία μπορείτε να αναδείξετε το περιεχόμενο "
+"που θεωρείτε σημαντικό."
 
 #: ckan/templates/home/snippets/search.html:2
 msgid "E.g. environment"
@@ -3424,8 +3417,8 @@ msgstr "Το πεδίο απαιτεί συμπλήρωση"
 #: ckan/templates/macros/form.html:136
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
-"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
+"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 "Μπορείτε να χρησιμοποιήσετε μορφοποίηση <a href=\"#markdown\" "
@@ -3565,12 +3558,12 @@ msgid ""
 "<p><strong>Member:</strong> Can view the organization's private datasets, "
 "but not add new datasets.</p>"
 msgstr ""
-" <p><strong>Διαχειριστής:</strong> Μπορεί να προσθέσει/επεξεργαστεί σύνολα "
-"δεδομένων καθώς και να διαχειριστεί τα μέλη του φορέα.</p> "
+" <p><strong>Διαχειριστής:</strong> Μπορεί να προσθέσει/επεξεργαστεί "
+"σύνολα δεδομένων καθώς και να διαχειριστεί τα μέλη του φορέα.</p> "
 "<p><strong>Συντάκτης:</strong> Μπορεί να προσθέσει/επεξεργαστεί σύνολα "
 "δεδομένων αλλά όχι και να διαχειριστεί τα μέλη του φορέα.</p> "
-"<p><strong>Μέλος:</strong> Μπορεί να δεί τα ιδιωτικά σύνολα δεδομένων του "
-"φορέα που ανήκει , αλλά όχι να προσθέσει νέα.</p> "
+"<p><strong>Μέλος:</strong> Μπορεί να δεί τα ιδιωτικά σύνολα δεδομένων του"
+" φορέα που ανήκει , αλλά όχι να προσθέσει νέα.</p> "
 
 #: ckan/templates/organization/members.html:14
 msgid "{count} member"
@@ -3610,12 +3603,12 @@ msgid ""
 "individual users the right to publish datasets from that particular "
 "organisation (e.g. Office of National Statistics).</p>"
 msgstr ""
-"<p>Οι Φορείς ενεργούν ως τμήματα δημοσίευσης συνόλων δεδομένων (π.χ. Δ/νση "
-"Υγείας). Αυτό σημαίνει ότι τα σύνολα δεδομένων δημοσιεύονται εκ μέρους και "
-"ανήκουν σε μία Δ/νση αντί σε ένα χρήστη.</p><p>Εντός των φορέων, οι "
-"διαχειριστές μπορούν να να αναθέσουν ρόλους και να εξουσιοδοτήσουν τα μέλη "
-"τους, παρέχοντάς τους το δικαίωμα να δημοσιεύσουν σύνολα δεδομένων εκ μέρους"
-" του Φορέα (π.χ. ΕΛΣΤΑΤ).</p>"
+"<p>Οι Φορείς ενεργούν ως τμήματα δημοσίευσης συνόλων δεδομένων (π.χ. "
+"Δ/νση Υγείας). Αυτό σημαίνει ότι τα σύνολα δεδομένων δημοσιεύονται εκ "
+"μέρους και ανήκουν σε μία Δ/νση αντί σε ένα χρήστη.</p><p>Εντός των "
+"φορέων, οι διαχειριστές μπορούν να να αναθέσουν ρόλους και να "
+"εξουσιοδοτήσουν τα μέλη τους, παρέχοντάς τους το δικαίωμα να δημοσιεύσουν"
+" σύνολα δεδομένων εκ μέρους του Φορέα (π.χ. ΕΛΣΤΑΤ).</p>"
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
@@ -3639,12 +3632,13 @@ msgstr "Λίγες πληροφορίες σχετικά με τον φορέα.
 
 #: ckan/templates/organization/snippets/organization_form.html:38
 msgid ""
-"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
-" performed while public or private datasets belong to this organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot"
+" be performed while public or private datasets belong to this "
+"organization."
 msgstr ""
 "Είσαι σίγουρος ότι θέλεις να διαγράψεις αυτό τον Οργανισμό; Σημείωση*: Η "
-"διαγραφή Οργανισμού δεν μπορεί αν εκτελεστεί ενόσω δημόσια ή ιδιωτικά σύνολα"
-" δεδομένων ανήκουν στον Οργανισμό. "
+"διαγραφή Οργανισμού δεν μπορεί αν εκτελεστεί ενόσω δημόσια ή ιδιωτικά "
+"σύνολα δεδομένων ανήκουν στον Οργανισμό. "
 
 #: ckan/templates/organization/snippets/organization_form.html:41
 msgid "Save Organization"
@@ -3670,10 +3664,10 @@ msgid ""
 "with a description and other information, at a fixed URL. Datasets are what "
 "users see when searching for data."
 msgstr ""
-"Ένα σύνολο δεδομένων αποτελεί μια συλλογή πόρων (όπως αρχεία), μαζί με μια "
-"περιγραφή και άλλες πληροφορίες, διαθέσιμη σε συγκεκριμένο URL. Τα σύνολα "
-"δεδομένων παρέχονται ως αποτέλεσμα της αναζήτησης που πραγματοποιούν οι "
-"χρήστες."
+"Ένα σύνολο δεδομένων αποτελεί μια συλλογή πόρων (όπως αρχεία), μαζί με "
+"μια περιγραφή και άλλες πληροφορίες, διαθέσιμη σε συγκεκριμένο URL. Τα "
+"σύνολα δεδομένων παρέχονται ως αποτέλεσμα της αναζήτησης που "
+"πραγματοποιούν οι χρήστες."
 
 #: ckan/templates/package/changes.html:9
 #: ckan/templates/package/changes.html:17
@@ -3683,8 +3677,7 @@ msgstr "Αλλαγές"
 
 #: ckan/templates/package/confirm_delete.html:12
 msgid "Are you sure you want to delete dataset - {name}?"
-msgstr ""
-"Είστε σίγουροι ότι θέλετε να διαγράψετε το σύνολο δεδομένων - {name}? ;"
+msgstr "Είστε σίγουροι ότι θέλετε να διαγράψετε το σύνολο δεδομένων - {name}? ;"
 
 #: ckan/templates/package/confirm_delete_resource.html:11
 msgid "Are you sure you want to delete resource - {name}?"
@@ -3769,12 +3762,12 @@ msgid ""
 "structured-data-the-data-explorer' target='_blank'>Data Explorer "
 "documentation</a>."
 msgstr ""
-"Οι οπτικοποιήσεις του Data Explorer μπορεί να είναι αργές και αναξιόπιστες, "
-"εκτός εάν η επέκταση DataStore είναι ενεργοποιημένη. Για περισσότερες "
-"πληροφορίες, παρακαλώ συμβουλευτείτε την <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
-"structured-data-the-data-explorer' target='_blank'>τεκμηρίωση του Data "
-"Explorer </a>. "
+"Οι οπτικοποιήσεις του Data Explorer μπορεί να είναι αργές και "
+"αναξιόπιστες, εκτός εάν η επέκταση DataStore είναι ενεργοποιημένη. Για "
+"περισσότερες πληροφορίες, παρακαλώ συμβουλευτείτε την <a "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
+"#viewing-structured-data-the-data-explorer' target='_blank'>τεκμηρίωση "
+"του Data Explorer </a>. "
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:85
@@ -3836,8 +3829,7 @@ msgstr "Πηγή : <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckan/templates/package/resource_read.html:139
 msgid "There are no views created for this resource yet."
-msgstr ""
-"Δεν έχει δημιουργηθεί ακόμα Προβολή για την προεπισκόπηση αυτού του πόρου"
+msgstr "Δεν έχει δημιουργηθεί ακόμα Προβολή για την προεπισκόπηση αυτού του πόρου"
 
 #: ckan/templates/package/resource_read.html:143
 msgid "Not seeing the views you were expecting?"
@@ -3856,18 +3848,19 @@ msgstr ""
 #: ckan/templates/package/resource_read.html:151
 msgid "The site administrators may not have enabled the relevant view plugins"
 msgstr ""
-"Ο διαχειριστής της ιστοσελίδας μπορεί να μην έχει ενεργοποιήσει τα σχετικά "
-"πρόσθετα οπτικοποιήσεων. "
+"Ο διαχειριστής της ιστοσελίδας μπορεί να μην έχει ενεργοποιήσει τα "
+"σχετικά πρόσθετα οπτικοποιήσεων. "
 
 #: ckan/templates/package/resource_read.html:152
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be enabled, "
-"or the data may not have been pushed to the DataStore, or the DataStore "
-"hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be "
+"enabled, or the data may not have been pushed to the DataStore, or the "
+"DataStore hasn't finished processing the data yet"
 msgstr ""
-"Αν μια προβολή απαιτεί το πρόσθετο DataStore, τότε το πρόσθετο μπορεί να μην"
-" έχει ενεργοποιηθεί ή τα δεδομένα να μην έχουν αποθηκευθεί στο DataStore ή "
-"δεν έχει ολοκληρωθεί η επεξεργασία των δεδομένων στο DataStore."
+"Αν μια προβολή απαιτεί το πρόσθετο DataStore, τότε το πρόσθετο μπορεί να "
+"μην έχει ενεργοποιηθεί ή τα δεδομένα να μην έχουν αποθηκευθεί στο "
+"DataStore ή δεν έχει ολοκληρωθεί η επεξεργασία των δεδομένων στο "
+"DataStore."
 
 #: ckan/templates/package/resource_read.html:175
 msgid "Additional Information"
@@ -3954,8 +3947,9 @@ msgid ""
 "You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s."
 msgstr ""
-"Μπορείτε επίσης να αποκτήσετε πρόσβαση σε αυτό το μητρώο χρησιμοποιώντας το "
-"%(api_link)s (δείτε %(api_doc_link)s) η κατεβάζοντας ένα %(dump_link)s."
+"Μπορείτε επίσης να αποκτήσετε πρόσβαση σε αυτό το μητρώο χρησιμοποιώντας "
+"το %(api_link)s (δείτε %(api_doc_link)s) η κατεβάζοντας ένα "
+"%(dump_link)s."
 
 #: ckan/templates/package/search.html:60
 #, python-format
@@ -4151,16 +4145,17 @@ msgstr "Ενεργό"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of any"
-" resource files that you add to this dataset. By submitting this form, you "
-"agree to release the <i>metadata</i> values that you enter into the form "
-"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
-"Database License</a>."
+"The <i>data license</i> you select above only applies to the contents of "
+"any resource files that you add to this dataset. By submitting this form,"
+" you agree to release the <i>metadata</i> values that you enter into the "
+"form under the <a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
+"License</a>."
 msgstr ""
-"Η <i>Άδεια Χρήσης Δεδομένων</i> που επέλεξες παραπάνω, έχει ισχύ μόνο στα "
-"περιεχόμενα οποιουδήποτε αρχείου πόρου που προσθέτεις στο σύνολο δεδομένων. "
-"Καταθέτοντας αυτή την  φόρμα, συμφωνείς στη διάθεση των <i>μεταδεδομένων</i>"
-" που εισάγεις στη φόρμα υπό την άδεια <a "
+"Η <i>Άδεια Χρήσης Δεδομένων</i> που επέλεξες παραπάνω, έχει ισχύ μόνο στα"
+" περιεχόμενα οποιουδήποτε αρχείου πόρου που προσθέτεις στο σύνολο "
+"δεδομένων. Καταθέτοντας αυτή την  φόρμα, συμφωνείς στη διάθεση των "
+"<i>μεταδεδομένων</i> που εισάγεις στη φόρμα υπό την άδεια <a "
 "href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
 "License</a>."
 msgstr ""
@@ -4233,8 +4228,7 @@ msgstr "π.χ. CSV, XML or JSON"
 
 #: ckan/templates/package/snippets/resource_form.html:42
 msgid "This will be guessed automatically. Leave blank if you wish"
-msgstr ""
-"Θα ερμηνευθεί αυτόματα. Μπορείτε να το αφήσετε κενό εφόσον το επιθυμείτε"
+msgstr "Θα ερμηνευθεί αυτόματα. Μπορείτε να το αφήσετε κενό εφόσον το επιθυμείτε"
 
 #: ckan/templates/package/snippets/resource_form.html:53
 msgid "eg. 2012-06-05"
@@ -4281,8 +4275,8 @@ msgstr "Τι είναι ένας πόρος ;"
 #: ckan/templates/package/snippets/resource_help.html:4
 msgid "A resource can be any file or link to a file containing useful data."
 msgstr ""
-"Ένας πόρος μπορεί να είναι οποιοδήποτε αρχείο ή σύνδεσμος σε ένα αρχείο που "
-"περιέχει χρήσιμα δεδομένα."
+"Ένας πόρος μπορεί να είναι οποιοδήποτε αρχείο ή σύνδεσμος σε ένα αρχείο "
+"που περιέχει χρήσιμα δεδομένα."
 
 #: ckan/templates/package/snippets/resource_item.html:37
 msgid "Explore"
@@ -4445,8 +4439,8 @@ msgid ""
 "<p id=\"search-error\"><strong>There was an error while searching.</strong> "
 "Please try again.</p>"
 msgstr ""
-" <p id=\"search-error\"><strong>Προέκυψε ένα πρόβλημα κατά την αναζήτηση. "
-"</strong> Παρακαλώ δοκιμάστε ξανά.</p> "
+" <p id=\"search-error\"><strong>Προέκυψε ένα πρόβλημα κατά την αναζήτηση."
+" </strong> Παρακαλώ δοκιμάστε ξανά.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -5002,8 +4996,8 @@ msgstr "Πληροφορίες λογαριασμού"
 msgid ""
 "Your profile lets other CKAN users know about who you are and what you do."
 msgstr ""
-"Το προφίλ σας επιτρέπει σε άλλους χρήστες να γνωρίζουν ποιοι είστε και τι "
-"κάνετε."
+"Το προφίλ σας επιτρέπει σε άλλους χρήστες να γνωρίζουν ποιοι είστε και τι"
+" κάνετε."
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
@@ -5107,8 +5101,8 @@ msgstr "Ξεχάσατε τον κωδικό πρόσβασης;"
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
 msgstr ""
-"Δεν υπάρχει πρόβλημα, χρησιμοποιήστε τη φόρμα ανάκτησης κωδικού πρόσβασης "
-"για να τον επαναφέρετε."
+"Δεν υπάρχει πρόβλημα, χρησιμοποιήστε τη φόρμα ανάκτησης κωδικού πρόσβασης"
+" για να τον επαναφέρετε."
 
 #: ckan/templates/user/login.html:47
 msgid "Forgot your password?"
@@ -5205,7 +5199,8 @@ msgstr "Πως λειτουργεί;"
 #: ckan/templates/user/perform_reset.html:45
 msgid "Simply enter a new password and we'll update your account"
 msgstr ""
-"Απλά εισάγετε ένα νέο κωδικό πρόσβασης και θα ενημερώσουμε το λογαριασμό σας"
+"Απλά εισάγετε ένα νέο κωδικό πρόσβασης και θα ενημερώσουμε το λογαριασμό "
+"σας"
 
 #: ckan/templates/user/read.html:27
 msgid "User hasn't created any datasets."
