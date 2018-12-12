@@ -8,6 +8,21 @@ Changelog
 ---------
 
 
+v2.7.5 2018-12-12
+=================
+
+  * Strip full URL on uploaded resources before saving to DB (`#4382 <https://github.com/ckan/ckan/issues/4382>`_)
+  * Fix for datastore_search distinct=true option (`#4236 <https://github.com/ckan/ckan/issues/4236>`_)
+  * Fix edit slug button (`#4379 <https://github.com/ckan/ckan/issues/4379>`_)
+  * Don't re-register plugin helpers on flask_app (`#4414 <https://github.com/ckan/ckan/issues/4414>`_)
+  * Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+  * autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+  * Flask patch update (`#4426 <https://github.com/ckan/ckan/issues/4426>`_)
+  * Allow plugins to define multiple blueprints (`#4495 <https://github.com/ckan/ckan/issues/4495>`_)
+  * Fix i18n API encoding (`#4505 <https://github.com/ckan/ckan/issues/4505>`_)
+  * Allow to defined legacy route mappings as a dict in config (`#4521 <https://github.com/ckan/ckan/issues/4521>`_)
+  * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
+
 v2.7.4 2018-05-09
 =================
 
