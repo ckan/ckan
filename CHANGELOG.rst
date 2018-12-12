@@ -374,6 +374,20 @@ Deprecations:
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
 
+v2.6.7 2018-12-12
+=================
+
+  * Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+  * autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+  * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
+
+v2.6.6 2018-05-09
+=================
+
+* Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
+* Stable version URLs CKAN for documentation (#4209)
+* Add Warning in docs sidebar (#4209)
+
 v2.6.5 2018-03-15
 =================
 
