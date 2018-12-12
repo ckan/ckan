@@ -2,7 +2,7 @@
   "": {
     "domain": "ckan",
     "lang": "vi",
-    "plural-forms": "nplurals=1; plural=0;"
+    "plural-forms": "nplurals=1; plural=0"
   },
   "An Error Occurred": [
     null,

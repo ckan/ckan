@@ -2,7 +2,7 @@
   "": {
     "domain": "ckan",
     "lang": "fa_IR",
-    "plural-forms": "nplurals=1; plural=0;"
+    "plural-forms": "nplurals=2; plural=(n > 1)"
   },
   "An Error Occurred": [
     null,

@@ -2,7 +2,7 @@
   "": {
     "domain": "ckan",
     "lang": "zh_TW",
-    "plural-forms": "nplurals=1; plural=0;"
+    "plural-forms": "nplurals=1; plural=0"
   },
   "An Error Occurred": [
     null,

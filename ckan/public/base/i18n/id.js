@@ -2,7 +2,7 @@
   "": {
     "domain": "ckan",
     "lang": "id",
-    "plural-forms": "nplurals=1; plural=0;"
+    "plural-forms": "nplurals=1; plural=0"
   },
   "Cancel": [
     null,

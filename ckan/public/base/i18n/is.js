@@ -2,7 +2,7 @@
   "": {
     "domain": "ckan",
     "lang": "is",
-    "plural-forms": "nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);"
+    "plural-forms": "nplurals=2; plural=(n % 10 != 1 || n % 100 == 11)"
   },
   "An Error Occurred": [
     null,
