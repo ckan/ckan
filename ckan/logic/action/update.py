@@ -7,6 +7,7 @@ import datetime
 import time
 import json
 import mimetypes
+import os
 
 from ckan.common import config
 import paste.deploy.converters as converters
@@ -522,8 +523,12 @@ def _group_or_org_update(context, data_dict, is_org=False):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    group = model_save.group_dict_save(data, context,
-        prevent_packages_update=is_org)
+    contains_packages = 'packages' in data_dict
+
+    group = model_save.group_dict_save(
+        data, context,
+        prevent_packages_update=is_org or not contains_packages
+    )
 
     if is_org:
         plugin_type = plugins.IOrganizationController
@@ -1273,8 +1278,11 @@ def config_option_update(context, data_dict):
     for key, value in data.iteritems():
 
         # Set full Logo url
-        if key =='ckan.site_logo' and value and not value.startswith('http'):
-            value = h.url_for_static('uploads/admin/{0}'.format(value))
+        if key == 'ckan.site_logo' and value and not value.startswith('http')\
+                and not value.startswith('/'):
+            image_path = 'uploads/admin/'
+
+            value = h.url_for_static('{0}{1}'.format(image_path, value))
 
         # Save value in database
         model.set_system_info(key, value)

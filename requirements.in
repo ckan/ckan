@@ -5,7 +5,12 @@ Beaker==1.8.1 # Needs to be pinned to a more up to date version than the Pylons 
 bleach==1.5.0
 click==6.7
 fanstatic==0.12
+<<<<<<< HEAD
 Flask==0.11.1
+=======
+Flask==0.12.4
+Flask-Babel==0.11.2
+>>>>>>> 5787c7b1a... Flask patch update
 Jinja2==2.8
 Markdown==2.6.7
 ofs==0.4.2

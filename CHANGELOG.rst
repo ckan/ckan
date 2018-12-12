@@ -8,6 +8,21 @@ Changelog
 ---------
 
 
+v2.7.5 2018-12-12
+=================
+
+  * Strip full URL on uploaded resources before saving to DB (`#4382 <https://github.com/ckan/ckan/issues/4382>`_)
+  * Fix for datastore_search distinct=true option (`#4236 <https://github.com/ckan/ckan/issues/4236>`_)
+  * Fix edit slug button (`#4379 <https://github.com/ckan/ckan/issues/4379>`_)
+  * Don't re-register plugin helpers on flask_app (`#4414 <https://github.com/ckan/ckan/issues/4414>`_)
+  * Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+  * autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+  * Flask patch update (`#4426 <https://github.com/ckan/ckan/issues/4426>`_)
+  * Allow plugins to define multiple blueprints (`#4495 <https://github.com/ckan/ckan/issues/4495>`_)
+  * Fix i18n API encoding (`#4505 <https://github.com/ckan/ckan/issues/4505>`_)
+  * Allow to defined legacy route mappings as a dict in config (`#4521 <https://github.com/ckan/ckan/issues/4521>`_)
+  * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
+
 v2.7.4 2018-05-09
 =================
 
@@ -192,6 +207,67 @@ Deprecations:
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
 
+v2.6.7 2018-12-12
+=================
+
+  * Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+  * autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+  * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
+
+v2.6.6 2018-05-09
+=================
+
+* Adding filter at resoruce preview doesn't work while site is setup with ckan.root_path param (#4140)
+* Stable version URLs CKAN for documentation (#4209)
+* Add Warning in docs sidebar (#4209)
+
+v2.6.5 2018-03-15
+=================
+
+Note: This version requires a database upgrade
+
+* Activity Time stored in UTC (#2882)
+* Migration script to adjust current activity timestamps to UTC
+* Change CORS header keys and values to string instead of unicode (#3855)
+* Fix cors header when all origins are allowed (#3898)
+* Update SOLR schema.xml reference in Dockerfile
+* Build local SOLR container by default
+* Create datastore indexes only if they don't exist
+* Properly close file responses
+* Use javascript content-type for jsonp responses (#4022)
+* Fix SOLR index delete_package implementation
+* Add second half of DataStore set-permissions command (Docs)
+* Return a 403 if not authorized on the search page (#4081)
+* Add support for user/pass for Solr as ENV var
+* Disallow solr local parameters
+* Improve text view rendering
+* Update Orgs/Groups logic for custom fields delete and update (#4094)
+
+v2.6.4 2017-09-27
+=================
+
+* Mail recepient header override (#3781)
+* Skip url parsing in redirect (#3499)
+* Support non root for fanstatic (#3618)
+
+v2.6.3 2017-08-02
+=================
+
+* Fix in organization / group form image URL field (#3661)
+* Fix activity test to use utcnow (#3644)
+* Changed required permission from 'update' to 'manage_group' (#3631)
+* Catch invalid sort param exception (#3630)
+* Choose direction of recreated package relationship depending on its type (#3626)
+* Fix render_datetime for dates before year 1900 (#3611)
+* Fix KeyError in 'package_create' (#3027)
+* Allow slug preview to work with autocomplete fields (#2501)
+* Fix filter results button not working for organization/group (#3620)
+* Allow underscores in URL slug preview on create dataset (#3612)
+* Create new resource view if resource format changed (#3515)
+* Fixed escaping issues with `helpers.mail_to` and datapusher logs
+* Autocomplete fields are more responsive - 300ms timeout instead of 1s (#3693)
+* Fixed dataset count display for groups (#3711)
+* Restrict access to form pages (#3684)
 
 v2.6.2 2017-03-22
 =================
