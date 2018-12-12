@@ -44,7 +44,8 @@ def _finish(status_int, response_data=None,
     :param status_int: The HTTP status code to return
     :type status_int: int
     :param response_data: The body of the response
-    :type response_data: object if content_type is `text`, a string otherwise
+    :type response_data: object if content_type is `text` or `json`,
+        a string otherwise
     :param content_type: One of `text`, `html` or `json`. Defaults to `text`
     :type content_type: string
     :param headers: Extra headers to serve with the response
@@ -82,7 +83,8 @@ def _finish_ok(response_data=None,
     calling this method will prepare the response.
 
     :param response_data: The body of the response
-    :type response_data: object if content_type is `text`, a string otherwise
+    :type response_data: object if content_type is `text` or `json`,
+        a string otherwise
     :param content_type: One of `text`, `html` or `json`. Defaults to `json`
     :type content_type: string
     :param resource_location: Specify this if a new resource has just been
@@ -470,7 +472,7 @@ def i18n_js_translations(lang, ver=API_REST_DEFAULT_VERSION):
                              u'base', u'i18n', u'{0}.js'.format(lang)))
     if not os.path.exists(source):
         return u'{}'
-    translations = open(source, u'r').read()
+    translations = json.load(open(source, u'r'))
     return _finish_ok(translations)
 
 

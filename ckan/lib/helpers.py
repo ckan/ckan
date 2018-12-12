@@ -48,7 +48,7 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
-from ckan.common import _, ungettext, c, request, session, json
+from ckan.common import _, ungettext, c, g, request, session, json
 from markupsafe import Markup, escape
 
 
@@ -893,10 +893,12 @@ LEGACY_ROUTE_NAMES = {
 def map_pylons_to_flask_route_name(menu_item):
     '''returns flask routes for old fashioned route names'''
     # Pylons to Flask legacy route names mappings
-    if config.get('ckan.legacy_route_mappings'):
-        if isinstance(config.get('ckan.legacy_route_mappings'), string_types):
-            LEGACY_ROUTE_NAMES.update(json.loads(config.get(
-                'ckan.legacy_route_mappings')))
+    mappings = config.get('ckan.legacy_route_mappings')
+    if mappings:
+        if isinstance(mappings, string_types):
+            LEGACY_ROUTE_NAMES.update(json.loads(mappings))
+        elif isinstance(mappings, dict):
+            LEGACY_ROUTE_NAMES.update(mappings)
 
     if menu_item in LEGACY_ROUTE_NAMES:
         log.info('Route name "{}" is deprecated and will be removed.\
@@ -1131,8 +1133,10 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
 @core_helper
 def check_access(action, data_dict=None):
+    if not getattr(g, u'user', None):
+        g.user = ''
     context = {'model': model,
-               'user': c.user}
+               'user': g.user}
     if not data_dict:
         data_dict = {}
     try:

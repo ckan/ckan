@@ -284,7 +284,7 @@ class TestDatastoreSearch(DatastoreLegacyTestBase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         result = res_dict['result']
-        assert result['total'] == 2
+        assert result['total'] == 1
         assert result['records'] == [{u'author': 'tolstoy'}], result['records']
 
     def test_search_filters(self):
