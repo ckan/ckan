@@ -1,0 +1,59 @@
+
+    [paste.global_paster_command]
+    help=paste.script.help:HelpCommand
+    create=paste.script.create_distro:CreateDistroCommand [Templating]
+    serve=paste.script.serve:ServeCommand [Config]
+    request=paste.script.request:RequestCommand [Config]
+    post=paste.script.request:RequestCommand [Config]
+    exe=paste.script.exe:ExeCommand
+    points=paste.script.entrypoints:EntryPointCommand
+    make-config=paste.script.appinstall:MakeConfigCommand
+    setup-app=paste.script.appinstall:SetupCommand
+
+    [paste.paster_command]
+    grep = paste.script.grep:GrepCommand
+
+    [paste.paster_create_template]
+    basic_package=paste.script.templates:BasicPackage
+
+    [paste.server_runner]
+    wsgiutils=paste.script.wsgiutils_server:run_server [WSGIUtils]
+    flup_ajp_thread=paste.script.flup_server:run_ajp_thread [Flup]
+    flup_ajp_fork=paste.script.flup_server:run_ajp_fork [Flup]
+    flup_fcgi_thread=paste.script.flup_server:run_fcgi_thread [Flup]
+    flup_fcgi_fork=paste.script.flup_server:run_fcgi_fork [Flup]
+    flup_scgi_thread=paste.script.flup_server:run_scgi_thread [Flup]
+    flup_scgi_fork=paste.script.flup_server:run_scgi_fork [Flup]
+    cgi=paste.script.cgi_server:paste_run_cgi
+    cherrypy=paste.script.cherrypy_server:cpwsgi_server
+    twisted=paste.script.twisted_web2_server:run_twisted
+
+    [paste.app_factory]
+    test=paste.script.testapp:make_test_application
+
+    [paste.entry_point_description]
+    paste.entry_point_description = paste.script.epdesc:MetaEntryPointDescription
+    paste.paster_create_template = paste.script.epdesc:CreateTemplateDescription
+    paste.paster_command = paste.script.epdesc:PasterCommandDescription
+    paste.global_paster_command = paste.script.epdesc:GlobalPasterCommandDescription
+    paste.app_install = paste.script.epdesc:AppInstallDescription
+
+    # These aren't part of Paste Script particularly, but
+    # we'll document them here
+    console_scripts = paste.script.epdesc:ConsoleScriptsDescription
+    # @@: Need non-console scripts...
+    distutils.commands = paste.script.epdesc:DistutilsCommandsDescription
+    distutils.setup_keywords = paste.script.epdesc:SetupKeywordsDescription
+    egg_info.writers = paste.script.epdesc:EggInfoWriters
+    # @@: Not sure what this does:
+    #setuptools.file_finders = paste.script.epdesc:SetuptoolsFileFinders
+
+    [console_scripts]
+    paster=paste.script.command:run
+
+    [distutils.setup_keywords]
+    paster_plugins = setuptools.dist:assert_string_list
+
+    [egg_info.writers]
+    paster_plugins.txt = setuptools.command.egg_info:write_arg
+    

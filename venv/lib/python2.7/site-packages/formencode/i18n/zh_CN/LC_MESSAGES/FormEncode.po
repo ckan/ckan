@@ -1,0 +1,547 @@
+# Chinese/Simplified translation of PACKAGE.
+# Copyright (C) 2007 ORGANIZATION
+# qcshzihnus <qcshzihnus@gmail.com>, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-05-16 19:11+0200\n"
+"PO-Revision-Date: 2010-05-16 04:32+0200\n"
+"Last-Translator: qcshzihnus <qcshzihnus@gmail.com>\n"
+"Language-Team: Chinese/Simplified\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 1.0dev-r546\n"
+
+#: formencode/api.py:394 formencode/validators.py:418
+msgid "Please enter a value"
+msgstr "请输入一个值"
+
+#: formencode/api.py:395
+#, python-format
+msgid "The input must be a string (not a %(type)s: %(value)r)"
+msgstr "输入必须为一个字符串 (而不是 %(type)s: %(value)r)"
+
+#: formencode/api.py:396
+msgid "The input must be a string (not None)"
+msgstr "输入必须为一个字符串 (而不是 None)"
+
+#: formencode/national.py:29
+msgid "Belarus"
+msgstr ""
+
+#: formencode/national.py:30
+msgid "Montenegro"
+msgstr ""
+
+#: formencode/national.py:31
+msgid "Tasmania"
+msgstr ""
+
+#: formencode/national.py:37
+msgid "Britain"
+msgstr ""
+
+#: formencode/national.py:38
+msgid "Great Britain"
+msgstr ""
+
+#: formencode/national.py:39
+msgid "Cote de Ivoire"
+msgstr ""
+
+#: formencode/national.py:144
+#, python-format
+msgid "%d digits"
+msgstr ""
+
+#: formencode/national.py:165
+#, python-format
+msgid "Please enter a zip code (%(format)s)"
+msgstr "请输入邮政编码 (%(format)s)"
+
+#: formencode/national.py:229 formencode/national.py:263
+#, python-format
+msgid "Please enter a zip code (%s)"
+msgstr "请输入邮政编码 (%s)"
+
+#: formencode/national.py:229
+msgid "LnnnnLLL"
+msgstr ""
+
+#: formencode/national.py:263
+msgid "LnL nLn"
+msgstr ""
+
+#: formencode/national.py:297
+msgid "Please enter a valid postal code (for format see BS 7666)"
+msgstr "請輸入有效郵遞區號（若要瞭解格式，請查看 BS 7666)"
+
+#: formencode/national.py:338
+msgid "That country is not listed in ISO 3166"
+msgstr "該國家/地區並未列在 ISO 3166 中"
+
+#: formencode/national.py:393
+msgid "Given postal code does not match the country's format."
+msgstr "指定的郵遞區號與國家/地區的格式不相符。"
+
+#: formencode/national.py:484
+msgid "Please enter a state code"
+msgstr "请输入一个状态码"
+
+#: formencode/national.py:485
+msgid "Please enter a state code with TWO letters"
+msgstr "请输入 两 个字母的状态码"
+
+#: formencode/national.py:486
+msgid "That is not a valid state code"
+msgstr "不是有效的状态码"
+
+#: formencode/national.py:539
+msgid ""
+"Please enter a number, with area code, in the form ###-###-####, "
+"optionally with \"ext.####\""
+msgstr "请输入号码，连带地区码，格式为 ###-###-####，后可加上 \"ext.####\""
+
+#: formencode/national.py:646
+#, fuzzy
+msgid "Please enter a number, with area code, in the form +##-###-#######."
+msgstr "请输入号码，连带地区码，格式为 ###-###-####，后可加上 \"ext.####\""
+
+#: formencode/national.py:725
+msgid "That language is not listed in ISO 639"
+msgstr ""
+
+#: formencode/schema.py:63
+#, python-format
+msgid "The input field %(name)s was not expected."
+msgstr "輸入欄位 %(name)s 不正確"
+
+#: formencode/schema.py:64
+msgid "Missing value"
+msgstr "遺失數值"
+
+#: formencode/schema.py:65
+#, fuzzy, python-format
+msgid "The input must be dict-like (not a %(type)s: %(value)r)"
+msgstr "输入必须为一个字符串 (而不是 %(type)s: %(value)r)"
+
+#: formencode/validators.py:147
+#, python-format
+msgid "%(object)r is not a subclass of %(subclass)s"
+msgstr "%(object)r 不是 %(subclass)s 的子类"
+
+#: formencode/validators.py:148
+#, python-format
+msgid "%(object)r is not a subclass of one of the types %(subclassList)s"
+msgstr "%(object)r 不是这些类型之一的子类 %(subclassList)s"
+
+#: formencode/validators.py:149
+#, python-format
+msgid "%(object)r must be one of the types %(typeList)s"
+msgstr "%(object)r 必须为这些类型之一 %(typeList)s"
+
+#: formencode/validators.py:150
+#, python-format
+msgid "%(object)r must be of the type %(type)s"
+msgstr "%(object)r 必须为类型 %(type)s"
+
+#: formencode/validators.py:330
+#, python-format
+msgid "Enter a value less than %(maxLength)i characters long"
+msgstr "请输入少于 %(maxLength)i 个字符的值"
+
+#: formencode/validators.py:331 formencode/validators.py:385
+msgid "Invalid value (value with length expected)"
+msgstr "无效的值 (长度错误)"
+
+#: formencode/validators.py:384
+#, python-format
+msgid "Enter a value at least %(minLength)i characters long"
+msgstr "请输入至少 %(minLength)i 个字符的值"
+
+#: formencode/validators.py:441
+msgid "You cannot enter a value here"
+msgstr "您不能在此处输入值"
+
+#: formencode/validators.py:490
+msgid "The input is not valid"
+msgstr "输入无效"
+
+#: formencode/validators.py:543
+msgid "Enter only letters, numbers, or _ (underscore)"
+msgstr "请只输入字母、数字或 _ (下划线)"
+
+#: formencode/validators.py:581
+msgid "Invalid value"
+msgstr "无效的值"
+
+#: formencode/validators.py:582
+#, python-format
+msgid "Value must be one of: %(items)s (not %(value)r)"
+msgstr "必须为这些值之一: %(items)s (而不是 %(value)r)"
+
+#: formencode/validators.py:640
+msgid "Choose something"
+msgstr "请选择些什么"
+
+#: formencode/validators.py:641
+#, python-format
+msgid "Enter a value from: %(items)s"
+msgstr "请输入这些值之一: %(items)s"
+
+#: formencode/validators.py:642
+msgid "That value is not known"
+msgstr "值未知"
+
+#: formencode/validators.py:643
+#, python-format
+msgid ""
+"Nothing in my dictionary goes by the value %(value)s.  Choose one of: "
+"%(items)s"
+msgstr "字典中没有值 %(value)s。请选择这些值之一: %(items)s"
+
+#: formencode/validators.py:705
+msgid "Must be an integer index"
+msgstr "必须为整数索引"
+
+#: formencode/validators.py:706
+msgid "Index out of range"
+msgstr "索引超出范围"
+
+#: formencode/validators.py:707
+#, python-format
+msgid "Item %(value)s was not found in the list"
+msgstr "无法在列表中找到项 %(value)s"
+
+#: formencode/validators.py:777
+#, python-format
+msgid "Date must be after %(date)s"
+msgstr "日期必须在 %(date)s 之后"
+
+#: formencode/validators.py:778
+#, python-format
+msgid "Date must be before %(date)s"
+msgstr "日期必须在 %(date)s 之前"
+
+#: formencode/validators.py:780
+#, python-format
+msgid "%%A, %%d %%B %%Y"
+msgstr "%%Y %%B %%d, %%A"
+
+#: formencode/validators.py:781
+msgid "The date must be sometime in the future"
+msgstr "日期必须为将来的某一天"
+
+#: formencode/validators.py:882
+#, fuzzy, python-format
+msgid "Please enter a number that is %(min)s or greater"
+msgstr "请输入一个数字代表年份"
+
+#: formencode/validators.py:883
+#, fuzzy, python-format
+msgid "Please enter a number that is %(max)s or smaller"
+msgstr "请输入一个数字代表年份"
+
+#: formencode/validators.py:920
+msgid "Please enter an integer value"
+msgstr "请输入一个整型值"
+
+#: formencode/validators.py:958
+msgid "Please enter a number"
+msgstr "请输入一个数"
+
+#: formencode/validators.py:1019
+#, fuzzy, python-format
+msgid "Enter a value not more than %(max)i characters long"
+msgstr "请输入少于 %(max)i 个字符的值"
+
+#: formencode/validators.py:1020
+#, python-format
+msgid "Enter a value %(min)i characters long or more"
+msgstr "请输入至少 %(min)i 个字符的值"
+
+#: formencode/validators.py:1095
+msgid "Invalid data or incorrect encoding"
+msgstr "数据无效或编码错误"
+
+#: formencode/validators.py:1267
+msgid "Please enter an email address"
+msgstr "请输入一个电子邮件地址"
+
+#: formencode/validators.py:1268
+msgid "An email address must contain a single @"
+msgstr "电子邮件地址必须包含单个 @"
+
+#: formencode/validators.py:1269
+#, python-format
+msgid ""
+"The username portion of the email address is invalid (the portion before "
+"the @: %(username)s)"
+msgstr "电子邮件地址的用户名部分无效 (@ 之前的部分: %(username)s)"
+
+#: formencode/validators.py:1271 formencode/validators.py:1413
+#, python-format
+msgid "An error occured when trying to connect to the server: %(error)s"
+msgstr "尝试连接到服务器时错误: %(error)s"
+
+#: formencode/validators.py:1273
+#, python-format
+msgid ""
+"The domain portion of the email address is invalid (the portion after the"
+" @: %(domain)s)"
+msgstr "电子邮件地址的域名部分无效 (@ 之后的部分: %(domain)s)"
+
+#: formencode/validators.py:1275
+#, python-format
+msgid ""
+"The domain of the email address does not exist (the portion after the @: "
+"%(domain)s)"
+msgstr "电子邮件地址的域名不存在 (@ 之后的部分: %(domain)s)"
+
+#: formencode/validators.py:1409
+msgid "You must start your URL with http://, https://, etc"
+msgstr "URL 必须以 http:// 、https:// 等开头"
+
+#: formencode/validators.py:1410
+msgid "That is not a valid URL"
+msgstr "不是合法的URL"
+
+#: formencode/validators.py:1411
+#, python-format
+msgid "An error occurred when trying to access the URL: %(error)s"
+msgstr "尝试访问该 URL 时出错: %(error)s"
+
+#: formencode/validators.py:1415
+msgid "The server responded that the page could not be found"
+msgstr "服务器回应说页面未找到"
+
+#: formencode/validators.py:1416
+#, python-format
+msgid "The server responded with a bad status code (%(status)s)"
+msgstr "服务器返回了一个错误状态码 (%(status)s)"
+
+#: formencode/validators.py:1417
+#, python-format
+msgid "You must provide a full domain name (like %(domain)s.com)"
+msgstr "您必須提供完整網域名（如 %(domain)s.com)"
+
+#: formencode/validators.py:1544
+msgid ""
+"The type of i-name is not defined; it may be either individual or "
+"organizational"
+msgstr ""
+
+#: formencode/validators.py:1546
+msgid "Dots and dashes may not be repeated consecutively"
+msgstr ""
+
+#: formencode/validators.py:1547
+#, python-format
+msgid "\"%(iname)s\" is an invalid i-name"
+msgstr ""
+
+#: formencode/validators.py:1548
+msgid "i-names may not start with numbers nor punctuation marks"
+msgstr ""
+
+#: formencode/validators.py:1550
+#, python-format
+msgid "\"%(inumber)s\" is an invalid i-number"
+msgstr ""
+
+#: formencode/validators.py:1551
+#, fuzzy, python-format
+msgid "The XRI must be a string (not a %(type)s: %(value)r)"
+msgstr "输入必须为一个字符串 (而不是 %(type)s: %(value)r)"
+
+#: formencode/validators.py:1552
+#, python-format
+msgid "\"%(xri_type)s\" is not a valid type of XRI"
+msgstr ""
+
+#: formencode/validators.py:1651
+#, python-format
+msgid "\"%(id)s\" is not a valid OpenId (it is neither an URL nor an XRI)"
+msgstr ""
+
+#: formencode/validators.py:1882 formencode/validators.py:1890
+#, python-format
+msgid "Please enter the date in the form %(format)s"
+msgstr "请以格式 %(format)s 输入日期"
+
+#: formencode/validators.py:1883
+msgid "Please enter a month from 1 to 12"
+msgstr "请输入 1月 到 12 月其中之一"
+
+#: formencode/validators.py:1884
+msgid "Please enter a valid day"
+msgstr "请输入有效的天数"
+
+#: formencode/validators.py:1885
+#, python-format
+msgid "That month only has %(days)i days"
+msgstr "该月只有 %(days)i 天"
+
+#: formencode/validators.py:1886
+#, python-format
+msgid "That is not a valid day (%(exception)s)"
+msgstr "不是有效的天数 (%(exception)s)"
+
+#: formencode/validators.py:1887
+#, python-format
+msgid "Unknown month name: %(month)s"
+msgstr "未知的月份名称: %(month)s"
+
+#: formencode/validators.py:1888
+msgid "Please enter a number for the year"
+msgstr "请输入一个数字代表年份"
+
+#: formencode/validators.py:1889
+#, fuzzy
+msgid "Please enter a four-digit year after 1899"
+msgstr "请输入四位的年份"
+
+#: formencode/validators.py:2070
+msgid "You must indicate AM or PM"
+msgstr "您必须指明 AM 或 PM"
+
+#: formencode/validators.py:2071
+msgid "There are too many :'s"
+msgstr "太多的 :'s"
+
+#: formencode/validators.py:2072
+msgid "You may not enter seconds"
+msgstr "您不可以输入秒数"
+
+#: formencode/validators.py:2073
+msgid "You must enter seconds"
+msgstr "您必须输入秒数"
+
+#: formencode/validators.py:2074
+msgid "You must enter minutes (after a :)"
+msgstr "您必须输入分钟数 (在 : 之后)"
+
+#: formencode/validators.py:2075
+#, python-format
+msgid "The %(part)s value you gave is not a number: %(number)r"
+msgstr "您给出的 %(part)s 值不是一个数字: %(number)r"
+
+#: formencode/validators.py:2076
+#, python-format
+msgid "You must enter an hour in the range %(range)s"
+msgstr "您输入的小时数必须在 %(range)s 之内"
+
+#: formencode/validators.py:2077
+msgid "You must enter a minute in the range 0-59"
+msgstr "您输入的分钟数必须在 0-59之间"
+
+#: formencode/validators.py:2078
+msgid "You must enter a second in the range 0-59"
+msgstr "您输入的秒数必须在 0-59 之间"
+
+#: formencode/validators.py:2224
+#, python-format
+msgid "The name %(name)s is missing"
+msgstr "缺少名称 %(name)s"
+
+#: formencode/validators.py:2267
+#, python-format
+msgid "Value should be %(true)r or %(false)r"
+msgstr "值应当为 %(true)r 或是 %(false)r"
+
+#: formencode/validators.py:2302
+msgid "Value does not contain a signature"
+msgstr "值中不包含签名"
+
+#: formencode/validators.py:2303
+msgid "Signature is not correct"
+msgstr "签名不正确"
+
+#: formencode/validators.py:2378
+#, fuzzy
+msgid "Please enter a valid IP address (a.b.c.d)"
+msgstr "请输入一个电子邮件地址"
+
+#: formencode/validators.py:2379
+#, python-format
+msgid "The octets must be within the range of 0-255 (not %(octet)r)"
+msgstr ""
+
+#: formencode/validators.py:2426
+msgid "Please enter a valid IP address (a.b.c.d) or IP network (a.b.c.d/e)"
+msgstr ""
+
+#: formencode/validators.py:2428
+#, python-format
+msgid "The network size (bits) must be within the range of 8-32 (not %(bits)r)"
+msgstr ""
+
+#: formencode/validators.py:2477
+#, python-format
+msgid ""
+"A MAC address must contain 12 digits and A-F; the value you gave has "
+"%(length)s characters"
+msgstr ""
+
+#: formencode/validators.py:2479
+#, python-format
+msgid ""
+"MAC addresses may only contain 0-9 and A-F (and optionally :), not "
+"%(char)r"
+msgstr ""
+
+#: formencode/validators.py:2586
+#, python-format
+msgid "You must give a value for %s"
+msgstr "您必須為 %s 給出一個數值"
+
+#: formencode/validators.py:2619
+#, python-format
+msgid "Fields do not match (should be %(match)s)"
+msgstr "域不符合 (应当为 %(match)s)"
+
+#: formencode/validators.py:2620
+msgid "Fields do not match"
+msgstr "域不符合"
+
+#: formencode/validators.py:2621
+msgid "Fields should be a dictionary"
+msgstr ""
+
+#: formencode/validators.py:2697
+msgid "Please enter only the number, no other characters"
+msgstr "请只输入数字，没有其他字符"
+
+#: formencode/validators.py:2698
+msgid "You did not enter a valid number of digits"
+msgstr "您输入的数字无效"
+
+#: formencode/validators.py:2699
+msgid "That number is not valid"
+msgstr "数字无效"
+
+#: formencode/validators.py:2700
+#, python-format
+msgid "The field %(key)s is missing"
+msgstr "欄位 %(key)s 已遺失。"
+
+#: formencode/validators.py:2816
+msgid "Please enter numbers only for month and year"
+msgstr "请只输入代表年份和月份的数字"
+
+#: formencode/validators.py:2817
+msgid "Invalid Expiration Date"
+msgstr "无效的过期日"
+
+#: formencode/validators.py:2892
+msgid "Please enter numbers only for credit card security code"
+msgstr "请只输入代表信用卡密码的数字"
+
+#: formencode/validators.py:2893
+msgid "Invalid credit card security code length"
+msgstr "信用卡密码长度无效"
+

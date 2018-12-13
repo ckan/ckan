@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+ <title>Server Error</title>
+
+<script type="text/javascript">
+  debug_base = {{repr(prefix)}};
+  debug_count = {{counter}};
+  csrf_token = {{repr(csrf_token)}};
+</script>
+
+<!-- CSS Imports -->
+<link rel="stylesheet" href="{{prefix}}/media/traceback.css" type="text/css" media="screen" />
+<!-- Pygments highlighting -->
+<style type="text/css">
+{{pygments_css}}
+</style>
+
+{{head_html|html}}
+
+</head>
+
+<body id="documentation" onload="switch_display('{{set_tab}}')">
+<!-- We are only using a table to ensure old browsers see the message correctly -->
+
+<noscript>
+<div style="border-bottom: 1px solid #808080">
+<div style="border-bottom: 1px solid #404040">
+<table width="100%" border="0" cellpadding="0" bgcolor="#FFFFE1"><tr><td>&nbsp;</td><td><span style="padding: 0px; margin: 0px; font-family: Tahoma, sans-serif; font-size: 11px">Warning, your browser does not support JavaScript so you will not be able to use the interactive debugging on this page.</span></td></tr></table>
+</div>
+</div>
+</noscript>
+
+    <!-- Top anchor -->
+    <a name="top"></a>
+
+    <!-- Main Content -->
+    <div id="nav-bar">
+
+        <!-- Section Navigation -->
+        <h4 class="invisible">Section Links</h4>
+
+            <ul id="navlist">
+               <!--  {{#links|html}} -->
+               <li id="source_data_tab"><a href="#source_data" onclick="javascript:return switch_display('source_data');" accesskey="4" id="source_data_link">Source</a></li>
+               <li id="template_data_tab"><a href="#template_data" onclick="javascript:return switch_display('template_data');" accesskey="3" id="template_data_link">Template</a></li>
+               <li id="extra_data_tab"><a href="#extra_data" onclick="javascript:return switch_display('extra_data');" id="extra_data_link" accesskey="2" >Extra Data</a></li>
+               <li id="traceback_data_tab" class="active"><a href="#traceback_data" onclick="javascript:return switch_display('traceback_data');" id="traceback_data_link" class="active" accesskey="1">Traceback</a></li>
+            </ul>
+    </div>
+    <div id="main-content">
+        <div class="hr"><hr class="hr" /></div>
+        <div class="content-padding">
+            <div id="source_data" class="hidden-data">
+              There is no source code to display. Click a 'view' link in the <a href="#traceback_data" onclick="javascript:switch_display('traceback_data')" id="traceback_data_link" class="active" accesskey="1">Traceback</a> tab to load source code.
+            </div>
+            <div id="extra_data" class="hidden-data">
+              {{for extra_data_item in extra_data:}}
+                <h1 class="first"><a name="content"></a>Extra Data</h1>
+                {{extra_data_item|html}}
+              {{endfor}}
+            </div>
+            <div id="template_data" class="hidden-data">
+                {{template_data|html}}
+            </div>
+            <div id="traceback_data">
+<div style="float: left; width: 100%; padding-bottom: 20px;">
+<h1 class="first"><a name="content"></a>WebError Traceback:</h1>
+<div class="main-exception-bar">
+  <span class="main-exception" style="color: #f00;">&#8669;</span>
+  <code class="main-exception">{{exc_name}}: {{formatted_exc_value|html}}</code>
+</div>
+<div id="formats">
+   <span class="title">View as: &nbsp;</span> <a id="view_short_html" class="active" href="#">Interactive</a> 
+   <a id="view_long_html" href="#">(full)</a> &nbsp;|&nbsp; <a id="view_short_text" href="#">Text</a>  
+   <a id="view_long_text" href="#">(full)</a> &nbsp;|&nbsp; <a id="view_short_xml" href="#">XML</a> 
+   <a id="view_long_xml" href="#">(full)</a>
+</div>  
+<div style="clear: both;">
+<div id="error-area" style="display: none; background-color: #600; color: #fff; border: 2px solid black">
+<button onclick="return clearError()">clear this</button>
+<div id="error-container"></div>
+<button onclick="return clearError()">clear this</button>
+</div>
+{{traceback_body|html}}
+<div class="feature-highlight">
+<b>Extra Features</b>
+<table border="0">
+<tr><td><a href="#" onclick="return false" class="switch_source" style="cursor: default">&gt;&gt;</a></td><td>Display the lines of code near each part of the traceback</td></tr>
+<tr><td><img src="{{prefix}}/media/plus.jpg" /></td><td>Show a debug prompt to allow you to directly debug the code at the traceback</td></tr>
+</table>
+</div>{{repost_button|html}}
+
+            </div>
+        </div>
+        <br class="clear" />
+        <div class="hr"><hr class="clear" /></div>
+    </div>
+    <!-- Footer -->
+    <script type="text/javascript" src="{{prefix}}/media/jquery-1.2.3.pack.js"></script>
+    <script type="text/javascript" src="{{prefix}}/media/debug.js"></script>
+    <div id="footer">{{footer_html|html}}</div>
+</body>
+</html>

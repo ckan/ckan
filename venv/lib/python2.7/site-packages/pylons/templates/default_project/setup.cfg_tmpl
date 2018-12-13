@@ -1,0 +1,31 @@
+[egg_info]
+tag_build = dev
+tag_svn_revision = true
+
+[easy_install]
+find_links = http://www.pylonshq.com/download/
+
+[nosetests]
+with-pylons = test.ini
+
+# Babel configuration
+[compile_catalog]
+domain = {{package}}
+directory = {{package}}/i18n
+statistics = true
+
+[extract_messages]
+add_comments = TRANSLATORS:
+output_file = {{package}}/i18n/{{package}}.pot
+width = 80
+
+[init_catalog]
+domain = {{package}}
+input_file = {{package}}/i18n/{{package}}.pot
+output_dir = {{package}}/i18n
+
+[update_catalog]
+domain = {{package}}
+input_file = {{package}}/i18n/{{package}}.pot
+output_dir = {{package}}/i18n
+previous = true

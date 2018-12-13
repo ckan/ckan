@@ -1,0 +1,16 @@
+
+    [paste.paster_command]
+    controller = pylons.commands:ControllerCommand
+    restcontroller = pylons.commands:RestControllerCommand
+    shell = pylons.commands:ShellCommand
+
+    [paste.paster_create_template]
+    pylons = pylons.util:PylonsTemplate
+    pylons_minimal = pylons.util:MinimalPylonsTemplate
+
+    [python.templating.engines]
+    pylonsmyghty = pylons.templating:MyghtyTemplatePlugin [myghty]
+
+    [nose.plugins]
+    pylons = pylons.test:PylonsPlugin
+    

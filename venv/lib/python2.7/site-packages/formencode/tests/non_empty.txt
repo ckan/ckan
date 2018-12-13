@@ -1,0 +1,81 @@
+michele@ionic:~/Progetti/TurboGears/svn/thirdparty/formencode/formencode$ python
+Python 2.4.3 (#2, Mar 30 2006, 14:45:01)
+[GCC 4.0.3 (Ubuntu 4.0.3-1ubuntu3)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from formencode import validators
+>>> int = validators.Int()
+>>> int.not_empty
+False
+>>> int.to_python('')
+>>> int.to_python(None)
+>>> int.to_python(0)
+0
+>>> int.to_python(False)
+0
+>>> int.to_python('1')
+1
+>>> int.to_python('1a')
+Traceback (most recent call last):
+    ...
+Invalid: Please enter an integer value
+>>> int.not_empty = True
+>>> int.to_python('')
+Traceback (most recent call last):
+    ...
+Invalid: Please enter a value
+>>> int.to_python(None)
+Traceback (most recent call last):
+    ...
+Invalid: Please enter a value
+>>> int.to_python('1')
+1
+>>> int.to_python('1a')
+Traceback (most recent call last):
+    ...
+Invalid: Please enter an integer value
+>>> from formencode import compound
+>>> any = compound.Any(validators.Int(), validators.NotEmpty())
+>>> any.not_empty
+False
+>>> any.to_python('')
+>>> any.to_python(None)
+>>> any = compound.Any(validators.Int(), validators.Empty())
+>>> any.not_empty
+False
+>>> any = compound.All(validators.Int(), validators.NotEmpty())
+>>> any.not_empty
+True
+>>> any.to_python('')
+Traceback (most recent call last):
+    ...
+Invalid: Please enter a value
+>>> from formencode.foreach import ForEach
+>>> from formencode.validators import Int
+>>> foreach = ForEach(Int())
+>>> foreach.to_python('')
+[]
+>>> foreach.to_python(None)
+[]
+>>> foreach.to_python('1')
+[1]
+>>> foreach.to_python('2')
+[2]
+>>> foreach.to_python(['2', '3'])
+[2, 3]
+>>> foreach.not_empty = True
+>>> foreach.to_python('1')
+[1]
+>>> foreach.to_python('')
+Traceback (most recent call last):
+    ...
+Invalid: Please enter a value
+>>> foreach.if_empty = []
+>>> foreach.to_python('')
+Traceback (most recent call last):
+    ...
+Invalid: Please enter a value
+>>> foreach.not_empty = False
+>>> foreach.to_python('')
+[]
+>>> foreach.not_empty = False
+

@@ -1,0 +1,65 @@
+Metadata-Version: 2.1
+Name: coveralls
+Version: 1.5.1
+Summary: Show coverage stats online via coveralls.io
+Home-page: http://github.com/coveralls-clients/coveralls-python
+Author: coveralls-clients contributors
+License: MIT
+Project-URL: Changelog, https://github.com/coveralls-clients/coveralls-python/blob/master/CHANGELOG.md
+Project-URL: Docs, https://coveralls-python.rtfd.io/
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Topic :: Software Development :: Testing
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Provides-Extra: yaml
+Requires-Dist: docopt (>=0.6.1)
+Requires-Dist: coverage (>=3.6)
+Requires-Dist: requests (>=1.0.0)
+Requires-Dist: urllib3[secure]; python_version < "3"
+Provides-Extra: yaml
+Requires-Dist: PyYAML (>=3.10); extra == 'yaml'
+
+Coveralls for python
+====================
+
+.. image:: https://img.shields.io/circleci/project/github/coveralls-clients/coveralls-python/master.svg?style=flat-square
+    :target: https://circleci.com/gh/coveralls-clients/coveralls-python
+
+.. image:: https://img.shields.io/travis/coveralls-clients/coveralls-python/master.svg?style=flat-square
+    :target: https://travis-ci.org/coveralls-clients/coveralls-python
+
+.. image:: https://img.shields.io/coveralls/coveralls-clients/coveralls-python/master.svg?style=flat-square
+    :target: https://coveralls.io/r/coveralls-clients/coveralls-python
+
+.. image:: https://img.shields.io/pypi/v/coveralls.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/coveralls
+
+.. image:: https://img.shields.io/pypi/pyversions/coveralls.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/coveralls
+
+.. image:: https://img.shields.io/pypi/implementation/coveralls.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/coveralls
+
+`coveralls.io`_ is a service for publishing your coverage stats online. This package provides seamless integration with `coverage.py`_ (and thus ``py.test``, ``nosetests``, etc...) in your Python projects::
+
+    pip install coveralls
+    coverage run --source=mypkg setup.py test
+    coveralls
+
+For more information and usage instructions, see our `documentation`_.
+
+.. _coveralls.io: https://coveralls.io/
+.. _coverage.py: https://coverage.readthedocs.io/en/latest/
+.. _documentation: http://coveralls-python.readthedocs.io/en/latest/
+
+

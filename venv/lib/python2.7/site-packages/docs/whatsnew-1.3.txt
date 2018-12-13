@@ -1,0 +1,30 @@
+What's New In FormEncode 1.3
+==============================
+
+This article explains the latest changes in `FormEncode` version 1.3
+compared to its predecessor, `FormEncode` 1.2.5.
+
+
+Feature Additions
+-----------------
+
+ - Support validation of email addresses with unicode domain names.
+
+
+Backwards Incompatibilities
+---------------------------
+
+ - `FormEncode` 1.3 is no longer compatible with Python 2.3, 2.4, or 2.5.
+
+   The reason? We could not easily "straddle" Python 2 and 3 versions and support Python 2 versions older than Python 2.6. You will need Python 2.6 or better to run this version of FormEncode. If you need to use Python 2.5, you should use the most recent 1.2.X release of FormEncode.
+
+- `FormEncode` now also runs under Python 3.2 and 3.3.
+
+   Note that under Python 3, the `String` validator is now identical to the `UnicodeString` validator. If you really want to convert to byte strings, use the `ByteString` validator instead.
+
+ - Validation of email addresses using `resolve_domain` option now requires the dnspython third party library instead of pyDNS. pyDNS also does not support Python 3.
+
+ - The `FancyValidator` methods `_to_python`, `_from_python`, `validate_python` and `validate_other` have been renamed to `_convert_to_python`, `_convert_from_python`, `_validate_python` and `_validate_other`, respectively. This has been done to clarify that while these methods are meant to be overridden by custom validators, they are not part of the external API. They are only helper methods that are called internally by the external methods `to_python` and `from_python`, which constitute the external API. Particularly, do not assume that `_validate_python` catches all validation errors that a call of `to_python` will catch. Please have a look at the `FancyValidator` docstring and source if you're unsure how these methods work together. For the same reason, the `CompoundValidator` method `attempt_convert` has been renamed to `_attempt_convert`. For now, the old method names will still work, but they will output deprecation warnings.
+
+
+ - (1.3.1) Don't use universal wheel

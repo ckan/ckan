@@ -1,0 +1,33 @@
+<h4>Installed Packages</h4>
+
+<p>
+  Installation paths relative to:
+</p>
+<pre>
+{{ python_lib }}
+</pre>
+
+<table>
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Version</th>
+      <th>Installed Path</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for package in packages %}
+      <tr class="{{ loop.cycle('flDebugOdd', 'flDebugEven') }}">
+        <td>{{ package.project_name }}</td>
+        <td>{{ package.version }}</td>
+        <td>{{ relpath(package.location, python_lib) }}</td>
+      </tr>
+    {% else %}
+      <tr>
+        <td>setuptools</td>
+        <td>NOT INSTALLED</td>
+        <td>Install setuptools to display installed packages and version information</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

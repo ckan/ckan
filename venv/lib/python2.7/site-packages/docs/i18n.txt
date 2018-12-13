@@ -1,0 +1,35 @@
+FormEncode Internationalization (gettext)
++++++++++++++++++++++++++++++++++++++++++
+
+:author: Gregor Horvath <gh at gregor-horvath dot com> 2006
+
+There are different translation options available:
+
+Domain "FormEncode" 
+^^^^^^^^^^^^^^^^^^^
+
+for standalone use of FormEncode. The language to use is determined out of the local system (see gettext documentation http://docs.python.org/lib/node733.html). Optionally you can also set the language or the domain explicitly with the function.
+
+example:
+formencode.api.set_stdtranslation(domain="FormEncode", languages=["de"])
+
+The mo files are located in the i18n subdirectory of the formencode installation.
+
+state._
+^^^^^^^
+A custom _ gettext function provided as attribute of the state object.
+
+__builtins__._
+^^^^^^^^^^^^^^
+A custom _ gettext function provided in the builtin namespace.
+This function is only used when:
+
+Validator.use_builtin_gettext == True (True is default)
+
+
+Without translation
+^^^^^^^^^^^^^^^^^^^
+
+If no translation mechanism is found a fallback returns the plain string.
+
+

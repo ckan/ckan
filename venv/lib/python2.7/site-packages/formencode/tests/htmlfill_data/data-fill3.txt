@@ -1,0 +1,44 @@
+<form>
+<select name="sel1">
+<option value="1">1
+<option value="2">2
+</select>
+<textarea name="test2">this is a test</textarea>
+<input type="checkbox" name="check1" checked>
+<input type="checkbox" name="check2" value="cc" checked>
+<input type="radio" name="radio1" value="a">
+<input type="radio" name="radio1" value="b">
+<input type="radio" name="radio1" value="c">
+<input type="hidden" name="hidden1">
+<input type="text" style="width: 100%" name="text1" value="X">
+<input type="submit" name="submit1">
+<input type="reset" name="reset1">
+</form>
+----
+<form>
+<select name="sel1">
+<option value="1">1
+<option value="2" selected="selected">2
+</select>
+<textarea name="test2">TEXTAREA</textarea>
+<input type="checkbox" name="check1" checked="checked">
+<input type="checkbox" name="check2" value="cc">
+<input type="radio" name="radio1" value="a">
+<input type="radio" name="radio1" value="b" checked="checked">
+<input type="radio" name="radio1" value="c">
+<input type="hidden" name="hidden1" value="H">
+<input type="text" style="width: 100%" name="text1" value="T">
+<input type="submit" name="submit1" value="SAVE">
+<input type="reset" name="reset1" value="CANCEL">
+</form>
+----
+defaults = dict(
+    sel1='2',
+    test2='TEXTAREA',
+    check1=True,
+    check2=False,
+    radio1='b',
+    hidden1='H',
+    text1='T',
+    submit1='SAVE',
+    reset1='CANCEL')

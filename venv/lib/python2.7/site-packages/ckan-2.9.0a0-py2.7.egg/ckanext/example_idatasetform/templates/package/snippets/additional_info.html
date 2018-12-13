@@ -1,0 +1,10 @@
+{% ckan_extends %}
+
+{% block extras %}
+  {% if pkg_dict.custom_text %}
+    <tr>
+      <th scope="row" class="dataset-label">{{ _("Custom Text") }}</th>
+      <td class="dataset-details">{{ pkg_dict.custom_text }}</td>
+    </tr>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,110 @@
+{{py: base_url = state['base_url']}}
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; utf8">
+
+<link rel="stylesheet" type="text/css"
+      href="{{base_url}}/.pdbcapture/media/traceback.css">
+<script type="text/javascript">
+baseUrl = {{repr(base_url)}};
+callbackUrl = {{repr(base_url+'/.pdbcapture')}};
+stateId = {{state['id']}};
+</script>
+<script type="text/javascript"
+        src="{{base_url}}/.pdbcapture/media/jquery-1.2.1.min.js"></script>
+<script type="text/javascript"
+        src="{{base_url}}/.pdbcapture/media/jquery.scrollTo-min.js"></script>
+<script type="text/javascript"
+        src="{{base_url}}/.pdbcapture/static/debug.js"></script>
+<script type="text/javascript">
+
+function inputSubmit() {
+  var el = jQuery('#stdin').get(0);
+  var stdin = el.value + '\n';
+  el.value = '';
+  refreshOutput(stdin);
+  jQuery('#stdin').focus();
+}
+
+var outputRefreshing = false;
+
+function refreshOutput(stdin) {
+  stdin = stdin || '';
+  if (! stdin && outputRefreshing) {
+    return;
+  }
+  outputRefreshing = true;
+  jQuery.getJSON(
+    callbackUrl+'?id='+stateId+'&stdin='+encodeURIComponent(stdin),
+    function (data) {
+      if (data.response) {
+        var newHref = location.href;
+        if (newHref.indexOf('?') == -1) {
+          newHref += '?';
+        } else {
+          newHref += '&';
+        }
+        newHref += '__pdbid__=' + stateId;
+        location.href = newHref;
+      }
+      if (data.stdout) {
+        var ta = jQuery('#stdout').get(0);
+        ta.value += data.stdout;
+        jQuery('#stdout').scrollTo(10000);
+      }
+      if (! data.stdinPending) {
+        if (stdin) {
+          // Check quickly when we expect something back
+          var time = 50;
+        } else {
+          var time = 500;
+        }
+        setTimeout('refreshOutput()', time);
+      } // else should flash input or something spiffy
+      outputRefreshing = false;
+    });
+}
+
+jQuery(document).ready(function() {
+  jQuery('#stdout').get(0).value = startingText;
+  var stdin = jQuery('#stdin');
+  stdin.focus();
+  stdin.bind('keypress', function (e) {
+      if (e.keyCode == 13) { // enter was hit
+        inputSubmit();
+      }
+      return true;
+    });
+  stdin.get(0).value = '';
+});
+
+var startingText = {{repr(''.join(state['stdout'])) | html}};
+{{py:state['stdout'][:] = []}}
+
+</script>
+
+<style type="text/css">
+textarea#stdout {
+  font-family: monospace;
+}
+
+#stdin {
+  border: 1px solid #000;
+  font-family: monospace;
+}
+
+body {
+  margin: 0.5em;
+}
+</style>
+
+<title>Debug</title>
+</head>
+
+<body>
+<textarea id="stdout" style="width: 100%; height: 85%" rows=10></textarea><br>
+<input type="text" style="width: 100%" id="stdin" autocomplete="0">
+
+
+
+</body> </html>

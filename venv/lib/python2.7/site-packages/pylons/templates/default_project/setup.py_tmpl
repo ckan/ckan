@@ -1,0 +1,43 @@
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    from ez_setup import use_setuptools
+    use_setuptools()
+    from setuptools import setup, find_packages
+
+setup(
+    name='{{project}}',
+    version='{{version}}',
+    description={{repr(description)}},
+    author={{repr(author)}},
+    author_email={{repr(author_email)}},
+    url={{repr(url)}},
+    install_requires=[
+        "Pylons>=0.9.7",
+{{if sqlalchemy}}
+        "SQLAlchemy>=0.5",
+{{endif}}
+{{if template_engine == 'genshi'}}
+        "Genshi>=0.4",
+{{elif template_engine == 'jinja2'}}
+        "Jinja2",
+{{endif}}
+    ],
+    setup_requires=["PasteScript>=1.6.3"],
+    packages=find_packages(exclude=['ez_setup']),
+    include_package_data=True,
+    test_suite='nose.collector',
+    package_data={'{{package}}': ['i18n/*/LC_MESSAGES/*.mo']},
+    #message_extractors={'{{package}}': [
+    #        ('**.py', 'python', None),
+    #        {{babel_templates_extractor}}('public/**', 'ignore', None)]},
+    zip_safe={{zip_safe}},
+    paster_plugins={{egg_plugins}},
+    entry_points="""
+    [paste.app_factory]
+    main = {{package}}.config.middleware:make_app
+
+    [paste.app_install]
+    main = pylons.util:PylonsInstaller
+    """,
+)

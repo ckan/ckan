@@ -1,0 +1,151 @@
+Metadata-Version: 2.0
+Name: WebError
+Version: 0.13.1
+Summary: Web Error handling and exception catching
+Home-page: https://bitbucket.org/bbangert/weberror
+Author: Ben Bangert, Ian Bicking, Mark Ramm
+Author-email: invalid@invalid.com
+License: MIT
+Keywords: wsgi
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Internet :: WWW/HTTP :: WSGI
+Classifier: Topic :: Internet :: WWW/HTTP :: WSGI :: Application
+Classifier: Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware
+Requires-Dist: WebOb
+Requires-Dist: Tempita
+Requires-Dist: Pygments
+Requires-Dist: Paste (>=1.7.1)
+
+.. -*-rst-*-
+
+NOTICE
+======
+
+This software is not actively maintained. Simple bugfixes and other patches
+will be accepted, and released.
+
+Introduction
+============
+
+WebError provides WSGI middleware for the debugging and handling of errors
+inside of WSGI applications.
+
+Usage
+=====
+
+There are two primary WSGI middleware components:
+
+weberror.errormiddleware.make_error_middleware 
+----------------------------------------------
+
+This middleware should be used for production deployed applications and is used
+to track extra information regarding errors that occur. These error entries can
+additionally be emailed to a given email address using the *error_email*
+option. Example usage::
+
+  from weberror.errormiddleware import make_error_middleware
+  app = make_error_middleware(app, global_conf)
+
+
+weberror.evalexception.make_eval_exception
+------------------------------------------
+
+This middleware is used to help debug errors in wsgi applications during
+development and should not be used in production. Example usage::
+
+  from weberror.evalexception import make_eval_exception
+  app = make_eval_exception(app, global_conf)
+
+
+.. -*-rst-*-
+
+WebError Changelog
+==================
+
+0.13.1 (09/04/2016)
+-------------------
+
+  * Fixed an +1 issues with the fix in pull request #14 breaking the previous
+    version. This was fixed in https://github.com/Pylons/weberror/pull/16
+
+0.13 (15/03/2016)
+-----------------
+
+  * Fixed an issue with the debug view detection that was causing failures
+    when WebError was used with pyramid_debugtoolbar. See:
+    https://github.com/Pylons/weberror/pull/14
+
+0.12 (08/02/2016)
+-----------------
+
+  * Fixed an CSRF verification error when the token was of type unicode. See:
+    https://github.com/Pylons/weberror/pull/11
+
+0.11 (07/21/2015)
+-----------------
+
+  * Remove XSS issues by requiring a CSRF token for relay commands. Patch by
+    Jordan Milne.
+
+0.10.3 (11/9/2010)
+------------------
+
+  * Don't require simplejson on Python 2.6
+
+0.10.2 (2/12/2010)
+------------------
+
+  * Fix bug when displaying UTF-8 type errors.
+  * Fix bug when emailing data with UTF-8.
+
+0.10.1 (12/29/2008)
+-------------------
+
+  * Fix view source when __file__ is .pyo or $py.class.
+
+0.10 (12/18/2008)
+-----------------
+
+  * Fix indentation of code lines in the traceback view.
+  * Enable syntax highlighting in view source.
+  * Fix a case where the response could become unicode; fix the docstring
+    patching when using python -O
+
+0.9.1 (10/28/2008)
+------------------
+
+  * Python 2.6 compatibility
+  * Making main page links more accessible to browsers with no JS on per
+    Pylons Trac ticket #489.
+
+0.9 (07/08/2008)
+----------------
+
+  * Switched to using Pygments for highlighting.
+  * Added better handling of exceptions that don't cleanly convert to str().
+  * Added dependency library listings for XML output.
+
+0.8 (06/12/2008)
+----------------
+
+  * Added fairly basic pdbcapture system.
+  * Fixed errors in unicode handling and exception displaying.
+  * Updated JS to use jQuery where applicable. Updated jQuery lib and added
+    jQuery hotkeys plugin.
+  * Refactored to a flatter layout.
+
+0.8a (02/27/2008)
+-----------------
+
+  * Fixed error in email due to restructuring of project.
+  * Added xml formattor output.
+  * Added try/except in case an objects repr throws an exception.
+
+

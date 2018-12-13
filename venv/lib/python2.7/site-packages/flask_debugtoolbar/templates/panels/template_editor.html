@@ -1,0 +1,154 @@
+<!doctype html>
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <base href="{{ request.path }}">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta name="description" content="{% block meta_description %}Description{% endblock %}">
+  <meta name="author" content="{% block meta_author %}Author{% endblock %}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Editing {{ templates[0].name }}</title>
+  <script src="{{ static_path }}js/jquery.js"></script>
+  <link rel="stylesheet" href="{{ static_path }}codemirror/codemirror.css">
+  <link rel="stylesheet" href="{{ static_path }}codemirror/theme/rubyblue.css">
+  <link rel="stylesheet" href="{{ static_path }}codemirror/theme/lesser-dark.css">
+  <style>
+    {% with %}
+    {% set toolbar_height = 25 %}
+    {% set editor_width = request.cookies.get('fldt_editor_size')|int(40) %}
+
+    #panel, #editor, #preview, #splitter, #toolbar {
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      -ms-box-sizing: border-box;
+      border: none;
+    }
+    #panel, #preview { position: fixed; }
+    #panel > div { position: absolute; }
+
+    #panel { width: {{ editor_width }}%; height: 100%; top: 0; left: 0; bottom: 0; }
+    #toolbar { top: 0; width: 100%; height: {{ toolbar_height }}px; border-bottom: 1px solid black; padding: 2px 4px; }
+    #editor { top: {{ toolbar_height }}px; bottom: 0; width: 100%; }
+    #preview { top: 0; bottom: 0; right: 0; height: 100%; width: {{ 100 - editor_width }}%; }
+
+    /* need a dummy element over the page so that drag events don't get captured by the preview iframe */
+    #drag-handler { display: none; position: fixed; width: 100%; height: 100%; z-index: 1000; }
+    #splitter { width: 8px; height: 100%; top: 0; bottom: 0; right: -1px; z-index: 999; cursor: e-resize; border-right: 1px solid black; }
+
+    .CodeMirror, .CodeMirror-scroll { height: 100%; }
+    .syntax-error { background: red !important; }
+
+    #toolbar button { margin: 0; }
+    #save { float: left; }
+    #close { float: right; }
+    {% endwith %}
+  </style>
+</head>
+<body>
+  <div id="drag-handler"></div>
+  <div id="panel">
+    <div id="toolbar">
+      <button id="save">Save</button>
+      <button id="close">Close</button>
+    </div>
+    <div id="editor">
+      <textarea name="{{ templates[0].name }}" id="code">{{ templates[0].source }}</textarea>
+    </div>
+    <div id="splitter"></div>
+  </div>
+  <iframe id="preview"></iframe>
+
+  <script src="{{ static_path }}codemirror/codemirror.js"></script>
+  <script src="{{ static_path }}codemirror/util/closetag.js"></script>
+  <script src="{{ static_path }}codemirror/util/overlay.js"></script>
+  <script src="{{ static_path }}codemirror/mode/xml/xml.js"></script>
+  <script src="{{ static_path }}codemirror/mode/javascript/javascript.js"></script>
+  <script src="{{ static_path }}codemirror/mode/css/css.js"></script>
+  <script src="{{ static_path }}codemirror/mode/htmlmixed/htmlmixed.js"></script>
+  <script src="{{ static_path }}codemirror/mode/jinja2/jinja2.js"></script>
+  <script>{% raw %}
+    $('#drag-handler')
+      .mousemove(function(e) {
+            var size = 100 * e.pageX / $(document).width();
+            $('#panel').css('width', size + '%');
+            $('#preview').css('width', (100 - size) + '%');
+            return false;
+          })
+      .mouseup(function(e) {
+            $(this).hide();
+            var size = Math.round(100 * e.pageX / $(document).width());
+            document.cookie = 'fldt_editor_size=' + size;
+            return false;
+          });
+
+    $('#splitter').mousedown(function() {
+      $('#drag-handler').show();
+      return false;
+    });
+
+    $('#save').click(function() {
+      $.ajax({
+        type: 'POST'
+      , url: document.baseURI + '/save'
+      , data: {content: editor.getValue()}
+      });
+    });
+
+    $('#close').click(function() {
+      document.location = document.location;
+    });
+
+    CodeMirror.defineMode("html+jinja2", function(config, parserConf) {
+      return CodeMirror.overlayParser(CodeMirror.getMode(config, "htmlmixed"), CodeMirror.getMode(config, 'jinja2'));
+    });
+    CodeMirror.defineMIME("text/html", "html+jinja2");
+
+    var delay;
+    // Initialize CodeMirror editor with a nice html5 canvas demo.
+    var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+      mode: 'text/html'
+    , theme: 'rubyblue'
+    , lineNumbers: true
+    , tabMode: 'indent'
+    , onChange: function() {
+        clearTimeout(delay);
+        delay = setTimeout(updatePreview, 300);
+      }
+    });
+    
+    var previewFrame = document.getElementById('preview');
+    var preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
+    var errorLine = null;
+
+    function updatePreview() {
+      $.ajax({
+        type: 'POST'
+      , url: ''
+      , data: {content: editor.getValue()}
+      , success: function(data, status, xhr) {
+          if (errorLine != null) {
+            editor.setLineClass(errorLine, null, null);
+          }
+          preview.open();
+          preview.write(xhr.responseText);
+          preview.close();
+          $('head', preview).append('<base target="_top">');
+        }
+      , error: function(xhr, status, error) {
+          if (status === 'error') {
+            var data = JSON.parse(xhr.responseText);
+            console.log(data);
+            if (errorLine != null) {
+              editor.setLineClass(errorLine, null, null);
+            }
+            errorLine = editor.setLineClass(data.lineno - 1, null, 'syntax-error');
+          }
+        }
+      });
+    }
+
+    setTimeout(updatePreview, 300);
+    {% endraw %}</script>
+</body>
+</html>

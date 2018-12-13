@@ -1,0 +1,35 @@
+Metadata-Version: 2.1
+Name: pyfakefs
+Version: 3.2
+Summary: pyfakefs implements a fake file system that mocks the Python file system modules.
+Home-page: http://pyfakefs.org
+Author: Google
+Author-email: google-pyfakefs@google.com
+Maintainer: John McGehee
+Maintainer-email: pyfakefs@johnnado.com
+License: UNKNOWN
+Keywords: testing,test,file,os,shutil,glob,mocking,unittest,fakes,filesystem,unit
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Software Development :: Testing
+Classifier: Topic :: System :: Filesystems
+
+Using pyfakefs, your tests operate on a fake file system in memory without
+touching the real disk. The software under test requires no modification to work with pyfakefs.
+

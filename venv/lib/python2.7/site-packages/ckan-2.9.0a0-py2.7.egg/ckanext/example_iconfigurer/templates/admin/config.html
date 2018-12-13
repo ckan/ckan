@@ -1,0 +1,27 @@
+{% ckan_extends %}
+
+{% import 'macros/form.html' as form %}
+
+{% block admin_form %}
+
+  {{ super() }}
+
+  <h3>Custom configuration options </h3>
+
+  {{ form.input('ckan.datasets_per_page', id='field-ckan.datasets_per_page', label=_('Datasets per page'), value=data['ckan.datasets_per_page'], error=errors['ckan.datasets_per_page']) }}
+
+  {{ form.input('ckanext.example_iconfigurer.test_conf', id='field-ckanext.example_iconfigurer.test_conf', label=_('Test conf'), value=data['ckanext.example_iconfigurer.test_conf'], error=errors['ckanext.example_iconfigurer.test_conf']) }}
+
+
+{% endblock %}
+
+
+{% block admin_form_help %}
+
+  {{ super() }}
+
+  <p><strong>Datasets per page:</strong> Number of datasets displayed in dataset listings (eg search page).</p>
+
+  <p><strong>Test conf:</strong> An example configuration option, set from an extension.</p>
+
+{% endblock %}

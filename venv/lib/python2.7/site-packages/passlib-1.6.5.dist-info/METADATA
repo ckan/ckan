@@ -1,0 +1,45 @@
+Metadata-Version: 2.0
+Name: passlib
+Version: 1.6.5
+Summary: comprehensive password hashing framework supporting over 30 schemes
+Home-page: https://bitbucket.org/ecollins/passlib
+Author: Eli Collins
+Author-email: elic@assurancetechnologies.com
+License: BSD
+Download-URL: http://pypi.python.org/packages/source/p/passlib/passlib-1.6.5.tar.gz
+Keywords: password secret hash security crypt md5-crypt sha256-crypt sha512-crypt bcrypt apache htpasswd htdigest pbkdf2
+Platform: UNKNOWN
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2.5
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: Jython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Security :: Cryptography
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Development Status :: 5 - Production/Stable
+
+Passlib is a password hashing library for Python 2 & 3, which provides
+cross-platform implementations of over 30 password hashing algorithms, as well
+as a framework for managing existing password hashes. It's designed to be useful
+for a wide range of tasks, from verifying a hash found in /etc/shadow, to
+providing full-strength password hashing for multi-user applications.
+
+* See the `documentation <http://packages.python.org/passlib>`_
+  for details, installation instructions, and examples.
+
+* See the `homepage <https://bitbucket.org/ecollins/passlib>`_
+  for the latest news and more information.
+
+* See the `changelog <http://packages.python.org/passlib/history.html>`_
+  for a description of what's new in Passlib.
+
+All releases are signed with the gpg key
+`4CE1ED31 <http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x4D8592DF4CE1ED31>`_.
+
+

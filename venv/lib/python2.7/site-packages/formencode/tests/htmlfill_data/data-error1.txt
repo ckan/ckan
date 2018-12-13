@@ -1,0 +1,47 @@
+<form>
+<form:error name="" format="none">
+
+<form:iferror name="t1">
+!!!<form:error format="escape">!!!
+</form:iferror>
+<input type="text" name="t1">
+
+<form:error name="t2">
+<select name="t2">
+<option value="1">1</option>
+<option value="2">2</option>
+</select>
+
+<form:error name="t3">
+<textarea name="t3">hey</textarea>
+
+<form:iferror name="X">
+This should not display
+</form:iferror>
+
+----
+<form>
+<test!>
+
+
+!!!&lt;HEY&gt;!!!
+
+<input type="text" name="t1" class="error" value="">
+
+<span class="error-message">&lt;error</span><br />
+
+<select name="t2" class="error">
+<option value="1">1</option>
+<option value="2">2</option>
+</select>
+
+<span class="error-message">last</span><br />
+
+<textarea name="t3" class="error"></textarea>
+----
+defaults = {}
+errors = dict(
+    t1='<HEY>',
+    t2='<error',
+    t3='last')
+errors[''] = '<test!>'

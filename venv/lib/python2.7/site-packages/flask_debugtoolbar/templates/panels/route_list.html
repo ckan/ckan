@@ -1,0 +1,28 @@
+<table>
+  <thead>
+    <tr>
+      <th>URL route</th>
+      <th>Endpoint name</th>
+      <th>HTTP methods</th>
+      <th>Is alias</th>
+      <th>Redirect to</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if routes %}
+      {% for route in routes|sort(attribute='rule') %}
+        <tr>
+          <td>{{ route.rule }}</td>
+          <td>{{ route.endpoint }}</td>
+          <td>{{ route.methods|sort|join(', ') }}</td>
+          <td>{{ route.alias }}</td>
+          <td>{{ route.redirect_to }}</td>
+        </tr>
+      {% endfor %}
+    {% else %}
+      <tr>
+        <td>No routes have been configured.</td>
+      </tr>
+    {% endif %}
+  </tbody>
+</table>

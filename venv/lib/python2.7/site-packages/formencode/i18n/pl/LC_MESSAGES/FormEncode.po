@@ -1,0 +1,533 @@
+# Polish strings for FormEncode
+# Copyright (C) 2007 Robert Wojciechowicz, licence: LGPL V2.0
+# Robert Wojciechowicz <rw@smsnet.pl>, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: FormEncode 0.7.1\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-05-16 19:11+0200\n"
+"PO-Revision-Date: 2011-03-30 23:07+0100\n"
+"Last-Translator: Juliusz Gonera <jgonera@gmail.com>\n"
+"Language-Team: Robert Wojciechowicz <rw@smsnet.pl>\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 1.0dev-r546\n"
+
+#: formencode/api.py:394
+#: formencode/validators.py:418
+msgid "Please enter a value"
+msgstr "Proszę podać wartość"
+
+#: formencode/api.py:395
+#, python-format
+msgid "The input must be a string (not a %(type)s: %(value)r)"
+msgstr "Proszę podać ciąg znaków (nie %(type)s: %(value)r)"
+
+#: formencode/api.py:396
+msgid "The input must be a string (not None)"
+msgstr "Proszę podać ciąg znaków (nie None)"
+
+#: formencode/national.py:29
+msgid "Belarus"
+msgstr "Białoruś"
+
+#: formencode/national.py:30
+msgid "Montenegro"
+msgstr "Czarnogóra"
+
+#: formencode/national.py:31
+msgid "Tasmania"
+msgstr "Tasmania"
+
+#: formencode/national.py:37
+msgid "Britain"
+msgstr "Brytania"
+
+#: formencode/national.py:38
+msgid "Great Britain"
+msgstr "Wielka Brytania"
+
+#: formencode/national.py:39
+msgid "Cote de Ivoire"
+msgstr "Wybrzeże Kości Słoniowej"
+
+#: formencode/national.py:144
+#, python-format
+msgid "%d digits"
+msgstr "%d cyfr"
+
+#: formencode/national.py:165
+#, python-format
+msgid "Please enter a zip code (%(format)s)"
+msgstr "Proszę podać kod pocztowy (%(format)s)"
+
+#: formencode/national.py:229
+#: formencode/national.py:263
+#, python-format
+msgid "Please enter a zip code (%s)"
+msgstr "Proszę podać kod pocztowy (%s)"
+
+#: formencode/national.py:229
+msgid "LnnnnLLL"
+msgstr ""
+
+#: formencode/national.py:263
+msgid "LnL nLn"
+msgstr ""
+
+#: formencode/national.py:297
+msgid "Please enter a valid postal code (for format see BS 7666)"
+msgstr "Proszę podać poprawny kod pocztowy (odnośnie formatu proszę zobaczyć BS 7666)"
+
+#: formencode/national.py:338
+msgid "That country is not listed in ISO 3166"
+msgstr "Kraj nie jest na liście ISO 3166"
+
+#: formencode/national.py:393
+msgid "Given postal code does not match the country's format."
+msgstr "Podany kod pocztowy nie zgadza się z formatem danego kraju."
+
+#: formencode/national.py:484
+msgid "Please enter a state code"
+msgstr "Proszę podać kod państwa"
+
+#: formencode/national.py:485
+msgid "Please enter a state code with TWO letters"
+msgstr "Proszę podać kod państwa z DWOMA literami"
+
+#: formencode/national.py:486
+msgid "That is not a valid state code"
+msgstr "To jest błędny kod państwa"
+
+#: formencode/national.py:539
+msgid "Please enter a number, with area code, in the form ###-###-####, optionally with \"ext.####\""
+msgstr "Proszę podać numer z numerem kierunkowym w formacie ###-###-####, opcjonalnie z \"ext.####\""
+
+#: formencode/national.py:646
+msgid "Please enter a number, with area code, in the form +##-###-#######."
+msgstr "Proszę podać numer z numerem kierunkowym w formacie +##-###-#######."
+
+#: formencode/national.py:725
+msgid "That language is not listed in ISO 639"
+msgstr "Język nie znajduje się na liście ISO 639"
+
+#: formencode/schema.py:63
+#, python-format
+msgid "The input field %(name)s was not expected."
+msgstr "Pole %(name)s nie było oczekiwane."
+
+#: formencode/schema.py:64
+msgid "Missing value"
+msgstr "Brakująca wartość"
+
+#: formencode/schema.py:65
+#, python-format
+msgid "The input must be dict-like (not a %(type)s: %(value)r)"
+msgstr "Wprowadzone dane muszą mieć postać słownika (nie %(type)s: %(value)r)"
+
+#: formencode/validators.py:147
+#, python-format
+msgid "%(object)r is not a subclass of %(subclass)s"
+msgstr "%(object)r nie jest podklasą %(subclass)s"
+
+#: formencode/validators.py:148
+#, python-format
+msgid "%(object)r is not a subclass of one of the types %(subclassList)s"
+msgstr "%(object)r nie jest podklasą żadnego z typów %(subclassList)s"
+
+#: formencode/validators.py:149
+#, python-format
+msgid "%(object)r must be one of the types %(typeList)s"
+msgstr "%(object)r musi być jednym z takich typów: %(typeList)s"
+
+#: formencode/validators.py:150
+#, python-format
+msgid "%(object)r must be of the type %(type)s"
+msgstr "%(object)r musi być typu %(type)s"
+
+#: formencode/validators.py:330
+#, python-format
+msgid "Enter a value less than %(maxLength)i characters long"
+msgstr "Wprowadź wartość z liczbą znaków mniejszą niż %(maxLength)i"
+
+#: formencode/validators.py:331
+#: formencode/validators.py:385
+msgid "Invalid value (value with length expected)"
+msgstr "Błędna wartość (oczekiwana wartość z długością)"
+
+#: formencode/validators.py:384
+#, python-format
+msgid "Enter a value at least %(minLength)i characters long"
+msgstr "Wprowadź wartość z liczbą znaków minimum %(minLength)i"
+
+#: formencode/validators.py:441
+msgid "You cannot enter a value here"
+msgstr "Nie możesz wprowadzić tu wartości"
+
+#: formencode/validators.py:490
+msgid "The input is not valid"
+msgstr "Błędne dane"
+
+#: formencode/validators.py:543
+msgid "Enter only letters, numbers, or _ (underscore)"
+msgstr "Proszę podać tylko litery, cyfry lub _ (znak podkreślenia)"
+
+#: formencode/validators.py:581
+msgid "Invalid value"
+msgstr "Błędna wartość"
+
+#: formencode/validators.py:582
+#, python-format
+msgid "Value must be one of: %(items)s (not %(value)r)"
+msgstr "Wartość musi być jedną z tych: %(items)s (nie %(value)r) "
+
+#: formencode/validators.py:640
+msgid "Choose something"
+msgstr "Wybierz coś"
+
+#: formencode/validators.py:641
+#, python-format
+msgid "Enter a value from: %(items)s"
+msgstr "Wprowadź jedną z wartości: %(items)s"
+
+#: formencode/validators.py:642
+msgid "That value is not known"
+msgstr "Wartość nieznana"
+
+#: formencode/validators.py:643
+#, python-format
+msgid "Nothing in my dictionary goes by the value %(value)s.  Choose one of: %(items)s"
+msgstr "Mój słownik nie zawiera wartości: %(value)s. Wybierz jedną z wartości: %(items)s"
+
+#: formencode/validators.py:705
+msgid "Must be an integer index"
+msgstr "Musi to być wartość całkowita"
+
+#: formencode/validators.py:706
+msgid "Index out of range"
+msgstr "Indeks poza zakresem"
+
+#: formencode/validators.py:707
+#, python-format
+msgid "Item %(value)s was not found in the list"
+msgstr "Wartość %(value)s nie została znaleziona na liście"
+
+#: formencode/validators.py:777
+#, python-format
+msgid "Date must be after %(date)s"
+msgstr "Data musi być późniejsza niż %(date)s"
+
+#: formencode/validators.py:778
+#, python-format
+msgid "Date must be before %(date)s"
+msgstr "Data musi być wcześniejsza niż %(date)s"
+
+#: formencode/validators.py:780
+#, python-format
+msgid "%%A, %%d %%B %%Y"
+msgstr "%%A, %%d %%B %%Y"
+
+#: formencode/validators.py:781
+msgid "The date must be sometime in the future"
+msgstr "Data musi być przyszła"
+
+#: formencode/validators.py:882
+#, python-format
+msgid "Please enter a number that is %(min)s or greater"
+msgstr "Proszę podać liczbę większą lub równą %(min)s"
+
+#: formencode/validators.py:883
+#, python-format
+msgid "Please enter a number that is %(max)s or smaller"
+msgstr "Proszę podać liczbę mniejszą lub równą %(max)s"
+
+#: formencode/validators.py:920
+msgid "Please enter an integer value"
+msgstr "Proszę podać liczbę całkowitą"
+
+#: formencode/validators.py:958
+msgid "Please enter a number"
+msgstr "Proszę podać liczbę"
+
+#: formencode/validators.py:1019
+#, python-format
+msgid "Enter a value not more than %(max)i characters long"
+msgstr "Proszę podać wartość o liczbie znaków nieprzekraczającej %(max)i"
+
+#: formencode/validators.py:1020
+#, python-format
+msgid "Enter a value %(min)i characters long or more"
+msgstr "Proszę podać wartość z minimum %(min)i lub więcej znaków"
+
+#: formencode/validators.py:1095
+msgid "Invalid data or incorrect encoding"
+msgstr "Błędne dane lub niewłaściwe kodowanie"
+
+#: formencode/validators.py:1267
+msgid "Please enter an email address"
+msgstr "Proszę podać adres e-mail"
+
+#: formencode/validators.py:1268
+msgid "An email address must contain a single @"
+msgstr "Adres e-mail musi zawierać pojedyńczy znak @"
+
+#: formencode/validators.py:1269
+#, python-format
+msgid "The username portion of the email address is invalid (the portion before the @: %(username)s)"
+msgstr "Nazwa użytkownika w adresie e-mail jest błędna (część przed @: %(username)s)"
+
+#: formencode/validators.py:1271
+#: formencode/validators.py:1413
+#, python-format
+msgid "An error occured when trying to connect to the server: %(error)s"
+msgstr "Wystąpił błąd przy próbie połączenia z serwerem: %(error)s"
+
+#: formencode/validators.py:1273
+#, python-format
+msgid "The domain portion of the email address is invalid (the portion after the @: %(domain)s)"
+msgstr "Nazwa domeny w adresie e-mail jest błędna (część po @: %(domain)s)"
+
+#: formencode/validators.py:1275
+#, python-format
+msgid "The domain of the email address does not exist (the portion after the @: %(domain)s)"
+msgstr "Nazwa domeny adresu e-mail nie istnieje (część po @: %(domain)s)"
+
+#: formencode/validators.py:1409
+msgid "You must start your URL with http://, https://, etc"
+msgstr "URL musi się zaczynać od http://, https://, itd."
+
+#: formencode/validators.py:1410
+msgid "That is not a valid URL"
+msgstr "To jest błędny URL"
+
+#: formencode/validators.py:1411
+#, python-format
+msgid "An error occurred when trying to access the URL: %(error)s"
+msgstr "Przy próbie dostępu do URL-a wystąpił błąd: %(error)s"
+
+#: formencode/validators.py:1415
+msgid "The server responded that the page could not be found"
+msgstr "Serwer odpowiedział, iż ta strona nie została znaleziona."
+
+#: formencode/validators.py:1416
+#, python-format
+msgid "The server responded with a bad status code (%(status)s)"
+msgstr "Serwer odpowiedział złym kodem statusu (%(status)s)"
+
+#: formencode/validators.py:1417
+#, python-format
+msgid "You must provide a full domain name (like %(domain)s.com)"
+msgstr "Musisz podać pełną domenę (np. %(domain)s.com)"
+
+#: formencode/validators.py:1544
+msgid "The type of i-name is not defined; it may be either individual or organizational"
+msgstr "Typ i-name nie jest zdefiniowany; może on być indywidualny lub organizacyjny"
+
+#: formencode/validators.py:1546
+msgid "Dots and dashes may not be repeated consecutively"
+msgstr "Kropki i myślniki nie mogą być wstawione jedne po drugich"
+
+#: formencode/validators.py:1547
+#, python-format
+msgid "\"%(iname)s\" is an invalid i-name"
+msgstr "\"%(iname)s\" nie jest prawidłowym i-name"
+
+#: formencode/validators.py:1548
+msgid "i-names may not start with numbers nor punctuation marks"
+msgstr "i-name nie może zaczynać się od liczby lub znaków przestankowych"
+
+#: formencode/validators.py:1550
+#, python-format
+msgid "\"%(inumber)s\" is an invalid i-number"
+msgstr "\"%(inumber)s\" nie jest prawidłowym i-number"
+
+#: formencode/validators.py:1551
+#, python-format
+msgid "The XRI must be a string (not a %(type)s: %(value)r)"
+msgstr "XRI musi być ciągiem znaków (nie %(type)s: %(value)r)"
+
+#: formencode/validators.py:1552
+#, python-format
+msgid "\"%(xri_type)s\" is not a valid type of XRI"
+msgstr "\"%(xri_type)s\" nie jest poprawnym typem XRI"
+
+#: formencode/validators.py:1651
+#, python-format
+msgid "\"%(id)s\" is not a valid OpenId (it is neither an URL nor an XRI)"
+msgstr "\"%(id)s\" nie jest poprawnym OpenID (nie jest ani URL-em, ani XRI)"
+
+#: formencode/validators.py:1882
+#: formencode/validators.py:1890
+#, python-format
+msgid "Please enter the date in the form %(format)s"
+msgstr "Proszę podać datę w formacie %(format)s"
+
+#: formencode/validators.py:1883
+msgid "Please enter a month from 1 to 12"
+msgstr "Proszę podać miesiąc od 1 do 12"
+
+#: formencode/validators.py:1884
+msgid "Please enter a valid day"
+msgstr "Proszę podać prawidłowy dzień"
+
+#: formencode/validators.py:1885
+#, python-format
+msgid "That month only has %(days)i days"
+msgstr "Ten miesiąc ma tylko %(days)i dni"
+
+#: formencode/validators.py:1886
+#, python-format
+msgid "That is not a valid day (%(exception)s)"
+msgstr "To nie jest prawidłowy dzień (%(exception)s)"
+
+#: formencode/validators.py:1887
+#, python-format
+msgid "Unknown month name: %(month)s"
+msgstr "Nieznana nazwa miesiąca: %(month)s"
+
+#: formencode/validators.py:1888
+msgid "Please enter a number for the year"
+msgstr "Proszę podać rok"
+
+#: formencode/validators.py:1889
+msgid "Please enter a four-digit year after 1899"
+msgstr "Proszę podać czterocyfrowy rok późniejszy niż 1899"
+
+#: formencode/validators.py:2070
+msgid "You must indicate AM or PM"
+msgstr "Musisz podać AM lub PM"
+
+#: formencode/validators.py:2071
+msgid "There are too many :'s"
+msgstr "Jest tu za wiele :'s"
+
+#: formencode/validators.py:2072
+msgid "You may not enter seconds"
+msgstr "Nie można podawać sekund"
+
+#: formencode/validators.py:2073
+msgid "You must enter seconds"
+msgstr "Musisz podać sekundy"
+
+#: formencode/validators.py:2074
+msgid "You must enter minutes (after a :)"
+msgstr "Musisz podać minuty (po :)"
+
+#: formencode/validators.py:2075
+#, python-format
+msgid "The %(part)s value you gave is not a number: %(number)r"
+msgstr "Podana wartość %(part)s nie jest liczbą: %(number)r"
+
+#: formencode/validators.py:2076
+#, python-format
+msgid "You must enter an hour in the range %(range)s"
+msgstr "Musisz podać godzinę z zakresu %(range)s"
+
+#: formencode/validators.py:2077
+msgid "You must enter a minute in the range 0-59"
+msgstr "Musisz podać minutę z zakreu 0-59"
+
+#: formencode/validators.py:2078
+msgid "You must enter a second in the range 0-59"
+msgstr "Musisz podać sekundę z zakresu 0-59"
+
+#: formencode/validators.py:2224
+#, python-format
+msgid "The name %(name)s is missing"
+msgstr "Brakuje nazwy %(name)s"
+
+#: formencode/validators.py:2267
+#, python-format
+msgid "Value should be %(true)r or %(false)r"
+msgstr "Wartość powinna być %(true)r lub %(false)r"
+
+#: formencode/validators.py:2302
+msgid "Value does not contain a signature"
+msgstr "Wartość nie zawiera podpisu"
+
+#: formencode/validators.py:2303
+msgid "Signature is not correct"
+msgstr "Podpis jest niewłaściwy"
+
+#: formencode/validators.py:2378
+msgid "Please enter a valid IP address (a.b.c.d)"
+msgstr "Proszę podać poprawny adres IP (a.b.c.d)"
+
+#: formencode/validators.py:2379
+#, python-format
+msgid "The octets must be within the range of 0-255 (not %(octet)r)"
+msgstr "Oktety muszą zawierać się w przedziale 0-255 (nie %(octet)r)"
+
+#: formencode/validators.py:2426
+msgid "Please enter a valid IP address (a.b.c.d) or IP network (a.b.c.d/e)"
+msgstr "Proszę podać prawidłowy adres IP (a.b.c.d) lub sieć IP (a.b.c.d/e)"
+
+#: formencode/validators.py:2428
+#, python-format
+msgid "The network size (bits) must be within the range of 8-32 (not %(bits)r)"
+msgstr "Rozmiar sieci (w bitach) musi zawierać się w przedziale 8-32 (nie %(bits)r)"
+
+#: formencode/validators.py:2477
+#, python-format
+msgid "A MAC address must contain 12 digits and A-F; the value you gave has %(length)s characters"
+msgstr "Adres MAX musi zawierać 12 cyfr bądź liter A-F; podana wartość zawiera %(length)s znaków"
+
+#: formencode/validators.py:2479
+#, python-format
+msgid "MAC addresses may only contain 0-9 and A-F (and optionally :), not %(char)r"
+msgstr "Adres MAC może zawierać jedynie 0-9 i A-F (oraz opcjonalnie \":\"), nie %(char)r"
+
+#: formencode/validators.py:2586
+#, python-format
+msgid "You must give a value for %s"
+msgstr "Musisz podać wartość dla %s"
+
+#: formencode/validators.py:2619
+#, python-format
+msgid "Fields do not match (should be %(match)s)"
+msgstr "Pola się nie zgadzają (powinny zawierać %(match)s)"
+
+#: formencode/validators.py:2620
+msgid "Fields do not match"
+msgstr "Pola się nie zgadzają"
+
+#: formencode/validators.py:2621
+msgid "Fields should be a dictionary"
+msgstr "Pola powinny być słownikiem"
+
+#: formencode/validators.py:2697
+msgid "Please enter only the number, no other characters"
+msgstr "Proszę podać tylko liczbę bez żadnych innych znaków"
+
+#: formencode/validators.py:2698
+msgid "You did not enter a valid number of digits"
+msgstr "Podałe(a)ś nieprawidłową ilość cyfr"
+
+#: formencode/validators.py:2699
+msgid "That number is not valid"
+msgstr "Ta liczba jest błędna"
+
+#: formencode/validators.py:2700
+#, python-format
+msgid "The field %(key)s is missing"
+msgstr "Brak pola %(key)s"
+
+#: formencode/validators.py:2816
+msgid "Please enter numbers only for month and year"
+msgstr "Proszę podać tylko liczby dla miesiąca i roku"
+
+#: formencode/validators.py:2817
+msgid "Invalid Expiration Date"
+msgstr "Błędna data utraty ważności"
+
+#: formencode/validators.py:2892
+msgid "Please enter numbers only for credit card security code"
+msgstr "Proszę podać tylko liczby kodu bezpieczeństwa karty kredytowej"
+
+#: formencode/validators.py:2893
+msgid "Invalid credit card security code length"
+msgstr "Błędna długość kodu bezpieczeństwa karty kredytowej"
+

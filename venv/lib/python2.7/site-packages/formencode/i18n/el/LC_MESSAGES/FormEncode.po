@@ -1,0 +1,564 @@
+# translation of FormEncode.po to Greek
+# Copyright (C) 2008 ORGANIZATION
+#
+# Dimitris Glezos <dimitris@glezos.com>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version:  FormEncode\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-05-16 19:11+0200\n"
+"PO-Revision-Date: 2010-05-16 04:32+0200\n"
+"Last-Translator: Dimitris Glezos <dimitris@glezos.com>\n"
+"Language-Team: Greek <fedora-trans-el@redhat.com>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 1.0dev-r546\n"
+
+#: formencode/api.py:394 formencode/validators.py:418
+msgid "Please enter a value"
+msgstr "Παρακαλούμε εισάγετε μια τιμή"
+
+#: formencode/api.py:395
+#, python-format
+msgid "The input must be a string (not a %(type)s: %(value)r)"
+msgstr "Η είσοδος πρέπει να είναι τύπου συμβολοσειράς (όχι %(type)s: %(value)r)"
+
+#: formencode/api.py:396
+msgid "The input must be a string (not None)"
+msgstr "Η είσοδος πρέπει να είναι τύπου συμβολοσειράς (όχι None)"
+
+#: formencode/national.py:29
+msgid "Belarus"
+msgstr ""
+
+#: formencode/national.py:30
+msgid "Montenegro"
+msgstr ""
+
+#: formencode/national.py:31
+msgid "Tasmania"
+msgstr ""
+
+#: formencode/national.py:37
+msgid "Britain"
+msgstr "Βρετανία"
+
+#: formencode/national.py:38
+msgid "Great Britain"
+msgstr "Μεγάλη Βρετανία"
+
+#: formencode/national.py:39
+msgid "Cote de Ivoire"
+msgstr ""
+
+#: formencode/national.py:144
+#, python-format
+msgid "%d digits"
+msgstr "%d ψηφία"
+
+#: formencode/national.py:165
+#, python-format
+msgid "Please enter a zip code (%(format)s)"
+msgstr "Παρακαλούμε εισάγετε έναν ταχυδρομικό κωδικό (%(format)s)"
+
+#: formencode/national.py:229 formencode/national.py:263
+#, python-format
+msgid "Please enter a zip code (%s)"
+msgstr "Παρακαλούμε εισάγετε έναν ταχυδρομικό κωδικό (%s)"
+
+#: formencode/national.py:229
+msgid "LnnnnLLL"
+msgstr ""
+
+#: formencode/national.py:263
+msgid "LnL nLn"
+msgstr ""
+
+#: formencode/national.py:297
+msgid "Please enter a valid postal code (for format see BS 7666)"
+msgstr "Εισαγετε ενα σωστό ταχυδρομικό κώδικα (δείτε το BS 7666)"
+
+#: formencode/national.py:338
+msgid "That country is not listed in ISO 3166"
+msgstr "Αυτή η χώρα δέν είναι στο ISO 3166"
+
+#: formencode/national.py:393
+msgid "Given postal code does not match the country's format."
+msgstr "Ο ταχυδρομικός κωδικας δεν είναι σωστός για την χώρα."
+
+#: formencode/national.py:484
+msgid "Please enter a state code"
+msgstr "Παρακαλούμε εισάγετε έναν κωδικό πολιτείας"
+
+#: formencode/national.py:485
+msgid "Please enter a state code with TWO letters"
+msgstr "Παρακαλούμε εισάγετε έναν κωδικό πολιτείας με ΔΥΟ γράμματα"
+
+#: formencode/national.py:486
+msgid "That is not a valid state code"
+msgstr "Αυτός δεν είναι ένας έγκυρος κωδικός πολιτείας"
+
+#: formencode/national.py:539
+msgid ""
+"Please enter a number, with area code, in the form ###-###-####, "
+"optionally with \"ext.####\""
+msgstr ""
+"Παρακαλούμε εισάγετε έναν αριθμό, με τον κωδικό περιοχής, στη μορφή "
+"###-###-####, προαιρετικά με \"ext.####\""
+
+#: formencode/national.py:646
+msgid "Please enter a number, with area code, in the form +##-###-#######."
+msgstr ""
+"Παρακαλούμε εισάγετε έναν αριθμό, με τον κωδικό περιοχής, στη μορφή "
+"+##-###-#######."
+
+#: formencode/national.py:725
+msgid "That language is not listed in ISO 639"
+msgstr "Αυτή η γλώσσα δέν είναι καταχωρημένη στο ISO 639"
+
+#: formencode/schema.py:63
+#, python-format
+msgid "The input field %(name)s was not expected."
+msgstr "Το πεδίο %(name)s δεν επιτρέπεται εδώ."
+
+#: formencode/schema.py:64
+msgid "Missing value"
+msgstr "Λείπει πεδίο"
+
+#: formencode/schema.py:65
+#, python-format
+msgid "The input must be dict-like (not a %(type)s: %(value)r)"
+msgstr "Η τιμή πρέπει να είναι τύπου λεξικού (όχι %(type)s: %(value)r)"
+
+#: formencode/validators.py:147
+#, python-format
+msgid "%(object)r is not a subclass of %(subclass)s"
+msgstr "Το %(object)r δεν είναι υποκλάση του %(subclass)s"
+
+#: formencode/validators.py:148
+#, python-format
+msgid "%(object)r is not a subclass of one of the types %(subclassList)s"
+msgstr "Το %(object)r δεν είναι υποκλάση ενός από τους τύπους %(subclassList)s"
+
+#: formencode/validators.py:149
+#, python-format
+msgid "%(object)r must be one of the types %(typeList)s"
+msgstr "Το %(object)r πρέπει να είναι ενός από τους τύπους %(typeList)s"
+
+#: formencode/validators.py:150
+#, python-format
+msgid "%(object)r must be of the type %(type)s"
+msgstr "Το %(object)r πρέπει να είναι τύπου %(type)s"
+
+#: formencode/validators.py:330
+#, python-format
+msgid "Enter a value less than %(maxLength)i characters long"
+msgstr "Εισάγετε μία τιμή με μήκος μικρότερο από %(maxLength)i χαρακτήρες"
+
+#: formencode/validators.py:331 formencode/validators.py:385
+msgid "Invalid value (value with length expected)"
+msgstr "Μη έγκυρη τιμή (αναμενόταν τιμή με κάποιο μήκος)"
+
+#: formencode/validators.py:384
+#, python-format
+msgid "Enter a value at least %(minLength)i characters long"
+msgstr "Εισάγετε μία τιμή με μήκος τουλάχιστον %(minLength)i χαρακτήρες"
+
+#: formencode/validators.py:441
+msgid "You cannot enter a value here"
+msgstr "Δε μπορείτε να εισάγετε μία τιμή εδώ"
+
+#: formencode/validators.py:490
+msgid "The input is not valid"
+msgstr "Η είσοδος δεν είναι έγκυρη"
+
+#: formencode/validators.py:543
+msgid "Enter only letters, numbers, or _ (underscore)"
+msgstr "Εισάγετε μόνο γράμματα, αριθμούς, ή _ (κάτω παύλα)"
+
+#: formencode/validators.py:581
+msgid "Invalid value"
+msgstr "Μη έγκυρη τιμή"
+
+#: formencode/validators.py:582
+#, python-format
+msgid "Value must be one of: %(items)s (not %(value)r)"
+msgstr "Η τιμή πρέπει να είναι μία από τις εξής: %(items)s (όχι %(value)r)"
+
+#: formencode/validators.py:640
+msgid "Choose something"
+msgstr "Επιλέξτε κάτι"
+
+#: formencode/validators.py:641
+#, python-format
+msgid "Enter a value from: %(items)s"
+msgstr "Εισάγετε μία τιμή από τις εξής: %(items)s"
+
+#: formencode/validators.py:642
+msgid "That value is not known"
+msgstr "Αυτή η τιμή δεν είναι γνωστή"
+
+#: formencode/validators.py:643
+#, python-format
+msgid ""
+"Nothing in my dictionary goes by the value %(value)s.  Choose one of: "
+"%(items)s"
+msgstr ""
+"Τίποτα στο λεξικό του συστήματος δεν ταιριάζει με την τιμή %(value)s.  "
+"Επιλέξτε μία από τις εξής: %(items)s"
+
+#: formencode/validators.py:705
+msgid "Must be an integer index"
+msgstr "Πρέπει να είναι ένας ακέραιος δείκτης"
+
+#: formencode/validators.py:706
+msgid "Index out of range"
+msgstr "Δείκτης εκτός αποδεκτού εύρους"
+
+#: formencode/validators.py:707
+#, python-format
+msgid "Item %(value)s was not found in the list"
+msgstr "Το αντικείμενο %(value)s δε βρέθηκε στη λίστα"
+
+#: formencode/validators.py:777
+#, python-format
+msgid "Date must be after %(date)s"
+msgstr "Η ημερομηνία πρέπει να είναι μετά από %(date)s"
+
+#: formencode/validators.py:778
+#, python-format
+msgid "Date must be before %(date)s"
+msgstr "Η ημερομηνία πρέπει να είναι πριν από %(date)s"
+
+#: formencode/validators.py:780
+#, python-format
+msgid "%%A, %%d %%B %%Y"
+msgstr "%%A, %%d %%B %%Y"
+
+#: formencode/validators.py:781
+msgid "The date must be sometime in the future"
+msgstr "Η ημερομηνία πρέπει να είναι στο μέλλον"
+
+#: formencode/validators.py:882
+#, python-format
+msgid "Please enter a number that is %(min)s or greater"
+msgstr "Παρακαλούμε εισάγετε έναν αριθμό που είναι %(min)s η μεγαλύτερο"
+
+#: formencode/validators.py:883
+#, python-format
+msgid "Please enter a number that is %(max)s or smaller"
+msgstr "Παρακαλούμε εισάγετε έναν αριθμό που είναι %(max)s η μικρότερο"
+
+#: formencode/validators.py:920
+msgid "Please enter an integer value"
+msgstr "Παρακαλούμε εισάγετε μία ακέραια τιμή"
+
+#: formencode/validators.py:958
+msgid "Please enter a number"
+msgstr "Παρακαλούμε εισάγετε έναν αριθμό"
+
+#: formencode/validators.py:1019
+#, fuzzy, python-format
+msgid "Enter a value not more than %(max)i characters long"
+msgstr "Εισάγετε μία τιμή με μήκος μικρότερο από %(max)i χαρακτήρες"
+
+#: formencode/validators.py:1020
+#, python-format
+msgid "Enter a value %(min)i characters long or more"
+msgstr "Εισάγετε μία τιμή με μήκος τουλάχιστον %(min)i χαρακτήρες"
+
+#: formencode/validators.py:1095
+msgid "Invalid data or incorrect encoding"
+msgstr "Μη έκγυρα δεδομένα ή λανθασμένη κωδικοποίηση"
+
+#: formencode/validators.py:1267
+msgid "Please enter an email address"
+msgstr "Παρακαλούμε εισάγετε μία ηλ. διεύθυνση"
+
+#: formencode/validators.py:1268
+msgid "An email address must contain a single @"
+msgstr "Μία ηλ. διεύθυνση πρέπει να περιέχει ένα μοναδικό @"
+
+#: formencode/validators.py:1269
+#, python-format
+msgid ""
+"The username portion of the email address is invalid (the portion before "
+"the @: %(username)s)"
+msgstr ""
+"Το τμήμα της ηλ. διεύθυνσης με το όνομα χρήστη δεν είναι έγκυρο (το τμήμα"
+" πριν το @: %(username)s)"
+
+#: formencode/validators.py:1271 formencode/validators.py:1413
+#, python-format
+msgid "An error occured when trying to connect to the server: %(error)s"
+msgstr ""
+"Ένα σφάλμα συνέβηκε κατά την προσπάθεια σύνδεσης στον εξυπηρετητή: "
+"%(error)s"
+
+#: formencode/validators.py:1273
+#, python-format
+msgid ""
+"The domain portion of the email address is invalid (the portion after the"
+" @: %(domain)s)"
+msgstr ""
+"Το τμήμα της ηλ. διεύθυνσης με τον τομέα δεν είναι έγκυρο (το τμήμα μετά "
+"το @: %(domain)s)"
+
+#: formencode/validators.py:1275
+#, python-format
+msgid ""
+"The domain of the email address does not exist (the portion after the @: "
+"%(domain)s)"
+msgstr "Ο τομέας της ηλ. διεύθυνσης δεν υπάρχει (το τμήμα μετά το @: %(domain)s)"
+
+#: formencode/validators.py:1409
+msgid "You must start your URL with http://, https://, etc"
+msgstr "Τα URL σας πρέπει να ξεκινούν με http://, https://, κλπ"
+
+#: formencode/validators.py:1410
+msgid "That is not a valid URL"
+msgstr "Αυτό δεν είναι έγκυρο URL"
+
+#: formencode/validators.py:1411
+#, python-format
+msgid "An error occurred when trying to access the URL: %(error)s"
+msgstr "Ένα σφάλμα συνέβηκε κατά την προσπάθεια πρόσβασης στο URL: %(error)s"
+
+#: formencode/validators.py:1415
+msgid "The server responded that the page could not be found"
+msgstr "Ο εξυπηρετητής απάντησε ότι η σελίδα δε μπόρεσε να βρεθεί"
+
+#: formencode/validators.py:1416
+#, python-format
+msgid "The server responded with a bad status code (%(status)s)"
+msgstr "Ο εξυπηρετητής απάντησε με έναν κακό κωδικό κατάστασης (%(status)s)"
+
+#: formencode/validators.py:1417
+#, python-format
+msgid "You must provide a full domain name (like %(domain)s.com)"
+msgstr "Εισάγετε πλήρης domain (π.χ. %(domain)s.com)"
+
+#: formencode/validators.py:1544
+msgid ""
+"The type of i-name is not defined; it may be either individual or "
+"organizational"
+msgstr ""
+
+#: formencode/validators.py:1546
+msgid "Dots and dashes may not be repeated consecutively"
+msgstr "Απαγορεύεται να υπάρχουν τελίες και παύλες στην σειρά"
+
+#: formencode/validators.py:1547
+#, python-format
+msgid "\"%(iname)s\" is an invalid i-name"
+msgstr ""
+
+#: formencode/validators.py:1548
+msgid "i-names may not start with numbers nor punctuation marks"
+msgstr ""
+
+#: formencode/validators.py:1550
+#, python-format
+msgid "\"%(inumber)s\" is an invalid i-number"
+msgstr ""
+
+#: formencode/validators.py:1551
+#, python-format
+msgid "The XRI must be a string (not a %(type)s: %(value)r)"
+msgstr "Το XRI πρέπει να είναι τύπου συμβολοσειράς (όχι %(type)s: %(value)r)"
+
+#: formencode/validators.py:1552
+#, python-format
+msgid "\"%(xri_type)s\" is not a valid type of XRI"
+msgstr ""
+
+#: formencode/validators.py:1651
+#, python-format
+msgid "\"%(id)s\" is not a valid OpenId (it is neither an URL nor an XRI)"
+msgstr ""
+
+#: formencode/validators.py:1882 formencode/validators.py:1890
+#, python-format
+msgid "Please enter the date in the form %(format)s"
+msgstr "Παρακαλούμε εισάγετε την ημερομηνία στη μορφή %(format)s"
+
+#: formencode/validators.py:1883
+msgid "Please enter a month from 1 to 12"
+msgstr "Παρακαλούμε εισάγετε έναν μήνα από 1 μέχρι 12"
+
+#: formencode/validators.py:1884
+msgid "Please enter a valid day"
+msgstr "Παρακαλούμε εισάγετε μία έγκυρη ημέρα"
+
+#: formencode/validators.py:1885
+#, python-format
+msgid "That month only has %(days)i days"
+msgstr "Αυτός ο μήνας έχει μόνο %(days)i ημέρες"
+
+#: formencode/validators.py:1886
+#, python-format
+msgid "That is not a valid day (%(exception)s)"
+msgstr "Αυτή δεν είναι μια έγκυρη ημέρα (%(exception)s)"
+
+#: formencode/validators.py:1887
+#, python-format
+msgid "Unknown month name: %(month)s"
+msgstr "Άγνωστο όνομα μήνα: %(month)s"
+
+#: formencode/validators.py:1888
+msgid "Please enter a number for the year"
+msgstr "Παρακαλούμε εισάγετε έναν αριθμό για το χρόνο"
+
+#: formencode/validators.py:1889
+msgid "Please enter a four-digit year after 1899"
+msgstr "Παρακαλούμε εισάγετε ένα χρόνο με τέσσερα ψηφία μετά το 1899"
+
+#: formencode/validators.py:2070
+msgid "You must indicate AM or PM"
+msgstr "Πρέπει να προσδιορίσετε πμ ή μμ"
+
+#: formencode/validators.py:2071
+msgid "There are too many :'s"
+msgstr "Υπάρχουν πάρα πολλοί απόστροφοι"
+
+#: formencode/validators.py:2072
+msgid "You may not enter seconds"
+msgstr "Δε μπορείτε να εισάγετε δευτερόλεπτα"
+
+#: formencode/validators.py:2073
+msgid "You must enter seconds"
+msgstr "Πρέπει να εισάγετε δευτερόλεπτα"
+
+#: formencode/validators.py:2074
+msgid "You must enter minutes (after a :)"
+msgstr "Πρέπει να εισάγετε λεπτά (μετά από ένα :)"
+
+#: formencode/validators.py:2075
+#, python-format
+msgid "The %(part)s value you gave is not a number: %(number)r"
+msgstr "Το τμήμα %(part)s που έχετε εισάγει δεν είναι αριθμός: %(number)r"
+
+#: formencode/validators.py:2076
+#, python-format
+msgid "You must enter an hour in the range %(range)s"
+msgstr "Πρέπει να εισάγετε μία ώρα στο εύρος %(range)s"
+
+#: formencode/validators.py:2077
+msgid "You must enter a minute in the range 0-59"
+msgstr "Πρέπει να εισάγετε ένα λεπτό στο εύρος 0-59"
+
+#: formencode/validators.py:2078
+msgid "You must enter a second in the range 0-59"
+msgstr "Πρέπει να εισάγετε ένα δευτερόλεπτο στο εύρος 0-59"
+
+#: formencode/validators.py:2224
+#, python-format
+msgid "The name %(name)s is missing"
+msgstr "Το όνομα %(name)s λείπει"
+
+#: formencode/validators.py:2267
+#, python-format
+msgid "Value should be %(true)r or %(false)r"
+msgstr "Η τιμή πρέπει να είναι %(true)r ή %(false)r"
+
+#: formencode/validators.py:2302
+msgid "Value does not contain a signature"
+msgstr "Η τιμή δεν περιέχει υπογραφή"
+
+#: formencode/validators.py:2303
+msgid "Signature is not correct"
+msgstr "Η υπογραφή δεν είναι σωστή"
+
+#: formencode/validators.py:2378
+#, fuzzy
+msgid "Please enter a valid IP address (a.b.c.d)"
+msgstr "Παρακαλούμε εισάγετε μία ηλ. διεύθυνση"
+
+#: formencode/validators.py:2379
+#, python-format
+msgid "The octets must be within the range of 0-255 (not %(octet)r)"
+msgstr ""
+
+#: formencode/validators.py:2426
+msgid "Please enter a valid IP address (a.b.c.d) or IP network (a.b.c.d/e)"
+msgstr ""
+
+#: formencode/validators.py:2428
+#, python-format
+msgid "The network size (bits) must be within the range of 8-32 (not %(bits)r)"
+msgstr ""
+
+#: formencode/validators.py:2477
+#, python-format
+msgid ""
+"A MAC address must contain 12 digits and A-F; the value you gave has "
+"%(length)s characters"
+msgstr ""
+"Μια διεύθηνση MAC πρέπει να περιέχει 12 ψηφία και A-F; η τιμή που βάλατε "
+"ήταν %(length)s χαρακτήρες"
+
+#: formencode/validators.py:2479
+#, python-format
+msgid ""
+"MAC addresses may only contain 0-9 and A-F (and optionally :), not "
+"%(char)r"
+msgstr ""
+"Διευθύνσεις MAC μπορούν μόνο να περιέχουν 0-9 και A-F (και προαιρετικά "
+":), οχί %(char)r"
+
+#: formencode/validators.py:2586
+#, python-format
+msgid "You must give a value for %s"
+msgstr ""
+
+#: formencode/validators.py:2619
+#, python-format
+msgid "Fields do not match (should be %(match)s)"
+msgstr "Τα πεδία δεν ταιριάζουν (θα έπρεπε να είναι %(match)s)"
+
+#: formencode/validators.py:2620
+msgid "Fields do not match"
+msgstr "Τα πεδία δεν ταιριάζουν"
+
+#: formencode/validators.py:2621
+msgid "Fields should be a dictionary"
+msgstr "Τα πεδια πρέπει να είναι λεξικό"
+
+#: formencode/validators.py:2697
+msgid "Please enter only the number, no other characters"
+msgstr "Παρακαλούμε εισάγετε μόνο τον αριθμό, χωρίς άλλους χαρακτήρες"
+
+#: formencode/validators.py:2698
+msgid "You did not enter a valid number of digits"
+msgstr "Δεν έχετε εισάγει έναν έγκυρο αριθμό από ψηφία"
+
+#: formencode/validators.py:2699
+msgid "That number is not valid"
+msgstr "Ο αριθμός δεν είναι έγκυρος"
+
+#: formencode/validators.py:2700
+#, python-format
+msgid "The field %(key)s is missing"
+msgstr "Το πεδίο %(key)s λείπει"
+
+#: formencode/validators.py:2816
+msgid "Please enter numbers only for month and year"
+msgstr "Παρακαλώ εισάγετε μόνο αριθμούς για μήνα και έτος"
+
+#: formencode/validators.py:2817
+msgid "Invalid Expiration Date"
+msgstr "Μη έγκυρη ημερομηνία λήξης"
+
+#: formencode/validators.py:2892
+msgid "Please enter numbers only for credit card security code"
+msgstr ""
+"Παρακαλώ εισάγετε νούμερο μονο για των κωδικό της πιστωτικής κάρτας\"\n"
+"\"Παρακαλούμε εισάγετε μόνο αριθμούς για τον κωδικό ασφάλειας της \"\n"
+"\"πιστωτικής κάρτας"
+
+#: formencode/validators.py:2893
+msgid "Invalid credit card security code length"
+msgstr "Μη έγκυρο μήκος του κωδικού ασφάλειας της πιστωτικής κάρτας"
+

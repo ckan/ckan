@@ -1,0 +1,28 @@
+FormEncode Community
+++++++++++++++++++++
+
+Discussion takes place on the mailing list,
+formencode-discuss@lists.sf.net:
+
+* `Subcribe
+  <http://lists.sourceforge.net/mailman/listinfo/formencode-discuss>`__
+
+* `Archives
+  <http://sourceforge.net/mailarchive/forum.php?forum_name=formencode-discuss>`__
+
+Updates to the repository are emailed to the (inaccurately named)
+mailing list formencode-cvs@lists.sf.net:
+
+* `Subscribe
+  <http://lists.sourceforge.net/mailman/listinfo/formencode-cvs>`__
+
+The repository can be checked out with::
+
+    git clone git://github.com/formencode/formencode.git
+
+Note: the SourceForge CVS repository and svn.colorstudy.com Subversion
+repositories and bitbucket Mercurial repositories are out of date and no longer used.
+
+Bugs can be reported in the `github bug tracker
+<https://github.com/formencode/formencode/issues>`_.
+

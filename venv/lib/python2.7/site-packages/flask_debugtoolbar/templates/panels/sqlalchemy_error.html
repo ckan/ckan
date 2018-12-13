@@ -1,0 +1,49 @@
+<h4>Queries Unavailable</h4>
+
+<p>
+  The toolbar was unable to fetch the SQLAlchemy queries for this request.
+  To enable the SQLAlchemy query display, please:
+</p>
+
+<ol>
+  {% if not json_available or not sqlalchemy_available %}
+  <li>
+    <h5>Install required libraries:</h5>
+    <ul>
+      {% if not json_available %}
+      <li>simplejson</li>
+      {% endif %}
+      {% if not sqlalchemy_available %}
+      <li>Flask-SQLAlchemy</li>
+      {% endif %}
+    </ul>
+  </li>
+  {% endif %}
+
+  {% if not extension_used %}
+  <li>
+    <h5>Configure Flask-SQLAlchemy:</h5>
+    <p>
+      The Flask-SQLAlchemy extension needs to be configured for this application.
+      Please see the <a href="http://flask-sqlalchemy.pocoo.org/latest/quickstart/">
+      Flask-SQLAlchemy documentation</a> for details.
+    </p>
+  </li>
+  {% endif %}
+
+  {% if not recording_enabled %}
+  <li>
+    <h5>Enable query recording:</h5>
+    <p>
+      Since this app is not currently running in <code>DEBUG</code> mode, Flask-SQLAlchemy will not record queries by default. To enable query recording in non-debug mode, set the following configuration value:
+    </p>
+    <pre>app.config['SQLALCHEMY_RECORD_QUERIES'] = True</pre>
+    <p>
+      See the
+      <a href="http://flask-sqlalchemy.pocoo.org/latest/api/#flask.ext.sqlalchemy.get_debug_queries">
+        documention of Flask-SQLAlchemy's <code>get_debug_queries()</code></a>
+      for additional details.
+    </p>
+  </li>
+  {% endif %}
+</ol>

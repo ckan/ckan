@@ -1,0 +1,720 @@
+``repoze.who``
+==============
+
+.. image:: https://travis-ci.org/repoze/repoze.who.png?branch=master
+        :target: https://travis-ci.org/repoze/repoze.who
+
+.. image:: https://readthedocs.org/projects/repozewho/badge/?version=latest
+        :target: http://repozewho.readthedocs.org/en/latest/
+        :alt: Documentation Status
+
+Overview
+--------
+
+``repoze.who`` is an identification and authentication framework
+for arbitrary WSGI applications.  ``repoze.who`` can be configured
+either as WSGI middleware or as an API for use by an application.
+
+``repoze.who`` is inspired by Zope 2's Pluggable Authentication
+Service (PAS) (but ``repoze.who`` is not dependent on Zope in any
+way; it is useful for any WSGI application).  It provides no facility
+for authorization (ensuring whether a user can or cannot perform the
+operation implied by the request).  This is considered to be the
+domain of the WSGI application.
+
+
+repoze.who Changelog
+====================
+
+2.3 (2016-05-31)
+----------------
+
+- Add support for Python 3.4, Python 3.5, and PyPy3.
+
+- Drop support for Python 2.6 and 3.2.
+
+- ``middleware``:  avoid passing extracted ``identity`` to ``remember``
+  during egress (the app may have called ``api.forget()``).  See #21.
+
+- ``_auth_tkt`` / ``plugins.auth_tkt``:  add support for any hash algorithm
+  supported by the ``hashlib`` module in Python's standard library.
+  Fixes #22 via #23.
+
+- ``plugins.auth_tkt``:  Fix storage of "userdata" to save dict.  Fixes
+  #14 via #18.
+
+- middleware:  avoid UnboundLocalError when wrapped generater yields no
+  items.  See:  http://bugs.repoze.org/issue184
+
+- Make cookie expiration date RFC-2616 compliant (independent of locale,
+  including 'GMT' zone). See #11.
+
+2.2 (2013-05-17)
+----------------
+
+- Parse INI-file configuration using ``SafeConfigParser``:  allows
+  escaping the ``'%'`` so that e.g. a query template using for a DB-API
+  connection using ``pyformat`` preserves the template.
+
+- Added support for Python 3.3, PyPy.
+
+
+2.1 (2013-03-20)
+----------------
+
+- ``_compat`` module:  tolerate missing ``CONTENT_TYPE`` key in the WSGI
+  environment.  Thanks to Dag Hoidal for the patch.
+
+- ``htpasswd`` plugin:  add a ``sha1_check`` checker function (the ``crypt``
+  module is not available on Windows).  Thanks to Chandrashekar Jayaraman
+  for the patch.
+
+- Documentation typo fixes from Carlos de la Guardia and Atsushi Odagiri.
+
+
+2.1b1 (2012-11-05)
+------------------
+
+- Ported to Py3k using the "compatible subset" mode.
+  - Dropped support for Python < 2.6.x.
+  - Dropped dependency on Paste (forking some code from it).
+  - Added dependency on WebOb instead.
+  Thanks to Atsushi Odagiri (aodag) for the initial effort.
+
+
+2.0 (2011-09-28)
+----------------
+
+- ``auth_tkt`` plugin:  strip any port number from the 'Domain' of generated
+  cookies.  http://bugs.repoze.org/issue66
+
+- Further harden middleware, calling ``close()`` on the iterable even if
+  raising an exception for a missing challenger.
+  http://bugs.repoze.org/issue174
+
+
+2.0b1 (2011-05-24)
+------------------
+
+- Enabled standard use of logging module's configuration mechanism. 
+  See http://docs.python.org/dev/howto/logging.html#configuring-logging-for-a-library
+  Thanks to jgoldsmith for the patch: http://bugs.repoze.org/issue178
+
+
+- ``repoze.who.plugins.htpasswd``:  defend against timing-based attacks.
+
+
+2.0a4 (2011-02-02)
+------------------
+
+- Ensure that the middleware calls ``close()`` (if it exists) on the
+  iterable returned from thw wrapped application, as required by PEP 333.
+  http://bugs.repoze.org/issue174
+
+- Make ``make_api_factory_with_config`` tolerant of invalid filenames /
+  content for the config file:  in such cases, the API factory will have
+  *no* configured plugins or policies:  it will only be useful for retrieving
+  the API from an environment populated by middleware.
+
+- Fix bug in ``repoze.who.api`` where the ``remember()`` or ``forget()``
+  methods could return a None if the identifier plugin returned a None.
+
+- Fix ``auth_tkt`` plugin to not hand over tokens as strings to paste. See
+  http://lists.repoze.org/pipermail/repoze-dev/2010-November/003680.html
+
+- Fix ``auth_tkt`` plugin to add "secure" and "HttpOnly" to cookies when
+  configured with ``secure=True``:  these attributes prevent the browser from
+  sending cookies over insecure channels, which could be vulnerable to some
+  XSS attacks.
+
+- Avoid propagating unicode 'max_age' value into cookie headers.  See
+  https://bugs.launchpad.net/bugs/674123 .
+
+- Added a single-file example BFG application demonstrating the use of
+  the new 'login' and 'logout' methods of the API object.
+
+- Add ``login`` and ``logout`` methods to the ``repoze.who.api.API`` object,
+  as a convenience for application-driven login / logout code, which would
+  otherwise need to use private methods of the API, and reach down into
+  its plugins.
+
+
+2.0a3 (2010-09-30)
+------------------
+
+- Deprecated the following plugins, moving their modules, tests, and docs
+  to a new project, ``repoze.who.deprecatedplugins``:
+
+  - ``repoze.who.plugins.cookie.InsecureCookiePlugin``
+
+  - ``repoze.who.plugins.form.FormPlugin``
+
+  - ``repoze.who.plugins.form.RedirectingFormPlugin``
+
+- Made the ``repoze.who.plugins.cookie.InsecureCookiePlugin`` take a
+  ``charset`` argument, and use to to encode / decode login and password.
+  See http://bugs.repoze.org/issue155
+
+- Updated ``repoze.who.restrict`` to return headers as a list, to keep
+  ``wsgiref`` from complaining.
+
+- Helped default request classifier cope with xml submissions with an
+  explicit charset defined: http://bugs.repoze.org/issue145 (Lorenzo
+  M. Catucci)
+
+- Corrected the handling of type and subtype when matching an XML post
+  to ``xmlpost`` in the default classifier, which, according to RFC
+  2045, must be matched case-insensitively:
+  http://bugs.repoze.org/issue145 (Lorenzo M. Catucci)
+
+- Added ``repoze.who.config:make_api_factory_with_config``, a convenience
+  method for applications which want to set up their own API Factory from
+  a configuration file.
+
+- Fixed example call to ``repoze.who.config:make_middleware_with_config``
+  (added missing ``global_config`` argument).  See
+  http://bugs.repoze.org/issue114
+
+
+2.0a2 (2010-03-25)
+------------------
+
+Bugs Fixed
+~~~~~~~~~~
+
+- Fixed failure to pass substution values in log message string formatting
+  for ``repoze.who.api:API.challenge``.  Fix included adding tests for all
+  logging done by the API object.  See http://bugs.repoze.org/issue122
+
+Backward Incompatibilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Adjusted logging level for some lower-level details from ``info``
+  to ``debug``.
+
+
+
+2.0a1 (2010-02-24)
+------------------
+
+Features
+~~~~~~~~
+
+- Restored the ability to create the middleware using the old ``classifier``
+  argument.  That argument is now a deprecated-but-will-work-forever alias for
+  ``request_classifier``.
+
+- The ``auth_tkt`` plugin now implements the ``IAuthenticator`` interface,
+  and should normally be used both as an ``IIdentifier`` and an
+  ``IAuthenticator``.
+
+- Factored out the API of the middleware object to make it useful from
+  within the application.  Applications using ``repoze.who``` now fall into
+  one of three catgeories:
+
+  - "middleware-only" applications are configured with middleware, and
+    use either ``REMOTE_USER`` or ``repoze.who.identity`` from the environment
+    to determing the authenticated user.
+
+  - "bare metal" applications use no ``repoze.who`` middleware at all:
+    instead, they configure and an ``APIFactory`` object at startup, and
+    use it to create an ``API`` object when needed on a per-request basis.
+
+  - "hybrid" applications are configured with ``repoze.who`` middleware,
+    but use a new library function to fetch the ``API`` object from the
+    environ, e.g. to permit calling ``remember`` after a signup or successful
+    login.
+
+Bugs Fixed
+~~~~~~~~~~
+
+- Fix http://bugs.repoze.org/issue102: when no challengers existed,
+  logging would cause an exception.
+
+- Remove ``ez_setup.py`` and dependency on it in setup.py (support
+  distribute).
+
+Backward Incompatibilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- The middleware used to allow identifier plugins to "pre-authenticate"
+  an identity.  This feature is no longer supported: the ``auth_tkt`` 
+  plugin, which used to use the feature, is now configured to work as
+  an authenticator plugin (as well as an identifier).
+
+- The ``repoze.who.middleware:PluggableAuthenticationMiddleware`` class
+  no longer has the following (non-API) methods (now made API methods
+  of the ``repoze.who.api:API`` class):
+
+  - ``add_metadata``
+  - ``authenticate``
+  - ``challenge``
+  - ``identify``
+
+- The following (non-API) functions moved from ``repoze.who.middleware`` to
+  ``repoze.who.api``:
+
+  - ``make_registries``
+  - ``match_classification``
+  - ``verify``
+
+
+
+1.0.18 (2009-11-05)
+-------------------
+
+- Issue #104:  AuthTkt plugin was passing an invalid cookie value in
+  headers from ``forget``, and was not setting the ``Max-Age`` and 
+  ``Expires`` attributes of those cookies.
+
+
+
+1.0.17 (2009-11-05)
+-------------------
+
+- Fixed the ``repoze.who.plugins.form.make_plugin`` factory's ``formcallable``
+  argument handling, to allow passing in a dotted name (e.g., from a config
+  file).
+
+
+
+1.0.16 (2009-11-04)
+-------------------
+
+- Exposed ``formcallable`` argument for ``repoze.who.plugins.form.FormPlugin``
+  to the callers of the ``repoze.who.plugins.form.make_plugin`` factory.
+  Thanks to Roland Hedburg for the report.
+
+- Fixed an issue that caused the following symptom when using the
+  ini configuration parser::
+
+   TypeError: _makePlugin() got multiple values for keyword argument 'name'
+
+  See http://bugs.repoze.org/issue92 for more details.  Thanks to vaab
+  for the bug report and initial fix.
+
+
+1.0.15 (2009-06-25)
+-------------------
+
+- If the form post value ``max_age`` exists while in the ``identify``
+  method is handling the ``login_handler_path``, pass the max_age
+  value in the returned identity dictionary as ``max_age``.  See the
+  below bullet point for why.
+
+- If the ``identity`` dict passed to the ``auth_tkt`` ``remember``
+  method contains a ``max_age`` key with a string (or integer) value,
+  treat it as a cue to set the ``Max-Age`` and ``Expires`` headers in
+  the returned cookies.  The cookie ``Max-Age`` is set to the value
+  and the ``Expires`` is computed from the current time.
+
+
+1.0.14 (2009-06-17)
+-------------------
+
+- Fix test breakage on Windows.  See http://bugs.repoze.org/issue79 .
+
+- Documented issue with using ``include_ip`` setting in the ``auth_tkt``
+  plugin.  See http://bugs.repoze.org/issue81 .
+
+- Added 'passthrough_challenge_decider', which avoids re-challenging 401
+  responses which have been "pre-challenged" by the application.
+
+- One-hundred percent unit test coverage.
+
+- Add ``timeout`` and ``reissue_time`` arguments to the auth_tkt
+  identifier plugin, courtesty of Paul Johnston.
+
+- Add a ``userid_checker`` argument to the auth_tkt identifier plugin,
+  courtesty of Gustavo Narea.
+
+  If ``userid_checker`` is provided, it must be a dotted Python name
+  that resolves to a function which accepts a userid and returns a
+  boolean True or False, indicating whether that user exists in a
+  database.  This is a workaround.  Due to a design bug in repoze.who,
+  the only way who can check for user existence is to use one or more
+  IAuthenticator plugin ``authenticate`` methods.  If an
+  IAuthenticator's ``authenticate`` method returns true, it means that
+  the user exists.  However most IAuthenticator plugins expect *both*
+  a username and a password, and will return False unconditionally if
+  both aren't supplied.  This means that an authenticator can't be
+  used to check if the user "only" exists.  The identity provided by
+  an auth_tkt does not contain a password to check against.  The
+  actual design bug in repoze.who is this: when a user presents
+  credentials from an auth_tkt, he is considered "preauthenticated".
+  IAuthenticator.authenticate is just never called for a
+  "preauthenticated" identity, which works fine, but it means that the
+  user will be considered authenticated even if you deleted the user's
+  record from whatever database you happen to be using.  However, if
+  you use a userid_checker, you can ensure that a user exists for the
+  auth_tkt supplied userid.  If the userid_checker returns False, the
+  auth_tkt credentials are considered "no good".
+
+
+1.0.13 (2009-04-24)
+-------------------
+
+- Added a paragraph to ``IAuthenticator`` docstring, documenting that plugins
+  are allowed to add keys to the ``identity`` dictionary (e.g., to save a
+  second database query in an ``IMetadataProvider`` plugin).
+
+- Patch supplied for issue #71 (http://bugs.repoze.org/issue71)
+  whereby a downstream app can return a generator, relying on an
+  upstream component to call start_response.  We do this because the
+  challenge decider needs the status and headers to decide what to do.
+
+
+1.0.12 (2009-04-19)
+-------------------
+- auth_tkt plugin tried to append REMOTE_USER_TOKENS data to
+  existing tokens data returned by auth_tkt.parse_tkt; this was
+  incorrect; just overwrite.
+
+- Extended auth_tkt plugin factory to allow passing secret in a separate
+  file from the main config file.  See http://bugs.repoze.org/issue40 .
+
+
+1.0.11 (2009-04-10)
+-------------------
+
+- Fix auth_tkt plugin; cookie values are now quoted, making it possible
+  to put spaces and other whitespace, etc in usernames. (thanks to Michael
+  Pedersen).
+
+- Fix corner case issue of an exception raised when attempting to log
+  when there are no identifiers or authenticators.
+
+
+1.0.10 (2009-01-23)
+-------------------
+
+- The RedirectingFormPlugin now passes along SetCookie headers set
+  into the response by the application within the NotFound response
+  (fixes TG2 "flash" issue).
+
+
+1.0.9 (2008-12-18)
+------------------
+
+- The RedirectingFormPlugin now attempts to find a header named
+  ``X-Authentication-Failure-Reason`` among the response headers set
+  by the application when a challenge is issued.  If a value for this
+  header exists (and is non-blank), the value is attached to the
+  redirect URL's query string as the ``reason`` parameter (or a
+  user-settable key).  This makes it possible for downstream
+  applications to issue a response that initiates a challenge with
+  this header and subsequently display the reason in the login form
+  rendered as a result of the challenge.
+
+
+1.0.8 (2008-12-13)
+------------------
+
+- The ``PluggableAuthenticationMiddleware`` constructor accepts a
+  ``log_stream`` argument, which is typically a file.  After this
+  release, it can also be a PEP 333 ``Logger`` instance; if it is a
+  PEP 333 ``Logger`` instance, this logger will be used as the
+  repoze.who logger (instead of one being constructed by the
+  middleware, as was previously always the case).  When the
+  ``log_stream`` argument is a PEP 333 Logger object, the
+  ``log_level`` argument is ignored.
+
+
+1.0.7 (2008-08-28)
+------------------
+
+- ``repoze.who`` and ``repoze.who.plugins`` were not added to the
+  ``namespace_packages`` list in setup.py, potentially making 1.0.6 a
+  brownbag release, given that making these packages namespace
+  packages was the only reason for its release.
+
+
+1.0.6 (2008-08-28)
+------------------
+
+- Make repoze.who and repoze.who.plugins into namespace packages
+  mainly so we can allow plugin authors to distribute packages in the
+  repoze.who.plugins namespace.
+
+
+1.0.5 (2008-08-23)
+------------------
+
+- Fix auth_tkt plugin to set the same cookies in its ``remember``
+  method that it does in its ``forget`` method.  Previously, logging
+  out and relogging back in to a site that used auth_tkt identifier
+  plugin was slightly dicey and would only work sometimes.
+
+- The FormPlugin plugin has grown a redirect-on-unauthorized feature.
+  Any response from a downstream application that causes a challenge
+  and includes a Location header will cause a redirect to the value of
+  the Location header.
+
+
+1.0.4 (2008-08-22)
+------------------
+
+- Added a key to the '[general]' config section: ``remote_user_key``.
+  If you use this key in the config file, it tells who to 1) not
+  perform any authentication if it exists in the environment during
+  ingress and 2) to set the key in the environment for the downstream
+  app to use as the REMOTE_USER variable.  The default is
+  ``REMOTE_USER``.
+
+- Using unicode user ids in combination with the auth_tkt plugin would
+  cause problems under mod_wsgi.
+
+- Allowed 'cookie_path' argument to InsecureCookiePlugin (and config
+  constructor).  Thanks to Gustavo Narea.
+
+
+1.0.3 (2008-08-16)
+------------------
+
+- A bug in the middleware's ``authenticate`` method made it impossible
+  to authenticate a user with a userid that was null (e.g. 0, False),
+  which are valid identifiers.  The only invalid userid is now None.
+
+- Applied patch from Olaf Conradi which logs an error when an invalid
+  filename is passed to the HTPasswdPlugin.
+
+
+1.0.2 (2008-06-16)
+------------------
+
+- Fix bug found by Chris Perkins: the auth_tkt plugin's "remember"
+  method didn't handle userids which are Python "long" instances
+  properly.  Symptom: TypeError: cannot concatenate 'str' and 'long'
+  objects in "paste.auth.auth_tkt".
+
+- Added predicate-based "restriction" middleware support
+  (repoze.who.restrict), allowing configuratio-driven authorization as
+  a WSGI filter.  One example predicate, 'authenticated_predicate', is
+  supplied, which requires that the user be authenticated either via
+  'REMOTE_USER' or via 'repoze.who.identity'.  To use the filter to
+  restrict access::
+
+     [filter:authenticated_only]
+     use = egg:repoze.who#authenticated
+
+   or::
+
+     [filter:some_predicate]
+     use = egg:repoze.who#predicate
+     predicate = my.module:some_predicate
+     some_option = a value
+
+
+1.0.1 (2008-05-24)
+------------------
+
+- Remove dependency-link to dist.repoze.org to prevent easy_install
+  from inserting that path into its search paths (the dependencies are
+  available from PyPI).
+
+
+1.0 (2008-05-04)
+-----------------
+
+- The plugin at plugins.form.FormPlugin didn't redirect properly after
+  collecting identification information.  Symptom: a downstream app
+  would receive a POST request with a blank body, which would
+  sometimes result in a Bad Request error.
+
+- Fixed interface declarations of
+  'classifiers.default_request_classifier' and
+  'classifiers.default_password_compare'.
+
+- Added actual config-driven middleware factory,
+  'config.make_middleware_with_config'
+
+- Removed fossilized 'who_conf' argument from plugin factory functions.
+
+- Added ConfigParser-based WhoConfig, implementing the spec outlined at
+  http://www.plope.com/static/misc/sphinxtest/intro.html#middleware-configuration-via-config-file,
+  with the following changes:
+
+  - "Bare" plugins (requiring no configuration options) may be specified
+     as either egg entry points (e.g., 'egg:distname#entry_point_name') or
+     as dotted-path-with-colon (e.g., 'dotted.name:object_id').
+
+  - Therefore, the separator between a plugin and its classifier is now
+    a semicolon, rather than a colon. E.g.::
+
+     [plugins:id_plugin]
+     use = egg:another.package#identify_with_frobnatz
+     frobnatz = baz
+
+     [identifiers]
+     plugins =
+       egg:my.egg#identify;browser
+       dotted.name:identifier
+       id_plugin
+
+
+0.9.1 (2008-04-27)
+------------------
+
+- Fix auth_tkt plugin to be able to encode and decode integer user
+  ids.
+
+
+0.9 (2008-04-01)
+----------------
+
+- Fix bug introduced in FormPlugin in 0.8 release (rememberer headers
+  not set).
+
+- Add PATH_INFO to started and ended log info.
+
+- Add a SQLMetadataProviderPlugin (in plugins/sql).
+
+- Change constructor of SQLAuthenticatorPlugin: it now accepts only
+  "query", "conn_factory", and "compare_fn".  The old constructor
+  accepted a DSN, but some database systems don't use DBAPI DSNs.  The
+  new constructor accepts no DSN; the conn_factory is assumed to do
+  all the work to make a connection, including knowing the DSN if one
+  is required.  The "conn_factory" should return something that, when
+  called with no arguments, returns a database connection.
+
+- The "make_plugin" helper in plugins/sql has been renamed
+  "make_authenticator_plugin".  When called, this helper will return a
+  SQLAuthenticatorPlugin.  A bit of helper logic in the
+  "make_authenticator_plugin" allows a connection factory to be
+  computed.  The top-level callable referred to by conn_factory in
+  this helper should return a function that, when called with no
+  arguments, returns a datbase connection.  The top-level callable
+  itself is called with "who_conf" (global who configuration) and any
+  number of non-top-level keyword arguments as they are passed into
+  the helper, to allow for a DSN or URL or whatever to be passed in.
+
+- A "make_metatata_plugin" helper has been added to plugins/sql. When
+  called, this will make a SQLMetadataProviderPlugin.  See the
+  implementation for details.  It is similar to the
+  "make_authenticator_plugin" helper.
+
+
+0.8 (2008-03-27)
+----------------
+
+- Add a RedirectingFormIdentifier plugin.  This plugin is willing to
+  redirect to an external (or downstream application) login form to
+  perform identification.  The external login form must post to the
+  "login_handler_path" of the plugin (optimally with a "came_from"
+  value to tell the plugin where to redirect the response to if the
+  authentication works properly).  The "logout_handler_path" of this
+  plugin can be visited to perform a logout.  The "came_from" value
+  also works there.
+
+- Identifier plugins are now permitted to set a key in the environment
+  named 'repoze.who.application' on ingress (in 'identify').  If an
+  identifier plugin does so, this application is used instead of the
+  "normal" downstream application.  This feature was added to more
+  simply support the redirecting form identifier plugin.
+
+
+0.7 (2008-03-26)
+----------------
+
+- Change the IMetadataProvider interface: this interface used to have
+  a "metadata" method which returned a dictionary.  This method is not
+  part of that API anymore.  It's been replaced with an "add_metadata"
+  method which has the signature::
+
+    def add_metadata(environ, identity):
+        """
+        Add metadata to the identity (which is a dictionary)
+        """
+
+   The return value is ignored.  IMetadataProvider plugins are now
+   assumed to be responsible for 'scribbling' directly on the identity
+   that is passed in (it's a dictionary).  The user id can always be
+   retrieved from the identity via identity['repoze.who.userid'] for
+   metadata plugins that rely on that value.
+
+
+0.6 (2008-03-20)
+----------------
+
+- Renaming: repoze.pam is now repoze.who
+
+- Bump ez_setup.py version.
+
+- Add IMetadataProvider plugin type.  Chris says 'Whit rules'.
+
+
+0.5 (2008-03-09)
+----------------
+
+- Allow "remote user key" (default: REMOTE_USER) to be overridden
+  (pass in remote_user_key to middleware constructor).
+
+- Allow form plugin to override the default form.
+
+- API change: IIdentifiers are no longer required to put both 'login'
+  and 'password' in a returned identity dictionary.  Instead, an
+  IIdentifier can place arbitrary key/value pairs in the identity
+  dictionary (or return an empty dictionary).
+
+- API return value change: the "failure" identity which IIdentifiers
+  return is now None rather than an empty dictionary.
+
+- The IAuthenticator interface now specifies that IAuthenticators must
+  not raise an exception when evaluating an identity that does not
+  have "expected" key/value pairs (e.g. when an IAuthenticator that
+  expects login and password inspects an identity returned by an
+  IP-based auth system which only puts the IP address in the
+  identity); instead they fail gracefully by returning None.
+
+- Add (cookie) "auth_tkt" identification plugin.
+
+- Stamp identity dictionaries with a userid by placing a key named
+  'repoze.pam.userid' into the identity for each authenticated
+  identity.
+
+- If an IIdentifier plugin inserts a 'repoze.pam.userid' key into the
+  identity dictionary, consider this identity "preauthenticated".  No
+  authenticator plugins will be asked to authenticate this identity.
+  This is designed for things like the recently added auth_tkt plugin,
+  which embeds the user id into the ticket.  This effectively alllows
+  an IIdentifier plugin to become an IAuthenticator plugin when
+  breaking apart the responsibility into two separate plugins is
+  "make-work".  Preauthenticated identities will be selected first
+  when deciding which identity to use for any given request.
+
+- Insert a 'repoze.pam.identity' key into the WSGI environment on
+  ingress if an identity is found.  Its value will be the identity
+  dictionary related to the identity selected by repoze.pam on
+  ingress.  Downstream consumers are allowed to mutate this
+  dictionary; this value is passed to "remember" and "forget", so its
+  main use is to do a "credentials reset"; e.g. a user has changed his
+  username or password within the application, but we don't want to
+  force him to log in again after he does so.
+
+
+0.4 (03-07-2008)
+----------------
+
+- Allow plugins to specify a classifiers list per interface (instead
+  of a single classifiers list per plugin).
+
+
+0.3 (03-05-2008)
+----------------
+
+- Make SQLAuthenticatorPlugin's default_password_compare use hexdigest
+  sha instead of base64'ed binary sha for simpler conversion.
+
+
+0.2 (03-04-2008)
+----------------
+
+- Added SQLAuthenticatorPlugin (see plugins/sql.py).
+
+
+0.1 (02-27-2008)
+----------------
+
+- Initial release (no configuration file support yet).
+
+

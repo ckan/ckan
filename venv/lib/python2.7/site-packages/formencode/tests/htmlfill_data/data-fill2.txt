@@ -1,0 +1,15 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<form action="">
+<input type="text" name="test">
+</form>
+</html>
+----
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<form action="">
+<input type="text" name="test" value="whatever">
+</form>
+</html>
+----
+defaults={'test': 'whatever'}

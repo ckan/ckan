@@ -1,0 +1,3 @@
+[pytest11]
+pytest_fakefs = pyfakefs.pytest_plugin
+

@@ -1,0 +1,43 @@
+from {{base_package}}.tests import *
+
+class Test{{name}}Controller(TestController):
+
+    def test_index(self):
+        response = self.app.get(url('{{fname}}'))
+        # Test response...
+
+    def test_index_as_xml(self):
+        response = self.app.get(url('formatted_{{fname}}', format='xml'))
+
+    def test_create(self):
+        response = self.app.post(url('{{fname}}'))
+
+    def test_new(self):
+        response = self.app.get(url('new_{{singularname}}'))
+
+    def test_new_as_xml(self):
+        response = self.app.get(url('formatted_new_{{singularname}}', format='xml'))
+
+    def test_update(self):
+        response = self.app.put(url('{{singularname}}', id=1))
+
+    def test_update_browser_fakeout(self):
+        response = self.app.post(url('{{singularname}}', id=1), params=dict(_method='put'))
+
+    def test_delete(self):
+        response = self.app.delete(url('{{singularname}}', id=1))
+
+    def test_delete_browser_fakeout(self):
+        response = self.app.post(url('{{singularname}}', id=1), params=dict(_method='delete'))
+
+    def test_show(self):
+        response = self.app.get(url('{{singularname}}', id=1))
+
+    def test_show_as_xml(self):
+        response = self.app.get(url('formatted_{{singularname}}', id=1, format='xml'))
+
+    def test_edit(self):
+        response = self.app.get(url('edit_{{singularname}}', id=1))
+
+    def test_edit_as_xml(self):
+        response = self.app.get(url('formatted_edit_{{singularname}}', id=1, format='xml'))

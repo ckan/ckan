@@ -1,0 +1,28 @@
+Metadata-Version: 2.0
+Name: python-magic
+Version: 0.4.15
+Summary: File type identification using libmagic
+Home-page: http://github.com/ahupp/python-magic
+Author: Adam Hupp
+Author-email: adam@hupp.org
+License: MIT
+Keywords: mime magic file
+Platform: UNKNOWN
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: Implementation :: CPython
+
+This module uses ctypes to access the libmagic file type
+identification library.  It makes use of the local magic database and
+supports both textual and MIME-type output.
+
+

@@ -1,0 +1,53 @@
+/* Sample stylesheet for WebHelpers */
+
+/* === STYLES FOR webhelpers.html.tags === */
+
+/* Display the required symbol "*" in red.
+ * Used by title() and required_legend().
+ */
+span.required-symbol {
+    color: red;
+    }
+
+/* Display the title for required fields in boldface.
+ * Used by title() and required_legend().
+ */
+span.required {
+    font-weight: bold;
+    }
+
+/* Display the title for non-required fields in normal type.
+ * (Some sites may prefer to set this to boldface too.)
+ * Used by title().
+ */
+span.not-required {
+    }
+
+/* === EXTRA STYLES (not currently produced by any helpers) === */
+
+/* Make field error messages highly visible:
+ * big and red on a light red background.
+ * 'error-message' is the default class used by ``formencode.htmlfill``
+ * and by any future field helper.
+ */
+.error-message {
+    color: #cc0000;
+    background-color: #ffeeee;
+    font-size: large;
+    font-weight: bold;
+    font-style: italic;
+    }
+
+/* Make field help text green italic. */
+.hint {
+    color: #006400;
+    font-style: italic;
+    }
+
+/* Standard forms have a distinct background and space around them. */
+form.standard {
+    background-color: #F2F2F2;
+    margin: 1em 0;
+    padding: 0.5em 1em 1em 1em;
+    }
+

@@ -1,0 +1,643 @@
+.. comment (set Emacs mode) -*- doctest -*-
+
+    >>> import sys
+    >>> import formencode
+
++++++++++++++++++++++
+FormEncode Validation
++++++++++++++++++++++
+
+:author: Ian Bicking <ianb@colorstudy.com>
+:version: |release|
+:date: |today|
+
+.. contents::
+
+Introduction
+============
+
+Validation (which encompasses conversion as well) is the core function
+of FormEncode.  FormEncode really tries to *encode* the values from
+one source into another (hence the name).  So a Python structure can
+be encoded in a series of HTML fields (a flat dictionary of strings).
+A HTML form submission can in turn be turned into a the original
+Python structure.
+
+Using Validation
+================
+
+In FormEncode validation and conversion happen simultaneously.
+Frequently you cannot convert a value without ensuring its validity,
+and validation problems can occur in the middle of conversion.
+
+The basic metaphor for validation is **to_python** and
+**from_python**.  In this context "Python" is meant to refer to "here"
+-- the trusted application, your own Python objects.  The "other" may
+be a web form, an external database, an XML-RPC request, or any data
+source that is not completely trusted or does not map directly to
+Python's object model.  :meth:`to_python` is the process of taking
+external data and preparing it for internal use, :meth:`from_python`
+generally reverses this process (:meth:`from_python` is usually the less
+interesting of the pair, but provides some important features).
+
+The core of this validation process is two methods and an exception::
+
+    >>> import formencode
+    >>> from formencode import validators
+    >>> validator = validators.Int()
+    >>> validator.to_python("10")
+    10
+    >>> validator.to_python("ten")
+    Traceback (most recent call last):
+        ...
+    Invalid: Please enter an integer value
+
+``"ten"`` isn't a valid integer, so we get a :class:`formencode.Invalid`
+exception.  Typically we'd catch that exception, and use it for some
+sort of feedback.  Like:
+
+.. comment (fake raw_input):
+
+    >>> raw_input_input = []
+    >>> def raw_input(prompt):
+    ...     value = raw_input_input.pop(0)
+    ...     print '%s%s' % (prompt, value)
+    ...     return value
+    >>> raw_input_input.extend(['ten', '10'])
+    >>> raw_input_input.extend(['bob', 'bob@nowhere.com'])
+    >>> if unicode is str:  # Python 3
+    ...    input = raw_input
+
+::
+
+    >>> def get_integer():
+    ...     while 1:
+    ...         try:
+    ...             value = raw_input('Enter a number: ')
+    ...             return validator.to_python(value)
+    ...         except formencode.Invalid, e:
+    ...             print e
+    ...
+    >>> get_integer()
+    Enter a number: ten
+    Please enter an integer value
+    Enter a number: 10
+    10
+
+We can also generalize this kind of function::
+
+    >>> def valid_input(prompt, validator):
+    ...     while 1:
+    ...         try:
+    ...             value = raw_input(prompt)
+    ...             return validator.to_python(value)
+    ...         except formencode.Invalid, e:
+    ...             print e
+    >>> valid_input('Enter your email: ', validators.Email())
+    Enter your email: bob
+    An email address must contain a single @
+    Enter your email: bob@nowhere.com
+    'bob@nowhere.com'
+
+:class:`Invalid` exceptions generally give a good, user-readable error
+message about the problem with the input.  Using the exception gets
+more complicated when you use compound data structures (dictionaries
+and lists), which we'll talk about later__.
+
+.. __: `Compound Validators`_
+
+We'll talk more about these individual validators later, but first
+we'll talk about more complex validation than just integers or
+individual values.
+
+.. _Schemas:
+
+Available Validators
+--------------------
+
+There's lots of validators.  The best way to read about the individual
+validators available in the :mod:`formencode.validators` module is to read
+about :mod:`~formencode.validators` and :mod:`~formencode.national`.
+
+Compound Validators
+-------------------
+
+While validating single values is useful, it's only a *little* useful.
+Much more interesting is validating a set of values.  This is called a
+*Schema*.
+
+For instance, imagine a registration form for a website.  It takes the
+following fields, with restrictions:
+
+* ``first_name`` (not empty)
+* ``last_name`` (not empty)
+* ``email`` (not empty, valid email)
+* ``username`` (not empty, unique)
+* ``password`` (reasonably secure)
+* ``password_confirm`` (matches password)
+
+There's a couple validators that aren't part of FormEncode, because
+they'll be specific to your application::
+
+    >>> # We don't really have a database of users, so we'll fake it:
+    >>> usernames = []
+    >>> class UniqueUsername(formencode.FancyValidator):
+    ...     def _convert_to_python(self, value, state):
+    ...         if value in usernames:
+    ...             raise formencode.Invalid(
+    ...                 'That username already exists',
+    ...                 value, state)
+    ...         return value
+
+.. note::
+   The class :class:`formencode.FancyValidator` is the superclass
+   for most validators in FormEncode, and it provides a number of useful
+   features that most validators can use -- for instance, you can pass
+   ``strip=True`` into any of these validators, and they'll strip
+   whitespace from the incoming value before any other validation.
+
+This overrides the internal :meth:`_convert_to_python()` method:
+:class:`formencode.FancyValidator` adds a number of extra features, and then
+calls the internal :meth:`_convert_to_python` method, which is the method you'll
+typically write.  Contrary to the external method :meth:`to_python`, its
+only concern is the conversion part, not the validation part.  If further
+validation is necessary, this can be done in two other internal methods,
+either :meth:`_validate_python()` or :meth:`_validate_other()`.  We will give
+an example for that later.  When a validator finds an error, it raises an
+exception (:class:`formencode.Invalid`), with the error message and the
+value and "state" objects.  We'll talk about state_ later. Here's the
+other custom validator, that checks passwords against words in the
+standard Unix word file::
+
+    >>> class SecurePassword(formencode.FancyValidator):
+    ...     words_filename = '/usr/share/dict/words'
+    ...     def _convert_to_python(self, value, state):
+    ...         f = open(self.words_filename)
+    ...         lower = value.strip().lower()
+    ...         for line in f:
+    ...             if line.strip().lower() == lower:
+    ...                 raise formencode.Invalid(
+    ...                     'Please do not base your password on a '
+    ...                     'dictionary term', value, state)
+    ...         return value
+
+And here's a schema::
+
+    >>> class Registration(formencode.Schema):
+    ...     first_name = validators.ByteString(not_empty=True)
+    ...     last_name = validators.ByteString(not_empty=True)
+    ...     email = validators.Email(resolve_domain=True)
+    ...     username = formencode.All(validators.PlainText(),
+    ...                               UniqueUsername())
+    ...     password = SecurePassword()
+    ...     password_confirm = validators.ByteString()
+    ...     chained_validators = [validators.FieldsMatch(
+    ...         'password', 'password_confirm')]
+
+Like any other validator, a :class:`Registration` instance will have the
+:meth:`to_python` and :meth:`from_python` methods.  The input should be a
+dictionary (or a Paste MultiDict), with keys like ``"first_name"``,
+``"password"``, etc.  The validators you give as attributes will be
+applied to each of the values of the dictionary.  *All* the values
+will be validated, so if there are multiple invalid fields you will
+get information about all of them.
+
+Most validators (anything that subclasses
+:class:`formencode.FancyValidator`) will take a certain standard
+set of constructor keyword arguments.  See
+:class:`formencode.api.FancyValidator` for more -- here we use
+``not_empty=True``.
+
+Another notable validator is :class:`formencode.compound.All` -- this
+is a *compound validator* -- that is, it's a validator that takes
+validators as input.  Schemas are one example; in this case :class:`All`
+takes a list of validators and applies each of them in turn.
+:class:`formencode.compound.Any` is its compliment, that uses the
+first passing validator in its list.
+
+.. _pre_validators:
+.. _chained_validators:
+
+:attr:`chained_validators` are validators that are run on the entire
+dictionary after other validation is done (:attr:`pre_validators` are
+applied before the schema validation).  chained_validators will also
+allow for multiple validators to fail and report to the error_dict
+so, for example, if you have an email_confirm and a password_confirm
+fields and use FieldsMatch on both of them as follows:
+
+    >>> chained_validators = [
+    ...     validators.FieldsMatch('password',
+    ...                            'password_confirm'),
+    ...     validators.FieldsMatch('email',
+    ...                            'email_confirm')]
+
+This will leave the error_dict with both password_confirm and
+email_confirm error keys, which is likely the desired behavior
+for web forms.
+
+Since a :class:`formencode.schema.Schema` is just another kind of
+validator, you can nest these indefinitely, validating dictionaries of
+dictionaries.
+
+.. _SimpleFormValidator:
+
+Another way to do simple validation of a complete form is with
+:class:`formencode.schema.SimpleFormValidator`.  This class wraps a simple
+function that you write.  For example::
+
+    >>> from formencode.schema import SimpleFormValidator
+    >>> def validate_state(value_dict, state, validator):
+    ...     if value_dict.get('country', 'US') == 'US':
+    ...         if not value_dict.get('state'):
+    ...             return {'state': 'You must enter a state'}
+    >>> ValidateState = SimpleFormValidator(validate_state)
+    >>> ValidateState.to_python({'country': 'US'}, None)
+    Traceback (most recent call last):
+        ...
+    Invalid: state: You must enter a state
+
+
+The :func:`validate_state` function (or any validation function) returns
+any errors in the form (or it may raise Invalid directly).  It can
+also modify the :obj:`value_dict` dictionary directly.  When it returns
+None this indicates that everything is valid.  You can use this with a
+:class:`Schema` by putting :class:`ValidateState` in :attr:`pre_validators`
+(all validation will be done before the schema's validation, and if there's
+an error the schema won't be run).  Or you can put it in
+:attr:`chained_validators` and it will be run *after* the schema.  If the
+schema fails (the values are invalid) then :class:`ValidateState` will not
+be run, unless you set :attr:`validate_partial_form` to True (like
+``ValidateState = SimpleFormValidator(validate_state,
+validate_partial_form=True)``.  If you validate a partial form you
+should be careful that you handle missing keys and other
+possibly-invalid values gracefully.
+
+.. _ForEach:
+
+You can also validate lists of items using
+:class:`formencode.foreach.ForEach`.  For example, let's say we have a
+form where someone can edit a list of book titles.  Each title has an
+associated book ID, so we can match up the new title and the book it
+is for::
+
+    >>> class BookSchema(formencode.Schema):
+    ...     id = validators.Int()
+    ...     title = validators.ByteString(not_empty=True)
+    >>> validator = formencode.ForEach(BookSchema())
+
+The :obj:`validator` we've created will take a list of dictionaries as
+input (like ``[{"id": "1", "title": "War & Peace"}, {"id": "2",
+"title": "Brave New World"}, ...]``).  It applies the :class:`BookSchema`
+to each entry, and collects any errors and reraises them.  Of course,
+when you are validating input from an HTML form you won't get well
+structured data like this (we'll talk about that later__).
+
+.. __: `HTTP/HTML Form Input`_
+
+Writing Your Own Validator
+--------------------------
+
+We gave a brief introduction to creating a validator earlier
+(:class:`UniqueUsername` and :class:`SecurePassword`).  We'll discuss
+that a little more.  Here's a more complete implementation of
+:class:`SecurePassword`::
+
+    >>> import re
+    >>> class SecurePassword(validators.FancyValidator):
+    ...
+    ...     min = 3
+    ...     non_letter = 1
+    ...     letter_regex = re.compile(r'[a-zA-Z]')
+    ...
+    ...     messages = {
+    ...         'too_few': 'Your password must be longer than %(min)i '
+    ...                   'characters long',
+    ...         'non_letter': 'You must include at least %(non_letter)i '
+    ...                      'characters in your password',
+    ...         }
+    ...
+    ...     def _convert_to_python(self, value, state):
+    ...         # _convert_to_python gets run before _validate_python.
+    ...         # Here we strip whitespace off the password, because leading
+    ...         # and trailing whitespace in a password is too elite.
+    ...         return value.strip()
+    ...
+    ...     def _validate_python(self, value, state):
+    ...         if len(value) < self.min:
+    ...             raise Invalid(self.message("too_few", state,
+    ...                                        min=self.min),
+    ...                           value, state)
+    ...         non_letters = self.letter_regex.sub('', value)
+    ...         if len(non_letters) < self.non_letter:
+    ...             raise Invalid(self.message("non_letter", state,
+    ...                                         non_letter=self.non_letter),
+    ...                           value, state)
+
+With all validators, any arguments you pass to the constructor will be
+used to set instance variables.  So :class:`SecureValidator(min=5)` will
+be a minimum-five-character validator.  This makes it easy to also
+subclass other validators, giving different default values.
+
+Unlike the previous implementation we use the already mentioned
+:meth:`_validate_python` method, which is another internal method
+:class:`FancyValidator` allows us to override.  :meth:`_validate_python`
+doesn't have any return value, it simply raises an exception if it
+needs to.  It validates the value *after* it has been converted
+(by :meth:`_convert_to_python`).  :meth:`_validate_other` validates before
+conversion, but that's usually not that useful.  The external method
+:meth:`to_python` cares about the extra features such as the
+:attr:`if_empty` parameter, and uses the internal methods to do the
+actual conversion and validation; first it calls :meth:`_validate_other`,
+then :meth:`_convert_to_python` and at last :meth:`_validate_python`.
+
+The use of ``self.message(...)`` is meant to make the messages easy to
+format for different environments, and replacable (with translations,
+or simply with different text).  Each message should have an
+identifier (``"min"`` and ``"non_letter"`` in this example).  The
+keyword arguments to :meth:`message` are used for message substitution.
+See Messages_ for more.
+
+Other Validator Usage
+---------------------
+
+Validators use instance variables to store their customization
+information.  You can use either subclassing or normal instantiation
+to set these.  These are (effectively) equivalent::
+
+    >>> plain = validators.Regex(regex='^[a-zA-Z]+$')
+    >>> # and...
+    >>> class Plain(validators.Regex):
+    ...     regex = '^[a-zA-Z]+$'
+    >>> plain = Plain()
+
+You can actually use classes most places where you could use an
+instance; :meth:`.to_python()` and :meth:`.from_python()` will create
+instances as necessary, and many other methods are available on both
+the instance and the class level.
+
+When dealing with nested validators this class syntax is often easier
+to work with, and better displays the structure.
+
+.. _FancyValidator:
+
+There are several options that most validators support (including your
+own validators, if you subclass from :class:`formencode.FancyValidator`):
+
+:attr:`if_empty`:
+      If set, then this value will be returned if the input evaluates
+      to false (empty list, empty string, None, etc), but not the 0 or
+      False objects.  This only applies to ``.to_python()``.
+
+:attr:`not_empty`:
+      If true, then if an empty value is given raise an error.
+      (Both with ``.to_python()`` and also ``.from_python()``
+      if ``.validate_python`` is true).
+
+:attr:`strip`:
+      If true and the input is a string, strip it (occurs before empty
+      tests).
+
+:attr:`if_invalid`:
+      If set, then when this validator would raise Invalid during
+      ``.to_python()``, instead return this value.
+
+:attr:`if_invalid_python`:
+      If set, when the Python value (converted with
+      ``.from_python()``) is invalid, this value will be returned.
+
+:attr:`accept_python`:
+      If True (the default), then ``._validate_python()`` and
+      ``._validate_other()`` will not be called when
+      ``.from_python()`` is used.
+
+:attr:`if_missing`:
+      Typically when a field is missing the schema will raise an
+      error.  In that case no validation is run -- so things like
+      ``if_invalid`` won't be triggered.  This special attribute (if
+      set) will be used when the field is missing, and no error will
+      occur.  (``None`` or ``()`` are common values)
+
+State
+-----
+
+All the validators receive a magic, somewhat meaningless ``state``
+argument (which defaults to ``None``).  It's used for very little in
+the validation system as distributed, but is primarily intended to be
+an object you can use to hook your validator into the context of the
+larger system.
+
+For instance, imagine a validator that checks that a user is permitted
+access to some resource.  How will the validator know which user is
+logged in?  State!  Imagine you are localizing it, how will the
+validator know the locale?  State!  Whatever else you need to pass in,
+just put it in the state object as an attribute, then look for that
+attribute in your validator.
+
+Also, during compound validation (a :class:`formencode.schema.Schema`
+or :class:`formencode.foreach.ForEach`) the state (if not None) will
+have more instance variables added to it.  During a :class:`Schema`
+(dictionary) validation the instance variable ``key`` and
+``full_dict`` will be added -- ``key`` is the current key (i.e.,
+validator name), and ``full_dict`` is the rest of the values being
+validated.  During a :class:`ForEeach` (list) validation, ``index`` and
+``full_list`` will be set.
+
+Invalid Exceptions
+------------------
+
+Besides the string error message, :class:`formencode.Invalid`
+exceptions have a few other instance variables:
+
+:attr:`value`:
+    The input to the validator that failed.
+
+:attr:`state`:
+    The associated state_.
+
+:attr:`msg`:
+    The error message (``str(exc)`` returns this)
+
+:attr:`error_list`:
+    If the exception happened in a ``ForEach`` (list) validator, then
+    this will contain a list of ``Invalid`` exceptions.  Each item
+    from the list will have an entry, either None for no error, or an
+    exception.
+
+:attr:`error_dict`:
+    If the exception happened in a :class:`Schema` (dictionary) validator,
+    then this will contain :class:`Invalid` exceptions for each failing
+    field.  Passing fields not be included in this dictionary.
+
+:meth:`.unpack_errors()`:
+    This method returns a set of lists and dictionaries containing
+    strings, for each error.  It's an unpacking of :attr:`error_list`,
+    :attr:`error_dict` and :attr:`msg`.  If you get an Invalid exception
+    from a :class:`Schema`, you probably want to call this method on the
+    exception object.
+
+.. _Messages:
+
+Messages, Language Customization
+--------------------------------
+
+All of the error messages can be customized.  Each error message has a
+key associated with it, like ``"too_few"`` in the registration
+example.  You can overwrite these messages by using you own ``messages
+= {"key": "text"}`` in the class statement, or as an argument when you
+call a class.  Either way, you do not lose messages that you do not
+define, you only overwrite ones that you specify.
+
+Messages often take arguments, like the number of characters, the
+invalid portion of the field, etc.  These are always substituted as a
+dictionary (by name).  So you will use placeholders like ``%(key)s``
+for each substitution.  This way you can reorder or even ignore
+placeholders in your new message.
+
+When you are creating a validator, for maximum flexibility you should
+use the :meth:`message` method, like::
+
+    messages = {
+        'key': 'my message (with a %(substitution)s)',
+        }
+
+    def _validate_python(self, value, state):
+        raise Invalid(self.message('key', state, substitution='apples'),
+                      value, state)
+
+Localization of Error Messages (i18n)
+-------------------------------------
+
+When a failed validation occurs FormEncode tries to output the error
+message in the appropriate language. For this it uses the standard
+`gettext <http://docs.python.org/library/gettext.html>`_ mechanism of
+python. To translate the message in the appropirate message FormEncode
+has to find a gettext function that translates the string. The
+language to be translated into and the used domain is determined by
+the found gettext function. To serve a standard translation mechanism
+and to enable custom translations it looks in the following order to
+find a gettext (``_``) function:
+
+1. method of the :obj:`state` object
+
+2. function :func:`__builtin__._`.  This function is only used when::
+
+       Validator.use_builtin_gettext == True #True is default
+
+3. formencode builtin :func:`_stdtrans` function
+
+   for standalone use of FormEncode. The language to use is determined
+   out of the locale system (see gettext documentation). Optionally you
+   can also set the language or the domain explicitly with the
+   function::
+
+       formencode.api.set_stdtranslation(domain="FormEncode", languages=["de"])
+
+   Formencode comes with a Domain ``FormEncode`` and the corresponding
+   messages in the directory
+   ``localedir/language/LC_MESSAGES/FormEncode.mo``
+
+4. Custom gettext function and addtional parameters
+
+   If you use a custom gettext function and you want FormEncode to
+   call your function with additional parameters you can set the
+   dictionary::
+
+       Validators.gettextargs
+
+Available languages
+~~~~~~~~~~~~~~~~~~~
+
+All available languages are distributed with the code. You can see the
+currently available languages in the source under the directory
+``formencode/i18n``.
+
+If your language is not present yet, please consider contributing a
+translation (where ``<lang>`` is you language code)::
+
+    $ svn co http://svn.formencode.org/FormEncode/trunk/
+    $ easy_install Babel
+    $ python setup.py init_catalog -l <lang>
+    $ emacs formencode/i18n/<lang>/LC_MESSAGES/FormEncode.po # or whatever
+      # editor you prefer make the translation
+    $ python setup.py compile_catalog -l <lang>
+
+Then test, and send the PO and MO files to g...@gregor-horvath.com.
+
+See also `the Python internationalization documents
+<http://docs.python.org/library/gettext.html>`_.
+
+Optionally you can also add a test of your language to
+``tests/test_i18n.py``.  An Example of a language test::
+
+    ne = formencode.validators.NotEmpty()
+    [...]
+    def test_de():
+        _test_lang("de", u"Bitte einen Wert eingeben")
+
+And the test for your language::
+
+    def test_<lang>():
+        _test_lang("<lang>", u"<translation of Not Empty Text in the language <lang>")
+
+HTTP/HTML Form Input
+--------------------
+
+The validation expects nested data structures; specifically
+:class:`formencode.schema.Schema` and
+:class:`formencode.foreach.ForEach` deal with these structures well.
+HTML forms, however, do not produce nested structures -- they produce
+flat structures with keys (input names) and associated values.
+
+Validator includes the module :mod:`formencode.variabledecode`,
+which allows you to encode nested dictionary and list structures into
+a flat dictionary.
+
+To do this it uses keys with ``"."`` for nested dictionaries, and
+``"-int"`` for (ordered) lists.  So something like:
+
++--------------------+--------------------+
+|        key         |       value        |
++====================+====================+
+| names-1.fname      | John               |
++--------------------+--------------------+
+| names-1.lname      | Doe                |
++--------------------+--------------------+
+| names-2.fname      | Jane               |
++--------------------+--------------------+
+| names-2.lname      | Brown              |
++--------------------+--------------------+
+| names-3            | Tim Smith          |
++--------------------+--------------------+
+| action             | save               |
++--------------------+--------------------+
+| action.option      | overwrite          |
++--------------------+--------------------+
+| action.confirm     | yes                |
++--------------------+--------------------+
+
+Will be mapped to::
+
+    {'names': [{'fname': "John", 'lname': "Doe"},
+               {'fname': "Jane", 'lname': 'Brown'},
+               "Tim Smith"],
+     'action': {None: "save",
+                'option': "overwrite",
+                'confirm': "yes"},
+    }
+
+In other words, ``'a.b'`` creates a dictionary in ``'a'``, with
+``'b'`` as a key (and if ``'a'`` already had a value, then that value
+is associated with the key ``None``).  Lists are created with keys
+with ``'-int'``, where they are ordered by the integer (the integers
+are used for sorting, missing numbers in a sequence are ignored).
+
+:class:`formencode.variabledecode.NestedVariables` is a validator that
+decodes and encodes dictionaries using this algorithm.  You can use it
+with a Schema's `pre_validators`_ attribute.
+
+Of course, in the example we use the data is rather eclectic -- for
+instance, Tim Smith doesn't have his name separated into first and
+last.  Validators work best when you keep lists homogeneous.  Also, it
+is hard to access the ``'action'`` key in the example; storing the
+options (action.option and action.confirm) under another key would be
+preferable.

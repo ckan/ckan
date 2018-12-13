@@ -1,0 +1,39 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Tags') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active"><a href="">{{ _('Tags') }}</a></li>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{% block page_heading %}{{ _('Tags') }}{% endblock %}</h1>
+      {% block tags_list %}
+        <ul class="list-unstyled">
+          {% block tags_list_inner %}
+            {% for tag in c.page.items %}
+              <li>{{ h.link_to(tag.display_name, h.url_for('dataset.search', tags=tag.name), class_='tag') }}</li>
+            {% endfor %}
+          {% endblock %}
+        </ul>
+      {% endblock %}
+    </div>
+    {% block page_pagination %}
+      {{ c.page.pager(q=c.q) }}
+    {% endblock %}
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module module-narrow module-shallow simple-input">
+    <form class="module-content field-bordered" action="{% url_for controller='tag', action='index' %}" method="get">
+      <div class="field">
+        <label for="field-tag-search">{{ _('Search Tags') }}</label>
+        <input id="field-tag-search" type="text" class="field form-control" name="q" placeholder="{{ _('Search Tags') }}" />
+        <button class="btn-search" type="submit"><i class="fa fa-search"></i></button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

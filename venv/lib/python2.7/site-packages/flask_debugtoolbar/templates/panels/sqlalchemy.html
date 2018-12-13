@@ -1,0 +1,31 @@
+<table class="tablesorter">
+  <thead>
+    <tr>
+      <th>&nbsp;(ms)</th>
+      <th>Action</th>
+      <th>Context</th>
+      <th>Query</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for query in queries %}
+      <tr class="{{ loop.cycle('flDebugOdd', 'flDebugEven') }}">
+        <td>{{ '%.4f'|format(query.duration * 1000) }}</td>
+        <td>
+        {% if query.signed_query %}
+          <a class="remoteCall" href="/_debug_toolbar/views/sqlalchemy/sql_select?query={{ query.signed_query }}&amp;duration={{ query.duration|urlencode }}">SELECT</a><br />
+          <a class="remoteCall" href="/_debug_toolbar/views/sqlalchemy/sql_explain?query={{ query.signed_query }}&amp;duration={{ query.duration|urlencode }}">EXPLAIN</a><br />
+        {% endif %}
+        </td>
+        <td title="{{ query.context_long }}">
+                    {{ query.context }}
+        </td>
+        <td class="syntax">
+          <div class="flDebugSqlWrap">
+            <div class="flDebugSql">{{ query.sql }}</div>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -1,0 +1,30 @@
+Metadata-Version: 2.1
+Name: Tempita
+Version: 0.5.2
+Summary: A very small text templating language
+Home-page: http://pythonpaste.org/tempita/
+Author: Ian Bicking
+Author-email: ianb@colorstudy.com
+License: MIT
+Keywords: templating template language html
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Topic :: Text Processing
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+
+Tempita is a small templating language for text substitution.
+
+This isn't meant to be the Next Big Thing in templating; it's just a
+handy little templating language for when your project outgrows
+``string.Template`` or ``%`` substitution.  It's small, it embeds
+Python in strings, and it doesn't do much else.
+
+You can read about the `language
+<http://pythonpaste.org/tempita/#the-language>`_, the `interface
+<http://pythonpaste.org/tempita/#the-interface>`_, and there's nothing
+more to learn about it.
+
+

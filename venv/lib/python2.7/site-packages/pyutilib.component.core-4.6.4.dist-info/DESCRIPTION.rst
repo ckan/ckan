@@ -1,0 +1,94 @@
+==============================
+pyutilib.component.core README
+==============================
+
+--------
+Overview
+--------
+
+This Python package provides a modular component framework, which 
+consists of the following core classes:
+
+:Interface:
+  Subclasses of this class declare component interfaces that are registered in the framework
+
+:ExtensionPoint:
+  A class used to declare extension points, which can access components with a particular interface
+
+:Plugin:
+  Subclasses of this class declare plugins, which can be used to provide services within this component framework.
+
+:SingletonPlugin:
+  Subclasses of this class declare singleton plugins, for which a single instance can be declared.
+
+:PluginEnvironment:
+  A class that maintains the registries for interfaces, extension points and components.
+
+:PluginGlobals:
+  A class that maintains global data concerning the set of environments that are currently being used.
+
+:PluginError:
+  The exception class that is raised when errors arise in this framework.
+
+The outline of this framework is adapted from Trac (see the
+**trac.core** module).  This framework generalizes the Trac by supporting
+multi-environment management of components, as well as non-singleton
+plugins.  For those familiar with Trac, the following classes roughly
+correspond with each other:
+
+    +-------------------+-------------------+ 
+    | Trac              | PyUtilib          |
+    +===================+===================+ 
+    | Interface         | Interface         |
+    +-------------------+-------------------+ 
+    | ExtensionPoint    | ExtensionPoint    |
+    +-------------------+-------------------+ 
+    | Component         | SingletonPlugin   |
+    +-------------------+-------------------+ 
+    | ComponentManager  | PluginEnvironment |
+    +-------------------+-------------------+ 
+
+See `The PyUtilib Component Architecture Reference Manual <https://software.sandia.gov/svn/public/pyutilib/pyutilib.component.doc/trunk/doc/plugin/pca.pdf>`_ for a detailed description of PyUtilib components and examples of their use.
+
+-------
+License
+-------
+
+BSD.  See the LICENSE.txt file.
+
+
+------------
+Organization
+------------
+
++ Directories
+
+  * pyutilib - The root directory for PyUtilib source code
+
++ Documentation and Bug Tracking
+
+  * Trac wiki: https://software.sandia.gov/trac/pyutilib
+
++ Authors
+
+  * See the AUTHORS.txt file.
+
++ Project Managers
+
+  * William E. Hart, wehart@sandia.gov
+
++ Mailing List
+
+  * pyutilib-forum@googlegroups.com
+    - The main list for help and announcements
+  * pyutilib-developers@googlegroups.com
+    - Where developers of PyUtilib discuss new features
+
+--------------------
+Third Party Software
+--------------------
+
+None.
+
+
+

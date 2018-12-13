@@ -1,0 +1,9 @@
+[egg_info]
+tag_build = dev
+tag_svn_revision = true
+
+[easy_install]
+find_links = http://www.pylonshq.com/download/
+
+[nosetests]
+with-pylons = test.ini

@@ -1,0 +1,7 @@
+from {{base_package}}.tests import *
+
+class Test{{name}}Controller(TestController):
+
+    def test_index(self):
+        response = self.app.get(url(controller='{{fname}}', action='index'))
+        # Test response...

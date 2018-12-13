@@ -1,0 +1,117 @@
+/******************* tables ****************/
+table.stylized {
+	background-color: #ffffff;
+	border-collapse: separate;
+	border-spacing: 1px;
+	border-bottom: 2px solid #666666;
+	margin: 1px 5px 5px 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+table.stylized caption {
+	color: #ffffff;
+	background-color: #444466;
+	padding: 5px;
+	font-size: 1.3em;
+	font-weight: bold;
+	margin: 5px 0px 0px 0px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+
+
+table.stylized caption a:link,table.stylized caption a:visited {
+	color: #ffffff;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+table.stylized caption a:link,table.stylized caption a:hover {
+	color: #ffcc00;
+	text-decoration: none;
+	font-weight: bold;
+}
+	
+table.stylized thead {
+	background-color: #ffffff;
+}
+
+table.stylized tbody {
+	background-color: #ffffff;
+}
+
+table.stylized tfooter {
+	background-color: #ffffff;
+}
+
+table.stylized th {
+	text-align: center;
+}
+
+table.stylized tr.header {
+	text-align: center;
+}
+
+table.stylized tr.header td, table.stylized th {
+	text-align: center;
+	color: #ffffff;
+	background-color: #444466;
+}
+
+table.stylized td {
+	padding: 5px 5px 5px 5px;
+	border: 1px solid #dcdcdc;
+}
+
+
+table.stylized tr.odd td {
+	border-top: 1px solid #999 !important;
+	background-color: #ffffff;
+}
+
+table.stylized tr.even td {
+	border-top: 1px solid #999 !important;
+	background-color: #f6f6f6;
+}
+
+table.stylized .no {
+	width: 30px;
+}
+
+table.stylized td.ordering{
+	background-color: #666666 !important;
+	padding-right: 20px;
+}
+
+table.stylized td.ordering.dsc .marker {
+	height: 20px;
+	width: 20px;
+	display: block;
+	float: right;
+	margin: 0px -18px;
+/* background-image for neutral marker here */
+}
+
+table.stylized td.ordering.dsc .marker {
+/* background-image for dsc marker here */
+}
+
+table.stylized td.ordering.asc .marker {
+/* background-image for asc marker here */
+}
+
+table.stylized .header a:link,table.stylized .header a:visited {
+	color: #ffffff;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+table.stylized td.ordering a:link,table.stylized td.ordering a:visited {
+	color: #ffcc00;
+	text-decoration: none;
+	font-weight: bold;
+}

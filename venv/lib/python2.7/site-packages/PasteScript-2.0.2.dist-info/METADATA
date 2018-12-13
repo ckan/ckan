@@ -1,0 +1,56 @@
+Metadata-Version: 2.0
+Name: PasteScript
+Version: 2.0.2
+Summary: A pluggable command-line frontend, including commands to setup package file layouts
+Home-page: http://pythonpaste.org/script/
+Author: Ian Bicking
+Author-email: ianb@colorstudy.com
+License: MIT
+Keywords: web wsgi setuptools framework command-line setup
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Framework :: Paste
+Requires-Dist: Paste (>=1.3)
+Requires-Dist: PasteDeploy
+Requires-Dist: six
+Provides-Extra: Cheetah
+Requires-Dist: Cheetah; extra == 'Cheetah'
+Provides-Extra: Config
+Requires-Dist: PasteDeploy; extra == 'Config'
+Provides-Extra: Flup
+Requires-Dist: Flup; extra == 'Flup'
+Provides-Extra: Paste
+Requires-Dist: PasteDeploy; extra == 'Paste'
+Requires-Dist: Cheetah; extra == 'Paste'
+Provides-Extra: Templating
+Provides-Extra: WSGIUtils
+Requires-Dist: WSGIUtils; extra == 'WSGIUtils'
+
+PasteScript is a pluggable command-line tool.
+
+It includes some built-in features;
+
+* Create file layouts for packages.  For instance, ``paster create
+  --template=basic_package MyPackage`` will create a `setuptools
+  <https://pythonhosted.org/setuptools/>`_-ready
+  file layout.
+
+* Serving up web applications, with configuration based on
+  `paste.deploy <http://pythonpaste.org/deploy/>`_.
+
+The latest version is available in a `Mercurial repository
+<http://bitbucket.org/ianb/pastescript/>`_.
+
+For the latest changes see the `news file
+<http://pythonpaste.org/script/news.html>`_.
+

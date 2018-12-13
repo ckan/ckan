@@ -1,0 +1,184 @@
++++++++++++++++++
+FormEncode Design
++++++++++++++++++
+
+:author: Ian Bicking <ianb@colorstudy.com>
+:version: |release|
+:date: |today|
+
+.. contents::
+
+This is a document to describe why FormEncode looks the way it looks,
+and how it fits into other applications.  It also talks some about the
+false starts I've made.
+
+Basic Metaphor
+==============
+
+FormEncode performs look-before-you-leap validation.  The idea being
+that you check all the data related to an operation, then apply it.
+This is in contrast to a transactional system, where you just start
+applying the data and if there's a problem you raise an exception.
+Someplace else you catch the exception and roll back the transaction.
+Of course FormEncode works fine with such a system, but because
+nothing is done until everything validates, you can use this without
+transactions.
+
+FormEncode generally works on primitive types.  These are things like
+strings, lists, dictionaries, integers, etc.  This fits in with
+look-before-you-leap; often your domain objects won't exist until
+after you apply the user's request, so it's necessary to work on an
+early form of the data.  Also, FormEncode doesn't know anything about
+your domain objects or classes; it's just easier to keep it this way.
+
+Validation only operates on a single "value" at a time.  This is
+Python, collections are easy, and collections are themselves a single
+"value" made up of many pieces.  A "Schema validator" is a validator
+made up of many subvalidators.  By using this single metaphor, without
+separating the concept of "field" and "form", it is possible to create
+reusable validators that work on compound structures, to validate
+"whole forms" instead of just single fields, and to support better
+validation composition.
+
+Also, "validation" and "conversion" are generally applied at the same
+time.  In the documentation this is frequently just referred to as
+"validation", but anywhere validation can happen, conversion can also
+happen.
+
+Domain Objects
+==============
+
+These are your objects, specific to your application.  I know nothing
+about them, and cannot know.  FormEncode doesn't do anything with
+these objects, and doesn't try to know anything about them.
+
+Validation as directional, not intrinsic
+========================================
+
+One false start from earlier projects was an attempt to tie validators
+into the objects they validate against.  E.g., you might have a
+SQLObject_ class like::
+
+    class Address(SQLObject):
+        fname = StringCol(notNull=True)
+        lname = StringCol(notNull=True)
+        mi = StringCol()
+
+.. _SQLObject: http://sqlobject.org
+
+It is tempting to take the restrictions of the ``Address`` class and
+automatically come up with a validation schema.  This may yet be a
+viable goal (and to a degree is attainable), but in practical terms
+validation tends to be both more and less restrictive.  Also,
+validation is contextual; what validation you apply is dependent on
+the source of the data.
+
+Often in an API we are more restrictive than we may be in a user
+interface, demanding that everything be specified explicitly.  In a UI
+we may assist the user by filling in values on their behalf.  The
+specifics of this depend on the UI and the objects in question.
+
+At the same time, we are often more restrictive in a UI.  For
+instance, we may demand that the user enter something that appears to
+be a valid phone number.  But for historical reasons, we may not make
+that demand for objects that already exist, or we may put in a tight
+restriction on the UI keeping in mind that it can more easily be
+relaxed and refined than a restriction in the domain objects or
+underlying database.  Also, we may trust the programmer to use the API
+in a reasonable way, but we seldom trust user data in the same way.
+
+In essence, there is an "inside" and an "outside" to the program.
+FormEncode is a toolkit for bridging those two areas in a sensible and
+secure way.  The specific way we bridge this depends on the nature of
+the user interface.  An XML-RPC interface can make some assumptions
+that a GUI cannot make.  An HTML interface can typically make even
+fewer assumptions, including the basic integrity of the input data.  It
+isn't reasonable that the object should know about all means of
+inputs, and the varying UI requirements of those inputs; user
+interfaces are volatile, and more art than science, but domain objects
+work better when they remain stable.  For this reason the validation
+schemas are kept in separate objects.
+
+It also didn't work well to annotate domain objects with validation
+schemas, though the option remains open.  This is experimentation that
+belongs outside of the core of FormEncode, simply because it's more
+specific to your domain than it is to FormEncode.
+
+Two sides, two aspects
+======================
+
+FormEncode does both validation and conversion at the same time.
+Validation necessarily happens with every conversion; for instance,
+you may want to convert string representation of dates to internal
+date objects; that conversion can fail if the string representation is
+malformed.
+
+To keep things simple, there's only one operation: conversion.  An
+exception raised means there was an error.  If you just want to
+validate, that's a conversion that doesn't change anything.
+
+Similarly, there's two sides to the system, the foreign data and the
+local data.  In Validator the local data is called "python" (meaning,
+a natural Python data structure), so we convert ``to_python`` and
+``from_python``.  Unlike some systems, validators explicitly convert
+in *both* directions.
+
+For instance, consider the date conversion.  In one form, you may want
+a date like ``mm/dd/yyyy``.  It's easy enough to make the necessary
+converter; but the date object that the converter produces doesn't
+know how it's supposed to be formatted for that form.  Using
+``repr()`` or *any* method that binds an object to its form
+representation is a bad idea.  The converter best knows how to undo
+its work.  So a date converter that expects ``mm/dd/yyyy`` will also
+know how to turn a datetime into that format.
+
+(This becomes even more interesting with compound validators.)
+
+Presentation
+============
+
+At one time FormEncode included form generation in addition to
+validation.  The form generation worked okay; it was reasonably
+attractive, and in many ways quite powerful.  I might revisit it.  But
+generation is limited.  It works *great* at first, then you hit a wall
+-- you want to make a change, and you just *can't*, it doesn't fit
+into the automatic generation.
+
+There are also many ways to approach the generation; again it's
+something that is tied to the framework, the presentation layer, and
+the domain objects, and FormEncode doesn't know anything about those.
+
+FormEncode does provide `htmlfill <htmlfill.html>`_.  *You* produce
+the form however you want.  Write it out by hand.  Use a templating
+language.  Use a form generator.  Whatever.  Then htmlfill (which
+specifically understands HTML) fills in the form and any error
+messages.  There are several advantages to this:
+
+* Using ``htmlfill``, form generation is easy.  You can just think
+  about how to map a form description or model class to simple HTML.
+  You don't have to think about any of the low-level stuff about
+  filling attributes with defaults or past request values.
+
+* ``htmlfill`` works with anything that produces HTML.  There's zero
+  preference for any particular templating language, or even general
+  style of templating language.
+
+* If you do form generation, but it later turns out to be
+  insufficiently flexible, you can put the generated form into your
+  template and extend it there; you'll lose automatic synchronization
+  with your models, but you won't lose any functionality.
+
+* Hand-written forms are just as functional as generated forms.
+
+Declarative and Imperative
+==========================
+
+All of the objects -- schemas, repeating elements, individual
+validators -- can be created imperatively, though more declarative
+styles often look better (specifically using subclassing instead of
+construction).  You are free to build the objects either way.
+
+An example of programmatically building form generation:
+``htmlfill_schemabuilder`` looks for special attributes in an HTML
+form and builds a validation schema from that.
+

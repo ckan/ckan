@@ -1,0 +1,24 @@
+<form>
+<input type="text" form:required=t name="v">
+<input type="text" form:required="no" name="v2">
+<input type="text" form:validate="regex:[a-z]*" name="username"
+ form:message="lower case only!">
+<input type="text" form:validate="email" form:required="no"
+ name="email">
+<input type="text" form:validate="dateconverter" name="birth">
+<input type="text" name="whatever">
+</form>
+----
+<form>
+<input type="text" name="v" value="">
+<input type="text" name="v2" value="">
+<input type="text" name="username" value="">
+<input type="text" name="email" value="">
+<input type="text" name="birth" value="">
+<input type="text" name="whatever" value="">
+</form>
+----
+def check(parser, schema):
+    assert schema
+    names = sorted(schema.fields)
+    assert names == 'birth email username v v2 whatever'.split()

@@ -1,0 +1,36 @@
+++++++++++++
+Things To Do
+++++++++++++
+
+:version: |release|
+:date: |today|
+
+* Add a parallel to Pipe for the Any compound validator that performs
+  validation for each validator to python from left to right.
+
+* Make a test fixture for validators, to make testing really easy.
+
+* Consider moving htmlfill to ElementTree or another DOM-ish
+  structure, instead of HTMLParser.  Or re-implement with another
+  parser but same interface.
+
+* Generate Javascript for validators, for client-side validation (when
+  possible).
+
+* Relatedly, test and give recipes for Ajax-ish validation, when fully
+  client-side validation doesn't work.
+
+* Better tests for ``htmlfill`` and ``htmlfill_schemabuilder``.
+
+* Include at least one good documented form generator.  Consider
+  including rich widgets (Javascript).
+
+* Seperate out ``doctest_xml_compare``, maybe (useful in any doctested
+  web test).
+
+* Make ``doctest_xml_compare`` work with wildcards/ellipses.  Maybe
+  with non-XHTML.
+
+* Some more ways to build validation.  Validation from docstrings or
+  method signatures.
+

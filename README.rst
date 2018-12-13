@@ -20,6 +20,10 @@ CKAN: The Open Source Data Portal Software
     :target: https://coveralls.io/github/ckan/ckan?branch=master
     :alt: Coverage Status
 
+.. image:: https://travis-ci.org/ckan/ckan.svg?branch=master
+     :target: https://travis-ci.org/ckan/ckan
+     :alt: Docker Build Status
+
 .. image:: https://badges.gitter.im/gitterHQ/gitter.svg
     :target: https://gitter.im/ckan/chat
     :alt: Chat on Gitter

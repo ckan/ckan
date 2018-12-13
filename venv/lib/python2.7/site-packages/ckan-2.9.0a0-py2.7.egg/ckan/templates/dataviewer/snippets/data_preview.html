@@ -1,0 +1,26 @@
+<div class="module-content ckanext-datapreview">
+  {% if embed %}
+    {# images can be embedded directly #}
+    <img src="{{ resource_url }}"></img>
+  {% else %}
+    <div class="data-viewer-error js-hide">
+      <p class="text-danger">
+        <i class="fa fa-info-circle"></i>
+        {{ _('This resource can not be previewed at the moment.') }}
+        <a href="#" data-toggle="collapse" data-target="#data-view-error">
+          {{ _('Click here for more information.') }}
+        </a>
+      </p>
+      <p id="data-view-error" class="collapse"></p>
+      <p>
+        <a href="{{ raw_resource_url }}" class="btn btn-default btn-lg resource-url-analytics" target="_blank">
+          <i class="fa fa-lg fa-arrow-circle-o-down"></i>
+          {{ _('Download resource') }}
+        </a>
+      </p>
+    </div>
+    <iframe src="{{ resource_url }}" frameborder="0" width="100%" data-module="data-viewer" class="visible-md">
+      <p>{{ _('Your browser does not support iframes.') }}</p>
+    </iframe>
+  {% endif %}
+</div>

@@ -1,0 +1,43 @@
+Metadata-Version: 2.0
+Name: PasteDeploy
+Version: 1.5.2
+Summary: Load, configure, and compose WSGI applications and servers
+Home-page: http://pythonpaste.org/deploy/
+Author: Alex Gronholm
+Author-email: alex.gronholm@nextday.fi
+License: MIT
+Keywords: web wsgi application server
+Platform: UNKNOWN
+Classifier: Development Status :: 6 - Mature
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.5
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.1
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Internet :: WWW/HTTP :: WSGI
+Classifier: Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Framework :: Paste
+Provides-Extra: Paste
+Requires-Dist: Paste; extra == 'Paste'
+Provides-Extra: Config
+
+This tool provides code to load WSGI applications and servers from
+URIs; these URIs can refer to Python Eggs for INI-style configuration
+files.  `Paste Script <http://pythonpaste.org/script>`_ provides
+commands to serve applications based on this configuration file.
+
+The latest version is available in a `Mercurial repository
+<http://bitbucket.org/ianb/pastedeploy>`_ (or a `tarball
+<http://bitbucket.org/ianb/pastedeploy/get/tip.gz#egg=PasteDeploy-dev>`_).
+
+For the latest changes see the `news file
+<http://pythonpaste.org/deploy/news.html>`_.
+

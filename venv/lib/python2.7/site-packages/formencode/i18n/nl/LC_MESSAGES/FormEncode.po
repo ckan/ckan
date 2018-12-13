@@ -1,0 +1,563 @@
+# Dutch translation for formencode messages
+# Copyright (C) 2007, The Health Agency
+# Jan-Wijbrand Kolman <jkolman@thehealthagency.com>, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: r2591\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-05-16 19:11+0200\n"
+"PO-Revision-Date: 2014-04-10 18:37+0100\n"
+"Last-Translator: Elmer de Looff <elmer.delooff@gmail.com>\n"
+"Language-Team: nl <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 1.0dev-r546\n"
+"X-Generator: Poedit 1.5.4\n"
+
+#: formencode/api.py:394 formencode/validators.py:418
+msgid "Please enter a value"
+msgstr "Voer een waarde in"
+
+#: formencode/api.py:395
+#, python-format
+msgid "The input must be a string (not a %(type)s: %(value)r)"
+msgstr ""
+"De ingevoerde waarde moet een \"string\" zijn (niet een \"%(type)s\": "
+"%(value)r)"
+
+#: formencode/api.py:396
+msgid "The input must be a string (not None)"
+msgstr "De ingevoerde waarde moet een \"string\" zijn (niet \"None\")"
+
+#: formencode/national.py:29
+msgid "Belarus"
+msgstr "Wit-Rusland"
+
+#: formencode/national.py:30
+msgid "Montenegro"
+msgstr "Montenegro"
+
+#: formencode/national.py:31
+msgid "Tasmania"
+msgstr "Tasmanië"
+
+#: formencode/national.py:37
+msgid "Britain"
+msgstr "Brittannië"
+
+#: formencode/national.py:38
+msgid "Great Britain"
+msgstr "Groot-Brittannië"
+
+#: formencode/national.py:39
+msgid "Cote de Ivoire"
+msgstr "Ivoorkust"
+
+#: formencode/national.py:144
+#, python-format
+msgid "%d digits"
+msgstr "%d cijfers"
+
+#: formencode/national.py:165
+#, python-format
+msgid "Please enter a zip code (%(format)s)"
+msgstr "Voer een geldige postcode in (%(format)s)"
+
+#: formencode/national.py:229 formencode/national.py:263
+#, python-format
+msgid "Please enter a zip code (%s)"
+msgstr "Voer een geldige postcode in (%s)"
+
+#: formencode/national.py:229
+msgid "LnnnnLLL"
+msgstr ""
+
+#: formencode/national.py:263
+msgid "LnL nLn"
+msgstr ""
+
+#: formencode/national.py:297
+msgid "Please enter a valid postal code (for format see BS 7666)"
+msgstr "Voor een geldige postcode in (voor de opmaak zie BS 7666)"
+
+#: formencode/national.py:338
+msgid "That country is not listed in ISO 3166"
+msgstr "Dat land komt niet voor in ISO 3166"
+
+#: formencode/national.py:393
+msgid "Given postal code does not match the country's format."
+msgstr "Opgegeven postcode komt niet overeen met de notatie voor het land."
+
+#: formencode/national.py:484
+msgid "Please enter a state code"
+msgstr "Voer een \"state code\" in"
+
+#: formencode/national.py:485
+msgid "Please enter a state code with TWO letters"
+msgstr "Voer een \"state code\" in met TWEE letters"
+
+#: formencode/national.py:486
+msgid "That is not a valid state code"
+msgstr "Geen correct \"state code\""
+
+#: formencode/national.py:539
+msgid ""
+"Please enter a number, with area code, in the form ###-###-####, optionally "
+"with \"ext.####\""
+msgstr ""
+"Voer een getal in, met \"area code\", in het formaat ###-###-####, optioneel "
+"met \"ext.####\""
+
+#: formencode/national.py:646
+#, fuzzy
+msgid "Please enter a number, with area code, in the form +##-###-#######."
+msgstr ""
+"Voer een getal in, met \"area code\", in het formaat ###-###-####, optioneel "
+"met \"ext.####\""
+
+#: formencode/national.py:725
+msgid "That language is not listed in ISO 639"
+msgstr "Deze taal komt niet voor in ISO 639"
+
+#: formencode/schema.py:63
+#, python-format
+msgid "The input field %(name)s was not expected."
+msgstr "Het invoerveld %(name)s werd niet verwacht."
+
+#: formencode/schema.py:64
+msgid "Missing value"
+msgstr "Ontbrekende waarde"
+
+#: formencode/schema.py:65
+#, fuzzy, python-format
+msgid "The input must be dict-like (not a %(type)s: %(value)r)"
+msgstr ""
+"De ingevoerde waarde moet een \"string\" zijn (niet een \"%(type)s\": "
+"%(value)r)"
+
+#: formencode/validators.py:147
+#, python-format
+msgid "%(object)r is not a subclass of %(subclass)s"
+msgstr "%(object)r is geen subclass van \"%(subclass)s\""
+
+#: formencode/validators.py:148
+#, python-format
+msgid "%(object)r is not a subclass of one of the types %(subclassList)s"
+msgstr "%(object)r is geen subclass van één van de types: %(subclassList)s"
+
+#: formencode/validators.py:149
+#, python-format
+msgid "%(object)r must be one of the types %(typeList)s"
+msgstr "%(object)r moet van één van de types %(typeList)s zijn"
+
+#: formencode/validators.py:150
+#, python-format
+msgid "%(object)r must be of the type %(type)s"
+msgstr "%(object)r moet van het type \"%(type)s\" zijn"
+
+#: formencode/validators.py:330
+#, python-format
+msgid "Enter a value less than %(maxLength)i characters long"
+msgstr "Voer een waarde in korter dan %(maxLength)i tekens"
+
+#: formencode/validators.py:331 formencode/validators.py:385
+msgid "Invalid value (value with length expected)"
+msgstr "Ongeldige waarde (waarde met een zekere lengte verwacht)"
+
+#: formencode/validators.py:384
+#, python-format
+msgid "Enter a value at least %(minLength)i characters long"
+msgstr "Voer een waarde in van minimaal %(minLength)i tekens"
+
+#: formencode/validators.py:441
+msgid "You cannot enter a value here"
+msgstr "Er kan hier geen waarde worden ingevoerd"
+
+#: formencode/validators.py:490
+msgid "The input is not valid"
+msgstr "De ingevoerde waarde is incorrect"
+
+#: formencode/validators.py:543
+msgid "Enter only letters, numbers, or _ (underscore)"
+msgstr ""
+"De waarde kan alleen bestaan uit letters, cijfers of _ (\"underscore\")"
+
+#: formencode/validators.py:581
+msgid "Invalid value"
+msgstr "Ongeldige waarde"
+
+#: formencode/validators.py:582
+#, python-format
+msgid "Value must be one of: %(items)s (not %(value)r)"
+msgstr "Waarde moet één van %(items)s zijn (niet %(value)r)"
+
+#: formencode/validators.py:640
+msgid "Choose something"
+msgstr "Kies één van de opties"
+
+#: formencode/validators.py:641
+#, python-format
+msgid "Enter a value from: %(items)s"
+msgstr "Voer één van de volgende waarden in: %(items)s"
+
+#: formencode/validators.py:642
+msgid "That value is not known"
+msgstr "Waarde onbekend"
+
+#: formencode/validators.py:643
+#, python-format
+msgid ""
+"Nothing in my dictionary goes by the value %(value)s.  Choose one of: "
+"%(items)s"
+msgstr "%(value)s komt niet voor. Kies één uit %(items)s"
+
+#: formencode/validators.py:705
+msgid "Must be an integer index"
+msgstr "Waarde moet een \"integer index\" zijn"
+
+#: formencode/validators.py:706
+msgid "Index out of range"
+msgstr "Waarde valt buiten het bereik"
+
+#: formencode/validators.py:707
+#, python-format
+msgid "Item %(value)s was not found in the list"
+msgstr "%(value)s is niet gevonden in de lijst"
+
+#: formencode/validators.py:777
+#, python-format
+msgid "Date must be after %(date)s"
+msgstr "Datum moet later dan %(date)s zijn"
+
+#: formencode/validators.py:778
+#, python-format
+msgid "Date must be before %(date)s"
+msgstr "Datum moet vroeger dan %(date)s zijn"
+
+#: formencode/validators.py:780
+#, python-format
+msgid "%%A, %%d %%B %%Y"
+msgstr "%%A, %%d %%B %%Y"
+
+#: formencode/validators.py:781
+msgid "The date must be sometime in the future"
+msgstr "De datum moet in de toekomst liggen"
+
+#: formencode/validators.py:882
+#, python-format
+msgid "Please enter a number that is %(min)s or greater"
+msgstr "Voer een getal in dat ten minste %(min)s is"
+
+#: formencode/validators.py:883
+#, python-format
+msgid "Please enter a number that is %(max)s or smaller"
+msgstr "Voer een getal in dat niet groter is dan %(max)s"
+
+#: formencode/validators.py:920
+msgid "Please enter an integer value"
+msgstr "Voer een integer waarde in"
+
+#: formencode/validators.py:958
+msgid "Please enter a number"
+msgstr "Voer een getal in"
+
+#: formencode/validators.py:1019
+#, python-format
+msgid "Enter a value not more than %(max)i characters long"
+msgstr "Voer een waarde in die niet langer is dan %(max)i tekens"
+
+#: formencode/validators.py:1020
+#, python-format
+msgid "Enter a value %(min)i characters long or more"
+msgstr "Minimaal %(min)i tekens"
+
+#: formencode/validators.py:1095
+msgid "Invalid data or incorrect encoding"
+msgstr "Ongeldige waarde of incorrecte \"encoding\""
+
+#: formencode/validators.py:1267
+msgid "Please enter an email address"
+msgstr "Voer een geldig emailadres in"
+
+#: formencode/validators.py:1268
+msgid "An email address must contain a single @"
+msgstr ""
+"Ongeldig emailadres: een emailadres kan slechts één \"@\" teken bevatten"
+
+#: formencode/validators.py:1269
+#, python-format
+msgid ""
+"The username portion of the email address is invalid (the portion before the "
+"@: %(username)s)"
+msgstr "Ongeldig emailadres: het deel vóór de \"@\" is incorrect"
+
+#: formencode/validators.py:1271 formencode/validators.py:1413
+#, python-format
+msgid "An error occured when trying to connect to the server: %(error)s"
+msgstr "Fout bij het benaderen van server: %(error)s"
+
+#: formencode/validators.py:1273
+#, python-format
+msgid ""
+"The domain portion of the email address is invalid (the portion after the @: "
+"%(domain)s)"
+msgstr ""
+"Ongeldig emailadres: het \"domain\" (het deel achter de \"@\") is incorrect"
+
+#: formencode/validators.py:1275
+#, python-format
+msgid ""
+"The domain of the email address does not exist (the portion after the @: "
+"%(domain)s)"
+msgstr ""
+"Ongeldig emailadres: het \"domain\" (het deel achter de \"@\") bestaat niet"
+
+#: formencode/validators.py:1409
+msgid "You must start your URL with http://, https://, etc"
+msgstr "Een URL moet beginnen met \"http://\", \"https://\", \"mailto:\", etc."
+
+#: formencode/validators.py:1410
+msgid "That is not a valid URL"
+msgstr "Ongeldige URL"
+
+#: formencode/validators.py:1411
+#, python-format
+msgid "An error occurred when trying to access the URL: %(error)s"
+msgstr "Er treedt eem fout op bij het opvragen van de URL: %(error)s"
+
+#: formencode/validators.py:1415
+msgid "The server responded that the page could not be found"
+msgstr "De server meldt dat de pagina niet gevonden kan worden"
+
+#: formencode/validators.py:1416
+#, python-format
+msgid "The server responded with a bad status code (%(status)s)"
+msgstr "De server geeft een foutmelding (%(status)s)"
+
+#: formencode/validators.py:1417
+#, python-format
+msgid "You must provide a full domain name (like %(domain)s.com)"
+msgstr "U moet een volledige domeinnaam opgeven (zoals %(domain)s.com)"
+
+#: formencode/validators.py:1544
+msgid ""
+"The type of i-name is not defined; it may be either individual or "
+"organizational"
+msgstr ""
+"Het type i-name is niet bepaald; dit mag individueel of organizationeel zijn"
+
+#: formencode/validators.py:1546
+msgid "Dots and dashes may not be repeated consecutively"
+msgstr "Punten en streepjes mogen niet achtereen voorkomen"
+
+#: formencode/validators.py:1547
+#, python-format
+msgid "\"%(iname)s\" is an invalid i-name"
+msgstr "\"%(iname)s\" is een ongeldige i-name"
+
+#: formencode/validators.py:1548
+msgid "i-names may not start with numbers nor punctuation marks"
+msgstr "i-names mogen niet beginnen met cijfers of leestekens"
+
+#: formencode/validators.py:1550
+#, python-format
+msgid "\"%(inumber)s\" is an invalid i-number"
+msgstr "\"%(inumber)s\" is een ongeldig i-number"
+
+#: formencode/validators.py:1551
+#, fuzzy, python-format
+msgid "The XRI must be a string (not a %(type)s: %(value)r)"
+msgstr ""
+"De ingevoerde waarde moet een \"string\" zijn (niet een \"%(type)s\": "
+"%(value)r)"
+
+#: formencode/validators.py:1552
+#, python-format
+msgid "\"%(xri_type)s\" is not a valid type of XRI"
+msgstr "\"%(xri_type)s\" is geen geldig type XRI"
+
+#: formencode/validators.py:1651
+#, python-format
+msgid "\"%(id)s\" is not a valid OpenId (it is neither an URL nor an XRI)"
+msgstr "\"%(id)s\" is geen geldig OpenId (het is geen URL noch een XRI)"
+
+#: formencode/validators.py:1882 formencode/validators.py:1890
+#, python-format
+msgid "Please enter the date in the form %(format)s"
+msgstr "Voer de datum in volgens het formaat: %(format)s"
+
+#: formencode/validators.py:1883
+msgid "Please enter a month from 1 to 12"
+msgstr "Voer een maand in met een getal van 1 tot en met 12"
+
+#: formencode/validators.py:1884
+msgid "Please enter a valid day"
+msgstr "Ongeldige dag"
+
+#: formencode/validators.py:1885
+#, python-format
+msgid "That month only has %(days)i days"
+msgstr "Deze maand heeft slechts %(days)i dagen"
+
+#: formencode/validators.py:1886
+#, python-format
+msgid "That is not a valid day (%(exception)s)"
+msgstr "Ongeldige dag (%(exception)s)"
+
+#: formencode/validators.py:1887
+#, python-format
+msgid "Unknown month name: %(month)s"
+msgstr "Onbekende maandnaam: %(month)s"
+
+#: formencode/validators.py:1888
+msgid "Please enter a number for the year"
+msgstr "Ongeldig jaartal"
+
+#: formencode/validators.py:1889
+msgid "Please enter a four-digit year after 1899"
+msgstr "Voer een vier-cijferig jaartal na 1899 in"
+
+#: formencode/validators.py:2070
+msgid "You must indicate AM or PM"
+msgstr "Het is verplicht \"AM\" danwel \"PM\" aan te geven"
+
+#: formencode/validators.py:2071
+msgid "There are too many :'s"
+msgstr "Teveel dubbele punten \":\""
+
+#: formencode/validators.py:2072
+msgid "You may not enter seconds"
+msgstr "Seconden zijn niet toegestaan in de invoer"
+
+#: formencode/validators.py:2073
+msgid "You must enter seconds"
+msgstr "Seconden zijn verplicht"
+
+#: formencode/validators.py:2074
+msgid "You must enter minutes (after a :)"
+msgstr "Minuten zijn verplicht (na een \":\")"
+
+#: formencode/validators.py:2075
+#, python-format
+msgid "The %(part)s value you gave is not a number: %(number)r"
+msgstr "De gegeven %(part)s waarde is geen getal: %(number)r"
+
+#: formencode/validators.py:2076
+#, python-format
+msgid "You must enter an hour in the range %(range)s"
+msgstr "Het uur moet in het bereik %(range)s liggen"
+
+#: formencode/validators.py:2077
+msgid "You must enter a minute in the range 0-59"
+msgstr "Het aantal minuten is ongeldig"
+
+#: formencode/validators.py:2078
+msgid "You must enter a second in the range 0-59"
+msgstr "Het aantal seconden is ongeldig"
+
+#: formencode/validators.py:2224
+#, python-format
+msgid "The name %(name)s is missing"
+msgstr "De waarde %(name)s mist"
+
+#: formencode/validators.py:2267
+#, python-format
+msgid "Value should be %(true)r or %(false)r"
+msgstr "De waarde moet %(true)r danwel %(false)r zijn"
+
+#: formencode/validators.py:2302
+msgid "Value does not contain a signature"
+msgstr "Waarde bevat geen signatuur"
+
+#: formencode/validators.py:2303
+msgid "Signature is not correct"
+msgstr "Signatuur is incorrect"
+
+#: formencode/validators.py:2378
+msgid "Please enter a valid IP address (a.b.c.d)"
+msgstr "Voer een geldig IP-adres (a.b.c.d.) in"
+
+#: formencode/validators.py:2379
+#, python-format
+msgid "The octets must be within the range of 0-255 (not %(octet)r)"
+msgstr "De octetten moeten in het bereik 0-255 liggen (niet %(octet)r)"
+
+#: formencode/validators.py:2426
+msgid "Please enter a valid IP address (a.b.c.d) or IP network (a.b.c.d/e)"
+msgstr "Voer een geldig IP adres (a.b.c.d) of netwerkadres (a.b.c.d/e) in"
+
+#: formencode/validators.py:2428
+#, python-format
+msgid "The network size (bits) must be within the range of 8-32 (not %(bits)r)"
+msgstr ""
+"De netwerkgrootte (bits) moet in het bereik 8-32 liggen (niet %(bits)r)"
+
+#: formencode/validators.py:2477
+#, python-format
+msgid ""
+"A MAC address must contain 12 digits and A-F; the value you gave has "
+"%(length)s characters"
+msgstr ""
+"Een MAC-adres moet bestaan uit 12 cijfers of A-F; de opgegeven waarde "
+"bestaat uit %(length)s characters"
+
+#: formencode/validators.py:2479
+#, python-format
+msgid ""
+"MAC addresses may only contain 0-9 and A-F (and optionally :), not %(char)r"
+msgstr ""
+"MAC-adressen mogen alleen 0-9 en A-F (en optioneel :) bevatten, niet %(char)r"
+
+#: formencode/validators.py:2586
+#, python-format
+msgid "You must give a value for %s"
+msgstr "U moet een waarde opgeven voor %s"
+
+#: formencode/validators.py:2619
+#, python-format
+msgid "Fields do not match (should be %(match)s)"
+msgstr "Waarden komen niet overeen (zou moeten zijn: %(match)s)"
+
+#: formencode/validators.py:2620
+msgid "Fields do not match"
+msgstr "Waarden komen niet overeen"
+
+#: formencode/validators.py:2621
+msgid "Fields should be a dictionary"
+msgstr "Velden moeten een dictionaries zijn"
+
+#: formencode/validators.py:2697
+msgid "Please enter only the number, no other characters"
+msgstr "Voer alleen een getal in, geen andere tekens"
+
+#: formencode/validators.py:2698
+msgid "You did not enter a valid number of digits"
+msgstr "U heeft niet het juiste aantal cijfers ingevoerd"
+
+#: formencode/validators.py:2699
+msgid "That number is not valid"
+msgstr "Ongeldig nummer"
+
+#: formencode/validators.py:2700
+#, python-format
+msgid "The field %(key)s is missing"
+msgstr "Het veld %(key)s ontbreekt"
+
+#: formencode/validators.py:2816
+msgid "Please enter numbers only for month and year"
+msgstr "Voer alleen cijfers in voor maand en jaar"
+
+#: formencode/validators.py:2817
+msgid "Invalid Expiration Date"
+msgstr "Ongeldige vervaldatum"
+
+#: formencode/validators.py:2892
+msgid "Please enter numbers only for credit card security code"
+msgstr "Voer alleen de cijfers in van de \"credit card security code\""
+
+#: formencode/validators.py:2893
+msgid "Invalid credit card security code length"
+msgstr "Incorrecte \"credit card security code\"-lengte"

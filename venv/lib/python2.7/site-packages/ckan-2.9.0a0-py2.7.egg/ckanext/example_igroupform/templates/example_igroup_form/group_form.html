@@ -1,0 +1,7 @@
+{% extends "group/new_group_form.html" %}
+
+{# Add some custom text so we know the form was rendered. #}
+{% block error_summary %}
+    {{ super() }}
+    My Custom Group Form!
+{% endblock %}

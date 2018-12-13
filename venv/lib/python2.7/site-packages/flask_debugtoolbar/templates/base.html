@@ -1,0 +1,57 @@
+<div id="flDebug" style="display:none;">
+  <script type="text/javascript">var DEBUG_TOOLBAR_STATIC_PATH = '{{ static_path }}'</script>
+  <script type="text/javascript" src="{{ static_path }}js/jquery.js"></script>
+  <script type="text/javascript" src="{{ static_path }}js/jquery.tablesorter.js"></script>
+  <script type="text/javascript" src="{{ static_path }}js/toolbar.js"></script>
+
+  <div style="display: none;" id="flDebugToolbar">
+    <ol id="flDebugPanelList">
+      {% if panels %}
+      <li><a id="flHideToolBarButton" href="#" title="Hide Toolbar">Hide &raquo;</a></li>
+      {% else %}
+      <li id="flDebugButton">DEBUG</li>
+      {% endif %}
+
+      {% for panel in panels %}
+      <li id="{{ panel.dom_id() }}">
+        {% if panel.has_content %}
+        <a href="{{ panel.url()|default("#") }}" title="{{ panel.title() }}" class="{{ panel.dom_id() }}">
+        {% else %}
+        <div class="contentless">
+        {% endif %}
+
+        {{ panel.nav_title() }}
+        {% if panel.nav_subtitle() %}<br /><small>{{ panel.nav_subtitle() }}</small>{% endif %}
+
+        {% if panel.has_content %}
+        </a>
+        {% else %}
+        </div>
+        {% endif %}
+        {% if panel.user_activate %}
+        <span class="switch {{ 'active' if panel.is_active else 'inactive' }}" title="Enable or disable the panel"></span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+  <div style="display:none;" id="flDebugToolbarHandle">
+    <a title="Show Toolbar" id="flShowToolBarButton" href="#">&laquo;</a>
+  </div>
+  {% for panel in panels %}
+    {% if panel.has_content %}
+    <div id="{{ panel.dom_id() }}-content" class="panelContent">
+      <div class="flDebugPanelTitle">
+        <a href="" class="flDebugClose">Close</a>
+        <h3>{{ panel.title()|safe }}</h3>
+      </div>
+      <div class="flDebugPanelContent">
+        <div class="scroll">
+          {{ panel.content()|safe }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  {% endfor %}
+  <div id="flDebugWindow" class="panelContent"></div>
+</div>

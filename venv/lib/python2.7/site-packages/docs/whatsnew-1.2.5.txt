@@ -1,0 +1,37 @@
+What's New In FormEncode 1.2.5
+==============================
+
+This article explains the latest changes in `FormEncode` version 1.2.5 as
+compared to its predecessor, `FormEncode` 1.2.4.
+
+Project Changes
+---------------
+
+- New official BitBucket code repository at `formencode/official-formencode
+  <http://bitbucket.org/formencode/official-formencode>`_.
+
+Feature Additions
+-----------------
+
+- The method `field_is_empty` was added to
+  :class:`formencode.validators.FormValidator` so subclasses can use the same
+  logic for emptiness and users can override it if necessary.
+
+Backwards Incompatibilities
+---------------------------
+
+- The view attribute is no longer considered special when scanning Compound
+  validators and Schemas for validators.
+
+- The :class:`formencode.validators.RequireIfMissing` and `RequireIfPresent` form
+  validators now use the same empty/missing logic as the `is_empty` method of
+  :class:`formencode.api.FancyValidator`.
+
+- Validators can say if they accept containers (list, tuple, set, etc) and schema will
+  actively refuse those values if a validator does not allow them.
+
+Documentation Enhancements
+--------------------------
+
+- Superceded news with whatsnew documents that will be archived for each
+  version. Archived all news prior to 1.2.5 in :doc:`/whatsnew-0-to-1.2.4`.

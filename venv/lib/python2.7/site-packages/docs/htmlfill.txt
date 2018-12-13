@@ -1,0 +1,102 @@
+.. comment (set Emacs mode) -*- doctest -*-
+
+    >>> import formencode
+
+++++++++
+htmlfill
+++++++++
+
+:author: Ian Bicking <ianb@colorstudy.com>
+
+.. contents::
+
+Introduction
+============
+
+:mod:`formencode.htmlfill` is a library to fill out forms, both with default
+values and error messages.  It's like a template library, but more
+limited, and it can be used with the output from other templates.  It
+has no prerequesites, and can be used without any other parts of
+FormEncode.
+
+Usage
+=====
+
+The basic usage is something like this::
+
+    >>> from formencode import htmlfill
+    >>> form = '<input type="text" name="fname">'
+    >>> defaults = {'fname': 'Joe'}
+    >>> htmlfill.render(form, defaults)
+    '<input type="text" name="fname" value="Joe">'
+
+The parser looks for HTML input elements (including ``select`` and
+``textarea``) and fills in the defaults.  The quintessential way to
+use this would be with a form submission that had errors -- you can
+return the form to the user with the values they entered, in addition
+to errors.
+
+See :func:`formencode.htmlfill.render` for more.
+
+Errors
+------
+
+Since errors are a common issue, this also has some features for
+filling the form with error messages.  It defines two special tags for
+this purpose:
+
+``<form:error name="field_name" format="formatter">``:
+    This tag is eliminated completely if there is no error for the
+    named field.  Otherwise the error is passed through the given
+    formatter (``"default"`` if no ``format`` attribute is given).
+``<form:iferror name="field_name">...</form:iferror>``:
+    If the named field doesn't have an error, everything between the
+    tags will be eliminated.  Use ``name="not field_name"`` to invert
+    the behavior (i.e., include text only if there are no errors for
+    the field).
+
+Formatters are functions that take the error text as a single
+argument.  (In the future they may take extra arguments as well.)
+They return a string that is inserted into the template.  By default,
+the formatter returns::
+
+    <span class="error-message">(message)</span><br>
+
+In addition to explicit error tags, any leftover errors will be placed
+immediately above the associated input field.
+
+The default formatters available to you:
+
+``default``:
+    HTML-quotes the error and wraps it in ``<span class="error-message">``
+
+``none``:
+    Puts the error message in with no quoting of any kind.  This
+    allows you to put HTML in the error message, but might also expose
+    you to cross-site scripting vulnerabilities.
+
+``escape``:
+    HTML-quotes the error, but doesn't wrap it in anything.
+
+``escapenl``:
+    HTML-quotes the error, and translates newlines to ``<br>``
+
+``ignore``:
+    Swallows the error, emitting nothing.  You can use this when you
+    never want an error for a field to display.
+
+Valid form templates
+--------------------
+
+When you call ``parser.close()`` (also called by ``render()``) the
+parser will check that you've fully used all the defaults and errors
+that were given in the constructor if you pass in
+``use_all_keys=True``.  If there are leftover fields an
+``AssertionError`` will be raised.
+
+In most cases, htmlfill tries to keep the template the way it found
+it, without reformatting it too much.  If HTMLParser_ chokes on the
+code, so will htmlfill.
+
+.. _HTMLParser: http://docs.python.org/library/htmlparser.html
+

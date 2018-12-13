@@ -1,0 +1,24 @@
+<table id="debug_toolbar_profiler_table" class="tablesorter">
+  <thead>
+    <tr>
+      <th data-sorter="digit">Calls</th>
+      <th>Total Time (ms)</th>
+      <th>Per Call (ms)</th>
+      <th>Cumulative Time (ms)</th>
+      <th>Per Call (ms)</th>
+      <th data-sorter="text">Function</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in function_calls %}
+      <tr class="{{ loop.cycle('flDebugOdd', 'flDebugEven') }}">
+        <td>{{ row.ncalls }}</td>
+        <td>{{ row.tottime }}</td>
+        <td>{{ '%.4f'|format(row.percall) }}</td>
+        <td>{{ row.cumtime }}</td>
+        <td>{{ '%.4f'|format(row.percall_cum) }}</td>
+        <td title="{{ row.filename_long }}">{{ row.filename|escape }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

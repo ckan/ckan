@@ -1,0 +1,416 @@
+What's New In FormEncode 0 to 1.2.4
+===================================
+
+.. contents::
+
+1.2.4
+-----
+
+* Fix packaging issue with i18n files (from Juliusz Gonera)
+
+1.2.3
+-----
+
+* Code repository moved to BitBucket at `ianb/formencode
+  <http://bitbucket.org/ianb/formencode>`_.
+
+* Allowed :class:`formencode.validators.UnicodeString` to use different
+  encoding of input and output, or no encoding/decoding at all.
+
+* Fixes `#2666139 <http://sourceforge.net/tracker/index.php?func=detail&aid=2666139&group_id=91231&atid=596418>`_:
+  DateValidator bug happening only in March under Windows in Germany :)
+
+* Don't let :class:`formencode.compound.Any` shortcut validation when
+  it gets an empty value (this same change had already been made to
+  :class:`formencode.compound.All`).
+
+* Really updated German translation
+
+* Fixes `#2799713 <https://sourceforge.net/tracker/?func=detail&aid=2799713&group_id=91231&atid=596416>`_:
+  force_defaults=False and <select> fields, regarding :func:`formencode.htmlfill.render`.
+  Thanks to w31rd0 for the bug report and patch to fix it.
+
+1.2.2
+-----
+
+* Added keyword argument ``force_defaults`` to
+  :func:`formencode.htmlfill.render`; when this is True (the default)
+  this will uncheck checkboxes, unselect select boxes, etc., when a
+  value is missing from the default dictionary.
+
+* Updated German translation
+
+1.2.1
+-----
+
+* Be more careful about ``unicode(Invalid(...))``, to make sure it
+  always returns unicode.
+
+* Fix broken :mod:`formencode.national` zip code validators.
+
+* In :mod:`formencode.national` only warn about the pycountry or TG
+  requirement when creating validators that require them.
+
+* Fix another :mod:`formencode.htmlfill` error due to a field with
+  no explicit value.
+
+1.2
+---
+
+* Added :class:`formencode.validators.IPAddress`, validating IP
+  addresses, from Leandro Lucarella.
+
+* Added :meth:`formencode.api.Invalid.__unicode__`
+
+* In :mod:`formencode.htmlfill` use a default encoding of utf8 when
+  handling mixed ``str``/``unicode`` content.  Also do not modify
+  ``<input type="image">`` tags (previously ``src`` would be
+  overwritten, for no good reason).
+
+* In :class:`formencode.validators.Email` allow single-character
+  domain names (like x.com).
+
+* Make :class:`formencode.validators.FieldsMatch` give a normal
+  ``Invalid`` exception if you pass it a non-dictionary.  Also treat
+  all missing keys as the empty string (previously the first key was
+  required and would raise KeyError).
+
+* :class:`formencode.validators.Number` works with ``inf`` float
+  values (before it would raise a OverflowError).
+
+* The ``tw`` locale has been renamed to the more standard ``zh_TW``.
+
+* Added Japanese and Turkish translations.
+
+* Fixed some outdated translations and errors in Spanish and Greek
+  translations. Translations now managed with `Babel
+  <http://babel.edgewall.org/>`_.
+
+1.1
+---
+
+* Fixed the ``is_empty()`` method in
+  :class:`formencode.validators.FieldStorageUploadConverter`;
+  previously it returned the opposite of the intended result.
+
+* Added a parameter to ``htmlfill.render()``: ``prefix_error``.  If
+  this parameter is true (the default) then errors automatically go
+  before the input field; if false then they go after the input field.
+
+* Remove deprecated modules: ``fields``, ``formgen``, ``htmlform``,
+  ``sqlformgen``, and ``sqlschema``.
+
+* Added ``formencode.htmlrename``, which renames HTML inputs.
+
+* In ``formencode.htmlfill``, non-string values are compared usefully
+  (e.g., a select box with integer values).
+
+* The validators ``Int`` and ``Number`` both take min/max arguments
+  (from Shannon Behrens).
+
+* Validators based on ``formencode.validators.FormValidator`` will not
+  treat ``{}`` as an empty (unvalidated) value.
+
+* Some adjustments to the URL validator.
+
+* :class:`formencode.compound.All` does not handle empty values,
+  instead relying on sub-validators to check for emptiness.
+
+* Fixed the ``if_missing`` attribute in
+  :class:`formencode.foreach.ForEach`; previously it would be the same
+  list instance, so if you modified it then it would effect future
+  ``if_missing`` values (reported by Felix Schwarz).
+
+* Added formatter to :mod:`formencode.htmlfill`, so you can use
+  ``<form:error name="field_name" formatter="ignore" />`` -- this will
+  cause the error to be swallowed, not shown to the user.
+
+* Added :class:`formencode.validators.XRI` for validation i-names,
+  i-numbers, URLs, etc (as used in OpenID).
+
+* Look in ``/usr/share/locale`` for locale files, in addition to the
+  normal locations.
+
+* Quiet Python 2.6 deprecation warnings.
+
+* Fix :class:`formencode.validators.URL`, which was accepting illegal
+  characters (like newlines) and did not accept http://domain:PORT/
+
+1.0.1
+-----
+
+* ``chained_validators`` were removed from Schema somehow; now
+  replaced and working.
+
+* Put in missing ``htmlfill.render(error_class=...)`` parameter (was
+  documented and implemented, but ``render()`` did not pass it
+  through).
+
+1.0
+---
+
+* Added ``formencode.schema.SimpleFormValidator``, which wraps a
+  simple function to make it a validator.
+
+* Changed the use of ``chained_validators`` in Schemas, so that all
+  chained validators get run even when there are previous errors (to
+  detect all the errors).
+
+* While something like ``Int.to_python()`` worked, other methods like
+  ``Int.message(...)`` didn't work.  Now it does.
+
+* Added Italian, Finnish, and Norwegian translations.
+
+0.9
+---
+
+Backward incompatible changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* The notion of "empty" has changed to include empty lists,
+  dictionaries, and tuples.  If you get one of these values passed
+  into (or generated by) a validator with ``not_empty=True`` you can
+  get exceptions where you didn't previously.
+
+Enhancements
+~~~~~~~~~~~~
+
+* Added support for Paste's MultiDict dictionary as input to
+  Schema.to_python, by converting it to a normal dict via MultiDict.mixed.
+  Previously MultiDicts wouldn't work with CompoundValidators (like
+  ForEach)
+
+* Added encoding parameter to htmlfill, which will handle cases when mixed
+  str and unicode objects are used (turning all str objects into unicode)
+
+* Include ``formencode.validators.InternationalPhoneNumber`` from
+  W-Mark Kubacki.
+
+* ``validators.Int`` takes ``min`` and ``max`` options (from Felix
+  Schwarz).
+
+* You can control the missing message (which by default is just
+  "Missing Value") using the message ``"missing"`` in a validator
+  (also from James Gardner).
+
+* Added ``validators.CADR`` (for IP addresses with an optional range)
+  and ``validators.MACAddress`` (from Christoph Haas).
+
+Bug Fixes
+~~~~~~~~~
+
+* Be friendlier when loaded from a zip file (as with py2exe);
+  previously only egg zip files would work.
+
+* Fixed bug in htmlfill when a document ends with no trailing text
+  after the last tag.
+
+* Fix problem with HTMLParser's default unescaping routing, which only
+  understood a very limited number of entities in attribute values.
+
+* Fix problem with looking up A records for email addresses.
+
+* ``validators.String`` now always returns strings.  It also converts
+  lists to comma-separated strings (no ``[...]``), and can encode
+  unicode if an ``encoding`` parameter is given.  Empty values are
+  handled better.
+
+* ``validators.UnicodeString`` properly handles non-Unicode inputs.
+
+* Make ``validators.DateConverter`` serialize dates properly
+  (from James Gardner).
+
+* Minor fix to setup.py to make FormEncode more friendly with
+  zc.buildout.
+
+0.7.1
+-----
+
+* Set ``if_missing=()`` on ``validators.Set``, as a missing value
+  usually means empty for this value.
+
+* Fix for ``Email`` validator that searches A records in addition to
+  MX records (from Jacob Smullyan).
+
+* Fixes for the ``es`` locale.
+
+0.7
+---
+
+* **Backward compatibility issue**: Due to the addition of i18n
+  (internationalization) to FormEncode, Invalid exceptions now have
+  unicode messages.  You may encounter unicode-related errors if you
+  are mixing these messages with non-ASCII ``str`` strings.
+
+* gettext-enabled branch merged in
+
+* Fixes `#1457145: Fails on URLs with port numbers
+  <http://sourceforge.net/tracker/index.php?func=detail&aid=1457145&group_id=91231&atid=596416>`_
+
+* Fixes `#1559918 Schema fails to accept unicode errors
+  <http://sourceforge.net/tracker/index.php?func=detail&aid=1559918&group_id=91231&atid=596416>`_
+
+* ``from formencode.validators import *`` will import the ``Invalid``
+  exception now.
+
+* ``Invalid().unpack_errors(encode_variables=True)`` now filters out
+  None values (which ``ForEach`` can produce even for keys with no
+  errors).
+
+0.6
+---
+
+* ``String(min=1)`` implies ``not_empty`` (which seems more intuitive)
+
+* Added ``list_char`` and ``dict_char`` arguments to
+  ``Invalid.unpack_errors`` (passed through to ``variable_encode``)
+
+* Added a ``use_datetime`` option to ``TimeValidator``, which will
+  cause it to use ``datetime.time`` objects instead of tuples.  It was
+  previously able to consume but not produce these objects.
+
+* Added ``<form:iferror name="not field_name">`` when you want to
+  include text only when a field has no errors.
+
+* There was a problem installing 0.5.1 on Windows with Python 2.5, now
+  resolved.
+
+0.5.1
+-----
+
+* Fixed compound validators and ``not_empty`` (was breaking
+  SQLObject's PickleCol)
+
+0.5
+---
+
+* Added ``htmlfill.default_formatter_dict``, and you can poke new
+  formatters in there to effective register them.
+
+* Added an ``escapenl`` formatter (nl=newline) that escapes HTML and
+  turns newlines into ``<br>``.
+
+* When ``not_empty=False``, empty is assumed to be allowed.  Thus
+  ``Int().to_python(None)`` will now return ``None``.
+
+0.4
+---
+
+* Fixed up all the documentation.
+
+* Validator ``__doc__`` attributes will include some
+  automatically-appended information about all the message strings
+  that validator uses.
+
+* Deprecated ``formencode.htmlform`` module, because it is dumb.
+
+* Added an ``.all_messages()`` method to all validators, primarily
+  intended to be used for documentation purposes.
+
+* Changed preferred name of ``StringBoolean`` to ``StringBool`` (to go
+  with ``bool`` and ``validators.Bool``).  Old alias still available.
+
+* Added ``today_or_after`` option to ``validators.DateValidator``.
+
+* Added a ``validators.FileUploadKeeper`` validator for helping with
+  file uploads in failed forms.  It still requires some annoying
+  fiddling to make work, though, since file upload fields are so
+  weird.
+
+* Added ``text_as_default`` option to htmlfill.  This treats all
+  ``<input type="something-weird">`` elements as text fields.  WHAT-WG
+  adds weird input types, which can usually be usefully treated as
+  text fields.
+
+* Make all validators accept empty values if ``not_empty`` is False
+  (the default).  "Empty" means ``""`` or ``None``, and will generally
+  be converted None.
+
+* Added ``accept_python`` boolean to all ``FancyValidator`` validators
+  (which is most validators).  This is a fixed version of the broken
+  ``validate_python`` boolean added in 0.3.  Also, it defaults to
+  true, which means that all validators will not validate during
+  ``.from_python()`` calls by default.
+
+* Added ``htmlfill.render(form, defaults, errors)`` for easier
+  rendering of forms.
+
+* Errors automatically inserted by ``htmlfill`` will go at the top of
+  the form if there's no field associated with the error (raised an
+  error in 0.3).
+
+* Added ``formencode.sqlschema`` for wrapping SQLObject
+  classes/instances.  See the docstring for more.
+
+* Added ``ignore_key_missing`` to ``Schema`` objects, which ignore
+  missing keys (where fields are present) when no ``if_missing`` is
+  provided for the field.
+
+* Renamed ``validators.StateProvince.extraStates`` to
+  ``extra_states``, to normalize style.
+
+Bugfixes
+~~~~~~~~
+
+* When checking destinations, ``validators.URL`` now allows redirect
+  codes, and catches socket errors and turns them into proper errors.
+
+* Fix typo in ``htmlfill``
+
+* Made URL and email regular expressions a little more lax/correct.
+
+* A bunch of fixes to ``validators.SignedString``, which apparently
+  was completely broken.
+
+0.3
+-----
+
+* Allow errors to be inserted automatically into a form when using
+  ``formencode.htmlfill``, when a ``<form:error>`` tag isn't found for
+  an error.
+
+* Added ``if_key_missing`` attribute to ``schema.Schema``, which will
+  fill in any keys that are missing and pass them to the validator.
+
+* ``FancyValidator`` has changed, adding ``if_invalid_python`` and
+  ``validate_python`` options (which also apply to all subclasses).
+  Also ``if_empty`` only applies to ``to_python`` conversions.
+
+* ``FancyValidator`` now has a ``strip`` option, which if true and if
+  input is a string, will strip whitespace from the string.
+
+* Allow chained validators to validate otherwise-invalid forms, if
+  they define a ``validate_partial`` method.  The credit card
+  validator does this.
+
+* Handle ``FieldStorage`` input (from file uploads); added a
+  ``formencode.fieldstorage`` module to wrap those instances in
+  something a bit nicer.  Added
+  ``validators.FieldStorageUploadConverter`` to make this conversion.
+
+* Added ``StringBoolean`` converter, which converts strings like
+  ``"true"`` to Python booleans.
+
+Bugfixes
+~~~~~~~~
+
+* A couple fixes to ``DateConverter``, ``FieldsMatch``,
+  ``StringBoolean``, ``CreditCardValidator``.
+
+* Added missing ``Validator.assert_string`` method.
+
+* ``formencode.htmlfill_schemabuilder`` handles checkboxes better.
+
+* Be a little more careful about how ``Invalid`` exceptions are
+  created (catch some errors sooner).
+
+* Improved handling of non-string input in ``htmlfill``.
+
+Experiments
+~~~~~~~~~~~
+
+* Some experimental work in ``formencode.formgen``.  Experimental, I
+  say!
+
+* Added an experimental ``formencode.context`` module for
+  dynamically-scoped variables.
