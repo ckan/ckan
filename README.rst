@@ -20,6 +20,10 @@ CKAN: The Open Source Data Portal Software
     :target: https://coveralls.io/github/ckan/ckan?branch=master
     :alt: Coverage Status
 
+.. image:: https://badges.gitter.im/gitterHQ/gitter.svg
+    :target: https://gitter.im/ckan/chat
+    :alt: Chat on Gitter
+
 **CKAN is the world’s leading open-source data portal platform**.
 CKAN makes it easy to publish, share and work with data. It's a data management
 system that provides a powerful platform for cataloging, storing and accessing
@@ -36,7 +40,7 @@ See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructio
 Support
 -------
 If you need help with CKAN or want to ask a question, use either the
-`ckan-dev`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
+`ckan-dev`_ mailing list, the `CKAN chat on Gitter`_, or the `CKAN tag on Stack Overflow`_ (try
 searching the Stack Overflow and ckan-dev `archives`_ for an answer to your
 question first).
 
@@ -47,9 +51,9 @@ If you find a potential security vulnerability please email security@ckan.org,
 rather than creating a public issue on GitHub.
 
 .. _CKAN tag on Stack Overflow: http://stackoverflow.com/questions/tagged/ckan
-.. _ckan-dev: https://lists.okfn.org/mailman/listinfo/ckan-dev
 .. _archives: https://www.google.com/search?q=%22%5Bckan-dev%5D%22+site%3Alists.okfn.org.
 .. _GitHub Issues: https://github.com/ckan/ckan/issues
+.. _CKAN chat on Gitter: https://gitter.im/ckan/chat
 
 
 Contributing to CKAN
@@ -58,17 +62,33 @@ Contributing to CKAN
 For contributing to CKAN or its documentation, see
 `CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.rst>`_.
 
-If you want to talk about CKAN development say hi to the CKAN developers on the
-`ckan-dev`_ mailing list, in the `#ckan`_ IRC channel, or on `BotBot`_.
+Mailing List
+~~~~~~~~~~~~
+
+Subscribe to the `ckan-dev`_ mailing list to receive news about upcoming releases and
+future plans as well as questions and discussions about CKAN development, deployment, etc.
+
+Community Chat
+~~~~~~~~~~~~~~
+
+If you want to talk about CKAN development say hi to the CKAN developers and members of
+the CKAN community on the public `CKAN chat on Gitter`_. Gitter is free and open-source;
+you can sign in with your GitHub, GitLab, or Twitter account.
+
+The logs for the old `#ckan`_ IRC channel (2014 to 2018) can be found here:
+https://github.com/ckan/irc-logs.
+
+Wiki
+~~~~
 
 If you've figured out how to do something with CKAN and want to document it for
-others, make a new page on the `CKAN wiki`_, and tell us about it on
-ckan-dev mailing list.
+others, make a new page on the `CKAN wiki`_ and tell us about it on the
+ckan-dev mailing list or on Gitter.
 
 .. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
 .. _#ckan: http://webchat.freenode.net/?channels=ckan
 .. _CKAN Wiki: https://github.com/ckan/ckan/wiki
-.. _BotBot: https://botbot.me/freenode/ckan/
+.. _CKAN chat on Gitter: https://gitter.im/ckan/chat
 
 
 Copying and License

@@ -45,7 +45,10 @@ def load_environment(global_conf, app_conf):
     # Required by the deliverance plugin and iATI
     from pylons.wsgiapp import PylonsApp
     import pkg_resources
-    find_controller_generic = PylonsApp.find_controller
+    find_controller_generic = getattr(
+        PylonsApp.find_controller,
+        '_old_find_controller',
+        PylonsApp.find_controller)
 
     # This is from pylons 1.0 source, will monkey-patch into 0.9.7
     def find_controller(self, controller):
@@ -65,6 +68,7 @@ def load_environment(global_conf, app_conf):
             self.controller_classes[controller] = mycontroller
             return mycontroller
         return find_controller_generic(self, controller)
+    find_controller._old_find_controller = find_controller_generic
     PylonsApp.find_controller = find_controller
 
     os.environ['CKAN_CONFIG'] = global_conf['__file__']

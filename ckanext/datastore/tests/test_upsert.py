@@ -1,28 +1,24 @@
 # encoding: utf-8
 
 import json
-import nose
 import datetime
+from nose.tools import assert_equal, assert_not_equal
 
 import sqlalchemy.orm as orm
 
-import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
-import ckan.tests.legacy as tests
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-
-from ckan.common import config
+from ckan.plugins.toolkit import ValidationError
 
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
-    set_url_type, DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
+    set_url_type, DatastoreFunctionalTestBase, DatastoreLegacyTestBase,
+    when_was_last_analyze)
 
-assert_equal = nose.tools.assert_equal
 
-
-class TestDatastoreUpsertNewTests(DatastoreFunctionalTestBase):
+class TestDatastoreUpsert(DatastoreFunctionalTestBase):
     def test_upsert_doesnt_crash_with_json_field(self):
         resource = factories.Resource()
         data = {
@@ -67,15 +63,123 @@ class TestDatastoreUpsertNewTests(DatastoreFunctionalTestBase):
         }
         helpers.call_action('datastore_upsert', **data)
 
+    def test_dry_run(self):
+        ds = factories.Dataset()
+        table = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[{u'id': u'spam', u'type': u'text'}],
+            primary_key=u'spam')
+        helpers.call_action(
+            u'datastore_upsert',
+            resource_id=table['resource_id'],
+            records=[{u'spam': u'SPAM'}, {u'spam': u'EGGS'}],
+            dry_run=True)
+        result = helpers.call_action(
+            u'datastore_search',
+            resource_id=table['resource_id'])
+        assert_equal(result['records'], [])
 
-class TestDatastoreUpsert(DatastoreLegacyTestBase):
+    def test_dry_run_type_error(self):
+        ds = factories.Dataset()
+        table = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[{u'id': u'spam', u'type': u'numeric'}],
+            primary_key=u'spam')
+        try:
+            helpers.call_action(
+                u'datastore_upsert',
+                resource_id=table['resource_id'],
+                records=[{u'spam': u'SPAM'}, {u'spam': u'EGGS'}],
+                dry_run=True)
+        except ValidationError as ve:
+            assert_equal(ve.error_dict['records'],
+                [u'invalid input syntax for type numeric: "SPAM"'])
+        else:
+            assert 0, 'error not raised'
+
+    def test_dry_run_trigger_error(self):
+        ds = factories.Dataset()
+        helpers.call_action(
+            u'datastore_function_create',
+            name=u'spamexception_trigger',
+            rettype=u'trigger',
+            definition=u'''
+                BEGIN
+                IF NEW.spam != 'spam' THEN
+                    RAISE EXCEPTION '"%"? Yeeeeccch!', NEW.spam;
+                END IF;
+                RETURN NEW;
+                END;''')
+        table = helpers.call_action(
+            u'datastore_create',
+            resource={u'package_id': ds['id']},
+            fields=[{u'id': u'spam', u'type': u'text'}],
+            primary_key=u'spam',
+            triggers=[{u'function': u'spamexception_trigger'}])
+        try:
+            helpers.call_action(
+                u'datastore_upsert',
+                resource_id=table['resource_id'],
+                records=[{u'spam': u'EGGS'}],
+                dry_run=True)
+        except ValidationError as ve:
+            assert_equal(ve.error_dict['records'],
+                [u'"EGGS"? Yeeeeccch!'])
+        else:
+            assert 0, 'error not raised'
+
+    def test_calculate_record_count_is_false(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'fields': [{'id': 'name', 'type': 'text'},
+                       {'id': 'age', 'type': 'text'}],
+        }
+        helpers.call_action('datastore_create', **data)
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'method': 'insert',
+            'records': [{"name": "Sunita", "age": "51"},
+                        {"name": "Bowan", "age": "68"}],
+        }
+        helpers.call_action('datastore_upsert', **data)
+        last_analyze = when_was_last_analyze(resource['id'])
+        assert_equal(last_analyze, None)
+
+    def test_calculate_record_count(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'fields': [{'id': 'name', 'type': 'text'},
+                       {'id': 'age', 'type': 'text'}],
+        }
+        helpers.call_action('datastore_create', **data)
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'method': 'insert',
+            'records': [{"name": "Sunita", "age": "51"},
+                        {"name": "Bowan", "age": "68"}],
+            'calculate_record_count': True
+        }
+        helpers.call_action('datastore_upsert', **data)
+        last_analyze = when_was_last_analyze(resource['id'])
+        assert_not_equal(last_analyze, None)
+
+
+class TestDatastoreUpsertLegacyTests(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
         cls.app = helpers._get_test_app()
-        super(TestDatastoreUpsert, cls).setup_class()
+        super(TestDatastoreUpsertLegacyTests, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -313,14 +417,14 @@ class TestDatastoreUpsert(DatastoreLegacyTestBase):
 
 
 
-class TestDatastoreInsert(DatastoreLegacyTestBase):
+class TestDatastoreInsertLegacyTests(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
         cls.app = helpers._get_test_app()
-        super(TestDatastoreInsert, cls).setup_class()
+        super(TestDatastoreInsertLegacyTests, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -408,14 +512,14 @@ class TestDatastoreInsert(DatastoreLegacyTestBase):
         assert results.rowcount == 3
 
 
-class TestDatastoreUpdate(DatastoreLegacyTestBase):
+class TestDatastoreUpdateLegacyTests(DatastoreLegacyTestBase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
         cls.app = helpers._get_test_app()
-        super(TestDatastoreUpdate, cls).setup_class()
+        super(TestDatastoreUpdateLegacyTests, cls).setup_class()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')

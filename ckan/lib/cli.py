@@ -118,6 +118,7 @@ def user_add(args):
 
     # Required
     while '@' not in data_dict.get('email', ''):
+        print('Error: Invalid email address')
         data_dict['email'] = input('Email address: ').strip()
 
     if 'password' not in data_dict:

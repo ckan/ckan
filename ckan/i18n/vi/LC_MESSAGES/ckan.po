@@ -1,23 +1,26 @@
-# Translations template for ckan.
+# Vietnamese translations for ckan.
 # Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 #
+# Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2018
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-06-21 15:47+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2018-03-27 16:10+0200\n"
+"PO-Revision-Date: 2018-03-27 14:15+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
-"Language-Team: Vietnamese (https://www.transifex.com/okfn/teams/11162/vi/)\n"
+"Language: vi\n"
+"Language-Team: Vietnamese "
+"(https://www.transifex.com/okfn/teams/11162/vi/)\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.5.3\n"
-"Language: vi\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.3.4\n"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
@@ -113,14 +116,14 @@ msgstr "Không tìm thấy nguồn kho dữ liệu"
 
 #: ckanext/datastore/controller.py:101
 msgid ""
-"Data Dictionary saved. Any type overrides will take effect when the resource"
-" is next uploaded to DataStore"
+"Data Dictionary saved. Any type overrides will take effect when the "
+"resource is next uploaded to DataStore"
 msgstr ""
 
 #: ckanext/datastore/backend/postgres.py:1032
 msgid ""
-"The data was invalid (for example: a numeric value is out of range or was "
-"inserted into a text field)."
+"The data was invalid (for example: a numeric value is out of range or was"
+" inserted into a text field)."
 msgstr ""
 
 #: ckanext/datastore/logic/action.py:262 ckanext/datastore/logic/action.py:290
@@ -140,13 +143,15 @@ msgstr "Giao diện người sử dụng dữ liệu CKAN "
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:23
 msgid "Access resource data via a web API with powerful query support"
 msgstr ""
-"Truy cập vào tài nguyên dữ liệu qua một web API với đây đủ hỗ trợ truy vấn."
+"Truy cập vào tài nguyên dữ liệu qua một web API với đây đủ hỗ trợ truy "
+"vấn."
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:24
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
+" "
 msgstr ""
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:33
@@ -155,11 +160,11 @@ msgstr "Điểm kết thúc"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:37
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action "
-"API."
+"The Data API can be accessed via the following actions of the CKAN action"
+" API."
 msgstr ""
-"Giao diện người sử dụng dữ liệu có thể truy cập thông qua hoạt động theo dõi"
-" giao diện người sử dụng  CKAN"
+"Giao diện người sử dụng dữ liệu có thể truy cập thông qua hoạt động theo "
+"dõi giao diện người sử dụng  CKAN"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:42
 msgid "Create"
@@ -267,7 +272,8 @@ msgstr "Dữ liệu API"
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
+" "
 msgstr ""
 
 #: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:128
@@ -744,8 +750,8 @@ msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
 msgstr ""
-"Không thể xóa gói %s do mục đang xem lại %s bao gồm những gói không xóa được"
-" %s"
+"Không thể xóa gói %s do mục đang xem lại %s bao gồm những gói không xóa "
+"được %s"
 
 #: ckan/controllers/admin.py:183
 #, python-format
@@ -1259,7 +1265,9 @@ msgstr "Hệ thống kiểm thử lỗi. Đề nghị thử lại."
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
-msgstr "Người dùng \"%s\" đã đăng ký nhưng hiện đang đăng nhập ở dạng \"%s\" từ trước"
+msgstr ""
+"Người dùng \"%s\" đã đăng ký nhưng hiện đang đăng nhập ở dạng \"%s\" từ "
+"trước"
 
 #: ckan/controllers/user.py:293
 msgid "Unauthorized to edit a user."
@@ -1758,8 +1766,8 @@ msgstr "Tên dài tối  đa %i ký tự"
 
 #: ckan/logic/validators.py:343
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
-"-_"
+"Must be purely lowercase alphanumeric (ascii) characters and these "
+"symbols: -_"
 msgstr ""
 
 #: ckan/logic/validators.py:361
@@ -1839,8 +1847,8 @@ msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
 msgstr ""
-"Không được phép hiệu chỉnh thư rác. Tránh các liên kết trong phần mô tả của "
-"bạn"
+"Không được phép hiệu chỉnh thư rác. Tránh các liên kết trong phần mô tả "
+"của bạn"
 
 #: ckan/logic/validators.py:620
 #, python-format
@@ -1855,8 +1863,8 @@ msgstr "Từ vựng đã được sử dụng"
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
 msgstr ""
-"Không thể thay đổi giá trị của chỉ dẫn từ %s thành %s. Chỉ dẫn này ở chế độ "
-"không chỉnh sửa"
+"Không thể thay đổi giá trị của chỉ dẫn từ %s thành %s. Chỉ dẫn này ở chế "
+"độ không chỉnh sửa"
 
 #: ckan/logic/validators.py:643
 msgid "Tag vocabulary was not found."
@@ -2222,8 +2230,7 @@ msgstr "Người dùng  %s không được quyền sửa tài nguyên %s"
 #: ckan/logic/auth/update.py:100
 #, python-format
 msgid "User %s not authorized to change state of package %s"
-msgstr ""
-"Người dùng %s không được xác thực để thay đổi trạng thái của package %s"
+msgstr "Người dùng %s không được xác thực để thay đổi trạng thái của package %s"
 
 #: ckan/logic/auth/update.py:128
 #, python-format
@@ -2451,8 +2458,8 @@ msgstr "Liên kết"
 #: ckan/public/base/javascript/modules/image-upload.js:61
 msgid "Link to a URL on the internet (you can also link to an API)"
 msgstr ""
-"Liên kết đến một địa chỉ trên mạng ( Bạn cũng có thể liên kết với một giao "
-"diện người sử dụng)"
+"Liên kết đến một địa chỉ trên mạng ( Bạn cũng có thể liên kết với một "
+"giao diện người sử dụng)"
 
 #: ckan/public/base/javascript/modules/image-upload.js:68
 msgid "Upload"
@@ -2520,8 +2527,8 @@ msgstr "Không thể lấy dữ liệu từ tệp đã tải"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:272
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop "
-"this upload?"
+"You are uploading a file. Are you sure you want to navigate away and stop"
+" this upload?"
 msgstr "Bạn đang tải tệp. Bạn muốn chuyển hướng và ngừng tải tệp?"
 
 #: ckan/public/base/javascript/modules/resource-view-filters.js:9
@@ -2576,8 +2583,8 @@ msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
-"<strong>Được phát triển bởi</strong> <a class=\"hide-text ckan-footer-logo\""
-" href=\"http://ckan.org\">CKAN</a>"
+"<strong>Được phát triển bởi</strong> <a class=\"hide-text ckan-footer-"
+"logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
@@ -2697,37 +2704,38 @@ msgstr "các lựa chọn cấu hình CKAN "
 #: ckan/templates/admin/config.html:33
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
-"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
-"Choose from a list of simple variations of the main colour scheme to get a "
-"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
-" is the logo that appears in the header of all the CKAN instance "
-"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
-" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
+"It appears in various places throughout CKAN.</p> "
+"<p><strong>Style:</strong> Choose from a list of simple variations of the"
+" main colour scheme to get a very quick custom theme working.</p> "
+"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
+"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
+" This text will appear on this CKAN instances <a "
+"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
-"templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
+" templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
-"the modules that appear on your homepage.</p> "
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout "
+"for the modules that appear on your homepage.</p> "
 msgstr ""
 "<p><strong>Tiêu đề:</strong> Đây là tiều đề của CKAN, Nó xuất hiện trong "
-"những vị trí khác nhau trong CKAN.</p> <p><strong>Kiểu:</strong> Chọn từ một"
-" danh sách của các biến đơn giản của bộ màu sắc chính để nhanh chóng thấy "
-"được việc thay đổi chủ đề.</p> <p><strong>Site Tag Logo:</strong> Đây là "
-"logo nó xuất hiện trong phần đâu của tất cả các mẩu của CKAN.</p> "
-"<p><strong>About:</strong> Văn bản này sẽ xuất hiện trên thể hiện của CKAN "
-"này.<a href=\"%(about_url)s\">Trang này</a>.</p> <p><strong>Văn bản giới "
-"thiệu:</strong> Văn bản này sẽ xuất hiện trên thể hiện của CKAN này <a "
-"href=\"%(home_url)s\">Trang chủ</a> chào mừng đến những vị khách.</p> "
-"<p><strong>Thay đổi CSS:</strong> Đây là một khối của CSS nó xuất hiện trong"
-" <code>&lt;phần đầu&gt;</code> của mọi trang. Nếu bạn muốn được tùy chỉnh "
-"các mẫu một cách đầy đủ hơn chúng tôi đề nghị <a href=\"%(docs_url)s\" "
-"target=\"_blank\">bạn đọc tài liệu</a>.</p> <p><strong>Trang chủ:</strong> "
-"Đây là lựa chọn đã được xếp đặt trước cho những modules xuất hiện trên trang"
-" chủ của bạn.</p>"
+"những vị trí khác nhau trong CKAN.</p> <p><strong>Kiểu:</strong> Chọn từ "
+"một danh sách của các biến đơn giản của bộ màu sắc chính để nhanh chóng "
+"thấy được việc thay đổi chủ đề.</p> <p><strong>Site Tag Logo:</strong> "
+"Đây là logo nó xuất hiện trong phần đâu của tất cả các mẩu của CKAN.</p> "
+"<p><strong>About:</strong> Văn bản này sẽ xuất hiện trên thể hiện của "
+"CKAN này.<a href=\"%(about_url)s\">Trang này</a>.</p> <p><strong>Văn bản "
+"giới thiệu:</strong> Văn bản này sẽ xuất hiện trên thể hiện của CKAN này "
+"<a href=\"%(home_url)s\">Trang chủ</a> chào mừng đến những vị khách.</p> "
+"<p><strong>Thay đổi CSS:</strong> Đây là một khối của CSS nó xuất hiện "
+"trong <code>&lt;phần đầu&gt;</code> của mọi trang. Nếu bạn muốn được tùy "
+"chỉnh các mẫu một cách đầy đủ hơn chúng tôi đề nghị <a "
+"href=\"%(docs_url)s\" target=\"_blank\">bạn đọc tài liệu</a>.</p> "
+"<p><strong>Trang chủ:</strong> Đây là lựa chọn đã được xếp đặt trước cho "
+"những modules xuất hiện trên trang chủ của bạn.</p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2742,8 +2750,9 @@ msgstr ""
 #, python-format
 msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
-"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
+"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin "
+"guide</a></p> "
 msgstr ""
 
 #: ckan/templates/admin/trash.html:20
@@ -2907,9 +2916,8 @@ msgstr "Bạn có muốn xóa tên thành viên nhóm không - {name}?"
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
 #: ckan/templates/package/read_base.html:14
-#: ckan/templates/package/resource_read.html:31
-#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
-#: ckan/templates/user/read_base.html:14
+#: ckan/templates/package/resource_read.html:31 ckan/templates/user/edit.html:8
+#: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:14
 msgid "Manage"
 msgstr "Quản lí"
 
@@ -2941,8 +2949,7 @@ msgstr "Tìm nhóm"
 msgid "There are currently no groups for this site"
 msgstr "Hiện tại không có nhóm nào tại trang này"
 
-#: ckan/templates/group/index.html:31
-#: ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "Bạn có muốn tạo nhóm?"
 
@@ -2975,8 +2982,8 @@ msgstr "Người sử dụng hiện tại"
 #: ckan/templates/organization/member_new.html:23
 msgid "If you wish to add an existing user, search for their username below."
 msgstr ""
-"Nếu bạn muốn thêm một người sử dụng hiện có, hãy tìm tên người sử dụng bên "
-"dưới"
+"Nếu bạn muốn thêm một người sử dụng hiện có, hãy tìm tên người sử dụng "
+"bên dưới"
 
 #: ckan/templates/group/member_new.html:38
 #: ckan/templates/organization/member_new.html:40
@@ -2992,24 +2999,22 @@ msgstr "Người sử dụng mới"
 #: ckan/templates/organization/member_new.html:47
 msgid "If you wish to invite a new user, enter their email address."
 msgstr ""
-"Nếu bạn muốn mới một người sử dụng mới, hãy nhập địa chỉ email của người đó"
+"Nếu bạn muốn mới một người sử dụng mới, hãy nhập địa chỉ email của người "
+"đó"
 
-#: ckan/templates/group/member_new.html:55
-#: ckan/templates/group/members.html:15
+#: ckan/templates/group/member_new.html:55 ckan/templates/group/members.html:15
 #: ckan/templates/organization/member_new.html:54
 #: ckan/templates/organization/members.html:20
 msgid "Role"
 msgstr "Vai trò"
 
-#: ckan/templates/group/member_new.html:58
-#: ckan/templates/group/members.html:31
+#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:31
 #: ckan/templates/organization/member_new.html:57
 #: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
 msgstr "Bạn có muốn xóa thành viên này không?"
 
-#: ckan/templates/group/member_new.html:58
-#: ckan/templates/group/members.html:31
+#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:31
 #: ckan/templates/group/snippets/group_form.html:38
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:59
@@ -3030,13 +3035,13 @@ msgstr "Vai trò là gì?"
 
 #: ckan/templates/group/member_new.html:80
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage "
-"organization members.</p> <p><strong>Member:</strong> Can add/remove "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage"
+" organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
 msgstr ""
-"<p><strong>Quản trị viên:</strong> có thể sửa thông tin nhóm và quản lý các "
-"thành viên tổ chức.</p> <p><strong>Thành viên:</strong> Có thể thêm/bớt bộ "
-"dữ liệu của các nhóm </p>"
+"<p><strong>Quản trị viên:</strong> có thể sửa thông tin nhóm và quản lý "
+"các thành viên tổ chức.</p> <p><strong>Thành viên:</strong> Có thể "
+"thêm/bớt bộ dữ liệu của các nhóm </p>"
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -3106,15 +3111,15 @@ msgstr "Nhóm là gì?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. This "
-"could be to catalogue datasets for a particular project or team, or on a "
-"particular theme, or as a very simple way to help people find and search "
-"your own published datasets. "
+" You can use CKAN Groups to create and manage collections of datasets. "
+"This could be to catalogue datasets for a particular project or team, or "
+"on a particular theme, or as a very simple way to help people find and "
+"search your own published datasets. "
 msgstr ""
-"Bạn có thể dùng CKAN Groups để tạo và quản lý các bộ sưu tập của các tập dữ "
-"liệu. Điều này có thể cho tập dữ liệu cho một dự án hoặc nhóm cụ thể, hoặc "
-"trên một chủ để cụ thể, hoặc là rất đợn giản để giúp mọi người tìm và tìm "
-"kiếm tập dữ liệu được phổ biến của chính họ."
+"Bạn có thể dùng CKAN Groups để tạo và quản lý các bộ sưu tập của các tập "
+"dữ liệu. Điều này có thể cho tập dữ liệu cho một dự án hoặc nhóm cụ thể, "
+"hoặc trên một chủ để cụ thể, hoặc là rất đợn giản để giúp mọi người tìm "
+"và tìm kiếm tập dữ liệu được phổ biến của chính họ."
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
@@ -3177,13 +3182,14 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision of "
-"robust data APIs). CKAN is aimed at data publishers (national and regional "
-"governments, companies and organizations) wanting to make their data open "
-"and available.</p> <p>CKAN is used by governments and user groups worldwide "
-"and powers a variety of official and community data portals including "
-"portals for local, national and international government, such as the UK’s "
-"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision "
+"of robust data APIs). CKAN is aimed at data publishers (national and "
+"regional governments, companies and organizations) wanting to make their "
+"data open and available.</p> <p>CKAN is used by governments and user "
+"groups worldwide and powers a variety of official and community data "
+"portals including portals for local, national and international "
+"government, such as the UK’s <a "
+"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -3193,23 +3199,24 @@ msgid ""
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 msgstr ""
-"<p>CKAN là nền tản cổng thông tin dữ liệu mã nguồn mở hàng đầu thế giới.</p>"
-" <p>CKAN là một giải pháp phần mềm hoàn chỉnh về truy cập và sử dụng dữ liệu"
-" - bằng cách cung cấp công cụ để xuất bản, chia sẻ, tìm kiếm và sử dụng dữ "
-"liệu (bao gồm lưu trữ dữ liệu và cung cấp các thư viện dữ liệu APIs mạnh "
-"mẽ). CKAN nhằm mục đích xuất bản dữ liệu (các chính phủ quốc gia và khu vực,"
-" công ty và tổ chức) muốn làm cho dữ liệu của họ mở và sẵn sàng.</p> <p>CKAN"
-" được dùng bởi các chính phủ và các nhóm người sử dụng trên toàn thế giới và"
-" và quyền hạn một loạt các cổng thông tin dữ liệu chính thức và cộng đồng "
-"bao gồm cổng thông cho chính quyền địa phương, quốc gia và quốc tế, chẳng "
-"hạn như của Vương quốc Anh <a href=\"http://data.gov.uk\">data.gov.uk</a> và"
-" cộng đồng châu Âu <a href=\"http://publicdata.eu/\">publicdata.eu</a>, "
-"Brazin <a href=\"http://dados.gov.br/\">dados.gov.br</a>, Hà Lan và Cổng "
-"thông tin chính phủ Hà Lan, cũng như nhiều website ở Mỹ, Anh Argentina, Phần"
-" Lan và nhiều nước khác.</p> <p>CKAN: <a "
+"<p>CKAN là nền tản cổng thông tin dữ liệu mã nguồn mở hàng đầu thế "
+"giới.</p> <p>CKAN là một giải pháp phần mềm hoàn chỉnh về truy cập và sử "
+"dụng dữ liệu - bằng cách cung cấp công cụ để xuất bản, chia sẻ, tìm kiếm "
+"và sử dụng dữ liệu (bao gồm lưu trữ dữ liệu và cung cấp các thư viện dữ "
+"liệu APIs mạnh mẽ). CKAN nhằm mục đích xuất bản dữ liệu (các chính phủ "
+"quốc gia và khu vực, công ty và tổ chức) muốn làm cho dữ liệu của họ mở "
+"và sẵn sàng.</p> <p>CKAN được dùng bởi các chính phủ và các nhóm người sử"
+" dụng trên toàn thế giới và và quyền hạn một loạt các cổng thông tin dữ "
+"liệu chính thức và cộng đồng bao gồm cổng thông cho chính quyền địa "
+"phương, quốc gia và quốc tế, chẳng hạn như của Vương quốc Anh <a "
+"href=\"http://data.gov.uk\">data.gov.uk</a> và cộng đồng châu Âu <a "
+"href=\"http://publicdata.eu/\">publicdata.eu</a>, Brazin <a "
+"href=\"http://dados.gov.br/\">dados.gov.br</a>, Hà Lan và Cổng thông tin "
+"chính phủ Hà Lan, cũng như nhiều website ở Mỹ, Anh Argentina, Phần Lan và"
+" nhiều nước khác.</p> <p>CKAN: <a "
 "href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN tour: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Tính năng: <a"
-" href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
+"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Tính năng:"
+" <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -3217,11 +3224,11 @@ msgstr "Chào mừng gia nhập CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. We "
-"don't have any copy to go here yet but soon we will "
+"This is a nice introductory paragraph about CKAN or the site in general. "
+"We don't have any copy to go here yet but soon we will "
 msgstr ""
-"Đây là đoạn giới thiệu hay về CKAN hoặc tổng quát site. Chúng toi không có "
-"mọi bản sao ở đây nhưng chúng tôi sẽ sớm hoàn thành nó"
+"Đây là đoạn giới thiệu hay về CKAN hoặc tổng quát site. Chúng toi không "
+"có mọi bản sao ở đây nhưng chúng tôi sẽ sớm hoàn thành nó"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -3266,8 +3273,8 @@ msgstr ""
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
-"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
+"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
@@ -3338,8 +3345,8 @@ msgstr "Nháp"
 #: ckan/templates/package/read.html:11
 #: ckan/templates/package/snippets/package_basic_fields.html:92
 #: ckan/templates/snippets/package_item.html:31
-#: ckan/templates/snippets/private.html:2
-#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
+#: ckan/templates/snippets/private.html:2 ckan/templates/user/read_base.html:82
+#: ckan/templates/user/read_base.html:96
 msgid "Private"
 msgstr "Riêng tư"
 
@@ -3393,11 +3400,11 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets, "
-"but not add new datasets.</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets,"
+" but not add new datasets.</p> "
 msgstr ""
-"<p><strong>Quản trị viên:</strong> Có thể thêm/chỉnh sửa và xóa bộ dữ liệu, "
-"cũng như quản lý các thành viên tổ chức.</p> <p><strong>Biên tập "
+"<p><strong>Quản trị viên:</strong> Có thể thêm/chỉnh sửa và xóa bộ dữ "
+"liệu, cũng như quản lý các thành viên tổ chức.</p> <p><strong>Biên tập "
 "viên:</strong> Có thể thêm và chỉnh sửa bộ dữ liệu, nhưng khong quản lý "
 "thành viên tổ chức.</p> <p><strong>Thành viên:</strong> Có thể xem bộ dữ "
 "liệu cá nhân của tổ chức nhưng không thể thêm dữ liệu mới.</p>"
@@ -3439,23 +3446,23 @@ msgstr "Tổ chức là gì?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for example,"
-" the Department of Health). This means that datasets can be published by and"
-" belong to a department instead of an individual user.</p> <p>Within "
-"organizations, admins can assign roles and authorise its members, giving "
-"individual users the right to publish datasets from that particular "
-"organisation (e.g. Office of National Statistics).</p> "
+" <p>Organizations act like publishing departments for datasets (for "
+"example, the Department of Health). This means that datasets can be "
+"published by and belong to a department instead of an individual "
+"user.</p> <p>Within organizations, admins can assign roles and authorise "
+"its members, giving individual users the right to publish datasets from "
+"that particular organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of "
-"datasets. Users can have different roles within an Organization, depending "
-"on their level of authorisation to create, edit and publish. "
+" CKAN Organizations are used to create, manage and publish collections of"
+" datasets. Users can have different roles within an Organization, "
+"depending on their level of authorisation to create, edit and publish. "
 msgstr ""
 "Các tổ chức CKAN được dùng để lập ra, quản lý và công bố các bộ dữ liệu. "
-"Người dùng có thể có nhiều vai trò trong một Tổ chức, tùy thuộc vào cấp độ "
-"quyền của họ trong việc tạo ra, chỉnh sửa và đưa tin."
+"Người dùng có thể có nhiều vai trò trong một Tổ chức, tùy thuộc vào cấp "
+"độ quyền của họ trong việc tạo ra, chỉnh sửa và đưa tin."
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3471,8 +3478,9 @@ msgstr "Một vài thông tin về tổ chức của tôi..."
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
-" performed while public or private datasets belong to this organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot"
+" be performed while public or private datasets belong to this "
+"organization."
 msgstr ""
 "Bạn có chắc muốn xóa Tổ chức này không? Tất cả những bộ dữ liệu công khai và"
 " cá nhân thuộc về tổ chức này cũng sẽ bị xóa."
@@ -3497,13 +3505,13 @@ msgstr "Bộ dữ liệu là gì?"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), together "
-"with a description and other information, at a fixed URL. Datasets are what "
-"users see when searching for data. "
+" A CKAN Dataset is a collection of data resources (such as files), "
+"together with a description and other information, at a fixed URL. "
+"Datasets are what users see when searching for data. "
 msgstr ""
-"Bộ dữ liệu CKAN là một tập hợp các dữ liệu nguồn (như các tập tin), với mô "
-"tả và các thông tin khác, tại một địa chỉ cố định. Bộ dữ liệu là những gì "
-"người dùng thấy khi tìm kiếm dữ liệu."
+"Bộ dữ liệu CKAN là một tập hợp các dữ liệu nguồn (như các tập tin), với "
+"mô tả và các thông tin khác, tại một địa chỉ cố định. Bộ dữ liệu là những"
+" gì người dùng thấy khi tìm kiếm dữ liệu."
 
 #: ckan/templates/package/confirm_delete.html:12
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3584,9 +3592,9 @@ msgstr "Thêm chức năng xem"
 msgid ""
 " Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
-"structured-data-the-data-explorer' target='_blank'>Data Explorer "
-"documentation</a>. "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
+"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
+" documentation</a>. "
 msgstr ""
 
 #: ckan/templates/package/new_view.html:29
@@ -3597,11 +3605,12 @@ msgstr "Thêm"
 #: ckan/templates/package/read_base.html:32
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
-"differ significantly from the <a href=\"%(url)s\">current revision</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It "
+"may differ significantly from the <a href=\"%(url)s\">current "
+"revision</a>."
 msgstr ""
-"Đây là bản hiệu đính cũ của bộ dữ liệu, được chỉnh sửa lúc %(timestamp)s. Nó"
-" có thể khác nhiều so với <a href=\"%(url)s\">phiên bản hiện tại</a>."
+"Đây là bản hiệu đính cũ của bộ dữ liệu, được chỉnh sửa lúc %(timestamp)s."
+" Nó có thể khác nhiều so với <a href=\"%(url)s\">phiên bản hiện tại</a>."
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
@@ -3670,9 +3679,9 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:122
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be enabled, "
-"or the data may not have been pushed to the DataStore, or the DataStore "
-"hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be "
+"enabled, or the data may not have been pushed to the DataStore, or the "
+"DataStore hasn't finished processing the data yet"
 msgstr ""
 
 #: ckan/templates/package/resource_read.html:144
@@ -3740,8 +3749,8 @@ msgstr "Thêm nguồn mới"
 #: ckan/templates/package/snippets/resources_list.html:26
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
-"add some?</a></p> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
+" add some?</a></p> "
 msgstr ""
 "<p class=\"empty\">Bộ dữ liệu này trống, <a href=\"%(url)s\">bạn có muốn "
 "thêm vào không?</a></p>"
@@ -3889,11 +3898,12 @@ msgstr "Hoạt động"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of any"
-" resource files that you add to this dataset. By submitting this form, you "
-"agree to release the <i>metadata</i> values that you enter into the form "
-"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
-"Database License</a>."
+"The <i>data license</i> you select above only applies to the contents of "
+"any resource files that you add to this dataset. By submitting this form,"
+" you agree to release the <i>metadata</i> values that you enter into the "
+"form under the <a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
+"License</a>."
 msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:39
@@ -4004,8 +4014,7 @@ msgstr "Nguồn là gì?"
 
 #: ckan/templates/package/snippets/resource_help.html:4
 msgid "A resource can be any file or link to a file containing useful data."
-msgstr ""
-"Nguồn có thể là bất kỳ tệp hoặc đường dẫn nào đến tệp chứa dữ liệu có ích."
+msgstr "Nguồn có thể là bất kỳ tệp hoặc đường dẫn nào đến tệp chứa dữ liệu có ích."
 
 #: ckan/templates/package/snippets/resource_item.html:23
 msgid "Explore"
@@ -4230,8 +4239,8 @@ msgstr "<p class=\"extra\">Thử tìm kiếm khác </p>"
 
 #: ckan/templates/snippets/search_form.html:86
 msgid ""
-" <p id=\"search-error\"><strong>There was an error while searching.</strong>"
-" Please try again.</p> "
+" <p id=\"search-error\"><strong>There was an error while "
+"searching.</strong> Please try again.</p> "
 msgstr ""
 
 #: ckan/templates/snippets/search_result_text.html:15
@@ -4372,10 +4381,11 @@ msgstr "Thông tin tài khoản"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you do. "
+" Your profile lets other CKAN users know about who you are and what you "
+"do. "
 msgstr ""
-"Lí lịch của bạn cho phép những người sử dụng CKAN khác biết bạn là ai và làm"
-" nghề gì"
+"Lí lịch của bạn cho phép những người sử dụng CKAN khác biết bạn là ai và "
+"làm nghề gì"
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
@@ -4467,7 +4477,8 @@ msgstr "Quên mật khẩu?"
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
 msgstr ""
-"Không vấn đề, sử dụng hình thức khôi phục mật khẩu của chúng tôi để cài đặt"
+"Không vấn đề, sử dụng hình thức khôi phục mật khẩu của chúng tôi để cài "
+"đặt"
 
 #: ckan/templates/user/login.html:47
 msgid "Forgot your password?"
@@ -4599,8 +4610,8 @@ msgstr ""
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
-"Enter your username into the box and we will send you an email with a link "
-"to enter a new password."
+"Enter your username into the box and we will send you an email with a "
+"link to enter a new password."
 msgstr ""
 "Nhập tên sử dụng của bạn vào hộp thư và chúng tôi sẽ gửi một liên kết để "
 "nhập mật khẩu mới"
@@ -4629,3 +4640,4 @@ msgstr "Tìm kiếm người sử dụng"
 #: ckan/views/user.py:588
 msgid "Your password must be 8 characters or longer."
 msgstr ""
+

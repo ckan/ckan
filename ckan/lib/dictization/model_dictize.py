@@ -108,6 +108,7 @@ def resource_dictize(res, context):
     ## for_edit is only called at the times when the dataset is to be edited
     ## in the frontend. Without for_edit the whole qualified url is returned.
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
+        url = url.rsplit('/')[-1]
         cleaned_name = munge.munge_filename(url)
         resource['url'] = h.url_for('resource.download',
                                     id=resource['package_id'],
@@ -388,11 +389,12 @@ def group_dictize(group, context,
                     q['include_private'] = True
 
             if not just_the_count:
-                # Is there a packages limit in the context?
+                # package_search limits 'rows' anyway, so this is only if you
+                # want even fewer
                 try:
                     packages_limit = context['limits']['packages']
                 except KeyError:
-                    q['rows'] = 1000  # Only the first 1000 datasets are returned
+                    del q['rows']  # leave it to package_search to limit it
                 else:
                     q['rows'] = packages_limit
 

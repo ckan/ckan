@@ -13,7 +13,9 @@ import ckan.authz as authz
 
 log = logging.getLogger(__name__)
 
+
 def resource_dict_save(res_dict, context):
+
     model = context["model"]
     session = context["session"]
 
@@ -29,6 +31,10 @@ def resource_dict_save(res_dict, context):
 
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
+
+    # Strip the full url for resources of type 'upload'
+    if res_dict.get('url') and res_dict.get('url_type') == u'upload':
+        res_dict['url'] = res_dict['url'].rsplit('/')[-1]
 
     # Resource extras not submitted will be removed from the existing extras
     # dict

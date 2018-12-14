@@ -9,7 +9,7 @@
   <meta property="og:description" content="{{ description|forceescape }}">
 {% endblock -%}
 
-{% block subtitle %}{{ h.dataset_display_name(package) }} - {{ h.resource_display_name(res) }}{% endblock %}
+{% block subtitle %}{{ h.dataset_display_name(package) }} {{ g.template_title_delimiter }} {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block breadcrumb_content_selected %}{% endblock %}
 

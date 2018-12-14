@@ -18,6 +18,21 @@ v.2.9.0 TBA
 
      python ckan/migration/migrate_package_activity.py -c /etc/ckan/default/production.ini
 
+Minor changes:
+
+ * For navl schemas, the 'default' validator no longer applies the default when
+   the value is False, 0, [] or {} (#4448)
+ * If you've customized the schema for package_search, you'll need to add to it
+   the limiting of ``row``, as per default_package_search_schema now does (#4484)
+ * Several logic functions now have new limits to how many items can be
+   returned, notably ``group_list`` and ``organization_list`` when
+   ``all_fields=true``. These are all configurable. (#4484)
+
+Bugfixes:
+
+ * Action function "datastore_search" would calculate the total, even if you
+   set include_total=False (#4448)
+
 Deprecations:
  * ``c.action`` and ``c.controller`` variables should be avoided.
    ``ckan.plugins.toolkit.get_endpoint`` can be used instead. This function
@@ -36,6 +51,29 @@ Deprecations:
    dataset blueprint in CKAN>=2.9, and, in the same time, it's still working for
    Pylons package controller in CKAN<2.9
 
+v.2.8.2 2018-12-12
+==================
+
+General notes:
+ * This version requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+* Strip full URL on uploaded resources before saving to DB (`#4382 <https://github.com/ckan/ckan/issues/4382>`_)
+* Fix user not being defined in check_access function (`#4574 <https://github.com/ckan/ckan/issues/4574>`_)
+* Remove html5 shim from stats extension (`#4236 <https://github.com/ckan/ckan/issues/4236>`_)
+* Fix for datastore_search distinct=true option (`#4236 <https://github.com/ckan/ckan/issues/4236>`_)
+* Fix edit slug button (`#4379 <https://github.com/ckan/ckan/issues/4379>`_)
+* Don't re-register plugin helpers on flask_app (`#4414 <https://github.com/ckan/ckan/issues/4414>`_)
+* Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+* autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+* Flask patch update (`#4426 <https://github.com/ckan/ckan/issues/4426>`_)
+* Allow plugins to define multiple blueprints (`#4495 <https://github.com/ckan/ckan/issues/4495>`_)
+* Fix i18n API encoding (`#4505 <https://github.com/ckan/ckan/issues/4505>`_)
+* Allow to defined legacy route mappings as a dict in config (`#4521 <https://github.com/ckan/ckan/issues/4521>`_)
+* group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
 
 v.2.8.1 2018-07-25
 ==================
@@ -180,13 +218,26 @@ Changes and deprecations:
  * The old Celery based background jobs have been removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
- * `ckan.recaptcha.version` config option is removed, since v2 is the only valid
-    version now (#4061)
  * After introducing dataset blueprint, `h.get_facet_items_dict` takes search_facets as second argument.
    This change is aimed to reduce usage of global variables in context. For a while, it has default value
    of None, in which case, `c.search_facets` will be used. But all template designers are strongly advised
    to specify this argument explicitly, as in future it'll become required.
  * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
+
+v2.7.5 2018-12-12
+=================
+
+  * Strip full URL on uploaded resources before saving to DB (`#4382 <https://github.com/ckan/ckan/issues/4382>`_)
+  * Fix for datastore_search distinct=true option (`#4236 <https://github.com/ckan/ckan/issues/4236>`_)
+  * Fix edit slug button (`#4379 <https://github.com/ckan/ckan/issues/4379>`_)
+  * Don't re-register plugin helpers on flask_app (`#4414 <https://github.com/ckan/ckan/issues/4414>`_)
+  * Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+  * autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+  * Flask patch update (`#4426 <https://github.com/ckan/ckan/issues/4426>`_)
+  * Allow plugins to define multiple blueprints (`#4495 <https://github.com/ckan/ckan/issues/4495>`_)
+  * Fix i18n API encoding (`#4505 <https://github.com/ckan/ckan/issues/4505>`_)
+  * Allow to defined legacy route mappings as a dict in config (`#4521 <https://github.com/ckan/ckan/issues/4521>`_)
+  * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
 
 v2.7.4 2018-05-09
 =================
@@ -370,6 +421,13 @@ Deprecations:
  * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
+
+v2.6.7 2018-12-12
+=================
+
+  * Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+  * autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+  * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
 
 v2.6.6 2018-05-09
 =================

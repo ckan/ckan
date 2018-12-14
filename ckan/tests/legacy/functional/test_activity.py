@@ -37,7 +37,7 @@ class TestActivity(HtmlCheckMethods):
     def teardown(cls):
         ckan.model.repo.rebuild_db()
 
-
+    @helpers.change_config('ckan.activity_list_limit', '15')
     def test_user_activity(self):
         """Test user activity streams HTML rendering."""
 

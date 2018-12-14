@@ -4,7 +4,7 @@ from six import text_type
 
 import ckan.lib.navl.dictization_functions as df
 
-from ckan.common import _, json
+from ckan.common import _, json, config
 
 missing = df.missing
 StopOnError = df.StopOnError
@@ -74,14 +74,26 @@ def ignore(key, data, errors, context):
     raise StopOnError
 
 def default(default_value):
+    '''When key is missing or value is an empty string or None, replace it with
+    a default value'''
 
     def callable(key, data, errors, context):
 
         value = data.get(key)
-        if not value or value is missing:
+        if value is None or value == '' or value is missing:
             data[key] = default_value
 
     return callable
+
+def configured_default(config_name, default_value_if_not_configured):
+    '''When key is missing or value is an empty string or None, replace it with
+    a default value from config, or if that isn't set from the
+    default_value_if_not_configured.'''
+
+    default_value = config.get(config_name)
+    if default_value is None:
+        default_value = default_value_if_not_configured
+    return default(default_value)
 
 def ignore_missing(key, data, errors, context):
     '''If the key is missing from the data, ignore the rest of the key's
@@ -161,3 +173,18 @@ def unicode_safe(value):
             return text_type(value)
         except Exception:
             return u'\N{REPLACEMENT CHARACTER}'
+
+def limit_to_configured_maximum(config_option, default_limit):
+    '''
+    If the value is over a limit, it changes it to the limit. The limit is
+    defined by a configuration option, or if that is not set, a given int
+    default_limit.
+    '''
+    def callable(key, data, errors, context):
+
+        value = data.get(key)
+        limit = int(config.get(config_option, default_limit))
+        if value > limit:
+            data[key] = limit
+
+    return callable

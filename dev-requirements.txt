@@ -8,8 +8,8 @@ Flask-DebugToolbar==0.10.1
 httpretty==0.8.3
 mock==2.0.0
 pycodestyle==2.2.0
-pip-tools==1.7.0
-pyfakefs==2.9
+pip-tools==2.0.2
+pyfakefs==3.2
 Sphinx==1.7.5
 sphinx-rtd-theme==0.3.1
 

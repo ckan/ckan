@@ -1,6 +1,6 @@
 {% extends "package/base.html" %}
 
-{% block subtitle %}{{ pkg_dict.name }} - Changes - {{ super() }}{% endblock %}
+{% block subtitle %}{{ pkg_dict.name }} {{ g.template_title_delimiter }} Changes {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block breadcrumb_content_selected %}{% endblock %}
 
