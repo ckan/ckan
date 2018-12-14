@@ -12,7 +12,7 @@ Example:
     </ul>
 #}
 {% set type = group.type or 'group' %}
-{% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
+{% set url = h.url_for(type ~ '.read', id=group.name) %}
 {% block item %}
 <li class="media-item">
   {% block item_inner %}

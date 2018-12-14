@@ -1011,6 +1011,71 @@ class TestResourceView(helpers.FunctionalTestBase):
     def teardown_class(cls):
             p.unload('image_view')
 
+    def test_resource_view_create(self):
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        owner_org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        url = url_for('resource.edit_view',
+                      id=resource['package_id'],
+                      resource_id=resource['id'],
+                      view_type='image_view')
+
+        app = self._get_test_app()
+        response = app.post(
+            url, {'title': 'Test Image View'}, extra_environ=env
+        ).follow(extra_environ=env)
+        response.mustcontain('Test Image View')
+
+    def test_resource_view_edit(self):
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        owner_org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+        url = url_for('resource.edit_view',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_id=resource_view['id'])
+
+        app = self._get_test_app()
+        response = app.post(
+            url, {'title': 'Updated RV Title'}, extra_environ=env
+        ).follow(extra_environ=env)
+        response.mustcontain('Updated RV Title')
+
+    def test_resource_view_delete(self):
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        owner_org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+        url = url_for('resource.edit_view',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_id=resource_view['id'])
+
+        app = self._get_test_app()
+        response = app.post(
+            url, {'delete': 'Delete'}, extra_environ=env
+        ).follow(extra_environ=env)
+        response.mustcontain('This resource has no views')
+
     def test_existent_resource_view_page_returns_ok_code(self):
         resource_view = factories.ResourceView()
 

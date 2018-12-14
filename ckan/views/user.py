@@ -78,7 +78,7 @@ def before_request():
         context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
-        _, action = request.url_rule.endpoint.split(u'.')
+        _, action = plugins.toolkit.get_endpoint()
         if action not in (
                 u'login',
                 u'request_reset',

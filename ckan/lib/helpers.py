@@ -48,7 +48,7 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
-from ckan.common import _, ungettext, c, request, session, json
+from ckan.common import _, ungettext, c, g, request, session, json
 from markupsafe import Markup, escape
 
 
@@ -69,8 +69,17 @@ LEGACY_ROUTE_NAMES = {
     'home': 'home.index',
     'about': 'home.about',
     'search': 'dataset.search',
+    'dataset_read': 'dataset.read',
+    'dataset_activity': 'dataset.activity',
+    'dataset_groups': 'dataset.groups',
     'group_index': 'group.index',
-    'organizations_index': 'organization.index'
+    'group_about': 'group.about',
+    'group_read': 'group.read',
+    'group_activity': 'group.activity',
+    'organizations_index': 'organization.index',
+    'organization_activity': 'organization.activity',
+    'organization_read': 'organization.read',
+    'organization_about': 'organization.about',
 }
 
 
@@ -578,13 +587,24 @@ def ckan_version():
 
 @core_helper
 def lang_native_name(lang=None):
-    ''' Return the langage name currently used in it's localised form
+    ''' Return the language name currently used in it's localised form
         either from parameter or current environ setting'''
     lang = lang or lang()
     locale = i18n.get_locales_dict().get(lang)
     if locale:
         return locale.display_name or locale.english_name
     return lang
+
+
+@core_helper
+def is_rtl_language():
+    return lang() in config.get('ckan.i18n.rtl_languages',
+                                'he ar fa_IR').split()
+
+
+@core_helper
+def get_rtl_css():
+    return config.get('ckan.i18n.rtl_css', '/base/css/main-rtl.css')
 
 
 class Message(object):
@@ -711,7 +731,7 @@ def _link_active_pylons(kwargs):
 
 
 def _link_active_flask(kwargs):
-    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    blueprint, endpoint = p.toolkit.get_endpoint()
     return(kwargs.get('controller') == blueprint and
            kwargs.get('action') == endpoint)
 
@@ -765,7 +785,7 @@ def nav_link(text, *args, **kwargs):
 def nav_link_flask(text, *args, **kwargs):
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
-    blueprint, endpoint = request.url_rule.endpoint.split('.')
+    blueprint, endpoint = p.toolkit.get_endpoint()
     if args:
         kwargs['controller'] = blueprint or None
         kwargs['action'] = endpoint or None
@@ -887,10 +907,12 @@ def build_nav(menu_item, title, **kw):
 def map_pylons_to_flask_route_name(menu_item):
     '''returns flask routes for old fashioned route names'''
     # Pylons to Flask legacy route names mappings
-    if config.get('ckan.legacy_route_mappings'):
-        if isinstance(config.get('ckan.legacy_route_mappings'), string_types):
-            LEGACY_ROUTE_NAMES.update(json.loads(config.get(
-                'ckan.legacy_route_mappings')))
+    mappings = config.get('ckan.legacy_route_mappings')
+    if mappings:
+        if isinstance(mappings, string_types):
+            LEGACY_ROUTE_NAMES.update(json.loads(mappings))
+        elif isinstance(mappings, dict):
+            LEGACY_ROUTE_NAMES.update(mappings)
 
     if menu_item in LEGACY_ROUTE_NAMES:
         log.info('Route name "{}" is deprecated and will be removed.\
@@ -1132,8 +1154,10 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
 @core_helper
 def check_access(action, data_dict=None):
+    if not getattr(g, u'user', None):
+        g.user = ''
     context = {'model': model,
-               'user': c.user}
+               'user': g.user}
     if not data_dict:
         data_dict = {}
     try:
@@ -1783,7 +1807,7 @@ def _create_url_with_params(params=None, controller=None, action=None,
     if not controller:
         controller = getattr(c, 'controller', False) or request.blueprint
     if not action:
-        action = getattr(c, 'action', False) or request.endpoint.split('.')[1]
+        action = getattr(c, 'action', False) or p.toolkit.get_endpoint()[1]
     if not extras:
         extras = {}
 
@@ -2280,7 +2304,8 @@ def resource_view_get_fields(resource):
 
     data = {
         'resource_id': resource['id'],
-        'limit': 0
+        'limit': 0,
+        'include_total': False,
     }
     result = logic.get_action('datastore_search')({}, data)
 

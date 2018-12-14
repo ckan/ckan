@@ -75,6 +75,36 @@ class TestPatch(helpers.FunctionalTestBase):
         assert_equals(group2['name'], 'economy')
         assert_equals(group2['description'], 'somethingnew')
 
+    def test_group_patch_preserve_datasets(self):
+        user = factories.User()
+        group = factories.Group(
+            name='economy',
+            description='some test now',
+            user=user)
+        factories.Dataset(groups=[{'name': group['name']}])
+
+        group2 = helpers.call_action('group_show', id=group['id'])
+        assert_equals(1, group2['package_count'])
+
+        group = helpers.call_action(
+            'group_patch',
+            id=group['id'],
+            context={'user': user['name']})
+
+        group3 = helpers.call_action('group_show', id=group['id'])
+        assert_equals(1, group3['package_count'])
+
+        group = helpers.call_action(
+            'group_patch',
+            id=group['id'],
+            packages=[],
+            context={'user': user['name']})
+
+        group4 = helpers.call_action(
+            'group_show', id=group['id'], include_datasets=True
+        )
+        assert_equals(0, group4['package_count'])
+
     def test_organization_patch_updating_single_field(self):
         user = factories.User()
         organization = factories.Organization(

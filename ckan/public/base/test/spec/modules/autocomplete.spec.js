@@ -280,7 +280,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
 
   describe('._onKeydown(event)', function () {
     beforeEach(function () {
-      this.keyDownEvent = jQuery.Event("keydown", { which: 188 });
+      this.keyDownEvent = jQuery.Event("keydown", { key: ',', which: 188 });
       this.fakeEvent = {};
       this.clock = sinon.useFakeTimers();
       this.jQuery = sinon.stub(jQuery.fn, 'init', jQuery.fn.init);
@@ -294,7 +294,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
       this.Event.restore();
       this.trigger.restore();
     });
-  
+
     it('should trigger fake "return" keypress if a comma is pressed', function () {
       this.module._onKeydown(this.keyDownEvent);
 
@@ -307,7 +307,19 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
 
     it('should do nothing if another key is pressed', function () {
+      this.keyDownEvent.key = '╚';
       this.keyDownEvent.which = 200;
+
+      this.module._onKeydown(this.keyDownEvent);
+
+      this.clock.tick(100);
+
+      assert.notCalled(this.Event);
+    });
+
+    it('should do nothing if key is pressed which has the comma key-code but is not a comma', function () {
+      this.keyDownEvent.key = 'ת';
+      this.keyDownEvent.which = 188;
 
       this.module._onKeydown(this.keyDownEvent);
 

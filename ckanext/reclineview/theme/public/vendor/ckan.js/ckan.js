@@ -10,7 +10,7 @@ if (isNodeModule) {
 }
 
 (function(my) {
-  my.Client = function(endpoint, apiKey) { 
+  my.Client = function(endpoint, apiKey) {
     this.endpoint = _getEndpoint(endpoint);
     this.apiKey = apiKey;
   };
@@ -51,7 +51,8 @@ if (isNodeModule) {
       var out = {
         total: results.result.total,
         fields: fields,
-        hits: results.result.records
+        hits: results.result.records,
+        total_was_estimated: results.result.total_was_estimated
       };
       cb(null, out);
     });
@@ -67,7 +68,7 @@ if (isNodeModule) {
     'bool': 'boolean',
   };
 
-  // 
+  //
   my.jsonTableSchema2CkanTypes = {
     'string': 'text',
     'number': 'float',
@@ -128,7 +129,7 @@ if (isNodeModule) {
         code: obj.status,
         message: obj.responseText
       }
-      cb(err); 
+      cb(err);
     }
     if (options.headers) {
       options.beforeSend = function(req) {
@@ -147,7 +148,8 @@ if (isNodeModule) {
       q: queryObj.q,
       filters: {},
       limit: queryObj.size || 10,
-      offset: queryObj.from || 0
+      offset: queryObj.from || 0,
+      total_estimation_threshold: 1000
     };
 
     if (queryObj.sort && queryObj.sort.length > 0) {
@@ -188,7 +190,7 @@ if (isNodeModule) {
 // This provides connection to the CKAN DataStore (v2)
 //
 // General notes
-// 
+//
 // We need 2 things to make most requests:
 //
 // 1. CKAN API endpoint
@@ -196,13 +198,13 @@ if (isNodeModule) {
 //
 // There are 2 ways to specify this information.
 //
-// EITHER (checked in order): 
+// EITHER (checked in order):
 //
 // * Every dataset must have an id equal to its resource id on the CKAN instance
 // * The dataset has an endpoint attribute pointing to the CKAN API endpoint
 //
 // OR:
-// 
+//
 // Set the url attribute of the dataset to point to the Resource on the CKAN instance. The endpoint and id will then be automatically computed.
 var recline = recline || {};
 recline.Backend = recline.Backend || {};

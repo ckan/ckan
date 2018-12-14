@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ h.get_translated(group_dict, 'title') or group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
+{% block subtitle %}{{ h.get_translated(group_dict, 'title') or group_dict.display_name }} {{ g.template_title_delimiter }} {{ _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Groups'), named_route=group_type+'.index' %}</li>

@@ -1,6 +1,6 @@
 {% extends "organization/edit_base.html" %}
 
-{% block subtitle %}{{ _('Members') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Members') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block page_primary_action %}
   {% if h.check_access('organization_update', {'id': organization.id}) %}

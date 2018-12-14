@@ -17,7 +17,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.3.4\n"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
@@ -4545,9 +4545,6 @@ msgid "Search Users"
 msgstr ""
 
 #~ msgid ""
-#~ "Viewing {package_type} datasets in {format}"
-#~ " format is not supported (template "
-#~ "file {file} not found)."
 #~ msgstr ""
 
 #~ msgid "Reorder resources"
@@ -4557,5 +4554,62 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "An error occurred: %(text)s %(error)s"
+#~ msgstr ""
+
+#~ msgid "Cannot list entity of this type: %s"
+#~ msgstr ""
+
+#~ msgid "Cannot read entity of this type: %s"
+#~ msgstr ""
+
+#~ msgid "Cannot create new entity of this type: %s %s"
+#~ msgstr ""
+
+#~ msgid "Unable to add package to search index"
+#~ msgstr ""
+
+#~ msgid "Cannot update entity of this type: %s"
+#~ msgstr ""
+
+#~ msgid "Unable to update search index"
+#~ msgstr ""
+
+#~ msgid "Cannot delete entity of this type: %s %s"
+#~ msgstr ""
+
+#~ msgid "Your password must be 4 characters or longer"
+#~ msgstr ""
+
+#~ msgid "Valid API key needed to create a package"
+#~ msgstr ""
+
+#~ msgid "Valid API key needed to create a group"
+#~ msgstr ""
+
+#~ msgid "Valid API key needed to edit a package"
+#~ msgstr ""
+
+#~ msgid "Valid API key needed to edit a group"
+#~ msgstr ""
+
+#~ msgid "Add dataset"
+#~ msgstr ""
+
+#~ msgid "Embed Data Viewer"
+#~ msgstr ""
+
+#~ msgid "Embed this view by copying this into your webpage:"
+#~ msgstr ""
+
+#~ msgid "Choose width and height in pixels:"
+#~ msgstr ""
+
+#~ msgid "Width:"
+#~ msgstr ""
+
+#~ msgid "Height:"
+#~ msgstr ""
+
+#~ msgid "Submit"
 #~ msgstr ""
 

@@ -130,7 +130,7 @@ class TestAction(WsgiAppCase):
         assert_equal(res_obj['result'][0]['match_displayed'], 'warandpeace')
 
     def test_02_package_autocomplete_match_title(self):
-        postparams = '%s=1' % json.dumps({'q':'a%20w', 'limit': 5})
+        postparams = '%s=1' % json.dumps({'q': 'won', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)

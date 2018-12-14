@@ -1,7 +1,7 @@
 {% import 'macros/form.html' as form %}
 {% extends "package/resource_edit_base.html" %}
 
-{% block subtitle %}{{ _('View') }} - {{ h.resource_display_name(res) }}{% endblock %}
+{% block subtitle %}{{ _('View') }} {{ g.template_title_delimiter }} {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block page_primary_action %}
   <div class="btn-group">

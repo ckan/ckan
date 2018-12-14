@@ -1,6 +1,6 @@
 {% extends "package/resource_edit_base.html" %}
 
-{% block subtitle %}{{ _('Add resource') }} - {{ h.dataset_display_name(pkg) }}{% endblock %}
+{% block subtitle %}{{ _('Add resource') }} {{ g.template_title_delimiter }} {{ h.dataset_display_name(pkg) }}{% endblock %}
 {% block form_title %}{{ _('Add resource') }}{% endblock %}
 
 {% block breadcrumb_content %}

@@ -3,12 +3,8 @@
 import os.path
 import logging
 import cgi
-import datetime
-import glob
 import urllib
 
-from webob.multidict import UnicodeMultiDict
-from paste.util.multidict import MultiDict
 from six import text_type
 
 import ckan.model as model
@@ -257,143 +253,6 @@ class ApiController(base.BaseController):
             return self._finish(500, return_dict, content_type='json')
         return self._finish_ok(return_dict)
 
-    def _get_action_from_map(self, action_map, register, subregister):
-        ''' Helper function to get the action function specified in
-            the action map'''
-
-        # translate old package calls to use dataset
-        if register == 'package':
-            register = 'dataset'
-
-        action = action_map.get((register, subregister))
-        if not action:
-            action = action_map.get(register)
-        if action:
-            return get_action(action)
-
-    def search(self, ver=None, register=None):
-
-        log.debug('search %s params: %r', register, request.params)
-        if register == 'revision':
-            since_time = None
-            if 'since_id' in request.params:
-                id = request.params['since_id']
-                if not id:
-                    return self._finish_bad_request(
-                        _(u'No revision specified'))
-                rev = model.Session.query(model.Revision).get(id)
-                if rev is None:
-                    return self._finish_not_found(
-                        _(u'There is no revision with id: %s') % id)
-                since_time = rev.timestamp
-            elif 'since_time' in request.params:
-                since_time_str = request.params['since_time']
-                try:
-                    since_time = h.date_str_to_datetime(since_time_str)
-                except ValueError as inst:
-                    return self._finish_bad_request('ValueError: %s' % inst)
-            else:
-                return self._finish_bad_request(
-                    _("Missing search term ('since_id=UUID' or " +
-                      " 'since_time=TIMESTAMP')"))
-            revs = model.Session.query(model.Revision) \
-                .filter(model.Revision.timestamp > since_time) \
-                .order_by(model.Revision.timestamp) \
-                .limit(50)  # reasonable enough for a page
-            return self._finish_ok([rev.id for rev in revs])
-        elif register in ['dataset', 'package', 'resource']:
-            try:
-                params = MultiDict(self._get_search_params(request.params))
-            except ValueError as e:
-                return self._finish_bad_request(
-                    _('Could not read parameters: %r' % e))
-
-            # if using API v2, default to returning the package ID if
-            # no field list is specified
-            if register in ['dataset', 'package'] and not params.get('fl'):
-                params['fl'] = 'id' if ver == 2 else 'name'
-
-            try:
-                if register == 'resource':
-                    query = search.query_for(model.Resource)
-
-                    # resource search still uses ckan query parser
-                    options = search.QueryOptions()
-                    for k, v in params.items():
-                        if (k in search.DEFAULT_OPTIONS.keys()):
-                            options[k] = v
-                    options.update(params)
-                    options.username = c.user
-                    options.search_tags = False
-                    options.return_objects = False
-                    query_fields = MultiDict()
-                    for field, value in params.items():
-                        field = field.strip()
-                        if field in search.DEFAULT_OPTIONS.keys() or \
-                                field in IGNORE_FIELDS:
-                            continue
-                        values = [value]
-                        if isinstance(value, list):
-                            values = value
-                        for v in values:
-                            query_fields.add(field, v)
-
-                    results = query.run(
-                        query=params.get('q'),
-                        fields=query_fields,
-                        options=options
-                    )
-                else:
-                    # For package searches in API v3 and higher, we can pass
-                    # parameters straight to Solr.
-                    if ver in [1, 2]:
-                        # Otherwise, put all unrecognised ones into the q
-                        # parameter
-                        params = search.\
-                            convert_legacy_parameters_to_solr(params)
-                    query = search.query_for(model.Package)
-
-                    # Remove any existing fq param and set the capacity to
-                    # public
-                    if 'fq' in params:
-                        del params['fq']
-                    params['fq'] = '+capacity:public'
-                    # if callback is specified we do not want to send that to
-                    # the search
-                    if 'callback' in params:
-                        del params['callback']
-                    results = query.run(params)
-                return self._finish_ok(results)
-            except search.SearchError as e:
-                log.exception(e)
-                return self._finish_bad_request(
-                    _('Bad search option: %s') % e)
-        else:
-            return self._finish_not_found(
-                _('Unknown register: %s') % register)
-
-    @classmethod
-    def _get_search_params(cls, request_params):
-        if 'qjson' in request_params:
-            try:
-                qjson_param = request_params['qjson'].replace('\\\\u', '\\u')
-                params = h.json.loads(qjson_param, encoding='utf8')
-            except ValueError as e:
-                raise ValueError(_('Malformed qjson value: %r')
-                                 % e)
-        elif len(request_params) == 1 and \
-            len(request_params.values()[0]) < 2 and \
-                request_params.keys()[0].startswith('{'):
-            # e.g. {some-json}='1' or {some-json}=''
-            params = h.json.loads(request_params.keys()[0], encoding='utf8')
-        else:
-            params = request_params
-        if not isinstance(params, (UnicodeMultiDict, dict)):
-            msg = _('Request params must be in form ' +
-                    'of a json encoded dictionary.')
-            raise ValueError(msg)
-        return params
-
     @jsonp.jsonpify
     def user_autocomplete(self):
         q = request.params.get('q', '')
@@ -443,59 +302,6 @@ class ApiController(base.BaseController):
             organization_list = \
                 get_action('organization_autocomplete')(context, data_dict)
         return organization_list
-
-    def dataset_autocomplete(self):
-        q = request.params.get('incomplete', '')
-        limit = request.params.get('limit', 10)
-        package_dicts = []
-        if q:
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user, 'auth_user_obj': c.userobj}
-
-            data_dict = {'q': q, 'limit': limit}
-
-            package_dicts = get_action('package_autocomplete')(context,
-                                                               data_dict)
-
-        resultSet = {'ResultSet': {'Result': package_dicts}}
-        return self._finish_ok(resultSet)
-
-    def tag_autocomplete(self):
-        q = request.str_params.get('incomplete', '')
-        q = text_type(urllib.unquote(q), 'utf-8')
-        limit = request.params.get('limit', 10)
-        tag_names = []
-        if q:
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user, 'auth_user_obj': c.userobj}
-
-            data_dict = {'q': q, 'limit': limit}
-
-            tag_names = get_action('tag_autocomplete')(context, data_dict)
-
-        resultSet = {
-            'ResultSet': {
-                'Result': [{'Name': tag} for tag in tag_names]
-            }
-        }
-        return self._finish_ok(resultSet)
-
-    def format_autocomplete(self):
-        q = request.params.get('incomplete', '')
-        limit = request.params.get('limit', 5)
-        formats = []
-        if q:
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user, 'auth_user_obj': c.userobj}
-            data_dict = {'q': q, 'limit': limit}
-            formats = get_action('format_autocomplete')(context, data_dict)
-
-        resultSet = {
-            'ResultSet': {
-                'Result': [{'Format': format} for format in formats]
-            }
-        }
-        return self._finish_ok(resultSet)
 
     def munge_package_name(self):
         name = request.params.get('name')
