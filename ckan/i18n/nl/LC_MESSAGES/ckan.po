@@ -3,11 +3,8 @@
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 #
-<<<<<<< HEAD
-=======
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
->>>>>>> 0d80c9715... Update po files
 #, fuzzy
 msgid ""
 msgstr ""
