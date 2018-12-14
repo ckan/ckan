@@ -3,23 +3,14 @@
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 #
-<<<<<<< HEAD
-=======
 # Translators:
 # Jakub Klímek <klimek@ksi.mff.cuni.cz>, 2018
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
->>>>>>> 0d80c9715... Update po files
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-<<<<<<< HEAD
-"POT-Creation-Date: 2017-06-21 15:47+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Jakub Klímek <klimek@ksi.mff.cuni.cz>, 2018\n"
-"Language-Team: Czech (Czech Republic) (https://www.transifex.com/okfn/teams/11162/cs_CZ/)\n"
-=======
 "POT-Creation-Date: 2018-03-27 16:10+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
@@ -28,7 +19,6 @@ msgstr ""
 "(https://www.transifex.com/okfn/teams/11162/cs_CZ/)\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && "
 "n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3\n"
->>>>>>> 0d80c9715... Update po files
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"

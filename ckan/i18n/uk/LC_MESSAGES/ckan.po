@@ -3,23 +3,15 @@
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 #
-<<<<<<< HEAD
-=======
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
->>>>>>> 0d80c9715... Update po files
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-<<<<<<< HEAD
-"POT-Creation-Date: 2017-06-21 15:47+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-=======
 "POT-Creation-Date: 2018-03-27 16:10+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
->>>>>>> 0d80c9715... Update po files
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
 "Language: uk\n"
 "Language-Team: Ukrainian (https://www.transifex.com/okfn/teams/11162/uk/)"

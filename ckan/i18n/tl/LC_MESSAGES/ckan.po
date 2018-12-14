@@ -17,11 +17,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-<<<<<<< HEAD
-"Generated-By: Babel 2.4.0\n"
-=======
 "Generated-By: Babel 2.3.4\n"
->>>>>>> 0d80c9715... Update po files
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
@@ -4560,8 +4556,6 @@ msgstr ""
 #~ msgid "An error occurred: %(text)s %(error)s"
 #~ msgstr ""
 
-<<<<<<< HEAD
-=======
 #~ msgid "Cannot list entity of this type: %s"
 #~ msgstr ""
 
@@ -4619,4 +4613,3 @@ msgstr ""
 #~ msgid "Submit"
 #~ msgstr ""
 
->>>>>>> 0d80c9715... Update po files

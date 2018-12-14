@@ -3,23 +3,14 @@
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 #
-<<<<<<< HEAD
-=======
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
 # Rui <xymarior@yandex.com>, 2018
->>>>>>> 0d80c9715... Update po files
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-<<<<<<< HEAD
-"POT-Creation-Date: 2017-06-21 15:47+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
-"Language-Team: Portuguese (Portugal) (https://www.transifex.com/okfn/teams/11162/pt_PT/)\n"
-=======
 "POT-Creation-Date: 2018-03-27 16:10+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
 "Last-Translator: Rui <xymarior@yandex.com>, 2018\n"
@@ -27,7 +18,6 @@ msgstr ""
 "Language-Team: Portuguese (Portugal) "
 "(https://www.transifex.com/okfn/teams/11162/pt_PT/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
->>>>>>> 0d80c9715... Update po files
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2609,8 +2599,6 @@ msgstr "Mostrar mais"
 msgid "Hide"
 msgstr "Ocultar"
 
-<<<<<<< HEAD
-=======
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:13
 #: ckan/public-bs2/base/test/spec/module.spec.js:385
 #: ckan/public/base/test/spec/i18n.spec.js:13
@@ -2704,7 +2692,6 @@ msgid_plural "%(num)d missing translations"
 msgstr[0] ""
 msgstr[1] ""
 
->>>>>>> 0d80c9715... Update po files
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
@@ -4218,15 +4205,11 @@ msgstr "Explorar"
 msgid "More information"
 msgstr "Mais informação"
 
-<<<<<<< HEAD
-#: ckan/templates/package/snippets/resource_view.html:11
-=======
 #: ckan/templates/package/snippets/resource_view.html:10
 msgid "Fullscreen"
 msgstr "Ecrã cheio"
 
 #: ckan/templates/package/snippets/resource_view.html:18
->>>>>>> 0d80c9715... Update po files
 msgid "Embed"
 msgstr "Incorporar "
 

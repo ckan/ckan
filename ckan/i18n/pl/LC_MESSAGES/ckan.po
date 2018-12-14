@@ -3,27 +3,18 @@
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 #
-<<<<<<< HEAD
-=======
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
 # Teiron, 2018
->>>>>>> 0d80c9715... Update po files
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.8.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-<<<<<<< HEAD
-"POT-Creation-Date: 2017-06-21 15:47+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
-=======
 "POT-Creation-Date: 2018-03-27 16:10+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
 "Last-Translator: Teiron, 2018\n"
 "Language: pl\n"
->>>>>>> 0d80c9715... Update po files
 "Language-Team: Polish (https://www.transifex.com/okfn/teams/11162/pl/)\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
 "(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
@@ -2721,15 +2712,11 @@ msgstr ""
 msgid "Trash"
 msgstr "Kosz"
 
-<<<<<<< HEAD
-#: ckan/templates/admin/config.html:16
-=======
 #: ckan/templates/admin/config.html:23 ckan/templates/macros/autoform.html:62
 msgid "Site logo"
 msgstr "Logo strony"
 
 #: ckan/templates/admin/config.html:35
->>>>>>> 0d80c9715... Update po files
 #: ckan/templates/admin/confirm_reset.html:7
 msgid "Are you sure you want to reset the config?"
 msgstr ""
