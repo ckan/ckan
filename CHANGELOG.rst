@@ -216,7 +216,7 @@ Changes and deprecations:
    to specify this argument explicitly, as in future it'll become required.
  * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
 
- v2.7.5 2018-12-12
+v2.7.5 2018-12-12
 =================
 
   * Strip full URL on uploaded resources before saving to DB (`#4382 <https://github.com/ckan/ckan/issues/4382>`_)
