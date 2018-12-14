@@ -753,7 +753,6 @@ class GroupController(base.BaseController):
         return self._render_template('group/confirm_delete_member.html',
                                      group_type)
 
-
     # deprecated
     def history(self, id):
         return h.redirect_to(controller=u'group', action='activity', id=id)

@@ -1245,7 +1245,8 @@ class IDatasetForm(Interface):
     def history_template(self):
         u'''
         .. warning:: This template is removed. The function exists for
-        compatibility. It now returns None.
+            compatibility. It now returns None.
+
         '''
 
     def resource_template(self):
