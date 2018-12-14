@@ -14,6 +14,11 @@ Minor changes:
 
  * For navl schemas, the 'default' validator no longer applies the default when
    the value is False, 0, [] or {} (#4448)
+ * If you've customized the schema for package_search, you'll need to add to it
+   the limiting of ``row``, as per default_package_search_schema now does (#4484)
+ * Several logic functions now have new limits to how many items can be
+   returned, notably ``group_list`` and ``organization_list`` when
+   ``all_fields=true``. These are all configurable. (#4484)
 
 Bugfixes:
 

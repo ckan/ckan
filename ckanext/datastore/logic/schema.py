@@ -122,6 +122,8 @@ def datastore_create_schema():
                 OneOf([u'row'])],
             'function': [not_empty, unicode_only],
         },
+        'calculate_record_count': [ignore_missing, default(False),
+                                   boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
@@ -135,6 +137,8 @@ def datastore_upsert_schema():
         'id': [ignore_missing],
         'method': [ignore_missing, text_type, OneOf(
             ['upsert', 'insert', 'update'])],
+        'calculate_record_count': [ignore_missing, default(False),
+                                   boolean_validator],
         'dry_run': [ignore_missing, boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
@@ -147,6 +151,8 @@ def datastore_delete_schema():
         'resource_id': [not_missing, not_empty, text_type],
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
+        'calculate_record_count': [ignore_missing, default(False),
+                                   boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
@@ -167,6 +173,7 @@ def datastore_search_schema():
         'sort': [ignore_missing, list_of_strings_or_string],
         'distinct': [ignore_missing, boolean_validator],
         'include_total': [default(True), boolean_validator],
+        'total_estimation_threshold': [default(None), int_validator],
         'records_format': [
             default(u'objects'),
             OneOf([u'objects', u'lists', u'csv', u'tsv'])],
@@ -194,4 +201,10 @@ def datastore_function_delete_schema():
     return {
         'name': [unicode_only, not_empty],
         'if_exists': [default(False), boolean_validator],
+    }
+
+
+def datastore_analyze_schema():
+    return {
+        'resource_id': [text_type, resource_id_exists],
     }

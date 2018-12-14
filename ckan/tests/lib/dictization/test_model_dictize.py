@@ -5,7 +5,7 @@ import copy
 
 from nose.tools import assert_equal
 
-from ckan.lib.dictization import model_dictize
+from ckan.lib.dictization import model_dictize, model_save
 from ckan import model
 from ckan.lib import search
 
@@ -240,6 +240,19 @@ class TestGroupDictize:
 
         assert_equal(len(group['packages']), 3)
 
+    @helpers.change_config('ckan.search.rows_max', '4')
+    def test_group_dictize_with_package_list_limited_by_config(self):
+        group_ = factories.Group()
+        for _ in range(5):
+            factories.Dataset(groups=[{'name': group_['name']}])
+        group_obj = model.Session.query(model.Group).filter_by().first()
+        context = {'model': model, 'session': model.Session}
+
+        group = model_dictize.group_dictize(group_obj, context)
+
+        assert_equal(len(group['packages']), 4)
+        # limited by ckan.search.rows_max
+
     def test_group_dictize_with_package_count(self):
         # group_list_dictize calls it like this by default
         group_ = factories.Group()
@@ -401,8 +414,7 @@ class TestPackageDictize:
 
         result = model_dictize.package_dictize(dataset_obj, context)
 
-        assert_equal_for_keys(result['resources'][0], resource,
-                              'name', 'url')
+        assert_equal_for_keys(result['resources'][0], resource, 'name', 'url')
         expected_dict = {
             u'cache_last_updated': None,
             u'cache_url': None,
@@ -421,6 +433,40 @@ class TestPackageDictize:
             u'url_type': None
         }
         self.assert_equals_expected(expected_dict, result['resources'][0])
+
+    def test_package_dictize_resource_upload_and_striped(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset['id'],
+                                      name='test_pkg_dictize',
+                                      url_type='upload',
+                                      url='some_filename.csv')
+
+        context = {'model': model, 'session': model.Session}
+
+        result = model_save.resource_dict_save(resource, context)
+
+        expected_dict = {
+            u'url': u'some_filename.csv',
+            u'url_type': u'upload'
+        }
+        assert expected_dict['url'] == result.url
+
+    def test_package_dictize_resource_upload_with_url_and_striped(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset['id'],
+                                      name='test_pkg_dictize',
+                                      url_type='upload',
+                                      url='http://some_filename.csv')
+
+        context = {'model': model, 'session': model.Session}
+
+        result = model_save.resource_dict_save(resource, context)
+
+        expected_dict = {
+            u'url': u'some_filename.csv',
+            u'url_type': u'upload'
+        }
+        assert expected_dict['url'] == result.url
 
     def test_package_dictize_tags(self):
         dataset = factories.Dataset(tags=[{'name': 'fish'}])

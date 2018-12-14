@@ -1054,11 +1054,10 @@ def upsert_data(context, data_dict):
 
         try:
             context['connection'].execute(sql_string, rows)
-        except sqlalchemy.exc.DataError:
+        except sqlalchemy.exc.DataError as err:
             raise InvalidDataError(
-                toolkit._("The data was invalid (for example: a numeric value "
-                          "is out of range or was inserted into a text field)."
-                          ))
+                toolkit._("The data was invalid: {}"
+                          ).format(_programming_error_summary(err)))
         except sqlalchemy.exc.DatabaseError as err:
             raise ValidationError(
                 {u'records': [_programming_error_summary(err)]})
@@ -1189,7 +1188,9 @@ def validate(context, data_dict):
 
     data_dict_copy.pop('id', None)
     data_dict_copy.pop('include_total', None)
+    data_dict_copy.pop('total_estimation_threshold', None)
     data_dict_copy.pop('records_format', None)
+    data_dict_copy.pop('calculate_record_count', None)
 
     for key, values in data_dict_copy.iteritems():
         if not values:
@@ -1312,17 +1313,53 @@ def search_data(context, data_dict):
     _insert_links(data_dict, limit, offset)
 
     if data_dict.get('include_total', True):
-        count_sql_string = u'''SELECT count(*) FROM (
-            SELECT {distinct} {select}
-            FROM "{resource}" {ts_query} {where}) as t;'''.format(
-            distinct=distinct,
-            select=select_columns,
-            resource=resource_id,
-            ts_query=ts_query,
-            where=where_clause)
-        count_result = _execute_single_statement(
-            context, count_sql_string, where_values)
-        data_dict['total'] = count_result.fetchall()[0][0]
+        total_estimation_threshold = \
+            data_dict.get('total_estimation_threshold')
+        estimated_total = None
+        if total_estimation_threshold is not None and \
+                not (where_clause or distinct):
+            # there are no filters, so we can try to use the estimated table
+            # row count from pg stats
+            # See: https://wiki.postgresql.org/wiki/Count_estimate
+            # (We also tried using the EXPLAIN to estimate filtered queries but
+            #  it didn't estimate well in tests)
+            analyze_count_sql = sqlalchemy.text('''
+            SELECT reltuples::BIGINT AS approximate_row_count
+            FROM pg_class
+            WHERE relname=:resource;
+            ''')
+            count_result = context['connection'].execute(analyze_count_sql,
+                                                         resource=resource_id)
+            try:
+                estimated_total = count_result.fetchall()[0][0]
+            except ValueError:
+                # the table doesn't have the stats calculated yet. (This should
+                # be done by xloader/datapusher at the end of loading.)
+                # We could provoke their creation with an ANALYZE, but that
+                # takes 10x the time to run, compared to SELECT COUNT(*) so
+                # we'll just revert to the latter. At some point the autovacuum
+                # will run and create the stats so we can use an estimate in
+                # future.
+                pass
+
+        if estimated_total is not None \
+                and estimated_total >= total_estimation_threshold:
+            data_dict['total'] = estimated_total
+            data_dict['total_was_estimated'] = True
+        else:
+            # this is slow for large results
+            count_sql_string = u'''SELECT count(*) FROM (
+                SELECT {distinct} {select}
+                FROM "{resource}" {ts_query} {where}) as t;'''.format(
+                distinct=distinct,
+                select=select_columns,
+                resource=resource_id,
+                ts_query=ts_query,
+                where=where_clause)
+            count_result = _execute_single_statement(
+                context, count_sql_string, where_values)
+            data_dict['total'] = count_result.fetchall()[0][0]
+            data_dict['total_was_estimated'] = False
 
     return data_dict
 
@@ -1947,6 +1984,19 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         # Called by DatastorePlugin.before_fork. Dispose SQLAlchemy engines
         # to avoid sharing them between parent and child processes.
         _dispose_engines()
+
+    def calculate_record_count(self, resource_id):
+        '''
+        Calculate an estimate of the record/row count and store it in
+        Postgresql's pg_stat_user_tables. This number will be used when
+        specifying `total_estimation_threshold`
+        '''
+        connection = get_write_engine().connect()
+        sql = 'ANALYZE "{}"'.format(resource_id)
+        try:
+            connection.execute(sql)
+        except sqlalchemy.exc.DatabaseError as err:
+            raise DatastoreException(err)
 
 
 def create_function(name, arguments, rettype, definition, or_replace):
