@@ -1393,7 +1393,7 @@ def format_results(context, results, data_dict, rows_max):
         records.append(converted_row)
     data_dict['records'] = records
     if data_dict.get('records_truncated', False):
-        data_dict['records'] = data_dict['records'][:rows_max]
+        data_dict['records'].pop()
     data_dict['fields'] = result_fields
 
     return _unrename_json_field(data_dict)
