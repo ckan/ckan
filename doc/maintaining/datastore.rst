@@ -207,10 +207,40 @@ alongside CKAN.
 
 To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
 
+
+
 .. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
    not support duplicate column headers. That includes blank column headings.
 
 .. _data_dictionary:
+
+
+Using datapusher from the command-line
+======================================
+
+To see all available datapusher paster commands run::
+    
+    paster datapusher
+    
+Resubmit all resources to datapusher, although it will skip files whose hash of the data file has not changed::
+
+    paster --plugin=ckan datapusher resubmit -c /etc/ckan/default/ckan.ini
+
+Resubmit a specific resource, whether or not the hash of the data file has changed::
+
+    paster --plugin=ckan datapusher submit <pkgname> -c /etc/ckan/default/ckan.ini
+    
+Submit every package to the datastore. This is useful if you're setting up datastore for a ckan that already has datasets::
+
+    paster --plugin=ckan datapusher submit_all -c /etc/ckan/default/ckan.ini
+
+
+API reference
+=============
+
+.. automodule:: ckanext.datapusher.logic.action
+   :members:
+
 
 ---------------
 Data Dictionary
