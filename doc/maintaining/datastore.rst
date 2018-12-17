@@ -207,8 +207,6 @@ alongside CKAN.
 
 To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
 
-
-
 .. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
    not support duplicate column headers. That includes blank column headings.
 
