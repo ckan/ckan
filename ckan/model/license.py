@@ -126,6 +126,9 @@ class LicenseRegister(object):
         except Exception as inst:
             msg = "Couldn't read response from licenses service %r: %s" % (response_body, inst)
             raise Exception(inst)
+        for license in license_data:
+            if license.get('title'):
+                license['title'] = _(license['title'])
         self._create_license_list(license_data, license_url)
 
     def _create_license_list(self, license_data, license_url=''):
