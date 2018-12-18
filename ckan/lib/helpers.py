@@ -49,6 +49,7 @@ import ckan.plugins as p
 import ckan
 
 from ckan.common import _, ungettext, c, g, request, session, json
+from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
 
 
@@ -2645,6 +2646,8 @@ core_helper(whtext.truncate)
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
+core_helper(include_asset)
+core_helper(render_assets)
 
 
 def load_plugin_helpers():

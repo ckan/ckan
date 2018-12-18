@@ -189,5 +189,6 @@
 
 {% block scripts %}
   {{ super() }}
-  {% resource "ckanext_stats/stats" %}
+  {#% resource "ckanext_stats/stats" %#}
+  {% asset "ckanext_stats/stats" %}
 {% endblock %}

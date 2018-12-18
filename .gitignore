@@ -31,6 +31,9 @@ fl_notes.txt
 # custom style
 ckan/public/base/less/custom.less
 
+# webassets
+ckan/public/webassets
+
 # nosetest coverage output
 .coverage
 htmlcov/*

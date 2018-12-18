@@ -20,5 +20,6 @@
 
 {% block scripts %}
   {{ super() }}
-  {% resource 'vendor/fileupload' %}
+  {#% resource 'vendor/fileupload' %#}
+  {% asset 'vendor/fileupload' %}
 {% endblock %}

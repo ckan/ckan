@@ -65,3 +65,5 @@ webob==1.0.8
 webtest==1.4.3
 werkzeug==0.14.1          # via flask
 zope.interface==4.3.2
+PyYAML==3.13
+webassets==0.12.1

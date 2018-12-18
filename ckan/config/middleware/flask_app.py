@@ -7,7 +7,7 @@ import inspect
 import itertools
 import pkgutil
 
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 
@@ -22,6 +22,7 @@ from fanstatic import Fanstatic
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
+import ckan
 import ckan.model as model
 from ckan.lib import base
 from ckan.lib import helpers
@@ -180,6 +181,16 @@ def make_flask_stack(conf, **app_conf):
     @app.route('/hello', methods=['POST'])
     def hello_world_post():
         return 'Hello World, this was posted to Flask'
+
+    # WebAssets
+    public_folder = config.get('ckan.base_public_folder')
+    webassets_folder = os.path.join(
+        os.path.dirname(ckan.__file__), public_folder, 'webassets'
+    )
+
+    @app.route('/webassets/<path:path>')
+    def webassets(path):
+        return send_from_directory(webassets_folder, path)
 
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)

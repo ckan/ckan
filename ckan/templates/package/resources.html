@@ -26,6 +26,7 @@
 {% block scripts %}
   {{ super() }}
   {% if has_reorder %}
-    {% resource 'vendor/reorder' %}
+    {#% resource 'vendor/reorder' %#}
+    {% asset 'vendor/reorder' %}
   {% endif %}
 {% endblock %}
