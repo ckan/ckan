@@ -6,7 +6,7 @@ import re
 
 from ckan.common import config
 from paste.deploy.converters import asbool
-from six import text_type
+from six import text_type, string_types
 
 from ckan.common import _, json
 import ckan.lib.maintain as maintain
@@ -127,6 +127,8 @@ class LicenseRegister(object):
             msg = "Couldn't read response from licenses service %r: %s" % (response_body, inst)
             raise Exception(inst)
         for license in license_data:
+            if isinstance(license, string_types):
+                license = license_data[license]
             if license.get('title'):
                 license['title'] = _(license['title'])
         self._create_license_list(license_data, license_url)
