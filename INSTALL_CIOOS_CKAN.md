@@ -313,7 +313,10 @@ sudo cp -r src/ckanext-spatial/ $VOL_CKAN_HOME/venv/src/
 sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/
 ```
 
-### restart ckan
+### restart approprit containers
+restart the container affected by the change. If changing html files you may not need to restart anything
 ```
+cd ~/ckan/contrib/docker
 sudo docker-compose restart ckan
+sudo docker-compose restart ckan_run_harvester ckan_fetch_harvester ckan_gather_harvester
 ```
