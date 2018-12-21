@@ -2,7 +2,6 @@
 
 import datetime
 import logging
-logger = logging.getLogger(__name__)
 
 from sqlalchemy.sql import and_, or_
 from sqlalchemy import orm
@@ -20,6 +19,8 @@ import extension
 
 import ckan.lib.maintain as maintain
 import ckan.lib.dictization as dictization
+
+logger = logging.getLogger(__name__)
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',

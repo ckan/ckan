@@ -48,8 +48,8 @@ activity_detail_table = Table(
 
 class Activity(domain_object.DomainObject):
 
-    def __init__(self, user_id, object_id, revision_id, activity_type,
-            data=None):
+    def __init__(
+            self, user_id, object_id, revision_id, activity_type, data=None):
         self.id = _types.make_uuid()
         self.timestamp = datetime.datetime.utcnow()
         self.user_id = user_id
@@ -75,7 +75,8 @@ meta.mapper(Activity, activity_table)
 
 class ActivityDetail(domain_object.DomainObject):
 
-    def __init__(self, activity_id, object_id, object_type, activity_type,
+    def __init__(
+            self, activity_id, object_id, object_type, activity_type,
             data=None):
         self.activity_id = activity_id
         self.object_id = object_id
@@ -89,11 +90,11 @@ class ActivityDetail(domain_object.DomainObject):
     @classmethod
     def by_activity_id(cls, activity_id):
         return ckan.model.Session.query(cls) \
-                .filter_by(activity_id = activity_id).all()
+            .filter_by(activity_id=activity_id).all()
 
 
-meta.mapper(ActivityDetail, activity_detail_table, properties = {
-    'activity':orm.relation ( Activity, backref=orm.backref('activity_detail'))
+meta.mapper(ActivityDetail, activity_detail_table, properties={
+    'activity': orm.relation(Activity, backref=orm.backref('activity_detail'))
     })
 
 
@@ -109,6 +110,7 @@ def _activities_limit(q, limit, offset=None):
         q = q.limit(limit)
     return q
 
+
 def _activities_union_all(*qlist):
     '''
     Return union of two or more activity queries sorted by timestamp,
@@ -118,6 +120,7 @@ def _activities_union_all(*qlist):
     return model.Session.query(model.Activity).select_entity_from(
         union_all(*[q.subquery().select() for q in qlist])
         ).distinct(model.Activity.timestamp)
+
 
 def _activities_at_offset(q, limit, offset):
     '''
