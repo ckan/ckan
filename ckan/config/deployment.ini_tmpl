@@ -191,6 +191,8 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 #smtp.password = your_password
 #smtp.mail_from =
 
+## RQ Job Settings
+rq.bg_job_timeout = 180
 
 ## Logging configuration
 [loggers]
@@ -226,6 +228,3 @@ formatter = generic
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s
-
-## RQ Job Settings
-rq.bg_job_timeout = 180
