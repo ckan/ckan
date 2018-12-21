@@ -1014,11 +1014,9 @@ def activity(package_type, id):
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
         pkg = context[u'package']
-        package_activity_stream = get_action(u'package_activity_list_html')(
-            context, {
-                u'id': pkg_dict[u'id']
-            }
-        )
+        package_activity_stream = get_action(
+            u'package_activity_list_html')(
+            context, {u'id': pkg_dict[u'id']})
         dataset_type = pkg_dict[u'type'] or u'dataset'
     except NotFound:
         return base.abort(404, _(u'Dataset not found'))

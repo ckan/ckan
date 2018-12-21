@@ -55,7 +55,7 @@ _text = sqlalchemy.text
 
 def _filter_activity_by_user(activity_list, users=[]):
     '''
-    Return the given ``activity_list`` with activities from the specified
+    Return the given ``activity_list`` but with activities from the specified
     users removed. The users parameters should be a list of ids.
 
     A *new* filtered list is returned, the given ``activity_list`` itself is
@@ -1017,7 +1017,7 @@ def package_show(context, data_dict):
                 package_dict_validated = False
             metadata_modified = pkg.metadata_modified.isoformat()
             search_metadata_modified = search_result['metadata_modified']
-            # solr stores less precice datetime,
+            # solr stores less precise datetime,
             # truncate to 22 charactors to get good enough match
             if metadata_modified[:22] != search_metadata_modified[:22]:
                 package_dict = None
@@ -2511,10 +2511,10 @@ def user_activity_list(context, data_dict):
     offset = data_dict.get('offset', 0)
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
-    _activity_objects = model.activity.user_activity_list(user.id, limit=limit,
-            offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_objects = model.activity.user_activity_list(
+        user.id, limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2553,10 +2553,10 @@ def package_activity_list(context, data_dict):
     offset = int(data_dict.get('offset', 0))
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
-    _activity_objects = model.activity.package_activity_list(package.id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_objects = model.activity.package_activity_list(
+        package.id, limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2594,10 +2594,10 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(group_id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_objects = model.activity.group_activity_list(
+        group_id, limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2633,10 +2633,10 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(org_id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_objects = model.activity.group_activity_list(
+        org_id, limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2664,9 +2664,9 @@ def recently_changed_packages_activity_list(context, data_dict):
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     _activity_objects = model.activity.recently_changed_packages_activity_list(
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+        limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -3354,11 +3354,11 @@ def dashboard_activity_list(context, data_dict):
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    _activity_objects = model.activity.dashboard_activity_list(user_id,
-            limit=limit, offset=offset)
+    _activity_objects = model.activity.dashboard_activity_list(
+        user_id, limit=limit, offset=offset)
 
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
     activity_dicts = model_dictize.activity_list_dictize(
         activity_objects, context)
 

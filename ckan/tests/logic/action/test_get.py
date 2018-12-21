@@ -1403,6 +1403,13 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         '''
         logic.get_action('package_search')({}, dict(q='anything'))
 
+    def test_local_parameters_not_supported(self):
+        nose.tools.assert_raises(
+            SearchError,
+            helpers.call_action,
+            'package_search',
+            q='{!child of="content_type:parentDoc"}')
+
 
 class TestPackageAutocompleteWithDatasetForm(helpers.FunctionalTestBase):
     @classmethod
@@ -1435,14 +1442,6 @@ class TestPackageAutocompleteWithDatasetForm(helpers.FunctionalTestBase):
         assert 'custom_text' not in query['results'][0]
         eq(query['results'][0]['extras'][0]['key'], 'custom_text')
         eq(query['results'][0]['extras'][0]['value'], 'foo')
-
-    def test_local_parameters_not_supported(self):
-
-        nose.tools.assert_raises(
-            SearchError,
-            helpers.call_action,
-            'package_search',
-            q='{!child of="content_type:parentDoc"}')
 
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):

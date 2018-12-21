@@ -9,8 +9,7 @@ import ckan.authz as authz
 
 
 def _get_object(context, data_dict, name, class_name):
-    # return the named item if in the data_dict, or get it from
-    # model.class_name
+    # return the named item if in the context, or get it from model.class_name
     try:
         return context[name]
     except KeyError:
