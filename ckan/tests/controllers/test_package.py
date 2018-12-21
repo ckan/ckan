@@ -1009,7 +1009,7 @@ class TestResourceView(helpers.FunctionalTestBase):
 
     @classmethod
     def teardown_class(cls):
-            p.unload('image_view')
+        p.unload('image_view')
 
     def test_resource_view_create(self):
         user = factories.User()

@@ -45,10 +45,11 @@ activity_detail_table = Table(
     Column('data', _types.JsonDictType),
     )
 
+
 class Activity(domain_object.DomainObject):
 
-    def __init__(self, user_id, object_id, revision_id, activity_type,
-            data=None):
+    def __init__(
+            self, user_id, object_id, revision_id, activity_type, data=None):
         self.id = _types.make_uuid()
         self.timestamp = datetime.datetime.utcnow()
         self.user_id = user_id
@@ -60,12 +61,14 @@ class Activity(domain_object.DomainObject):
         else:
             self.data = data
 
+
 meta.mapper(Activity, activity_table)
 
 
 class ActivityDetail(domain_object.DomainObject):
 
-    def __init__(self, activity_id, object_id, object_type, activity_type,
+    def __init__(
+            self, activity_id, object_id, object_type, activity_type,
             data=None):
         self.activity_id = activity_id
         self.object_id = object_id
@@ -79,11 +82,11 @@ class ActivityDetail(domain_object.DomainObject):
     @classmethod
     def by_activity_id(cls, activity_id):
         return ckan.model.Session.query(cls) \
-                .filter_by(activity_id = activity_id).all()
+            .filter_by(activity_id=activity_id).all()
 
 
-meta.mapper(ActivityDetail, activity_detail_table, properties = {
-    'activity':orm.relation ( Activity, backref=orm.backref('activity_detail'))
+meta.mapper(ActivityDetail, activity_detail_table, properties={
+    'activity': orm.relation(Activity, backref=orm.backref('activity_detail'))
     })
 
 
@@ -99,6 +102,7 @@ def _activities_limit(q, limit, offset=None):
         q = q.limit(limit)
     return q
 
+
 def _activities_union_all(*qlist):
     '''
     Return union of two or more queries sorted by timestamp,
@@ -109,11 +113,13 @@ def _activities_union_all(*qlist):
         union_all(*[q.subquery().select() for q in qlist])
         ).distinct(model.Activity.timestamp)
 
+
 def _activities_at_offset(q, limit, offset):
     '''
     Return a list of all activities at an offset with a limit.
     '''
     return _activities_limit(q, limit, offset).all()
+
 
 def _activities_from_user_query(user_id):
     '''Return an SQLAlchemy query for all activities from user_id.'''
@@ -158,15 +164,15 @@ def _package_activity_query(package_id):
 
     '''
     import ckan.model as model
-    q = model.Session.query(model.Activity)
-    q = q.filter_by(object_id=package_id)
+    q = model.Session.query(model.Activity) \
+        .filter_by(object_id=package_id)
     return q
 
 
 def package_activity_list(package_id, limit, offset):
     '''Return the given dataset (package)'s public activity stream.
 
-    Returns all activities  about the given dataset, i.e. where the given
+    Returns all activities about the given dataset, i.e. where the given
     dataset is the object of the activity, e.g.:
 
     "{USER} created the dataset {DATASET}"
@@ -216,7 +222,7 @@ def _group_activity_query(group_id):
         or_(
             model.Member.group_id == group_id,
             model.Activity.object_id == group_id
-        ),
+        )
     )
 
     return q
@@ -225,7 +231,7 @@ def _group_activity_query(group_id):
 def group_activity_list(group_id, limit, offset):
     '''Return the given group's public activity stream.
 
-    Returns all activities where the given group or one of its datasets is the
+    Returns activities where the given group or one of its datasets is the
     object of the activity, e.g.:
 
     "{USER} updated the group {GROUP}"
@@ -237,7 +243,7 @@ def group_activity_list(group_id, limit, offset):
     return _activities_at_offset(q, limit, offset)
 
 
-def _activites_from_users_followed_by_user_query(user_id, limit):
+def _activities_from_users_followed_by_user_query(user_id, limit):
     '''Return a query for all activities from users that user_id follows.'''
     import ckan.model as model
 
@@ -290,7 +296,7 @@ def _activities_from_groups_followed_by_user_query(user_id, limit):
 
 def _activities_from_everything_followed_by_user_query(user_id, limit):
     '''Return a query for all activities from everything user_id follows.'''
-    q1 = _activites_from_users_followed_by_user_query(user_id, limit)
+    q1 = _activities_from_users_followed_by_user_query(user_id, limit)
     q2 = _activities_from_datasets_followed_by_user_query(user_id, limit)
     q3 = _activities_from_groups_followed_by_user_query(user_id, limit)
     return _activities_union_all(q1, q2, q3)
@@ -330,7 +336,7 @@ def dashboard_activity_list(user_id, limit, offset):
     return _activities_at_offset(q, limit, offset)
 
 def _changed_packages_activity_query():
-    '''Return an SQLAlchemyu query for all changed package activities.
+    '''Return an SQLAlchemy query for all changed package activities.
 
     Return a query for all activities with activity_type '*package', e.g.
     'new_package', 'changed_package', 'deleted_package'.
