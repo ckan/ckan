@@ -79,7 +79,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
 
     :param datetime_: The date to format
     :type datetime_: datetime
-    :param show_date: Show date not '2 days ago' etc
+    :param show_date: Show 'April 24, 2013' instead of '2 days ago'
     :type show_date: bool
     :param with_hours: should the `hours:mins` be shown for dates
     :type with_hours: bool
