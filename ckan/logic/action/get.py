@@ -1840,7 +1840,7 @@ def package_search(context, data_dict):
             data_dict['fl'] = ' '.join(result_fl)
 
         # Remove before these hit solr FIXME: whitelist instead
-        include_private = asbool(data_dict.pop('include_private', False))
+        include_private = asbool(data_dict.pop('include_private', True))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
         data_dict.setdefault('fq', '')
         if not include_private:
