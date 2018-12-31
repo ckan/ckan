@@ -6,11 +6,12 @@ this.ckan.module('resource-view-filters', function (jQuery) {
         resourceId = self.options.resourceId,
         fieldFilters = self.options.fieldFilters,
         dropdownTemplate = self.options.dropdownTemplate,
+        searchTemplate = self.options.searchTemplate,
         addFilterTemplate = '<a class="btn btn-primary" href="#">' + self._('Add Filter') + '</a>',
         filtersDiv = $('<div></div>');
 
     var filters = ckan.views.filters.get();
-    _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fieldFilters, filters);
+    _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, searchTemplate, fieldFilters, filters);
     var addFilterButton = _buildAddFilterButton(self, filtersDiv, addFilterTemplate,
                                                 fieldFilters, filters, function (evt) {
       // Build filters object with this element's val as key and a placeholder
@@ -19,7 +20,7 @@ this.ckan.module('resource-view-filters', function (jQuery) {
       filters[evt.val] = [];
 
       $(this).select2('destroy');
-      _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fieldFilters, filters);
+      _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, searchTemplate, fieldFilters, filters);
       evt.preventDefault();
     });
     self.el.append(filtersDiv);
@@ -59,18 +60,26 @@ this.ckan.module('resource-view-filters', function (jQuery) {
     return addFilterButton;
   }
 
-  function _appendDropdowns(dropdowns, resourceId, template, fieldFilters, filters) {
+  function _appendDropdowns(dropdowns, resourceId, dropdownTemplate, searchTemplate, fieldFilters, filters) {
     $.each(fieldFilters, function (i, field) {
       if (filters.hasOwnProperty(field.id)) {
         if (field.filter === 'search') {
-          dropdowns.append('<b>text search here</b>');
+          dropdowns.append(_buildSearch(self.el, searchTemplate, field.id));
         } else {
-          dropdowns.append(_buildDropdown(self.el, template, field.id));
+          dropdowns.append(_buildDropdown(self.el, dropdownTemplate, field.id));
         }
       }
     });
 
     return dropdowns;
+
+    function _buildSearch(el, template, filterName) {
+      var theseFilters = filters[filterName] || [];
+      template = $(template.replace(/{filter}/g, filterName));
+      template.find('input').on('change', _onChange);
+
+      return template;
+    }
 
     function _buildDropdown(el, template, filterName) {
       var theseFilters = filters[filterName] || [];
@@ -156,6 +165,12 @@ this.ckan.module('resource-view-filters', function (jQuery) {
         currentFilters = ckan.views.filters.get(filterName) || [],
         addToIndex = currentFilters.length;
 
+    if (typeof filterValue === "undefined") {
+      // plain input field
+      filterValue = this.value;
+      evt.added = true;
+    }
+
     // Make sure we're not editing the original array, but a copy.
     currentFilters = currentFilters.slice();
 
@@ -183,6 +198,12 @@ this.ckan.module('resource-view-filters', function (jQuery) {
         '<div class="resource-view-filter">',
         '  {filter}:',
         '  <div class="resource-view-filter-values"></div>',
+        '</div>',
+      ].join('\n'),
+      searchTemplate: [
+        '<div class="resource-view-search">',
+        '  {filter}:',
+        '  <input type="text" name="{filter}" class="resource-view-search-box"/>',
         '</div>',
       ].join('\n')
     }
