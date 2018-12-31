@@ -359,6 +359,7 @@ def _validate_record(record, num, field_names):
 def _where_clauses(data_dict, fields_types):
     filters = data_dict.get('filters', {})
     clauses = []
+    include_default_full_text = False
 
     for field, value in filters.iteritems():
         if field not in fields_types:
@@ -376,12 +377,12 @@ def _where_clauses(data_dict, fields_types):
     q = data_dict.get('q')
     if q:
         if isinstance(q, string_types):
-            ts_query_alias = _ts_query_alias()
-            clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
-            clauses.append((clause_str,))
+            include_default_full_text = True
         elif isinstance(q, dict):
             lang = _fts_lang(data_dict.get('lang'))
             for field, value in q.iteritems():
+                if not field:
+                    include_default_full_text = True
                 if field not in fields_types:
                     continue
                 query_field = _ts_query_alias(field)
@@ -398,6 +399,10 @@ def _where_clauses(data_dict, fields_types):
                         query_field)
                 clauses.append((clause_str,))
 
+    if include_default_full_text:
+        ts_query_alias = _ts_query_alias()
+        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+        clauses.append((clause_str,))
     return clauses
 
 
@@ -443,7 +448,7 @@ def _build_query_and_rank_statements(lang, query, plain, field=None):
     statement = statement.format(
         lang_literal=lang_literal,
         literal=query_literal, alias=query_alias)
-    if field is None:
+    if not field:
         rank_field = u'_full_text'
     else:
         rank_field = u'to_tsvector({0}, cast({1} as text))'.format(
