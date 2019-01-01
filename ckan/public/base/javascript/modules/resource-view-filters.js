@@ -76,7 +76,9 @@ this.ckan.module('resource-view-filters', function (jQuery) {
     function _buildSearch(el, template, filterName) {
       var theseFilters = filters[filterName] || [];
       template = $(template.replace(/{filter}/g, filterName));
-      template.find('input').on('change', _onChange);
+      template.find('input')
+        .on('change', _onChange)
+        .val(filters[filterName][0]);
 
       return template;
     }
