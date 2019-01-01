@@ -170,7 +170,11 @@ this.ckan.module('resource-view-filters', function (jQuery) {
     if (typeof filterValue === "undefined") {
       // plain input field
       filterValue = this.value;
-      evt.added = true;
+      if (filterValue) {
+        evt.added = true;
+      } else {
+        currentFilters = currentFilters.slice(0,0);
+      }
     }
 
     // Make sure we're not editing the original array, but a copy.
