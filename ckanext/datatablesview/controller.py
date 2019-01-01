@@ -137,10 +137,10 @@ def merge_filters_q(view_filters, user_filters_str, search_text, filter_types):
      {u'': u'sometext', u'Department': u'BTDT'})
     '''
     filters = dict(view_filters)
-    if not user_filters_str:
-        return filters
-    user_filters = {}
     q = {u'': search_text} if search_text else {}
+    if not user_filters_str:
+        return filters, q
+    user_filters = {}
     for k_v in user_filters_str.split(u'|'):
         k, sep, v = k_v.partition(u':')
         if k not in view_filters or v in view_filters[k]:
