@@ -12,6 +12,7 @@ from ckan.common import json
 import paste
 import pylons.test
 from ckan.tests.legacy import CreateTestData
+import ckan.tests.helpers as helpers
 
 class TestDashboard(object):
     '''Tests for the logic action functions related to the user's dashboard.'''
@@ -309,6 +310,7 @@ class TestDashboard(object):
         assert self.dashboard_new_activities_count(self.new_user) == 0
         assert len(self.dashboard_new_activities(self.new_user)) == 0
 
+    @helpers.change_config('ckan.activity_list_limit', '15')
     def test_08_maximum_number_of_new_activities(self):
         '''Test that the new activities count does not go higher than 15, even
         if there are more than 15 new activities from the user's followers.'''

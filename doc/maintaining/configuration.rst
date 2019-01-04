@@ -713,6 +713,53 @@ Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
 
+.. _ckan.search.rows_max:
+
+ckan.search.rows_max
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.search.rows_max = 1000
+
+Default value:  ``1000``
+
+Maximum allowed value for rows returned. Specifically this limits:
+
+* ``package_search``'s ``rows`` parameter
+* ``group_show`` and ``organization_show``'s number of datasets returned when specifying ``include_datasets=true``
+
+.. _ckan.group_and_organization_list_max:
+
+ckan.group_and_organization_list_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_max = 1000
+
+Default value: ``1000``
+
+Maximum number of groups/organizations returned when listing them. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=false``
+* ``organization_list``'s ``limit`` when ``all_fields=false``
+
+.. _ckan.group_and_organization_list_all_fields_max:
+
+ckan.group_and_organization_list_all_fields_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_all_fields_max = 100
+
+Default value: ``25``
+
+Maximum number of groups/organizations returned when listing them in detail. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=true``
+* ``organization_list``'s ``limit`` when ``all_fields=true``
 
 Redis Settings
 ---------------
@@ -1497,10 +1544,22 @@ Example::
 
   ckan.activity_list_limit = 31
 
-Default value: ``infinite``
+Default value: ``31``
 
-This controls the number of activities to show in the Activity Stream. By default, it shows everything.
+This controls the number of activities to show in the Activity Stream.
 
+.. _ckan.activity_list_limit_max:
+
+ckan.activity_list_limit_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.activity_list_limit_max = 100
+
+Default value: ``100``
+
+Maximum allowed value for Activity Stream ``limit`` parameter.
 
 .. _ckan.email_notifications_since:
 

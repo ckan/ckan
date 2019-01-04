@@ -6,6 +6,7 @@ from paste.deploy.converters import asbool
 import paste.fixture
 from routes import url_for
 from nose import SkipTest
+import ckan.tests.helpers as helpers
 
 import ckan
 from ckan.logic.action.create import package_create, user_create, group_create
@@ -35,7 +36,7 @@ class TestActivity(HtmlCheckMethods):
     def teardown(cls):
         ckan.model.repo.rebuild_db()
 
-
+    @helpers.change_config('ckan.activity_list_limit', '15')
     def test_user_activity(self):
         """Test user activity streams HTML rendering."""
 

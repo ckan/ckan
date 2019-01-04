@@ -21,7 +21,7 @@ import ckan.lib.munge as munge
 
 from ckan.views import identify_user
 
-from ckan.common import _, c, request, response
+from ckan.common import _, c, request, response, config
 
 
 log = logging.getLogger(__name__)
@@ -581,6 +581,14 @@ class ApiController(base.BaseController):
                     # the search
                     if 'callback' in params:
                         del params['callback']
+
+                    # I needed to add limit here, because it bypasses the logic
+                    # function and therefore the validator (which now does the
+                    # limiting when calling package_search)
+                    params['rows'] = min(
+                        int(params.get('rows', 10)),
+                        int(config.get('ckan.search.rows_max', 1000)))
+
                     results = query.run(params)
                 return self._finish_ok(results)
             except search.SearchError, e:

@@ -11,7 +11,10 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       ignore,
                                       if_empty_same_as,
                                       not_missing,
-                                      ignore_empty
+                                      ignore_empty,
+                                      default,
+                                      configured_default,
+                                      limit_to_configured_maximum
                                       )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
@@ -567,13 +570,20 @@ def default_pagination_schema():
 
 def default_dashboard_activity_list_schema():
     schema = default_pagination_schema()
-    schema['id'] = [unicode]
+    schema['limit'] = [
+        configured_default('ckan.activity_list_limit', 31),
+        natural_number_validator,
+        limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
     return schema
 
 
 def default_activity_list_schema():
     schema = default_pagination_schema()
     schema['id'] = [not_missing, unicode]
+    schema['limit'] = [
+        configured_default('ckan.activity_list_limit', 31),
+        natural_number_validator,
+        limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
     return schema
 
 
@@ -590,7 +600,8 @@ def default_package_search_schema():
         'q': [ignore_missing, unicode],
         'fl': [ignore_missing, list_of_strings],
         'fq': [ignore_missing, unicode],
-        'rows': [ignore_missing, natural_number_validator],
+        'rows': [default(10), natural_number_validator,
+                 limit_to_configured_maximum('ckan.search.rows_max', 1000)],
         'sort': [ignore_missing, unicode],
         'start': [ignore_missing, natural_number_validator],
         'qf': [ignore_missing, unicode],

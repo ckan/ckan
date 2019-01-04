@@ -159,6 +159,36 @@ class TestGroupList(helpers.FunctionalTestBase):
         assert 'users' not in group_list[0]
         assert 'datasets' not in group_list[0]
 
+    def _create_bulk_groups(self, name, count):
+        from ckan import model
+        model.repo.new_revision()
+        groups = [model.Group(name='{}_{}'.format(name, i))
+                  for i in range(count)]
+        model.Session.add_all(groups)
+        model.repo.commit_and_remove()
+
+    def test_limit_default(self):
+        self._create_bulk_groups('group_default', 1010)
+        results = helpers.call_action('group_list')
+        eq(len(results), 1000)  # i.e. default value
+
+    @helpers.change_config('ckan.group_and_organization_list_max', '5')
+    def test_limit_configured(self):
+        self._create_bulk_groups('group_default', 7)
+        results = helpers.call_action('group_list')
+        eq(len(results), 5)  # i.e. configured limit
+
+    def test_all_fields_limit_default(self):
+        self._create_bulk_groups('org_all_fields_default', 30)
+        results = helpers.call_action('group_list', all_fields=True)
+        eq(len(results), 25)  # i.e. default value
+
+    @helpers.change_config('ckan.group_and_organization_list_all_fields_max', '5')
+    def test_all_fields_limit_configured(self):
+        self._create_bulk_groups('org_all_fields_default', 30)
+        results = helpers.call_action('group_list', all_fields=True)
+        eq(len(results), 5)  # i.e. configured limit
+
     def test_group_list_extras_returned(self):
 
         group = factories.Group(extras=[{'key': 'key1', 'value': 'val1'}])
@@ -389,6 +419,16 @@ class TestGroupShow(helpers.FunctionalTestBase):
                                                  in group['packages']], (
                 "group_show() should never show private datasets")
 
+    @helpers.change_config('ckan.search.rows_max', '5')
+    def test_package_limit_configured(self):
+        group = factories.Group()
+        for i in range(7):
+            factories.Dataset(groups=[{'id': group['id']}])
+        id = group['id']
+        results = helpers.call_action('group_show', id=id,
+                                      include_datasets=1)
+        eq(len(results['packages']), 5)  # i.e. ckan.search.rows_max
+
 
 class TestOrganizationList(helpers.FunctionalTestBase):
 
@@ -446,6 +486,37 @@ class TestOrganizationList(helpers.FunctionalTestBase):
 
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org2]])), '{}'.format(org_list)
+
+    def _create_bulk_orgs(self, name, count):
+        from ckan import model
+        model.repo.new_revision()
+        orgs = [model.Group(name='{}_{}'.format(name, i), is_organization=True,
+                            type='organization')
+                for i in range(count)]
+        model.Session.add_all(orgs)
+        model.repo.commit_and_remove()
+
+    def test_limit_default(self):
+        self._create_bulk_orgs('org_default', 1010)
+        results = helpers.call_action('organization_list')
+        eq(len(results), 1000)  # i.e. default value
+
+    @helpers.change_config('ckan.group_and_organization_list_max', '5')
+    def test_limit_configured(self):
+        self._create_bulk_orgs('org_default', 7)
+        results = helpers.call_action('organization_list')
+        eq(len(results), 5)  # i.e. configured limit
+
+    def test_all_fields_limit_default(self):
+        self._create_bulk_orgs('org_all_fields_default', 30)
+        results = helpers.call_action('organization_list', all_fields=True)
+        eq(len(results), 25)  # i.e. default value
+
+    @helpers.change_config('ckan.group_and_organization_list_all_fields_max', '5')
+    def test_all_fields_limit_configured(self):
+        self._create_bulk_orgs('org_all_fields_default', 30)
+        results = helpers.call_action('organization_list', all_fields=True)
+        eq(len(results), 5)  # i.e. configured limit
 
 
 class TestOrganizationShow(helpers.FunctionalTestBase):
@@ -517,6 +588,16 @@ class TestOrganizationShow(helpers.FunctionalTestBase):
         assert len(org_dict['packages']) == 1
         assert org_dict['packages'][0]['name'] == 'dataset_1'
         assert org_dict['package_count'] == 1
+
+    @helpers.change_config('ckan.search.rows_max', '5')
+    def test_package_limit_configured(self):
+        org = factories.Organization()
+        for i in range(7):
+            factories.Dataset(owner_org=org['id'])
+        id = org['id']
+        results = helpers.call_action('organization_show', id=id,
+                                      include_datasets=1)
+        eq(len(results['packages']), 5)  # i.e. ckan.search.rows_max
 
 
 class TestUserList(helpers.FunctionalTestBase):
@@ -882,6 +963,25 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         # SOLR doesn't like that we didn't specify 'asc' or 'desc'
         # SOLR error is 'Missing sort order' or 'Missing_sort_order',
         # depending on the solr version.
+
+    def _create_bulk_datasets(self, name, count):
+        from ckan import model
+        model.repo.new_revision()
+        pkgs = [model.Package(name='{}_{}'.format(name, i))
+                for i in range(count)]
+        model.Session.add_all(pkgs)
+        model.repo.commit_and_remove()
+
+    def test_rows_returned_default(self):
+        self._create_bulk_datasets('rows_default', 11)
+        results = logic.get_action('package_search')({}, {})
+        eq(len(results['results']), 10)  # i.e. 'rows' default value
+
+    @helpers.change_config('ckan.search.rows_max', '12')
+    def test_rows_returned_limited(self):
+        self._create_bulk_datasets('rows_limited', 14)
+        results = logic.get_action('package_search')({}, {'rows': '15'})
+        eq(len(results['results']), 12)  # i.e. ckan.search.rows_max
 
     def test_facets(self):
         org = factories.Organization(name='test-org-facet', title='Test Org')
@@ -2199,3 +2299,196 @@ class TestJobShow(helpers.FunctionalRQTestBase):
         Test showing a not existing job.
         '''
         helpers.call_action(u'job_show', id=u'does-not-exist')
+
+
+class TestPackageActivityList(helpers.FunctionalTestBase):
+    def _create_bulk_package_activities(self, count):
+        dataset = factories.Dataset()
+        from ckan import model
+        objs = [
+            model.Activity(
+                user_id=None, object_id=dataset['id'], revision_id=None,
+                activity_type=None, data=None)
+            for i in range(count)]
+        model.Session.add_all(objs)
+        model.repo.commit_and_remove()
+        return dataset['id']
+
+    def test_limit_default(self):
+        id = self._create_bulk_package_activities(35)
+        results = helpers.call_action('package_activity_list', id=id)
+        eq(len(results), 31)  # i.e. default value
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    def test_limit_configured(self):
+        id = self._create_bulk_package_activities(7)
+        results = helpers.call_action('package_activity_list', id=id)
+        eq(len(results), 5)  # i.e. ckan.activity_list_limit
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    @helpers.change_config('ckan.activity_list_limit_max', '7')
+    def test_limit_hits_max(self):
+        id = self._create_bulk_package_activities(9)
+        results = helpers.call_action('package_activity_list', id=id, limit='9')
+        eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
+
+
+class TestUserActivityList(helpers.FunctionalTestBase):
+    def _create_bulk_user_activities(self, count):
+        user = factories.User()
+        from ckan import model
+        objs = [
+            model.Activity(
+                user_id=user['id'], object_id=None, revision_id=None,
+                activity_type=None, data=None)
+            for i in range(count)]
+        model.Session.add_all(objs)
+        model.repo.commit_and_remove()
+        return user['id']
+
+    def test_limit_default(self):
+        id = self._create_bulk_user_activities(35)
+        results = helpers.call_action('user_activity_list', id=id)
+        eq(len(results), 31)  # i.e. default value
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    def test_limit_configured(self):
+        id = self._create_bulk_user_activities(7)
+        results = helpers.call_action('user_activity_list', id=id)
+        eq(len(results), 5)  # i.e. ckan.activity_list_limit
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    @helpers.change_config('ckan.activity_list_limit_max', '7')
+    def test_limit_hits_max(self):
+        id = self._create_bulk_user_activities(9)
+        results = helpers.call_action('user_activity_list', id=id, limit='9')
+        eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
+
+
+class TestGroupActivityList(helpers.FunctionalTestBase):
+    def _create_bulk_group_activities(self, count):
+        group = factories.Group()
+        from ckan import model
+        objs = [
+            model.Activity(
+                user_id=None, object_id=group['id'], revision_id=None,
+                activity_type=None, data=None)
+            for i in range(count)]
+        model.Session.add_all(objs)
+        model.repo.commit_and_remove()
+        return group['id']
+
+    def test_limit_default(self):
+        id = self._create_bulk_group_activities(35)
+        results = helpers.call_action('group_activity_list', id=id)
+        eq(len(results), 31)  # i.e. default value
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    def test_limit_configured(self):
+        id = self._create_bulk_group_activities(7)
+        results = helpers.call_action('group_activity_list', id=id)
+        eq(len(results), 5)  # i.e. ckan.activity_list_limit
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    @helpers.change_config('ckan.activity_list_limit_max', '7')
+    def test_limit_hits_max(self):
+        id = self._create_bulk_group_activities(9)
+        results = helpers.call_action('group_activity_list', id=id, limit='9')
+        eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
+
+
+class TestOrganizationActivityList(helpers.FunctionalTestBase):
+    def _create_bulk_org_activities(self, count):
+        org = factories.Organization()
+        from ckan import model
+        objs = [
+            model.Activity(
+                user_id=None, object_id=org['id'], revision_id=None,
+                activity_type=None, data=None)
+            for i in range(count)]
+        model.Session.add_all(objs)
+        model.repo.commit_and_remove()
+        return org['id']
+
+    def test_limit_default(self):
+        id = self._create_bulk_org_activities(35)
+        results = helpers.call_action('organization_activity_list', id=id)
+        eq(len(results), 31)  # i.e. default value
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    def test_limit_configured(self):
+        id = self._create_bulk_org_activities(7)
+        results = helpers.call_action('organization_activity_list', id=id)
+        eq(len(results), 5)  # i.e. ckan.activity_list_limit
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    @helpers.change_config('ckan.activity_list_limit_max', '7')
+    def test_limit_hits_max(self):
+        id = self._create_bulk_org_activities(9)
+        results = helpers.call_action('organization_activity_list', id=id, limit='9')
+        eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
+
+
+class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
+    def _create_bulk_package_activities(self, count):
+        from ckan import model
+        objs = [
+            model.Activity(
+                user_id=None, object_id=None, revision_id=None,
+                activity_type='new_package', data=None)
+            for i in range(count)]
+        model.Session.add_all(objs)
+        model.repo.commit_and_remove()
+
+    def test_limit_default(self):
+        self._create_bulk_package_activities(35)
+        results = helpers.call_action('recently_changed_packages_activity_list')
+        eq(len(results), 31)  # i.e. default value
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    def test_limit_configured(self):
+        self._create_bulk_package_activities(7)
+        results = helpers.call_action('recently_changed_packages_activity_list')
+        eq(len(results), 5)  # i.e. ckan.activity_list_limit
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    @helpers.change_config('ckan.activity_list_limit_max', '7')
+    def test_limit_hits_max(self):
+        self._create_bulk_package_activities(9)
+        results = helpers.call_action('recently_changed_packages_activity_list', limit='9')
+        eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
+
+
+class TestDashboardActivityList(helpers.FunctionalTestBase):
+    def _create_bulk_package_activities(self, count):
+        user = factories.User()
+        from ckan import model
+        objs = [
+            model.Activity(
+                user_id=user['id'], object_id=None, revision_id=None,
+                activity_type=None, data=None)
+            for i in range(count)]
+        model.Session.add_all(objs)
+        model.repo.commit_and_remove()
+        return user['id']
+
+    def test_limit_default(self):
+        id = self._create_bulk_package_activities(35)
+        results = helpers.call_action('dashboard_activity_list',
+                                      context={'user': id})
+        eq(len(results), 31)  # i.e. default value
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    def test_limit_configured(self):
+        id = self._create_bulk_package_activities(7)
+        results = helpers.call_action('dashboard_activity_list',
+                                      context={'user': id})
+        eq(len(results), 5)  # i.e. ckan.activity_list_limit
+
+    @helpers.change_config('ckan.activity_list_limit', '5')
+    @helpers.change_config('ckan.activity_list_limit_max', '7')
+    def test_limit_hits_max(self):
+        id = self._create_bulk_package_activities(9)
+        results = helpers.call_action('dashboard_activity_list', limit='9',
+                                      context={'user': id})
+        eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
