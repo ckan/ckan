@@ -81,10 +81,10 @@ class TestEnqueue(RQTestBase):
         self.enqueue(timeout=3600)
         all_jobs = self.all_jobs()
         assert_equal(len(all_jobs), 4)
-        assert_equal(all_jobs[0].meta[u'timeout'], 180)
-        assert_equal(all_jobs[1].meta[u'timeout'], 180)
-        assert_equal(all_jobs[2].meta[u'timeout'], -1)
-        assert_equal(all_jobs[3].meta[u'timeout'], 3600)
+        assert_equal(all_jobs[0].timeout, 180)
+        assert_equal(all_jobs[1].timeout, 180)
+        assert_equal(all_jobs[2].timeout, -1)
+        assert_equal(all_jobs[3].timeout, 3600)
 
 
 class TestGetAllQueues(RQTestBase):
