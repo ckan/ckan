@@ -154,7 +154,7 @@ def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME,
     if kwargs is None:
         kwargs = {}
     job = get_queue(queue).enqueue_call(func=fn, args=args, kwargs=kwargs,
-                                        timeout=None)
+                                        timeout=timeout)
     job.meta[u'title'] = title
     job.save()
     msg = u'Added background job {}'.format(job.id)
