@@ -83,7 +83,7 @@ class TestEnqueue(RQTestBase):
         assert_equal(len(all_jobs), 4)
         assert_equal(all_jobs[0].timeout, 180)
         assert_equal(all_jobs[1].timeout, 180)
-        assert_equal(all_jobs[2].timeout, 180)
+        assert_equal(all_jobs[2].timeout, -1)
         assert_equal(all_jobs[3].timeout, 3600)
 
 
