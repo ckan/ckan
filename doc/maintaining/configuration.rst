@@ -270,6 +270,24 @@ Default value:  ``True``
 This option allows you to disable the datastore_search_sql action function, and
 corresponding API endpoint if you do not wish it to be activated.
 
+.. _ckan.datastore.search.rows_max:
+
+ckan.datastore.search.rows_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.search.rows_max = 1000000
+
+Default value:  ``32000``
+
+Maximum allowed value for the number of rows returned by the datastore.
+
+Specifically this limits:
+
+* ``datastore_search``'s ``limit`` parameter.
+* ``datastore_search_sql`` queries have this limit inserted.
+
 Site Settings
 -------------
 

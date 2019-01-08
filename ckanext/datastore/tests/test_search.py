@@ -9,17 +9,20 @@ import sqlalchemy.orm as orm
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
+import ckan.logic as logic
 import ckan.tests.legacy as tests
 
-from ckan.common import config
 import ckanext.datastore.backend.postgres as db
-from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
+from ckanext.datastore.tests.helpers import (
+    extract, rebuild_all_dbs,
+    DatastoreFunctionalTestBase)
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+assert_raises_regexp = nose.tools.assert_raises_regexp
 assert_in = nose.tools.assert_in
 
 
@@ -594,15 +597,6 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
-    def test_search_table_metadata(self):
-        data = {'resource_id': "_table_metadata"}
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-
     def test_search_is_unsuccessful_when_called_with_filters_not_as_dict(self):
         data = {
             'resource_id': self.data['resource_id'],
@@ -795,7 +789,6 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         cls.data = {
             'resource_id': resource.id,
             'force': True,
-            'aliases': 'books4',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
                        {'id': 'published'}],
@@ -844,56 +837,6 @@ class TestDatastoreSQL(tests.WsgiAppCase):
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
-
-    def test_validates_sql_has_a_single_statement(self):
-        sql = 'SELECT * FROM public."{0}"; SELECT * FROM public."{0}";'.format(self.data['resource_id'])
-        assert_raises(p.toolkit.ValidationError,
-                      helpers.call_action, 'datastore_search_sql', sql=sql)
-
-    def test_works_with_semicolons_inside_strings(self):
-        sql = 'SELECT * FROM public."{0}" WHERE "author" = \'foo; bar\''.format(self.data['resource_id'])
-        helpers.call_action('datastore_search_sql', sql=sql)
-
-    def test_invalid_statement(self):
-        query = 'SELECT ** FROM foobar'
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-
-    def test_select_basic(self):
-        query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-        result = res_dict['result']
-        assert len(result['records']) == len(self.expected_records)
-        for (row_index, row) in enumerate(result['records']):
-            expected_row = self.expected_records[row_index]
-            assert set(row.keys()) == set(expected_row.keys())
-            for field in row:
-                if field == '_full_text':
-                    for ft_value in expected_row['_full_text']:
-                        assert ft_value in row['_full_text']
-                else:
-                    assert row[field] == expected_row[field]
-
-        # test alias search
-        query = 'SELECT * FROM "{0}"'.format(self.data['aliases'])
-        data = {'sql': query}
-        postparams = json.dumps(data)
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth)
-        res_dict_alias = json.loads(res.body)
-
-        assert result['records'] == res_dict_alias['result']['records']
 
     def test_select_where_like_with_percent(self):
         query = 'SELECT * FROM public."{0}" WHERE "author" LIKE \'tol%\''.format(self.data['resource_id'])
@@ -1232,3 +1175,133 @@ class TestDatastoreSearchRecordsFormat(DatastoreFunctionalTestBase):
             u'1,10,2020-01-01T00:00:00,aaab\n'
             u'3,9,2020-01-01T00:00:00,aaac\n'
             )
+
+
+class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):
+    def test_validates_sql_has_a_single_statement(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        helpers.call_action('datastore_create', **data)
+        sql = 'SELECT * FROM public."{0}"; SELECT * FROM public."{0}";' \
+            .format(resource['id'])
+        with assert_raises_regexp(p.toolkit.ValidationError,
+                                  'Query is not a single statement'):
+            helpers.call_action('datastore_search_sql', sql=sql)
+
+    def test_works_with_semicolons_inside_strings(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'author': 'bob'},
+                {'author': 'jane'},
+            ],
+        }
+        helpers.call_action('datastore_create', **data)
+        sql = 'SELECT * FROM public."{0}" WHERE "author" = \'foo; bar\'' \
+            .format(resource['id'])
+        helpers.call_action('datastore_search_sql', sql=sql)
+
+    def test_invalid_statement(self):
+        sql = 'SELECT ** FROM foobar'
+        with assert_raises_regexp(
+                logic.ValidationError, 'syntax error at or near "FROM"'):
+            helpers.call_action('datastore_search_sql', sql=sql)
+
+    def test_select_basic(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {u'b\xfck': 'annakarenina',
+                 'author': 'tolstoy',
+                 'published': '2005-03-01',
+                 'nested': ['b', {'moo': 'moo'}]},
+                {u'b\xfck': 'warandpeace',
+                 'author': 'tolstoy',
+                 'nested': {'a': 'b'}}
+            ],
+        }
+        expected_records = [{u'_full_text': [u"'annakarenina'", u"'b'",
+                                             u"'moo'", u"'tolstoy'",
+                                             u"'2005'"],
+                             u'_id': 1,
+                             u'author': u'tolstoy',
+                             u'b\xfck': u'annakarenina',
+                             u'nested': [u'b', {u'moo': u'moo'}],
+                             u'published': u'2005-03-01T00:00:00'},
+                            {u'_full_text': [u"'tolstoy'", u"'warandpeac'",
+                                             u"'b'"],
+                             u'_id': 2,
+                             u'author': u'tolstoy',
+                             u'b\xfck': u'warandpeace',
+                             u'nested': {u'a': u'b'},
+                             u'published': None}]
+        helpers.call_action('datastore_create', **data)
+        sql = 'SELECT * FROM "{0}"'.format(resource['id'])
+        result = helpers.call_action('datastore_search_sql', sql=sql)
+        assert_equals(len(result['records']), 2)
+        for (row_index, row) in enumerate(result['records']):
+            expected_row = expected_records[row_index]
+            assert set(row.keys()) == set(expected_row.keys())
+            for field in row:
+                if field == '_full_text':
+                    for ft_value in expected_row['_full_text']:
+                        assert ft_value in row['_full_text']
+                else:
+                    assert_equals(row[field], expected_row[field])
+        assert u'records_truncated' not in result
+
+    def test_alias_search(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'aliases': 'books4',
+            'records': [
+                {u'b\xfck': 'annakarenina',
+                 'author': 'tolstoy',
+                 'published': '2005-03-01',
+                 'nested': ['b', {'moo': 'moo'}]},
+                {u'b\xfck': 'warandpeace',
+                 'author': 'tolstoy',
+                 'nested': {'a': 'b'}}
+            ],
+        }
+        helpers.call_action('datastore_create', **data)
+        sql = 'SELECT * FROM "{0}"'.format(resource['id'])
+        result = helpers.call_action('datastore_search_sql', sql=sql)
+        sql = 'SELECT * FROM "books4"'
+        result_with_alias = helpers.call_action('datastore_search_sql',
+                                                sql=sql)
+        assert result['records'] == result_with_alias['records']
+
+    @helpers.change_config('ckan.datastore.search.rows_max', '2')
+    def test_search_limit(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+                {'the year': 2015},
+                {'the year': 2016},
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        sql = 'SELECT * FROM "{0}"'.format(resource['id'])
+        result = helpers.call_action('datastore_search_sql', sql=sql)
+        assert_equals(len(result['records']), 2)
+        assert_equals([res[u'the year'] for res in result['records']],
+                      [2014, 2013])
+        assert_equals(result[u'records_truncated'], True)

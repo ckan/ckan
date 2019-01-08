@@ -618,6 +618,9 @@ class TestPep8(object):
         'fabfile.py',
         'profile_tests.py',
         'setup.py',
+        'ckanext/datastore/backend/postgres.py',
+        'ckanext/datatablesview/controller.py',
+        'ckanext/datastore/controller.py',
     ]
     fails = {}
     passes = []

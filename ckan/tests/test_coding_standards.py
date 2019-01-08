@@ -688,6 +688,9 @@ _STRING_LITERALS_WHITELIST = [
     u'doc/conf.py',
     u'profile_tests.py',
     u'setup.py',
+    u'ckanext/datatablesview/plugin.py',
+    u'ckanext/datatablesview/controller.py',
+    u'ckanext/datastore/commands.py',
 ]
 
 

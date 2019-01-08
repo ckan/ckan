@@ -392,7 +392,9 @@ def datastore_search(context, data_dict):
     :param language: language of the full text query
                      (optional, default: english)
     :type language: string
-    :param limit: maximum number of rows to return (optional, default: 100)
+    :param limit: maximum number of rows to return
+        (optional, default: ``100``, upper limit: ``32000`` unless set in
+        site's configuration ``ckan.datastore.search.rows_max``)
     :type limit: int
     :param offset: offset this number of rows (optional)
     :type offset: int
@@ -432,7 +434,9 @@ def datastore_search(context, data_dict):
     :type fields: list of dictionaries
     :param offset: query offset value
     :type offset: int
-    :param limit: query limit value
+    :param limit: queried limit value (if the requested ``limit`` was above the
+        ``ckan.datastore.search.rows_max`` value then this response ``limit``
+        will be set to the value of ``ckan.datastore.search.rows_max``)
     :type limit: int
     :param filters: query filters
     :type filters: list of dictionaries
@@ -440,6 +444,12 @@ def datastore_search(context, data_dict):
     :type total: int
     :param records: list of matching results
     :type records: depends on records_format value passed
+    :param records_truncated: indicates whether the number of records returned
+        was limited by the internal limit, which is 32000 records (or other
+        value set in the site's configuration
+        ``ckan.datastore.search.rows_max``). If records are truncated by this,
+        this key has value True, otherwise the key is not returned at all.
+    :type records_truncated: bool
 
     '''
     backend = DatastoreBackend.get_active_backend()
@@ -481,6 +491,8 @@ def datastore_search_sql(context, data_dict):
     engine is the
     `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
+    The number of results returned is limited to 32000, unless set in the
+    site's configuration ``ckan.datastore.search.rows_max``
     DataStore resource that belong to a private CKAN resource cannot be
     searched with this action. Use
     :meth:`~ckanext.datastore.logic.action.datastore_search` instead.
