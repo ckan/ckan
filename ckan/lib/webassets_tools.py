@@ -52,8 +52,7 @@ def webassets_init():
 
     env = Environment()
     env.directory = static_path
-    logger.warn(u'DEBUG: %s', config.get(u'debug', False))
-    env.debug = True
+    env.debug = config.get(u'debug', False)
     env.url = u'/webassets/'
 
     env.append_path(base_path, u'/base/')
