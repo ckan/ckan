@@ -23,7 +23,7 @@ def create_library(name, path):
 
     library = YAMLLoader(config_path).load_bundles()
     bundles = {
-        '/'.join([name, key]): bundle
+        u'/'.join([name, key]): bundle
         for key, bundle
         in library.items()
     }
@@ -45,7 +45,7 @@ def webassets_init():
     public = config.get(u'ckan.base_public_folder')
 
     public_folder = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), '..', public))
+        os.path.dirname(__file__), u'..', public))
 
     base_path = os.path.join(public_folder, u'base')
     static_path = os.path.join(public_folder, u'webassets')
@@ -73,6 +73,7 @@ def _make_asset_collection():
 
 
 def include_asset(name):
+    from ckan.lib.helpers import url_for_static_or_external
     try:
         if not g.webassets:
             raise AttributeError(u'WebAssets not initialized yet')
@@ -98,7 +99,8 @@ def include_asset(name):
     for dep in deps:
         include_asset(dep)
 
-    urls = bundle.urls()
+    # Add `site_root` if configured
+    urls = [url_for_static_or_external(url) for url in bundle.urls()]
     type_ = None
     for url in urls:
         link = url.split(u'?')[0]
