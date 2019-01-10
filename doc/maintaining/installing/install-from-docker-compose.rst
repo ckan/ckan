@@ -167,6 +167,7 @@ against the database and import / export files from ``$VOL_CKAN_HOME``.
 
 d. Using the containers for ckan development
 The ``docker-compose.yml`` file contains additional directives that are commented out by default.  Uncommenting the section that looks like the following, except for the actual comment, will allow one to interactively debug code using ``pdb``.::
+
     # Uncommenting the following 4 lines allows one to attach to the ckan container and interact with pdb sessions
     #- ../../ckan/:/usr/lib/ckan/venv/src/ckan/ckan/
     #stdin_open: true
