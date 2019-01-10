@@ -167,11 +167,11 @@ against the database and import / export files from ``$VOL_CKAN_HOME``.
 
 d. Using the containers for ckan development
 The ``docker-compose.yml`` file contains additional directives that are commented out by default.  Uncommenting the section that looks like the following, except for the actual comment, will allow one to interactively debug code using ``pdb``.::
-     # Uncommenting the following 4 lines allows one to attach to the ckan container and interact with pdb sessions
-       #- ../../ckan/:/usr/lib/ckan/venv/src/ckan/ckan/
-     #stdin_open: true
-     #tty: true
-     #command: ["ckan-paster", "serve", "--reload", "/etc/ckan/production.ini"]
+    # Uncommenting the following 4 lines allows one to attach to the ckan container and interact with pdb sessions
+    #- ../../ckan/:/usr/lib/ckan/venv/src/ckan/ckan/
+    #stdin_open: true
+    #tty: true
+    #command: ["ckan-paster", "serve", "--reload", "/etc/ckan/production.ini"]
 
 Once those lines are uncommented and the containders are running again one may then attach to the ckan container by executing a ``docker attach ckan`` command and using the standard ``import pdb; pdb.set_trace()`` anywhere in the ckan codebase from the host computer.  Navigating to the web page where the ``pdb.set_trace()`` code is placed will cause the attached ckan container to drop into the pdb debugger and allow one to interact with the debugger.  Any new ``pdb.set_trace()``
 statements will cause the server to restart so that the new debug code will be executed and drop the developer into the next breakpoint.
