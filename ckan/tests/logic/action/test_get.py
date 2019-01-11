@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import datetime
+import copy
 
 import nose.tools
 
@@ -2343,9 +2344,7 @@ class TestJobShow(helpers.FunctionalRQTestBase):
         eq(d[u'id'], job.id)
         eq(d[u'title'], u'Title')
         eq(d[u'queue'], u'my_queue')
-        dt = datetime.datetime.strptime(d[u'created'], u'%Y-%m-%dT%H:%M:%S')
-        now = datetime.datetime.utcnow()
-        ok(abs((now - dt).total_seconds()) < 10)
+        ok(_seconds_since_timestamp(d[u'created'], u'%Y-%m-%dT%H:%M:%S') < 10)
 
     @nose.tools.raises(logic.NotFound)
     def test_not_existing_job(self):
@@ -2353,6 +2352,54 @@ class TestJobShow(helpers.FunctionalRQTestBase):
         Test showing a not existing job.
         '''
         helpers.call_action(u'job_show', id=u'does-not-exist')
+
+
+def _seconds_since_timestamp(timestamp, format_):
+    dt = datetime.datetime.strptime(timestamp, format_)
+    now = datetime.datetime.utcnow()
+    assert now > dt  # we assume timestamp is not in the future
+    return (now - dt).total_seconds()
+
+
+class TestActivityShow(helpers.FunctionalTestBase):
+    def test_simple_without_data(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        activity = factories.Activity(
+            user_id=user['id'], object_id=dataset['id'], revision_id=None,
+            activity_type='new package',
+            data={
+                'package': copy.deepcopy(dataset),
+                'actor': 'Mr Someone',
+            })
+        activity_shown = helpers.call_action(
+            'activity_show', id=activity['id'], include_data=False)
+        eq(activity_shown['user_id'], user['id'])
+        ok(_seconds_since_timestamp(
+            activity_shown['timestamp'], u'%Y-%m-%dT%H:%M:%S.%f') < 10)
+        eq(activity_shown['object_id'], dataset['id'])
+        eq(activity_shown['data'], {'package': {'title': 'Test Dataset'}})
+        eq(activity_shown['activity_type'], u'new package')
+
+    def test_simple_with_data(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        activity = factories.Activity(
+            user_id=user['id'], object_id=dataset['id'], revision_id=None,
+            activity_type='new package',
+            data={
+                'package': copy.deepcopy(dataset),
+                'actor': 'Mr Someone',
+            })
+        activity_shown = helpers.call_action(
+            'activity_show', id=activity['id'], include_data=True)
+        eq(activity_shown['user_id'], user['id'])
+        ok(_seconds_since_timestamp(
+            activity_shown['timestamp'], u'%Y-%m-%dT%H:%M:%S.%f') < 10)
+        eq(activity_shown['object_id'], dataset['id'])
+        eq(activity_shown['data'], {'package': dataset,
+                                    'actor': 'Mr Someone'})
+        eq(activity_shown['activity_type'], u'new package')
 
 
 class TestPackageActivityList(helpers.FunctionalTestBase):
