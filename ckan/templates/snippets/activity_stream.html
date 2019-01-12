@@ -7,7 +7,7 @@
 {% macro dataset(activity) %}
 <span class="dataset">
   {{ h.link_to(activity.data.package.title if activity.data.package else _('unknown'),
-               h.url_for(controller='package', action='read', id=activity.object_id)) }}
+               h.url_for('dataset.read', id=activity.object_id)) }}
                {# object_id because the object_name may be out of date) #}
 </span>
 {% endmacro %}
