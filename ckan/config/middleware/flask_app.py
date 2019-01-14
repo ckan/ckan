@@ -370,10 +370,14 @@ class CKANFlask(Flask):
         # Disable built-in flask's ability to prepend site root to
         # generated url, as we are going to use locale and existing
         # logic is not flexible enough for this purpose
-        if 'SCRIPT_NAME' in environ:
-            environ['SCRIPT_NAME'] = ''
-
+        original_script_name = environ.get('SCRIPT_NAME')
+        environ['SCRIPT_NAME'] = ''
         urls = self.url_map.bind_to_environ(environ)
+        # Restore SCRIPT_NAME if this is not a flask request and there is
+        # a chance Pylons will generate X-Debug-URL which relies on this
+        # variable
+        environ['SCRIPT_NAME'] = original_script_name
+
         try:
             rule, args = urls.match(return_rule=True)
             origin = 'core'
