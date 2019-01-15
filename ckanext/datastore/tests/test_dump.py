@@ -1,35 +1,38 @@
 # encoding: utf-8
 
-import json
-
-import ckan.lib.create_test_data as ctd
-import ckan.model as model
-import ckan.plugins as p
-import ckan.tests.legacy as tests
-import ckanext.datastore.backend.postgres as db
-from ckanext.datastore.tests.helpers import DatastoreLegacyTestBase
-import nose
-from ckan.tests.helpers import _get_test_app
-import sqlalchemy.orm as orm
 from nose.tools import assert_equals, assert_in
+import mock
+
+from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
+import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
 
 
-class TestDatastoreDump(DatastoreLegacyTestBase):
-    sysadmin_user = None
-    normal_user = None
-
-    @classmethod
-    def setup_class(cls):
-        cls.app = _get_test_app()
-        super(TestDatastoreDump, cls).setup_class()
-        ctd.CreateTestData.create()
-        cls.sysadmin_user = model.User.get('testsysadmin')
-        cls.normal_user = model.User.get('annafan')
-        resource = model.Package.get('annakarenina').resources[0]
-        cls.data = {
-            'resource_id': resource.id,
+class TestDatastoreDump(DatastoreFunctionalTestBase):
+    def test_dump_basic(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
             'force': True,
-            'aliases': 'books',
+            'records': [
+                {u'book': 'annakarenina'},
+                {u'book': 'warandpeace'},
+            ],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        response = app.get('/datastore/dump/{0}'.format(str(resource['id'])))
+        assert_equals('_id,book\r\n'
+                      '1,annakarenina\n'
+                      '2,warandpeace\n',
+                      response.body)
+
+    def test_all_fields_types(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
             'fields': [
                 {
                     'id': u'b\xfck',
@@ -78,21 +81,11 @@ class TestDatastoreDump(DatastoreLegacyTestBase):
                 }
             ]
         }
-        postparams = '%s=1' % json.dumps(cls.data)
-        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
-        res = cls.app.post('/api/action/datastore_create', params=postparams,
-                           extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
+        helpers.call_action('datastore_create', **data)
 
-        engine = db.get_write_engine()
-        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-    def test_dump_basic(self):
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.get('/datastore/dump/{0}'.format(str(
-            self.data['resource_id'])), extra_environ=auth)
-        content = res.body.decode('utf-8')
+        app = self._get_test_app()
+        response = app.get('/datastore/dump/{0}'.format(str(resource['id'])))
+        content = response.body.decode('utf-8')
         expected = (
             u'_id,b\xfck,author,published'
             u',characters,random_letters,nested')
@@ -100,35 +93,112 @@ class TestDatastoreDump(DatastoreLegacyTestBase):
         assert_in('warandpeace', content)
         assert_in('"[""Princess Anna"",""Sergius""]"', content)
 
+    def test_alias(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'aliases': 'books',
+            'records': [
+                {u'book': 'annakarenina'},
+                {u'book': 'warandpeace'},
+            ],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
         # get with alias instead of id
-        res = self.app.get('/datastore/dump/{0}'.format(str(
-            self.data['aliases'])), extra_environ=auth)
+        response = app.get('/datastore/dump/books')
+        assert_equals('_id,book\r\n'
+                      '1,annakarenina\n'
+                      '2,warandpeace\n',
+                      response.body)
 
     def test_dump_does_not_exist_raises_404(self):
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        self.app.get('/datastore/dump/{0}'.format(str(
-            'does-not-exist')), extra_environ=auth, status=404)
+        app = self._get_test_app()
+        app.get('/datastore/dump/does-not-exist', status=404)
 
     def test_dump_limit(self):
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.get('/datastore/dump/{0}?limit=1'.format(str(
-            self.data['resource_id'])), extra_environ=auth)
-        content = res.body.decode('utf-8')
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {u'book': 'annakarenina'},
+                {u'book': 'warandpeace'},
+            ],
+        }
+        helpers.call_action('datastore_create', **data)
 
+        app = self._get_test_app()
+        response = app.get('/datastore/dump/{0}?limit=1'.format(str(
+            resource['id'])))
+        content = response.body.decode('utf-8')
         expected_content = (
-            u'_id,b\xfck,author,published,characters,random_letters,'
-            u'nested\r\n1,annakarenina,tolstoy,2005-03-01T00:00:00,'
-            u'"[""Princess Anna"",""Sergius""]",'
-            u'"[""a"",""e"",""x""]","[""b"", '
-            u'{""moo"": ""moo""}]"\n')
+            u'_id,book\r\n'
+            u'1,annakarenina\n')
         assert_equals(content, expected_content)
 
     def test_dump_q_and_fields(self):
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.get(
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'fields': [
+                {
+                    'id': u'b\xfck',
+                    'type': 'text'
+                },
+                {
+                    'id': 'author',
+                    'type': 'text'
+                },
+                {
+                    'id': 'published'
+                },
+                {
+                    'id': u'characters',
+                    u'type': u'_text'
+                },
+                {
+                    'id': 'random_letters',
+                    'type': 'text[]'
+                }
+            ],
+            'records': [
+                {
+                    u'b\xfck': 'annakarenina',
+                    'author': 'tolstoy',
+                    'published': '2005-03-01',
+                    'nested': [
+                        'b',
+                        {'moo': 'moo'}
+                    ],
+                    u'characters': [
+                        u'Princess Anna',
+                        u'Sergius'
+                    ],
+                    'random_letters': [
+                        'a', 'e', 'x'
+                    ]
+                },
+                {
+                    u'b\xfck': 'warandpeace',
+                    'author': 'tolstoy',
+                    'nested': {'a': 'b'},
+                    'random_letters': [
+
+                    ]
+                }
+            ]
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        response = app.get(
             u'/datastore/dump/{0}?q=warandpeace&fields=nested,author'
-            .format(str(self.data['resource_id'])), extra_environ=auth)
-        content = res.body.decode('utf-8')
+            .format(resource['id']))
+        content = response.body.decode('utf-8')
 
         expected_content = (
             u'nested,author\r\n'
@@ -136,9 +206,63 @@ class TestDatastoreDump(DatastoreLegacyTestBase):
         assert_equals(content, expected_content)
 
     def test_dump_tsv(self):
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.get('/datastore/dump/{0}?limit=1&format=tsv'.format(str(
-            self.data['resource_id'])), extra_environ=auth)
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'fields': [
+                {
+                    'id': u'b\xfck',
+                    'type': 'text'
+                },
+                {
+                    'id': 'author',
+                    'type': 'text'
+                },
+                {
+                    'id': 'published'
+                },
+                {
+                    'id': u'characters',
+                    u'type': u'_text'
+                },
+                {
+                    'id': 'random_letters',
+                    'type': 'text[]'
+                }
+            ],
+            'records': [
+                {
+                    u'b\xfck': 'annakarenina',
+                    'author': 'tolstoy',
+                    'published': '2005-03-01',
+                    'nested': [
+                        'b',
+                        {'moo': 'moo'}
+                    ],
+                    u'characters': [
+                        u'Princess Anna',
+                        u'Sergius'
+                    ],
+                    'random_letters': [
+                        'a', 'e', 'x'
+                    ]
+                },
+                {
+                    u'b\xfck': 'warandpeace',
+                    'author': 'tolstoy',
+                    'nested': {'a': 'b'},
+                    'random_letters': [
+
+                    ]
+                }
+            ]
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        res = app.get('/datastore/dump/{0}?limit=1&format=tsv'.format(str(
+            resource['id'])))
         content = res.body.decode('utf-8')
 
         expected_content = (
@@ -150,9 +274,63 @@ class TestDatastoreDump(DatastoreLegacyTestBase):
         assert_equals(content, expected_content)
 
     def test_dump_json(self):
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.get('/datastore/dump/{0}?limit=1&format=json'.format(
-            str(self.data['resource_id'])), extra_environ=auth)
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'fields': [
+                {
+                    'id': u'b\xfck',
+                    'type': 'text'
+                },
+                {
+                    'id': 'author',
+                    'type': 'text'
+                },
+                {
+                    'id': 'published'
+                },
+                {
+                    'id': u'characters',
+                    u'type': u'_text'
+                },
+                {
+                    'id': 'random_letters',
+                    'type': 'text[]'
+                }
+            ],
+            'records': [
+                {
+                    u'b\xfck': 'annakarenina',
+                    'author': 'tolstoy',
+                    'published': '2005-03-01',
+                    'nested': [
+                        'b',
+                        {'moo': 'moo'}
+                    ],
+                    u'characters': [
+                        u'Princess Anna',
+                        u'Sergius'
+                    ],
+                    'random_letters': [
+                        'a', 'e', 'x'
+                    ]
+                },
+                {
+                    u'b\xfck': 'warandpeace',
+                    'author': 'tolstoy',
+                    'nested': {'a': 'b'},
+                    'random_letters': [
+
+                    ]
+                }
+            ]
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        res = app.get('/datastore/dump/{0}?limit=1&format=json'.format(
+            str(resource['id'])))
         content = res.body.decode('utf-8')
         expected_content = (
             u'{\n  "fields": [{"type":"int","id":"_id"},{"type":"text",'
@@ -166,9 +344,63 @@ class TestDatastoreDump(DatastoreLegacyTestBase):
         assert_equals(content, expected_content)
 
     def test_dump_xml(self):
-        auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.get('/datastore/dump/{0}?limit=1&format=xml'.format(str(
-            self.data['resource_id'])), extra_environ=auth)
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'fields': [
+                {
+                    'id': u'b\xfck',
+                    'type': 'text'
+                },
+                {
+                    'id': 'author',
+                    'type': 'text'
+                },
+                {
+                    'id': 'published'
+                },
+                {
+                    'id': u'characters',
+                    u'type': u'_text'
+                },
+                {
+                    'id': 'random_letters',
+                    'type': 'text[]'
+                }
+            ],
+            'records': [
+                {
+                    u'b\xfck': 'annakarenina',
+                    'author': 'tolstoy',
+                    'published': '2005-03-01',
+                    'nested': [
+                        'b',
+                        {'moo': 'moo'}
+                    ],
+                    u'characters': [
+                        u'Princess Anna',
+                        u'Sergius'
+                    ],
+                    'random_letters': [
+                        'a', 'e', 'x'
+                    ]
+                },
+                {
+                    u'b\xfck': 'warandpeace',
+                    'author': 'tolstoy',
+                    'nested': {'a': 'b'},
+                    'random_letters': [
+
+                    ]
+                }
+            ]
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        res = app.get('/datastore/dump/{0}?limit=1&format=xml'.format(str(
+            resource['id'])))
         content = res.body.decode('utf-8')
         expected_content = (
             u'<data>\n'
@@ -195,3 +427,59 @@ class TestDatastoreDump(DatastoreLegacyTestBase):
             u'</data>\n'
         )
         assert_equals(content, expected_content)
+
+    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    def test_dump_pagination(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [{u'record': str(num)} for num in range(12)],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        response = app.get('/datastore/dump/{0}'.format(str(resource['id'])))
+        assert_equals(
+            '_id,record\r\n'
+            '1,0\n2,1\n3,2\n4,3\n5,4\n6,5\n7,6\n8,7\n9,8\n10,9\n'
+            '11,10\n12,11\n',
+            response.body)
+
+    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    def test_dump_pagination_csv_with_limit(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [{u'record': str(num)} for num in range(12)],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        response = app.get('/datastore/dump/{0}?limit=6'.format(
+            str(resource['id'])))
+        assert_equals(
+            '_id,record\r\n'
+            '1,0\n2,1\n3,2\n4,3\n5,4\n6,5\n',
+            response.body)
+
+    @mock.patch('ckanext.datastore.controller.PAGINATE_BY', 5)
+    def test_dump_pagination_json_with_limit(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [{u'record': str(num)} for num in range(12)],
+        }
+        helpers.call_action('datastore_create', **data)
+
+        app = self._get_test_app()
+        response = app.get('/datastore/dump/{0}?limit=6&format=json'.format(
+            str(resource['id'])))
+        assert_equals(
+            '{\n  "fields": [{"type":"int","id":"_id"},'
+            '{"type":"int4","id":"record"}],\n'
+            '  "records": [\n    [1,0],\n    [2,1],\n    [3,2],\n    [4,3],\n'
+            '    [5,4],\n    [6,5]\n]}\n',
+            response.body)
