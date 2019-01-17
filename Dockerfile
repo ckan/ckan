@@ -74,11 +74,15 @@ RUN ckan-pip install flask_debugtoolbar
 
 
 WORKDIR $CKAN_VENV/src
+COPY ./contrib/docker/src/pycsw $CKAN_VENV/src/pycsw
+COPY ./contrib/docker/pycsw.cfg $CKAN_VENV/src/pycsw/default.cfg
 COPY ./contrib/docker/src/ckanext-harvest $CKAN_VENV/src/ckanext-harvest
 COPY ./contrib/docker/src/ckanext-spatial $CKAN_VENV/src/ckanext-spatial
 COPY ./contrib/docker/src/ckanext-cioos_theme $CKAN_VENV/src/ckanext-cioos_theme
 RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -e pycsw"
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/pycsw && python setup.py build && python setup.py install && python setup.py develop"
 
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-harvest/pip-requirements.txt"
 RUN chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
@@ -87,6 +91,9 @@ RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-ha
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-spatial/pip-requirements.txt"
 RUN chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-spatial && python setup.py install && python setup.py develop"
+
+# add simlink so ckan spatial can find pycsw
+RUN ln -s $CKAN_VENV/src/pycsw/pycsw $CKAN_VENV/src/ckanext-spatial/pycsw
 
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-cioos_theme && python setup.py install && python setup.py develop"
 

@@ -9,6 +9,7 @@ x-ckan: &ckan_app
     - db
     - solr
     - redis
+    - pycsw
   ports:
     - "0.0.0.0:${CKAN_PORT}:5000"
   environment:
@@ -39,6 +40,7 @@ volumes:
   ckan_storage:
   pg_data:
   solr_data:
+
 
 services:
   ckan:
@@ -119,8 +121,10 @@ services:
 
   pycsw:
     container_name: pycsw
-    image: geopython/pycsw:2.2
+    image: geopython/pycsw
     ports:
       - "8000:8000"
+    build:
+      context: ../../
     volumes:
       - ./pycsw/pycsw.cfg:/etc/pycsw/pycsw.cfg

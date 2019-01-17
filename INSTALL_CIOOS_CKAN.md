@@ -236,6 +236,53 @@ The settings for harvesters are fairly straightforward. The one exception is the
 }
 ```
 ---
+# Install pyCSW
+
+## start containers
+sudo docker-compose up -d pycsw
+
+## create pycsw database in existing pg container
+
+sudo docker exec -i db psql -U ckan
+CREATE DATABASE pycsw OWNER ckan ENCODING 'utf-8';
+\q
+
+## access pycsw-admin
+sudo docker exec -ti pycsw pycsw-admin.py -h
+
+## setup database, if not already done.
+sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw setup -p /usr/lib/ckan/venv/src/pycsw/default.cfg
+
+## add to apache
+```
+# pycsw
+ <location /ckan/csw/>
+   ProxyPass http://localhost:8000/
+   ProxyPassReverse http://localhost:8000/
+</location>
+```
+
+## test GetCapabilities
+https://goose.hakai.org/ckan/csw/?service=CSW&version=2.0.2&request=GetCapabilities
+
+## edit pycsw config in ckan container
+sudo docker exec -it ckan /bin/bash -c "export TERM=xterm; exec bash"
+source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/
+vi /usr/lib/ckan/venv/src/pycsw/default.cfg
+
+## set database password
+database = postgresql://ckan:[YOUR_PASSWORD_HERE]@db/pycsw
+
+## Load the CKAN datasets into pycsw
+sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw load -p /usr/lib/ckan/venv/src/pycsw/default.cfg -u http://localhost:5000
+
+## some usfull ckan-pycsw commands
+sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw --help
+sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw setup -p /usr/lib/ckan/venv/src/pycsw/default.cfg
+sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw set_keywords -p /usr/lib/ckan/venv/src/pycsw/default.cfg -u http://localhost:5000
+sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw load -p /usr/lib/ckan/venv/src/pycsw/default.cfg -u http://localhost:5000
+sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw clear -p /usr/lib/ckan/venv/src/pycsw/default.cfg
+---
 # Troubleshooting
 
 ### Is ckan running?
@@ -283,7 +330,7 @@ To fix chage the owner of the ckan storage folder and its children
 
 # Update CKAN and its extensions
 
-### enable colume enviroment variables to make accessing the volumes easier
+### enable volume enviroment variables to make accessing the volumes easier
 ```
 export VOL_CKAN_HOME=`sudo docker volume inspect docker_ckan_home | jq -r -c '.[] | .Mountpoint'`
 export VOL_CKAN_CONFIG=`sudo docker volume inspect docker_ckan_config | jq -r -c '.[] | .Mountpoint'`
