@@ -127,8 +127,21 @@ class AskAppDispatcherMiddleware(object):
             * CKAN_CURRENT_URL is set to the current application url
         '''
 
+        # Ensure URL encoding
+        for var in ('PATH_INFO', 'REQUEST_URI', 'QUERY_STRING'):
+            val = environ.get(var)
+            if val:
+                try:
+                    val.decode('utf-8')
+                except UnicodeDecodeError:
+                    val = val.decode('cp1252').encode('utf-8')
+
+                # Preserve reserved characters and avoid double-quoting
+                environ[var] = urllib.quote(val, '%:;/?&=@')
+
         # We only update once for a request so we can keep
         # the language and original url which helps with 404 pages etc
+
         if 'CKAN_LANG' not in environ:
             path_parts = environ['PATH_INFO'].split('/')
             if len(path_parts) > 1 and path_parts[1] in self.locale_list:
@@ -145,15 +158,9 @@ class AskAppDispatcherMiddleware(object):
 
             # Current application url
             path_info = environ['PATH_INFO']
-            # sort out weird encodings
-            path_info = \
-                '/'.join(urllib.quote(pce, '') for pce in path_info.split('/'))
-
             qs = environ.get('QUERY_STRING')
 
             if qs:
-                # sort out weird encodings
-                qs = urllib.quote(qs, '')
                 environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
             else:
                 environ['CKAN_CURRENT_URL'] = path_info
