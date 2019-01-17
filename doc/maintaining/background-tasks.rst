@@ -104,7 +104,7 @@ A timeout can also be set on a job iwth the ``timeout`` keyword argument::
     jobs.enqueue(log_job, [u'My log message'], timeout=3600)
 
 The default background job timeout is 180 seconds. This is set in the
-ckan config ``.ini`` file under the ``bg_job_timeout`` item.
+ckan config ``.ini`` file under the ``ckan.jobs.timeout`` item.
 
 Accessing the database from background jobs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
