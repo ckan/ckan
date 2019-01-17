@@ -471,7 +471,6 @@ def _setup_error_mail_handler(app):
             log_record.method = request.method
             log_record.ip = request.environ.get("REMOTE_ADDR")
             log_record.headers = request.headers
-            log_record.exception = log_record.exc_info
             return True
 
     mailhost = tuple(config.get('smtp.server', 'localhost').split(":"))
@@ -486,6 +485,7 @@ def _setup_error_mail_handler(app):
 Time:               %(asctime)s
 URL:                %(url)s
 Method:             %(method)s
+IP:                 %(ip)s
 Headers:            %(headers)s
 
 '''))
