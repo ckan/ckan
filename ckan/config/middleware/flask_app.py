@@ -117,7 +117,6 @@ def make_flask_stack(conf, **app_conf):
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.DEBUG)
 
-
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
         def open_session(self, app, request):
@@ -462,6 +461,7 @@ def _register_error_handler(app):
         app.register_error_handler(Exception, error_handler)
         if config.get('email_to'):
             _setup_error_mail_handler(app)
+
 
 def _setup_error_mail_handler(app):
 
