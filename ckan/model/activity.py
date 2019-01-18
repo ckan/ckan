@@ -204,7 +204,6 @@ def _group_activity_query(group_id):
         model.Member,
         and_(
             model.Activity.object_id == model.Member.table_id,
-            model.Member.state == 'active'
         )
     ).outerjoin(
         model.Package,
@@ -219,8 +218,18 @@ def _group_activity_query(group_id):
         # to a group but was then removed will not show up. This may not be
         # desired but is consistent with legacy behaviour.
         or_(
-            model.Member.group_id == group_id,
-            model.Activity.object_id == group_id
+            # active dataset in the group
+            and_(model.Member.group_id == group_id,
+                 model.Member.state == 'active',
+                 model.Package.state == 'active'),
+            # deleted dataset in the group
+            and_(model.Member.group_id == group_id,
+                 model.Member.state == 'deleted',
+                 model.Package.state == 'deleted'),
+                 # (we want to avoid showing changes to an active dataset that
+                 # was once in this group)
+            # activity the the group itself
+            model.Activity.object_id == group_id,
         )
     )
 

@@ -758,3 +758,157 @@ class TestGroupIndex(helpers.FunctionalTestBase):
             assert_in('Test Group {0}'.format(i), response)
 
         assert 'Test Group 20' not in response
+
+
+class TestActivity(helpers.FunctionalTestBase):
+    def test_simple(self):
+        '''Checking the template shows the activity stream.'''
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+
+        url = url_for('group.activity',
+                      id=group['id'])
+        response = app.get(url)
+        assert_in('Mr. Test User', response)
+        assert_in('created the group', response)
+
+    def test_create_group(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+
+        url = url_for('group.activity',
+                      id=group['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('created the group', response)
+        assert_in('<a href="/group/{}">Test Group'.format(
+                  group['name']), response)
+
+    def _clear_activities(self):
+        model.Session.query(model.ActivityDetail).delete()
+        model.Session.query(model.Activity).delete()
+        model.Session.flush()
+
+    def test_change_group(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+        self._clear_activities()
+        group['title'] = 'Group with changed title'
+        helpers.call_action(
+            'group_update', context={'user': user['name']}, **group)
+
+        url = url_for('group.activity',
+                      id=group['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the group', response)
+        assert_in('<a href="/group/{}">Group with changed title'
+                  .format(group['name']), response)
+
+    def test_create_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+        dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
+
+        url = url_for('group.activity',
+                      id=group['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('created the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
+                  response)
+
+    def test_change_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+        dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
+        self._clear_activities()
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        url = url_for('group.activity',
+                      id=group['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the dataset', response)
+        assert_in('<a href="/dataset/{}">Dataset with changed title'
+                  .format(dataset['name']),
+                  response)
+
+    def test_delete_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+        dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
+        self._clear_activities()
+        helpers.call_action(
+            'package_delete', context={'user': user['name']}, **dataset)
+
+        url = url_for('group.activity',
+                      id=group['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('deleted the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'
+                  .format(dataset['name']),
+                  response)
+
+    def test_change_dataset_that_used_to_be_in_the_group(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+        dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
+        # remove the dataset from the group
+        dataset['groups'] = []
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+        self._clear_activities()
+        # edit the dataset
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        # dataset change should not show up in its former group
+        url = url_for('group.activity',
+                      id=group['id'])
+        response = app.get(url)
+        assert_in('No activities are within this activity stream', response)
+
+    def test_delete_dataset_that_used_to_be_in_the_group(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+        dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
+        # remove the dataset from the group
+        dataset['groups'] = []
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+        self._clear_activities()
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_delete', context={'user': user['name']}, **dataset)
+
+        # NOTE:
+        # ideally the dataset's deletion would not show up in its old group
+        # but it can't be helped without _group_activity_query getting v
+        # complicated
+        url = url_for('group.activity',
+                      id=group['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('deleted the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'
+                  .format(dataset['name']),
+                  response)

@@ -600,6 +600,29 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('<a href="/organization/{}">Test Organization'.format(
                   org['name']), response)
 
+    def _clear_activities(self):
+        model.Session.query(model.ActivityDetail).delete()
+        model.Session.query(model.Activity).delete()
+        model.Session.flush()
+
+    def test_change_organization(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization(user=user)
+        self._clear_activities()
+        org['title'] = 'Organization with changed title'
+        helpers.call_action(
+            'organization_update', context={'user': user['name']}, **org)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the organization', response)
+        assert_in('<a href="/organization/{}">Organization with changed title'
+                  .format(org['name']), response)
+
     def test_create_dataset(self):
         app = self._get_test_app()
         user = factories.User()
@@ -614,11 +637,6 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('created the dataset', response)
         assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
                   response)
-
-    def _clear_activities(self):
-        model.Session.query(model.ActivityDetail).delete()
-        model.Session.query(model.Activity).delete()
-        model.Session.flush()
 
     def test_change_dataset(self):
         app = self._get_test_app()
@@ -658,3 +676,45 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('<a href="/dataset/{}">Test Dataset'
                   .format(dataset['name']),
                   response)
+
+    def test_change_dataset_that_used_to_be_in_the_org(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization(user=user)
+        org2 = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=org['id'], user=user)
+        # remove the dataset from the org
+        dataset['owner_org'] = org2['id']
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+        self._clear_activities()
+        # edit the dataset
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        # dataset change should not show up in its former org
+        url = url_for('organization.activity',
+                      id=org['id'])
+        response = app.get(url)
+        assert_in('No activities are within this activity stream', response)
+
+    def test_delete_dataset_that_used_to_be_in_the_org(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization(user=user)
+        org2 = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=org['id'], user=user)
+        # remove the dataset from the org
+        dataset['owner_org'] = org2['id']
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+        self._clear_activities()
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_delete', context={'user': user['name']}, **dataset)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        response = app.get(url)
+        assert_in('No activities are within this activity stream', response)
