@@ -502,7 +502,7 @@ def activity(id, group_type, is_organization, offset=0):
         extra_vars["group_activity_stream"] = \
             _action(u'organization_activity_list_html'
                     if group_dict.get('is_organization')
-                    else u'group_activity_list')(
+                    else u'group_activity_list_html')(
             context, {
                 u'id': group_dict['id'],
                 u'offset': offset
