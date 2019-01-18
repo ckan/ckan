@@ -2474,6 +2474,40 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
         # NB the detail is not included - that is only added in by
         # activity_list_to_html()
 
+    def test_change_resource_on_dataset(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user, resources=[
+            dict(url='https://example.com/foo.csv', format='csv')])
+        _clear_activities()
+        dataset['resources'][0]['format'] = 'pdf'
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+
+    def test_delete_resource_on_dataset(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user, resources=[
+            dict(url='https://example.com/foo.csv', format='csv')])
+        _clear_activities()
+        dataset['resources'] = []
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+
     def test_delete_dataset(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
