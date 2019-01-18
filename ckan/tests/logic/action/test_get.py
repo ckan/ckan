@@ -2405,6 +2405,59 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
         eq(activities[1]['activity_type'], 'new package')
         eq(activities[1]['data']['package']['title'], original_title)
 
+    def test_change_dataset_add_extra(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        _clear_activities()
+        dataset['extras'].append(dict(key='rating', value='great'))
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+        assert_not_in('extras', activities[0]['data']['package'])
+
+    def test_change_dataset_change_extra(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user, extras=[
+            dict(key='rating', value='great')])
+        _clear_activities()
+        dataset['extras'][0] = dict(key='rating', value='ok')
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+        assert_not_in('extras', activities[0]['data']['package'])
+
+    def test_change_dataset_delete_extra(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user, extras=[
+            dict(key='rating', value='great')])
+        _clear_activities()
+        dataset['extras'] = []
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+        assert_not_in('extras', activities[0]['data']['package'])
+
     def test_add_resource_to_dataset(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -2487,6 +2540,22 @@ class TestUserActivityList(helpers.FunctionalTestBase):
                                          id=user['id'])
         eq([activity['activity_type'] for activity in activities],
            ['new package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+
+    def test_change_dataset_add_extra(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        _clear_activities()
+        dataset['extras'].append(dict(key='rating', value='great'))
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('user_activity_list',
+                                         id=user['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
         eq(activities[0]['data']['package']['name'], dataset['name'])
@@ -2619,6 +2688,23 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
         # the old dataset still has the old title
         eq(activities[1]['activity_type'], 'new package')
         eq(activities[1]['data']['package']['title'], original_title)
+
+    def test_change_dataset_add_extra(self):
+        user = factories.User()
+        group = factories.Group(user=user)
+        dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
+        _clear_activities()
+        dataset['extras'].append(dict(key='rating', value='great'))
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('group_activity_list',
+                                         id=group['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
 
     def test_delete_dataset(self):
         user = factories.User()
@@ -2903,6 +2989,23 @@ class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
         # the old dataset still has the old title
         eq(activities[1]['activity_type'], 'new package')
         eq(activities[1]['data']['package']['title'], original_title)
+
+    def test_change_dataset_add_extra(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=org['id'], user=user)
+        _clear_activities()
+        dataset['extras'].append(dict(key='rating', value='great'))
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('recently_changed_packages_activity_list',
+                                         id=org['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
 
     def test_delete_dataset(self):
         user = factories.User()
