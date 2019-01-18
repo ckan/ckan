@@ -1176,14 +1176,14 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        # If the package has any groups, there should be no new activities
-        # because package has been deleted == removed from group lifecycle
-
+        # If the package has any groups, the deletion appears in the group's
+        # stream
         for group_dict in package['groups']:
             grp_new_activities = find_new_activities(
                 before['group activity streams'][group_dict['name']],
                 after['group activity streams'][group_dict['name']])
-            assert grp_new_activities == []
+            assert len(grp_new_activities) == 1
+            assert grp_new_activities[0]['activity_type'] == 'deleted package'
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package['id'], (
