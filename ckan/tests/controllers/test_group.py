@@ -814,6 +814,7 @@ class TestActivity(helpers.FunctionalTestBase):
         app = self._get_test_app()
         user = factories.User()
         group = factories.Group(user=user)
+        self._clear_activities()
         dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
 
         url = url_for('group.activity',
@@ -854,55 +855,6 @@ class TestActivity(helpers.FunctionalTestBase):
         helpers.call_action(
             'package_delete', context={'user': user['name']}, **dataset)
 
-        url = url_for('group.activity',
-                      id=group['id'])
-        response = app.get(url)
-        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
-                  response)
-        assert_in('deleted the dataset', response)
-        assert_in('<a href="/dataset/{}">Test Dataset'
-                  .format(dataset['name']),
-                  response)
-
-    def test_change_dataset_that_used_to_be_in_the_group(self):
-        app = self._get_test_app()
-        user = factories.User()
-        group = factories.Group(user=user)
-        dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
-        # remove the dataset from the group
-        dataset['groups'] = []
-        helpers.call_action(
-            'package_update', context={'user': user['name']}, **dataset)
-        self._clear_activities()
-        # edit the dataset
-        dataset['title'] = 'Dataset with changed title'
-        helpers.call_action(
-            'package_update', context={'user': user['name']}, **dataset)
-
-        # dataset change should not show up in its former group
-        url = url_for('group.activity',
-                      id=group['id'])
-        response = app.get(url)
-        assert_in('No activities are within this activity stream', response)
-
-    def test_delete_dataset_that_used_to_be_in_the_group(self):
-        app = self._get_test_app()
-        user = factories.User()
-        group = factories.Group(user=user)
-        dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
-        # remove the dataset from the group
-        dataset['groups'] = []
-        helpers.call_action(
-            'package_update', context={'user': user['name']}, **dataset)
-        self._clear_activities()
-        dataset['title'] = 'Dataset with changed title'
-        helpers.call_action(
-            'package_delete', context={'user': user['name']}, **dataset)
-
-        # NOTE:
-        # ideally the dataset's deletion would not show up in its old group
-        # but it can't be helped without _group_activity_query getting v
-        # complicated
         url = url_for('group.activity',
                       id=group['id'])
         response = app.get(url)

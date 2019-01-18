@@ -1860,57 +1860,21 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
                   response)
 
-    def test_legacy_changed_package_activity(self):
-        '''Render a custom activity *** TODO ***
-        '''
+    def test_delete_dataset(self):
         app = self._get_test_app()
-
         user = factories.User()
         dataset = factories.Dataset(user=user)
-
-        # delete the modern Activity object that's been automatically created
-        modern_activity = model.Session.query(model.Activity) \
-            .filter_by(object_id=dataset['id']) \
-            .one()
-        revision_id = modern_activity.revision_id
-        modern_activity.delete()
-
-        # Create an Activity object as it was in earlier versions of CKAN.
-        # This code is based on:
-        # https://github.com/ckan/ckan/blob/b348bf2fe68db6704ea0a3e22d533ded3d8d4344/ckan/model/package.py#L508
-        activity_type = 'changed'
-        dataset_table_dict = dictization.table_dictize(
-            model.Package.get(dataset['id']), context={'model': model})
-        activity = model.Activity(
-            user_id=user['id'],
-            object_id=dataset['id'],
-            revision_id=revision_id,
-            activity_type="%s package" % activity_type,
-            data={
-                # "actor": a legacy activity had no "actor"
-                # "package": a legacy activity had just the package table,
-                # rather than the result of package_show
-                'package': dataset_table_dict,
-            }
-        )
-        model.Session.add(activity)
-        # a legacy activity had a ActivityDetail associated with the Activity
-        # This code is based on:
-        # https://github.com/ckan/ckan/blob/b348bf2fe68db6704ea0a3e22d533ded3d8d4344/ckan/model/package.py#L542
-        activity_detail = model.ActivityDetail(
-            activity_id=activity.id,
-            object_id=dataset['id'],
-            object_type=u"Package",
-            activity_type=activity_type,
-            data={u'package': dataset_table_dict})
-        model.Session.add(activity_detail)
-        model.Session.flush()
+        self._clear_activities()
+        helpers.call_action(
+            'package_delete', context={'user': user['name']}, **dataset)
 
         url = url_for('dataset.activity',
                       id=dataset['id'])
-        response = app.get(url)
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(url, extra_environ=env)
         assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
                   response)
-        assert_in('updated the dataset', response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
+        assert_in('deleted the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'
+                  .format(dataset['name']),
                   response)
