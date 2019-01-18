@@ -2458,7 +2458,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
         eq(activities[0]['data']['package']['name'], dataset['name'])
         assert_not_in('extras', activities[0]['data']['package'])
 
-    def test_add_resource_to_dataset(self):
+    def test_change_dataset_add_resource(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         _clear_activities()
@@ -2474,7 +2474,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
         # NB the detail is not included - that is only added in by
         # activity_list_to_html()
 
-    def test_change_resource_on_dataset(self):
+    def test_change_dataset_change_resource(self):
         user = factories.User()
         dataset = factories.Dataset(user=user, resources=[
             dict(url='https://example.com/foo.csv', format='csv')])
@@ -2491,12 +2491,44 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
         eq(activities[0]['object_id'], dataset['id'])
         eq(activities[0]['data']['package']['name'], dataset['name'])
 
-    def test_delete_resource_on_dataset(self):
+    def test_change_dataset_delete_resource(self):
         user = factories.User()
         dataset = factories.Dataset(user=user, resources=[
             dict(url='https://example.com/foo.csv', format='csv')])
         _clear_activities()
         dataset['resources'] = []
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+
+    def test_change_dataset_add_tag(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        _clear_activities()
+        dataset['tags'].append(dict(name='checked'))
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+
+    def test_delete_tag_from_dataset(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user, tags=[dict(name='checked')])
+        _clear_activities()
+        dataset['tags'] = []
         helpers.call_action(
             'package_update', context={'user': user['name']}, **dataset)
 
@@ -2594,6 +2626,22 @@ class TestUserActivityList(helpers.FunctionalTestBase):
         eq(activities[0]['object_id'], dataset['id'])
         eq(activities[0]['data']['package']['name'], dataset['name'])
 
+    def test_change_dataset_add_tag(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        _clear_activities()
+        dataset['tags'].append(dict(name='checked'))
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('user_activity_list',
+                                         id=user['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+
     def test_create_group(self):
         user = factories.User()
         _clear_activities()
@@ -2603,6 +2651,37 @@ class TestUserActivityList(helpers.FunctionalTestBase):
                                          id=user['id'])
         eq([activity['activity_type'] for activity in activities],
            ['new group'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], group['id'])
+        eq(activities[0]['data']['group']['name'], group['name'])
+
+    def test_delete_group_using_group_delete(self):
+        user = factories.User()
+        group = factories.Group(user=user)
+        _clear_activities()
+        helpers.call_action(
+            'group_delete', context={'user': user['name']}, **group)
+
+        activities = helpers.call_action('user_activity_list',
+                                         id=user['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['deleted group'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], group['id'])
+        eq(activities[0]['data']['group']['name'], group['name'])
+
+    def test_delete_group_by_updating_state(self):
+        user = factories.User()
+        group = factories.Group(user=user)
+        _clear_activities()
+        group['state'] = 'deleted'
+        helpers.call_action(
+            'group_update', context={'user': user['name']}, **group)
+
+        activities = helpers.call_action('user_activity_list',
+                                         id=user['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['deleted group'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], group['id'])
         eq(activities[0]['data']['group']['name'], group['name'])
@@ -2729,6 +2808,23 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
         dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
         _clear_activities()
         dataset['extras'].append(dict(key='rating', value='great'))
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('group_activity_list',
+                                         id=group['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+
+    def test_change_dataset_add_tag(self):
+        user = factories.User()
+        group = factories.Group(user=user)
+        dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
+        _clear_activities()
+        dataset['tags'].append(dict(name='checked'))
         helpers.call_action(
             'package_update', context={'user': user['name']}, **dataset)
 
@@ -2903,6 +2999,23 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
         eq(activities[1]['activity_type'], 'new package')
         eq(activities[1]['data']['package']['title'], original_title)
 
+    def test_change_dataset_add_tag(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=org['id'], user=user)
+        _clear_activities()
+        dataset['tags'].append(dict(name='checked'))
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('organization_activity_list',
+                                         id=org['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+
     def test_delete_dataset(self):
         user = factories.User()
         org = factories.Organization(user=user)
@@ -3030,6 +3143,23 @@ class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
         dataset = factories.Dataset(owner_org=org['id'], user=user)
         _clear_activities()
         dataset['extras'].append(dict(key='rating', value='great'))
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('recently_changed_packages_activity_list',
+                                         id=org['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['changed package'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], dataset['id'])
+        eq(activities[0]['data']['package']['name'], dataset['name'])
+
+    def test_change_dataset_add_tag(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=org['id'], user=user)
+        _clear_activities()
+        dataset['tags'].append(dict(name='checked'))
         helpers.call_action(
             'package_update', context={'user': user['name']}, **dataset)
 
