@@ -810,6 +810,43 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('<a href="/group/{}">Group with changed title'
                   .format(group['name']), response)
 
+    def test_delete_group_using_group_delete(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+        self._clear_activities()
+        helpers.call_action(
+            'group_delete', context={'user': user['name']}, **group)
+
+        url = url_for('group.activity',
+                      id=group['id'])
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(url, extra_environ=env, status=404)
+        # group_delete causes the Member to state=deleted and then the user
+        # doesn't have permission to see their own deleted Group. Therefore you
+        # can't render the activity stream of that group. You'd hope that
+        # group_delete was the same as group_update state=deleted but they are
+        # not...
+
+    def test_delete_group_by_updating_state(self):
+        app = self._get_test_app()
+        user = factories.User()
+        group = factories.Group(user=user)
+        self._clear_activities()
+        group['state'] = 'deleted'
+        helpers.call_action(
+            'group_update', context={'user': user['name']}, **group)
+
+        url = url_for('group.activity',
+                      id=group['id'])
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(url, extra_environ=env)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('deleted the group', response)
+        assert_in('<a href="/group/{}">Test Group'
+                  .format(group['name']), response)
+
     def test_create_dataset(self):
         app = self._get_test_app()
         user = factories.User()

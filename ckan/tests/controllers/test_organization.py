@@ -625,6 +625,43 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('<a href="/organization/{}">Organization with changed title'
                   .format(org['name']), response)
 
+    def test_delete_org_using_organization_delete(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization(user=user)
+        self._clear_activities()
+        helpers.call_action(
+            'organization_delete', context={'user': user['name']}, **org)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(url, extra_environ=env, status=404)
+        # organization_delete causes the Member to state=deleted and then the
+        # user doesn't have permission to see their own deleted Organization.
+        # Therefore you can't render the activity stream of that org. You'd
+        # hope that organization_delete was the same as organization_update
+        # state=deleted but they are not...
+
+    def test_delete_org_by_updating_state(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization(user=user)
+        self._clear_activities()
+        org['state'] = 'deleted'
+        helpers.call_action(
+            'organization_update', context={'user': user['name']}, **org)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(url, extra_environ=env)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('deleted the organization', response)
+        assert_in('<a href="/organization/{}">Test Organization'.format(
+                  org['name']), response)
+
     def test_create_dataset(self):
         app = self._get_test_app()
         user = factories.User()

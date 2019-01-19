@@ -2745,6 +2745,37 @@ class TestUserActivityList(helpers.FunctionalTestBase):
         eq(activities[0]['object_id'], org['id'])
         eq(activities[0]['data']['group']['name'], org['name'])
 
+    def test_delete_org_using_organization_delete(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+        _clear_activities()
+        helpers.call_action(
+            'organization_delete', context={'user': user['name']}, **org)
+
+        activities = helpers.call_action('user_activity_list',
+                                         id=user['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['deleted organization'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], org['id'])
+        eq(activities[0]['data']['group']['name'], org['name'])
+
+    def test_delete_org_by_updating_state(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+        _clear_activities()
+        org['state'] = 'deleted'
+        helpers.call_action(
+            'organization_update', context={'user': user['name']}, **org)
+
+        activities = helpers.call_action('user_activity_list',
+                                         id=user['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['deleted organization'])
+        eq(activities[0]['user_id'], user['id'])
+        eq(activities[0]['object_id'], org['id'])
+        eq(activities[0]['data']['group']['name'], org['name'])
+
     def _create_bulk_user_activities(self, count):
         user = factories.User()
         from ckan import model

@@ -347,7 +347,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     else:
         _check_access('group_delete', context, data_dict)
 
-    # organization delete will not occure whilke all datasets for that org are
+    # organization delete will not occur while all datasets for that org are
     # not deleted
     if is_org:
         datasets = model.Session.query(model.Package) \
