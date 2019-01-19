@@ -1765,7 +1765,8 @@ class TestOrganizationListForUser(helpers.FunctionalTestBase):
                             capacity='admin')
 
         # Delete the organization.
-        helpers.call_action('organization_delete', id=organization['id'])
+        helpers.call_action('organization_delete', id=organization['id'],
+                            context=context)
 
         organizations = helpers.call_action('organization_list_for_user',
                                             context=context)
@@ -2555,6 +2556,35 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
         eq(activities[0]['object_id'], dataset['id'])
         eq(activities[0]['data']['package']['name'], dataset['name'])
 
+    def test_private_dataset_has_no_activity(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+        _clear_activities()
+        dataset = factories.Dataset(private=True,
+                                    owner_org=org['id'], user=user)
+        dataset['tags'] = []
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_private_dataset_delete_has_no_activity(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+        _clear_activities()
+        dataset = factories.Dataset(private=True,
+                                    owner_org=org['id'], user=user)
+        helpers.call_action(
+            'package_delete', context={'user': user['name']}, **dataset)
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
     def _create_bulk_package_activities(self, count):
         dataset = factories.Dataset()
         from ckan import model
@@ -2609,6 +2639,22 @@ class TestUserActivityList(helpers.FunctionalTestBase):
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
         eq(activities[0]['data']['package']['name'], dataset['name'])
+
+    def test_dataset_changed_by_another_user(self):
+        user = factories.User()
+        another_user = factories.Sysadmin()
+        dataset = factories.Dataset(user=user)
+        _clear_activities()
+        dataset['extras'].append(dict(key='rating', value='great'))
+        helpers.call_action(
+            'package_update', context={'user': another_user['name']}, **dataset)
+
+        # the user might have created the dataset, but a change by another
+        # user does not show on the user's activity stream
+        activities = helpers.call_action('user_activity_list',
+                                         id=user['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
 
     def test_change_dataset_add_extra(self):
         user = factories.User()

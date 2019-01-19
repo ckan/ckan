@@ -235,7 +235,9 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
             datasets are set to true'''
         dataset = factories.Dataset(owner_org=self.organization['id'])
         assert_equal(dataset['owner_org'], self.organization['id'])
-        helpers.call_action('organization_delete', id=self.organization['id'])
+        user = factories.User()
+        helpers.call_action('organization_delete', id=self.organization['id'],
+                            context={'user': user['name']})
 
         dataset = helpers.call_action('package_show', id=dataset['id'])
         assert_equal(dataset['owner_org'], None)
