@@ -107,7 +107,7 @@ def index(offset=0):
     extra_vars[u'dashboard_activity_stream'] = h.dashboard_activity_stream(
         g.userobj.id, filter_type, filter_id, offset)
 
-    # Mark the useru's new activities as old whenever they view their
+    # Mark the user's new activities as old whenever they view their
     # dashboard page.
     logic.get_action(u'dashboard_mark_activities_old')(context, {})
 
