@@ -746,7 +746,7 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
                   response)
         assert_in('created the dataset', response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
+        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['id']),
                   response)
 
     def test_change_dataset(self):
@@ -765,7 +765,7 @@ class TestActivity(helpers.FunctionalTestBase):
                   response)
         assert_in('updated the dataset', response)
         assert_in('<a href="/dataset/{}">Dataset with changed title'
-                  .format(dataset['name']),
+                  .format(dataset['id']),
                   response)
 
     def test_delete_dataset(self):
@@ -784,7 +784,7 @@ class TestActivity(helpers.FunctionalTestBase):
                   response)
         assert_in('deleted the dataset', response)
         assert_in('<a href="/dataset/{}">Test Dataset'
-                  .format(dataset['name']),
+                  .format(dataset['id']),
                   response)
 
     def test_create_group(self):
@@ -799,7 +799,7 @@ class TestActivity(helpers.FunctionalTestBase):
                   response)
         assert_in('created the group', response)
         assert_in('<a href="/group/{}">Test Group'.format(
-                  group['name']), response)
+                  group['id']), response)
 
     def test_change_group(self):
         app = self._get_test_app()
@@ -817,7 +817,7 @@ class TestActivity(helpers.FunctionalTestBase):
                   response)
         assert_in('updated the group', response)
         assert_in('<a href="/group/{}">Group with changed title'
-                  .format(group['name']), response)
+                  .format(group['id']), response)
 
     def test_delete_group_using_group_delete(self):
         app = self._get_test_app()
@@ -834,7 +834,7 @@ class TestActivity(helpers.FunctionalTestBase):
                   response)
         assert_in('deleted the group', response)
         assert_in('<a href="/group/{}">Test Group'
-                  .format(group['name']), response)
+                  .format(group['id']), response)
 
     def test_delete_group_by_updating_state(self):
         app = self._get_test_app()
