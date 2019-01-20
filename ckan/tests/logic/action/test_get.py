@@ -3298,6 +3298,8 @@ class TestDashboardActivityList(helpers.FunctionalTestBase):
            ['new user'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], user['id'])
+        # user's own activities are always marked ``'is_new': False``
+        eq(activities[0]['is_new'], False)
 
     def test_create_dataset(self):
         user = factories.User()
@@ -3311,6 +3313,8 @@ class TestDashboardActivityList(helpers.FunctionalTestBase):
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
         eq(activities[0]['data']['package']['name'], dataset['name'])
+        # user's own activities are always marked ``'is_new': False``
+        eq(activities[0]['is_new'], False)
 
     def test_create_group(self):
         user = factories.User()
@@ -3324,6 +3328,8 @@ class TestDashboardActivityList(helpers.FunctionalTestBase):
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], group['id'])
         eq(activities[0]['data']['group']['name'], group['name'])
+        # user's own activities are always marked ``'is_new': False``
+        eq(activities[0]['is_new'], False)
 
     def test_create_organization(self):
         user = factories.User()
@@ -3337,6 +3343,8 @@ class TestDashboardActivityList(helpers.FunctionalTestBase):
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], org['id'])
         eq(activities[0]['data']['group']['name'], org['name'])
+        # user's own activities are always marked ``'is_new': False``
+        eq(activities[0]['is_new'], False)
 
     def _create_bulk_package_activities(self, count):
         user = factories.User()
@@ -3370,3 +3378,169 @@ class TestDashboardActivityList(helpers.FunctionalTestBase):
         results = helpers.call_action('dashboard_activity_list', limit='9',
                                       context={'user': id})
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
+
+
+class TestDashboardNewActivities(helpers.FunctionalTestBase):
+    def test_users_own_activities(self):
+        # a user's own activities are not shown as "new"
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+        helpers.call_action(
+            'package_delete', context={'user': user['name']}, **dataset)
+        group = factories.Group(user=user)
+        group['title'] = 'Group with changed title'
+        helpers.call_action(
+            'group_update', context={'user': user['name']}, **group)
+        helpers.call_action(
+            'group_delete', context={'user': user['name']}, **group)
+
+        new_activities = helpers.call_action('dashboard_activity_list',
+                                             context={'user': user['id']})
+        eq([activity['is_new'] for activity in new_activities],
+           [False] * 7)
+        new_activities_count = \
+            helpers.call_action('dashboard_new_activities_count',
+                                context={'user': user['id']})
+        eq(new_activities_count, 0)
+
+    def test_activities_by_a_followed_user(self):
+        user = factories.User()
+        followed_user = factories.User()
+        helpers.call_action(
+            'follow_user', context={'user': user['name']}, **followed_user)
+        _clear_activities()
+        dataset = factories.Dataset(user=followed_user)
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_update', context={'user': followed_user['name']}, **dataset)
+        helpers.call_action(
+            'package_delete', context={'user': followed_user['name']}, **dataset)
+        group = factories.Group(user=followed_user)
+        group['title'] = 'Group with changed title'
+        helpers.call_action(
+            'group_update', context={'user': followed_user['name']}, **group)
+        helpers.call_action(
+            'group_delete', context={'user': followed_user['name']}, **group)
+
+        activities = helpers.call_action('dashboard_activity_list',
+                                         context={'user': user['id']})
+        eq([activity['activity_type'] for activity in activities[::-1]],
+           ['new package', 'changed package', 'deleted package',
+            'new group', 'changed group', 'deleted group'])
+        eq([activity['is_new'] for activity in activities],
+           [True] * 6)
+        eq(helpers.call_action('dashboard_new_activities_count',
+                               context={'user': user['id']}),
+           6)
+
+    def test_activities_on_a_followed_dataset(self):
+        user = factories.User()
+        another_user = factories.Sysadmin()
+        _clear_activities()
+        dataset = factories.Dataset(user=another_user)
+        helpers.call_action(
+            'follow_dataset', context={'user': user['name']}, **dataset)
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_update', context={'user': another_user['name']}, **dataset)
+
+        activities = helpers.call_action('dashboard_activity_list',
+                                         context={'user': user['id']})
+        eq([(activity['activity_type'], activity['is_new'])
+            for activity in activities[::-1]],
+           [('new package', True),
+            # NB The 'new package' activity is in our activity stream and shows
+            # as "new" even though it occurred before we followed it. This is
+            # known & intended design.
+            ('changed package', True),
+            ])
+        eq(helpers.call_action('dashboard_new_activities_count',
+                               context={'user': user['id']}),
+           2)
+
+    def test_activities_on_a_followed_group(self):
+        user = factories.User()
+        another_user = factories.Sysadmin()
+        _clear_activities()
+        group = factories.Group(user=user)
+        helpers.call_action(
+            'follow_group', context={'user': user['name']}, **group)
+        group['title'] = 'Group with changed title'
+        helpers.call_action(
+            'group_update', context={'user': another_user['name']}, **group)
+
+        activities = helpers.call_action('dashboard_activity_list',
+                                         context={'user': user['id']})
+        eq([(activity['activity_type'], activity['is_new'])
+            for activity in activities[::-1]],
+           [('new group', False),  # False because user did this one herself
+            ('changed group', True),
+            ])
+        eq(helpers.call_action('dashboard_new_activities_count',
+                               context={'user': user['id']}),
+           1)
+
+    def test_activities_on_a_dataset_in_a_followed_group(self):
+        user = factories.User()
+        another_user = factories.Sysadmin()
+        group = factories.Group(user=user)
+        _clear_activities()
+        dataset = factories.Dataset(groups=[{'name': group['name']}],
+                                    user=another_user)
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'follow_dataset', context={'user': user['name']}, **dataset)
+        helpers.call_action(
+            'package_update', context={'user': another_user['name']}, **dataset)
+
+        activities = helpers.call_action('dashboard_activity_list',
+                                         context={'user': user['id']})
+        eq([(activity['activity_type'], activity['is_new'])
+            for activity in activities[::-1]],
+           [('new package', True),
+            ('changed package', True),
+            ])
+        eq(helpers.call_action('dashboard_new_activities_count',
+                               context={'user': user['id']}),
+           2)
+
+    def test_activities_that_should_not_show(self):
+        user = factories.User()
+        _clear_activities()
+        # another_user does some activity unconnected with user
+        another_user = factories.Sysadmin()
+        group = factories.Group(user=another_user)
+        dataset = factories.Dataset(groups=[{'name': group['name']}],
+                                    user=another_user)
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_update', context={'user': another_user['name']}, **dataset)
+
+        activities = helpers.call_action('dashboard_activity_list',
+                                         context={'user': user['id']})
+        eq([(activity['activity_type'], activity['is_new'])
+            for activity in activities[::-1]],
+           [])
+        eq(helpers.call_action('dashboard_new_activities_count',
+                               context={'user': user['id']}),
+           0)
+
+    @helpers.change_config('ckan.activity_list_limit', '15')
+    def test_maximum_number_of_new_activities(self):
+        '''Test that the new activities count does not go higher than 15, even
+        if there are more than 15 new activities from the user's followers.'''
+        user = factories.User()
+        another_user = factories.Sysadmin()
+        dataset = factories.Dataset()
+        helpers.call_action(
+            'follow_dataset', context={'user': user['name']}, **dataset)
+        for n in range(0, 20):
+            dataset['notes'] = 'Updated {n} times'.format(n=n)
+            helpers.call_action(
+                'package_update', context={'user': another_user['name']}, **dataset)
+        eq(helpers.call_action('dashboard_new_activities_count',
+                               context={'user': user['id']}),
+           15)
