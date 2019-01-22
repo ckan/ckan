@@ -132,12 +132,9 @@ class AskAppDispatcherMiddleware(object):
             val = environ.get(var)
             if val:
                 try:
-                    val.decode('utf-8')
+                    val = val.decode('utf-8')
                 except UnicodeDecodeError:
-                    val = val.decode('cp1252').encode('utf-8')
-
-                # Preserve reserved characters and avoid double-quoting
-                environ[var] = urllib.quote(val, '%:;/?&=@')
+                    val = val.decode('cp1252')
 
         # We only update once for a request so we can keep
         # the language and original url which helps with 404 pages etc
