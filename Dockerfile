@@ -75,7 +75,7 @@ RUN ckan-pip install flask_debugtoolbar
 
 WORKDIR $CKAN_VENV/src
 COPY ./contrib/docker/src/pycsw $CKAN_VENV/src/pycsw
-COPY ./contrib/docker/pycsw.cfg $CKAN_VENV/src/pycsw/default.cfg
+COPY ./contrib/docker/pycsw/pycsw.cfg $CKAN_VENV/src/pycsw/default.cfg
 COPY ./contrib/docker/src/ckanext-harvest $CKAN_VENV/src/ckanext-harvest
 COPY ./contrib/docker/src/ckanext-spatial $CKAN_VENV/src/ckanext-spatial
 COPY ./contrib/docker/src/ckanext-cioos_theme $CKAN_VENV/src/ckanext-cioos_theme
