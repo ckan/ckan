@@ -49,4 +49,3 @@ node_modules/
 contrib/docker/.env
 cypress.env.json
 
-contrib/docker/pycsw/pycsw\.cfg
