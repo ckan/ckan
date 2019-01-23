@@ -681,9 +681,6 @@ def url_validator(key, data, errors, context):
     import urlparse
     import string
 
-    model = context['model']
-    session = context['session']
-
     url = data.get(key, None)
     if not url:
         return
