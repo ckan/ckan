@@ -611,4 +611,31 @@ class TestPasswordValidator(object):
         errors[key] = []
         call_validator(key, {key: password}, errors, None)
 
+
+class TestUrlValidator(object):
+
+    def test_ok(self):
+        urls = ['http://example.com', 'https://example.com', 'https://example.com/path?test=1&key=2']
+        key = ('url',)
+
+        @t.does_not_modify_errors_dict
+        def call_validator(*args, **kwargs):
+            return validators.url_validator(*args, **kwargs)
+        for url in urls:
+            errors = factories.validator_errors_dict()
+            errors[key] = []
+            call_validator(key, {key: url}, errors, None)
+
+    def test_invalid(self):
+        urls = ['ftp://example.com', 'test123', 'https://example.com]']
+        key = ('url',)
+
+        @adds_message_to_errors_dict('Please provide a valid URL')
+        def call_validator(*args, **kwargs):
+            return validators.url_validator(*args, **kwargs)
+        for url in urls:
+            errors = factories.validator_errors_dict()
+            errors[key] = []
+            call_validator(key, {key: url}, errors, None)
+
 # TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show

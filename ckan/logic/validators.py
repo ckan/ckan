@@ -697,11 +697,15 @@ def url_validator(key, data, errors, context):
     if not url:
         return
 
-    pieces = urlparse.urlparse(url)
-    if all([pieces.scheme, pieces.netloc]) and \
-       set(pieces.netloc) <= set(string.letters + string.digits + '-.') and \
-       pieces.scheme in ['http', 'https']:
-       return
+    try:
+        pieces = urlparse.urlparse(url)
+        if all([pieces.scheme, pieces.netloc]) and \
+           set(pieces.netloc) <= set(string.letters + string.digits + '-.') and \
+           pieces.scheme in ['http', 'https']:
+           return
+    except ValueError:
+        # url is invalid
+        pass
 
     errors[key].append(_('Please provide a valid URL'))
 
