@@ -276,7 +276,7 @@ CREATE DATABASE pycsw OWNER ckan ENCODING 'utf-8';
 CREATE EXTENSION postgis;
 \q
 
-## setup database, if not already done.
+## setup pycsw database tables.
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw setup -p /usr/lib/ckan/venv/src/pycsw/default.cfg
 
 ## start pycsw container
