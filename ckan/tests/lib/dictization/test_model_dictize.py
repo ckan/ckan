@@ -468,6 +468,21 @@ class TestPackageDictize:
         }
         assert expected_dict['url'] == result.url
 
+    def test_package_dictize_resource_upload_with_invalid_url(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset['id'],
+                                      name='test_pkg_dictize',
+                                      url='http://<![CDATA[http://www.example.com]]')
+
+        context = {'model': model, 'session': model.Session}
+
+        result = model_save.resource_dict_save(resource, context)
+
+        expected_dict = {
+            u'url': u'http://<![CDATA[http://www.example.com]]',
+        }
+        assert expected_dict['url'] == result.url
+
     def test_package_dictize_tags(self):
         dataset = factories.Dataset(tags=[{'name': 'fish'}])
         dataset_obj = model.Package.get(dataset['id'])
