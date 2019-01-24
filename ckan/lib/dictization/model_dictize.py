@@ -122,7 +122,7 @@ def resource_dictize(res, context):
                 resource['url'] = u'http://' + url.lstrip('/')
         except ValueError:
             # leave value if urlparse can't parse it
-            pass
+            raise
     return resource
 
 
