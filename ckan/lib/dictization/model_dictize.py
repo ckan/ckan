@@ -115,8 +115,14 @@ def resource_dictize(res, context):
                                     resource_id=res.id,
                                     filename=cleaned_name,
                                     qualified=True)
-    elif resource['url'] and not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
-        resource['url'] = u'http://' + url.lstrip('/')
+    elif resource['url'] and not context.get('for_edit'):
+        try:
+            scheme = urlparse.urlsplit(url).scheme
+            if not scheme:
+                resource['url'] = u'http://' + url.lstrip('/')
+        except ValueError:
+            # leave value if urlparse can't parse it
+            pass
     return resource
 
 
