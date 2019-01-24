@@ -17,6 +17,15 @@ sudo apt-get update
 sudo apt-get install docker-compose
 ```
 
+### Add Apache moduals
+We will use apache to proxy our docker containers so will need a few moduals to make that work
+```
+sudo a2enmod ssl
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo service apache2 restart
+```
+
 ---
 # Download CKAN git repo
 
@@ -63,17 +72,21 @@ cp production_root_url.ini production.ini
 cp who_root_url.ini who.ini
 ```
 
+copy pyCSW config file and update the database password. This ist he same password enetered in your .env file
+```
+cd ~/ckan/contrib/docker/pycsw
+cp pycsw.cfg.template pycsw.cfg
+nano pycsw.cfg
+```
+
 ---
 # Build CKAN
 
 Change to ckan docker config folder
 ```
-cd ~/ckan/contrib/docker
+  cd ~/ckan/contrib/docker
 ```
-
-Currently ckan is configured to run in the ckan sub folder on port 5000 so if accessing if from localhost it would be http:localhost:5000/ckan/
-If you wish to host ckan at the domain root aka http://localhost:5000 you will need to modify the config files. See ‘Host CKAN on root path’ for more information.
-
+Build containers
 ```
 sudo docker-compose up -d --build
 ```
@@ -98,26 +111,40 @@ docker volume rm docker_ckan_config
 ```
 update ckan/contrib/docker/production.ini
 ```
-sudo nano $VOL_CKAN_CONFIG/production.ini
+  export VOL_CKAN_CONFIG=`sudo docker volume inspect docker_ckan_config | jq -r -c '.[] | .Mountpoint'`
+  sudo nano $VOL_CKAN_CONFIG/production.ini
 ```
 
 # Setup Apache proxy
 add the following to your sites configs
 ```
-# CKAN
+    # CKAN
 		<location /ckan>
-      		    ProxyPass http://localhost:5000/
-      		    ProxyPassReverse http://localhost:5000/
-   		</location>
+  	    ProxyPass http://localhost:5000/
+  	    ProxyPassReverse http://localhost:5000/
+   	</location>
+
+    # pycsw
+     <location /ckan/csw>
+         ProxyPass http://localhost:8000/pycsw/csw.js
+         ProxyPassReverse http://localhost:8000/pycsw/csw.js
+    </location>
 ```
 or
 
 ```
-# CKAN
-		<location />
-      		    ProxyPass http://localhost:5000/
-      		    ProxyPassReverse http://localhost:5000/
-   		</location>
+    # CKAN
+    <location />
+        ProxyPass http://localhost:5000/
+        ProxyPassReverse http://localhost:5000/
+    </location>
+
+    # pycsw
+    <location /csw>
+        ProxyPass http://localhost:8000/pycsw/csw.js
+        ProxyPassReverse http://localhost:8000/pycsw/csw.js
+    </location>
+
 ```
 If you use rewrite rules to redirect none ssl trafic to https and you are using a non-root install, such as /ckan, then you will likely need to add a no escape flag to your rewite rules. something like the following should work, not the NE.
 ```
@@ -223,7 +250,7 @@ The settings for harvesters are fairly straightforward. The one exception is the
 #### CKAN
 ```
 {
- "default_tags": [{"name": "ckan"}, {"name": "SLGO"}, {"name": "St-Lawrence-Global-Observatory"}, {"name": "production"}],
+ "default_tags": [{"name": "ckan"}, {"name": "production"}],
  "default_extras": {"encoding":"utf8",
      "h_source_id": "{harvest_source_id}",
      "h_source_url":"{harvest_source_url}",
@@ -232,51 +259,44 @@ The settings for harvesters are fairly straightforward. The one exception is the
      "h_object_id":"{harvest_object_id}"},
   "clean_tags": true,
  "remote_groups": "create",
- "remote_orgs": "create"
+ "remote_orgs": "create",
+ "use_default_schema": true,
+ "force_package_type": "dataset"
 }
 ```
 ---
-# Install pyCSW
 
-## start containers
-sudo docker-compose up -d pycsw
+# Finish setting up pyCSW
 
-## create pycsw database in existing pg container
+## create pycsw database in existing pg container and install postgis
 
 sudo docker exec -i db psql -U ckan
 CREATE DATABASE pycsw OWNER ckan ENCODING 'utf-8';
+\c pycsw
+CREATE EXTENSION postgis;
 \q
-
-## access pycsw-admin
-sudo docker exec -ti pycsw pycsw-admin.py -h
 
 ## setup database, if not already done.
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw setup -p /usr/lib/ckan/venv/src/pycsw/default.cfg
 
-## add to apache
-```
-# pycsw
- <location /ckan/csw/>
-   ProxyPass http://localhost:8000/
-   ProxyPassReverse http://localhost:8000/
-</location>
-```
+## start pycsw container
+sudo docker-compose up -d pycsw
 
 ## test GetCapabilities
-https://goose.hakai.org/ckan/csw/?service=CSW&version=2.0.2&request=GetCapabilities
+https://localhost/ckan/csw/?service=CSW&version=2.0.2&request=GetCapabilities
+or
+https://localhost/csw/?service=CSW&version=2.0.2&request=GetCapabilities
 
-## edit pycsw config in ckan container
-sudo docker exec -it ckan /bin/bash -c "export TERM=xterm; exec bash"
-source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/
-vi /usr/lib/ckan/venv/src/pycsw/default.cfg
 
-## set database password
-database = postgresql://ckan:[YOUR_PASSWORD_HERE]@db/pycsw
+## Useful pycsw commands
 
-## Load the CKAN datasets into pycsw
+### access pycsw-admin
+sudo docker exec -ti pycsw pycsw-admin.py -h
+
+### Load the CKAN datasets into pycsw
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw load -p /usr/lib/ckan/venv/src/pycsw/default.cfg -u http://localhost:5000
 
-## some usfull ckan-pycsw commands
+### ckan-pycsw commands
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw --help
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw setup -p /usr/lib/ckan/venv/src/pycsw/default.cfg
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw set_keywords -p /usr/lib/ckan/venv/src/pycsw/default.cfg -u http://localhost:5000
@@ -326,6 +346,12 @@ To fix chage the owner of the ckan storage folder and its children
   chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
   exit
 ```
+
+### Build failes with 'Temporary failure resulving...' errors
+Likely the issue is that docker is passing the wrong DNS lookup addresses to the
+containers on build. See issue this issue on stack overflow https://stackoverflow.com/a/45644890
+for a solution.
+
 ---
 
 # Update CKAN and its extensions

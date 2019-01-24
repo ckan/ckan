@@ -1,6 +1,6 @@
 [server]
 home = /usr/lib/ckan/venv/src/pycsw
-url = http://localhost/usr/lib/ckan/venv/src/pycsw/pycsw/csw.py
+url = http://localhost/pycsw/csw.js
 mimetype = application/xml; charset=UTF-8
 encoding = UTF-8
 language = en-US
