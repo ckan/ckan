@@ -399,8 +399,10 @@ def datastore_delete(context, data_dict):
 def datastore_search(context, data_dict):
     '''Search a DataStore resource.
 
-    The datastore_search action allows you to search data in a resource.
-    DataStore resources that belong to private CKAN resource can only be
+    The datastore_search action allows you to search data in a resource. By
+    default 100 rows are returned - see the `limit` parameter for more info.
+
+    A DataStore resource that belongs to a private CKAN resource can only be
     read by you if you have access to the CKAN resource and send the
     appropriate authorization.
 
@@ -421,8 +423,9 @@ def datastore_search(context, data_dict):
                      (optional, default: english)
     :type language: string
     :param limit: maximum number of rows to return
-        (optional, default: ``100``, upper limit: ``32000`` unless set in
-        site's configuration ``ckan.datastore.search.rows_max``)
+        (optional, default: ``100``, unless set in the site's configuration
+        ``ckan.datastore.search.rows_default``, upper limit: ``32000`` unless
+        set in site's configuration ``ckan.datastore.search.rows_max``)
     :type limit: int
     :param offset: offset this number of rows (optional)
     :type offset: int

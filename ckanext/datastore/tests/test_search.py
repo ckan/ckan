@@ -342,7 +342,7 @@ class TestDatastoreSearch(DatastoreFunctionalTestBase):
                 "Must be a natural number"):
             helpers.call_action('datastore_search', **search_data)
 
-    @helpers.change_config('ckan.datastore.search.rows_max', '1')
+    @helpers.change_config('ckan.datastore.search.rows_default', '1')
     def test_search_limit_config_default(self):
         resource = factories.Resource()
         data = {
@@ -362,6 +362,78 @@ class TestDatastoreSearch(DatastoreFunctionalTestBase):
         assert_equals(result['total'], 2)
         assert_equals(result['records'], [{u'the year': 2014, u'_id': 1}])
         assert_equals(result['limit'], 1)
+
+    @helpers.change_config('ckan.datastore.search.rows_default', '1')
+    def test_search_limit_config(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2015},
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'limit': 2,  # specified limit overrides the rows_default
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        assert_equals(result['total'], 3)
+        assert_equals(result['records'], [{u'the year': 2015, u'_id': 1},
+                                          {u'the year': 2014, u'_id': 2}])
+        assert_equals(result['limit'], 2)
+
+    @helpers.change_config('ckan.datastore.search.rows_max', '1')
+    def test_search_limit_config_max(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            # limit not specified - leaving to the configured default of 1
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        assert_equals(result['total'], 2)
+        assert_equals(result['records'], [{u'the year': 2014, u'_id': 1}])
+        assert_equals(result['limit'], 1)
+
+    @helpers.change_config('ckan.datastore.search.rows_default', '1')
+    @helpers.change_config('ckan.datastore.search.rows_max', '2')
+    def test_search_limit_config_combination(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2016},
+                {'the year': 2015},
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'limit': 3,  # ignored because it is above rows_max
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        assert_equals(result['total'], 4)
+        # returns 2 records,
+        # ignoring the rows_default because we specified limit
+        # but limit is more than rows_max so rows_max=2 wins
+        assert_equals(result['records'], [{u'the year': 2016, u'_id': 1},
+                                          {u'the year': 2015, u'_id': 2}])
+        assert_equals(result['limit'], 2)
 
 
 class TestDatastoreSearchLegacyTests(DatastoreLegacyTestBase):
