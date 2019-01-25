@@ -16,8 +16,6 @@ Minor changes:
    the value is False, 0, [] or {} (#4448)
  * If you've customized the schema for package_search, you'll need to add to it
    the limiting of ``row``, as per default_package_search_schema now does (#4484)
- * ``datastore_search`` now returns up to 100 items, unless the client requests
-   more. (#4562)
  * Several logic functions now have new upper limits to how many items can be
    returned, notably ``group_list``, ``organization_list`` when
    ``all_fields=true``, ``datastore_search`` and ``datastore_search_sql``.
