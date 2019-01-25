@@ -377,7 +377,6 @@ class TestPep8(object):
         'ckan/controllers/revision.py',
         'ckan/include/rcssmin.py',
         'ckan/include/rjsmin.py',
-        'ckan/lib/activity_streams.py',
         'ckan/lib/app_globals.py',
         'ckan/lib/captcha.py',
         'ckan/lib/cli.py',

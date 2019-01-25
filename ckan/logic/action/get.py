@@ -2650,7 +2650,7 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(
+    _activity_objects = model.activity.organization_activity_list(
         org_id, limit=limit, offset=offset)
     if not include_hidden_activity:
         activity_objects = _filter_activity_by_user(

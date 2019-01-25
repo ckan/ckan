@@ -561,7 +561,7 @@ class TestHelpersRenderDatetime(object):
 class TestCleanHtml(object):
     def test_disallowed_tag(self):
         eq_(h.clean_html('<b><bad-tag>Hello'),
-            u'<b>&lt;bad-tag&gt;Hello&lt;/bad-tag&gt;</b>')
+            u'<b>&lt;bad-tag&gt;Hello</b>')
 
     def test_non_string(self):
         # allow a datetime for compatibility with older ckanext-datapusher

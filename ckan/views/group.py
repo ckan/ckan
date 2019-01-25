@@ -500,7 +500,9 @@ def activity(id, group_type, is_organization, offset=0):
         # template context for the group/read.html
         # template to retrieve later.
         extra_vars["activity_stream"] = \
-            _action(u'group_activity_list')(
+            _action(u'organization_activity_list'
+                    if group_dict.get(u'is_organization')
+                    else u'group_activity_list')(
             context, {
                 u'id': group_dict['id'],
                 u'offset': offset
@@ -512,6 +514,7 @@ def activity(id, group_type, is_organization, offset=0):
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
     # compatibility with templates in existing extensions
+    g.group_activity_stream = extra_vars["activity_stream"]
     g.group_dict = group_dict
 
     extra_vars["group_type"] = group_type

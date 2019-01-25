@@ -212,7 +212,6 @@ def _group_activity_query(group_id):
         model.Member,
         and_(
             model.Activity.object_id == model.Member.table_id,
-            model.Member.state == 'active'
         )
     ).outerjoin(
         model.Package,
@@ -228,9 +227,55 @@ def _group_activity_query(group_id):
         # to a group but was then removed will not show up. This may not be
         # desired but is consistent with legacy behaviour.
         or_(
-            model.Member.group_id == group_id,
-            model.Package.owner_org == group_id,
+            # active dataset in the group
+            and_(model.Member.group_id == group_id,
+                 model.Member.state == 'active',
+                 model.Package.state == 'active'),
+            # deleted dataset in the group
+            and_(model.Member.group_id == group_id,
+                 model.Member.state == 'deleted',
+                 model.Package.state == 'deleted'),
+                 # (we want to avoid showing changes to an active dataset that
+                 # was once in this group)
+            # activity the the group itself
             model.Activity.object_id == group_id,
+        )
+    )
+
+    return q
+
+
+def _organization_activity_query(org_id):
+    '''Return an SQLAlchemy query for all activities about org_id.
+
+    Returns a query for all activities whose object is either the org itself
+    or one of the org's datasets.
+
+    '''
+    import ckan.model as model
+
+    org = model.Group.get(org_id)
+    if not org or not org.is_organization:
+        # Return a query with no results.
+        return model.Session.query(model.Activity).filter(text('0=1'))
+
+    q = model.Session.query(
+        model.Activity
+    ).outerjoin(
+        model.Package,
+        and_(
+            model.Package.id == model.Activity.object_id,
+            model.Package.private == False,
+        )
+    ).filter(
+        # We only care about activity either on the the org itself or on
+        # packages within that org.
+        # FIXME: This means that activity that occured while a package belonged
+        # to a org but was then removed will not show up. This may not be
+        # desired but is consistent with legacy behaviour.
+        or_(
+            model.Package.owner_org == org_id,
+            model.Activity.object_id == org_id
         )
     )
 
@@ -249,6 +294,21 @@ def group_activity_list(group_id, limit, offset):
 
     '''
     q = _group_activity_query(group_id)
+    return _activities_at_offset(q, limit, offset)
+
+
+def organization_activity_list(group_id, limit, offset):
+    '''Return the given org's public activity stream.
+
+    Returns activities where the given org or one of its datasets is the
+    object of the activity, e.g.:
+
+    "{USER} updated the organization {ORG}"
+    "{USER} updated the dataset {DATASET}"
+    etc.
+
+    '''
+    q = _organization_activity_query(group_id)
     return _activities_at_offset(q, limit, offset)
 
 
