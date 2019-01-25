@@ -193,6 +193,7 @@ entry_points = {
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
         'example_datastore_deleted_with_count_plugin = ckanext.datastore.tests.test_chained_action:ExampleDataStoreDeletedWithCountPlugin',
         'example_data_store_search_sql_plugin = ckanext.datastore.tests.test_chained_auth_functions:ExampleDataStoreSearchSQLPlugin',
+        'example_external_provider_plugin = ckanext.datastore.tests.test_chained_auth_functions:ExampleExternalProviderPlugin',
         'test_datastore_view = ckan.tests.lib.test_datapreview:MockDatastoreBasedResourceView',
         'test_datapusher_plugin = ckanext.datapusher.tests.test_interfaces:FakeDataPusherPlugin',
         'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
