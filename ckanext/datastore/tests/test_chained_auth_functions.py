@@ -27,6 +27,11 @@ def datastore_search_sql_auth(up_func, context, data_dict):
     raise TestAuthException(auth_message)
 
 
+@p.toolkit.chained_auth_function
+def user_create(up_func, context, data_dict):
+    return up_func(context, data_dict)
+
+
 class ExampleDataStoreSearchSQLPlugin(p.SingletonPlugin):
     p.implements(p.IAuthFunctions)
 
@@ -48,3 +53,21 @@ class TestChainedAuth(DatastoreFunctionalTestBase):
                 u'user': u'annafan', u'table_names': []}, {})
         # check that exception returned has the message from our auth function
         assert_equals(raise_context.exception.message, auth_message)
+
+
+class ExampleExternalProviderPlugin(p.SingletonPlugin):
+    p.implements(p.IAuthFunctions)
+
+    def get_auth_functions(self):
+        return {u'user_create': user_create}
+
+
+class TestChainedAuthBuiltInFallback(DatastoreFunctionalTestBase):
+    _load_plugins = (
+        u'datastore',
+        u'example_external_provider_plugin')
+
+    def test_user_create_chained_auth(self):
+        ctd.CreateTestData.create()
+        # check if chained auth fallbacks to built-in user_create
+        check_access(u'user_create', {u'user': u'annafan'}, {})
