@@ -23,6 +23,13 @@ def test_authed_user_list():
     context = {"user": None, "model": model}
     assert helpers.call_auth("user_list", context=context)
 
+    def test_user_list_email_parameter(self):
+        context = {'user': None,
+                   'model': model}
+        # using the 'email' parameter is not allowed (unless sysadmin)
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'user_list', email='a@example.com', context=context)
+
 
 def test_user_list_email_parameter():
     context = {"user": None, "model": model}
