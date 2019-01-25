@@ -580,6 +580,18 @@ class TestUserList(helpers.FunctionalTestBase):
         got_user = got_users[0]
         assert got_user == user['name']
 
+    def test_user_list_filtered_by_email(self):
+
+        user_a = factories.User(email='a@example.com')
+        factories.User(email='b@example.com')
+
+        got_users = helpers.call_action('user_list', email='a@example.com',
+                                        all_fields=False)
+
+        assert len(got_users) == 1
+        got_user = got_users[0]
+        assert got_user == user_a['name']
+
 
 class TestUserShow(helpers.FunctionalTestBase):
 

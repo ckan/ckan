@@ -1,4 +1,5 @@
 # encoding: utf-8
+import mock
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -683,3 +684,68 @@ class TestUserSearch(helpers.FunctionalTestBase):
         user_list = search_response_html.select('ul.user-list li')
         assert_equal(len(user_list), 1)
         assert_equal(user_list[0].text.strip(), 'User One')
+
+
+class TestUserResetRequest(helpers.FunctionalTestBase):
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_by_email(self, send_reset_link):
+        user = factories.User()
+        app = self._get_test_app()
+        offset = url_for(controller'user', action='request_reset')
+        response = app.post(offset, params=dict(user=user['email']),
+                            status=302).follow()
+
+        assert_in('A reset link has been emailed to you', response)
+        assert_equal(send_reset_link.call_args[0][0].id, user['id'])
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_by_name(self, send_reset_link):
+        user = factories.User()
+        app = self._get_test_app()
+        offset = url_for(controller'user', action='request_reset')
+        response = app.post(offset, params=dict(user=user['name']),
+                            status=302).follow()
+
+        assert_in('A reset link has been emailed to you', response)
+        assert_equal(send_reset_link.call_args[0][0].id, user['id'])
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_when_duplicate_emails(self, send_reset_link):
+        user_a = factories.User(email='me@example.com')
+        user_b = factories.User(email='me@example.com')
+        app = self._get_test_app()
+        offset = url_for(controller'user', action='request_reset')
+        response = app.post(offset, params=dict(user='me@example.com'),
+                            status=302).follow()
+
+        assert_in('A reset link has been emailed to you', response)
+        emailed_users = [call[0][0].name
+                         for call in send_reset_link.call_args_list]
+        assert_equal(emailed_users, [user_a['name'], user_b['name']])
+
+    def test_request_reset_without_param(self):
+        app = self._get_test_app()
+        offset = url_for(controller'user', action='request_reset')
+        app.post(offset, params={}, status=400)
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_for_unknown_username(self, send_reset_link):
+        app = self._get_test_app()
+        offset = url_for(controller'user', action='request_reset')
+        response = app.post(offset, params=dict(user='unknown'),
+                            status=302).follow()
+
+        # doesn't reveal account does or doesn't exist
+        assert_in('A reset link has been emailed to you', response)
+        send_reset_link.assert_not_called()
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_for_unknown_email(self, send_reset_link):
+        app = self._get_test_app()
+        offset = url_for(controller'user', action='request_reset')
+        response = app.post(offset, params=dict(user='unknown@example.com'),
+                            status=302).follow()
+
+        # doesn't reveal account does or doesn't exist
+        assert_in('A reset link has been emailed to you', response)
+        send_reset_link.assert_not_called()
