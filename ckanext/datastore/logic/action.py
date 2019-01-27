@@ -399,8 +399,10 @@ def datastore_delete(context, data_dict):
 def datastore_search(context, data_dict):
     '''Search a DataStore resource.
 
-    The datastore_search action allows you to search data in a resource.
-    DataStore resources that belong to private CKAN resource can only be
+    The datastore_search action allows you to search data in a resource. By
+    default 100 rows are returned - see the `limit` parameter for more info.
+
+    A DataStore resource that belongs to a private CKAN resource can only be
     read by you if you have access to the CKAN resource and send the
     appropriate authorization.
 
@@ -420,7 +422,10 @@ def datastore_search(context, data_dict):
     :param language: language of the full text query
                      (optional, default: english)
     :type language: string
-    :param limit: maximum number of rows to return (optional, default: 100)
+    :param limit: maximum number of rows to return
+        (optional, default: ``100``, unless set in the site's configuration
+        ``ckan.datastore.search.rows_default``, upper limit: ``32000`` unless
+        set in site's configuration ``ckan.datastore.search.rows_max``)
     :type limit: int
     :param offset: offset this number of rows (optional)
     :type offset: int
@@ -471,7 +476,9 @@ def datastore_search(context, data_dict):
     :type fields: list of dictionaries
     :param offset: query offset value
     :type offset: int
-    :param limit: query limit value
+    :param limit: queried limit value (if the requested ``limit`` was above the
+        ``ckan.datastore.search.rows_max`` value then this response ``limit``
+        will be set to the value of ``ckan.datastore.search.rows_max``)
     :type limit: int
     :param filters: query filters
     :type filters: list of dictionaries
@@ -522,13 +529,15 @@ def datastore_search_sql(context, data_dict):
     engine is the
     `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
+    The number of results returned is limited to 32000, unless set in the
+    site's configuration ``ckan.datastore.search.rows_max``
     Queries are only allowed if you have access to the all the CKAN resources
     in the query and send the appropriate authorization.
 
     .. note:: This action is not available when
         :ref:`ckan.datastore.sqlsearch.enabled` is set to false
 
-    .. note:: When source data columns (i.e. CSV) heading names are provdied
+    .. note:: When source data columns (i.e. CSV) heading names are provided
         in all UPPERCASE you need to double quote them in the SQL select
         statement to avoid returning null results.
 
@@ -544,6 +553,12 @@ def datastore_search_sql(context, data_dict):
     :type fields: list of dictionaries
     :param records: list of matching results
     :type records: list of dictionaries
+    :param records_truncated: indicates whether the number of records returned
+        was limited by the internal limit, which is 32000 records (or other
+        value set in the site's configuration
+        ``ckan.datastore.search.rows_max``). If records are truncated by this,
+        this key has value True, otherwise the key is not returned at all.
+    :type records_truncated: bool
 
     '''
     backend = DatastoreBackend.get_active_backend()

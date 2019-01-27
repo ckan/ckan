@@ -1375,7 +1375,7 @@ def _execute_single_statement_copy_to(context, sql_string, where_values, buf):
     cursor.close()
 
 
-def format_results(context, results, data_dict):
+def format_results(context, results, data_dict, rows_max):
     result_fields = []
     for field in results.cursor.description:
         result_fields.append({
@@ -1391,6 +1391,8 @@ def format_results(context, results, data_dict):
                                                  field['type'])
         records.append(converted_row)
     data_dict['records'] = records
+    if data_dict.get('records_truncated', False):
+        data_dict['records'].pop()
     data_dict['fields'] = result_fields
 
     return _unrename_json_field(data_dict)
@@ -1550,6 +1552,11 @@ def search_sql(context, data_dict):
 
     sql = data_dict['sql'].replace('%', '%%')
 
+    # limit the number of results to ckan.datastore.search.rows_max + 1
+    # (the +1 is so that we know if the results went over the limit or not)
+    rows_max = int(config.get('ckan.datastore.search.rows_max', 32000))
+    sql = 'SELECT * FROM ({0}) AS blah LIMIT {1} ;'.format(sql, rows_max + 1)
+
     try:
 
         context['connection'].execute(
@@ -1566,7 +1573,10 @@ def search_sql(context, data_dict):
 
         results = context['connection'].execute(sql)
 
-        return format_results(context, results, data_dict)
+        if results.rowcount == rows_max + 1:
+            data_dict['records_truncated'] = True
+
+        return format_results(context, results, data_dict, rows_max)
 
     except ProgrammingError as e:
         if e.orig.pgcode == _PG_ERR_CODE['permission_denied']:
@@ -1718,6 +1728,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         else:
             self._check_urls_and_permissions()
 
+        # check rows_max is valid on CKAN start-up
+        rows_max = config.get('ckan.datastore.search.rows_max')
+        if rows_max is not None:
+            int(rows_max)
+
     def datastore_delete(self, context, data_dict, fields_types, query_dict):
         query_dict['where'] += _where_clauses(data_dict, fields_types)
         return query_dict
@@ -1739,6 +1754,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         else:
             field_ids = fields_types.keys()
 
+        # add default limit here just in case - already defaulted in the schema
         limit = data_dict.get('limit', 100)
         offset = data_dict.get('offset', 0)
 
