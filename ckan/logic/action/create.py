@@ -25,6 +25,8 @@ import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
 
+from ckan.model import PACKAGE_NAME_MAX_LENGTH
+
 from ckan.common import _, config
 
 # FIXME this looks nasty and should be shared better
@@ -166,13 +168,61 @@ def package_create(context, data_dict):
                 # to ensure they still work
                 package_plugin.check_data_dict(data_dict)
 
+    rename_dataset_name_when_collision = paste.deploy.converters.asbool(
+            config.get('ckan.rename_dataset_name_when_collision', 'false'))
+
+    original_data_name = data_dict['name']
+    if rename_dataset_name_when_collision:
+        # modify name for shorten its length in 2 characters
+        # because we will check for a suffix up to 99
+        data_dict['name'] = data_dict['name'][:(PACKAGE_NAME_MAX_LENGTH-2)]
+
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               data.get('name'), data_dict)
 
+    if rename_dataset_name_when_collision:
+        #checking for recoverable error (That URL is already in use) by adding a suffix
+        current_name_temp = ''
+        MAX_ATTEMPS = 99
+        if errors:
+            if ('name' in errors):
+                if (errors['name'][0] == _(u'That URL is already in use.')):
+                    previous_data_name = data_dict['name']
+                    # search a new data name => previous name + counter
+                    i = 1
+                    # try MAX_ATTEMPS
+                    while i <= MAX_ATTEMPS:
+                        # get a new unused data name
+                        current_name_temp = data.get('name') + str(i)
+                        data_dict['name'] = current_name_temp
+                        data_name_with_suffix, errors_name_with_suffix = lib_plugins.plugin_validate(
+                           package_plugin, context, data_dict, schema, 'package_create')
+                        if errors_name_with_suffix:
+                            if ('name' in errors_name_with_suffix):
+                                if (errors_name_with_suffix['name'][0] == _(u'That URL is already in use.')):
+                                    if i >= (MAX_ATTEMPS-1):
+                                        # too many attemps => resign
+                                        model.Session.rollback()
+                                        raise df.Invalid('Too many datasets with same name.')
+                                    else:
+                                        i= i+1
+                                else:
+                                    # there are other errors despite of changing its name => resign
+                                    i = MAX_ATTEMPS+1
+                            else:
+                                # there are other errors despite of changing its name => resign
+                                i = MAX_ATTEMPS+1
+                        else:
+                            data['name'] = current_name_temp
+                            data_dict['name'] = current_name_temp
+                            errors = errors_name_with_suffix
+                            i = MAX_ATTEMPS+1
+
     if errors:
+        data_dict['name'] = original_data_name
         model.Session.rollback()
         raise ValidationError(errors)
 
