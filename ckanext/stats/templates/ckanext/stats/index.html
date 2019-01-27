@@ -68,7 +68,7 @@
           <tbody>
             {% for package, rating, num_ratings in c.top_rated_packages %}
               <tr>
-                <th>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</th>
+                <th>{{ h.link_to(package.title or package.name, h.url_for('dataset.read', id=package.name)) }}</th>
                 <td class="metric">{{ rating }}</td>
                 <td class="metric">{{ num_ratings }}</td>
               </tr>
@@ -93,7 +93,7 @@
           <tbody>
             {% for package, edits in c.most_edited_packages %}
               <tr py:for="package, edits in c.most_edited_packages">
-                <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
+                <td>{{ h.link_to(package.title or package.name, h.url_for('dataset.read', id=package.name)) }}</td>
                 <td class="metric">{{ edits }}</td>
               </tr>
             {% endfor %}
@@ -140,7 +140,7 @@
         <tbody>
           {% for tag, num_packages in c.top_tags %}
             <tr>
-              <td>{{ h.link_to(tag.name, h.url_for(controller='package', action='search', tags=tag.name)) }}</td>
+              <td>{{ h.link_to(tag.name, h.url_for('dataset.search', tags=tag.name)) }}</td>
               <td class="metric">{{ num_packages }}</td>
             </tr>
           {% endfor %}
@@ -189,11 +189,5 @@
 
 {% block scripts %}
   {{ super() }}
-{#
-Hellish hack to get excanvas to work in IE8. We disable html5shiv from
-overriding the createElement() method on this page.
-See: http://stackoverflow.com/questions/10208062/using-flot-with-bootstrap-ie8-incompatibility
-#}
-{% resource "vendor/block_html5_shim" %}
-{% resource "ckanext_stats/stats" %}
+  {% resource "ckanext_stats/stats" %}
 {% endblock %}

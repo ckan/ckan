@@ -21,7 +21,7 @@ import paste.fixture
 from nose import SkipTest
 from ckan.common import json
 import ckan.tests.legacy as tests
-from ckan.tests.helpers import call_action
+from ckan.tests.helpers import call_action, _get_test_app
 
 
 ##def package_update(context, data_dict):
@@ -84,17 +84,10 @@ def group_list(app, data_dict=None, apikey=None):
     return groups
 
 
-def package_update(app, data_dict, apikey=None):
-    if apikey:
-        extra_environ = {'Authorization': str(apikey)}
-    else:
-        extra_environ = None
-    response = app.post('/api/action/package_update',
-            json.dumps(data_dict), extra_environ=extra_environ)
-    response_dict = json.loads(response.body)
-    assert response_dict['success'] is True
-    updated_package = response_dict['result']
-    return updated_package
+def package_update(app, data_dict, user):
+    response = call_action('package_update', context={'user': user['name']},
+                           **data_dict)
+    return response
 
 
 def group_update(app, data_dict, apikey=None):
@@ -206,7 +199,7 @@ class TestActivity:
                 'id': annakarenina.id,
                 }
         self.users = [self.sysadmin_user, self.normal_user]
-        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        self.app = _get_test_app()
 
     @classmethod
     def teardown_class(self):
@@ -218,27 +211,36 @@ class TestActivity:
             extra_environ = {'Authorization': str(apikey)}
         else:
             extra_environ = None
-        response = self.app.get("/api/2/rest/user/%s/activity" % user_id,
-                extra_environ=extra_environ)
-        return json.loads(response.body)
+        params = {'id': user_id}
+        response = self.app.get("/api/action/user_activity_list",
+                                params=params, extra_environ=extra_environ)
+        assert response.json['success'] is True
+        activities = response.json['result']
+        return activities
 
     def package_activity_stream(self, package_id, apikey=None):
         if apikey:
             extra_environ = {'Authorization': str(apikey)}
         else:
             extra_environ = None
-        response = self.app.get("/api/2/rest/dataset/%s/activity" % package_id,
-                extra_environ=extra_environ)
-        return json.loads(response.body)
+        params = {'id': package_id}
+        response = self.app.get("/api/action/package_activity_list",
+                                params=params, extra_environ=extra_environ)
+        assert response.json['success'] is True
+        activities = response.json['result']
+        return activities
 
     def group_activity_stream(self, group_id, apikey=None):
         if apikey:
             extra_environ = {'Authorization': str(apikey)}
         else:
             extra_environ = None
-        response = self.app.get("/api/2/rest/group/%s/activity" % group_id,
-                extra_environ=extra_environ)
-        return json.loads(response.body)
+        params = {'id': group_id, 'limit': 100}
+        response = self.app.get("/api/action/group_activity_list",
+                                params=params, extra_environ=extra_environ)
+        assert response.json['success'] is True
+        activities = response.json['result']
+        return activities
 
     def recently_changed_datasets_stream(self, apikey=None):
         if apikey:
@@ -255,9 +257,8 @@ class TestActivity:
         return activities
 
     def activity_details(self, activity):
-        response = self.app.get(
-                "/api/2/rest/activity/%s/details" % activity['id'])
-        return json.loads(response.body)
+        response = call_action('activity_detail_list', id=activity['id'])
+        return response
 
     def record_details(self, user_id, package_id=None, group_ids=None,
             apikey=None):
@@ -412,7 +413,7 @@ class TestActivity:
         # Create a new resource.
         resources = package['resources']
         resources.append(make_resource())
-        updated_package = package_update(self.app, package, user['apikey'])
+        updated_package = package_update(self.app, package, user)
 
         after = self.record_details(user_id, package['id'],
                 [group['name'] for group in package['groups']], apikey=apikey)
@@ -500,8 +501,7 @@ class TestActivity:
 
         # Update the package's first extra.
         del package_dict['extras'][0]
-        updated_package = package_update(self.app, package_dict,
-                user['apikey'])
+        updated_package = package_update(self.app, package_dict, user)
 
         after = self.record_details(user_id, package_dict['id'],
                 [group['name'] for group in package_dict['groups']],
@@ -594,8 +594,7 @@ class TestActivity:
         else:
             assert package_dict['extras'][0]['value'] != '"edited again"'
             package_dict['extras'][0]['value'] = '"edited again"'
-        updated_package = package_update(self.app, package_dict,
-                user['apikey'])
+        updated_package = package_update(self.app, package_dict, user)
 
         after = self.record_details(user_id, package_dict['id'],
                 [group['name'] for group in package_dict['groups']],
@@ -686,8 +685,7 @@ class TestActivity:
         # Create a new extra.
         extras = package_dict['extras']
         extras.append({'key': key, 'value': '10000'})
-        updated_package = package_update(self.app, package_dict,
-                user['apikey'])
+        updated_package = package_update(self.app, package_dict, user)
 
         after = self.record_details(user_id, package_dict['id'],
                 [group['name'] for group in package_dict['groups']],
@@ -905,7 +903,7 @@ class TestActivity:
         resource_ids = [resource['id'] for resource in package['resources']]
 
         package['resources'] = []
-        package_update(self.app, package, self.normal_user['apikey'])
+        package_update(self.app, package, self.normal_user)
 
         after = self.record_details(self.normal_user['id'], package['id'],
                 [group['name'] for group in package['groups']],
@@ -983,7 +981,10 @@ class TestActivity:
             user_id = 'not logged in'
             apikey = None
 
-        before = self.record_details(user_id, package['id'], apikey=apikey)
+        group_ids = [group['name'] for group in package['groups']]
+        before = self.record_details(
+            user_id, package['id'], apikey=apikey, group_ids=group_ids
+        )
 
         # Update the package.
         if package['title'] != 'edited':
@@ -991,9 +992,11 @@ class TestActivity:
         else:
             assert package['title'] != 'edited again'
             package['title'] = 'edited again'
-        package_update(self.app, package, user['apikey'])
+        package_update(self.app, package, user)
 
-        after = self.record_details(user_id, package['id'], apikey=apikey)
+        after = self.record_details(
+            user_id, package['id'], apikey=apikey, group_ids=group_ids
+        )
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1068,7 +1071,7 @@ class TestActivity:
 
         # Update the resource.
         resource['name'] = 'edited'
-        package_update(self.app, package)
+        package_update(self.app, package, user)
 
         after = self.record_details(user_id, package['id'], apikey=apikey)
 
@@ -1134,9 +1137,11 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = self.record_details(self.sysadmin_user['id'], package['id'],
-                apikey=self.sysadmin_user['apikey'])
-
+        group_ids = [group['name'] for group in package['groups']]
+        before = self.record_details(
+            self.sysadmin_user['id'], package['id'],
+            apikey=self.sysadmin_user['apikey'], group_ids=group_ids
+        )
         # Delete the package.
         package_dict = {'id': package['id']}
         response = self.app.post('/api/action/package_delete',
@@ -1145,8 +1150,10 @@ class TestActivity:
         response_dict = json.loads(response.body)
         assert response_dict['success'] is True
 
-        after = self.record_details(self.sysadmin_user['id'], package['id'],
-                apikey=self.sysadmin_user['apikey'])
+        after = self.record_details(
+            self.sysadmin_user['id'], package['id'],
+            apikey=self.sysadmin_user['apikey'], group_ids=group_ids
+        )
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1169,13 +1176,14 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        # If the package has any groups, the same new activity should appear
-        # in the activity stream of each group.
+        # If the package has any groups, there should be no new activities
+        # because package has been deleted == removed from group lifecycle
+
         for group_dict in package['groups']:
             grp_new_activities = find_new_activities(
                 before['group activity streams'][group_dict['name']],
                 after['group activity streams'][group_dict['name']])
-            assert grp_new_activities == [activity]
+            assert grp_new_activities == []
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package['id'], (
@@ -1258,7 +1266,7 @@ class TestActivity:
             'id': pkg_dict['id'],
             'tags': pkg_dict['tags'][0:-1],
             }
-        package_update(self.app, data_dict, user['apikey'])
+        package_update(self.app, data_dict, user)
         after = self.record_details(user['id'], pkg_dict['id'],
                 [group['name'] for group in pkg_dict['groups']],
                 apikey=user['apikey'])
@@ -1524,15 +1532,21 @@ class TestActivity:
         pkg_dict = package_show(self.app, {'id': pkg_name})
 
         # Add one new tag to the package.
-        before = self.record_details(user['id'], pkg_dict['id'],
-                apikey=user['apikey'])
+        group_ids = [group['name'] for group in pkg_dict['groups']]
+
+        before = self.record_details(
+            user['id'], pkg_dict['id'],
+            apikey=user['apikey'], group_ids=group_ids
+        )
         new_tag_name = 'test tag'
         assert new_tag_name not in [tag['name'] for tag in pkg_dict['tags']]
 
         pkg_dict['tags'].append({'name': new_tag_name})
-        package_update(self.app, pkg_dict, user['apikey'])
-        after = self.record_details(user['id'], pkg_dict['id'],
-                apikey=user['apikey'])
+        package_update(self.app, pkg_dict, user)
+        after = self.record_details(
+            user['id'], pkg_dict['id'],
+            apikey=user['apikey'], group_ids=group_ids
+        )
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(

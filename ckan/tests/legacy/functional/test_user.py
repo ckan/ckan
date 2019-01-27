@@ -7,13 +7,14 @@ import hashlib
 
 from ckan.tests.legacy import CreateTestData
 from ckan.tests.legacy.html_check import HtmlCheckMethods
-from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
+from ckan.tests.legacy import TestController as ControllerTestCase
+
 import ckan.model as model
 from base import FunctionalTestCase
 from ckan.lib.mailer import get_reset_link, create_reset_key
 
-class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):
+class TestUserController(FunctionalTestCase, HtmlCheckMethods, SmtpServerHarness):
     @classmethod
     def setup_class(cls):
         smtp_server = config.get('smtp.test_server')
@@ -22,7 +23,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
             port = int(port) + int(str(hashlib.md5(cls.__name__).hexdigest())[0], 16)
             config['smtp.test_server'] = '%s:%s' % (host, port)
 
-        PylonsTestCase.setup_class()
         SmtpServerHarness.setup_class()
         CreateTestData.create()
 
@@ -42,7 +42,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
     @classmethod
     def teardown_class(self):
         # clear routes 'id' so that next test to run doesn't get it
-        self.app.get(url_for(controller='user', action='login', id=None))
+        self.app.get(url_for('user.login', id=None))
         SmtpServerHarness.teardown_class()
         model.repo.rebuild_db()
 
@@ -52,30 +52,30 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
     def test_user_delete_redirects_to_user_index(self):
         user = CreateTestData.create_user('a_user')
-        url = url_for(controller='user', action='delete', id=user.id)
+        url = url_for('user.delete', id=user.id)
         extra_environ = {'REMOTE_USER': 'testsysadmin'}
 
-        redirect_url = url_for(controller='user', action='index',
+        redirect_url = url_for('user.index',
                 qualified=True)
-        res = self.app.get(url, status=302, extra_environ=extra_environ)
+        res = self.app.post(url, status=302, extra_environ=extra_environ)
 
         assert user.is_deleted(), user
-        assert res.header('Location').startswith(redirect_url), res.header('Location')
+        assert res.headers.get('Location').startswith(redirect_url), res.headers.get('Location')
 
     def test_user_delete_by_unauthorized_user(self):
         user = model.User.by_name(u'annafan')
-        url = url_for(controller='user', action='delete', id=user.id)
+        url = url_for('user.delete', id=user.id)
         extra_environ = {'REMOTE_USER': 'an_unauthorized_user'}
 
-        self.app.get(url, status=403, extra_environ=extra_environ)
+        self.app.post(url, status=403, extra_environ=extra_environ)
 
     def test_user_read_without_id(self):
         offset = '/user/'
-        res = self.app.get(offset, status=302)
+        self.app.get(offset, status=200)
 
     def test_user_read_me_without_id(self):
         offset = '/user/me'
-        res = self.app.get(offset, status=302)
+        self.app.get(offset, status=302)
 
     def _get_cookie_headers(self, res):
         # For a request response, returns the Set-Cookie header values.
@@ -95,11 +95,11 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
             model.Session.remove()
 
         # not logged in
-        offset = url_for(controller='user', action='read', id=username)
+        offset = url_for('user.read', id=username)
         res = self.app.get(offset)
         assert not 'API key' in res
 
-        offset = url_for(controller='user', action='read', id='okfntest')
+        offset = url_for('user.read', id='okfntest')
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'okfntest'})
         assert user.apikey in res, res
 

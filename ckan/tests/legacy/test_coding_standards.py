@@ -315,7 +315,6 @@ class TestImportStar(object):
         'ckan/tests/legacy/models/test_resource.py',
         'ckan/tests/legacy/models/test_revision.py',
         'ckan/tests/legacy/models/test_user.py',
-        'ckan/tests/legacy/pylons_controller.py',
         'fabfile.py',
     ]
     fails = {}
@@ -380,7 +379,6 @@ class TestPep8(object):
         'ckan/include/rjsmin.py',
         'ckan/lib/activity_streams.py',
         'ckan/lib/activity_streams_session_extension.py',
-        'ckan/lib/alphabet_paginate.py',
         'ckan/lib/app_globals.py',
         'ckan/lib/captcha.py',
         'ckan/lib/cli.py',
@@ -520,7 +518,6 @@ class TestPep8(object):
         'ckan/tests/legacy/ckantestplugins.py',
         'ckan/tests/legacy/functional/api/base.py',
         'ckan/tests/legacy/functional/api/model/test_group.py',
-        'ckan/tests/legacy/functional/api/model/test_licenses.py',
         'ckan/tests/legacy/functional/api/model/test_package.py',
         'ckan/tests/legacy/functional/api/model/test_ratings.py',
         'ckan/tests/legacy/functional/api/model/test_relationships.py',
@@ -593,7 +590,6 @@ class TestPep8(object):
         'ckan/tests/legacy/models/test_revision.py',
         'ckan/tests/legacy/models/test_user.py',
         'ckan/tests/legacy/monkey.py',
-        'ckan/tests/legacy/pylons_controller.py',
         'ckan/tests/legacy/schema/test_schema.py',
         'ckan/tests/legacy/test_plugins.py',
         'ckan/tests/legacy/test_versions.py',
@@ -694,8 +690,6 @@ class TestActionAuth(object):
         'create: follow_dataset',
         'create: follow_group',
         'create: follow_user',
-        'create: package_relationship_create_rest',
-        'delete: package_relationship_delete_rest',
         'delete: unfollow_dataset',
         'delete: unfollow_group',
         'delete: unfollow_user',
@@ -729,7 +723,6 @@ class TestActionAuth(object):
         'get: user_activity_list_html',
         'get: user_followee_count',
         'get: user_follower_count',
-        'update: package_relationship_update_rest',
         'update: task_status_update_many',
         'update: term_translation_update_many',
     ]
@@ -749,17 +742,7 @@ class TestActionAuth(object):
     ]
 
     ACTION_NO_DOC_STR_BLACKLIST = [
-        'create: group_create_rest',
-        'create: package_create_rest',
-        'create: package_relationship_create_rest',
-        'delete: package_relationship_delete_rest',
         'get: get_site_user',
-        'get: group_show_rest',
-        'get: package_show_rest',
-        'get: tag_show_rest',
-        'update: group_update_rest',
-        'update: package_relationship_update_rest',
-        'update: package_update_rest',
     ]
 
     done = False
@@ -852,7 +835,6 @@ class TestBadExceptions(object):
     # and so should be translated.
 
     NASTY_EXCEPTION_BLACKLIST_FILES = [
-        'ckan/controllers/api.py',
         'ckan/controllers/user.py',
         'ckan/lib/mailer.py',
         'ckan/logic/action/create.py',

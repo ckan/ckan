@@ -5,6 +5,8 @@ import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
+from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
+
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
 
@@ -27,19 +29,10 @@ class ExampleDataStoreDeletedWithCountPlugin(p.SingletonPlugin):
         return ({u'datastore_delete': datastore_delete})
 
 
-class TestChainedAction(object):
-    @classmethod
-    def setup_class(cls):
-        p.load(u'datastore')
-        p.load(u'example_datastore_deleted_with_count_plugin')
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload(u'example_datastore_deleted_with_count_plugin')
-        p.unload(u'datastore')
-
-    def setup(self):
-        helpers.reset_db()
+class TestChainedAction(DatastoreFunctionalTestBase):
+    _load_plugins = (
+        u'datastore',
+        u'example_datastore_deleted_with_count_plugin')
 
     def test_datastore_delete_filters(self):
         records = [

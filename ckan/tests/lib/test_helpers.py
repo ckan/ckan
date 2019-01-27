@@ -1,9 +1,12 @@
 # encoding: utf-8
 
+import datetime
+
 import nose
 import pytz
 import tzlocal
 from babel import Locale
+from six import text_type
 
 from ckan.common import config
 import ckan.lib.helpers as h
@@ -121,15 +124,14 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_default(self):
         url = '/dataset/my_dataset'
-        generated_url = h.url_for(controller='package', action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset')
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_with_locale(self):
         url = '/de/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   locale='de')
         eq_(generated_url, url)
@@ -145,8 +147,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_not_qualified(self):
         url = '/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=False)
         eq_(generated_url, url)
@@ -154,8 +155,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_qualified(self):
         url = 'http://example.com/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=True)
         eq_(generated_url, url)
@@ -164,8 +164,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.root_path', '/my/prefix')
     def test_url_for_qualified_with_root_path(self):
         url = 'http://example.com/my/prefix/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=True)
         eq_(generated_url, url)
@@ -173,8 +172,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_qualified_with_locale(self):
         url = 'http://example.com/de/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=True,
                                   locale='de')
@@ -184,8 +182,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_qualified_with_root_path_and_locale(self):
         url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=True,
                                   locale='de')
@@ -196,8 +193,7 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_qualified_with_root_path_locale_and_script_name_env(self):
         url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
-        generated_url = h.url_for(controller='package',
-                                  action='read',
+        generated_url = h.url_for('dataset.read',
                                   id='my_dataset',
                                   qualified=True,
                                   locale='de')
@@ -358,6 +354,104 @@ class TestHelpersRenderMarkdown(object):
         output = u'<p><img alt="image" src="/image.png"></p>'
         eq_(h.render_markdown(data), output)
 
+    def test_bold(self):
+        data = u'Something **important**'
+        output = u'<p>Something <strong>important</strong></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_italics(self):
+        data = u'Something *important*'
+        output = u'<p>Something <em>important</em></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_link(self):
+        """Asserts links like 'tag:test-tag' work"""
+        data = 'tag:test-tag foobar'
+        output = '<p><a href="/dataset/?tags=test-tag">tag:test-tag</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_linked_with_quotes(self):
+        """Asserts links like 'tag:"test-tag"' work"""
+        data = 'tag:"test-tag" foobar'
+        output = '<p><a href="/dataset/?tags=test-tag">tag:&#34;test-tag&#34;</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_linked_with_quotes_and_space(self):
+        """Asserts links like 'tag:"test tag"' work"""
+        data = 'tag:"test tag" foobar'
+        output = '<p><a href="/dataset/?tags=test+tag">tag:&#34;test tag&#34;</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_with_no_opening_quote_only_matches_single_word(self):
+        """Asserts that without an opening quote only one word is matched"""
+        data = 'tag:test tag" foobar'  # should match 'tag:test'
+        output = '<p><a href="/dataset/?tags=test">tag:test</a> tag" foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_with_no_opening_quote_wont_match_the_closing_quote(self):
+        """Asserts that 'tag:test" tag' is matched, but to 'tag:test'"""
+        data = 'tag:test" foobar'  # should match 'tag:test'
+        output = '<p><a href="/dataset/?tags=test">tag:test</a>" foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_internal_tag_with_no_closing_quote_does_not_match(self):
+        """Asserts that without an opening quote only one word is matched"""
+        data = 'tag:"test tag foobar'
+        out = h.render_markdown(data)
+        assert "<a href" not in out
+
+    def test_tag_names_match_simple_punctuation(self):
+        """Asserts punctuation and capital letters are matched in the tag name"""
+        data = 'tag:"Test- _." foobar'
+        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&#34;Test- _.&#34;</a> foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_tag_names_do_not_match_commas(self):
+        """Asserts commas don't get matched as part of a tag name"""
+        data = 'tag:Test,tag foobar'
+        output = '<p><a href="/dataset/?tags=Test">tag:Test</a>,tag foobar</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_tag_names_dont_match_non_space_whitespace(self):
+        """Asserts that the only piece of whitespace matched in a tagname is a space"""
+        whitespace_characters = '\t\n\r\f\v'
+        for ch in whitespace_characters:
+            data = 'tag:Bad' + ch + 'space'
+            output = '<p><a href="/dataset/?tags=Bad">tag:Bad</a>'
+            result = h.render_markdown(data)
+            assert output in result, '\nGot: %s\nWanted: %s' % (result, output)
+
+    def test_tag_names_with_unicode_alphanumeric(self):
+        """Asserts that unicode alphanumeric characters are captured"""
+        data = u'tag:"Japanese katakana \u30a1" blah'
+        output = u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&#34;Japanese katakana \u30a1&#34;</a> blah</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_normal_link(self):
+        data = 'http://somelink/'
+        output = '<p><a href="http://somelink/" target="_blank" rel="nofollow">http://somelink/</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_normal_link_with_anchor(self):
+        data = 'http://somelink.com/#anchor'
+        output = '<p><a href="http://somelink.com/#anchor" target="_blank" rel="nofollow">http://somelink.com/#anchor</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_auto_link(self):
+        data = 'http://somelink.com'
+        output = '<p><a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_auto_link_after_whitespace(self):
+        data = 'go to http://somelink.com'
+        output = '<p>go to <a href="http://somelink.com" target="_blank" rel="nofollow">http://somelink.com</a></p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_malformed_link_1(self):
+        data = u'<a href=\u201dsomelink\u201d>somelink</a>'
+        output = '<p>somelink</p>'
+        eq_(h.render_markdown(data), output)
+
 
 class TestHelpersRemoveLineBreaks(object):
 
@@ -369,7 +463,7 @@ class TestHelpersRemoveLineBreaks(object):
             '"remove_linebreaks" should remove line breaks'
 
     def test_remove_linebreaks_casts_into_unicode(self):
-        class UnicodeLike(unicode):
+        class UnicodeLike(text_type):
             pass
 
         test_string = UnicodeLike('foo')
@@ -425,6 +519,131 @@ class TestGetDisplayTimezone(object):
     @helpers.change_config('ckan.display_timezone', 'America/New_York')
     def test_named_timezone(self):
         eq_(h.get_display_timezone(), pytz.timezone('America/New_York'))
+
+
+class TestHelpersRenderDatetime(object):
+
+    def test_date(self):
+        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
+        eq_(h.render_datetime(data), 'April 13, 2008')
+
+    def test_with_hours(self):
+        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
+        eq_(h.render_datetime(data, with_hours=True),
+            'April 13, 2008, 20:40 (UTC)')
+
+    def test_with_seconds(self):
+        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
+        eq_(h.render_datetime(data, with_seconds=True),
+            'April 13, 2008, 20:40:59 (UTC)')
+
+    def test_from_string(self):
+        data = '2008-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data), 'April 13, 2008')
+
+    def test_blank(self):
+        data = None
+        eq_(h.render_datetime(data), '')
+
+    def test_before_1900(self):
+        data = '1875-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data, date_format='%Y'), '1875')
+
+    def test_before_1900_with_2_digit_year(self):
+        data = '1875-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data, date_format='%y'), '75')
+
+    def test_escaped_percent(self):
+        data = '2008-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data, date_format='%%%Y'), '%2008')
+
+
+class TestCleanHtml(object):
+    def test_disallowed_tag(self):
+        eq_(h.clean_html('<b><bad-tag>Hello'),
+            u'<b>&lt;bad-tag&gt;Hello</b>')
+
+    def test_non_string(self):
+        # allow a datetime for compatibility with older ckanext-datapusher
+        eq_(h.clean_html(datetime.datetime(2018, 1, 5, 10, 48, 23, 463511)),
+            u'2018-01-05 10:48:23.463511')
+
+
+class TestBuildNavMain(object):
+    def test_flask_routes(self):
+        menu = (
+            ('home.index', 'Home'),
+            ('dataset.search', 'Datasets'),
+            ('organization.index', 'Organizations'),
+            ('group.index', 'Groups'),
+            ('home.about', 'About')
+        )
+        eq_(h.build_nav_main(*menu), (
+            '<li><a href="/">Home</a></li>'
+            '<li><a href="/dataset/">Datasets</a></li>'
+            '<li><a href="/organization/">Organizations</a></li>'
+            '<li><a href="/group/">Groups</a></li>'
+            '<li><a href="/about">About</a></li>'))
+
+    def test_legacy_pylon_routes(self):
+        menu = (
+            ('home', 'Home'),
+            ('search', 'Datasets'),
+            ('organizations_index', 'Organizations'),
+            ('group_index', 'Groups'),
+            ('about', 'About')
+        )
+        eq_(h.build_nav_main(*menu), (
+            '<li><a href="/">Home</a></li>'
+            '<li><a href="/dataset/">Datasets</a></li>'
+            '<li><a href="/organization/">Organizations</a></li>'
+            '<li><a href="/group/">Groups</a></li>'
+            '<li><a href="/about">About</a></li>'))
+
+    def test_dataset_navigation_legacy_routes(self):
+        dataset_name = 'test-dataset'
+        eq_(
+            h.build_nav_icon('dataset_read', 'Datasets', id=dataset_name),
+            '<li><a href="/dataset/test-dataset">Datasets</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('dataset_groups', 'Groups', id=dataset_name),
+            '<li><a href="/dataset/groups/test-dataset">Groups</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('dataset_activity', 'Activity Stream', id=dataset_name),
+            '<li><a href="/dataset/activity/test-dataset">Activity Stream</a></li>'
+        )
+
+    def test_group_navigation_legacy_routes(self):
+        group_name = 'test-group'
+        eq_(
+            h.build_nav_icon('group_read', 'Datasets', id=group_name),
+            '<li><a href="/group/test-group">Datasets</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('group_activity', 'Activity Stream', id=group_name),
+            '<li><a href="/group/activity/test-group">Activity Stream</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('group_about', 'About', id=group_name),
+            '<li><a href="/group/about/test-group">About</a></li>'
+        )
+
+    def test_organization_navigation_legacy_routes(self):
+        org_name = 'test-org'
+        eq_(
+            h.build_nav_icon('organization_read', 'Datasets', id=org_name),
+            '<li><a href="/organization/test-org">Datasets</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('organization_activity', 'Activity Stream', id=org_name),
+            '<li><a href="/organization/activity/test-org">Activity Stream</a></li>'
+        )
+        eq_(
+            h.build_nav_icon('organization_about', 'About', id=org_name),
+            '<li><a href="/organization/about/test-org">About</a></li>'
+        )
 
 
 class TestHelperException(helpers.FunctionalTestBase):

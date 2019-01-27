@@ -19,9 +19,9 @@ connection, the Solr server URL, etc. Sometimes it can be useful to define them 
 automate and orchestrate deployments without having to first modify the `CKAN configuration file`_.
 
 These options are only read at startup time to update the ``config`` object used by CKAN,
-but they won't we accessed any more during the lifetime of the application.
+but they won't be accessed any more during the lifetime of the application.
 
-CKAN environment variables names match the options in the configuration file, but they are always uppercase
+CKAN environment variable names match the options in the configuration file, but they are always uppercase
 and prefixed with `CKAN_` (this prefix is added even if
 the corresponding option in the ini file does not have it), and replacing dots with underscores.
 
@@ -46,10 +46,10 @@ CKAN configuration options are generally defined before starting the web applica
 
 A limited number of configuration options can also be edited during runtime. This can be done on the
 :ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`
-API action. Only :doc:`sysadmins </sysadmin-guide>` can edit these runtime-editable configuration options. Changes made to these configuration options will be stored on the database and persisted when the server is restarted.
+API action. Only :doc:`sysadmins </sysadmin-guide>` can edit these runtime-editable configuration options. Changes made to these configuration options will be stored in the database and persisted when the server is restarted.
 
 Extensions can add (or remove) configuration options to the ones that can be edited at runtime. For more
-details on how to this check :doc:`/extensions/remote-config-update`.
+details on how to do this check :doc:`/extensions/remote-config-update`.
 
 
 
@@ -110,6 +110,21 @@ files, and enables CKAN templates' debugging features.
    With debug mode enabled, a visitor to your site could execute malicious
    commands.
 
+ckan.legacy_route_mappings
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.legacy_route_mappings = {"home": "home.index", "about": "home.about",
+                                  "search": "dataset.search"}
+
+Default value: ``{"home": "home.index", "about": "home.about"}``
+
+This can be used when using an extension that is still using old (Pylons-based) route names to
+maintain compatibility.
+
+  .. warning:: This configuration will be removed when migration to Flask is completed. Please
+    update the extension code to use the new Flask-based route names.
 
 Repoze.who Settings
 -------------------
@@ -325,23 +340,6 @@ Example::
 Default value: 0
 
 This sets ``Cache-Control`` header's max-age value.
-
-.. _ckan.page_cache_enabled:
-
-ckan.page_cache_enabled
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.page_cache_enabled = True
-
-Default value: ``False``
-
-This enables CKAN's built-in page caching.
-
-.. warning::
-
-   Page caching is an experimental feature.
 
 .. _ckan.cache_enabled:
 
@@ -579,6 +577,25 @@ Makes role permissions apply to all the groups down the hierarchy from the group
 
 e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
 
+
+.. _ckan.auth.public_user_details:
+
+ckan.auth.public_user_details
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.public_user_details = False
+
+Default value: ``True``
+
+Restricts anonymous access to user information. If is set to ``False`` accessing users details when not logged in will raise a ``Not Authorized`` exception.
+
+.. note:: This setting should be used when user registration is disabled (``ckan.auth.create_user_via_web = False``), otherwise users
+    can just create an account to see other users details.
+
+
+
 .. end_config-authorization
 
 
@@ -654,12 +671,16 @@ ckan.search.show_all_types
 
 Example::
 
- ckan.search.show_all_types = true
+ ckan.search.show_all_types = dataset
 
 Default value:  ``false``
 
-Controls whether the default search page (``/dataset``) should show only
-standard datasets or also custom dataset types.
+Controls whether a search page (e.g. ``/dataset``) should also show
+custom dataset types. The default is ``false`` meaning that no search
+page for any type will show other types. ``true`` will show other types
+on the ``/dataset`` search page. Any other value (e.g. ``dataset`` or
+``document`` will be treated as a dataset type and that type's search
+page will show datasets of all types.
 
 .. _ckan.search.default_include_private:
 
@@ -668,7 +689,7 @@ ckan.search.default_include_private
 
 Example::
 
- ckan.search.defalt_include_private = false
+ ckan.search.default_include_private = false
 
 Default value:  ``true``
 
@@ -713,6 +734,53 @@ Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
 
+.. _ckan.search.rows_max:
+
+ckan.search.rows_max
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.search.rows_max = 1000
+
+Default value:  ``1000``
+
+Maximum allowed value for rows returned. Specifically this limits:
+
+* ``package_search``'s ``rows`` parameter
+* ``group_show`` and ``organization_show``'s number of datasets returned when specifying ``include_datasets=true``
+
+.. _ckan.group_and_organization_list_max:
+
+ckan.group_and_organization_list_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_max = 1000
+
+Default value: ``1000``
+
+Maximum number of groups/organizations returned when listing them. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=false``
+* ``organization_list``'s ``limit`` when ``all_fields=false``
+
+.. _ckan.group_and_organization_list_all_fields_max:
+
+ckan.group_and_organization_list_all_fields_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_all_fields_max = 100
+
+Default value: ``25``
+
+Maximum number of groups/organizations returned when listing them in detail. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=true``
+* ``organization_list``'s ``limit`` when ``all_fields=true``
 
 Redis Settings
 ---------------
@@ -1045,36 +1113,23 @@ web interface. ``dumps_format`` is just a string for display. Example::
 
   ckan.dumps_format = CSV/JSON
 
-.. _ckan.recaptcha.version:
-
-ckan.recaptcha.version
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-The version of Recaptcha to use, for example::
-
- ckan.recaptcha.version = 1
-
-Default Value: 1
-
-Valid options: 1, 2
-
 .. _ckan.recaptcha.publickey:
 
 ckan.recaptcha.publickey
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The public key for your Recaptcha account, for example::
+The public key for your reCAPTCHA account, for example::
 
  ckan.recaptcha.publickey = 6Lc...-KLc
 
-To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
+To get a reCAPTCHA account, sign up at: http://www.google.com/recaptcha
 
 .. _ckan.recaptcha.privatekey:
 
 ckan.recaptcha.privatekey
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The private key for your Recaptcha account, for example::
+The private key for your reCAPTCHA account, for example::
 
  ckan.recaptcha.privatekey = 6Lc...-jP
 
@@ -1277,14 +1332,14 @@ Example (showing insertion of Google Analytics code)::
 
 .. note:: This is only for legacy code, and shouldn't be used anymore.
 
-.. _ckan.template_title_deliminater:
+.. _ckan.template_title_delimiter:
 
-ckan.template_title_deliminater
+ckan.template_title_delimiter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.template_title_deliminater = |
+ ckan.template_title_delimiter = |
 
 Default value:  ``-``
 
@@ -1541,10 +1596,22 @@ Example::
 
   ckan.activity_list_limit = 31
 
-Default value: ``infinite``
+Default value: ``31``
 
-This controls the number of activities to show in the Activity Stream. By default, it shows everything.
+This controls the number of activities to show in the Activity Stream.
 
+.. _ckan.activity_list_limit_max:
+
+ckan.activity_list_limit_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.activity_list_limit_max = 100
+
+Default value: ``100``
+
+Maximum allowed value for Activity Stream ``limit`` parameter.
 
 .. _ckan.email_notifications_since:
 
@@ -1751,6 +1818,33 @@ If you have set an extra i18n directory using ``ckan.i18n.extra_directory``, you
 should specify the locales that have been translated in that directory in this
 option.
 
+.. _ckan.i18n.rtl_languages:
+
+ckan.i18n.rtl_languages
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.i18n.rtl_languages = he ar fa_IR
+
+Default value: ``he ar fa_IR``
+
+Allows to modify the right-to-left languages
+
+.. _ckan.i18n.rtl_css:
+
+ckan.i18n.rtl_css
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.i18n.rtl_css = /base/css/my-custom-rtl.css
+
+Default value: ``/base/css/rtl.css``
+
+Allows to override the default rtl css file used for the languages defined
+in ``ckan.i18n.rtl_languages``.
+
 .. _ckan.display_timezone:
 
 ckan.display_timezone
@@ -1823,6 +1917,19 @@ example.
 
 Form Settings
 -------------
+
+.. ckan.dataset.create_on_ui_requires_resources
+
+ckan.dataset.create_on_ui_requires_resources
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+    ckan.dataset.create_on_ui_requires_resources = False
+
+Default value: True
+
+If False, there is no need to add any resources when creating a new dataset.
+
 
 .. _package_new_return_url:
 

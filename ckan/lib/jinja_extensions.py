@@ -10,12 +10,34 @@ from jinja2 import ext
 from jinja2.exceptions import TemplateNotFound
 from jinja2.utils import open_if_exists, escape
 from jinja2 import Environment
+from jinja2 import FileSystemBytecodeCache
+
+from six import text_type
+from six.moves import xrange
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+from ckan.common import config
 
 
 log = logging.getLogger(__name__)
+
+
+def get_jinja_env_options():
+    return dict(
+        loader=CkanFileSystemLoader(config['computed_template_paths']),
+        autoescape=True,
+        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
+                    SnippetExtension,
+                    CkanExtend,
+                    CkanInternationalizationExtension,
+                    LinkForExtension,
+                    ResourceExtension,
+                    UrlForStaticExtension,
+                    UrlForExtension],
+    )
+
+
 ### Filters
 
 def empty_and_escape(value):
@@ -58,7 +80,7 @@ class CkanInternationalizationExtension(ext.InternationalizationExtension):
             for arg in args:
                 if isinstance(arg, nodes.Const):
                     value = arg.value
-                    if isinstance(value, unicode):
+                    if isinstance(value, text_type):
                         arg.value = regularise_html(value)
         return node
 
@@ -178,7 +200,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 continue
             try:
                 contents = f.read().decode(self.encoding)
-            except UnicodeDecodeError, e:
+            except UnicodeDecodeError as e:
                 log.critical(
                     'Template corruption in `%s` unicode decode errors'
                     % filename

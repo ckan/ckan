@@ -60,7 +60,6 @@ entry_points = {
         'search-index = ckan.lib.cli:SearchIndexCommand',
         'ratings = ckan.lib.cli:Ratings',
         'notify = ckan.lib.cli:Notification',
-        'celeryd = ckan.lib.cli:Celery',
         'rdf-export = ckan.lib.cli:RDFExport',
         'tracking = ckan.lib.cli:Tracking',
         'plugin-info = ckan.lib.cli:PluginInfo',
@@ -78,7 +77,7 @@ entry_points = {
         'jobs = ckan.lib.cli:JobsCommand',
     ],
     'console_scripts': [
-        'ckan-admin = bin.ckan_admin:Command',
+        'ckan = ckan.cli.cli:ckan',
     ],
     'paste.paster_create_template': [
         'ckanext = ckan.pastertemplates:CkanextTemplate',
@@ -130,6 +129,7 @@ entry_points = {
         'example_idatasetform_v2 = ckanext.example_idatasetform.plugin_v2:ExampleIDatasetFormPlugin',
         'example_idatasetform_v3 = ckanext.example_idatasetform.plugin_v3:ExampleIDatasetFormPlugin',
         'example_idatasetform_v4 = ckanext.example_idatasetform.plugin_v4:ExampleIDatasetFormPlugin',
+        'example_idatasetform_v5 = ckanext.example_idatasetform.plugin_v5:ExampleIDatasetFormPlugin',
         'example_igroupform = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin',
         'example_igroupform_default_group_type = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin_DefaultGroupType',
         'example_igroupform_organization = ckanext.example_igroupform.plugin:ExampleIGroupFormOrganizationPlugin',
@@ -170,6 +170,7 @@ entry_points = {
         'example_iconfigurer_v1 = ckanext.example_iconfigurer.plugin_v1:ExampleIConfigurerPlugin',
         'example_iconfigurer_v2 = ckanext.example_iconfigurer.plugin_v2:ExampleIConfigurerPlugin',
         'example_flask_iblueprint = ckanext.example_flask_iblueprint.plugin:ExampleFlaskIBlueprintPlugin',
+        'example_flask_streaming = ckanext.example_flask_streaming.plugin:ExampleFlaskStreamingPlugin',
         'example_iuploader = ckanext.example_iuploader.plugin:ExampleIUploader',
         'example_idatastorebackend = ckanext.example_idatastorebackend.plugin:ExampleIDatastoreBackendPlugin',
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
@@ -192,6 +193,7 @@ entry_points = {
         'test_json_resource_preview = tests.legacy.ckantestplugins:JsonMockResourcePreviewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
         'example_datastore_deleted_with_count_plugin = ckanext.datastore.tests.test_chained_action:ExampleDataStoreDeletedWithCountPlugin',
+        'example_data_store_search_sql_plugin = ckanext.datastore.tests.test_chained_auth_functions:ExampleDataStoreSearchSQLPlugin',
         'test_datastore_view = ckan.tests.lib.test_datapreview:MockDatastoreBasedResourceView',
         'test_datapusher_plugin = ckanext.datapusher.tests.test_interfaces:FakeDataPusherPlugin',
         'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
@@ -216,6 +218,7 @@ setup(
     keywords='data packaging component tool server',
     long_description=__long_description__,
     zip_safe=False,
+    include_package_data=True,
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['ckanext', 'ckanext.stats'],
     message_extractors={

@@ -14,11 +14,13 @@ import formencode
 import ckan.config.routing as routing
 import ckan.model as model
 import ckan.plugins as p
+import ckan.lib.plugins as lib_plugins
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
 from ckan.lib.redis import is_redis_available
 import ckan.lib.render as render
 import ckan.lib.search as search
+import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
@@ -43,7 +45,10 @@ def load_environment(global_conf, app_conf):
     # Required by the deliverance plugin and iATI
     from pylons.wsgiapp import PylonsApp
     import pkg_resources
-    find_controller_generic = PylonsApp.find_controller
+    find_controller_generic = getattr(
+        PylonsApp.find_controller,
+        '_old_find_controller',
+        PylonsApp.find_controller)
 
     # This is from pylons 1.0 source, will monkey-patch into 0.9.7
     def find_controller(self, controller):
@@ -63,6 +68,7 @@ def load_environment(global_conf, app_conf):
             self.controller_classes[controller] = mycontroller
             return mycontroller
         return find_controller_generic(self, controller)
+    find_controller._old_find_controller = find_controller_generic
     PylonsApp.find_controller = find_controller
 
     os.environ['CKAN_CONFIG'] = global_conf['__file__']
@@ -94,7 +100,7 @@ def load_environment(global_conf, app_conf):
     pylons_config.init_app(global_conf, app_conf, package='ckan', paths=paths)
 
     # Update the main CKAN config object with the Pylons specific stuff, as it
-    # quite hard to keep them separated. This should be removed once Pylons
+    # is quite hard to keep them separated. This should be removed once Pylons
     # support is dropped
     config.update(pylons_config)
 
@@ -135,6 +141,8 @@ CONFIG_FROM_ENV_VARS = {
     'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
     'ckan.redis.url': 'CKAN_REDIS_URL',
     'solr_url': 'CKAN_SOLR_URL',
+    'solr_user': 'CKAN_SOLR_USER',
+    'solr_password': 'CKAN_SOLR_PASSWORD',
     'ckan.site_id': 'CKAN_SITE_ID',
     'ckan.site_url': 'CKAN_SITE_URL',
     'ckan.storage_path': 'CKAN_STORAGE_PATH',
@@ -143,7 +151,8 @@ CONFIG_FROM_ENV_VARS = {
     'smtp.starttls': 'CKAN_SMTP_STARTTLS',
     'smtp.user': 'CKAN_SMTP_USER',
     'smtp.password': 'CKAN_SMTP_PASSWORD',
-    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM'
+    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM',
+    'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB'
 }
 # End CONFIG_FROM_ENV_VARS
 
@@ -219,6 +228,12 @@ def update_config():
     search.check_solr_schema_version()
 
     routes_map = routing.make_map()
+
+    lib_plugins.reset_package_plugins()
+    lib_plugins.register_package_plugins()
+    lib_plugins.reset_group_plugins()
+    lib_plugins.register_group_plugins()
+
     config['routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists
     if 'routes.middleware' in config:
@@ -266,17 +281,7 @@ def update_config():
 
     # Create Jinja2 environment
     env = jinja_extensions.Environment(
-        loader=jinja_extensions.CkanFileSystemLoader(template_paths),
-        autoescape=True,
-        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
-                    jinja_extensions.SnippetExtension,
-                    jinja_extensions.CkanExtend,
-                    jinja_extensions.CkanInternationalizationExtension,
-                    jinja_extensions.LinkForExtension,
-                    jinja_extensions.ResourceExtension,
-                    jinja_extensions.UrlForStaticExtension,
-                    jinja_extensions.UrlForExtension]
-    )
+        **jinja_extensions.get_jinja_env_options())
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
     env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
@@ -286,7 +291,7 @@ def update_config():
     # any Pylons config options)
 
     # Initialize SQLAlchemy
-    engine = sqlalchemy.engine_from_config(config, client_encoding='utf8')
+    engine = sqlalchemy.engine_from_config(config)
     model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):

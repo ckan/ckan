@@ -4,9 +4,10 @@ from sqlalchemy import orm
 
 import ckan.model as model
 import ckan.lib.cli as cli
+from ckan.lib import search
 
 import ckan.plugins as p
-from ckan.tests.helpers import FunctionalTestBase
+from ckan.tests.helpers import FunctionalTestBase, reset_db
 import ckanext.datastore.backend.postgres as db
 
 
@@ -59,6 +60,21 @@ def set_url_type(resources, user):
         p.toolkit.get_action('resource_update')(context, resource)
 
 
+def execute_sql(sql, *args):
+    engine = db.get_write_engine()
+    session = orm.scoped_session(orm.sessionmaker(bind=engine))
+    return session.connection().execute(sql, *args)
+
+
+def when_was_last_analyze(resource_id):
+    results = execute_sql(
+        '''SELECT last_analyze
+        FROM pg_stat_user_tables
+        WHERE relname=%s;
+        ''', resource_id).fetchall()
+    return results[0][0]
+
+
 class DatastoreFunctionalTestBase(FunctionalTestBase):
     _load_plugins = (u'datastore', )
 
@@ -67,3 +83,21 @@ class DatastoreFunctionalTestBase(FunctionalTestBase):
         engine = db.get_write_engine()
         rebuild_all_dbs(orm.scoped_session(orm.sessionmaker(bind=engine)))
         super(DatastoreFunctionalTestBase, cls).setup_class()
+
+
+class DatastoreLegacyTestBase(object):
+    u"""
+    Tests that rely on data created in setup_class. No cleanup done between
+    each test method. Not recommended for new tests.
+    """
+    @classmethod
+    def setup_class(cls):
+        p.load(u'datastore')
+        reset_db()
+        search.clear_all()
+        engine = db.get_write_engine()
+        rebuild_all_dbs(orm.scoped_session(orm.sessionmaker(bind=engine)))
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload(u'datastore')

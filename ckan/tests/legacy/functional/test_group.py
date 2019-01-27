@@ -131,7 +131,7 @@ class TestRevisions(FunctionalTestCase):
         model.repo.rebuild_db()
 
     def test_2_atom_feed(self):
-        offset = url_for(controller='group', action='history',
+        offset = url_for('group.history',
                          id=self.grp.name)
         offset = "%s?format=atom" % offset
         res = self.app.get(offset)

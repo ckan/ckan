@@ -99,6 +99,12 @@ You can also give the job a title which can be useful for identifying it when
 
     jobs.enqueue(log_job, [u'My log message'], title=u'My log job')
 
+A timeout can also be set on a job iwth the ``timeout`` keyword argument::
+
+    jobs.enqueue(log_job, [u'My log message'], timeout=3600)
+
+The default background job timeout is 180 seconds. This is set in the
+ckan config ``.ini`` file under the ``ckan.jobs.timeout`` item.
 
 Accessing the database from background jobs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -278,14 +284,58 @@ to use non-standard queues.
     so multiple parallel CKAN instances are not a problem.
 
 
+.. _background jobs testing:
+
+Testing code that uses background jobs
+======================================
+Due to the asynchronous nature of background jobs, code that uses them needs
+to be handled specially when writing tests.
+
+A common approach is to use the `mock package`_ to replace the
+``ckan.plugins.toolkit.enqueue_job`` function with a mock that executes jobs
+synchronously instead of asynchronously:
+
+.. code-block:: python
+
+    import mock
+
+    from ckan.tests import helpers
+
+
+    def synchronous_enqueue_job(job_func, args=None, kwargs=None, title=None):
+        '''
+        Synchronous mock for ``ckan.plugins.toolkit.enqueue_job``.
+        '''
+        args = args or []
+        kwargs = kwargs or {}
+        job_func(*args, **kwargs)
+
+
+    class TestSomethingWithBackgroundJobs(helpers.FunctionalTestBase):
+
+        @mock.patch('ckan.plugins.toolkit.enqueue_job',
+                    side_effect=synchronous_enqueue_job)
+        def test_something(self, enqueue_job_mock):
+            some_function_that_enqueues_a_background_job()
+            assert something
+
+
+Depending on how the function under test calls ``enqueue_job`` you might need
+to adapt where the mock is installed. See `mock's documentation`_ for details.
+
+
+.. _mock package: https://pypi.python.org/pypi/mock
+
+.. _mock's documentation: https://docs.python.org/dev/library/unittest.mock.html
+
+
 .. _background jobs migration:
 
 Migrating from CKAN's previous background job system
 ====================================================
 Before version 2.7 (starting from 1.5), CKAN offered a different background job
-system built around Celery_. That system is still available but deprecated and
-will be removed in future versions of CKAN. You should therefore update your
-code to use the new system described above.
+system built around Celery_. As of CKAN 2.8, that system is no longer available.
+You should therefore update your code to use the new system described above.
 
 .. _Celery: http://celeryproject.org/
 

@@ -38,7 +38,7 @@ def create_library(name, path, depend_base=True):
             res = getattr(module, '%s' % resource_name)
         return res
 
-    def create_resource(path, lib_name, count, inline=False):
+    def create_resource(path, lib_name, count, inline=False, supersedes=None):
         ''' create the fanstatic Resource '''
         renderer = None
         kw = {}
@@ -83,6 +83,12 @@ def create_library(name, path, depend_base=True):
                 script=inline,
                 renderer=renderer,
                 other_browsers=other_browsers)
+        if supersedes:
+            superseded_library, superseded_resource_path = supersedes
+            for _library in get_library_registry().values():
+                if _library.name == superseded_library:
+                    kw['supersedes'] = [_library.known_resources[superseded_resource_path]]
+                    break
         resource = Resource(library, path, **kw)
 
         # Add our customised ordering
@@ -116,6 +122,7 @@ def create_library(name, path, depend_base=True):
     IE_conditionals = {}
     custom_render_order = {}
     inline_scripts = {}
+    supersedes = {}
 
     # parse the resource.config file if it exists
     config_path = os.path.join(resource_path, 'resource.config')
@@ -150,6 +157,9 @@ def create_library(name, path, depend_base=True):
                     if f not in IE_conditionals:
                         IE_conditionals[f] = []
                     IE_conditionals[f].append(n)
+        if config.has_section('supersedes'):
+            items = config.items('supersedes')
+            supersedes = dict((n, v.split('/', 1)) for (n, v) in items)
 
     # add dependencies for resources in groups
     for group in groups:
@@ -210,7 +220,8 @@ def create_library(name, path, depend_base=True):
             inline = inline_scripts[resource_name].strip()
         else:
             inline = None
-        create_resource(resource_name, name, count, inline=inline)
+        create_resource(resource_name, name, count, inline=inline,
+                        supersedes=supersedes.get(resource_name))
         count += 1
 
     # add groups

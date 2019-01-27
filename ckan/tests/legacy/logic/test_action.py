@@ -24,9 +24,11 @@ from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
 from ckan.tests.legacy import call_action_api
 import ckan.lib.search as search
+import ckan.tests.helpers as helpers
 
 from ckan import plugins
 from ckan.plugins import SingletonPlugin, implements, IPackageController
+
 
 class TestAction(WsgiAppCase):
 
@@ -80,7 +82,7 @@ class TestAction(WsgiAppCase):
         assert len(res['result']) == 1
         assert 'warandpeace' in res['result'] or 'annakarenina' in res['result']
 
-		# Test GET request
+        # Test GET request
         res = json.loads(self.app.get('/api/action/package_list').body)
         assert len(res['result']) == 2
         assert 'warandpeace' in res['result']
@@ -114,10 +116,10 @@ class TestAction(WsgiAppCase):
         assert 'warandpeace' in res
         assert 'annakarenina' in res
         assert 'public_dataset' in res
-        assert not 'private_dataset' in res
+        assert 'private_dataset' not in res
 
     def test_02_package_autocomplete_match_name(self):
-        postparams = '%s=1' % json.dumps({'q':'war', 'limit': 5})
+        postparams = '%s=1' % json.dumps({'q': 'war', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)
@@ -128,7 +130,7 @@ class TestAction(WsgiAppCase):
         assert_equal(res_obj['result'][0]['match_displayed'], 'warandpeace')
 
     def test_02_package_autocomplete_match_title(self):
-        postparams = '%s=1' % json.dumps({'q':'a%20w', 'limit': 5})
+        postparams = '%s=1' % json.dumps({'q': 'won', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)
@@ -654,32 +656,6 @@ class TestAction(WsgiAppCase):
         assert_equal(get_domain_object(model, group.name).name, group.name)
         assert_equal(get_domain_object(model, group.id).name, group.name)
 
-    def test_40_task_resource_status(self):
-
-        try:
-            import ckan.lib.celery_app as celery_app
-        except ImportError:
-            raise SkipTest('celery not installed')
-
-        backend = celery_app.celery.backend
-        ##This creates the database tables as a side effect, can not see another way
-        ##to make tables unless you actually create a task.
-        celery_result_session = backend.ResultSession()
-
-        ## need to do inserts as setting up an embedded celery is too much for these tests
-        model.Session.connection().execute(
-            '''INSERT INTO task_status (id, entity_id, entity_type, task_type, key, value, state, error, last_updated) VALUES ('5753adae-cd0d-4327-915d-edd832d1c9a3', '749cdcf2-3fc8-44ae-aed0-5eff8cc5032c', 'resource', 'qa', 'celery_task_id', '51f2105d-85b1-4393-b821-ac11475919d9', NULL, '', '2012-04-20 21:32:45.553986');
-            '''
-        )
-        model.Session.commit()
-        res = json.loads(self.app.post('/api/action/resource_status_show',
-                            params=json.dumps({'id': '749cdcf2-3fc8-44ae-aed0-5eff8cc5032c'}),
-                            status=200).body)
-
-        assert "/api/3/action/help_show?name=resource_status_show" in res['help']
-        assert res['success'] is True
-        assert res['result'] == [{"status": None, "entity_id": "749cdcf2-3fc8-44ae-aed0-5eff8cc5032c", "task_type": "qa", "last_updated": "2012-04-20T21:32:45.553986", "date_done": None, "entity_type": "resource", "traceback": None, "value": "51f2105d-85b1-4393-b821-ac11475919d9", "state": None, "key": "celery_task_id", "error": "", "id": "5753adae-cd0d-4327-915d-edd832d1c9a3"}], res['result']
-
     def test_41_missing_action(self):
         try:
             get_action('unicorns')
@@ -779,7 +755,7 @@ class TestAction(WsgiAppCase):
 
         # Posting a dataset dict to package_create containing two extras dicts
         # with the same key, should return a Validation Error.
-        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        app = helpers._get_test_app()
         error = call_action_api(app, 'package_create',
                 apikey=self.sysadmin_user.apikey, status=409,
                 name='foobar', extras=[{'key': 'foo', 'value': 'bar'},
@@ -791,7 +767,7 @@ class TestAction(WsgiAppCase):
         import paste.fixture
         import pylons.test
 
-        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        app = helpers._get_test_app()
         org = call_action_api(app, 'organization_create',
                 apikey=self.sysadmin_user.apikey, name='myorganization')
         package = call_action_api(app, 'package_create',
@@ -808,7 +784,7 @@ class TestAction(WsgiAppCase):
         import pylons.test
 
         # We need to create a package first, so that we can update it.
-        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        app = helpers._get_test_app()
         package = call_action_api(app, 'package_create',
                 apikey=self.sysadmin_user.apikey, name='foobar')
 
@@ -1233,4 +1209,4 @@ class TestMember(WsgiAppCase):
         groups = user.get_groups(group.type, role)
         group_ids = [g.id for g in groups]
         assert res['success'] is True, res
-        assert group.id in group_ids, (group, user_groups)
+        assert group.id in group_ids, (group, group_ids)

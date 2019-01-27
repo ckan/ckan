@@ -2,16 +2,19 @@
 
 import re
 import logging
-
-from ckan.common import config
-import pysolr
-from paste.deploy.converters import asbool
-from paste.util.multidict import MultiDict
 import six
+import pysolr
 
-from ckan.lib.search.common import make_connection, SearchError, SearchQueryError
+from paste.deploy.converters import asbool
+from werkzeug.datastructures import MultiDict
+
 import ckan.logic as logic
 import ckan.model as model
+
+from ckan.common import config
+from ckan.lib.search.common import (
+    make_connection, SearchError, SearchQueryError
+)
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +23,7 @@ _open_licenses = None
 VALID_SOLR_PARAMETERS = set([
     'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf', 'boost',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field',
-    'extras', 'fq_list', 'tie', 'defType', 'mm'
+    'extras', 'fq_list', 'tie', 'defType', 'mm', 'df'
 ])
 
 # for (solr) package searches, this specifies the fields that are searched
@@ -49,7 +52,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
     non_solr_params = set(legacy_params.keys()) - VALID_SOLR_PARAMETERS
     for search_key in non_solr_params:
         value_obj = legacy_params[search_key]
-        value = value_obj.replace('+', ' ') if isinstance(value_obj, basestring) else value_obj
+        value = value_obj.replace('+', ' ') if isinstance(value_obj, six.string_types) else value_obj
         if search_key == 'all_fields':
             if value:
                 solr_params['fl'] = '*'
@@ -62,7 +65,7 @@ def convert_legacy_parameters_to_solr(legacy_params):
         elif search_key == 'tags':
             if isinstance(value_obj, list):
                 tag_list = value_obj
-            elif isinstance(value_obj, basestring):
+            elif isinstance(value_obj, six.string_types):
                 tag_list = [value_obj]
             else:
                 raise SearchQueryError('Was expecting either a string or JSON list for the tags parameter: %r' % value)
@@ -173,7 +176,7 @@ class TagSearchQuery(SearchQuery):
         else:
             options.update(kwargs)
 
-        if isinstance(query, basestring):
+        if isinstance(query, six.string_types):
             query = [query]
 
         query = query[:] # don't alter caller's query list.
@@ -211,7 +214,7 @@ class ResourceSearchQuery(SearchQuery):
             options.update(kwargs)
 
         context = {
-            'model':model,
+            'model': model,
             'session': model.Session,
             'search_query': True,
         }
@@ -219,8 +222,9 @@ class ResourceSearchQuery(SearchQuery):
         # Transform fields into structure required by the resource_search
         # action.
         query = []
+
         for field, terms in fields.items():
-            if isinstance(terms, basestring):
+            if isinstance(terms, six.string_types):
                 terms = terms.split()
             for term in terms:
                 query.append(':'.join([field, term]))
@@ -266,11 +270,17 @@ class PackageSearchQuery(SearchQuery):
             'wt': 'json',
             'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
 
+        try:
+            if query['q'].startswith('{!'):
+                raise SearchError('Local parameters are not supported.')
+        except KeyError:
+            pass
+
         conn = make_connection(decode_dates=False)
         log.debug('Package query: %r' % query)
         try:
             solr_response = conn.search(**query)
-        except pysolr.SolrError, e:
+        except pysolr.SolrError as e:
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))
 
@@ -306,7 +316,9 @@ class PackageSearchQuery(SearchQuery):
             query['q'] = "*:*"
 
         # number of results
-        rows_to_return = min(1000, int(query.get('rows', 10)))
+        rows_to_return = int(query.get('rows', 10))
+        # query['rows'] should be a defaulted int, due to schema, but make
+        # certain, for legacy tests
         if rows_to_return > 0:
             # #1683 Work around problem of last result being out of order
             #       in SOLR 1.4
@@ -354,11 +366,17 @@ class PackageSearchQuery(SearchQuery):
             query['mm'] = query.get('mm', '2<-1 5<80%')
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
+        try:
+            if query['q'].startswith('{!'):
+                raise SearchError('Local parameters are not supported.')
+        except KeyError:
+            pass
+
         conn = make_connection(decode_dates=False)
         log.debug('Package query: %r' % query)
         try:
             solr_response = conn.search(**query)
-        except pysolr.SolrError, e:
+        except pysolr.SolrError as e:
             # Error with the sort parameter.  You see slightly different
             # error messages depending on whether the SOLR JSON comes back
             # or Jetty gets in the way converting it to HTML - not sure why

@@ -44,6 +44,8 @@ class _Toolkit(object):
         'literal',
         # get logic action function
         'get_action',
+        # get flask/pylons endpoint fragments
+        'get_endpoint',
         # decorator for chained action
         'chained_action',
         # get navl schema converter
@@ -52,6 +54,8 @@ class _Toolkit(object):
         'get_validator',
         # check logic function authorisation
         'check_access',
+        # decorator for chained authentication functions
+        'chained_auth_function',
         # implements validate method with navl schema
         'navl_validate',
         # placeholder for missing values for validation
@@ -237,6 +241,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['get_converter'] = logic.get_validator  # For backwards compatibility
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
+        t['chained_auth_function'] = logic.chained_auth_function
         t['navl_validate'] = dictization_functions.validate
         t['missing'] = dictization_functions.missing
         t['ObjectNotFound'] = logic.NotFound  # Name change intentional
@@ -280,6 +285,7 @@ content type, cookies, etc.
         t['add_ckan_admin_tab'] = self._add_ckan_admin_tabs
         t['requires_ckan_version'] = self._requires_ckan_version
         t['check_ckan_version'] = self._check_ckan_version
+        t['get_endpoint'] = self._get_endpoint
         t['CkanVersionException'] = CkanVersionException
         t['HelperError'] = HelperError
         t['enqueue_job'] = enqueue_job
@@ -452,6 +458,26 @@ content type, cookies, etc.
                     max_version
                 )
             raise CkanVersionException(error)
+
+    @classmethod
+    def _get_endpoint(cls):
+        """Returns tuple in format: (controller|blueprint, action|view).
+        """
+        import ckan.common as common
+        try:
+            # CKAN >= 2.8
+            endpoint = tuple(common.request.endpoint.split('.'))
+        except AttributeError:
+            try:
+                return common.c.controller, common.c.action
+            except AttributeError:
+                return (None, None)
+        # there are some routes('hello_world') that are not using blueprint
+        # For such case, let's assume that view function is a controller
+        # itself and action is None.
+        if len(endpoint) is 1:
+            return endpoint + (None,)
+        return endpoint
 
     def __getattr__(self, name):
         ''' return the function/object requested '''

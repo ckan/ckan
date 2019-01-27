@@ -1017,6 +1017,19 @@ class IAuthFunctions(Interface):
                 # Unless there is a logged in user or a valid API key provided
                 # NotAuthorized will be raised before reaching this function.
 
+        By decorating a registered auth function with the
+        'ckan.plugins.toolkit.chained_auth_function` decorator you can create a
+        chain of auth checks that are completed when auth is requested. This
+        chain starts with the last chained auth function to be registered and
+        ends with the original auth function (or a non-chained plugin override
+        version). Chained auth functions must accept an extra parameter,
+        specifically the next auth function in the chain, for example:
+
+            auth_function(next_auth, context, data_dict).
+
+        The chained auth function may call the next_auth function, optionally
+        passing different values, handling exceptions, returning different
+        values and/or raising different exceptions to the caller.
         '''
 
 
@@ -1092,7 +1105,7 @@ class IDatasetForm(Interface):
         If no IDatasetForm plugin's ``is_fallback()`` method returns ``True``,
         CKAN will use ``DefaultDatasetForm`` as the fallback.
 
-        :rtype: boolean
+        :rtype: bool
 
         '''
 
@@ -1278,7 +1291,7 @@ class IDatasetForm(Interface):
         This is an adavanced interface. Most changes to validation should be
         accomplished by customizing the schemas returned from
         ``show_package_schema()``, ``create_package_schema()``
-        and ``update_package_schama()``. If you need to have a different
+        and ``update_package_schema()``. If you need to have a different
         schema depending on the user or value of any field stored in the
         dataset, or if you wish to use a different method for validation, then
         this method may be used.
@@ -1288,7 +1301,7 @@ class IDatasetForm(Interface):
         :param data_dict: the dataset to be validated
         :type data_dict: dictionary
         :param schema: a schema, typically from ``show_package_schema()``,
-          ``create_package_schema()`` or ``update_package_schama()``
+          ``create_package_schema()`` or ``update_package_schema()``
         :type schema: dictionary
         :param action: ``'package_show'``, ``'package_create'`` or
           ``'package_update'``
@@ -1451,7 +1464,7 @@ class IGroupForm(Interface):
         :param data_dict: the group to be validated
         :type data_dict: dictionary
         :param schema: a schema, typically from ``form_to_db_schema()``,
-          or ``db_to_form_schama()``
+          or ``db_to_form_schema()``
         :type schema: dictionary
         :param action: ``'group_show'``, ``'group_create'``,
           ``'group_update'``, ``'organization_show'``,

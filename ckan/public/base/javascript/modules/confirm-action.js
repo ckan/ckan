@@ -28,11 +28,11 @@ this.ckan.module('confirm-action', function (jQuery) {
         '<div class="modal-content">',
         '<div class="modal-header">',
         '<button type="button" class="close" data-dismiss="modal">×</button>',
-        '<h3></h3>',
+        '<h3 class="modal-title"></h3>',
         '</div>',
         '<div class="modal-body"></div>',
         '<div class="modal-footer">',
-        '<button class="btn btn-cancel"></button>',
+        '<button class="btn btn-default btn-cancel"></button>',
         '<button class="btn btn-primary"></button>',
         '</div>',
         '</div>',
@@ -98,7 +98,7 @@ this.ckan.module('confirm-action', function (jQuery) {
         element.on('click', '.btn-cancel', this._onConfirmCancel);
         element.modal({show: false});
 
-        element.find('h3').text(this._('Please Confirm Action'));
+        element.find('.modal-title').text(this._('Please Confirm Action'));
         var content = this.options.content ||
                       this.options.i18n.content || /* Backwards-compatibility */
                       this._('Are you sure you want to perform this action?');

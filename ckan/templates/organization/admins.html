@@ -1,10 +1,10 @@
 {% extends "organization/read_base.html" %}
 
-{% block subtitle %}{{ _('Administrators') }} - {{ c.group_dict.title or c.group_dict.name }}{% endblock %}
+{% block subtitle %}{{ _('Administrators') }} {{ g.template_title_delimiter }} {{ group_dict.title or group_dict.name }}{% endblock %}
 
 {% block primary_content_inner %}
   <h1 class="hide-heading">{% block page_heading %}{{ _('Administrators') }}{% endblock %}</h1>
   {% block admins_list %}
-    {% snippet "user/snippets/followers.html", followers=c.admins %}
+    {% snippet "user/snippets/followers.html", followers=admins %}
   {% endblock %}
 {% endblock %}

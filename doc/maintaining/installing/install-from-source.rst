@@ -5,12 +5,11 @@ Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 14.04 64-bit or
-Ubuntu 12.04 64-bit. Installing CKAN from source works with other versions of
-Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
-you install CKAN from source on your own operating system, please share your
-experiences on our
-`How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
+:doc:`install-from-package` is simpler, it requires Ubuntu 18.04 64-bit, Ubuntu
+16.04 64-bit, or Ubuntu 14.04 64-bit. Installing CKAN from source works with other
+versions of Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X).
+If you install CKAN from source on your own operating system, please share your
+experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
 From source is also the right installation method for developers who want to
@@ -21,7 +20,7 @@ work on CKAN.
 --------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
-required packages with this command for Ubuntu 16.04::
+required packages with this command for Ubuntu 18.04 and Ubuntu 16.04::
 
     sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-8-jdk redis-server
 
@@ -38,7 +37,7 @@ wiki page for help):
 Package                Description
 =====================  ===============================================
 Python                 `The Python programming language, v2.7 <http://www.python.org/getit/>`_
-|postgres|             `The PostgreSQL database system, v9.2 or newer <http://www.postgresql.org/download/>`_
+|postgres|             `The PostgreSQL database system, v9.3 or newer <http://www.postgresql.org/download/>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
 virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
@@ -80,6 +79,18 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
        sudo chown \`whoami\` |virtualenv|
        virtualenv --no-site-packages |virtualenv|
        |activate|
+    
+.. note::
+
+    If your system uses Python3 by default (e.g. Ubuntu 18.04) make sure to create
+    the virtualenv using the Python2.7 executable with the ``--python`` option: 
+
+    .. parsed-literal::
+
+        sudo mkdir -p |virtualenv|
+        sudo chown \`whoami\` |virtualenv|
+        virtualenv --python=/usr/bin/python2.7 --no-site-packages |virtualenv|
+        |activate|
 
 .. important::
 
@@ -105,14 +116,7 @@ b. Install the recommended ``setuptools`` version:
        pip install setuptools==\ |min_setuptools_version|
 
 c. Install the CKAN source code into your virtualenv.
-   .. important::
-   
-       For the following commands, make sure you are in your CKAN default directory. E.g.
-    
-      .. parsed-literal::
-      
-         cd /usr/lib/ckan/default/
-   
+
    To install the latest stable release of CKAN (CKAN |latest_release_version|),
    run:
 
@@ -128,15 +132,6 @@ c. Install the CKAN source code into your virtualenv.
 
        pip install -e 'git+\ |git_url|\#egg=ckan'
 
-   .. tip::
-      
-      If you would like to work submit a pull request with your changes, be sure you are working from a cloned repository.
-      Use your personal repository URL instead of the CKAN repository. E.g.
-      
-      .. parsed-literal::
-         
-         pip install -e 'git=https://github.com/{your-username}/ckan.git#egg=ckan'
-   
    .. warning::
 
       The development version may contain bugs and should not be used for
@@ -144,10 +139,6 @@ c. Install the CKAN source code into your virtualenv.
       development.
 
 d. Install the Python modules that CKAN requires into your virtualenv:
-
-   .. versionchanged:: 2.1
-      In CKAN 2.0 and earlier the requirement file was called
-      ``pip-requirements.txt`` not ``requirements.txt`` as below.
 
    .. parsed-literal::
 
@@ -235,8 +226,19 @@ site_url
 
 .. _postgres-init:
 
+----------------------
+6. Link to ``who.ini``
+----------------------
+
+``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
+same directory as your CKAN config file, so create a symlink to it:
+
+.. parsed-literal::
+
+    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
+
 -------------------------
-6. Create database tables
+7. Create database tables
 -------------------------
 
 Now that you have a configuration file that has the correct settings for your
@@ -256,7 +258,7 @@ You should see ``Initialising DB: SUCCESS``.
     See `4. Create a CKAN config file`_.
 
 -----------------------
-7. Set up the DataStore
+8. Set up the DataStore
 -----------------------
 
 .. note ::
@@ -267,17 +269,6 @@ You should see ``Initialising DB: SUCCESS``.
 Follow the instructions in :doc:`/maintaining/datastore` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
-
-----------------------
-8. Link to ``who.ini``
-----------------------
-
-``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
-same directory as your CKAN config file, so create a symlink to it:
-
-.. parsed-literal::
-
-    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
 
 ---------------
 9. You're done!
@@ -381,3 +372,10 @@ This is seen occasionally with Jetty and Ubuntu 14.04. It requires a solr-jetty 
     sudo dpkg -i solr-jetty-jsp-fix_1.0.2_all.deb
     sudo service jetty restart
 
+ImportError: No module named 'flask_debugtoolbar'
+-------------------------------------------------
+
+This may show up if you are creating the database tables and you have enabled debug
+mode in the config file. Simply install the development requirements::
+
+    pip install -r /usr/lib/ckan/default/src/ckan/dev-requirements.txt

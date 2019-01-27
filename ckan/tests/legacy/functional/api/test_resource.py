@@ -45,7 +45,7 @@ class TestResourceApi(ApiTestCase, ControllerTestCase):
     def test_good_input(self):
         offset = self.base_url + '/format_autocomplete?incomplete=cs'
         result = self.app.get(offset, status=200)
-        content_type = result.header_dict['Content-Type']
+        content_type = result.headers.get('Content-Type')
         assert 'application/json' in content_type, content_type
         res_json = self.loads(result.body)
         assert 'ResultSet' in res_json, res_json
@@ -58,7 +58,7 @@ class TestResourceApi(ApiTestCase, ControllerTestCase):
     def test_missing_format(self):
         offset = self.base_url + '/format_autocomplete?incomplete=incorrectformat'
         result = self.app.get(offset, status=200)
-        content_type = result.header_dict['Content-Type']
+        content_type = result.headers.get('Content-Type')
         assert 'application/json' in content_type, content_type
         res_json = self.loads(result.body)
         assert 'ResultSet' in res_json, res_json

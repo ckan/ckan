@@ -1,11 +1,11 @@
 {% extends "package/edit_base.html" %}
 
-{% set has_reorder = c.pkg_dict and c.pkg_dict.resources and c.pkg_dict.resources|length > 0 %}
+{% set has_reorder = pkg_dict and pkg_dict.resources and pkg_dict.resources|length > 0 %}
 
-{% block subtitle %}{{ _('Resources') }} - {{ h.dataset_display_name(pkg) }}{% endblock %}
+{% block subtitle %}{{ _('Resources') }} {{ g.template_title_delimiter }} {{ h.dataset_display_name(pkg) }}{% endblock %}
 
 {% block page_primary_action %}
-  {% link_for _('Add new resource'), controller='package', action='new_resource', id=c.pkg_dict.name, class_='btn btn-primary', icon='plus' %}
+  {% link_for _('Add new resource'), named_route='resource.new', id=pkg_dict.name, class_='btn btn-primary', icon='plus' %}
 {% endblock %}
 
 {% block primary_content_inner %}
@@ -17,7 +17,7 @@
       {% endfor %}
     </ul>
   {% else %}
-    {% trans url=h.url_for(controller='package', action='new_resource', id=pkg.name) %}
+    {% trans url=h.url_for('resource.new', id=pkg.name) %}
       <p class="empty">This dataset has no data, <a href="{{ url }}">why not add some?</a></p>
     {% endtrans %}
   {% endif %}

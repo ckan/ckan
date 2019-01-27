@@ -5,6 +5,7 @@ import cgi
 import logging
 
 from flask import Blueprint, make_response
+from six import text_type
 from werkzeug.exceptions import BadRequest
 
 import ckan.model as model
@@ -23,6 +24,7 @@ CONTENT_TYPES = {
     u'text': u'text/plain;charset=utf-8',
     u'html': u'text/html;charset=utf-8',
     u'json': u'application/json;charset=utf-8',
+    u'javascript': u'application/javascript;charset=utf-8',
 }
 
 API_REST_DEFAULT_VERSION = 1
@@ -42,7 +44,8 @@ def _finish(status_int, response_data=None,
     :param status_int: The HTTP status code to return
     :type status_int: int
     :param response_data: The body of the response
-    :type response_data: object if content_type is `text`, a string otherwise
+    :type response_data: object if content_type is `text` or `json`,
+        a string otherwise
     :param content_type: One of `text`, `html` or `json`. Defaults to `text`
     :type content_type: string
     :param headers: Extra headers to serve with the response
@@ -69,6 +72,7 @@ def _finish(status_int, response_data=None,
             # escape callback to remove '<', '&', '>' chars
             callback = cgi.escape(request.args[u'callback'])
             response_msg = _wrap_jsonp(callback, response_msg)
+            headers[u'Content-Type'] = CONTENT_TYPES[u'javascript']
     return make_response((response_msg, status_int, headers))
 
 
@@ -79,7 +83,8 @@ def _finish_ok(response_data=None,
     calling this method will prepare the response.
 
     :param response_data: The body of the response
-    :type response_data: object if content_type is `text`, a string otherwise
+    :type response_data: object if content_type is `text` or `json`,
+        a string otherwise
     :param content_type: One of `text`, `html` or `json`. Defaults to `json`
     :type content_type: string
     :param resource_location: Specify this if a new resource has just been
@@ -95,7 +100,7 @@ def _finish_ok(response_data=None,
         status_int = 201
         try:
             resource_location = str(resource_location)
-        except Exception, inst:
+        except Exception as inst:
             msg = \
                 u"Couldn't convert '%s' header value '%s' to string: %s" % \
                 (u'Location', resource_location, inst)
@@ -171,7 +176,7 @@ def _get_request_data(try_url_params=False):
                 request.form.values()[0] in [u'1', u'']):
             try:
                 request_data = json.loads(request.form.keys()[0])
-            except ValueError, e:
+            except ValueError as e:
                 raise ValueError(
                     u'Error decoding JSON data. '
                     'Error: %r '
@@ -185,7 +190,7 @@ def _get_request_data(try_url_params=False):
           request.content_type != u'multipart/form-data'):
         try:
             request_data = request.get_json()
-        except BadRequest, e:
+        except BadRequest as e:
             raise ValueError(u'Error decoding JSON data. '
                              'Error: %r '
                              'JSON data extracted from the request: %r' %
@@ -197,7 +202,8 @@ def _get_request_data(try_url_params=False):
     if request.method == u'PUT' and not request_data:
         raise ValueError(u'Invalid request. Please use the POST method for '
                          'your request')
-
+    for field_name, file_ in request.files.iteritems():
+        request_data[field_name] = file_
     log.debug(u'Request data extracted: %r', request_data)
 
     return request_data
@@ -258,7 +264,7 @@ def action(logic_function, ver=API_DEFAULT_VERSION):
 
         request_data = _get_request_data(
             try_url_params=side_effect_free)
-    except ValueError, inst:
+    except ValueError as inst:
         log.info(u'Bad Action API request data: %s', inst)
         return _finish_bad_request(
             _(u'JSON Error: %s') % inst)
@@ -282,7 +288,7 @@ def action(logic_function, ver=API_DEFAULT_VERSION):
         result = function(context, request_data)
         return_dict[u'success'] = True
         return_dict[u'result'] = result
-    except DataError, e:
+    except DataError as e:
         log.info(u'Format incorrect (Action API): %s - %s',
                  e.error, request_data)
         return_dict[u'error'] = {u'__type': u'Integrity Error',
@@ -290,23 +296,23 @@ def action(logic_function, ver=API_DEFAULT_VERSION):
                                  u'data': request_data}
         return_dict[u'success'] = False
         return _finish(400, return_dict, content_type=u'json')
-    except NotAuthorized, e:
+    except NotAuthorized as e:
         return_dict[u'error'] = {u'__type': u'Authorization Error',
                                  u'message': _(u'Access denied')}
         return_dict[u'success'] = False
 
-        if unicode(e):
+        if text_type(e):
             return_dict[u'error'][u'message'] += u': %s' % e
 
         return _finish(403, return_dict, content_type=u'json')
-    except NotFound, e:
+    except NotFound as e:
         return_dict[u'error'] = {u'__type': u'Not Found Error',
                                  u'message': _(u'Not found')}
-        if unicode(e):
+        if text_type(e):
             return_dict[u'error'][u'message'] += u': %s' % e
         return_dict[u'success'] = False
         return _finish(404, return_dict, content_type=u'json')
-    except ValidationError, e:
+    except ValidationError as e:
         error_dict = e.error_dict
         error_dict[u'__type'] = u'Validation Error'
         return_dict[u'error'] = error_dict
@@ -314,23 +320,30 @@ def action(logic_function, ver=API_DEFAULT_VERSION):
         # CS nasty_string ignore
         log.info(u'Validation error (Action API): %r', str(e.error_dict))
         return _finish(409, return_dict, content_type=u'json')
-    except SearchQueryError, e:
+    except SearchQueryError as e:
         return_dict[u'error'] = {u'__type': u'Search Query Error',
                                  u'message': u'Search Query is invalid: %r' %
                                  e.args}
         return_dict[u'success'] = False
         return _finish(400, return_dict, content_type=u'json')
-    except SearchError, e:
+    except SearchError as e:
         return_dict[u'error'] = {u'__type': u'Search Error',
                                  u'message': u'Search error: %r' % e.args}
         return_dict[u'success'] = False
         return _finish(409, return_dict, content_type=u'json')
-    except SearchIndexError, e:
+    except SearchIndexError as e:
         return_dict[u'error'] = {
             u'__type': u'Search Index Error',
             u'message': u'Unable to add package to search index: %s' %
                        str(e)}
         return_dict[u'success'] = False
+        return _finish(500, return_dict, content_type=u'json')
+    except Exception as e:
+        return_dict[u'error'] = {
+            u'__type': u'Internal Server Error',
+            u'message': u'Internal Server Error'}
+        return_dict[u'success'] = False
+        log.exception(e)
         return _finish(500, return_dict, content_type=u'json')
 
     return _finish_ok(return_dict)
@@ -459,7 +472,7 @@ def i18n_js_translations(lang, ver=API_REST_DEFAULT_VERSION):
                              u'base', u'i18n', u'{0}.js'.format(lang)))
     if not os.path.exists(source):
         return u'{}'
-    translations = open(source, u'r').read()
+    translations = json.load(open(source, u'r'))
     return _finish_ok(translations)
 
 

@@ -1,9 +1,9 @@
 {% extends "organization/edit_base.html" %}
 
-{% block subtitle %}{{ _('Edit datasets') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Edit datasets') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block page_primary_action %}
-  {% link_for _('Add dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-square' %}
+  {% link_for _('Add dataset'), named_route='dataset.new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-square' %}
 {% endblock %}
 
 {% block primary_content_inner %}
@@ -61,11 +61,11 @@
                       <input type="checkbox" name="dataset_{{ package.id }}">
                     </td>
                     <td class="context">
-                      <a href="{% url_for controller='package', action='edit', id=package.name %}" class="edit pull-right">
+                      <a href="{% url_for 'dataset.edit', id=package.name %}" class="edit pull-right">
                         {{ _('Edit') }}
                       </a>
                       <h3 class="dataset-heading">
-                        {{ h.link_to(h.truncate(title, truncate_title), h.url_for(controller='package', action='read', id=package.name)) }}
+                        {{ h.link_to(h.truncate(title, truncate_title), h.url_for('dataset.read', id=package.name)) }}
                         {% if package.get('state', '').startswith('draft') %}
                           <span class="label label-info">{{ _('Draft') }}</span>
                         {% elif package.get('state', '').startswith('deleted') %}

@@ -6,6 +6,7 @@ from paste.deploy.converters import asbool
 import paste.fixture
 from ckan.lib.helpers import url_for
 from nose import SkipTest
+import ckan.tests.helpers as helpers
 
 import ckan
 from ckan.logic.action.create import package_create, user_create, group_create
@@ -15,6 +16,7 @@ from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
 from ckan.tests.legacy.html_check import HtmlCheckMethods
 from ckan.tests.legacy import CreateTestData
+
 
 class TestActivity(HtmlCheckMethods):
     """Test the rendering of activity streams into HTML pages.
@@ -29,13 +31,13 @@ class TestActivity(HtmlCheckMethods):
             raise SkipTest('Activity streams not enabled')
         CreateTestData.create()
         cls.sysadmin_user = ckan.model.User.get('testsysadmin')
-        cls.app = paste.fixture.TestApp(pylonsapp)
+        cls.app = helpers._get_test_app()
 
     @classmethod
     def teardown(cls):
         ckan.model.repo.rebuild_db()
 
-
+    @helpers.change_config('ckan.activity_list_limit', '15')
     def test_user_activity(self):
         """Test user activity streams HTML rendering."""
 
@@ -52,7 +54,7 @@ class TestActivity(HtmlCheckMethods):
             'allow_partial_update': True,
             }
         user = user_create(context, user_dict)
-        offset = url_for(controller='user', action='activity', id=user['id'])
+        offset = url_for('user.activity', id=user['id'])
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
         assert '%s signed up' % user['fullname'] in stripped, stripped
@@ -239,10 +241,10 @@ class TestActivity(HtmlCheckMethods):
 
         # The user's dashboard page should load successfully and have the
         # latest 15 activities on it.
-        offset = url_for(controller='user', action='dashboard')
+        offset = url_for('dashboard.index')
         extra_environ = {'Authorization':
                 str(ckan.model.User.get('billybeane').apikey)}
-        result = self.app.post(offset, extra_environ=extra_environ,
+        result = self.app.get(offset, extra_environ=extra_environ,
                 status=200)
         assert result.body.count('<span class="actor">') == 15, \
             result.body.count('<span class="actor">')

@@ -2,7 +2,7 @@
 
 {% block primary_content_inner %}
   <ul class="user-list">
-    {% for user in c.sysadmins %}
+    {% for user in sysadmins %}
       <li>{{ h.linked_user(user) }}</li>
     {% endfor %}
   </ul>

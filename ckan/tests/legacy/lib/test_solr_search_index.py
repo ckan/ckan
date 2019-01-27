@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from nose.tools import assert_equal
+
 import pysolr
 from ckan.common import config
 from ckan import model
@@ -20,7 +22,7 @@ class TestSolrConfig(TestController):
             # solr.SolrConnection.query will throw a socket.error if it
             # can't connect to the SOLR instance
             q = conn.search(q="*:*", rows=1)
-        except pysolr.SolrError, e:
+        except pysolr.SolrError as e:
             if not config.get('solr_url'):
                 raise AssertionError("Config option 'solr_url' needs to be defined in this CKAN's development.ini. Default of %s didn't work: %s" % (search.DEFAULT_SOLR_URL, e))
             else:
@@ -51,8 +53,6 @@ class TestSolrSearch:
 
     def test_1_basic(self):
         results = self.solr.search(q='sweden', fq=self.fq)
-        assert len(results) == 2
-        result_names = [r['name'] for r in results]
-        assert 'se-publications' in result_names
-        assert 'se-opengov' in result_names
+        result_names = sorted([r['name'] for r in results])
 
+        assert_equal([u'se-opengov', u'se-publications'], result_names)

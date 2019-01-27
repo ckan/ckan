@@ -8,6 +8,8 @@
 import os.path
 import re
 
+from six import text_type
+
 from ckan import model
 from ckan.lib.io import decode_path
 
@@ -24,7 +26,7 @@ MIN_FILENAME_TOTAL_LENGTH = 3
 def munge_name(name):
     '''Munges the package name field in case it is not to spec.'''
     # substitute non-ascii characters
-    if isinstance(name, unicode):
+    if isinstance(name, text_type):
         name = substitute_ascii_equivalents(name)
     # separators become dashes
     name = re.sub('[ .:/]', '-', name)
@@ -39,7 +41,7 @@ def munge_name(name):
 def munge_title_to_name(name):
     '''Munge a package title into a package name.'''
     # substitute non-ascii characters
-    if isinstance(name, unicode):
+    if isinstance(name, text_type):
         name = substitute_ascii_equivalents(name)
     # convert spaces and separators
     name = re.sub('[ .:/]', '-', name)
@@ -147,7 +149,7 @@ def munge_filename(filename):
 
     Returns a Unicode string.
     '''
-    if not isinstance(filename, unicode):
+    if not isinstance(filename, text_type):
         filename = decode_path(filename)
 
     # Ignore path
@@ -156,8 +158,8 @@ def munge_filename(filename):
     # Clean up
     filename = filename.lower().strip()
     filename = substitute_ascii_equivalents(filename)
-    filename = re.sub(ur'[^a-zA-Z0-9_. -]', '', filename).replace(u' ', u'-')
-    filename = re.sub(ur'-+', u'-', filename)
+    filename = re.sub(u'[^a-zA-Z0-9_. -]', '', filename).replace(u' ', u'-')
+    filename = re.sub(u'-+', u'-', filename)
 
     # Enforce length constraints
     name, ext = os.path.splitext(filename)

@@ -302,6 +302,11 @@ special schema fields ``'__before'`` or ``'__after'`` to have them
 run before or after all the other validation takes place to avoid
 the problem of working with partially-validated data.
 
+The validator has to be registered. Example:
+
+.. literalinclude:: ../../ckanext/example_ivalidators/plugin.py
+    :start-after: from ckan.plugins.toolkit import Invalid
+    :end-before: def equals_fortytwo(value):
 
 Tag vocabularies
 ----------------

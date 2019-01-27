@@ -181,24 +181,6 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def make_private(self, context, data_dict):
-        """Do not display resource in search results.
-
-        Called by `datastore_make_private`.
-        :param resource_id: id of resource that should become private
-        :type resource_id: string
-        """
-        raise NotImplementedError()
-
-    def make_public(self, context, data_dict):
-        """Enable serch for resource.
-
-        Called by `datastore_make_public`.
-        :param resource_id: id of resource that should become public
-        :type resource_id: string
-        """
-        raise NotImplementedError()
-
     def resource_exists(self, id):
         """Define whether resource exists in datastore.
         """

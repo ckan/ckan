@@ -68,7 +68,11 @@ class ResourceDataController(base.BaseController):
             base.abort(403, _('Not authorized to see this page'))
 
         return base.render('datapusher/resource_data.html',
-                           extra_vars={'status': datapusher_status})
+                           extra_vars={
+                               'status': datapusher_status,
+                               'pkg_dict': toolkit.c.pkg_dict,
+                               'resource': toolkit.c.resource,
+                           })
 
 
 class DatapusherPlugin(p.SingletonPlugin):
@@ -136,7 +140,7 @@ class DatapusherPlugin(p.SingletonPlugin):
                         p.toolkit.get_action('datapusher_submit')(context, {
                             'resource_id': entity.id
                         })
-                    except p.toolkit.ValidationError, e:
+                    except p.toolkit.ValidationError as e:
                         # If datapusher is offline want to catch error instead
                         # of raising otherwise resource save will fail with 500
                         log.critical(e)

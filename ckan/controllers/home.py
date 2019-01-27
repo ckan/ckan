@@ -26,7 +26,7 @@ class HomeController(base.BaseController):
         except logic.NotAuthorized:
             base.abort(403, _('Not authorized to see this page'))
         except (sqlalchemy.exc.ProgrammingError,
-                sqlalchemy.exc.OperationalError), e:
+                sqlalchemy.exc.OperationalError) as e:
             # postgres and sqlite errors for missing tables
             msg = str(e)
             if ('relation' in msg and 'does not exist' in msg) or \
@@ -69,7 +69,7 @@ class HomeController(base.BaseController):
             c.package_count = 0
 
         if c.userobj and not c.userobj.email:
-            url = h.url_for(controller='user', action='edit')
+            url = h.url_for('user.edit')
             msg = _('Please <a href="%s">update your profile</a>'
                     ' and add your email address. ') % url + \
                 _('%s uses your email address'

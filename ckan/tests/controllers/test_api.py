@@ -6,18 +6,69 @@ controller itself.
 '''
 import json
 import re
+import mock
+import __builtin__ as builtins
+from StringIO import StringIO
+
+from nose.tools import assert_equal, assert_in, eq_
+from pyfakefs import fake_filesystem
+
+from six import text_type
+from six.moves import xrange
 
 from ckan.lib.helpers import url_for
-from nose.tools import assert_equal, assert_in, eq_
-
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
-from ckan.lib import helpers as template_helpers
+from ckan.lib import helpers as template_helpers, uploader as ckan_uploader
 import ckan.plugins as p
 from ckan import model
 
+fs = fake_filesystem.FakeFilesystem()
+fake_os = fake_filesystem.FakeOsModule(fs)
+fake_open = fake_filesystem.FakeFileOpen(fs)
+real_open = open
+
+
+def mock_open_if_open_fails(*args, **kwargs):
+    try:
+        return real_open(*args, **kwargs)
+    except (OSError, IOError):
+        return fake_open(*args, **kwargs)
+
 
 class TestApiController(helpers.FunctionalTestBase):
+
+    @helpers.change_config('ckan.storage_path', '/doesnt_exist')
+    @mock.patch.object(builtins, 'open', side_effect=mock_open_if_open_fails)
+    @mock.patch.object(ckan_uploader, 'os', fake_os)
+    @mock.patch.object(ckan_uploader, '_storage_path', new='/doesnt_exist')
+    def test_resource_create_upload_file(self, _):
+        user = factories.User()
+        pkg = factories.Dataset(creator_user_id=user['id'])
+        # upload_content = StringIO()
+        # upload_content.write('test-content')
+
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='resource_create', ver='/3')
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        postparams = {
+            'name': 'test-flask-upload',
+            'package_id': pkg['id']
+        }
+        upload_content = 'test-content'
+        upload_info = ('upload', 'test-upload.txt', upload_content)
+        app = self._get_test_app()
+        resp = app.post(
+            url, params=postparams,
+            upload_files=[upload_info],
+            extra_environ=env
+            # content_type= 'application/json'
+        )
+        result = resp.json['result']
+        eq_('upload', result['url_type'])
+        eq_(len(upload_content), result['size'])
 
     def test_unicode_in_error_message_works_ok(self):
         # Use tag_delete to echo back some unicode
@@ -228,6 +279,19 @@ class TestApiController(helpers.FunctionalTestBase):
         eq_(sorted(res_dict['result']),
             sorted([dataset1['name'], dataset2['name']]))
 
+    def test_jsonp_returns_javascript_content_type(self):
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='status_show',
+            ver='/3')
+        app = self._get_test_app()
+        res = app.get(
+            url=url,
+            params={'callback': 'my_callback'},
+        )
+        assert_in('application/javascript', res.headers.get('Content-Type'))
+
     def test_jsonp_does_not_work_on_post_requests(self):
 
         dataset1 = factories.Dataset()
@@ -250,122 +314,3 @@ class TestApiController(helpers.FunctionalTestBase):
         eq_(res_dict['success'], True)
         eq_(sorted(res_dict['result']),
             sorted([dataset1['name'], dataset2['name']]))
-
-    def test_api_info(self):
-
-        dataset = factories.Dataset()
-        resource = factories.Resource(
-            id='588dfa82-760c-45a2-b78a-e3bc314a4a9b',
-            package_id=dataset['id'], datastore_active=True)
-
-        # the 'API info' is seen on the resource_read page, a snippet loaded by
-        # javascript via data_api_button.html
-        url = template_helpers.url_for(
-            controller='api', action='snippet', ver=1,
-            snippet_path='api_info.html', resource_id=resource['id'])
-
-        if not p.plugin_loaded('datastore'):
-            p.load('datastore')
-
-        app = self._get_test_app()
-        page = app.get(url, status=200)
-        p.unload('datastore')
-
-        # check we built all the urls ok
-        expected_urls = (
-            'http://test.ckan.net/api/3/action/datastore_create',
-            'http://test.ckan.net/api/3/action/datastore_upsert',
-            '<code>http://test.ckan.net/api/3/action/datastore_search',
-            'http://test.ckan.net/api/3/action/datastore_search_sql',
-            'http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5',
-            'http://test.ckan.net/api/3/action/datastore_search?q=jones&amp;resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b',
-            'http://test.ckan.net/api/3/action/datastore_search_sql?sql=SELECT * from &#34;588dfa82-760c-45a2-b78a-e3bc314a4a9b&#34; WHERE title LIKE &#39;jones&#39;',
-            "url: 'http://test.ckan.net/api/3/action/datastore_search'",
-            "http://test.ckan.net/api/3/action/datastore_search?resource_id=588dfa82-760c-45a2-b78a-e3bc314a4a9b&amp;limit=5&amp;q=title:jones",
-        )
-        for url in expected_urls:
-            assert url in page, url
-
-
-class TestRevisionSearch(helpers.FunctionalTestBase):
-
-    # Error cases
-
-    def test_no_search_term(self):
-        app = self._get_test_app()
-        response = app.get('/api/search/revision', status=400)
-        assert_in('Bad request - Missing search term', response.body)
-
-    def test_no_search_term_api_v2(self):
-        app = self._get_test_app()
-        response = app.get('/api/2/search/revision', status=400)
-        assert_in('Bad request - Missing search term', response.body)
-
-    def test_date_instead_of_revision(self):
-        app = self._get_test_app()
-        response = app.get('/api/search/revision'
-                           '?since_id=2010-01-01T00:00:00', status=404)
-        assert_in('Not found - There is no revision', response.body)
-
-    def test_date_invalid(self):
-        app = self._get_test_app()
-        response = app.get('/api/search/revision'
-                           '?since_time=2010-02-31T00:00:00', status=400)
-        assert_in('Bad request - ValueError: day is out of range for month',
-                  response.body)
-
-    def test_no_value(self):
-        app = self._get_test_app()
-        response = app.get('/api/search/revision?since_id=', status=400)
-        assert_in('Bad request - No revision specified', response.body)
-
-    def test_revision_doesnt_exist(self):
-        app = self._get_test_app()
-        response = app.get('/api/search/revision?since_id=1234', status=404)
-        assert_in('Not found - There is no revision', response.body)
-
-    def test_revision_doesnt_exist_api_v2(self):
-        app = self._get_test_app()
-        response = app.get('/api/2/search/revision?since_id=1234', status=404)
-        assert_in('Not found - There is no revision', response.body)
-
-    # Normal usage
-
-    @classmethod
-    def _create_revisions(cls, num_revisions):
-        rev_ids = []
-        for i in xrange(num_revisions):
-            rev = model.repo.new_revision()
-            rev.id = unicode(i)
-            model.Session.commit()
-            rev_ids.append(rev.id)
-        return rev_ids
-
-    def test_revision_since_id(self):
-        rev_ids = self._create_revisions(4)
-        app = self._get_test_app()
-
-        response = app.get('/api/2/search/revision?since_id=%s' % rev_ids[1])
-
-        res = json.loads(response.body)
-        assert_equal(res, rev_ids[2:])
-
-    def test_revision_since_time(self):
-        rev_ids = self._create_revisions(4)
-        app = self._get_test_app()
-
-        rev1 = model.Session.query(model.Revision).get(rev_ids[1])
-        response = app.get('/api/2/search/revision?since_time=%s'
-                           % rev1.timestamp.isoformat())
-
-        res = json.loads(response.body)
-        assert_equal(res, rev_ids[2:])
-
-    def test_revisions_returned_are_limited(self):
-        rev_ids = self._create_revisions(55)
-        app = self._get_test_app()
-
-        response = app.get('/api/2/search/revision?since_id=%s' % rev_ids[1])
-
-        res = json.loads(response.body)
-        assert_equal(res, rev_ids[2:52])  # i.e. limited to 50

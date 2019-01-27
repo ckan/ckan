@@ -2,6 +2,7 @@
 
 import nose
 import pylons
+from six import text_type
 
 from ckan.tests import helpers
 from ckan.config import environment
@@ -17,7 +18,7 @@ class TestFormencdoeLanguage(object):
         from ckan.lib.navl.validators import not_empty
         from formencode import validators
         schema = {
-            "name": [not_empty, unicode],
+            "name": [not_empty, text_type],
             "email": [validators.Email],
             "email2": [validators.Email],
         }

@@ -11,6 +11,7 @@ import socket
 from ckan.common import config
 import sqlalchemy
 from paste.deploy.converters import asbool
+from six import string_types, text_type
 
 import ckan.lib.dictization
 import ckan.logic as logic
@@ -54,7 +55,7 @@ _text = sqlalchemy.text
 
 def _filter_activity_by_user(activity_list, users=[]):
     '''
-    Return the given ``activity_list`` with activities from the specified
+    Return the given ``activity_list`` but with activities from the specified
     users removed. The users parameters should be a list of ids.
 
     A *new* filtered list is returned, the given ``activity_list`` itself is
@@ -97,7 +98,7 @@ def _package_list_with_resources(context, package_revision_list):
 def site_read(context, data_dict=None):
     '''Return ``True``.
 
-    :rtype: boolean
+    :rtype: bool
     '''
     _check_access('site_read', context, data_dict)
     return True
@@ -195,9 +196,9 @@ def revision_list(context, data_dict):
     parameter ``since_id``.
 
     :param since_id: the revision ID after which you want the revisions
-    :type id: string
+    :type since_id: string
     :param since_time: the timestamp after which you want the revisions
-    :type id: string
+    :type since_time: string
     :param sort: the order to sort the related items in, possible values are
       'time_asc', 'time_desc' (default). (optional)
     :type sort: string
@@ -341,6 +342,15 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     all_fields = asbool(data_dict.get('all_fields', None))
 
+    if all_fields:
+        # all_fields is really computationally expensive, so need a tight limit
+        max_limit = config.get(
+            'ckan.group_and_organization_list_all_fields_max', 25)
+    else:
+        max_limit = config.get('ckan.group_and_organization_list_max', 1000)
+    if limit is None or limit > max_limit:
+        limit = max_limit
+
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
     order_by = data_dict.get('order_by', '')
@@ -437,9 +447,11 @@ def group_list(context, data_dict):
         "name asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
-    :param limit: if given, the list of groups will be broken into pages of
-        at most ``limit`` groups per page and only one page will be returned
-        at a time (optional)
+    :param limit: the maximum number of groups returned (optional)
+        Default: ``1000`` when all_fields=false unless set in site's
+        configuration ``ckan.group_and_organization_list_max``
+        Default: ``25`` when all_fields=true unless set in site's
+        configuration ``ckan.group_and_organization_list_all_fields_max``
     :type limit: int
     :param offset: when ``limit`` is given, the offset to start
         returning groups from
@@ -453,22 +465,22 @@ def group_list(context, data_dict):
         property for each group is deprecated, but there is a count of the
         packages in the `package_count` property.
         (optional, default: ``False``)
-    :type all_fields: boolean
+    :type all_fields: bool
     :param include_dataset_count: if all_fields, include the full package_count
         (optional, default: ``True``)
-    :type include_dataset_count: boolean
+    :type include_dataset_count: bool
     :param include_extras: if all_fields, include the group extra fields
         (optional, default: ``False``)
-    :type include_extras: boolean
+    :type include_extras: bool
     :param include_tags: if all_fields, include the group tags
         (optional, default: ``False``)
-    :type include_tags: boolean
+    :type include_tags: bool
     :param include_groups: if all_fields, include the groups the groups are in
         (optional, default: ``False``).
-    :type include_groups: boolean
+    :type include_groups: bool
     :param include_users: if all_fields, include the group users
         (optional, default: ``False``).
-    :type include_users: boolean
+    :type include_users: bool
 
     :rtype: list of strings
     '''
@@ -486,9 +498,11 @@ def organization_list(context, data_dict):
         "name asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
-    :param limit: if given, the list of organizations will be broken into pages
-        of at most ``limit`` organizations per page and only one page will be
-        returned at a time (optional)
+    :param limit: the maximum number of organizations returned (optional)
+        Default: ``1000`` when all_fields=false unless set in site's
+        configuration ``ckan.group_and_organization_list_max``
+        Default: ``25`` when all_fields=true unless set in site's
+        configuration ``ckan.group_and_organization_list_all_fields_max``
     :type limit: int
     :param offset: when ``limit`` is given, the offset to start
         returning organizations from
@@ -503,23 +517,23 @@ def organization_list(context, data_dict):
         property for each group is deprecated, but there is a count of the
         packages in the `package_count` property.
         (optional, default: ``False``)
-    :type all_fields: boolean
+    :type all_fields: bool
     :param include_dataset_count: if all_fields, include the full package_count
         (optional, default: ``True``)
-    :type include_dataset_count: boolean
+    :type include_dataset_count: bool
     :param include_extras: if all_fields, include the organization extra fields
         (optional, default: ``False``)
-    :type include_extras: boolean
+    :type include_extras: bool
     :param include_tags: if all_fields, include the organization tags
         (optional, default: ``False``)
-    :type include_tags: boolean
+    :type include_tags: bool
     :param include_groups: if all_fields, include the organizations the
         organizations are in
         (optional, default: ``False``)
-    :type all_fields: boolean
+    :type include_groups: bool
     :param include_users: if all_fields, include the organization users
         (optional, default: ``False``).
-    :type include_users: boolean
+    :type include_users: bool
 
     :rtype: list of strings
 
@@ -535,13 +549,13 @@ def group_list_authz(context, data_dict):
 
     :param available_only: remove the existing groups in the package
       (optional, default: ``False``)
-    :type available_only: boolean
+    :type available_only: bool
 
     :param am_member: if ``True`` return only the groups the logged-in user is
       a member of, otherwise return all groups that the user is authorized to
       edit (for example, sysadmin users are authorized to edit all groups)
       (optional, default: ``False``)
-    :type am-member: boolean
+    :type am_member: bool
 
     :returns: list of dictized groups that the user is authorized to edit
     :rtype: list of dicts
@@ -622,7 +636,7 @@ def organization_list_for_user(context, data_dict):
     :param id: the name or id of the user to get the organization list for
         (optional, defaults to the currently authorized user (logged in or via
         API key))
-    :type permission: string
+    :type id: string
 
     :param permission: the permission the user has against the
         returned organizations, for example ``"read"`` or ``"create_dataset"``
@@ -630,7 +644,7 @@ def organization_list_for_user(context, data_dict):
     :type permission: string
     :param include_dataset_count: include the package_count in each org
         (optional, default: ``False``)
-    :type include_dataset_count: boolean
+    :type include_dataset_count: bool
 
     :returns: list of organizations that the user has the given permission for
     :rtype: list of dicts
@@ -786,7 +800,7 @@ def tag_list(context, data_dict):
     :type vocabulary_id: string
     :param all_fields: return full tag dictionaries instead of just names
         (optional, default: ``False``)
-    :type all_fields: boolean
+    :type all_fields: bool
 
     :rtype: list of dictionaries
 
@@ -828,7 +842,7 @@ def user_list(context, data_dict):
     :type order_by: string
     :param all_fields: return full user dictionaries instead of just names.
       (optional, default: ``True``)
-    :type all_fields: boolean
+    :type all_fields: bool
 
     :rtype: list of user dictionaries. User properties include:
       ``number_of_edits`` which counts the revisions by the user and
@@ -907,7 +921,7 @@ def package_relationships_list(context, data_dict):
     :param id: the id or name of the first package
     :type id: string
     :param id2: the id or name of the second package
-    :type id: string
+    :type id2: string
     :param rel: relationship as string see
         :py:func:`~ckan.logic.action.create.package_relationship_create` for
         the relationship types (optional)
@@ -958,10 +972,10 @@ def package_show(context, data_dict):
     :param id: the id or name of the dataset
     :type id: string
     :param use_default_schema: use default package schema instead of
-        a custom schema defined with an IDatasetForm plugin (default: False)
+        a custom schema defined with an IDatasetForm plugin (default: ``False``)
     :type use_default_schema: bool
     :param include_tracking: add tracking information to dataset and
-        resources (default: False)
+        resources (default: ``False``)
     :type include_tracking: bool
     :rtype: dictionary
 
@@ -1003,7 +1017,7 @@ def package_show(context, data_dict):
                 package_dict_validated = False
             metadata_modified = pkg.metadata_modified.isoformat()
             search_metadata_modified = search_result['metadata_modified']
-            # solr stores less precice datetime,
+            # solr stores less precise datetime,
             # truncate to 22 charactors to get good enough match
             if metadata_modified[:22] != search_metadata_modified[:22]:
                 package_dict = None
@@ -1064,7 +1078,7 @@ def resource_show(context, data_dict):
     :param id: the id of the resource
     :type id: string
     :param include_tracking: add tracking information to dataset and
-        resources (default: False)
+        resources (default: ``False``)
     :type include_tracking: bool
 
     :rtype: dictionary
@@ -1146,46 +1160,6 @@ def resource_view_list(context, data_dict):
     return model_dictize.resource_view_list_dictize(resource_views, context)
 
 
-def resource_status_show(context, data_dict):
-    '''Return the statuses of a resource's tasks.
-
-    This function is DEPRECATED.
-
-    :param id: the id of the resource
-    :type id: string
-
-    :rtype: list of (status, date_done, traceback, task_status) dictionaries
-
-    '''
-
-    _check_access('resource_status_show', context, data_dict)
-
-    try:
-        import ckan.lib.celery_app as celery_app
-    except ImportError:
-        return {'message': 'queue is not installed on this instance'}
-
-    model = context['model']
-    id = _get_or_bust(data_dict, 'id')
-
-    # needs to be text query as celery tables are not in our model
-    q = _text("""
-        select status, date_done, traceback, task_status.*
-        from task_status left join celery_taskmeta
-        on task_status.value = celery_taskmeta.task_id
-           and key = 'celery_task_id'
-        where entity_id = :entity_id
-    """)
-    try:
-        result = model.Session.connection().execute(q, entity_id=id)
-    except sqlalchemy.exc.ProgrammingError:
-        # celery tables (celery_taskmeta) may not be created even with celery
-        # installed, causing ProgrammingError exception.
-        return {'message': 'queue tables not installed on this instance'}
-    result_list = [_table_dictize(row, context) for row in result]
-    return result_list
-
-
 @logic.auth_audit_exempt
 def revision_show(context, data_dict):
     '''Return the details of a revision.
@@ -1222,11 +1196,17 @@ def _group_or_org_show(context, data_dict, is_org=False):
     else:
         packages_field = None
 
-    include_tags = asbool(data_dict.get('include_tags', True))
-    include_users = asbool(data_dict.get('include_users', True))
-    include_groups = asbool(data_dict.get('include_groups', True))
-    include_extras = asbool(data_dict.get('include_extras', True))
-    include_followers = asbool(data_dict.get('include_followers', True))
+    try:
+        include_tags = asbool(data_dict.get('include_tags', True))
+        if asbool(config.get('ckan.auth.public_user_details', True)):
+            include_users = asbool(data_dict.get('include_users', True))
+        else:
+            include_users = asbool(data_dict.get('include_users', False))
+        include_groups = asbool(data_dict.get('include_groups', True))
+        include_extras = asbool(data_dict.get('include_extras', True))
+        include_followers = asbool(data_dict.get('include_followers', True))
+    except ValueError:
+        raise logic.ValidationError(_('Parameter is not an bool'))
 
     if group is None:
         raise NotFound
@@ -1286,25 +1266,25 @@ def group_show(context, data_dict):
     :type id: string
     :param include_datasets: include a truncated list of the group's datasets
          (optional, default: ``False``)
-    :type include_datasets: boolean
+    :type include_datasets: bool
     :param include_dataset_count: include the full package_count
          (optional, default: ``True``)
-    :type include_dataset_count: boolean
+    :type include_dataset_count: bool
     :param include_extras: include the group's extra fields
          (optional, default: ``True``)
-    :type id: boolean
+    :type include_extras: bool
     :param include_users: include the group's users
-         (optional, default: ``True``)
-    :type id: boolean
+         (optional, default: ``False``)
+    :type include_users: bool
     :param include_groups: include the group's sub groups
          (optional, default: ``True``)
-    :type id: boolean
+    :type include_groups: bool
     :param include_tags: include the group's tags
          (optional, default: ``True``)
-    :type id: boolean
+    :type include_tags: bool
     :param include_followers: include the group's number of followers
          (optional, default: ``True``)
-    :type id: boolean
+    :type include_followers: bool
 
     :rtype: dictionary
 
@@ -1321,25 +1301,25 @@ def organization_show(context, data_dict):
     :type id: string
     :param include_datasets: include a truncated list of the org's datasets
          (optional, default: ``False``)
-    :type include_datasets: boolean
+    :type include_datasets: bool
     :param include_dataset_count: include the full package_count
          (optional, default: ``True``)
-    :type include_dataset_count: boolean
+    :type include_dataset_count: bool
     :param include_extras: include the organization's extra fields
          (optional, default: ``True``)
-    :type id: boolean
+    :type include_extras: bool
     :param include_users: include the organization's users
          (optional, default: ``True``)
-    :type id: boolean
+    :type include_users: bool
     :param include_groups: include the organization's sub groups
          (optional, default: ``True``)
-    :type id: boolean
+    :type include_groups: bool
     :param include_tags: include the organization's tags
          (optional, default: ``True``)
-    :type id: boolean
+    :type include_tags: bool
     :param include_followers: include the organization's number of followers
          (optional, default: ``True``)
-    :type id: boolean
+    :type include_followers: bool
 
 
     :rtype: dictionary
@@ -1436,13 +1416,13 @@ def user_show(context, data_dict):
         If it is the same user or a sysadmin requesting, it includes datasets
         that are draft or private.
         (optional, default:``False``, limit:50)
-    :type include_datasets: boolean
+    :type include_datasets: bool
     :param include_num_followers: Include the number of followers the user has
         (optional, default:``False``)
-    :type include_num_followers: boolean
+    :type include_num_followers: bool
     :param include_password_hash: Include the stored password hash
         (sysadmin only, optional, default:``False``)
-    :type include_password_hash: boolean
+    :type include_password_hash: bool
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
         number_created_packages (which excludes draft or private datasets
@@ -1519,40 +1499,6 @@ def user_show(context, data_dict):
     return user_dict
 
 
-def package_show_rest(context, data_dict):
-    _check_access('package_show_rest', context, data_dict)
-
-    logic.get_action('package_show')(context, data_dict)
-
-    pkg = context['package']
-
-    package_dict = model_dictize.package_to_api(pkg, context)
-
-    return package_dict
-
-
-def group_show_rest(context, data_dict):
-    _check_access('group_show_rest', context, data_dict)
-
-    logic.get_action('group_show')(context, data_dict)
-    group = context['group']
-
-    group_dict = model_dictize.group_to_api(group, context)
-
-    return group_dict
-
-
-def tag_show_rest(context, data_dict):
-    _check_access('tag_show_rest', context, data_dict)
-
-    logic.get_action('tag_show')(context, data_dict)
-    tag = context['tag']
-
-    tag_dict = model_dictize.tag_to_api(tag, context)
-
-    return tag_dict
-
-
 @logic.validate(logic.schema.default_autocomplete_schema)
 def package_autocomplete(context, data_dict):
     '''Return a list of datasets (packages) that match a string.
@@ -1563,40 +1509,52 @@ def package_autocomplete(context, data_dict):
     :param q: the string to search for
     :type q: string
     :param limit: the maximum number of resource formats to return (optional,
-        default: 10)
+        default: ``10``)
     :type limit: int
 
     :rtype: list of dictionaries
 
     '''
-    model = context['model']
-
     _check_access('package_autocomplete', context, data_dict)
+    user = context.get('user')
 
     limit = data_dict.get('limit', 10)
     q = data_dict['q']
 
-    like_q = u"%s%%" % q
+    # enforce permission filter based on user
+    if context.get('ignore_auth') or (user and authz.is_sysadmin(user)):
+        labels = None
+    else:
+        labels = lib_plugins.get_permission_labels().get_user_dataset_labels(
+            context['auth_user_obj']
+        )
 
-    query = model.Session.query(model.Package)
-    query = query.filter(model.Package.state == 'active')
-    query = query.filter(model.Package.private == False)
-    query = query.filter(_or_(model.Package.name.ilike(like_q),
-                              model.Package.title.ilike(like_q)))
-    query = query.limit(limit)
+    data_dict = {
+        'q': ' OR '.join([
+            'name_ngram:{0}',
+            'title_ngram:{0}',
+            'name:{0}',
+            'title:{0}',
+        ]).format(search.query.solr_literal(q)),
+        'fl': 'name,title',
+        'rows': limit
+    }
+    query = search.query_for(model.Package)
+
+    results = query.run(data_dict, permission_labels=labels)['results']
 
     q_lower = q.lower()
     pkg_list = []
-    for package in query:
-        if package.name.startswith(q_lower):
+    for package in results:
+        if q_lower in package['name']:
             match_field = 'name'
-            match_displayed = package.name
+            match_displayed = package['name']
         else:
             match_field = 'title'
-            match_displayed = '%s (%s)' % (package.title, package.name)
+            match_displayed = '%s (%s)' % (package['title'], package['name'])
         result_dict = {
-            'name': package.name,
-            'title': package.title,
+            'name': package['name'],
+            'title': package['title'],
             'match_field': match_field,
             'match_displayed': match_displayed}
         pkg_list.append(result_dict)
@@ -1611,7 +1569,7 @@ def format_autocomplete(context, data_dict):
     :param q: the string to search for
     :type q: string
     :param limit: the maximum number of resource formats to return (optional,
-        default: 5)
+        default: ``5``)
     :type limit: int
 
     :rtype: list of strings
@@ -1648,7 +1606,7 @@ def user_autocomplete(context, data_dict):
     :param q: the string to search for
     :type q: string
     :param limit: the maximum number of user names to return (optional,
-        default: 20)
+        default: ``20``)
     :type limit: int
 
     :rtype: a list of user dictionaries each with keys ``'name'``,
@@ -1723,7 +1681,7 @@ def organization_autocomplete(context, data_dict):
     :param q: the string to search for
     :type q: string
     :param limit: the maximum number of organizations to return (optional,
-        default: 20)
+        default: ``20``)
     :type limit: int
 
     :rtype: a list of organization dictionaries each with keys ``'name'``,
@@ -1756,13 +1714,16 @@ def package_search(context, data_dict):
     :param fq: any filter queries to apply.  Note: ``+site_id:{ckan_site_id}``
         is added to this string prior to the query being executed.
     :type fq: string
+    :param fq_list: additional filter queries to apply.
+    :type fq_list: list of strings
     :param sort: sorting of the search results.  Optional.  Default:
         ``'relevance asc, metadata_modified desc'``.  As per the solr
         documentation, this is a comma-separated string of field names and
         sort-orderings.
     :type sort: string
-    :param rows: the number of matching rows to return. There is a hard limit
-        of 1000 datasets per query.
+    :param rows: the maximum number of matching rows (datasets) to return.
+        (optional, default: ``10``, upper limit: ``1000`` unless set in
+        site's configuration ``ckan.search.rows_max``)
     :type rows: int
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.
@@ -1783,13 +1744,14 @@ def package_search(context, data_dict):
         results. A user will only be returned their own draft datasets, and a
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
-    :type include_drafts: boolean
+    :type include_drafts: bool
     :param include_private: if ``True``, private datasets will be included in
         the results. Only private datasets from the user's organizations will
         be returned and sysadmins will be returned all private datasets.
         Optional, the default is ``False``.
+    :type include_private: bool
     :param use_default_schema: use default package schema instead of
-        a custom schema defined with an IDatasetForm plugin (default: False)
+        a custom schema defined with an IDatasetForm plugin (default: ``False``)
     :type use_default_schema: bool
 
 
@@ -1880,6 +1842,9 @@ def package_search(context, data_dict):
     for key in [key for key in data_dict.keys() if key.startswith('ext_')]:
         data_dict['extras'][key] = data_dict.pop(key)
 
+    # set default search field
+    data_dict['df'] = 'text'
+
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
         data_dict = item.before_search(data_dict)
@@ -1932,6 +1897,8 @@ def package_search(context, data_dict):
 
         if result_fl:
             for package in query.results:
+                if isinstance(package, text_type):
+                    package = {result_fl[0]: package}
                 if package.get('extras'):
                     package.update(package['extras'] )
                     package.pop('extras')
@@ -2109,7 +2076,7 @@ def resource_search(context, data_dict):
             {'fields': _('Do not specify if using "query" parameter')})
 
     elif query is not None:
-        if isinstance(query, basestring):
+        if isinstance(query, string_types):
             query = [query]
         try:
             fields = dict(pair.split(":", 1) for pair in query)
@@ -2125,7 +2092,7 @@ def resource_search(context, data_dict):
         # So maintain that behaviour
         split_terms = {}
         for field, terms in fields.items():
-            if isinstance(terms, basestring):
+            if isinstance(terms, string_types):
                 terms = terms.split()
             split_terms[field] = terms
         fields = split_terms
@@ -2143,7 +2110,7 @@ def resource_search(context, data_dict):
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
 
-        if isinstance(terms, basestring):
+        if isinstance(terms, string_types):
             terms = [terms]
 
         if field not in resource_fields:
@@ -2167,7 +2134,7 @@ def resource_search(context, data_dict):
 
             # Treat the has field separately, see docstring.
             if field == 'hash':
-                q = q.filter(model_attr.ilike(unicode(term) + '%'))
+                q = q.filter(model_attr.ilike(text_type(term) + '%'))
 
             # Resource extras are stored in a json blob.  So searching for
             # matching fields is a bit trickier.  See the docstring.
@@ -2184,7 +2151,7 @@ def resource_search(context, data_dict):
 
             # Just a regular field
             else:
-                q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
+                q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
 
     if order_by is not None:
         if hasattr(model.Resource, order_by):
@@ -2215,7 +2182,7 @@ def _tag_search(context, data_dict):
     model = context['model']
 
     terms = data_dict.get('query') or data_dict.get('q') or []
-    if isinstance(terms, basestring):
+    if isinstance(terms, string_types):
         terms = [terms]
     terms = [t.strip() for t in terms if t.strip()]
 
@@ -2340,7 +2307,7 @@ def task_status_show(context, data_dict):
     :param entity_id: the entity_id of the task status (optional)
     :type entity_id: string
     :param task_type: the task_type of the task status (optional)
-    :type tast_type: string
+    :type task_type: string
     :param key: the key of the task status (optional)
     :type key: string
 
@@ -2402,7 +2369,7 @@ def term_translation_show(context, data_dict):
     # This action accepts `terms` as either a list of strings, or a single
     # string.
     terms = _get_or_bust(data_dict, 'terms')
-    if isinstance(terms, basestring):
+    if isinstance(terms, string_types):
         terms = [terms]
     if terms:
         q = q.where(trans_table.c.term.in_(terms))
@@ -2411,7 +2378,7 @@ def term_translation_show(context, data_dict):
     # string.
     if 'lang_codes' in data_dict:
         lang_codes = _get_or_bust(data_dict, 'lang_codes')
-        if isinstance(lang_codes, basestring):
+        if isinstance(lang_codes, string_types):
             lang_codes = [lang_codes]
         q = q.where(trans_table.c.lang_code.in_(lang_codes))
 
@@ -2434,8 +2401,8 @@ def get_site_user(context, data_dict):
         commit and clean up the current transaction. If set to true, caller
         is responsible for commiting transaction after get_site_user is
         called. Leaving open connections can cause cli commands to hang!
-        (optional, default: False)
-    :type defer_commit: boolean
+        (optional, default: ``False``)
+    :type defer_commit: bool
     '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
@@ -2519,11 +2486,12 @@ def user_activity_list(context, data_dict):
     :param id: the id or name of the user
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -2541,13 +2509,12 @@ def user_activity_list(context, data_dict):
         raise logic.NotFound
 
     offset = data_dict.get('offset', 0)
-    limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
-    _activity_objects = model.activity.user_activity_list(user.id, limit=limit,
-            offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_objects = model.activity.user_activity_list(
+        user.id, limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2561,11 +2528,12 @@ def package_activity_list(context, data_dict):
     :param id: the id or name of the package
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -2583,13 +2551,12 @@ def package_activity_list(context, data_dict):
         raise logic.NotFound
 
     offset = int(data_dict.get('offset', 0))
-    limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
-    _activity_objects = model.activity.package_activity_list(package.id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_objects = model.activity.package_activity_list(
+        package.id, limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2603,11 +2570,12 @@ def group_activity_list(context, data_dict):
     :param id: the id or name of the group
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -2620,17 +2588,16 @@ def group_activity_list(context, data_dict):
     model = context['model']
     group_id = data_dict.get('id')
     offset = data_dict.get('offset', 0)
-    limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     # Convert group_id (could be id or name) into id.
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(group_id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_objects = model.activity.group_activity_list(
+        group_id, limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2641,6 +2608,14 @@ def organization_activity_list(context, data_dict):
 
     :param id: the id or name of the organization
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: ``0``)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
+    :type limit: int
 
     :rtype: list of dictionaries
 
@@ -2652,31 +2627,31 @@ def organization_activity_list(context, data_dict):
     model = context['model']
     org_id = data_dict.get('id')
     offset = data_dict.get('offset', 0)
-    limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     # Convert org_id (could be id or name) into id.
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(org_id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    _activity_objects = model.activity.group_activity_list(
+        org_id, limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
-@logic.validate(logic.schema.default_pagination_schema)
+@logic.validate(logic.schema.default_dashboard_activity_list_schema)
 def recently_changed_packages_activity_list(context, data_dict):
     '''Return the activity stream of all recently added or changed packages.
 
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: list of dictionaries
@@ -2686,13 +2661,12 @@ def recently_changed_packages_activity_list(context, data_dict):
     # authorized to read.
     model = context['model']
     offset = data_dict.get('offset', 0)
-    limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     _activity_objects = model.activity.recently_changed_packages_activity_list(
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+        limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2723,11 +2697,12 @@ def user_activity_list_html(context, data_dict):
     :param id: The id or name of the user.
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: string
@@ -2754,11 +2729,12 @@ def package_activity_list_html(context, data_dict):
     :param id: the id or name of the package
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: string
@@ -2785,11 +2761,12 @@ def group_activity_list_html(context, data_dict):
     :param id: the id or name of the group
     :type id: string
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: string
@@ -2815,6 +2792,14 @@ def organization_activity_list_html(context, data_dict):
 
     :param id: the id or name of the organization
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: ``0``)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
+    :type limit: int
 
     :rtype: string
 
@@ -2840,11 +2825,12 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     doesn't have any HTML header or footer.
 
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
 
     :rtype: string
@@ -3035,7 +3021,7 @@ def am_following_user(context, data_dict):
     :param id: the id or name of the user
     :type id: string
 
-    :rtype: boolean
+    :rtype: bool
 
     '''
     return _am_following(
@@ -3050,7 +3036,7 @@ def am_following_dataset(context, data_dict):
     :param id: the id or name of the dataset
     :type id: string
 
-    :rtype: boolean
+    :rtype: bool
 
     '''
     return _am_following(
@@ -3065,7 +3051,7 @@ def am_following_group(context, data_dict):
     :param id: the id or name of the group
     :type id: string
 
-    :rtype: boolean
+    :rtype: bool
 
     '''
     return _am_following(
@@ -3335,7 +3321,7 @@ def _group_or_org_followee_list(context, data_dict, is_org=False):
     return [model_dictize.group_dictize(group, context) for group in groups]
 
 
-@logic.validate(logic.schema.default_pagination_schema)
+@logic.validate(logic.schema.default_dashboard_activity_list_schema)
 def dashboard_activity_list(context, data_dict):
     '''Return the authorized (via login or API key) user's dashboard activity
        stream.
@@ -3348,11 +3334,13 @@ def dashboard_activity_list(context, data_dict):
     The user's own activities are always marked ``'is_new': False``.
 
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
-        :ref:`ckan.activity_list_limit` setting)
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
+    :type limit: int
 
     :rtype: list of activity dictionaries
 
@@ -3362,16 +3350,15 @@ def dashboard_activity_list(context, data_dict):
     model = context['model']
     user_id = model.User.get(context['user']).id
     offset = data_dict.get('offset', 0)
-    limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    _activity_objects = model.activity.dashboard_activity_list(user_id,
-            limit=limit, offset=offset)
+    _activity_objects = model.activity.dashboard_activity_list(
+        user_id, limit=limit, offset=offset)
 
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    activity_objects = _filter_activity_by_user(
+        _activity_objects, _activity_stream_get_filtered_users())
     activity_dicts = model_dictize.activity_list_dictize(
         activity_objects, context)
 
@@ -3390,7 +3377,7 @@ def dashboard_activity_list(context, data_dict):
     return activity_dicts
 
 
-@logic.validate(ckan.logic.schema.default_pagination_schema)
+@logic.validate(ckan.logic.schema.default_dashboard_activity_list_schema)
 def dashboard_activity_list_html(context, data_dict):
     '''Return the authorized (via login or API key) user's dashboard activity
        stream as HTML.
@@ -3399,10 +3386,10 @@ def dashboard_activity_list_html(context, data_dict):
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
     :param offset: where to start getting activity items from
-        (optional, default: 0)
+        (optional, default: ``0``)
     :type offset: int
     :param limit: the maximum number of activities to return
-        (optional, default: 31, the default value is configurable via the
+        (optional, default: ``31``, the default value is configurable via the
         ckan.activity_list_limit setting)
     :type limit: int
 
@@ -3474,7 +3461,7 @@ def member_roles_list(context, data_dict):
 
     :param group_type: the group type, either ``"group"`` or ``"organization"``
         (optional, default ``"organization"``)
-    :type id: string
+    :type group_type: string
     :returns: a list of dictionaries each with two keys: ``"text"`` (the
         display name of the role, e.g. ``"Admin"``) and ``"value"`` (the
         internal name of the role, e.g. ``"admin"``)
