@@ -19,7 +19,7 @@ import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
-import ckan.lib.navl.dictization_functions
+import ckan.lib.navl.dictization_functions as df
 import ckan.lib.uploader as uploader
 import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 # Define some shortcuts
 # Ensure they are module-private so that they don't get loaded as available
 # actions in the action API.
-_validate = ckan.lib.navl.dictization_functions.validate
+_validate = df.validate
 _check_access = logic.check_access
 _get_action = logic.get_action
 ValidationError = logic.ValidationError
