@@ -214,7 +214,7 @@ def package_create(context, data_dict):
                                         model.Session.rollback()
                                         raise df.Invalid(too_may_msg)
                                     else:
-                                        i = i +1
+                                        i = i + 1
                                 else:
                                     # there are other errors despite of
                                     # changing its name => resign
