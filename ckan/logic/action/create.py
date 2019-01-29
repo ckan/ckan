@@ -168,7 +168,7 @@ def package_create(context, data_dict):
                 # to ensure they still work
                 package_plugin.check_data_dict(data_dict)
 
-    rename_dataset_name_when_collision = paste.deploy.converters.asbool(
+    rename_dataset_name_when_collision = plugins.toolkit.asbool(
             config.get('ckan.rename_dataset_name_when_collision', 'false'))
 
     if 'name' in data_dict:
