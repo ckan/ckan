@@ -7,10 +7,7 @@ import ckan.tests.factories as factories
 
 from ckan import model
 from ckan.model.system_info import (SystemInfo,
-                                    get_system_info,
                                     set_system_info,
-                                    delete_system_info,
-                                    system_info_revision_table,
                                     )
 
 

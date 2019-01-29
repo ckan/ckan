@@ -1,16 +1,10 @@
 # encoding: utf-8
 
-import os
-import csv
-
-from nose.tools import assert_equal
-
 from ckan import model
-from ckan.lib.cli import ManageDb,SearchIndexCommand
+from ckan.lib.cli import SearchIndexCommand
 from ckan.lib.create_test_data import CreateTestData
-from ckan.common import json
 
-from ckan.lib.search import index_for,query_for, clear_all
+from ckan.lib.search import index_for,query_for
 
 
 class FakeOptions():

@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-from ckan.common import config
 from bs4 import BeautifulSoup
 from nose.tools import assert_equal, assert_true, assert_in
 from ckan.lib.helpers import url_for

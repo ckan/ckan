@@ -6,8 +6,6 @@
 import nose
 
 from ckan import model
-import ckan.plugins as p
-import ckan.lib.plugins as lib_plugins
 from ckan.lib.navl.dictization_functions import validate
 from ckan.logic.schema import default_extras_schema
 from ckan.logic.converters import convert_to_extras

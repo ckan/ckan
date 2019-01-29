@@ -2,7 +2,7 @@
 
 from nose.tools import assert_equals
 
-from ckan.lib.hash import get_message_hash, get_redirect
+from ckan.lib.hash import get_message_hash
 
 class TestHash:
     @classmethod
@@ -15,4 +15,4 @@ class TestHash:
 
     def test_get_message_hash_unicode(self):
         assert_equals(len(get_message_hash(u'/tag/biocombust\xedveis')), len('d748fa890eb6a964cd317e6ff62905fad645b43d'))
-    
+

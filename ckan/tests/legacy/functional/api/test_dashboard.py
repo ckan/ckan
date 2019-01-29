@@ -9,8 +9,6 @@ activities.
 '''
 import ckan
 from ckan.common import json
-import paste
-import pylons.test
 from ckan.tests.legacy import CreateTestData
 import ckan.tests.helpers as helpers
 

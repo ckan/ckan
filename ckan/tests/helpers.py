@@ -22,15 +22,12 @@ This module is reserved for these very useful functions.
 
 import collections
 import contextlib
-import errno
 import functools
 import logging
-import os
 import re
 
 import webtest
 import nose.tools
-from nose.tools import assert_in, assert_not_in
 import mock
 import rq
 
