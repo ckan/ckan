@@ -423,6 +423,21 @@ Default value: ``http https ftp``
 
 Controls what uri schemes are rendered as links.
 
+.. _ckan.rename_dataset_name_when_collision:
+
+ckan.rename_dataset_name_when_collision
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.rename_dataset_name_when_collision = True
+
+Default value: ``False``
+
+This controls if CKAN will rename dataset's name (by adding a suffix) if there's a previous dataset with same name.
+The suffix is a number up to 99.
+If True, dataset's name will be shorten up to PACKAGE_NAME_MAX_LENGTH-2
+
 .. _config-authorization:
 
 Authorization Settings
