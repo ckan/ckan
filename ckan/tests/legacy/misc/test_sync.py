@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import os
 import subprocess
 import urllib2
 import time
@@ -9,7 +8,6 @@ from ckan.common import config
 
 import ckan.model as model
 from ckan.tests.legacy import *
-from ckan.lib.create_test_data import CreateTestData
 from ckan.common import json
 
 instance_dir = config['here']

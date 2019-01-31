@@ -1,9 +1,7 @@
 # encoding: utf-8
 
 from ckan.common import config
-from pylons.test import pylonsapp
 from paste.deploy.converters import asbool
-import paste.fixture
 from ckan.lib.helpers import url_for
 from nose import SkipTest
 import ckan.tests.helpers as helpers

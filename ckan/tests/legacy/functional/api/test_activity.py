@@ -14,10 +14,8 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 
-import pylons.test
 from ckan.common import config
 from paste.deploy.converters import asbool
-import paste.fixture
 from nose import SkipTest
 from ckan.common import json
 import ckan.tests.legacy as tests
@@ -174,7 +172,6 @@ class TestActivity:
     def setup_class(self):
         if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
             raise SkipTest('Activity streams not enabled')
-        import ckan
         import ckan.model as model
         tests.CreateTestData.create()
         sysadmin_user = model.User.get('testsysadmin')
