@@ -19,6 +19,8 @@ services:
       - db
       - solr
       - redis
+    depends_on:
+      - db
     ports:
       - "0.0.0.0:${CKAN_PORT}:5000"
     environment:
@@ -58,6 +60,8 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
 
   solr:
     container_name: solr

@@ -292,7 +292,6 @@ class TestImportStar(object):
         'ckan/migration/versions/064_add_email_last_sent_column.py',
         'ckan/migration/versions/065_add_email_notifications_preference.py',
         'ckan/plugins/__init__.py',
-        'ckan/tests/legacy/functional/api/base.py',
         'ckan/tests/legacy/functional/api/test_api.py',
         'ckan/tests/legacy/functional/api/test_misc.py',
         'ckan/tests/legacy/functional/api/test_package_search.py',
@@ -310,10 +309,7 @@ class TestImportStar(object):
         'ckan/tests/legacy/models/test_extras.py',
         'ckan/tests/legacy/models/test_misc.py',
         'ckan/tests/legacy/models/test_package.py',
-        'ckan/tests/legacy/models/test_package_relationships.py',
         'ckan/tests/legacy/models/test_purge_revision.py',
-        'ckan/tests/legacy/models/test_resource.py',
-        'ckan/tests/legacy/models/test_revision.py',
         'ckan/tests/legacy/models/test_user.py',
         'fabfile.py',
     ]
@@ -585,8 +581,6 @@ class TestPep8(object):
         'ckan/tests/legacy/models/test_package.py',
         'ckan/tests/legacy/models/test_package_relationships.py',
         'ckan/tests/legacy/models/test_purge_revision.py',
-        'ckan/tests/legacy/models/test_resource.py',
-        'ckan/tests/legacy/models/test_revision.py',
         'ckan/tests/legacy/models/test_user.py',
         'ckan/tests/legacy/monkey.py',
         'ckan/tests/legacy/schema/test_schema.py',
@@ -613,6 +607,8 @@ class TestPep8(object):
         'fabfile.py',
         'profile_tests.py',
         'setup.py',
+        'ckan/tests/legacy/models/test_resource.py',
+        'ckan/tests/legacy/models/test_revision.py',
     ]
     fails = {}
     passes = []
