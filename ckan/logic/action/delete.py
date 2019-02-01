@@ -388,12 +388,12 @@ def _group_or_org_delete(context, data_dict, is_org=False):
         activity_type = 'deleted group'
 
     activity_dict = {
-            'user_id': model.User.by_name(user.decode('utf8')).id,
-            'object_id': group.id,
-            'activity_type': activity_type,
-            'data': {
-                'group': dictization.table_dictize(group, context)
-                }
+        'user_id': model.User.by_name(user.decode('utf8')).id,
+        'object_id': group.id,
+        'activity_type': activity_type,
+        'data': {
+            'group': dictization.table_dictize(group, context)
+            }
     }
     activity_create_context = {
         'model': model,
