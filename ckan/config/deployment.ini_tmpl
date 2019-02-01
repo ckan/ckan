@@ -191,6 +191,8 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 #smtp.password = your_password
 #smtp.mail_from =
 
+## Background Job Settings
+ckan.jobs.timeout = 180
 
 ## Logging configuration
 [loggers]

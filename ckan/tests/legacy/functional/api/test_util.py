@@ -2,11 +2,10 @@
 
 from nose.tools import assert_equal
 
-from ckan import model, __version__
+from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.tests.legacy import url_for
-from ckan.common import json
 
 class TestUtil(ControllerTestCase):
     @classmethod

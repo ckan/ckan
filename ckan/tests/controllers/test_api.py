@@ -8,20 +8,14 @@ import json
 import re
 import mock
 import __builtin__ as builtins
-from StringIO import StringIO
 
 from nose.tools import assert_equal, assert_in, eq_
 from pyfakefs import fake_filesystem
 
-from six import text_type
-from six.moves import xrange
-
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
-from ckan.lib import helpers as template_helpers, uploader as ckan_uploader
-import ckan.plugins as p
-from ckan import model
+from ckan.lib import uploader as ckan_uploader
 
 fs = fake_filesystem.FakeFilesystem()
 fake_os = fake_filesystem.FakeOsModule(fs)
