@@ -4,7 +4,6 @@ import datetime
 
 from nose.tools import assert_equal
 
-from ckan.tests.legacy import *
 import ckan.model as model
 
 # NB Lots of revision tests are part of vdm. No need to repeat those here.
@@ -36,11 +35,11 @@ class TestRevision:
                                           include_packages=True,
                                           include_groups=True,
                                           ref_package_by='name')
-        
+
         assert_equal(rev_dict['id'], self.rev.id)
         assert_equal(rev_dict['author'], self.rev.author)
         assert_equal(rev_dict['timestamp'], '2020-01-01T00:00:00')
         assert_equal(rev_dict['approved_timestamp'], '2020-01-02T00:00:00')
         assert_equal(rev_dict['message'], self.rev.message)
         assert_equal(rev_dict['packages'], [u'testpkg'])
-        
+

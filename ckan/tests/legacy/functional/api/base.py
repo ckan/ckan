@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import re
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -8,15 +7,12 @@ except ImportError:
 
 import urllib
 
-from ckan.common import config
-import webhelpers.util
 from nose.tools import assert_equal
 from paste.fixture import TestRequest
 from webhelpers.html import url_escape
 
-from ckan.tests.legacy import *
 import ckan.model as model
-from ckan.lib.create_test_data import CreateTestData
+from ckan.tests.legacy import CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.common import json
 
@@ -160,14 +156,14 @@ class ApiTestCase(object):
         return self.loads(res.body)
 
     def package_ref_from_name(self, package_name):
-        package = self.get_package_by_name(unicode(package_name))
+        package = self.get_package_by_name(package_name)
         if package is None:
             return package_name
         else:
             return self.ref_package(package)
 
     def package_id_from_ref(self, package_name):
-        package = self.get_package_by_name(unicode(package_name))
+        package = self.get_package_by_name(package_name)
         if package is None:
             return package_name
         else:

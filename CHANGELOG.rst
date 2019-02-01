@@ -24,9 +24,10 @@ Minor changes:
    the value is False, 0, [] or {} (#4448)
  * If you've customized the schema for package_search, you'll need to add to it
    the limiting of ``row``, as per default_package_search_schema now does (#4484)
- * Several logic functions now have new limits to how many items can be
-   returned, notably ``group_list`` and ``organization_list`` when
-   ``all_fields=true``. These are all configurable. (#4484)
+ * Several logic functions now have new upper limits to how many items can be
+   returned, notably ``group_list``, ``organization_list`` when
+   ``all_fields=true``, ``datastore_search`` and ``datastore_search_sql``.
+   These are all configurable. (#4484, #4562)
 
 Bugfixes:
 

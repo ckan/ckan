@@ -15,8 +15,6 @@ from ckan.lib.helpers import url_for
 import ckan.model as model
 import ckan.model.activity as activity_model
 import ckan.plugins as p
-from ckan.logic import get_action
-import ckan.lib.dictization as dictization
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories

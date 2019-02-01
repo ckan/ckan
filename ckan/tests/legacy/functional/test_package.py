@@ -2,9 +2,7 @@
 
 from __future__ import print_function
 
-import datetime
-
-from ckan.common import config, c
+from ckan.common import config
 from difflib import unified_diff
 from nose.tools import assert_equal
 
