@@ -32,6 +32,7 @@ ENV CKAN_STORAGE_PATH=/var/lib/ckan
 
 # Build-time variables specified by docker-compose.yml / .env
 ARG CKAN_SITE_URL
+ARG DEVELOPER_SETUP=false
 
 # Create ckan user
 RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
@@ -52,6 +53,14 @@ RUN ckan-pip install -U pip && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+
+RUN if [ "$DEVELOPER_SETUP" = true ] ; then \
+    ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt; \
+    fi
+RUN if [ "$DEVELOPER_SETUP" = true ] ; then \
+    cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-tests-entrypoint.sh /ckan-entrypoint.sh; \
+    chmod +x /ckan-entrypoint.sh; \
+    fi
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 

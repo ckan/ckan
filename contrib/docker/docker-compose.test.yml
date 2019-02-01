@@ -1,0 +1,62 @@
+# docker-compose build && docker-compose up -d
+# If "docker-compose logs ckan" shows DB not ready, run "docker-compose restart ckan" a few times.
+version: "3"
+
+volumes:
+  ckan_config:
+  ckan_home:
+  ckan_storage:
+  pg_data:
+
+services:
+  ckan:
+    container_name: ckan
+    build:
+      context: ../../
+      args:
+          - CKAN_SITE_URL=ignored in tests
+          - DEVELOPER_SETUP=true
+    links:
+      - db
+      - solr
+      - redis
+    volumes:
+      - ckan_config:/etc/ckan
+      - ckan_home:/usr/lib/ckan
+      - ckan_storage:/var/lib/ckan
+    command:
+      - nosetests --ckan --with-pylons=test-core.ini ckan ckanext
+
+  datapusher:
+    container_name: datapusher
+    image: clementmouchet/datapusher
+    ports:
+      - "8800:8800"
+
+  db:
+    container_name: db
+    build:
+      context: ../../
+      dockerfile: contrib/docker/postgresql/Dockerfile
+      args:
+        # match the creds hard-coded in test-core.ini
+        - POSTGRES_DB=ckan_test
+        - POSTGRES_USER=ckan_default
+        - DS_RO_PASS=pass
+        - POSTGRES_PASSWORD=pass
+    environment:
+      - DS_RO_PASS=pass
+      - POSTGRES_PASSWORD=pass
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  solr:
+    container_name: solr
+    build:
+      context: ../../
+      dockerfile: contrib/docker/solr/Dockerfile
+
+
+  redis:
+    container_name: redis
+    image: redis:latest
