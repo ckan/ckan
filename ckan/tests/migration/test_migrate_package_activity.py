@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import copy
-from nose.tools import eq_, assert_not_in
+from nose.tools import eq_
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers

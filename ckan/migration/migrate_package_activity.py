@@ -58,6 +58,13 @@ def migrate_all_datasets():
 
 
 def migrate_dataset(dataset_name):
+    # monkey patch the legacy versions of code back into CKAN - so it has the
+    # revision functionality needed for this migration
+    import ckan.lib.dictization.model_dictize as model_dictize
+    import ckan.migration.revision_legacy_code as revision_legacy_code
+    model_dictize.package_dictize = \
+        revision_legacy_code.package_dictize_with_revisions
+
     import ckan.logic as logic
     from ckan import model
 
