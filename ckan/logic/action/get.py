@@ -2633,7 +2633,7 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(
+    _activity_objects = model.activity.organization_activity_list(
         org_id, limit=limit, offset=offset)
     activity_objects = _filter_activity_by_user(
         _activity_objects, _activity_stream_get_filtered_users())
