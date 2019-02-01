@@ -45,8 +45,8 @@ def _mail_recipient(recipient_name, recipient_email,
             msg.add_header(k, v)
     subject = Header(subject.encode('utf-8'), 'utf-8')
     msg['Subject'] = subject
-    msg['From'] = _(""\%s"\ <%s>") % (sender_name, mail_from)
-    recipient = u""\%s\" <%s>" % (recipient_name, recipient_email)
+    msg['From'] = _("\"%s\" <%s>") % (sender_name, mail_from)
+    recipient = u"\"%s\" <%s>" % (recipient_name, recipient_email)
     msg['To'] = Header(recipient, 'utf-8')
     msg['Date'] = Utils.formatdate(time())
     msg['X-Mailer'] = "CKAN %s" % ckan.__version__
