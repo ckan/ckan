@@ -413,7 +413,7 @@ def read(package_type, id):
     g.pkg_dict = pkg_dict
     g.pkg = pkg
     # NB templates should not use g.pkg, because it takes no account of
-    # activity_id (among other reasons)
+    # activity_id
 
     if activity_id:
         # view an 'old' version of the package, as recorded in the
@@ -470,7 +470,8 @@ def read(package_type, id):
             template, {
                 u'dataset_type': package_type,
                 u'pkg_dict': pkg_dict,
-                # u'pkg': pkg,
+                u'pkg': pkg,  # NB deprecated - it is the current version of
+                              # the dataset, so ignores activity_id
                 u'is_activity_archive': bool(activity_id),
             }
         )

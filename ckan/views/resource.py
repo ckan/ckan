@@ -134,7 +134,9 @@ def read(package_type, id, resource_id):
         u'pkg_dict': package,
         u'package': package,
         u'resource': resource,
-        u'pkg': pkg,
+        u'pkg': pkg,  # NB it is the current version of the dataset, so ignores
+                      # activity_id. Still used though in resource views for
+                      # backward compatibility
         u'is_activity_archive': bool(activity_id),
     }
 
