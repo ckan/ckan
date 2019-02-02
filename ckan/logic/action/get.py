@@ -997,9 +997,7 @@ def package_show(context, data_dict):
     include_tracking = asbool(data_dict.get('include_tracking', False))
 
     package_dict = None
-    use_cache = (context.get('use_cache', True)
-                 and not 'revision_id' in context
-                 and not 'revision_date' in context)
+    use_cache = (context.get('use_cache', True))
     if use_cache:
         try:
             search_result = search.show(name_or_id)

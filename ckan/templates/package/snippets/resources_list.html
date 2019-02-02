@@ -18,7 +18,7 @@ Example:
         {% block resource_list_inner %}
           {% set can_edit = h.check_access('package_update', {'id':pkg.id }) and not is_activity_archive %}
           {% for resource in resources %}
-            {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, can_edit=can_edit %}
+            {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, can_edit=can_edit, is_activity_archive=is_activity_archive %}
           {% endfor %}
         {% endblock %}
       </ul>

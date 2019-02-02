@@ -44,8 +44,8 @@
                     <i class="fa fa-arrow-circle-o-down"></i> {{ _('Download') }}
                   {% endif %}
                 </a>
-                 {% block download_resource_button %}
-                  {%if res.datastore_active %}
+                {% block download_resource_button %}
+                  {% if res.datastore_active %}
                 <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
                   </button>
@@ -61,7 +61,8 @@
                       target="_blank"><span>XML</span></a>
                   </li>
                 </ul>
-                {%endif%} {% endblock %}
+                  {% endif %}
+                {% endblock %}
                 </div>
               </li>
             {% endif %}
@@ -95,10 +96,11 @@
             {% if not res.description and package.notes %}
               <h3>{{ _('From the dataset abstract') }}</h3>
               <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
-              <p>{% trans dataset=package.title, url=h.url_for('dataset.read', id=package['name']) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+              <p>{% trans dataset=package.title, url=h.url_for('dataset.read', id=package.id if is_activity_archive else package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
             {% endif %}
           </div>
         {% endblock %}
+      {% if not is_activity_archive %}
       {% block data_preview %}
       {% block resource_view %}
         {% block resource_view_nav %}
@@ -158,6 +160,7 @@
         </div>
       {% endblock %}
       {% endblock %}
+      {% endif %}
       {% endblock %}
     </section>
   {% endblock %}
@@ -213,7 +216,7 @@
 {% block secondary_content %}
 
   {% block resources_list %}
-    {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id %}
+    {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id action='read', is_activity_archive=is_activity_archive %}
   {% endblock %}
 
   {% block resource_license %}
