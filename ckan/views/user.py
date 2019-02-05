@@ -513,6 +513,7 @@ class RequestResetView(MethodView):
         context = {u'model': model, u'user': g.user, u'ignore_auth': True}
         user_objs = []
 
+        # Usernames cannot contain '@' symbols
         if u'@' in id:
             # Search by email address
             # (You can forget a user id, but you don't tend to forget your
