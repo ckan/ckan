@@ -726,7 +726,8 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
     def test_request_reset_without_param(self):
         app = self._get_test_app()
         offset = url_for(controller'user', action='request_reset')
-        app.post(offset, params={}, status=400)
+        response = app.post(offset).follow()
+        assert_in('Email is required', response)
 
     @mock.patch('ckan.lib.mailer.send_reset_link')
     def test_request_reset_for_unknown_username(self, send_reset_link):
