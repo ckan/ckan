@@ -56,7 +56,7 @@ Create test databases:
 
 Set the permissions::
 
-    paster datastore set-permissions -c test-core.ini | sudo -u postgres psql
+    paster datastore set-permissions -c |virtualenv|/src/ckan/test-core.ini | sudo -u postgres psql
 
 This database connection is specified in the ``test-core.ini`` file by the
 ``sqlalchemy.url`` parameter.
@@ -105,7 +105,7 @@ To enable multi-core:
          <core name="ckan" instanceDir="/etc/solr/ckan" />
        </cores>
 
-5. Restart Solr by restarting Jetty (or Tomcat)::
+5. Restart Solr by restarting Jetty (may also be called jetty8) (or Tomcat)::
 
        sudo service jetty restart
 
@@ -133,7 +133,8 @@ drop and reinitialize the database before the run you can use the ``reset-db``
 option::
 
      nosetests --ckan --reset-db --with-pylons=test-core.ini ckan
-
+     
+You can find details on how to run a subset of tests in the `Nose Documentation <https://nose.readthedocs.io/en/latest/usage.html#selecting-tests>`_.
 
 
 .. _migrationtesting:
