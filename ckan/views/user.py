@@ -559,7 +559,7 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return
+                return h.redirect_to(u'/')
 
         # always tell the user it succeeded, because otherwise we reveal
         # which accounts exist or not
