@@ -506,7 +506,8 @@ class RequestResetView(MethodView):
         self._prepare()
         id = request.form.get(u'user')
         if id in (None, u''):
-            base.abort(400, _(u'"user" parameter is required'))
+            h.flash_error(_(u'Email is required'))
+            return h.redirect_to(u'/user/reset')
         log.info(u'Password reset requested for user "{}"'.format(id))
 
         context = {u'model': model, u'user': g.user, u'ignore_auth': True}
