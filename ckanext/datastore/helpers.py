@@ -96,7 +96,11 @@ def get_table_names_from_sql(context, sql):
                 sql.encode('utf-8'))).fetchone()
 
         try:
-            query_plan = json.loads(result['QUERY PLAN'])
+            if isinstance(result['QUERY PLAN'], list):
+                result_query_plan = json.dumps(result['QUERY PLAN'])
+            else:
+                result_query_plan = result['QUERY PLAN']
+            query_plan = json.loads(result_query_plan)
             plan = query_plan[0]['Plan']
 
             t, q = _get_table_names_queries_from_plan(plan)
