@@ -3255,7 +3255,8 @@ def activity_show(context, data_dict):
 
     :param id: the id of the activity
     :type id: string
-    :param include_data: include the data field (or just the activity metadata)
+    :param include_data: include the data field, containing a full object dict
+        (otherwise the data field is only returned with the object's title)
     :type include_data: boolean
 
     :rtype: dictionary
