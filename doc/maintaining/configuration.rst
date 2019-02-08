@@ -629,6 +629,19 @@ Restricts anonymous access to user information. If is set to ``False`` accessing
     can just create an account to see other users details.
 
 
+.. _ckan.auth.public_activity_stream_detail:
+
+ckan.auth.public_activity_stream_detail
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.public_activity_stream_detail = true
+
+Default value: ``False`` (however the default config file template sets it to ``True``)
+
+Restricts access to 'view this version' and 'changes' in the Activity Stream pages. These links provide users with the full edit history of datasets etc - what they showed in the past and the diffs between versions. If this option is set to ``False`` then only admins (e.g. whoever can edit the dataset) can see this detail. If set to ``True``, anyone can see this detail (assuming they have permission to view the dataset etc).
+
 
 .. end_config-authorization
 

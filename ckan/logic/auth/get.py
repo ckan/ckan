@@ -285,7 +285,8 @@ def activity_list(context, data_dict):
     if data_dict['object_type'] not in ('package', 'organization', 'group',
                                         'user'):
         return {'success': False, 'msg': 'object_type not recognized'}
-    if data_dict.get('include_data'):
+    if (data_dict.get('include_data') and
+        not authz.check_config_permission('public_activity_stream_detail')):
         # The 'data' field of the activity is restricted to users who are
         # allowed to edit the object
         show_or_update = 'update'
