@@ -5,7 +5,7 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from bs4 import BeautifulSoup
 from ckan import model
-from ckan.lib.mailer import create_reset_key
+from ckan.lib.mailer import create_reset_key, MailerException
 from nose.tools import assert_true, assert_false, assert_equal, assert_in
 from routes import url_for
 
@@ -750,3 +750,17 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
         # doesn't reveal account does or doesn't exist
         assert_in('A reset link has been emailed to you', response)
         send_reset_link.assert_not_called()
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_but_mailer_not_configured(self, send_reset_link):
+        user = factories.User()
+        app = self._get_test_app()
+        offset = url_for('user.request_reset')
+        # This is the exception when the mailer is not configured:
+        send_reset_link.side_effect = MailerException(
+            'SMTP server could not be connected to: "localhost" '
+            '[Errno 111] Connection refused')
+        response = app.post(offset, params=dict(user=user['name']),
+                            status=302).follow()
+
+        assert_in('Error sending the email', response)
