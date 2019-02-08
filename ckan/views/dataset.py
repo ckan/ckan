@@ -1015,7 +1015,7 @@ def activity(package_type, id):
         pkg_dict = get_action(u'package_show')(context, data_dict)
         pkg = context[u'package']
         package_activity_stream = get_action(
-            u'package_activity_list_html')(
+            u'package_activity_list')(
             context, {u'id': pkg_dict[u'id']})
         dataset_type = pkg_dict[u'type'] or u'dataset'
     except NotFound:
@@ -1026,14 +1026,14 @@ def activity(package_type, id):
     # TODO: remove
     g.pkg_dict = pkg_dict
     g.pkg = pkg
-    g.package_activity_stream = package_activity_stream
 
     return base.render(
         u'package/activity.html', {
             u'dataset_type': dataset_type,
             u'pkg_dict': pkg_dict,
             u'pkg': pkg,
-            u'package_activity_stream': package_activity_stream
+            u'activity_stream': package_activity_stream,
+            u'id': id,  # i.e. package's current name
         }
     )
 

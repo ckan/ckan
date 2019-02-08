@@ -1471,11 +1471,6 @@ class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
             'group_activity_list',
             'organization_activity_list',
             'recently_changed_packages_activity_list',
-            'user_activity_list_html',
-            'package_activity_list_html',
-            'group_activity_list_html',
-            'organization_activity_list_html',
-            'recently_changed_packages_activity_list_html',
             'current_package_list_with_resources',
         ]
         for action in actions:

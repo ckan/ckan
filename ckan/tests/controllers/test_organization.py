@@ -674,7 +674,7 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
                   response)
         assert_in('created the dataset', response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
+        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['id']),
                   response)
 
     def test_change_dataset(self):
@@ -694,7 +694,7 @@ class TestActivity(helpers.FunctionalTestBase):
                   response)
         assert_in('updated the dataset', response)
         assert_in('<a href="/dataset/{}">Dataset with changed title'
-                  .format(dataset['name']),
+                  .format(dataset['id']),
                   response)
 
     def test_delete_dataset(self):
@@ -713,5 +713,5 @@ class TestActivity(helpers.FunctionalTestBase):
                   response)
         assert_in('deleted the dataset', response)
         assert_in('<a href="/dataset/{}">Test Dataset'
-                  .format(dataset['name']),
+                  .format(dataset['id']),
                   response)

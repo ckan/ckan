@@ -1844,17 +1844,14 @@ class TestActivity(helpers.FunctionalTestBase):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         self._clear_activities()
-        resource = factories.Resource(package_id=dataset['id'], user=user)
+        factories.Resource(package_id=dataset['id'], user=user)
 
         url = url_for('dataset.activity',
                       id=dataset['id'])
         response = app.get(url)
         assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
                   response)
-        assert_in('added the resource', response)
-        assert_in('<a href="/dataset/{}/resource/{}">test_resource_'.format(
-                  dataset['id'], resource['id']), response)
-        assert_in('to the dataset', response)
+        assert_in('updated the dataset', response)
         assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
                   response)
 
