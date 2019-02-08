@@ -139,7 +139,7 @@ def migrate_dataset(dataset_name):
 def wipe_activity_detail():
     from ckan import model
     num_activity_detail_rows = \
-        model.Session.execute('SELECT count(*) FROM "activity_detail";') \
+        model.Session.execute(u'SELECT count(*) FROM "activity_detail";') \
         .fetchall()[0][0]
     if num_activity_detail_rows == 0:
         print(u'\nactivity_detail table is aleady emptied')
@@ -151,11 +151,11 @@ def wipe_activity_detail():
         'you can delete it to save space (this is safely done before or\n'
         'after the CKAN upgrade).'
         )
-    response = input('Delete activity_detail table content? (y/n):')
-    if response.lower()[:1] != 'y':
+    response = input(u'Delete activity_detail table content? (y/n):')
+    if response.lower()[:1] != u'y':
         sys.exit(0)
     from ckan import model
-    model.Session.execute('DELETE FROM "activity_detail";')
+    model.Session.execute(u'DELETE FROM "activity_detail";')
     model.Session.commit()
     print(u'activity_detail deleted')
 
