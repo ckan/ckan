@@ -40,7 +40,18 @@ Bugfixes:
  * Action function "datastore_search" would calculate the total, even if you
    set include_total=False (#4448)
 
-Deprecations:
+Removals and deprecations:
+
+ * Revision and History UI is removed: `/revision/*` & `/dataset/{id}/history`
+   in favour of `/dataset/changes/` visible in the Activity Stream. (#3972)
+ * Logic functions removed:
+   ``dashboard_activity_list_html`` ``organization_activity_list_html``
+   ``user_activity_list_html`` ``package_activity_list_html``
+   ``group_activity_list_html`` ``organization_activity_list_html``
+   ``recently_changed_packages_activity_list_html``
+   ``dashboard_activity_list_html`` ``activity_detail_list`` (#4627/#3972)
+ * ``model.ActivityDetail`` is no longer used and will be removed in the next
+   CKAN release. (#3972)
  * ``c.action`` and ``c.controller`` variables should be avoided.
    ``ckan.plugins.toolkit.get_endpoint`` can be used instead. This function
    returns tuple of two items(depending on request handler):

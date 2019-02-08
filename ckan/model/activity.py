@@ -73,6 +73,7 @@ class Activity(domain_object.DomainObject):
 meta.mapper(Activity, activity_table)
 
 
+# deprecated
 class ActivityDetail(domain_object.DomainObject):
 
     def __init__(

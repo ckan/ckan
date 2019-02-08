@@ -659,14 +659,6 @@ def activity_list_dictize(activity_list, context,
             for activity in activity_list]
 
 
-def activity_detail_dictize(activity_detail, context):
-    return d.table_dictize(activity_detail, context)
-
-def activity_detail_list_dictize(activity_detail_list, context):
-    return [activity_detail_dictize(activity_detail, context)
-            for activity_detail in activity_detail_list]
-
-
 def package_to_api1(pkg, context):
     # DEPRICIATED set api_version in context and use package_to_api()
     context['api_version'] = 1

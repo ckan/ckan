@@ -688,7 +688,6 @@ class TestActionAuth(object):
         'delete: unfollow_dataset',
         'delete: unfollow_group',
         'delete: unfollow_user',
-        'get: activity_detail_list',
         'get: am_following_dataset',
         'get: am_following_group',
         'get: am_following_user',

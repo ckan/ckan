@@ -2702,23 +2702,6 @@ def recently_changed_packages_activity_list(context, data_dict):
         include_data=data_dict['include_data'])
 
 
-def activity_detail_list(context, data_dict):
-    '''Return an activity's list of activity detail items.
-
-    :param id: the id of the activity
-    :type id: string
-    :rtype: list of dictionaries.
-
-    '''
-    # FIXME: Filter out activities whose subject or object the user is not
-    # authorized to read.
-    model = context['model']
-    activity_id = _get_or_bust(data_dict, 'id')
-    activity_detail_objects = model.ActivityDetail.by_activity_id(activity_id)
-    return model_dictize.activity_detail_list_dictize(
-        activity_detail_objects, context)
-
-
 def _follower_count(context, data_dict, default_schema, ModelClass):
     schema = context.get('schema', default_schema)
     data_dict, errors = _validate(data_dict, schema, context)

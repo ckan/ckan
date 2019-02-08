@@ -29,6 +29,8 @@ package_revision table.)
 
 from __future__ import print_function
 import argparse
+import sys
+from six.moves import input
 
 # not importing anything from ckan until after the arg parsing, to fail on bad
 # args quickly.
@@ -131,6 +133,31 @@ def migrate_dataset(dataset_name):
     if model.Session.dirty:
         model.Session.commit()
         print(u'  saved')
+    print(u'All {} datasets are migrated'.format(len(package_activity_stream)))
+
+
+def wipe_activity_detail():
+    from ckan import model
+    num_activity_detail_rows = \
+        model.Session.execute('SELECT count(*) FROM "activity_detail";') \
+        .fetchall()[0][0]
+    if num_activity_detail_rows == 0:
+        print(u'\nactivity_detail table is aleady emptied')
+        return
+    print(
+        u'\nNow the migration is done, the history of datasets is now stored\n'
+        'in the activity table. As a result, the contents of the\n'
+        'activity_detail table will no longer be used after CKAN 2.8.x, and\n'
+        'you can delete it to save space (this is safely done before or\n'
+        'after the CKAN upgrade).'
+        )
+    response = input('Delete activity_detail table content? (y/n):')
+    if response.lower()[:1] != 'y':
+        sys.exit(0)
+    from ckan import model
+    model.Session.execute('DELETE FROM "activity_detail";')
+    model.Session.commit()
+    print(u'activity_detail deleted')
 
 
 if __name__ == u'__main__':
@@ -145,5 +172,6 @@ if __name__ == u'__main__':
     load_config(args.config)
     if not args.dataset:
         migrate_all_datasets()
+        wipe_activity_detail()
     else:
         migrate_dataset(args.dataset)
