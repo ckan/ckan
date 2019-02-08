@@ -9,7 +9,7 @@ import ckan.tests.helpers as helpers
 
 from ckan.lib.helpers import url_for
 from ckan import model
-from ckan.lib.mailer import create_reset_key
+from ckan.lib.mailer import create_reset_key, MailerException
 
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
@@ -922,3 +922,17 @@ class TestUserResetRequest(helpers.FunctionalTestBase):
         # doesn't reveal account does or doesn't exist
         assert_in('A reset link has been emailed to you', response)
         send_reset_link.assert_not_called()
+
+    @mock.patch('ckan.lib.mailer.send_reset_link')
+    def test_request_reset_but_mailer_not_configured(self, send_reset_link):
+        user = factories.User()
+        app = self._get_test_app()
+        offset = url_for('user.request_reset')
+        # This is the exception when the mailer is not configured:
+        send_reset_link.side_effect = MailerException(
+            'SMTP server could not be connected to: "localhost" '
+            '[Errno 111] Connection refused')
+        response = app.post(offset, params=dict(user=user['name']),
+                            status=302).follow()
+
+        assert_in('Error sending the email', response)
