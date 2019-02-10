@@ -13,9 +13,9 @@ services:
     container_name: ckan
     build:
       context: ../../
+      dockerfile: Dockerfile.dev
       args:
           - CKAN_SITE_URL=ignored in tests
-          - DEVELOPER_SETUP=true
     links:
       - db
       - solr
@@ -25,7 +25,7 @@ services:
       - ckan_home:/usr/lib/ckan
       - ckan_storage:/var/lib/ckan
     command:
-      - nosetests --ckan --with-pylons=test-core.ini ckan ckanext
+      - /usr/lib/ckan/venv/bin/nosetests --ckan --with-pylons=/usr/lib/ckan/venv/src/ckan/test-core.ini /usr/lib/ckan/venv/src/ckan/ckan /usr/lib/ckan/venv/src/ckan/ckanext
 
   datapusher:
     container_name: datapusher
