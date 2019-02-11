@@ -45,17 +45,22 @@ RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
     ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster
 
 # Setup CKAN
-ADD . $CKAN_VENV/src/ckan/
+ADD setup.py *.txt ckan ckanext $CKAN_VENV/src/ckan/
+ADD ckan $CKAN_VENV/src/ckan/ckan
+ADD ckanext $CKAN_VENV/src/ckan/ckanext
+ADD contrib/docker/tests-entrypoint.sh $CKAN_VENV/src/ckan/contrib/docker/tests-entrypoint.sh
 RUN ckan-pip install -U pip && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
     ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/dev-requirements.txt && \
     ckan-pip install -e $CKAN_VENV/src/ckan/ && \
     ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
+    cp -v $CKAN_VENV/src/ckan/contrib/docker/tests-entrypoint.sh /tests-entrypoint.sh && \
+    chmod +x /tests-entrypoint.sh && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
-# Tests don't need the normal setup
-#ENTRYPOINT ["/ckan-entrypoint.sh"]
+# Tests need only a little setup
+ENTRYPOINT ["/tests-entrypoint.sh"]
 
 USER ckan
 EXPOSE 5000

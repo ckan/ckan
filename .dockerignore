@@ -1,0 +1,4 @@
+.git
+contrib/docker/Dockerfile*
+contrib/docker/docker-compose.yml
+ckan/migration/versions/*.pyc

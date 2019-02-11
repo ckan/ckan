@@ -20,12 +20,18 @@ services:
       - db
       - solr
       - redis
+    environment:
+      - CKAN_SQLALCHEMY_URL=postgresql://ckan:pass@db/ckan_test
+      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:pass@db/datastore_test
+      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:pass@db/datastore_test
+      - CKAN_SOLR_URL=http://solr:8983/solr/ckan
+      - CKAN_REDIS_URL=redis://redis:6379/1
     volumes:
       - ckan_config:/etc/ckan
       - ckan_home:/usr/lib/ckan
       - ckan_storage:/var/lib/ckan
     command:
-      - /usr/lib/ckan/venv/bin/nosetests --ckan --with-pylons=/usr/lib/ckan/venv/src/ckan/test-core.ini /usr/lib/ckan/venv/src/ckan/ckan /usr/lib/ckan/venv/src/ckan/ckanext
+      /usr/lib/ckan/venv/bin/nosetests --ckan --with-pylons=/usr/lib/ckan/venv/src/ckan/test-core.ini /usr/lib/ckan/venv/src/ckan/ckan /usr/lib/ckan/venv/src/ckan/ckanext
 
   datapusher:
     container_name: datapusher
