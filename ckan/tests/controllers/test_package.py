@@ -1989,7 +1989,7 @@ class TestActivity(helpers.FunctionalTestBase):
         'ckan.logic.validators.object_id_validators', dict(
             object_id_validators.items() +
             [('changed datastore', package_id_exists)])
-        )
+    )
     def test_custom_activity(self):
         '''Render a custom activity
         '''

@@ -90,17 +90,23 @@ def render_snippet(*template_names, **kw):
     :type kw: named arguments of any type that are supported by the template
     '''
 
+    exc = None
     for template_name in template_names:
         try:
             output = render(template_name, extra_vars=kw)
             if config.get('debug'):
-                output = ('\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n'
-                        % (template_name, output, template_name))
+                output = (
+                    '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
+                    '\n' % (template_name, output, template_name))
             return literal(output)
-        except TemplateNotFound:
-            continue
+        except TemplateNotFound as exc:
+            if exc.name == template_name:
+                # the specified template doesn't exist - try the next fallback
+                continue
+            # a nested template doesn't exist - don't fallback
+            raise exc
     else:
-        raise TemplateNotFound
+        raise exc or TemplateNotFound
 
 
 def render_jinja2(template_name, extra_vars):
