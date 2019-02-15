@@ -167,7 +167,20 @@ if __name__ == u'__main__':
                         u'dataset - specify its name')
     args = parser.parse_args()
     assert args.config, u'You must supply a --config'
-    from ckan.lib.cli import load_config
+    try:
+        from ckan.lib.cli import load_config
+    except ImportError:
+        # for CKAN 2.6 and earlier
+        def load_config(config):
+            from ckan.lib.cli import CkanCommand
+            cmd = CkanCommand(name=None)
+            class Options(object):
+                pass
+            cmd.options = Options()
+            cmd.options.config = config
+            cmd._load_config()
+            return
+
     print(u'Loading config')
     load_config(args.config)
     if not args.dataset:
