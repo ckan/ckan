@@ -63,7 +63,12 @@ def migrate_dataset(dataset_name):
     # monkey patch the legacy versions of code back into CKAN - so it has the
     # revision functionality needed for this migration
     import ckan.lib.dictization.model_dictize as model_dictize
-    import ckan.migration.revision_legacy_code as revision_legacy_code
+    try:
+        import ckan.migration.revision_legacy_code as revision_legacy_code
+    except ImportError:
+        # convenient to look for it in the current directory if you just
+        # download these files because you are upgrading an older ckan
+        import revision_legacy_code
     model_dictize.package_dictize = \
         revision_legacy_code.package_dictize_with_revisions
 
@@ -174,6 +179,7 @@ if __name__ == u'__main__':
         def load_config(config):
             from ckan.lib.cli import CkanCommand
             cmd = CkanCommand(name=None)
+
             class Options(object):
                 pass
             cmd.options = Options()
