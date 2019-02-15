@@ -30,3 +30,13 @@ class UsernamePasswordAuthenticator(object):
             return user.name
 
         return None
+
+class BeakerRedisAuth(object):
+    implements(IAuthenticator)
+
+    def authenticate(self, environ, identity):
+        # At this stage, the identity has already been validated from the cookie
+        # and redis (use_beaker middleware). We simply return the user id
+        # from the identity object if it's there, or None if the user's
+        # identity is not verified.
+        return identity.get('repoze.who.userid', None)
