@@ -9,6 +9,7 @@ from nose.tools import (
     assert_not_in,
     assert_in,
 )
+import mock
 
 from ckan.lib.helpers import url_for
 
@@ -16,6 +17,7 @@ import ckan.model as model
 import ckan.model.activity as activity_model
 import ckan.plugins as p
 import ckan.lib.dictization as dictization
+from ckan.logic.validators import object_id_validators, package_id_exists
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -1979,3 +1981,49 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('updated the dataset', response)
         assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['id']),
                   response)
+
+    # ckanext-canada uses their IActivity to add their custom activity to the
+    # list of validators: https://github.com/open-data/ckanext-canada/blob/6870e5bc38a04aa8cef191b5e9eb361f9560872b/ckanext/canada/plugins.py#L596
+    # but it's easier here to just hack patch it in
+    @mock.patch(
+        'ckan.logic.validators.object_id_validators', dict(
+            object_id_validators.items() +
+            [('changed datastore', package_id_exists)])
+        )
+    def test_custom_activity(self):
+        '''Render a custom activity
+        '''
+        app = self._get_test_app()
+
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=organization['id'], user=user)
+        resource = factories.Resource(package_id=dataset['id'])
+        self._clear_activities()
+
+        # Create a custom Activity object. This one is inspired by:
+        # https://github.com/open-data/ckanext-canada/blob/master/ckanext/canada/activity.py
+        activity_dict = {
+            'user_id': user['id'],
+            'object_id': dataset['id'],
+            'activity_type': 'changed datastore',
+            'data': {
+                'resource_id': resource['id'],
+                'pkg_type': dataset['type'],
+                'resource_name': 'june-2018',
+                'owner_org': organization['name'],
+                'count': 5,
+            }
+        }
+        helpers.call_action('activity_create', **activity_dict)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        # it renders the activity with fallback.html, since we've not defined
+        # changed_datastore.html in this case
+        assert_in('changed datastore', response)

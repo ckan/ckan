@@ -9,13 +9,13 @@ import time
 import inspect
 import sys
 
-
 from pylons import cache
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.decorators import jsonify
 from pylons.templating import cached_template, pylons_globals
 from webhelpers.html import literal
+from jinja2.exceptions import TemplateNotFound
 
 from flask import (
     render_template as flask_render_template,
@@ -76,17 +76,31 @@ def abort(status_code=None, detail='', headers=None, comment=None):
                   comment=comment)
 
 
-def render_snippet(template_name, **kw):
+def render_snippet(*template_names, **kw):
     ''' Helper function for rendering snippets. Rendered html has
     comment tags added to show the template used. NOTE: unlike other
     render functions this takes a list of keywords instead of a dict for
-    the extra template variables. '''
+    the extra template variables.
 
-    output = render(template_name, extra_vars=kw)
-    if config.get('debug'):
-        output = ('\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n'
-                  % (template_name, output, template_name))
-    return literal(output)
+    :param template_names: the template to render, optionally with fallback
+        values, for when the template can't be found. For each, specify the
+        relative path to the template inside the registered tpl_dir.
+    :type template_names: str
+    :param kw: extra template variables to supply to the template
+    :type kw: named arguments of any type that are supported by the template
+    '''
+
+    for template_name in template_names:
+        try:
+            output = render(template_name, extra_vars=kw)
+            if config.get('debug'):
+                output = ('\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n'
+                        % (template_name, output, template_name))
+            return literal(output)
+        except TemplateNotFound:
+            continue
+    else:
+        raise TemplateNotFound
 
 
 def render_jinja2(template_name, extra_vars):
