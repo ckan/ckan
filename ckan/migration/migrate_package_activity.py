@@ -30,6 +30,7 @@ package_revision table.)
 from __future__ import print_function
 import argparse
 import sys
+from collections import defaultdict
 from six.moves import input
 
 # not importing anything from ckan until after the arg parsing, to fail on bad
@@ -60,16 +61,32 @@ def num_unmigrated(engine):
     return num_unmigrated
 
 
+def num_activities_migratable():
+    from ckan import model
+    num_activities = model.Session.execute(u'''
+    SELECT count(*) FROM activity a JOIN package p ON a.object_id=p.id
+    WHERE a.activity_type IN ('new package', 'changed package')
+    AND p.private = false;
+    ''').fetchall()[0][0]
+    return num_activities
+
+
 def migrate_all_datasets():
     import ckan.logic as logic
     dataset_names = logic.get_action(u'package_list')(get_context(), {})
     num_datasets = len(dataset_names)
+    errors = defaultdict(int)
     for i, dataset_name in enumerate(dataset_names):
-        print(u'{}/{} {}'.format(i + 1, num_datasets, dataset_name))
-        migrate_dataset(dataset_name)
+        print(u'\n{}/{} dataset: {}'.format(i + 1, num_datasets, dataset_name))
+        migrate_dataset(dataset_name, errors)
+    print(u'Migrated:')
+    print(u'  {} datasets'.format(len(dataset_names) ))
+    num_activities = num_activities_migratable()
+    print(u'  with {} activities'.format(num_activities))
+    print_errors(errors)
 
 
-def migrate_dataset(dataset_name):
+def migrate_dataset(dataset_name, errors):
     # monkey patch the legacy versions of code back into CKAN - so it has the
     # revision functionality needed for this migration
     import ckan.lib.dictization.model_dictize as model_dictize
@@ -117,9 +134,13 @@ def migrate_dataset(dataset_name):
         context[u'revision_id'] = activity[u'revision_id']
         # call package_show just as we do in package.py:activity_stream_item(),
         # only with a revision_id
-        dataset = logic.get_action(u'package_show')(
-            context,
-            {u'id': activity[u'object_id'], u'include_tracking': False})
+        try:
+            dataset = logic.get_action(u'package_show')(
+                context,
+                {u'id': activity[u'object_id'], u'include_tracking': False})
+        except logic.NotFound as exc:
+            print(u'    Revision missing! Skipping this version')
+            errors['Revision missing'] += 1
         # get rid of revision_timestamp, which wouldn't be there if saved by
         # during activity_stream_item() - something to do with not specifying
         # revision_id.
@@ -141,14 +162,15 @@ def migrate_dataset(dataset_name):
         # be faster
         activity_obj = model.Session.query(model.Activity).get(activity[u'id'])
         if u'resources' in activity_obj.data.get(u'package', {}):
-            print(u'    Full dataset already recorded - no action')
+            print(u'    activity has full dataset already recorded - no action')
         else:
             activity_obj.data = data
             # print '    {} dataset {}'.format(actor_name, repr(dataset))
     if model.Session.dirty:
         model.Session.commit()
         print(u'  saved')
-    print(u'All {} datasets are migrated'.format(len(package_activity_stream)))
+    print(u'  This package\'s {} activities are migrated'.format(
+        len(package_activity_stream)))
 
 
 def wipe_activity_detail():
@@ -173,6 +195,19 @@ def wipe_activity_detail():
     model.Session.execute(u'DELETE FROM "activity_detail";')
     model.Session.commit()
     print(u'activity_detail deleted')
+
+
+def print_errors(errors):
+    if errors:
+        print(u'Error summary:')
+        for error_msg, count in errors.items():
+            print(u'  {} {}'.format(count, error_msg))
+        print(u'''
+Items of activity which had an error remain unmigrated, which means that when
+you "View this version" or look at the "Changes" they will be missing tags,
+extras and resources. Hopefully that\'s acceptable enough to ignore, because
+it\'s really hard to fix these errors.
+            ''')
 
 
 if __name__ == u'__main__':
@@ -203,4 +238,6 @@ if __name__ == u'__main__':
         migrate_all_datasets()
         wipe_activity_detail()
     else:
-        migrate_dataset(args.dataset)
+        errors = defaultdict(int)
+        migrate_dataset(args.dataset, errors)
+        print_errors(errors)
