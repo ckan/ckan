@@ -221,6 +221,14 @@ setup(
     include_package_data=True,
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['ckanext', 'ckanext.stats'],
+    install_requires=[
+        'repoze.who-use-beaker',
+        'redis',
+        'beakeredis'
+    ],
+    dependency_links=[
+        'git+https://github.com/kaukas/repoze.who-use_beaker.git@8ec4cea#egg=repoze.who-use-beaker-0.4'
+    ],
     message_extractors={
         'ckan': [
             ('**.py', 'python', None),
