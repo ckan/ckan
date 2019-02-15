@@ -50,6 +50,16 @@ def get_context():
     return _context
 
 
+def num_unmigrated(engine):
+    num_unmigrated = engine.execute('''
+        SELECT count(*) FROM activity a JOIN package p ON a.object_id=p.id
+        WHERE a.activity_type IN ('new package', 'changed package')
+        AND a.data NOT LIKE '%%{"actor"%%'
+        AND p.private = false;
+    ''').fetchone()[0]
+    return num_unmigrated
+
+
 def migrate_all_datasets():
     import ckan.logic as logic
     dataset_names = logic.get_action(u'package_list')(get_context(), {})

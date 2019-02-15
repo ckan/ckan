@@ -10,13 +10,19 @@ Changelog
 v.2.9.0 TBA
 ==================
 
- * This version requires script 'migrate_package_activity.py' to be run after
-   CKAN is upgraded and operating again. This is because this script takes a
-   while to run, adding in the Activity Stream detail, visible only to admins
-   by default. This is a separate step to the ``paster db upgrade`` upgrade.
-   Run migrate_package_activity.py like this:
+ * This version requires script 'migrate_package_activity.py' to be run
+   *before* CKAN is upgraded to this version (or higher). This is because this
+   script takes a while to run, adding in the Activity Stream detail, visible
+   only to admins by default. You will not be able to run ``paster db upgrade``
+   until 'migrate_package_activity.py' is done.
+   Download and run migrate_package_activity.py like this:
 
-     python ckan/migration/migrate_package_activity.py -c /etc/ckan/default/production.ini
+     cd /usr/lib/ckan/default/src/ckan/
+     wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/migrate_package_activity.py
+     wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/revision_legacy_code.py
+     python migrate_package_activity.py -c /etc/ckan/production.ini
+
+   More info: https://github.com/ckan/ckan/wiki/Migrate-package-activity
 
  * A full history of dataset changes is now displayed in the Activity Stream to
    admins, and optionally to the public. Open data CKANs upgrading are
