@@ -111,9 +111,8 @@ class UserController(base.BaseController):
         limit = int(
             request.params.get('limit', config.get('ckan.user_list_limit', 20))
         )
-        try:
-            check_access('user_list', context, data_dict)
-        except NotAuthorized:
+
+        if (not asbool(config.get('ckan.auth.public_user_details', False))):
             abort(403, _('Not authorized to see this page'))
 
         users_list = get_action('user_list')(context, data_dict)
