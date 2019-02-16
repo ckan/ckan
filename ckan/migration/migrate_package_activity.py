@@ -130,6 +130,13 @@ def migrate_dataset(dataset_name, errors):
         print(u'  activity {}/{} {}'.format(
               i + 1, num_activities, activity[u'timestamp']))
 
+        # we need activity.data and using the ORM is the fastest
+        activity_obj = model.Session.query(model.Activity).get(activity[u'id'])
+        if u'resources' in activity_obj.data.get(u'package', {}):
+            print(u'    activity has full dataset already recorded'
+                  ' - no action')
+            continue
+
         # get the dataset as it was at this revision
         context[u'revision_id'] = activity[u'revision_id']
         # call package_show just as we do in package.py:activity_stream_item(),
@@ -139,14 +146,25 @@ def migrate_dataset(dataset_name, errors):
                 context,
                 {u'id': activity[u'object_id'], u'include_tracking': False})
         except logic.NotFound as exc:
-            print(u'    Revision missing! Skipping this version')
+            print(u'    Revision missing! Skipping this version '
+                  '(revision_id={})'.format(activity[u'revision_id']))
             errors['Revision missing'] += 1
+            # We shouldn't leave the activity.data['package'] with missing
+            # resources, extras & tags, which could cause the package_read
+            # template to raise an exception, when user clicks "View this
+            # version". Instead we pare it down to use a title, and forgo
+            # viewing it.
+            try:
+                dataset = {'title': activity_obj.data['package']['title']}
+            except KeyError:
+                dataset = None
+
         # get rid of revision_timestamp, which wouldn't be there if saved by
         # during activity_stream_item() - something to do with not specifying
         # revision_id.
         if u'revision_timestamp' in (dataset.get(u'organization') or {}):
             del dataset[u'organization'][u'revision_timestamp']
-        for res in dataset[u'resources']:
+        for res in dataset.get(u'resources', []):
             if u'revision_timestamp' in res:
                 del res[u'revision_timestamp']
 
@@ -158,14 +176,8 @@ def migrate_dataset(dataset_name, errors):
             u'package': dataset,
             u'actor': actor_name,
         }
-        # there are no action functions for Activity, and anyway the ORM would
-        # be faster
-        activity_obj = model.Session.query(model.Activity).get(activity[u'id'])
-        if u'resources' in activity_obj.data.get(u'package', {}):
-            print(u'    activity has full dataset already recorded - no action')
-        else:
-            activity_obj.data = data
-            # print '    {} dataset {}'.format(actor_name, repr(dataset))
+        activity_obj.data = data
+        # print '    {} dataset {}'.format(actor_name, repr(dataset))
     if model.Session.dirty:
         model.Session.commit()
         print(u'  saved')
@@ -173,7 +185,7 @@ def migrate_dataset(dataset_name, errors):
         len(package_activity_stream)))
 
 
-def wipe_activity_detail():
+def wipe_activity_detail(delete_activity_detail):
     from ckan import model
     num_activity_detail_rows = \
         model.Session.execute(u'SELECT count(*) FROM "activity_detail";') \
@@ -188,8 +200,10 @@ def wipe_activity_detail():
         'you can delete it to save space (this is safely done before or\n'
         'after the CKAN upgrade).'
         )
-    response = input(u'Delete activity_detail table content? (y/n):')
-    if response.lower()[:1] != u'y':
+    if delete_activity_detail is None:
+        delete_activity_detail = \
+            input(u'Delete activity_detail table content? (y/n):')
+    if delete_activity_detail.lower()[:1] != u'y':
         sys.exit(0)
     from ckan import model
     model.Session.execute(u'DELETE FROM "activity_detail";')
@@ -203,16 +217,20 @@ def print_errors(errors):
         for error_msg, count in errors.items():
             print(u'  {} {}'.format(count, error_msg))
         print(u'''
-Items of activity which had an error remain unmigrated, which means that when
-you "View this version" or look at the "Changes" they will be missing tags,
-extras and resources. Hopefully that\'s acceptable enough to ignore, because
-it\'s really hard to fix these errors.
+These errors are unusual - maybe a dataset was deleted, purged and then
+recreated, or the revisions corrupted for some reason. These activity items now
+don't have a package_dict recorded against them, which means that when a user
+clicks "View this version" or "Changes" in the Activity Stream for it, it will
+be missing. Hopefully that\'s acceptable enough to just ignore, because these
+errors are really hard to fix.
             ''')
 
 
 if __name__ == u'__main__':
     parser = argparse.ArgumentParser(usage=__doc__)
     parser.add_argument(u'-c', u'--config', help=u'CKAN config file (.ini)')
+    parser.add_argument(u'--delete', choices=['yes', 'no'],
+                        help=u'Delete activity detail')
     parser.add_argument(u'--dataset', help=u'just migrate this particular '
                         u'dataset - specify its name')
     args = parser.parse_args()
@@ -236,7 +254,7 @@ if __name__ == u'__main__':
     load_config(args.config)
     if not args.dataset:
         migrate_all_datasets()
-        wipe_activity_detail()
+        wipe_activity_detail(delete_activity_detail=args.delete)
     else:
         errors = defaultdict(int)
         migrate_dataset(args.dataset, errors)
