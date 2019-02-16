@@ -430,7 +430,7 @@ def read(package_type, id):
             pkg_dict = activity[u'data'][u'package']
         except KeyError:
             base.abort(404, _(u'Dataset not found'))
-        if u'id' not in pkg_dict or 'resources' not in pkg_dict:
+        if u'id' not in pkg_dict or u'resources' not in pkg_dict:
             log.debug(u'Attempt to view unmigrated or badly migrated dataset '
                       '{} {}'.format(id, activity_id))
             base.abort(404, _(u'Dataset not found'))

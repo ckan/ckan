@@ -80,7 +80,7 @@ def migrate_all_datasets():
         print(u'\n{}/{} dataset: {}'.format(i + 1, num_datasets, dataset_name))
         migrate_dataset(dataset_name, errors)
     print(u'Migrated:')
-    print(u'  {} datasets'.format(len(dataset_names) ))
+    print(u'  {} datasets'.format(len(dataset_names)))
     num_activities = num_activities_migratable()
     print(u'  with {} activities'.format(num_activities))
     print_errors(errors)
@@ -155,7 +155,7 @@ def migrate_dataset(dataset_name, errors):
             # version". Instead we pare it down to use a title, and forgo
             # viewing it.
             try:
-                dataset = {'title': activity_obj.data['package']['title']}
+                dataset = {u'title': activity_obj.data['package']['title']}
             except KeyError:
                 dataset = None
 
@@ -229,7 +229,7 @@ errors are really hard to fix.
 if __name__ == u'__main__':
     parser = argparse.ArgumentParser(usage=__doc__)
     parser.add_argument(u'-c', u'--config', help=u'CKAN config file (.ini)')
-    parser.add_argument(u'--delete', choices=['yes', 'no'],
+    parser.add_argument(u'--delete', choices=[u'yes', u'no'],
                         help=u'Delete activity detail')
     parser.add_argument(u'--dataset', help=u'just migrate this particular '
                         u'dataset - specify its name')

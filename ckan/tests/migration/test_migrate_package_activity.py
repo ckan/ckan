@@ -35,7 +35,7 @@ class TestMigrate(object):
         activity = model.Activity.get(activity.id)
         del activity.data['package']
         model.repo.commit_and_remove()
-        migrate_dataset(dataset['name'])
+        migrate_dataset(dataset['name'], {})
 
         activity_data_migrated = \
             package_activity_list(dataset['id'], 0, 0)[0].data
@@ -58,7 +58,7 @@ class TestMigrate(object):
         activity = model.Activity.get(activity.id)
         del activity.data['package']
         model.repo.commit_and_remove()
-        migrate_dataset(dataset['name'])
+        migrate_dataset(dataset['name'], {})
 
         activity_data_migrated = \
             package_activity_list(dataset['id'], 0, 0)[1].data
@@ -74,7 +74,7 @@ class TestMigrate(object):
         activity = package_activity_list(dataset['id'], 0, 0)[0]
         activity_data_before = copy.deepcopy(activity.data)
 
-        migrate_dataset(dataset['name'])
+        migrate_dataset(dataset['name'], {})
 
         activity_data_after = package_activity_list(dataset['id'], 0, 0)[0].data
         eq_(activity_data_before, activity_data_after)
