@@ -122,7 +122,7 @@ class ApiTestCase(object):
         data = self.loads(msg)
         keys = set(data.keys())
         expected_keys = set(['id', 'name', 'title', 'description', 'created',
-                            'state', 'revision_id', 'packages'])
+                            'state', 'packages'])
         missing_keys = expected_keys - keys
         assert not missing_keys, missing_keys
         assert_equal(data['name'], 'roger')

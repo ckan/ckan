@@ -19,7 +19,7 @@ except:
         return txt
 
 __all__ = ['PackageRelationship', 'package_relationship_table',
-           'package_relationship_revision_table']
+           ]
 
 package_relationship_table = Table('package_relationship', meta.metadata,
      Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
@@ -30,10 +30,8 @@ package_relationship_table = Table('package_relationship', meta.metadata,
      )
 
 vdm.sqlalchemy.make_table_stateful(package_relationship_table)
-package_relationship_revision_table = core.make_revisioned_table(package_relationship_table)
 
-class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
-                          vdm.sqlalchemy.StatefulObjectMixin,
+class PackageRelationship(vdm.sqlalchemy.StatefulObjectMixin,
                           domain_object.DomainObject):
     '''The rule with PackageRelationships is that they are stored in the model
     always as the "forward" relationship - i.e. "child_of" but never
@@ -169,10 +167,4 @@ meta.mapper(PackageRelationship, package_relationship_table, properties={
            backref='relationships_as_subject'),
     'object':orm.relation(_package.Package, primaryjoin=package_relationship_table.c.object_package_id==_package.Package.id,
            backref='relationships_as_object'),
-    },
-    extension = [vdm.sqlalchemy.Revisioner(package_relationship_revision_table)]
-    )
-
-vdm.sqlalchemy.modify_base_object_mapper(PackageRelationship, core.Revision, core.State)
-PackageRelationshipRevision = vdm.sqlalchemy.create_object_version(
-    meta.mapper, PackageRelationship, package_relationship_revision_table)
+    })

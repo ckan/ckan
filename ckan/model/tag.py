@@ -16,7 +16,6 @@ import ckan  # this import is needed
 import ckan.lib.dictization
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
-           'package_tag_revision_table',
            'MAX_TAG_LENGTH', 'MIN_TAG_LENGTH']
 
 MAX_TAG_LENGTH = 100
@@ -38,8 +37,7 @@ package_tag_table = Table('package_tag', meta.metadata,
         )
 
 vdm.sqlalchemy.make_table_stateful(package_tag_table)
-# TODO: this has a composite primary key ...
-package_tag_revision_table = core.make_revisioned_table(package_tag_table)
+
 
 class Tag(domain_object.DomainObject):
     def __init__(self, name='', vocabulary_id=None):
@@ -217,7 +215,7 @@ class Tag(domain_object.DomainObject):
     def __repr__(self):
         return '<Tag %s>' % self.name
 
-class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
+class PackageTag(
         vdm.sqlalchemy.StatefulObjectMixin,
         domain_object.DomainObject):
     def __init__(self, package=None, tag=None, state=None, **kwargs):
@@ -290,7 +288,5 @@ meta.mapper(PackageTag, package_tag_table, properties={
         )
     },
     order_by=package_tag_table.c.id,
-    extension=[vdm.sqlalchemy.Revisioner(package_tag_revision_table),
-               _extension.PluginMapperExtension(),
-               ],
+    extension=[_extension.PluginMapperExtension()],
     )

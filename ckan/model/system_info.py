@@ -15,8 +15,8 @@ import meta
 import core
 import domain_object
 
-__all__ = ['system_info_revision_table', 'system_info_table', 'SystemInfo',
-           'SystemInfoRevision', 'get_system_info', 'set_system_info']
+__all__ = ['system_info_table', 'SystemInfo',
+           'get_system_info', 'set_system_info']
 
 system_info_table = Table(
     'system_info', meta.metadata,
@@ -26,11 +26,9 @@ system_info_table = Table(
 )
 
 vdm.sqlalchemy.make_table_stateful(system_info_table)
-system_info_revision_table = core.make_revisioned_table(system_info_table)
 
 
-class SystemInfo(vdm.sqlalchemy.RevisionedObjectMixin,
-                 vdm.sqlalchemy.StatefulObjectMixin,
+class SystemInfo(vdm.sqlalchemy.StatefulObjectMixin,
                  domain_object.DomainObject):
 
     def __init__(self, key, value):
@@ -41,15 +39,7 @@ class SystemInfo(vdm.sqlalchemy.RevisionedObjectMixin,
         self.value = text_type(value)
 
 
-meta.mapper(SystemInfo, system_info_table,
-            extension=[
-                vdm.sqlalchemy.Revisioner(system_info_revision_table),
-                ])
-
-vdm.sqlalchemy.modify_base_object_mapper(SystemInfo, core.Revision, core.State)
-SystemInfoRevision = vdm.sqlalchemy.create_object_version(meta.mapper,
-                                                          SystemInfo,
-                                                          system_info_revision_table)
+meta.mapper(SystemInfo, system_info_table)
 
 
 def get_system_info(key, default=None):
@@ -85,9 +75,5 @@ def set_system_info(key, value):
         obj.value = text_type(value)
 
     from ckan.model import repo
-    rev = repo.new_revision()
-    rev.message = 'Set {0} setting in system_info table'.format(key)
-    meta.Session.add(obj)
-    meta.Session.commit()
 
     return True

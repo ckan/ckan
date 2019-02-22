@@ -109,7 +109,6 @@ class TestGroupListDictize:
         member = model.Member(group=group_obj, table_id=tag.id,
                               table_name='tag')
         model.Session.add(member)
-        model.repo.new_revision()
         model.Session.commit()
         group_list = model.Session.query(model.Group).filter_by().all()
         context = {'model': model, 'session': model.Session}

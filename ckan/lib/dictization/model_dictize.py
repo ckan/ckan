@@ -142,8 +142,6 @@ def package_dictize(pkg, context):
     assert not (context.get('revision_id') or
                 context.get('revision_date')), \
         'Revision functionality is moved to migrate_package_activity'
-    assert not isinstance(pkg, model.PackageRevision), \
-        'Revision functionality is moved to migrate_package_activity'
     execute = _execute
     # package
     if not pkg:
@@ -497,7 +495,6 @@ def user_dictize(user, context, include_password_hash=False):
 
     result_dict['display_name'] = user.display_name
     result_dict['email_hash'] = user.email_hash
-    result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_created_packages'] = user.number_created_packages(
         include_private_and_draft=context.get(
             'count_private_and_draft_datasets', False))
@@ -558,7 +555,6 @@ def tag_to_api(tag, context):
 
 
 def resource_dict_to_api(res_dict, package_id, context):
-    res_dict.pop("revision_id")
     res_dict.pop("state")
     res_dict["package_id"] = package_id
 

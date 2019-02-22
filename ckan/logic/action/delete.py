@@ -49,11 +49,6 @@ def user_delete(context, data_dict):
     if user is None:
         raise NotFound('User "{id}" was not found.'.format(id=user_id))
 
-    # New revision, needed by the member table
-    rev = model.repo.new_revision()
-    rev.author = context['user']
-    rev.message = _(u' Delete User: {0}').format(user.name)
-
     user.delete()
 
     user_memberships = model.Session.query(model.Member).filter(
@@ -68,8 +63,7 @@ def user_delete(context, data_dict):
 def package_delete(context, data_dict):
     '''Delete a dataset (package).
 
-    This makes the dataset disappear from all web & API views, apart from the
-    trash.
+    This makes the dataset disappear from all web & API views
 
     You must be authorized to delete the dataset.
 
@@ -87,10 +81,6 @@ def package_delete(context, data_dict):
         raise NotFound
 
     _check_access('package_delete', context, data_dict)
-
-    rev = model.repo.new_revision()
-    rev.author = user
-    rev.message = _(u'REST API: Delete Package: %s') % entity.name
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.delete(entity)
@@ -149,8 +139,6 @@ def dataset_purge(context, data_dict):
         r.purge()
 
     pkg = model.Package.get(id)
-    # no new_revision() needed since there are no object_revisions created
-    # during purge
     pkg.purge()
     model.repo.commit_and_remove()
 
@@ -272,10 +260,6 @@ def package_relationship_delete(context, data_dict):
     context['relationship'] = relationship
     _check_access('package_relationship_delete', context, data_dict)
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    rev.message = _(u'REST API: Delete %s') % revisioned_details
-
     relationship.delete()
     model.repo.commit()
 
@@ -314,9 +298,6 @@ def member_delete(context, data_dict=None):
             filter(model.Member.group_id == group.id).\
             filter(model.Member.state    == 'active').first()
     if member:
-        rev = model.repo.new_revision()
-        rev.author = context.get('user')
-        rev.message = _(u'REST API: Delete Member: %s') % obj_id
         member.delete()
         model.repo.commit()
 
@@ -367,10 +348,6 @@ def _group_or_org_delete(context, data_dict, is_org=False):
                               pkg_table.c.state != 'deleted')
                 ).values(owner_org=None)
             )
-
-    rev = model.repo.new_revision()
-    rev.author = user
-    rev.message = _(u'REST API: Delete %s') % revisioned_details
 
     # The group's Member objects are deleted
     # (including hierarchy connections to parent and children groups)
@@ -494,14 +471,11 @@ def _group_or_org_purge(context, data_dict, is_org=False):
                    .filter(sqla.or_(model.Member.group_id == group.id,
                                     model.Member.table_id == group.id))
     if members.count() > 0:
-        # no need to do new_revision() because Member is not revisioned, nor
-        # does it cascade delete any revisioned objects
         for m in members.all():
             m.purge()
         model.repo.commit_and_remove()
 
     group = model.Group.get(id)
-    model.repo.new_revision()
     group.purge()
     model.repo.commit_and_remove()
 

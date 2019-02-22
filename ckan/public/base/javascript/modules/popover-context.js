@@ -176,7 +176,6 @@ this.ckan.module('popover-context', function($) {
 				params.display_name = raw.display_name;
 				params.num_followers = raw.num_followers;
 				params.number_administered_packages = raw.number_administered_packages;
-				params.number_of_edits = raw.number_of_edits;
 				params.is_me = ( raw.id == this.options.authed );
 			} else if (type == 'dataset') {
 				params.id = raw.id;

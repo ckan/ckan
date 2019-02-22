@@ -32,7 +32,6 @@ def default_resource_schema(
         int_validator, extras_unicode_convert, keep_extras):
     return {
         'id': [ignore_empty, unicode_safe],
-        'revision_id': [ignore_missing, unicode_safe],
         'package_id': [ignore],
         'url': [ignore_missing, unicode_safe, remove_whitespace],
         'description': [ignore_missing, unicode_safe],
@@ -60,7 +59,6 @@ def default_resource_schema(
 @validator_args
 def default_update_resource_schema(ignore):
     schema = default_resource_schema()
-    schema['revision_id'] = [ignore]
     return schema
 
 
@@ -112,7 +110,6 @@ def default_create_package_schema(
         '__before': [duplicate_extras_key, ignore],
         'id': [empty_if_not_sysadmin, ignore_missing, unicode_safe,
                package_id_does_not_exist],
-        'revision_id': [ignore],
         'name': [
             not_empty, unicode_safe, name_validator, package_name_validator],
         'title': [if_empty_same_as("name"), unicode_safe],
@@ -194,7 +191,6 @@ def default_show_package_schema(
         'position': [not_empty],
         'last_modified': [],
         'cache_last_updated': [],
-        'revision_id': [],
         'package_id': [],
         'size': [],
         'state': [],
@@ -210,7 +206,6 @@ def default_show_package_schema(
         'state': [ignore_missing],
         'isopen': [ignore_missing],
         'license_url': [ignore_missing],
-        'revision_id': [],
     })
 
     schema['groups'].update({
@@ -241,7 +236,6 @@ def default_show_package_schema(
     schema['organization'] = []
     schema['owner_org'] = []
     schema['private'] = []
-    schema['revision_id'] = []
     schema['tracking_summary'] = [ignore_missing]
     schema['license_title'] = []
 
@@ -255,7 +249,6 @@ def default_group_schema(
         no_loops_in_hierarchy, ignore_not_group_admin):
     return {
         'id': [ignore_missing, unicode_safe],
-        'revision_id': [ignore],
         'name': [
             not_empty, unicode_safe, name_validator, group_name_validator],
         'title': [ignore_missing, unicode_safe],
@@ -327,7 +320,6 @@ def default_show_group_schema(
     schema['extras'] = {'__extras': [keep_extras]}
     schema['package_count'] = [ignore_missing]
     schema['packages'] = {'__extras': [keep_extras]}
-    schema['revision_id'] = []
     schema['state'] = []
     schema['users'] = {'__extras': [keep_extras]}
 
@@ -531,9 +523,6 @@ def default_create_activity_schema(
                     convert_user_name_or_id_to_id],
         'object_id': [
             not_missing, not_empty, unicode_safe, object_id_validator],
-        # We don't bother to validate revision ID, since it's always created
-        # internally by the activity_create() logic action function.
-        'revision_id': [],
         'activity_type': [not_missing, not_empty, unicode_safe,
                           activity_type_exists],
         'data': [ignore_empty, ignore_missing],
@@ -687,9 +676,8 @@ def default_create_resource_view_schema(resource_view):
 
 @validator_args
 def default_create_resource_view_schema_unfiltered(
-        not_empty, resource_id_exists, unicode_safe, ignore_missing, empty):
+        not_empty, unicode_safe, ignore_missing, empty):
     return {
-        'resource_id': [not_empty, resource_id_exists],
         'title': [not_empty, unicode_safe],
         'description': [ignore_missing, unicode_safe],
         'view_type': [not_empty, unicode_safe],
@@ -720,11 +708,10 @@ def default_update_resource_view_schema(resource_view):
 
 @validator_args
 def default_update_resource_view_schema_changes(
-        not_missing, not_empty, unicode_safe, resource_id_exists, ignore,
+        not_missing, not_empty, unicode_safe, ignore,
         ignore_missing):
     return {
         'id': [not_missing, not_empty, unicode_safe],
-        'resource_id': [ignore_missing, resource_id_exists],
         'title': [ignore_missing, unicode_safe],
         'view_type': [ignore],  # cannot change after create
         'package_id': [ignore]

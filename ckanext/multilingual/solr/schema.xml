@@ -357,7 +357,6 @@
     <field name="dataset_type" type="string" indexed="true" stored="true" />
     <field name="state" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="name" type="string" indexed="true" stored="true" omitNorms="true" />
-    <field name="revision_id" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="version" type="string" indexed="true" stored="true" />
     <field name="url" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="ckan_url" type="string" indexed="true" stored="true" omitNorms="true" />
@@ -409,7 +408,7 @@
     <!-- Copy the title field into titleString, and treat as a string
          (rather than text type).  This allows us to sort on the titleString -->
     <field name="title_string" type="string" indexed="true" stored="false" />
-     
+
     <!-- Multilingual -->
     <field name="text_en" type="text_en" indexed="true" stored="true"/>
     <field name="title_en" type="text_en" indexed="true" stored="true"/>

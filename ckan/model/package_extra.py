@@ -14,8 +14,7 @@ import types as _types
 import ckan.lib.dictization
 import activity
 
-__all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision',
-           'extra_revision_table']
+__all__ = ['PackageExtra', 'package_extra_table']
 
 package_extra_table = Table('package_extra', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
@@ -26,9 +25,8 @@ package_extra_table = Table('package_extra', meta.metadata,
 )
 
 vdm.sqlalchemy.make_table_stateful(package_extra_table)
-extra_revision_table= core.make_revisioned_table(package_extra_table)
 
-class PackageExtra(vdm.sqlalchemy.RevisionedObjectMixin,
+class PackageExtra(
         vdm.sqlalchemy.StatefulObjectMixin,
         domain_object.DomainObject):
 
@@ -50,22 +48,16 @@ meta.mapper(PackageExtra, package_extra_table, properties={
         )
     },
     order_by=[package_extra_table.c.package_id, package_extra_table.c.key],
-    extension=[vdm.sqlalchemy.Revisioner(extra_revision_table),
-               extension.PluginMapperExtension(),
-               ],
+    extension=[extension.PluginMapperExtension()],
 )
 
-vdm.sqlalchemy.modify_base_object_mapper(PackageExtra, core.Revision, core.State)
-PackageExtraRevision= vdm.sqlalchemy.create_object_version(meta.mapper, PackageExtra,
-        extra_revision_table)
-
-PackageExtraRevision.related_packages = lambda self: [self.continuity.package]
 
 def _create_extra(key, value):
     return PackageExtra(key=text_type(key), value=value)
 
-_extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
-        vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of())
-setattr(_package.Package, 'extras_active', _extras_active)
-_package.Package.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
-            creator=_create_extra)
+# # don't think we need this?
+# _extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
+#         vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of())
+# setattr(_package.Package, 'extras_active', _extras_active)
+# _package.Package.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
+#             creator=_create_extra)

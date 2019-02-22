@@ -137,8 +137,6 @@ class TestPackageDictizeWithRevisions:
         anna_dictized["name"] = u'annakarenina_changed'
         anna_dictized["resources"][0]["url"] = u'http://new_url'
 
-        model.repo.new_revision()
-
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
@@ -173,7 +171,6 @@ class TestPackageDictizeWithRevisions:
         anna_dictized['tags'][0].pop('id')  # test if
         anna_dictized['extras'][0]['value'] = u'new_value'
 
-        model.repo.new_revision()
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
@@ -189,7 +186,6 @@ class TestPackageDictizeWithRevisions:
         anna_dictized['extras'].append({'key': 'david',
                                         'value': u'new_value'})
 
-        model.repo.new_revision()
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()

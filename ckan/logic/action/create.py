@@ -176,13 +176,6 @@ def package_create(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Create object %s') % data.get("name")
-
     if user:
         user_obj = model.User.by_name(user.decode('utf8'))
         if user_obj:
@@ -200,7 +193,6 @@ def package_create(context, data_dict):
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
     context_org_update['defer_commit'] = True
-    context_org_update['add_revision'] = False
     _get_action('package_owner_org_update')(context_org_update,
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
@@ -538,10 +530,6 @@ def package_relationship_create(context, data_dict):
     if existing_rels:
         return _update_package_relationship(existing_rels[0],
                                             comment, context)
-    rev = model.repo.new_revision()
-    rev.author = user
-    rev.message = _(u'REST API: Create package relationship: %s %s %s') \
-        % (pkg1, rel_type, pkg2)
     rel = pkg1.add_relationship(rel_type, pkg2, comment=comment)
     if not context.get('defer_commit'):
         model.repo.commit_and_remove()
@@ -575,14 +563,6 @@ def member_create(context, data_dict=None):
     '''
     model = context['model']
     user = context['user']
-
-    rev = model.repo.new_revision()
-    rev.author = user
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Create member object %s') \
-            % data_dict.get('name', '')
 
     group_id, obj_id, obj_type, capacity = \
         _get_or_bust(data_dict, ['id', 'object', 'object_type', 'capacity'])
@@ -654,14 +634,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
     if errors:
         session.rollback()
         raise ValidationError(errors)
-
-    rev = model.repo.new_revision()
-    rev.author = user
-
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     group = model_save.group_dict_save(data, context)
 
@@ -1170,11 +1142,9 @@ def activity_create(context, activity_dict, **kw):
     model = context['model']
 
     # Any revision_id that the caller attempts to pass in the activity_dict is
-    # ignored and overwritten here.
-    if getattr(model.Session, 'revision', None):
-        activity_dict['revision_id'] = model.Session.revision.id
-    else:
-        activity_dict['revision_id'] = None
+    # ignored and removed here.
+    if 'revision_id' in activity_dict:
+        del activity_dict['revision_id']
 
     schema = context.get('schema') or \
         ckan.logic.schema.default_create_activity_schema()

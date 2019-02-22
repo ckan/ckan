@@ -159,16 +159,6 @@ class TestBasicDictize:
                         key in ['resources', 'extras'] or remove_package_id)
         return dict
 
-    def remove_revision_id(self, dict):
-        for key, value in dict.items():
-            if key in ('revision_id', 'revision_timestamp',
-                       'expired_timestamp', 'expired_id'):
-                dict.pop(key)
-            if isinstance(value, list):
-                for new_dict in value:
-                    self.remove_revision_id(new_dict)
-        return dict
-
     def test_03_package_to_api1(self):
 
         context = {"model": model,
@@ -270,7 +260,6 @@ class TestBasicDictize:
 
         anna_dictized["name"] = 'annakarenina2'
 
-        model.repo.new_revision()
         table_dict_save(anna_dictized, model.Package, context)
         model.Session.commit()
 
@@ -290,7 +279,6 @@ class TestBasicDictize:
 
         anna_dictized["name"] = u'annakarenina3'
 
-        model.repo.new_revision()
         package_dict_save(anna_dictized, context)
         model.Session.commit()
 
@@ -312,7 +300,6 @@ class TestBasicDictize:
         context = {"model": model,
                  "session": model.Session}
 
-        model.repo.new_revision()
         model.Session.commit()
 
         new_resource = {
@@ -336,7 +323,6 @@ class TestBasicDictize:
             'package_id':''  # Just so we can save
         }
 
-        model.repo.new_revision()
         resource_dict_save(new_resource, context)
         model.Session.commit()
         model.Session.remove()
@@ -407,8 +393,6 @@ class TestBasicDictize:
                             'title': u'Some Title',
                             'url': u'http://blahblahblah.mydomain'}
 
-        model.repo.new_revision()
-
         package_dict_save(dictized, context)
         model.Session.commit()
         model.Session.remove()
@@ -443,7 +427,6 @@ class TestBasicDictize:
                    'session': model.Session}
         pkg_dict = {'name': name}
 
-        rev = model.repo.new_revision()
         package = table_dict_save(pkg_dict, model.Package, context)
 
         tag_dicts = [{'name': 'tag1'}, {'name': 'tag2'}]
@@ -460,7 +443,6 @@ class TestBasicDictize:
                    'session': model.Session}
         pkg_dict = {'name': name}
 
-        rev = model.repo.new_revision()
         package = table_dict_save(pkg_dict, model.Package, context)
 
         tag_dicts = [{'name': 'tag1'}, {'name': 'tag1'}] # duplicate
@@ -476,11 +458,9 @@ class TestBasicDictize:
         # activity_dict_save()
         context = {"model": model, "session": model.Session}
         user = model.User.by_name(u'tester')
-        revision = model.repo.new_revision()
         sent = {
                 'user_id': user.id,
                 'object_id': user.id,
-                'revision_id': revision.id,
                 'activity_type': 'changed user'
                 }
         activity_dict_save(sent, context)
@@ -492,7 +472,6 @@ class TestBasicDictize:
                 {'id': user.id})[0]
         assert got['user_id'] == sent['user_id']
         assert got['object_id'] == sent['object_id']
-        assert got['revision_id'] == sent['revision_id']
         assert got['activity_type'] == sent['activity_type']
 
         # The activity object should also have an ID and timestamp.
@@ -506,7 +485,6 @@ class TestBasicDictize:
         been removed from.
         """
         # Create a new dataset and 2 new groups
-        model.repo.new_revision()
         pkg = model.Package(name='testing-deleted-groups')
         group_1 = model.Group(name='test-group-1')
         group_2 = model.Group(name='test-group-2')

@@ -44,7 +44,6 @@ class TestSystemInfo(object):
     def test_sets_new_value_for_same_key(self):
 
         config = factories.SystemInfo()
-        first_revision = config.revision_id
 
         set_system_info(config.key, 'new_value')
 
@@ -52,7 +51,6 @@ class TestSystemInfo(object):
                                   .filter_by(key=config.key).first()
 
         assert_equals(config.id, new_config.id)
-        assert_not_equals(first_revision, new_config.revision_id)
 
         assert_equals(new_config.value, 'new_value')
 
@@ -66,4 +64,3 @@ class TestSystemInfo(object):
                                   .filter_by(key=config.key).first()
 
         assert_equals(config.id, new_config.id)
-        assert_equals(config.revision_id, new_config.revision_id)

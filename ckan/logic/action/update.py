@@ -300,13 +300,6 @@ def package_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Update object %s') % data.get("name")
-
     #avoid revisioning by updating directly
     model.Session.query(model.Package).filter_by(id=pkg.id).update(
         {"metadata_modified": datetime.datetime.utcnow()})
@@ -317,7 +310,6 @@ def package_update(context, data_dict):
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
     context_org_update['defer_commit'] = True
-    context_org_update['add_revision'] = False
     _get_action('package_owner_org_update')(context_org_update,
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
@@ -400,10 +392,6 @@ def _update_package_relationship(relationship, comment, context):
     ref_package_by = 'id' if api == 2 else 'name'
     is_changed = relationship.comment != comment
     if is_changed:
-        rev = model.repo.new_revision()
-        rev.author = context["user"]
-        rev.message = (_(u'REST API: Update package relationship: %s %s %s') %
-            (relationship.subject, relationship.type, relationship.object))
         relationship.comment = comment
         if not context.get('defer_commit'):
             model.repo.commit_and_remove()
@@ -516,14 +504,6 @@ def _group_or_org_update(context, data_dict, is_org=False):
     if errors:
         session.rollback()
         raise ValidationError(errors)
-
-    rev = model.repo.new_revision()
-    rev.author = user
-
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Update object %s') % data.get("name")
 
     contains_packages = 'packages' in data_dict
 
@@ -1005,14 +985,6 @@ def package_owner_org_update(context, data_dict):
         org = None
         pkg.owner_org = None
 
-    if context.get('add_revision', True):
-        rev = model.repo.new_revision()
-        rev.author = user
-        if 'message' in context:
-            rev.message = context['message']
-        else:
-            rev.message = _(u'REST API: Update object %s') % pkg.get("name")
-
     members = model.Session.query(model.Member) \
         .filter(model.Member.table_id == pkg.id) \
         .filter(model.Member.capacity == 'organization')
@@ -1049,13 +1021,6 @@ def _bulk_update_dataset(context, data_dict, update_dict):
     model.Session.query(model.package_table) \
         .filter(model.Package.id.in_(datasets)) \
         .filter(model.Package.owner_org == org_id) \
-        .update(update_dict, synchronize_session=False)
-
-    # revisions
-    model.Session.query(model.package_revision_table) \
-        .filter(model.PackageRevision.id.in_(datasets)) \
-        .filter(model.PackageRevision.owner_org == org_id) \
-        .filter(model.PackageRevision.current is True) \
         .update(update_dict, synchronize_session=False)
 
     model.Session.commit()

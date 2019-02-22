@@ -448,12 +448,6 @@ class TestDatasetPurge(object):
              for m in model.Session.query(model.Member).join(model.Group)]),
             [('user', 'group1'), ('user', org['name'])])
 
-        # all the object revisions were purged too
-        assert_equals(model.Session.query(model.PackageRevision).all(), [])
-        assert_equals(model.Session.query(model.ResourceRevision).all(), [])
-        assert_equals(model.Session.query(model.PackageTagRevision).all(), [])
-        assert_equals(model.Session.query(model.PackageExtraRevision).all(),
-                      [])
         # Member is not revisioned
 
         # No Revision objects were purged or created

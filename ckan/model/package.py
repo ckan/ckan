@@ -22,10 +22,10 @@ import ckan.lib.dictization as dictization
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['Package', 'package_table', 'package_revision_table',
+__all__ = ['Package', 'package_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision',
-           'PackageRevision']
+           'PACKAGE_VERSION_MAX_LENGTH',
+           ]
 
 
 PACKAGE_NAME_MAX_LENGTH = 100
@@ -56,12 +56,11 @@ package_table = Table('package', meta.metadata,
 
 
 vdm.sqlalchemy.make_table_stateful(package_table)
-package_revision_table = core.make_revisioned_table(package_table)
 
 ## -------------------
 ## Mapped classes
 
-class Package(vdm.sqlalchemy.RevisionedObjectMixin,
+class Package(
         vdm.sqlalchemy.StatefulObjectMixin,
         domain_object.DomainObject):
 
@@ -369,41 +368,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     license = property(get_license, set_license)
 
     @property
-    def all_related_revisions(self):
-        '''Returns chronological list of all object revisions related to
-        this package. Includes PackageRevisions, PackageTagRevisions,
-        PackageExtraRevisions and ResourceRevisions.
-        @return List of tuples (revision, [list of object revisions of this
-                                           revision])
-                Ordered by most recent first.
-        '''
-        from tag import PackageTag
-        from resource import Resource
-        from package_extra import PackageExtra
-
-        results = {} # revision:[PackageRevision1, PackageTagRevision1, etc.]
-        for pkg_rev in self.all_revisions:
-            if not results.has_key(pkg_rev.revision):
-                results[pkg_rev.revision] = []
-            results[pkg_rev.revision].append(pkg_rev)
-        for class_ in [Resource, PackageExtra, PackageTag]:
-            rev_class = class_.__revision_class__
-            obj_revisions = meta.Session.query(rev_class).filter_by(package_id=self.id).all()
-            for obj_rev in obj_revisions:
-                if not results.has_key(obj_rev.revision):
-                    results[obj_rev.revision] = []
-                results[obj_rev.revision].append(obj_rev)
-
-        result_list = results.items()
-        return sorted(result_list, key=lambda x: x[0].timestamp, reverse=True)
-
-    @property
-    def latest_related_revision(self):
-        '''Returns the latest revision for the package and its related
-        objects.'''
-        return self.all_related_revisions[0][0]
-
-    @property
     @maintain.deprecated('`is_private` attriute of model.Package is ' +
                          'deprecated and should not be used.  Use `private`')
     def is_private(self):
@@ -456,7 +420,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return fields
 
-    def activity_stream_item(self, activity_type, revision, user_id):
+    def activity_stream_item(self, activity_type, user_id):
         import ckan.model
         import ckan.logic
 
@@ -502,7 +466,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return activity.Activity(
             user_id,
             self.id,
-            revision.id,
+            '',  # revisions are no more
             "%s package" % activity_type,
             {
                 'package': dictized_package,
@@ -577,23 +541,5 @@ meta.mapper(Package, package_table, properties={
         ),
     },
     order_by=package_table.c.name,
-    extension=[vdm.sqlalchemy.Revisioner(package_revision_table),
-               extension.PluginMapperExtension(),
-               ],
+    extension=[extension.PluginMapperExtension()],
     )
-
-vdm.sqlalchemy.modify_base_object_mapper(Package, core.Revision, core.State)
-PackageRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Package,
-        package_revision_table)
-
-def related_packages(self):
-    return [self.continuity]
-
-PackageRevision.related_packages = related_packages
-
-
-vdm.sqlalchemy.modify_base_object_mapper(tag.PackageTag, core.Revision, core.State)
-PackageTagRevision = vdm.sqlalchemy.create_object_version(meta.mapper, tag.PackageTag,
-        tag.package_tag_revision_table)
-
-PackageTagRevision.related_packages = lambda self: [self.continuity.package]
