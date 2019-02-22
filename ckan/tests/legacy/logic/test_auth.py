@@ -283,7 +283,7 @@ class TestAuthOrgHierarchy(TestAuth):
 
     def _undelete_package_if_needed(self, package_name):
         pkg = model.Package.by_name(package_name)
-        if pkg and pkg.state == 'deleted':()
+        if pkg and pkg.state == 'deleted':
             pkg.state = 'active'
             model.repo.commit_and_remove()
 

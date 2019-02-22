@@ -9,7 +9,7 @@ import ckan.lib.create_test_data as create_test_data
 class TestMemberLogic(object):
 
     @classmethod
-    def setup_class(cls):()
+    def setup_class(cls):
         create_test_data.CreateTestData.create()
         cls.user = model.User.get('testsysadmin')
         cls.tester = model.User.get('tester')
