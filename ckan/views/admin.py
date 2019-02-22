@@ -139,77 +139,7 @@ class ConfigView(MethodView):
         return h.redirect_to(u'admin.config')
 
 
-class TrashView(MethodView):
-    def __init__(self):
-        self.deleted_packages = model.Session.query(
-            model.Package).filter_by(state=model.State.DELETED)
-
-    def get(self):
-        data = dict(deleted_packages=self.deleted_packages)
-        return base.render(u'admin/trash.html', extra_vars=data)
-
-    def post(self):
-        deleted_revisions = model.Session.query(
-            model.Revision).filter_by(state=model.State.DELETED)
-        # NB: we repeat retrieval of of revisions
-        # this is obviously inefficient (but probably not *that* bad)
-        # but has to be done to avoid (odd) sqlalchemy errors (when doing
-        # purge packages) of form: "this object already exists in the
-        # session"
-        msgs = []
-        if (u'purge-packages' in request.form) or (
-                u'purge-revisions' in request.form):
-            if u'purge-packages' in request.form:
-                revs_to_purge = []
-                for pkg in self.deleted_packages:
-                    revisions = [x[0] for x in pkg.all_related_revisions]
-                    # ensure no accidental purging of other(non-deleted)
-                    # packages initially just avoided purging revisions
-                    # where non-deleted packages were affected
-                    # however this lead to confusing outcomes e.g.
-                    # we succesfully deleted revision in which package
-                    # was deleted (so package now active again) but no
-                    # other revisions
-                    problem = False
-                    for r in revisions:
-                        affected_pkgs = set(r.packages).\
-                            difference(set(self.deleted_packages))
-                        if affected_pkgs:
-                            msg = _(u'Cannot purge package %s as '
-                                    u'associated revision %s includes '
-                                    u'non-deleted packages %s')
-                            msg = msg % (pkg.id, r.id,
-                                         [pkg.id for r in affected_pkgs])
-                            msgs.append(msg)
-                            problem = True
-                            break
-                    if not problem:
-                        revs_to_purge += [r.id for r in revisions]
-                model.Session.remove()
-            else:
-                revs_to_purge = [rev.id for rev in deleted_revisions]
-            revs_to_purge = list(set(revs_to_purge))
-            for id in revs_to_purge:
-                revision = model.Session.query(model.Revision).get(id)
-                try:
-                    # TODO deleting the head revision corrupts the edit
-                    # page Ensure that whatever 'head' pointer is used
-                    # gets moved down to the next revision
-                    model.repo.purge_revision(revision, leave_record=False)
-                except Exception as inst:
-                    msg = _(u'Problem purging revision %s: %s') % (id, inst)
-                    msgs.append(msg)
-            h.flash_success(_(u'Purge complete'))
-        else:
-            msgs.append(_(u'Action not implemented.'))
-
-        for msg in msgs:
-            h.flash_error(msg)
-        return h.redirect_to(u'admin.trash')
-
-
 admin.add_url_rule(u'/', view_func=index, strict_slashes=False)
 admin.add_url_rule(
     u'/reset_config', view_func=ResetConfigView.as_view(str(u'reset_config')))
 admin.add_url_rule(u'/config', view_func=ConfigView.as_view(str(u'config')))
-admin.add_url_rule(u'/trash', view_func=TrashView.as_view(str(u'trash')))
