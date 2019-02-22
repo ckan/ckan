@@ -466,7 +466,6 @@ class Package(
         return activity.Activity(
             user_id,
             self.id,
-            '',  # revisions are no more
             "%s package" % activity_type,
             {
                 'package': dictized_package,

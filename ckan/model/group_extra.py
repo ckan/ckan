@@ -44,9 +44,8 @@ meta.mapper(GroupExtra, group_extra_table, properties={
 def _create_extra(key, value):
     return GroupExtra(key=text_type(key), value=value)
 
-# Don't think we need this
-# _extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
-#         vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of())
-# setattr(group.Group, 'extras_active', _extras_active)
-# group.Group.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
-#             creator=_create_extra)
+_extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
+        vdm.sqlalchemy.stateful.StatefulDict)
+setattr(group.Group, 'extras_active', _extras_active)
+group.Group.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
+            creator=_create_extra)

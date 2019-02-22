@@ -74,6 +74,6 @@ def set_system_info(key, value):
     else:
         obj.value = text_type(value)
 
-    from ckan.model import repo
-
+    meta.Session.add(obj)
+    meta.Session.commit()
     return True

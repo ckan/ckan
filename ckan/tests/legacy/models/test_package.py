@@ -53,8 +53,6 @@ class TestPackage:
             model.Session.clear()
         outpkg = model.Package.by_name(self.name)
         assert outpkg.notes == newnotes
-        assert len(outpkg.all_revisions) > 0
-        assert outpkg.all_revisions[0].revision.author == author
 
     def test_package_license(self):
         # Check unregistered license_id causes license to be 'None'.
@@ -98,7 +96,6 @@ class TestPackageWithTags:
         model.Session.add_all([pkg,self.tag,self.tag2,pkg2tag])
         model.Session.commit()
         self.pkg2tag_id = pkg2tag.id
-        self.rev = rev1
 
     @classmethod
     def teardown_class(self):
@@ -193,107 +190,6 @@ class TestPackageTagSearch:
         tag = pkg.get_tags()[0]
         assert tag.name == self.orderedfirst
         assert tag.packages[0].name == 'annakarenina', tag.packages
-
-
-class TestPackageRevisions:
-    @classmethod
-    def setup_class(self):
-        model.Session.remove()
-        model.repo.init_db()
-        self.name = u'revisiontest'
-
-        # create pkg
-        self.notes = [u'Written by Puccini', u'Written by Rossini', u'Not written at all', u'Written again', u'Written off']
-        self.pkg1 = model.Package(name=self.name)
-        model.Session.add(self.pkg1)
-        self.pkg1.notes = self.notes[0]
-        self.pkg1.extras['mykey'] = self.notes[0]
-        model.repo.commit_and_remove()
-
-        # edit pkg
-        for i in range(5)[1:]:
-            pkg1 = model.Package.by_name(self.name)
-            pkg1.notes = self.notes[i]
-            pkg1.extras['mykey'] = self.notes[i]
-            model.repo.commit_and_remove()
-
-        self.pkg1 = model.Package.by_name(self.name)
-
-    @classmethod
-    def teardown_class(self):
-        pkg1 = model.Package.by_name(self.name)
-        pkg1.purge()
-        model.repo.commit_and_remove()
-        model.repo.rebuild_db()
-
-    def test_1_all_revisions(self):
-        all_rev = self.pkg1.all_revisions
-        num_notes = len(self.notes)
-        assert len(all_rev) == num_notes, len(all_rev)
-        for i, rev in enumerate(all_rev):
-            assert rev.notes == self.notes[num_notes - i - 1], '%s != %s' % (rev.notes, self.notes[i])
-            #assert rev.extras['mykey'] == self.notes[num_notes - i - 1], '%s != %s' % (rev.extras['mykey'], self.notes[i])
-
-
-class TestRelatedRevisions:
-    @classmethod
-    def setup_class(self):
-        CreateTestData.create()
-        model.Session.remove()
-        self.name = u'difftest'
-
-        # create pkg - PackageRevision
-        self.pkg1 = model.Package(name=self.name)
-        model.Session.add(self.pkg1)
-        self.pkg1.version = u'First version'
-        model.repo.commit_and_remove()
-
-        # edit pkg - PackageRevision
-        pkg1 = model.Package.by_name(self.name)
-        pkg1.notes = u'New notes'
-        model.repo.commit_and_remove()
-
-        # edit pkg - PackageExtraRevision
-        pkg1 = model.Package.by_name(self.name)
-        pkg1.extras = {u'a':u'b', u'c':u'd'}
-        model.repo.commit_and_remove()
-
-        # edit pkg - PackageTagRevision
-        pkg1 = model.Package.by_name(self.name)
-        pkg1.add_tag_by_name(u'geo')
-        pkg1.add_tag_by_name(u'scientific')
-        model.repo.commit_and_remove()
-
-        # edit pkg - ResourceRevision
-        pkg1 = model.Package.by_name(self.name)
-        pkg1.resources_all.append(model.Resource(url=u'http://url1.com',
-                                                    format=u'xls',
-                                                    description=u'It is.',
-                                                    hash=u'abc123'))
-        model.repo.commit_and_remove()
-
-        # edit pkg - ResourceRevision
-        pkg1 = model.Package.by_name(self.name)
-        pkg1.resources_all[0].url = u'http://url1.com/edited'
-        pkg1.resources_all.append(model.Resource(url=u'http://url2.com'))
-        model.repo.commit_and_remove()
-
-        # edit pkg - PackageRevision
-        pkg1 = model.Package.by_name(self.name)
-        pkg1.notes = u'Changed notes'
-        model.repo.commit_and_remove()
-
-        self.pkg1 = model.Package.by_name(self.name)
-        self.res1 = model.Session.query(model.Resource).filter_by(url=u'http://url1.com/edited').one()
-        self.res2 = model.Session.query(model.Resource).filter_by(url=u'http://url2.com').one()
-        assert self.pkg1
-
-    @classmethod
-    def teardown_class(self):
-        pkg1 = model.Package.by_name(self.name)
-        pkg1.purge()
-        model.repo.commit_and_remove()
-        model.repo.rebuild_db()
 
 
 class TestPackagePurge:

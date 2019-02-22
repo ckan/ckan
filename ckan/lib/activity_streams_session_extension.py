@@ -8,10 +8,10 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def activity_stream_item(obj, activity_type, revision, user_id):
+def activity_stream_item(obj, activity_type, user_id):
     method = getattr(obj, "activity_stream_item", None)
     if callable(method):
-        return method(activity_type, revision, user_id)
+        return method(activity_type, user_id)
     else:
         # Object did not have a suitable activity_stream_item() method; it must
         # not be a package
@@ -41,13 +41,13 @@ class DatasetActivitySessionExtension(SessionExtension):
 
         try:
             object_cache = session._object_cache
-            revision = session.revision
         except AttributeError:
-            # session had no _object_cache or no revision; skipping this commit
+            # session had no _object_cache; skipping this commit
             return
 
-        if revision.user:
-            user_id = revision.user.id
+        user = 'DUNNO'  # TODO!!
+        if user:
+            user_id = user
         else:
             # If the user is not logged in then revision.user is None and
             # revision.author is their IP address. Just log them as 'not logged
@@ -63,7 +63,7 @@ class DatasetActivitySessionExtension(SessionExtension):
         # logged as changed packages.
         # Looking for new packages...
         for obj in object_cache['new']:
-            activity = activity_stream_item(obj, 'new', revision, user_id)
+            activity = activity_stream_item(obj, 'new', user_id)
             if activity is None:
                 continue
             # The object returns an activity stream item, so we know that the
@@ -113,7 +113,7 @@ class DatasetActivitySessionExtension(SessionExtension):
                         continue
 
                     activity = activity_stream_item(
-                        package, "changed", revision, user_id)
+                        package, "changed", user_id)
                     if activity is None:
                         continue
                     activities[package.id] = activity

@@ -676,8 +676,9 @@ def default_create_resource_view_schema(resource_view):
 
 @validator_args
 def default_create_resource_view_schema_unfiltered(
-        not_empty, unicode_safe, ignore_missing, empty):
+        not_empty, resource_id_exists, unicode_safe, ignore_missing, empty):
     return {
+        'resource_id': [not_empty, resource_id_exists],
         'title': [not_empty, unicode_safe],
         'description': [ignore_missing, unicode_safe],
         'view_type': [not_empty, unicode_safe],
@@ -708,10 +709,11 @@ def default_update_resource_view_schema(resource_view):
 
 @validator_args
 def default_update_resource_view_schema_changes(
-        not_missing, not_empty, unicode_safe, ignore,
+        not_missing, not_empty, unicode_safe, resource_id_exists, ignore,
         ignore_missing):
     return {
         'id': [not_missing, not_empty, unicode_safe],
+        'resource_id': [ignore_missing, resource_id_exists],
         'title': [ignore_missing, unicode_safe],
         'view_type': [ignore],  # cannot change after create
         'package_id': [ignore]
