@@ -403,55 +403,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         objects.'''
         return self.all_related_revisions[0][0]
 
-    def diff(self, to_revision=None, from_revision=None):
-        '''Overrides the diff in vdm, so that related obj revisions are
-        diffed as well as PackageRevisions'''
-        from tag import PackageTag
-        from resource import Resource
-        from package_extra import PackageExtra
-
-        results = {} # field_name:diffs
-        results.update(super(Package, self).diff(to_revision, from_revision))
-        # Iterate over PackageTag, PackageExtra, Resources etc.
-        for obj_class in [Resource, PackageExtra, PackageTag]:
-            obj_rev_class = obj_class.__revision_class__
-            # Query for object revisions related to this package
-            obj_rev_query = meta.Session.query(obj_rev_class).\
-                            filter_by(package_id=self.id).\
-                            join('revision').\
-                            order_by(core.Revision.timestamp.desc())
-            # Columns to include in the diff
-            cols_to_diff = obj_class.revisioned_fields()
-            cols_to_diff.remove('id')
-            if obj_class is Resource:
-                cols_to_diff.remove('package_id')
-            # Particular object types are better known by an invariant field
-            if obj_class is PackageTag:
-                cols_to_diff.remove('tag_id')
-            elif obj_class is PackageExtra:
-                cols_to_diff.remove('key')
-            # Iterate over each object ID
-            # e.g. for PackageTag, iterate over Tag objects
-            related_obj_ids = set([related_obj.id for related_obj in obj_rev_query.all()])
-            for related_obj_id in related_obj_ids:
-                q = obj_rev_query.filter(obj_rev_class.id==related_obj_id)
-                to_obj_rev, from_obj_rev = super(Package, self).\
-                    get_obj_revisions_to_diff(
-                    q, to_revision, from_revision)
-                for col in cols_to_diff:
-                    values = [getattr(obj_rev, col) if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
-                    value_diff = self._differ(*values)
-                    if value_diff:
-                        if obj_class.__name__ == 'PackageTag':
-                            display_id = to_obj_rev.tag.name
-                        elif obj_class.__name__ == 'PackageExtra':
-                            display_id = to_obj_rev.key
-                        else:
-                            display_id = related_obj_id[:4]
-                        key = '%s-%s-%s' % (obj_class.__name__, display_id, col)
-                        results[key] = value_diff
-        return results
-
     @property
     @maintain.deprecated('`is_private` attriute of model.Package is ' +
                          'deprecated and should not be used.  Use `private`')

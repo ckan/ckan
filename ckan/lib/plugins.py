@@ -417,13 +417,6 @@ class DefaultGroupForm(object):
         """
         return 'group/about.html'
 
-    def history_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the history page
-        """
-        return 'group/history.html'
-
     def edit_template(self):
         """
         Returns a string representing the location of the template to be
