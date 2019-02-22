@@ -5,14 +5,14 @@ from nose.tools import eq_
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan.migration.migrate_package_activity import migrate_dataset
+from ckan.migration.migrate_package_activity import (migrate_dataset,
+                                                     wipe_activity_detail)
 from ckan.model.activity import package_activity_list
 from ckan import model
 
 
 class TestMigrate(object):
-    @classmethod
-    def setup_class(cls):
+    def setup(self):
         helpers.reset_db()
 
     @classmethod
@@ -78,3 +78,41 @@ class TestMigrate(object):
 
         activity_data_after = package_activity_list(dataset['id'], 0, 0)[0].data
         eq_(activity_data_before, activity_data_after)
+
+    def test_wipe_activity_detail(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        activity = factories.Activity(
+            user_id=user['id'], object_id=dataset['id'], revision_id=None,
+            activity_type='new package',
+            data={
+                'package': copy.deepcopy(dataset),
+                'actor': 'Mr Someone',
+            })
+        ad = model.ActivityDetail(
+            activity_id=activity['id'], object_id=dataset['id'],
+            object_type='package', activity_type='new package')
+        model.Session.add(ad)
+        model.Session.commit()
+        eq_(model.Session.query(model.ActivityDetail).count(), 1)
+        wipe_activity_detail(delete_activity_detail='y')
+        eq_(model.Session.query(model.ActivityDetail).count(), 0)
+
+    def test_dont_wipe_activity_detail(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        activity = factories.Activity(
+            user_id=user['id'], object_id=dataset['id'], revision_id=None,
+            activity_type='new package',
+            data={
+                'package': copy.deepcopy(dataset),
+                'actor': 'Mr Someone',
+            })
+        ad = model.ActivityDetail(
+            activity_id=activity['id'], object_id=dataset['id'],
+            object_type='package', activity_type='new package')
+        model.Session.add(ad)
+        model.Session.commit()
+        eq_(model.Session.query(model.ActivityDetail).count(), 1)
+        wipe_activity_detail(delete_activity_detail='n')  # i.e. don't do it!
+        eq_(model.Session.query(model.ActivityDetail).count(), 1)

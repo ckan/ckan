@@ -187,10 +187,12 @@ def migrate_dataset(dataset_name, errors):
 
 def wipe_activity_detail(delete_activity_detail):
     from ckan import model
-    num_activity_detail_rows = \
-        model.Session.execute(u'SELECT count(*) FROM "activity_detail";') \
-        .fetchall()[0][0]
-    if num_activity_detail_rows == 0:
+    activity_detail_has_rows = \
+        bool(model.Session.execute(
+            u'SELECT count(*) '
+            'FROM (SELECT * FROM "activity_detail" LIMIT 1) as t;') \
+        .fetchall()[0][0])
+    if not activity_detail_has_rows:
         print(u'\nactivity_detail table is aleady emptied')
         return
     print(
@@ -204,7 +206,7 @@ def wipe_activity_detail(delete_activity_detail):
         delete_activity_detail = \
             input(u'Delete activity_detail table content? (y/n):')
     if delete_activity_detail.lower()[:1] != u'y':
-        sys.exit(0)
+        return
     from ckan import model
     model.Session.execute(u'DELETE FROM "activity_detail";')
     model.Session.commit()
