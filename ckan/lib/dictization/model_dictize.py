@@ -13,7 +13,6 @@ which builds the dictionary by iterating over the table columns.
 '''
 import datetime
 import urlparse
-import copy
 
 from ckan.common import config
 from sqlalchemy.sql import select
@@ -637,19 +636,13 @@ def vocabulary_list_dictize(vocabulary_list, context):
 def activity_dictize(activity, context, include_data=False):
     activity_dict = d.table_dictize(activity, context)
     if not include_data:
-        # take a copy of the activity data, since the original may be used
-        # elsewhere during the same render and we don't want to affect that
-        activity_dict['data'] = copy.deepcopy(activity_dict['data'])
-        # delete all the data apart from the title field on each data object,
-        # because that is needed to display it in the activity stream
-        for obj_key in activity_dict['data'].keys():
-            obj_data = activity_dict['data'][obj_key]
-            if isinstance(obj_data, dict):
-                for key in obj_data.keys():
-                    if key != 'title':
-                        del obj_data[key]
-            else:
-                del activity_dict['data'][obj_key]
+        # replace the data with just a {'title': title} and not the rest of
+        # the dataset/group/org/custom obj. we need the title to display it
+        # in the activity stream.
+        activity_dict['data'] = {
+            key: {'title': val['title']}
+            for (key, val) in activity_dict['data'].items()
+            if isinstance(val, dict) and 'title' in val}
     return activity_dict
 
 
