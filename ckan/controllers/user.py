@@ -497,7 +497,7 @@ class UserController(base.BaseController):
                     mailer.send_reset_link(user_obj)
                     h.flash_success(_('Please check your inbox for '
                                     'a reset code.'))
-                    h.redirect_to('/')
+                    h.redirect_to(u'home.index')
                 except mailer.MailerException as e:
                     h.flash_error(_('Could not send reset link: %s') %
                                   text_type(e))
@@ -542,7 +542,7 @@ class UserController(base.BaseController):
                 mailer.create_reset_key(user_obj)
 
                 h.flash_success(_("Your password has been reset."))
-                h.redirect_to('/')
+                h.redirect_to(u'home.index')
             except NotAuthorized:
                 h.flash_error(_('Unauthorized to edit user %s') % id)
             except NotFound as e:
