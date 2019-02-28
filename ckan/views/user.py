@@ -541,7 +541,7 @@ class RequestResetView(MethodView):
                 h.flash_success(
                     _(u'Please check your inbox for '
                       u'a reset code.'))
-                return h.redirect_to(u'/')
+                return h.redirect_to(u'home.index')
             except mailer.MailerException as e:
                 h.flash_error(_(u'Could not send reset link: %s') %
                               text_type(e))
@@ -611,7 +611,7 @@ class PerformResetView(MethodView):
             mailer.create_reset_key(context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(u'/')
+            return h.redirect_to(u'home.index')
         except logic.NotAuthorized:
             h.flash_error(_(u'Unauthorized to edit user %s') % id)
         except logic.NotFound:
