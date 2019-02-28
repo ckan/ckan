@@ -302,6 +302,16 @@ sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ck
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw set_keywords -p /usr/lib/ckan/venv/src/pycsw/default.cfg -u http://localhost:5000
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw load -p /usr/lib/ckan/venv/src/pycsw/default.cfg -u http://localhost:5000
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw clear -p /usr/lib/ckan/venv/src/pycsw/default.cfg
+
+### errors while pycsw loading
+if you get "Error:Cannot commit to repository" and "HINT:  Values larger than 1/3 of a buffer page cannot be indexed." you are liekly loading abstracts or other fields that are to big to be indexed in the database. You can either remove the index or switch to an index using the md5 encoded version of the value.
+#### connect to db
+sudo docker exec -i db psql -U ckan
+\c pycsw
+#### remove index
+DROP INDEX ix_records_abstract;
+#### add md5 index
+CREATE INDEX ix_records_abstract ON records((md5(abstract)));
 ---
 # Troubleshooting
 
@@ -379,6 +389,10 @@ cd ~/ckan/contrib/docker
 sudo cp -r src/ckanext-cioos_theme/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-spatial/ $VOL_CKAN_HOME/venv/src/
+sudo cp -r src/pycsw/ $VOL_CKAN_HOME/venv/src/
+sudo cp -r src/ckanext-doi/ $VOL_CKAN_HOME/venv/src/
+sudo cp -r src/ckanext-scheming/ $VOL_CKAN_HOME/venv/src/
+sudo cp -r src/ckanext-package_converter/ $VOL_CKAN_HOME/venv/src/
 ```
 
 ### update permissions

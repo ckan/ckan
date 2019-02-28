@@ -49,3 +49,9 @@ node_modules/
 contrib/docker/.env
 cypress.env.json
 
+
+contrib/docker/pycsw/pycsw\.cfg
+
+contrib/docker/schema/hakai/hakai_schema\.json
+
+contrib/docker/schema/hakai/hakai_preset\.json

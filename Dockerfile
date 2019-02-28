@@ -10,6 +10,8 @@ RUN apt-get -q -y update \
         python-pip \
         python-virtualenv \
         python-wheel \
+        python-lxml \
+        python-owslib \
         python3-dev \
         python3-pip \
         python3-virtualenv \
@@ -72,42 +74,46 @@ RUN ckan-pip install mock
 # for debugging
 RUN ckan-pip install flask_debugtoolbar
 
-
+# Copy extensions into container
 WORKDIR $CKAN_VENV/src
 COPY ./contrib/docker/src/pycsw $CKAN_VENV/src/pycsw
 COPY ./contrib/docker/pycsw/pycsw.cfg $CKAN_VENV/src/pycsw/default.cfg
 COPY ./contrib/docker/src/ckanext-harvest $CKAN_VENV/src/ckanext-harvest
 COPY ./contrib/docker/src/ckanext-spatial $CKAN_VENV/src/ckanext-spatial
 COPY ./contrib/docker/src/ckanext-cioos_theme $CKAN_VENV/src/ckanext-cioos_theme
+#COPY ./contrib/docker/src/ckanext-doi $CKAN_VENV/src/ckanext-doi
+COPY ./contrib/docker/src/ckanext-scheming $CKAN_VENV/src/ckanext-scheming
+COPY ./contrib/docker/src/ckanext-package_converter $CKAN_VENV/src/ckanext-package_converter
+COPY ./contrib/docker/schema/hakai/hakai_schema.json $CKAN_VENV/src/ckanext-scheming/ckanext/scheming/hakai_schema.json
+COPY ./contrib/docker/schema/hakai/hakai_presets.json $CKAN_VENV/src/ckanext-scheming/ckanext/scheming/hakai_presets.json
 RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
+# Install Extensions
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -e pycsw"
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r pycsw/requirements.txt"
+# RUN chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/pycsw && python setup.py build && python setup.py install && python setup.py develop"
 
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-harvest/pip-requirements.txt"
-RUN chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+# RUN chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-harvest && python setup.py install && python setup.py develop"
 
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-spatial/pip-requirements.txt"
-RUN chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+# RUN chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-spatial && python setup.py install && python setup.py develop"
 
 # add simlink so ckan spatial can find pycsw
 RUN ln -s $CKAN_VENV/src/pycsw/pycsw $CKAN_VENV/src/ckanext-spatial/pycsw
 
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-cioos_theme && python setup.py install && python setup.py develop"
+#RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-doi && python setup.py install && python setup.py develop"
 
-RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-scheming/requirements.txt"
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-scheming && python setup.py install && python setup.py develop"
 
-#COPY ./contrib/docker/ckan_harvesting.conf /etc/supervisor/conf.d/ckan_harvesting.conf
-RUN  mkdir /var/log/ckan && mkdir /var/log/ckan/std
-
-# setup harvesting cron job
-#COPY ./contrib/docker/crontab /etc/cron.d/ckan_harvesting
-#RUN chmod 0644 /etc/cron.d/ckan_harvesting
-
-COPY ./contrib/docker/crontab  /var/spool/cron/crontabs/root
-RUN chmod 0600 /var/spool/cron/crontabs/root
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-package_converter/requirements.txt"
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-package_converter/dev-requirements.txt"
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-package_converter && python setup.py install && python setup.py develop"
 
 RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
