@@ -275,8 +275,10 @@ class Repository(vdm.sqlalchemy.Repository):
         self.setup_migration_version_control()
         version_before = mig.db_version(self.metadata.bind, self.migrate_repository)
         from ckan.migration.migrate_package_activity import num_unmigrated
-        # if still at version 0 there can't be any activities needing migrating
-        if version_before > 0:
+        # If still at version 0 there can't be any activities needing
+        # migrating. This check is also done in migration 88, so if you've
+        # upgraded that far then we don't need to do it again.
+        if 0 < version_before < 88:
             num_unmigrated_dataset_activities = num_unmigrated(meta.engine)
             if num_unmigrated_dataset_activities:
                 print('''
