@@ -143,8 +143,8 @@ def migrate_dataset(dataset_name, errors):
             get_context(),
             for_view=False,
             revision_id=activity[u'revision_id'],
-            use_cache=False, # avoid the cache (which would give us the
-                             # latest revision)
+            use_cache=False,  # avoid the cache (which would give us the
+                              # latest revision)
         )
         try:
             dataset = logic.get_action(u'package_show')(

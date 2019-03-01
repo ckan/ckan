@@ -60,12 +60,12 @@ class TestMigrateDataset(object):
         # Remove 'activity.data.package.resources' to provoke the migration to
         # regenerate it from package_revision (etc)
         activity = model.Activity.get(activity.id)
-        activity.data = {u'actor': None, u'package': {u'title': 'Title 2'}}
+        activity.data = {u'actor': None, u'package': {u'title': u'Title 2'}}
         model.Session.commit()
         model.Session.remove()
         # double check that worked...
         assert not \
-            model.Activity.get(activity.id).data['package'].get('resources')
+            model.Activity.get(activity.id).data['package'].get(u'resources')
 
         migrate_dataset(dataset['name'], {})
 
@@ -101,12 +101,12 @@ class TestMigrateDataset(object):
         activity = package_activity_list(dataset['id'], 0, 0)[0]
         activity = model.Activity.get(activity.id)
         activity.data = {u'actor': None,
-                         u'package': {u'title': 'Test Dataset'}}
+                         u'package': {u'title': u'Test Dataset'}}
         model.Session.commit()
         model.Session.remove()
         # double check that worked...
         assert not \
-            model.Activity.get(activity.id).data['package'].get('resources')
+            model.Activity.get(activity.id).data['package'].get(u'resources')
 
         errors = defaultdict(int)
         migrate_dataset(dataset['name'], errors)
@@ -154,12 +154,12 @@ class TestMigrateDataset(object):
         activity = package_activity_list(dataset['id'], 0, 0)[0]
         activity = model.Activity.get(activity.id)
         activity.data = {u'actor': None,
-                         u'package': {u'title': 'Test Dataset'}}
+                         u'package': {u'title': u'Test Dataset'}}
         model.Session.commit()
         model.Session.remove()
         # double check that worked...
         assert not \
-            model.Activity.get(activity.id).data['package'].get('resources')
+            model.Activity.get(activity.id).data['package'].get(u'resources')
 
         errors = defaultdict(int)
         # package_show raises an exception - could be because data doesn't
@@ -167,7 +167,7 @@ class TestMigrateDataset(object):
         # currently installed plugins. Those errors shouldn't prevent the
         # migration from going ahead.
         ckan.logic._actions['package_show'] = \
-            mock.MagicMock(side_effect=Exception('Schema error'))
+            mock.MagicMock(side_effect=Exception(u'Schema error'))
         try:
             migrate_dataset(dataset['name'], errors)
         finally:
