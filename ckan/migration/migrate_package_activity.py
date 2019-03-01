@@ -117,7 +117,7 @@ def migrate_dataset(dataset_name, errors):
         print(u'  No activities')
 
     # Iterate over this package's existing activity stream objects
-    for i, activity in enumerate(package_activity_stream):
+    for i, activity in enumerate(reversed(package_activity_stream)):
         # e.g. activity =
         # {'activity_type': u'changed package',
         #  'id': u'62107f87-7de0-4d17-9c30-90cbffc1b296',
