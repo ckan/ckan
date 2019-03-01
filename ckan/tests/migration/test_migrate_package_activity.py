@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import copy
-from nose.tools import eq_
+from nose.tools import assert_equal as eq_
 from collections import defaultdict
 
 import ckan.tests.factories as factories
@@ -52,19 +52,25 @@ class TestMigrateDataset(object):
         helpers.call_action(u'package_update', **dataset)
 
         activity = package_activity_list(dataset['id'], 0, 0)[1]
-        activity_data_as_it_should_be = copy.deepcopy(activity.data)
+        activity_data_as_it_should_be = copy.deepcopy(activity.data['package'])
 
-        # Remove 'activity.data.package' to provoke the migration to regenerate
-        # it from package_revision (etc)
+        # Remove 'activity.data.package.resources' to provoke the migration to
+        # regenerate it from package_revision (etc)
         activity = model.Activity.get(activity.id)
-        del activity.data['package']
-        model.repo.commit_and_remove()
+        activity.data = {u'actor': None, u'package': {u'title': 'Title 2'}}
+        model.Session.commit()
+        model.Session.remove()
+        # double check that worked...
+        assert not \
+            model.Activity.get(activity.id).data['package'].get('resources')
+
         migrate_dataset(dataset['name'], {})
 
+        eq_.__self__.maxDiff = None
         activity_data_migrated = \
-            package_activity_list(dataset['id'], 0, 0)[1].data
+            package_activity_list(dataset['id'], 0, 0)[1].data['package']
         eq_(activity_data_as_it_should_be, activity_data_migrated)
-        eq_(activity_data_migrated['package']['title'], u'Title 2')
+        eq_(activity_data_migrated['title'], u'Title 2')
 
     def test_a_contemporary_activity_needs_no_migration(self):
         # An Activity created by a change under the current CKAN should not
@@ -91,8 +97,13 @@ class TestMigrateDataset(object):
         # delete 'activity.data.package.resources' so it needs migrating
         activity = package_activity_list(dataset['id'], 0, 0)[0]
         activity = model.Activity.get(activity.id)
-        del activity.data['package']['resources']
+        activity.data = {u'actor': None,
+                         u'package': {u'title': 'Test Dataset'}}
         model.Session.commit()
+        model.Session.remove()
+        # double check that worked...
+        assert not \
+            model.Activity.get(activity.id).data['package'].get('resources')
 
         errors = defaultdict(int)
         migrate_dataset(dataset['name'], errors)
@@ -134,6 +145,13 @@ class TestMigrateDataset(object):
 
 
 class TestWipeActivityDetail(object):
+    def setup(self):
+        helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
     def test_wipe_activity_detail(self):
         dataset = factories.Dataset()
         user = factories.User()
