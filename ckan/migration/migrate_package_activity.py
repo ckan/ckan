@@ -102,7 +102,6 @@ def migrate_dataset(dataset_name, errors):
     import ckan.logic as logic
     from ckan import model
 
-    context = get_context()
     # 'hidden' activity is that by site_user, such as harvests, which are
     # not shown in the activity stream because they can be too numerous.
     # However these do have Activity objects, and if a hidden Activity is
@@ -110,14 +109,13 @@ def migrate_dataset(dataset_name, errors):
     # non-hidden Activity, then it does a diff with the hidden one (rather than
     # the most recent non-hidden one), so it is important to store the
     # package_dict in hidden Activity objects.
-    context[u'include_hidden_activity'] = True
+    context = dict(get_context(), include_hidden_activity=True)
     package_activity_stream = logic.get_action(u'package_activity_list')(
         context, {u'id': dataset_name})
     num_activities = len(package_activity_stream)
     if not num_activities:
         print(u'  No activities')
 
-    context[u'for_view'] = False
     # Iterate over this package's existing activity stream objects
     for i, activity in enumerate(package_activity_stream):
         # e.g. activity =
@@ -140,7 +138,13 @@ def migrate_dataset(dataset_name, errors):
         # get the dataset as it was at this revision:
         # call package_show just as we do in package.py:activity_stream_item(),
         # only with a revision_id (to get it as it was then)
-        context[u'revision_id'] = activity[u'revision_id']
+        context = dict(
+            get_context(),
+            for_view=False,
+            revision_id=activity[u'revision_id'],
+            use_cache=False, # avoid the cache (which would give us the
+                             # latest revision)
+        )
         try:
             dataset = logic.get_action(u'package_show')(
                 context,
