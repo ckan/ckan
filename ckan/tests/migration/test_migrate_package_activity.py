@@ -4,12 +4,15 @@ import copy
 from nose.tools import assert_equal as eq_
 from collections import defaultdict
 
+import mock
+
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.migration.migrate_package_activity import (migrate_dataset,
                                                      wipe_activity_detail)
 from ckan.model.activity import package_activity_list
 from ckan import model
+import ckan.logic
 
 
 class TestMigrateDataset(object):
@@ -142,6 +145,36 @@ class TestMigrateDataset(object):
         # the title is there so the activity stream can display it
         eq_(activity_data_migrated['package']['title'], u'unknown')
         assert u'resources' not in activity_data_migrated['package']
+
+    def test_package_show_error(self):
+        dataset = factories.Dataset(resources=[
+            {u'url': u'http://example.com/a.csv', u'format': u'csv'}
+        ])
+        # delete 'activity.data.package.resources' so it needs migrating
+        activity = package_activity_list(dataset['id'], 0, 0)[0]
+        activity = model.Activity.get(activity.id)
+        activity.data = {u'actor': None,
+                         u'package': {u'title': 'Test Dataset'}}
+        model.Session.commit()
+        model.Session.remove()
+        # double check that worked...
+        assert not \
+            model.Activity.get(activity.id).data['package'].get('resources')
+
+        errors = defaultdict(int)
+        # package_show raises an exception - could be because data doesn't
+        # conform to the latest dataset schema or is incompatible with
+        # currently installed plugins. Those errors shouldn't prevent the
+        # migration from going ahead.
+        ckan.logic._actions['package_show'] = \
+            mock.MagicMock(side_effect=Exception('Schema error'))
+        try:
+            migrate_dataset(dataset['name'], errors)
+        finally:
+            # restore package_show
+            ckan.logic.clear_actions_cache()
+
+        eq_(dict(errors), {u'Schema error': 1})
 
 
 class TestWipeActivityDetail(object):

@@ -32,6 +32,7 @@ import argparse
 import sys
 from collections import defaultdict
 from six.moves import input
+from six import text_type
 
 # not importing anything from ckan until after the arg parsing, to fail on bad
 # args quickly.
@@ -149,10 +150,15 @@ def migrate_dataset(dataset_name, errors):
             dataset = logic.get_action(u'package_show')(
                 context,
                 {u'id': activity[u'object_id'], u'include_tracking': False})
-        except logic.NotFound as exc:
-            print(u'    Revision missing! Skipping this version '
-                  '(revision_id={})'.format(activity[u'revision_id']))
-            errors['Revision missing'] += 1
+        except Exception as exc:
+            if isinstance(exc, logic.NotFound):
+                error_msg = u'Revision missing'
+            else:
+                error_msg = text_type(exc)
+            print(u'    Error: {}! Skipping this version '
+                  '(revision_id={})'
+                  .format(error_msg, activity[u'revision_id']))
+            errors[error_msg] += 1
             # We shouldn't leave the activity.data['package'] with missing
             # resources, extras & tags, which could cause the package_read
             # template to raise an exception, when user clicks "View this
