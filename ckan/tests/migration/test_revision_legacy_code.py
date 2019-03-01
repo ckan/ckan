@@ -13,7 +13,7 @@ from ckan.migration.revision_legacy_code import package_dictize_with_revisions a
 
 
 # tests here have been moved from ckan/tests/legacy/lib/test_dictization.py
-class TestPackageDictizeWithRevisions:
+class TestPackageDictizeWithRevisions(object):
     @classmethod
     def setup_class(cls):
         # clean the db so we can run these tests on their own

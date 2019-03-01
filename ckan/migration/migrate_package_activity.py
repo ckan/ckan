@@ -137,10 +137,10 @@ def migrate_dataset(dataset_name, errors):
                   ' - no action')
             continue
 
-        # get the dataset as it was at this revision
-        context[u'revision_id'] = activity[u'revision_id']
+        # get the dataset as it was at this revision:
         # call package_show just as we do in package.py:activity_stream_item(),
-        # only with a revision_id
+        # only with a revision_id (to get it as it was then)
+        context[u'revision_id'] = activity[u'revision_id']
         try:
             dataset = logic.get_action(u'package_show')(
                 context,
@@ -157,7 +157,9 @@ def migrate_dataset(dataset_name, errors):
             try:
                 dataset = {u'title': activity_obj.data['package']['title']}
             except KeyError:
-                dataset = None
+                # unlikely the package is not recorded in the activity, but
+                # not impossible
+                dataset = {u'title': u'unknown'}
 
         # get rid of revision_timestamp, which wouldn't be there if saved by
         # during activity_stream_item() - something to do with not specifying
@@ -190,8 +192,8 @@ def wipe_activity_detail(delete_activity_detail):
     activity_detail_has_rows = \
         bool(model.Session.execute(
             u'SELECT count(*) '
-            'FROM (SELECT * FROM "activity_detail" LIMIT 1) as t;') \
-        .fetchall()[0][0])
+            'FROM (SELECT * FROM "activity_detail" LIMIT 1) as t;')
+            .fetchall()[0][0])
     if not activity_detail_has_rows:
         print(u'\nactivity_detail table is aleady emptied')
         return
