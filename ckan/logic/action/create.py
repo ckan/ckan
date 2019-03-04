@@ -168,70 +168,13 @@ def package_create(context, data_dict):
                 # to ensure they still work
                 package_plugin.check_data_dict(data_dict)
 
-    rename_dataset_name_when_collision = plugins.toolkit.asbool(
-            config.get('ckan.rename_dataset_name_when_collision', 'false'))
-
-    if 'name' in data_dict:
-        original_data_name = data_dict['name']
-        if rename_dataset_name_when_collision:
-            # modify name for shorten its length in 2 characters
-            # because we will check for a suffix up to 99
-            data_dict['name'] = data_dict['name'][:(PACKAGE_NAME_MAX_LENGTH-2)]
-
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               data.get('name'), data_dict)
 
-    if rename_dataset_name_when_collision:
-        # checking for recoverable error (URL already in use)
-        # by adding a suffix
-        current_name_temp = ''
-        MAX_ATTEMPS = 99
-        url_in_use_msg = _(u'That URL is already in use.')
-        too_may_msg = _(u'Too many datasets with same name.')
-
-        if errors:
-            if ('name' in errors):
-                if (errors['name'][0] == url_in_use_msg):
-                    previous_data_name = data_dict['name']
-                    # search a new data name => previous name + counter
-                    i = 1
-                    # try MAX_ATTEMPS
-                    while i <= MAX_ATTEMPS:
-                        # get a new unused data name
-                        current_name_temp = data.get('name') + str(i)
-                        data_dict['name'] = current_name_temp
-                        data2, errors2 = lib_plugins.plugin_validate(
-                           package_plugin, context, data_dict, schema,
-                           'package_create')
-                        if errors2:
-                            if ('name' in errors2):
-                                if (errors2['name'][0] == url_in_use_msg):
-                                    if i >= (MAX_ATTEMPS-1):
-                                        # too many attemps => resign
-                                        model.Session.rollback()
-                                        raise df.Invalid(too_may_msg)
-                                    else:
-                                        i = i + 1
-                                else:
-                                    # there are other errors despite of
-                                    # changing its name => resign
-                                    i = MAX_ATTEMPS+1
-                            else:
-                                # there are other errors despite of
-                                # changing its name => resign
-                                i = MAX_ATTEMPS+1
-                        else:
-                            data['name'] = current_name_temp
-                            data_dict['name'] = current_name_temp
-                            errors = errors2
-                            i = MAX_ATTEMPS+1
-
     if errors:
-        if 'name' in data_dict:
-            data_dict['name'] = original_data_name
         model.Session.rollback()
         raise ValidationError(errors)
 

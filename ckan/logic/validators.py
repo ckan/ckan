@@ -18,8 +18,9 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
 import ckan.authz as authz
 from ckan.model.core import State
+import ckan.plugins as plugins
 
-from ckan.common import _
+from ckan.common import _, config
 
 Invalid = df.Invalid
 StopOnError = df.StopOnError
@@ -346,31 +347,67 @@ def name_validator(value, context):
                         '(ascii) characters and these symbols: -_'))
     return value
 
-def package_name_validator(key, data, errors, context):
+def check_if_pkg_name_already_used(context, data, value, key):
     model = context['model']
     session = context['session']
     package = context.get('package')
 
-    query = session.query(model.Package.state).filter_by(name=data[key])
+    query = session.query(model.Package.state).filter_by(name=value)
     if package:
         package_id = package.id
     else:
         package_id = data.get(key[:-1] + ('id',))
+
     if package_id and package_id is not missing:
         query = query.filter(model.Package.id != package_id)
     result = query.first()
     if result and result.state != State.DELETED:
-        errors[key].append(_('That URL is already in use.'))
+        return True
+
+    return False
+
+def package_name_validator(key, data, errors, context):
+    rename_dataset_name_when_collision = plugins.toolkit.asbool(
+            config.get('ckan.rename_dataset_name_when_collision', 'false'))
 
     value = data[key]
+    if check_if_pkg_name_already_used(context, data, value, key):
+        if rename_dataset_name_when_collision:
+            # modify name for shorten its length in 2 characters
+            # because we will check for a suffix up to 99
+            value = value[:(PACKAGE_NAME_MAX_LENGTH-2)]
+            MAX_ATTEMPS = 99
+            i = 1
+
+            # try MAX_ATTEMPS
+            while i <= MAX_ATTEMPS:
+                # get a new unused data name
+                value = data[key] + str(i)
+                if check_if_pkg_name_already_used(context, data, value, key):
+                    i = i + 1
+                    if i >= MAX_ATTEMPS:
+                        errors[key].append(
+                                _('That URL is already in use and '
+                                  'too many datasets with same name.'))
+                else:
+                    # We have found a valid name
+                    i = MAX_ATTEMPS + 1
+
+        else:
+            errors[key].append(_('That URL is already in use.'))
+
     if len(value) < PACKAGE_NAME_MIN_LENGTH:
         raise Invalid(
-            _('Name "%s" length is less than minimum %s') % (value, PACKAGE_NAME_MIN_LENGTH)
+            _('Name "%s" length is less than minimum %s') %
+            (value, PACKAGE_NAME_MIN_LENGTH)
         )
     if len(value) > PACKAGE_NAME_MAX_LENGTH:
         raise Invalid(
-            _('Name "%s" length is more than maximum %s') % (value, PACKAGE_NAME_MAX_LENGTH)
+            _('Name "%s" length is more than maximum %s') %
+            (value, PACKAGE_NAME_MAX_LENGTH)
         )
+
+    data[key] = value
 
 def package_version_validator(value, context):
 
