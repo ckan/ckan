@@ -8,7 +8,5 @@
       {{ _('Activity Stream') }}
     {%- endblock %}
   </h1>
-  {% block activity_stream %}
-    {{ c.group_activity_stream | safe }}
-  {% endblock %}
+  {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream, id=id, object_type='organization' %}
 {% endblock %}

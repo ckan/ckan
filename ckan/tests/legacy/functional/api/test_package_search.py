@@ -2,6 +2,8 @@
 
 from urllib import quote
 
+import webhelpers
+
 import ckan.lib.search as search
 from ckan.tests.legacy import setup_test_search_index
 from ckan.tests.legacy.functional.api.base import *

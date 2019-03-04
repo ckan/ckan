@@ -1,0 +1,57 @@
+{% macro actor(activity) %}
+<span class="actor">
+  {{ h.linked_user(activity.user_id, 0, 30) }}
+</span>
+{% endmacro %}
+
+{% macro dataset(activity) %}
+<span class="dataset">
+  {{ h.link_to(activity.data.package.title if activity.data.package else _('unknown'),
+               h.url_for('dataset.read', id=activity.object_id)) }}
+               {# object_id because the object_name may be out of date) #}
+</span>
+{% endmacro %}
+
+{% macro organization(activity) %}
+  {{ h.link_to(activity.data.group.title if activity.data.group else _('unknown'),
+               h.url_for(controller='organization', action='read', id=activity.object_id)) }}
+               {# object_id because the object_name may be out of date) #}
+{% endmacro %}
+
+{% macro user(activity) %}
+<span class="actor">
+  {{ h.linked_user(activity.object_id, 0, 20) }}
+</span>
+{% endmacro %}
+
+{% macro group(activity) %}
+<span class="group">
+  {{ h.link_to(activity.data.group.title if activity.data.group else _('unknown'),
+               h.url_for(controller='group', action='read', id=activity.object_id)) }}
+               {# object_id because the object_name may be out of date) #}
+</span>
+{% endmacro %}
+
+{# Displays an activity stream
+
+activity_stream - the activity data. e.g. the output from package_activity_list
+id - the id or current name of the object (e.g. package name, user id)
+object_type - 'package', 'organization', 'group', 'user'
+
+#}
+{% block activity_stream %}
+  <ul class="activity">
+  {% for activity in activity_stream %}
+    {%- snippet "snippets/activities/{}.html".format(
+      activity.activity_type.replace(' ', '_')
+      ), activity=activity, ah={
+        'actor': actor,
+        'dataset': dataset,
+        'organization': organization,
+        'user': user,
+        'group': group,
+      }, id=id
+    -%}
+  {% endfor %}
+  </ul>
+{% endblock %}

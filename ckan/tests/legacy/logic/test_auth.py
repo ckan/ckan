@@ -1,9 +1,5 @@
 # encoding: utf-8
 
-import paste
-from ckan.common import config
-import ckan.config.middleware
-import ckan.tests.legacy as tests
 from ckan.logic import get_action
 import ckan.model as model
 import ckan.authz as authz

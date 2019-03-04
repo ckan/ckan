@@ -11,28 +11,21 @@ setuptools. It also initializes the application via websetup (paster
 setup-app) with the project's test.ini configuration file.
 """
 import os
-import sys
-import re
 from unittest import TestCase
 from nose.tools import assert_equal, assert_not_equal, make_decorator
 from nose.plugins.skip import SkipTest
-import time
 
 from ckan.common import config
 from pylons.test import pylonsapp
 from paste.script.appinstall import SetupCommand
 from six import text_type
 
-import pkg_resources
 import paste.fixture
 import paste.script.appinstall
-from paste.deploy import loadapp
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
 import ckan.lib.helpers as h
-from ckan.logic import get_action
-from ckan.logic.action import get_domain_object
 import ckan.model as model
 from ckan import ckan_nose_plugin
 from ckan.common import json

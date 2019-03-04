@@ -1,18 +1,16 @@
 # encoding: utf-8
 
 from ckan.lib.helpers import url_for
-from nose.tools import assert_equal
 from ckan.common import config
 import hashlib
 
 from ckan.tests.legacy import CreateTestData
 from ckan.tests.legacy.html_check import HtmlCheckMethods
 from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
-from ckan.tests.legacy import TestController as ControllerTestCase
 
 import ckan.model as model
 from base import FunctionalTestCase
-from ckan.lib.mailer import get_reset_link, create_reset_key
+from ckan.lib.mailer import create_reset_key
 
 class TestUserController(FunctionalTestCase, HtmlCheckMethods, SmtpServerHarness):
     @classmethod

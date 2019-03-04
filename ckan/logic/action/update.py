@@ -563,7 +563,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
             activity_dict = None
         else:
             # We will emit a 'deleted group' activity.
-            activity_dict['activity_type'] = 'deleted group'
+            activity_dict['activity_type'] = \
+                'deleted organization' if is_org else 'deleted group'
     if activity_dict is not None:
         activity_dict['data'] = {
                 'group': dictization.table_dictize(group, context)

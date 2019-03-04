@@ -13,7 +13,6 @@ from ckan.lib.helpers import url_for
 
 import ckan.model as model
 import ckan.plugins as p
-from ckan.logic import get_action
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -1787,3 +1786,90 @@ class TestDatasetRead(helpers.FunctionalTestBase):
         app = helpers._get_test_app()
         app.get(url_for('dataset.read', id=dataset['id']),
                 status=200)  # ie no redirect
+
+
+class TestActivity(helpers.FunctionalTestBase):
+    def test_simple(self):
+        '''Checking the template shows the activity stream.'''
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in('Mr. Test User', response)
+        assert_in('created the dataset', response)
+
+    def test_create_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('created the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
+                  response)
+
+    def _clear_activities(self):
+        model.Session.query(model.ActivityDetail).delete()
+        model.Session.query(model.Activity).delete()
+        model.Session.flush()
+
+    def test_change_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        self._clear_activities()
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the dataset', response)
+        assert_in('<a href="/dataset/{}">Dataset with changed title'
+                  .format(dataset['name']),
+                  response)
+
+    def test_add_resource_to_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        self._clear_activities()
+        factories.Resource(package_id=dataset['id'], user=user)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
+                  response)
+
+    def test_delete_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        self._clear_activities()
+        helpers.call_action(
+            'package_delete', context={'user': user['name']}, **dataset)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(url, extra_environ=env)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('deleted the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'
+                  .format(dataset['name']),
+                  response)
