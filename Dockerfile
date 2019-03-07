@@ -84,8 +84,6 @@ COPY ./contrib/docker/src/ckanext-cioos_theme $CKAN_VENV/src/ckanext-cioos_theme
 #COPY ./contrib/docker/src/ckanext-doi $CKAN_VENV/src/ckanext-doi
 COPY ./contrib/docker/src/ckanext-scheming $CKAN_VENV/src/ckanext-scheming
 COPY ./contrib/docker/src/ckanext-package_converter $CKAN_VENV/src/ckanext-package_converter
-COPY ./contrib/docker/schema/hakai/hakai_schema.json $CKAN_VENV/src/ckanext-scheming/ckanext/scheming/hakai_schema.json
-COPY ./contrib/docker/schema/hakai/hakai_presets.json $CKAN_VENV/src/ckanext-scheming/ckanext/scheming/hakai_presets.json
 RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
 # Install Extensions
