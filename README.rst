@@ -30,6 +30,13 @@ system that provides a powerful platform for cataloging, storing and accessing
 datasets with a rich front-end, full API (for both data and catalog), visualization
 tools and more. Read more at `ckan.org <http://ckan.org/>`_.
 
+CIOOS-SIOOC Changes
+===================
+* Added several plugins under `/contrib/docker/src` along with config and setup
+  files in `/contrib/docker`.
+* Updated the Dockerfile to install plugins on container build
+* Created the [INSTALL_CIOOS_CKAN.md](./INSTALL_CIOOS_CKAN.md) install document to help with installing ckan and its plugins using
+  docker.
 
 Installation
 ------------
