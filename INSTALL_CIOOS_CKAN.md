@@ -269,19 +269,22 @@ The settings for harvesters are fairly straightforward. The one exception is the
 # Finish setting up pyCSW
 
 ## create pycsw database in existing pg container and install postgis
-
+```
 sudo docker exec -i db psql -U ckan
 CREATE DATABASE pycsw OWNER ckan ENCODING 'utf-8';
 \c pycsw
 CREATE EXTENSION postgis;
 \q
+```
 
 ## setup pycsw database tables.
+```
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw setup -p /usr/lib/ckan/venv/src/pycsw/default.cfg
-
+```
 ## start pycsw container
+```
 sudo docker-compose up -d pycsw
-
+```
 ## test GetCapabilities
 https://localhost/ckan/csw/?service=CSW&version=2.0.2&request=GetCapabilities
 or
@@ -291,27 +294,36 @@ https://localhost/csw/?service=CSW&version=2.0.2&request=GetCapabilities
 ## Useful pycsw commands
 
 ### access pycsw-admin
+```
 sudo docker exec -ti pycsw pycsw-admin.py -h
-
+```
 ### Load the CKAN datasets into pycsw
+```
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw load -p /usr/lib/ckan/venv/src/pycsw/default.cfg -u http://localhost:5000
-
+```
 ### ckan-pycsw commands
+```
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw --help
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw setup -p /usr/lib/ckan/venv/src/pycsw/default.cfg
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw set_keywords -p /usr/lib/ckan/venv/src/pycsw/default.cfg -u http://localhost:5000
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw load -p /usr/lib/ckan/venv/src/pycsw/default.cfg -u http://localhost:5000
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial ckan-pycsw clear -p /usr/lib/ckan/venv/src/pycsw/default.cfg
-
+```
 ### errors while pycsw loading
 if you get "Error:Cannot commit to repository" and "HINT:  Values larger than 1/3 of a buffer page cannot be indexed." you are liekly loading abstracts or other fields that are to big to be indexed in the database. You can either remove the index or switch to an index using the md5 encoded version of the value.
 #### connect to db
+```
 sudo docker exec -i db psql -U ckan
 \c pycsw
+```
 #### remove index
+```
 DROP INDEX ix_records_abstract;
+```
 #### add md5 index
+```
 CREATE INDEX ix_records_abstract ON records((md5(abstract)));
+```
 ---
 # Troubleshooting
 
