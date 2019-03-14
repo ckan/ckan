@@ -3613,7 +3613,7 @@ msgstr "Mise à jour de l'Organisation"
 
 #: ckan/templates/organization/new_organization_form.html:19
 msgid "Create Organization"
-msgstr "Créer une Orgaisation"
+msgstr "Créer une Organisation"
 
 #: ckan/templates/organization/read.html:5
 #: ckan/templates/package/search.html:16
