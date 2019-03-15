@@ -23,13 +23,14 @@ package_extra_table = Table('package_extra', meta.metadata,
     Column('package_id', types.UnicodeText, ForeignKey('package.id')),
     Column('key', types.UnicodeText),
     Column('value', types.UnicodeText),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-vdm.sqlalchemy.make_table_stateful(package_extra_table)
+
 extra_revision_table= core.make_revisioned_table(package_extra_table)
 
 class PackageExtra(vdm.sqlalchemy.RevisionedObjectMixin,
-        vdm.sqlalchemy.StatefulObjectMixin,
+        core.StatefulObjectMixin,
         domain_object.DomainObject):
 
     def related_packages(self):

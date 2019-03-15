@@ -8,7 +8,9 @@ import vdm.sqlalchemy
 from sqlalchemy import Column, DateTime, Text, Boolean
 
 
-__all__ = ['System', 'Revision', 'State', 'revision_table']
+__all__ = ['System', 'Revision', 'State', 'StatefulObjectMixin',
+           'revision_table']
+log = __import__('logging').getLogger(__name__)
 
 # VDM-specific tables
 revision_table = vdm.sqlalchemy.make_revision_table(meta.metadata)
@@ -31,8 +33,27 @@ class System(domain_object.DomainObject):
 
 
 # VDM-specific domain objects
-State = vdm.sqlalchemy.State
-State.all = [State.ACTIVE, State.DELETED]
+class State(object):
+    ACTIVE = u'active'
+    DELETED = u'deleted'
+    PENDING = u'pending'
+
+
+class StatefulObjectMixin(object):
+    __stateful__ = True
+
+    def delete(self):
+        log.debug('Running delete on %s', self)
+        self.state = State.DELETED
+
+    def undelete(self):
+        self.state = State.ACTIVE
+
+    def is_active(self):
+        # also support None in case this object is not yet refreshed ...
+        return self.state is None or self.state == State.ACTIVE
+
+
 Revision = vdm.sqlalchemy.make_Revision(meta.mapper, revision_table)
 
 

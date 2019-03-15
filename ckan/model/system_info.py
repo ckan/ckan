@@ -23,14 +23,14 @@ system_info_table = Table(
     Column('id', types.Integer(),  primary_key=True, nullable=False),
     Column('key', types.Unicode(100), unique=True, nullable=False),
     Column('value', types.UnicodeText),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-vdm.sqlalchemy.make_table_stateful(system_info_table)
 system_info_revision_table = core.make_revisioned_table(system_info_table)
 
 
 class SystemInfo(vdm.sqlalchemy.RevisionedObjectMixin,
-                 vdm.sqlalchemy.StatefulObjectMixin,
+                 core.StatefulObjectMixin,
                  domain_object.DomainObject):
 
     def __init__(self, key, value):

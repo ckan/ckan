@@ -52,18 +52,18 @@ package_table = Table('package', meta.metadata,
         Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
         Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
+        Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
 
-vdm.sqlalchemy.make_table_stateful(package_table)
 package_revision_table = core.make_revisioned_table(package_table)
 
 ## -------------------
 ## Mapped classes
 
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
-        vdm.sqlalchemy.StatefulObjectMixin,
-        domain_object.DomainObject):
+              core.StatefulObjectMixin,
+              domain_object.DomainObject):
 
     text_search_fields = ['name', 'title']
 

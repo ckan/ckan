@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import vdm.sqlalchemy
-import vdm.sqlalchemy.stateful
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from six import text_type
 
@@ -19,15 +18,15 @@ group_extra_table = Table('group_extra', meta.metadata,
     Column('group_id', types.UnicodeText, ForeignKey('group.id')),
     Column('key', types.UnicodeText),
     Column('value', types.UnicodeText),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-vdm.sqlalchemy.make_table_stateful(group_extra_table)
 group_extra_revision_table = core.make_revisioned_table(group_extra_table)
 
 
 class GroupExtra(vdm.sqlalchemy.RevisionedObjectMixin,
-        vdm.sqlalchemy.StatefulObjectMixin,
-        domain_object.DomainObject):
+                 core.StatefulObjectMixin,
+                 domain_object.DomainObject):
     pass
 
 meta.mapper(GroupExtra, group_extra_table, properties={

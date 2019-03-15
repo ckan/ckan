@@ -55,14 +55,15 @@ resource_table = Table(
     Column('cache_last_updated', types.DateTime),
     Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-vdm.sqlalchemy.make_table_stateful(resource_table)
+
 resource_revision_table = core.make_revisioned_table(resource_table)
 
 
 class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
-               vdm.sqlalchemy.StatefulObjectMixin,
+               core.StatefulObjectMixin,
                domain_object.DomainObject):
     extra_columns = None
 
