@@ -412,8 +412,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         results = {} # field_name:diffs
         results.update(super(Package, self).diff(to_revision, from_revision))
-        # Iterate over PackageTag, PackageExtra, Resources etc.
-        for obj_class in [Resource, PackageExtra, PackageTag]:
+        # Iterate over PackageTag, Resources etc. (NB PackageExtra is not
+        # revisioned any more, so the diff is incomplete)
+        for obj_class in [Resource, PackageTag]:
             obj_rev_class = obj_class.__revision_class__
             # Query for object revisions related to this package
             obj_rev_query = meta.Session.query(obj_rev_class).\

@@ -353,7 +353,7 @@ class TestRelatedRevisions:
 
     def test_1_all_revisions(self):
         assert len(self.pkg1.all_revisions) == 3, self.pkg1.all_revisions
-        assert len(self.pkg1.all_related_revisions) == 7, self.pkg1.all_related_revisions
+        assert len(self.pkg1.all_related_revisions) == 6, self.pkg1.all_related_revisions
 
     def test_2_diff(self):
         rev_q = model.repo.history()
@@ -365,10 +365,6 @@ class TestRelatedRevisions:
         assert diff['notes'] == '- None\n+ Changed notes', diff['notes']
         assert diff.get('PackageTag-geo-state') == u'- \n+ active', diff
         assert diff.get('PackageTag-scientific-state') == u'- \n+ active', diff
-        assert diff.get('PackageExtra-a-value') == u'- \n+ b', diff
-        assert diff.get('PackageExtra-a-state') == u'- \n+ active', diff
-        assert diff.get('PackageExtra-c-value') == u'- \n+ d', diff
-        assert diff.get('PackageExtra-c-state') == u'- \n+ active', diff
         def test_res(diff, res, field, expected_value):
             key = 'Resource-%s-%s' % (res.id[:4], field)
             got_value = diff.get(key)

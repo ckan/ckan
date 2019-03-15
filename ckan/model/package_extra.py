@@ -28,9 +28,10 @@ package_extra_table = Table('package_extra', meta.metadata,
 )
 
 
-extra_revision_table= core.make_revisioned_table(package_extra_table)
+extra_revision_table = core.make_revisioned_table(package_extra_table)
 
-class PackageExtra(vdm.sqlalchemy.RevisionedObjectMixin,
+
+class PackageExtra(
         core.StatefulObjectMixin,
         domain_object.DomainObject):
 
@@ -61,16 +62,13 @@ meta.mapper(PackageExtra, package_extra_table, properties={
         ),
     },
     order_by=[package_extra_table.c.package_id, package_extra_table.c.key],
-    extension=[vdm.sqlalchemy.Revisioner(extra_revision_table),
-               extension.PluginMapperExtension(),
-               ],
+    extension=[extension.PluginMapperExtension()],
 )
 
-vdm.sqlalchemy.modify_base_object_mapper(PackageExtra, core.Revision, core.State)
-PackageExtraRevision= vdm.sqlalchemy.create_object_version(meta.mapper, PackageExtra,
+# Keep the PackageExtraRevision table for now, but it no longer has .continuity
+# foreign key constraint to PackageExtra (modify_base_object_mapper did that)
+PackageExtraRevision = vdm.sqlalchemy.create_object_version(meta.mapper, PackageExtra,
         extra_revision_table)
-
-PackageExtraRevision.related_packages = lambda self: [self.continuity.package]
 
 def _create_extra(key, value):
     return PackageExtra(key=text_type(key), value=value)
