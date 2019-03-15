@@ -371,22 +371,21 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @property
     def all_related_revisions(self):
         '''Returns chronological list of all object revisions related to
-        this package. Includes PackageRevisions, PackageTagRevisions,
-        PackageExtraRevisions and ResourceRevisions.
+        this package. Includes PackageRevisions, PackageTagRevisions
+        and ResourceRevisions.
         @return List of tuples (revision, [list of object revisions of this
                                            revision])
                 Ordered by most recent first.
         '''
         from tag import PackageTag
         from resource import Resource
-        from package_extra import PackageExtra
 
         results = {} # revision:[PackageRevision1, PackageTagRevision1, etc.]
         for pkg_rev in self.all_revisions:
             if not results.has_key(pkg_rev.revision):
                 results[pkg_rev.revision] = []
             results[pkg_rev.revision].append(pkg_rev)
-        for class_ in [Resource, PackageExtra, PackageTag]:
+        for class_ in [Resource, PackageTag]:
             rev_class = class_.__revision_class__
             obj_revisions = meta.Session.query(rev_class).filter_by(package_id=self.id).all()
             for obj_rev in obj_revisions:

@@ -452,8 +452,7 @@ class TestDatasetPurge(object):
         assert_equals(model.Session.query(model.PackageRevision).all(), [])
         assert_equals(model.Session.query(model.ResourceRevision).all(), [])
         assert_equals(model.Session.query(model.PackageTagRevision).all(), [])
-        assert_equals(model.Session.query(model.PackageExtraRevision).all(),
-                      [])
+        # PackageExtraRevision is not revisioned
         # Member is not revisioned
 
         # No Revision objects were purged or created

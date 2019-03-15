@@ -2,10 +2,12 @@
 
 import datetime
 
+from sqlalchemy import Column, DateTime, Text, Boolean
+import vdm.sqlalchemy
+
 import domain_object
 import meta
-import vdm.sqlalchemy
-from sqlalchemy import Column, DateTime, Text, Boolean
+import revision
 
 
 __all__ = ['System', 'Revision', 'State', 'StatefulObjectMixin',
@@ -57,8 +59,8 @@ class StatefulObjectMixin(object):
 Revision = vdm.sqlalchemy.make_Revision(meta.mapper, revision_table)
 
 
-def make_revisioned_table(table):
-    revision_table = vdm.sqlalchemy.make_revisioned_table(table)
+def make_revisioned_table(table, frozen=False):
+    revision_table = revision.make_revisioned_table(table, frozen)
     revision_table.append_column(Column('expired_id',
                                  Text))
     revision_table.append_column(Column('revision_timestamp', DateTime))

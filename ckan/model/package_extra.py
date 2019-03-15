@@ -15,8 +15,7 @@ import types as _types
 import ckan.lib.dictization
 import activity
 
-__all__ = ['PackageExtra', 'package_extra_table', 'PackageExtraRevision',
-           'extra_revision_table']
+__all__ = ['PackageExtra', 'package_extra_table']
 
 package_extra_table = Table('package_extra', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
@@ -27,8 +26,10 @@ package_extra_table = Table('package_extra', meta.metadata,
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-
-extra_revision_table = core.make_revisioned_table(package_extra_table)
+# Define the package_extra_revision table, but no need to map it, as it is only
+# used by migrate_package_activity.py
+extra_revision_table = \
+    core.make_revisioned_table(package_extra_table, frozen=True)
 
 
 class PackageExtra(
@@ -65,10 +66,6 @@ meta.mapper(PackageExtra, package_extra_table, properties={
     extension=[extension.PluginMapperExtension()],
 )
 
-# Keep the PackageExtraRevision table for now, but it no longer has .continuity
-# foreign key constraint to PackageExtra (modify_base_object_mapper did that)
-PackageExtraRevision = vdm.sqlalchemy.create_object_version(meta.mapper, PackageExtra,
-        extra_revision_table)
 
 def _create_extra(key, value):
     return PackageExtra(key=text_type(key), value=value)

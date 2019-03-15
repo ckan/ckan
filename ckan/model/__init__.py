@@ -64,9 +64,7 @@ from group_extra import (
 )
 from package_extra import (
     PackageExtra,
-    PackageExtraRevision,
     package_extra_table,
-    extra_revision_table,
 )
 from resource import (
     Resource,

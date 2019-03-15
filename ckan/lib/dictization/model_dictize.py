@@ -225,11 +225,8 @@ def package_dictize(pkg, context):
         assert not 'display_name' in tag
         tag['display_name'] = tag['name']
 
-    #extras
-    if is_latest_revision:
-        extra = model.package_extra_table
-    else:
-        extra = model.extra_revision_table
+    #extras - no longer revisioned, so always provide latest
+    extra = model.package_extra_table
     q = select([extra]).where(extra.c.package_id == pkg.id)
     result = execute(q, extra, context)
     result_dict["extras"] = extras_list_dictize(result, context)
