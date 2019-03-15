@@ -357,12 +357,11 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         this group. Ordered by most recent first.
         '''
         results = {}
-        from group_extra import GroupExtra
         for grp_rev in self.all_revisions:
             if not grp_rev.revision in results:
                 results[grp_rev.revision] = []
             results[grp_rev.revision].append(grp_rev)
-        for class_ in [Member, GroupExtra]:
+        for class_ in [Member]:  # GroupExtra is not revisioned any more
             rev_class = class_.__revision_class__
             obj_revisions = meta.Session.query(rev_class).\
                 filter_by(group_id=self.id).all()

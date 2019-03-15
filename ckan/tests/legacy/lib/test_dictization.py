@@ -41,11 +41,11 @@ class TestBasicDictize:
             u'author_email': None,
             u'creator_user_id': None,
             'extras': [
-            # extras are no longer revisioned
-            #    {u'key': u'genre',
-            #     u'state': u'active',
-            #     u'value': 'romantic novel'},
-            #    {u'key': u'original media', u'state': u'active', u'value': u'book'}
+                # extras are no longer revisioned so we get the latest version
+                {'key': u'david', 'state': u'active', 'value': u'new_value'},
+                {'key': u'genre', 'state': u'active', 'value': u'new_value'},
+                {'key': u'original media', 'state': u'active',
+                 'value': u'book'}
                ],
             'groups': [{
                         u'name': u'david',
@@ -441,7 +441,6 @@ class TestBasicDictize:
 
         third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'display_name': u'newnew_tag', 'state': 'active'})
         third_dictized['num_tags'] = third_dictized['num_tags'] + 1
-        third_dictized['extras'] = []  # extras are no longer revisioned
         third_dictized['state'] = 'active'
         third_dictized['state'] = 'active'
 

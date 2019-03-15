@@ -60,7 +60,6 @@ from group import (
 from group_extra import (
     GroupExtra,
     group_extra_table,
-    GroupExtraRevision,
 )
 from package_extra import (
     PackageExtra,

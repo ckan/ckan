@@ -2,6 +2,7 @@
 
 import vdm.sqlalchemy
 from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy.ext.associationproxy import association_proxy
 from six import text_type
 
 import group
@@ -11,7 +12,7 @@ import types as _types
 import domain_object
 
 
-__all__ = ['GroupExtra', 'group_extra_table', 'GroupExtraRevision']
+__all__ = ['GroupExtra', 'group_extra_table']
 
 group_extra_table = Table('group_extra', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
@@ -21,11 +22,13 @@ group_extra_table = Table('group_extra', meta.metadata,
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-group_extra_revision_table = core.make_revisioned_table(group_extra_table)
+# Define the group_extra_revision table, but no need to map it, as it is only
+# used by migrate_package_activity.py
+group_extra_revision_table = \
+    core.make_revisioned_table(group_extra_table, frozen=True)
 
 
-class GroupExtra(vdm.sqlalchemy.RevisionedObjectMixin,
-                 core.StatefulObjectMixin,
+class GroupExtra(core.StatefulObjectMixin,
                  domain_object.DomainObject):
     pass
 
@@ -38,18 +41,10 @@ meta.mapper(GroupExtra, group_extra_table, properties={
         )
     },
     order_by=[group_extra_table.c.group_id, group_extra_table.c.key],
-    extension=[vdm.sqlalchemy.Revisioner(group_extra_revision_table),],
 )
-
-vdm.sqlalchemy.modify_base_object_mapper(GroupExtra, core.Revision, core.State)
-GroupExtraRevision = vdm.sqlalchemy.create_object_version(meta.mapper, GroupExtra,
-    group_extra_revision_table)
 
 def _create_extra(key, value):
     return GroupExtra(key=text_type(key), value=value)
 
-_extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
-        vdm.sqlalchemy.stateful.StatefulDict, base_modifier=lambda x: x.get_as_of())
-setattr(group.Group, 'extras_active', _extras_active)
-group.Group.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
-            creator=_create_extra)
+group.Group.extras = association_proxy(
+    '_extras', 'value', creator=_create_extra)
