@@ -27,9 +27,11 @@ member_table = Table('member', meta.metadata,
                      Column('capacity', types.UnicodeText,
                             nullable=False),
                      Column('group_id', types.UnicodeText,
-                            ForeignKey('group.id')),)
+                            ForeignKey('group.id')),
+                     Column('state', types.UnicodeText,
+                            default=core.State.ACTIVE),
+                     )
 
-vdm.sqlalchemy.make_table_stateful(member_table)
 
 group_table = Table('group', meta.metadata,
                     Column('id', types.UnicodeText,
@@ -46,12 +48,13 @@ group_table = Table('group', meta.metadata,
                            default=datetime.datetime.now),
                     Column('is_organization', types.Boolean, default=False),
                     Column('approval_status', types.UnicodeText,
-                           default=u"approved"))
+                           default=u"approved"),
+                    Column('state', types.UnicodeText,
+                           default=core.State.ACTIVE),
+                    )
 
-vdm.sqlalchemy.make_table_stateful(group_table)
 
-
-class Member(vdm.sqlalchemy.StatefulObjectMixin,
+class Member(core.StatefulObjectMixin,
              domain_object.DomainObject):
     '''A Member object represents any other object being a 'member' of a
     particular Group.
@@ -108,7 +111,7 @@ class Member(vdm.sqlalchemy.StatefulObjectMixin,
                 table_info, self.capacity, self.state)
 
 
-class Group(vdm.sqlalchemy.StatefulObjectMixin,
+class Group(core.StatefulObjectMixin,
             domain_object.DomainObject):
 
     def __init__(self, name=u'', title=u'', description=u'', image_url=u'',

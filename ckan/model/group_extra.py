@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 import vdm.sqlalchemy
-import vdm.sqlalchemy.stateful
 from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy.ext.associationproxy import association_proxy
 from six import text_type
 
 import group
@@ -19,14 +19,12 @@ group_extra_table = Table('group_extra', meta.metadata,
     Column('group_id', types.UnicodeText, ForeignKey('group.id')),
     Column('key', types.UnicodeText),
     Column('value', types.UnicodeText),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-vdm.sqlalchemy.make_table_stateful(group_extra_table)
 
-
-class GroupExtra(
-        vdm.sqlalchemy.StatefulObjectMixin,
-        domain_object.DomainObject):
+class GroupExtra(core.StatefulObjectMixin,
+                 domain_object.DomainObject):
     pass
 
 meta.mapper(GroupExtra, group_extra_table, properties={
@@ -40,12 +38,8 @@ meta.mapper(GroupExtra, group_extra_table, properties={
     order_by=[group_extra_table.c.group_id, group_extra_table.c.key],
 )
 
-
 def _create_extra(key, value):
     return GroupExtra(key=text_type(key), value=value)
 
-_extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
-        vdm.sqlalchemy.stateful.StatefulDict)
-setattr(group.Group, 'extras_active', _extras_active)
-group.Group.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
-            creator=_create_extra)
+group.Group.extras = association_proxy(
+    '_extras', 'value', creator=_create_extra)

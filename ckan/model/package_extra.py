@@ -2,8 +2,8 @@
 
 from six import text_type
 import vdm.sqlalchemy
-import vdm.sqlalchemy.stateful
 from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy.ext.associationproxy import association_proxy
 
 import meta
 import core
@@ -22,12 +22,12 @@ package_extra_table = Table('package_extra', meta.metadata,
     Column('package_id', types.UnicodeText, ForeignKey('package.id')),
     Column('key', types.UnicodeText),
     Column('value', types.UnicodeText),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-vdm.sqlalchemy.make_table_stateful(package_extra_table)
 
 class PackageExtra(
-        vdm.sqlalchemy.StatefulObjectMixin,
+        core.StatefulObjectMixin,
         domain_object.DomainObject):
 
     def related_packages(self):
@@ -41,11 +41,6 @@ meta.mapper(PackageExtra, package_extra_table, properties={
             cascade='all, delete, delete-orphan',
             ),
         ),
-    'package_no_state': orm.relation(_package.Package,
-        backref=orm.backref('extras_list',
-            cascade='all, delete, delete-orphan',
-            ),
-        )
     },
     order_by=[package_extra_table.c.package_id, package_extra_table.c.key],
     extension=[extension.PluginMapperExtension()],
@@ -55,8 +50,5 @@ meta.mapper(PackageExtra, package_extra_table, properties={
 def _create_extra(key, value):
     return PackageExtra(key=text_type(key), value=value)
 
-_extras_active = vdm.sqlalchemy.stateful.DeferredProperty('_extras',
-        vdm.sqlalchemy.stateful.StatefulDict)
-setattr(_package.Package, 'extras_active', _extras_active)
-_package.Package.extras = vdm.sqlalchemy.stateful.OurAssociationProxy('extras_active', 'value',
-            creator=_create_extra)
+_package.Package.extras = association_proxy(
+    '_extras', 'value', creator=_create_extra)

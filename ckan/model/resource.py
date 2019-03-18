@@ -8,7 +8,6 @@ from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
 import vdm.sqlalchemy
-import vdm.sqlalchemy.stateful
 from sqlalchemy import types, func, Column, Table, ForeignKey, and_
 
 import meta
@@ -53,12 +52,11 @@ resource_table = Table(
     Column('cache_last_updated', types.DateTime),
     Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
-vdm.sqlalchemy.make_table_stateful(resource_table)
 
-
-class Resource(vdm.sqlalchemy.StatefulObjectMixin,
+class Resource(core.StatefulObjectMixin,
                domain_object.DomainObject):
     extra_columns = None
 
