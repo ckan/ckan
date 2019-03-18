@@ -2,7 +2,6 @@
 
 from six import text_type
 import vdm.sqlalchemy
-import vdm.sqlalchemy.stateful
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy
 
