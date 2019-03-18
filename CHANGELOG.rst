@@ -11,10 +11,11 @@ v.2.9.0 TBA
 ==================
 
  * This version requires script 'migrate_package_activity.py' to be run
-   *before* CKAN is upgraded to this version (or higher). This is because this
-   script takes a while to run, adding in the Activity Stream detail, visible
-   only to admins by default. You will not be able to run ``paster db upgrade``
-   until 'migrate_package_activity.py' is done.
+   *before* CKAN is upgraded to this version (or higher). The idea is you do
+   this special migration while CKAN is running, because the script takes a
+   while to run. It adds in the Activity Stream detail, visible only to admins
+   by default. You will not be able to run ``paster db upgrade`` until
+   'migrate_package_activity.py' is done.
    Download and run migrate_package_activity.py like this:
 
      cd /usr/lib/ckan/default/src/ckan/

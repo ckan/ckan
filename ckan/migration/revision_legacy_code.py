@@ -107,7 +107,7 @@ def package_dictize_with_revisions(pkg, context):
     else:
         group = model.group_revision_table
     q = select([group]
-               ).where(group.c.id == pkg.owner_org) \
+               ).where(group.c.id == result_dict['owner_org']) \
                 .where(group.c.state == u'active')
     result = execute(q, group, context)
     organizations = d.obj_list_dictize(result, context)
@@ -153,9 +153,12 @@ def package_dictize_with_revisions(pkg, context):
         result_dict['license_title'] = pkg.license_id
 
     # creation and modification date
-    result_dict['metadata_modified'] = pkg.metadata_modified.isoformat()
-    result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
-        if pkg.metadata_created else None
+    if is_latest_revision:
+        result_dict['metadata_modified'] = pkg.metadata_modified.isoformat()
+    # (If not is_latest_revision, don't use pkg which is the latest version.
+    # Instead, use the dates already in result_dict that came from the dictized
+    # PackageRevision)
+    result_dict['metadata_created'] = pkg.metadata_created.isoformat()
 
     return result_dict
 

@@ -32,6 +32,7 @@ import argparse
 import sys
 from collections import defaultdict
 from six.moves import input
+from six import text_type
 
 # not importing anything from ckan until after the arg parsing, to fail on bad
 # args quickly.
@@ -102,7 +103,6 @@ def migrate_dataset(dataset_name, errors):
     import ckan.logic as logic
     from ckan import model
 
-    context = get_context()
     # 'hidden' activity is that by site_user, such as harvests, which are
     # not shown in the activity stream because they can be too numerous.
     # However these do have Activity objects, and if a hidden Activity is
@@ -110,16 +110,15 @@ def migrate_dataset(dataset_name, errors):
     # non-hidden Activity, then it does a diff with the hidden one (rather than
     # the most recent non-hidden one), so it is important to store the
     # package_dict in hidden Activity objects.
-    context[u'include_hidden_activity'] = True
+    context = dict(get_context(), include_hidden_activity=True)
     package_activity_stream = logic.get_action(u'package_activity_list')(
         context, {u'id': dataset_name})
     num_activities = len(package_activity_stream)
     if not num_activities:
         print(u'  No activities')
 
-    context[u'for_view'] = False
     # Iterate over this package's existing activity stream objects
-    for i, activity in enumerate(package_activity_stream):
+    for i, activity in enumerate(reversed(package_activity_stream)):
         # e.g. activity =
         # {'activity_type': u'changed package',
         #  'id': u'62107f87-7de0-4d17-9c30-90cbffc1b296',
@@ -137,18 +136,29 @@ def migrate_dataset(dataset_name, errors):
                   ' - no action')
             continue
 
-        # get the dataset as it was at this revision
-        context[u'revision_id'] = activity[u'revision_id']
+        # get the dataset as it was at this revision:
         # call package_show just as we do in package.py:activity_stream_item(),
-        # only with a revision_id
+        # only with a revision_id (to get it as it was then)
+        context = dict(
+            get_context(),
+            for_view=False,
+            revision_id=activity[u'revision_id'],
+            use_cache=False,  # avoid the cache (which would give us the
+                              # latest revision)
+        )
         try:
             dataset = logic.get_action(u'package_show')(
                 context,
                 {u'id': activity[u'object_id'], u'include_tracking': False})
-        except logic.NotFound as exc:
-            print(u'    Revision missing! Skipping this version '
-                  '(revision_id={})'.format(activity[u'revision_id']))
-            errors['Revision missing'] += 1
+        except Exception as exc:
+            if isinstance(exc, logic.NotFound):
+                error_msg = u'Revision missing'
+            else:
+                error_msg = text_type(exc)
+            print(u'    Error: {}! Skipping this version '
+                  '(revision_id={})'
+                  .format(error_msg, activity[u'revision_id']))
+            errors[error_msg] += 1
             # We shouldn't leave the activity.data['package'] with missing
             # resources, extras & tags, which could cause the package_read
             # template to raise an exception, when user clicks "View this
@@ -157,7 +167,9 @@ def migrate_dataset(dataset_name, errors):
             try:
                 dataset = {u'title': activity_obj.data['package']['title']}
             except KeyError:
-                dataset = None
+                # unlikely the package is not recorded in the activity, but
+                # not impossible
+                dataset = {u'title': u'unknown'}
 
         # get rid of revision_timestamp, which wouldn't be there if saved by
         # during activity_stream_item() - something to do with not specifying
@@ -187,10 +199,12 @@ def migrate_dataset(dataset_name, errors):
 
 def wipe_activity_detail(delete_activity_detail):
     from ckan import model
-    num_activity_detail_rows = \
-        model.Session.execute(u'SELECT count(*) FROM "activity_detail";') \
-        .fetchall()[0][0]
-    if num_activity_detail_rows == 0:
+    activity_detail_has_rows = \
+        bool(model.Session.execute(
+            u'SELECT count(*) '
+            'FROM (SELECT * FROM "activity_detail" LIMIT 1) as t;')
+            .fetchall()[0][0])
+    if not activity_detail_has_rows:
         print(u'\nactivity_detail table is aleady emptied')
         return
     print(
@@ -204,7 +218,7 @@ def wipe_activity_detail(delete_activity_detail):
         delete_activity_detail = \
             input(u'Delete activity_detail table content? (y/n):')
     if delete_activity_detail.lower()[:1] != u'y':
-        sys.exit(0)
+        return
     from ckan import model
     model.Session.execute(u'DELETE FROM "activity_detail";')
     model.Session.commit()

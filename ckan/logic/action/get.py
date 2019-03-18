@@ -2450,7 +2450,7 @@ def group_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['include_data'] = False
+    data_dict = dict(data_dict, include_data=False)
     include_hidden_activity = asbool(context.get('include_hidden_activity'))
     _check_access('group_activity_list', context, data_dict)
 
