@@ -864,21 +864,22 @@ class ApiController(base.BaseController):
         cls.log.debug('Retrieving request POST: %r', request.POST)
         cls.log.debug('Retrieving request GET: %r', request.GET)
         request_data = None
-        if request.POST and request.content_type == 'multipart/form-data':
-            request_data = dict(request.POST)
-        elif request.POST:
-            try:
-                keys = request.POST.keys()
-                # Parsing breaks if there is a = in the value, so for now
-                # we will check if the data is actually all in a single key
-                if keys and request.POST[keys[0]] in [u'1', u'']:
-                    request_data = keys[0]
-                else:
-                    request_data = urllib.unquote_plus(request.body)
-            except Exception, inst:
-                msg = "Could not find the POST data: %r : %s" % \
-                      (request.POST, inst)
-                raise ValueError(msg)
+        if request.POST:
+            if request.content_type == 'multipart/form-data':
+                request_data = dict(request.POST)
+            else:
+                try:
+                    keys = request.POST.keys()
+                    # Parsing breaks if there is a = in the value, so for now
+                    # we will check if the data is actually all in a single key
+                    if keys and request.POST[keys[0]] in [u'1', u'']:
+                        request_data = keys[0]
+                    else:
+                        request_data = urllib.unquote_plus(request.body)
+                except Exception, inst:
+                    msg = "Could not find the POST data: %r : %s" % \
+                        (request.POST, inst)
+                    raise ValueError(msg)
 
         elif try_url_params and request.GET:
             return request.GET.mixed()
