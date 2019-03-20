@@ -885,23 +885,9 @@ class ApiController(base.BaseController):
             return request.GET.mixed()
 
         else:
-            try:
-                if request.method in ['POST', 'PUT']:
-                    request_data = request.body
-                else:
-                    request_data = None
-            except Exception, inst:
-                msg = "Could not extract request body data: %s" % \
-                      (inst)
-                raise ValueError(msg)
-            cls.log.debug('Retrieved request body: %r', request.body)
-            if not request_data:
-                if not try_url_params:
-                    msg = "Invalid request. Please use POST method" \
-                        " for your request"
-                    raise ValueError(msg)
-                else:
-                    request_data = {}
+            request_data = getattr(request, "body", None)
+            if not request_data or try_url_params:
+                request_data = {}
         if request_data and request.content_type != 'multipart/form-data':
             try:
                 request_data = h.json.loads(request_data, encoding='utf8')
