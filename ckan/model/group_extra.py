@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import vdm.sqlalchemy
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy
 from six import text_type

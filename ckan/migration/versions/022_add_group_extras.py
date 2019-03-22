@@ -3,7 +3,6 @@
 from sqlalchemy import *
 from migrate import *
 import migrate.changeset
-import vdm.sqlalchemy
 import uuid
 from sqlalchemy import types
 
@@ -46,7 +45,7 @@ def upgrade(migrate_engine):
         Column('key', UnicodeText),
         Column('value', JsonType),
     )
-    
+
     group_extra_table.create()
 
 def downgrade(migrate_engine):

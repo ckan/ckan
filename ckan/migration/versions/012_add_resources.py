@@ -3,7 +3,6 @@
 from sqlalchemy import *
 from migrate import *
 import migrate.changeset
-import vdm.sqlalchemy
 
 
 
@@ -36,16 +35,16 @@ def upgrade(migrate_engine):
         Column('continuity_id', Integer, ForeignKey('package_resource.id'))
         )
 
-    
+
     package_resource_table.create()
     package_resource_revision_table.create()
-    
+
     # Move download_urls across to resources
     # NB: strictly we should check each package_revision to check whether
     # download_url changed (and if only change) and then create
     # package_resource_revision for each such revision (and delete every
     # package_revision where only change is download_url)
-    # However, we adopt a cruder approach in which we just create 
+    # However, we adopt a cruder approach in which we just create
     engine = migrate_engine
     select_sql = select([package_table])
     for pkg in engine.execute(select_sql):

@@ -3,7 +3,6 @@
 import datetime
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_, text
-import vdm.sqlalchemy
 
 import meta
 import core

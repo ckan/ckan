@@ -7,7 +7,6 @@ from sqlalchemy.util import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
-import vdm.sqlalchemy
 from sqlalchemy import types, func, Column, Table, ForeignKey, and_
 
 import meta

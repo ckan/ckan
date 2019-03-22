@@ -10,7 +10,6 @@ For more details, check :doc:`maintaining/configuration`.
 from sqlalchemy import types, Column, Table
 from six import text_type
 
-import vdm.sqlalchemy
 import meta
 import core
 import domain_object

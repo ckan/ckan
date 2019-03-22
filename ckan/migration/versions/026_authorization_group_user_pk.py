@@ -4,7 +4,6 @@ from sqlalchemy import *
 from migrate import *
 from datetime import datetime
 import migrate.changeset
-import vdm.sqlalchemy
 import uuid
 from sqlalchemy import types
 
@@ -28,7 +27,7 @@ def upgrade(migrate_engine):
 ##              primary_key_name='blum'
 ###              unique_name='id'
 ##              )
-    
+
 def downgrade(migrate_engine):
     raise NotImplementedError()
 

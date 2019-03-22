@@ -4,7 +4,6 @@ from sqlalchemy import *
 from migrate import *
 from datetime import datetime
 import migrate.changeset
-import vdm.sqlalchemy
 import uuid
 from sqlalchemy import types
 
