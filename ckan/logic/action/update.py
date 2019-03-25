@@ -308,7 +308,7 @@ def package_update(context, data_dict):
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
     #avoid revisioning by updating directly
-    if data_dict.get'metadata_modified'):
+    if data_dict.get('metadata_modified'):
         metadata_modified = data_dict['metadata_modified']
     else:
         metadata_modified = datetime.datetime.utcnow()
