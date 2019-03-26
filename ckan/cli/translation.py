@@ -44,13 +44,13 @@ def mangle():
     # %(...)s  %s %0.3f %1$s %2$0.3f [1:...] {...} etc
 
     # sprintf bit after %
-    spf_reg_ex = r"\+?(0|'.)?-?\d*(.\d*)?[\%bcdeufosxX]"
+    spf_reg_ex = u"\\+?(0|'.)?-?\\d*(.\\d*)?[\%bcdeufosxX]"
 
-    extract_reg_ex = r'(\%\([^\)]*\)' + spf_reg_ex + \
-                     r'|\[\d*\:[^\]]*\]' + \
-                     r'|\{[^\}]*\}' + \
-                     r'|<[^>}]*>' + \
-                     r'|\%((\d)*\$)?' + spf_reg_ex + r')'
+    extract_reg_ex = u'(\\%\\([^\\)]*\\)' + spf_reg_ex + \
+                     u'|\\[\\d*\\:[^\\]]*\\]' + \
+                     u'|\\{[^\\}]*\\}' + \
+                     u'|<[^>}]*>' + \
+                     u'|\\%((\\d)*\\$)?' + spf_reg_ex + u')'
 
     for entry in po:
         msg = entry.msgid.encode(u'utf-8')
@@ -59,10 +59,10 @@ def mangle():
         position = 0
         translation = u''
         for match in matches:
-            translation += '-' * (match.start() - position)
+            translation += u'-' * (match.start() - position)
             position = match.end()
             translation += match.group(0)
-        translation += '-' * (length - position)
+        translation += u'-' * (length - position)
         entry.msgstr = translation
     out_dir = os.path.join(i18n_path, u'zh_TW', u'LC_MESSAGES')
     try:
@@ -104,7 +104,7 @@ def simple_conv_specs(s):
 
     See http://docs.python.org/library/stdtypes.html#string-formatting
     '''
-    simple_conv_specs_re = re.compile(r'\%\w')
+    simple_conv_specs_re = re.compile(u'\\%\\w')
     return simple_conv_specs_re.findall(s)
 
 
@@ -115,7 +115,7 @@ def mapping_keys(s):
 
     See http://docs.python.org/library/stdtypes.html#string-formatting
     '''
-    mapping_keys_re = re.compile(r'\%\([^\)]*\)\w')
+    mapping_keys_re = re.compile(u'\\%\\([^\\)]*\\)\\w')
     return sorted(mapping_keys_re.findall(s))
 
 
@@ -126,7 +126,7 @@ def replacement_fields(s):
 
     See http://docs.python.org/library/string.html#formatstrings
     '''
-    repl_fields_re = re.compile(r'\{[^\}]*\}')
+    repl_fields_re = re.compile(u'\\{[^\\}]*\\}')
     return sorted(repl_fields_re.findall(s))
 
 
