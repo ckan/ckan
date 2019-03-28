@@ -51,6 +51,8 @@ class DataTablesView(p.SingletonPlugin):
                 u'col_reorder': [default(False), boolean_validator],
                 u'fixed_columns': [default(False), boolean_validator],
                 u'show_fields': [ignore_missing],
+                u'sort_column': [ignore_missing],
+                u'sort_order': [ignore_missing],
                 u'filterable': [default(True), boolean_validator],
             }
         }

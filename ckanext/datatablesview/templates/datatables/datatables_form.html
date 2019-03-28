@@ -6,6 +6,7 @@
   label=_('Responsive display'),
   value='True',
   checked=data.responsive,
+  attrs={"title":"Optimize table layout for smaller screen sizes"},
   ) }}
 {{ form.checkbox(
   'export_buttons',
@@ -13,6 +14,7 @@
   label=_('Export buttons'),
   value='True',
   checked=data.export_buttons,
+  attrs={"title":"Add Copy and Print buttons"},
   ) }}
 {{ form.checkbox(
   'col_reorder',
@@ -20,6 +22,7 @@
   label=_('Column reorder'),
   value='True',
   checked=data.col_reorder,
+  attrs={"title":"Allow end users to reorder columns in a DataTable through a drag and drag operation"},
   ) }}
 {{ form.checkbox(
   'fixed_columns',
@@ -27,6 +30,7 @@
   label=_('Fixed left column'),
   value='True',
   checked=data.fixed_columns,
+  attrs={"title":"Fix the left most column in place for use in x-axis scrolling"},
   ) }}
 
 <div class="control-group">
@@ -54,5 +58,22 @@
         </tr>
       {% endfor %}
     </table>
+  </div>
+</div>
+
+<div class="control-group control-select">
+  <label class="control-label" for="field-sort_column">{{ _('Sort By') }}</label>
+  <div class="controls">
+    <select id="field-sort_column" name="sort_column">
+      {% for f in [{'id': '_id'}] + h.datastore_dictionary(resource.id) %}
+        <option value="{{ loop.index0 }}" {% if loop.index0|string == data.sort_column|string %} selected="selected" {% endif %}>{{ f.id }}</option>
+      {% endfor %}
+    </select>
+    <select id="field-sort_order" name="sort_order">
+      {% set order_list = ['asc','desc'] %}
+      {% for order in order_list %}
+        <option value="{{ order }}" {% if order == data.sort_order %} selected="selected" {% endif %}>{{ order }}</option>
+      {% endfor %}
+    </select>
   </div>
 </div>
