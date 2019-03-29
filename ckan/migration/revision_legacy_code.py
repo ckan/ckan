@@ -10,8 +10,9 @@ import datetime
 from sqlalchemy.sql import select
 from sqlalchemy import (Table, Column, ForeignKey, Boolean, UnicodeText, Text,
                         String, DateTime, and_, inspect)
-import vdm.sqlalchemy
-from vdm.sqlalchemy.sqla import copy_table
+import sqlalchemy.orm.properties
+from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm import relation, backref
 
 import ckan.logic as logic
 import ckan.lib.dictization as d
@@ -254,7 +255,40 @@ def make_revisioned_table(base_table, frozen=False):
     return revision_table
 
 
-# This function is copied from vdm
+# Copied from vdm
+def copy_column(name, src_table, dest_table):
+    col = src_table.c[name]
+    if col.unique == True:
+        # don't copy across unique constraints, as different versions
+        # of an object may have identical column values
+        col.unique = False
+    dest_table.append_column(col.copy())
+    # only get it once we have a parent table
+    newcol = dest_table.c[name]
+    if len(col.foreign_keys) > 0:
+        for fk in col.foreign_keys:
+            newcol.append_foreign_key(fk.copy())
+
+
+# Copied from vdm
+def copy_table_columns(table):
+    columns = []
+    for col in table.c:
+        newcol = col.copy()
+        if len(col.foreign_keys) > 0:
+            for fk in col.foreign_keys:
+                newcol.foreign_keys.add(fk.copy())
+        columns.append(newcol)
+    return columns
+
+
+# Copied from vdm
+def copy_table(table, newtable):
+    for key in table.c.keys():
+        copy_column(key, table, newtable)
+
+
+# Copied from vdm
 def make_revision_table(metadata):
     make_uuid = lambda: six.u(uuid.uuid4())
     revision_table = Table('revision', metadata,
@@ -276,7 +310,7 @@ def make_Revision(mapper, revision_table):
 
 
 # Copied from vdm
-class Revision(object):  # SQLAlchemyMixin
+class Revision(object):
     '''A Revision to the Database/Domain Model.
 
     All versioned objects have an associated Revision which can be accessed via
@@ -299,6 +333,93 @@ class Revision(object):  # SQLAlchemyMixin
     #     '''
     #     q = session.query(self)
     #     return q.first()
+
+
+# Copied from vdm
+def create_object_version(mapper_fn, base_object, rev_table):
+    '''Create the Version Domain Object corresponding to base_object.
+
+    E.g. if Package is our original object we should do::
+
+        # name of Version Domain Object class
+        PackageVersion = create_object_version(..., Package, ...)
+
+    NB: This must obviously be called after mapping has happened to
+    base_object.
+    '''
+    # TODO: can we always assume all versioned objects are stateful?
+    # If not need to do an explicit check
+    class MyClass(object):
+        def __init__(self, **kw):
+            for k, v in kw.iteritems():
+                setattr(self, k, v)
+
+    name = base_object.__name__ + 'Revision'
+    MyClass.__name__ = name
+    MyClass.__continuity_class__ = base_object
+
+    # Must add this so base object can retrieve revisions ...
+    base_object.__revision_class__ = MyClass
+
+    ourmapper = mapper_fn(MyClass, rev_table,
+        # NB: call it all_revisions_... rather than just revisions_... as it
+        # will yield all revisions not just those less than the current
+        # revision
+
+        # ---------------------
+        # Deviate from VDM here
+        #
+        # properties={
+        # 'continuity':relation(base_object,
+        #     backref=backref('all_revisions_unordered',
+        #         cascade='all, delete, delete-orphan'),
+        #         order_by=rev_table.c.revision_id.desc()
+        #     ),
+        # },
+        # order_by=[rev_table.c.continuity_id, rev_table.c.revision_id.desc()]
+        # ---------------------
+        )
+    base_mapper = class_mapper(base_object)
+    # add in 'relationship' stuff from continuity onto revisioned obj
+    # 3 types of relationship
+    # 1. scalar (i.e. simple fk)
+    # 2. list (has many) (simple fk the other way)
+    # 3. list (m2m) (join table)
+    #
+    # Also need to check whether related object is revisioned
+    #
+    # If related object is revisioned then can do all of these
+    # If not revisioned can only support simple relation (first case -- why?)
+    for prop in base_mapper.iterate_properties:
+        try:
+            is_relation = prop.__class__ == \
+                sqlalchemy.orm.properties.PropertyLoader
+        except AttributeError:
+            # SQLAlchemy 0.9
+            is_relation = prop.__class__ == \
+                sqlalchemy.orm.properties.RelationshipProperty
+
+        if is_relation:
+            # in sqlachemy 0.4.2
+            # prop_remote_obj = prop.select_mapper.class_
+            # in 0.4.5
+            prop_remote_obj = prop.argument
+            remote_obj_is_revisioned = \
+                getattr(prop_remote_obj, '__revisioned__', False)
+            # this is crude, probably need something better
+            is_many = (prop.secondary != None or prop.uselist)
+            if remote_obj_is_revisioned:
+                propname = prop.key
+                add_fake_relation(MyClass, propname, is_many=is_many)
+            elif not is_many:
+                ourmapper.add_property(prop.key, relation(prop_remote_obj))
+            else:
+                # TODO: actually deal with this
+                # raise a warning of some kind
+                msg = 'Skipping adding property %s to revisioned object' % prop
+
+
+    return MyClass
 
 
 # Tests use this to manually create revisions, that look just like how
@@ -454,41 +575,41 @@ class RevisionTableMappings(object):
 
         self.package_revision_table = \
             make_revisioned_table(model.package_table)
-        self.PackageRevision = vdm.sqlalchemy.create_object_version(
+        self.PackageRevision = create_object_version(
             model.meta.mapper, model.Package, self.package_revision_table)
 
         self.resource_revision_table = \
             make_revisioned_table(model.resource_table)
-        self.ResourceRevision = vdm.sqlalchemy.create_object_version(
+        self.ResourceRevision = create_object_version(
             model.meta.mapper, model.Resource, self.resource_revision_table)
 
         self.package_extra_revision_table = \
             make_revisioned_table(model.package_extra_table)
-        self.PackageExtraRevision = vdm.sqlalchemy.create_object_version(
+        self.PackageExtraRevision = create_object_version(
             model.meta.mapper, model.PackageExtra,
             self.package_extra_revision_table)
 
         self.package_tag_revision_table = \
             make_revisioned_table(model.package_tag_table)
-        self.PackageTagRevision = vdm.sqlalchemy.create_object_version(
+        self.PackageTagRevision = create_object_version(
             model.meta.mapper, model.PackageTag,
             self.package_tag_revision_table)
 
         self.member_revision_table = \
             make_revisioned_table(model.member_table)
-        self.MemberRevision = vdm.sqlalchemy.create_object_version(
+        self.MemberRevision = create_object_version(
             model.meta.mapper, model.Member,
             self.member_revision_table)
 
         self.group_revision_table = \
             make_revisioned_table(model.group_table)
-        self.GroupRevision = vdm.sqlalchemy.create_object_version(
+        self.GroupRevision = create_object_version(
             model.meta.mapper, model.Group,
             self.group_revision_table)
 
         self.group_extra_revision_table = \
             make_revisioned_table(model.group_extra_table)
-        self.GroupExtraRevision = vdm.sqlalchemy.create_object_version(
+        self.GroupExtraRevision = create_object_version(
             model.meta.mapper, model.GroupExtra,
             self.group_extra_revision_table)
 
@@ -496,13 +617,13 @@ class RevisionTableMappings(object):
             make_revisioned_table(model.package_relationship_table)
         # Commented because it gives an error, but we probably don't need it
         # self.PackageRelationshipRevision = \
-        #     vdm.sqlalchemy.create_object_version(
+        #     create_object_version(
         #         model.meta.mapper, model.PackageRelationship,
         #         self.package_relationship_revision_table)
 
         self.system_info_revision_table = \
             make_revisioned_table(model.system_info_table)
-        self.SystemInfoRevision = vdm.sqlalchemy.create_object_version(
+        self.SystemInfoRevision = create_object_version(
             model.meta.mapper, model.SystemInfo,
             self.system_info_revision_table)
 
