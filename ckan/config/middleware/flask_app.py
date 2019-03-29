@@ -474,11 +474,17 @@ def _setup_error_mail_handler(app):
             return True
 
     mailhost = tuple(config.get('smtp.server', 'localhost').split(":"))
+    credentials = None
+    if config.get('smtp.user'):
+        credentials = (config.get('smtp.user'), config.get('smtp.password'))
+    secure = () if asbool(config.get('smtp.starttls')) else None
     mail_handler = SMTPHandler(
         mailhost=mailhost,
         fromaddr=config.get('error_email_from'),
         toaddrs=[config.get('email_to')],
-        subject='Application Error'
+        subject='Application Error',
+        credentials=credentials,
+        secure=secure
     )
 
     mail_handler.setFormatter(logging.Formatter('''
