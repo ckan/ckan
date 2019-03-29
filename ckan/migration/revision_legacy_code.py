@@ -306,12 +306,16 @@ class Revision(object):  # SQLAlchemyMixin
 def make_package_revision(package):
     '''Manually create a revision for a package and its related objects'''
     instances = [package]
-    instances.extend(package.get_tags())
+    package_tags = model.Session.query(model.PackageTag) \
+        .filter_by(package_id=package.id) \
+        .all()
+    instances.extend(package_tags)
     extras = model.Session.query(model.PackageExtra) \
         .filter_by(package_id=package.id) \
         .all()
     instances.extend(extras)
     instances.extend(package.resources)
+    print 'REVISION', package.resources
     make_revision(instances)
 
 # Tests use this to manually create revisions, that look just like how

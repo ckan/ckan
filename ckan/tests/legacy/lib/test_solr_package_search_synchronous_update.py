@@ -90,7 +90,7 @@ class TestSearchOverallWithSynchronousIndexing:
         check_search_results('barrow', 1, ['new_name'])
 
         # update package again
-        package = model.Package.by_name('new_name')()
+        package = model.Package.by_name('new_name')
         package.name = u'council-owned-litter-bins'
         model.repo.commit_and_remove()
 
@@ -102,7 +102,7 @@ class TestSearchOverallWithSynchronousIndexing:
         assert package
         check_search_results('', 3)
 
-        # delete it()
+        # delete it
         package.delete()
         model.repo.commit_and_remove()
 

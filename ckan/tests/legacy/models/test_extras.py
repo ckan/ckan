@@ -14,7 +14,6 @@ class TestExtras:
         model.repo.rebuild_db()
 
     def test_1(self):
-        startrev = model.repo.youngest_revision().id
         pkg = model.Package.by_name(u'warandpeace')
         assert pkg is not None
 
@@ -24,7 +23,6 @@ class TestExtras:
         model.repo.commit_and_remove()
 
         # now test it is saved
-        rev1 = model.repo.youngest_revision().id
         samepkg = model.Package.by_name(u'warandpeace')
         assert len(samepkg._extras) == 3, samepkg._extras
         assert samepkg.extras[u'country'] == 'us'

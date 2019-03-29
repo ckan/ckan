@@ -10,6 +10,7 @@ from ckan.lib.dictization.model_save import package_dict_save
 from ckan.lib.create_test_data import CreateTestData
 
 from ckan.migration.revision_legacy_code import package_dictize_with_revisions as package_dictize
+from ckan.migration.revision_legacy_code import RevisionTableMappings, make_package_revision
 
 
 # tests here have been moved from ckan/tests/legacy/lib/test_dictization.py
@@ -20,6 +21,7 @@ class TestPackageDictizeWithRevisions(object):
         model.repo.rebuild_db()
         search.clear_all()
         CreateTestData.create()
+        make_package_revision(model.Package.by_name('annakarenina'))
 
         cls.package_expected = {
             u'author': None,
@@ -140,12 +142,13 @@ class TestPackageDictizeWithRevisions(object):
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
+        make_package_revision(model.Package.by_name('annakarenina_changed'))
 
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina_changed').one()
 
         package_dictized = package_dictize(pkg, context)
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(package_id=anna1.id).all()
+        resources_revisions = model.Session.query(RevisionTableMappings.instance().ResourceRevision).filter_by(package_id=anna1.id).all()
 
         sorted_resource_revisions = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
         for res in sorted_resource_revisions:
@@ -174,6 +177,7 @@ class TestPackageDictizeWithRevisions(object):
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
+        make_package_revision(model.Package.by_name('annakarenina_changed2'))
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
         anna_dictized = package_dictize(anna1, context)
@@ -189,6 +193,7 @@ class TestPackageDictizeWithRevisions(object):
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
+        make_package_revision(model.Package.by_name('annakarenina_changed2'))
 
     def test_13_get_package_in_past(self):
 
@@ -197,7 +202,7 @@ class TestPackageDictizeWithRevisions(object):
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
 
-        pkgrevisions = model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()
+        pkgrevisions = model.Session.query(RevisionTableMappings.instance().PackageRevision).filter_by(id=anna1.id).all()
         sorted_packages = sorted(pkgrevisions, key=lambda x: x.revision_timestamp)
 
         context['revision_id'] = sorted_packages[0].revision_id  # original state
