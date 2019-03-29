@@ -79,7 +79,8 @@ def migrate_all_datasets():
     errors = defaultdict(int)
     with PackageDictizeMonkeyPatch():
         for i, dataset_name in enumerate(dataset_names):
-            print(u'\n{}/{} dataset: {}'.format(i + 1, num_datasets, dataset_name))
+            print(u'\n{}/{} dataset: {}'
+                  .format(i + 1, num_datasets, dataset_name))
             migrate_dataset(dataset_name, errors)
     print(u'Migrated:')
     print(u'  {} datasets'.format(len(dataset_names)))

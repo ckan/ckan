@@ -258,7 +258,7 @@ def make_revisioned_table(base_table, frozen=False):
 # Copied from vdm
 def copy_column(name, src_table, dest_table):
     col = src_table.c[name]
-    if col.unique == True:
+    if col.unique is True:
         # don't copy across unique constraints, as different versions
         # of an object may have identical column values
         col.unique = False
@@ -290,14 +290,15 @@ def copy_table(table, newtable):
 
 # Copied from vdm
 def make_revision_table(metadata):
-    make_uuid = lambda: six.u(uuid.uuid4())
-    revision_table = Table('revision', metadata,
-            Column('id', UnicodeText, primary_key=True, default=make_uuid),
-            Column('timestamp', DateTime, default=datetime.datetime.utcnow),
-            Column('author', String(200)),
-            Column('message', UnicodeText),
-            Column('state', UnicodeText, default=model.State.ACTIVE)
-            )
+    revision_table = Table(
+        'revision', metadata,
+        Column('id', UnicodeText, primary_key=True,
+               default=lambda: six.u(uuid.uuid4())),
+        Column('timestamp', DateTime, default=datetime.datetime.utcnow),
+        Column('author', String(200)),
+        Column('message', UnicodeText),
+        Column('state', UnicodeText, default=model.State.ACTIVE)
+        )
     return revision_table
 
 
@@ -361,7 +362,8 @@ def create_object_version(mapper_fn, base_object, rev_table):
     # Must add this so base object can retrieve revisions ...
     base_object.__revision_class__ = MyClass
 
-    ourmapper = mapper_fn(MyClass, rev_table,
+    ourmapper = mapper_fn(
+        MyClass, rev_table,
         # NB: call it all_revisions_... rather than just revisions_... as it
         # will yield all revisions not just those less than the current
         # revision
@@ -407,7 +409,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
             remote_obj_is_revisioned = \
                 getattr(prop_remote_obj, '__revisioned__', False)
             # this is crude, probably need something better
-            is_many = (prop.secondary != None or prop.uselist)
+            is_many = (prop.secondary is not None or prop.uselist)
             if remote_obj_is_revisioned:
                 propname = prop.key
                 add_fake_relation(MyClass, propname, is_many=is_many)
@@ -418,8 +420,31 @@ def create_object_version(mapper_fn, base_object, rev_table):
                 # raise a warning of some kind
                 msg = 'Skipping adding property %s to revisioned object' % prop
 
-
     return MyClass
+
+
+# Copied from vdm
+def add_fake_relation(revision_class, name, is_many=False):
+    '''Add a 'fake' relation on ObjectRevision objects.
+
+    These relation are fake in that they just proxy to the continuity object
+    relation.
+    '''
+    def _pget(self):
+        related_object = getattr(self.continuity, name)
+        if is_many:
+            # do not need to do anything to get to right revision since either
+            # 1. this is implemented inside the is_many relation we proxy to
+            # (as is the case with StatefulLists and assoc proxy setup as used
+            # in add_stateful_versioned_m2m)
+            # 2. it is not because it is not appropriate to apply it
+            # (e.g. package.package_tags which points to PackageTag objects and
+            # which is not versioned here ...)
+            return related_object
+        else:
+            return related_object.get_as_of()
+    x = property(_pget)
+    setattr(revision_class, name, x)
 
 
 # Tests use this to manually create revisions, that look just like how
@@ -436,8 +461,8 @@ def make_package_revision(package):
         .all()
     instances.extend(extras)
     instances.extend(package.resources)
-    print 'REVISION', package.resources
     make_revision(instances)
+
 
 # Tests use this to manually create revisions, that look just like how
 # CKAN<=2.8 used to create automatically.
@@ -456,8 +481,7 @@ def make_revision(instances):
     # new_revision then calls:
     # SQLAlchemySession.set_revision(self.session, rev), which is:
     # vdm.sqlalchemy.base.SQLAlchemySession.set_revision() which did this:
-    make_uuid = lambda: unicode(uuid.uuid4())
-    revision.id = make_uuid()
+    revision.id = unicode(uuid.uuid4())
     model.Session.add(revision)
     model.Session.flush()
 
@@ -527,13 +551,13 @@ def make_revision(instances):
         revision_table = \
             RevisionTableMappings.instance() \
             .revision_table_mapping[type(instance)]
-        ## when a normal active transaction happens
+        # when a normal active transaction happens
 
-        ### this is an sql statement as we do not want it in object cache
+        # this is an sql statement as we do not want it in object cache
         model.Session.execute(
             revision_table.update().where(
                 and_(revision_table.c.id == instance.id,
-                        revision_table.c.current == '1')
+                     revision_table.c.current == '1')
             ).values(current='0')
         )
 
@@ -550,8 +574,7 @@ def make_revision(instances):
             model.Session.execute(
                 revision_table.update().where(
                     and_(revision_table.c.id == rev_obj.id,
-                            revision_table.c.revision_id ==
-                            rev_obj.revision_id)
+                         revision_table.c.revision_id == rev_obj.revision_id)
                 ).values(**values)
             )
 

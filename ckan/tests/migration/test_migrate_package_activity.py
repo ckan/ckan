@@ -117,7 +117,8 @@ class TestMigrateDataset(object):
         activity.data = {u'actor': None,
                          u'package': {u'title': u'Test Dataset'}}
         activity.revision_id = 'not real one'  # because Revisioner wrote that,
-                                               # and that is no longer active
+        # and that is no longer active
+
         model.Session.commit()
         model.Session.remove()
         # double check that worked...
