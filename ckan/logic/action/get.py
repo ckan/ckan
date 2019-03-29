@@ -1018,28 +1018,6 @@ def resource_view_list(context, data_dict):
     return model_dictize.resource_view_list_dictize(resource_views, context)
 
 
-@logic.auth_audit_exempt
-def revision_show(context, data_dict):
-    '''Return the details of a revision.
-
-    :param id: the id of the revision
-    :type id: string
-
-    :rtype: dictionary
-    '''
-    model = context['model']
-    api = context.get('api_version')
-    id = _get_or_bust(data_dict, 'id')
-    ref_package_by = 'id' if api == 2 else 'name'
-
-    rev = model.Session.query(model.Revision).get(id)
-    if rev is None:
-        raise NotFound
-    rev_dict = model.revision_as_dict(rev, include_packages=True,
-                                      ref_package_by=ref_package_by)
-    return rev_dict
-
-
 def _group_or_org_show(context, data_dict, is_org=False):
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
