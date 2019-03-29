@@ -172,7 +172,6 @@ The following paster commands are supported by CKAN:
 
 ================= ============================================================
 check-po-files    Check po files for common mistakes
-color             Create or remove a color scheme.
 create-test-data  Create test data in the database.
 dataset           Manage datasets.
 datastore         Perform commands to set up the datastore.
@@ -200,20 +199,6 @@ check-po-files: Check po files for common mistakes
 Usage::
 
     check-po-files [options] [FILE] ...
-
-
-color: Create or remove a color scheme
-======================================
-
-After running this command, you'll need to regenerate the css files. See :ref:`less` for details.
-
-Usage::
-
-    color               - creates a random color scheme
-    color clear         - clears any color scheme
-    color <'HEX'>       - uses as base color eg '#ff00ff' must be quoted.
-    color <VALUE>       - a float between 0.0 and 1.0 used as base hue
-    color <COLOR_NAME>  - html color name used for base color eg lightblue
 
 
 create-test-data: Create test data
