@@ -77,9 +77,10 @@ def migrate_all_datasets():
     dataset_names = logic.get_action(u'package_list')(get_context(), {})
     num_datasets = len(dataset_names)
     errors = defaultdict(int)
-    for i, dataset_name in enumerate(dataset_names):
-        print(u'\n{}/{} dataset: {}'.format(i + 1, num_datasets, dataset_name))
-        migrate_dataset(dataset_name, errors)
+    with PackageDictizeMonkeyPatch():
+        for i, dataset_name in enumerate(dataset_names):
+            print(u'\n{}/{} dataset: {}'.format(i + 1, num_datasets, dataset_name))
+            migrate_dataset(dataset_name, errors)
     print(u'Migrated:')
     print(u'  {} datasets'.format(len(dataset_names)))
     num_activities = num_activities_migratable()
@@ -87,18 +88,38 @@ def migrate_all_datasets():
     print_errors(errors)
 
 
+class PackageDictizeMonkeyPatch(object):
+    '''Patches package_dictize to work with revisions - it will accept the
+    'revision_id' parameter, so you can see past revisions of the package.
+
+    This is a context manager, so invoke it with 'with'.
+    '''
+    # (We could have saved a couple of lines of code by using mock.patch, but
+    # this way we save having to add mock to requirements.txt)
+    def __enter__(self):
+        # package_dictize monkey-patched to package_dictize_with_revisions
+        import ckan.lib.dictization.model_dictize as model_dictize
+        try:
+            import ckan.migration.revision_legacy_code as revision_legacy_code
+        except ImportError:
+            # convenient to look for it in the current directory if you just
+            # download these files because you are upgrading an older ckan
+            import revision_legacy_code
+        self.original_package_dictize = model_dictize.package_dictize
+        model_dictize.package_dictize = \
+            revision_legacy_code.package_dictize_with_revisions
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        import ckan.lib.dictization.model_dictize as model_dictize
+        model_dictize.package_dictize = self.original_package_dictize
+
+
 def migrate_dataset(dataset_name, errors):
-    # monkey patch the legacy versions of code back into CKAN - so it has the
-    # revision functionality needed for this migration
-    import ckan.lib.dictization.model_dictize as model_dictize
-    try:
-        import ckan.migration.revision_legacy_code as revision_legacy_code
-    except ImportError:
-        # convenient to look for it in the current directory if you just
-        # download these files because you are upgrading an older ckan
-        import revision_legacy_code
-    model_dictize.package_dictize = \
-        revision_legacy_code.package_dictize_with_revisions
+    '''
+    Migrates a single dataset.
+
+    NB this function should be run in a `with PackageDictizeMonkeyPatch():`
+    '''
 
     import ckan.logic as logic
     from ckan import model
@@ -142,11 +163,13 @@ def migrate_dataset(dataset_name, errors):
         context = dict(
             get_context(),
             for_view=False,
-            revision_id=activity[u'revision_id'],
+            revision_id=activity_obj.revision_id,
             use_cache=False,  # avoid the cache (which would give us the
                               # latest revision)
         )
         try:
+            assert activity_obj.revision_id, \
+                u'Revision missing on the activity'
             dataset = logic.get_action(u'package_show')(
                 context,
                 {u'id': activity[u'object_id'], u'include_tracking': False})
@@ -156,8 +179,9 @@ def migrate_dataset(dataset_name, errors):
             else:
                 error_msg = text_type(exc)
             print(u'    Error: {}! Skipping this version '
-                  '(revision_id={})'
-                  .format(error_msg, activity[u'revision_id']))
+                  '(revision_id={}, timestamp={})'
+                  .format(error_msg, activity_obj.revision_id,
+                          activity_obj.timestamp))
             errors[error_msg] += 1
             # We shouldn't leave the activity.data['package'] with missing
             # resources, extras & tags, which could cause the package_read
@@ -271,5 +295,6 @@ if __name__ == u'__main__':
         wipe_activity_detail(delete_activity_detail=args.delete)
     else:
         errors = defaultdict(int)
-        migrate_dataset(args.dataset, errors)
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(args.dataset, errors)
         print_errors(errors)

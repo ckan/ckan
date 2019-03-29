@@ -1,11 +1,23 @@
 # encoding: utf-8
 
+# This file is code to do with vdm revisions, which was removed from CKAN after
+# version 2.8. It is only used by a migration and its tests.
+
+import uuid
+import six
+import datetime
+
 from sqlalchemy.sql import select
+from sqlalchemy import (Table, Column, ForeignKey, Boolean, UnicodeText, Text,
+                        String, DateTime, and_, inspect)
+import vdm.sqlalchemy
+from vdm.sqlalchemy.sqla import copy_table
 
 import ckan.logic as logic
 import ckan.lib.dictization as d
 from ckan.lib.dictization.model_dictize import (
     _execute, resource_list_dictize, extras_list_dictize, group_list_dictize)
+from ckan import model
 
 
 # This is based on ckan.lib.dictization.model_dictize:package_dictize
@@ -28,11 +40,11 @@ def package_dictize_with_revisions(pkg, context):
     execute = _execute if is_latest_revision else _execute_with_revision
     # package
     if is_latest_revision:
-        if isinstance(pkg, model.PackageRevision):
+        if isinstance(pkg, RevisionTableMappings.instance().PackageRevision):
             pkg = model.Package.get(pkg.id)
         result = pkg
     else:
-        package_rev = model.package_revision_table
+        package_rev = RevisionTableMappings.instance().package_revision_table
         q = select([package_rev]).where(package_rev.c.id == pkg.id)
         result = execute(q, package_rev, context).first()
     if not result:
@@ -46,7 +58,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         res = model.resource_table
     else:
-        res = model.resource_revision_table
+        res = RevisionTableMappings.instance().resource_revision_table
     q = select([res]).where(res.c.package_id == pkg.id)
     result = execute(q, res, context)
     result_dict["resources"] = resource_list_dictize(result, context)
@@ -57,7 +69,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         pkg_tag = model.package_tag_table
     else:
-        pkg_tag = model.package_tag_revision_table
+        pkg_tag = RevisionTableMappings.instance().package_tag_revision_table
     q = select([tag, pkg_tag.c.state],
                from_obj=pkg_tag.join(tag, tag.c.id == pkg_tag.c.tag_id)
                ).where(pkg_tag.c.package_id == pkg.id)
@@ -77,7 +89,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         extra = model.package_extra_table
     else:
-        extra = model.extra_revision_table
+        extra = RevisionTableMappings.instance().package_extra_revision_table
     q = select([extra]).where(extra.c.package_id == pkg.id)
     result = execute(q, extra, context)
     result_dict["extras"] = extras_list_dictize(result, context)
@@ -86,7 +98,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         member = model.member_table
     else:
-        member = model.member_revision_table
+        member = RevisionTableMappings.instance().member_revision_table
     group = model.group_table
     q = select([group, member.c.capacity],
                from_obj=member.join(group, group.c.id == member.c.group_id)
@@ -105,7 +117,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         group = model.group_table
     else:
-        group = model.group_revision_table
+        group = RevisionTableMappings.instance().group_revision_table
     q = select([group]
                ).where(group.c.id == result_dict['owner_org']) \
                 .where(group.c.state == u'active')
@@ -120,7 +132,8 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         rel = model.package_relationship_table
     else:
-        rel = model.package_relationship_revision_table
+        rel = RevisionTableMappings.instance() \
+            .package_relationship_revision_table
     q = select([rel]).where(rel.c.subject_package_id == pkg.id)
     result = execute(q, rel, context)
     result_dict["relationships_as_subject"] = \
@@ -132,8 +145,8 @@ def package_dictize_with_revisions(pkg, context):
 
     # Extra properties from the domain object
     # We need an actual Package object for this, not a PackageRevision
-    if isinstance(pkg, model.PackageRevision):
-        pkg = model.Package.get(pkg.id)
+    # if isinstance(pkg, model.PackageRevision):
+    #     pkg = model.Package.get(pkg.id)
 
     # isopen
     result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen, bool) \
@@ -181,8 +194,8 @@ def _execute_with_revision(q, rev_table, context):
     revision_date = context.get(u'revision_date')
 
     if revision_id:
-        revision = session.query(context['model'].Revision).filter_by(
-            id=revision_id).first()
+        revision = session.query(RevisionTableMappings.instance().Revision) \
+            .filter_by(id=revision_id).first()
         if not revision:
             raise logic.NotFound
         revision_date = revision.timestamp
@@ -191,3 +204,309 @@ def _execute_with_revision(q, rev_table, context):
     q = q.where(rev_table.c.expired_timestamp > revision_date)
 
     return session.execute(q)
+
+
+# This function is copied from vdm, but with the addition of the 'frozen' param
+# and the bits from ckan.model.core.make_revisioned_table()
+def make_revisioned_table(base_table, frozen=False):
+    '''Modify base_table and create correponding revision table.
+
+    A 'frozen' revision table is not written to any more - it's just there
+    as a record. It doesn't have the continuity foreign key relation.
+
+    @return revision table (e.g. package_revision)
+    '''
+    base_table.append_column(
+            Column(u'revision_id', UnicodeText, ForeignKey(u'revision.id'))
+            )
+    revision_table = Table(base_table.name + u'_revision', base_table.metadata)
+    copy_table(base_table, revision_table)
+
+    # create foreign key 'continuity' constraint
+    # remember base table primary cols have been exactly duplicated onto our
+    # table
+    pkcols = []
+    for col in base_table.c:
+        if col.primary_key:
+            pkcols.append(col)
+    assert len(pkcols) <= 1,\
+        u'Do not support versioning objects with multiple primary keys'
+    fk_name = base_table.name + u'.' + pkcols[0].name
+    revision_table.append_column(
+        Column(u'continuity_id', pkcols[0].type,
+               None if frozen else ForeignKey(fk_name))
+        )
+
+    # TODO: why do we iterate all the way through rather than just using dict
+    # functionality ...? Surely we always have a revision here ...
+    for col in revision_table.c:
+        if col.name == u'revision_id':
+            col.primary_key = True
+            revision_table.primary_key.columns.add(col)
+
+    # Copied from ckan.model.core.make_revisioned_table
+    revision_table.append_column(Column('expired_id',
+                                 Text))
+    revision_table.append_column(Column('revision_timestamp', DateTime))
+    revision_table.append_column(Column('expired_timestamp', DateTime,
+                                 default=datetime.datetime(9999, 12, 31)))
+    revision_table.append_column(Column('current', Boolean))
+    return revision_table
+
+
+# This function is copied from vdm
+def make_revision_table(metadata):
+    make_uuid = lambda: six.u(uuid.uuid4())
+    revision_table = Table('revision', metadata,
+            Column('id', UnicodeText, primary_key=True, default=make_uuid),
+            Column('timestamp', DateTime, default=datetime.datetime.utcnow),
+            Column('author', String(200)),
+            Column('message', UnicodeText),
+            Column('state', UnicodeText, default=model.State.ACTIVE)
+            )
+    return revision_table
+
+
+# Copied from vdm
+def make_Revision(mapper, revision_table):
+    mapper(Revision, revision_table, properties={
+        },
+        order_by=revision_table.c.timestamp.desc())
+    return Revision
+
+
+# Copied from vdm
+class Revision(object):  # SQLAlchemyMixin
+    '''A Revision to the Database/Domain Model.
+
+    All versioned objects have an associated Revision which can be accessed via
+    the revision attribute.
+    '''
+    def __init__(self, **kw):
+        for k, v in kw.iteritems():
+            setattr(self, k, v)
+
+    # @property
+    # def __id__(self):
+    #     if self.id is None:
+    #         self.id = make_uuid()
+    #     return self.id
+    # @classmethod
+    # def youngest(self, session):
+    #     '''Get the youngest (most recent) revision.
+
+    #     If session is not provided assume there is a contextual session.
+    #     '''
+    #     q = session.query(self)
+    #     return q.first()
+
+
+# Tests use this to manually create revisions, that look just like how
+# CKAN<=2.8 used to create automatically.
+def make_package_revision(package):
+    '''Manually create a revision for a package and its related objects'''
+    instances = [package]
+    instances.extend(package.get_tags())
+    extras = model.Session.query(model.PackageExtra) \
+        .filter_by(package_id=package.id) \
+        .all()
+    instances.extend(extras)
+    instances.extend(package.resources)
+    make_revision(instances)
+
+# Tests use this to manually create revisions, that look just like how
+# CKAN<=2.8 used to create automatically.
+def make_revision(instances):
+    '''Manually create a revision.
+
+    Copies a new/changed row from a table (e.g. Package) into its
+    corresponding revision table (e.g. PackageRevision) and makes an entry
+    in the Revision table.
+    '''
+    # model.repo.new_revision() was called in the model code, which is:
+    # vdm.sqlalchemy.tools.Repository.new_revision() which did this:
+    Revision = RevisionTableMappings.instance().Revision
+    revision = Revision()
+    model.Session.add(revision)
+    # new_revision then calls:
+    # SQLAlchemySession.set_revision(self.session, rev), which is:
+    # vdm.sqlalchemy.base.SQLAlchemySession.set_revision() which did this:
+    make_uuid = lambda: unicode(uuid.uuid4())
+    revision.id = make_uuid()
+    model.Session.add(revision)
+    model.Session.flush()
+
+    # In CKAN<=2.8 the revisioned tables (e.g. Package) had a mapper
+    # extension: vdm.sqlalchemy.Revisioner(package_revision_table)
+    # that triggered on table changes and records a copy in the
+    # corresponding revision table (e.g. PackageRevision).
+
+    # In Revisioner.before_insert() it does this:
+    for instance in instances:
+        is_changed = True  # fake: check_real_change(instance)
+        if is_changed:
+            # set_revision(instance)
+            # which does this:
+            instance.revision = revision
+            instance.revision_id = revision.id
+    # Unfortunately modifying the Package (or whatever the instances are)
+    # will create another Activity object when we save the session, so
+    # delete that
+    existing_latest_activity = model.Session.query(model.Activity) \
+        .order_by(model.Activity.timestamp.desc()).first()
+    model.Session.commit()
+    new_latest_activity = model.Session.query(model.Activity) \
+        .order_by(model.Activity.timestamp.desc()).first()
+    if new_latest_activity != existing_latest_activity:
+        new_latest_activity.delete()
+        model.Session.commit()
+
+    # In Revision.after_update() or after_insert() it does this:
+    # self.make_revision(instance, mapper, connection)
+    # which is vdm.sqlalchemy.base.Revisioner.make_revision()
+    # which copies the Package to make a new PackageRevision
+    for instance in instances:
+        colvalues = {}
+        mapper = inspect(type(instance))
+        table = mapper.tables[0]
+        for key in table.c.keys():
+            val = getattr(instance, key)
+            colvalues[key] = val
+        assert instance.revision.id
+        colvalues['revision_id'] = instance.revision.id
+        colvalues['continuity_id'] = instance.id
+
+        # Allow for multiple SQLAlchemy flushes/commits per VDM revision
+        revision_table = \
+            RevisionTableMappings.instance() \
+            .revision_table_mapping[type(instance)]
+        ins = revision_table.insert().values(colvalues)
+        model.Session.execute(ins)
+
+    # the related Activity would get the revision_id added to it too.
+    # Here we simply assume it's the latest activity.
+    activity = model.Session.query(model.Activity) \
+        .order_by(model.Activity.timestamp.desc()) \
+        .first()
+    activity.revision_id = revision.id
+    model.Session.flush()
+
+    # In CKAN<=2.8 the session extension CkanSessionExtension had some
+    # extra code in before_commit() which wrote `revision_timestamp` and
+    # `expired_timestamp` values in the revision tables
+    # (e.g. package_revision) so that is added here:
+    for instance in instances:
+        if not hasattr(instance, '__revision_class__'):
+            continue
+        revision_cls = instance.__revision_class__
+        revision_table = \
+            RevisionTableMappings.instance() \
+            .revision_table_mapping[type(instance)]
+        ## when a normal active transaction happens
+
+        ### this is an sql statement as we do not want it in object cache
+        model.Session.execute(
+            revision_table.update().where(
+                and_(revision_table.c.id == instance.id,
+                        revision_table.c.current == '1')
+            ).values(current='0')
+        )
+
+        q = model.Session.query(revision_cls)
+        q = q.filter_by(expired_timestamp=datetime.datetime(9999, 12, 31),
+                        id=instance.id)
+        results = q.all()
+        for rev_obj in results:
+            values = {}
+            if rev_obj.revision_id == revision.id:
+                values['revision_timestamp'] = revision.timestamp
+            else:
+                values['expired_timestamp'] = revision.timestamp
+            model.Session.execute(
+                revision_table.update().where(
+                    and_(revision_table.c.id == rev_obj.id,
+                            revision_table.c.revision_id ==
+                            rev_obj.revision_id)
+                ).values(**values)
+            )
+
+
+# Revision tables (singleton)
+class RevisionTableMappings(object):
+    _instance = None
+
+    @classmethod
+    def instance(cls):
+        if not cls._instance:
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self):
+        self.revision_table = make_revision_table(model.meta.metadata)
+        self.revision_table.append_column(
+            Column('approved_timestamp', DateTime))
+
+        self.Revision = make_Revision(model.meta.mapper, self.revision_table)
+
+        self.package_revision_table = \
+            make_revisioned_table(model.package_table)
+        self.PackageRevision = vdm.sqlalchemy.create_object_version(
+            model.meta.mapper, model.Package, self.package_revision_table)
+
+        self.resource_revision_table = \
+            make_revisioned_table(model.resource_table)
+        self.ResourceRevision = vdm.sqlalchemy.create_object_version(
+            model.meta.mapper, model.Resource, self.resource_revision_table)
+
+        self.package_extra_revision_table = \
+            make_revisioned_table(model.package_extra_table)
+        self.PackageExtraRevision = vdm.sqlalchemy.create_object_version(
+            model.meta.mapper, model.PackageExtra,
+            self.package_extra_revision_table)
+
+        self.package_tag_revision_table = \
+            make_revisioned_table(model.package_tag_table)
+        self.PackageTagRevision = vdm.sqlalchemy.create_object_version(
+            model.meta.mapper, model.PackageTag,
+            self.package_tag_revision_table)
+
+        self.member_revision_table = \
+            make_revisioned_table(model.member_table)
+        self.MemberRevision = vdm.sqlalchemy.create_object_version(
+            model.meta.mapper, model.Member,
+            self.member_revision_table)
+
+        self.group_revision_table = \
+            make_revisioned_table(model.group_table)
+        self.GroupRevision = vdm.sqlalchemy.create_object_version(
+            model.meta.mapper, model.Group,
+            self.group_revision_table)
+
+        self.group_extra_revision_table = \
+            make_revisioned_table(model.group_extra_table)
+        self.GroupExtraRevision = vdm.sqlalchemy.create_object_version(
+            model.meta.mapper, model.GroupExtra,
+            self.group_extra_revision_table)
+
+        self.package_relationship_revision_table = \
+            make_revisioned_table(model.package_relationship_table)
+        # Commented because it gives an error, but we probably don't need it
+        # self.PackageRelationshipRevision = \
+        #     vdm.sqlalchemy.create_object_version(
+        #         model.meta.mapper, model.PackageRelationship,
+        #         self.package_relationship_revision_table)
+
+        self.system_info_revision_table = \
+            make_revisioned_table(model.system_info_table)
+        self.SystemInfoRevision = vdm.sqlalchemy.create_object_version(
+            model.meta.mapper, model.SystemInfo,
+            self.system_info_revision_table)
+
+        self.revision_table_mapping = {
+            model.Package: self.package_revision_table,
+            model.Resource: self.resource_revision_table,
+            model.PackageExtra: self.package_extra_revision_table,
+            model.PackageTag: self.package_tag_revision_table,
+            model.Member: self.member_revision_table,
+            model.Group: self.group_revision_table,
+        }

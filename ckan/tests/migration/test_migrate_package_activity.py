@@ -3,13 +3,17 @@
 import copy
 from nose.tools import assert_equal as eq_
 from collections import defaultdict
+import uuid
+import datetime
 
 import mock
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan.migration.migrate_package_activity import (migrate_dataset,
-                                                     wipe_activity_detail)
+from ckan.migration.migrate_package_activity import (
+    migrate_dataset, wipe_activity_detail, PackageDictizeMonkeyPatch)
+from ckan.migration.revision_legacy_code import (
+    RevisionTableMappings, make_package_revision)
 from ckan.model.activity import package_activity_list
 from ckan import model
 import ckan.logic
@@ -39,7 +43,8 @@ class TestMigrateDataset(object):
         activity = model.Activity.get(activity.id)
         del activity.data['package']
         model.repo.commit_and_remove()
-        migrate_dataset(dataset['name'], {})
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(dataset['name'], {})
 
         activity_data_migrated = \
             package_activity_list(dataset['id'], 0, 0)[0].data
@@ -49,10 +54,13 @@ class TestMigrateDataset(object):
         dataset = factories.Dataset(resources=[
             {u'url': u'http://example.com/a.csv', u'format': u'csv'}
         ])
+        make_package_revision(model.Package.get(dataset['id']))
         dataset['title'] = u'Title 2'
         helpers.call_action(u'package_update', **dataset)
+        make_package_revision(model.Package.get(dataset['id']))
         dataset['title'] = u'Title 3'
         helpers.call_action(u'package_update', **dataset)
+        make_package_revision(model.Package.get(dataset['id']))
 
         activity = package_activity_list(dataset['id'], 0, 0)[1]
         activity_data_as_it_should_be = copy.deepcopy(activity.data['package'])
@@ -67,7 +75,8 @@ class TestMigrateDataset(object):
         assert not \
             model.Activity.get(activity.id).data['package'].get(u'resources')
 
-        migrate_dataset(dataset['name'], {})
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(dataset['name'], {})
 
         eq_.__self__.maxDiff = None
         activity_data_migrated = \
@@ -84,7 +93,8 @@ class TestMigrateDataset(object):
         activity = package_activity_list(dataset['id'], 0, 0)[0]
         activity_data_before = copy.deepcopy(activity.data)
 
-        migrate_dataset(dataset['name'], {})
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(dataset['name'], {})
 
         activity_data_after = package_activity_list(dataset['id'], 0, 0)[0].data
         eq_(activity_data_before, activity_data_after)
@@ -93,15 +103,21 @@ class TestMigrateDataset(object):
         dataset = factories.Dataset(resources=[
             {u'url': u'http://example.com/a.csv', u'format': u'csv'}
         ])
+        dataset['title'] = u'Title 2'
+        helpers.call_action(u'package_update', **dataset)
         # delete a part of the revision, so package_show for the revision will
         # return NotFound
-        model.Session.query(model.PackageRevision).delete()
+        PackageRevision = RevisionTableMappings.instance().PackageRevision
+        model.Session.query(PackageRevision).delete()
         model.Session.commit()
-        # delete 'activity.data.package.resources' so it needs migrating
-        activity = package_activity_list(dataset['id'], 0, 0)[0]
+        # Adjust the Activity as if CKAN <=2.8 saved it, so that it will be
+        # migrated
+        activity = package_activity_list(dataset['id'], 0, 0)[1]
         activity = model.Activity.get(activity.id)
         activity.data = {u'actor': None,
                          u'package': {u'title': u'Test Dataset'}}
+        activity.revision_id = 'not real one'  # because Revisioner wrote that,
+                                               # and that is no longer active
         model.Session.commit()
         model.Session.remove()
         # double check that worked...
@@ -109,11 +125,12 @@ class TestMigrateDataset(object):
             model.Activity.get(activity.id).data['package'].get(u'resources')
 
         errors = defaultdict(int)
-        migrate_dataset(dataset['name'], errors)
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(dataset['name'], errors)
 
         eq_(dict(errors), {u'Revision missing': 1})
         activity_data_migrated = \
-            package_activity_list(dataset['id'], 0, 0)[0].data
+            package_activity_list(dataset['id'], 0, 0)[1].data
         # the title is there so the activity stream can display it
         eq_(activity_data_migrated['package']['title'], u'Test Dataset')
         # the rest of the dataset is missing - better that than just the
@@ -124,24 +141,29 @@ class TestMigrateDataset(object):
         dataset = factories.Dataset(resources=[
             {u'url': u'http://example.com/a.csv', u'format': u'csv'}
         ])
+        dataset['title'] = u'Title 2'
+        helpers.call_action(u'package_update', **dataset)
         # delete a part of the revision, so package_show for the revision will
         # return NotFound
-        model.Session.query(model.PackageRevision).delete()
+        PackageRevision = RevisionTableMappings.instance().PackageRevision
+        model.Session.query(PackageRevision).delete()
         model.Session.commit()
         # delete 'activity.data.package' so it needs migrating AND the package
         # title won't be available, so we test how the migration deals with
         # that
-        activity = package_activity_list(dataset['id'], 0, 0)[0]
+        activity = package_activity_list(dataset['id'], 0, 0)[1]
         activity = model.Activity.get(activity.id)
         del activity.data['package']
+        activity.revision_id = 'dummy-value'
         model.Session.commit()
 
         errors = defaultdict(int)
-        migrate_dataset(dataset['name'], errors)
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(dataset['name'], errors)
 
         eq_(dict(errors), {u'Revision missing': 1})
         activity_data_migrated = \
-            package_activity_list(dataset['id'], 0, 0)[0].data
+            package_activity_list(dataset['id'], 0, 0)[1].data
         # the title is there so the activity stream can display it
         eq_(activity_data_migrated['package']['title'], u'unknown')
         assert u'resources' not in activity_data_migrated['package']
@@ -150,6 +172,7 @@ class TestMigrateDataset(object):
         dataset = factories.Dataset(resources=[
             {u'url': u'http://example.com/a.csv', u'format': u'csv'}
         ])
+        make_package_revision(model.Package.get(dataset['id']))
         # delete 'activity.data.package.resources' so it needs migrating
         activity = package_activity_list(dataset['id'], 0, 0)[0]
         activity = model.Activity.get(activity.id)
@@ -169,7 +192,8 @@ class TestMigrateDataset(object):
         ckan.logic._actions['package_show'] = \
             mock.MagicMock(side_effect=Exception(u'Schema error'))
         try:
-            migrate_dataset(dataset['name'], errors)
+            with PackageDictizeMonkeyPatch():
+                migrate_dataset(dataset['name'], errors)
         finally:
             # restore package_show
             ckan.logic.clear_actions_cache()
