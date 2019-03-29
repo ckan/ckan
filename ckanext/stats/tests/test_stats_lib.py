@@ -6,7 +6,7 @@ from nose.tools import assert_equal
 from ckan import model
 from ckan.tests import factories
 
-from ckanext.stats.stats import Stats, RevisionStats
+from ckanext.stats.stats import Stats
 from ckanext.stats.tests import StatsFixture
 
 
@@ -32,10 +32,6 @@ class TestStatsPlugin(StatsFixture):
                           group2['name']}], tags=[tag1, tag2], user=user,
                           private=True)
         factories.Dataset(name='test4', user=user)
-        # hack revision timestamps to be this date
-        week1 = datetime.datetime(2011, 1, 5)
-        for rev in model.Session.query(model.Revision):
-            rev.timestamp = week1 + datetime.timedelta(seconds=1)
 
         # week 2
         model.Package.by_name(u'test2').delete()
