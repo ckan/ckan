@@ -246,12 +246,12 @@ def make_revisioned_table(base_table, frozen=False):
             revision_table.primary_key.columns.add(col)
 
     # Copied from ckan.model.core.make_revisioned_table
-    revision_table.append_column(Column('expired_id',
+    revision_table.append_column(Column(u'expired_id',
                                  Text))
-    revision_table.append_column(Column('revision_timestamp', DateTime))
-    revision_table.append_column(Column('expired_timestamp', DateTime,
+    revision_table.append_column(Column(u'revision_timestamp', DateTime))
+    revision_table.append_column(Column(u'expired_timestamp', DateTime,
                                  default=datetime.datetime(9999, 12, 31)))
-    revision_table.append_column(Column('current', Boolean))
+    revision_table.append_column(Column(u'current', Boolean))
     return revision_table
 
 
@@ -291,13 +291,13 @@ def copy_table(table, newtable):
 # Copied from vdm
 def make_revision_table(metadata):
     revision_table = Table(
-        'revision', metadata,
-        Column('id', UnicodeText, primary_key=True,
+        u'revision', metadata,
+        Column(u'id', UnicodeText, primary_key=True,
                default=lambda: six.u(uuid.uuid4())),
-        Column('timestamp', DateTime, default=datetime.datetime.utcnow),
-        Column('author', String(200)),
-        Column('message', UnicodeText),
-        Column('state', UnicodeText, default=model.State.ACTIVE)
+        Column(u'timestamp', DateTime, default=datetime.datetime.utcnow),
+        Column(u'author', String(200)),
+        Column(u'message', UnicodeText),
+        Column(u'state', UnicodeText, default=model.State.ACTIVE)
         )
     return revision_table
 
@@ -355,7 +355,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
             for k, v in kw.iteritems():
                 setattr(self, k, v)
 
-    name = base_object.__name__ + 'Revision'
+    name = base_object.__name__ + u'Revision'
     MyClass.__name__ = name
     MyClass.__continuity_class__ = base_object
 
@@ -407,7 +407,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
             # in 0.4.5
             prop_remote_obj = prop.argument
             remote_obj_is_revisioned = \
-                getattr(prop_remote_obj, '__revisioned__', False)
+                getattr(prop_remote_obj, u'__revisioned__', False)
             # this is crude, probably need something better
             is_many = (prop.secondary is not None or prop.uselist)
             if remote_obj_is_revisioned:
@@ -418,7 +418,8 @@ def create_object_version(mapper_fn, base_object, rev_table):
             else:
                 # TODO: actually deal with this
                 # raise a warning of some kind
-                msg = 'Skipping adding property %s to revisioned object' % prop
+                msg = \
+                    u'Skipping adding property %s to revisioned object' % prop
 
     return MyClass
 
@@ -450,7 +451,8 @@ def add_fake_relation(revision_class, name, is_many=False):
 # Tests use this to manually create revisions, that look just like how
 # CKAN<=2.8 used to create automatically.
 def make_package_revision(package):
-    '''Manually create a revision for a package and its related objects'''
+    '''Manually create a revision for a package and its related objects
+    '''
     instances = [package]
     package_tags = model.Session.query(model.PackageTag) \
         .filter_by(package_id=package.id) \
@@ -545,7 +547,7 @@ def make_revision(instances):
     # `expired_timestamp` values in the revision tables
     # (e.g. package_revision) so that is added here:
     for instance in instances:
-        if not hasattr(instance, '__revision_class__'):
+        if not hasattr(instance, u'__revision_class__'):
             continue
         revision_cls = instance.__revision_class__
         revision_table = \
@@ -557,8 +559,8 @@ def make_revision(instances):
         model.Session.execute(
             revision_table.update().where(
                 and_(revision_table.c.id == instance.id,
-                     revision_table.c.current == '1')
-            ).values(current='0')
+                     revision_table.c.current == u'1')
+            ).values(current=u'0')
         )
 
         q = model.Session.query(revision_cls)
@@ -592,7 +594,7 @@ class RevisionTableMappings(object):
     def __init__(self):
         self.revision_table = make_revision_table(model.meta.metadata)
         self.revision_table.append_column(
-            Column('approved_timestamp', DateTime))
+            Column(u'approved_timestamp', DateTime))
 
         self.Revision = make_Revision(model.meta.mapper, self.revision_table)
 

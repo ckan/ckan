@@ -116,7 +116,7 @@ class TestMigrateDataset(object):
         activity = model.Activity.get(activity.id)
         activity.data = {u'actor': None,
                          u'package': {u'title': u'Test Dataset'}}
-        activity.revision_id = 'not real one'  # because Revisioner wrote that,
+        activity.revision_id = u'not real one'  # because Revisioner wrote that,
         # and that is no longer active
 
         model.Session.commit()
@@ -155,7 +155,7 @@ class TestMigrateDataset(object):
         activity = package_activity_list(dataset['id'], 0, 0)[1]
         activity = model.Activity.get(activity.id)
         del activity.data['package']
-        activity.revision_id = 'dummy-value'
+        activity.revision_id = u'dummy-value'
         model.Session.commit()
 
         errors = defaultdict(int)
