@@ -5,10 +5,13 @@ import logging
 import click
 
 from ckan.cli import (
-    click_config_option, db, load_config, search_index, server,
     datapusher,
+    click_config_option, db, load_config, search_index, server,
+    translation,
 )
+
 from ckan.config.middleware import make_app
+
 
 log = logging.getLogger(__name__)
 
@@ -30,5 +33,6 @@ def ckan(ctx, config, *args, **kwargs):
 
 ckan.add_command(server.run)
 ckan.add_command(db.db)
-ckan.add_command(search_index.search_index)
 ckan.add_command(datapusher.datapusher)
+ckan.add_command(search_index.search_index)
+ckan.add_command(translation.translation)
