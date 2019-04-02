@@ -522,10 +522,11 @@ If you rebuilt the ckan container and no records are showing up, you need to rei
 sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild --config=/etc/ckan/production.ini
 ```
 
-you have done several builds of ckan and now you are running out of hard drive space? With ckan running you can clean up docker images, containers, etc.
+you have done several builds of ckan and now you are running out of hard drive space? With ckan running you can clean up docker images, containers, volumes, cache etc.
 
 ```bash
   sudo docker system prune -a
+  sudo docker volume prune
 ```
 
 or remove only the images you want with
