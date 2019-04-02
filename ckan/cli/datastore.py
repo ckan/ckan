@@ -114,7 +114,7 @@ def parse_db_config(config_key=u'sqlalchemy.url'):
         u'(?P<db_pass>[^@]*)', u'@', u'(?P<db_host>[^/:]*)', u':?',
         u'(?P<db_port>[^/]*)', u'/', u'(?P<db_name>[\\w.-]*)'
     ]
-    db_details_match = re.match(''.join(regex), url)
+    db_details_match = re.match(u''.join(regex), url)
     if not db_details_match:
         click.secho(
             u'Could not extract db details from url: %r' % url,
