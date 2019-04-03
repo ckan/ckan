@@ -1,5 +1,7 @@
 # Setup
 
+These instructions are for CentOS 7. They have been modified from the original ['Installing CKAN with Docker Compose'](https://docs.ckan.org/en/2.8/maintaining/installing/install-from-docker-compose.html) instructions.
+
 #### Install Docker
 
 ```
