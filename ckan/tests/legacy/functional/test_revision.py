@@ -149,6 +149,5 @@ class TestRevisionController(TestController):
         # Tests for indications about what happened.
         assert 'warandpeace:created' in res, res
         assert 'annakarenina:created' in res, res
-        assert 'warandpeace:updated:date_updated' in res, res
         assert 'annakarenina:updated:resources' in res, res
         assert 'annakarenina:deleted' in res, res

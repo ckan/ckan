@@ -65,7 +65,6 @@ class RevisionController(base.BaseController):
                 package_indications = []
                 revision_changes = model.repo.list_changes(revision)
                 resource_revisions = revision_changes[model.Resource]
-                package_extra_revisions = revision_changes[model.PackageExtra]
                 for package in revision.packages:
                     if not package:
                         # package is None sometimes - I don't know why,
@@ -93,13 +92,6 @@ class RevisionController(base.BaseController):
                             if resource_revision.package_id == package.id:
                                 transition += ':resources'
                                 break
-                        for package_extra_revision in package_extra_revisions:
-                            if package_extra_revision.package_id == \
-                                    package.id:
-                                if package_extra_revision.key == \
-                                        'date_updated':
-                                    transition += ':date_updated'
-                                    break
                     indication = "%s:%s" % (package.name, transition)
                     package_indications.append(indication)
                 pkgs = u'[%s]' % ' '.join(package_indications)

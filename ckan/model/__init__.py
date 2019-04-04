@@ -60,13 +60,10 @@ from group import (
 from group_extra import (
     GroupExtra,
     group_extra_table,
-    GroupExtraRevision,
 )
 from package_extra import (
     PackageExtra,
-    PackageExtraRevision,
     package_extra_table,
-    extra_revision_table,
 )
 from resource import (
     Resource,
@@ -351,7 +348,7 @@ class Repository(vdm.sqlalchemy.Repository):
 
 repo = Repository(meta.metadata, meta.Session,
                   versioned_objects=[Package, PackageTag, Resource,
-                                     PackageExtra, Member,
+                                     Member,
                                      Group, SystemInfo]
         )
 

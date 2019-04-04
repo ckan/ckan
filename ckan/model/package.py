@@ -52,18 +52,18 @@ package_table = Table('package', meta.metadata,
         Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
         Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
+        Column('state', types.UnicodeText, default=core.State.ACTIVE),
 )
 
 
-vdm.sqlalchemy.make_table_stateful(package_table)
 package_revision_table = core.make_revisioned_table(package_table)
 
 ## -------------------
 ## Mapped classes
 
 class Package(vdm.sqlalchemy.RevisionedObjectMixin,
-        vdm.sqlalchemy.StatefulObjectMixin,
-        domain_object.DomainObject):
+              core.StatefulObjectMixin,
+              domain_object.DomainObject):
 
     text_search_fields = ['name', 'title']
 
@@ -371,22 +371,21 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @property
     def all_related_revisions(self):
         '''Returns chronological list of all object revisions related to
-        this package. Includes PackageRevisions, PackageTagRevisions,
-        PackageExtraRevisions and ResourceRevisions.
+        this package. Includes PackageRevisions, PackageTagRevisions
+        and ResourceRevisions.
         @return List of tuples (revision, [list of object revisions of this
                                            revision])
                 Ordered by most recent first.
         '''
         from tag import PackageTag
         from resource import Resource
-        from package_extra import PackageExtra
 
         results = {} # revision:[PackageRevision1, PackageTagRevision1, etc.]
         for pkg_rev in self.all_revisions:
             if not results.has_key(pkg_rev.revision):
                 results[pkg_rev.revision] = []
             results[pkg_rev.revision].append(pkg_rev)
-        for class_ in [Resource, PackageExtra, PackageTag]:
+        for class_ in [Resource, PackageTag]:
             rev_class = class_.__revision_class__
             obj_revisions = meta.Session.query(rev_class).filter_by(package_id=self.id).all()
             for obj_rev in obj_revisions:
@@ -412,8 +411,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
         results = {} # field_name:diffs
         results.update(super(Package, self).diff(to_revision, from_revision))
-        # Iterate over PackageTag, PackageExtra, Resources etc.
-        for obj_class in [Resource, PackageExtra, PackageTag]:
+        # Iterate over PackageTag, Resources etc. (NB PackageExtra is not
+        # revisioned any more, so the diff is incomplete)
+        for obj_class in [Resource, PackageTag]:
             obj_rev_class = obj_class.__revision_class__
             # Query for object revisions related to this package
             obj_rev_query = meta.Session.query(obj_rev_class).\

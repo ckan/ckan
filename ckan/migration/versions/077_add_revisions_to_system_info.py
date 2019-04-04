@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-import vdm.sqlalchemy
+from ckan import model
 
 
 def upgrade(migrate_engine):
@@ -21,5 +21,5 @@ def upgrade(migrate_engine):
         ALTER TABLE system_info_revision
             DROP CONSTRAINT "system_info_revision_key_key";
 
-        '''.format(state=vdm.sqlalchemy.State.ACTIVE)
+        '''.format(state=model.State.ACTIVE)
     )
