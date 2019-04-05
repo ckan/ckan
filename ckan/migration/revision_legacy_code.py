@@ -6,6 +6,7 @@ import ckan.logic as logic
 import ckan.lib.dictization as d
 from ckan.lib.dictization.model_dictize import (
     _execute, resource_list_dictize, extras_list_dictize, group_list_dictize)
+from ckan import model
 
 
 # This is based on ckan.lib.dictization.model_dictize:package_dictize
@@ -28,11 +29,11 @@ def package_dictize_with_revisions(pkg, context):
     execute = _execute if is_latest_revision else _execute_with_revision
     # package
     if is_latest_revision:
-        if isinstance(pkg, model.PackageRevision):
+        if isinstance(pkg, revision_model.PackageRevision):
             pkg = model.Package.get(pkg.id)
         result = pkg
     else:
-        package_rev = model.package_revision_table
+        package_rev = revision_model.package_revision_table
         q = select([package_rev]).where(package_rev.c.id == pkg.id)
         result = execute(q, package_rev, context).first()
     if not result:
@@ -46,7 +47,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         res = model.resource_table
     else:
-        res = model.resource_revision_table
+        res = revision_model.resource_revision_table
     q = select([res]).where(res.c.package_id == pkg.id)
     result = execute(q, res, context)
     result_dict["resources"] = resource_list_dictize(result, context)
@@ -57,7 +58,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         pkg_tag = model.package_tag_table
     else:
-        pkg_tag = model.package_tag_revision_table
+        pkg_tag = revision_model.package_tag_revision_table
     q = select([tag, pkg_tag.c.state],
                from_obj=pkg_tag.join(tag, tag.c.id == pkg_tag.c.tag_id)
                ).where(pkg_tag.c.package_id == pkg.id)
@@ -77,7 +78,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         extra = model.package_extra_table
     else:
-        extra = model.extra_revision_table
+        extra = revision_model.extra_revision_table
     q = select([extra]).where(extra.c.package_id == pkg.id)
     result = execute(q, extra, context)
     result_dict["extras"] = extras_list_dictize(result, context)
@@ -86,7 +87,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         member = model.member_table
     else:
-        member = model.member_revision_table
+        member = revision_model.member_revision_table
     group = model.group_table
     q = select([group, member.c.capacity],
                from_obj=member.join(group, group.c.id == member.c.group_id)
@@ -105,7 +106,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         group = model.group_table
     else:
-        group = model.group_revision_table
+        group = revision_model.group_revision_table
     q = select([group]
                ).where(group.c.id == result_dict['owner_org']) \
                 .where(group.c.state == u'active')
@@ -120,7 +121,8 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         rel = model.package_relationship_table
     else:
-        rel = model.package_relationship_revision_table
+        rel = revision_model \
+            .package_relationship_revision_table
     q = select([rel]).where(rel.c.subject_package_id == pkg.id)
     result = execute(q, rel, context)
     result_dict["relationships_as_subject"] = \
@@ -132,8 +134,8 @@ def package_dictize_with_revisions(pkg, context):
 
     # Extra properties from the domain object
     # We need an actual Package object for this, not a PackageRevision
-    if isinstance(pkg, model.PackageRevision):
-        pkg = model.Package.get(pkg.id)
+    # if isinstance(pkg, model.PackageRevision):
+    #     pkg = model.Package.get(pkg.id)
 
     # isopen
     result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen, bool) \
@@ -181,8 +183,8 @@ def _execute_with_revision(q, rev_table, context):
     revision_date = context.get(u'revision_date')
 
     if revision_id:
-        revision = session.query(context['model'].Revision).filter_by(
-            id=revision_id).first()
+        revision = session.query(revision_model.Revision) \
+            .filter_by(id=revision_id).first()
         if not revision:
             raise logic.NotFound
         revision_date = revision.timestamp
@@ -191,3 +193,15 @@ def _execute_with_revision(q, rev_table, context):
     q = q.where(rev_table.c.expired_timestamp > revision_date)
 
     return session.execute(q)
+
+
+# It's easiest if this code works on all versions of CKAN. After CKAN 2.8 the
+# revision model is separate from the main model.
+# (RevisionTableMappings will be defined above)
+try:
+    model.PackageRevision
+    # CKAN<=2.8
+    revision_model = model
+except AttributeError:
+    # CKAN>2.8
+    revision_model = RevisionTableMappings.instance()
