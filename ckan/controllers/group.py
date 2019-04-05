@@ -223,7 +223,7 @@ class GroupController(base.BaseController):
 
             # Do not query group members as they aren't used in the view
             data_dict['include_users'] = False
-            
+
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except (NotFound, NotAuthorized):
