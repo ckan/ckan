@@ -32,6 +32,15 @@ class DataTablesView(p.SingletonPlugin):
         return resource.get(u'datastore_active')
 
     def view_template(self, context, data_dict):
+        '''
+        Set the index of the sort column if it's displayed
+        '''
+        resource_view = data_dict.get('resource_view')
+        sort_column = resource_view.get('sort_column')
+        show_fields = resource_view.get('show_fields', [])
+        if sort_column in show_fields:
+            sort_index = show_fields.index(sort_column)
+            data_dict['resource_view']['sort_index'] = sort_index
         return u'datatables/datatables_view.html'
 
     def form_template(self, context, data_dict):

@@ -1,37 +1,32 @@
 {% import 'macros/form.html' as form %}
 
-{{ form.checkbox(
-  'responsive',
-  id='field-responsive',
-  label=_('Responsive display'),
-  value='True',
-  checked=data.responsive,
-  attrs={"title":"Optimize table layout for smaller screen sizes"},
-  ) }}
-{{ form.checkbox(
-  'export_buttons',
-  id='field-export_buttons',
-  label=_('Export buttons'),
-  value='True',
-  checked=data.export_buttons,
-  attrs={"title":"Add Copy and Print buttons"},
-  ) }}
-{{ form.checkbox(
-  'col_reorder',
-  id='field-col_reorder',
-  label=_('Column reorder'),
-  value='True',
-  checked=data.col_reorder,
-  attrs={"title":"Allow end users to reorder columns in a DataTable through a drag and drag operation"},
-  ) }}
-{{ form.checkbox(
-  'fixed_columns',
-  id='field-fixed_columns',
-  label=_('Fixed left column'),
-  value='True',
-  checked=data.fixed_columns,
-  attrs={"title":"Fix the left most column in place for use in x-axis scrolling"},
-  ) }}
+<div class="control-group">
+  <label class="control-label">Table Options</label>
+    <div class="controls">
+      <label class="checkbox" for="field-responsive" title="Optimize table layout for smaller screen sizes">
+        <input id="field-responsive" type="checkbox" name="responsive" value="True" {{ "checked " if data.responsive }}>
+        Enable responsive display
+      </label>
+    </div>
+    <div class="controls">
+      <label class="checkbox" for="field-export_buttons" title="Add Copy and Print buttons">
+        <input id="field-export_buttons" type="checkbox" name="export_buttons" value="True" {{ "checked " if data.export_buttons }}>
+        Display export buttons
+      </label>
+    </div>
+    <div class="controls">
+      <label class="checkbox" for="field-col_reorder" title="Allow users to reorder columns through a drag and drag operation">
+        <input id="field-col_reorder" type="checkbox" name="col_reorder" value="True" {{ "checked " if data.col_reorder }}>
+        Allow column reorder
+      </label>
+    </div>
+    <div class="controls">
+      <label class="checkbox" for="field-fixed_columns" title="Fix the _id column in place for use in x-axis scrolling">
+        <input id="field-fixed_columns" type="checkbox" name="fixed_columns" value="True" {{ "checked " if data.fixed_columns }}>
+        Fix _id column to left
+      </label>
+    </div>
+</div>
 
 <div class="control-group">
   <label class="control-label">{{ _('Show Columns') }}</label>
@@ -66,7 +61,7 @@
   <div class="controls">
     <select id="field-sort_column" name="sort_column">
       {% for f in [{'id': '_id'}] + h.datastore_dictionary(resource.id) %}
-        <option value="{{ loop.index0 }}" {% if loop.index0|string == data.sort_column|string %} selected="selected" {% endif %}>{{ f.id }}</option>
+        <option value="{{ f.id }}" {% if f.id|string == data.sort_column|string %} selected="selected" {% endif %}>{{ f.id }}</option>
       {% endfor %}
     </select>
     <select id="field-sort_order" name="sort_order">
