@@ -3,7 +3,7 @@
 import logging
 
 import click
-
+from ckan.cli import config_tool
 from ckan.cli import (
     click_config_option, db, load_config, search_index, server,
     translation,
@@ -30,6 +30,7 @@ def ckan(ctx, config, *args, **kwargs):
     ctx.obj = CkanCommand(config)
 
 
+ckan.add_command(config_tool.config_tool)
 ckan.add_command(server.run)
 ckan.add_command(db.db)
 ckan.add_command(search_index.search_index)
