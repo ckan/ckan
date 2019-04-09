@@ -405,6 +405,13 @@ similarly
     :pyobject: ExampleIDatasetFormPlugin.show_package_schema
     :emphasize-lines: 20-23
 
+Add the code below to ``package/snippets/resource_form.html``
+
+.. literalinclude:: ../../ckanext/example_idatasetform/templates/package/snippets/resource_form.html
+    :language: jinja
+
+This adds our custom_resource_text to the editing form of the resources.
+
 Save and reload your development server CKAN will take any additional keys from
 the resource schema and save them the its extras field.  The templates will
 automatically check this field and display them in the resource_read page.
