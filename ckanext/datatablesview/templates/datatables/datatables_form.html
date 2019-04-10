@@ -70,5 +70,9 @@
         <option value="{{ order }}" {% if order == data.sort_order %} selected="selected" {% endif %}>{{ order }}</option>
       {% endfor %}
     </select>
+    <span class="info-block">
+      <i class="fa fa-info-circle"></i>
+      Sorting will only apply if sort column is visible (i.e. selected in the Show Columns table)
+    </span>
   </div>
 </div>
