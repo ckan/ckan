@@ -471,7 +471,10 @@ def _sort(sort, fields_types, rank_columns):
     to order by best text search match
     '''
     if not sort:
-        return rank_columns.values()
+        rank_sorting = []
+        for column in rank_columns.values():
+            rank_sorting.append(u'{0} DESC'.format(column))
+        return rank_sorting
 
     clauses = datastore_helpers.get_list(sort, False)
 
