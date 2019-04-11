@@ -32,6 +32,11 @@
       {% else %}
         data-fixed-columns="false"
       {% endif %}
+      {% set sort_index = resource_view.get('sort_index') %}
+      {% set sort_order = resource_view.get('sort_order') %}
+      {% if sort_index >= 0 and sort_order %}
+        data-order='[ [ {{ sort_index }}, "{{sort_order}}" ] ]'
+      {% endif %}
       data-fixed-header="true"
       data-dom='"Blifrtip"'
       data-buttons='[
