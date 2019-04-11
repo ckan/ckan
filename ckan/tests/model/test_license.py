@@ -2,13 +2,12 @@
 
 import os
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_in
 from ckan.common import config
 
 from ckan.model.license import LicenseRegister
 from ckan.tests import helpers, factories
 
-assert_in = helpers.assert_in
 
 this_dir = os.path.dirname(os.path.realpath(__file__))
 
