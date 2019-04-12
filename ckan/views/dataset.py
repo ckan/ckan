@@ -431,9 +431,10 @@ def read(package_type, id):
         except KeyError:
             base.abort(404, _(u'Dataset not found'))
         if u'id' not in pkg_dict or u'resources' not in pkg_dict:
-            log.debug(u'Attempt to view unmigrated or badly migrated dataset '
-                      '{} {}'.format(id, activity_id))
-            base.abort(404, _(u'Dataset not found'))
+            log.info(u'Attempt to view unmigrated or badly migrated dataset '
+                     '{} {}'.format(id, activity_id))
+            base.abort(404, _(u'The detail of this dataset activity is not '
+                              'available'))
         if pkg_dict[u'id'] != current_pkg[u'id']:
             log.info(u'Mismatch between pkg id in activity and URL {} {}'
                      .format(pkg_dict[u'id'], current_pkg[u'id']))
@@ -1091,7 +1092,8 @@ def changes(id, package_type=None):
         activity_diff = get_action(u'activity_diff')(
             context, {u'id': activity_id, u'object_type': u'package',
                       u'diff_type': u'html'})
-    except NotFound:
+    except NotFound as e:
+        log.info('Activity not found: {} - {}'.format(str(e), activity_id))
         return base.abort(404, _(u'Activity not found'))
     except NotAuthorized:
         return base.abort(403, _(u'Unauthorized to view activity data'))
