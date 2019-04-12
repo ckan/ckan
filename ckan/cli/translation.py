@@ -33,7 +33,8 @@ def js():
     u'mangle', short_help=u'Mangle the zh_TW translations for testing.'
 )
 def mangle():
-    u'''This will mangle the zh_TW translations for translation coverage testing.
+    u'''This will mangle the zh_TW translations for translation coverage
+    testing.
 
     NOTE: This will destroy the current translations fot zh_TW
     '''
@@ -44,7 +45,7 @@ def mangle():
     # %(...)s  %s %0.3f %1$s %2$0.3f [1:...] {...} etc
 
     # sprintf bit after %
-    spf_reg_ex = u"\\+?(0|'.)?-?\\d*(.\\d*)?[\%bcdeufosxX]"
+    spf_reg_ex = u"\\+?(0|'.)?-?\\d*(.\\d*)?[\\%bcdeufosxX]"
 
     extract_reg_ex = u'(\\%\\([^\\)]*\\)' + spf_reg_ex + \
                      u'|\\[\\d*\\:[^\\]]*\\]' + \

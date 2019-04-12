@@ -18,9 +18,9 @@ def before_request():
     u'''set context and check authorization'''
     try:
         context = {
-                u'model': model,
-                u'user': g.user,
-                u'auth_user_obj': g.userobj}
+            u'model': model,
+            u'user': g.user,
+            u'auth_user_obj': g.userobj}
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
         abort(403)

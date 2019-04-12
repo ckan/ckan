@@ -88,7 +88,7 @@ class ValidationError(ActionError):
             ''' Do some i18n stuff on the error_dict keys '''
 
             def prettify(field_name):
-                field_name = re.sub('(?<!\w)[Uu]rl(?!\w)', 'URL',
+                field_name = re.sub(r'(?<!\w)[Uu]rl(?!\w)', 'URL',
                                     field_name.replace('_', ' ').capitalize())
                 return _(field_name.replace('_', ' '))
 

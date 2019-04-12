@@ -643,12 +643,18 @@ class TestPep8(object):
     def find_pep8_errors(cls, filename=None, lines=None):
         try:
             sys.stdout = cStringIO.StringIO()
-            config = {}
+            config = {'ignore': [
+                # W503/W504 - breaking before/after binary operators is agreed
+                # to not be a concern and was changed to be ignored by default.
+                # However we overwrite the ignore list here, so add it back in.
+                # See: https://github.com/PyCQA/pycodestyle/issues/498
+                'W503', 'W504',
+            ]}
 
             # Ignore long lines on test files, as the test names can get long
             # when following our test naming standards.
             if cls._is_test(filename):
-                config['ignore'] = ['E501']
+                config['ignore'].append('E501')
 
             checker = pycodestyle.Checker(filename=filename, lines=lines,
                                           **config)
@@ -668,7 +674,7 @@ class TestPep8(object):
 
     @classmethod
     def _is_test(cls, filename):
-        return bool(re.search('(^|\W)test_.*\.py$', filename, re.IGNORECASE))
+        return bool(re.search(r'(^|\W)test_.*\.py$', filename, re.IGNORECASE))
 
 
 class TestActionAuth(object):

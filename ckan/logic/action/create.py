@@ -230,8 +230,8 @@ def package_create(context, data_dict):
         return pkg.id
 
     return _get_action('package_show')(
-                context.copy(), {'id': pkg.id}
-            )
+        context.copy(), {'id': pkg.id}
+    )
 
 
 def resource_create(context, data_dict):
@@ -392,7 +392,7 @@ def resource_view_create(context, data_dict):
 
     max_order = model.Session.query(
         func.max(model.ResourceView.order)
-        ).filter_by(resource_id=resource_id).first()
+    ).filter_by(resource_id=resource_id).first()
 
     order = 0
     if max_order[0] is not None:

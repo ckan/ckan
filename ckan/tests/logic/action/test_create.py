@@ -1046,7 +1046,7 @@ class TestGroupCreate(helpers.FunctionalTestBase):
         )
 
         assert isinstance(group, str)
-        assert re.match('([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)', group)
+        assert re.match(r'([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)', group)
 
     def test_create_matches_show(self):
         user = factories.User()
@@ -1124,7 +1124,7 @@ class TestOrganizationCreate(helpers.FunctionalTestBase):
         )
 
         assert isinstance(org, str)
-        assert re.match('([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)', org)
+        assert re.match(r'([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)', org)
 
     def test_create_matches_show(self):
         user = factories.User()

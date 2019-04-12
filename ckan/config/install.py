@@ -11,7 +11,7 @@ class CKANInstaller(PylonsInstaller):
 
     def config_content(self, command, vars):
         ckan_version = ckan.__version__
-        ckan_base_version = re.sub('[^0-9\.]', '', ckan_version)
+        ckan_base_version = re.sub(r'[^0-9\.]', '', ckan_version)
         if ckan_base_version == ckan_version:
             ckan_doc_version = 'ckan-{0}'.format(ckan_version)
         else:

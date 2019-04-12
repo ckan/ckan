@@ -126,7 +126,7 @@ def get_reset_link_body(user):
         'site_title': config.get('ckan.site_title'),
         'site_url': config.get('ckan.site_url'),
         'user_name': user.name,
-        }
+    }
     # NOTE: This template is translated
     return render_jinja2('emails/reset_password.txt', extra_vars)
 
@@ -141,7 +141,7 @@ def get_invite_body(user, group_dict=None, role=None):
         'site_title': config.get('ckan.site_title'),
         'site_url': config.get('ckan.site_url'),
         'user_name': user.name,
-        }
+    }
     if role:
         extra_vars['role_name'] = h.roles_translated().get(role, _(role))
     if group_dict:
