@@ -5,7 +5,6 @@ import logging
 import re
 from datetime import datetime
 from time import sleep
-import sys
 
 from six import text_type
 import vdm.sqlalchemy
@@ -267,31 +266,12 @@ class Repository(vdm.sqlalchemy.Repository):
 
         @param version: version to upgrade to (if None upgrade to latest)
         '''
-        # pre-upgrade checks
         assert meta.engine.name in ('postgres', 'postgresql'), \
             'Database migration - only Postgresql engine supported (not %s).' \
                 % meta.engine.name
         import migrate.versioning.api as mig
         self.setup_migration_version_control()
         version_before = mig.db_version(self.metadata.bind, self.migrate_repository)
-        from ckan.migration.migrate_package_activity import num_unmigrated
-        # If still at version 0 there can't be any activities needing
-        # migrating. This check is also done in migration 88, so if you've
-        # upgraded that far then we don't need to do it again.
-        if 0 < version_before < 88:
-            num_unmigrated_dataset_activities = num_unmigrated(meta.engine)
-            if num_unmigrated_dataset_activities:
-                print('''
-    !!! ERROR !!!
-    You have {num_unmigrated} unmigrated package activities.
-
-    You cannot do this db upgrade until you completed the package activity
-    migration first. Full instructions for this situation are here:
-
-    https://github.com/ckan/ckan/wiki/Migrate-package-activity#if-you-tried-to-upgrade-from-ckan-28-or-earlier-to-ckan-29-and-it-stopped-at-paster-db-upgrade
-                '''.format(num_unmigrated=num_unmigrated_dataset_activities))
-                sys.exit(1)
-
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
         version_after = mig.db_version(self.metadata.bind, self.migrate_repository)
         if version_after != version_before:

@@ -10,26 +10,29 @@ Changelog
 v.2.9.0 TBA
 ==================
 
- * This version requires script 'migrate_package_activity.py' to be run
-   *before* CKAN is upgraded to this version (or higher). The idea is you do
-   this special migration while CKAN is running, because the script takes a
-   while to run. It adds in the Activity Stream detail, visible only to admins
-   by default. You will not be able to run ``paster db upgrade`` until
-   'migrate_package_activity.py' is done.
-   Download and run migrate_package_activity.py like this:
+ * When upgrading from previous CKAN versions, the Activity Stream needs a
+   migrate_package_activity.py running for displaying the history of dataset
+   changes. This can be performed while CKAN is running or stopped (whereas the
+   standard `paster db upgrade` migrations need CKAN to be stopped). Ideally it
+   is run before CKAN is upgraded, but it can be run afterwards. If running
+   previous versions or this version of CKAN, download and run
+   migrate_package_activity.py like this:
 
      cd /usr/lib/ckan/default/src/ckan/
      wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/migrate_package_activity.py
      wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/revision_legacy_code.py
      python migrate_package_activity.py -c /etc/ckan/production.ini
 
-   More info: https://github.com/ckan/ckan/wiki/Migrate-package-activity
+   Future versions of CKAN are likely to need a slightly different procedure.
+   Full info about this migration is found here:
+   https://github.com/ckan/ckan/wiki/Migrate-package-activity
 
  * A full history of dataset changes is now displayed in the Activity Stream to
-   admins, and optionally to the public. Open data CKANs upgrading are
-   encouraged to make this history open to the public, by setting this to
-   production.ini: ``ckan.auth.public_activity_stream_detail = true``
-   (#3972)
+   admins, and optionally to the public. By default this is enabled for new
+   installs, but disabled for sites which upgrade (just in case the history is
+   sensitive). When upgrading, open data CKANs are encouraged to make this
+   history open to the public, by setting this in production.ini:
+   ``ckan.auth.public_activity_stream_detail = true`` (#3972)
 
 Minor changes:
 
