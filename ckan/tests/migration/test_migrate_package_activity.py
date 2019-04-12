@@ -9,7 +9,8 @@ import mock
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.migration.migrate_package_activity import (migrate_dataset,
-                                                     wipe_activity_detail)
+                                                     wipe_activity_detail,
+                                                     PackageDictizeMonkeyPatch)
 from ckan.model.activity import package_activity_list
 from ckan import model
 import ckan.logic
@@ -39,7 +40,8 @@ class TestMigrateDataset(object):
         activity = model.Activity.get(activity.id)
         del activity.data['package']
         model.repo.commit_and_remove()
-        migrate_dataset(dataset['name'], {})
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(dataset['name'], {})
 
         activity_data_migrated = \
             package_activity_list(dataset['id'], 0, 0)[0].data
@@ -67,7 +69,8 @@ class TestMigrateDataset(object):
         assert not \
             model.Activity.get(activity.id).data['package'].get(u'resources')
 
-        migrate_dataset(dataset['name'], {})
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(dataset['name'], {})
 
         eq_.__self__.maxDiff = None
         activity_data_migrated = \
@@ -84,7 +87,8 @@ class TestMigrateDataset(object):
         activity = package_activity_list(dataset['id'], 0, 0)[0]
         activity_data_before = copy.deepcopy(activity.data)
 
-        migrate_dataset(dataset['name'], {})
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(dataset['name'], {})
 
         activity_data_after = package_activity_list(dataset['id'], 0, 0)[0].data
         eq_(activity_data_before, activity_data_after)
@@ -109,7 +113,8 @@ class TestMigrateDataset(object):
             model.Activity.get(activity.id).data['package'].get(u'resources')
 
         errors = defaultdict(int)
-        migrate_dataset(dataset['name'], errors)
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(dataset['name'], errors)
 
         eq_(dict(errors), {u'Revision missing': 1})
         activity_data_migrated = \
@@ -137,7 +142,8 @@ class TestMigrateDataset(object):
         model.Session.commit()
 
         errors = defaultdict(int)
-        migrate_dataset(dataset['name'], errors)
+        with PackageDictizeMonkeyPatch():
+            migrate_dataset(dataset['name'], errors)
 
         eq_(dict(errors), {u'Revision missing': 1})
         activity_data_migrated = \
@@ -168,8 +174,10 @@ class TestMigrateDataset(object):
         # migration from going ahead.
         ckan.logic._actions['package_show'] = \
             mock.MagicMock(side_effect=Exception(u'Schema error'))
+
         try:
-            migrate_dataset(dataset['name'], errors)
+            with PackageDictizeMonkeyPatch():
+                migrate_dataset(dataset['name'], errors)
         finally:
             # restore package_show
             ckan.logic.clear_actions_cache()

@@ -1093,7 +1093,7 @@ def changes(id, package_type=None):
             context, {u'id': activity_id, u'object_type': u'package',
                       u'diff_type': u'html'})
     except NotFound as e:
-        log.info('Activity not found: {} - {}'.format(str(e), activity_id))
+        log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
         return base.abort(404, _(u'Activity not found'))
     except NotAuthorized:
         return base.abort(403, _(u'Unauthorized to view activity data'))

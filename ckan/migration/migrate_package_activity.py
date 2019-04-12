@@ -77,9 +77,11 @@ def migrate_all_datasets():
     dataset_names = logic.get_action(u'package_list')(get_context(), {})
     num_datasets = len(dataset_names)
     errors = defaultdict(int)
-    for i, dataset_name in enumerate(dataset_names):
-        print(u'\n{}/{} dataset: {}'.format(i + 1, num_datasets, dataset_name))
-        migrate_dataset(dataset_name, errors)
+    with PackageDictizeMonkeyPatch():
+        for i, dataset_name in enumerate(dataset_names):
+            print(u'\n{}/{} dataset: {}'
+                  .format(i + 1, num_datasets, dataset_name))
+            migrate_dataset(dataset_name, errors)
     print(u'Migrated:')
     print(u'  {} datasets'.format(len(dataset_names)))
     num_activities = num_activities_migratable()
@@ -87,18 +89,35 @@ def migrate_all_datasets():
     print_errors(errors)
 
 
+class PackageDictizeMonkeyPatch(object):
+    '''Patches package_dictize to add back in the revision functionality. This
+    allows you to specify context['revision_id'] and see the old revisions of
+    a package.
+
+    This works as a context object. We could have used mock.patch and saved a
+    couple of lines here, but we'd have had to add mock to requirements.txt.
+    '''
+    def __enter__(self):
+        import ckan.lib.dictization.model_dictize as model_dictize
+        try:
+            import ckan.migration.revision_legacy_code as revision_legacy_code
+        except ImportError:
+            # convenient to look for it in the current directory if you just
+            # download these files because you are upgrading an older ckan
+            import revision_legacy_code
+        self.existing_function = model_dictize.package_dictize
+        model_dictize.package_dictize = \
+            revision_legacy_code.package_dictize_with_revisions
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        import ckan.lib.dictization.model_dictize as model_dictize
+        model_dictize.package_dictize = self.existing_function
+
+
 def migrate_dataset(dataset_name, errors):
-    # monkey patch the legacy versions of code back into CKAN - so it has the
-    # revision functionality needed for this migration
-    import ckan.lib.dictization.model_dictize as model_dictize
-    try:
-        import ckan.migration.revision_legacy_code as revision_legacy_code
-    except ImportError:
-        # convenient to look for it in the current directory if you just
-        # download these files because you are upgrading an older ckan
-        import revision_legacy_code
-    model_dictize.package_dictize = \
-        revision_legacy_code.package_dictize_with_revisions
+    '''
+    NB this function should be run in a `with PackageDictizeMonkeyPatch():`
+    '''
 
     import ckan.logic as logic
     from ckan import model
