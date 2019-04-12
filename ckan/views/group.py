@@ -454,6 +454,10 @@ def read(group_type, is_organization, id=None, limit=20):
         # Do not query for the group datasets when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
+
+        # Do not query group members as they aren't used in the view
+        data_dict['include_users'] = False
+
         group_dict = _action(u'group_show')(context, data_dict)
         group = context['group']
     except (NotFound, NotAuthorized):

@@ -27,9 +27,11 @@ member_table = Table('member', meta.metadata,
                      Column('capacity', types.UnicodeText,
                             nullable=False),
                      Column('group_id', types.UnicodeText,
-                            ForeignKey('group.id')),)
+                            ForeignKey('group.id')),
+                     Column('state', types.UnicodeText,
+                            default=core.State.ACTIVE),
+                     )
 
-vdm.sqlalchemy.make_table_stateful(member_table)
 member_revision_table = core.make_revisioned_table(member_table)
 
 group_table = Table('group', meta.metadata,
@@ -47,14 +49,17 @@ group_table = Table('group', meta.metadata,
                            default=datetime.datetime.now),
                     Column('is_organization', types.Boolean, default=False),
                     Column('approval_status', types.UnicodeText,
-                           default=u"approved"))
+                           default=u"approved"),
+                    Column('state', types.UnicodeText,
+                           default=core.State.ACTIVE),
+                    )
 
-vdm.sqlalchemy.make_table_stateful(group_table)
+
 group_revision_table = core.make_revisioned_table(group_table)
 
 
 class Member(vdm.sqlalchemy.RevisionedObjectMixin,
-             vdm.sqlalchemy.StatefulObjectMixin,
+             core.StatefulObjectMixin,
              domain_object.DomainObject):
     '''A Member object represents any other object being a 'member' of a
     particular Group.
@@ -112,7 +117,7 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
 
 
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
-            vdm.sqlalchemy.StatefulObjectMixin,
+            core.StatefulObjectMixin,
             domain_object.DomainObject):
 
     def __init__(self, name=u'', title=u'', description=u'', image_url=u'',
@@ -352,12 +357,11 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         this group. Ordered by most recent first.
         '''
         results = {}
-        from group_extra import GroupExtra
         for grp_rev in self.all_revisions:
             if not grp_rev.revision in results:
                 results[grp_rev.revision] = []
             results[grp_rev.revision].append(grp_rev)
-        for class_ in [Member, GroupExtra]:
+        for class_ in [Member]:  # GroupExtra is not revisioned any more
             rev_class = class_.__revision_class__
             obj_revisions = meta.Session.query(rev_class).\
                 filter_by(group_id=self.id).all()

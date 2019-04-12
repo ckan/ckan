@@ -35,9 +35,9 @@ package_tag_table = Table('package_tag', meta.metadata,
         Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column('package_id', types.UnicodeText, ForeignKey('package.id')),
         Column('tag_id', types.UnicodeText, ForeignKey('tag.id')),
+        Column('state', types.UnicodeText, default=core.State.ACTIVE),
         )
 
-vdm.sqlalchemy.make_table_stateful(package_tag_table)
 # TODO: this has a composite primary key ...
 package_tag_revision_table = core.make_revisioned_table(package_tag_table)
 
@@ -218,8 +218,8 @@ class Tag(domain_object.DomainObject):
         return '<Tag %s>' % self.name
 
 class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
-        vdm.sqlalchemy.StatefulObjectMixin,
-        domain_object.DomainObject):
+                 core.StatefulObjectMixin,
+                 domain_object.DomainObject):
     def __init__(self, package=None, tag=None, state=None, **kwargs):
         self.package = package
         self.tag = tag

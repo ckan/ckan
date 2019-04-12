@@ -353,7 +353,7 @@ class TestRelatedRevisions:
 
     def test_1_all_revisions(self):
         assert len(self.pkg1.all_revisions) == 3, self.pkg1.all_revisions
-        assert len(self.pkg1.all_related_revisions) == 7, self.pkg1.all_related_revisions
+        assert len(self.pkg1.all_related_revisions) == 6, self.pkg1.all_related_revisions
 
 
 class TestPackagePurge:
