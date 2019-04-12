@@ -842,9 +842,13 @@ def empty_if_not_sysadmin(key, data, errors, context):
     empty(key, data, errors, context)
 
 #pattern from https://html.spec.whatwg.org/#e-mail-state-(type=email)
-email_pattern = re.compile(r"^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]"\
-                       "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]"\
-                       "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+email_pattern = re.compile(
+                            # additional pattern to reject malformed dots usage
+                            r"^(?!\.)(?!.*\.$)(?!.*?\.\.)"\
+                            "[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]"\
+                            "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]"\
+                            "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+                        )
 
 
 def email_validator(value, context):
