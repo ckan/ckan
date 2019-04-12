@@ -198,10 +198,6 @@ def _execute_with_revision(q, rev_table, context):
 # It's easiest if this code works on all versions of CKAN. After CKAN 2.8 the
 # revision model is separate from the main model.
 # (RevisionTableMappings will be defined above)
-try:
-    model.PackageRevision
-    # CKAN<=2.8
-    revision_model = model
-except AttributeError:
-    # CKAN>2.8
-    revision_model = RevisionTableMappings.instance()
+
+# CKAN<=2.8
+revision_model = model
