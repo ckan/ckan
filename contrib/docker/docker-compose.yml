@@ -19,6 +19,7 @@ services:
       - db
       - solr
       - redis
+      - datapusher
     depends_on:
       - db
     ports:
@@ -43,9 +44,11 @@ services:
 
   datapusher:
     container_name: datapusher
-    image: clementmouchet/datapusher
-    ports:
-      - "8800:8800"
+    build:
+      context: ../../
+      dockerfile: contrib/docker/datapusher/Dockerfile
+      args:
+        - DATAPUSHER_VERSION=${DATAPUSHER_VERSION}
 
   db:
     container_name: db
