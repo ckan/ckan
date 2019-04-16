@@ -62,6 +62,9 @@ services:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
+    # a.s. TODO: remove later - temp set the port so we can connect locally to check the data
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
 
   solr:
     container_name: solr
