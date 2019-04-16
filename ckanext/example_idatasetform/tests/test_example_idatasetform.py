@@ -208,9 +208,9 @@ class TestIDatasetFormPlugin(helpers.FunctionalTestBase):
 
 
 class TestCustomSearch(object):
-        # @classmethod
+    # @classmethod
     # def _apply_config_changes(cls, cfg):
-        # cfg['ckan.plugins'] = 'example_idatasetform'
+    #     cfg['ckan.plugins'] = 'example_idatasetform'
 
     @classmethod
     def setup_class(cls):

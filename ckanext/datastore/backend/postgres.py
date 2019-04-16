@@ -1932,8 +1932,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
     def resource_id_from_alias(self, alias):
         real_id = None
-        resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
-                                        WHERE name = :id''')
+        resources_sql = sqlalchemy.text(
+            u'''SELECT alias_of FROM "_table_metadata" WHERE name = :id''')
         results = self._get_read_engine().execute(resources_sql, id=alias)
 
         res_exists = results.rowcount > 0
@@ -2037,8 +2037,9 @@ def create_function(name, arguments, rettype, definition, or_replace):
         _write_engine_execute(sql)
     except ProgrammingError as pe:
         already_exists = (
-          u'function "{}" already exists with same argument types'.format(name)
-          in pe.args[0])
+            u'function "{}" already exists with same argument types'
+            .format(name)
+            in pe.args[0])
         key = u'name' if already_exists else u'definition'
         raise ValidationError({key: [_programming_error_summary(pe)]})
 

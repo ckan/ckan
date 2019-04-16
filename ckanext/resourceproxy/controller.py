@@ -30,7 +30,7 @@ def proxy_resource(context, data_dict):
         resource = logic.get_action('resource_show')(context, {'id':
                                                      resource_id})
     except logic.NotFound:
-            base.abort(404, _('Resource not found'))
+        base.abort(404, _('Resource not found'))
     url = resource['url']
 
     parts = urlparse.urlsplit(url)

@@ -15,8 +15,8 @@ def make_revisioned_table(base_table, frozen=False):
     @return revision table.
     '''
     base_table.append_column(
-            Column(u'revision_id', UnicodeText, ForeignKey(u'revision.id'))
-            )
+        Column(u'revision_id', UnicodeText, ForeignKey(u'revision.id'))
+    )
     newtable = Table(base_table.name + u'_revision', base_table.metadata)
     copy_table(base_table, newtable)
 
@@ -33,7 +33,7 @@ def make_revisioned_table(base_table, frozen=False):
     newtable.append_column(
         Column(u'continuity_id', pkcols[0].type,
                None if frozen else ForeignKey(fk_name))
-        )
+    )
 
     # TODO: why do we iterate all the way through rather than just using dict
     # functionality ...? Surely we always have a revision here ...
