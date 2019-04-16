@@ -47,8 +47,15 @@ who.log_file = %(cache_dir)s/who_log.ini
 ## Database Settings
 sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
 
-#ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
-#ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
+# ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
+# ckan.datastore.write_url = postgresql://ckan:ckan@localhost/datastore_default
+
+ckan.datastore.write_url = postgresql://ckan:POSTGRES_PASSWORD@db/datastore
+ckan.datastore.read_url = postgresql://datastore:DATASTORE_READONLY_PASSWORD@db/datastore
+
+
+# ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
+# ckan.datastore.read_url = postgresql://datastore_default:datastore@localhost/datastore_default
 
 # PostgreSQL' full-text search parameters
 ckan.datastore.default_fts_lang = english
@@ -57,7 +64,7 @@ ckan.datastore.default_fts_index_method = gist
 
 ## Site Settings
 
-ckan.site_url =
+ckan.site_url = http://localhost:5000
 #ckan.use_pylons_response_cleanup_middleware = true
 
 ## Authorization Settings
@@ -101,7 +108,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view
+ckan.plugins = stats text_view image_view recline_view datastore datapusher
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -162,9 +169,9 @@ ckan.feeds.author_link =
 
 # Make sure you have set up the DataStore
 
-#ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-#ckan.datapusher.url = http://127.0.0.1:8800/
-#ckan.datapusher.assume_task_stale_after = 3600
+ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+ckan.datapusher.url = http://127.0.0.1:8800/
+ckan.datapusher.assume_task_stale_after = 3600
 
 # Resource Proxy settings
 # Preview size limit, default: 1MB
