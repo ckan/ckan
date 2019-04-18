@@ -20,7 +20,7 @@ funcsigs==1.0.2           # via beaker
 html5lib==1.0.1           # via bleach
 idna==2.7                 # via requests
 itsdangerous==0.24        # via flask
-jinja2==2.8.1
+jinja2==2.10.1
 mako==1.0.7               # via pylons
 markdown==2.6.7
 markupsafe==1.0           # via jinja2, mako, webhelpers
