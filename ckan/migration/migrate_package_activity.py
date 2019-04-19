@@ -129,9 +129,8 @@ def migrate_dataset(dataset_name, errors):
     # non-hidden Activity, then it does a diff with the hidden one (rather than
     # the most recent non-hidden one), so it is important to store the
     # package_dict in hidden Activity objects.
-    context = dict(get_context(), include_hidden_activity=True)
     package_activity_stream = logic.get_action(u'package_activity_list')(
-        context, {u'id': dataset_name})
+        get_context(), {u'id': dataset_name, u'include_hidden_activity': True})
     num_activities = len(package_activity_stream)
     if not num_activities:
         print(u'  No activities')
