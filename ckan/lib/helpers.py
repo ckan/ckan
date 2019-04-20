@@ -933,8 +933,11 @@ def build_extra_admin_nav():
     admin_tabs_dict = config.get('ckan.admin_tabs')
     output = ''
     if admin_tabs_dict:
-        for key in admin_tabs_dict:
-            output += build_nav_icon(key, admin_tabs_dict[key])
+        for k, v in admin_tabs_dict.iteritems():
+            if v['icon']:
+                output += build_nav_icon(k, v['label'], icon=v['icon'])
+            else:
+                output += build_nav(k, v['label'])
     return output
 
 

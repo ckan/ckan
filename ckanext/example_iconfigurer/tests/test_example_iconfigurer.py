@@ -63,22 +63,22 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(helpers.FunctionalTestBase
         response = app.get('/build_extra_admin_nav')
         nosetools.assert_equal(response.body, expected)
 
-    @helpers.change_config('ckan.admin_tabs', {'ckanext_myext_config_one': 'My Label'})
+    @helpers.change_config('ckan.admin_tabs', {'ckanext_myext_config_one': {'label': 'My Label', 'icon': None}})
     def test_build_extra_admin_nav_one_value_in_config(self):
         '''
         Correct string returned when ckan.admin_tabs option has single value in config.
         '''
         app = self._get_test_app()
-        expected = """<li><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li>"""
+        expected = """<li><a href="/ckan-admin/myext_config_one">My Label</a></li>"""
         response = app.get('/build_extra_admin_nav')
         nosetools.assert_equal(response.body, expected)
 
-    @helpers.change_config('ckan.admin_tabs', {'ckanext_myext_config_one': 'My Label', 'ckanext_myext_config_two': 'My Other Label'})
+    @helpers.change_config('ckan.admin_tabs', {'ckanext_myext_config_one': {'label': 'My Label', 'icon': 'picture-o'}, 'ckanext_myext_config_two': {'label': 'My Other Label', 'icon': None}})
     def test_build_extra_admin_nav_two_values_in_config(self):
         '''
         Correct string returned when ckan.admin_tabs option has two values in config.
         '''
         app = self._get_test_app()
-        expected = """<li><a href="/ckan-admin/myext_config_two"><i class="fa fa-picture-o"></i> My Other Label</a></li><li><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li>"""
+        expected = """<li><a href="/ckan-admin/myext_config_two">My Other Label</a></li><li><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li>"""
         response = app.get('/build_extra_admin_nav')
         nosetools.assert_equal(response.body, expected)
