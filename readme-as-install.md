@@ -95,7 +95,10 @@ createdb postgis_test
 # enable PostGIS
 psql postgis_test
 
-docker exec -it  bash
+# SHELL/BASH ACCESS INTO A CONTAINER
+# docker exec -it <container name> bash
+docker exec -it ckan bash
+docker exec -it ckan /bin/bash -c "export TERM=xterm; exec bash"
 
 # After this step, the datastore database is ready to be enabled in the production.ini.
 
@@ -120,7 +123,42 @@ ckan.datapusher.assume_task_stale_after = 3600
 # restart ckan:
 docker-compose restart ckan
 
-
+# add johndoe user
+# pwd johndoetest
+docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add johndoe
+# Email address: johndoetest@john.ck
+# user: johndoe
+# pwd: johndoetest
 
 ```
 
+## Server volumes
+
+- Images will be stored in following location:
+  - var/lib/ckan/storage/uploads/admin ( ${ckan_storage}/storage/uploads/admin )
+
+## Define environment variables
+
+- ENV CKAN_HOME /usr/lib/ckan
+- ENV CKAN_VENV $CKAN_HOME/venv
+- ENV CKAN_CONFIG /etc/ckan
+- ENV CKAN_STORAGE_PATH=/var/lib/ckan
+
+## Synch upstream fork
+
+```shell
+~/code/ckan on master*
+⚡ git remote -v
+origin git@github.com:marsdd/ckan.git (fetch)
+origin git@github.com:marsdd/ckan.git (push)
+
+⚡ git remote add upstream https://github.com/ckan/ckan.git
+
+⚡ git remote -v
+origin git@github.com:marsdd/ckan.git (fetch)
+origin git@github.com:marsdd/ckan.git (push)
+upstream https://github.com/ckan/ckan.git (fetch)
+upstreamvhttps://github.com/ckan/ckan.git (push)
+
+⚡ git fetch upstream
+```

@@ -40,6 +40,9 @@ services:
       - ckan_config:/etc/ckan
       - ckan_home:/usr/lib/ckan
       - ckan_storage:/var/lib/ckan
+      # a.s. added next line to work locally
+      # - .:/usr/lib/ckan
+      # - ../../:/usr/lib/ckan/venv
 
   datapusher:
     container_name: datapusher
@@ -76,3 +79,6 @@ services:
   redis:
     container_name: redis
     image: redis:latest
+    # a.s. TODO: remove this later. Needed only for local machine to check the data
+    ports:
+      - 6379:6379
