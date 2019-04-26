@@ -10,7 +10,7 @@ from ckan.tests.legacy import TestController, url_for, setup_test_search_index
 
 def scrape_search_results(response, object_type):
     assert object_type in ('dataset', 'group_dataset', 'group', 'user')
-    if object_type is not 'group_dataset':
+    if object_type != 'group_dataset':
         results = re.findall('a href="/%s/%s_(\d\d)' % (object_type, object_type),
                              str(response))
     else:
