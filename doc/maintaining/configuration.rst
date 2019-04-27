@@ -1490,39 +1490,6 @@ Default value: ``2``
 
 The maximum in megabytes an image upload can be.
 
-.. _ofs.impl:
-
-ofs.impl
-^^^^^^^^
-
-Example::
-
-  ofs.impl = pairtree
-
-Default value:  ``None``
-
-Defines the storage backend used by CKAN: ``pairtree`` for local storage, ``s3`` for Amazon S3 Cloud Storage or ``google`` for Google Cloud Storage. Note that each of these must be accompanied by the relevant settings for each backend described below.
-
-Deprecated, only available option is now pairtree.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
-
-
-.. _ofs.storage_dir:
-
-ofs.storage_dir
-^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.storage_dir = /data/uploads/
-
-Default value:  ``None``
-
-Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
-
-Deprecated, please use ckan.storage_path.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
-
-
-
 
 DataPusher Settings
 -------------------
