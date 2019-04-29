@@ -134,7 +134,7 @@ def make_flask_stack(conf, **app_conf):
             session_opts.get('session.type', 'file') == 'file'):
         cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
         session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
-                data_dir=cache_dir)
+            data_dir=cache_dir)
 
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
     app.session_interface = BeakerSessionInterface()
@@ -211,8 +211,8 @@ def make_flask_stack(conf, **app_conf):
                 'controller': controller,
                 'highlight_actions': action,
                 'needed': needed
-                }
             }
+        }
         config['routes.named_routes'].update(route)
 
     # Start other middleware

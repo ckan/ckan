@@ -230,7 +230,7 @@ class PackageController(base.BaseController):
             # types any search page. Potential alternatives are do show them
             # on the default search page (dataset) or on one other search page
             search_all_type = config.get(
-                                  'ckan.search.show_all_types', 'dataset')
+                'ckan.search.show_all_types', 'dataset')
             search_all = False
 
             try:
@@ -258,7 +258,7 @@ class PackageController(base.BaseController):
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
                 'license_id': _('Licenses'),
-                }
+            }
 
             for facet in h.facets():
                 if facet in default_facet_titles:
@@ -471,7 +471,7 @@ class PackageController(base.BaseController):
                     revision_dict['timestamp'])
                 try:
                     dayHorizon = int(request.params.get('days'))
-                except:
+                except ValueError:
                     dayHorizon = 30
                 dayAge = (datetime.datetime.now() - revision_date).days
                 if dayAge >= dayHorizon:

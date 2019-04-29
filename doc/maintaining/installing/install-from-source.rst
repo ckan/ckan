@@ -171,7 +171,6 @@ Create a directory to contain the site's config files:
 
     sudo mkdir -p |config_dir|
     sudo chown -R \`whoami\` |config_parent_dir|/
-    sudo chown -R \`whoami\` ~/ckan/etc
 
 Create the CKAN config file:
 

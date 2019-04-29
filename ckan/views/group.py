@@ -578,7 +578,7 @@ def members(id, group_type, is_organization):
         u"members": members,
         u"group_dict": group_dict,
         u"group_type": group_type
-        }
+    }
     return base.render(_replace_group_org(u'group/members.html'), extra_vars)
 
 
@@ -785,7 +785,7 @@ def followers(id, group_type, is_organization):
         u"group_dict": group_dict,
         u"group_type": group_type,
         u"followers": followers
-        }
+    }
     return base.render(u'group/followers.html', extra_vars)
 
 
