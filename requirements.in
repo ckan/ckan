@@ -36,4 +36,5 @@ vdm==0.14
 WebHelpers==1.3
 WebOb==1.0.8
 WebTest==1.4.3  # need to pin this so that Pylons does not install a newer version that conflicts with WebOb==1.0.8
+werkzeug==0.14.1
 zope.interface==4.3.2
