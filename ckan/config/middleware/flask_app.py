@@ -446,7 +446,7 @@ def _register_error_handler(app):
     def error_handler(e):
         log.error(e, exc_info=sys.exc_info)
         if isinstance(e, HTTPException):
-            extra_vars = {u'code': [e.code], u'content': e.description}
+            extra_vars = {u'code': [e.code], u'content': e.description.decode('utf-8')}
             # TODO: Remove
             g.code = [e.code]
 
