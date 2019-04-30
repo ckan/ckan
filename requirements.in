@@ -25,7 +25,7 @@ repoze.who-friendlyform==1.0.8
 repoze.who==2.3
 requests==2.21.0
 Routes==1.13
-rq==0.6.0
+rq==1.0
 simplejson==3.10.0
 sqlalchemy-migrate==0.12.0
 SQLAlchemy==1.1.11
