@@ -265,7 +265,7 @@ class TestApiController(helpers.FunctionalTestBase):
             url=url,
             params={'callback': 'my_callback'},
         )
-        assert re.match('my_callback\(.*\);', res.body), res
+        assert re.match(r'my_callback\(.*\);', res.body), res
         # Unwrap JSONP callback (we want to look at the data).
         msg = res.body[len('my_callback') + 1:-2]
         res_dict = json.loads(msg)

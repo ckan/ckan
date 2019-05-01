@@ -47,7 +47,6 @@ app_globals_from_config_details = {
     'ckan.template_footer_end': {},
     'ckan.dumps_url': {},
     'ckan.dumps_format': {},
-    'ofs.impl': {'name': 'ofs_impl'},
     'ckan.homepage_style': {'default': '1'},
 
     # split string

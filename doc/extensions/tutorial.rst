@@ -1,3 +1,5 @@
+.. include:: /_substitutions.rst
+
 ---------------------------
 Writing extensions tutorial
 ---------------------------
@@ -17,6 +19,19 @@ Before you can start developing a CKAN extension, you'll need a working source
 install of CKAN on your system. If you don't have a CKAN source install
 already, follow the instructions in
 :doc:`/maintaining/installing/install-from-source` before continuing.
+
+.. note::
+
+   If you are developing extension without actual source installation
+   of CKAN(i.e. if you have installed CKAN as package via `pip install
+   ckan`), you can install all main and dev dependencies with the
+   following commands:
+
+   .. parsed-literal::
+
+      pip install -r |raw_git_url|/|latest_release_tag|/requirements.txt
+      pip install -r |raw_git_url|/|latest_release_tag|/dev-requirements.txt
+
 
 
 Creating a new extension

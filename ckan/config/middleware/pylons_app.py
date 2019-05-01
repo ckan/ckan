@@ -138,10 +138,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
     )
 
     # Establish the Registry for this application
-    # The RegistryManager includes code to pop
-    # registry values after the stream has completed,
-    # so we need to prevent this with `streaming` set to True.
-    app = RegistryManager(app, streaming=True)
+    app = RegistryManager(app, streaming=False)
 
     if asbool(static_files):
         # Serve static files
@@ -267,7 +264,7 @@ def execute_on_completion(application, config, callback):
     def inner(environ, start_response):
         try:
             result = application(environ, start_response)
-        except:
+        except Exception:
             callback(environ)
             raise
         # paste.fileapp converts non-file responses into list

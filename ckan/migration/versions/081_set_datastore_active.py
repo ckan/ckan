@@ -45,8 +45,7 @@ def upgrade(migrate_engine):
                 ','.join(['\'{0}\''.format(_id[0])
                           for _id
                           in resources_in_datastore])
-                )
-            )
+            ))
             if resources.rowcount:
                 params = []
                 for resource in resources:
