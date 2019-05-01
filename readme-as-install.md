@@ -1,3 +1,5 @@
+adnan test 123
+
 # Docker Installation
 
 ``` shell
@@ -162,3 +164,30 @@ upstreamvhttps://github.com/ckan/ckan.git (push)
 
 ⚡ git fetch upstream
 ```
+
+## SSH access to Bastion box
+
+### PSQL to Postgres DB
+
+Get ckan-dev private key from 1Password
+⚡ chmod 600 ~/.ssh/ckan-dev
+⚡ ssh -i ~/.ssh/ckan-dev ec2-user@ec2-18-207-245-51.compute-1.amazonaws.com
+Last login: Tue Apr 23 12:45:11 2019 from 38.116.199.130
+
+[ec2-user@ip-10-0-10-119 ~]$ docker exec -it db bash
+
+root@893ba8e0ddbc:/# psql -U ckan
+psql (11.2 (Debian 11.2-1.pgdg90+1))
+Type "help" for help.
+
+ckan-# \c ckan
+You are now connected to database "ckan" as user "ckan".
+
+ckan=# select * from public.user;
+
+Returned proper results
+
+ckan=# update public.user set sysadmin=true where id = '33c7cfce-90b6-4132-8367-9a501a32d970';
+UPDATE 1
+
+

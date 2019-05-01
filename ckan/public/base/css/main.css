@@ -9760,8 +9760,9 @@ h4 small {
 .masthead {
   margin-bottom: initial;
   padding: 10px 0;
-  color: #fff;
-  background: #005d7a url("../../../base/images/bg.png");
+  color: #000;
+  /* background: #005d7a url("../../../base/images/bg.png"); */
+  background: #ffffff url("../../../base/images/bg.png");
 }
 .masthead:before,
 .masthead:after {

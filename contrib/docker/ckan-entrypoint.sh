@@ -19,6 +19,10 @@ abort () {
 }
 
 set_environment () {
+  # a.s. used to wait until solr is up and running
+  export solr_host=${solr_host}
+  export solr_port=${solr_port}
+
   export CKAN_SITE_ID=${CKAN_SITE_ID}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
   export CKAN_SQLALCHEMY_URL=${CKAN_SQLALCHEMY_URL}
@@ -41,9 +45,21 @@ write_config () {
 }
 
 # Wait for PostgreSQL
-while ! pg_isready -h db -U postgres; do
+# a.s. while ! pg_isready -h db -U postgres; do
+while ! pg_isready -h db -U ckan; do
   sleep 1;
 done
+
+# a.s.
+# Apache Solr connection details
+# solr_host="solr"
+# solr_port="8983"
+until curl -f "http://${solr_host}:${solr_port}"; do
+# until curl -f "$CKAN_SOLR_URL"; do
+  >&2 echo "Solr is not ready - sleeping"
+  sleep 1
+done
+
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
@@ -69,4 +85,6 @@ fi
 
 set_environment
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
+
+cd /usr/lib/ckan/venv/src/ckan && ckan-paster search-index rebuild -c "${CKAN_CONFIG}/production.ini"
 exec "$@"

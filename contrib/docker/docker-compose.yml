@@ -9,6 +9,16 @@ volumes:
   pg_data:
 
 services:
+
+  solr:
+    container_name: solr
+    build:
+      context: ../../
+      dockerfile: contrib/docker/solr/Dockerfile
+    # a.s. TODO: remove this later. Needed only for local machine to check the data
+    ports:
+      - 8983:8983
+
   ckan:
     container_name: ckan
     build:
@@ -21,9 +31,15 @@ services:
       - redis
     depends_on:
       - db
+      # a.s. added solr
+      - solr
     ports:
       - "0.0.0.0:${CKAN_PORT}:5000"
     environment:
+      # a.s. used from ckan-entrypoint.sh to wait until solr is up and running
+      - solr_host=solr
+      - solr_port=8983
+
       # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
       - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
       - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
@@ -36,13 +52,16 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
 
-    volumes:
-      - ckan_config:/etc/ckan
-      - ckan_home:/usr/lib/ckan
-      - ckan_storage:/var/lib/ckan
+    # volumes:
+      # - ckan_config:/etc/ckan
+      # - ckan_home:/usr/lib/ckan
+      # - ckan_storage:/var/lib/ckan
+
       # a.s. added next line to work locally
       # - .:/usr/lib/ckan
       # - ../../:/usr/lib/ckan/venv
+      # - ../..:/usr/lib/ckan/venv/src/ckan
+      # - ckan_home:/usr/lib/ckan
 
   datapusher:
     container_name: datapusher
@@ -64,16 +83,17 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+      # test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "ckan"]
     # a.s. TODO: remove later - temp set the port so we can connect locally to check the data
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
 
-  solr:
-    container_name: solr
-    build:
-      context: ../../
-      dockerfile: contrib/docker/solr/Dockerfile
+  # solr:
+  #   container_name: solr
+  #   build:
+  #     context: ../../
+  #     dockerfile: contrib/docker/solr/Dockerfile
 
 
   redis:
