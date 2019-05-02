@@ -26,11 +26,12 @@ services:
       args:
           - CKAN_SITE_URL=${CKAN_SITE_URL}
     links:
-      - db
+      # a.s.
+      # - db
       - solr
       - redis
     depends_on:
-      - db
+      # - db
       # a.s. added solr
       - solr
     ports:
@@ -41,9 +42,13 @@ services:
       - solr_port=8983
 
       # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
-      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
-      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
-      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
+      # - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
+      # - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
+      # - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
+      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${PG_RDS_PASSWORD}@${PG_RDS_URL}/ckan
+      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${PG_RDS_PASSWORD}@${PG_RDS_URL}/datastore
+      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@${PG_RDS_URL}/datastore
+
       - CKAN_SOLR_URL=http://solr:8983/solr/ckan
       - CKAN_REDIS_URL=redis://redis:6379/1
       - CKAN_DATAPUSHER_URL=http://datapusher:8800
@@ -69,25 +74,25 @@ services:
     ports:
       - "8800:8800"
 
-  db:
-    container_name: db
-    build:
-      context: ../../
-      dockerfile: contrib/docker/postgresql/Dockerfile
-      args:
-        - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    environment:
-      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-    healthcheck:
-      # test: ["CMD", "pg_isready", "-U", "postgres"]
-      test: ["CMD", "pg_isready", "-U", "ckan"]
-    # a.s. TODO: remove later - temp set the port so we can connect locally to check the data
-    ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+  # db:
+  #   container_name: db
+  #   build:
+  #     context: ../../
+  #     dockerfile: contrib/docker/postgresql/Dockerfile
+  #     args:
+  #       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+  #       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #   environment:
+  #     - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #   volumes:
+  #     - pg_data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     # test: ["CMD", "pg_isready", "-U", "postgres"]
+  #     test: ["CMD", "pg_isready", "-U", "ckan"]
+  #   # a.s. TODO: remove later - temp set the port so we can connect locally to check the data
+  #   ports:
+  #     - ${POSTGRES_PORT}:${POSTGRES_PORT}
 
   # solr:
   #   container_name: solr
