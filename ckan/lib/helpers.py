@@ -1834,7 +1834,7 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     '''
 
     params_nopage = [
-        (k, v)for k, v in request.params.items(multi=True) 
+        (k, v)for k, v in request.params.items(multi=True)
         if k != 'page'
     ]
     params = set(params_nopage)
@@ -1873,7 +1873,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
 
     params_nopage = [
         (k, v) for k, v in request.params.items(multi=True)
-         if k != 'page'
+        if k != 'page'
     ]
     params = list(params_nopage)
     if value:
