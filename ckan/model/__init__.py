@@ -275,9 +275,10 @@ class Repository(vdm.sqlalchemy.Repository):
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
         version_after = mig.db_version(self.metadata.bind, self.migrate_repository)
         if version_after != version_before:
-            log.info('CKAN database version upgraded: %s -> %s', version_before, version_after)
+            print('CKAN database version upgraded: {} -> {}'
+                  .format(version_before, version_after))
         else:
-            log.info('CKAN database version remains as: %s', version_after)
+            print('CKAN database version remains as: {}'.format(version_after))
 
         ##this prints the diffs in a readable format
         ##import pprint
