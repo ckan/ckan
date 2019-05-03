@@ -608,3 +608,51 @@ class TestVocabularyDictize(object):
         assert len(vocab_dict["tags"]) == 2
         for tag in vocab_dict["tags"]:
             assert len(tag.get("packages", [])) == 0
+
+
+class TestActivityDictize(object):
+    def setup(self):
+        helpers.reset_db()
+
+    def test_include_data(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        activity = factories.Activity(
+            user_id=user['id'],
+            object_id=dataset['id'],
+            revision_id=None,
+            activity_type='new package',
+            data={
+                'package': copy.deepcopy(dataset),
+                'actor': 'Mr Someone',
+            })
+        activity_obj = model.Activity.get(activity['id'])
+        context = {'model': model, 'session': model.Session}
+        dictized = model_dictize.activity_dictize(activity_obj, context,
+                                                  include_data=True)
+        assert_equal(dictized['user_id'], user['id'])
+        assert_equal(dictized['activity_type'], 'new package')
+        assert_equal(dictized['data']['package']['title'], dataset['title'])
+        assert_equal(dictized['data']['package']['id'], dataset['id'])
+        assert_equal(dictized['data']['actor'], 'Mr Someone')
+
+    def test_dont_include_data(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        activity = factories.Activity(
+            user_id=user['id'],
+            object_id=dataset['id'],
+            revision_id=None,
+            activity_type='new package',
+            data={
+                'package': copy.deepcopy(dataset),
+                'actor': 'Mr Someone',
+            })
+        activity_obj = model.Activity.get(activity['id'])
+        context = {'model': model, 'session': model.Session}
+        dictized = model_dictize.activity_dictize(activity_obj, context,
+                                                  include_data=False)
+        assert_equal(dictized['user_id'], user['id'])
+        assert_equal(dictized['activity_type'], 'new package')
+        assert_equal(dictized['data'],
+                     {'package': {'title': dataset['title']}})
