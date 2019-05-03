@@ -247,7 +247,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
         # },
         # order_by=[rev_table.c.continuity_id, rev_table.c.revision_id.desc()]
         # ---------------------
-        )
+    )
     base_mapper = class_mapper(base_object)
     # add in 'relationship' stuff from continuity onto revisioned obj
     # 3 types of relationship

@@ -231,7 +231,7 @@ def wipe_activity_detail(delete_activity_detail):
         'activity_detail table will no longer be used after CKAN 2.8.x, and\n'
         'you can delete it to save space (this is safely done before or\n'
         'after the CKAN upgrade).'
-        )
+    )
     if delete_activity_detail is None:
         delete_activity_detail = \
             input(u'Delete activity_detail table content? (y/n):')
