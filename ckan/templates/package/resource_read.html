@@ -27,7 +27,7 @@
           {% block resource_actions %}
           <ul>
             {% block resource_actions_inner %}
-            {% if h.check_access('package_update', {'id':pkg.id }) %}
+            {% if h.check_access('package_update', {'id':pkg.id }) and not is_activity_archive %}
               <li>{% link_for _('Manage'), named_route='resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
             {% endif %}
             {% if res.url and h.is_url(res.url) %}
@@ -44,8 +44,8 @@
                     <i class="fa fa-arrow-circle-o-down"></i> {{ _('Download') }}
                   {% endif %}
                 </a>
-                 {% block download_resource_button %}
-                  {%if res.datastore_active %}
+                {% block download_resource_button %}
+                  {% if res.datastore_active %}
                 <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
                   </button>
@@ -61,7 +61,8 @@
                       target="_blank"><span>XML</span></a>
                   </li>
                 </ul>
-                {%endif%} {% endblock %}
+                  {% endif %}
+                {% endblock %}
                 </div>
               </li>
             {% endif %}
@@ -70,6 +71,16 @@
           {% endblock %}
         </div>
         {% block resource_content %}
+          {% block package_archive_notice %}
+            {% if is_activity_archive %}
+              <div id="activity-archive-notice" class="alert alert-danger">
+                {% trans url=h.url_for('dataset.read', id=pkg.id) %}
+                You're currently viewing an old version of this dataset. To see the
+                current version, click <a href="{{ url }}">here</a>.
+                {% endtrans %}
+              </div>
+            {% endif %}
+          {% endblock %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
@@ -85,10 +96,11 @@
             {% if not res.description and package.notes %}
               <h3>{{ _('From the dataset abstract') }}</h3>
               <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
-              <p>{% trans dataset=package.title, url=h.url_for('dataset.read', id=package['name']) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+              <p>{% trans dataset=package.title, url=h.url_for('dataset.read', id=package.id if is_activity_archive else package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
             {% endif %}
           </div>
         {% endblock %}
+      {% if not is_activity_archive %}
       {% block data_preview %}
       {% block resource_view %}
         {% block resource_view_nav %}
@@ -148,6 +160,7 @@
         </div>
       {% endblock %}
       {% endblock %}
+      {% endif %}
       {% endblock %}
     </section>
   {% endblock %}
@@ -203,7 +216,7 @@
 {% block secondary_content %}
 
   {% block resources_list %}
-    {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id %}
+    {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read', is_activity_archive=is_activity_archive %}
   {% endblock %}
 
   {% block resource_license %}

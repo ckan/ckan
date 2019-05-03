@@ -358,7 +358,7 @@ class DefaultDatasetForm(object):
         return 'package/search.html'
 
     def history_template(self):
-        return 'package/history.html'
+        return None
 
     def resource_template(self):
         return 'package/resource_read.html'
@@ -416,13 +416,6 @@ class DefaultGroupForm(object):
         rendered for the about page
         """
         return 'group/about.html'
-
-    def history_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the history page
-        """
-        return 'group/history.html'
 
     def edit_template(self):
         """

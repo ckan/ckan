@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import datetime
+import copy
 
 import nose.tools
 
@@ -2357,9 +2358,7 @@ class TestJobShow(helpers.FunctionalRQTestBase):
         eq(d[u'id'], job.id)
         eq(d[u'title'], u'Title')
         eq(d[u'queue'], u'my_queue')
-        dt = datetime.datetime.strptime(d[u'created'], u'%Y-%m-%dT%H:%M:%S')
-        now = datetime.datetime.utcnow()
-        ok(abs((now - dt).total_seconds()) < 10)
+        ok(_seconds_since_timestamp(d[u'created'], u'%Y-%m-%dT%H:%M:%S') < 10)
 
     @nose.tools.raises(logic.NotFound)
     def test_not_existing_job(self):
@@ -2367,6 +2366,54 @@ class TestJobShow(helpers.FunctionalRQTestBase):
         Test showing a not existing job.
         '''
         helpers.call_action(u'job_show', id=u'does-not-exist')
+
+
+def _seconds_since_timestamp(timestamp, format_):
+    dt = datetime.datetime.strptime(timestamp, format_)
+    now = datetime.datetime.utcnow()
+    assert now > dt  # we assume timestamp is not in the future
+    return (now - dt).total_seconds()
+
+
+class TestActivityShow(helpers.FunctionalTestBase):
+    def test_simple_without_data(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        activity = factories.Activity(
+            user_id=user['id'], object_id=dataset['id'], revision_id=None,
+            activity_type='new package',
+            data={
+                'package': copy.deepcopy(dataset),
+                'actor': 'Mr Someone',
+            })
+        activity_shown = helpers.call_action(
+            'activity_show', id=activity['id'], include_data=False)
+        eq(activity_shown['user_id'], user['id'])
+        ok(_seconds_since_timestamp(
+            activity_shown['timestamp'], u'%Y-%m-%dT%H:%M:%S.%f') < 10)
+        eq(activity_shown['object_id'], dataset['id'])
+        eq(activity_shown['data'], {'package': {'title': 'Test Dataset'}})
+        eq(activity_shown['activity_type'], u'new package')
+
+    def test_simple_with_data(self):
+        dataset = factories.Dataset()
+        user = factories.User()
+        activity = factories.Activity(
+            user_id=user['id'], object_id=dataset['id'], revision_id=None,
+            activity_type='new package',
+            data={
+                'package': copy.deepcopy(dataset),
+                'actor': 'Mr Someone',
+            })
+        activity_shown = helpers.call_action(
+            'activity_show', id=activity['id'], include_data=True)
+        eq(activity_shown['user_id'], user['id'])
+        ok(_seconds_since_timestamp(
+            activity_shown['timestamp'], u'%Y-%m-%dT%H:%M:%S.%f') < 10)
+        eq(activity_shown['object_id'], dataset['id'])
+        eq(activity_shown['data'], {'package': dataset,
+                                    'actor': 'Mr Someone'})
+        eq(activity_shown['activity_type'], u'new package')
 
 
 def _clear_activities():
@@ -2387,7 +2434,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['new package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
         assert_not_in('extras', activities[0]['data']['package'])
 
     def test_change_dataset(self):
@@ -2405,7 +2452,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['changed package', 'new package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
         eq(activities[0]['data']['package']['title'],
            'Dataset with changed title')
 
@@ -2427,7 +2474,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
         assert_not_in('extras', activities[0]['data']['package'])
 
     def test_change_dataset_change_extra(self):
@@ -2445,7 +2492,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
         assert_not_in('extras', activities[0]['data']['package'])
 
     def test_change_dataset_delete_extra(self):
@@ -2463,7 +2510,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
         assert_not_in('extras', activities[0]['data']['package'])
 
     def test_change_dataset_add_resource(self):
@@ -2478,7 +2525,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
         # NB the detail is not included - that is only added in by
         # activity_list_to_html()
 
@@ -2497,7 +2544,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_change_dataset_delete_resource(self):
         user = factories.User()
@@ -2514,7 +2561,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_change_dataset_add_tag(self):
         user = factories.User()
@@ -2530,7 +2577,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_delete_tag_from_dataset(self):
         user = factories.User()
@@ -2546,7 +2593,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_delete_dataset(self):
         user = factories.User()
@@ -2561,7 +2608,7 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
            ['deleted package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_private_dataset_has_no_activity(self):
         user = factories.User()
@@ -2622,6 +2669,34 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
         results = helpers.call_action('package_activity_list', id=id, limit='9')
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
 
+    def test_normal_user_doesnt_see_hidden_activities(self):
+        # activity is 'hidden' because dataset is created by site_user
+        dataset = factories.Dataset()
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_doesnt_see_hidden_activities_by_default(self):
+        # activity is 'hidden' because dataset is created by site_user
+        dataset = factories.Dataset()
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_can_include_hidden_activities(self):
+        # activity is 'hidden' because dataset is created by site_user
+        dataset = factories.Dataset()
+
+        activities = helpers.call_action('package_activity_list',
+                                         include_hidden_activity=True,
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['new package'])
+
 
 class TestUserActivityList(helpers.FunctionalTestBase):
     def test_create_user(self):
@@ -2645,7 +2720,7 @@ class TestUserActivityList(helpers.FunctionalTestBase):
            ['new package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_dataset_changed_by_another_user(self):
         user = factories.User()
@@ -2677,7 +2752,7 @@ class TestUserActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_change_dataset_add_tag(self):
         user = factories.User()
@@ -2693,7 +2768,7 @@ class TestUserActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_create_group(self):
         user = factories.User()
@@ -2706,7 +2781,7 @@ class TestUserActivityList(helpers.FunctionalTestBase):
            ['new group'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], group['id'])
-        eq(activities[0]['data']['group']['name'], group['name'])
+        eq(activities[0]['data']['group']['title'], group['title'])
 
     def test_delete_group_using_group_delete(self):
         user = factories.User()
@@ -2721,7 +2796,7 @@ class TestUserActivityList(helpers.FunctionalTestBase):
            ['deleted group'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], group['id'])
-        eq(activities[0]['data']['group']['name'], group['name'])
+        eq(activities[0]['data']['group']['title'], group['title'])
 
     def test_delete_group_by_updating_state(self):
         user = factories.User()
@@ -2737,7 +2812,7 @@ class TestUserActivityList(helpers.FunctionalTestBase):
            ['deleted group'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], group['id'])
-        eq(activities[0]['data']['group']['name'], group['name'])
+        eq(activities[0]['data']['group']['title'], group['title'])
 
     def test_create_organization(self):
         user = factories.User()
@@ -2750,7 +2825,7 @@ class TestUserActivityList(helpers.FunctionalTestBase):
            ['new organization'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], org['id'])
-        eq(activities[0]['data']['group']['name'], org['name'])
+        eq(activities[0]['data']['group']['title'], org['title'])
 
     def test_delete_org_using_organization_delete(self):
         user = factories.User()
@@ -2765,7 +2840,7 @@ class TestUserActivityList(helpers.FunctionalTestBase):
            ['deleted organization'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], org['id'])
-        eq(activities[0]['data']['group']['name'], org['name'])
+        eq(activities[0]['data']['group']['title'], org['title'])
 
     def test_delete_org_by_updating_state(self):
         user = factories.User()
@@ -2781,7 +2856,7 @@ class TestUserActivityList(helpers.FunctionalTestBase):
            ['deleted organization'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], org['id'])
-        eq(activities[0]['data']['group']['name'], org['name'])
+        eq(activities[0]['data']['group']['title'], org['title'])
 
     def _create_bulk_user_activities(self, count):
         user = factories.User()
@@ -2825,7 +2900,7 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
            ['new group'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], group['id'])
-        eq(activities[0]['data']['group']['name'], group['name'])
+        eq(activities[0]['data']['group']['title'], group['title'])
 
     def test_change_group(self):
         user = factories.User()
@@ -2842,7 +2917,6 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
            ['changed group', 'new group'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], group['id'])
-        eq(activities[0]['data']['group']['name'], group['name'])
         eq(activities[0]['data']['group']['title'],
            'Group with changed title')
 
@@ -2862,7 +2936,7 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
            ['new package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_change_dataset(self):
         user = factories.User()
@@ -2880,7 +2954,7 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
            ['changed package', 'new package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
         # the old dataset still has the old title
         eq(activities[1]['activity_type'], 'new package')
@@ -2901,7 +2975,7 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_change_dataset_add_tag(self):
         user = factories.User()
@@ -2918,7 +2992,7 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_delete_dataset(self):
         user = factories.User()
@@ -2934,7 +3008,7 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
            ['deleted package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_change_dataset_that_used_to_be_in_the_group(self):
         user = factories.User()
@@ -2961,10 +3035,10 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
         dataset = factories.Dataset(groups=[{'id': group['id']}], user=user)
         # remove the dataset from the group
         dataset['groups'] = []
+        dataset['title'] = 'Dataset with changed title'
         helpers.call_action(
             'package_update', context={'user': user['name']}, **dataset)
         _clear_activities()
-        dataset['title'] = 'Dataset with changed title'
         helpers.call_action(
             'package_delete', context={'user': user['name']}, **dataset)
 
@@ -2978,7 +3052,7 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
            ['deleted package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def _create_bulk_group_activities(self, count):
         group = factories.Group()
@@ -3010,6 +3084,34 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
         results = helpers.call_action('group_activity_list', id=id, limit='9')
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
 
+    def test_normal_user_doesnt_see_hidden_activities(self):
+        # activity is 'hidden' because group is created by site_user
+        group = factories.Group()
+
+        activities = helpers.call_action('group_activity_list',
+                                         id=group['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_doesnt_see_hidden_activities_by_default(self):
+        # activity is 'hidden' because group is created by site_user
+        group = factories.Group()
+
+        activities = helpers.call_action('group_activity_list',
+                                         id=group['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_can_include_hidden_activities(self):
+        # activity is 'hidden' because group is created by site_user
+        group = factories.Group()
+
+        activities = helpers.call_action('group_activity_list',
+                                         include_hidden_activity=True,
+                                         id=group['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['new group'])
+
 
 class TestOrganizationActivityList(helpers.FunctionalTestBase):
     def test_create_organization(self):
@@ -3022,7 +3124,7 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
            ['new organization'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], org['id'])
-        eq(activities[0]['data']['group']['name'], org['name'])
+        eq(activities[0]['data']['group']['title'], org['title'])
 
     def test_change_organization(self):
         user = factories.User()
@@ -3039,7 +3141,6 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
            ['changed organization', 'new organization'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], org['id'])
-        eq(activities[0]['data']['group']['name'], org['name'])
         eq(activities[0]['data']['group']['title'],
            'Organization with changed title')
 
@@ -3059,7 +3160,7 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
            ['new package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_change_dataset(self):
         user = factories.User()
@@ -3077,7 +3178,7 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
            ['changed package', 'new package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
         # the old dataset still has the old title
         eq(activities[1]['activity_type'], 'new package')
@@ -3098,7 +3199,7 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_delete_dataset(self):
         user = factories.User()
@@ -3114,7 +3215,7 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
            ['deleted package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_change_dataset_that_used_to_be_in_the_org(self):
         user = factories.User()
@@ -3185,6 +3286,34 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
         results = helpers.call_action('organization_activity_list', id=id, limit='9')
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
 
+    def test_normal_user_doesnt_see_hidden_activities(self):
+        # activity is 'hidden' because org is created by site_user
+        org = factories.Organization()
+
+        activities = helpers.call_action('organization_activity_list',
+                                         id=org['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_doesnt_see_hidden_activities_by_default(self):
+        # activity is 'hidden' because org is created by site_user
+        org = factories.Organization()
+
+        activities = helpers.call_action('organization_activity_list',
+                                         id=org['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_can_include_hidden_activities(self):
+        # activity is 'hidden' because org is created by site_user
+        org = factories.Organization()
+
+        activities = helpers.call_action('organization_activity_list',
+                                         include_hidden_activity=True,
+                                         id=org['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['new organization'])
+
 
 class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
     def test_create_dataset(self):
@@ -3197,7 +3326,7 @@ class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
            ['new package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], org['id'])
-        eq(activities[0]['data']['package']['name'], org['name'])
+        eq(activities[0]['data']['package']['title'], org['title'])
 
     def test_change_dataset(self):
         user = factories.User()
@@ -3215,7 +3344,7 @@ class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
            ['changed package', 'new package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
         # the old dataset still has the old title
         eq(activities[1]['activity_type'], 'new package')
@@ -3236,7 +3365,7 @@ class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_change_dataset_add_tag(self):
         user = factories.User()
@@ -3253,7 +3382,7 @@ class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
            ['changed package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def test_delete_dataset(self):
         user = factories.User()
@@ -3269,7 +3398,7 @@ class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):
            ['deleted package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
 
     def _create_bulk_package_activities(self, count):
         from ckan import model
@@ -3324,7 +3453,7 @@ class TestDashboardActivityList(helpers.FunctionalTestBase):
            ['new package'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], dataset['id'])
-        eq(activities[0]['data']['package']['name'], dataset['name'])
+        eq(activities[0]['data']['package']['title'], dataset['title'])
         # user's own activities are always marked ``'is_new': False``
         eq(activities[0]['is_new'], False)
 
@@ -3339,7 +3468,7 @@ class TestDashboardActivityList(helpers.FunctionalTestBase):
            ['new group'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], group['id'])
-        eq(activities[0]['data']['group']['name'], group['name'])
+        eq(activities[0]['data']['group']['title'], group['title'])
         # user's own activities are always marked ``'is_new': False``
         eq(activities[0]['is_new'], False)
 
@@ -3354,7 +3483,7 @@ class TestDashboardActivityList(helpers.FunctionalTestBase):
            ['new organization'])
         eq(activities[0]['user_id'], user['id'])
         eq(activities[0]['object_id'], org['id'])
-        eq(activities[0]['data']['group']['name'], org['name'])
+        eq(activities[0]['data']['group']['title'], org['title'])
         # user's own activities are always marked ``'is_new': False``
         eq(activities[0]['is_new'], False)
 

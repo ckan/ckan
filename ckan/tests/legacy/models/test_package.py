@@ -355,28 +355,6 @@ class TestRelatedRevisions:
         assert len(self.pkg1.all_revisions) == 3, self.pkg1.all_revisions
         assert len(self.pkg1.all_related_revisions) == 6, self.pkg1.all_related_revisions
 
-    def test_2_diff(self):
-        rev_q = model.repo.history()
-        rev_q = rev_q.order_by(model.Revision.timestamp.desc())
-        last_rev = rev_q.first()
-        first_rev = rev_q.all()[-1]
-        second_rev = rev_q.all()[-2]
-        diff = self.pkg1.diff(last_rev, second_rev)
-        assert diff['notes'] == '- None\n+ Changed notes', diff['notes']
-        assert diff.get('PackageTag-geo-state') == u'- \n+ active', diff
-        assert diff.get('PackageTag-scientific-state') == u'- \n+ active', diff
-        def test_res(diff, res, field, expected_value):
-            key = 'Resource-%s-%s' % (res.id[:4], field)
-            got_value = diff.get(key)
-            expected_value = u'- \n+ %s' % expected_value
-            assert got_value == expected_value, 'Key: %s Got: %r Expected: %r' % (key, got_value, expected_value)
-        test_res(diff, self.res1, 'url', 'http://url1.com/edited')
-        test_res(diff, self.res1, 'position', '0')
-        test_res(diff, self.res1, 'format', 'xls')
-        test_res(diff, self.res1, 'description', 'It is.')
-        test_res(diff, self.res1, 'hash', 'abc123')
-        test_res(diff, self.res1, 'state', 'active')
-        test_res(diff, self.res2, 'url', 'http://url2.com')
 
 class TestPackagePurge:
     @classmethod
