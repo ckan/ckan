@@ -3,10 +3,9 @@
 {% block content %}
   {{ super() }}
 
-  {# Use Fanstatic to include our custom JavaScript module.
+  {# Use Webassets to include our custom JavaScript module.
     A <script> tag for the module will be inserted in the right place at the
     bottom of the page. #}
-  {#% resource 'example_theme/example_theme_popover.js' %#}
   {% asset 'example_theme/example_theme' %}
 
   {# Apply our JavaScript module to an HTML element. The data-module attribute,

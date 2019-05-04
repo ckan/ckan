@@ -2,13 +2,14 @@
 
 import logging
 import os
+import tempfile
 
 from markupsafe import Markup
-
 from webassets import Environment
 from webassets.loaders import YAMLLoader
 
 from ckan.common import config, g
+
 
 logger = logging.getLogger(__name__)
 env = None
@@ -32,6 +33,7 @@ def create_library(name, path):
     # with the same name twice. For now, let's just pop existing
     # bundle and avoid name-conflicts
     # TODO: make PR into webassets with preferable solution
+    # Issue: https://github.com/miracle2k/webassets/issues/519
     for name, bundle in bundles.items():
         env._named_bundles.pop(name, None)
         env.register(name, bundle)
@@ -42,13 +44,14 @@ def create_library(name, path):
 def webassets_init():
     global env
 
+    static_path = get_webassets_path()
+
     public = config.get(u'ckan.base_public_folder')
 
     public_folder = os.path.abspath(os.path.join(
         os.path.dirname(__file__), u'..', public))
 
     base_path = os.path.join(public_folder, u'base')
-    static_path = os.path.join(public_folder, u'webassets')
 
     env = Environment()
     env.directory = static_path
@@ -137,3 +140,22 @@ def render_assets(type_):
     tags = u'\n'.join([_to_tag(asset, type_) for asset in assets[type_]])
     collection[:] = []
     return Markup(tags)
+
+
+def get_webassets_path():
+    webassets_path = config.get('ckan.webassets.path')
+
+    if not webassets_path:
+        storage_path = config.get(
+            'ckan.storage_path'
+        ) or tempfile.gettempdir()
+
+        if storage_path:
+            webassets_path = os.path.join(storage_path, 'webassets')
+
+    if not webassets_path:
+        raise RuntimeError(
+            'Either `ckan.webassets.path` or `ckan.storage_path` '
+            'must be specified'
+        )
+    return webassets_path

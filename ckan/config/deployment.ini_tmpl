@@ -160,6 +160,12 @@ ckan.feeds.author_link =
 #ckan.max_resource_size = 10
 #ckan.max_image_size = 2
 
+## Webassets Settings
+#ckan.webassets.use_x_sendfile = false
+#ckan.webassets.external = false
+#ckan.webassets.path = /var/lib/ckan/webassets
+
+
 ## Datapusher settings
 
 # Make sure you have set up the DataStore

@@ -128,14 +128,9 @@
 {%- endblock -%}
 
 {%- block scripts %}
-  {#% resource 'base/main' %#}
   {% asset 'base/main' %}
-
-  {#% resource 'base/ckan' %#}
   {% asset 'base/ckan' %}
-
   {% if g.tracking_enabled %}
-    {#% resource 'base/tracking.js' %#}
     {% asset 'base/tracking' %}
   {% endif %}
   {{ super() }}

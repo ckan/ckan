@@ -324,10 +324,6 @@ class ResourceExtension(BaseExtension):
 
     @classmethod
     def _call(cls, args, kwargs):
-        log.warn(
-            '`resource` tag is deprecated. '
-            'Use `assets`'
-            '<https://docs.ckan.org/en/latest/theming/webassets.html> instead')
         assert len(args) == 1
         assert len(kwargs) == 0
         h.include_resource(args[0], **kwargs)
