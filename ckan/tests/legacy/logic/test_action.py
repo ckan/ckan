@@ -1,23 +1,16 @@
 # encoding: utf-8
 
-import re
 import json
-import urllib
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
-from nose.plugins.skip import SkipTest
 from ckan.common import config
-import datetime
-import mock
 
-import vdm.sqlalchemy
 import ckan
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.dictization.model_dictize import resource_dictize
 import ckan.model as model
 import ckan.tests.legacy as tests
 from ckan.tests.legacy import WsgiAppCase
-from ckan.tests.legacy.functional.api import assert_dicts_equal_ignoring_ordering
 from ckan.tests.legacy import setup_test_search_index
 from ckan.tests.legacy import StatusCodes
 from ckan.logic import get_action, NotAuthorized
@@ -26,7 +19,6 @@ from ckan.tests.legacy import call_action_api
 import ckan.lib.search as search
 import ckan.tests.helpers as helpers
 
-from ckan import plugins
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 
 
@@ -710,7 +702,7 @@ class TestAction(WsgiAppCase):
         # There shouldn't be any results.  If the '%' character wasn't
         # escaped correctly, then the search would match because of the
         # unescaped wildcard.
-        assert count is 0
+        assert count == 0
 
     def test_42_resource_search_fields_parameter_still_accepted(self):
         '''The fields parameter is deprecated, but check it still works.
@@ -750,8 +742,6 @@ class TestAction(WsgiAppCase):
             assert "json" in resource['format'].lower()
 
     def test_package_create_duplicate_extras_error(self):
-        import paste.fixture
-        import pylons.test
 
         # Posting a dataset dict to package_create containing two extras dicts
         # with the same key, should return a Validation Error.
@@ -764,8 +754,6 @@ class TestAction(WsgiAppCase):
         assert error['extras_validation'] == ['Duplicate key "foo"']
 
     def test_package_update_remove_org_error(self):
-        import paste.fixture
-        import pylons.test
 
         app = helpers._get_test_app()
         org = call_action_api(app, 'organization_create',
@@ -780,8 +768,6 @@ class TestAction(WsgiAppCase):
         assert not res['owner_org'], res['owner_org']
 
     def test_package_update_duplicate_extras_error(self):
-        import paste.fixture
-        import pylons.test
 
         # We need to create a package first, so that we can update it.
         app = helpers._get_test_app()

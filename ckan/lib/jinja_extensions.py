@@ -256,7 +256,8 @@ class BaseExtension(ext.Extension):
 class SnippetExtension(BaseExtension):
     ''' Custom snippet tag
 
-    {% snippet <template_name> [, <keyword>=<value>].. %}
+    {% snippet <template_name> [, <fallback_template_name>]...
+               [, <keyword>=<value>]... %}
 
     see lib.helpers.snippet() for more details.
     '''
@@ -265,8 +266,7 @@ class SnippetExtension(BaseExtension):
 
     @classmethod
     def _call(cls, args, kwargs):
-        assert len(args) == 1
-        return base.render_snippet(args[0], **kwargs)
+        return base.render_snippet(*args, **kwargs)
 
 class UrlForStaticExtension(BaseExtension):
     ''' Custom url_for_static tag for getting a path for static assets.

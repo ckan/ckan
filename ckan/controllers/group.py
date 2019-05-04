@@ -220,6 +220,10 @@ class GroupController(base.BaseController):
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
+
+            # Do not query group members as they aren't used in the view
+            data_dict['include_users'] = False
+
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except (NotFound, NotAuthorized):
@@ -802,7 +806,7 @@ class GroupController(base.BaseController):
                     revision_dict['timestamp'])
                 try:
                     dayHorizon = int(request.params.get('days'))
-                except:
+                except ValueError:
                     dayHorizon = 30
                 dayAge = (datetime.datetime.now() - revision_date).days
                 if dayAge >= dayHorizon:

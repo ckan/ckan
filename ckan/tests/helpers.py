@@ -22,15 +22,12 @@ This module is reserved for these very useful functions.
 
 import collections
 import contextlib
-import errno
 import functools
 import logging
-import os
 import re
 
 import webtest
 import nose.tools
-from nose.tools import assert_in, assert_not_in
 import mock
 import rq
 
@@ -296,7 +293,7 @@ def webtest_submit(form, name=None, index=None, value=None, **args):
     '''
     fields = webtest_submit_fields(form, name, index=index, submit_value=value)
     if form.method.upper() != "GET":
-        args.setdefault("content_type",  form.enctype)
+        args.setdefault("content_type", form.enctype)
     return form.response.goto(form.action, method=form.method,
                               params=fields, **args)
 

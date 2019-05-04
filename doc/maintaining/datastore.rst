@@ -249,6 +249,9 @@ JSON (``?format=json``) and XML (``?format=xml``). E.g. to download an Excel-com
 tab-separated file use
 ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?format=tsv&bom=true``.
 
+A number of parameters from :meth:`~ckanext.datastore.logic.action.datastore_search` can be used:
+    ``offset``, ``limit``, ``filters``, ``q``, ``distinct``, ``plain``, ``language``, ``fields``, ``sort``
+
 .. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
 
 

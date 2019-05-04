@@ -690,18 +690,19 @@ def url_validator(key, data, errors, context):
     import urlparse
     import string
 
-    model = context['model']
-    session = context['session']
-
     url = data.get(key, None)
     if not url:
         return
 
-    pieces = urlparse.urlparse(url)
-    if all([pieces.scheme, pieces.netloc]) and \
-       set(pieces.netloc) <= set(string.letters + string.digits + '-.') and \
-       pieces.scheme in ['http', 'https']:
-       return
+    try:
+        pieces = urlparse.urlparse(url)
+        if all([pieces.scheme, pieces.netloc]) and \
+           set(pieces.netloc) <= set(string.letters + string.digits + '-.') and \
+           pieces.scheme in ['http', 'https']:
+           return
+    except ValueError:
+        # url is invalid
+        pass
 
     errors[key].append(_('Please provide a valid URL'))
 
@@ -841,9 +842,13 @@ def empty_if_not_sysadmin(key, data, errors, context):
     empty(key, data, errors, context)
 
 #pattern from https://html.spec.whatwg.org/#e-mail-state-(type=email)
-email_pattern = re.compile(r"^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]"\
-                       "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]"\
-                       "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+email_pattern = re.compile(
+                            # additional pattern to reject malformed dots usage
+                            r"^(?!\.)(?!.*\.$)(?!.*?\.\.)"\
+                            "[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]"\
+                            "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]"\
+                            "(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+                        )
 
 
 def email_validator(value, context):

@@ -51,7 +51,7 @@ Example:
   <label class="checkbox" for="{{ id or name }}">
     <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | empty_and_escape }}" {{ "checked " if checked }} {{ attributes(attrs) }} />
     {{ label or name }}
-    {% if is_required %}{{ input_required() }}{% endif %}
+    {% if is_required %}<span title="{{ _("This field is required") }}" class="control-required">*</span> {% endif %}
     {% if error and error is iterable %}<strong class="error-inline">{{ error|join(', ') }}</strong>{% endif %}
   </label>
   {{ extra_html }}

@@ -133,83 +133,35 @@ def _execute(q, table, context):
     return session.execute(q)
 
 
-def _execute_with_revision(q, rev_table, context):
-    '''
-    Takes an SqlAlchemy query (q) that is (at its base) a Select on an object
-    revision table (rev_table), and you provide revision_id or revision_date in
-    the context and it will filter the object revision(s) to an earlier time.
-
-    Raises NotFound if context['revision_id'] is provided, but the revision
-    ID does not exist.
-
-    Returns [] if there are no results.
-
-    '''
-    model = context['model']
-    session = model.Session
-    revision_id = context.get('revision_id')
-    revision_date = context.get('revision_date')
-
-    if revision_id:
-        revision = session.query(context['model'].Revision).filter_by(
-            id=revision_id).first()
-        if not revision:
-            raise logic.NotFound
-        revision_date = revision.timestamp
-
-    q = q.where(rev_table.c.revision_timestamp <= revision_date)
-    q = q.where(rev_table.c.expired_timestamp > revision_date)
-
-    return session.execute(q)
-
-
 def package_dictize(pkg, context):
     '''
     Given a Package object, returns an equivalent dictionary.
-
-    Normally this is the most recent version, but you can provide revision_id
-    or revision_date in the context and it will filter to an earlier time.
-
-    May raise NotFound if:
-    * the specified revision_id doesn't exist
-    * the specified revision_date was before the package was created
     '''
     model = context['model']
-    is_latest_revision = not(context.get('revision_id') or
-                             context.get('revision_date'))
-    execute = _execute if is_latest_revision else _execute_with_revision
-    #package
-    if is_latest_revision:
-        if isinstance(pkg, model.PackageRevision):
-            pkg = model.Package.get(pkg.id)
-        result = pkg
-    else:
-        package_rev = model.package_revision_table
-        q = select([package_rev]).where(package_rev.c.id == pkg.id)
-        result = execute(q, package_rev, context).first()
-    if not result:
+    assert not (context.get('revision_id') or
+                context.get('revision_date')), \
+        'Revision functionality is moved to migrate_package_activity'
+    assert not isinstance(pkg, model.PackageRevision), \
+        'Revision functionality is moved to migrate_package_activity'
+    execute = _execute
+    # package
+    if not pkg:
         raise logic.NotFound
-    result_dict = d.table_dictize(result, context)
-    #strip whitespace from title
+    result_dict = d.table_dictize(pkg, context)
+    # strip whitespace from title
     if result_dict.get('title'):
         result_dict['title'] = result_dict['title'].strip()
 
-    #resources
-    if is_latest_revision:
-        res = model.resource_table
-    else:
-        res = model.resource_revision_table
+    # resources
+    res = model.resource_table
     q = select([res]).where(res.c.package_id == pkg.id)
     result = execute(q, res, context)
     result_dict["resources"] = resource_list_dictize(result, context)
     result_dict['num_resources'] = len(result_dict.get('resources', []))
 
-    #tags
+    # tags
     tag = model.tag_table
-    if is_latest_revision:
-        pkg_tag = model.package_tag_table
-    else:
-        pkg_tag = model.package_tag_revision_table
+    pkg_tag = model.package_tag_table
     q = select([tag, pkg_tag.c.state],
                from_obj=pkg_tag.join(tag, tag.c.id == pkg_tag.c.tag_id)
                ).where(pkg_tag.c.package_id == pkg.id)
@@ -222,23 +174,17 @@ def package_dictize(pkg, context):
     # same as its name, but the display_name might get changed later (e.g.
     # translated into another language by the multilingual extension).
     for tag in result_dict['tags']:
-        assert not 'display_name' in tag
+        assert 'display_name' not in tag
         tag['display_name'] = tag['name']
 
-    #extras
-    if is_latest_revision:
-        extra = model.package_extra_table
-    else:
-        extra = model.extra_revision_table
+    # extras - no longer revisioned, so always provide latest
+    extra = model.package_extra_table
     q = select([extra]).where(extra.c.package_id == pkg.id)
-    result = execute(q, extra, context)
+    result = _execute(q, extra, context)
     result_dict["extras"] = extras_list_dictize(result, context)
 
-    #groups
-    if is_latest_revision:
-        member = model.member_table
-    else:
-        member = model.member_revision_table
+    # groups
+    member = model.member_table
     group = model.group_table
     q = select([group, member.c.capacity],
                from_obj=member.join(group, group.c.id == member.c.group_id)
@@ -247,17 +193,14 @@ def package_dictize(pkg, context):
                 .where(group.c.is_organization == False)
     result = execute(q, member, context)
     context['with_capacity'] = False
-    ## no package counts as cannot fetch from search index at the same
-    ## time as indexing to it.
-    ## tags, extras and sub-groups are not included for speed
+    # no package counts as cannot fetch from search index at the same
+    # time as indexing to it.
+    # tags, extras and sub-groups are not included for speed
     result_dict["groups"] = group_list_dictize(result, context,
                                                with_package_counts=False)
 
-    #owning organization
-    if is_latest_revision:
-        group = model.group_table
-    else:
-        group = model.group_revision_table
+    # owning organization
+    group = model.group_table
     q = select([group]
                ).where(group.c.id == pkg.owner_org) \
                 .where(group.c.state == 'active')
@@ -268,11 +211,8 @@ def package_dictize(pkg, context):
     else:
         result_dict["organization"] = None
 
-    #relations
-    if is_latest_revision:
-        rel = model.package_relationship_table
-    else:
-        rel = model.package_relationship_revision_table
+    # relations
+    rel = model.package_relationship_table
     q = select([rel]).where(rel.c.subject_package_id == pkg.id)
     result = execute(q, rel, context)
     result_dict["relationships_as_subject"] = \
@@ -283,13 +223,10 @@ def package_dictize(pkg, context):
         d.obj_list_dictize(result, context)
 
     # Extra properties from the domain object
-    # We need an actual Package object for this, not a PackageRevision
-    if isinstance(pkg, model.PackageRevision):
-        pkg = model.Package.get(pkg.id)
 
     # isopen
     result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen, bool) \
-                            else pkg.isopen()
+        else pkg.isopen()
 
     # type
     # if null assign the default value to make searching easier
@@ -696,19 +633,23 @@ def vocabulary_list_dictize(vocabulary_list, context):
     return [vocabulary_dictize(vocabulary, context)
             for vocabulary in vocabulary_list]
 
-def activity_dictize(activity, context):
+def activity_dictize(activity, context, include_data=False):
     activity_dict = d.table_dictize(activity, context)
+    if not include_data:
+        # replace the data with just a {'title': title} and not the rest of
+        # the dataset/group/org/custom obj. we need the title to display it
+        # in the activity stream.
+        activity_dict['data'] = {
+            key: {'title': val['title']}
+            for (key, val) in activity_dict['data'].items()
+            if isinstance(val, dict) and 'title' in val}
     return activity_dict
 
-def activity_list_dictize(activity_list, context):
-    return [activity_dictize(activity, context) for activity in activity_list]
 
-def activity_detail_dictize(activity_detail, context):
-    return d.table_dictize(activity_detail, context)
-
-def activity_detail_list_dictize(activity_detail_list, context):
-    return [activity_detail_dictize(activity_detail, context)
-            for activity_detail in activity_detail_list]
+def activity_list_dictize(activity_list, context,
+                          include_data=False):
+    return [activity_dictize(activity, context, include_data)
+            for activity in activity_list]
 
 
 def package_to_api1(pkg, context):

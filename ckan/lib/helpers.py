@@ -190,7 +190,7 @@ def redirect_to(*args, **kw):
     _url = ''
     skip_url_parsing = False
     parse_url = kw.pop('parse_url', False)
-    if uargs and len(uargs) is 1 and isinstance(uargs[0], string_types) \
+    if uargs and len(uargs) == 1 and isinstance(uargs[0], string_types) \
             and (uargs[0].startswith('/') or is_url(uargs[0])) \
             and parse_url is False:
         skip_url_parsing = True
@@ -916,9 +916,9 @@ def map_pylons_to_flask_route_name(menu_item):
             LEGACY_ROUTE_NAMES.update(mappings)
 
     if menu_item in LEGACY_ROUTE_NAMES:
-        log.info('Route name "{}" is deprecated and will be removed.\
-                Please update calls to use "{}" instead'.format(
-                menu_item, LEGACY_ROUTE_NAMES[menu_item]))
+        log.info('Route name "{}" is deprecated and will be removed. '
+                 'Please update calls to use "{}" instead'
+                 .format(menu_item, LEGACY_ROUTE_NAMES[menu_item]))
     return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
 
 
@@ -1488,11 +1488,11 @@ def date_str_to_datetime(date_str):
            despite that not being part of the ISO format.
     '''
 
-    time_tuple = re.split('[^\d]+', date_str, maxsplit=5)
+    time_tuple = re.split(r'[^\d]+', date_str, maxsplit=5)
 
     # Extract seconds and microseconds
     if len(time_tuple) >= 6:
-        m = re.match('(?P<seconds>\d{2})(\.(?P<microseconds>\d{6}))?$',
+        m = re.match(r'(?P<seconds>\d{2})(\.(?P<microseconds>\d{6}))?$',
                      time_tuple[5])
         if not m:
             raise ValueError('Unable to parse %s as seconds.microseconds' %
@@ -2019,15 +2019,15 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
 
     if filter_type:
         action_functions = {
-            'dataset': 'package_activity_list_html',
-            'user': 'user_activity_list_html',
-            'group': 'group_activity_list_html',
-            'organization': 'organization_activity_list_html',
+            'dataset': 'package_activity_list',
+            'user': 'user_activity_list',
+            'group': 'group_activity_list',
+            'organization': 'organization_activity_list',
         }
         action_function = logic.get_action(action_functions.get(filter_type))
         return action_function(context, {'id': filter_id, 'offset': offset})
     else:
-        return logic.get_action('dashboard_activity_list_html')(
+        return logic.get_action('dashboard_activity_list')(
             context, {'offset': offset})
 
 
@@ -2038,7 +2038,7 @@ def recently_changed_packages_activity_stream(limit=None):
     else:
         data_dict = {}
     context = {'model': model, 'session': model.Session, 'user': c.user}
-    return logic.get_action('recently_changed_packages_activity_list_html')(
+    return logic.get_action('recently_changed_packages_activity_list')(
         context, data_dict)
 
 
@@ -2102,7 +2102,7 @@ RE_MD_INTERNAL_LINK = re.compile(
 # but ignore trailing punctuation since it is probably not part of the link
 RE_MD_EXTERNAL_LINK = re.compile(
     r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*'
-    '[\w\-@?^=%&:\/~\\+#]'  # but last character can't be punctuation [.,;]
+    r'[\w\-@?^=%&:\/~\\+#]'  # but last character can't be punctuation [.,;]
     ')',
     flags=re.UNICODE
 )
@@ -2185,9 +2185,9 @@ def format_resource_items(items):
     blacklist = ['name', 'description', 'url', 'tracking_summary']
     output = []
     # regular expressions for detecting types in strings
-    reg_ex_datetime = '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
-    reg_ex_int = '^-?\d{1,}$'
-    reg_ex_float = '^-?\d{1,}\.\d{1,}$'
+    reg_ex_datetime = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
+    reg_ex_int = r'^-?\d{1,}$'
+    reg_ex_float = r'^-?\d{1,}\.\d{1,}$'
     for key, value in items:
         if not value or key in blacklist:
             continue

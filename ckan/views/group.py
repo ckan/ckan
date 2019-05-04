@@ -454,6 +454,10 @@ def read(group_type, is_organization, id=None, limit=20):
         # Do not query for the group datasets when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
+
+        # Do not query group members as they aren't used in the view
+        data_dict['include_users'] = False
+
         group_dict = _action(u'group_show')(context, data_dict)
         group = context['group']
     except (NotFound, NotAuthorized):
@@ -499,8 +503,10 @@ def activity(id, group_type, is_organization, offset=0):
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html
         # template to retrieve later.
-        extra_vars["group_activity_stream"] = \
-            _action(u'group_activity_list_html')(
+        extra_vars["activity_stream"] = \
+            _action(u'organization_activity_list'
+                    if group_dict.get(u'is_organization')
+                    else u'group_activity_list')(
             context, {
                 u'id': group_dict['id'],
                 u'offset': offset
@@ -512,11 +518,12 @@ def activity(id, group_type, is_organization, offset=0):
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
     # compatibility with templates in existing extensions
-    g.group_activity_stream = extra_vars["group_activity_stream"]
+    g.group_activity_stream = extra_vars["activity_stream"]
     g.group_dict = group_dict
 
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
+    extra_vars["id"] = id
     return base.render(_activity_template(group_type), extra_vars)
 
 
@@ -571,7 +578,7 @@ def members(id, group_type, is_organization):
         u"members": members,
         u"group_dict": group_dict,
         u"group_type": group_type
-        }
+    }
     return base.render(_replace_group_org(u'group/members.html'), extra_vars)
 
 
@@ -619,102 +626,9 @@ def member_delete(id, group_type, is_organization):
                        extra_vars)
 
 
+# deprecated
 def history(id, group_type, is_organization):
-    u''' Do we need this? '''
-    extra_vars = {}
-    set_org(is_organization)
-    if u'diff' in request.params or u'selected1' in request.params:
-        try:
-            params = {
-                u'id': request.params.getone(u'group_name'),
-                u'diff': request.params.getone(u'selected1'),
-                u'oldid': request.params.getone(u'selected2'),
-            }
-        except KeyError:
-            if u'group_name' in dict(request.params):
-                id = request.params.getone(u'group_name')
-            error = \
-                _(u'Select two revisions before doing the comparison.')
-            # TODO: Remove
-            # ckan 2.9: Adding variables that were removed from c object for
-            # compatibility with templates in existing extensions
-            g.error = error
-        else:
-            params[u'diff_entity'] = u'group'
-            return h.redirect_to(controller=u'revision',
-                                 action=u'diff', **params)
-
-    context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'schema': _db_to_form_schema()
-    }
-    data_dict = {u'id': id}
-    try:
-        group_dict = _action(u'group_show')(context, data_dict)
-        group_revisions = _action(u'group_revision_list')(context, data_dict)
-        # TODO: remove
-        # Still necessary for the authz check in group/layout.html
-        group = context['group']
-    except (NotFound, NotAuthorized):
-        base.abort(404, _(u'Group not found'))
-
-    format = request.params.get(u'format', u'')
-    if format == u'atom':
-        # Generate and return Atom 1.0 document.
-        from webhelpers.feedgenerator import Atom1Feed
-        feed = Atom1Feed(
-            title=_(u'CKAN Group Revision History'),
-            link=h.url_for(
-                group_type + u'.read', id=group_dict[u'name']),
-            description=_(u'Recent changes to CKAN Group: ') +
-            group_dict['display_name'],
-            language=text_type(get_lang()), )
-        for revision_dict in group_revisions:
-            revision_date = h.date_str_to_datetime(revision_dict[u'timestamp'])
-            try:
-                dayHorizon = int(request.params.get(u'days'))
-            except Exception:
-                dayHorizon = 30
-            dayAge = (datetime.datetime.now() - revision_date).days
-            if dayAge >= dayHorizon:
-                break
-            if revision_dict['message']:
-                item_title = u'%s' % revision_dict['message'].\
-                    split(u'\n')[0]
-            else:
-                item_title = u'%s' % revision_dict['id']
-            item_link = h.url_for(
-                controller=u'revision', action=u'read', id=revision_dict['id'])
-            item_description = _(u'Log message: ')
-            item_description += u'%s' % (revision_dict['message'] or u'')
-            item_author_name = revision_dict['author']
-            item_pubdate = revision_date
-            feed.add_item(
-                title=item_title,
-                link=item_link,
-                description=item_description,
-                author_name=item_author_name,
-                pubdate=item_pubdate, )
-        feed.content_type = u'application/atom+xml'
-        return feed.writeString(u'utf-8')
-
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.group_dict = group_dict
-    g.group_revisions = group_revisions
-    g.group = group
-
-    extra_vars = {
-        u"group_dict": group_dict,
-        u"group_revisions": group_revisions,
-        u"group": group,
-        u"group_type": group_type
-
-    }
-    return base.render(_history_template(group_type), extra_vars)
+    return h.redirect_to(u'group.activity', id=id)
 
 
 def follow(id, group_type, is_organization):
@@ -778,7 +692,7 @@ def followers(id, group_type, is_organization):
         u"group_dict": group_dict,
         u"group_type": group_type,
         u"followers": followers
-        }
+    }
     return base.render(u'group/followers.html', extra_vars)
 
 

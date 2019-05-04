@@ -3,11 +3,15 @@
 import logging
 
 import click
-
+from ckan.cli import config_tool
 from ckan.cli import (
-    click_config_option, db, load_config, search_index, server, asset
+    click_config_option, db, load_config, search_index, server,
+    asset,
+    translation,
 )
+
 from ckan.config.middleware import make_app
+from ckan.cli import seed
 
 log = logging.getLogger(__name__)
 
@@ -27,7 +31,10 @@ def ckan(ctx, config, *args, **kwargs):
     ctx.obj = CkanCommand(config)
 
 
+ckan.add_command(config_tool.config_tool)
 ckan.add_command(server.run)
+ckan.add_command(seed.seed)
 ckan.add_command(db.db)
 ckan.add_command(search_index.search_index)
 ckan.add_command(asset.asset)
+ckan.add_command(translation.translation)

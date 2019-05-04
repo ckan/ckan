@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import os
+import sys
 import re
 import time
 import inspect
@@ -42,6 +43,7 @@ from ckan.views import (identify_user,
 
 import ckan.lib.plugins as lib_plugins
 import logging
+from logging.handlers import SMTPHandler
 log = logging.getLogger(__name__)
 
 
@@ -133,7 +135,7 @@ def make_flask_stack(conf, **app_conf):
             session_opts.get('session.type', 'file') == 'file'):
         cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
         session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
-                data_dir=cache_dir)
+            data_dir=cache_dir)
 
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
     app.session_interface = BeakerSessionInterface()
@@ -220,8 +222,8 @@ def make_flask_stack(conf, **app_conf):
                 'controller': controller,
                 'highlight_actions': action,
                 'needed': needed
-                }
             }
+        }
         config['routes.named_routes'].update(route)
 
     # Start other middleware
@@ -453,6 +455,7 @@ def _register_error_handler(app):
     u'''Register error handler'''
 
     def error_handler(e):
+        log.error(e, exc_info=sys.exc_info)
         if isinstance(e, HTTPException):
             extra_vars = {u'code': [e.code], u'content': e.description}
             # TODO: Remove
@@ -467,3 +470,37 @@ def _register_error_handler(app):
         app.register_error_handler(code, error_handler)
     if not app.debug and not app.testing:
         app.register_error_handler(Exception, error_handler)
+        if config.get('email_to'):
+            _setup_error_mail_handler(app)
+
+
+def _setup_error_mail_handler(app):
+
+    class ContextualFilter(logging.Filter):
+        def filter(self, log_record):
+            log_record.url = request.path
+            log_record.method = request.method
+            log_record.ip = request.environ.get("REMOTE_ADDR")
+            log_record.headers = request.headers
+            return True
+
+    mailhost = tuple(config.get('smtp.server', 'localhost').split(":"))
+    mail_handler = SMTPHandler(
+        mailhost=mailhost,
+        fromaddr=config.get('error_email_from'),
+        toaddrs=[config.get('email_to')],
+        subject='Application Error'
+    )
+
+    mail_handler.setFormatter(logging.Formatter('''
+Time:               %(asctime)s
+URL:                %(url)s
+Method:             %(method)s
+IP:                 %(ip)s
+Headers:            %(headers)s
+
+'''))
+
+    context_provider = ContextualFilter()
+    app.logger.addFilter(context_provider)
+    app.logger.addHandler(mail_handler)

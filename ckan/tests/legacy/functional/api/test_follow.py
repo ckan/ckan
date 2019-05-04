@@ -13,8 +13,6 @@ test_dashboard.py.
 
 '''
 import datetime
-import paste
-import pylons.test
 import ckan
 from ckan.tests.legacy import are_foreign_keys_supported, SkipTest, CreateTestData, call_action_api
 import ckan.tests.helpers as helpers

@@ -484,7 +484,7 @@ content type, cookies, etc.
         # there are some routes('hello_world') that are not using blueprint
         # For such case, let's assume that view function is a controller
         # itself and action is None.
-        if len(endpoint) is 1:
+        if len(endpoint) == 1:
             return endpoint + (None,)
         return endpoint
 

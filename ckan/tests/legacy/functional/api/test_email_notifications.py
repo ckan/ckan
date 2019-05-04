@@ -3,20 +3,10 @@
 import time
 
 import ckan.model as model
-import ckan.lib.base
-import ckan.lib.mailer
 import ckan.tests.legacy as tests
 import ckan.tests.helpers as helpers
 import ckan.tests.legacy.mock_mail_server as mock_mail_server
-import ckan.config.middleware
 from ckan.tests.legacy import TestController as ControllerTestCase
-
-
-import paste
-import paste.deploy
-import pylons.test
-
-from ckan.common import config
 
 
 class TestEmailNotifications(mock_mail_server.SmtpServerHarness, ControllerTestCase):

@@ -27,13 +27,14 @@ package_relationship_table = Table('package_relationship', meta.metadata,
      Column('object_package_id', types.UnicodeText, ForeignKey('package.id')),
      Column('type', types.UnicodeText),
      Column('comment', types.UnicodeText),
+     Column('state', types.UnicodeText, default=core.State.ACTIVE),
      )
 
-vdm.sqlalchemy.make_table_stateful(package_relationship_table)
+
 package_relationship_revision_table = core.make_revisioned_table(package_relationship_table)
 
 class PackageRelationship(vdm.sqlalchemy.RevisionedObjectMixin,
-                          vdm.sqlalchemy.StatefulObjectMixin,
+                          core.StatefulObjectMixin,
                           domain_object.DomainObject):
     '''The rule with PackageRelationships is that they are stored in the model
     always as the "forward" relationship - i.e. "child_of" but never
