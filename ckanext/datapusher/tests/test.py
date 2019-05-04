@@ -9,47 +9,11 @@ import ckan.plugins as p
 import ckan.tests.legacy as tests
 from ckan.tests import helpers
 import ckanext.datastore.backend.postgres as db
-import httpretty
-import httpretty.core
+import responses
 import nose
 import sqlalchemy.orm as orm
 from ckan.common import config
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
-
-
-class HTTPrettyFix(httpretty.core.fakesock.socket):
-    """
-    Monkey-patches HTTPretty with a fix originally suggested in PR #161
-    from 2014 (still open).
-
-    Versions of httpretty < 0.8.10 use a bufsize of 16 *bytes*, and
-    an infinite timeout. This makes httpretty unbelievably slow, and because
-    the httpretty decorator monkey patches *all* requests (like solr),
-    the performance impact is massive.
-
-    While this is fixed in versions >= 0.8.10, newer versions of HTTPretty
-    break SOLR and other database wrappers (See #265).
-    """
-    def __init__(self, *args, **kwargs):
-        super(HTTPrettyFix, self).__init__(*args, **kwargs)
-        self._bufsize = 4096
-
-        original_socket = self.truesock
-        self.truesock.settimeout(3)
-
-        # We also patch the "real" socket itself to prevent HTTPretty
-        # from changing it to infinite which it tries to do in real_sendall.
-        class SetTimeoutPatch(object):
-            def settimeout(self, *args, **kwargs):
-                pass
-
-            def __getattr__(self, attr):
-                return getattr(original_socket, attr)
-
-        self.truesock = SetTimeoutPatch()
-
-
-httpretty.core.fakesock.socket = HTTPrettyFix
 
 
 class TestDatastoreCreate():
@@ -95,14 +59,15 @@ class TestDatastoreCreate():
             self.app, 'resource_show', id=res_dict['result']['resource_id'])
         assert res['url'].endswith('/datastore/dump/' + res['id']), res
 
-    @httpretty.activate
+    @responses.activate
     def test_providing_res_with_url_calls_datapusher_correctly(self):
         config['datapusher.url'] = 'http://datapusher.ckan.org'
-        httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.POST,
+        responses.add(
+            responses.POST,
             'http://datapusher.ckan.org/job',
             content_type='application/json',
             body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
+        responses.add_passthru(config['solr_url'])
 
         package = model.Package.get('annakarenina')
 
@@ -115,17 +80,17 @@ class TestDatastoreCreate():
 
         assert len(package.resources) == 4, len(package.resources)
         resource = package.resources[3]
-        data = json.loads(httpretty.last_request().body)
+        data = json.loads(responses.calls[-1].request.body)
         assert data['metadata']['resource_id'] == resource.id, data
         assert not data['metadata'].get('ignore_hash'), data
         assert data['result_url'].endswith('/action/datapusher_hook'), data
         assert data['result_url'].startswith('http://'), data
 
-    @httpretty.activate
+    @responses.activate
     def test_pass_the_received_ignore_hash_param_to_the_datapusher(self):
         config['datapusher.url'] = 'http://datapusher.ckan.org'
-        httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.POST,
+        responses.add(
+            responses.POST,
             'http://datapusher.ckan.org/job',
             content_type='application/json',
             body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
@@ -139,7 +104,7 @@ class TestDatastoreCreate():
             ignore_hash=True
         )
 
-        data = json.loads(httpretty.last_request().body)
+        data = json.loads(responses.calls[-1].request.body)
         assert data['metadata']['ignore_hash'], data
 
     def test_cant_provide_resource_and_resource_id(self):
@@ -157,10 +122,10 @@ class TestDatastoreCreate():
 
         assert res_dict['error']['__type'] == 'Validation Error'
 
-    @httpretty.activate
+    @responses.activate
     def test_send_datapusher_creates_task(self):
-        httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.POST,
+        responses.add(
+            responses.POST,
             'http://datapusher.ckan.org/job',
             content_type='application/json',
             body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
