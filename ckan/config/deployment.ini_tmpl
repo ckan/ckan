@@ -162,7 +162,6 @@ ckan.feeds.author_link =
 
 ## Webassets Settings
 #ckan.webassets.use_x_sendfile = false
-#ckan.webassets.external = false
 #ckan.webassets.path = /var/lib/ckan/webassets
 
 

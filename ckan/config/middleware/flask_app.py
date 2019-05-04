@@ -504,9 +504,8 @@ def _setup_webassets(app):
         config.get('ckan.webassets.use_x_sendfile')
     )
 
-    if not toolkit.asbool(config.get('ckan.webassets.external')):
-        webassets_folder = get_webassets_path()
+    webassets_folder = get_webassets_path()
 
-        @app.route('/webassets/<path:path>')
-        def webassets(path):
-            return send_from_directory(webassets_folder, path)
+    @app.route('/webassets/<path:path>')
+    def webassets(path):
+        return send_from_directory(webassets_folder, path)
