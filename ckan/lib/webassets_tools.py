@@ -143,19 +143,19 @@ def render_assets(type_):
 
 
 def get_webassets_path():
-    webassets_path = config.get('ckan.webassets.path')
+    webassets_path = config.get(u'ckan.webassets.path')
 
     if not webassets_path:
         storage_path = config.get(
-            'ckan.storage_path'
+            u'ckan.storage_path'
         ) or tempfile.gettempdir()
 
         if storage_path:
-            webassets_path = os.path.join(storage_path, 'webassets')
+            webassets_path = os.path.join(storage_path, u'webassets')
 
     if not webassets_path:
         raise RuntimeError(
-            'Either `ckan.webassets.path` or `ckan.storage_path` '
-            'must be specified'
+            u'Either `ckan.webassets.path` or `ckan.storage_path` '
+            u'must be specified'
         )
     return webassets_path
