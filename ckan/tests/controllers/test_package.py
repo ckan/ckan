@@ -1531,9 +1531,9 @@ class TestSearch(helpers.FunctionalTestBase):
 
         assert_equal(len(ds_titles), 1)
         assert_true('Dataset One' in ds_titles)
-    
+
     def test_search_page_results_tags(self):
-        '''Searching with a tag returns expected results.'''
+        '''Searching with a tag returns expected results with multiple tags'''
         app = self._get_test_app()
         factories.Dataset(name="dataset-one", title='Dataset One',
                           tags=[
@@ -1544,11 +1544,7 @@ class TestSearch(helpers.FunctionalTestBase):
         factories.Dataset(name="dataset-two", title='Dataset Two')
         factories.Dataset(name="dataset-three", title='Dataset Three')
 
-        search_url = url_for('dataset.search')
-        search_response = app.get(search_url)
         params = '/dataset/?tags=my-tag-1&tags=my-tag-2&tags=my-tag-3'
-        assert_true(params in search_response)
-
         tag_search_response = app.get(params)
 
         assert_true('1 dataset found' in tag_search_response)
