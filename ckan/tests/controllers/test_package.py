@@ -1550,7 +1550,7 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_true('1 dataset found' in tag_search_response)
 
         search_response_html = BeautifulSoup(tag_search_response.body)
-        ds_titles = search_response_html.select('.filtered pill')
+        ds_titles = search_response_html.select('.filtered')
         assert_equal(len(ds_titles), 3)
 
     def test_search_page_results_private(self):
