@@ -1550,13 +1550,8 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_true('1 dataset found' in tag_search_response)
 
         search_response_html = BeautifulSoup(tag_search_response.body)
-        ds_titles = search_response_html.select('.dataset-list '
-                                                '.dataset-item '
-                                                '.dataset-heading a')
-        ds_titles = [n.string for n in ds_titles]
-
+        ds_titles = search_response_html.select('.filtered pill')
         assert_equal(len(ds_titles), 3)
-        assert_true('Dataset One' in ds_titles)
 
     def test_search_page_results_private(self):
         '''Private datasets don't show up in dataset search results.'''
