@@ -425,8 +425,12 @@ def delete(id):
     except logic.NotAuthorized:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
         base.abort(403, msg.format(user_id=id))
-    user_index = h.url_for(u'user.index')
-    return h.redirect_to(user_index)
+
+    if g.userobj.id == id:
+        return logout()
+    else:
+        user_index = h.url_for(u'user.index')
+        return h.redirect_to(user_index)
 
 
 def generate_apikey(id=None):
