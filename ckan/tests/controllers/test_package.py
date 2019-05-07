@@ -1534,6 +1534,7 @@ class TestSearch(helpers.FunctionalTestBase):
 
     def test_search_page_results_tags(self):
         '''Searching with a tag returns expected results with multiple tags'''
+
         app = self._get_test_app()
         factories.Dataset(name="dataset-one", title='Dataset One',
                           tags=[
