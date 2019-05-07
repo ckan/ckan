@@ -6,7 +6,7 @@ import click
 from ckan.cli import config_tool
 from ckan.cli import (
     click_config_option, db, load_config, search_index, server,
-    translation,
+    translation, user,
 )
 
 from ckan.config.middleware import make_app
@@ -36,3 +36,4 @@ ckan.add_command(seed.seed)
 ckan.add_command(db.db)
 ckan.add_command(search_index.search_index)
 ckan.add_command(translation.translation)
+ckan.add_command(user.user)
