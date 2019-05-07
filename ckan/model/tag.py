@@ -231,32 +231,6 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
         s = u'<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
         return s.encode('utf8')
 
-    def activity_stream_detail(self, activity_id, activity_type):
-        if activity_type == 'new':
-            # New PackageTag objects are recorded as 'added tag' activities.
-            activity_type = 'added'
-        elif activity_type == 'changed':
-            # Changed PackageTag objects are recorded as 'removed tag'
-            # activities.
-            # FIXME: This assumes that whenever a PackageTag is changed it's
-            # because its' state has been changed from 'active' to 'deleted'.
-            # Should do something more here to test whether that is in fact
-            # what has changed.
-            activity_type = 'removed'
-        else:
-            return None
-
-        # Return an 'added tag' or 'removed tag' activity.
-        import ckan.model as model
-        c = {'model': model}
-        d = {'tag': ckan.lib.dictization.table_dictize(self.tag, c),
-            'package': ckan.lib.dictization.table_dictize(self.package, c)}
-        return activity.ActivityDetail(
-            activity_id=activity_id,
-            object_id=self.id,
-            object_type='tag',
-            activity_type=activity_type,
-            data=d)
 
     @classmethod
     def by_name(self, package_name, tag_name, vocab_id_or_name=None,

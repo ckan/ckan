@@ -629,6 +629,19 @@ Restricts anonymous access to user information. If is set to ``False`` accessing
     can just create an account to see other users details.
 
 
+.. _ckan.auth.public_activity_stream_detail:
+
+ckan.auth.public_activity_stream_detail
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.public_activity_stream_detail = true
+
+Default value: ``False`` (however the default config file template sets it to ``True``)
+
+Restricts access to 'view this version' and 'changes' in the Activity Stream pages. These links provide users with the full edit history of datasets etc - what they showed in the past and the diffs between versions. If this option is set to ``False`` then only admins (e.g. whoever can edit the dataset) can see this detail. If set to ``True``, anyone can see this detail (assuming they have permission to view the dataset etc).
+
 
 .. end_config-authorization
 
@@ -1489,39 +1502,6 @@ Example::
 Default value: ``2``
 
 The maximum in megabytes an image upload can be.
-
-.. _ofs.impl:
-
-ofs.impl
-^^^^^^^^
-
-Example::
-
-  ofs.impl = pairtree
-
-Default value:  ``None``
-
-Defines the storage backend used by CKAN: ``pairtree`` for local storage, ``s3`` for Amazon S3 Cloud Storage or ``google`` for Google Cloud Storage. Note that each of these must be accompanied by the relevant settings for each backend described below.
-
-Deprecated, only available option is now pairtree.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
-
-
-.. _ofs.storage_dir:
-
-ofs.storage_dir
-^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.storage_dir = /data/uploads/
-
-Default value:  ``None``
-
-Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
-
-Deprecated, please use ckan.storage_path.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
-
-
 
 
 DataPusher Settings

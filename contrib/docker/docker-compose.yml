@@ -70,7 +70,7 @@ services:
       context: ../../
       dockerfile: contrib/docker/solr/Dockerfile
     volumes:
-      - solr_data:/opt/solr/server/solr/ckan
+      - solr_data:/opt/solr/server/solr/ckan/data
 
 
   redis:

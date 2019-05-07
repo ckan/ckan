@@ -72,6 +72,8 @@ ckan.auth.user_delete_organizations = true
 ckan.auth.create_user_via_api = false
 ckan.auth.create_user_via_web = true
 ckan.auth.roles_that_cascade_to_sub_groups = admin
+ckan.auth.public_user_details = true
+ckan.auth.public_activity_stream_detail = true
 
 
 ## Search Settings

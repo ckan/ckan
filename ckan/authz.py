@@ -407,6 +407,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'create_user_via_api': False,
     'create_user_via_web': True,
     'roles_that_cascade_to_sub_groups': 'admin',
+    'public_activity_stream_detail': False,
 }
 
 
