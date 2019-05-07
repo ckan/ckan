@@ -209,7 +209,7 @@ def search(package_type):
         extra_vars[u'fields_grouped'] = fields_grouped = {}
         search_extras = {}
         fq = u''
-        for (param, value) in request.args.items():
+        for (param, value) in request.args.items(multi=True):
             if param not in [u'q', u'page', u'sort'] \
                     and len(value) and not param.startswith(u'_'):
                 if not param.startswith(u'ext_'):
@@ -297,7 +297,6 @@ def search(package_type):
         )
         extra_vars[u'search_facets'] = query[u'search_facets']
         extra_vars[u'page'].items = query[u'results']
-
     except SearchQueryError as se:
         # User's search parameters are invalid, in such a way that is not
         # achievable with the web interface, so return a proper error to
@@ -319,7 +318,6 @@ def search(package_type):
 
     # FIXME: try to avoid using global variables
     g.search_facets_limits = {}
-
     for facet in extra_vars[u'search_facets'].keys():
         try:
             limit = int(
