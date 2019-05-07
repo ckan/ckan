@@ -50,8 +50,8 @@ sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
 # ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
 # ckan.datastore.write_url = postgresql://ckan:ckan@localhost/datastore_default
 
-ckan.datastore.write_url = postgresql://ckan:POSTGRES_PASSWORD@db/datastore
-ckan.datastore.read_url = postgresql://datastore:DATASTORE_READONLY_PASSWORD@db/datastore
+#ckan.datastore.write_url = postgresql://ckan:POSTGRES_PASSWORD@db/datastore
+#ckan.datastore.read_url = postgresql://datastore:DATASTORE_READONLY_PASSWORD@db/datastore
 
 
 # ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
@@ -64,7 +64,8 @@ ckan.datastore.default_fts_index_method = gist
 
 ## Site Settings
 
-ckan.site_url = http://localhost:5000
+ckan.site_url =
+#ckan.site_url = http://localhost:5000
 #ckan.use_pylons_response_cleanup_middleware = true
 
 ## Authorization Settings
@@ -109,6 +110,7 @@ ckan.site_id = default
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
 ckan.plugins = stats text_view image_view recline_view datastore datapusher
+# ckan.plugins = stats text_view image_view recline_view
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -129,7 +131,10 @@ ckan.views.default_views = image_view text_view recline_view
 #ckan.base_templates_folder = templates-bs2
 
 ckan.site_title = AVIN
+#ckan.site_logo = /base/images/avin-logo.png
 ckan.site_logo = /base/images/avin-logo.png
+# ckan.site_logo = /base/images/ckan-logo.png
+
 ckan.site_description =
 ckan.favicon = /base/images/ckan.ico
 ckan.gravatar_default = identicon

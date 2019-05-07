@@ -190,4 +190,34 @@ Returned proper results
 ckan=# update public.user set sysadmin=true where id = '33c7cfce-90b6-4132-8367-9a501a32d970';
 UPDATE 1
 
+### Switch from db container to RDS
+
+```.env
+PG_RDS_URL=...us-east-1.rds.amazonaws.com
+PG_RDS_PASSWORD=...
+```
+
+#### docker-compose.yml
+
+``` YAML
+    # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
+    # - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
+    # - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
+    # - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
+    - CKAN_SQLALCHEMY_URL=postgresql://ckan:${PG_RDS_PASSWORD}@${PG_RDS_URL}/ckan
+    - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${PG_RDS_PASSWORD}@${PG_RDS_URL}/datastore
+    - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@${PG_RDS_URL}/datastore
+```
+
+### Issue with not updating source code
+
+Remove volumes from docker-compose.yml
+
+### Issue with not being able to see the logo defined in deployment.ini_tmpl
+
+Remove logo records from the db tables: system_info and system_info_revisions
+Build with no cache: docker-compose build --no-cache and then docker-compose up <-d>
+
+
+
 

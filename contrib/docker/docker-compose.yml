@@ -57,6 +57,8 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
 
+      - HOME=/usr/lib/ckan
+
     # volumes:
       # - ckan_config:/etc/ckan
       # - ckan_home:/usr/lib/ckan

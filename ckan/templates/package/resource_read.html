@@ -71,13 +71,32 @@
         </div>
         {% block resource_content %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
+          
+          <!-- {% block resource_read_url1 %}
+          {% if res.url and h.is_url(res.url) %}
+          <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+          {% elif res.url %}
+          <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
+          {% endif %}
+          {% endblock %} -->
+
           {% block resource_read_url %}
-            {% if res.url and h.is_url(res.url) %}
+            <!-- a.s. May 6 -->
+            <!-- if license eq 'Other (Not open)': show the button instead -->
+            {% if pkg.license_title == 'Other (Not Open)': %}
+              <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
+                <i class="fa fa-external-link"></i> {{ _('Request Access') }}
+              </a>                
+            {% else %}
+              {% if res.url and h.is_url(res.url) %}
               <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
-            {% elif res.url %}
+              {% elif res.url %}
               <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
+              {% endif %}
             {% endif %}
+
           {% endblock %}
+
           <div class="prose notes" property="rdfs:label">
             {% if res.description %}
               {{ h.render_markdown(res.description) }}
@@ -183,10 +202,6 @@
               <tr>
                 <th scope="row">{{ _('Format') }}</th>
                 <td>{{ res.mimetype_inner or res.mimetype or res.format or _('unknown') }}</td>
-              </tr>
-              <tr>
-                <th scope="row">{{ _('License adnan before') }}</th>
-                <td>td test</td>
               </tr>
               <tr>
                 <th scope="row">{{ _('License') }}</th>
