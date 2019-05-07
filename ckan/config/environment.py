@@ -289,6 +289,7 @@ def update_config():
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
+    config.setdefault('pool_pre_ping', True)
 
     # Initialize SQLAlchemy
     engine = sqlalchemy.engine_from_config(config)
