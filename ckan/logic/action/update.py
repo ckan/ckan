@@ -256,18 +256,46 @@ def package_update(context, data_dict):
     '''
     model = context['model']
     user = context['user']
-    name_or_id = data_dict.get('id') or data_dict.get('name')
-    if name_or_id is None:
+
+    if 'id' in data_dict or 'name' in data_dict:
+        name_or_id = data_dict.get('id') or data_dict.get('name')
+        if name_or_id is None:
+            raise ValidationError({'id': _('Missing value')})
+
+        pkg = model.Package.get(name_or_id)  # FIXME: for_update=True
+        if pkg is None:
+            raise NotFound(_('Package was not found.'))
+        update_dict = data_dict
+        data_dict = {
+            'select': {
+                'id': pkg.id
+            },
+            'update': data_dict
+        }
+
+    elif 'select' in data_dict:
+        name_or_id = data_dict['select'].get('id') or data_dict['select'].get('name')
+        if name_or_id is None:
+            raise ValidationError({'select__id': _('Missing value')})
+
+        # FIXME validate data_dict
+
+        orig = _get_action('package_show')(  # FIXME: for_update=True
+            dict(context, return_type='dict'),
+            {'id': name_or_id})
+        update_flat = flatten_dict(orig)
+
+
+    else:
         raise ValidationError({'id': _('Missing value')})
 
-    pkg = model.Package.get(name_or_id)
-    if pkg is None:
-        raise NotFound(_('Package was not found.'))
-    context["package"] = pkg
-    data_dict["id"] = pkg.id
-    data_dict['type'] = pkg.type
 
-    _check_access('package_update', context, data_dict)
+    context["package"] = pkg
+    # immutable fields
+    data_dict['update']['id'] = pkg.id
+    data_dict['update']['type'] = pkg.type
+
+    _check_access('package_update', context, update_dict)
 
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
