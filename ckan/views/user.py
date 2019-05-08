@@ -123,7 +123,7 @@ def index():
 
 
 def me():
-    route = u'dashboard.index' if g.user else u'user.login'
+    route = u'dataset' if g.user else u'user.login'
     return h.redirect_to(route)
 
 
