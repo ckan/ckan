@@ -41,6 +41,12 @@ services:
       - ckan_config:/etc/ckan
       - ckan_home:/usr/lib/ckan
       - ckan_storage:/var/lib/ckan
+      - '../../production.ini:/etc/ckan/production.ini'
+    # Uncommenting the following 4 lines allows one to attach to the ckan container and interact with pdb sessions
+      - ../../ckan/:/usr/lib/ckan/venv/src/ckan/ckan/
+    stdin_open: true
+    tty: true
+    command: ["ckan-paster", "serve", "--reload", "/etc/ckan/production.ini"]
 
   datapusher:
     container_name: datapusher

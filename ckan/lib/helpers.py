@@ -531,6 +531,8 @@ def _local_url(url_to_amend, **kw):
         else:
             root_path = '/' + str(locale)
 
+    if url_to_amend[-1] == '/':
+        url_to_amend = url_to_amend[:-1]
     url_path = url_to_amend[len(root):]
     url = '%s%s%s' % (root, root_path, url_path)
 
