@@ -123,7 +123,7 @@ def index():
 
 
 def me():
-    route = config.get(u'ckan.route_after_login', 'dashboard.index') if g.user else u'user.login'
+    route = config.get(u'ckan.route_after_login', u'dashboard.index') if g.user else u'user.login'
     return h.redirect_to(route)
 
 
