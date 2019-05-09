@@ -70,5 +70,5 @@ while ! pg_isready -h $CKAN_DB_HOST -U postgres; do
   sleep 1;
 done
 
-ckan-paster --plugin=ckan $CKAN_DB_HOST init -c "${CKAN_CONFIG}/production.ini"
+ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 exec "$@"
