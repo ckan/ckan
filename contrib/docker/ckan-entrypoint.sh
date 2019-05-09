@@ -34,16 +34,12 @@ set_environment () {
   export CKAN_SMTP_PASSWORD=${CKAN_SMTP_PASSWORD}
   export CKAN_SMTP_MAIL_FROM=${CKAN_SMTP_MAIL_FROM}
   export CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
+  export CKAN_DB_HOST=$(echo $CKAN_SQLALCHEMY_URL | grep -o -P '(?<=@).*(?=/)')
 }
 
 write_config () {
   ckan-paster make-config --no-interactive ckan "$CONFIG"
 }
-
-# Wait for PostgreSQL
-while ! pg_isready -h db -U postgres; do
-  sleep 1;
-done
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
@@ -68,5 +64,11 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
 fi
 
 set_environment
-ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
+
+ # Wait for PostgreSQL
+while ! pg_isready -h $CKAN_DB_HOST -U postgres; do
+  sleep 1;
+done
+
+ckan-paster --plugin=ckan $CKAN_DB_HOST init -c "${CKAN_CONFIG}/production.ini"
 exec "$@"
