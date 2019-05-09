@@ -98,6 +98,7 @@ def test_building_the_docs():
         u'WARNING: duplicate label ckan.auth.user_create_organizations',
         u'WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups',
         u'WARNING: duplicate label ckan.auth.public_user_details',
+        u'WARNING: duplicate label ckan.auth.public_activity_stream_detail',
     ]
 
     # Remove the allowed warnings from the list of collected warnings.
@@ -560,6 +561,7 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/tests/logic/test_schema.py',
     u'ckan/tests/logic/test_validators.py',
     u'ckan/tests/migration/__init__.py',
+    u'ckan/tests/migration/test_revision_legacy_code.py',
     u'ckan/tests/model/__init__.py',
     u'ckan/tests/model/test_license.py',
     u'ckan/tests/model/test_resource.py',

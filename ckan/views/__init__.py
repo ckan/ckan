@@ -117,8 +117,11 @@ def identify_user():
     if authenticators:
         for item in authenticators:
             item.identify()
-            if g.user:
-                break
+            try:
+                if g.user:
+                    break
+            except AttributeError:
+                continue
 
     # We haven't identified the user so try the default methods
     if not getattr(g, u'user', None):
@@ -201,11 +204,4 @@ def _get_user_for_apikey():
 
 
 def set_controller_and_action():
-    try:
-        controller, action = request.endpoint.split(u'.')
-    except ValueError:
-        log.debug(
-            u'Endpoint does not contain dot: {}'.format(request.endpoint)
-        )
-        controller = action = request.endpoint
-    g.controller, g.action = controller, action
+    g.controller, g.action = p.toolkit.get_endpoint()

@@ -13,7 +13,9 @@ import ckan.authz as authz
 
 log = logging.getLogger(__name__)
 
+
 def resource_dict_save(res_dict, context):
+
     model = context["model"]
     session = context["session"]
 
@@ -29,6 +31,10 @@ def resource_dict_save(res_dict, context):
 
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
+
+    # Strip the full url for resources of type 'upload'
+    if res_dict.get('url') and res_dict.get('url_type') == u'upload':
+        res_dict['url'] = res_dict['url'].rsplit('/')[-1]
 
     # Resource extras not submitted will be removed from the existing extras
     # dict
@@ -90,16 +96,14 @@ def package_resource_list_save(res_dicts, package, context):
         resource_list.append(resource)
 
 
-def package_extras_save(extra_dicts, obj, context):
+def package_extras_save(extra_dicts, pkg, context):
     allow_partial_update = context.get("allow_partial_update", False)
     if extra_dicts is None and allow_partial_update:
         return
 
-    model = context["model"]
     session = context["session"]
 
-    extras_list = obj.extras_list
-    old_extras = dict((extra.key, extra) for extra in extras_list)
+    old_extras = pkg._extras
 
     new_extras = {}
     for extra_dict in extra_dicts or []:
@@ -110,28 +114,22 @@ def package_extras_save(extra_dicts, obj, context):
             pass
         else:
             new_extras[extra_dict["key"]] = extra_dict["value"]
+
     #new
     for key in set(new_extras.keys()) - set(old_extras.keys()):
-        state = 'active'
-        extra = model.PackageExtra(state=state, key=key, value=new_extras[key])
-        session.add(extra)
-        extras_list.append(extra)
+        pkg.extras[key] = new_extras[key]
     #changed
     for key in set(new_extras.keys()) & set(old_extras.keys()):
         extra = old_extras[key]
-        if new_extras[key] == extra.value and extra.state != 'deleted':
+        if new_extras[key] == extra.value:
             continue
-        state = 'active'
         extra.value = new_extras[key]
-        extra.state = state
         session.add(extra)
     #deleted
     for key in set(old_extras.keys()) - set(new_extras.keys()):
         extra = old_extras[key]
-        if extra.state == 'deleted':
-            continue
-        state = 'deleted'
-        extra.state = state
+        extra.delete()
+
 
 def package_tag_list_save(tag_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
@@ -299,7 +297,7 @@ def package_dict_save(pkg_dict, context):
         objects = pkg_dict.get('relationships_as_object')
         relationship_list_save(objects, pkg, 'relationships_as_object', context)
 
-    extras = package_extras_save(pkg_dict.get("extras"), pkg, context)
+    package_extras_save(pkg_dict.get("extras"), pkg, context)
 
     return pkg
 

@@ -521,10 +521,47 @@ class TestGetDisplayTimezone(object):
         eq_(h.get_display_timezone(), pytz.timezone('America/New_York'))
 
 
+class TestHelpersRenderDatetime(object):
+
+    def test_date(self):
+        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
+        eq_(h.render_datetime(data), 'April 13, 2008')
+
+    def test_with_hours(self):
+        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
+        eq_(h.render_datetime(data, with_hours=True),
+            'April 13, 2008, 20:40 (UTC)')
+
+    def test_with_seconds(self):
+        data = datetime.datetime(2008, 4, 13, 20, 40, 59, 123456)
+        eq_(h.render_datetime(data, with_seconds=True),
+            'April 13, 2008, 20:40:59 (UTC)')
+
+    def test_from_string(self):
+        data = '2008-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data), 'April 13, 2008')
+
+    def test_blank(self):
+        data = None
+        eq_(h.render_datetime(data), '')
+
+    def test_before_1900(self):
+        data = '1875-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data, date_format='%Y'), '1875')
+
+    def test_before_1900_with_2_digit_year(self):
+        data = '1875-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data, date_format='%y'), '75')
+
+    def test_escaped_percent(self):
+        data = '2008-04-13T20:40:20.123456'
+        eq_(h.render_datetime(data, date_format='%%%Y'), '%2008')
+
+
 class TestCleanHtml(object):
     def test_disallowed_tag(self):
         eq_(h.clean_html('<b><bad-tag>Hello'),
-            u'<b>&lt;bad-tag&gt;Hello&lt;/bad-tag&gt;</b>')
+            u'<b>&lt;bad-tag&gt;Hello</b>')
 
     def test_non_string(self):
         # allow a datetime for compatibility with older ckanext-datapusher

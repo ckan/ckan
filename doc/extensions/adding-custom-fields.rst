@@ -302,6 +302,11 @@ special schema fields ``'__before'`` or ``'__after'`` to have them
 run before or after all the other validation takes place to avoid
 the problem of working with partially-validated data.
 
+The validator has to be registered. Example:
+
+.. literalinclude:: ../../ckanext/example_ivalidators/plugin.py
+    :start-after: from ckan.plugins.toolkit import Invalid
+    :end-before: def equals_fortytwo(value):
 
 Tag vocabularies
 ----------------
@@ -399,6 +404,13 @@ similarly
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin.py
     :pyobject: ExampleIDatasetFormPlugin.show_package_schema
     :emphasize-lines: 20-23
+
+Add the code below to ``package/snippets/resource_form.html``
+
+.. literalinclude:: ../../ckanext/example_idatasetform/templates/package/snippets/resource_form.html
+    :language: jinja
+
+This adds our custom_resource_text to the editing form of the resources.
 
 Save and reload your development server CKAN will take any additional keys from
 the resource schema and save them the its extras field.  The templates will

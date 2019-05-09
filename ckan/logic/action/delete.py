@@ -10,6 +10,7 @@ import ckan.lib.jobs as jobs
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
+import ckan.lib.dictization as dictization
 import ckan.lib.dictization.model_dictize as model_dictize
 from ckan import authz
 
@@ -181,6 +182,8 @@ def resource_delete(context, data_dict):
         plugin.before_delete(context, data_dict,
                              pkg_dict.get('resources', []))
 
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+
     if pkg_dict.get('resources'):
         pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not
                 r['id'] == id]
@@ -192,7 +195,7 @@ def resource_delete(context, data_dict):
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_delete(context, pkg_dict.get('resources', []))
-
+    
     model.repo.commit()
 
 
@@ -346,7 +349,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     else:
         _check_access('group_delete', context, data_dict)
 
-    # organization delete will not occure whilke all datasets for that org are
+    # organization delete will not occur while all datasets for that org are
     # not deleted
     if is_org:
         datasets = model.Session.query(model.Package) \
@@ -380,6 +383,28 @@ def _group_or_org_delete(context, data_dict, is_org=False):
         member.delete()
 
     group.delete()
+
+    if is_org:
+        activity_type = 'deleted organization'
+    else:
+        activity_type = 'deleted group'
+
+    activity_dict = {
+        'user_id': model.User.by_name(user.decode('utf8')).id,
+        'object_id': group.id,
+        'activity_type': activity_type,
+        'data': {
+            'group': dictization.table_dictize(group, context)
+            }
+    }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit': True,
+        'ignore_auth': True,
+        'session': context['session']
+    }
+    _get_action('activity_create')(activity_create_context, activity_dict)
 
     if is_org:
         plugin_type = plugins.IOrganizationController

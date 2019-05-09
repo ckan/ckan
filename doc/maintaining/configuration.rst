@@ -285,6 +285,40 @@ Default value:  ``True``
 This option allows you to disable the datastore_search_sql action function, and
 corresponding API endpoint if you do not wish it to be activated.
 
+.. _ckan.datastore.search.rows_default:
+
+ckan.datastore.search.rows_default
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.search.rows_default = 1000
+
+Default value:  ``100``
+
+Default number of rows returned by ``datastore_search``, unless the client
+specifies a different ``limit`` (up to ``ckan.datastore.search.rows_max``).
+
+NB this setting does not affect ``datastore_search_sql``.
+
+.. _ckan.datastore.search.rows_max:
+
+ckan.datastore.search.rows_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.search.rows_max = 1000000
+
+Default value:  ``32000``
+
+Maximum allowed value for the number of rows returned by the datastore.
+
+Specifically this limits:
+
+* ``datastore_search``'s ``limit`` parameter.
+* ``datastore_search_sql`` queries have this limit inserted.
+
 Site Settings
 -------------
 
@@ -595,6 +629,19 @@ Restricts anonymous access to user information. If is set to ``False`` accessing
     can just create an account to see other users details.
 
 
+.. _ckan.auth.public_activity_stream_detail:
+
+ckan.auth.public_activity_stream_detail
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.public_activity_stream_detail = true
+
+Default value: ``False`` (however the default config file template sets it to ``True``)
+
+Restricts access to 'view this version' and 'changes' in the Activity Stream pages. These links provide users with the full edit history of datasets etc - what they showed in the past and the diffs between versions. If this option is set to ``False`` then only admins (e.g. whoever can edit the dataset) can see this detail. If set to ``True``, anyone can see this detail (assuming they have permission to view the dataset etc).
+
 
 .. end_config-authorization
 
@@ -734,6 +781,53 @@ Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
 
+.. _ckan.search.rows_max:
+
+ckan.search.rows_max
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.search.rows_max = 1000
+
+Default value:  ``1000``
+
+Maximum allowed value for rows returned. Specifically this limits:
+
+* ``package_search``'s ``rows`` parameter
+* ``group_show`` and ``organization_show``'s number of datasets returned when specifying ``include_datasets=true``
+
+.. _ckan.group_and_organization_list_max:
+
+ckan.group_and_organization_list_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_max = 1000
+
+Default value: ``1000``
+
+Maximum number of groups/organizations returned when listing them. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=false``
+* ``organization_list``'s ``limit`` when ``all_fields=false``
+
+.. _ckan.group_and_organization_list_all_fields_max:
+
+ckan.group_and_organization_list_all_fields_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_all_fields_max = 100
+
+Default value: ``25``
+
+Maximum number of groups/organizations returned when listing them in detail. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=true``
+* ``organization_list``'s ``limit`` when ``all_fields=true``
 
 Redis Settings
 ---------------
@@ -1285,14 +1379,14 @@ Example (showing insertion of Google Analytics code)::
 
 .. note:: This is only for legacy code, and shouldn't be used anymore.
 
-.. _ckan.template_title_deliminater:
+.. _ckan.template_title_delimiter:
 
-ckan.template_title_deliminater
+ckan.template_title_delimiter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.template_title_deliminater = |
+ ckan.template_title_delimiter = |
 
 Default value:  ``-``
 
@@ -1409,39 +1503,6 @@ Default value: ``2``
 
 The maximum in megabytes an image upload can be.
 
-.. _ofs.impl:
-
-ofs.impl
-^^^^^^^^
-
-Example::
-
-  ofs.impl = pairtree
-
-Default value:  ``None``
-
-Defines the storage backend used by CKAN: ``pairtree`` for local storage, ``s3`` for Amazon S3 Cloud Storage or ``google`` for Google Cloud Storage. Note that each of these must be accompanied by the relevant settings for each backend described below.
-
-Deprecated, only available option is now pairtree.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
-
-
-.. _ofs.storage_dir:
-
-ofs.storage_dir
-^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.storage_dir = /data/uploads/
-
-Default value:  ``None``
-
-Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
-
-Deprecated, please use ckan.storage_path.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
-
-
-
 
 DataPusher Settings
 -------------------
@@ -1549,10 +1610,22 @@ Example::
 
   ckan.activity_list_limit = 31
 
-Default value: ``infinite``
+Default value: ``31``
 
-This controls the number of activities to show in the Activity Stream. By default, it shows everything.
+This controls the number of activities to show in the Activity Stream.
 
+.. _ckan.activity_list_limit_max:
+
+ckan.activity_list_limit_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.activity_list_limit_max = 100
+
+Default value: ``100``
+
+Maximum allowed value for Activity Stream ``limit`` parameter.
 
 .. _ckan.email_notifications_since:
 
@@ -1759,6 +1832,33 @@ If you have set an extra i18n directory using ``ckan.i18n.extra_directory``, you
 should specify the locales that have been translated in that directory in this
 option.
 
+.. _ckan.i18n.rtl_languages:
+
+ckan.i18n.rtl_languages
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.i18n.rtl_languages = he ar fa_IR
+
+Default value: ``he ar fa_IR``
+
+Allows to modify the right-to-left languages
+
+.. _ckan.i18n.rtl_css:
+
+ckan.i18n.rtl_css
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.i18n.rtl_css = /base/css/my-custom-rtl.css
+
+Default value: ``/base/css/rtl.css``
+
+Allows to override the default rtl css file used for the languages defined
+in ``ckan.i18n.rtl_languages``.
+
 .. _ckan.display_timezone:
 
 ckan.display_timezone
@@ -1831,6 +1931,19 @@ example.
 
 Form Settings
 -------------
+
+.. ckan.dataset.create_on_ui_requires_resources
+
+ckan.dataset.create_on_ui_requires_resources
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+    ckan.dataset.create_on_ui_requires_resources = False
+
+Default value: True
+
+If False, there is no need to add any resources when creating a new dataset.
+
 
 .. _package_new_return_url:
 

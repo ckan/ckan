@@ -1,0 +1,37 @@
+{#
+    Fallback template for displaying an activity.
+    It's not pretty, but it is better than TemplateNotFound.
+
+    Params:
+    activity - the Activity dict
+    can_show_activity_detail - whether we should render detail about the activity (i.e. "as it was" and diff, alternatively will just display the metadata about the activity)
+    id - the id or current name of the object (e.g. package name, user id)
+    ah - dict of template macros to render linked: actor, dataset, organization, user, group
+#}
+<li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
+    <i class="fa icon fa-users"></i>
+    <p>
+      {{ _('{actor} {activity_type}').format(
+        actor=ah.actor(activity),
+        activity_type=activity.activity_type
+      )|safe }}
+      {% if activity.data.package %}
+        {{ ah.dataset(activity) }}
+      {% endif %}
+      {% if activity.data.package %}
+        {{ ah.dataset(activity) }}
+      {% endif %}
+      {% if activity.data.group %}
+        {# do our best to differentiate between org & group #}
+        {% if 'group' in activity.activity_type %}
+            {{ ah.group(activity) }}
+        {% else %}
+            {{ ah.organization(activity) }}
+        {% endif %}
+      {% endif %}
+      <br />
+      <span class="date">
+        {{ h.time_ago_from_timestamp(activity.timestamp) }}
+      </span>
+    </p>
+  </li>

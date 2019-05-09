@@ -17,4 +17,7 @@ programming skills, we can still use your help with documentation or
 translation.
 
 If you wish to take up an issue make sure to keep in touch with the team on
-the Github issue, the mailing list or IRC.
+the Github issue itself, the `ckan-dev mailing list`_, or the `CKAN chat on Gitter`_.
+
+.. _CKAN chat on Gitter: https://gitter.im/ckan/chat
+.. _ckan-dev mailing list: http://lists.okfn.org/mailman/listinfo/ckan-dev

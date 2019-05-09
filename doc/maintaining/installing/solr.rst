@@ -12,7 +12,22 @@ installed, we need to install and configure Solr.
    server, but CKAN doesn't require Jetty - you can deploy Solr to another web
    server, such as Tomcat, if that's convenient on your operating system.
 
-#. Edit the Jetty configuration file (``/etc/default/jetty8`` or
+.. tip::
+
+   Do this step only if you are using Ubuntu 18.04.
+
+   Ubuntu 18.04 64-bit uses ``jetty9`` which does not observe the symlink created
+   by the Solr package. As a result, Jetty is unable to serve Solr content. To
+   fix this, create the symlink in the ``/var/lib/jetty9/webapps/`` directory::
+
+    sudo ln -s /etc/solr/solr-jetty.xml /var/lib/jetty9/webapps/solr.xml
+
+   The Jetty port value must also be changed on ``jetty9``. To do that, edit the
+   ``jetty.port`` value in ``/etc/jetty9/start.ini``::
+
+    jetty.port=8983  # (line 23)
+
+#. Edit the Jetty configuration file (``/etc/default/jetty8(9)`` or
    ``/etc/default/jetty``) and change the following variables::
 
     NO_START=0            # (line 4)
@@ -27,6 +42,10 @@ installed, we need to install and configure Solr.
     accordingly).
 
    Start or restart the Jetty server.
+
+   For Ubuntu 18.04::
+
+    sudo service jetty9 restart
 
    For Ubuntu 16.04::
 
@@ -68,6 +87,10 @@ installed, we need to install and configure Solr.
 
    Now restart Solr:
 
+   For Ubuntu 18.04::
+
+    sudo service jetty9 restart
+
    For Ubuntu 16.04::
 
     sudo service jetty8 restart
@@ -83,4 +106,3 @@ installed, we need to install and configure Solr.
    point to your Solr server, for example::
 
        solr_url=http://127.0.0.1:8983/solr
-

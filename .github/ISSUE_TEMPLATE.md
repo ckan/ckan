@@ -1,3 +1,6 @@
+**Note:** Are you submitting a security related issue that could be a potential vulnerability? Please send it to security@ckan.org instead.
+
+
 ### CKAN Version if known (or site URL)
 
 

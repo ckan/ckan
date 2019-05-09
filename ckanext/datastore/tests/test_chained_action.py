@@ -4,11 +4,18 @@ import nose
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+from ckan.logic.action.get import package_list as core_package_list
 
 from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+
+package_list_message = u'The content of this message is largely irrelevant'
+
+
+class TestActionException(Exception):
+    pass
 
 
 @p.toolkit.chained_action
@@ -22,11 +29,19 @@ def datastore_delete(up_func, context, data_dict):
     return result
 
 
+@p.toolkit.chained_action
+def package_list(next_func, context, data_dict):
+    # check it's received the core function as the first arg
+    assert_equals(next_func, core_package_list)
+    raise TestActionException(package_list_message)
+
+
 class ExampleDataStoreDeletedWithCountPlugin(p.SingletonPlugin):
     p.implements(p.IActions)
 
     def get_actions(self):
-        return ({u'datastore_delete': datastore_delete})
+        return ({u'datastore_delete': datastore_delete,
+                 u'package_list': package_list})
 
 
 class TestChainedAction(DatastoreFunctionalTestBase):
@@ -67,3 +82,8 @@ class TestChainedAction(DatastoreFunctionalTestBase):
         helpers.call_action(u'datastore_create', **data)
 
         return resource
+
+    def test_chain_core_action(self):
+        with assert_raises(TestActionException) as raise_context:
+            helpers.call_action(u'package_list', {})
+        assert_equals(raise_context.exception.message, package_list_message)

@@ -383,3 +383,13 @@ class TestCreateResources(object):
         nose.tools.assert_raises(logic.NotFound, helpers.call_auth,
                                  'resource_create', context=context,
                                  **resource)
+
+
+class TestActivityCreate(helpers.FunctionalTestBase):
+    def test_normal_user_cant_use_it(self):
+        normal_user = factories.User()
+        context = {'user': normal_user['name'], 'model': core_model}
+
+        nose.tools.assert_raises(
+            logic.NotAuthorized, helpers.call_auth,
+            'activity_create', context=context)

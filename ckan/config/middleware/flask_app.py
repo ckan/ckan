@@ -1,7 +1,9 @@
 # encoding: utf-8
 
 import os
+import sys
 import re
+import time
 import inspect
 import itertools
 import pkgutil
@@ -40,6 +42,7 @@ from ckan.views import (identify_user,
 
 import ckan.lib.plugins as lib_plugins
 import logging
+from logging.handlers import SMTPHandler
 log = logging.getLogger(__name__)
 
 
@@ -107,6 +110,13 @@ def make_flask_stack(conf, **app_conf):
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
         DebugToolbarExtension(app)
 
+        from werkzeug.debug import DebuggedApplication
+        app = DebuggedApplication(app, True)
+        app = app.app
+
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.DEBUG)
+
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
         def open_session(self, app, request):
@@ -124,7 +134,7 @@ def make_flask_stack(conf, **app_conf):
             session_opts.get('session.type', 'file') == 'file'):
         cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
         session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
-                data_dir=cache_dir)
+            data_dir=cache_dir)
 
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
     app.session_interface = BeakerSessionInterface()
@@ -180,7 +190,11 @@ def make_flask_stack(conf, **app_conf):
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
         if hasattr(plugin, 'get_blueprint'):
-            app.register_extension_blueprint(plugin.get_blueprint())
+            plugin_blueprints = plugin.get_blueprint()
+            if not isinstance(plugin_blueprints, list):
+                plugin_blueprints = [plugin_blueprints]
+            for blueprint in plugin_blueprints:
+                app.register_extension_blueprint(blueprint)
 
     lib_plugins.register_package_blueprints(app)
     lib_plugins.register_group_blueprints(app)
@@ -197,8 +211,8 @@ def make_flask_stack(conf, **app_conf):
                 'controller': controller,
                 'highlight_actions': action,
                 'needed': needed
-                }
             }
+        }
         config['routes.named_routes'].update(route)
 
     # Start other middleware
@@ -294,6 +308,8 @@ def ckan_before_request():
     # with extensions
     set_controller_and_action()
 
+    g.__timer = time.time()
+
 
 def ckan_after_request(response):
     u'''Common handler executed after all Flask requests'''
@@ -306,6 +322,11 @@ def ckan_after_request(response):
 
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
+
+    r_time = time.time() - g.__timer
+    url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
+
+    log.info(' %s render time %.3f seconds' % (url, r_time))
 
     return response
 
@@ -423,6 +444,7 @@ def _register_error_handler(app):
     u'''Register error handler'''
 
     def error_handler(e):
+        log.error(e, exc_info=sys.exc_info)
         if isinstance(e, HTTPException):
             extra_vars = {u'code': [e.code], u'content': e.description}
             # TODO: Remove
@@ -437,3 +459,37 @@ def _register_error_handler(app):
         app.register_error_handler(code, error_handler)
     if not app.debug and not app.testing:
         app.register_error_handler(Exception, error_handler)
+        if config.get('email_to'):
+            _setup_error_mail_handler(app)
+
+
+def _setup_error_mail_handler(app):
+
+    class ContextualFilter(logging.Filter):
+        def filter(self, log_record):
+            log_record.url = request.path
+            log_record.method = request.method
+            log_record.ip = request.environ.get("REMOTE_ADDR")
+            log_record.headers = request.headers
+            return True
+
+    mailhost = tuple(config.get('smtp.server', 'localhost').split(":"))
+    mail_handler = SMTPHandler(
+        mailhost=mailhost,
+        fromaddr=config.get('error_email_from'),
+        toaddrs=[config.get('email_to')],
+        subject='Application Error'
+    )
+
+    mail_handler.setFormatter(logging.Formatter('''
+Time:               %(asctime)s
+URL:                %(url)s
+Method:             %(method)s
+IP:                 %(ip)s
+Headers:            %(headers)s
+
+'''))
+
+    context_provider = ContextualFilter()
+    app.logger.addFilter(context_provider)
+    app.logger.addHandler(mail_handler)

@@ -61,7 +61,7 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
             'country_code': [
                 tk.get_converter('convert_from_tags')('country_codes'),
                 tk.get_validator('ignore_missing')]
-            })
+        })
         return schema
 
     def create_package_schema(self):

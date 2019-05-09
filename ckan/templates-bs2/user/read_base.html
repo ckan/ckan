@@ -2,7 +2,7 @@
 
 {% set user = user_dict %}
 
-{% block subtitle %}{{ user.display_name }} - {{ _('Users') }}{% endblock %}
+{% block subtitle %}{{ user.display_name }} {{ g.template_title_delimiter }} {{ _('Users') }}{% endblock %}
 
 {% block breadcrumb_content %}
   {{ h.build_nav('user.index', _('Users')) }}

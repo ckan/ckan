@@ -27,16 +27,11 @@ class UtilController(base.BaseController):
         This is useful for development/styling of ckan. '''
         return base.render('development/primer.html')
 
-    def markup(self):
-        ''' Render all html elements out onto a single page.
-        This is useful for development/styling of ckan. '''
-        return base.render('development/markup.html')
-
     def i18_js_strings(self, lang):
         ''' This is used to produce the translations for javascript. '''
         i18n.set_lang(lang)
         html = base.render('js_strings.html', cache_force=True)
-        html = re.sub('<[^\>]*>', '', html)
+        html = re.sub(r'<[^\>]*>', '', html)
         header = "text/javascript; charset=utf-8"
         base.response.headers['Content-type'] = header
         return html
