@@ -290,6 +290,14 @@ class Repository(vdm.sqlalchemy.Repository):
 
         self.alembic_config = alembic_config
 
+    def current_version(self):
+        try:
+            alembic_current(self.alembic_config)
+            return self.take_alembic_output()[0][0]
+        except (TypeError, IndexError):
+            # alembic is not initialized yet
+            return 'base'
+
     def downgrade_db(self, version='base'):
         self.setup_migration_version_control()
         alembic_downgrade(self.alembic_config, version)
@@ -307,16 +315,10 @@ class Repository(vdm.sqlalchemy.Repository):
             u'postgres', u'postgresql'
         ), _assert_engine_msg
         self.setup_migration_version_control()
-        try:
-            alembic_current(self.alembic_config)
-            version_before = self.take_alembic_output()[0][0]
-        except (TypeError, IndexError):
-            # alembic is not initialized yet
-            version_before = 'base'
+        version_before = self.current_version()
         alembic_upgrade(self.alembic_config, version)
-        alembic_current(self.alembic_config)
+        version_after = self.current_version()
 
-        version_after = self.take_alembic_output()[0][0]
         if version_after != version_before:
             log.info(
                 u'CKAN database version upgraded: %s -> %s',
