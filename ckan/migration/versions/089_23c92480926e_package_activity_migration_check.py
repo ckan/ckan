@@ -13,8 +13,8 @@ from alembic import op
 from ckan.migration.migrate_package_activity import num_unmigrated
 
 # revision identifiers, used by Alembic.
-revision = '23c92480926e'
-down_revision = '3537d5420e0e'
+revision = u'23c92480926e'
+down_revision = u'3537d5420e0e'
 branch_labels = None
 depends_on = None
 
@@ -25,7 +25,7 @@ def upgrade():
 
     if num_unmigrated_dataset_activities:
         print(
-            '''
+            u'''
     NOTE:
     You have {num_unmigrated} unmigrated package activities.
 

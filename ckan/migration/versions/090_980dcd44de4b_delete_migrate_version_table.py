@@ -10,24 +10,24 @@ Create Date: 2019-05-09 13:39:44.097930
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = '980dcd44de4b'
-down_revision = '23c92480926e'
+revision = u'980dcd44de4b'
+down_revision = u'23c92480926e'
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    '''Drop version table, created by sqlalchemy-migrate.
+    u'''Drop version table, created by sqlalchemy-migrate.
 
     There is a chance, that we are initializing a new instance and
     there is no `migrate_version` table, so DO NOT remove `IF EXISTS`
     clause.
     '''
-    op.execute('DROP TABLE IF EXISTS migrate_version')
+    op.execute(u'DROP TABLE IF EXISTS migrate_version')
 
 
 def downgrade():
-    '''We aren't going to recreate `migrate_version` here.
+    u'''We aren't going to recreate `migrate_version` here.
 
     There is a chance, that this table even never was created for
     target database. This migration tries to seamlessly upgrade

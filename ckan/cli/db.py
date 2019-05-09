@@ -95,7 +95,7 @@ def _version_hash_to_ordinal(version):
     versions = sorted(os.listdir(versions_dir))
 
     # latest version looks like `123abc (head)`
-    if version.endswith('(head)'):
+    if version.endswith(u'(head)'):
         return int(versions[-1].split(u'_')[0])
     for name in versions:
         if version in name:
