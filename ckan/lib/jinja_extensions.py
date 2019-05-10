@@ -19,8 +19,12 @@ import ckan.lib.base as base
 import ckan.lib.helpers as h
 from ckan.common import config
 
+from werkzeug.local import Local
+
 
 log = logging.getLogger(__name__)
+local = Local()
+local.missing_templates = set()
 
 
 def get_jinja_env_options():
@@ -195,8 +199,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         pieces = loaders.split_template_path(template)
         for searchpath in searchpaths:
             filename = path.join(searchpath, *pieces)
+            if filename in local.missing_templates:
+                continue
             f = open_if_exists(filename)
             if f is None:
+                local.missing_templates.add(filename)
                 continue
             try:
                 contents = f.read().decode(self.encoding)
