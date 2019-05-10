@@ -24,7 +24,6 @@ from werkzeug.local import Local
 
 log = logging.getLogger(__name__)
 local = Local()
-local.missing_templates = set()
 
 
 def get_jinja_env_options():
@@ -195,6 +194,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             searchpaths = self.searchpath[int(parts[1]) + 1:]
         else:
             searchpaths = self.searchpath
+        if not hasattr(local, 'missing_templates'):
+            local.missing_templates = set()
         # end of ckan changes
         pieces = loaders.split_template_path(template)
         for searchpath in searchpaths:
