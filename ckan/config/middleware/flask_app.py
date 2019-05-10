@@ -37,7 +37,8 @@ from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
                         check_session_cookie,
-                        set_controller_and_action
+                        set_controller_and_action,
+                        set_cache_control_headers_for_response
                         )
 
 import ckan.lib.plugins as lib_plugins
@@ -322,6 +323,9 @@ def ckan_after_request(response):
 
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
+
+    # Set Cache Control headers
+    response = set_cache_control_headers_for_response(response)
 
     r_time = time.time() - g.__timer
     url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
