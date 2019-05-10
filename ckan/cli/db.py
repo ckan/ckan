@@ -60,7 +60,7 @@ def updatedb(version):
 @db.command(u'downgrade', short_help=u'Downgrade the database')
 @click.option(u'-v', u'--version', help=u'Migration version', default=u'base')
 def downgradedb(version):
-    u'''Upgrading the database'''
+    u'''Downgrading the database'''
     try:
         import ckan.model as model
         model.repo.downgrade_db(version)
