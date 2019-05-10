@@ -345,3 +345,26 @@ class TestCORSFlask(helpers.FunctionalTestBase):
         assert 'Access-Control-Allow-Origin' not in response_headers
         assert 'Access-Control-Allow-Methods' not in response_headers
         assert 'Access-Control-Allow-Headers' not in response_headers
+
+
+class TestCacheControlHeaders(helpers.FunctionalTestBase):
+
+    def test_cache_control_in_dataset_list_not_logged_in(self):
+        app = self._get_test_app()
+        request_headers = {}
+        response = app.get('/dataset', headers=request_headers)
+        response_headers = dict(response.headers)
+
+        assert 'Cache-Control' in response_headers
+        nose_tools.assert_equals(response_headers['Cache-Control'], 'public')
+
+    def test_cache_control_in_dataset_list_while_logged_in(self):
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = self._get_test_app()
+        request_headers = {}
+        response = app.get('/dataset', headers=request_headers, extra_environ=env)
+        response_headers = dict(response.headers)
+
+        assert 'Cache-Control' in response_headers
+        nose_tools.assert_equals(response_headers['Cache-Control'], 'private')
