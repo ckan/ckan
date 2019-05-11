@@ -4,6 +4,7 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
+alembic==1.0.0
 babel==2.3.4
 beaker==1.10.1            # via pylons
 bleach==3.0.2
