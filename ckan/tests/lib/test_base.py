@@ -349,7 +349,6 @@ class TestCORSFlask(helpers.FunctionalTestBase):
 
 class TestCacheControlHeaders(helpers.FunctionalTestBase):
 
-
     @helpers.change_config('ckan.cache_enabled', 'false')
     def test_cache_control_in_when_cache_is_not_enabled(self):
         app = self._get_test_app()
@@ -391,7 +390,6 @@ class TestCacheControlHeaders(helpers.FunctionalTestBase):
 
         assert 'Cache-Control' in response_headers
         nose_tools.assert_equals(response_headers['Cache-Control'], 'private')
-
 
     @helpers.change_config('ckan.cache_enabled', 'true')
     def test_cache_control_while_logged_in(self):

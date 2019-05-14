@@ -229,6 +229,7 @@ def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
 
     return render_template
 
+
 def _allow_caching(extra_vars, cache_force=None):
     # Caching Logic
 
@@ -256,6 +257,7 @@ def _allow_caching(extra_vars, cache_force=None):
         # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
 
+
 def _is_valid_session_cookie_data():
     is_valid_cookie_data = False
     for key, value in session.items():
@@ -264,6 +266,7 @@ def _is_valid_session_cookie_data():
             break
 
     return is_valid_cookie_data
+
 
 class ValidationException(Exception):
     pass
