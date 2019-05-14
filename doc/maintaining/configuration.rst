@@ -386,7 +386,7 @@ Example::
 
 Default value: ``None``
 
-Controls if we're caching CKAN's static files, if it's serving them.
+This sets ``Cache-Control`` header for unauthenticated users.
 
 .. _ckan.use_pylons_response_cleanup_middleware:
 
