@@ -76,14 +76,14 @@ def load_environment(global_conf, app_conf):
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    valid_base_public_folder_names = ['public', 'public-bs2']
+    valid_base_public_folder_names = ['public']
     static_files = app_conf.get('ckan.base_public_folder', 'public')
     app_conf['ckan.base_public_folder'] = static_files
 
     if static_files not in valid_base_public_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_public_folder. '
-            'Possible values are: "public" and "public-bs2".'
+            'Possible values are: "public".'
         )
 
     log.info('Loading static files from %s' % static_files)
@@ -248,14 +248,14 @@ def update_config():
     config['pylons.h'] = helpers.helper_functions
 
     # Templates and CSS loading from configuration
-    valid_base_templates_folder_names = ['templates', 'templates-bs2']
+    valid_base_templates_folder_names = ['templates']
     templates = config.get('ckan.base_templates_folder', 'templates')
     config['ckan.base_templates_folder'] = templates
 
     if templates not in valid_base_templates_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_templates_folder. '
-            'Possible values are: "templates" and "templates-bs2".'
+            'Possible values are: "templates".'
         )
 
     jinja2_templates_path = os.path.join(root, templates)

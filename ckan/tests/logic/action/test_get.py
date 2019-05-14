@@ -2578,6 +2578,34 @@ class TestPackageActivityList(helpers.FunctionalTestBase):
         results = helpers.call_action('package_activity_list', id=id, limit='9')
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
 
+    def test_normal_user_doesnt_see_hidden_activities(self):
+        # activity is 'hidden' because dataset is created by site_user
+        dataset = factories.Dataset()
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_doesnt_see_hidden_activities_by_default(self):
+        # activity is 'hidden' because dataset is created by site_user
+        dataset = factories.Dataset()
+
+        activities = helpers.call_action('package_activity_list',
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_can_include_hidden_activities(self):
+        # activity is 'hidden' because dataset is created by site_user
+        dataset = factories.Dataset()
+
+        activities = helpers.call_action('package_activity_list',
+                                         include_hidden_activity=True,
+                                         id=dataset['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['new package'])
+
 
 class TestUserActivityList(helpers.FunctionalTestBase):
     def test_create_user(self):
@@ -2965,6 +2993,34 @@ class TestGroupActivityList(helpers.FunctionalTestBase):
         results = helpers.call_action('group_activity_list', id=id, limit='9')
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
 
+    def test_normal_user_doesnt_see_hidden_activities(self):
+        # activity is 'hidden' because group is created by site_user
+        group = factories.Group()
+
+        activities = helpers.call_action('group_activity_list',
+                                         id=group['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_doesnt_see_hidden_activities_by_default(self):
+        # activity is 'hidden' because group is created by site_user
+        group = factories.Group()
+
+        activities = helpers.call_action('group_activity_list',
+                                         id=group['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_can_include_hidden_activities(self):
+        # activity is 'hidden' because group is created by site_user
+        group = factories.Group()
+
+        activities = helpers.call_action('group_activity_list',
+                                         include_hidden_activity=True,
+                                         id=group['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['new group'])
+
 
 class TestOrganizationActivityList(helpers.FunctionalTestBase):
     def test_create_organization(self):
@@ -3138,6 +3194,34 @@ class TestOrganizationActivityList(helpers.FunctionalTestBase):
         id = self._create_bulk_org_activities(9)
         results = helpers.call_action('organization_activity_list', id=id, limit='9')
         eq(len(results), 7)  # i.e. ckan.activity_list_limit_max
+
+    def test_normal_user_doesnt_see_hidden_activities(self):
+        # activity is 'hidden' because org is created by site_user
+        org = factories.Organization()
+
+        activities = helpers.call_action('organization_activity_list',
+                                         id=org['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_doesnt_see_hidden_activities_by_default(self):
+        # activity is 'hidden' because org is created by site_user
+        org = factories.Organization()
+
+        activities = helpers.call_action('organization_activity_list',
+                                         id=org['id'])
+        eq([activity['activity_type'] for activity in activities],
+           [])
+
+    def test_sysadmin_user_can_include_hidden_activities(self):
+        # activity is 'hidden' because org is created by site_user
+        org = factories.Organization()
+
+        activities = helpers.call_action('organization_activity_list',
+                                         include_hidden_activity=True,
+                                         id=org['id'])
+        eq([activity['activity_type'] for activity in activities],
+           ['new organization'])
 
 
 class TestRecentlyChangedPackagesActivityList(helpers.FunctionalTestBase):

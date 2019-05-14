@@ -13,5 +13,19 @@
     "domain_software": "False",
     "id": "cc-by"
 
-}
+},
+  {
+    "domain_content": true,
+    "domain_data": false,
+    "domain_software": false,
+    "family": "",
+    "id": "other-open",
+    "is_generic": true,
+    "maintainer": "",
+    "od_conformance": "approved",
+    "osd_conformance": "not reviewed",
+    "status": "active",
+    "title": "Other (Open)",
+    "url": ""
+  }
 ]

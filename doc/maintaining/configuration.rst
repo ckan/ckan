@@ -1430,15 +1430,8 @@ Example::
 Default value:  ``public``
 
 This config option is used to configure the base folder for static files used
-by CKAN core. It's used to determine which version of Bootstrap to be used.
-It accepts two values: ``public`` (Bootstrap 3, the default value from CKAN
-2.8 onwards) and ``public-bs2`` (Bootstrap 2, used until CKAN 2.7).
-
-It must be used in conjunction with :ref:`ckan.base_templates_folder` in order
-for it to properly function. Also, you can't use for example Bootstrap 3 for
-static files and Bootstrap 2 for templates or vice versa.
-
-.. note:: Starting with CKAN 2.8, Bootstrap 3 will be used as a default.
+by CKAN core. It is currently unused and it only accepts one value: ``public``
+(Bootstrap 3, the default value from CKAN 2.8 onwards).
 
 .. _ckan.base_templates_folder:
 
@@ -1452,15 +1445,8 @@ Example::
 Default value:  ``templates``
 
 This config option is used to configure the base folder for templates used
-by CKAN core. It's used to determine which version of Bootstrap to be used.
-It accepts two values: ``templates`` (Bootstrap 3, the default value from CKAN
-2.8 onwards) and ``templates-bs2`` (Bootstrap 2, used until CKAN 2.7).
-
-It must be used in conjunction with :ref:`ckan.base_public_folder` in order
-for it to properly function. Also, you can't use for example Bootstrap 3 for
-templates and Bootstrap 2 for static files or vice versa.
-
-.. note:: Starting with CKAN 2.8, Bootstrap 3 will be used as a default.
+by CKAN core. It is currently unused and it only accepts one vaue: ``templates``
+(Bootstrap 3, the default value from CKAN 2.8 onwards).
 
 .. end_config-theming
 
@@ -1502,39 +1488,6 @@ Example::
 Default value: ``2``
 
 The maximum in megabytes an image upload can be.
-
-.. _ofs.impl:
-
-ofs.impl
-^^^^^^^^
-
-Example::
-
-  ofs.impl = pairtree
-
-Default value:  ``None``
-
-Defines the storage backend used by CKAN: ``pairtree`` for local storage, ``s3`` for Amazon S3 Cloud Storage or ``google`` for Google Cloud Storage. Note that each of these must be accompanied by the relevant settings for each backend described below.
-
-Deprecated, only available option is now pairtree.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
-
-
-.. _ofs.storage_dir:
-
-ofs.storage_dir
-^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.storage_dir = /data/uploads/
-
-Default value:  ``None``
-
-Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
-
-Deprecated, please use ckan.storage_path.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
-
-
 
 
 DataPusher Settings

@@ -13,6 +13,7 @@ import vocabulary
 import activity
 import ckan  # this import is needed
 import ckan.lib.dictization
+import ckan.lib.maintain as maintain
 
 __all__ = ['tag_table', 'package_tag_table', 'Tag', 'PackageTag',
            'MAX_TAG_LENGTH', 'MIN_TAG_LENGTH']
@@ -136,8 +137,11 @@ class Tag(domain_object.DomainObject):
         # Todo: Make sure tag names can't be changed to look like tag IDs?
 
     @classmethod
+    @maintain.deprecated()
     def search_by_name(cls, search_term, vocab_id_or_name=None):
-        '''Return all tags whose names contain a given string.
+        '''DEPRECATED
+
+        Return all tags whose names contain a given string.
 
         By default only free tags (tags which do not belong to any vocabulary)
         are returned. If the optional argument ``vocab_id_or_name`` is given
@@ -226,11 +230,13 @@ class PackageTag(core.StatefulObjectMixin,
         s = u'<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
         return s.encode('utf8')
 
-
     @classmethod
+    @maintain.deprecated()
     def by_name(self, package_name, tag_name, vocab_id_or_name=None,
             autoflush=True):
-        '''Return the PackageTag for the given package and tag names, or None.
+        '''DEPRECATED (and broken - missing the join to Tag)
+
+        Return the PackageTag for the given package and tag names, or None.
 
         By default only PackageTags for free tags (tags which do not belong to
         any vocabulary) are returned. If the optional argument

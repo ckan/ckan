@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import json
-import httpretty
+import responses
 import nose
 import sys
 import datetime
@@ -18,12 +18,6 @@ import ckan.tests.legacy as tests
 import ckanext.datapusher.interfaces as interfaces
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs
-
-
-# avoid hanging tests https://github.com/gabrielfalcao/HTTPretty/issues/34
-if sys.version_info < (2, 7, 0):
-    import socket
-    socket.setdefaulttimeout(1)
 
 
 class FakeDataPusherPlugin(p.SingletonPlugin):
@@ -69,11 +63,11 @@ class TestInterace(object):
         p.unload('datapusher')
         p.unload('test_datapusher_plugin')
 
-    @httpretty.activate
+    @responses.activate
     @raises(p.toolkit.ObjectNotFound)
     def test_send_datapusher_creates_task(self):
-        httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.POST,
+        responses.add(
+            responses.POST,
             'http://datapusher.ckan.org/job',
             content_type='application/json',
             body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))

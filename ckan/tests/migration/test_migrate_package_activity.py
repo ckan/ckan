@@ -10,8 +10,9 @@ import mock
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan.migration.migrate_package_activity import (
-    migrate_dataset, wipe_activity_detail, PackageDictizeMonkeyPatch)
+from ckan.migration.migrate_package_activity import (migrate_dataset,
+                                                     wipe_activity_detail,
+                                                     PackageDictizeMonkeyPatch)
 from ckan.migration.revision_legacy_code import (
     RevisionTableMappings, make_package_revision)
 from ckan.model.activity import package_activity_list
@@ -192,6 +193,7 @@ class TestMigrateDataset(object):
         # migration from going ahead.
         ckan.logic._actions['package_show'] = \
             mock.MagicMock(side_effect=Exception(u'Schema error'))
+
         try:
             with PackageDictizeMonkeyPatch():
                 migrate_dataset(dataset['name'], errors)

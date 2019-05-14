@@ -61,7 +61,6 @@ class CreateTestData(object):
         cls.user_refs.append(u'tester')
 
     @classmethod
-
     def create_translations_test_data(cls):
         import ckan.model
         CreateTestData.create()
@@ -96,6 +95,7 @@ class CreateTestData(object):
 
         ckan.model.Session.commit()
 
+    @classmethod
     def create_vocabs_test_data(cls):
         import ckan.model
         CreateTestData.create()

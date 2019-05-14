@@ -209,7 +209,7 @@ def search(package_type):
         extra_vars[u'fields_grouped'] = fields_grouped = {}
         search_extras = {}
         fq = u''
-        for (param, value) in request.args.items():
+        for (param, value) in request.args.items(multi=True):
             if param not in [u'q', u'page', u'sort'] \
                     and len(value) and not param.startswith(u'_'):
                 if not param.startswith(u'ext_'):
@@ -297,7 +297,6 @@ def search(package_type):
         )
         extra_vars[u'search_facets'] = query[u'search_facets']
         extra_vars[u'page'].items = query[u'results']
-
     except SearchQueryError as se:
         # User's search parameters are invalid, in such a way that is not
         # achievable with the web interface, so return a proper error to
@@ -319,7 +318,6 @@ def search(package_type):
 
     # FIXME: try to avoid using global variables
     g.search_facets_limits = {}
-
     for facet in extra_vars[u'search_facets'].keys():
         try:
             limit = int(
@@ -431,9 +429,10 @@ def read(package_type, id):
         except KeyError:
             base.abort(404, _(u'Dataset not found'))
         if u'id' not in pkg_dict or u'resources' not in pkg_dict:
-            log.debug(u'Attempt to view unmigrated or badly migrated dataset '
-                      '{} {}'.format(id, activity_id))
-            base.abort(404, _(u'Dataset not found'))
+            log.info(u'Attempt to view unmigrated or badly migrated dataset '
+                     '{} {}'.format(id, activity_id))
+            base.abort(404, _(u'The detail of this dataset activity is not '
+                              'available'))
         if pkg_dict[u'id'] != current_pkg[u'id']:
             log.info(u'Mismatch between pkg id in activity and URL {} {}'
                      .format(pkg_dict[u'id'], current_pkg[u'id']))
@@ -1091,7 +1090,8 @@ def changes(id, package_type=None):
         activity_diff = get_action(u'activity_diff')(
             context, {u'id': activity_id, u'object_type': u'package',
                       u'diff_type': u'html'})
-    except NotFound:
+    except NotFound as e:
+        log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
         return base.abort(404, _(u'Activity not found'))
     except NotAuthorized:
         return base.abort(403, _(u'Unauthorized to view activity data'))

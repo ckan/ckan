@@ -701,7 +701,7 @@ class TestAction(WsgiAppCase):
         # There shouldn't be any results.  If the '%' character wasn't
         # escaped correctly, then the search would match because of the
         # unescaped wildcard.
-        assert count is 0
+        assert count == 0
 
     def test_42_resource_search_fields_parameter_still_accepted(self):
         '''The fields parameter is deprecated, but check it still works.

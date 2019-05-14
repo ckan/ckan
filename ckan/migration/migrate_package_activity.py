@@ -90,15 +90,14 @@ def migrate_all_datasets():
 
 
 class PackageDictizeMonkeyPatch(object):
-    '''Patches package_dictize to work with revisions - it will accept the
-    'revision_id' parameter, so you can see past revisions of the package.
+    '''Patches package_dictize to add back in the revision functionality. This
+    allows you to specify context['revision_id'] and see the old revisions of
+    a package.
 
-    This is a context manager, so invoke it with 'with'.
+    This works as a context object. We could have used mock.patch and saved a
+    couple of lines here, but we'd have had to add mock to requirements.txt.
     '''
-    # (We could have saved a couple of lines of code by using mock.patch, but
-    # this way we save having to add mock to requirements.txt)
     def __enter__(self):
-        # package_dictize monkey-patched to package_dictize_with_revisions
         import ckan.lib.dictization.model_dictize as model_dictize
         try:
             import ckan.migration.revision_legacy_code as revision_legacy_code
@@ -106,13 +105,13 @@ class PackageDictizeMonkeyPatch(object):
             # convenient to look for it in the current directory if you just
             # download these files because you are upgrading an older ckan
             import revision_legacy_code
-        self.original_package_dictize = model_dictize.package_dictize
+        self.existing_function = model_dictize.package_dictize
         model_dictize.package_dictize = \
             revision_legacy_code.package_dictize_with_revisions
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         import ckan.lib.dictization.model_dictize as model_dictize
-        model_dictize.package_dictize = self.original_package_dictize
+        model_dictize.package_dictize = self.existing_function
 
 
 def migrate_dataset(dataset_name, errors):
@@ -132,9 +131,8 @@ def migrate_dataset(dataset_name, errors):
     # non-hidden Activity, then it does a diff with the hidden one (rather than
     # the most recent non-hidden one), so it is important to store the
     # package_dict in hidden Activity objects.
-    context = dict(get_context(), include_hidden_activity=True)
     package_activity_stream = logic.get_action(u'package_activity_list')(
-        context, {u'id': dataset_name})
+        get_context(), {u'id': dataset_name, u'include_hidden_activity': True})
     num_activities = len(package_activity_stream)
     if not num_activities:
         print(u'  No activities')
@@ -238,7 +236,7 @@ def wipe_activity_detail(delete_activity_detail):
         'activity_detail table will no longer be used after CKAN 2.8.x, and\n'
         'you can delete it to save space (this is safely done before or\n'
         'after the CKAN upgrade).'
-        )
+    )
     if delete_activity_detail is None:
         delete_activity_detail = \
             input(u'Delete activity_detail table content? (y/n):')

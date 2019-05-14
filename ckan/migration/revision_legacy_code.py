@@ -12,7 +12,7 @@ from sqlalchemy import (Table, Column, ForeignKey, Boolean, UnicodeText, Text,
                         String, DateTime, and_, inspect)
 import sqlalchemy.orm.properties
 from sqlalchemy.orm import class_mapper
-from sqlalchemy.orm import relation, backref
+from sqlalchemy.orm import relation
 
 import ckan.logic as logic
 import ckan.lib.dictization as d
@@ -98,7 +98,7 @@ def package_dictize_with_revisions(pkg, context):
     if is_latest_revision:
         extra = model.package_extra_table
     else:
-        extra = revision_model.package_extra_revision_table
+        extra = revision_model.extra_revision_table
     q = select([extra]).where(extra.c.package_id == pkg.id)
     result = execute(q, extra, context)
     result_dict["extras"] = extras_list_dictize(result, context)
@@ -344,7 +344,7 @@ class Revision(object):
     #     return q.first()
 
 
-# Copied from vdm
+# Copied from vdm BUT without '.continuity' mapped to the base object
 def create_object_version(mapper_fn, base_object, rev_table):
     '''Create the Version Domain Object corresponding to base_object.
 
@@ -364,7 +364,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
                 setattr(self, k, v)
 
     name = base_object.__name__ + u'Revision'
-    MyClass.__name__ = name
+    MyClass.__name__ = str(name)
     MyClass.__continuity_class__ = base_object
 
     # Must add this so base object can retrieve revisions ...
@@ -388,7 +388,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
         # },
         # order_by=[rev_table.c.continuity_id, rev_table.c.revision_id.desc()]
         # ---------------------
-        )
+    )
     base_mapper = class_mapper(base_object)
     # add in 'relationship' stuff from continuity onto revisioned obj
     # 3 types of relationship
@@ -491,7 +491,7 @@ def make_revision(instances):
     # new_revision then calls:
     # SQLAlchemySession.set_revision(self.session, rev), which is:
     # vdm.sqlalchemy.base.SQLAlchemySession.set_revision() which did this:
-    revision.id = unicode(uuid.uuid4())
+    revision.id = str(uuid.uuid4())
     model.Session.add(revision)
     model.Session.flush()
 
@@ -600,6 +600,10 @@ class RevisionTableMappings(object):
         return cls._instance
 
     def __init__(self):
+        # This uses the strangler pattern to gradually move the revision model
+        # out of ckan/model and into this file.
+        # We start with references to revision model in ckan/model/ and then
+        # gradually move the definitions here
         self.revision_table = make_revision_table(model.meta.metadata)
         self.revision_table.append_column(
             Column(u'approved_timestamp', DateTime))
@@ -616,11 +620,11 @@ class RevisionTableMappings(object):
         self.ResourceRevision = create_object_version(
             model.meta.mapper, model.Resource, self.resource_revision_table)
 
-        self.package_extra_revision_table = \
+        self.extra_revision_table = \
             make_revisioned_table(model.package_extra_table)
         self.PackageExtraRevision = create_object_version(
             model.meta.mapper, model.PackageExtra,
-            self.package_extra_revision_table)
+            self.extra_revision_table)
 
         self.package_tag_revision_table = \
             make_revisioned_table(model.package_tag_table)
@@ -663,8 +667,19 @@ class RevisionTableMappings(object):
         self.revision_table_mapping = {
             model.Package: self.package_revision_table,
             model.Resource: self.resource_revision_table,
-            model.PackageExtra: self.package_extra_revision_table,
+            model.PackageExtra: self.extra_revision_table,
             model.PackageTag: self.package_tag_revision_table,
             model.Member: self.member_revision_table,
             model.Group: self.group_revision_table,
         }
+
+
+# It's easiest if this code works on all versions of CKAN. After CKAN 2.8 the
+# revision model is separate from the main model.
+try:
+    model.PackageExtraRevision
+    # CKAN<=2.8
+    revision_model = model
+except AttributeError:
+    # CKAN>2.8
+    revision_model = RevisionTableMappings.instance()
