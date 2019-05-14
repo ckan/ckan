@@ -349,21 +349,57 @@ class TestCORSFlask(helpers.FunctionalTestBase):
 
 class TestCacheControlHeaders(helpers.FunctionalTestBase):
 
-    def test_cache_control_in_dataset_list_not_logged_in(self):
+
+    @helpers.change_config('ckan.cache_enabled', 'false')
+    def test_cache_control_in_when_cache_is_not_enabled(self):
         app = self._get_test_app()
         request_headers = {}
-        response = app.get('/dataset', headers=request_headers)
+        response = app.get('/', headers=request_headers)
         response_headers = dict(response.headers)
 
         assert 'Cache-Control' in response_headers
-        nose_tools.assert_equals(response_headers['Cache-Control'], 'public')
+        nose_tools.assert_equals(response_headers['Cache-Control'], 'private')
 
-    def test_cache_control_in_dataset_list_while_logged_in(self):
+    @helpers.change_config('ckan.cache_enabled', 'true')
+    def test_cache_control_when_cache_enabled(self):
+        app = self._get_test_app()
+        request_headers = {}
+        response = app.get('/', headers=request_headers)
+        response_headers = dict(response.headers)
+
+        assert 'Cache-Control' in response_headers
+        assert 'public' in response_headers['Cache-Control']
+
+    @helpers.change_config('ckan.cache_enabled', 'true')
+    @helpers.change_config('ckan.cache_expires', 300)
+    def test_cache_control_max_age_when_cache_enabled(self):
+        app = self._get_test_app()
+        request_headers = {}
+        response = app.get('/', headers=request_headers)
+        response_headers = dict(response.headers)
+
+        assert 'Cache-Control' in response_headers
+        assert 'public' in response_headers['Cache-Control']
+        assert 'max-age=300' in response_headers['Cache-Control']
+
+    @helpers.change_config('ckan.cache_enabled', None)
+    def test_cache_control_when_cache_is_not_set_in_config(self):
+        app = self._get_test_app()
+        request_headers = {}
+        response = app.get('/', headers=request_headers)
+        response_headers = dict(response.headers)
+
+        assert 'Cache-Control' in response_headers
+        nose_tools.assert_equals(response_headers['Cache-Control'], 'private')
+
+
+    @helpers.change_config('ckan.cache_enabled', 'true')
+    def test_cache_control_while_logged_in(self):
         user = factories.User()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         app = self._get_test_app()
         request_headers = {}
-        response = app.get('/dataset', headers=request_headers, extra_environ=env)
+        response = app.get('/', headers=request_headers, extra_environ=env)
         response_headers = dict(response.headers)
 
         assert 'Cache-Control' in response_headers

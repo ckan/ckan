@@ -16,6 +16,7 @@ from pylons.decorators import jsonify
 from pylons.templating import cached_template, pylons_globals
 from webhelpers.html import literal
 from jinja2.exceptions import TemplateNotFound
+from paste.deploy.converters import asbool
 
 from flask import (
     render_template as flask_render_template,
@@ -216,14 +217,10 @@ def _pylons_prepare_renderer(template_name, extra_vars, cache_key=None,
     # Don't cache if we have set the __no_cache__ param in the query string.
     elif request.params.get('__no_cache__'):
         allow_cache = False
-    # Don't cache if we have extra vars containing data.
-    elif extra_vars:
-        for k, v in extra_vars.iteritems():
-            allow_cache = False
-            break
+    # Don't cache if caching is not enabled in config
+    elif not asbool(config.get('ckan.cache_enabled', False)):
+        allow_cache = False
 
-    # TODO: replicate this logic in Flask once we start looking at the
-    # rendering for the frontend controllers
     set_pylons_response_headers(allow_cache)
 
     if not allow_cache:
@@ -251,11 +248,9 @@ def _allow_caching(extra_vars, cache_force=None):
     # Don't cache if we have set the __no_cache__ param in the query string.
     elif request.params.get('__no_cache__'):
         allow_cache = False
-    # Don't cache if we have extra vars containing data.
-    elif extra_vars:
-        for k, v in extra_vars.iteritems():
-            allow_cache = False
-            break
+    # Don't cache if caching is not enabled in config
+    elif not asbool(config.get('ckan.cache_enabled', False)):
+        allow_cache = False
 
     if not allow_cache:
         # Prevent any further rendering from being cached.
