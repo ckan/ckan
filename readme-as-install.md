@@ -218,6 +218,21 @@ Remove volumes from docker-compose.yml
 Remove logo records from the db tables: system_info and system_info_revisions
 Build with no cache: docker-compose build --no-cache and then docker-compose up <-d>
 
+## Development Specific Notes
+
+### Routing
+
+Link to Route docs: [https://routes.readthedocs.io/en/latest/](https://routes.readthedocs.io/en/latest/)
+
+``` python
+from routes import Mapper
+map = Mapper()
+map.connect(None, "/error/{action}/{id}", controller="error")
+map.connect("home", "/", controller="main", action="index")
+# ADD CUSTOM ROUTES HERE
+map.connect(None, "/{controller}/{action}")
+map.connect(None, "/{controller}/{action}/{id}")
+```
 
 
 

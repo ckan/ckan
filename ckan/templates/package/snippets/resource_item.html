@@ -37,17 +37,20 @@
         </a>
       </li>
       {% if res.url and h.is_url(res.url) %}
-      <li>
-        <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
-          {% if res.has_views or res.url_type == 'upload' %}
-            <i class="fa fa-arrow-circle-o-down"></i>
-            {{ _('Download') }}
-          {% else %}
-            <i class="fa fa-external-link"></i>
-            {{ _('Go to resource') }}
-          {% endif %}
-        </a>
-      </li>
+        <!-- if license NOT EQ 'Other (Not open)': show the link -->
+        {% if pkg.license_title != 'Other (Not Open)': %}
+          <li>
+            <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
+              {% if res.has_views or res.url_type == 'upload' %}
+                <i class="fa fa-arrow-circle-o-down"></i>
+                {{ _('Download') }}
+              {% else %}
+                <i class="fa fa-external-link"></i>
+                {{ _('Go to resource') }}
+              {% endif %}
+            </a>
+          </li>
+        {% endif %}
       {% endif %}
       {% if can_edit %}
       <li>

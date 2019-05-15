@@ -1,0 +1,35 @@
+{% import 'macros/form.html' as form %}
+{% set action = g.form_action or '' %}
+
+<form id='request-access-form' class="dataset-form" method="post" data-module="basic-form"
+  enctype="multipart/form-data">
+  {% block error_summary %}
+    {{ form.errors(error_summary) }}
+  {% endblock %}
+
+  {% block basic_fields %}
+    {{ form.input('subject', label=_('Subject'), value=data.subject, placeholder=data.subject, error=errors.subject ) }}
+    {{ form.input('from', label=_('From'), value=data.from, error=errors.from) }}
+    {{ form.input('to', label=_('To'), value=data.to, error=errors.to) }}
+    {{ form.input('to_hidden', type='hidden', value=data.to, error=errors.to) }}
+
+    {% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={'class': 'form-control'}, is_required=true) %}
+
+      {%- set extra_html = caller() if caller -%}
+
+      {% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %}
+      <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}"
+        placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
+      {% endcall %}
+    {% endmacro %}
+  {% endblock %}
+
+  {{ form.required_message() }}
+
+  <div class="form-actions">
+    {% block form_actions %}
+      <button class="btn btn-primary" type="submit" name="save">{{ _("Submit Request") }}</button>
+    {% endblock %}
+  </div>
+
+</form>

@@ -1,0 +1,20 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Request Dataset Access') }}{% endblock %}
+
+{% block breadcrumb_content %}
+{% endblock %}
+
+{% block primary %}
+<article class="module">
+  <div class="module-content">
+    {% block about %}
+      <h1 class="page-heading">{{ _('Request Dataset Access') }}</h1>
+
+      {% snippet 'mars/snippets/access_form_body.html', data=data, errors=errors, req=req %}
+    {% endblock %}
+  </div>
+</article>
+{% endblock %}
+
+{% block secondary %}{% endblock %}

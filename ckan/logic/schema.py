@@ -118,8 +118,11 @@ def default_create_package_schema(
         'title': [if_empty_same_as("name"), unicode_safe],
         'author': [ignore_missing, unicode_safe],
         'author_email': [ignore_missing, unicode_safe, email_validator],
-        'maintainer': [ignore_missing, unicode_safe],
-        'maintainer_email': [ignore_missing, unicode_safe, email_validator],
+        # a.s. validate maintainer fields aren't empty
+        # 'maintainer': [ignore_missing, unicode_safe],
+        # 'maintainer_email': [ignore_missing, unicode_safe, email_validator],
+        'maintainer': [not_empty, unicode_safe],
+        'maintainer_email': [not_empty, unicode_safe, email_validator],
         'license_id': [ignore_missing, unicode_safe],
         'notes': [ignore_missing, unicode_safe],
         'url': [ignore_missing, unicode_safe],
