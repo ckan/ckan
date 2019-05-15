@@ -479,14 +479,14 @@ def check_dict(data_dict, select_dict, parent_path=()):
     raise DataError on incompatible types such as checking for dict values
     in a list value.
     """
-    if not isinstance(data_dict[k], dict):
+    if not isinstance(data_dict, dict):
         raise DataError('Expected dict for %s' % '__'.join(
             str(p) for p in parent_path))
 
     unmatched = []
     for k, v in sorted(select_dict.items()):
         if k not in data_dict:
-            unmatched.append(k)
+            unmatched.append(parent_path + (k,))
 
         elif isinstance(v, dict):
             unmatched.extend(check_dict(data_dict[k], v, parent_path + (k,)))
@@ -495,9 +495,9 @@ def check_dict(data_dict, select_dict, parent_path=()):
             unmatched.extend(check_list(data_dict[k], v, parent_path + (k,)))
 
         elif data_dict[k] != v:
-            unmatched.append(k)
+            unmatched.append(parent_path + (k,))
 
-    return [parent_path + (k,) for k in unmatched]
+    return unmatched
 
 
 def check_list(data_list, select_list, parent_path=()):
@@ -515,7 +515,7 @@ def check_list(data_list, select_list, parent_path=()):
     unmatched = []
     for i, v in enumerate(select_list):
         if i >= len(data_list):
-            unmatched.append(i)
+            unmatched.append(parent_path + (i,))
 
         elif isinstance(v, dict):
             unmatched.extend(check_dict(data_list[i], v, parent_path + (i,)))
@@ -524,9 +524,9 @@ def check_list(data_list, select_list, parent_path=()):
             unmatched.extend(check_list(data_dict[i], v, parent_path + (i,)))
 
         elif data_list[i] != v:
-            unmatched.append(i)
+            unmatched.append(parent_path + (i,))
 
-    return [parent_path + (k,) for k in unmatched]
+    return unmatched
 
 
 def resolve_string_key(data, string_key):
@@ -597,19 +597,20 @@ def check_string_key(data_dict, string_key, value):
     return []
 
 
-def delete_glob_match(data_dict, glob_patterns):
+def filter_glob_match(data_dict, glob_patterns):
     """
     remove keys and values from data_dict in-place based on glob patterns.
 
     glob patterns are string_keys with optional '*' keys matching everything
-    at that level. a '-' prefix on the glob pattern indicates values to
+    at that level. a '+' prefix on the glob pattern indicates values to
     protect from deletion, where the first matching pattern "wins".
     """
-    return _delete_glob_match(data_dict, [
-        (p.startswith('-'), p.lstrip('-').split('__') for p in glob_patterns])
+    return _filter_glob_match(data_dict, [
+        (p.startswith('+'), p.lstrip('-+').split('__'))
+        for p in glob_patterns])
 
 
-def _delete_glob_match(data, parsed_globs):
+def _filter_glob_match(data, parsed_globs):
     if isinstance(data, dict):
         protected = {}
         children = {}
@@ -635,7 +636,7 @@ def _delete_glob_match(data, parsed_globs):
         for head in children:
             if head not in data:
                 continue
-            _delete_glob_match(data[head], children[head])
+            _filter_glob_match(data[head], children[head])
 
         return
 
@@ -737,11 +738,10 @@ def update_merge_string_key(data_dict, string_key, value):
 
         child, (index,) = resolve_string_key(current, k)
         if isinstance(child, dict):
-            update_merge_dict(child, v, parent_path + (index,))
+            update_merge_dict(child, value, parent_path + (index,))
         elif isinstance(child, list):
-            update_merge_list(child, v, parent_path + (index,))
+            update_merge_list(child, value, parent_path + (index,))
         else:
-            current[index] = v
+            current[index] = value
     else:
-        raise DataError('Expected list or dict for %s' %
-            )
+        raise DataError('Expected list or dict for %s' % string_key)
