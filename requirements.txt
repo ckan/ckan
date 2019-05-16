@@ -48,13 +48,13 @@ rq==1.0
 simplejson==3.10.0
 six==1.12.0               # via bleach, pastescript, python-dateutil, pyutilib.component.core, sqlalchemy-migrate
 sqlalchemy-migrate==0.12.0
-sqlalchemy==1.1.11
+sqlalchemy==1.3.3
 sqlparse==0.2.2
 tempita==0.5.2            # via pylons, sqlalchemy-migrate, weberror
 tzlocal==1.3
 unicodecsv==0.14.1
 urllib3==1.24.2           # via requests
-vdm==0.14
+vdm==0.15
 webencodings==0.5.1       # via bleach
 weberror==0.13.1          # via pylons
 webhelpers==1.3
