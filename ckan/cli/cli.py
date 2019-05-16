@@ -8,6 +8,7 @@ from ckan.cli import (
     click_config_option, db, load_config, search_index, server,
     datastore,
     translation,
+    dataset,
 )
 
 from ckan.config.middleware import make_app
@@ -38,3 +39,4 @@ ckan.add_command(db.db)
 ckan.add_command(search_index.search_index)
 ckan.add_command(datastore.datastore)
 ckan.add_command(translation.translation)
+ckan.add_command(dataset.dataset)
