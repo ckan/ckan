@@ -1596,7 +1596,7 @@ def format_autocomplete(context, data_dict):
         ))
         .filter(model.Resource.format.ilike(like_q))
         .group_by(model.Resource.format)
-        .order_by('total DESC')
+        .order_by(text('total DESC'))
         .limit(limit))
 
     return [resource.format.lower() for resource in query]
