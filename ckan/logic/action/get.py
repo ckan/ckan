@@ -10,6 +10,7 @@ import socket
 
 from ckan.common import config
 import sqlalchemy
+from sqlalchemy import text
 from paste.deploy.converters import asbool
 from six import string_types, text_type
 
