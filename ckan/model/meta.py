@@ -75,7 +75,7 @@ class CkanSessionExtension(SessionExtension):
                 revision_table.update().where(
                     and_(revision_table.c.id == obj.id,
                          revision_table.c.current == '1')
-                ).values(current= '0')
+                ).values(current='0')
             )
 
             q = session.query(revision_cls)
