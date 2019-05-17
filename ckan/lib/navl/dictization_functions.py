@@ -475,13 +475,9 @@ def check_dict(data_dict, select_dict, parent_path=()):
     """
     return list of key tuples from select_dict whose values don't match
     corresponding values in data_dict.
-
-    raise DataError on incompatible types such as checking for dict values
-    in a list value.
     """
     if not isinstance(data_dict, dict):
-        raise DataError('Expected dict for %s' % '__'.join(
-            str(p) for p in parent_path))
+        return [parent_path]
 
     unmatched = []
     for k, v in sorted(select_dict.items()):
@@ -504,13 +500,9 @@ def check_list(data_list, select_list, parent_path=()):
     """
     return list of key tuples from select_list whose values don't match
     corresponding values in data_list.
-
-    raise DataError on incompatible types such as checking for dict values
-    in a list value.
     """
     if not isinstance(data_list, list):
-        raise DataError('Expected list for %s' % '__'.join(
-            str(p) for p in parent_path))
+        return [parent_path]
 
     unmatched = []
     for i, v in enumerate(select_list):
@@ -521,7 +513,7 @@ def check_list(data_list, select_list, parent_path=()):
             unmatched.extend(check_dict(data_list[i], v, parent_path + (i,)))
 
         elif isinstance(v, list):
-            unmatched.extend(check_list(data_dict[i], v, parent_path + (i,)))
+            unmatched.extend(check_list(data_list[i], v, parent_path + (i,)))
 
         elif data_list[i] != v:
             unmatched.append(parent_path + (i,))

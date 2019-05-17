@@ -1,12 +1,10 @@
 # encoding: utf-8
 
-import nose
+from nose.tools import eq_, assert_raises
 from six import text_type
 from ckan.lib.navl.dictization_functions import (
-    validate, Invalid, check_dict)
+    validate, Invalid, check_dict, DataError)
 
-
-eq_ = nose.tools.eq_
 
 
 class TestValidate(object):
@@ -136,3 +134,17 @@ class TestCheckDict(object):
                 {'a':[{'b': 'c'}], 'd':'e'},
                 {'a':[{'b': 'c'}], 'd':'d'}),
             [('d',)])
+
+    def test_list_expected(self):
+        eq_(
+            check_dict(
+                {'a':[{'b': []}], 'd':'e'},
+                {'a':[{'b': {}}]}),
+            [('a', 0, 'b')])
+
+    def test_dict_expected(self):
+        eq_(
+            check_dict(
+                {'a':[{'b': []}], 'd':'e'},
+                {'a':[['b']]}),
+            [('a', 0)])
