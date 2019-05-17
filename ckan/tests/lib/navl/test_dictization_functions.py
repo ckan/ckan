@@ -3,7 +3,7 @@
 from nose.tools import eq_, assert_raises
 from six import text_type
 from ckan.lib.navl.dictization_functions import (
-    validate, Invalid, check_dict, DataError)
+    validate, Invalid, check_dict, resolve_string_key, DataError)
 
 
 
@@ -148,3 +148,47 @@ class TestCheckDict(object):
                 {'a':[{'b': []}], 'd':'e'},
                 {'a':[['b']]}),
             [('a', 0)])
+
+
+class TestResolveStringKey(object):
+    def test_dict_value(self):
+        eq_(
+            resolve_string_key(
+                {'a': [{'b': 'c'}], 'd': 'e'},
+                'a__0__b'),
+            ('c', ('a', 0, 'b')))
+
+    def test_list_value(self):
+        eq_(
+            resolve_string_key(
+                {'a': [{'b': 'c'}], 'd': 'e'},
+                'a__0'),
+            ({'b': 'c'}, ('a', 0)))
+
+    def test_bad_dict_value(self):
+        with assert_raises(DataError) as de:
+            resolve_string_key(
+                {'a': [{'b': 'c'}], 'd': 'e'},
+                'a__0__c'),
+        eq_(de.exception.error, 'Unmatched key a__0__c')
+
+    def test_bad_list_value(self):
+        with assert_raises(DataError) as de:
+            resolve_string_key(
+                {'a': [{'b': 'c'}], 'd': 'e'},
+                'a__1__c'),
+        eq_(de.exception.error, 'Unmatched key a__1')
+
+    def test_partial_id_key(self):
+        eq_(
+            resolve_string_key(
+                {'a': [{'id': 'deadbeef', 'd': 'e'}]},
+                'a__deadb__d'),
+            ('e', ('a', 0, 'd')))
+
+    def test_invalid_partial_id_key(self):
+        with assert_raises(DataError) as de:
+            resolve_string_key(
+                {'a': [{'id': 'deadbeef', 'd': 'e'}]},
+                'a__dead__d'),
+        eq_(de.exception.error, 'Unmatched key a__dead')

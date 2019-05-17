@@ -523,7 +523,7 @@ def check_list(data_list, select_list, parent_path=()):
 
 def resolve_string_key(data, string_key):
     """
-    return (child, parent_path) if string_key is found in data_dict
+    return (child, parent_path) if string_key is found in data
     raise DataError on incompatible types or key not found.
 
     supports partial-id keys for lists of dicts (minimum 5 hex digits)
@@ -553,9 +553,11 @@ def resolve_string_key(data, string_key):
                 if rec['id'].startswith(k):
                     parent_path.append(i)
                     current = rec
-                    continue
-            raise DataError('Unmatched key %s' % '__'.join(
-                str(p) for p in parent_path + [k]))
+                    break
+            else:
+                raise DataError('Unmatched key %s' % '__'.join(
+                    str(p) for p in parent_path + [k]))
+            continue
 
         try:
             index = int(k)
