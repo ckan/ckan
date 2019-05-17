@@ -23,6 +23,7 @@ from six.moves.urllib.parse import urljoin, urlparse
 from six.moves.urllib.request import urlopen
 
 import sqlalchemy as sa
+from sqlalchemy import text
 import routes
 import paste.script
 from paste.registry import Registry
@@ -712,7 +713,7 @@ class Sysadmin(CkanCommand):
     def list(self):
         import ckan.model as model
         print('Sysadmins:')
-        sysadmins = model.Session.query(model.User).filter_by(sysadmin=True,
+        sysadmins = model.Session.query(model.User).filter_by(sysadmin=text(True),
                                                               state='active')
         print('count = %i' % sysadmins.count())
         for sysadmin in sysadmins:
