@@ -35,6 +35,7 @@ def package_dictize_with_revisions(pkg, context):
     * the specified revision_id doesn't exist
     * the specified revision_date was before the package was created
     '''
+    model = context['model']
     try:
         model.PackageRevision
         # CKAN<=2.8
@@ -43,7 +44,6 @@ def package_dictize_with_revisions(pkg, context):
         # CKAN>2.8
         revision_model = RevisionTableMappings.instance()
 
-    model = context['model']
     is_latest_revision = not(context.get(u'revision_id') or
                              context.get(u'revision_date'))
     execute = _execute if is_latest_revision else _execute_with_revision

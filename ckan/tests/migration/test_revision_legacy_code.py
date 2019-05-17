@@ -159,7 +159,7 @@ class TestPackageDictizeWithRevisions(object):
         sorted_resource_revisions = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
         for res in sorted_resource_revisions:
             print(res.id, res.revision_timestamp, res.state)
-        assert len(sorted_resource_revisions) == 3
+        assert len(sorted_resource_revisions) == 4  # 2 resources originally, then make_package_revision saves them both again
 
         # Make sure we remove changeable fields BEFORE we store the pretty-printed version
         # for comparison
@@ -206,7 +206,7 @@ class TestPackageDictizeWithRevisions(object):
         context = {'model': model,
                    'session': model.Session}
 
-        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
+        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()  # this depends on the previous test running :(
 
         pkgrevisions = model.Session.query(RevisionTableMappings.instance().PackageRevision).filter_by(id=anna1.id).all()
         sorted_packages = sorted(pkgrevisions, key=lambda x: x.revision_timestamp)

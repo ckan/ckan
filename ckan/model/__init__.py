@@ -57,12 +57,10 @@ from group import (
 from group_extra import (
     GroupExtra,
     group_extra_table,
-    group_extra_revision_table,
 )
 from package_extra import (
     PackageExtra,
     package_extra_table,
-    extra_revision_table,
 )
 from resource import (
     Resource,
@@ -85,7 +83,6 @@ from rating import (
 )
 from package_relationship import (
     PackageRelationship,
-    PackageRelationshipRevision,
     package_relationship_table,
 )
 from task_status import (
