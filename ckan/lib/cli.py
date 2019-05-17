@@ -351,7 +351,8 @@ class ManageDb(CkanCommand):
     def command(self):
         cmd = self.args[0]
 
-        self._load_config(cmd!='upgrade')
+        self._load_config(cmd != 'upgrade')
+
         import ckan.model as model
         import ckan.lib.search as search
 
@@ -375,10 +376,9 @@ class ManageDb(CkanCommand):
             if self.verbose:
                 print('Cleaning DB: SUCCESS')
         elif cmd == 'upgrade':
-            if len(self.args) > 1:
-                model.repo.upgrade_db(self.args[1])
-            else:
-                model.repo.upgrade_db()
+            model.repo.upgrade_db(*self.args[1:])
+        elif cmd == 'downgrade':
+            model.repo.downgrade_db(*self.args[1:])
         elif cmd == 'version':
             self.version()
         elif cmd == 'create-from-model':
