@@ -399,7 +399,7 @@ def make_revision(instances):
         model.Session.execute(
             revision_table.update().where(
                 and_(revision_table.c.id == instance.id,
-                     revision_table.c.current == True)
+                     revision_table.c.current is True)
             ).values(current=False)
         )
 
