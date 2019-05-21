@@ -533,7 +533,7 @@ Advanced Search
 ---------------
 
 If the query has a colon in it it will be considered a fielded search and the
-query sintax of Solr be used to search. This will allow us to use wilcards
+query syntax of Solr will be used to search. This will allow us to use wildcards
 "*", proximity matching "~" and general features described in Solr docs.
 The basic syntax is ``field:term``.
 
