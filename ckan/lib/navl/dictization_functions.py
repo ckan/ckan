@@ -582,9 +582,9 @@ def check_string_key(data_dict, string_key, value):
     in a list value.
     """
     current, parent_path = resolve_string_key(data_dict, string_key)
-    if isinstance(current, dict):
+    if isinstance(value, dict):
         return check_dict(current, value, parent_path)
-    if isinstance(current, list):
+    if isinstance(value, list):
         return check_list(current, value, parent_path)
     if current != value:
         return [parent_path]

@@ -3,8 +3,8 @@
 from nose.tools import eq_, assert_raises
 from six import text_type
 from ckan.lib.navl.dictization_functions import (
-    validate, Invalid, check_dict, resolve_string_key, DataError)
-
+    validate, Invalid, check_dict, resolve_string_key, DataError,
+    check_string_key)
 
 
 class TestValidate(object):
@@ -192,3 +192,53 @@ class TestResolveStringKey(object):
                 {'a': [{'id': 'deadbeef', 'd': 'e'}]},
                 'a__dead__d'),
         eq_(de.exception.error, 'Unmatched key a__dead')
+
+
+class TestCheckStringKey(object):
+    def test_list_child(self):
+        eq_(
+            check_string_key(
+                {'a': [{'b': 'c'}], 'd': 'e'},
+                'a',
+                [{'b': 'c'}]),
+            [])
+
+    def test_string_child(self):
+        eq_(
+            check_string_key(
+                {'a': [{'b': 'c'}], 'd': 'e'},
+                'd',
+                'e'),
+            [])
+
+    def test_all_wrong(self):
+        eq_(
+            check_string_key(
+                {'t': {'a': [{'b': 'c'}], 'd': 'e'}},
+                't',
+                {'q': [{'b': 'c'}], 'a': [{'z': 'x'}], 'r': 'e'}),
+            [('t', 'a', 0, 'z'), ('t', 'q',), ('t', 'r',)])
+
+    def test_child(self):
+        eq_(
+            check_string_key(
+                {'a':[{'b': 'c'}], 'd':'e'},
+                'a__0__b',
+                'z'),
+            [('a', 0, 'b')])
+
+    def test_list_expected(self):
+        eq_(
+            check_string_key(
+                {'a':[{'b': []}], 'd':'e'},
+                'a__0__b',
+                {}),
+            [('a', 0, 'b')])
+
+    def test_dict_expected(self):
+        eq_(
+            check_string_key(
+                {'a':[{'b': []}], 'd':'e'},
+                'a__0',
+                ['b']),
+            [('a', 0)])
