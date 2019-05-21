@@ -708,7 +708,7 @@ def update_merge_list(data_list, update_list, parent_path=()):
         elif isinstance(data_list[i], list):
             update_merge_list(data_list[i], v, parent_path + (i,))
         else:
-            data_list[k] = v
+            data_list[i] = v
 
 
 def update_merge_string_key(data_dict, string_key, value):
