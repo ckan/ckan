@@ -723,7 +723,11 @@ def update_merge_string_key(data_dict, string_key, value):
     k = parts[-1]
     string_key = '__'.join(parts[:-1])
 
-    current, parent_path = resolve_string_key(data_dict, string_key)
+    if string_key:
+        current, parent_path = resolve_string_key(data_dict, string_key)
+    else:
+        current = data_dict
+        parent_path = ()
 
     if isinstance(current, dict):
         update_merge_dict(current, {k: value}, parent_path)

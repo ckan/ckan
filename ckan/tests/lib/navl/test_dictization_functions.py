@@ -4,7 +4,8 @@ from nose.tools import eq_, assert_raises
 from six import text_type
 from ckan.lib.navl.dictization_functions import (
     validate, Invalid, check_dict, resolve_string_key, DataError,
-    check_string_key, filter_glob_match, update_merge_dict)
+    check_string_key, filter_glob_match, update_merge_dict,
+    update_merge_string_key)
 
 
 class TestValidate(object):
@@ -307,4 +308,33 @@ class TestMergeDict(object):
         data = {'a' :[{'b': []}], 'd': 'e'}
         with assert_raises(DataError) as de:
             update_merge_dict(data, {'a':[['b']]})
+        eq_(de.exception.error, 'Expected dict for a__0')
+
+
+class TestMergeStringKey(object):
+    def test_replace_child(self):
+        data = {'a': [{'b': 'c'}], 'd': 'e'}
+        update_merge_string_key(data, 'a__0__b', 'z')
+        eq_(data, {'a': [{'b': 'z'}], 'd': 'e'})
+
+    def test_replace_parent(self):
+        data = {'a': [{'b': 'c'}], 'd': 'e'}
+        update_merge_string_key(data, 'd', 'd')
+        eq_(data, {'a': [{'b': 'c'}], 'd': 'd'})
+
+    def test_simple_list(self):
+        data = {'a': ['q', 'w', 'e', 'r', 't']}
+        update_merge_string_key(data, 'a__0', 'z')
+        eq_(data, {'a': ['z', 'w', 'e', 'r', 't']})
+
+    def test_list_expected(self):
+        data = {'a': [{'b': []}], 'd': 'e'}
+        with assert_raises(DataError) as de:
+            update_merge_string_key(data, 'a__0__b', {})
+        eq_(de.exception.error, 'Expected list for a__0__b')
+
+    def test_dict_expected(self):
+        data = {'a' :[{'b': []}], 'd': 'e'}
+        with assert_raises(DataError) as de:
+            update_merge_string_key(data, 'a__0', ['b'])
         eq_(de.exception.error, 'Expected dict for a__0')
