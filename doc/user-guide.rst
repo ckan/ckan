@@ -540,7 +540,7 @@ The basic syntax is ``field:term``.
 Advanced Search Examples:
 
 * ``title:european`` this will look for all the datasets containing in its
-  title a the word "european".
+  title the word "european".
 
 * ``title:europ*`` this will look for all the datasets containing in its title
   a word that starts with "europ" like "europe" and "european".
