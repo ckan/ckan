@@ -2,7 +2,7 @@ License
 +++++++
 
 CKAN - Data Catalogue Software
-Copyright (c) 2006-2018 Open Knowledge International and contributors
+Copyright (c) 2006-2018 Open Knowledge Foundation and contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
