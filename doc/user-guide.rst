@@ -475,7 +475,7 @@ logged in to use this feature.
 Search in detail
 ================
 
-CKAN supports 2 search modes, both are used from the same search field.
+CKAN supports two search modes, both are used from the same search field.
 If the search terms entered into the search field contain no colon (":")
 CKAN will perform a simple search. If the search expression does contain at
 least one colon (":") CKAN will perform an advanced search.
