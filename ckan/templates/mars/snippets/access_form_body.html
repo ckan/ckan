@@ -1,17 +1,30 @@
 {% import 'macros/form.html' as form %}
-{% set action = g.form_action or '' %}
 
-<form id='request-access-form' class="dataset-form" method="post" data-module="basic-form"
+{% set data = data or {} %}
+{% set errors = errors or {} %}
+
+<form id='request-access-form' class="dataset-form" method="POST" action=''
+  data-module="basic-form"
   enctype="multipart/form-data">
   {% block error_summary %}
     {{ form.errors(error_summary) }}
   {% endblock %}
 
   {% block basic_fields %}
-    {{ form.input('subject', label=_('Subject'), value=data.subject, placeholder=data.subject, error=errors.subject ) }}
-    {{ form.input('from', label=_('From'), value=data.from, error=errors.from) }}
-    {{ form.input('to', label=_('To'), value=data.to, error=errors.to) }}
-    {{ form.input('to_hidden', type='hidden', value=data.to, error=errors.to) }}
+    <p>
+      <strong>Subject:</strong>
+      {{ data.subject }}
+    </p>
+
+    {{ form.input('user_email', label=_('From'), value=data.user_email, error=errors.user_email, is_required=true) }}
+
+    {{ form.textarea('user_msg', id='field-description', label=_('Description'), value=data.user_msg, error=errors.user_msg) }}
+
+    <input type="hidden" id="subject" name="subject" value="{{ data.subject }}" class="form-control">
+
+    <input type="hidden" id="maintainer_name" name="maintainer_name" value="{{ data.maintainer_name }}" class="form-control">
+
+    <input type="hidden" id="maintainer_email" name="maintainer_email" value="{{ data.maintainer_email }}" class="form-control">
 
     {% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={'class': 'form-control'}, is_required=true) %}
 
@@ -28,7 +41,7 @@
 
   <div class="form-actions">
     {% block form_actions %}
-      <button class="btn btn-primary" type="submit" name="save">{{ _("Submit Request") }}</button>
+      <button class="btn btn-primary" type="submit" name="save" value="">{{ _("Submit Request") }}</button>
     {% endblock %}
   </div>
 

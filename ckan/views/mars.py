@@ -1,102 +1,160 @@
 # encoding: utf-8
-
 import logging
+
 from flask import Blueprint, abort
+from flask.views import MethodView
+from paste.deploy.converters import asbool
+from six import text_type
 
-import ckan.model as model
-import ckan.logic as logic
+import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
-import ckan.lib.search as search
+import ckan.lib.captcha as captcha
 import ckan.lib.helpers as h
+import ckan.lib.mailer as mailer
+import ckan.lib.navl.dictization_functions as dictization_functions
+import ckan.logic as logic
+import ckan.logic.schema as schema
+import ckan.model as model
+import ckan.plugins as plugins
+from ckan.controllers.home import CACHE_PARAMETERS
+from ckan import authz
+from ckan.common import _, config, g, request
 
-from ckan.common import g, config, _, request
+import ckan.lib.search as search
+
+import ckan.lib.app_globals as app_globals
+
+# hooks for subclasses
+new_request_form = u'mars/snippets/access_form_body.html'
 
 mars = Blueprint(u'mars', __name__)
-
 log = logging.getLogger(__name__)
+
+get_action = logic.get_action
 
 
 @mars.before_request
 def before_request():
     u'''set context and check authorization'''
-    try:
-        context = {
-                u'model': model,
-                u'user': g.user,
-                u'auth_user_obj': g.userobj}
-        logic.check_access(u'site_read', context)
-    except logic.NotAuthorized:
-        abort(403)
+    pass
 
 
 def index():
     u'''display mars page'''
-    try:
-        context = {u'model': model, u'session': model.Session,
-                   u'user': g.user, u'auth_user_obj': g.userobj}
-        data_dict = {u'q': u'*:*',
-                     u'facet.field': h.facets(),
-                     u'rows': 4,
-                     u'start': 4,
-                     u'sort': u'view_recent desc',
-                     u'fq': u'capacity:"public"'}
-        query = logic.get_action(u'package_search')(context, data_dict)
-        g.search_facets = query['search_facets']
-        g.package_count = query['count']
-        g.datasets = query['results']
+    pass
 
-        g.facet_titles = {
-            u'organization': _(u'Organizations'),
-            u'groups': _(u'Groups'),
-            u'tags': _(u'Tags'),
-            u'res_format': _(u'Formats'),
-            u'license': _(u'Licenses'),
+
+# def new(self, data=None, errors=None, error_summary=None):
+#     u''' add new record to access request logging table'''
+
+#     data = data or {'from_email': 'aaa@aa.ca'}
+
+#     log.info('MaRS view, fn new, data.from: %s' % data.from_email)
+
+#     return
+
+
+def _new_form_to_db_schema():
+    return schema.reqaccess_new_form_schema()
+
+class ReqAccessView(MethodView):
+
+    def _prepare(self):
+        log.info('mars.py, ReqAccessView, _prepare')
+
+        context = {
+            u'model': model,
+            u'session': model.Session,
+            u'schema': _new_form_to_db_schema(),
+            u'save': u'save' in request.form
         }
 
-    except search.SearchError:
-        g.package_count = 0
+        return context
 
-    if g.userobj and not g.userobj.email:
-        url = h.url_for(controller=u'user', action=u'edit')
-        msg = _(u'Please <a href="%s">update your profile</a>'
-                u' and add your email address. ') % url + \
-            _(u'%s uses your email address'
-                u' if you need to reset your password.') \
-            % config.get(u'ckan.site_title')
-        h.flash_notice(msg, allow_html=True)
-    return base.render(u'mars/index.html', extra_vars={})
+    def post(self):
+        log.info('POST !!! mars.py, ReqAccessView: %s' % request.params)
+
+        context = self._prepare()
+        data1 = None
+
+        # a.s.
+        data = request.form
+
+        if 'save' in data:
+            log.info('mars view 124, save is in data')
+
+            try:
+                data_dict = logic.clean_dict(
+                    dictization_functions.unflatten(
+                        logic.tuplize_dict(logic.parse_params(request.form))))
+            except dictization_functions.DataError:
+                base.abort(400, _(u'Integrity Error'))
 
 
-def reqaccess(data=None, errors=None, error_summary=None):
-    u''' display access request form page'''
+            context[u'message'] = data_dict.get(u'log_message', u'')
 
-    log.info('MaRS view, fn reqaccess, req params: %s' % request.params)
+            log.info('POST !!! data_dict: %s' % data_dict)
 
-    from_email = g.userobj.email if g.userobj and g.userobj.email else u'your_email@domain.com'
-    maintainer_email = request.params.get('maintainer_email', u'')
+            try:
+                logic.get_action(u'reqaccess_create')(context, data_dict)
+            except logic.ValidationError as e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+                return self.get(data_dict, errors, error_summary)
 
-    errors = errors or {}
-    error_summary = error_summary or {}
+            h.flash_success(
+                _(u'Request Access saved into database "%s" '
+                    ) % (data_dict[u'user_email']))
 
-    data = data or {
-        'subject': u'AVIN Data Request',
-        'to': maintainer_email,
-        'from': from_email,
-        'title': u'Title',
+            return base.render(u'home/index.html')
+
+
+    def get(self, data=None, errors=None, error_summary=None):
+        log.info('GET !!! mars.py, ReqAccessView: %s' % request.params)
+
+        self._prepare()
+
+        user_email = g.userobj.email if g.userobj and g.userobj.email else u'your_email@domain.com'
+        maintainer_email = request.params.get('maintainer_email', u'')
+        maintainer_name = request.params.get('maintainer_name', u'')
+
+        errors = errors or {}
+        error_summary = error_summary or {}
+
+        data = data or {
+            'subject': u'AVIN Data Request',
+            'maintainer_email': maintainer_email,
+            'maintainer_name': maintainer_name,
+            'user_email': user_email,
+            'user_msg': '',
+            'title': u'Title',
         }
 
-    extra_vars = {
-        u'data': data,
-        u'errors': errors,
-        u'error_summary': error_summary,
-    }
 
-    return base.render(u'mars/access_form.html', extra_vars)
+        form_vars = {
+            u'data': data or {},
+            u'errors': errors or {},
+            u'error_summary': error_summary or {}
+        }
 
+        extra_vars = {
+            u'form': base.render(new_request_form, form_vars),
+            u'data': data,
+            u'errors': errors,
+            u'error_summary': error_summary,
+        }
 
-util_rules = [
+        log.info('NEW GET !!! mars.py, ReqAccessView: %s %s %s' % (extra_vars, form_vars, data) )
+
+        return base.render(u'mars/access_form.html', extra_vars)
+
+mars_rules = [
     (u'/', index),
-    (u'/reqaccess', reqaccess)
 ]
-for rule, view_func in util_rules:
+
+for rule, view_func in mars_rules:
     mars.add_url_rule(rule, view_func=view_func)
+
+
+mars.add_url_rule(u'/marsdataaccess',
+                  view_func=ReqAccessView.as_view(str(u'marsdataaccess')))

@@ -230,8 +230,8 @@ def package_create(context, data_dict):
         return pkg.id
 
     return _get_action('package_show')(
-                context.copy(), {'id': pkg.id}
-            )
+        context.copy(), {'id': pkg.id}
+    )
 
 
 def resource_create(context, data_dict):
@@ -392,7 +392,7 @@ def resource_view_create(context, data_dict):
 
     max_order = model.Session.query(
         func.max(model.ResourceView.order)
-        ).filter_by(resource_id=resource_id).first()
+    ).filter_by(resource_id=resource_id).first()
 
     order = 0
     if max_order[0] is not None:
@@ -918,8 +918,53 @@ def rating_create(context, data_dict):
     return ret_dict
 
 
+# a.s.
+def reqaccess_create(context, data_dict):
+    ''' Create a new access request.
+
+    :param id: the id of the new requestor (optional, not recommended, auto-generate)
+    :type id: string
+    :param user_ip_address: the ip address of the requestor
+    :type user_ip_address: string
+    :param maintainer_name: the maintainer's name
+    :type maintainer_name: string
+    :param maintainer_email: the email address for the maintainer
+    :type maintainer_email: string
+    :param user_msg: a message to the maintainer from the requestor (optional)
+    :type user_msg: string
+
+    :returns: the newly created request access
+    :rtype: dictionary
+
+    # a.s. end of the section
+
+    '''
+
+    model = context['model']
+    # schema = context.get('schema') or ckan.logic.schema.default_reqaccess_schema()
+    schema = ckan.logic.schema.default_reqaccess_schema()
+    session = context['session']
+
+    data, errors = _validate(data_dict, schema, context)
+
+    if errors:
+        for er in errors:
+            log.info('Validation errors in create.py a.s. - {er}'.format(er=er))
+
+        session.rollback()
+        raise ValidationError(errors)
+
+    reqaccess = model_save.reqaccess_dict_save(data, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+        log.info('create.py a.s. - changes committed')
+
+    return data_dict
+
+
 def user_create(context, data_dict):
-    '''Create a new user.
+    ''' Create a new user.
 
     You must be authorized to create users.
 

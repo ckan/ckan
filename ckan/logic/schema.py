@@ -391,6 +391,32 @@ def default_update_relationship_schema(
 
     return schema
 
+# a.s.
+# reqaccess schema
+@validator_args
+def default_reqaccess_schema(
+        ignore_missing, unicode_safe, name_validator,
+        not_empty, email_validator,
+        ignore):
+    return {
+        'id': [ignore_missing, unicode_safe],
+        'user_ip_address': [ignore_missing, unicode_safe],
+        'user_email': [not_empty, unicode_safe, email_validator],
+        'user_msg': [ignore_missing, unicode_safe],
+        'maintainer_name': [not_empty, unicode_safe],
+        'maintainer_email': [not_empty, unicode_safe, email_validator],
+        'created': [ignore],
+    }
+
+
+@validator_args
+def reqaccess_new_form_schema(
+        unicode_safe):
+    schema = default_user_schema()
+
+    return schema
+# a.s. end of section
+
 
 @validator_args
 def default_user_schema(
