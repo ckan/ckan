@@ -4,7 +4,7 @@ from nose.tools import eq_, assert_raises
 from six import text_type
 from ckan.lib.navl.dictization_functions import (
     validate, Invalid, check_dict, resolve_string_key, DataError,
-    check_string_key)
+    check_string_key, filter_glob_match)
 
 
 class TestValidate(object):
@@ -242,3 +242,35 @@ class TestCheckStringKey(object):
                 'a__0',
                 ['b']),
             [('a', 0)])
+
+
+class TestFilterGlobMatch(object):
+    def test_remove_leaves(self):
+        data = {'q': [{'b': 'c'}, {'z': 'x'}], 'r': 'e'}
+        filter_glob_match(data, ['q__0__b', 'q__1__z', 'r'])
+        eq_(data, {'q': [{}, {}]})
+
+    def test_remove_list_item(self):
+        data = {'q': [{'b': 'c'}, {'z': 'x'}], 'r': 'e'}
+        filter_glob_match(data, ['q__0'])
+        eq_(data, {'q': [{'z': 'x'}], 'r': 'e'})
+
+    def test_protect_list_item(self):
+        data = {'q': [{'b': 'c'}, {'z': 'x'}], 'r': 'e'}
+        filter_glob_match(data, ['+q__1', 'q__*'])
+        eq_(data, {'q': [{'z': 'x'}], 'r': 'e'})
+
+    def test_protect_dict_key(self):
+        data = {'q': [{'b': 'c'}, {'z': 'x'}], 'r': 'e'}
+        filter_glob_match(data, ['+q', '*'])
+        eq_(data, {'q': [{'b': 'c'}, {'z': 'x'}]})
+
+    def test_del_protect_del_dict(self):
+        data = {'q': 'b', 'c': 'z', 'r': 'e'}
+        filter_glob_match(data, ['q', '+*', 'r'])
+        eq_(data, {'c': 'z', 'r': 'e'})
+
+    def test_del_protect_del_list(self):
+        data = [{'id': 'hello'}, {'id': 'world'}, {'id': 'people'}]
+        filter_glob_match(data, ['world', '+*', 'hello'])
+        eq_(data, [{'id': 'hello'}, {'id': 'people'}])

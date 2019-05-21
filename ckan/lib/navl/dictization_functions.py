@@ -649,7 +649,7 @@ def _filter_glob_match(data, parsed_globs):
                 removed.update(set(range(len(data))) - protected)
             continue
         try:
-            child, index = resolve_string_key(data, head)
+            child, (index,) = resolve_string_key(data, head)
         except DataError:
             continue
 
@@ -661,6 +661,10 @@ def _filter_glob_match(data, parsed_globs):
         else:
             if index not in protected:
                 removed.add(index)
+
+        for head in children:
+            if head not in removed - protected:
+                _filter_glob_match(data[head], children[head])
 
     data[:] = [e for i, e in enumerate(data) if i not in removed - protected]
 
