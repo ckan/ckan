@@ -566,7 +566,7 @@ Advanced Search Examples:
     to search by the dataset name and ``text`` to look in a catch-all field that
     includes author, license, mantainer, tags, etc.
 
-.. warning::
+.. note::
 
     CKAN uses Apache Solr as its search engine. For further details check the
     `Solr documentation
