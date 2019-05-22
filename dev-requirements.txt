@@ -5,7 +5,7 @@ coveralls   #Let Unpinned - Requires latest coveralls
 docutils==0.12
 factory-boy==2.1.1
 Flask-DebugToolbar==0.10.1
-httpretty==0.8.3
+responses==0.10.6
 mock==2.0.0
 pycodestyle==2.5.0
 pip-tools==2.0.2
