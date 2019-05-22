@@ -574,7 +574,7 @@ Advanced Search Examples:
     Please note that CKAN sometimes uses different values than what is mentioned
     in that documentation. Also note that not the whole functionality is offered
     through the simplified search interface in CKAN or it can differ due to
-    extensions or local development in you CKAN instance.
+    extensions or local development in your CKAN instance.
 
 Personalization
 ===============
