@@ -1,5 +1,6 @@
 /* Module for reordering resources
  */
+
 this.ckan.module('resource-reorder', function($) {
   return {
     options: {

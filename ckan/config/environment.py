@@ -24,6 +24,7 @@ import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
+from ckan.lib.webassets_tools import webassets_init
 from ckan.lib.i18n import build_js_translations
 
 from ckan.common import _, ungettext, config
@@ -162,6 +163,8 @@ def update_config():
     changes into account. It is called whenever a plugin is loaded as the
     plugin might have changed the config values (for instance it might
     change ckan.site_url) '''
+
+    webassets_init()
 
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
