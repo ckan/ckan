@@ -44,16 +44,6 @@ def index():
     pass
 
 
-# def new(self, data=None, errors=None, error_summary=None):
-#     u''' add new record to access request logging table'''
-
-#     data = data or {'from_email': 'aaa@aa.ca'}
-
-#     log.info('MaRS view, fn new, data.from: %s' % data.from_email)
-
-#     return
-
-
 def _new_form_to_db_schema():
     return schema.reqaccess_new_form_schema()
 
@@ -61,8 +51,6 @@ def _new_form_to_db_schema():
 class ReqAccessView(MethodView):
 
     def _prepare(self):
-        log.info('mars.py, ReqAccessView, _prepare')
-
         context = {
             u'model': model,
             u'session': model.Session,
@@ -73,17 +61,12 @@ class ReqAccessView(MethodView):
         return context
 
     def post(self):
-        log.info('POST !!! mars.py, ReqAccessView: %s' % request.params)
-
         context = self._prepare()
-        data1 = None
 
         # a.s.
         data = request.form
 
         if 'save' in data:
-            log.info('mars view 124, save is in data')
-
             try:
                 data_dict = logic.clean_dict(
                     dictization_functions.unflatten(
@@ -92,8 +75,6 @@ class ReqAccessView(MethodView):
                 base.abort(400, _(u'Integrity Error'))
 
             context[u'message'] = data_dict.get(u'log_message', u'')
-
-            log.info('POST !!! data_dict: %s' % data_dict)
 
             try:
                 logic.get_action(u'reqaccess_create')(context, data_dict)
@@ -109,7 +90,6 @@ class ReqAccessView(MethodView):
             return base.render(u'home/index.html')
 
     def get(self, data=None, errors=None, error_summary=None):
-        log.info('GET !!! mars.py, ReqAccessView: %s' % request.params)
 
         self._prepare()
 
@@ -142,9 +122,6 @@ class ReqAccessView(MethodView):
             u'error_summary': error_summary,
         }
 
-        log.info('NEW GET !!! mars.py, ReqAccessView: %s %s %s' %
-                 (extra_vars, form_vars, data))
-
         return base.render(u'mars/access_form.html', extra_vars)
 
 
@@ -154,7 +131,6 @@ mars_rules = [
 
 for rule, view_func in mars_rules:
     mars.add_url_rule(rule, view_func=view_func)
-
 
 mars.add_url_rule(u'/marsdataaccess',
                   view_func=ReqAccessView.as_view(str(u'marsdataaccess')))

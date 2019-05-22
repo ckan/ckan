@@ -978,7 +978,7 @@ def reqaccess_create(context, data_dict):
 
     if not context.get('defer_commit'):
         model.repo.commit()
-        log.info('create.py: a.s. - changes committed')
+        log.info('create.py: a.s. - access request committed to the db')
 
     # a.s.
     recipient = {}
