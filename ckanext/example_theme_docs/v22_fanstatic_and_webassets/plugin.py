@@ -5,7 +5,7 @@ import ckan.plugins.toolkit as toolkit
 
 
 def most_popular_groups():
-    '''Return a sorted list of the groups with the most datasets.'''
+    u'''Return a sorted list of the groups with the most datasets.'''
 
     # Get a list of all the site's groups from CKAN, sorted by number of
     # datasets.
@@ -19,7 +19,7 @@ def most_popular_groups():
 
 
 class ExampleThemePlugin(plugins.SingletonPlugin):
-    '''An example theme plugin.
+    u'''An example theme plugin.
 
     '''
     plugins.implements(plugins.IConfigurer)
@@ -45,7 +45,7 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
         toolkit.add_resource(u'fanstatic', u'example_theme')
 
     def get_helpers(self):
-        '''Register the most_popular_groups() function above as a template
+        u'''Register the most_popular_groups() function above as a template
         helper function.
 
         '''
