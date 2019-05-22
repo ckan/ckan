@@ -20,7 +20,7 @@ import ckan.logic.schema as schema_
 import ckan.lib.dictization as dictization
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
-import ckan.lib.navl.dictization_functions
+import ckan.lib.navl.dictization_functions as dfunc
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications as email_notifications
@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 # Define some shortcuts
 # Ensure they are module-private so that they don't get loaded as available
 # actions in the action API.
-_validate = ckan.lib.navl.dictization_functions.validate
+_validate = dfunc.validate
 _get_action = logic.get_action
 _check_access = logic.check_access
 NotFound = logic.NotFound
@@ -255,48 +255,24 @@ def package_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
-
-    if 'id' in data_dict or 'name' in data_dict:
-        name_or_id = data_dict.get('id') or data_dict.get('name')
-        if name_or_id is None:
-            raise ValidationError({'id': _('Missing value')})
-
-        pkg = model.Package.get(name_or_id)  # FIXME: for_update=True
-        if pkg is None:
-            raise NotFound(_('Package was not found.'))
-        update_dict = data_dict
-        data_dict = {
-            'select': {
-                'id': pkg.id
-            },
-            'update': data_dict
-        }
-
-    elif 'select' in data_dict:
-        name_or_id = data_dict['select'].get('id') or data_dict['select'].get('name')
-        if name_or_id is None:
-            raise ValidationError({'select__id': _('Missing value')})
-
-        # FIXME validate data_dict
-
-        orig = _get_action('package_show')(  # FIXME: for_update=True
-            dict(context, return_type='dict'),
-            {'id': name_or_id})
-        update_flat = flatten_dict(orig)
-
-
-    else:
+    name_or_id = data_dict.get('id') or data_dict.get('name')
+    if name_or_id is None:
         raise ValidationError({'id': _('Missing value')})
 
-
+    pkg = model.Package.get(name_or_id)
+    if pkg is None:
+        raise NotFound(_('Package was not found.'))
     context["package"] = pkg
-    # immutable fields
-    data_dict['update']['id'] = pkg.id
-    data_dict['update']['type'] = pkg.type
+    data_dict["id"] = pkg.id
+    data_dict['type'] = pkg.type
 
-    _check_access('package_update', context, update_dict)
+    _check_access('package_update', context, data_dict)
+    return _package_update(context, data_dict)
 
+
+def _package_update(context, data_dict):
+    model = context['model']
+    user = context['user']
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     if 'schema' in context:
@@ -377,6 +353,90 @@ def package_update(context, data_dict):
             else _get_action('package_show')(context, {'id': data_dict['id']})
 
     return output
+
+
+def package_sfu(context, data_dict):
+    '''Update a dataset (package) in a transaction with Select, Filter and
+    Update parameters.
+
+    You must be authorized to edit the dataset and the groups that it belongs
+    to.
+
+    :param select: a dict containing "id" or "name" values of the dataset
+                   to update, all values provided must match the current
+                   dataset values or a ValidationError will be raised. e.g.
+                   ``{"name": "my-data", "resources": {["name": "big.csv"]}}``
+                   would abort if the my-data dataset's first resource name
+                   is not "big.csv".
+    :type select: dict
+    :param filter: a list of string patterns of fields to remove from the
+                   current dataset. e.g. ``["-resources__1"]`` would remove the
+                   second resource, ``["+title", "+resources", "-*"]`` would
+                   remove all fields at the dataset level except title and
+                   all resources (default: ``[]``)
+    :type filter: list of string patterns
+    :param update: a dict with values to update/create after filtering
+                   e.g. ``{"resources": [{"description": "file here"}]}`` would
+                   update the description for the first resource
+    :type update: dict
+    :param include: a list of string pattern of fields to include in response
+                    e.g. ``["-*"]`` to return nothing (default: ``[]`` all
+                    fields returned)
+    :type include: list of string patterns
+
+    select and update parameters may also be passed as path keys, e.g.
+    ``update__resource__1f9ab__description="file here"`` would set the
+    description of resource id starting with "1f9ab" to "file here".
+
+    :returns: the updated dataset with fields filtered by include parameter
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+
+    name_or_id = data_dict['select'].get('id') or data_dict['select'].get('name')
+    if name_or_id is None:
+        raise ValidationError({'select__id': _('Missing value')})
+
+    schema = schema_.package_sfu_schema()
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    orig = _get_action('package_show')(  # FIXME: for_update=True
+        dict(context, return_type='dict'),
+        {'id': name_or_id})
+    pkg = context['package']  # side-effect of package_show
+
+    unmatched = dfunc.check_dict(orig, data_dict['select'])
+    if unmatched:
+        model.Session.rollback()
+        raise ValidationError([{'select': [
+            '__'.join(str(p) for p in unm)
+            for unm in unmatched
+        ]}])
+
+    if 'filter' in data_dict:
+        dfunc.filter_glob_match(orig, data_dict['filter'])
+
+    try:
+        dfunc.update_merge_dict(orig, data_dict['update'])
+    except dfunc.DataError as de:
+        model.Session.rollback()
+        raise ValidationError([{'update': [de.error]}])
+
+    # immutable fields
+    orig['id'] = pkg.id
+    orig['type'] = pkg.type
+
+    _check_access('package_sfu', context, orig)
+
+    rval = _package_update(context, orig)
+    if 'include' in data_dict:
+        dfunc.filter_glob_match(rval, data_dict['include'])
+    return rval
+
 
 def package_resource_reorder(context, data_dict):
     '''Reorder resources against datasets.  If only partial resource ids are

@@ -122,20 +122,6 @@ class TestCheckDict(object):
                 {'q': [{'b': 'c'}], 'a': [{'z': 'x'}], 'r': 'e'}),
             [('a', 0, 'z'), ('q',), ('r',)])
 
-    def test_child(self):
-        eq_(
-            check_dict(
-                {'a':[{'b': 'c'}], 'd':'e'},
-                {'a':[{'b': 'z'}], 'd':'e'}),
-            [('a', 0, 'b')])
-
-    def test_parent(self):
-        eq_(
-            check_dict(
-                {'a':[{'b': 'c'}], 'd':'e'},
-                {'a':[{'b': 'c'}], 'd':'d'}),
-            [('d',)])
-
     def test_list_expected(self):
         eq_(
             check_dict(

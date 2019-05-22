@@ -792,3 +792,16 @@ def job_clear_schema(ignore_missing, list_of_strings):
     return {
         u'queues': [ignore_missing, list_of_strings],
     }
+
+
+@validator_args
+def package_sfu_schema(not_missing, ignore_missing, list_of_strings):
+    return {
+        u'__before': [
+            collect_path_keys(u'select'),
+            collect_path_keys(u'update')],
+        u'select': [not_missing, dict_or_json_dict],
+        u'filter': [ignore_missing, list_of_strings],
+        u'update': [not_missing, dict_or_json_dict],
+        u'include': [ignore_missing, list_of_strings],
+    }
