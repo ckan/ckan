@@ -57,6 +57,7 @@ def index():
 def _new_form_to_db_schema():
     return schema.reqaccess_new_form_schema()
 
+
 class ReqAccessView(MethodView):
 
     def _prepare(self):
@@ -90,7 +91,6 @@ class ReqAccessView(MethodView):
             except dictization_functions.DataError:
                 base.abort(400, _(u'Integrity Error'))
 
-
             context[u'message'] = data_dict.get(u'log_message', u'')
 
             log.info('POST !!! data_dict: %s' % data_dict)
@@ -103,11 +103,10 @@ class ReqAccessView(MethodView):
                 return self.get(data_dict, errors, error_summary)
 
             h.flash_success(
-                _(u'Request Access saved into database "%s" '
-                    ) % (data_dict[u'user_email']))
+                _(u'Request for access has been sent. Data maintainer will respond to this email: "%s" '
+                  ) % (data_dict[u'user_email']))
 
             return base.render(u'home/index.html')
-
 
     def get(self, data=None, errors=None, error_summary=None):
         log.info('GET !!! mars.py, ReqAccessView: %s' % request.params)
@@ -130,7 +129,6 @@ class ReqAccessView(MethodView):
             'title': u'Title',
         }
 
-
         form_vars = {
             u'data': data or {},
             u'errors': errors or {},
@@ -144,9 +142,11 @@ class ReqAccessView(MethodView):
             u'error_summary': error_summary,
         }
 
-        log.info('NEW GET !!! mars.py, ReqAccessView: %s %s %s' % (extra_vars, form_vars, data) )
+        log.info('NEW GET !!! mars.py, ReqAccessView: %s %s %s' %
+                 (extra_vars, form_vars, data))
 
         return base.render(u'mars/access_form.html', extra_vars)
+
 
 mars_rules = [
     (u'/', index),

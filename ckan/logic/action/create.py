@@ -10,7 +10,9 @@ import string
 
 import paste.deploy.converters
 from sqlalchemy import func
+from six import text_type
 
+import ckan.lib.helpers as h
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.plugins as plugins
@@ -918,6 +920,23 @@ def rating_create(context, data_dict):
     return ret_dict
 
 
+def _mail_recipient(recipient=None, email_dict=None):
+    try:
+        # send email
+        email = {'recipient_name': recipient['display_name'],
+                 'recipient_email': recipient['email'],
+                 'subject': email_dict['subject'],
+                 'body': email_dict['body'],
+                 #  'headers': {'header1': 'value1'}
+                 }
+        mailer.mail_recipient(**email)
+
+    except mailer.MailerException as e:
+        h.flash_error(_('Could not send an email: %s') %
+                      text_type(e))
+        raise
+
+
 # a.s.
 def reqaccess_create(context, data_dict):
     ''' Create a new access request.
@@ -949,16 +968,31 @@ def reqaccess_create(context, data_dict):
 
     if errors:
         for er in errors:
-            log.info('Validation errors in create.py a.s. - {er}'.format(er=er))
+            log.info(
+                'Validation errors in create.py a.s. - {er}'.format(er=er))
 
         session.rollback()
         raise ValidationError(errors)
 
-    reqaccess = model_save.reqaccess_dict_save(data, context)
+    model_save.reqaccess_dict_save(data, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
-        log.info('create.py a.s. - changes committed')
+        log.info('create.py: a.s. - changes committed')
+
+    # a.s.
+    recipient = {}
+    email_dict = {}
+
+    recipient['display_name'] = data_dict['maintainer_name']
+    recipient['email'] = data_dict['maintainer_email']
+
+    email_dict['subject'] = data_dict['subject']
+    email_dict['body'] = u'Requestor\'s Email: ' + \
+        data_dict['user_email'] + '\n\nMessage:\n' + data_dict['user_msg']
+
+    if _mail_recipient(recipient, email_dict):
+        log.info('create.py: a.s. - email sent')
 
     return data_dict
 
