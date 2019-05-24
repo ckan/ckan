@@ -34,7 +34,8 @@ def get_jinja_env_options():
                     LinkForExtension,
                     ResourceExtension,
                     UrlForStaticExtension,
-                    UrlForExtension],
+                    UrlForExtension,
+                    AssetExtension],
     )
 
 
@@ -312,7 +313,7 @@ class LinkForExtension(BaseExtension):
         return h.nav_link(*args, **kwargs)
 
 class ResourceExtension(BaseExtension):
-    ''' Custom include_resource tag
+    ''' Deprecated. Custom include_resource tag.
 
     {% resource <resource_name> %}
 
@@ -328,6 +329,23 @@ class ResourceExtension(BaseExtension):
         h.include_resource(args[0], **kwargs)
         return ''
 
+
+class AssetExtension(BaseExtension):
+    ''' Custom include_asset tag.
+
+    {% asset <bundle_name> %}
+
+    see lib.webassets_tools.include_asset() for more details.
+    '''
+
+    tags = set(['asset'])
+
+    @classmethod
+    def _call(cls, args, kwargs):
+        assert len(args) == 1
+        assert len(kwargs) == 0
+        h.include_asset(args[0])
+        return ''
 
 
 '''

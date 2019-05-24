@@ -8,7 +8,7 @@ import inspect
 import itertools
 import pkgutil
 
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 
@@ -23,6 +23,7 @@ from fanstatic import Fanstatic
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
+import ckan
 import ckan.model as model
 from ckan.lib import base
 from ckan.lib import helpers
@@ -30,7 +31,8 @@ from ckan.lib import jinja_extensions
 from ckan.common import config, g, request, ungettext
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
-
+import ckan.plugins.toolkit as toolkit
+from ckan.lib.webassets_tools import get_webassets_path
 
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
@@ -40,7 +42,6 @@ from ckan.views import (identify_user,
                         set_controller_and_action
                         )
 
-import ckan.lib.plugins as lib_plugins
 import logging
 from logging.handlers import SMTPHandler
 log = logging.getLogger(__name__)
@@ -182,6 +183,9 @@ def make_flask_stack(conf, **app_conf):
     @app.route('/hello', methods=['POST'])
     def hello_world_post():
         return 'Hello World, this was posted to Flask'
+
+    # WebAssets
+    _setup_webassets(app)
 
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
@@ -493,3 +497,15 @@ Headers:            %(headers)s
     context_provider = ContextualFilter()
     app.logger.addFilter(context_provider)
     app.logger.addHandler(mail_handler)
+
+
+def _setup_webassets(app):
+    app.use_x_sendfile = toolkit.asbool(
+        config.get('ckan.webassets.use_x_sendfile')
+    )
+
+    webassets_folder = get_webassets_path()
+
+    @app.route('/webassets/<path:path>')
+    def webassets(path):
+        return send_from_directory(webassets_folder, path)
