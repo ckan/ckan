@@ -471,6 +471,11 @@ def make_package_revision(package):
         .all()
     instances.extend(extras)
     instances.extend(package.resources)
+    instances.extend(package.get_groups())
+    members = model.Session.query(model.Member) \
+        .filter_by(table_id=package.id) \
+        .all()
+    instances.extend(members)
     make_revision(instances)
 
 

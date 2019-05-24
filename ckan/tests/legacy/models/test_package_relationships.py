@@ -59,7 +59,7 @@ class TestCreation:
                                  {'name':u'pkgb', 'title':u'The Child'},
                                  ])
         pkga = model.Package.by_name(u'pkga')
-        pkgb = model.Package.by_name(u'pkgb')()
+        pkgb = model.Package.by_name(u'pkgb')
         pkgb.add_relationship(u'parent_of', pkga)
         pkgb.add_relationship(u'has_derivation', pkga)
         pkgb.add_relationship(u'child_of', pkga)
