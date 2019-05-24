@@ -84,7 +84,7 @@ class ReqAccessView(MethodView):
                 return self.get(data_dict, errors, error_summary)
 
             h.flash_success(
-                _(u'Request for access has been sent. Data maintainer will respond to this email: "%s" '
+                _(u'Request for dataset access has been sent. Data maintainer will respond to the following email: "%s" '
                   ) % (data_dict[u'user_email']))
 
             return base.render(u'home/index.html')
