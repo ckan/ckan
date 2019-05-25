@@ -73,7 +73,7 @@ def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
 
     for obj in obj_list:
         if context.get('with_capacity'):
-            obj, capacity = obj
+            capacity = context.get('with_capacity')
             dictized = table_dictize(obj, context, capacity=capacity)
         else:
             dictized = table_dictize(obj, context)
