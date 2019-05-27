@@ -989,7 +989,10 @@ def reqaccess_create(context, data_dict):
 
     email_dict['subject'] = data_dict['subject']
     email_dict['body'] = u'Requestor\'s Email: ' + \
-        data_dict['user_email'] + '\n\nMessage:\n' + data_dict['user_msg']
+        data_dict['user_email'] + '\n' + \
+        u'Resource Name: ' + \
+        data_dict['resource_name'] + \
+        '\n\nMessage:\n' + data_dict['user_msg']
 
     if _mail_recipient(recipient, email_dict):
         log.info('create.py: a.s. - email sent')

@@ -26,6 +26,8 @@
 
     <input type="hidden" id="maintainer_email" name="maintainer_email" value="{{ data.maintainer_email }}" class="form-control">
 
+    <input type="hidden" id="resource_name" name="resource_name" value="{{ data.resource_name }}" class="form-control">
+
     {% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={'class': 'form-control'}, is_required=true) %}
 
       {%- set extra_html = caller() if caller -%}

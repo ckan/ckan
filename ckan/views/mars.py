@@ -96,6 +96,7 @@ class ReqAccessView(MethodView):
         user_email = g.userobj.email if g.userobj and g.userobj.email else u'your_email@domain.com'
         maintainer_email = request.params.get('maintainer_email', u'')
         maintainer_name = request.params.get('maintainer_name', u'')
+        resource_name = request.params.get('resource_name', u'')
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -104,6 +105,7 @@ class ReqAccessView(MethodView):
             'subject': u'AVIN Data Request',
             'maintainer_email': maintainer_email,
             'maintainer_name': maintainer_name,
+            'resource_name': resource_name,
             'user_email': user_email,
             'user_msg': '',
             'title': u'Title',
