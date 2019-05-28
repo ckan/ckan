@@ -26,23 +26,24 @@ def upgrade():
     if num_unmigrated_dataset_activities:
         print(
             u'''
-    NOTE:
-    You have {num_unmigrated} unmigrated package activities.
+NOTE:
+You have {num_unmigrated} unmigrated package activities.
 
-    Once your CKAN upgrade is complete and CKAN server is running again, you
-    should run the package activity migration, so that the Activity Stream can
-    display the detailed history of datasets:
+Once your CKAN upgrade is complete and CKAN server is running again, you
+should run the package activity migration, so that the Activity Stream can
+display the detailed history of datasets:
 
-        python migrate_package_activity.py -c /etc/ckan/production.ini
+  python ckan/migration/migrate_package_activity.py -c /etc/ckan/production.ini
 
-    Once you've done that, the detailed history is visible in Activity Stream
-    to *admins only*. However you are encouraged to make it available to the
-    public, by setting this in production.ini:
+Once you've done that, the detailed history is visible in Activity Stream
+to *admins only*. However you are encouraged to make it available to the
+public, by setting this in production.ini:
 
-        ckan.auth.public_activity_stream_detail = true
+  ckan.auth.public_activity_stream_detail = true
 
-    More information about all of this is here:
-    https://github.com/ckan/ckan/wiki/Migrate-package-activity'''.format(
+More information about all of this is here:
+https://github.com/ckan/ckan/wiki/Migrate-package-activity
+            '''.format(
                 num_unmigrated=num_unmigrated_dataset_activities
             )
         )
