@@ -394,28 +394,33 @@ def package_sfu(context, data_dict):
     '''
     model = context['model']
 
-    name_or_id = data_dict['select'].get('id') or data_dict['select'].get('name')
-    if name_or_id is None:
-        raise ValidationError({'select__id': _('Missing value')})
-
     schema = schema_.package_sfu_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
 
+    name_or_id = (
+        data['select__'].get('select__id') or
+        data.get('select', {}).get('id') or
+        data['select__'].get('select__name') or
+        data.get('select', {}).get('name'))
+    if name_or_id is None:
+        raise ValidationError({'select__id': _('Missing value')})
+
     orig = _get_action('package_show')(  # FIXME: for_update=True
         dict(context, return_type='dict'),
         {'id': name_or_id})
     pkg = context['package']  # side-effect of package_show
 
-    unmatched = dfunc.check_dict(orig, data_dict['select'])
-    if unmatched:
-        model.Session.rollback()
-        raise ValidationError([{'select': [
-            '__'.join(str(p) for p in unm)
-            for unm in unmatched
-        ]}])
+    if 'select' in data:
+        unmatched = dfunc.check_dict(orig, data['select'])
+        if unmatched:
+            model.Session.rollback()
+            raise ValidationError([{'select': [
+                '__'.join(str(p) for p in unm)
+                for unm in unmatched
+            ]}])
 
     if 'filter' in data_dict:
         dfunc.filter_glob_match(orig, data_dict['filter'])

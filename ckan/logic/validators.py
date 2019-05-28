@@ -854,3 +854,34 @@ def email_validator(value, context):
         if not email_pattern.match(value):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
     return value
+
+
+def collect_prefix_validate(prefix, *validator_names):
+    """
+    Return a validator that will collect top-level keys starting with
+    prefix then apply validator_names to each one. Results are moved
+    to a dict under the prefix name
+    """
+    validator_fns = [logic.get_validator(v) for v in validator_names]
+
+    def prefix_validator(key, data, errors, context):
+        out = {}
+        extras = data.get(('__extras',), {})
+        for field_name in extras.keys():
+            if not field_name.startswith(prefix):
+                continue
+            data[(field_name,)] = extras.pop(field_name)
+            for v in validator_fns:
+                try:
+                    df.convert(v, (field_name,), data, errors, context)
+                except df.StopOnError:
+                    break
+            out[field_name] = data.pop((field_name,))
+        data[(prefix,)] = out
+
+    return prefix_validator
+
+
+def dict_only(value):
+    if not isinstance(value, dict):
+        raise Invalid(_('Must be a dict'))
