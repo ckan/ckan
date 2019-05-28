@@ -77,11 +77,15 @@ class TestPackage(object):
         assert_equal([p.name for p in tag.packages], [dataset['name']])
 
     def test_purge(self):
+        org = factories.Organization()
         group = factories.Group()
         dataset = factories.Dataset(
-            groups=[{u'id': group['id']}],
+            resources=[{u'url': u'http://example.com/image.png',
+                        u'format': u'png', u'name': u'Image 1'}],
             tags=[{u'name': u'science'}],
             extras=[{u'key': u'subject', u'value': u'science'}],
+            groups=[{u'id': group['id']}],
+            owner_org=org['id'],
         )
         pkg = model.Package.by_name(dataset['name'])
 
@@ -94,6 +98,10 @@ class TestPackage(object):
         # the purge cascades to some objects
         assert not model.Session.query(model.PackageExtra).all()
         assert not model.Session.query(model.PackageTag).all()
+        assert not model.Session.query(model.Resource).all()
+        # org remains, just not attached to the package
+        org = model.Group.get(org['id'])
+        assert_equal(org.packages(), [])
         # tag object remains, just not attached to the package
         tag = model.Session.query(model.Tag).all()[0]
         assert_equal(tag.packages, [])
