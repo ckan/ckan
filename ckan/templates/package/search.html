@@ -4,7 +4,7 @@
 {% block subtitle %}{{ _("Datasets") }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{{ h.nav_link(_(dataset_type.title() + 's'), controller='package', action='search', named_route=dataset_type + '_search', highlight_actions = 'new index') }}</li>
+  <li class="active">{{ h.nav_link(_(dataset_type.title() + 's'), controller='package', action='search', named_route='search') }}</li>
 {% endblock %}
 
 {% block primary_content %}
