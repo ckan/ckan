@@ -382,14 +382,20 @@ content type, cookies, etc.
 
     @classmethod
     def _add_ckan_admin_tabs(cls, config, route_name, tab_label,
-                             config_var='ckan.admin_tabs'):
+                             config_var='ckan.admin_tabs', icon=None):
         '''
         Update 'ckan.admin_tabs' dict the passed config dict.
         '''
         # get the admin_tabs dict from the config, or an empty dict.
         admin_tabs_dict = config.get(config_var, {})
         # update the admin_tabs dict with the new values
-        admin_tabs_dict.update({route_name: tab_label})
+        admin_tabs_dict.update({
+            route_name: {
+                'label': tab_label,
+                'icon': icon
+                }
+            }
+        )
         # update the config with the updated admin_tabs dict
         config.update({config_var: admin_tabs_dict})
 
