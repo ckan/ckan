@@ -2,6 +2,9 @@
 
 import datetime
 import copy
+import json
+from pprint import pprint
+import re
 
 import nose.tools
 
@@ -26,6 +29,7 @@ assert_raises = nose.tools.assert_raises
 class TestPackageShow(helpers.FunctionalTestBase):
 
     def test_package_show(self):
+        # simple dataset, simple checks
         dataset1 = factories.Dataset()
 
         dataset2 = helpers.call_action('package_show', id=dataset1['id'])
@@ -33,6 +37,137 @@ class TestPackageShow(helpers.FunctionalTestBase):
         eq(dataset2['name'], dataset1['name'])
         missing_keys = set(('title', 'groups')) - set(dataset2.keys())
         assert not missing_keys, missing_keys
+
+    def test_package_show_with_full_dataset(self):
+        # an full dataset
+        org = factories.Organization()
+        group = factories.Group()
+        dataset1 = factories.Dataset(
+            resources=[{'url': 'http://example.com/image.png', 'format': 'png',
+                        'name': 'Image 1'}],
+            tags=[{u'name': u'science'}],
+            extras=[{u'key': u'subject', u'value': u'science'}],
+            groups=[{u'id': group['id']}],
+            owner_org=org['id'],
+        )
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'])
+
+        # checking the whole dataset is a bit brittle as a test, but it
+        # documents what the package_dict is clearly and tracks how it changes
+        # as CKAN changes over time.
+
+        # fix values which change every time you run this test
+        def replace_uuid(dict_, key):
+            assert key in dict_
+            dict_[key] = u'<SOME-UUID>'
+
+        def replace_datetime(dict_, key):
+            assert key in dict_
+            dict_[key] = u'2019-05-24T15:52:30.123456'
+
+        def replace_number_suffix(dict_, key):
+            # e.g. "Test Dataset 23" -> "Test Dataset "
+            assert key in dict_
+            dict_[key] = re.sub(r'\d+$', 'num', dict_[key])
+
+        replace_uuid(dataset2, 'id')
+        replace_uuid(dataset2, 'revision_id')
+        replace_uuid(dataset2, 'creator_user_id')
+        replace_uuid(dataset2, 'owner_org')
+        replace_number_suffix(dataset2, 'name')
+        replace_datetime(dataset2, 'metadata_created')
+        replace_datetime(dataset2, 'metadata_modified')
+        replace_uuid(dataset2['groups'][0], 'id')
+        replace_number_suffix(dataset2['groups'][0], 'name')
+        replace_number_suffix(dataset2['groups'][0], 'title')
+        replace_number_suffix(dataset2['groups'][0], 'display_name')
+        replace_uuid(dataset2['organization'], 'id')
+        replace_uuid(dataset2['organization'], 'revision_id')
+        replace_number_suffix(dataset2['organization'], 'name')
+        replace_number_suffix(dataset2['organization'], 'title')
+        replace_datetime(dataset2['organization'], 'created')
+        replace_uuid(dataset2['resources'][0], 'id')
+        replace_uuid(dataset2['resources'][0], 'revision_id')
+        replace_uuid(dataset2['resources'][0], 'package_id')
+        replace_number_suffix(dataset2['resources'][0], 'name')
+        replace_datetime(dataset2['resources'][0], 'created')
+        replace_uuid(dataset2['tags'][0], 'id')
+
+        pprint(dataset2)
+        nose.tools.assert_equal.__self__.maxDiff = None
+        nose.tools.assert_equal(dataset2, {
+            u'author': None,
+            u'author_email': None,
+            u'creator_user_id': u'<SOME-UUID>',
+            u'extras': [{u'key': u'subject', u'value': u'science'}],
+            u'groups': [{
+                u'description': u'A test description for this test group.',
+                u'display_name': u'Test Group num',
+                u'id': u'<SOME-UUID>',
+                u'image_display_url': u'',
+                u'name': u'test_group_num',
+                u'title': u'Test Group num'}],
+            u'id': u'<SOME-UUID>',
+            u'isopen': False,
+            u'license_id': None,
+            u'license_title': None,
+            u'maintainer': None,
+            u'maintainer_email': None,
+            u'metadata_created': u'2019-05-24T15:52:30.123456',
+            u'metadata_modified': u'2019-05-24T15:52:30.123456',
+            u'name': u'test_dataset_num',
+            u'notes': u'Just another test dataset.',
+            u'num_resources': 1,
+            u'num_tags': 1,
+            u'organization': {
+                u'approval_status': u'approved',
+                u'created': u'2019-05-24T15:52:30.123456',
+                u'description': u'Just another test organization.',
+                u'id': u'<SOME-UUID>',
+                u'image_url': u'http://placekitten.com/g/200/100',
+                u'is_organization': True,
+                u'name': u'test_org_num',
+                u'revision_id': u'<SOME-UUID>',
+                u'state': u'active',
+                u'title': u'Test Organization',
+                u'type': u'organization'},
+            u'owner_org': u'<SOME-UUID>',
+            u'private': False,
+            u'relationships_as_object': [],
+            u'relationships_as_subject': [],
+            u'resources': [{
+                u'cache_last_updated': None,
+                u'cache_url': None,
+                u'created': u'2019-05-24T15:52:30.123456',
+                u'description': u'',
+                u'format': u'PNG',
+                u'hash': u'',
+                u'id': u'<SOME-UUID>',
+                u'last_modified': None,
+                u'mimetype': None,
+                u'mimetype_inner': None,
+                u'name': u'Image num',
+                u'package_id': u'<SOME-UUID>',
+                u'position': 0,
+                u'resource_type': None,
+                u'revision_id': u'<SOME-UUID>',
+                u'size': None,
+                u'state': u'active',
+                u'url': u'http://example.com/image.png',
+                u'url_type': None}],
+            u'revision_id': u'<SOME-UUID>',
+            u'state': u'active',
+            u'tags': [{
+                u'display_name': u'science',
+                u'id': u'<SOME-UUID>',
+                u'name': u'science',
+                u'state': u'active',
+                u'vocabulary_id': None}],
+            u'title': u'Test Dataset',
+            u'type': u'dataset',
+            u'url': None,
+            u'version': None}
+        )
 
     def test_package_show_with_custom_schema(self):
         dataset1 = factories.Dataset()
