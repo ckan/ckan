@@ -610,7 +610,8 @@ def member_create(context, data_dict=None):
                 member.table_id == user_obj.id and \
                 member.capacity == u'admin' and \
                 capacity != u'admin':
-            raise Exception("Administrators cannot revoke their own admin status")
+            raise Exception(
+                    "Administrators cannot revoke their own admin status")
     else:
         member = model.Member(table_name=obj_type,
                               table_id=obj.id,
