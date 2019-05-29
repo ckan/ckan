@@ -797,22 +797,22 @@ def job_clear_schema(ignore_missing, list_of_strings):
 @validator_args
 def package_sfu_schema(
         ignore_missing, list_of_strings,
-        collect_prefix_validate, convert_to_json_if_string,
-        dict_only):
+        collect_prefix_validate, json_or_string,
+        json_list_or_string, dict_only):
     return {
         u'__before': [
             collect_prefix_validate(
-                u'select__', u'convert_to_json_if_string'),
+                u'select__', u'json_or_string'),
             collect_prefix_validate(
-                u'update__', u'convert_to_json_if_string')],
+                u'update__', u'json_or_string')],
         u'select': [
-            ignore_missing, convert_to_json_if_string, dict_only],
+            ignore_missing, json_or_string, dict_only],
         u'filter': [
-            ignore_missing, convert_to_json_if_string, list_of_strings],
+            ignore_missing, json_list_or_string, list_of_strings],
         u'update': [
-            ignore_missing, convert_to_json_if_string, dict_only],
+            ignore_missing, json_or_string, dict_only],
         u'include': [
-            ignore_missing, convert_to_json_if_string, list_of_strings],
+            ignore_missing, json_list_or_string, list_of_strings],
         # collect_prefix moves values to these, always dicts:
         u'select__': [],
         u'update__': [],

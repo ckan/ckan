@@ -860,7 +860,7 @@ def collect_prefix_validate(prefix, *validator_names):
     """
     Return a validator that will collect top-level keys starting with
     prefix then apply validator_names to each one. Results are moved
-    to a dict under the prefix name
+    to a dict under the prefix name, with prefix removed from keys
     """
     validator_fns = [logic.get_validator(v) for v in validator_names]
 
@@ -876,7 +876,7 @@ def collect_prefix_validate(prefix, *validator_names):
                     df.convert(v, (field_name,), data, errors, context)
                 except df.StopOnError:
                     break
-            out[field_name] = data.pop((field_name,))
+            out[field_name[len(prefix):]] = data.pop((field_name,))
         data[(prefix,)] = out
 
     return prefix_validator
@@ -885,3 +885,4 @@ def collect_prefix_validate(prefix, *validator_names):
 def dict_only(value):
     if not isinstance(value, dict):
         raise Invalid(_('Must be a dict'))
+    return value

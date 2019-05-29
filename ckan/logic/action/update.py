@@ -273,6 +273,7 @@ def package_update(context, data_dict):
 def _package_update(context, data_dict):
     model = context['model']
     user = context['user']
+    pkg = context['package']
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     if 'schema' in context:
@@ -401,35 +402,47 @@ def package_sfu(context, data_dict):
         raise ValidationError(errors)
 
     name_or_id = (
-        data['select__'].get('select__id') or
+        data['select__'].get('id') or
         data.get('select', {}).get('id') or
-        data['select__'].get('select__name') or
+        data['select__'].get('name') or
         data.get('select', {}).get('name'))
     if name_or_id is None:
         raise ValidationError({'select__id': _('Missing value')})
 
+    package_show_context = dict(context, return_type='dict')
     orig = _get_action('package_show')(  # FIXME: for_update=True
-        dict(context, return_type='dict'),
+        package_show_context,
         {'id': name_or_id})
-    pkg = context['package']  # side-effect of package_show
 
+    pkg = package_show_context['package']  # side-effect of package_show
+
+    unmatched = []
     if 'select' in data:
-        unmatched = dfunc.check_dict(orig, data['select'])
-        if unmatched:
-            model.Session.rollback()
-            raise ValidationError([{'select': [
-                '__'.join(str(p) for p in unm)
-                for unm in unmatched
-            ]}])
+        unmatched.extend(dfunc.check_dict(orig, data['select']))
 
-    if 'filter' in data_dict:
-        dfunc.filter_glob_match(orig, data_dict['filter'])
+    for k, v in sorted(data['select__'].items()):
+        unmatched.extend(dfunc.check_string_key(orig, k, v))
 
-    try:
-        dfunc.update_merge_dict(orig, data_dict['update'])
-    except dfunc.DataError as de:
+    if unmatched:
         model.Session.rollback()
-        raise ValidationError([{'update': [de.error]}])
+        raise ValidationError([{'select': [
+            '__'.join(str(p) for p in unm)
+            for unm in unmatched
+        ]}])
+
+    if 'filter' in data:
+        dfunc.filter_glob_match(orig, data['filter'])
+
+    if 'update' in data:
+        try:
+            dfunc.update_merge_dict(orig, data['update'])
+        except dfunc.DataError as de:
+            model.Session.rollback()
+            raise ValidationError([{'update': [de.error]}])
+
+    for k, v in sorted(data['update__'].items()):
+        dfunc.update_merge_string_key(orig, k, v)
+
 
     # immutable fields
     orig['id'] = pkg.id
@@ -437,7 +450,11 @@ def package_sfu(context, data_dict):
 
     _check_access('package_sfu', context, orig)
 
-    rval = _package_update(context, orig)
+    # future-proof return dict by putting package data under
+    # "package". We will want to return activity info
+    # on update or "nothing changed" status once possible
+    rval = {
+        'package': _package_update(dict(context, package=pkg), orig)}
     if 'include' in data_dict:
         dfunc.filter_glob_match(rval, data_dict['include'])
     return rval
