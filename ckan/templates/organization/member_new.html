@@ -31,8 +31,8 @@
               disabled="True" class="form-control">
             {% else %}
                 <input id="username" type="text" name="username" placeholder="{{ _('Username') }}"
-              value="" class="control-medium" data-module="autocomplete"
-              data-module-source="/api/2/util/user/autocomplete?q=?">
+                value="" class="control-medium" data-module="autocomplete"
+                data-module-source="/api/2/util/user/autocomplete?ignore_self=true&q=?">
             {% endif %}
           </div>
         </div>
@@ -59,8 +59,15 @@
       {% endif %}
     </div>
 
-    {% set format_attrs = {'data-module': 'autocomplete'} %}
-    {{ form.select('role', label=_('Role'), options=roles, selected=user_role, error='', attrs=format_attrs) }}
+    {% if user and user.name == c.user and user_role == 'admin' %}
+      {% set format_attrs = {'data-module': 'autocomplete', 'disabled': 'disabled'} %}
+      {{ form.select('role', label=_('Role'), options=roles, selected=user_role, error='', attrs=format_attrs) }}
+      {{ form.hidden('role', value=user_role) }}
+    {% else %}
+      {% set format_attrs = {'data-module': 'autocomplete'} %}
+      {{ form.select('role', label=_('Role'), options=roles, selected=user_role, error='', attrs=format_attrs) }}
+    {% endif %}
+
     <div class="form-actions">
       {% if user %}
         <a href="{{ h.url_for(group_type + '.member_delete', id=group_dict.id, user=user.id) }}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this member?') }}">{{ _('Delete') }}</a>
