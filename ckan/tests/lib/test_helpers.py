@@ -227,14 +227,35 @@ class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/{{LANG}}/data')
+    def test_url_for_flask_route_new_syntax_external_with_root_path(self):
+        url = 'http://example.com/data/api/3'
+        generated_url = h.url_for('api.get_api', ver=3, _external=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_flask_route_old_syntax_external(self):
         url = 'http://example.com/api/3'
         generated_url = h.url_for(controller='api', action='get_api', ver=3, _external=True)
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/{{LANG}}/data')
+    def test_url_for_flask_route_old_syntax_external_with_root_path(self):
+        url = 'http://example.com/data/api/3'
+        generated_url = h.url_for(controller='api', action='get_api', ver=3, _external=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_flask_route_old_syntax_qualified(self):
         url = 'http://example.com/api/3'
+        generated_url = h.url_for(controller='api', action='get_api', ver=3, qualified=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/{{LANG}}/data')
+    def test_url_for_flask_route_old_syntax_qualified_with_root_path(self):
+        url = 'http://example.com/data/api/3'
         generated_url = h.url_for(controller='api', action='get_api', ver=3, qualified=True)
         eq_(generated_url, url)
 
