@@ -27,6 +27,10 @@ full_stack = true
 cache_dir = /tmp/%(ckan.site_id)s/
 beaker.session.key = ckan
 
+# m.m.
+GAID = 0
+googleanalytics.id = GAID
+
 # This is the secret token that the beaker library uses to hash the cookie sent
 # to the client. `paster make-config` generates a unique value for this each
 # time it generates a config file.
@@ -109,7 +113,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore datapusher
+ckan.plugins = stats text_view image_view recline_view datastore datapusher googleanalytics
 # ckan.plugins = stats text_view image_view recline_view
 
 # Define which views should be created by default

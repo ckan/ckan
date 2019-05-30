@@ -41,6 +41,16 @@ services:
       - solr_host=solr
       - solr_port=8983
 
+      # a.s. notification emails distribution group when new
+      # datasets and resources are created
+      - oce_email_distribution_group=${oce_email_distribution_group}
+
+      # m.m.
+      - GAID=${GAID}
+
+      # a.s. Google tracking
+      - CKAN_TRACKING_ENABLED=True
+
       # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
       # - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
       # - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore

@@ -13,12 +13,12 @@ set -e
 
 CONFIG="${CKAN_CONFIG}/production.ini"
 
-abort () {
+abort() {
   echo "$@" >&2
   exit 1
 }
 
-set_environment () {
+set_environment() {
   # a.s. used to wait until solr is up and running
   export solr_host=${solr_host}
   export solr_port=${solr_port}
@@ -38,9 +38,11 @@ set_environment () {
   export CKAN_SMTP_PASSWORD=${CKAN_SMTP_PASSWORD}
   export CKAN_SMTP_MAIL_FROM=${CKAN_SMTP_MAIL_FROM}
   export CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
+
+  export oce_email_distribution_group=${oce_email_distribution_group}
 }
 
-write_config () {
+write_config() {
   ckan-paster make-config --no-interactive ckan "$CONFIG"
 }
 
@@ -56,16 +58,18 @@ write_config () {
 # solr_host="solr"
 # solr_port="8983"
 until curl -f "http://${solr_host}:${solr_port}"; do
-# until curl -f "$CKAN_SOLR_URL"; do
-  >&2 echo "Solr is not ready - sleeping"
+  # until curl -f "$CKAN_SOLR_URL"; do
+  echo >&2 "Solr is not ready - sleeping"
   sleep 1
 done
-
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
   write_config
 fi
+
+# m.m. - replace Google Analytics ID
+sed -i "s/GAID/$GAID/g" "${CKAN_CONFIG}/production.ini"
 
 # Get or create CKAN_SQLALCHEMY_URL
 if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
@@ -73,15 +77,15 @@ if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
 fi
 
 if [ -z "$CKAN_SOLR_URL" ]; then
-    abort "ERROR: no CKAN_SOLR_URL specified in docker-compose.yml"
+  abort "ERROR: no CKAN_SOLR_URL specified in docker-compose.yml"
 fi
 
 if [ -z "$CKAN_REDIS_URL" ]; then
-    abort "ERROR: no CKAN_REDIS_URL specified in docker-compose.yml"
+  abort "ERROR: no CKAN_REDIS_URL specified in docker-compose.yml"
 fi
 
 if [ -z "$CKAN_DATAPUSHER_URL" ]; then
-    abort "ERROR: no CKAN_DATAPUSHER_URL specified in docker-compose.yml"
+  abort "ERROR: no CKAN_DATAPUSHER_URL specified in docker-compose.yml"
 fi
 
 set_environment
