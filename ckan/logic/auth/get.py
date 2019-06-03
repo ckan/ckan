@@ -165,16 +165,7 @@ def resource_view_show(context, data_dict):
 
 
 def resource_view_list(context, data_dict):
-
-    model = context['model']
-    resource = context.get('resource')
-    if not resource:
-        resource_view = model.ResourceView.get(data_dict['id'])
-        if not resource_view:
-            raise logic.NotFound(_('Resource view not found, cannot check auth.'))
-        resource = model.Resource.get(resource_view.resource_id)
-
-    return authz.is_authorized('resource_show', context, {'id': resource['id']})
+    return authz.is_authorized('resource_show', context, data_dict)
 
 
 def revision_show(context, data_dict):
