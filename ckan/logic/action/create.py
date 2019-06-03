@@ -239,13 +239,13 @@ def package_create(context, data_dict):
     # a.s. send a msg to OCE distribution group
     email_dict['subject'] = 'AVIN Dataset has been added'
     email_dict['body'] = 'New Dataset has been created: ' + '\n\n' + \
-        '------------------------------------------------' + '\n' + \
+        '--------------------------------' + '\n' + \
         u'Package Name: ' + pkg.name + '\n' + \
         u'Package Title: ' + pkg.title + '\n' + \
         u'Package Author: ' + pkg.author + '\n' + \
         u'Package Maintainer: ' + pkg.maintainer + '\n' + \
         u'Package Notes: ' + pkg.notes + '\n' + \
-        '------------------------------------------------' + '\n'
+        '--------------------------------' + '\n'
     recipient['display_name'] = os.environ['oce_email_distribution_group']
     recipient['email'] = os.environ['oce_email_distribution_group']
 
@@ -376,17 +376,17 @@ def resource_create(context, data_dict):
     email_resource = email_context.resources[-1]
     email_dict['subject'] = u'AVIN Resource has been added'
     email_dict['body'] = u'New Resource has been created: ' + '\n\n' + \
-        '------------------------------------------------' + '\n' + \
+        '--------------------------------' + '\n' + \
         u'Package Name: ' + email_context.name + '\n' + \
         u'Package Title: ' + email_context.title + '\n' + \
         u'Package Author: ' + email_context.author + '\n' + \
         u'Package Maintainer: ' + email_context.maintainer + '\n' + \
         u'Package Notes: ' + email_context.notes + '\n' + \
-        '------------------------------------------------' + '\n' + \
+        '--------------------------------' + '\n' + \
         u'Resource Name: ' + email_resource.name + '\n' + \
         u'Resource URL: ' + email_resource.url + '\n' + \
         u'Resource Description: ' + email_resource.description + '\n' + \
-        '------------------------------------------------' + '\n'
+        '--------------------------------' + '\n'
     recipient['display_name'] = os.environ['oce_email_distribution_group']
     recipient['email'] = os.environ['oce_email_distribution_group']
 
