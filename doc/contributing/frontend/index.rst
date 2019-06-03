@@ -25,7 +25,7 @@ Instructions for installing |nodejs| can be found on the |nodejs| `website
 On Ubuntu, run the following to install |nodejs| official repository and the node
 package::
 
-    curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
     sudo apt-get install -y nodejs
 
 .. note:: If you use the package on the default Ubuntu repositories (eg ``sudo apt-get install nodejs``),
@@ -49,7 +49,7 @@ style script.
 
 ::
 
-    $ npm install less@1.7.5 nodewatch
+    $ npm install less@3.7.1 nodewatch
 
 
 You may need to use ``sudo`` depending on your CKAN install type.

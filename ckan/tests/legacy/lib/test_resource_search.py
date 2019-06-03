@@ -1,7 +1,6 @@
 # encoding: utf-8
 
-from webob.multidict import UnicodeMultiDict, MultiDict
-from nose.tools import assert_raises, assert_equal
+from nose.tools import assert_raises, assert_equal, assert_set_equal
 
 from ckan.tests.legacy import *
 from ckan.tests.legacy import is_search_supported
@@ -76,10 +75,9 @@ class TestSearch(object):
         assert set([self.ab]) == urls, urls
 
     def test_03_search_url_multiple_words(self):
-        fields = UnicodeMultiDict(MultiDict(url='e'))
-        fields.add('url', 'f')
+        fields = dict([['url', 'e f']])
         urls = self.res_search(fields=fields)
-        assert set([self.ef]) == urls, urls
+        assert_set_equal({self.ef}, urls)
 
     def test_04_search_url_none(self):
         urls = self.res_search(fields={'url':'nothing'})

@@ -1,10 +1,11 @@
 # encoding: utf-8
 
-from ckan.common import config
 from bs4 import BeautifulSoup
 from nose.tools import assert_equal, assert_true, assert_in
-from ckan.lib.helpers import url_for
 from mock import patch
+
+from ckan.lib.helpers import url_for
+from ckan import model
 
 from ckan.tests import factories, helpers
 from ckan.tests.helpers import webtest_submit, submit_and_follow
@@ -233,7 +234,9 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
             datasets are set to true'''
         dataset = factories.Dataset(owner_org=self.organization['id'])
         assert_equal(dataset['owner_org'], self.organization['id'])
-        helpers.call_action('organization_delete', id=self.organization['id'])
+        user = factories.User()
+        helpers.call_action('organization_delete', id=self.organization['id'],
+                            context={'user': user['name']})
 
         dataset = helpers.call_action('package_show', id=dataset['id'])
         assert_equal(dataset['owner_org'], None)
@@ -569,3 +572,146 @@ class TestOrganizationMembership(helpers.FunctionalTestBase):
                     'role': 'test'
                 },
                 status=403, )
+
+
+class TestActivity(helpers.FunctionalTestBase):
+    def test_simple(self):
+        '''Checking the template shows the activity stream.'''
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization(user=user)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        response = app.get(url)
+        assert_in('Mr. Test User', response)
+        assert_in('created the organization', response)
+
+    def test_create_organization(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization(user=user)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('created the organization', response)
+        assert_in('<a href="/organization/{}">Test Organization'.format(
+                  org['name']), response)
+
+    def _clear_activities(self):
+        model.Session.query(model.ActivityDetail).delete()
+        model.Session.query(model.Activity).delete()
+        model.Session.flush()
+
+    def test_change_organization(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization(user=user)
+        self._clear_activities()
+        org['title'] = 'Organization with changed title'
+        helpers.call_action(
+            'organization_update', context={'user': user['name']}, **org)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the organization', response)
+        assert_in('<a href="/organization/{}">Organization with changed title'
+                  .format(org['name']), response)
+
+    def test_delete_org_using_organization_delete(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization(user=user)
+        self._clear_activities()
+        helpers.call_action(
+            'organization_delete', context={'user': user['name']}, **org)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(url, extra_environ=env, status=404)
+        # organization_delete causes the Member to state=deleted and then the
+        # user doesn't have permission to see their own deleted Organization.
+        # Therefore you can't render the activity stream of that org. You'd
+        # hope that organization_delete was the same as organization_update
+        # state=deleted but they are not...
+
+    def test_delete_org_by_updating_state(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization(user=user)
+        self._clear_activities()
+        org['state'] = 'deleted'
+        helpers.call_action(
+            'organization_update', context={'user': user['name']}, **org)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(url, extra_environ=env)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('deleted the organization', response)
+        assert_in('<a href="/organization/{}">Test Organization'.format(
+                  org['name']), response)
+
+    def test_create_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization()
+        self._clear_activities()
+        dataset = factories.Dataset(owner_org=org['id'], user=user)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('created the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['id']),
+                  response)
+
+    def test_change_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'], user=user)
+        self._clear_activities()
+        dataset['title'] = 'Dataset with changed title'
+        helpers.call_action(
+            'package_update', context={'user': user['name']}, **dataset)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('updated the dataset', response)
+        assert_in('<a href="/dataset/{}">Dataset with changed title'
+                  .format(dataset['id']),
+                  response)
+
+    def test_delete_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'], user=user)
+        self._clear_activities()
+        helpers.call_action(
+            'package_delete', context={'user': user['name']}, **dataset)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('deleted the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'
+                  .format(dataset['id']),
+                  response)

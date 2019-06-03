@@ -17,7 +17,7 @@ def check_recaptcha(request):
     client_ip_address = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
 
     # reCAPTCHA v2
-    recaptcha_response_field = request.params.get('g-recaptcha-response', '')
+    recaptcha_response_field = request.form.get('g-recaptcha-response', '')
     recaptcha_server_name = 'https://www.google.com/recaptcha/api/siteverify'
 
     # recaptcha_response_field will be unicode if there are foreign chars in

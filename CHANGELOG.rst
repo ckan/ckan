@@ -10,17 +10,58 @@ Changelog
 v.2.9.0 TBA
 ==================
 
+ * When upgrading from previous CKAN versions, the Activity Stream needs a
+   migrate_package_activity.py running for displaying the history of dataset
+   changes. This can be performed while CKAN is running or stopped (whereas the
+   standard `paster db upgrade` migrations need CKAN to be stopped). Ideally it
+   is run before CKAN is upgraded, but it can be run afterwards. If running
+   previous versions or this version of CKAN, download and run
+   migrate_package_activity.py like this:
+
+     cd /usr/lib/ckan/default/src/ckan/
+     wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/migrate_package_activity.py
+     wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/revision_legacy_code.py
+     python migrate_package_activity.py -c /etc/ckan/production.ini
+
+   Future versions of CKAN are likely to need a slightly different procedure.
+   Full info about this migration is found here:
+   https://github.com/ckan/ckan/wiki/Migrate-package-activity
+
+ * A full history of dataset changes is now displayed in the Activity Stream to
+   admins, and optionally to the public. By default this is enabled for new
+   installs, but disabled for sites which upgrade (just in case the history is
+   sensitive). When upgrading, open data CKANs are encouraged to make this
+   history open to the public, by setting this in production.ini:
+   ``ckan.auth.public_activity_stream_detail = true`` (#3972)
+
 Minor changes:
 
  * For navl schemas, the 'default' validator no longer applies the default when
    the value is False, 0, [] or {} (#4448)
+ * If you've customized the schema for package_search, you'll need to add to it
+   the limiting of ``row``, as per default_package_search_schema now does (#4484)
+ * Several logic functions now have new upper limits to how many items can be
+   returned, notably ``group_list``, ``organization_list`` when
+   ``all_fields=true``, ``datastore_search`` and ``datastore_search_sql``.
+   These are all configurable. (#4484, #4562)
 
 Bugfixes:
 
  * Action function "datastore_search" would calculate the total, even if you
    set include_total=False (#4448)
 
-Deprecations:
+Removals and deprecations:
+
+ * Revision and History UI is removed: `/revision/*` & `/dataset/{id}/history`
+   in favour of `/dataset/changes/` visible in the Activity Stream. (#3972)
+ * Logic functions removed:
+   ``dashboard_activity_list_html`` ``organization_activity_list_html``
+   ``user_activity_list_html`` ``package_activity_list_html``
+   ``group_activity_list_html`` ``organization_activity_list_html``
+   ``recently_changed_packages_activity_list_html``
+   ``dashboard_activity_list_html`` ``activity_detail_list`` (#4627/#3972)
+ * ``model.ActivityDetail`` is no longer used and will be removed in the next
+   CKAN release. (#3972)
  * ``c.action`` and ``c.controller`` variables should be avoided.
    ``ckan.plugins.toolkit.get_endpoint`` can be used instead. This function
    returns tuple of two items(depending on request handler):
@@ -38,6 +79,29 @@ Deprecations:
    dataset blueprint in CKAN>=2.9, and, in the same time, it's still working for
    Pylons package controller in CKAN<2.9
 
+v.2.8.2 2018-12-12
+==================
+
+General notes:
+ * This version requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+* Strip full URL on uploaded resources before saving to DB (`#4382 <https://github.com/ckan/ckan/issues/4382>`_)
+* Fix user not being defined in check_access function (`#4574 <https://github.com/ckan/ckan/issues/4574>`_)
+* Remove html5 shim from stats extension (`#4236 <https://github.com/ckan/ckan/issues/4236>`_)
+* Fix for datastore_search distinct=true option (`#4236 <https://github.com/ckan/ckan/issues/4236>`_)
+* Fix edit slug button (`#4379 <https://github.com/ckan/ckan/issues/4379>`_)
+* Don't re-register plugin helpers on flask_app (`#4414 <https://github.com/ckan/ckan/issues/4414>`_)
+* Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+* autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+* Flask patch update (`#4426 <https://github.com/ckan/ckan/issues/4426>`_)
+* Allow plugins to define multiple blueprints (`#4495 <https://github.com/ckan/ckan/issues/4495>`_)
+* Fix i18n API encoding (`#4505 <https://github.com/ckan/ckan/issues/4505>`_)
+* Allow to defined legacy route mappings as a dict in config (`#4521 <https://github.com/ckan/ckan/issues/4521>`_)
+* group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
 
 v.2.8.1 2018-07-25
 ==================
@@ -187,6 +251,21 @@ Changes and deprecations:
    of None, in which case, `c.search_facets` will be used. But all template designers are strongly advised
    to specify this argument explicitly, as in future it'll become required.
  * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
+
+v2.7.5 2018-12-12
+=================
+
+  * Strip full URL on uploaded resources before saving to DB (`#4382 <https://github.com/ckan/ckan/issues/4382>`_)
+  * Fix for datastore_search distinct=true option (`#4236 <https://github.com/ckan/ckan/issues/4236>`_)
+  * Fix edit slug button (`#4379 <https://github.com/ckan/ckan/issues/4379>`_)
+  * Don't re-register plugin helpers on flask_app (`#4414 <https://github.com/ckan/ckan/issues/4414>`_)
+  * Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+  * autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+  * Flask patch update (`#4426 <https://github.com/ckan/ckan/issues/4426>`_)
+  * Allow plugins to define multiple blueprints (`#4495 <https://github.com/ckan/ckan/issues/4495>`_)
+  * Fix i18n API encoding (`#4505 <https://github.com/ckan/ckan/issues/4505>`_)
+  * Allow to defined legacy route mappings as a dict in config (`#4521 <https://github.com/ckan/ckan/issues/4521>`_)
+  * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
 
 v2.7.4 2018-05-09
 =================
@@ -370,6 +449,13 @@ Deprecations:
  * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
+
+v2.6.7 2018-12-12
+=================
+
+  * Fix for Resouce View Re-order (`#4416 <https://github.com/ckan/ckan/issues/4416>`_)
+  * autocomplete.js: fix handling of comma key codes (`#4421 <https://github.com/ckan/ckan/issues/4421>`_)
+  * group_patch does not reset packages (`#4557 <https://github.com/ckan/ckan/issues/4557>`_)
 
 v2.6.6 2018-05-09
 =================

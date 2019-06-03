@@ -58,4 +58,9 @@ class DataTablesView(p.SingletonPlugin):
             controller=u'ckanext.datatablesview.controller'
                        u':DataTablesController',
             action=u'ajax')
+        m.connect(
+            u'/datatables/filtered-download/{resource_view_id}',
+            controller=u'ckanext.datatablesview.controller'
+                       u':DataTablesController',
+            action=u'filtered_download')
         return m

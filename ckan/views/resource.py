@@ -54,6 +54,31 @@ def read(package_type, id, resource_id):
         package = get_action(u'package_show')(context, {u'id': id})
     except (NotFound, NotAuthorized):
         return base.abort(404, _(u'Dataset not found'))
+    activity_id = request.params.get(u'activity_id')
+    if activity_id:
+        # view an 'old' version of the package, as recorded in the
+        # activity stream
+        current_pkg = package
+        try:
+            package = context['session'].query(model.Activity).get(
+                activity_id
+            ).data['package']
+        except AttributeError:
+            base.abort(404, _(u'Dataset not found'))
+
+        if package['id'] != current_pkg['id']:
+            log.info(u'Mismatch between pkg id in activity and URL {} {}'
+                     .format(package['id'], current_pkg['id']))
+            # the activity is not for the package in the URL - don't allow
+            # misleading URLs as could be malicious
+            base.abort(404, _(u'Activity not found'))
+        # The name is used lots in the template for links, so fix it to be
+        # the current one. It's not displayed to the user anyway.
+        package['name'] = current_pkg['name']
+
+        # Don't crash on old (unmigrated) activity records, which do not
+        # include resources or extras.
+        package.setdefault(u'resources', [])
 
     resource = None
     for res in package.get(u'resources', []):
@@ -109,7 +134,10 @@ def read(package_type, id, resource_id):
         u'pkg_dict': package,
         u'package': package,
         u'resource': resource,
-        u'pkg': pkg
+        u'pkg': pkg,  # NB it is the current version of the dataset, so ignores
+                      # activity_id. Still used though in resource views for
+                      # backward compatibility
+        u'is_activity_archive': bool(activity_id),
     }
 
     template = _get_pkg_template(u'resource_template', dataset_type)
@@ -611,11 +639,6 @@ class EditResourceViewView(MethodView):
 
     def post(self, package_type, id, resource_id, view_id=None):
         context, extra_vars = self._prepare(id, resource_id)
-
-        to_preview = request.POST.pop(u'preview', False)
-        if to_preview:
-            context[u'preview'] = True
-        to_delete = request.POST.pop(u'delete', None)
         data = clean_dict(
             dict_fns.unflatten(
                 tuplize_dict(
@@ -624,7 +647,13 @@ class EditResourceViewView(MethodView):
             )
         )
         data.pop(u'save', None)
+
+        to_preview = data.pop(u'preview', False)
+        if to_preview:
+            context[u'preview'] = True
+        to_delete = data.pop(u'delete', None)
         data[u'resource_id'] = resource_id
+        data[u'view_type'] = request.args.get(u'view_type')
 
         try:
             if to_delete:
@@ -662,22 +691,24 @@ class EditResourceViewView(MethodView):
             extra_vars.update(post_extra)
 
         package_type = _get_package_type(id)
+        data = extra_vars[u'data']
         view_type = None
         # view_id exists only when updating
         if view_id:
-            try:
-                old_data = get_action(u'resource_view_show')(
-                    context, {
-                        u'id': view_id
-                    }
-                )
-                data = extra_vars[u'data'] or old_data
-                view_type = old_data.get(u'view_type')
-                # might as well preview when loading good existing view
-                if not extra_vars[u'errors']:
-                    to_preview = True
-            except (NotFound, NotAuthorized):
-                return base.abort(404, _(u'View not found'))
+            if not data:
+                try:
+                    data = get_action(u'resource_view_show')(
+                        context, {
+                            u'id': view_id
+                        }
+                    )
+                except (NotFound, NotAuthorized):
+                    return base.abort(404, _(u'View not found'))
+
+            view_type = data.get(u'view_type')
+            # might as well preview when loading good existing view
+            if not extra_vars[u'errors']:
+                to_preview = True
 
         view_type = view_type or request.args.get(u'view_type')
         data[u'view_type'] = view_type

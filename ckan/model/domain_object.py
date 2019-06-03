@@ -79,7 +79,7 @@ class DomainObject(object):
 
     def delete(self):
         # stateful objects have this method overridden - see
-        # vmd.base.StatefulObjectMixin
+        # core.StatefulObjectMixin
         self.Session.delete(self)
 
     def purge(self):

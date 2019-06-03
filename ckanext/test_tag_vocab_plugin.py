@@ -34,9 +34,6 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
     def read_template(self):
         return 'package/read.html'
 
-    def history_template(self):
-        return 'package/history.html'
-
     def package_form(self):
         return 'package/new_package_form.html'
 

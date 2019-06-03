@@ -40,6 +40,11 @@ write_config () {
   ckan-paster make-config --no-interactive ckan "$CONFIG"
 }
 
+# Wait for PostgreSQL
+while ! pg_isready -h db -U postgres; do
+  sleep 1;
+done
+
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
   write_config
