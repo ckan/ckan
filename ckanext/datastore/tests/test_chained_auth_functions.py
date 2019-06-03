@@ -38,10 +38,10 @@ def user_list(next_auth, context, data_dict):
     assert_equals(next_auth, core_user_list)
     raise TestAuthException(user_list_message)
 
+
 @p.toolkit.chained_auth_function
 def user_create(next_auth, context, data_dict):
     return next_auth(context, data_dict)
-
 
 
 class ExampleDataStoreSearchSQLPlugin(p.SingletonPlugin):
@@ -96,3 +96,4 @@ class TestChainedAuthBuiltInFallback(DatastoreFunctionalTestBase):
         ctd.CreateTestData.create()
         # check if chained auth fallbacks to built-in user_create
         check_access(u'user_create', {u'user': u'annafan'}, {})
+
