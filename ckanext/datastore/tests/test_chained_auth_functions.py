@@ -96,4 +96,3 @@ class TestChainedAuthBuiltInFallback(DatastoreFunctionalTestBase):
         ctd.CreateTestData.create()
         # check if chained auth fallbacks to built-in user_create
         check_access(u'user_create', {u'user': u'annafan'}, {})
-
