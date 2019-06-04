@@ -77,14 +77,17 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return meta.Session.query(cls).filter(cls.name.contains(text_query.lower()))
 
     @classmethod
-    def get(cls, reference):
+    def get(cls, reference, for_update=False):
         '''Returns a package object referenced by its id or name.'''
         if not reference:
             return None
 
-        pkg = meta.Session.query(cls).get(reference)
+        q = meta.Session.query(cls)
+        if for_update:
+            q = q.with_for_update()
+        pkg = q.get(reference)
         if pkg == None:
-            pkg = cls.by_name(reference)
+            pkg = cls.by_name(reference, for_update=for_update)
         return pkg
     # Todo: Make sure package names can't be changed to look like package IDs?
 

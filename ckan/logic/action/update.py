@@ -409,8 +409,11 @@ def package_sfu(context, data_dict):
     if name_or_id is None:
         raise ValidationError({'select__id': _('Missing value')})
 
-    package_show_context = dict(context, return_type='dict')
-    orig = _get_action('package_show')(  # FIXME: for_update=True
+    package_show_context = dict(
+        context,
+        return_type='dict',
+        for_update=True)
+    orig = _get_action('package_show')(
         package_show_context,
         {'id': name_or_id})
 
@@ -442,7 +445,6 @@ def package_sfu(context, data_dict):
 
     for k, v in sorted(data['update__'].items()):
         dfunc.update_merge_string_key(orig, k, v)
-
 
     # immutable fields
     orig['id'] = pkg.id

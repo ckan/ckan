@@ -41,10 +41,12 @@ class DomainObject(object):
         return cls.Session.query(cls).count()
 
     @classmethod
-    def by_name(cls, name, autoflush=True):
-        obj = meta.Session.query(cls).autoflush(autoflush)\
-              .filter_by(name=name).first()
-        return obj
+    def by_name(cls, name, autoflush=True, for_update=False):
+        q = meta.Session.query(cls).autoflush(autoflush
+            ).filter_by(name=name)
+        if for_update:
+            q = q.with_for_update()
+        return q.first()
 
     @classmethod
     def text_search(cls, query, term):
