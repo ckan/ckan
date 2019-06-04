@@ -98,20 +98,9 @@ def resource_update(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
-    upload = uploader.get_resource_uploader(data_dict)
-
-    if 'mimetype' not in data_dict:
-        if hasattr(upload, 'mimetype'):
-            data_dict['mimetype'] = upload.mimetype
-
-    if 'size' not in data_dict and 'url_type' in data_dict:
-        if hasattr(upload, 'filesize'):
-            data_dict['size'] = upload.filesize
-
     pkg_dict['resources'][n] = data_dict
 
     try:
-        context['defer_commit'] = True
         context['use_cache'] = False
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
@@ -120,9 +109,6 @@ def resource_update(context, data_dict):
             raise ValidationError(e.error_dict['resources'][-1])
         except (KeyError, IndexError):
             raise ValidationError(e.error_dict)
-
-    upload.upload(id, uploader.get_max_resource_size())
-    model.repo.commit()
 
     resource = _get_action('resource_show')(context, {'id': id})
 
@@ -329,9 +315,21 @@ def _package_update(context, data_dict):
 
     # Needed to let extensions know the new resources ids
     model.Session.flush()
-    if data.get('resources'):
-        for index, resource in enumerate(data['resources']):
-            resource['id'] = pkg.resources[index].id
+    for index, resource in enumerate(data.get('resources', [])):
+        resource['id'] = pkg.resources[index].id
+
+        # file uploads/clearing
+        upload = uploader.get_resource_uploader(resource)
+
+        if 'mimetype' not in resource:
+            if hasattr(upload, 'mimetype'):
+                resource['mimetype'] = upload.mimetype
+
+        if 'size' not in resource and 'url_type' in resource:
+            if hasattr(upload, 'filesize'):
+                resource['size'] = upload.filesize
+
+        upload.upload(resource['id'], uploader.get_max_resource_size())
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
