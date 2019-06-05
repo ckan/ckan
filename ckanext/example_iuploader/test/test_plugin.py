@@ -101,7 +101,7 @@ class TestExampleIUploaderPlugin(helpers.FunctionalTestBase):
             autospec=True
         ) as mock_get_path:
             response = submit_and_follow(app, form, env, 'save', 'go-metadata')
-        assert_equal(mock_get_path.call_count, 1)
+        assert_equal(mock_get_path.call_count, 3)
         assert_is_instance(
             mock_get_path.call_args[0][0], plugin.ResourceUpload
         )

@@ -112,7 +112,7 @@ class TestCheckDict(object):
         eq_(
             check_dict(
                 {'a': [{'b': 'c'}], 'd': 'e'},
-                {'d': 'd'}),
+                {'d': 'e'}),
             [])
 
     def test_all_wrong(self):
@@ -125,15 +125,15 @@ class TestCheckDict(object):
     def test_list_expected(self):
         eq_(
             check_dict(
-                {'a':[{'b': []}], 'd':'e'},
-                {'a':[{'b': {}}]}),
+                {'a': [{'b': []}], 'd': 'e'},
+                {'a': [{'b': {}}]}),
             [('a', 0, 'b')])
 
     def test_dict_expected(self):
         eq_(
             check_dict(
-                {'a':[{'b': []}], 'd':'e'},
-                {'a':[['b']]}),
+                {'a': [{'b': []}], 'd': 'e'},
+                {'a': [['b']]}),
             [('a', 0)])
 
 
@@ -209,7 +209,7 @@ class TestCheckStringKey(object):
     def test_child(self):
         eq_(
             check_string_key(
-                {'a':[{'b': 'c'}], 'd':'e'},
+                {'a': [{'b': 'c'}], 'd': 'e'},
                 'a__0__b',
                 'z'),
             [('a', 0, 'b')])
@@ -217,7 +217,7 @@ class TestCheckStringKey(object):
     def test_list_expected(self):
         eq_(
             check_string_key(
-                {'a':[{'b': []}], 'd':'e'},
+                {'a': [{'b': []}], 'd': 'e'},
                 'a__0__b',
                 {}),
             [('a', 0, 'b')])
@@ -225,7 +225,7 @@ class TestCheckStringKey(object):
     def test_dict_expected(self):
         eq_(
             check_string_key(
-                {'a':[{'b': []}], 'd':'e'},
+                {'a': [{'b': []}], 'd': 'e'},
                 'a__0',
                 ['b']),
             [('a', 0)])
@@ -291,9 +291,9 @@ class TestMergeDict(object):
         eq_(de.exception.error, 'Expected list for a__0__b')
 
     def test_dict_expected(self):
-        data = {'a' :[{'b': []}], 'd': 'e'}
+        data = {'a': [{'b': []}], 'd': 'e'}
         with assert_raises(DataError) as de:
-            update_merge_dict(data, {'a':[['b']]})
+            update_merge_dict(data, {'a': [['b']]})
         eq_(de.exception.error, 'Expected dict for a__0')
 
 
@@ -320,7 +320,7 @@ class TestMergeStringKey(object):
         eq_(de.exception.error, 'Expected list for a__0__b')
 
     def test_dict_expected(self):
-        data = {'a' :[{'b': []}], 'd': 'e'}
+        data = {'a': [{'b': []}], 'd': 'e'}
         with assert_raises(DataError) as de:
             update_merge_string_key(data, 'a__0', ['b'])
         eq_(de.exception.error, 'Expected dict for a__0')
