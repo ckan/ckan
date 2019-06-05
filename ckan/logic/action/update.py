@@ -103,7 +103,6 @@ def resource_update(context, data_dict):
     try:
         context['use_cache'] = False
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
-        context.pop('defer_commit')
     except ValidationError as e:
         try:
             raise ValidationError(e.error_dict['resources'][-1])
@@ -280,6 +279,21 @@ def _package_update(context, data_dict):
                 # to ensure they still work.
                 package_plugin.check_data_dict(data_dict)
 
+    resource_uploads = []
+    for resource in data_dict.get('resources', []):
+        # file uploads/clearing
+        upload = uploader.get_resource_uploader(resource)
+
+        if 'mimetype' not in resource:
+            if hasattr(upload, 'mimetype'):
+                resource['mimetype'] = upload.mimetype
+
+        if 'size' not in resource and 'url_type' in resource:
+            if hasattr(upload, 'filesize'):
+                resource['size'] = upload.filesize
+
+        resource_uploads.append(upload)
+
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_update')
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
@@ -315,19 +329,9 @@ def _package_update(context, data_dict):
 
     # Needed to let extensions know the new resources ids
     model.Session.flush()
-    for index, resource in enumerate(data.get('resources', [])):
+    for index, (resource, upload) in enumerate(
+            zip(data.get('resources', []), resource_uploads)):
         resource['id'] = pkg.resources[index].id
-
-        # file uploads/clearing
-        upload = uploader.get_resource_uploader(resource)
-
-        if 'mimetype' not in resource:
-            if hasattr(upload, 'mimetype'):
-                resource['mimetype'] = upload.mimetype
-
-        if 'size' not in resource and 'url_type' in resource:
-            if hasattr(upload, 'filesize'):
-                resource['size'] = upload.filesize
 
         upload.upload(resource['id'], uploader.get_max_resource_size())
 
