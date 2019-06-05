@@ -11653,11 +11653,22 @@ h4 small {
   line-height: 1.5;
 }
 
+.homepage .stats ul li a strong {
+  display: block;
+  font-size: 36px;
+  line-height: 1.5;
+}
+
 .homepage .stats ul li a:hover {
   text-decoration: none;
 }
 
 .homepage.layout-2 .stats {
+  margin-top: 20px;
+}
+
+/* a.s. */
+.homepage.layout-1 .stats {
   margin-top: 20px;
 }
 
