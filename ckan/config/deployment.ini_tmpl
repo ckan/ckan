@@ -79,10 +79,13 @@ ckan.auth.create_unowned_dataset = false
 ckan.auth.create_dataset_if_not_in_organization = false
 ckan.auth.user_create_groups = false
 ckan.auth.user_create_organizations = false
-ckan.auth.user_delete_groups = true
-ckan.auth.user_delete_organizations = true
+# a.s. ckan.auth.user_delete_groups = true
+ckan.auth.user_delete_groups = false
+# a.s. ckan.auth.user_delete_organizations = true
+ckan.auth.user_delete_organizations = false
 ckan.auth.create_user_via_api = false
-ckan.auth.create_user_via_web = true
+# a.s. ckan.auth.create_user_via_web = true
+ckan.auth.create_user_via_web = false
 ckan.auth.roles_that_cascade_to_sub_groups = admin
 
 
