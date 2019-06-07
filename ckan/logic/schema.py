@@ -118,11 +118,22 @@ def default_create_package_schema(
         'title': [if_empty_same_as("name"), unicode_safe],
         'author': [ignore_missing, unicode_safe],
         'author_email': [ignore_missing, unicode_safe, email_validator],
+
         # a.s. validate maintainer fields aren't empty
         # 'maintainer': [ignore_missing, unicode_safe],
         # 'maintainer_email': [ignore_missing, unicode_safe, email_validator],
         'maintainer': [not_empty, unicode_safe],
         'maintainer_email': [not_empty, unicode_safe, email_validator],
+
+        # a.s. additional fields Jun 7, 2019
+        'associated_tasks': [ignore_missing, unicode_safe],
+        'collection_period': [ignore_missing, unicode_safe],
+        'geographical_area': [ignore_missing, unicode_safe],
+        'number_of_instances': [not_empty, unicode_safe],
+        'number_of_missing_values': [ignore_missing, unicode_safe],
+        'pkg_description': [not_empty, unicode_safe],
+        # a.s.
+
         'license_id': [ignore_missing, unicode_safe],
         'notes': [ignore_missing, unicode_safe],
         'url': [ignore_missing, unicode_safe],

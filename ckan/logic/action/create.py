@@ -74,6 +74,20 @@ def package_create(context, data_dict):
     :param maintainer_email: the email address of the dataset's maintainer
         (optional)
     :type maintainer_email: string
+    # a.s. new fields
+    :param associated_tasks:
+    :type associated_tasks: string
+    :param collection_period:
+    :type collection_period: string
+    :param geographical_area:
+    :type geographical_area: string
+    :param number_of_instances:
+    :type number_of_instances: string
+    :param number_of_missing_values:
+    :type number_of_missing_values: string
+    :param pkg_description:
+    :type pkg_description: string
+    # a.s.
     :param license_id: the id of the dataset's license, see
         :py:func:`~ckan.logic.action.get.license_list` for available values
         (optional)
