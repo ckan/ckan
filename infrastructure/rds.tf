@@ -1,82 +1,38 @@
-/*
-# rds
+##############################################################
+# Data sources to get VPC, subnets and security group details
+##############################################################
 
-A terraform module to create rds instance
-*/
 
-module "db" {
-  source = "terraform-aws-modules/rds/aws"
+locals {
+  engine_name = "postgres"
+}
 
-  identifier = "demodb"
+resource "aws_security_group" "database_security_group"  {
+  name = "database"
+  vpc_id = module.vpc.vpc_id
+}
 
-  engine            = "mysql"
-  engine_version    = "5.7.19"
-  instance_class    = "db.t2.large"
-  allocated_storage = 5
 
-  name     = "demodb"
-  username = "user"
-  password = "YourPwdShouldBeLongAndSecure!"
-  port     = "3306"
+resource "aws_db_option_group" "option_group" {
+  engine_name = local.engine_name
+  major_engine_version = "11"
+}
 
-  iam_database_authentication_enabled = true
+resource "aws_db_parameter_group" "parameter_group" {
+  family = "postgres11"
+}
 
-  vpc_security_group_ids = ["sg-12345678"]
-
-  maintenance_window = "Mon:00:00-Mon:03:00"
-  backup_window      = "03:00-06:00"
-
-  # Enhanced Monitoring - see example for details on how to create the role
-  # by yourself, in case you don't want to create it automatically
-  monitoring_interval = "30"
-  monitoring_role_name = "MyRDSMonitoringRole"
-  create_monitoring_role = true
-
-  tags = {
-    Owner       = "user"
-    Environment = "dev"
-  }
-
-  # DB subnet group
-  subnet_ids = ["subnet-12345678", "subnet-87654321"]
-
-  # DB parameter group
-  family = "mysql5.7"
-
-  # DB option group
-  major_engine_version = "5.7"
-
-  # Snapshot name upon DB deletion
-  final_snapshot_identifier = "demodb"
-
-  # Database Deletion Protection
-  deletion_protection = true
-
-  parameters = [
-    {
-      name = "character_set_client"
-      value = "utf8"
-    },
-    {
-      name = "character_set_server"
-      value = "utf8"
-    }
-  ]
-
-  options = [
-    {
-      option_name = "MARIADB_AUDIT_PLUGIN"
-
-      option_settings = [
-        {
-          name  = "SERVER_AUDIT_EVENTS"
-          value = "CONNECT"
-        },
-        {
-          name  = "SERVER_AUDIT_FILE_ROTATIONS"
-          value = "37"
-        },
-      ]
-    },
-  ]
+resource "aws_db_instance" "database" {
+  allocated_storage = 20
+  storage_type = "gp2"
+  engine = local.engine_name
+  engine_version = "11"
+  instance_class = "db.t2.micro"
+  name = "mydb"
+  username = "foo"
+  password = "foobarbaz"
+  parameter_group_name = aws_db_parameter_group.parameter_group.name
+  option_group_name = aws_db_option_group.option_group.name
+  db_subnet_group_name = module.vpc.database_subnet_group
+  vpc_security_group_ids = [aws_security_group.database_security_group.id]
 }

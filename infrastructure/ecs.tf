@@ -5,50 +5,34 @@ A terraform module to create ecs resources
 */
 
 locals {
-  name        = "complete-ecs"
+  name        = "ecs"
   environment = "dev"
 
   # This is the convention we use to know what belongs to each other
   ec2_resources_name = "${local.name}-${local.environment}"
 }
 
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 2.0"
-
-  name = local.name
-
-  cidr = "10.1.0.0/16"
-
-  azs             = ["eu-west-1a", "eu-west-1b"]
-  private_subnets = ["10.1.1.0/24", "10.1.2.0/24"]
-  public_subnets  = ["10.1.11.0/24", "10.1.12.0/24"]
-
-  enable_nat_gateway = false # this is faster, but should be "true" for real
-
-  tags = {
-    Environment = local.environment
-    Name        = local.name
-  }
-}
-
 #----- ECS --------
 module "ecs" {
-  source = "../../"
+  source = "terraform-aws-modules/ecs/aws"
   name   = local.name
 }
 
+/*
 module "ec2-profile" {
-  source = "../../modules/ecs-instance-profile"
+  source = "terraform-aws-modules/ecs/aws/modules/ecs-instance-profile"
   name   = local.name
 }
+*/
 
 #----- ECS  Services--------
 
+/*
 module "hello-world" {
   source     = "./service-hello-world"
   cluster_id = module.ecs.this_ecs_cluster_id
 }
+*/
 
 #----- ECS  Resources--------
 
@@ -69,7 +53,17 @@ data "aws_ami" "amazon_linux_ecs" {
   }
 }
 
-module "this" {
+resource "aws_security_group" "ecs_security_group" {
+  vpc_id = module.vpc.vpc_id
+}
+
+/*
+resource "aws_iam_instance_profile" "ecs_iam_instance_profile" {
+  role = "ecs_iam_instance_profile"
+}
+*/
+
+module "autoscaling" {
   source  = "terraform-aws-modules/autoscaling/aws"
   version = "~> 3.0"
 
@@ -80,17 +74,17 @@ module "this" {
 
   image_id             = data.aws_ami.amazon_linux_ecs.id
   instance_type        = "t2.micro"
-  security_groups      = [module.vpc.default_security_group_id]
-  iam_instance_profile = module.ec2-profile.this_iam_instance_profile_id
+  security_groups      = [aws_security_group.ecs_security_group.id]
+  #iam_instance_profile = aws_iam_instance_profile.ecs_iam_instance_profile.id
   user_data            = data.template_file.user_data.rendered
 
   # Auto scaling group
   asg_name                  = local.ec2_resources_name
-  vpc_zone_identifier       = module.vpc.private_subnets
+  vpc_zone_identifier       = module.vpc.public_subnets
   health_check_type         = "EC2"
-  min_size                  = 0
+  min_size                  = 1
   max_size                  = 1
-  desired_capacity          = 0
+  desired_capacity          = 1
   wait_for_capacity_timeout = 0
 
   tags = [
@@ -108,7 +102,7 @@ module "this" {
 }
 
 data "template_file" "user_data" {
-  template = file("${path.module}/templates/user-data.sh")
+  template = file("${path.module}/templates/userdata.sh")
 
   vars = {
     cluster_name = local.name
