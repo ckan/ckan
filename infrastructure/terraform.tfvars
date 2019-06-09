@@ -1,7 +1,7 @@
-region = "us-east-1"
+region = "us-east-2"
 vpc_name = "stl-rda-ckan"
 vpc_availability_zones = [
-  "us-east-1a",
-  "us-east-1b",
-  "us-east-1c"
+  "us-east-2a",
+  "us-east-2b",
+  "us-east-2c"
 ]
