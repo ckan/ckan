@@ -11,3 +11,5 @@ Terraform uses the AWS CLI, install that: https://docs.aws.amazon.com/cli/latest
 ----
 
 
+1. In console, move to `/infrastructure` directory
+2. Run `terraform init` to initalize local terrform state
