@@ -1,6 +1,8 @@
-provider "aws" {
-  region = "eu-west-1"
-}
+/*
+# ecs
+
+A terraform module to create ecs resources
+*/
 
 locals {
   name        = "complete-ecs"

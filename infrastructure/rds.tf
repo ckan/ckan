@@ -1,3 +1,9 @@
+/*
+# rds
+
+A terraform module to create rds instance
+*/
+
 module "db" {
   source = "terraform-aws-modules/rds/aws"
 

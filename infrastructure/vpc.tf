@@ -1,5 +1,5 @@
 /*
-# base-vpc
+# vpc
 
 A terraform module to create a vpc to build on top of
 */
@@ -7,6 +7,12 @@ A terraform module to create a vpc to build on top of
 variable "vpc_name" {}
 variable "region" {
   default = "us-east-1"
+}
+
+output "db_password" {
+  value       = aws_db_instance.db.password
+  description = "The password for logging in to the database."
+  sensitive   = false
 }
 
 provider "aws" {
