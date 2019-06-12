@@ -11,8 +11,8 @@ The basic recipe is to call:
 
 which builds the dictionary by iterating over the table columns.
 '''
-import datetime
 import urlparse
+import validators
 
 from ckan.common import config
 from sqlalchemy.sql import select
@@ -388,7 +388,7 @@ def group_dictize(group, context,
 
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url
-    if image_url and not image_url.startswith('http'):
+    if image_url and not validators.url(image_url) and not image_url.startswith('data:'):
         #munge here should not have an effect only doing it incase
         #of potential vulnerability of dodgy api input
         image_url = munge.munge_filename_legacy(image_url)
