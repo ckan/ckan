@@ -7,6 +7,7 @@ this.ckan.module('resource-reorder', function($) {
     },
     template: {
       title: '<h1></h1>',
+      help_text: '<p></p>',
       button: [
         '<a href="javascript:;" class="btn">',
         '<i class="fa fa-bars"></i>',
@@ -38,11 +39,19 @@ this.ckan.module('resource-reorder', function($) {
       jQuery.proxyAll(this, /_on/);
 
       var labelText = this._('Reorder resources');
+      var helpText = this._('You can rearrange the resources by dragging them using the arrow icon. Drag the resource ' +
+        'to the right and place it to the desired location on the list. When you are done, click the "Save order" -button.');
 
       this.html_title = $(this.template.title)
         .text(labelText)
         .insertBefore(this.el)
         .hide();
+
+      this.html_help_text = $(this.template.help_text)
+        .text(helpText)
+        .insertBefore(this.el)
+        .hide();
+
       var button = $(this.template.button)
         .on('click', this._onHandleStartReorder)
         .appendTo('.page_primary_action');
@@ -80,6 +89,7 @@ this.ckan.module('resource-reorder', function($) {
         this.html_form_actions
           .add(this.html_handles)
           .add(this.html_title)
+          .add(this.html_help_text)
           .show();
         this.el
           .addClass('reordering')
@@ -129,6 +139,7 @@ this.ckan.module('resource-reorder', function($) {
       this.html_form_actions
         .add(this.html_handles)
         .add(this.html_title)
+        .add(this.html_help_text)
         .hide();
       this.el
         .removeClass('reordering')
