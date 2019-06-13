@@ -17,13 +17,10 @@ from six.moves import xrange
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
-from ckan.common import config
-
-from werkzeug.local import Local
+from ckan.common import config, request
 
 
 log = logging.getLogger(__name__)
-local = Local()
 
 
 def get_jinja_env_options():
@@ -194,17 +191,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             searchpaths = self.searchpath[int(parts[1]) + 1:]
         else:
             searchpaths = self.searchpath
-        if not hasattr(local, 'missing_templates'):
-            local.missing_templates = set()
+        if not hasattr(request, 'missing_templates'):
+            request.missing_templates = set()
         # end of ckan changes
         pieces = loaders.split_template_path(template)
         for searchpath in searchpaths:
             filename = path.join(searchpath, *pieces)
-            if filename in local.missing_templates:
+            if filename in request.missing_templates:
                 continue
             f = open_if_exists(filename)
             if f is None:
-                local.missing_templates.add(filename)
+                request.missing_templates.add(filename)
                 continue
             try:
                 contents = f.read().decode(self.encoding)
