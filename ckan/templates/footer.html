@@ -2,7 +2,7 @@
   <div class="container">
     {% block footer_content %}
     <div class="row">
-      <div class="col-md-8 footer-links">
+      <div class="col-md-7 footer-links">
         {% block footer_nav %}
           <ul class="list-unstyled">
             {% block footer_links %}
@@ -17,6 +17,11 @@
               <li><a href="http://www.opendefinition.org/okd/"><img src="{{ h.url_for_static('/base/images/od_80x15_blue.png') }}" alt="Open Data"></a></li>
             {% endblock %}
           </ul>
+        {% endblock %}
+      </div>
+      <div class="col-md-1">
+        {% block mars_logo %}
+          <a class="logo" href="https://marsdd.com"><img src="/base/images/MaRS-Logo-25%.png" alt="MaRS Discovery District" title="MaRS Discovery District" /></a>
         {% endblock %}
       </div>
       <div class="col-md-4 attribution">
