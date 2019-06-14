@@ -1042,7 +1042,7 @@ def upsert_data(context, data_dict):
             row = []
             for field in fields:
                 value = record.get(field['id'])
-                if value and field['type'].lower() == 'nested':
+                if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     value = (json.dumps(value), '')
                 row.append(value)
