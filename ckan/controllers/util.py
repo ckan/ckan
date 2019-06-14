@@ -22,11 +22,6 @@ class UtilController(base.BaseController):
         else:
             base.abort(403, _('Redirecting to external site is not allowed.'))
 
-    def primer(self):
-        ''' Render all html components out onto a single page.
-        This is useful for development/styling of ckan. '''
-        return base.render('development/primer.html')
-
     def i18_js_strings(self, lang):
         ''' This is used to produce the translations for javascript. '''
         i18n.set_lang(lang)
