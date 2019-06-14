@@ -134,9 +134,6 @@ def make_map():
     # users
     map.redirect('/users/{url:.*}', '/user/{url}')
 
-    with SubMapper(map, controller='util') as m:
-        m.connect('/i18n/strings_{lang}.js', action='i18n_js_strings')
-
     # robots.txt
     map.connect('/(robots.txt)', controller='template', action='view')
 
