@@ -30,7 +30,7 @@ pastedeploy==2.0.1        # via pastescript, pylons
 pastescript==2.0.2
 pbr==5.2.0                # via sqlalchemy-migrate
 polib==1.0.7
-psycopg2==2.7.3.2
+psycopg2==2.8.2
 pygments==2.3.1           # via weberror
 pylons==0.9.7
 pysolr==3.6.0
