@@ -64,15 +64,6 @@ Add a breadcrumb to the page by extending this element::
     {% include "breadcrumb.html" %}
   {% endblock %}
 
-actions
--------
-
-Add actions to the page by extending this element::
-
-  {% block actions %}
-    <a class="btn" href="{{ save_url }}">Save</a>
-  {% endblock %}
-
 primary
 -------
 
