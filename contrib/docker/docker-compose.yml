@@ -75,10 +75,10 @@ services:
 
       - HOME=/usr/lib/ckan
 
-    # volumes:
+    volumes:
       # - ckan_config:/etc/ckan
       # - ckan_home:/usr/lib/ckan
-      # - ckan_storage:/var/lib/ckan
+      - ckan_storage:/var/lib/ckan
 
       # a.s. added next line to work locally
       # - .:/usr/lib/ckan
