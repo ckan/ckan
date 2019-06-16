@@ -1,10 +1,12 @@
-# Turkish translations for ckan.
+# Translations template for ckan.
 # Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
-#
+# 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
+# Ayça Ulutoprak <ayca.acar@globalmaksimum.com>, 2019
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -12,26 +14,26 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2018-03-27 16:10+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
-"Language: tr\n"
+"Last-Translator: Ayça Ulutoprak <ayca.acar@globalmaksimum.com>, 2019\n"
 "Language-Team: Turkish (https://www.transifex.com/okfn/teams/11162/tr/)\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
+"Generated-By: Babel 2.5.3\n"
+"Language: tr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
-msgstr ""
+msgstr "Tamamlandı"
 
 #: ckanext/datapusher/helpers.py:22
 msgid "Pending"
-msgstr ""
+msgstr "Bekliyor"
 
 #: ckanext/datapusher/helpers.py:23
 msgid "Submitting"
-msgstr ""
+msgstr "Gönderiliyor"
 
 #: ckan/controllers/package.py:681 ckanext/datapusher/helpers.py:24
 msgid "Error"
@@ -39,7 +41,7 @@ msgstr "Hata"
 
 #: ckanext/datapusher/helpers.py:29
 msgid "Not Uploaded Yet"
-msgstr ""
+msgstr "Henüz karşıya yüklenmedi"
 
 #: ckan/controllers/package.py:613 ckan/controllers/package.py:1076
 #: ckan/controllers/package.py:1096 ckan/controllers/package.py:1163
@@ -77,7 +79,7 @@ msgstr ""
 #: ckanext/datapusher/templates/datapusher/resource_data.html:25
 #: ckanext/datapusher/templates/datapusher/resource_data.html:27
 msgid "Error:"
-msgstr ""
+msgstr "Hata:"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:36
 #: ckanext/datapusher/templates/datapusher/resource_data.html:36
@@ -87,17 +89,17 @@ msgstr ""
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:48
 #: ckanext/datapusher/templates/datapusher/resource_data.html:48
 msgid "Status"
-msgstr ""
+msgstr "Durum"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:52
 #: ckanext/datapusher/templates/datapusher/resource_data.html:52
 msgid "Last updated"
-msgstr ""
+msgstr "Son güncelleme"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:56
 #: ckanext/datapusher/templates/datapusher/resource_data.html:56
 msgid "Never"
-msgstr ""
+msgstr "Hiç bir zaman"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:62
 #: ckanext/datapusher/templates/datapusher/resource_data.html:62
@@ -107,7 +109,7 @@ msgstr ""
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:76
 #: ckanext/datapusher/templates/datapusher/resource_data.html:76
 msgid "Details"
-msgstr ""
+msgstr "Detaylar"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:83
 #: ckanext/datapusher/templates/datapusher/resource_data.html:83
@@ -117,12 +119,12 @@ msgstr ""
 #: ckanext/datapusher/templates-bs2/package/resource_edit_base.html:5
 #: ckanext/datapusher/templates/package/resource_edit_base.html:5
 msgid "DataStore"
-msgstr ""
+msgstr "Veri Deposu"
 
 #: ckanext/datastore/controller.py:53
 #, python-format
 msgid "format: must be one of %s"
-msgstr ""
+msgstr "format şunlardan biri olmalı: %s"
 
 #: ckanext/datastore/controller.py:65
 msgid "DataStore resource not found"
@@ -130,14 +132,14 @@ msgstr ""
 
 #: ckanext/datastore/controller.py:101
 msgid ""
-"Data Dictionary saved. Any type overrides will take effect when the "
-"resource is next uploaded to DataStore"
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
 msgstr ""
 
 #: ckanext/datastore/backend/postgres.py:1032
 msgid ""
-"The data was invalid (for example: a numeric value is out of range or was"
-" inserted into a text field)."
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
 msgstr ""
 
 #: ckanext/datastore/logic/action.py:258 ckanext/datastore/logic/action.py:286
@@ -163,8 +165,7 @@ msgstr ""
 msgid ""
 " Further information in the <a             "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
-" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:33
@@ -175,14 +176,14 @@ msgstr ""
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:37
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:39
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
 msgstr ""
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:44
 msgid "Create"
-msgstr ""
+msgstr "Oluştur"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:46
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:48
@@ -202,27 +203,27 @@ msgstr ""
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:66
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:68
 msgid "Querying"
-msgstr ""
+msgstr "Sorgulama"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:70
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:72
 msgid "Query example (first 5 results)"
-msgstr ""
+msgstr "Sorgu örnekleri (ilk 5 sonuç)"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:75
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:77
 msgid "Query example (results containing 'jones')"
-msgstr ""
+msgstr "Sorgu örnekleri ('jones' içeren sonuçlar)"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:80
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:82
 msgid "Query example (via SQL statement)"
-msgstr ""
+msgstr "Sorgu örnekleri (SQL ile)"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:91
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:93
 msgid "Example: Javascript"
-msgstr ""
+msgstr "Örnek: Javascript"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:95
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:97
@@ -232,13 +233,13 @@ msgstr ""
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:116
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
-msgstr ""
+msgstr "Örnek: Python"
 
 #: ckan/templates/group/member_new.html:60
 #: ckanext/datastore/templates-bs2/datastore/dictionary.html:26
 #: ckanext/datastore/templates/datastore/dictionary.html:20
 msgid "Save"
-msgstr ""
+msgstr "Kaydet"
 
 #: ckanext/datastore/templates-bs2/datastore/dictionary.html:16
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:3
@@ -267,14 +268,14 @@ msgstr ""
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:24
 #: ckanext/datastore/templates/package/resource_read.html:22
 msgid "Description"
-msgstr ""
+msgstr "Açıklama"
 
 #: ckanext/datastore/templates-bs2/package/resource_edit_base.html:6
 #: ckanext/datastore/templates-bs2/package/resource_read.html:14
 #: ckanext/datastore/templates/package/resource_edit_base.html:6
 #: ckanext/datastore/templates/package/resource_read.html:14
 msgid "Data Dictionary"
-msgstr ""
+msgstr "Veri Sözlüğü"
 
 #: ckanext/datastore/templates-bs2/package/resource_read.html:18
 #: ckanext/datastore/templates/package/resource_read.html:19
@@ -285,7 +286,7 @@ msgstr ""
 #: ckanext/datastore/templates-bs2/package/resource_read.html:19
 #: ckanext/datastore/templates/package/resource_read.html:20
 msgid "Type"
-msgstr ""
+msgstr "Tip"
 
 #: ckan/public-bs2/base/javascript/modules/activity-stream.js:97
 #: ckan/public-bs2/base/javascript/modules/popover-context.js:62
@@ -303,7 +304,7 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_view.html:14
 #: ckanext/textview/theme/templates/text_view.html:9
 msgid "Loading..."
-msgstr ""
+msgstr "Yükleniyor..."
 
 #: ckanext/datastore/templates-bs2/package/snippets/data_api_button.html:10
 #: ckanext/datastore/templates/package/snippets/data_api_button.html:9
@@ -314,13 +315,12 @@ msgstr ""
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
-" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
 
 #: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:128
 msgid "Table"
-msgstr ""
+msgstr "Tablo"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:6
 msgid "Responsive display"
@@ -328,11 +328,11 @@ msgstr ""
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:12
 msgid "Show Columns"
-msgstr ""
+msgstr "Sütunları Göster"
 
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:28
 msgid "Hide/Unhide Columns"
-msgstr ""
+msgstr "Sütunları Gizle/Göster"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
@@ -359,7 +359,7 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:15
 #: ckanext/example_idatasetform/templates/package/search.html:13
 msgid "Name Ascending"
-msgstr ""
+msgstr "İsme Göre Artan"
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:15
 #: ckan/templates/organization/bulk_process.html:98
@@ -371,7 +371,7 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:16
 #: ckanext/example_idatasetform/templates/package/search.html:14
 msgid "Name Descending"
-msgstr ""
+msgstr "İsme Göre Azalan"
 
 #: ckan/templates/group/read.html:16
 #: ckan/templates/organization/bulk_process.html:99
@@ -381,7 +381,7 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:17
 #: ckanext/example_idatasetform/templates/package/search.html:15
 msgid "Last Modified"
-msgstr ""
+msgstr "Son Güncelleme"
 
 #: ckanext/example_idatasetform/templates/package/search.html:16
 msgid "Custom Field Ascending"
@@ -398,7 +398,7 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:19
 #: ckanext/example_idatasetform/templates/package/search.html:18
 msgid "Popular"
-msgstr ""
+msgstr "Popüler"
 
 #: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
@@ -420,7 +420,7 @@ msgstr ""
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr ""
+msgstr "Bu tercüme edilmemiş bir metin."
 
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
@@ -441,11 +441,11 @@ msgstr[1] ""
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
 msgid "0 Datasets"
-msgstr ""
+msgstr "0 Veri Seti"
 
 #: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
-msgstr ""
+msgstr "CKAN veri önizleme aracının pek çok güçlü özelliği vardır."
 
 #: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
 #: ckan/templates/group/snippets/info.html:32
@@ -459,7 +459,7 @@ msgstr ""
 #: ckan/templates/user/read_base.html:49
 #: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:12
 msgid "Followers"
-msgstr ""
+msgstr "Takipçiler"
 
 #: ckan/logic/__init__.py:99 ckan/logic/action/__init__.py:60
 #: ckan/templates/package/edit_base.html:21
@@ -469,14 +469,14 @@ msgstr ""
 #: ckan/templates/snippets/context/dataset.html:13
 #: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:15
 msgid "Resources"
-msgstr ""
+msgstr "Kaynaklar"
 
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:80
 #: ckan/public/base/javascript/modules/image-upload.js:80
 #: ckan/templates/macros/form.html:424 ckanext/imageview/plugin.py:27
 #: ckanext/imageview/plugin.py:32
 msgid "Image"
-msgstr ""
+msgstr "Resim"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "Image url"
@@ -485,6 +485,7 @@ msgstr "Resim bağlantısı"
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
 msgstr ""
+"örn: http://example.com/image.jpg (boş bırakılırsa kaynak url'ini kullanır)"
 
 #: ckanext/reclineview/plugin.py:101
 msgid "Data Explorer"
@@ -494,13 +495,13 @@ msgstr ""
 #: ckanext/reclineview/theme/public/recline_view.js:200
 #: ckanext/reclineview/theme/public/recline_view.min.js:14
 msgid "Graph"
-msgstr ""
+msgstr "Grafik"
 
 #: ckanext/reclineview/plugin.py:231
 #: ckanext/reclineview/theme/public/recline_view.js:207
 #: ckanext/reclineview/theme/public/recline_view.min.js:14
 msgid "Map"
-msgstr ""
+msgstr "Harita"
 
 #: ckanext/reclineview/theme/public/recline_view.js:28
 #: ckanext/reclineview/theme/public/recline_view.min.js:1
@@ -531,7 +532,7 @@ msgstr ""
 #: ckanext/reclineview/theme/public/recline_view.js:215
 #: ckanext/reclineview/theme/public/recline_view.min.js:14
 msgid "Filters"
-msgstr ""
+msgstr "Filtreler"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -541,21 +542,21 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "eg: 0"
-msgstr ""
+msgstr "örn: 0"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "Satır sayısı"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "eg: 100"
-msgstr ""
+msgstr "örn: 100"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:6
 msgid "Graph type"
-msgstr ""
+msgstr "Grafik tipi"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:7
 msgid "Group (Axis 1)"
@@ -567,19 +568,19 @@ msgstr ""
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:6
 msgid "Field type"
-msgstr ""
+msgstr "Alan tipi"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:7
 msgid "Latitude field"
-msgstr ""
+msgstr "Enlem alanı"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:8
 msgid "Longitude field"
-msgstr ""
+msgstr "Boylam alanı"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:9
 msgid "GeoJSON field"
-msgstr ""
+msgstr "GeoJSON alanı"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:10
 msgid "Auto zoom to features"
@@ -591,7 +592,7 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 msgid "Total number of Datasets"
-msgstr ""
+msgstr "Toplam veriseti sayısı"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
@@ -605,11 +606,11 @@ msgstr ""
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "Haftalık veriseti revizyonları"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr ""
+msgstr "Tüm veriseti revizyonları"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
@@ -635,7 +636,7 @@ msgstr ""
 #: ckanext/stats/templates/ckanext/stats/index.html:84
 #: ckanext/stats/templates/ckanext/stats/index.html:181
 msgid "Most Edited Datasets"
-msgstr ""
+msgstr "En çok güncellenen veri setleri"
 
 #: ckan/logic/converters.py:148 ckan/logic/validators.py:151
 #: ckan/logic/validators.py:193 ckan/templates/package/read_base.html:19
@@ -646,11 +647,11 @@ msgstr "Veri seti"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:90
 msgid "Number of edits"
-msgstr ""
+msgstr "Güncelleme sayısı"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:103
 msgid "No edited datasets"
-msgstr ""
+msgstr "Düzenlenmiş veri seti yok"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:108
 #: ckanext/stats/templates/ckanext/stats/index.html:182
@@ -687,7 +688,7 @@ msgstr "Veriseti sayısı"
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "En Çok Veri Seti Oluşturan Kullanıcılar"
 
 #: ckan/logic/converters.py:123 ckan/logic/validators.py:216
 #: ckan/logic/validators.py:233 ckan/logic/validators.py:714
@@ -707,7 +708,7 @@ msgstr "Toplam veriseti sayısı"
 
 #: ckanext/textview/plugin.py:67 ckanext/textview/plugin.py:69
 msgid "Text"
-msgstr ""
+msgstr "Metin"
 
 #: ckanext/webpageview/plugin.py:22 ckanext/webpageview/plugin.py:27
 msgid "Website"
@@ -725,7 +726,7 @@ msgstr ""
 #: ckan/templates/package/snippets/resource_view.html:64
 #: ckanext/webpageview/theme/templates/webpage_view.html:2
 msgid "Your browser does not support iframes."
-msgstr ""
+msgstr "Tarayıcınız iframe kullanımını desteklemiyor."
 
 #: ckan/authz.py:207
 #, python-format
@@ -784,7 +785,7 @@ msgstr "Karşılama metni"
 
 #: ckan/controllers/admin.py:56 ckan/templates/admin/config.html:27
 msgid "Text on home page"
-msgstr ""
+msgstr "Ana sayfadaki metin"
 
 #: ckan/controllers/admin.py:57 ckan/templates/admin/config.html:29
 msgid "Custom CSS"
@@ -812,7 +813,7 @@ msgstr ""
 
 #: ckan/controllers/admin.py:185 ckan/views/admin.py:199
 msgid "Purge complete"
-msgstr ""
+msgstr "Temizleme tamamlandı"
 
 #: ckan/controllers/admin.py:187 ckan/views/admin.py:201
 msgid "Action not implemented."
@@ -874,7 +875,7 @@ msgstr ""
 #: ckan/controllers/api.py:370
 #, python-format
 msgid "Bad search option: %s"
-msgstr ""
+msgstr "Hatalı arama seçeneği: %s"
 
 #: ckan/controllers/api.py:373
 #, python-format
@@ -967,15 +968,15 @@ msgstr "Lisanslar"
 #: ckan/controllers/package.py:1443
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr ""
+msgstr "%r kullanıcısı, %s'ı düzenlemek için yetkilendirilmemiştir."
 
 #: ckan/controllers/group.py:443
 msgid "Not authorized to perform bulk update"
-msgstr ""
+msgstr "Toplu güncelleme için yetki bulunmamakta"
 
 #: ckan/controllers/group.py:461
 msgid "Unauthorized to create a group"
-msgstr ""
+msgstr "Grup yaratmak için yetki bulunmamakta"
 
 #: ckan/controllers/group.py:539 ckan/controllers/group.py:569
 #: ckan/controllers/package.py:944 ckan/controllers/package.py:992
@@ -993,7 +994,7 @@ msgstr ""
 #: ckan/controllers/group.py:615 ckan/controllers/group.py:630
 #, python-format
 msgid "Unauthorized to delete group %s"
-msgstr ""
+msgstr "%s grubunu silmek için yetki bulunmamaktadır."
 
 #: ckan/controllers/group.py:621
 msgid "Organization has been deleted."
@@ -1006,12 +1007,12 @@ msgstr "Grup silinmiştir."
 #: ckan/controllers/group.py:625
 #, python-format
 msgid "%s has been deleted."
-msgstr ""
+msgstr "%s silinmiştir."
 
 #: ckan/controllers/group.py:657
 #, python-format
 msgid "User %r not authorized to edit members of %s"
-msgstr ""
+msgstr "%r kullanıcısı %s üyelerini güncellemek için yetkili değildir."
 
 #: ckan/controllers/group.py:670
 #, python-format
@@ -1021,12 +1022,12 @@ msgstr ""
 #: ckan/controllers/group.py:712
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr ""
+msgstr "%s grubuna üye eklemek için yetkiniz yoktur"
 
 #: ckan/controllers/group.py:731 ckan/controllers/group.py:744
 #, python-format
 msgid "Unauthorized to delete group %s members"
-msgstr ""
+msgstr "%s grubunun üyelerini silmek için yetkiniz yoktur"
 
 #: ckan/controllers/group.py:738
 msgid "Group member has been deleted."
@@ -1038,7 +1039,7 @@ msgstr ""
 
 #: ckan/controllers/group.py:786
 msgid "CKAN Group Revision History"
-msgstr ""
+msgstr "CKAN Grup Revizyon Tarihçesi"
 
 #: ckan/controllers/group.py:790
 msgid "Recent changes to CKAN Group: "
@@ -1051,12 +1052,12 @@ msgstr "Günlük mesajı:"
 #: ckan/controllers/group.py:861 ckan/controllers/package.py:1193
 #: ckan/controllers/user.py:719 ckan/views/user.py:650
 msgid "You are now following {0}"
-msgstr ""
+msgstr "Artık {0}'i takip ediyorsunuz"
 
 #: ckan/controllers/group.py:881 ckan/controllers/package.py:1212
 #: ckan/controllers/user.py:739 ckan/views/user.py:672
 msgid "You are no longer following {0}"
-msgstr ""
+msgstr "Artık {0}'i takip etmiyorsunuz."
 
 #: ckan/controllers/group.py:901 ckan/controllers/user.py:584
 #: ckan/views/user.py:697
@@ -1066,14 +1067,14 @@ msgstr ""
 
 #: ckan/controllers/home.py:35
 msgid "This site is currently off-line. Database is not initialised."
-msgstr ""
+msgstr "Bu site şu anda hizmet dışı. Veritabanı başlatılmamış."
 
 #: ckan/controllers/home.py:73 ckan/views/home.py:58
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr ""
-"Lütfen  <a href=\"%s\">profilinizi güncelleyin</a>  ve e-posta adresinizi"
-" ekleyin."
+"Lütfen  <a href=\"%s\">profilinizi güncelleyin</a>  ve e-posta adresinizi "
+"ekleyin."
 
 #: ckan/controllers/home.py:75 ckan/views/home.py:60
 #, python-format
@@ -1140,7 +1141,7 @@ msgstr ""
 #: ckan/controllers/package.py:668 ckan/controllers/package.py:705
 #: ckan/controllers/package.py:731
 msgid "The dataset {id} could not be found."
-msgstr ""
+msgstr "Veri seti {id} bulunamadı."
 
 #: ckan/controllers/package.py:672
 msgid "You must add at least one data resource"
@@ -1160,7 +1161,7 @@ msgstr ""
 
 #: ckan/controllers/package.py:998
 msgid "Unable to update search index."
-msgstr ""
+msgstr "Arama indeksi güncellenemedi."
 
 #: ckan/controllers/package.py:1035
 msgid "Dataset has been deleted."
@@ -1241,7 +1242,7 @@ msgstr ""
 
 #: ckan/controllers/revision.py:191
 msgid "Revision updated"
-msgstr ""
+msgstr "Revizyon güncellendi"
 
 #: ckan/controllers/tag.py:60
 msgid "Other"
@@ -1317,16 +1318,16 @@ msgstr ""
 
 #: ckan/controllers/user.py:386 ckan/views/user.py:210
 msgid "Password entered was incorrect"
-msgstr ""
+msgstr "Girilen şifre hatalıdır"
 
 #: ckan/controllers/user.py:387 ckan/templates/user/edit_user_form.html:29
 #: ckan/views/user.py:212
 msgid "Old Password"
-msgstr ""
+msgstr "Eski Şifre"
 
 #: ckan/controllers/user.py:387 ckan/views/user.py:212
 msgid "incorrect password"
-msgstr ""
+msgstr "Hatalı şifre"
 
 #: ckan/controllers/user.py:427 ckan/views/user.py:386
 msgid "Login failed. Bad username or password."
@@ -1438,7 +1439,7 @@ msgstr ""
 
 #: ckan/lib/activity_streams.py:87
 msgid "{actor} deleted the dataset {dataset}"
-msgstr ""
+msgstr "{actor}, {dataset} verisetini sildi."
 
 #: ckan/lib/activity_streams.py:90
 msgid "{actor} deleted the extra {extra} from the dataset {dataset}"
@@ -1454,7 +1455,7 @@ msgstr "{actor} , {group} grubunu oluşturdu."
 
 #: ckan/lib/activity_streams.py:100
 msgid "{actor} created the organization {organization}"
-msgstr ""
+msgstr "{actor} , {organization} organizasyonunu oluşturdu."
 
 #: ckan/lib/activity_streams.py:103
 msgid "{actor} created the dataset {dataset}"
@@ -1613,39 +1614,39 @@ msgstr "{tebibytes} TiB"
 
 #: ckan/lib/formatters.py:187
 msgid "{n}"
-msgstr ""
+msgstr "{n}"
 
 #: ckan/lib/formatters.py:189
 msgid "{k}k"
-msgstr ""
+msgstr "{k}k"
 
 #: ckan/lib/formatters.py:191
 msgid "{m}M"
-msgstr ""
+msgstr "{m}M"
 
 #: ckan/lib/formatters.py:193
 msgid "{g}G"
-msgstr ""
+msgstr "{g}G"
 
 #: ckan/lib/formatters.py:195
 msgid "{t}T"
-msgstr ""
+msgstr "{t}T"
 
 #: ckan/lib/formatters.py:197
 msgid "{p}P"
-msgstr ""
+msgstr "{p}P"
 
 #: ckan/lib/formatters.py:199
 msgid "{e}E"
-msgstr ""
+msgstr "{e}E"
 
 #: ckan/lib/formatters.py:201
 msgid "{z}Z"
-msgstr ""
+msgstr "{z}Z"
 
 #: ckan/lib/formatters.py:203
 msgid "{y}Y"
-msgstr ""
+msgstr "{y}Y"
 
 #: ckan/lib/helpers.py:1251
 msgid "Update your avatar at gravatar.com"
@@ -1661,7 +1662,7 @@ msgstr ""
 
 #: ckan/lib/helpers.py:1627
 msgid "Created new dataset."
-msgstr ""
+msgstr "Yeni veriseti oluşturuldu."
 
 #: ckan/lib/helpers.py:1629
 msgid "Edited resources."
@@ -1686,7 +1687,7 @@ msgstr[1] ""
 #: ckan/lib/mailer.py:46
 #, python-format
 msgid "%s <%s>"
-msgstr ""
+msgstr "%s <%s>"
 
 #: ckan/lib/mailer.py:116
 msgid "No recipient email address available!"
@@ -1694,11 +1695,11 @@ msgstr ""
 
 #: ckan/lib/mailer.py:134 ckan/templates/home/snippets/stats.html:17
 msgid "organization"
-msgstr ""
+msgstr "organizasyon"
 
 #: ckan/lib/mailer.py:135 ckan/templates/home/snippets/stats.html:23
 msgid "group"
-msgstr ""
+msgstr "grup"
 
 #: ckan/lib/navl/dictization_functions.py:16
 #: ckan/lib/navl/dictization_functions.py:19
@@ -1763,7 +1764,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:99
 msgid "Must be a natural number"
-msgstr ""
+msgstr "Bir doğal sayı olmalı"
 
 #: ckan/logic/validators.py:105
 msgid "Must be a postive integer"
@@ -1771,7 +1772,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:132
 msgid "Date format incorrect"
-msgstr ""
+msgstr "Tarih formatı hatalı"
 
 #: ckan/logic/validators.py:141
 msgid "No links are allowed in the log_message."
@@ -1813,8 +1814,8 @@ msgstr ""
 
 #: ckan/logic/validators.py:345
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr ""
 
 #: ckan/logic/validators.py:363
@@ -2125,22 +2126,22 @@ msgstr ""
 
 #: ckan/logic/action/update.py:995
 msgid "Organization was not found."
-msgstr ""
+msgstr "Organizasyon bulunamadı"
 
 #: ckan/logic/auth/create.py:27 ckan/logic/auth/create.py:45
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr ""
+msgstr "%s kullanıcısı paket yaratmak için yetkili değil"
 
 #: ckan/logic/auth/create.py:31 ckan/logic/auth/update.py:45
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr ""
+msgstr "%s kullanıcısı bu grupları düzenlemek için yetkili değil."
 
 #: ckan/logic/auth/create.py:38
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
-msgstr ""
+msgstr "%s kullanıcısı bu organizasyona veri seti eklemek için yetkili değil"
 
 #: ckan/logic/auth/create.py:61
 msgid "No dataset id provided, cannot check auth."
@@ -2159,12 +2160,12 @@ msgstr ""
 #: ckan/logic/auth/create.py:108
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr ""
+msgstr "%s kullanıcısı bu paketleri düzenlemek için yetkili değil"
 
 #: ckan/logic/auth/create.py:119
 #, python-format
 msgid "User %s not authorized to create groups"
-msgstr ""
+msgstr "%s kullanıcısı grup yaratmak için yetkili değil"
 
 #: ckan/logic/auth/create.py:129
 #, python-format
@@ -2181,17 +2182,17 @@ msgstr ""
 
 #: ckan/logic/auth/create.py:189
 msgid "Group was not found."
-msgstr ""
+msgstr "Grup bulunamadı"
 
 #: ckan/logic/auth/create.py:220
 #, python-format
 msgid "User %s not authorized to add members"
-msgstr ""
+msgstr "%s kullanıcısı üye eklemek için yetkili değil"
 
 #: ckan/logic/auth/create.py:244 ckan/logic/auth/update.py:115
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr ""
+msgstr "%s kullanıcısı %s grubunu düzenlemek için yetkili değil"
 
 #: ckan/logic/auth/delete.py:40
 #, python-format
@@ -2292,7 +2293,7 @@ msgstr ""
 
 #: ckan/logic/auth/update.py:190
 msgid "Have to be logged in to edit user"
-msgstr ""
+msgstr "Kullanıcıyı güncellemek için giriş yapmalısınız"
 
 #: ckan/logic/auth/update.py:198
 #, python-format
@@ -2441,7 +2442,7 @@ msgstr ""
 #: ckan/public-bs2/base/javascript/modules/autocomplete.js:195
 #: ckan/public/base/javascript/modules/autocomplete.js:195
 msgid "No matches found"
-msgstr ""
+msgstr "Eşleşme bulunamadı"
 
 #: ckan/public-bs2/base/javascript/modules/autocomplete.js:204
 #: ckan/public/base/javascript/modules/autocomplete.js:204
@@ -2471,7 +2472,7 @@ msgstr ""
 #: ckan/templates/user/new_user_form.html:9
 #: ckan/templates/user/perform_reset.html:26
 msgid "Confirm"
-msgstr ""
+msgstr "Onayla"
 
 #: ckan/public-bs2/base/javascript/modules/confirm-action.js:103
 #: ckan/public-bs2/base/javascript/modules/resource-reorder.js:59
@@ -2561,7 +2562,7 @@ msgstr ""
 #: ckan/public/base/javascript/modules/resource-reorder.js:69
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:59
 msgid "Saving..."
-msgstr ""
+msgstr "Kaydediliyor..."
 
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:57
 #: ckan/public/base/javascript/modules/resource-upload-field.js:57
@@ -2571,7 +2572,7 @@ msgstr ""
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:144
 #: ckan/public/base/javascript/modules/resource-upload-field.js:144
 msgid "An Error Occurred"
-msgstr ""
+msgstr "Hata oluştu"
 
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:201
 #: ckan/public/base/javascript/modules/resource-upload-field.js:201
@@ -2596,15 +2597,15 @@ msgstr ""
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:272
 #: ckan/public/base/javascript/modules/resource-upload-field.js:272
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
 msgstr ""
 
 #: ckan/public-bs2/base/javascript/modules/resource-view-filters.js:9
 #: ckan/public/base/javascript/modules/resource-view-filters.js:9
 #: ckan/templates/package/snippets/view_form_filters.html:16
 msgid "Add Filter"
-msgstr ""
+msgstr "Filtre ekle"
 
 #: ckan/public-bs2/base/javascript/modules/resource-view-filters.js:52
 #: ckan/public/base/javascript/modules/resource-view-filters.js:52
@@ -2623,7 +2624,7 @@ msgstr ""
 #: ckan/templates/package/resource_edit_base.html:12
 #: ckan/templates/package/snippets/resource_item.html:56
 msgid "Edit"
-msgstr ""
+msgstr "Düzenle"
 
 #: ckan/public-bs2/base/javascript/modules/table-toggle-more.js:25
 #: ckan/public/base/javascript/modules/table-toggle-more.js:25
@@ -2633,7 +2634,7 @@ msgstr ""
 #: ckan/public-bs2/base/javascript/modules/table-toggle-more.js:26
 #: ckan/public/base/javascript/modules/table-toggle-more.js:26
 msgid "Hide"
-msgstr ""
+msgstr "Gizle"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:13
 #: ckan/public-bs2/base/test/spec/module.spec.js:385
@@ -2659,7 +2660,7 @@ msgstr[1] ""
 #: ckan/public/base/test/spec/i18n.spec.js:22
 #, python-format
 msgid "hello %(name)s!"
-msgstr ""
+msgstr "merhaba %(name)s!"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:29
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:76
@@ -2731,7 +2732,7 @@ msgstr[1] ""
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
-msgstr ""
+msgstr "Hata %(error_code)s"
 
 #: ckan/templates/footer.html:9
 msgid "About {0}"
@@ -2780,11 +2781,11 @@ msgstr ""
 
 #: ckan/templates/header.html:40 ckan/templates/header.html:42
 msgid "Log out"
-msgstr ""
+msgstr "Çıkış yap"
 
 #: ckan/templates/header.html:52 ckan/templates/user/logout_first.html:14
 msgid "Log in"
-msgstr ""
+msgstr "Giriş yap"
 
 #: ckan/templates/header.html:54 ckan/templates/user/new.html:3
 msgid "Register"
@@ -2815,7 +2816,7 @@ msgstr ""
 #: ckan/templates/snippets/simple_search.html:5
 #: ckan/templates/user/snippets/user_search.html:6
 msgid "Search"
-msgstr ""
+msgstr "Ara"
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
@@ -2873,22 +2874,21 @@ msgstr ""
 #: ckan/templates/admin/config.html:52
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> "
-"<p><strong>Style:</strong> Choose from a list of simple variations of the"
-" main colour scheme to get a very quick custom theme working.</p> "
-"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-"<p><strong>Homepage:</strong> This is for choosing a predefined layout "
-"for the modules that appear on your homepage.</p> "
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p> "
 msgstr ""
 
 #: ckan/templates/admin/confirm_reset.html:3
@@ -2904,9 +2904,8 @@ msgstr ""
 #, python-format
 msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin "
-"guide</a></p> "
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
+"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
 msgstr ""
 
 #: ckan/templates/admin/trash.html:20
@@ -2938,7 +2937,7 @@ msgstr ""
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:5
 msgid "More details..."
-msgstr ""
+msgstr "Daha fazla detay..."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:12
 #, python-format
@@ -3020,7 +3019,7 @@ msgstr ""
 #: ckan/templates/user/activity_stream.html:6
 #: ckan/templates/user/read_base.html:20
 msgid "Activity Stream"
-msgstr ""
+msgstr "İşlem Akışı"
 
 #: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:6
 #: ckan/templates/organization/admins.html:3
@@ -3053,7 +3052,7 @@ msgstr ""
 
 #: ckan/templates/group/confirm_delete.html:11
 msgid "Are you sure you want to delete group - {name}?"
-msgstr ""
+msgstr "{name} grubunu silmek istediğinize emin misiniz?"
 
 #: ckan/templates/group/confirm_delete_member.html:11
 #: ckan/templates/organization/confirm_delete_member.html:11
@@ -3066,42 +3065,44 @@ msgstr ""
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
 #: ckan/templates/package/read_base.html:14
-#: ckan/templates/package/resource_read.html:31 ckan/templates/user/edit.html:8
-#: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:14
+#: ckan/templates/package/resource_read.html:31
+#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/read_base.html:14
 msgid "Manage"
 msgstr ""
 
 #: ckan/templates/group/edit.html:12
 msgid "Edit Group"
-msgstr ""
+msgstr "Grubu Düzenle"
 
 #: ckan/templates/group/edit_base.html:21 ckan/templates/group/members.html:3
 #: ckan/templates/organization/edit_base.html:24
 #: ckan/templates/organization/members.html:3
 msgid "Members"
-msgstr ""
+msgstr "Üyeler"
 
 #: ckan/templates/group/history.html:3 ckan/templates/group/history.html:6
 #: ckan/templates/package/history.html:3 ckan/templates/package/history.html:6
 msgid "History"
-msgstr ""
+msgstr "Tarihçe"
 
 #: ckan/templates/group/index.html:13
 #: ckan/templates/user/dashboard_groups.html:7
 msgid "Add Group"
-msgstr ""
+msgstr "Grup Ekle"
 
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
-msgstr ""
+msgstr "Grupları ara..."
 
 #: ckan/templates/group/index.html:29
 msgid "There are currently no groups for this site"
-msgstr ""
+msgstr "Bu site için şu an tanımlı grup bulunmamaktadır"
 
-#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
-msgstr ""
+msgstr "Yaratmak ister misiniz?"
 
 #: ckan/templates/group/member_new.html:8
 #: ckan/templates/organization/member_new.html:10
@@ -3112,7 +3113,7 @@ msgstr ""
 #: ckan/templates/organization/member_new.html:7
 #: ckan/templates/organization/member_new.html:12
 msgid "Edit Member"
-msgstr ""
+msgstr "Üyeyi Düzenle"
 
 #: ckan/templates/group/member_new.html:10
 #: ckan/templates/group/member_new.html:64 ckan/templates/group/members.html:6
@@ -3121,12 +3122,12 @@ msgstr ""
 #: ckan/templates/organization/member_new.html:63
 #: ckan/templates/organization/members.html:8
 msgid "Add Member"
-msgstr ""
+msgstr "Üye Ekle"
 
 #: ckan/templates/group/member_new.html:18
 #: ckan/templates/organization/member_new.html:19
 msgid "Existing User"
-msgstr ""
+msgstr "Mevcut Kullanıcı"
 
 #: ckan/templates/group/member_new.html:21
 #: ckan/templates/organization/member_new.html:22
@@ -3136,31 +3137,34 @@ msgstr ""
 #: ckan/templates/group/member_new.html:38
 #: ckan/templates/organization/member_new.html:39
 msgid "or"
-msgstr ""
+msgstr "veya"
 
 #: ckan/templates/group/member_new.html:42
 #: ckan/templates/organization/member_new.html:43
 msgid "New User"
-msgstr ""
+msgstr "Yeni Kullanıcı"
 
 #: ckan/templates/group/member_new.html:45
 #: ckan/templates/organization/member_new.html:46
 msgid "If you wish to invite a new user, enter their email address."
 msgstr ""
 
-#: ckan/templates/group/member_new.html:55 ckan/templates/group/members.html:15
+#: ckan/templates/group/member_new.html:55
+#: ckan/templates/group/members.html:15
 #: ckan/templates/organization/member_new.html:54
 #: ckan/templates/organization/members.html:20
 msgid "Role"
 msgstr ""
 
-#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:31
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:31
 #: ckan/templates/organization/member_new.html:57
 #: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
-msgstr ""
+msgstr "Bu üyeyi silmek istediğinize emin misiniz?"
 
-#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:31
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:31
 #: ckan/templates/group/snippets/group_form.html:38
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:57
@@ -3172,7 +3176,7 @@ msgstr ""
 #: ckan/templates/revision/read.html:24
 #: ckan/templates/user/edit_user_form.html:45
 msgid "Delete"
-msgstr ""
+msgstr "Sil"
 
 #: ckan/templates/group/member_new.html:77
 #: ckan/templates/organization/member_new.html:76
@@ -3181,23 +3185,23 @@ msgstr ""
 
 #: ckan/templates/group/member_new.html:80
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage"
-" organization members.</p> <p><strong>Member:</strong> Can add/remove "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
 msgstr ""
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
 msgid "Create a Group"
-msgstr ""
+msgstr "Grup Yarat"
 
 #: ckan/templates/group/new_group_form.html:17
 msgid "Update Group"
-msgstr ""
+msgstr "Grubu Güncelle"
 
 #: ckan/templates/group/new_group_form.html:19
 msgid "Create Group"
-msgstr ""
+msgstr "Grup Yarat"
 
 #: ckan/templates/group/read.html:19 ckan/templates/organization/read.html:25
 #: ckan/templates/snippets/search_form.html:3
@@ -3206,7 +3210,7 @@ msgstr ""
 
 #: ckan/templates/group/snippets/feeds.html:3
 msgid "Datasets in group: {group}"
-msgstr ""
+msgstr "{group} grubundaki veri setleri:"
 
 #: ckan/templates/group/snippets/feeds.html:4
 #: ckan/templates/organization/snippets/feeds.html:4
@@ -3217,7 +3221,7 @@ msgstr ""
 #: ckan/templates/organization/snippets/organization_form.html:10
 #: ckan/templates/package/snippets/resource_form.html:30
 msgid "Name"
-msgstr ""
+msgstr "İsim"
 
 #: ckan/templates/group/snippets/group_form.html:10
 msgid "My Group"
@@ -3237,7 +3241,7 @@ msgstr ""
 
 #: ckan/templates/group/snippets/group_form.html:41
 msgid "Save Group"
-msgstr ""
+msgstr "Grubu Kaydet"
 
 #: ckan/templates/group/snippets/group_item.html:38
 #: ckan/templates/group/snippets/group_item.html:39
@@ -3254,16 +3258,16 @@ msgstr ""
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets. "
+" You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets. "
 msgstr ""
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
 msgid "Compare"
-msgstr ""
+msgstr "Karşılaştır"
 
 #: ckan/templates/group/snippets/info.html:16
 #: ckan/templates/organization/bulk_process.html:72
@@ -3272,7 +3276,7 @@ msgstr ""
 #: ckan/templates/snippets/organization.html:37
 #: ckan/templates/snippets/package_item.html:42
 msgid "Deleted"
-msgstr ""
+msgstr "Silindi"
 
 #: ckan/templates/group/snippets/info.html:24
 #: ckan/templates/package/snippets/package_context.html:7
@@ -3286,7 +3290,7 @@ msgstr ""
 #: ckan/templates/revision/read.html:39
 #: ckan/templates/revision/snippets/revisions_list.html:4
 msgid "Revision"
-msgstr ""
+msgstr "Revizyon"
 
 #: ckan/templates/group/snippets/revisions_table.html:8
 #: ckan/templates/package/snippets/revisions_table.html:8
@@ -3314,21 +3318,20 @@ msgstr ""
 
 #: ckan/templates/home/index.html:4
 msgid "Welcome"
-msgstr ""
+msgstr "Hoşgeldiniz"
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -3341,12 +3344,12 @@ msgstr ""
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
-msgstr ""
+msgstr "CKAN'a hoşgeldiniz"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will "
 msgstr ""
 
 #: ckan/templates/home/snippets/promoted.html:19
@@ -3359,7 +3362,7 @@ msgstr ""
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
-msgstr ""
+msgstr "Veri ara"
 
 #: ckan/templates/home/snippets/search.html:8
 msgid "Search datasets"
@@ -3375,31 +3378,34 @@ msgstr ""
 
 #: ckan/templates/home/snippets/stats.html:11
 msgid "dataset"
-msgstr ""
+msgstr "veri seti"
 
 #: ckan/templates/home/snippets/stats.html:11
 msgid "datasets"
-msgstr ""
+msgstr "veri setleri"
 
 #: ckan/templates/home/snippets/stats.html:17
 msgid "organizations"
-msgstr ""
+msgstr "organizasyonlar"
 
 #: ckan/templates/home/snippets/stats.html:23
 msgid "groups"
-msgstr ""
+msgstr "gruplar"
 
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
+"Burada <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"html=\"true\">Markdown formatlama</a> kullanabilirsiniz"
 
 #: ckan/templates/macros/form.html:277
 msgid "This field is required"
-msgstr ""
+msgstr "Bu alan zorunludur"
 
 #: ckan/templates/macros/form.html:277
 msgid "Custom"
@@ -3411,11 +3417,11 @@ msgstr ""
 
 #: ckan/templates/macros/form.html:407
 msgid "Required field"
-msgstr ""
+msgstr "Zorunlu alan"
 
 #: ckan/templates/macros/form.html:422
 msgid "http://example.com/my-image.jpg"
-msgstr ""
+msgstr "http://example.com/my-image.jpg"
 
 #: ckan/templates/macros/form.html:423
 msgid "Image URL"
@@ -3460,8 +3466,8 @@ msgstr ""
 #: ckan/templates/package/read.html:11
 #: ckan/templates/package/snippets/package_basic_fields.html:98
 #: ckan/templates/snippets/package_item.html:31
-#: ckan/templates/snippets/private.html:2 ckan/templates/user/read_base.html:82
-#: ckan/templates/user/read_base.html:96
+#: ckan/templates/snippets/private.html:2
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "Private"
 msgstr ""
 
@@ -3477,16 +3483,16 @@ msgstr ""
 #: ckan/templates/organization/snippets/info.html:13
 #: ckan/templates/organization/snippets/info.html:16
 msgid "Edit Organization"
-msgstr ""
+msgstr "Organizasyonu Düzenle"
 
 #: ckan/templates/organization/index.html:13
 #: ckan/templates/user/dashboard_organizations.html:7
 msgid "Add Organization"
-msgstr ""
+msgstr "Organizasyon Ekle"
 
 #: ckan/templates/organization/index.html:20
 msgid "Search organizations..."
-msgstr ""
+msgstr "Organizasyonları ara..."
 
 #: ckan/templates/organization/index.html:29
 msgid "There are currently no organizations for this site"
@@ -3516,8 +3522,8 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
 msgstr ""
 
 #: ckan/templates/organization/members.html:14
@@ -3552,19 +3558,19 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for "
-"example, the Department of Health). This means that datasets can be "
-"published by and belong to a department instead of an individual "
-"user.</p> <p>Within organizations, admins can assign roles and authorise "
-"its members, giving individual users the right to publish datasets from "
-"that particular organisation (e.g. Office of National Statistics).</p> "
+" <p>Organizations act like publishing departments for datasets (for example,"
+" the Department of Health). This means that datasets can be published by and"
+" belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorise its members, giving "
+"individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of"
-" datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish. "
+" CKAN Organizations are used to create, manage and publish collections of "
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish. "
 msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:10
@@ -3581,9 +3587,8 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:38
 msgid ""
-"Are you sure you want to delete this Organization? Note*: Deleting cannot"
-" be performed while public or private datasets belong to this "
-"organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
 msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:41
@@ -3606,9 +3611,9 @@ msgstr ""
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data. "
+" A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data. "
 msgstr ""
 
 #: ckan/templates/package/confirm_delete.html:12
@@ -3689,9 +3694,9 @@ msgstr ""
 msgid ""
 " Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
-" documentation</a>. "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>Data Explorer "
+"documentation</a>. "
 msgstr ""
 
 #: ckan/templates/package/new_view.html:29
@@ -3702,9 +3707,8 @@ msgstr ""
 #: ckan/templates/package/read_base.html:32
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
 msgstr ""
 
 #: ckan/templates/package/resource_edit_base.html:17
@@ -3774,9 +3778,9 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:140
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 
 #: ckan/templates/package/resource_read.html:162
@@ -3844,8 +3848,8 @@ msgstr ""
 #: ckan/templates/package/snippets/resources_list.html:26
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
-" add some?</a></p> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a></p> "
 msgstr ""
 
 #: ckan/templates/package/search.html:52
@@ -3985,12 +3989,11 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:39
@@ -4310,8 +4313,8 @@ msgstr ""
 
 #: ckan/templates/snippets/search_form.html:87
 msgid ""
-" <p id=\"search-error\"><strong>There was an error while "
-"searching.</strong> Please try again.</p> "
+" <p id=\"search-error\"><strong>There was an error while searching.</strong>"
+" Please try again.</p> "
 msgstr ""
 
 #: ckan/templates/snippets/search_result_text.html:15
@@ -4458,8 +4461,7 @@ msgstr ""
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
+" Your profile lets other CKAN users know about who you are and what you do. "
 msgstr ""
 
 #: ckan/templates/user/edit_user_form.html:7
@@ -4689,8 +4691,8 @@ msgstr ""
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
+"Enter your username into the box and we will send you an email with a link "
+"to enter a new password."
 msgstr ""
 
 #: ckan/templates/user/snippets/followee_dropdown.html:15
@@ -4717,4 +4719,3 @@ msgstr "Kullanıcı arama"
 #: ckan/views/user.py:588
 msgid "Your password must be 8 characters or longer."
 msgstr ""
-
