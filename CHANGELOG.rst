@@ -8,6 +8,25 @@ Changelog
 ---------
 
 
+v.2.7.6 TBA
+==================
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+ * Fix problem with reindex-fast (`#4352 <https://github.com/ckan/ckan/issues/4352>`_)
+ * Fix `include_total` in `datastore_search` (`#4446 <https://github.com/ckan/ckan/issues/4446>`_)
+ * Fix `ValueError` in `url_validator` (`#4629 <https://github.com/ckan/ckan/issues/4629>`_)
+ * Strip local path when uploading file in IE (`#4608 <https://github.com/ckan/ckan/issues/4608>`_)
+ * Increase size of h1 headings to 1.8em (`#4665 <https://github.com/ckan/ckan/issues/4665>`_)
+ * Fix broken div nesting in the `user/read_base.html` (`#4672 <https://github.com/ckan/ckan/issues/4672>`_)
+ * Use `get_action` to call activity actions (`#4684 <https://github.com/ckan/ckan/issues/4684>`_)
+ * Make reorder resources button translatable (`#4838 <https://github.com/ckan/ckan/issues/4838>`_)
+
 v2.7.5 2018-12-12
 =================
 
