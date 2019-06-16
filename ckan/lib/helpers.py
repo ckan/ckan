@@ -1013,7 +1013,9 @@ def get_facet_items_dict(
     for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
-        if not (facet, facet_item['name']) in request.params.items(multi=True):
+        params_items = request.params.items(multi=True) \
+            if is_flask_request() else request.params.items()
+        if not (facet, facet_item['name']) in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
@@ -1049,7 +1051,9 @@ def has_more_facets(facet, search_facets, limit=None, exclude_active=False):
     for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
-        if not (facet, facet_item['name']) in request.params.items(multi=True):
+        params_items = request.params.items(multi=True) \
+            if is_flask_request() else request.params.items()
+        if not (facet, facet_item['name']) in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
@@ -1837,8 +1841,10 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     instead.
     '''
 
+    params_items = request.params.items(multi=True) \
+        if is_flask_request() else request.params.items()
     params_nopage = [
-        (k, v)for k, v in request.params.items(multi=True)
+        (k, v) for k, v in params_items
         if k != 'page'
     ]
     params = set(params_nopage)
@@ -1875,8 +1881,10 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     else:
         keys = key
 
+    params_items = request.params.items(multi=True) \
+        if is_flask_request() else request.params.items()
     params_nopage = [
-        (k, v) for k, v in request.params.items(multi=True)
+        (k, v) for k, v in params_items
         if k != 'page'
     ]
     params = list(params_nopage)
