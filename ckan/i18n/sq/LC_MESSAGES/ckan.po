@@ -15,7 +15,6 @@ msgstr ""
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2020\n"
 "Language-Team: Albanian (https://www.transifex.com/okfn/teams/11162/sq/)\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -154,8 +153,8 @@ msgstr "Burimi i depove të të dhënave nuk u gjet"
 
 #: ckanext/datastore/blueprint.py:151
 msgid ""
-"Data Dictionary saved. Any type overrides will take effect when the "
-"resource is next uploaded to DataStore"
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
 msgstr ""
 
 #: ckanext/datastore/backend/postgres.py:1067
@@ -199,8 +198,8 @@ msgstr "Pika të fundit"
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:37
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:39
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
 msgstr ""
 "API i të dhënave mund të qaset përmes veprimeve në vijim të API-s të "
 "veprimit të CKAN-it"
@@ -472,8 +471,7 @@ msgstr "0 sete të të dhënave"
 #: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
 msgstr ""
-"Mjeti i CKAN për rishikimin e të dhënave ka shumë karakteristika të "
-"fuqishme"
+"Mjeti i CKAN për rishikimin e të dhënave ka shumë karakteristika të fuqishme"
 
 #: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
 #: ckan/templates/group/snippets/info.html:34
@@ -540,8 +538,7 @@ msgstr "Url e imazhit"
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
 msgstr ""
-"p.sh. http://example.com/image.jpg (nëse vendi bosh përdor url-në e "
-"burimit)"
+"p.sh. http://example.com/image.jpg (nëse vendi bosh përdor url-në e burimit)"
 
 #: ckanext/reclineview/plugin.py:113
 msgid "Data Explorer"
@@ -1099,19 +1096,21 @@ msgstr "Të paautorizuar për të shikuar ndjekësit %s"
 
 #: ckan/controllers/home.py:35
 msgid "This site is currently off-line. Database is not initialised."
-msgstr "Kjo faqe është aktualisht off-line. Baza e të dhënave nuk është ndezur."
+msgstr ""
+"Kjo faqe është aktualisht off-line. Baza e të dhënave nuk është ndezur."
 
 #: ckan/controllers/home.py:73 ckan/views/home.py:61
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr ""
-"Ju lutem <a href=\"%s\"> ndryshoni profilin tuaj</a>, si dhe shtoni email"
-" adresën "
+"Ju lutem <a href=\"%s\"> ndryshoni profilin tuaj</a>, si dhe shtoni email "
+"adresën "
 
 #: ckan/controllers/home.py:75 ckan/views/home.py:63
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr "%s përdor email adresën tuaj nëse ju nevojitet ndryshimi i fjalëkalimit."
+msgstr ""
+"%s përdor email adresën tuaj nëse ju nevojitet ndryshimi i fjalëkalimit."
 
 #: ckan/controllers/package.py:304 ckan/views/dataset.py:335
 msgid "Invalid search query: {error_message}"
@@ -1329,8 +1328,8 @@ msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
 msgstr ""
-"Përdoruesi \"%s\" është i regjistruar tani, mirëpo ju jeni ende të kyçur "
-"si \"%s\", nga më parë"
+"Përdoruesi \"%s\" është i regjistruar tani, mirëpo ju jeni ende të kyçur si "
+"\"%s\", nga më parë"
 
 #: ckan/controllers/user.py:289 ckan/views/user.py:258
 msgid "Unauthorized to edit a user."
@@ -1655,9 +1654,10 @@ msgstr "Emri duhet të jetë një maksimum prej %i karaktere i gjatë"
 
 #: ckan/logic/validators.py:367
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
-msgstr "Duhet të jenë karaktere aflanumerike të vogla (ascii) dhe këto simbole: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
+msgstr ""
+"Duhet të jenë karaktere aflanumerike të vogla (ascii) dhe këto simbole: -_"
 
 #: ckan/logic/validators.py:385
 msgid "That URL is already in use."
@@ -2011,14 +2011,15 @@ msgstr ""
 #: ckan/logic/auth/create.py:68 ckan/logic/auth/delete.py:34
 #: ckan/logic/auth/get.py:137 ckan/logic/auth/update.py:79
 msgid "No package found for this resource, cannot check auth."
-msgstr "Asnjë paketë nuk u gjet për këtë burim, autentifkimi nuk mund të kryhet."
+msgstr ""
+"Asnjë paketë nuk u gjet për këtë burim, autentifkimi nuk mund të kryhet."
 
 #: ckan/logic/auth/create.py:76
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
 msgstr ""
-"Përdoruesi %s nuk është i autorizuar të krijoj burime në setin e të "
-"dhënave %s"
+"Përdoruesi %s nuk është i autorizuar të krijoj burime në setin e të dhënave "
+"%s"
 
 #: ckan/logic/auth/create.py:108
 #, python-format
@@ -2037,7 +2038,8 @@ msgstr "Përdoruesi %s nuk është i autorizuar të krijoj  organizata"
 
 #: ckan/logic/auth/create.py:145
 msgid "User {user} not authorized to create users via the API"
-msgstr "Përdoruesi {user} nuk është i autorizuar të krijoj përdorues përmes API"
+msgstr ""
+"Përdoruesi {user} nuk është i autorizuar të krijoj përdorues përmes API"
 
 #: ckan/logic/auth/create.py:148
 msgid "Not authorized to create users"
@@ -2152,7 +2154,8 @@ msgstr "Përdoruesi %s nuk është i autorizuar të redaktoj burimin %s"
 #: ckan/logic/auth/update.py:116
 #, python-format
 msgid "User %s not authorized to change state of package %s"
-msgstr "Përdoruesi %s nuk është i autorizuar të ndryshoj gjendjen e paketës %s"
+msgstr ""
+"Përdoruesi %s nuk është i autorizuar të ndryshoj gjendjen e paketës %s"
 
 #: ckan/logic/auth/update.py:144
 #, python-format
@@ -2192,14 +2195,14 @@ msgstr ""
 #: ckan/logic/auth/update.py:242
 #, python-format
 msgid "User %s not authorized to update task_status table"
-msgstr "Përdoruesi %s nuk është i autorizuar të ndryshoj tabelën e task_status"
+msgstr ""
+"Përdoruesi %s nuk është i autorizuar të ndryshoj tabelën e task_status"
 
 #: ckan/logic/auth/update.py:256
 #, python-format
 msgid "User %s not authorized to update term_translation table"
 msgstr ""
-"Përdoruesi %s nuk është i autorizuar të ndryshoj tabelën e "
-"term_translation"
+"Përdoruesi %s nuk është i autorizuar të ndryshoj tabelën e term_translation"
 
 #: ckan/model/license.py:145
 msgid "title"
@@ -2506,11 +2509,11 @@ msgstr "E pamundur të nxirren të dhënat për dosjen e ngarkuar"
 #: ckan/public/base/javascript/modules/resource-upload-field.js:275
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
 msgstr ""
-"Ju jeni duke ngarkuar një skedar. A jeni të sigurt që doni të largoheni "
-"dhe t'a ndalni këtë ngarkim?"
+"Ju jeni duke ngarkuar një skedar. A jeni të sigurt që doni të largoheni dhe "
+"t'a ndalni këtë ngarkim?"
 
 #: ckan/public-bs2/base/javascript/modules/resource-view-filters.js:9
 #: ckan/public/base/javascript/modules/resource-view-filters.js:9
@@ -2813,8 +2816,8 @@ msgid ""
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p>"
@@ -2837,10 +2840,10 @@ msgid ""
 " href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p>"
 msgstr ""
 "<p>Si një adiminstrator i sistemit ju keni kontroll të plotë mbi këtë "
-"instancë të CKAN-it. Vazhdoni me kujdes!</p> <p>Për udhëzime mbi "
-"përdorimin e karakteristikave të adimnstratorit të sistemit, shikoni "
-"CKAN<a href=\"%(docs_url)s\" target=\"_blank\">udhërrëfyesin e "
-"adiminstratorit të sistemit</a></p>"
+"instancë të CKAN-it. Vazhdoni me kujdes!</p> <p>Për udhëzime mbi përdorimin "
+"e karakteristikave të adimnstratorit të sistemit, shikoni CKAN<a "
+"href=\"%(docs_url)s\" target=\"_blank\">udhërrëfyesin e adiminstratorit të "
+"sistemit</a></p>"
 
 #: ckan/templates/admin/trash.html:12
 msgid "Are you sure you want to purge everything?"
@@ -3051,7 +3054,8 @@ msgstr "Kërko grupin..."
 msgid "There are currently no groups for this site"
 msgstr "Momentalisht nuk ka grupe për këtë faqe"
 
-#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "Dëshironi të krijoni një të re?"
 
@@ -3103,8 +3107,7 @@ msgstr "Përdorues i ri"
 #: ckan/templates/organization/member_new.html:52
 msgid "If you wish to invite a new user, enter their email address."
 msgstr ""
-"Nëse dëshrioni të shtoni një përdorues të ri, shtypni elmain adresën e "
-"tyre."
+"Nëse dëshrioni të shtoni një përdorues të ri, shtypni elmain adresën e tyre."
 
 #: ckan/templates/group/member_new.html:62
 #: ckan/templates/group/member_new.html:66
@@ -3151,8 +3154,8 @@ msgid ""
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p>"
 msgstr ""
-"<p><strong>Administratori:</strong>Mund të redaktoj informacionet e "
-"grupit, gjithashtu të menagjoj me antarët e organizatës</p> "
+"<p><strong>Administratori:</strong>Mund të redaktoj informacionet e grupit, "
+"gjithashtu të menagjoj me antarët e organizatës</p> "
 "<p><strong>Anëtari:</strong>Mund të shtoj/fshij setet e të dhënave prej "
 "grupeve</p>"
 
@@ -3220,11 +3223,11 @@ msgid ""
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets."
 msgstr ""
-"Grupet e CKAN-it  mund t'i përdorni për të krijuar dhe menaxhuar "
-"koleksionet e seteve të të dhënave.  Këto përdoren me qëllim të "
-"grumbullimit të seteve të të dhënave për një projekt apo ekip të veçantë,"
-" ose temë të caktuar, ose edhe si një mënyrë më e lehtë për t'i ndihmuar "
-"të tjerët për të gjetur e kërkuar setet e publikuara të të dhënave."
+"Grupet e CKAN-it  mund t'i përdorni për të krijuar dhe menaxhuar koleksionet"
+" e seteve të të dhënave.  Këto përdoren me qëllim të grumbullimit të seteve "
+"të të dhënave për një projekt apo ekip të veçantë, ose temë të caktuar, ose "
+"edhe si një mënyrë më e lehtë për t'i ndihmuar të tjerët për të gjetur e "
+"kërkuar setet e publikuara të të dhënave."
 
 #: ckan/templates/group/snippets/info.html:16
 #: ckan/templates/organization/bulk_process.html:82
@@ -3275,8 +3278,8 @@ msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will"
 msgstr ""
-"Ky është një paragraf hyrës rreth CKAN ose faqës në përgjithësi. Nuk kemi"
-" ndonjë shembull për të treguar këtu ende, por së shpejti do kemi"
+"Ky është një paragraf hyrës rreth CKAN ose faqës në përgjithësi. Nuk kemi "
+"ndonjë shembull për të treguar këtu ende, por së shpejti do kemi"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -3325,12 +3328,12 @@ msgstr "Kjo fushë duhet të plotësohet"
 #: ckan/templates/macros/form.html:136
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
-"Mund të përdorni <a href=\"#markdown\" title=\"Markdown quick reference\""
-" data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"Mund të përdorni <a href=\"#markdown\" title=\"Markdown quick reference\" "
+"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatimin</a> here"
 
 #: ckan/templates/macros/form.html:243
@@ -3466,12 +3469,11 @@ msgid ""
 "<p><strong>Member:</strong> Can view the organization's private datasets, "
 "but not add new datasets.</p>"
 msgstr ""
-"<p><strong>Administratori:</strong> Mund të shtoj/redaktoj dhe fshij "
-"setet e të dhënave, si dhe të menaxhoj anëtarët e organizatës</p> "
-"<p><strong>Redaktori:</strong>Mund të shtoj dhe redaktoj setet e të "
-"dhënave, por jo të menaxhoj anëtarët e organizatës.</p> "
-"<p><strong>Anëtari:</strong> Mund të shikoj setet private të të dhënave "
-"të organizatës .</p>"
+"<p><strong>Administratori:</strong> Mund të shtoj/redaktoj dhe fshij setet e"
+" të dhënave, si dhe të menaxhoj anëtarët e organizatës</p> "
+"<p><strong>Redaktori:</strong>Mund të shtoj dhe redaktoj setet e të dhënave,"
+" por jo të menaxhoj anëtarët e organizatës.</p> <p><strong>Anëtari:</strong>"
+" Mund të shikoj setet private të të dhënave të organizatës .</p>"
 
 #: ckan/templates/organization/members.html:14
 msgid "{count} member"
@@ -3512,12 +3514,12 @@ msgid ""
 "organisation (e.g. Office of National Statistics).</p>"
 msgstr ""
 "<p>Organizatat sillen si departmente publicistike për të dhënat (për "
-"shembull, Departmenti i Shëndetësisë). Kjo nënkupton që setet e të "
-"dhënave mund të publikohen dhe t'i përkasin një departmenti, në vend të "
-"një përdoruesi individual.</p><p>Mbrenda organizatave, administratori "
-"mund të caktoj role dhe të autorizoj anëtarët e tij, duke i'u dhënë të "
-"drejta përdoruesve individual të publikojnë sete të të dhënave për një "
-"organizatë të caktuar (p.sh. Zyra Kombëtare e Statistikave).</p>"
+"shembull, Departmenti i Shëndetësisë). Kjo nënkupton që setet e të dhënave "
+"mund të publikohen dhe t'i përkasin një departmenti, në vend të një "
+"përdoruesi individual.</p><p>Mbrenda organizatave, administratori mund të "
+"caktoj role dhe të autorizoj anëtarët e tij, duke i'u dhënë të drejta "
+"përdoruesve individual të publikojnë sete të të dhënave për një organizatë "
+"të caktuar (p.sh. Zyra Kombëtare e Statistikave).</p>"
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
@@ -3526,9 +3528,9 @@ msgid ""
 "on their level of authorisation to create, edit and publish."
 msgstr ""
 "Organizatat në CKAN përdoren për të krijuar, menaxhuar dhe publikuar "
-"koleksione të të dhënave. Përdoruesit mund të kenë role të ndryshme "
-"mbrenda një Organizate, dhe varësisht prej nivelit të autorizimit ata "
-"mund të krijojn, redaktojn dhe bëjnë publikime."
+"koleksione të të dhënave. Përdoruesit mund të kenë role të ndryshme mbrenda "
+"një Organizate, dhe varësisht prej nivelit të autorizimit ata mund të "
+"krijojn, redaktojn dhe bëjnë publikime."
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3540,9 +3542,8 @@ msgstr "Disa informacione rreth organizatës time..."
 
 #: ckan/templates/organization/snippets/organization_form.html:38
 msgid ""
-"Are you sure you want to delete this Organization? Note*: Deleting cannot"
-" be performed while public or private datasets belong to this "
-"organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
 msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:41
@@ -3744,9 +3745,9 @@ msgstr "Faqja adiminstratorët mund të mos ketë aktivizuar plugins-at përkat�
 
 #: ckan/templates/package/resource_read.html:152
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 "Nëse një faqe kërkon DataStore, veçoria DataStore mund të jetë e "
 "deaktivizuar, ose pa të dhëna, ose DataStore nuk i ka procesuar ende të "
@@ -4028,17 +4029,16 @@ msgstr "Aktiv"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 msgstr ""
-"<i>Licencën e të dhënave</i> që ju zgjidhni sipër vlen vetëm për "
-"përmbajtjet e çfarëdo dosjeje burimore që ju e shtoni në këtë set të të "
-"dhënave. Me ruajtjen e formës, ju pajtoheni të lëshoni <i> të dhënat "
-"personale </i> që ju i shtypni në formën nën <a "
+"<i>Licencën e të dhënave</i> që ju zgjidhni sipër vlen vetëm për përmbajtjet"
+" e çfarëdo dosjeje burimore që ju e shtoni në këtë set të të dhënave. Me "
+"ruajtjen e formës, ju pajtoheni të lëshoni <i> të dhënat personale </i> që "
+"ju i shtypni në formën nën <a "
 "href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
 "License</a>."
 
@@ -4239,7 +4239,8 @@ msgstr "Çfarë është një faqe?"
 
 #: ckan/templates/package/snippets/view_help.html:4
 msgid "A view is a representation of the data held against a resource"
-msgstr "Një faqe është një përfaqësim i të dhënave, të mbajtura kundër një burimi"
+msgstr ""
+"Një faqe është një përfaqësim i të dhënave, të mbajtura kundër një burimi"
 
 #: ckan/templates/snippets/add_dataset.html:6
 msgid "Add Dataset"
@@ -4869,8 +4870,8 @@ msgstr "Info mbi llogarinë"
 msgid ""
 "Your profile lets other CKAN users know about who you are and what you do."
 msgstr ""
-"Profili juaj lejon që përdoruesit e tjerë të CKAN të dijnë se kush jeni "
-"ju dhe se çfarë bëni."
+"Profili juaj lejon që përdoruesit e tjerë të CKAN të dijnë se kush jeni ju "
+"dhe se çfarë bëni."
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
@@ -4972,8 +4973,8 @@ msgstr "Keni harruar fjalëkalimin tuaj?"
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
 msgstr ""
-"Nuk ka problem, përdorni formularin tonë të rimëkëmbjes të fjalëkalimit "
-"për të rivendosur atë."
+"Nuk ka problem, përdorni formularin tonë të rimëkëmbjes të fjalëkalimit për "
+"të rivendosur atë."
 
 #: ckan/templates/user/login.html:47
 msgid "Forgot your password?"
@@ -5006,7 +5007,8 @@ msgstr "Ju jeni tashmë të kyçur"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You need to log out before you can log in with another account."
-msgstr "Ju duhet të dilni jasht sistemit para se të kyçeni me një tjetër llogari."
+msgstr ""
+"Ju duhet të dilni jasht sistemit para se të kyçeni me një tjetër llogari."
 
 #: ckan/templates/user/logout_first.html:23
 msgid "Log out now"
