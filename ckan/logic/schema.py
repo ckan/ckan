@@ -633,6 +633,7 @@ def default_autocomplete_schema(
         not_missing, unicode_safe, ignore_missing, natural_number_validator):
     return {
         'q': [not_missing, unicode_safe],
+        'ignore_self': [ignore_missing],
         'limit': [ignore_missing, natural_number_validator]
     }
 
