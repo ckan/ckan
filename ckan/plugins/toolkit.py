@@ -393,9 +393,8 @@ content type, cookies, etc.
             route_name: {
                 'label': tab_label,
                 'icon': icon
-                }
             }
-        )
+        })
         # update the config with the updated admin_tabs dict
         config.update({config_var: admin_tabs_dict})
 
