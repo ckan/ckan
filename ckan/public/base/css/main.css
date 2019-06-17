@@ -9408,9 +9408,6 @@ h4 small {
   margin-bottom: 20px;
 }
 @media (min-width: 768px) {
-  .hero {
-    background: url("../../../base/images/background-tile.png");
-  }
 }
 .hero:after {
   background-color: rgba(0, 0, 0, 0.09);
