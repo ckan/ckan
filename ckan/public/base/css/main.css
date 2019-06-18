@@ -9408,14 +9408,6 @@ h4 small {
   margin-bottom: 20px;
 }
 @media (min-width: 768px) {
-<<<<<<< HEAD
-  .hero{
-    background: url("../../../base/images/skyline.png");
-=======
-  .hero {
-    background: url("../../../base/images/background-tile.png");
->>>>>>> parent of 34647ee1a... HomePage design change
-  }
 }
 .hero:after {
   background-color: rgba(0, 0, 0, 0.09);
