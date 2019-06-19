@@ -75,10 +75,22 @@ def contact():
     return base.render(u'home/contact.html', extra_vars={})
 
 
+def terms():
+    u''' display terms page'''
+    return base.render(u'home/terms_conditions.html', extra_vars={})
+
+
+def privacy():
+    u''' display privacy page'''
+    return base.render(u'home/privacy.html', extra_vars={})
+
+
 util_rules = [
     (u'/', index),
     (u'/about', about),
-    (u'/contact', contact)
+    (u'/contact', contact),
+    (u'/terms', terms),
+    (u'/privacy', privacy)
 ]
 for rule, view_func in util_rules:
     home.add_url_rule(rule, view_func=view_func)
