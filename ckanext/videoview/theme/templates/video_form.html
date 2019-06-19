@@ -1,0 +1,3 @@
+{% import 'macros/form.html' as form %}
+
+{{ form.input('video_url', id='field-video_url', label=_('Video url'), placeholder=_('eg. http://example.com/video.mp4  (if blank uses resource url)'), value=data.video_url, error=errors.video_url, classes=['control-full', 'control-large']) }}
