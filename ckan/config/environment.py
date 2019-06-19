@@ -293,6 +293,10 @@ def update_config():
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
 
+    # Enable pessimistic disconnect handling (added in SQLAlchemy 1.2)
+    # to eliminate database errors due to stale pooled connections
+    config.setdefault('pool_pre_ping', True)
+
     # Initialize SQLAlchemy
     engine = sqlalchemy.engine_from_config(config)
     model.init_model(engine)
