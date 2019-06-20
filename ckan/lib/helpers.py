@@ -23,7 +23,6 @@ from paste.deploy import converters
 from webhelpers.html import HTML, literal, tags, tools
 from webhelpers import paginate
 import webhelpers.text as whtext
-import webhelpers.date as date
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
@@ -1578,19 +1577,6 @@ class _RFC2282TzInfo(datetime.tzinfo):
 
     def tzname(self, dt):
         return None
-
-
-@core_helper
-@maintain.deprecated('h.time_ago_in_words_from_str is deprecated in 2.2 '
-                     'and will be removed.  Please use '
-                     'h.time_ago_from_timestamp instead')
-def time_ago_in_words_from_str(date_str, granularity='month'):
-    '''Deprecated in 2.2 use time_ago_from_timestamp'''
-    if date_str:
-        return date.time_ago_in_words(date_str_to_datetime(date_str),
-                                      granularity=granularity)
-    else:
-        return _('Unknown')
 
 
 @core_helper
