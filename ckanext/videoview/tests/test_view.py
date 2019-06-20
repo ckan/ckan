@@ -8,25 +8,29 @@ from nose.tools import assert_true
 from ckan.tests import helpers, factories
 
 
-class TestImageView(helpers.FunctionalTestBase):
-    _load_plugins = ['video_view']
+class TestVideoView(helpers.FunctionalTestBase):
+    # Tests using ResourceView need to import image_view too
+    _load_plugins = [u'image_view', u'video_view']
 
-    @helpers.change_config('ckan.views.default_views', '')
+    @helpers.change_config(u'ckan.views.default_views', u'')
     def test_view_shown_on_resource_page_with_video_url(self):
         app = self._get_test_app()
 
         dataset = factories.Dataset()
 
-        resource = factories.Resource(package_id=dataset['id'],
-                                      format='mp4')
+        resource = factories.Resource(package_id=dataset[u'id'],
+                                      format=u'video/mp4',
+                                      url=u'http://some.video.mp4')
 
         resource_view = factories.ResourceView(
-            resource_id=resource['id'],
-            video_url='http://some.video.mp4')
+            resource_id=resource[u'id'],
+            view_type=u'video_view')
 
-        url = url_for('resource.read',
-                      id=dataset['name'], resource_id=resource['id'])
+        url = url_for(u'resource.read',
+                      id=dataset[u'name'],
+                      resource_id=resource[u'id'],
+                      video_url=u'http://some.video.mp4')
 
         response = app.get(url)
 
-        assert_true(resource_view['video_url'] in response)
+        assert_true(resource_view[u'video_url'] in response)
