@@ -4,6 +4,7 @@ alembic==1.0.0
 Babel==2.3.4
 bleach==3.0.2
 click==6.7
+Django==1.11.21
 fanstatic==0.12
 Flask==0.12.4
 Flask-Babel==0.11.2
