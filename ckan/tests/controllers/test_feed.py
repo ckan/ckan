@@ -5,7 +5,7 @@ from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.plugins as plugins
-from webhelpers.feedgenerator import GeoAtom1Feed
+from django.contrib.gis.feeds import GeoAtom1Feed
 
 
 class TestFeedNew(helpers.FunctionalTestBase):

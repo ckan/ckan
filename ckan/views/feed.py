@@ -5,7 +5,7 @@ import urlparse
 
 from flask import Blueprint, make_response
 from six import text_type
-from webhelpers import feedgenerator
+from django.utils import feedgenerator
 from ckan.common import _, config, g, request, response
 import ckan.lib.helpers as h
 import ckan.lib.base as base

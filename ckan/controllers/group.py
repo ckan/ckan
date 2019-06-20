@@ -791,7 +791,7 @@ class GroupController(base.BaseController):
         format = request.params.get('format', '')
         if format == 'atom':
             # Generate and return Atom 1.0 document.
-            from webhelpers.feedgenerator import Atom1Feed
+            from django.utils.feedgenerator import Atom1Feed
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
                 link=h.url_for(

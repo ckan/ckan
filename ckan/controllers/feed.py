@@ -25,7 +25,7 @@ import logging
 import urlparse
 
 from six import text_type
-from webhelpers import feedgenerator
+from django.utils import feedgenerator
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
