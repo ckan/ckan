@@ -2,7 +2,7 @@
 
 from urllib import quote
 
-import webhelpers
+from django.utils import html
 
 import ckan.lib.search as search
 from ckan.tests.legacy import setup_test_search_index
@@ -64,7 +64,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         assert res_dict['result']['count'] == 1, res_dict['result']['count']
 
     def test_06_uri_q_tags(self):
-        query = webhelpers.util.html_escape('annakarenina tags:russian tags:tolstoy')
+        query = html.escape('annakarenina tags:russian tags:tolstoy')
         offset = self.base_url + '?q=%s' % query
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
