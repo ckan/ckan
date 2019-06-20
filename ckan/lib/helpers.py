@@ -22,7 +22,6 @@ import uuid
 from paste.deploy import converters
 from webhelpers.html import HTML, literal, tags, tools
 from webhelpers import paginate
-import webhelpers.text as whtext
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from pylons import url as _pylons_default_url
@@ -1223,6 +1222,11 @@ def group_name_to_title(name):
 
 
 @core_helper
+def truncate(text, limit):
+    return text[:limit] + '...' * (len(text) > limit)
+
+
+@core_helper
 def markdown_extract(text, extract_length=190):
     ''' return the plain text representation of markdown encoded text.  That
     is the texted without any html tags.  If extract_length is 0 then it
@@ -1235,12 +1239,7 @@ def markdown_extract(text, extract_length=190):
 
     return literal(
         text_type(
-            whtext.truncate(
-                plain,
-                length=extract_length,
-                indicator='...',
-                whole_word=True
-            )
+            truncate(plain, extract_length)
         )
     )
 
@@ -2644,7 +2643,6 @@ core_helper(tags.literal)
 core_helper(tags.link_to)
 core_helper(tags.file)
 core_helper(tags.submit)
-core_helper(whtext.truncate)
 # Useful additions from the paste library.
 core_helper(converters.asbool)
 # Useful additions from the stdlib.
