@@ -366,17 +366,7 @@ class CKANFlask(Flask):
         `origin` can be either 'core' or 'extension' depending on where
         the route was defined.
         '''
-
-        # Disable built-in flask's ability to prepend site root to
-        # generated url, as we are going to use locale and existing
-        # logic is not flexible enough for this purpose
-        original_script_name = environ.get('SCRIPT_NAME')
-        environ['SCRIPT_NAME'] = ''
         urls = self.url_map.bind_to_environ(environ)
-        # Restore SCRIPT_NAME if this is not a flask request and there is
-        # a chance Pylons will generate X-Debug-URL which relies on this
-        # variable
-        environ['SCRIPT_NAME'] = original_script_name
 
         try:
             rule, args = urls.match(return_rule=True)
@@ -385,6 +375,12 @@ class CKANFlask(Flask):
                 origin = 'extension'
             log.debug('Flask route match, endpoint: {0}, args: {1}, '
                       'origin: {2}'.format(rule.endpoint, args, origin))
+
+            # Disable built-in flask's ability to prepend site root to
+            # generated url, as we are going to use locale and existing
+            # logic is not flexible enough for this purpose
+            environ['SCRIPT_NAME'] = ''
+
             return (True, self.app_name, origin)
         except HTTPException:
             return (False, self.app_name)
