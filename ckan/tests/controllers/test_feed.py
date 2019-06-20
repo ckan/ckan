@@ -135,7 +135,7 @@ class TestFeedInterface(helpers.FunctionalTestBase):
         app = self._get_test_app()
         res = app.get(offset)
 
-        assert '<georss:box>-2373790.000000 2937940.000000 -1681290.000000 3567770.000000</georss:box>' in res.body, res.body
+        assert '<georss:box>2937940.000000 -2373790.000000 3567770.000000 -1681290.000000</georss:box>' in res.body, res.body
 
 
 class MockFeedPlugin(plugins.SingletonPlugin):
