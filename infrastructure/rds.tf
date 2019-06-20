@@ -12,7 +12,6 @@ resource "aws_security_group" "database_security_group"  {
   vpc_id = module.vpc.vpc_id
 }
 
-
 resource "aws_db_option_group" "option_group" {
   engine_name = local.engine_name
   major_engine_version = "11"
@@ -36,7 +35,6 @@ resource "aws_db_instance" "database" {
   db_subnet_group_name = module.vpc.database_subnet_group
   vpc_security_group_ids = [aws_security_group.database_security_group.id]
   final_snapshot_identifier = "dbfinalsnapshot"
-  snapshot_identifier = "dbsnapshot"
   skip_final_snapshot = true
 }
 
