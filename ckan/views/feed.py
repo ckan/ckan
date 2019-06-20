@@ -5,7 +5,7 @@ import urlparse
 
 from flask import Blueprint, make_response
 from six import text_type
-import webhelpers.feedgenerator
+from webhelpers import feedgenerator
 from ckan.common import _, config, g, request, response
 import ckan.lib.helpers as h
 import ckan.lib.base as base
@@ -115,7 +115,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             author_name=pkg.get(u'author', u''),
             author_email=pkg.get(u'author_email', u''),
             categories=[t['name'] for t in pkg.get(u'tags', [])],
-            enclosure=webhelpers.feedgenerator.Enclosure(
+            enclosure=feedgenerator.Enclosure(
                 h.url_for(
                     u'api.action',
                     logic_function=u'package_show',
@@ -500,7 +500,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
     return u':'.join(['tag', tagging_entity, resource_path])
 
 
-class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
+class _FixedAtom1Feed(feedgenerator.Atom1Feed):
     """
     The Atom1Feed defined in webhelpers doesn't provide all the fields we
     might want to publish.
@@ -544,7 +544,7 @@ class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
         """
         super(_FixedAtom1Feed, self).add_item_elements(handler, item)
 
-        dfunc = webhelpers.feedgenerator.rfc3339_date
+        dfunc = feedgenerator.rfc3339_date
 
         if (item['updated']):
             handler.addQuickElement(u'updated',

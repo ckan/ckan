@@ -25,7 +25,7 @@ import logging
 import urlparse
 
 from six import text_type
-import webhelpers.feedgenerator
+from webhelpers import feedgenerator
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -410,7 +410,7 @@ class FeedController(base.BaseController):
                 author_name=pkg.get('author', ''),
                 author_email=pkg.get('author_email', ''),
                 categories=[t['name'] for t in pkg.get('tags', [])],
-                enclosure=webhelpers.feedgenerator.Enclosure(
+                enclosure=feedgenerator.Enclosure(
                     h.url_for(controller='api',
                               register='package',
                               action='show',
@@ -499,7 +499,7 @@ class FeedController(base.BaseController):
 
 
 # TODO paginated feed
-class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
+class _FixedAtom1Feed(feedgenerator.Atom1Feed):
     """
     The Atom1Feed defined in webhelpers doesn't provide all the fields we
     might want to publish.
@@ -545,7 +545,7 @@ class _FixedAtom1Feed(webhelpers.feedgenerator.Atom1Feed):
         """
         super(_FixedAtom1Feed, self).add_item_elements(handler, item)
 
-        dfunc = webhelpers.feedgenerator.rfc3339_date
+        dfunc = feedgenerator.rfc3339_date
 
         if(item['updated']):
             handler.addQuickElement(u'updated',
