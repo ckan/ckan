@@ -70,6 +70,12 @@ def datastore_create(context, data_dict):
         {"function": "trigger_clean_reference"},
         {"function": "trigger_check_codes"}]
     :type triggers: list of dictionaries
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
     replaces the exising aliases or constraints. Setting ``records`` appends
@@ -152,6 +158,9 @@ def datastore_create(context, data_dict):
     except InvalidDataError as err:
         raise p.toolkit.ValidationError(text_type(err))
 
+    if data_dict.get('calculate_record_count', False):
+        backend.calculate_record_count(data_dict['resource_id'])
+
     # Set the datastore_active flag on the resource if necessary
     model = _get_or_bust(context, 'model')
     resobj = model.Resource.get(data_dict['resource_id'])
@@ -229,6 +238,12 @@ def datastore_upsert(context, data_dict):
                    Possible options are: upsert, insert, update
                    (optional, default: upsert)
     :type method: string
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
     :param dry_run: set to True to abort transaction instead of committing,
                     e.g. to check for validation or type errors.
     :type dry_run: bool (optional, default: False)
@@ -264,6 +279,10 @@ def datastore_upsert(context, data_dict):
     result = backend.upsert(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
+
+    if data_dict.get('calculate_record_count', False):
+        backend.calculate_record_count(data_dict['resource_id'])
+
     return result
 
 
@@ -306,6 +325,12 @@ def datastore_delete(context, data_dict):
                    If missing delete whole table and all dependent views.
                    (optional)
     :type filters: dictionary
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
 
     **Results:**
 
@@ -313,7 +338,7 @@ def datastore_delete(context, data_dict):
     :rtype: dictionary
 
     '''
-    schema = context.get('schema', dsschema.datastore_upsert_schema())
+    schema = context.get('schema', dsschema.datastore_delete_schema())
     backend = DatastoreBackend.get_active_backend()
 
     # Remove any applied filters before running validation.
@@ -349,6 +374,9 @@ def datastore_delete(context, data_dict):
 
     result = backend.delete(context, data_dict)
 
+    if data_dict.get('calculate_record_count', False):
+        backend.calculate_record_count(data_dict['resource_id'])
+
     # Set the datastore_active flag on the resource if necessary
     model = _get_or_bust(context, 'model')
     resource = model.Resource.get(data_dict['resource_id'])
@@ -371,8 +399,10 @@ def datastore_delete(context, data_dict):
 def datastore_search(context, data_dict):
     '''Search a DataStore resource.
 
-    The datastore_search action allows you to search data in a resource.
-    DataStore resources that belong to private CKAN resource can only be
+    The datastore_search action allows you to search data in a resource. By
+    default 100 rows are returned - see the `limit` parameter for more info.
+
+    A DataStore resource that belongs to a private CKAN resource can only be
     read by you if you have access to the CKAN resource and send the
     appropriate authorization.
 
@@ -392,7 +422,10 @@ def datastore_search(context, data_dict):
     :param language: language of the full text query
                      (optional, default: english)
     :type language: string
-    :param limit: maximum number of rows to return (optional, default: 100)
+    :param limit: maximum number of rows to return
+        (optional, default: ``100``, unless set in the site's configuration
+        ``ckan.datastore.search.rows_default``, upper limit: ``32000`` unless
+        set in site's configuration ``ckan.datastore.search.rows_max``)
     :type limit: int
     :param offset: offset this number of rows (optional)
     :type offset: int
@@ -405,6 +438,17 @@ def datastore_search(context, data_dict):
     :param include_total: True to return total matching record count
                           (optional, default: true)
     :type include_total: bool
+    :param total_estimation_threshold: If "include_total" is True and
+        "total_estimation_threshold" is not None and the estimated total
+        (matching record count) is above the "total_estimation_threshold" then
+        this datastore_search will return an *estimate* of the total, rather
+        than a precise one. This is often good enough, and saves
+        computationally expensive row counting for larger results (e.g. >100000
+        rows). The estimated total comes from the PostgreSQL table statistics,
+        generated when Express Loader or DataPusher finishes a load, or by
+        autovacuum. NB Currently estimation can't be done if the user specifies
+        'filters' or 'distinct' options. (optional, default: None)
+    :type total_estimation_threshold: int or None
     :param records_format: the format for the records return value:
         'objects' (default) list of {fieldname1: value1, ...} dicts,
         'lists' list of [value1, value2, ...] lists,
@@ -432,12 +476,16 @@ def datastore_search(context, data_dict):
     :type fields: list of dictionaries
     :param offset: query offset value
     :type offset: int
-    :param limit: query limit value
+    :param limit: queried limit value (if the requested ``limit`` was above the
+        ``ckan.datastore.search.rows_max`` value then this response ``limit``
+        will be set to the value of ``ckan.datastore.search.rows_max``)
     :type limit: int
     :param filters: query filters
     :type filters: list of dictionaries
     :param total: number of total matching records
     :type total: int
+    :param total_was_estimated: whether or not the total was estimated
+    :type total_was_estimated: bool
     :param records: list of matching results
     :type records: depends on records_format value passed
 
@@ -481,13 +529,15 @@ def datastore_search_sql(context, data_dict):
     engine is the
     `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
+    The number of results returned is limited to 32000, unless set in the
+    site's configuration ``ckan.datastore.search.rows_max``
     Queries are only allowed if you have access to the all the CKAN resources
     in the query and send the appropriate authorization.
 
     .. note:: This action is not available when
         :ref:`ckan.datastore.sqlsearch.enabled` is set to false
 
-    .. note:: When source data columns (i.e. CSV) heading names are provdied
+    .. note:: When source data columns (i.e. CSV) heading names are provided
         in all UPPERCASE you need to double quote them in the SQL select
         statement to avoid returning null results.
 
@@ -503,6 +553,12 @@ def datastore_search_sql(context, data_dict):
     :type fields: list of dictionaries
     :param records: list of matching results
     :type records: list of dictionaries
+    :param records_truncated: indicates whether the number of records returned
+        was limited by the internal limit, which is 32000 records (or other
+        value set in the site's configuration
+        ``ckan.datastore.search.rows_max``). If records are truncated by this,
+        this key has value True, otherwise the key is not returned at all.
+    :type records_truncated: bool
 
     '''
     backend = DatastoreBackend.get_active_backend()

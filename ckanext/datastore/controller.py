@@ -14,6 +14,7 @@ from ckan.plugins.toolkit import (
     render,
     c,
     h,
+    config,
 )
 from ckanext.datastore.writer import (
     csv_writer,
@@ -86,7 +87,7 @@ class DatastoreController(BaseController):
                         'plain',
                         'language',
                         'fields']},
-                )
+            )
         except ObjectNotFound:
             abort(404, _('DataStore resource not found'))
 
@@ -122,7 +123,7 @@ class DatastoreController(BaseController):
                     'id': f['id'],
                     'type': f['type'],
                     'info': fi if isinstance(fi, dict) else {}
-                    } for f, fi in izip_longest(fields, info)]})
+                } for f, fi in izip_longest(fields, info)]})
 
             h.flash_success(_('Data Dictionary saved. Any type overrides will '
                               'take effect when the resource is next uploaded '
@@ -171,9 +172,18 @@ def dump_to(
             'sort': sort,
             'records_format': records_format,
             'include_total': False,
-            }, **search_params))
+        }, **search_params))
 
     result = result_page(offset, limit)
+
+    if result['limit'] != limit:
+        # `limit` (from PAGINATE_BY) must have been more than
+        # ckan.datastore.search.rows_max, so datastore_search responded with a
+        # limit matching ckan.datastore.search.rows_max. So we need to paginate
+        # by that amount instead, otherwise we'll have gaps in the records.
+        paginate_by = result['limit']
+    else:
+        paginate_by = PAGINATE_BY
 
     with start_writer(result['fields']) as wr:
         while True:
@@ -185,14 +195,14 @@ def dump_to(
             wr.write_records(records)
 
             if records_format == 'objects' or records_format == 'lists':
-                if len(records) < PAGINATE_BY:
+                if len(records) < paginate_by:
                     break
             elif not records:
                 break
 
-            offset += PAGINATE_BY
+            offset += paginate_by
             if limit is not None:
-                limit -= PAGINATE_BY
+                limit -= paginate_by
                 if limit <= 0:
                     break
 

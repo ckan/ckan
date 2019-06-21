@@ -2,7 +2,7 @@
 
 {% set has_reorder = pkg_dict and pkg_dict.resources and pkg_dict.resources|length > 0 %}
 
-{% block subtitle %}{{ _('Resources') }} - {{ h.dataset_display_name(pkg) }}{% endblock %}
+{% block subtitle %}{{ _('Resources') }} {{ g.template_title_delimiter }} {{ h.dataset_display_name(pkg) }}{% endblock %}
 
 {% block page_primary_action %}
   {% link_for _('Add new resource'), named_route='resource.new', id=pkg_dict.name, class_='btn btn-primary', icon='plus' %}
@@ -13,7 +13,7 @@
     <ul class="resource-list"{% if has_reorder %} data-module="resource-reorder" data-module-id="{{ pkg.id }}"{% endif %}>
       {% set can_edit = h.check_access('package_update', {'id':pkg.id }) %}
       {% for resource in pkg.resources %}
-        {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, url_is_edit=true, can_edit=can_edit %}
+        {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, url_is_edit=true, can_edit=can_edit, is_activity_archive=False %}
       {% endfor %}
     </ul>
   {% else %}
@@ -26,6 +26,6 @@
 {% block scripts %}
   {{ super() }}
   {% if has_reorder %}
-    {% resource 'vendor/reorder' %}
+    {% asset 'vendor/reorder' %}
   {% endif %}
 {% endblock %}

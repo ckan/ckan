@@ -26,6 +26,13 @@ class TestUserListAuth(object):
                    'model': model}
         assert helpers.call_auth('user_list', context=context)
 
+    def test_user_list_email_parameter(self):
+        context = {'user': None,
+                   'model': model}
+        # using the 'email' parameter is not allowed (unless sysadmin)
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'user_list', email='a@example.com', context=context)
+
 
 class TestUserShowAuth(object):
 
@@ -184,3 +191,32 @@ class TestConfigOptionListAuth(object):
         factories.Sysadmin(name='fred')
         context = {'user': 'fred', 'model': None}
         assert helpers.call_auth('config_option_list', context=context)
+
+
+class TestActivityList(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+    @helpers.change_config(u'ckan.auth.public_activity_stream_detail', u'false')
+    def test_config_option_public_activity_stream_detail_denied(self):
+        '''Config option says an anon user is not authorized to get activity
+        stream data/detail.
+        '''
+        dataset = factories.Dataset()
+        context = {'user': None, 'model': model}
+        with assert_raises(logic.NotAuthorized):
+            helpers.call_auth('package_activity_list',
+                              context=context,
+                              id=dataset['id'], include_data=True)
+
+    @helpers.change_config(u'ckan.auth.public_activity_stream_detail', u'true')
+    def test_config_option_public_activity_stream_detail(self):
+        '''Config option says an anon user is authorized to get activity
+        stream data/detail.
+        '''
+        dataset = factories.Dataset()
+        context = {'user': None, 'model': model}
+        helpers.call_auth('package_activity_list',
+                          context=context,
+                          id=dataset['id'], include_data=True)

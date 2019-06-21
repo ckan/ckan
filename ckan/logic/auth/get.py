@@ -4,7 +4,8 @@ import ckan.logic as logic
 import ckan.authz as authz
 from ckan.common import _, config
 from ckan.logic.auth import (get_package_object, get_group_object,
-                             get_resource_object, restrict_anon)
+                             get_resource_object, get_activity_object,
+                             restrict_anon)
 from ckan.lib.plugins import get_permission_labels
 from paste.deploy.converters import asbool
 
@@ -96,6 +97,9 @@ def tag_list(context, data_dict):
 
 def user_list(context, data_dict):
     # Users list is visible by default
+    if data_dict.get('email'):
+        # only sysadmins can specify the 'email' parameter
+        return {'success': False}
     if not asbool(config.get('ckan.auth.public_user_details', True)):
         return restrict_anon(context)
     else:
@@ -265,6 +269,94 @@ def dashboard_new_activities_count(context, data_dict):
     # This is so a better not authourized message can be sent.
     return authz.is_authorized('dashboard_activity_list',
             context, data_dict)
+
+
+def activity_list(context, data_dict):
+    '''
+    :param id: the id or name of the object (e.g. package id)
+    :type id: string
+    :param object_type: The type of the object (e.g. 'package', 'organization',
+                        'group', 'user')
+    :type object_type: string
+    :param include_data: include the data field, containing a full object dict
+        (otherwise the data field is only returned with the object's title)
+    :type include_data: boolean
+    '''
+    if data_dict['object_type'] not in ('package', 'organization', 'group',
+                                        'user'):
+        return {'success': False, 'msg': 'object_type not recognized'}
+    if (data_dict.get('include_data') and
+        not authz.check_config_permission('public_activity_stream_detail')):
+        # The 'data' field of the activity is restricted to users who are
+        # allowed to edit the object
+        show_or_update = 'update'
+    else:
+        # the activity for an object (i.e. the activity metadata) can be viewed
+        # if the user can see the object
+        show_or_update = 'show'
+    action_on_which_to_base_auth = '{}_{}'.format(
+        data_dict['object_type'], show_or_update)  # e.g. 'package_update'
+    return authz.is_authorized(action_on_which_to_base_auth, context,
+                               {'id': data_dict['id']})
+
+
+def user_activity_list(context, data_dict):
+    data_dict['object_type'] = 'user'
+    return activity_list(context, data_dict)
+
+
+def package_activity_list(context, data_dict):
+    data_dict['object_type'] = 'package'
+    return activity_list(context, data_dict)
+
+
+def group_activity_list(context, data_dict):
+    data_dict['object_type'] = 'group'
+    return activity_list(context, data_dict)
+
+
+def organization_activity_list(context, data_dict):
+    data_dict['object_type'] = 'organization'
+    return activity_list(context, data_dict)
+
+
+def activity_show(context, data_dict):
+    '''
+    :param id: the id of the activity
+    :type id: string
+    :param include_data: include the data field, containing a full object dict
+        (otherwise the data field is only returned with the object's title)
+    :type include_data: boolean
+    '''
+    activity = get_activity_object(context, data_dict)
+    # NB it would be better to have recorded an activity_type against the
+    # activity
+    if 'package' in activity.activity_type:
+        object_type = 'package'
+    else:
+        return {'success': False, 'msg': 'object_type not recognized'}
+    return activity_list(context, {
+        'id': activity.object_id,
+        'include_data': data_dict['include_data'],
+        'object_type': object_type})
+
+
+def activity_data_show(context, data_dict):
+    '''
+    :param id: the id of the activity
+    :type id: string
+    '''
+    data_dict['include_data'] = True
+    return activity_show(context, data_dict)
+
+
+def activity_diff(context, data_dict):
+    '''
+    :param id: the id of the activity
+    :type id: string
+    '''
+    data_dict['include_data'] = True
+    return activity_show(context, data_dict)
 
 
 def user_follower_list(context, data_dict):

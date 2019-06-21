@@ -31,7 +31,7 @@ def text_traceback():
     return res
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.8']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -55,7 +55,8 @@ _QUERIES = {
     'package': PackageSearchQuery
 }
 
-SOLR_SCHEMA_FILE_OFFSET = '/admin/file/?file=schema.xml'
+SOLR_SCHEMA_FILE_OFFSET_MANAGED = '/schema?wt=schema.xml'
+SOLR_SCHEMA_FILE_OFFSET_CLASSIC = '/admin/file/?file=schema.xml'
 
 
 def _normalize_type(_type):
@@ -246,6 +247,21 @@ def clear_all():
     log.debug("Clearing search index...")
     package_index.clear()
 
+def _get_schema_from_solr(file_offset):
+    solr_url, solr_user, solr_password = SolrSettings.get()
+
+    http_auth = None
+    if solr_user is not None and solr_password is not None:
+        http_auth = solr_user + ':' + solr_password
+        http_auth = 'Basic ' + http_auth.encode('base64').strip()
+
+    url = solr_url.strip('/') + file_offset
+
+    req = urllib2.Request(url=url)
+    if http_auth:
+        req.add_header('Authorization', http_auth)
+
+    return urllib2.urlopen(req)
 
 def check_solr_schema_version(schema_file=None):
     '''
@@ -253,10 +269,15 @@ def check_solr_schema_version(schema_file=None):
         with this CKAN version.
 
         The schema will be retrieved from the SOLR server, using the
-        offset defined in SOLR_SCHEMA_FILE_OFFSET
-        ('/admin/file/?file=schema.xml'). The schema_file parameter
-        allows to override this pointing to different schema file, but
-        it should only be used for testing purposes.
+        offset defined in SOLR_SCHEMA_FILE_OFFSET_MANAGED
+        ('/schema?wt=schema.xml'). If SOLR is set to use the manually
+        edited `schema.xml`, the schema will be retrieved from the SOLR
+        server using the offset defined in
+        SOLR_SCHEMA_FILE_OFFSET_CLASSIC ('/admin/file/?file=schema.xml').
+
+        The schema_file parameter allows to override this pointing to
+        different schema file, but it should only be used for testing
+        purposes.
 
         If the CKAN instance is configured to not use SOLR or the SOLR
         server is not available, the function will return False, as the
@@ -275,20 +296,12 @@ def check_solr_schema_version(schema_file=None):
 
     # Try to get the schema XML file to extract the version
     if not schema_file:
-        solr_url, solr_user, solr_password = SolrSettings.get()
-
-        http_auth = None
-        if solr_user is not None and solr_password is not None:
-            http_auth = solr_user + ':' + solr_password
-            http_auth = 'Basic ' + http_auth.encode('base64').strip()
-
-        url = solr_url.strip('/') + SOLR_SCHEMA_FILE_OFFSET
-
-        req = urllib2.Request(url=url)
-        if http_auth:
-            req.add_header('Authorization', http_auth)
-
-        res = urllib2.urlopen(req)
+        try:
+            # Try Managed Schema
+            res = _get_schema_from_solr(SOLR_SCHEMA_FILE_OFFSET_MANAGED)
+        except urllib2.HTTPError:
+            # Fallback to Manually Edited schema.xml
+            res = _get_schema_from_solr(SOLR_SCHEMA_FILE_OFFSET_CLASSIC)
     else:
         url = 'file://%s' % schema_file
         res = urllib2.urlopen(url)

@@ -23,6 +23,7 @@ from six.moves.urllib.parse import urljoin, urlparse
 from six.moves.urllib.request import urlopen
 
 import sqlalchemy as sa
+
 import routes
 import paste.script
 from paste.registry import Registry
@@ -36,7 +37,7 @@ import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.plugins as p
 from ckan.common import config
-
+from paste.deploy.converters import asbool
 # This is a test Flask request context to be used internally.
 # Do not use it!
 _cli_test_request_context = None
@@ -110,6 +111,8 @@ def user_add(args):
     for arg in args[1:]:
         try:
             field, value = arg.split('=', 1)
+            if field == 'sysadmin':
+                value = asbool(value)
             data_dict[field] = value
         except ValueError:
             raise ValueError(
@@ -351,7 +354,8 @@ class ManageDb(CkanCommand):
     def command(self):
         cmd = self.args[0]
 
-        self._load_config(cmd!='upgrade')
+        self._load_config(cmd != 'upgrade')
+
         import ckan.model as model
         import ckan.lib.search as search
 
@@ -375,10 +379,9 @@ class ManageDb(CkanCommand):
             if self.verbose:
                 print('Cleaning DB: SUCCESS')
         elif cmd == 'upgrade':
-            if len(self.args) > 1:
-                model.repo.upgrade_db(self.args[1])
-            else:
-                model.repo.upgrade_db()
+            model.repo.upgrade_db(*self.args[1:])
+        elif cmd == 'downgrade':
+            model.repo.downgrade_db(*self.args[1:])
         elif cmd == 'version':
             self.version()
         elif cmd == 'create-from-model':

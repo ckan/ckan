@@ -113,7 +113,7 @@ class DataTablesController(BaseController):
                 u'filters': json.dumps(filters),
                 u'format': request.params['format'],
                 u'fields': u','.join(cols),
-                }))
+            }))
 
 
 def merge_filters_q(view_filters, user_filters_str, search_text, filter_types):

@@ -230,8 +230,8 @@ def package_create(context, data_dict):
         return pkg.id
 
     return _get_action('package_show')(
-                context.copy(), {'id': pkg.id}
-            )
+        context.copy(), {'id': pkg.id}
+    )
 
 
 def resource_create(context, data_dict):
@@ -392,7 +392,7 @@ def resource_view_create(context, data_dict):
 
     max_order = model.Session.query(
         func.max(model.ResourceView.order)
-        ).filter_by(resource_id=resource_id).first()
+    ).filter_by(resource_id=resource_id).first()
 
     order = 0
     if max_order[0] is not None:
@@ -604,7 +604,15 @@ def member_create(context, data_dict=None):
         filter(model.Member.table_id == obj.id).\
         filter(model.Member.group_id == group.id).\
         filter(model.Member.state == 'active').first()
-    if not member:
+    if member:
+        user_obj = model.User.get(user)
+        if member.table_name == u'user' and \
+                member.table_id == user_obj.id and \
+                member.capacity == u'admin' and \
+                capacity != u'admin':
+            raise logic.NotAuthorized("Administrators cannot revoke their "
+                                      "own admin status")
+    else:
         member = model.Member(table_name=obj_type,
                               table_id=obj.id,
                               group_id=group.id,

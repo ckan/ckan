@@ -1243,12 +1243,9 @@ class IDatasetForm(Interface):
         '''
 
     def history_template(self):
-        u'''Return the path to the template for the dataset history page.
-
-        The path should be relative to the plugin's templates dir, e.g.
-        ``'package/history.html'``.
-
-        :rtype: string
+        u'''
+        .. warning:: This template is removed. The function exists for
+            compatibility. It now returns None.
 
         '''
 
@@ -1291,7 +1288,7 @@ class IDatasetForm(Interface):
         This is an adavanced interface. Most changes to validation should be
         accomplished by customizing the schemas returned from
         ``show_package_schema()``, ``create_package_schema()``
-        and ``update_package_schama()``. If you need to have a different
+        and ``update_package_schema()``. If you need to have a different
         schema depending on the user or value of any field stored in the
         dataset, or if you wish to use a different method for validation, then
         this method may be used.
@@ -1301,7 +1298,7 @@ class IDatasetForm(Interface):
         :param data_dict: the dataset to be validated
         :type data_dict: dictionary
         :param schema: a schema, typically from ``show_package_schema()``,
-          ``create_package_schema()`` or ``update_package_schama()``
+          ``create_package_schema()`` or ``update_package_schema()``
         :type schema: dictionary
         :param action: ``'package_show'``, ``'package_create'`` or
           ``'package_update'``
@@ -1464,7 +1461,7 @@ class IGroupForm(Interface):
         :param data_dict: the group to be validated
         :type data_dict: dictionary
         :param schema: a schema, typically from ``form_to_db_schema()``,
-          or ``db_to_form_schama()``
+          or ``db_to_form_schema()``
         :type schema: dictionary
         :param action: ``'group_show'``, ``'group_create'``,
           ``'group_update'``, ``'organization_show'``,

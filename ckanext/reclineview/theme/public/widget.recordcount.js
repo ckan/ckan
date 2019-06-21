@@ -9,7 +9,7 @@ this.recline.View = this.recline.View || {};
 my.RecordCount = Backbone.View.extend({
   className: 'recline-record-count',
   template: ' \
-    <span class="count">{{recordCount}}</span> records \
+    <span class="count">{{recordCount}}</span> {{record}} \
   ',
 
   initialize: function() {
@@ -21,6 +21,11 @@ my.RecordCount = Backbone.View.extend({
   render: function() {
     var tmplData = this.model.toTemplateJSON();
     tmplData.recordCount = tmplData.recordCount || 'Unknown number of';
+	if (tmplData.recordCount==1) {
+      tmplData.record = 'record';
+    } else {
+      tmplData.record = 'records';
+    }
     var templated = Mustache.render(this.template, tmplData);
     this.$el.html(templated);
   }

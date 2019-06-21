@@ -422,6 +422,7 @@ my.Dataset = Backbone.Model.extend({
     };
     this.facets = new my.FacetList();
     this.recordCount = null;
+    this.recordCountWasEstimated = null;
     this.queryState = new my.Query();
     this.queryState.bind('change facet:add', function () {
       self.query(); // We want to call query() without any arguments.
@@ -602,6 +603,10 @@ my.Dataset = Backbone.Model.extend({
   _handleQueryResult: function(queryResult) {
     var self = this;
     self.recordCount = queryResult.total;
+    self.recordCountWasEstimated = queryResult.total_was_estimated;
+    if (self.recordCountWasEstimated) {
+      self.recordCount = Math.floor((self.recordCount + 500)/1000) + '000';
+    }
     var docs = _.map(queryResult.hits, function(hit) {
       var _doc = new my.Record(hit);
       _doc.fields = self.fields;
@@ -626,6 +631,7 @@ my.Dataset = Backbone.Model.extend({
   toTemplateJSON: function() {
     var data = this.toJSON();
     data.recordCount = this.recordCount;
+    data.recordCountWasEstimated = this.recordCountWasEstimated;
     data.fields = this.fields.toJSON();
     return data;
   },
@@ -2619,7 +2625,10 @@ my.MultiView = Backbone.View.extend({
         </div> \
       </div> \
       <div class="recline-results-info"> \
-        <span class="doc-count">{{recordCount}}</span> records\
+      {{#recordCountWasEstimated}} \
+        <span class="doc-count-approx">about</span> \
+      {{/recordCountWasEstimated}} \
+      <span class="doc-count">{{recordCount}}</span> records \
       </div> \
       <div class="menu-right"> \
         <div class="btn-group" data-toggle="buttons-checkbox"> \
@@ -2716,6 +2725,7 @@ my.MultiView = Backbone.View.extend({
     this.listenTo(this.model, 'query:done', function() {
       self.clearNotifications();
       self.$el.find('.doc-count').text(self.model.recordCount || 'Unknown');
+      self.$el.find('.doc-count-approx').text(self.model.recordCountWasEstimated && 'about' || '');
     });
     this.listenTo(this.model, 'query:fail', function(error) {
       self.clearNotifications();

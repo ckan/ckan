@@ -1,12 +1,14 @@
 # encoding: utf-8
 
 import os
+import sys
 import re
+import time
 import inspect
 import itertools
 import pkgutil
 
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 
@@ -21,6 +23,7 @@ from fanstatic import Fanstatic
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
+import ckan
 import ckan.model as model
 from ckan.lib import base
 from ckan.lib import helpers
@@ -28,7 +31,8 @@ from ckan.lib import jinja_extensions
 from ckan.common import config, g, request, ungettext
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
-
+import ckan.plugins.toolkit as toolkit
+from ckan.lib.webassets_tools import get_webassets_path
 
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
@@ -38,8 +42,8 @@ from ckan.views import (identify_user,
                         set_controller_and_action
                         )
 
-import ckan.lib.plugins as lib_plugins
 import logging
+from logging.handlers import SMTPHandler
 log = logging.getLogger(__name__)
 
 
@@ -107,6 +111,13 @@ def make_flask_stack(conf, **app_conf):
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
         DebugToolbarExtension(app)
 
+        from werkzeug.debug import DebuggedApplication
+        app = DebuggedApplication(app, True)
+        app = app.app
+
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.DEBUG)
+
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
         def open_session(self, app, request):
@@ -124,7 +135,7 @@ def make_flask_stack(conf, **app_conf):
             session_opts.get('session.type', 'file') == 'file'):
         cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
         session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
-                data_dir=cache_dir)
+            data_dir=cache_dir)
 
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
     app.session_interface = BeakerSessionInterface()
@@ -173,6 +184,9 @@ def make_flask_stack(conf, **app_conf):
     def hello_world_post():
         return 'Hello World, this was posted to Flask'
 
+    # WebAssets
+    _setup_webassets(app)
+
     # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
     _register_error_handler(app)
@@ -201,8 +215,8 @@ def make_flask_stack(conf, **app_conf):
                 'controller': controller,
                 'highlight_actions': action,
                 'needed': needed
-                }
             }
+        }
         config['routes.named_routes'].update(route)
 
     # Start other middleware
@@ -298,6 +312,8 @@ def ckan_before_request():
     # with extensions
     set_controller_and_action()
 
+    g.__timer = time.time()
+
 
 def ckan_after_request(response):
     u'''Common handler executed after all Flask requests'''
@@ -310,6 +326,11 @@ def ckan_after_request(response):
 
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
+
+    r_time = time.time() - g.__timer
+    url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
+
+    log.info(' %s render time %.3f seconds' % (url, r_time))
 
     return response
 
@@ -371,8 +392,8 @@ class CKANFlask(Flask):
         `origin` can be either 'core' or 'extension' depending on where
         the route was defined.
         '''
-
         urls = self.url_map.bind_to_environ(environ)
+
         try:
             rule, args = urls.match(return_rule=True)
             origin = 'core'
@@ -380,6 +401,12 @@ class CKANFlask(Flask):
                 origin = 'extension'
             log.debug('Flask route match, endpoint: {0}, args: {1}, '
                       'origin: {2}'.format(rule.endpoint, args, origin))
+
+            # Disable built-in flask's ability to prepend site root to
+            # generated url, as we are going to use locale and existing
+            # logic is not flexible enough for this purpose
+            environ['SCRIPT_NAME'] = ''
+
             return (True, self.app_name, origin)
         except HTTPException:
             return (False, self.app_name)
@@ -427,6 +454,7 @@ def _register_error_handler(app):
     u'''Register error handler'''
 
     def error_handler(e):
+        log.error(e, exc_info=sys.exc_info)
         if isinstance(e, HTTPException):
             extra_vars = {u'code': [e.code], u'content': e.description}
             # TODO: Remove
@@ -441,3 +469,57 @@ def _register_error_handler(app):
         app.register_error_handler(code, error_handler)
     if not app.debug and not app.testing:
         app.register_error_handler(Exception, error_handler)
+        if config.get('email_to'):
+            _setup_error_mail_handler(app)
+
+
+def _setup_error_mail_handler(app):
+
+    class ContextualFilter(logging.Filter):
+        def filter(self, log_record):
+            log_record.url = request.path
+            log_record.method = request.method
+            log_record.ip = request.environ.get("REMOTE_ADDR")
+            log_record.headers = request.headers
+            return True
+
+    smtp_server = config.get('smtp.server', 'localhost')
+    mailhost = tuple(smtp_server.split(':')) \
+        if ':' in smtp_server else smtp_server
+    credentials = None
+    if config.get('smtp.user'):
+        credentials = (config.get('smtp.user'), config.get('smtp.password'))
+    secure = () if asbool(config.get('smtp.starttls')) else None
+    mail_handler = SMTPHandler(
+        mailhost=mailhost,
+        fromaddr=config.get('error_email_from'),
+        toaddrs=[config.get('email_to')],
+        subject='Application Error',
+        credentials=credentials,
+        secure=secure
+    )
+
+    mail_handler.setFormatter(logging.Formatter('''
+Time:               %(asctime)s
+URL:                %(url)s
+Method:             %(method)s
+IP:                 %(ip)s
+Headers:            %(headers)s
+
+'''))
+
+    context_provider = ContextualFilter()
+    app.logger.addFilter(context_provider)
+    app.logger.addHandler(mail_handler)
+
+
+def _setup_webassets(app):
+    app.use_x_sendfile = toolkit.asbool(
+        config.get('ckan.webassets.use_x_sendfile')
+    )
+
+    webassets_folder = get_webassets_path()
+
+    @app.route('/webassets/<path:path>')
+    def webassets(path):
+        return send_from_directory(webassets_folder, path)

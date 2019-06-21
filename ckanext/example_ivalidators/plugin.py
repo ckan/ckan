@@ -14,7 +14,7 @@ class ExampleIValidatorsPlugin(plugins.SingletonPlugin):
             u'equals_fortytwo': equals_fortytwo,
             u'negate': negate,
             u'unicode_only': unicode_please,
-            }
+        }
 
 
 def equals_fortytwo(value):

@@ -1,26 +1,21 @@
 # encoding: utf-8
 
 import json
-import nose
 import datetime
+from nose.tools import assert_equal, assert_not_equal
 
 import sqlalchemy.orm as orm
 
-import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
-import ckan.tests.legacy as tests
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 from ckan.plugins.toolkit import ValidationError
 
-from ckan.common import config
-
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import (
-    set_url_type, DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
-
-assert_equal = nose.tools.assert_equal
+    set_url_type, DatastoreFunctionalTestBase, DatastoreLegacyTestBase,
+    when_was_last_analyze)
 
 
 class TestDatastoreUpsert(DatastoreFunctionalTestBase):
@@ -134,6 +129,47 @@ class TestDatastoreUpsert(DatastoreFunctionalTestBase):
                 [u'"EGGS"? Yeeeeccch!'])
         else:
             assert 0, 'error not raised'
+
+    def test_calculate_record_count_is_false(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'fields': [{'id': 'name', 'type': 'text'},
+                       {'id': 'age', 'type': 'text'}],
+        }
+        helpers.call_action('datastore_create', **data)
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'method': 'insert',
+            'records': [{"name": "Sunita", "age": "51"},
+                        {"name": "Bowan", "age": "68"}],
+        }
+        helpers.call_action('datastore_upsert', **data)
+        last_analyze = when_was_last_analyze(resource['id'])
+        assert_equal(last_analyze, None)
+
+    def test_calculate_record_count(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'fields': [{'id': 'name', 'type': 'text'},
+                       {'id': 'age', 'type': 'text'}],
+        }
+        helpers.call_action('datastore_create', **data)
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'method': 'insert',
+            'records': [{"name": "Sunita", "age": "51"},
+                        {"name": "Bowan", "age": "68"}],
+            'calculate_record_count': True
+        }
+        helpers.call_action('datastore_upsert', **data)
+        last_analyze = when_was_last_analyze(resource['id'])
+        assert_not_equal(last_analyze, None)
 
 
 class TestDatastoreUpsertLegacyTests(DatastoreLegacyTestBase):

@@ -1,8 +1,5 @@
 # encoding: utf-8
 
-from nose.tools import assert_equal
-from nose.plugins.skip import SkipTest
-
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 

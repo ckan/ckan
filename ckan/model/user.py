@@ -11,7 +11,6 @@ from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 from six import text_type
-import vdm.sqlalchemy
 
 import meta
 import core
@@ -33,12 +32,11 @@ user_table = Table('user', meta.metadata,
         Column('activity_streams_email_notifications', types.Boolean,
             default=False),
         Column('sysadmin', types.Boolean, default=False),
+        Column('state', types.UnicodeText, default=core.State.ACTIVE),
         )
 
-vdm.sqlalchemy.make_table_stateful(user_table)
 
-
-class User(vdm.sqlalchemy.StatefulObjectMixin,
+class User(core.StatefulObjectMixin,
            domain_object.DomainObject):
 
     VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")

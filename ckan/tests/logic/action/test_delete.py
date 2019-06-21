@@ -242,8 +242,7 @@ class TestGroupPurge(object):
         assert_equals(sorted(
             [gr.name for gr in model.Session.query(model.GroupRevision)]),
             ['child', 'parent'])
-        assert_equals(model.Session.query(model.GroupExtraRevision).all(),
-                      [])
+        # GroupExtra is not revisioned
         # Member is not revisioned
 
         # No Revision objects were purged, in fact 1 is created for the purge
@@ -345,8 +344,7 @@ class TestOrganizationPurge(object):
         assert_equals(sorted(
             [gr.name for gr in model.Session.query(model.GroupRevision)]),
             ['child', 'parent'])
-        assert_equals(model.Session.query(model.GroupExtraRevision).all(),
-                      [])
+        # GroupExtra is not revisioned
         # Member is not revisioned
 
         # No Revision objects were purged, in fact 1 is created for the purge
@@ -452,8 +450,7 @@ class TestDatasetPurge(object):
         assert_equals(model.Session.query(model.PackageRevision).all(), [])
         assert_equals(model.Session.query(model.ResourceRevision).all(), [])
         assert_equals(model.Session.query(model.PackageTagRevision).all(), [])
-        assert_equals(model.Session.query(model.PackageExtraRevision).all(),
-                      [])
+        # PackageExtraRevision is not revisioned
         # Member is not revisioned
 
         # No Revision objects were purged or created

@@ -9,8 +9,7 @@ import ckan.authz as authz
 
 
 def _get_object(context, data_dict, name, class_name):
-    # return the named item if in the data_dict, or get it from
-    # model.class_name
+    # return the named item if in the context, or get it from model.class_name
     try:
         return context[name]
     except KeyError:
@@ -43,6 +42,10 @@ def get_group_object(context, data_dict=None):
 
 def get_user_object(context, data_dict=None):
     return _get_object(context, data_dict, 'user_obj', 'User')
+
+
+def get_activity_object(context, data_dict=None):
+    return _get_object(context, data_dict, 'activity', 'Activity')
 
 
 def restrict_anon(context):

@@ -3,12 +3,8 @@
 import os.path
 import logging
 import cgi
-import datetime
-import glob
 import urllib
 
-from webob.multidict import UnicodeMultiDict
-from paste.util.multidict import MultiDict
 from six import text_type
 
 import ckan.model as model
@@ -278,7 +274,7 @@ class ApiController(base.BaseController):
         limit = request.params.get('limit', 20)
         try:
             limit = int(limit)
-        except:
+        except ValueError:
             limit = 20
         limit = min(50, limit)
 

@@ -1,18 +1,14 @@
 # encoding: utf-8
 
-import paste
-from ckan.common import config
 from nose.tools import assert_equal
 
 import ckan.logic as logic
-import ckan.authz as authz
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase
 from ckan.tests.legacy import url_for
 from ckan.tests import helpers
 
-import ckan.config.middleware
 from ckan.common import json
 
 

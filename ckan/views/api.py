@@ -416,12 +416,13 @@ def format_autocomplete(ver=API_REST_DEFAULT_VERSION):
 def user_autocomplete(ver=API_REST_DEFAULT_VERSION):
     q = request.args.get(u'q', u'')
     limit = request.args.get(u'limit', 20)
+    ignore_self = request.args.get(u'ignore_self', False)
     user_list = []
     if q:
         context = {u'model': model, u'session': model.Session,
                    u'user': g.user, u'auth_user_obj': g.userobj}
 
-        data_dict = {u'q': q, u'limit': limit}
+        data_dict = {u'q': q, u'limit': limit, u'ignore_self': ignore_self}
 
         user_list = get_action(u'user_autocomplete')(context, data_dict)
     return _finish_ok(user_list)
