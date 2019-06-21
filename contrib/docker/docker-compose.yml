@@ -86,6 +86,19 @@ services:
       # - ../..:/usr/lib/ckan/venv/src/ckan
       # - ckan_home:/usr/lib/ckan
 
+    # logging:
+    #     driver: "json-file"
+    #     options:
+    #        max-size: "20m"
+    #        max-file: "5"
+
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-region: "us-east-1"
+        awslogs-group: "avindata_web"
+        awslogs-stream: "docker"
+
   datapusher:
     container_name: datapusher
     image: clementmouchet/datapusher
