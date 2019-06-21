@@ -325,8 +325,19 @@ content type, cookies, etc.
 
         The path is relative to the file calling this function.
 
+        Webassets addition: append directory to webassets load paths
+        in order to correctly rewrite relative css paths and resolve
+        public urls.
+
         '''
-        cls._add_served_directory(config, relative_path, 'extra_public_paths')
+        import ckan.lib.helpers as h
+        from ckan.lib.webassets_tools import add_public_path
+        path = cls._add_served_directory(
+            config,
+            relative_path,
+            'extra_public_paths'
+        )
+        add_public_path(path, h.url_for_static('/'))
 
     @classmethod
     def _add_served_directory(cls, config, relative_path, config_var):
@@ -349,6 +360,7 @@ content type, cookies, etc.
                 config[config_var] += ',' + absolute_path
             else:
                 config[config_var] = absolute_path
+        return absolute_path
 
     @classmethod
     def _add_resource(cls, path, name):
