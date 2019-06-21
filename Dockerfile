@@ -10,6 +10,10 @@ RUN apt-get -q -y update \
         python-pip \
         python-virtualenv \
         python-wheel \
+        python3-dev \
+        python3-pip \
+        python3-virtualenv \
+        python3-wheel \
         libpq-dev \
         libxml2-dev \
         libxslt-dev \

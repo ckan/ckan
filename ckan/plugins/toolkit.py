@@ -325,8 +325,19 @@ content type, cookies, etc.
 
         The path is relative to the file calling this function.
 
+        Webassets addition: append directory to webassets load paths
+        in order to correctly rewrite relative css paths and resolve
+        public urls.
+
         '''
-        cls._add_served_directory(config, relative_path, 'extra_public_paths')
+        import ckan.lib.helpers as h
+        from ckan.lib.webassets_tools import add_public_path
+        path = cls._add_served_directory(
+            config,
+            relative_path,
+            'extra_public_paths'
+        )
+        add_public_path(path, h.url_for_static('/'))
 
     @classmethod
     def _add_served_directory(cls, config, relative_path, config_var):
@@ -337,8 +348,10 @@ content type, cookies, etc.
         assert config_var in ('extra_template_paths', 'extra_public_paths')
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
-        frame, filename, line_number, function_name, lines, index =\
-            inspect.getouterframes(inspect.currentframe())[2]
+        # TODO: starting from python 3.5, `inspect.stack` returns list
+        # of named tuples `FrameInfo`. Don't forget to remove
+        # `getframeinfo` wrapper after migration.
+        filename = inspect.getframeinfo(inspect.stack()[2][0]).filename
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, relative_path)
@@ -347,40 +360,53 @@ content type, cookies, etc.
                 config[config_var] += ',' + absolute_path
             else:
                 config[config_var] = absolute_path
+        return absolute_path
 
     @classmethod
     def _add_resource(cls, path, name):
-        '''Add a Fanstatic resource library to CKAN.
+        '''Add a WebAssets library to CKAN.
 
-        Fanstatic libraries are directories containing static resource files
-        (e.g. CSS, JavaScript or image files) that can be accessed from CKAN.
+        WebAssets libraries are directories containing static resource
+        files (e.g. CSS, JavaScript or image files) that can be
+        compiled into WebAsset Bundles.
 
         See :doc:`/theming/index` for more details.
 
         '''
         import inspect
         import os
+        from ckan.lib.webassets_tools import create_library
 
-        # we want the filename that of the function caller but they will
-        # have used one of the available helper functions
-        frame, filename, line_number, function_name, lines, index =\
-            inspect.getouterframes(inspect.currentframe())[1]
+        # we want the filename that of the function caller but they
+        # will have used one of the available helper functions
+        # TODO: starting from python 3.5, `inspect.stack` returns list
+        # of named tuples `FrameInfo`. Don't forget to remove
+        # `getframeinfo` wrapper after migration.
+        filename = inspect.getframeinfo(inspect.stack()[1][0]).filename
 
         this_dir = os.path.dirname(filename)
         absolute_path = os.path.join(this_dir, path)
+        create_library(name, absolute_path)
+
+        # TODO: remove next two lines after dropping Fanstatic support
         import ckan.lib.fanstatic_resources
         ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
     def _add_ckan_admin_tabs(cls, config, route_name, tab_label,
-                             config_var='ckan.admin_tabs'):
+                             config_var='ckan.admin_tabs', icon=None):
         '''
         Update 'ckan.admin_tabs' dict the passed config dict.
         '''
         # get the admin_tabs dict from the config, or an empty dict.
         admin_tabs_dict = config.get(config_var, {})
         # update the admin_tabs dict with the new values
-        admin_tabs_dict.update({route_name: tab_label})
+        admin_tabs_dict.update({
+            route_name: {
+                'label': tab_label,
+                'icon': icon
+            }
+        })
         # update the config with the updated admin_tabs dict
         config.update({config_var: admin_tabs_dict})
 

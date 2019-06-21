@@ -402,56 +402,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         objects.'''
         return self.all_related_revisions[0][0]
 
-    def diff(self, to_revision=None, from_revision=None):
-        '''Overrides the diff in vdm, so that related obj revisions are
-        diffed as well as PackageRevisions'''
-        from tag import PackageTag
-        from resource import Resource
-        from package_extra import PackageExtra
-
-        results = {} # field_name:diffs
-        results.update(super(Package, self).diff(to_revision, from_revision))
-        # Iterate over PackageTag, Resources etc. (NB PackageExtra is not
-        # revisioned any more, so the diff is incomplete)
-        for obj_class in [Resource, PackageTag]:
-            obj_rev_class = obj_class.__revision_class__
-            # Query for object revisions related to this package
-            obj_rev_query = meta.Session.query(obj_rev_class).\
-                            filter_by(package_id=self.id).\
-                            join('revision').\
-                            order_by(core.Revision.timestamp.desc())
-            # Columns to include in the diff
-            cols_to_diff = obj_class.revisioned_fields()
-            cols_to_diff.remove('id')
-            if obj_class is Resource:
-                cols_to_diff.remove('package_id')
-            # Particular object types are better known by an invariant field
-            if obj_class is PackageTag:
-                cols_to_diff.remove('tag_id')
-            elif obj_class is PackageExtra:
-                cols_to_diff.remove('key')
-            # Iterate over each object ID
-            # e.g. for PackageTag, iterate over Tag objects
-            related_obj_ids = set([related_obj.id for related_obj in obj_rev_query.all()])
-            for related_obj_id in related_obj_ids:
-                q = obj_rev_query.filter(obj_rev_class.id==related_obj_id)
-                to_obj_rev, from_obj_rev = super(Package, self).\
-                    get_obj_revisions_to_diff(
-                    q, to_revision, from_revision)
-                for col in cols_to_diff:
-                    values = [getattr(obj_rev, col) if obj_rev else '' for obj_rev in (from_obj_rev, to_obj_rev)]
-                    value_diff = self._differ(*values)
-                    if value_diff:
-                        if obj_class.__name__ == 'PackageTag':
-                            display_id = to_obj_rev.tag.name
-                        elif obj_class.__name__ == 'PackageExtra':
-                            display_id = to_obj_rev.key
-                        else:
-                            display_id = related_obj_id[:4]
-                        key = '%s-%s-%s' % (obj_class.__name__, display_id, col)
-                        results[key] = value_diff
-        return results
-
     @property
     @maintain.deprecated('`is_private` attriute of model.Package is ' +
                          'deprecated and should not be used.  Use `private`')
@@ -528,10 +478,17 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 activity_type = 'deleted'
 
         try:
-            d = {'package': dictization.table_dictize(self,
-                context={'model': ckan.model})}
-            return activity.Activity(user_id, self.id, revision.id,
-                    "%s package" % activity_type, d)
+            # We save the entire rendered package dict so we can support
+            # viewing the past packages from the activity feed.
+            dictized_package = ckan.logic.get_action('package_show')({
+                'model': ckan.model,
+                'session': ckan.model.Session,
+                'for_view': False,  # avoid ckanext-multilingual translating it
+                'ignore_auth': True
+            }, {
+                'id': self.id,
+                'include_tracking': False
+            })
         except ckan.logic.NotFound:
             # This happens if this package is being purged and therefore has no
             # current revision.
@@ -539,20 +496,20 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             # is purged.
             return None
 
-    def activity_stream_detail(self, activity_id, activity_type):
-        import ckan.model
+        actor = meta.Session.query(ckan.model.User).get(user_id)
 
-        # Handle 'deleted' objects.
-        # When the user marks a package as deleted this comes through here as
-        # a 'changed' package activity. We detect this and change it to a
-        # 'deleted' activity.
-        if activity_type == 'changed' and self.state == u'deleted':
-            activity_type = 'deleted'
-
-        package_dict = dictization.table_dictize(self,
-                context={'model':ckan.model})
-        return activity.ActivityDetail(activity_id, self.id, u"Package", activity_type,
-            {'package': package_dict })
+        return activity.Activity(
+            user_id,
+            self.id,
+            revision.id,
+            "%s package" % activity_type,
+            {
+                'package': dictized_package,
+                # We keep the acting user name around so that actions can be
+                # properly displayed even if the user is deleted in the future.
+                'actor': actor.name if actor else None
+            }
+        )
 
     def set_rating(self, user_or_ip, rating):
         '''Record a user's rating of this package.
@@ -598,6 +555,19 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                             user_ip_address=ip,
                             rating=rating)
             meta.Session.add(rating)
+
+    @property
+    @maintain.deprecated()
+    def extras_list(self):
+        '''DEPRECATED in 2.9
+
+        Returns a list of the dataset's extras, as PackageExtra object
+        NB includes deleted ones too (state='deleted')
+        '''
+        from package_extra import PackageExtra
+        return meta.Session.query(PackageExtra) \
+            .filter_by(package_id=self.id) \
+            .all()
 
 
 class RatingValueException(Exception):

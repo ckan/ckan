@@ -61,10 +61,19 @@ class Activity(domain_object.DomainObject):
         else:
             self.data = data
 
+    @classmethod
+    def get(cls, id):
+        '''Returns an Activity object referenced by its id.'''
+        if not id:
+            return None
+
+        return meta.Session.query(cls).get(id)
+
 
 meta.mapper(Activity, activity_table)
 
 
+# deprecated
 class ActivityDetail(domain_object.DomainObject):
 
     def __init__(
@@ -105,7 +114,7 @@ def _activities_limit(q, limit, offset=None):
 
 def _activities_union_all(*qlist):
     '''
-    Return union of two or more queries sorted by timestamp,
+    Return union of two or more activity queries sorted by timestamp,
     and remove duplicates
     '''
     import ckan.model as model
@@ -208,12 +217,13 @@ def _group_activity_query(group_id):
     ).outerjoin(
         model.Package,
         and_(
-            model.Package.id == model.Member.table_id,
+            or_(model.Package.id == model.Member.table_id,
+                model.Package.owner_org == group_id),
             model.Package.private == False,
         )
     ).filter(
-        # We only care about activity either on the the group itself or on
-        # packages within that group.
+        # We only care about activity either on the group itself or on packages
+        # within that group.
         # FIXME: This means that activity that occured while a package belonged
         # to a group but was then removed will not show up. This may not be
         # desired but is consistent with legacy behaviour.

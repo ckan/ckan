@@ -123,7 +123,10 @@ def index():
 
 
 def me():
-    route = u'dashboard.index' if g.user else u'user.login'
+    if g.user:
+        route = config.get(u'ckan.route_after_login', u'dashboard.index')
+    else:
+        route = u'user.login'
     return h.redirect_to(route)
 
 
@@ -425,8 +428,12 @@ def delete(id):
     except logic.NotAuthorized:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
         base.abort(403, msg.format(user_id=id))
-    user_index = h.url_for(u'user.index')
-    return h.redirect_to(user_index)
+
+    if g.userobj.id == id:
+        return logout()
+    else:
+        user_index = h.url_for(u'user.index')
+        return h.redirect_to(user_index)
 
 
 def generate_apikey(id=None):

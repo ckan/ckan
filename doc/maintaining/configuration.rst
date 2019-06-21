@@ -629,6 +629,19 @@ Restricts anonymous access to user information. If is set to ``False`` accessing
     can just create an account to see other users details.
 
 
+.. _ckan.auth.public_activity_stream_detail:
+
+ckan.auth.public_activity_stream_detail
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.public_activity_stream_detail = true
+
+Default value: ``False`` (however the default config file template sets it to ``True``)
+
+Restricts access to 'view this version' and 'changes' in the Activity Stream pages. These links provide users with the full edit history of datasets etc - what they showed in the past and the diffs between versions. If this option is set to ``False`` then only admins (e.g. whoever can edit the dataset) can see this detail. If set to ``True``, anyone can see this detail (assuming they have permission to view the dataset etc).
+
 
 .. end_config-authorization
 
@@ -1417,15 +1430,8 @@ Example::
 Default value:  ``public``
 
 This config option is used to configure the base folder for static files used
-by CKAN core. It's used to determine which version of Bootstrap to be used.
-It accepts two values: ``public`` (Bootstrap 3, the default value from CKAN
-2.8 onwards) and ``public-bs2`` (Bootstrap 2, used until CKAN 2.7).
-
-It must be used in conjunction with :ref:`ckan.base_templates_folder` in order
-for it to properly function. Also, you can't use for example Bootstrap 3 for
-static files and Bootstrap 2 for templates or vice versa.
-
-.. note:: Starting with CKAN 2.8, Bootstrap 3 will be used as a default.
+by CKAN core. It is currently unused and it only accepts one value: ``public``
+(Bootstrap 3, the default value from CKAN 2.8 onwards).
 
 .. _ckan.base_templates_folder:
 
@@ -1439,15 +1445,8 @@ Example::
 Default value:  ``templates``
 
 This config option is used to configure the base folder for templates used
-by CKAN core. It's used to determine which version of Bootstrap to be used.
-It accepts two values: ``templates`` (Bootstrap 3, the default value from CKAN
-2.8 onwards) and ``templates-bs2`` (Bootstrap 2, used until CKAN 2.7).
-
-It must be used in conjunction with :ref:`ckan.base_public_folder` in order
-for it to properly function. Also, you can't use for example Bootstrap 3 for
-templates and Bootstrap 2 for static files or vice versa.
-
-.. note:: Starting with CKAN 2.8, Bootstrap 3 will be used as a default.
+by CKAN core. It is currently unused and it only accepts one vaue: ``templates``
+(Bootstrap 3, the default value from CKAN 2.8 onwards).
 
 .. end_config-theming
 

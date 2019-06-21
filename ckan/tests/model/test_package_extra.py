@@ -1,0 +1,78 @@
+# encoding: utf-8
+
+from nose.tools import assert_equal
+
+from ckan import model
+from ckan.tests import helpers, factories
+
+
+class TestPackage(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_create_extras(self):
+        model.repo.new_revision()
+
+        pkg = model.Package(name=u'test-package')
+
+        # method 1
+        extra1 = model.PackageExtra(key=u'subject', value=u'science')
+        pkg._extras[u'subject'] = extra1
+
+        # method 2
+        pkg.extras[u'accuracy'] = u'metre'
+
+        model.Session.add_all([pkg])
+        model.Session.commit()
+        model.Session.remove()
+
+        pkg = model.Package.by_name(u'test-package')
+        assert_equal(
+            pkg.extras,
+            {u'subject': u'science',
+             u'accuracy': u'metre'}
+        )
+
+    def test_delete_extras(self):
+
+        dataset = factories.Dataset(extras=[
+            {u'key': u'subject', u'value': u'science'},
+            {u'key': u'accuracy', u'value': u'metre'}]
+        )
+        pkg = model.Package.by_name(dataset['name'])
+
+        model.repo.new_revision()
+        del pkg.extras[u'subject']
+        model.Session.commit()
+        model.Session.remove()
+
+        pkg = model.Package.by_name(dataset['name'])
+        assert_equal(
+            pkg.extras,
+            {u'accuracy': u'metre'}
+        )
+
+    def test_extras_list(self):
+        extras = [
+            {u'key': u'subject', u'value': u'science'},
+            {u'key': u'accuracy', u'value': u'metre'},
+            {u'key': u'sample_years', u'value': u'2012-2013'},
+        ]
+        dataset = factories.Dataset(extras=extras)
+        # delete the 'subject' extra
+        extras = extras[1:]
+        helpers.call_action(u'package_patch', id=dataset['id'], extras=extras)
+        # unrelated extra, to check it doesn't affect things
+        factories.Dataset(extras=[{u'key': u'foo', u'value': u'bar'}])
+
+        pkg = model.Package.by_name(dataset['name'])
+        assert isinstance(pkg.extras_list[0], model.PackageExtra)
+        assert_equal(
+            set([(pe.package_id, pe.key, pe.value, pe.state)
+                 for pe in pkg.extras_list]),
+            set([(dataset['id'], u'subject', u'science', u'deleted'),
+                 (dataset['id'], u'accuracy', u'metre', u'active'),
+                 (dataset['id'], u'sample_years', u'2012-2013', u'active'),
+                 ])
+        )

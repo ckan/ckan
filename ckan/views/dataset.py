@@ -209,7 +209,7 @@ def search(package_type):
         extra_vars[u'fields_grouped'] = fields_grouped = {}
         search_extras = {}
         fq = u''
-        for (param, value) in request.args.items():
+        for (param, value) in request.args.items(multi=True):
             if param not in [u'q', u'page', u'sort'] \
                     and len(value) and not param.startswith(u'_'):
                 if not param.startswith(u'ext_'):
@@ -297,7 +297,6 @@ def search(package_type):
         )
         extra_vars[u'search_facets'] = query[u'search_facets']
         extra_vars[u'page'].items = query[u'results']
-
     except SearchQueryError as se:
         # User's search parameters are invalid, in such a way that is not
         # achievable with the web interface, so return a proper error to
@@ -319,7 +318,6 @@ def search(package_type):
 
     # FIXME: try to avoid using global variables
     g.search_facets_limits = {}
-
     for facet in extra_vars[u'search_facets'].keys():
         try:
             limit = int(
@@ -401,6 +399,7 @@ def read(package_type, id):
         u'auth_user_obj': g.userobj
     }
     data_dict = {u'id': id, u'include_tracking': True}
+    activity_id = request.params.get(u'activity_id')
 
     # check if package exists
     try:
@@ -411,12 +410,50 @@ def read(package_type, id):
 
     g.pkg_dict = pkg_dict
     g.pkg = pkg
+    # NB templates should not use g.pkg, because it takes no account of
+    # activity_id
+
+    if activity_id:
+        # view an 'old' version of the package, as recorded in the
+        # activity stream
+        try:
+            activity = get_action(u'activity_show')(
+                context, {u'id': activity_id, u'include_data': True})
+        except NotFound:
+            base.abort(404, _(u'Activity not found'))
+        except NotAuthorized:
+            base.abort(403, _(u'Unauthorized to view activity data'))
+        current_pkg = pkg_dict
+        try:
+            pkg_dict = activity[u'data'][u'package']
+        except KeyError:
+            base.abort(404, _(u'Dataset not found'))
+        if u'id' not in pkg_dict or u'resources' not in pkg_dict:
+            log.info(u'Attempt to view unmigrated or badly migrated dataset '
+                     '{} {}'.format(id, activity_id))
+            base.abort(404, _(u'The detail of this dataset activity is not '
+                              'available'))
+        if pkg_dict[u'id'] != current_pkg[u'id']:
+            log.info(u'Mismatch between pkg id in activity and URL {} {}'
+                     .format(pkg_dict[u'id'], current_pkg[u'id']))
+            # the activity is not for the package in the URL - don't allow
+            # misleading URLs as could be malicious
+            base.abort(404, _(u'Activity not found'))
+        # The name is used lots in the template for links, so fix it to be
+        # the current one. It's not displayed to the user anyway.
+        pkg_dict[u'name'] = current_pkg[u'name']
+
+        # Earlier versions of CKAN only stored the package table in the
+        # activity, so add a placeholder for resources, or the template
+        # will crash.
+        pkg_dict.setdefault(u'resources', [])
 
     # if the user specified a package id, redirect to the package name
     if data_dict['id'] == pkg_dict['id'] and \
             data_dict['id'] != pkg_dict['name']:
         return h.redirect_to(u'dataset.read',
-                             id=pkg_dict['name'])
+                             id=pkg_dict['name'],
+                             activity_id=activity_id)
 
     # can the resources be previewed?
     for resource in pkg_dict[u'resources']:
@@ -436,7 +473,9 @@ def read(package_type, id):
             template, {
                 u'dataset_type': package_type,
                 u'pkg_dict': pkg_dict,
-                u'pkg': pkg
+                u'pkg': pkg,  # NB deprecated - it is the current version of
+                              # the dataset, so ignores activity_id
+                u'is_activity_archive': bool(activity_id),
             }
         )
     except TemplateNotFound as e:
@@ -1038,102 +1077,42 @@ def activity(package_type, id):
     )
 
 
-def history(package_type, id):
-    if u'diff' in request.args or u'selected1' in request.args:
-        try:
-            params = {
-                u'id': request.args.getone(u'pkg_name'),
-                u'diff': request.args.getone(u'selected1'),
-                u'oldid': request.args.getone(u'selected2'),
-            }
-        except KeyError:
-            if u'pkg_name' in dict(request.args):
-                id = request.args.getone(u'pkg_name')
-            g.error = \
-                _(u'Select two revisions before doing the comparison.')
-        else:
-            params[u'diff_entity'] = u'package'
-            return h.redirect_to(
-                controller=u'revision', action=u'diff', **params
-            )
-
+def changes(id, package_type=None):
+    '''
+    Shows the changes to a dataset in one particular activity stream item.
+    '''
+    activity_id = id
     context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
-        u'for_view': True
+        u'model': model, u'session': model.Session,
+        u'user': g.user, u'auth_user_obj': g.userobj
     }
-    data_dict = {u'id': id}
     try:
-        g.pkg_dict = get_action(u'package_show')(context, data_dict)
-        g.pkg_revisions = get_action(u'package_revision_list')(
-            context, data_dict
-        )
-        # TODO: remove
-        # Still necessary for the authz check in group/layout.html
-        g.pkg = context[u'package']
-
+        activity_diff = get_action(u'activity_diff')(
+            context, {u'id': activity_id, u'object_type': u'package',
+                      u'diff_type': u'html'})
+    except NotFound as e:
+        log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
+        return base.abort(404, _(u'Activity not found'))
     except NotAuthorized:
-        return base.abort(403, _(u'Unauthorized to read package %s') % u'')
-    except NotFound:
-        return base.abort(404, _(u'Dataset not found'))
+        return base.abort(403, _(u'Unauthorized to view activity data'))
 
-    format = request.args.get(u'format', u'')
-    if format == u'atom':
-        # Generate and return Atom 1.0 document.
-        from webhelpers.feedgenerator import Atom1Feed
-        feed = Atom1Feed(
-            title=_(u'CKAN Dataset Revision History'),
-            link=h.url_for(
-                controller=u'revision', action=u'read', id=g.pkg_dict[u'name']
-            ),
-            description=_(u'Recent changes to CKAN Dataset: ') +
-            (g.pkg_dict[u'title'] or u''),
-            language=text_type(i18n.get_lang()),
-        )
-        for revision_dict in g.pkg_revisions:
-            revision_date = h.date_str_to_datetime(revision_dict[u'timestamp'])
-            try:
-                dayHorizon = int(request.args.get(u'days'))
-            except Exception:
-                dayHorizon = 30
-            dayAge = (datetime.datetime.now() - revision_date).days
-            if dayAge >= dayHorizon:
-                break
-            if revision_dict[u'message']:
-                item_title = u'%s' % revision_dict[u'message'].\
-                    split(u'\n')[0]
-            else:
-                item_title = u'%s' % revision_dict[u'id']
-            item_link = h.url_for(
-                controller=u'revision',
-                action=u'read',
-                id=revision_dict[u'id']
-            )
-            item_description = _(u'Log message: ')
-            item_description += u'%s' % (revision_dict[u'message'] or u'')
-            item_author_name = revision_dict[u'author']
-            item_pubdate = revision_date
-            feed.add_item(
-                title=item_title,
-                link=item_link,
-                description=item_description,
-                author_name=item_author_name,
-                pubdate=item_pubdate,
-            )
-        response = make_response(feed.writeString(u'utf-8'))
-        response.headers[u'Content-Type'] = u'application/atom+xml'
-        return response
-
-    package_type = g.pkg_dict[u'type'] or u'dataset'
+    # 'pkg_dict' needs to go to the templates for page title & breadcrumbs.
+    # Use the current version of the package, in case the name/title have
+    # changed, and we need a link to it which works
+    pkg_id = activity_diff[u'activities'][1][u'data'][u'package'][u'id']
+    current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
 
     return base.render(
-        _get_pkg_template(
-            u'history_template', g.pkg_dict.get(u'type', package_type)
-        ),
-        extra_vars={u'dataset_type': package_type}
+        u'package/changes.html', {
+            u'activity_diff': activity_diff,
+            u'pkg_dict': current_pkg_dict,
+        }
     )
+
+
+# deprecated
+def history(package_type, id):
+    return h.redirect_to(u'dataset.activity', id=id)
 
 
 def register_dataset_plugin_rules(blueprint):
@@ -1158,6 +1137,7 @@ def register_dataset_plugin_rules(blueprint):
         u'/groups/<id>', view_func=GroupView.as_view(str(u'groups'))
     )
     blueprint.add_url_rule(u'/activity/<id>', view_func=activity)
+    blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
 
     # Duplicate resource create and edit for backward compatibility. Note,
