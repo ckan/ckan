@@ -6967,10 +6967,10 @@ a.tag:hover {
 .module-content .add-to-group .btn-primary {
   margin-bottom: 30px;
 }
-.module:first-child .module-heading {
+/*.module:first-child .module-heading {
   border-radius: 3px 0 0 0;
   border-top-width: 0;
-}
+}*/
 .module-footer {
   padding: 7px 25px 7px;
   margin: 0;
