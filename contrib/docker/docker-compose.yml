@@ -75,6 +75,11 @@ services:
 
       - HOME=/usr/lib/ckan
 
+      # a.s.
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION = ${AWS_REGION}
+
     volumes:
       # - ckan_config:/etc/ckan
       # - ckan_home:/usr/lib/ckan
@@ -95,8 +100,8 @@ services:
     logging:
       driver: "awslogs"
       options:
-        awslogs-region: "us-east-1"
-        awslogs-group: "avindata_web"
+        awslogs-region: us-east-1
+        awslogs-group: "avindata_all_env_web"
         awslogs-stream: "docker"
 
   datapusher:

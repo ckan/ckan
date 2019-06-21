@@ -152,7 +152,11 @@ CONFIG_FROM_ENV_VARS = {
     'smtp.user': 'CKAN_SMTP_USER',
     'smtp.password': 'CKAN_SMTP_PASSWORD',
     'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM',
-    'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB'
+    'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB',
+    'AWS_ACCESS_KEY_ID': 'AWS_ACCESS_KEY_ID',
+    'AWS_SECRET_ACCESS_KEY': 'AWS_SECRET_ACCESS_KEY',
+    'AWS_REGION': 'AWS_REGION'
+
 }
 # End CONFIG_FROM_ENV_VARS
 
