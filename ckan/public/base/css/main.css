@@ -9155,69 +9155,183 @@ h4 small {
   background: url("../../../base/images/sprite-resource-icons.png") no-repeat 0 0;
 }
 .format-label {
-  width: 32px;
-  height: 35px;
-  background-position: 0px -62px;
-}
-.format-label[data-format=rdf],
-.format-label[data-format*=rdf] {
-  width: 32px;
-  height: 35px;
-  background-position: -32px -62px;
-}
-.format-label[data-format=pdf],
-.format-label[data-format*=pdf] {
-  width: 32px;
-  height: 35px;
-  background-position: -64px -62px;
-}
-.format-label[data-format=api],
-.format-label[data-format*=api] {
-  width: 32px;
-  height: 35px;
-  background-position: -96px -62px;
-}
-.format-label[data-format=zip],
-.format-label[data-format*=zip] {
-  width: 32px;
-  height: 35px;
-  background-position: -128px -62px;
-}
-.format-label[data-format=xls],
-.format-label[data-format*=xls] {
-  width: 32px;
-  height: 35px;
-  background-position: -160px -62px;
-}
-.format-label[data-format=csv],
-.format-label[data-format*=csv] {
-  width: 32px;
-  height: 35px;
-  background-position: -192px -62px;
-}
-.format-label[data-format=txt],
-.format-label[data-format*=txt] {
-  width: 32px;
-  height: 35px;
-  background-position: -224px -62px;
-}
-.format-label[data-format=xml],
-.format-label[data-format*=xml] {
-  width: 32px;
-  height: 35px;
-  background-position: -256px -62px;
-}
-.format-label[data-format=json],
-.format-label[data-format*=json] {
-  width: 32px;
-  height: 35px;
-  background-position: -288px -62px;
+  width: 60px;
+  height: 65px;
+  background-position: -1720px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
 }
 .format-label[data-format=html],
 .format-label[data-format*=html] {
-  width: 32px;
-  height: 35px;
-  background-position: -320px -62px;
+  width: 60px;
+  height: 65px;
+  background-position: -120px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=json],
+.format-label[data-format*=json] {
+  width: 60px;
+  height: 65px;
+  background-position: -220px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=xml],
+.format-label[data-format*=xml] {
+  width: 60px;
+  height: 65px;
+  background-position: -320px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=txt],
+.format-label[data-format*=txt] {
+  width: 60px;
+  height: 65px;
+  background-position: -420px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=doc],
+.format-label[data-format*=doc],
+.format-label[data-format=docx],
+.format-label[data-format*=docx] {
+  width: 60px;
+  height: 65px;
+  background-position: -520px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=odt],
+.format-label[data-format*=odt] {
+  width: 60px;
+  height: 65px;
+  background-position: -620px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=csv],
+.format-label[data-format*=csv] {
+  width: 60px;
+  height: 65px;
+  background-position: -720px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=xls],
+.format-label[data-format*=xls] {
+  width: 60px;
+  height: 65px;
+  background-position: -820px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=zip],
+.format-label[data-format*=zip] {
+  width: 60px;
+  height: 65px;
+  background-position: -920px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=api],
+.format-label[data-format*=api] {
+  width: 60px;
+  height: 65px;
+  background-position: -1020px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=pdf],
+.format-label[data-format*=pdf] {
+  width: 60px;
+  height: 65px;
+  background-position: -1120px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=rdf],
+.format-label[data-format*=rdf] {
+  width: 60px;
+  height: 65px;
+  background-position: -1220px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=wms],
+.format-label[data-format*=wms] {
+  width: 60px;
+  height: 65px;
+  background-position: -1320px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=png],
+.format-label[data-format*=png] {
+  width: 60px;
+  height: 65px;
+  background-position: -1420px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=jpg],
+.format-label[data-format*=jpg],
+.format-label[data-format=jpeg],
+.format-label[data-format*=jpeg] {
+  width: 60px;
+  height: 65px;
+  background-position: -1520px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=gif],
+.format-label[data-format*=gif] {
+  width: 60px;
+  height: 65px;
+  background-position: -1620px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=wfs],
+.format-label[data-format*=wfs] {
+  width: 60px;
+  height: 65px;
+  background-position: -1820px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=gml],
+.format-label[data-format*=gml] {
+  width: 60px;
+  height: 65px;
+  background-position: -1920px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=wmts],
+.format-label[data-format*=wmts] {
+  width: 60px;
+  height: 65px;
+  background-position: -2020px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=kml],
+.format-label[data-format*=kml] {
+  width: 60px;
+  height: 65px;
+  background-position: -2120px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+.format-label[data-format=geo],
+.format-label[data-format*=geo] {
+  width: 60px;
+  height: 65px;
+  background-position: -2220px -220px;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
 }
 [class^="icon-"],
 [class*=" icon-"] {
@@ -10681,7 +10795,7 @@ iframe {
   border: none;
 }
 .embedded-content h1 {
-  font-size: 1.4em;
+  font-size: 1.8em;
 }
 .embedded-content h2 {
   font-size: 1.4em;
