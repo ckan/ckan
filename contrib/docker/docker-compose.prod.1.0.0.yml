@@ -99,19 +99,19 @@ services:
       # - ../..:/usr/lib/ckan/venv/src/ckan
       # - ckan_home:/usr/lib/ckan
 
-    logging:
-        driver: "json-file"
-        options:
-           max-size: "20m"
-           max-file: "5"
-
     # logging:
-    #   driver: awslogs
-    #   options:
-    #     awslogs-region: ${AWS_REGION}
-    #     awslogs-group: ${AWS_CKAN_GROUP}
-    #     awslogs-stream: ${AWS_CKAN_STREAM}
-    #     awslogs-create-group: 'true'
+    #     driver: "json-file"
+    #     options:
+    #        max-size: "20m"
+    #        max-file: "5"
+
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: ${AWS_CKAN_GROUP}
+        awslogs-stream: ${AWS_CKAN_STREAM}
+        awslogs-create-group: 'true'
 
   datapusher:
     container_name: datapusher
