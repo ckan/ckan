@@ -162,6 +162,35 @@ class TrashView(MethodView):
             if u'purge-packages' in request.form:
                 revs_to_purge = []
                 for pkg in self.deleted_packages:
+                    p1=pkg.id
+                    pkg_dict = _get_action('package_show')(context, {'id': p1})
+                    pkg_res = pkg_dict['resources']
+                    count = 0
+                    res = len(pkg_res)
+                    while(count < res):
+                      data['id'] = pkg_res[0]['id']
+                    
+                      for plugin in plugins.PluginImplementations(plugins.IResourceController):
+                        plugin.before_delete(context,data,pkg_dict.get('resources', []))
+                        
+                      pkg_dict = _get_action('package_show')(context, {'id': p1})
+
+                      if pkg_dict.get('resources'):
+                         pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not r['id'] == data['id']]
+
+                      try:
+                         pkg_dict = _get_action('package_update')(context, pkg_dict)
+                      except ValidationError as e:
+                         errors = e.error_dict['resources'][-1]
+                         raise ValidationError(errors)
+
+                      for plugin in plugins.PluginImplementations(plugins.IResourceController):
+                         plugin.after_delete(context, pkg_dict.get('resources', []))
+
+                      count = count + 1
+                      pkg_res= pkg_dict['resources']
+                      model.repo.commit()
+                    
                     revisions = [x[0] for x in pkg.all_related_revisions]
                     # ensure no accidental purging of other(non-deleted)
                     # packages initially just avoided purging revisions
