@@ -20,7 +20,9 @@ class TestTrashPView(helpers.FunctionalTestBase):
         user = factories.Sysadmin()
 
         dataset = factories.Dataset(state='deleted')
-		resource = factories.Resource(package_id=dataset['id'], format='csv', url="http://example.com/x.csv")
+		resource = factories.Resource(package_id=dataset['id'],
+                                      format='csv',
+                                      url="http://example.com/x.csv")
         app = self._get_test_app()
 
         resource_before_purge = model.Session.query(model.Resource).count()
@@ -52,8 +54,12 @@ class TestTrashPView(helpers.FunctionalTestBase):
         user = factories.Sysadmin()
              
         dataset = factories.Dataset(state='deleted')
-        resource1  = factories.Resource(package_id=dataset['id'], format='csv', url="http://example.com/x.csv")
-        resource2  = factories.Resource(package_id=dataset['id'], format='csv', url="http://example.com/x.csv")
+        resource1  = factories.Resource(package_id=dataset['id'],
+                                        format='csv',
+                                        url="http://example.com/x.csv")
+        resource2  = factories.Resource(package_id=dataset['id'],
+                                        format='csv',
+                                        url="http://example.com/x.csv")
 		app = self._get_test_app()
 		
         
