@@ -20,9 +20,9 @@ class TestTrashPView(helpers.FunctionalTestBase):
         user = factories.Sysadmin()
 
         dataset = factories.Dataset(state='deleted')
-		resource = factories.Resource(package_id=dataset['id'],
-                                      format='csv',
-                                      url="http://example.com/x.csv")
+	resource = factories.Resource(package_id = dataset['id'],
+                                  format = 'csv',
+                                  url = "http://example.com/x.csv")
         app = self._get_test_app()
 
         resource_before_purge = model.Session.query(model.Resource).count()
@@ -41,12 +41,10 @@ class TestTrashPView(helpers.FunctionalTestBase):
         # redirected back to trash page
         assert_true('Purge complete' in purge_response)
 
-		resource_after_purge = model.Session.query(model.Resource).count()
+	resource_after_purge = model.Session.query(model.Resource).count()
         # how many datasets after purge
         #pkgs_before_purge = model.Session.query(model.Resource).count()
         assert_equal(resource_after_purge, 0)
-
-
 
      def test_trash_purge_delete_two_datasets(self):
         '''Posting the trash view with 'deleted' datasets, purges the
@@ -54,15 +52,14 @@ class TestTrashPView(helpers.FunctionalTestBase):
         user = factories.Sysadmin()
              
         dataset = factories.Dataset(state='deleted')
-        resource1  = factories.Resource(package_id=dataset['id'],
-                                        format='csv',
-                                        url="http://example.com/x.csv")
-        resource2  = factories.Resource(package_id=dataset['id'],
-                                        format='csv',
-                                        url="http://example.com/x.csv")
+        resource1  = factories.Resource(package_id = dataset['id'],
+                                        format = 'csv',
+                                        url = "http://example.com/x.csv")
+        resource2  = factories.Resource(package_id = dataset['id'],
+                                        format = 'csv',
+                                        url = "http://example.com/x.csv")
 		app = self._get_test_app()
-		
-        
+		       
         resource_before_purge = model.Session.query(model.Resource).count()
         assert_equal(resource_before_purge, 2)
 
@@ -80,5 +77,4 @@ class TestTrashPView(helpers.FunctionalTestBase):
 
         resource_after_purge = model.Session.query(model.Resource).count()
         assert_equal(resource_after_purge, 0)
-
-
+        
