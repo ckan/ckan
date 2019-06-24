@@ -12,11 +12,15 @@ import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
+import ckan.plugins as plugins
 from ckan.common import g, _, config, request
 
 log = logging.getLogger(__name__)
 
 admin = Blueprint(u'admin', __name__, url_prefix=u'/ckan-admin')
+
+_get_or_bust = logic.get_or_bust
+_get_action = logic.get_action
 
 
 def _get_sysadmins():
@@ -156,7 +160,9 @@ class TrashView(MethodView):
         # but has to be done to avoid (odd) sqlalchemy errors (when doing
         # purge packages) of form: "this object already exists in the
         # session"
+        context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
         msgs = []
+        data={}
         if (u'purge-packages' in request.form) or (
                 u'purge-revisions' in request.form):
             if u'purge-packages' in request.form:
