@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 
 admin = Blueprint(u'admin', __name__, url_prefix=u'/ckan-admin')
 
+ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 _get_action = logic.get_action
 
