@@ -18,6 +18,10 @@
 @formatMediumY: 35px;
 @formatMediumOffsetX: -@formatMediumX;
 @formatMediumOffsetY: -62px;
+@resourceIconX: 60px;
+@resourceIconY: 65px;
+@resourceIconOffsetX: -20px;
+@resourceIconOffsetY: -220px;
 .ckan-icon {
     //.ie7-restore-right-whitespace;
     display: inline-block;
@@ -40,6 +44,19 @@
     width: @@w;
     height: @@h;
     background-position: (@@x * @offset) @@y;
+}
+
+.ckan-resource-icon-bg-pos(@offset,
+@size) {
+  @w: "@{size}X";
+  @h: "@{size}Y";
+  @x: "@{size}OffsetX";
+  @y: "@{size}OffsetY";
+  width: @@w;
+  height: @@h;
+  background-position: (@@x + -100*@offset) @@y;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
 }
 
 // SMALL
@@ -230,68 +247,138 @@
 }
 
 .format-label {
-    .ckan-icon-background-position(0,
-    "formatMedium");
-}
-
-.format-label[data-format=rdf],
-.format-label[data-format*=rdf] {
-    .ckan-icon-background-position(1,
-    "formatMedium");
-}
-
-.format-label[data-format=pdf],
-.format-label[data-format*=pdf] {
-    .ckan-icon-background-position(2,
-    "formatMedium");
-}
-
-.format-label[data-format=api],
-.format-label[data-format*=api] {
-    .ckan-icon-background-position(3,
-    "formatMedium");
-}
-
-.format-label[data-format=zip],
-.format-label[data-format*=zip] {
-    .ckan-icon-background-position(4,
-    "formatMedium");
-}
-
-.format-label[data-format=xls],
-.format-label[data-format*=xls] {
-    .ckan-icon-background-position(5,
-    "formatMedium");
-}
-
-.format-label[data-format=csv],
-.format-label[data-format*=csv] {
-    .ckan-icon-background-position(6,
-    "formatMedium");
-}
-
-.format-label[data-format=txt],
-.format-label[data-format*=txt] {
-    .ckan-icon-background-position(7,
-    "formatMedium");
-}
-
-.format-label[data-format=xml],
-.format-label[data-format*=xml] {
-    .ckan-icon-background-position(8,
-    "formatMedium");
-}
-
-.format-label[data-format=json],
-.format-label[data-format*=json] {
-    .ckan-icon-background-position(9,
-    "formatMedium");
+    .ckan-resource-icon-bg-pos(17,
+    "resourceIcon");
 }
 
 .format-label[data-format=html],
 .format-label[data-format*=html] {
-    .ckan-icon-background-position(10,
-    "formatMedium");
+    .ckan-resource-icon-bg-pos(1,
+    "resourceIcon");
+}
+
+.format-label[data-format=json],
+.format-label[data-format*=json] {
+    .ckan-resource-icon-bg-pos(2,
+    "resourceIcon");
+}
+
+.format-label[data-format=xml],
+.format-label[data-format*=xml] {
+    .ckan-resource-icon-bg-pos(3,
+    "resourceIcon");
+}
+
+.format-label[data-format=txt],
+.format-label[data-format*=txt] {
+    .ckan-resource-icon-bg-pos(4,
+    "resourceIcon");
+}
+
+.format-label[data-format=doc],
+.format-label[data-format*=doc],
+.format-label[data-format=docx],
+.format-label[data-format*=docx] {
+    .ckan-resource-icon-bg-pos(5,
+    "resourceIcon");
+}
+
+.format-label[data-format=odt],
+.format-label[data-format*=odt] {
+    .ckan-resource-icon-bg-pos(6,
+    "resourceIcon");
+}
+
+.format-label[data-format=csv],
+.format-label[data-format*=csv] {
+    .ckan-resource-icon-bg-pos(7,
+    "resourceIcon");
+}
+
+.format-label[data-format=xls],
+.format-label[data-format*=xls] {
+    .ckan-resource-icon-bg-pos(8,
+    "resourceIcon");
+}
+
+.format-label[data-format=zip],
+.format-label[data-format*=zip] {
+    .ckan-resource-icon-bg-pos(9,
+    "resourceIcon");
+}
+
+.format-label[data-format=api],
+.format-label[data-format*=api] {
+    .ckan-resource-icon-bg-pos(10,
+    "resourceIcon");
+}
+
+.format-label[data-format=pdf],
+.format-label[data-format*=pdf] {
+    .ckan-resource-icon-bg-pos(11,
+    "resourceIcon");
+}
+
+.format-label[data-format=rdf],
+.format-label[data-format*=rdf] {
+    .ckan-resource-icon-bg-pos(12,
+    "resourceIcon");
+}
+
+.format-label[data-format=wms],
+.format-label[data-format*=wms] {
+    .ckan-resource-icon-bg-pos(13,
+    "resourceIcon");
+}
+
+.format-label[data-format=png],
+.format-label[data-format*=png] {
+    .ckan-resource-icon-bg-pos(14,
+    "resourceIcon");
+}
+
+.format-label[data-format=jpg],
+.format-label[data-format*=jpg],
+.format-label[data-format=jpeg],
+.format-label[data-format*=jpeg] {
+    .ckan-resource-icon-bg-pos(15,
+    "resourceIcon");
+}
+
+.format-label[data-format=gif],
+.format-label[data-format*=gif] {
+    .ckan-resource-icon-bg-pos(16,
+    "resourceIcon");
+}
+
+.format-label[data-format=wfs],
+.format-label[data-format*=wfs] {
+    .ckan-resource-icon-bg-pos(18,
+    "resourceIcon");
+}
+
+.format-label[data-format=gml],
+.format-label[data-format*=gml] {
+    .ckan-resource-icon-bg-pos(19,
+    "resourceIcon");
+}
+
+.format-label[data-format=wmts],
+.format-label[data-format*=wmts] {
+    .ckan-resource-icon-bg-pos(20,
+    "resourceIcon");
+}
+
+.format-label[data-format=kml],
+.format-label[data-format*=kml] {
+    .ckan-resource-icon-bg-pos(21,
+    "resourceIcon");
+}
+
+.format-label[data-format=geo],
+.format-label[data-format*=geo] {
+    .ckan-resource-icon-bg-pos(22,
+    "resourceIcon");
 }
 
 [class^="icon-"],
