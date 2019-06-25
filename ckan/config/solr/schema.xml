@@ -119,12 +119,14 @@ schema. In this case the version should be set to the next CKAN version number.
     <field name="maintainer_email" type="textgen" indexed="true" stored="true" />
 
     <!-- a.s. extra fields OCE -->
+<!--
     <field name="associated_tasks" type="textgen" indexed="true" stored="true" />
     <field name="collection_period" type="textgen" indexed="true" stored="true" />
     <field name="geographical_area" type="textgen" indexed="true" stored="true" />
     <field name="number_of_instances" type="textgen" indexed="true" stored="true" />
     <field name="number_of_missing_values" type="textgen" indexed="true" stored="true" />
-    <field name="pkg_description" type="textgen" indexed="true" stored="true" />
+    <field name="pkg_description" type="textgen" indexed="true" stored="true" /> -->
+
     <!-- a.s. -->
 
     <field name="license" type="string" indexed="true" stored="true" />
