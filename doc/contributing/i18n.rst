@@ -4,7 +4,7 @@ Translating CKAN
 
 CKAN is used in many countries, and adding a new language to the web interface is a simple process. 
 
-CKAN uses the url to determine which language is used. An example would be ``/fr/dataset`` would be shown in french.  If CKAN is running under a directory then an example would be ``/root/fr/dataset``.  For custom paths check the :ref:`ckan.root_path` config option.
+CKAN uses the url to determine which language is used. An example would be ``/fr/dataset`` would be shown in French.  If CKAN is running under a directory then an example would be ``/root/fr/dataset``.  For custom paths check the :ref:`ckan.root_path` config option.
 
 .. seealso::
 
@@ -59,7 +59,7 @@ When leading up to a CKAN release, the strings are loaded onto Transifex and cka
 Transifex administration
 ------------------------
 
-The Transifex workflow is described in the :doc:`release-process`
+The Transifex workflow is described in the :doc:`release-process` page.
 
 
 .. _i18n-manual:
@@ -76,7 +76,7 @@ All the English strings in CKAN are extracted into the ``ckan.pot`` file, which 
 1. Preparation
 --------------
 
-This tutorial assumes you've got ckan installed as source in a virtualenv. Activate the virtualenv and cd to the ckan directory:
+This tutorial assumes you've got CKAN installed as source in a virtualenv. Activate the virtualenv and cd to the ckan directory:
 
    .. parsed-literal::
 
@@ -90,10 +90,10 @@ You need Python's ``babel`` library (Debian package ``python-pybabel``). Install
 
  pip install --upgrade Babel
 
-3. Create a 'po' file for your language
+3. Create a 'PO' file for your language
 ---------------------------------------
 
-Then create a translation file for your language (a po file) using the pot file (containing all the English strings)::
+Then create a translation file for your language (a PO file) using the pot file (containing all the English strings)::
 
  python setup.py init_catalog --locale YOUR_LANGUAGE
 
@@ -118,7 +118,7 @@ When the po is complete, create a branch in your source, then commit it to your 
  git add ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
  git commit -m '[i18n]: New language po added: YOUR_LANGUAGE' ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
 
-NB it is not appropriate to do a Pull Request to the main ckan repo, since that takes its translations from Transifex.
+NB: It is not appropriate to do a Pull Request to the main ckan repo, since that takes its translations from Transifex.
 
 4. Compile a translation
 ------------------------
@@ -166,11 +166,11 @@ managing translations:
 
 * About 3 weeks before a CKAN release, CKAN is branched, and the English
   strings are frozen, and an announcement is made on ckan-dev to call for
-  translation work. They are given 2 weeks to translate any new strings in this
+  translation work. Translators are given 2 weeks to translate any new strings in this
   release.
 
 * During this period, translation is done on a 'resource' on Transifex which is
   named to match the new CKAN version. It has been created as a copy of the
-  next most recent resource, so any new languages create or other updates done
-  on Transifex since the last release automatically go into the new release.
+  next most recent resource, so any new languages creation or other updates (done
+  on Transifex since the last release) automatically go into the new release.
 
