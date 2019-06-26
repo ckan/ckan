@@ -398,7 +398,9 @@ def _url_for_pylons(*args, **kw):
 
     # We need to provide protocol and host to get full URLs, get them from
     # ckan.site_url
-    if kw.get('qualified', False) or kw.get('_external', False):
+    if kw.pop('_external', None):
+        kw['qualified'] = True
+    if kw.get('qualified'):
         kw['protocol'], kw['host'] = get_site_protocol_and_host()
 
     # The Pylons API routes require a slask on the version number for some
