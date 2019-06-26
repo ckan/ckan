@@ -314,6 +314,23 @@ class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
 
         p.unload('test_routing_plugin')
 
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_pylons_request_external(self):
+
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+
+
+        url = 'http://example.com/from_pylons_extension_before_map'
+        generated_url = h.url_for(
+            controller='ckan.tests.config.test_middleware:MockPylonsController',
+            action='view',
+           _external=True,
+        )
+        eq_(generated_url, url)
+
+        p.unload('test_routing_plugin')
+
 
 class TestHelpersRenderMarkdown(object):
 
