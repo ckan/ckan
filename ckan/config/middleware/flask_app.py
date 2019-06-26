@@ -207,6 +207,10 @@ def ckan_after_request(response):
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
 
+    # Default to cache-control private if it was not set
+    if response.cache_control.private is None:
+        response.cache_control.private = True
+
     return response
 
 
