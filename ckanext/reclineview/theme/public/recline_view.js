@@ -8,7 +8,8 @@ this.ckan.module('recline_view', function (jQuery, _) {
         previewNotAvailableForDataType: "View not available for data type: "
       },
       site_url: "",
-      controlsClassName: "controls"
+      controlsClassName: "controls",
+      dataproxyUrl: "//jsonpdataproxy.appspot.com"
     },
 
     initialize: function () {
@@ -50,6 +51,9 @@ this.ckan.module('recline_view', function (jQuery, _) {
 
       if (!resourceData.datastore_active) {
           recline.Backend.DataProxy.timeout = 10000;
+
+          recline.Backend.DataProxy.dataproxy_url = this.options.dataproxyUrl;
+
           resourceData.backend =  'dataproxy';
       } else {
           resourceData.backend =  'ckan';
