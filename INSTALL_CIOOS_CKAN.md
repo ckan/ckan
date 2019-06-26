@@ -576,6 +576,8 @@ update submodules
 ```bash
 cd ~/ckan
 git pull
+git submodule init
+git submodule sync
 git submodule update
 ```
 
@@ -590,6 +592,8 @@ sudo cp -r src/pycsw/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-doi/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-scheming/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-package_converter/ $VOL_CKAN_HOME/venv/src/
+sudo cp -r src/ckanext_fluent/ $VOL_CKAN_HOME/venv/src/
+sudo cp src/cioos-siooc-schema/cioos-siooc_schema.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/cioos_siooc_schema.json
 ```
 
 update permissions
