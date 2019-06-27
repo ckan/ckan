@@ -7015,7 +7015,7 @@ a.tag:hover {
   list-style: none;
   min-height: 205px;
   padding-top: 15px;
-  background: #fbfbfb url("../../../base/images/bg.png");
+  background: #fbfbfb;
   border: 1px solid #ddd;
   border-width: 1px 0;
 }
@@ -7171,7 +7171,7 @@ a.tag:hover {
   list-style: none;
   min-height: 205px;
   padding-top: 15px;
-  background: #fbfbfb url("../../../base/images/bg.png");
+  background: #fbfbfb;
   border: 1px solid #ddd;
   border-width: 1px 0;
 }
