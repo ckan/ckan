@@ -9705,7 +9705,7 @@ h4 small {
 .account-masthead .account ul li {
   display: block;
   float: left;
-  border-left: 1px solid #00232e;
+  border-left: 1px solid #eee;
 }
 .account-masthead .account ul li a {
   display: block;
