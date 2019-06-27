@@ -31,6 +31,7 @@ Fixes:
 * Fix reCaptcha (`#4732 <https://github.com/ckan/ckan/issues/4732>`_)
 * Fix incremented follower-counter (`#4767 <https://github.com/ckan/ckan/issues/4767>`_)
 * Fix breadcrumb on /datasets (`#4405 <https://github.com/ckan/ckan/issues/4405>`_)
+* Fix `root_path` when using mod_wsgi (`#4452 <https://github.com/ckan/ckan/issues/4452>`_)
 * Correctly insert root_path for urls generated with _external flag (`#4722 <https://github.com/ckan/ckan/issues/4722>`_)
 * Make reorder resources button translatable (`#4838 <https://github.com/ckan/ckan/issues/4838>`_)
 
