@@ -86,7 +86,7 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_REGION=${AWS_REGION}
-      - AWS_GROUP=${AWS_GROUP}
+      - AWS_CKAN_GROUP=${AWS_CKAN_GROUP}
 
     volumes:
       # - ckan_config:/etc/ckan
