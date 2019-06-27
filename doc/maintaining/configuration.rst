@@ -1444,8 +1444,8 @@ the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
 
 .. _ckan.datapusher.callback_url_base:
 
-ckan.datapusher.url
-^^^^^^^^^^^^^^^^^^^
+ckan.datapusher.callback_url_base
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
