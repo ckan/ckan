@@ -404,9 +404,10 @@ def resource_create(context, data_dict):
     recipient['display_name'] = os.environ['oce_email_distribution_group']
     recipient['email'] = os.environ['oce_email_distribution_group']
 
-    if _mail_recipient(recipient, email_dict):
-        log.info(
-            'create.py.resource_create: a.s. - email to OCE distribution group sent')
+    # a.s. disable to test a delay
+    # if _mail_recipient(recipient, email_dict):
+    #     log.info(
+    #         'create.py.resource_create: a.s. - email to OCE distribution group sent')
 
     return resource
 
