@@ -1524,6 +1524,22 @@ running on port 8800. If you want to manually install the DataPusher, follow
 the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
 
 
+.. _ckan.datapusher.callback_url_base:
+
+ckan.datapusher.callback_url_base
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.datapusher.callback_url_base = http://ckan:5000/
+
+Default value: Value of ``ckan.site_url``
+
+Alternative callback URL for DataPusher when performing a request to CKAN. This is
+useful on scenarios where the host where DataPusher is running can not access the
+public CKAN site URL.
+
+
 .. _ckan.datapusher.assume_task_stale_after:
 
 ckan.datapusher.assume_task_stale_after
