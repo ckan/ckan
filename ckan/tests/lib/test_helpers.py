@@ -327,12 +327,11 @@ class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
         if not p.plugin_loaded('test_routing_plugin'):
             p.load('test_routing_plugin')
 
-
         url = 'http://example.com/from_pylons_extension_before_map'
         generated_url = h.url_for(
             controller='ckan.tests.config.test_middleware:MockPylonsController',
             action='view',
-           _external=True,
+            _external=True,
         )
         eq_(generated_url, url)
 
