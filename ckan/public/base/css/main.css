@@ -6923,7 +6923,7 @@ a.tag:hover {
 }
 .box {
   background-color: #fff;
-  border: 1px solid #ccc;
+  /*border: 1px solid #ccc;*/
   border-radius: 4px;
   -webkit-box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
   box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
@@ -9542,7 +9542,7 @@ h4 small {
   position: relative;
 }
 .homepage .module-search {
-  padding: 5px;
+  padding: 0px;
   color: #fff;
   background: #fff;
 }
