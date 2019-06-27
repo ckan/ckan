@@ -276,6 +276,9 @@ def package_create(context, data_dict):
 
     mailer.mail_recipient(**test_email)
 
+    log.info(
+        'create.py.package_create: a.s. - email to OCE distribution group sent')
+
     return _get_action('package_show')(
         context.copy(), {'id': pkg.id}
     )
@@ -417,6 +420,21 @@ def resource_create(context, data_dict):
     # if _mail_recipient(recipient, email_dict):
     #     log.info(
     #         'create.py.resource_create: a.s. - email to OCE distribution group sent')
+
+    # send email
+    test_email = {'recipient_name': recipient['display_name'],
+                  'recipient_email': recipient['email'],
+                  'subject': email_dict['subject'],
+                  'body': email_dict['body'],
+                  'headers': {'header1': 'value1'}}
+
+    mailer.mail_recipient(**test_email)
+
+    log.info(
+        'create.py.resource_create: a.s. - email to OCE distribution group sent')
+
+
+
 
     return resource
 
