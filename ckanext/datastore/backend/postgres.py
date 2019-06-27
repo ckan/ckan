@@ -315,7 +315,7 @@ def _cache_types(connection):
             # redo cache types with json now available.
             return _cache_types(connection)
 
-        register_composite('nested', connection.connection, True)
+        register_composite('nested', connection.connection.connection, True)
 
 
 def _pg_version_is_at_least(connection, version):
