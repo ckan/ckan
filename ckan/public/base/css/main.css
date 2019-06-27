@@ -1086,7 +1086,7 @@ textarea {
   line-height: inherit;
 }
 a {
-  color: #206b82;
+  color: #F05F3B;
   text-decoration: none;
 }
 a:hover,
@@ -1326,7 +1326,7 @@ mark,
   color: #777777;
 }
 .text-primary {
-  color: #206b82;
+  color: #F05F3B;
 }
 a.text-primary:hover,
 a.text-primary:focus {
@@ -1362,7 +1362,7 @@ a.text-danger:focus {
 }
 .bg-primary {
   color: #fff;
-  background-color: #206b82;
+  background-color: #F05F3B;
 }
 a.bg-primary:hover,
 a.bg-primary:focus {
@@ -3193,7 +3193,7 @@ fieldset[disabled] .btn-default.focus {
 }
 .btn-primary {
   color: #fff;
-  background-color: #206b82;
+  background-color: #F05F3B;
   border-color: #1b5a6e;
 }
 .btn-primary:focus,
@@ -3241,11 +3241,11 @@ fieldset[disabled] .btn-primary:focus,
 .btn-primary.disabled.focus,
 .btn-primary[disabled].focus,
 fieldset[disabled] .btn-primary.focus {
-  background-color: #206b82;
+  background-color: #F05F3B;
   border-color: #1b5a6e;
 }
 .btn-primary .badge {
-  color: #206b82;
+  color: #F05F3B;
   background-color: #fff;
 }
 .btn-success {
@@ -3477,7 +3477,7 @@ fieldset[disabled] .btn-danger.focus {
   background-color: #fff;
 }
 .btn-link {
-  color: #206b82;
+  color: #F05F3B;
   font-weight: normal;
   border-radius: 0;
 }
@@ -3644,7 +3644,7 @@ tbody.collapse.in {
   color: #fff;
   text-decoration: none;
   outline: 0;
-  background-color: #206b82;
+  background-color: #F05F3B;
 }
 .dropdown-menu > .disabled > a,
 .dropdown-menu > .disabled > a:hover,
@@ -4078,7 +4078,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .nav .open > a:hover,
 .nav .open > a:focus {
   background-color: #eeeeee;
-  border-color: #206b82;
+  border-color: #F05F3B;
 }
 .nav .nav-divider {
   height: 1px;
@@ -4171,7 +4171,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .nav-pills > li.active > a:hover,
 .nav-pills > li.active > a:focus {
   color: #fff;
-  background-color: #206b82;
+  background-color: #F05F3B;
 }
 .nav-stacked > li {
   float: none;
@@ -4795,7 +4795,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
   padding: 6px 12px;
   line-height: 1.42857143;
   text-decoration: none;
-  color: #206b82;
+  color: #F05F3B;
   background-color: #fff;
   border: 1px solid #ddd;
   margin-left: -1px;
@@ -4828,8 +4828,8 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
 .pagination > .active > span:focus {
   z-index: 3;
   color: #fff;
-  background-color: #206b82;
-  border-color: #206b82;
+  background-color: #F05F3B;
+  border-color: #F05F3B;
   cursor: default;
 }
 .pagination > .disabled > span,
@@ -4946,7 +4946,7 @@ a.label:focus {
   background-color: #5e5e5e;
 }
 .label-primary {
-  background-color: #206b82;
+  background-color: #F05F3B;
 }
 .label-primary[href]:hover,
 .label-primary[href]:focus {
@@ -5014,7 +5014,7 @@ a.badge:focus {
 }
 .list-group-item.active > .badge,
 .nav-pills > .active > a > .badge {
-  color: #206b82;
+  color: #F05F3B;
   background-color: #fff;
 }
 .list-group-item > .badge {
@@ -5089,7 +5089,7 @@ a.badge:focus {
 a.thumbnail:hover,
 a.thumbnail:focus,
 a.thumbnail.active {
-  border-color: #206b82;
+  border-color: #F05F3B;
 }
 .thumbnail .caption {
   padding: 9px;
@@ -5203,7 +5203,7 @@ a.thumbnail.active {
   line-height: 20px;
   color: #fff;
   text-align: center;
-  background-color: #206b82;
+  background-color: #F05F3B;
   -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
   box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
   -webkit-transition: width 0.6s ease;
@@ -5366,8 +5366,8 @@ button.list-group-item {
 .list-group-item.active:focus {
   z-index: 2;
   color: #fff;
-  background-color: #206b82;
-  border-color: #206b82;
+  background-color: #F05F3B;
+  border-color: #F05F3B;
 }
 .list-group-item.active .list-group-item-heading,
 .list-group-item.active:hover .list-group-item-heading,
@@ -5763,22 +5763,22 @@ button.list-group-item-danger.active:focus {
   border-bottom-color: #ddd;
 }
 .panel-primary {
-  border-color: #206b82;
+  border-color: #F05F3B;
 }
 .panel-primary > .panel-heading {
   color: #fff;
-  background-color: #206b82;
-  border-color: #206b82;
+  background-color: #F05F3B;
+  border-color: #F05F3B;
 }
 .panel-primary > .panel-heading + .panel-collapse > .panel-body {
-  border-top-color: #206b82;
+  border-top-color: #F05F3B;
 }
 .panel-primary > .panel-heading .badge {
-  color: #206b82;
+  color: #F05F3B;
   background-color: #fff;
 }
 .panel-primary > .panel-footer + .panel-collapse > .panel-body {
-  border-bottom-color: #206b82;
+  border-bottom-color: #F05F3B;
 }
 .panel-success {
   border-color: #d6e9c6;
