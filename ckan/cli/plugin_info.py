@@ -41,14 +41,14 @@ def plugin_info():
                 click.echo(extra)
         click.echo()
 
-def _template_helpers(cls):
+def _template_helpers(plugin_class):
     ''' Return readable helper function info. '''
-    helpers = cls.get_helpers()
+    helpers = plugin_class.get_helpers()
     return _function_info(helpers)
 
-def _actions(self, cls):
+def _actions(plugin_class):
     ''' Return readable action function info. '''
-    actions = cls.get_actions()
+    actions = plugin_class.get_actions()
     return _function_info(actions)
 
 def _function_info(functions):
