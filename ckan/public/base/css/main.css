@@ -7159,7 +7159,7 @@ a.tag:hover {
   right: -35px;
   width: 80px;
   color: #fff;
-  background-color: #FAF9F8;
+  background-color: #e9ebe9;
   padding: 1px 20px;
   font-size: 11px;
   text-align: center;
@@ -7236,13 +7236,13 @@ a.tag:hover {
 }
 .media-view:hover,
 .media-view.hovered {
-  border-color: #FAF9F8;
+  border-color: #e9ebe9;
   -webkit-box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
   box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
 }
 .media-view:hover .banner,
 .media-view.hovered .banner {
-  background-color: #FAF9F8;
+  background-color: #e9ebe9;
 }
 .media-view span {
   display: none;
@@ -9557,7 +9557,7 @@ h4 small {
 }
 .homepage .module-search .module-content {
   border-radius: 3px 3px 0 0;
-  background-color: #FAF9F8;
+  background-color: #e9ebe9;
   border-bottom: none;
 }
 .homepage .module-search .module-content .heading {
@@ -9764,7 +9764,7 @@ h4 small {
   margin-bottom: initial;
   padding: 10px 0;
   color: #fff;
-  background: #FAF9F8;
+  background: #e9ebe9;
 }
 .masthead:before,
 .masthead:after {
@@ -9919,7 +9919,7 @@ h4 small {
   margin-bottom: initial;
   padding: 10px 0;
   color: #fff;
-  background: #FAF9F8;
+  background: #e9ebe9;
   padding: 20px 0;
 }
 .site-footer:before,
@@ -10641,7 +10641,7 @@ h4 small {
   z-index: 0;
 }
 body {
-  background: #FAF9F8;
+  background: #e9ebe9;
 }
 [hidden] {
   display: none;
