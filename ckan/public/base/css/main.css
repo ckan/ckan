@@ -9310,14 +9310,11 @@ h4 small {
   position: relative;
   padding-bottom: 20px;
 }
-
-/*Background color*/
 @media (min-width: 768px) {
   [role=main],
   .main {
     padding-top: 10px;
-    /*eee is the background color here*/
-    background: #eee;
+    background: #eee url("../../../base/images/bg.png");
   }
 }
 [role=main] {
