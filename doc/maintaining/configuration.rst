@@ -1231,6 +1231,23 @@ Default value: ``png jpeg jpg gif``
 
 Space-delimited list of image-based resource formats that will be rendered by the Image view plugin (``image_view``)
 
+
+.. _ckan.recline.dataproxy_url:
+
+ckan.recline.dataproxy_url
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.recline.dataproxy_url = https://mydataproxy.example.com
+
+Default value: ``//jsonpdataproxy.appspot.com``
+
+Custom URL to a self-hosted DataProxy instance. The DataProxy is an external service currently used to stream data in 
+JSON format to the Recline-based views when data is not on the DataStore. The main instance is deprecated and will
+be eventually shut down, so users that require it can host an instance themselves and use this configuration option
+to point Recline to it.
+
 .. end_resource-views
 
 Theming Settings
