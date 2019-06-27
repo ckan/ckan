@@ -9316,7 +9316,7 @@ h4 small {
   .main {
     padding-top: 10px;
     /*eee is background color*/
-    background: #eee;
+    background: #a5c5c3;
   }
 }
 [role=main] {
@@ -9664,7 +9664,7 @@ h4 small {
 .account-masthead {
   min-height: 30px;
   color: #fff;
-  background: #007872 url("../../../base/images/bg.png");
+  background: #007872 ;
 }
 .account-masthead:before,
 .account-masthead:after {
@@ -9763,7 +9763,7 @@ h4 small {
   margin-bottom: initial;
   padding: 10px 0;
   color: #fff;
-  background: #429F9E url("../../../base/images/bg.png");
+  background: #429F9E;
 }
 .masthead:before,
 .masthead:after {
@@ -9918,7 +9918,7 @@ h4 small {
   margin-bottom: initial;
   padding: 10px 0;
   color: #fff;
-  background: #429F9E url("../../../base/images/bg.png");
+  background: #429F9E;
   padding: 20px 0;
 }
 .site-footer:before,
@@ -10640,7 +10640,7 @@ h4 small {
   z-index: 0;
 }
 body {
-  background: #429F9E url("../../../base/images/bg.png");
+  background: #429F9E;
 }
 [hidden] {
   display: none;
