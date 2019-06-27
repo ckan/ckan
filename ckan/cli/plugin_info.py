@@ -36,7 +36,7 @@ def plugin_info():
                 extra = _template_helpers(p['class'])
             if i == 'IActions':
                 extra = _actions(p['class'])
-            click.echo('    %s' % i)
+            click.echo('    {i}'.format(i=i))
             if extra:
                 click.echo(extra)
         click.echo()
@@ -72,10 +72,11 @@ def _function_info(functions):
         if inspect.ismethod(fn) and inspect.isclass(fn.__self__):
             params = params[1:]
         params = ', '.join(params)
-        output.append('        %s(%s)' % (function_name, params))
+        output.append('        {function_name}({params})'.format(
+            function_name=function_name, params=params))
         # doc string
         if fn.__doc__:
             bits = fn.__doc__.split('\n')
             for bit in bits:
-                output.append('            %s' % bit)
+                output.append('            {bit}'.format(bit=bit))
     return ('\n').join(output)
