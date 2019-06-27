@@ -30,6 +30,9 @@ import ckan.lib.datapreview
 
 from ckan.common import _, config
 
+import ckan.lib.jobs as jobs
+
+
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
 
@@ -267,6 +270,8 @@ def package_create(context, data_dict):
     #     log.info(
     #         'create.py.package_create: a.s. - email to OCE distribution group sent')
 
+    jobs.enqueue(_mail_recipient, [recipient, email_dict])
+
     # send email
     test_email = {'recipient_name': recipient['display_name'],
                   'recipient_email': recipient['email'],
@@ -274,7 +279,7 @@ def package_create(context, data_dict):
                   'body': email_dict['body'],
                   'headers': {'header1': 'value1'}}
 
-    mailer.mail_recipient(**test_email)
+    # mailer.mail_recipient(**test_email)
 
     log.info(
         'create.py.package_create: a.s. - email to OCE distribution group sent')
@@ -428,13 +433,12 @@ def resource_create(context, data_dict):
                   'body': email_dict['body'],
                   'headers': {'header1': 'value1'}}
 
-    mailer.mail_recipient(**test_email)
+    jobs.enqueue(_mail_recipient, [recipient, email_dict])
+
+    # mailer.mail_recipient(**test_email)
 
     log.info(
         'create.py.resource_create: a.s. - email to OCE distribution group sent')
-
-
-
 
     return resource
 
