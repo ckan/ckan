@@ -1062,8 +1062,8 @@ def reqaccess_create(context, data_dict):
         '\n\nMessage:\n' + data_dict['user_msg']
 
     # a.s. send a msg to data maintainer
-    if _mail_recipient(recipient, email_dict):
-        log.info('create.py: a.s. - email to a maintainer sent')
+    # if _mail_recipient(recipient, email_dict):
+    #     log.info('create.py: a.s. - email to a maintainer sent')
 
     return data_dict
 
