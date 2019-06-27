@@ -25,7 +25,9 @@ def get_dataproxy_url():
     '''
     Returns the value of the ckan.recline.dataproxy_url config option
     '''
-    return config.get('ckan.recline.dataproxy_url', '//jsonpdataproxy.appspot.com')
+    return config.get(
+        'ckan.recline.dataproxy_url', '//jsonpdataproxy.appspot.com')
+
 
 def in_list(list_possible_values):
     '''
