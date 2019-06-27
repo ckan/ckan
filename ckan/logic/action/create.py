@@ -1001,6 +1001,7 @@ def _mail_recipient(recipient=None, email_dict=None):
         h.flash_error(_('Could not send an email: %s') %
                       text_type(e))
         raise
+    return
 
 
 # a.s.
