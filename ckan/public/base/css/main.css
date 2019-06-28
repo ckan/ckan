@@ -6825,7 +6825,7 @@ button.close {
   display: inline-block;
   margin-bottom: 4px;
   color: #111;
-  background-color: #f6f6f6;
+  background-color: #F05F3B;
   padding: 1px 10px;
   border: 1px solid #dddddd;
   border-radius: 100px;
@@ -9554,7 +9554,7 @@ h4 small {
 }
 .homepage .module-search .module-content {
   border-radius: 3px 3px 0 0;
-  background-color: #429F9E;
+  background-color: #FFFFFF;
   border-bottom: none;
 }
 .homepage .module-search .module-content .heading {
@@ -9565,7 +9565,7 @@ h4 small {
 }
 .homepage .module-search .tags {
   padding: 5px 10px 10px 10px;
-  background-color: #007872;
+  background-color: #FFFFFF;
   border-radius: 0 0 3px 3px;
 }
 .homepage .module-search .tags:before,
@@ -9702,7 +9702,7 @@ h4 small {
 .account-masthead .account ul li {
   display: block;
   float: left;
-  border-left: 1px solid #00232e;
+  border-left: 1px solid #FFC850;
 }
 .account-masthead .account ul li a {
   display: block;
@@ -9759,7 +9759,7 @@ h4 small {
 }
 .masthead {
   margin-bottom: initial;
-  padding: 10px 0;
+  padding: 15px 0;
   color: #fff;
   background: #FFFFFF;
 }
