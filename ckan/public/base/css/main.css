@@ -9314,7 +9314,7 @@ h4 small {
   .main {
     padding-top: 10px;
     /*eee is background color*/
-    background: #a5c5c3;
+    background: #FFFFFF;
   }
 }
 [role=main] {
@@ -9662,7 +9662,7 @@ h4 small {
 .account-masthead {
   min-height: 30px;
   color: #fff;
-  background: #007872 ;
+  background: #F05F3B;
 }
 .account-masthead:before,
 .account-masthead:after {
@@ -9761,7 +9761,7 @@ h4 small {
   margin-bottom: initial;
   padding: 10px 0;
   color: #fff;
-  background: #429F9E;
+  background: #FFFFFF;
 }
 .masthead:before,
 .masthead:after {
@@ -9783,7 +9783,7 @@ h4 small {
   position: relative;
 }
 .masthead a {
-  color: #fff;
+  color: #007872;
 }
 .masthead hgroup h1,
 .masthead hgroup h2 {
@@ -9837,7 +9837,7 @@ h4 small {
 .masthead .nav > .active > a,
 .masthead .nav > .active > a:hover,
 .masthead .nav > .active > a:focus {
-  color: #fff;
+  color: #F05F3B;
   text-shadow: none;
 }
 .masthead .site-search {
