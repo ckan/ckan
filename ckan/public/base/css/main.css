@@ -6827,7 +6827,7 @@ button.close {
   color: #111;
   background-color: #F05F3B;
   padding: 1px 10px;
-  border: 1px solid #dddddd;
+  border: 0px solid #dddddd;
   border-radius: 100px;
   -webkit-box-shadow: inset 0 1px 0 #ffffff;
   box-shadow: inset 0 1px 0 #ffffff;
@@ -9543,7 +9543,7 @@ h4 small {
 }
 .homepage .module-search {
   padding: 0px;
-  color: #fff;
+  color: #000000;
   background: #fff;
 }
 .homepage .module-search .search-giant {
@@ -9706,7 +9706,7 @@ h4 small {
 }
 .account-masthead .account ul li a {
   display: block;
-  color: #bfd7de;
+  color: #FFFFFF;
   font-size: 13px;
   font-weight: bold;
   padding: 0 10px;
