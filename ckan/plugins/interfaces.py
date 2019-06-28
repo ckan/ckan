@@ -255,7 +255,7 @@ class IDomainObjectModification(Interface):
 
 class IFeed(Interface):
     """
-    For entending the default Atom feeds
+    For extending the default Atom feeds
     """
 
     def get_feed_class(self):
@@ -300,7 +300,7 @@ class IFeed(Interface):
 
 class IResourceUrlChange(Interface):
     u'''
-    Receives notification of changed urls.
+    Receives notification of changed URL on a resource.
     '''
 
     def notify(self, resource):
@@ -505,7 +505,7 @@ class IResourcePreview(Interface):
 class ITagController(Interface):
     u'''
     Hook into the Tag view. These will usually be called just before
-    committing or returning the respective object, i.e. all validation,
+    committing or returning the respective object, i.e. when all validation,
     synchronization and authorization setup are complete.
 
     '''
@@ -519,7 +519,7 @@ class ITagController(Interface):
 
 class IGroupController(Interface):
     u'''
-    Hook into the Group view. These will
+    Hook into the Group view. These methods will
     usually be called just before committing or returning the
     respective object i.e. when all validation, synchronization
     and authorization setup are complete.
@@ -531,12 +531,12 @@ class IGroupController(Interface):
         pass
 
     def create(self, entity):
-        u'''Called after group had been created inside group_create.
+        u'''Called after group has been created inside group_create.
         '''
         pass
 
     def edit(self, entity):
-        u'''Called after group had been updated inside group_update.
+        u'''Called after group has been updated inside group_update.
         '''
         pass
 
@@ -556,7 +556,7 @@ class IGroupController(Interface):
 
 class IOrganizationController(Interface):
     u'''
-    Hook into the Organization view. These will
+    Hook into the Organization view. These methods will
     usually be called just before committing or returning the
     respective object i.e. when all validation, synchronization
     and authorization setup are complete.
@@ -808,7 +808,7 @@ class IResourceController(Interface):
 
 class IPluginObserver(Interface):
     u'''
-    Hook into the plugin loading mechanism
+    Hook into the plugin loading mechanism itself
     '''
 
     def before_load(self, plugin):
@@ -838,7 +838,7 @@ class IPluginObserver(Interface):
 
 class IConfigurable(Interface):
     u'''
-    Initialization hook for plugins.
+    Hook called during the startup of CKAN
 
     See also :py:class:`IConfigurer`.
     '''
@@ -1181,7 +1181,7 @@ class IDatasetForm(Interface):
         '''
 
     def setup_template_variables(self, context, data_dict):
-        u'''Add variables to the template context for use in templates.
+        u'''Add variables to the template context for use in dataset templates.
 
         This function is called before a dataset template is rendered. If you
         have custom dataset templates that require some additional variables,
