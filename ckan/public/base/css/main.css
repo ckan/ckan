@@ -59,10 +59,29 @@ strong {
 dfn {
   font-style: italic;
 }
-h1 {
-  font-size: 2em;
+h1{
+  font-family: 'Rubik', sans-serif;
+    font-size: 2em;
   margin: 0.67em 0;
 }
+h3{
+  font-family: 'Rubik', sans-serif;
+}
+h4{
+  font-family: 'Rubik', sans-serif;
+}
+h5{
+  font-family: 'Rubik', sans-serif;
+}
+h6{
+  font-family: 'Rubik', sans-serif;
+}
+
+p{
+  font-family: 'Open Sans', sans-serif;
+
+}
+
 mark {
   background: #ff0;
   color: #000;
@@ -223,11 +242,13 @@ th {
   p,
   h2,
   h3 {
+    font-family: 'Rubik', sans-serif;
     orphans: 3;
     widows: 3;
   }
   h2,
   h3 {
+    font-family: 'Rubik', sans-serif;
     page-break-after: avoid;
   }
   .navbar {
@@ -1172,6 +1193,7 @@ h6,
 .h4,
 .h5,
 .h6 {
+  font-family: 'Rubik', sans-serif;
   font-family: inherit;
   font-weight: 700;
   line-height: 1.1;
