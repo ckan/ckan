@@ -376,6 +376,7 @@ Major changes:
  * Common requests code for Flask and Pylons (#3212)
  * Generate complete datastore dump files (#3344)
  * A new system for asynchronous background jobs (#3165)
+ * Chaining of action functions (#3494)
 
 Minor changes:
  * Renamed example theme plugin (#3576)
