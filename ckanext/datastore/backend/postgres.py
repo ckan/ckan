@@ -279,9 +279,12 @@ def _cache_types(context):
             # redo cache types with json now available.
             return _cache_types(context)
 
-        psycopg2.extras.register_composite('nested',
-                                           connection.connection,
-                                           True)
+        try:
+            psycopg2.extras.register_composite(
+                'nested', connection.connection.connection, True)
+        except AttributeError:
+            psycopg2.extras.register_composite(
+                'nested', connection.connection, True)
 
 
 def _pg_version_is_at_least(connection, version):
