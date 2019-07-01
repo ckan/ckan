@@ -33,7 +33,7 @@ def plugin_info():
 
     for plugin in plugins:
         p = plugins[plugin]
-        click.echo(plugin + ':')
+        click.echo(plugin + u':')
         click.echo(u'-' * (len(plugin) + 1))
         if p[u'doc']:
             click.echo(p[u'doc'])
