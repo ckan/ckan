@@ -286,7 +286,7 @@ General notes:
    This is due to a bug in the psycopg2 version pinned to the release. To solve
    it, upgrade psycopg2 with the following command::
 
-     pip install --upgrade psycopg2==2.7.3.2
+     pip install --upgrade psycopg2==2.8.2
 
  * This release does not require a Solr schema upgrade, but if you are having the
    issues described in #3863 (datasets wrongly indexed in multilingual setups),
