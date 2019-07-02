@@ -285,7 +285,8 @@ def _cache_types(context):
             return _cache_types(context)
 
         try:
-            register_composite('nested', connection.connection.connection, True)
+            register_composite(
+                'nested', connection.connection.connection, True)
         except AttributeError:
             register_composite('nested', connection.connection, True)
 
