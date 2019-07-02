@@ -211,7 +211,8 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_with_root_path_locale_and_script_name_env(self):
         url = '/my/custom/path/de/foo/dataset/my_dataset'
-        generated_url = h.url_for('dataset.read',
+        generated_url = h.url_for(controller='package',
+                                  action='read',
                                   id='my_dataset',
                                   locale='de')
         eq_(generated_url, url)
