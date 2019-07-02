@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from nose.tools import assert_equal
 import pysolr
 from ckan.common import config
 from ckan import model
