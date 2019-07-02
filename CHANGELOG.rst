@@ -34,6 +34,11 @@ Fixes:
 * Fix `root_path` when using mod_wsgi (`#4452 <https://github.com/ckan/ckan/issues/4452>`_)
 * Correctly insert root_path for urls generated with _external flag (`#4722 <https://github.com/ckan/ckan/issues/4722>`_)
 * Make reorder resources button translatable (`#4838 <https://github.com/ckan/ckan/issues/4838>`_)
+* Fix `feeds` urls generation (`#4854 <https://github.com/ckan/ckan/pull/4854>`_)
+* More robust auth functions for `resource_view_show` (`#4827 <https://github.com/ckan/ckan/issues/4827>`_)
+* Allow to customize the DataProxy URL (`#4874 <https://github.com/ckan/ckan/issues/4874>`_)
+* Allow custom CKAN callback URL for the DataPusher (`#4878 <https://github.com/ckan/ckan/issues/4878>`_)
+* Add `psycopg>=2.8` support (`#4841 <https://github.com/ckan/ckan/pull/4841>`_)
 
 v.2.8.2 2018-12-12
 ==================
