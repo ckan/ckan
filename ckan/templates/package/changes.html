@@ -6,8 +6,8 @@
 
 {% block breadcrumb_content %}
   {{ super() }}
-  <li>{% link_for _('Changes'), controller='package', action='activity', id=pkg_dict.name %}</li>
-  <li class="active">{% link_for activity_diff.activities[1].id|truncate(30), controller='package', action='changes', activity_id=activity_diff.activities[1].id %}</li>
+  <li>{% link_for _('Changes'), named_route='dataset.activity', id=pkg_dict.name %}</li>
+  <li class="active">{% link_for activity_diff.activities[1].id|truncate(30), named_route='dataset.changes', id=activity_diff.activities[1].id %}</li>
 {% endblock %}
 
 {% block primary %}
