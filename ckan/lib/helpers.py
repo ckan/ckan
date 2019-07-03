@@ -398,7 +398,9 @@ def _url_for_pylons(*args, **kw):
 
     # We need to provide protocol and host to get full URLs, get them from
     # ckan.site_url
-    if kw.get('qualified', False) or kw.get('_external', False):
+    if kw.pop('_external', None):
+        kw['qualified'] = True
+    if kw.get('qualified'):
         kw['protocol'], kw['host'] = get_site_protocol_and_host()
 
     # The Pylons API routes require a slask on the version number for some
@@ -494,7 +496,7 @@ def _local_url(url_to_amend, **kw):
             default_locale = True
 
     root = ''
-    if kw.get('qualified', False):
+    if kw.get('qualified', False) or kw.get('_external', False):
         # if qualified is given we want the full url ie http://...
         protocol, host = get_site_protocol_and_host()
         root = _routes_default_url_for('/',
@@ -2285,7 +2287,8 @@ def resource_view_get_fields(resource):
 
     data = {
         'resource_id': resource['id'],
-        'limit': 0
+        'limit': 0,
+        'include_total': False,
     }
     result = logic.get_action('datastore_search')({}, data)
 

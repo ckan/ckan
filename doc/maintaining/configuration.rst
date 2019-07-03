@@ -1231,6 +1231,23 @@ Default value: ``png jpeg jpg gif``
 
 Space-delimited list of image-based resource formats that will be rendered by the Image view plugin (``image_view``)
 
+
+.. _ckan.recline.dataproxy_url:
+
+ckan.recline.dataproxy_url
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.recline.dataproxy_url = https://mydataproxy.example.com
+
+Default value: ``//jsonpdataproxy.appspot.com``
+
+Custom URL to a self-hosted DataProxy instance. The DataProxy is an external service currently used to stream data in 
+JSON format to the Recline-based views when data is not on the DataStore. The main instance is deprecated and will
+be eventually shut down, so users that require it can host an instance themselves and use this configuration option
+to point Recline to it.
+
 .. end_resource-views
 
 Theming Settings
@@ -1471,6 +1488,22 @@ DataPusher endpoint to use when enabling the ``datapusher`` extension. If you
 installed CKAN via :doc:`/maintaining/installing/install-from-package`, the DataPusher was installed for you
 running on port 8800. If you want to manually install the DataPusher, follow
 the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
+
+
+.. _ckan.datapusher.callback_url_base:
+
+ckan.datapusher.url
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.datapusher.callback_url_base = http://ckan:5000/
+
+Default value: Value of ``ckan.site_url``
+
+Alternative callback URL for DataPusher when performing a request to CKAN. This is
+useful on scenarios where the host where DataPusher is running can not access the
+public CKAN site URL.
 
 
 .. _ckan.datapusher.assume_task_stale_after:

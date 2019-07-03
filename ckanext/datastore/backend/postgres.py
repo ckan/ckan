@@ -284,7 +284,11 @@ def _cache_types(context):
             # redo cache types with json now available.
             return _cache_types(context)
 
-        register_composite('nested', connection.connection, True)
+        try:
+            register_composite(
+                'nested', connection.connection.connection, True)
+        except AttributeError:
+            register_composite('nested', connection.connection, True)
 
 
 def _pg_version_is_at_least(connection, version):

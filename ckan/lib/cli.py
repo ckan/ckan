@@ -627,7 +627,7 @@ Default is false.''')
 
     def rebuild_fast(self):
         ###  Get out config but without starting pylons environment ####
-        conf = self._get_config()
+        conf = _get_config(self.options.config)
 
         ### Get ids using own engine, otherwise multiprocess will balk
         db_url = conf['sqlalchemy.url']
