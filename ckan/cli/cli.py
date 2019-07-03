@@ -11,6 +11,7 @@ from ckan.cli import (
     datastore,
     translation,
     dataset,
+    plugin_info,
 )
 
 from ckan.config.middleware import make_app
@@ -44,3 +45,4 @@ ckan.add_command(asset.asset)
 ckan.add_command(datastore.datastore)
 ckan.add_command(translation.translation)
 ckan.add_command(dataset.dataset)
+ckan.add_command(plugin_info.plugin_info)
