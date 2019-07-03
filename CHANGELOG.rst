@@ -79,6 +79,39 @@ Removals and deprecations:
    dataset blueprint in CKAN>=2.9, and, in the same time, it's still working for
    Pylons package controller in CKAN<2.9
 
+v.2.8.3 2019-07-03
+==================
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+* Fix `include_total` in `datastore_search` (`#4446 <https://github.com/ckan/ckan/issues/4446>`_)
+* Fix problem with reindex-fast (`#4352 <https://github.com/ckan/ckan/issues/4352>`_)
+* Fix `ValueError` in `url_validator` (`#4629 <https://github.com/ckan/ckan/issues/4629>`_)
+* Strip local path when uploading file in IE (`#4608 <https://github.com/ckan/ckan/issues/4608>`_)
+* Increase size of h1 headings to 1.8em (`#4665 <https://github.com/ckan/ckan/issues/4665>`_)
+* Fix broken div nesting in the `user/read_base.html` (`#4672 <https://github.com/ckan/ckan/issues/4672>`_)
+* `package_search` parameter `fl` accepts list-like values (`#4464 <https://github.com/ckan/ckan/issues/4464>`_)
+* Use `chained_auth_function` with core auth functions (`#4491 <https://github.com/ckan/ckan/issues/4491>`_)
+* Allow translation of custom licenses (`#4594 <https://github.com/ckan/ckan/issues/4594>`_)
+* Fix delete button links (`#4598 <https://github.com/ckan/ckan/issues/4598>`_)
+* Fix hardcoded root paths (`#4662 <https://github.com/ckan/ckan/issues/4662>`_)
+* Fix reCaptcha (`#4732 <https://github.com/ckan/ckan/issues/4732>`_)
+* Fix incremented follower-counter (`#4767 <https://github.com/ckan/ckan/issues/4767>`_)
+* Fix breadcrumb on /datasets (`#4405 <https://github.com/ckan/ckan/issues/4405>`_)
+* Fix `root_path` when using mod_wsgi (`#4452 <https://github.com/ckan/ckan/issues/4452>`_)
+* Correctly insert root_path for urls generated with _external flag (`#4722 <https://github.com/ckan/ckan/issues/4722>`_)
+* Make reorder resources button translatable (`#4838 <https://github.com/ckan/ckan/issues/4838>`_)
+* Fix `feeds` urls generation (`#4854 <https://github.com/ckan/ckan/pull/4854>`_)
+* More robust auth functions for `resource_view_show` (`#4827 <https://github.com/ckan/ckan/issues/4827>`_)
+* Allow to customize the DataProxy URL (`#4874 <https://github.com/ckan/ckan/issues/4874>`_)
+* Allow custom CKAN callback URL for the DataPusher (`#4878 <https://github.com/ckan/ckan/issues/4878>`_)
+* Add `psycopg>=2.8` support (`#4841 <https://github.com/ckan/ckan/pull/4841>`_)
+
 v.2.8.2 2018-12-12
 ==================
 
@@ -251,6 +284,28 @@ Changes and deprecations:
    of None, in which case, `c.search_facets` will be used. But all template designers are strongly advised
    to specify this argument explicitly, as in future it'll become required.
  * The ``ckan.recaptcha.version`` config option is now removed, since v2 is the only valid version now (#4061)
+
+v.2.7.6 2019-07-03
+==================
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+ * Fix problem with reindex-fast (`#4352 <https://github.com/ckan/ckan/issues/4352>`_)
+ * Fix `include_total` in `datastore_search` (`#4446 <https://github.com/ckan/ckan/issues/4446>`_)
+ * Fix `ValueError` in `url_validator` (`#4629 <https://github.com/ckan/ckan/issues/4629>`_)
+ * Strip local path when uploading file in IE (`#4608 <https://github.com/ckan/ckan/issues/4608>`_)
+ * Increase size of h1 headings to 1.8em (`#4665 <https://github.com/ckan/ckan/issues/4665>`_)
+ * Fix broken div nesting in the `user/read_base.html` (`#4672 <https://github.com/ckan/ckan/issues/4672>`_)
+ * Use `get_action` to call activity actions (`#4684 <https://github.com/ckan/ckan/issues/4684>`_)
+ * Make reorder resources button translatable (`#4838 <https://github.com/ckan/ckan/issues/4838>`_)
+ * More robust auth functions for `resource_view_show` (`#4827 <https://github.com/ckan/ckan/issues/4827>`_)
+ * Allow to customize the DataProxy URL (`#4874 <https://github.com/ckan/ckan/issues/4874>`_)
+ * Allow custom CKAN callback URL for the DataPusher (`#4878 <https://github.com/ckan/ckan/issues/4878>`_)
 
 v2.7.5 2018-12-12
 =================
@@ -450,6 +505,24 @@ Deprecations:
  * The old Celery based background jobs will be removed in CKAN 2.8 in favour of the new RQ based
    jobs (http://docs.ckan.org/en/latest/maintaining/background-tasks.html). Extensions can still
    of course use Celery but they will need to handle the management themselves.
+
+v.2.6.8 2019-07-03
+==================
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+ * Fix broken div nesting in the `user/read_base.html` (`#4672 <https://github.com/ckan/ckan/issues/4672>`_)
+ * Strip local path when uploading file in IE (`#4608 <https://github.com/ckan/ckan/issues/4608>`_)
+ * Increase size of h1 headings to 1.8em (`#4665 <https://github.com/ckan/ckan/issues/4665>`_)
+ * Fix `ValueError` in `url_validator` (`#4629 <https://github.com/ckan/ckan/issues/4629>`_)
+ * More robust auth functions for `resource_view_show` (`#4827 <https://github.com/ckan/ckan/issues/4827>`_)
+ * Allow to customize the DataProxy URL (`#4874 <https://github.com/ckan/ckan/issues/4874>`_)
+ * Allow custom CKAN callback URL for the DataPusher (`#4878 <https://github.com/ckan/ckan/issues/4878>`_)
 
 v2.6.7 2018-12-12
 =================
