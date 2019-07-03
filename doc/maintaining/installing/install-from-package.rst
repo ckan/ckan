@@ -105,13 +105,13 @@ CKAN:
 
 .. tip::
 
-.. note::
-     
-   The commands mentioned below are tested for Ubuntu system
-   
    You can install |postgres| and CKAN on different servers. Just
    change the :ref:`sqlalchemy.url` setting in your
    |production.ini| file to reference your |postgres| server.
+
+.. note::
+     
+   The commands mentioned below are tested for Ubuntu system
 
 Install |postgres|, running this command in a terminal::
 
