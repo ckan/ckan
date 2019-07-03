@@ -2058,7 +2058,8 @@ def resource_view_get_fields(resource):
 
     data = {
         'resource_id': resource['id'],
-        'limit': 0
+        'limit': 0,
+        'include_total': False,
     }
     result = logic.get_action('datastore_search')({}, data)
 

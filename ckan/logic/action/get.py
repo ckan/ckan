@@ -2742,7 +2742,7 @@ def package_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
-    activity_stream = package_activity_list(context, data_dict)
+    activity_stream = logic.get_action('package_activity_list')(context, data_dict)
     offset = int(data_dict.get('offset', 0))
     extra_vars = {
         'controller': 'package',
@@ -2773,7 +2773,7 @@ def group_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
-    activity_stream = group_activity_list(context, data_dict)
+    activity_stream = logic.get_action('group_activity_list')(context, data_dict)
     offset = int(data_dict.get('offset', 0))
     extra_vars = {
         'controller': 'group',
@@ -2828,8 +2828,8 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
-    activity_stream = recently_changed_packages_activity_list(
-        context, data_dict)
+    activity_stream = logic.get_action(
+                'recently_changed_packages_activity_list')(context, data_dict)
     offset = int(data_dict.get('offset', 0))
     extra_vars = {
         'controller': 'package',
@@ -3387,7 +3387,7 @@ def dashboard_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
-    activity_stream = dashboard_activity_list(context, data_dict)
+    activity_stream = logic.get_action('dashboard_activity_list')(context, data_dict)
     model = context['model']
     user_id = context['user']
     offset = data_dict.get('offset', 0)
