@@ -1,0 +1,218 @@
+{
+  "": {
+    "domain": "ckan", 
+    "lang": "am", 
+    "plural-forms": "nplurals=2; plural=(n > 1);"
+  }, 
+  "%(color)s shirt": [
+    "%(color)s shirts", 
+    "%(color)s ሸሚዝ", 
+    "%(color)s ሸሚዞች"
+  ], 
+  "%(num)d item": [
+    "%(num)d items", 
+    "%(num)d እቃ", 
+    "%(num)d እቃዎች"
+  ], 
+  "%(num)d missing translation": [
+    "%(num)d missing translations", 
+    "%(num)d ትርጉም የሌለው", 
+    "%(num)d ትርጉም የሌላቸው"
+  ], 
+  "Add Filter": [
+    null, 
+    "ማጣሪያ ጨምር"
+  ], 
+  "An Error Occurred": [
+    null, 
+    "ስህተት ተፈጥሯል"
+  ], 
+  "Are you sure you want to perform this action?": [
+    null, 
+    " ይህንን እርምጃ ማከናወን መፈለግዎን እርግጠኛ ነዎት?"
+  ], 
+  "Cancel": [
+    null, 
+    "ሰርዝ"
+  ], 
+  "Confirm": [
+    null, 
+    "አረጋግጥ"
+  ], 
+  "Could not load view": [
+    null, 
+    "እይታን መጫን አልቻለም"
+  ], 
+  "DataProxy returned an error": [
+    null, 
+    "የመረጃ ተኪው(DataProxy) ስህተት መልሷል"
+  ], 
+  "DataStore returned an error": [
+    null, 
+    "የመረጃ ማከማቻው(DataStore) ስህተት መልሷል"
+  ], 
+  "Edit": [
+    null, 
+    "አድስ"
+  ], 
+  "Failed to load data API information": [
+    null, 
+    "የኤፒአይ መረጃ መጫን አልተሳካም"
+  ], 
+  "File": [
+    null, 
+    "ፋይል"
+  ], 
+  "Filters": [
+    null, 
+    "ማጣሪያዎች"
+  ], 
+  "Follow": [
+    null, 
+    "ተከተል"
+  ], 
+  "Graph": [
+    null, 
+    "ግራፍ"
+  ], 
+  "Grid": [
+    null, 
+    "ፍርግርግ"
+  ], 
+  "Hide": [
+    null, 
+    "ደብቅ"
+  ], 
+  "Image": [
+    null, 
+    "ምስል"
+  ], 
+  "Input is too short, must be at least one character": [
+    "Input is too short, must be at least %(num)d characters", 
+    "ግብዓቱ በጣም አጭር ነው ፤ ቢያንስ አንድ ቁምፊ(ትዕምርት) መሆን አለበት", 
+    "ግብዓቱ በጣም አጭር ነው ፤ ቢያንስ %(num)d ቁምፊዎች(ትዕምርቶች) መሆን አለበት"
+  ], 
+  "Link": [
+    null, 
+    "አገናኝ(ሊንክ)"
+  ], 
+  "Link to a URL on the internet (you can also link to an API)": [
+    null, 
+    "በኢንተርኔት ላይ ወደ ዩአርኤል አገናኝ (ወደ ኤ.ፒ.አይ መገናኘት ይችላሉ)"
+  ], 
+  "Loading...": [
+    null, 
+    "በመጫን ላይ"
+  ], 
+  "Map": [
+    null, 
+    "ካርታ"
+  ], 
+  "No matches found": [
+    null, 
+    "ምንም ተዛማጆች አልተገኙም"
+  ], 
+  "Please Confirm Action": [
+    null, 
+    "እባክዎን እርምጃውን(ድርጊቱን) ያረጋግጡ"
+  ], 
+  "Remove": [
+    null, 
+    "አስወግድ"
+  ], 
+  "Resource uploaded": [
+    null, 
+    "የመረጃ ምንጩ ተቀምⶆል"
+  ], 
+  "Save order": [
+    null, 
+    "ቅደም-ተከተሉን አስቀምጥ"
+  ], 
+  "Saving...": [
+    null, 
+    "እያስቀመጠ..."
+  ], 
+  "Select a field": [
+    null, 
+    "መስክ ምረጥ"
+  ], 
+  "Show more": [
+    null, 
+    "ተጨማሪ አሳይ"
+  ], 
+  "Start typing…": [
+    null, 
+    "መተየብ(መጻፍ) ይጀምሩ..."
+  ], 
+  "There are unsaved modifications to this form": [
+    null, 
+    "በዚህ ቅጽ ላይ ያልተቀመጡ(ያልተያዙ) ለውጦች አሉ"
+  ], 
+  "There is no API data to load for this resource": [
+    null, 
+    "ለዚህ የመረጃ-ምንጭ ምንም የሚጫን የኤፒአይ መረጃ የለም"
+  ], 
+  "URL": [
+    null, 
+    "ዩአርኤል"
+  ], 
+  "Unable to authenticate upload": [
+    null, 
+    "ማስቀመጡን ማረጋገጥ አልተቻለም"
+  ], 
+  "Unable to get data for uploaded file": [
+    null, 
+    "ለተቀመጠው ፋይል መረጃ ለማግኘት አልተቻለም"
+  ], 
+  "Unable to upload file": [
+    null, 
+    "ፋይል ማስቀመጥ አልተቻለም"
+  ], 
+  "Unfollow": [
+    null, 
+    "አትከተል"
+  ], 
+  "Upload": [
+    null, 
+    "አስቀምጥ"
+  ], 
+  "Upload a file": [
+    null, 
+    "ፋይል አስቀምጥ"
+  ], 
+  "Upload a file on your computer": [
+    null, 
+    "በኮምፒዩተርዎ ውስጥ ያለ ፋይል ያስቀምጡ"
+  ], 
+  "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
+    null, 
+    "ፋይል እያስቀመጡ ነው ፤ ወደ ሌላ ቦታ መሄድ ማስቆም እንደሚፈልጉ እርግጠኛ ነዎት?"
+  ], 
+  "bar": [
+    "bars", 
+    "ባር", 
+    "ባሮች"
+  ], 
+  "error loading view": [
+    null, 
+    "እይታን በመጫን ላይ የተፈጠረ ስህተት"
+  ], 
+  "foo": [
+    null, 
+    "ፎ.."
+  ], 
+  "hello %(name)s!": [
+    null, 
+    "ሰላም %(name)s!"
+  ], 
+  "no %(attr)s translation": [
+    "no %(attr)s translations", 
+    "ምንም %(attr)s ትርጉም የለም", 
+    "ምንም %(attr)s ትርጉሞች የሉም"
+  ], 
+  "no translation": [
+    "no translations", 
+    "ምንም ትርጉም የለም", 
+    "ምንም ትርጉሞች የሉም"
+  ]
+}

@@ -7,6 +7,23 @@
 Changelog
 ---------
 
+v.2.6.8 2019-07-03
+==================
+
+General notes:
+ * Note: This version does not requires a requirements upgrade on source installations
+ * Note: This version does not requires a database upgrade
+ * Note: This version does not require a Solr schema upgrade
+
+Fixes:
+
+ * Fix broken div nesting in the `user/read_base.html` (`#4672 <https://github.com/ckan/ckan/issues/4672>`_)
+ * Strip local path when uploading file in IE (`#4608 <https://github.com/ckan/ckan/issues/4608>`_)
+ * Increase size of h1 headings to 1.8em (`#4665 <https://github.com/ckan/ckan/issues/4665>`_)
+ * Fix `ValueError` in `url_validator` (`#4629 <https://github.com/ckan/ckan/issues/4629>`_)
+ * More robust auth functions for `resource_view_show` (`#4827 <https://github.com/ckan/ckan/issues/4827>`_)
+ * Allow to customize the DataProxy URL (`#4874 <https://github.com/ckan/ckan/issues/4874>`_)
+ * Allow custom CKAN callback URL for the DataPusher (`#4878 <https://github.com/ckan/ckan/issues/4878>`_)
 
 v2.6.7 2018-12-12
 =================
