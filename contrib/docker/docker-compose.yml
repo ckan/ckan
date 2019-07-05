@@ -36,8 +36,8 @@ services:
         - CKAN_SITE_URL=${CKAN_SITE_URL}
     links:
       # a.s.
-#      - db
-#      - solr
+      - db
+      - solr
       - redis
     depends_on:
       - db
@@ -112,11 +112,11 @@ services:
           - CKAN_SITE_URL=${CKAN_SITE_URL}
     links:
       # a.s.
-      # - db
+      - db
       - solr
       - redis
     depends_on:
-      # - db
+      - db
       # a.s. added solr
       - solr
     ports:
@@ -197,25 +197,25 @@ services:
     ports:
       - "8800:8800"
 
-  # db:
-  #   container_name: db
-  #   build:
-  #     context: ../../
-  #     dockerfile: contrib/docker/postgresql/Dockerfile
-  #     args:
-  #       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
-  #       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  #   environment:
-  #     - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
-  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  #   volumes:
-  #     - pg_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     # test: ["CMD", "pg_isready", "-U", "postgres"]
-  #     test: ["CMD", "pg_isready", "-U", "ckan"]
-  #   # a.s. TODO: remove later - temp set the port so we can connect locally to check the data
-  #   ports:
-  #     - ${POSTGRES_PORT}:${POSTGRES_PORT}
+  db:
+    container_name: db
+    build:
+      context: ../../
+      dockerfile: contrib/docker/postgresql/Dockerfile
+      args:
+        - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    environment:
+      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      # test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "ckan"]
+    # a.s. TODO: remove later - temp set the port so we can connect locally to check the data
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
 
   # solr:
   #   container_name: solr
