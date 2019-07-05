@@ -60,12 +60,10 @@ services:
       - CKAN_TRACKING_ENABLED=True
 
       # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
-      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
-      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
-      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
-      # - CKAN_SQLALCHEMY_URL=postgresql://ckan:${PG_RDS_PASSWORD}@${PG_RDS_URL}/ckan
-      # - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${PG_RDS_PASSWORD}@${PG_RDS_URL}/datastore
-      # - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@${PG_RDS_URL}/datastore
+      # s. h. - made this more generic, RDS or otherwise.  This will now be controlled by the .env file
+      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@${POSTGRES_URL}/ckan
+      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@${POSTGRES_URL}/datastore
+      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@${POSTGRES_URL}/datastore
 
       - CKAN_SOLR_URL=http://solr:8983/solr/ckan
       - CKAN_REDIS_URL=redis://redis:6379/1
