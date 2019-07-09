@@ -8,6 +8,7 @@
        data-module-resource = "{{ h.dump_json(resource_json) }}";
        data-module-resource-view = "{{ h.dump_json(resource_view_json) }}";
        data-module-map_config= "{{ h.dump_json(map_config) }}";
+       data-module-dataproxy-url= "{{ h.get_dataproxy_url() }}"
        >
     <h4 class="loading-dialog">
       <div class="loading-spinner"></div>
@@ -15,7 +16,7 @@
     </h4>
   </div>
 
-  {% resource 'ckanext-reclineview/main' %}
+  {% asset 'ckanext-reclineview/main' %}
 {% endblock %}
 
 {% block styles %}{% endblock %}

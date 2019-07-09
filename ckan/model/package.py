@@ -556,6 +556,19 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                             rating=rating)
             meta.Session.add(rating)
 
+    @property
+    @maintain.deprecated()
+    def extras_list(self):
+        '''DEPRECATED in 2.9
+
+        Returns a list of the dataset's extras, as PackageExtra object
+        NB includes deleted ones too (state='deleted')
+        '''
+        from package_extra import PackageExtra
+        return meta.Session.query(PackageExtra) \
+            .filter_by(package_id=self.id) \
+            .all()
+
 
 class RatingValueException(Exception):
     pass

@@ -3,9 +3,8 @@
 {% block content %}
   {{ super() }}
 
-  {% resource 'example_theme/example_theme_popover.js' %}
-  {% resource 'example_theme/example_theme_popover.css' %}
-  {% resource 'example_theme/jquery.greenify.js' %}
+  {% asset 'example_theme/example_theme' %}
+
 
   <button data-module="example_theme_popover"
           data-module-id="{{ package.id }}"

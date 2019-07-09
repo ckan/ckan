@@ -13,7 +13,8 @@
 
 [DEFAULT]
 
-# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
+# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PUBLIC ENVIRONMENT*
+# With debug mode enabled, a visitor to your site could execute malicious commands.
 debug = false
 
 [server:main]
@@ -119,10 +120,6 @@ ckan.views.default_views = image_view text_view recline_view
 
 ## Front-End Settings
 
-# Uncomment following configuration to enable using of Bootstrap 2
-#ckan.base_public_folder = public-bs2
-#ckan.base_templates_folder = templates-bs2
-
 ckan.site_title = CKAN
 ckan.site_logo = /base/images/ckan-logo.png
 ckan.site_description =
@@ -159,6 +156,11 @@ ckan.feeds.author_link =
 #ckan.storage_path = /var/lib/ckan
 #ckan.max_resource_size = 10
 #ckan.max_image_size = 2
+
+## Webassets Settings
+#ckan.webassets.use_x_sendfile = false
+#ckan.webassets.path = /var/lib/ckan/webassets
+
 
 ## Datapusher settings
 

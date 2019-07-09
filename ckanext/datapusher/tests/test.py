@@ -11,6 +11,7 @@ from ckan.tests import helpers
 import ckanext.datastore.backend.postgres as db
 import responses
 import nose
+from nose.tools import assert_equals
 import sqlalchemy.orm as orm
 from ckan.common import config
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
@@ -232,3 +233,33 @@ class TestDatastoreCreate():
 
         self.app.post('/api/action/datapusher_hook', params=postparams,
                       status=409)
+
+    @responses.activate
+    @helpers.change_config(
+        'ckan.datapusher.callback_url_base', 'https://ckan.example.com')
+    @helpers.change_config(
+        'ckan.datapusher.url', 'http://datapusher.ckan.org')
+    def test_custom_callback_url_base(self):
+
+        package = model.Package.get('annakarenina')
+        resource = package.resources[0]
+
+        responses.add(
+            responses.POST,
+            'http://datapusher.ckan.org/job',
+            content_type='application/json',
+            body=json.dumps({'job_id': 'foo', 'job_key': 'barloco'})
+        )
+        responses.add_passthru(config['solr_url'])
+
+        tests.call_action_api(
+            self.app, 'datapusher_submit', apikey=self.sysadmin_user.apikey,
+            resource_id=resource.id,
+            ignore_hash=True
+        )
+
+        data = json.loads(responses.calls[-1].request.body)
+        assert_equals(
+            data['result_url'],
+            'https://ckan.example.com/api/3/action/datapusher_hook'
+        )

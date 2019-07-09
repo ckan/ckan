@@ -115,6 +115,7 @@ def _get_engine_from_url(connection_url):
     engine = _engines.get(connection_url)
     if not engine:
         extras = {'url': connection_url}
+        config.setdefault('pool_pre_ping', True)
         engine = sqlalchemy.engine_from_config(config,
                                                'ckan.datastore.sqlalchemy.',
                                                **extras)
@@ -315,7 +316,7 @@ def _cache_types(connection):
             # redo cache types with json now available.
             return _cache_types(connection)
 
-        register_composite('nested', connection.connection, True)
+        register_composite('nested', connection.connection.connection, True)
 
 
 def _pg_version_is_at_least(connection, version):
@@ -1042,7 +1043,7 @@ def upsert_data(context, data_dict):
             row = []
             for field in fields:
                 value = record.get(field['id'])
-                if value and field['type'].lower() == 'nested':
+                if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     value = (json.dumps(value), '')
                 row.append(value)

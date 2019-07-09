@@ -21,6 +21,14 @@ def get_mapview_config():
                  if k.startswith(namespace)])
 
 
+def get_dataproxy_url():
+    '''
+    Returns the value of the ckan.recline.dataproxy_url config option
+    '''
+    return config.get(
+        'ckan.recline.dataproxy_url', '//jsonpdataproxy.appspot.com')
+
+
 def in_list(list_possible_values):
     '''
     Validator that checks that the input value is one of the given
@@ -83,7 +91,8 @@ class ReclineViewBase(p.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            'get_map_config': get_mapview_config
+            'get_map_config': get_mapview_config,
+            'get_dataproxy_url': get_dataproxy_url,
         }
 
 
