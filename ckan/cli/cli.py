@@ -13,7 +13,8 @@ from ckan.cli import (
     dataset,
     plugin_info,
     notify,
-    tracking
+    tracking,
+    minify
 )
 
 from ckan.config.middleware import make_app
@@ -50,3 +51,4 @@ ckan.add_command(dataset.dataset)
 ckan.add_command(plugin_info.plugin_info)
 ckan.add_command(notify.notify)
 ckan.add_command(tracking.tracking)
+ckan.add_command(minify.minify)
