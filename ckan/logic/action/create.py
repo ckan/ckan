@@ -153,10 +153,6 @@ def package_create(context, data_dict):
     model = context['model']
     user = context['user']
 
-    # a.s.
-    recipient = {}
-    email_dict = {}
-
     if 'type' not in data_dict:
         package_plugin = lib_plugins.lookup_package_plugin()
         try:
@@ -253,37 +249,6 @@ def package_create(context, data_dict):
     if return_id_only:
         return pkg.id
 
-    # a.s. send a msg to OCE distribution group
-    email_dict['subject'] = 'AVIN Dataset has been added'
-    email_dict['body'] = 'New Dataset has been created: ' + '\n\n' + \
-        '--------------------------------' + '\n' + \
-        u'Package Name: ' + pkg.name + '\n' + \
-        u'Package Title: ' + pkg.title + '\n' + \
-        u'Package Author: ' + pkg.author + '\n' + \
-        u'Package Maintainer: ' + pkg.maintainer + '\n' + \
-        u'Package Notes: ' + pkg.notes + '\n' + \
-        '--------------------------------' + '\n'
-    recipient['display_name'] = os.environ['oce_email_distribution_group']
-    recipient['email'] = os.environ['oce_email_distribution_group']
-
-    # if _mail_recipient(recipient, email_dict):
-    #     log.info(
-    #         'create.py.package_create: a.s. - email to OCE distribution group sent')
-
-    jobs.enqueue(_mail_recipient, [recipient, email_dict])
-
-    # send email
-    test_email = {'recipient_name': recipient['display_name'],
-                  'recipient_email': recipient['email'],
-                  'subject': email_dict['subject'],
-                  'body': email_dict['body'],
-                  'headers': {'header1': 'value1'}}
-
-    # mailer.mail_recipient(**test_email)
-
-    log.info(
-        'create.py.package_create: a.s. - email to OCE distribution group sent')
-
     return _get_action('package_show')(
         context.copy(), {'id': pkg.id}
     )
@@ -331,13 +296,6 @@ def resource_create(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
-
-    # a.s.
-    recipient = {}
-    email_dict = {}
-    email_context = {}
-    email_resource = {}
 
     package_id = _get_or_bust(data_dict, 'package_id')
     if not data_dict.get('url'):
@@ -401,44 +359,6 @@ def resource_create(context, data_dict):
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_create(context, resource)
-
-    # a.s. send a msg to OCE distribution group
-    email_context = context['package']
-    email_resource = email_context.resources[-1]
-    email_dict['subject'] = u'AVIN Resource has been added'
-    email_dict['body'] = u'New Resource has been created: ' + '\n\n' + \
-        '--------------------------------' + '\n' + \
-        u'Package Name: ' + email_context.name + '\n' + \
-        u'Package Title: ' + email_context.title + '\n' + \
-        u'Package Author: ' + email_context.author + '\n' + \
-        u'Package Maintainer: ' + email_context.maintainer + '\n' + \
-        u'Package Notes: ' + email_context.notes + '\n' + \
-        '--------------------------------' + '\n' + \
-        u'Resource Name: ' + email_resource.name + '\n' + \
-        u'Resource URL: ' + email_resource.url + '\n' + \
-        u'Resource Description: ' + email_resource.description + '\n' + \
-        '--------------------------------' + '\n'
-    recipient['display_name'] = os.environ['oce_email_distribution_group']
-    recipient['email'] = os.environ['oce_email_distribution_group']
-
-    # a.s. disable to test a delay
-    # if _mail_recipient(recipient, email_dict):
-    #     log.info(
-    #         'create.py.resource_create: a.s. - email to OCE distribution group sent')
-
-    # send email
-    test_email = {'recipient_name': recipient['display_name'],
-                  'recipient_email': recipient['email'],
-                  'subject': email_dict['subject'],
-                  'body': email_dict['body'],
-                  'headers': {'header1': 'value1'}}
-
-    jobs.enqueue(_mail_recipient, [recipient, email_dict])
-
-    # mailer.mail_recipient(**test_email)
-
-    log.info(
-        'create.py.resource_create: a.s. - email to OCE distribution group sent')
 
     return resource
 

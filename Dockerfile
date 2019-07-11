@@ -57,6 +57,11 @@ RUN ckan-pip install -U pip && \
 RUN ckan-pip install -e git+https://github.com/ckan/ckanext-googleanalytics.git#egg=ckanext-googleanalytics && \
   ckan-pip install -r $CKAN_VENV/src/ckanext-googleanalytics/requirements.txt
 
+# todo, dev only, remove when when dev completed.
+ADD ./ckanext-marsavin $CKAN_VENV/src/ckanext-marsavin
+WORKDIR $CKAN_VENV/src/ckan/
+RUN $CKAN_VENV/bin/python $CKAN_VENV/src/ckanext-marsavin/setup.py develop
+
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 
 USER ckan
