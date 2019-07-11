@@ -589,11 +589,11 @@ sudo cp -r src/ckanext-cioos_theme/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-spatial/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/pycsw/ $VOL_CKAN_HOME/venv/src/
-sudo cp -r src/ckanext-doi/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-scheming/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-package_converter/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext_fluent/ $VOL_CKAN_HOME/venv/src/
 sudo cp src/cioos-siooc-schema/cioos-siooc_schema.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/cioos_siooc_schema.json
+sudo cp src/cioos-siooc-schema/organization.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/organization.json
 ```
 
 update permissions
