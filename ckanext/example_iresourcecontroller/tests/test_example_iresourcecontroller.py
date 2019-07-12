@@ -89,6 +89,27 @@ class TestExampleIResourceController(object):
         assert plugin.counter['before_delete'] == 1, plugin.counter
         assert plugin.counter['after_delete'] == 1, plugin.counter
 
+    def test_resource_controller_plugin_delete_via_dataset_delete(self):
+        user = factories.Sysadmin()
+        dataset = factories.Dataset(user=user)
+        factories.Resource(user=user, package_id=dataset['id'])
+        factories.Resource(user=user, package_id=dataset['id'])
+
+        ckan.plugins.load('example_iresourcecontroller')
+        plugin = ckan.plugins.get_plugin('example_iresourcecontroller')
+
+        # Deleting the package deletes its resources too
+        res = helpers.call_action('package_delete',
+                                  id=dataset['id'],
+                                  apikey=user['apikey'])
+
+        assert plugin.counter['before_create'] == 0, plugin.counter
+        assert plugin.counter['after_create'] == 0, plugin.counter
+        assert plugin.counter['before_update'] == 0, plugin.counter
+        assert plugin.counter['after_update'] == 0, plugin.counter
+        assert plugin.counter['before_delete'] == 2, plugin.counter
+        assert plugin.counter['after_delete'] == 2, plugin.counter
+
     def test_resource_controller_plugin_show(self):
         """
         Before show gets called by the other methods but we test it

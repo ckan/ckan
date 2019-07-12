@@ -21,7 +21,42 @@ ok = nose.tools.ok_
 raises = nose.tools.raises
 
 
-class TestDelete:
+class TestPackageDelete:
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_simple(self):
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset(user=user)
+
+        helpers.call_action('package_delete', id=dataset['id'])
+
+        # A sysadmin can still see it
+        dataset = helpers.call_action(
+            'package_show', {'user': sysadmin['name']}, id=dataset['id'])
+        assert_equals(dataset['state'], 'deleted')
+
+    def test_with_resource(self):
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset(user=user)
+        resource = factories.Resource(package_id=dataset['id'])
+
+        helpers.call_action('package_delete', id=dataset['id'])
+
+        dataset = helpers.call_action(
+            'package_show', {'user': sysadmin['name']}, id=dataset['id'])
+        assert_equals(dataset['state'], 'deleted')
+        # The resource is not shown though
+        assert_equals(dataset['resources'], [])
+        # The resource is still there but with state=deleted
+        res_obj = model.Resource.get(resource['id'])
+        assert_equals(res_obj.state, 'deleted')
+
+
+class TestResourceDelete:
 
     def setup(self):
         helpers.reset_db()

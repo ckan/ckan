@@ -92,6 +92,29 @@ def package_delete(context, data_dict):
     rev.author = user
     rev.message = _(u'REST API: Delete Package: %s') % entity.name
 
+    # delete the dataset's resources
+    pkg_dict = _get_action('package_show')(context, {'id': id})
+    for res in pkg_dict['resources']:
+        for plugin in plugins.PluginImplementations(
+                plugins.IResourceController):
+            plugin.before_delete(context, res,
+                                 pkg_dict.get('resources', []))
+
+    def pop_resource(pkg_dict, res_id):
+        for res in pkg_dict.get('resources', []):
+            if res['id'] == res_id:
+                pkg_dict['resources'].remove(res)
+                return
+
+    pkg_dict = _get_action('package_show')(context, {'id': id})
+    for res in entity.resources:
+        pop_resource(pkg_dict, res.id)
+        res.delete()
+        for plugin in plugins.PluginImplementations(
+                plugins.IResourceController):
+            plugin.after_delete(context, pkg_dict.get('resources', []))
+
+    # delete the dataset
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.delete(entity)
 
@@ -195,7 +218,7 @@ def resource_delete(context, data_dict):
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_delete(context, pkg_dict.get('resources', []))
-    
+
     model.repo.commit()
 
 
