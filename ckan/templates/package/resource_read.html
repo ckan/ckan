@@ -83,17 +83,10 @@
     {% endblock %}
 
     {% block resource_read_url %}
-      <!-- a.s. May 6 -->
-      <!-- if license eq 'Other (Not open)': show the button instead -->
-      {% if pkg.license_title == 'Other (Not Open)': %}
-        {% link_for _('Request Dataset Access'), controller='mars', action='marsdataaccess', id=pkg.name, resource_id=res.id, maintainer_name=pkg.maintainer, maintainer_email=pkg.maintainer_email, resource_name=pkg.resources[0].name, class_='btn btn-primary', icon='external-link' %}
-      {% else %}
-        {% if res.url and h.is_url(res.url) %}
-        <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}"
-            title="{{ res.url }}">{{ res.url }}</a></p>
-        {% elif res.url %}
+      {% if res.url and h.is_url(res.url) %}
+        <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+      {% elif res.url %}
         <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
-        {% endif %}
       {% endif %}
     {% endblock %}
 
