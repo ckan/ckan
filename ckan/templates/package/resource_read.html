@@ -144,7 +144,7 @@
       {% else %}
       {# Views not created #}
       <div class="data-viewer-info">
-        <p> {# {{ _("There are no views created for this resource yet.") }} #} </p>
+        <p> {{ _("There are no views created for this resource yet.") }} </p>
         {% if h.check_access('resource_view_create', {'resource_id': resource.id}) %}
         <p class="text-muted">
           <i class="fa fa-info-circle"></i>
