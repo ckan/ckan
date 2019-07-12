@@ -409,7 +409,9 @@ def _url_for_pylons(*args, **kw):
 
     # We need to provide protocol and host to get full URLs, get them from
     # ckan.site_url
-    if kw.get('qualified', False) or kw.get('_external', False):
+    if kw.pop('_external', None):
+        kw['qualified'] = True
+    if kw.get('qualified'):
         kw['protocol'], kw['host'] = get_site_protocol_and_host()
 
     # The Pylons API routes require a slask on the version number for some
@@ -505,7 +507,7 @@ def _local_url(url_to_amend, **kw):
             default_locale = True
 
     root = ''
-    if kw.get('qualified', False):
+    if kw.get('qualified', False) or kw.get('_external', False):
         # if qualified is given we want the full url ie http://...
         protocol, host = get_site_protocol_and_host()
         root = _routes_default_url_for('/',
@@ -934,8 +936,11 @@ def build_extra_admin_nav():
     admin_tabs_dict = config.get('ckan.admin_tabs')
     output = ''
     if admin_tabs_dict:
-        for key in admin_tabs_dict:
-            output += build_nav_icon(key, admin_tabs_dict[key])
+        for k, v in admin_tabs_dict.iteritems():
+            if v['icon']:
+                output += build_nav_icon(k, v['label'], icon=v['icon'])
+            else:
+                output += build_nav(k, v['label'])
     return output
 
 
@@ -1010,7 +1015,9 @@ def get_facet_items_dict(
     for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
-        if not (facet, facet_item['name']) in request.params.items(multi=True):
+        params_items = request.params.items(multi=True) \
+            if is_flask_request() else request.params.items()
+        if not (facet, facet_item['name']) in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
@@ -1046,7 +1053,9 @@ def has_more_facets(facet, search_facets, limit=None, exclude_active=False):
     for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
-        if not (facet, facet_item['name']) in request.params.items(multi=True):
+        params_items = request.params.items(multi=True) \
+            if is_flask_request() else request.params.items()
+        if not (facet, facet_item['name']) in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
@@ -1816,8 +1825,10 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     instead.
     '''
 
+    params_items = request.params.items(multi=True) \
+        if is_flask_request() else request.params.items()
     params_nopage = [
-        (k, v)for k, v in request.params.items(multi=True)
+        (k, v) for k, v in params_items
         if k != 'page'
     ]
     params = set(params_nopage)
@@ -1854,8 +1865,10 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     else:
         keys = key
 
+    params_items = request.params.items(multi=True) \
+        if is_flask_request() else request.params.items()
     params_nopage = [
-        (k, v) for k, v in request.params.items(multi=True)
+        (k, v) for k, v in params_items
         if k != 'page'
     ]
     params = list(params_nopage)

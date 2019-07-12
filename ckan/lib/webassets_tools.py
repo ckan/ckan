@@ -58,7 +58,7 @@ def webassets_init():
     env.debug = config.get(u'debug', False)
     env.url = u'/webassets/'
 
-    env.append_path(base_path, u'/base/')
+    add_public_path(base_path, u'/base/')
 
     logger.debug(u'Base path {0}'.format(base_path))
     create_library(u'vendor', os.path.join(
@@ -159,3 +159,7 @@ def get_webassets_path():
             u'must be specified'
         )
     return webassets_path
+
+
+def add_public_path(path, url):
+    env.append_path(path, url)

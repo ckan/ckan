@@ -1,5 +1,7 @@
 main-css:
   output: ckanext-reclineview/%(version)s_reclineview.css
+  filters: cssrewrite
+
   contents:
     - vendor/bootstrap/3.2.0/css/bootstrap.css
     - vendor/leaflet/0.7.7/leaflet.css

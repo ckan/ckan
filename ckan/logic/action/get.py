@@ -10,6 +10,7 @@ import socket
 
 from ckan.common import config
 import sqlalchemy
+from sqlalchemy import text
 from paste.deploy.converters import asbool
 from six import string_types, text_type
 
@@ -1429,7 +1430,7 @@ def format_autocomplete(context, data_dict):
         ))
         .filter(model.Resource.format.ilike(like_q))
         .group_by(model.Resource.format)
-        .order_by('total DESC')
+        .order_by(text('total DESC'))
         .limit(limit))
 
     return [resource.format.lower() for resource in query]
@@ -1456,9 +1457,14 @@ def user_autocomplete(context, data_dict):
 
     q = data_dict['q']
     limit = data_dict.get('limit', 20)
+    ignore_self = data_dict.get('ignore_self', False)
 
     query = model.User.search(q)
     query = query.filter(model.User.state != model.State.DELETED)
+
+    if ignore_self:
+        query = query.filter(model.User.name != user)
+
     query = query.limit(limit)
 
     user_list = []

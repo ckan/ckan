@@ -392,8 +392,8 @@ class CKANFlask(Flask):
         `origin` can be either 'core' or 'extension' depending on where
         the route was defined.
         '''
-
         urls = self.url_map.bind_to_environ(environ)
+
         try:
             rule, args = urls.match(return_rule=True)
             origin = 'core'
@@ -401,6 +401,12 @@ class CKANFlask(Flask):
                 origin = 'extension'
             log.debug('Flask route match, endpoint: {0}, args: {1}, '
                       'origin: {2}'.format(rule.endpoint, args, origin))
+
+            # Disable built-in flask's ability to prepend site root to
+            # generated url, as we are going to use locale and existing
+            # logic is not flexible enough for this purpose
+            environ['SCRIPT_NAME'] = ''
+
             return (True, self.app_name, origin)
         except HTTPException:
             return (False, self.app_name)
@@ -477,12 +483,20 @@ def _setup_error_mail_handler(app):
             log_record.headers = request.headers
             return True
 
-    mailhost = tuple(config.get('smtp.server', 'localhost').split(":"))
+    smtp_server = config.get('smtp.server', 'localhost')
+    mailhost = tuple(smtp_server.split(':')) \
+        if ':' in smtp_server else smtp_server
+    credentials = None
+    if config.get('smtp.user'):
+        credentials = (config.get('smtp.user'), config.get('smtp.password'))
+    secure = () if asbool(config.get('smtp.starttls')) else None
     mail_handler = SMTPHandler(
         mailhost=mailhost,
         fromaddr=config.get('error_email_from'),
         toaddrs=[config.get('email_to')],
-        subject='Application Error'
+        subject='Application Error',
+        credentials=credentials,
+        secure=secure
     )
 
     mail_handler.setFormatter(logging.Formatter('''

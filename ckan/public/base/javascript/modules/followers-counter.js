@@ -61,6 +61,8 @@ this.ckan.module('followers-counter', function($) {
       var action = options.action;
       var incrementedFollowers;
 
+      locale = locale ? locale.replace('_', '-') : locale;
+
       if (action === 'follow') {
         incrementedFollowers = (++this.options.num_followers).toLocaleString(locale);
       } else if (action === 'unfollow') {
