@@ -353,6 +353,37 @@ class TestTrashView(helpers.FunctionalTestBase):
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert_equal(pkgs_before_purge, 1)
 
+    def test_trash_purge_deleted_dataset_with_resources(self):
+        user = factories.Sysadmin()
+        dataset = factories.Dataset(
+            resources=[{'url': 'http://example.com/resource'}])
+        helpers.call_action('package_delete', id=dataset['id'])
+        app = self._get_test_app()
+
+        # how many datasets before purge
+        pkgs_before_purge = model.Session.query(model.Package).count()
+        resources_before_purge = model.Session.query(model.Resource).count()
+        assert_equal(pkgs_before_purge, 1)
+        assert_equal(resources_before_purge, 1)
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        # submit the purge form
+        purge_form = trash_response.forms['form-purge-packages']
+        purge_response = webtest_submit(purge_form, 'purge-packages',
+                                        status=302, extra_environ=env)
+        purge_response = purge_response.follow(extra_environ=env)
+        # redirected back to trash page
+        assert_true('Purge complete' in purge_response)
+
+        # how many datasets after purge
+        pkgs_after_purge = model.Session.query(model.Package).count()
+        resources_after_purge = model.Session.query(model.Resource).count()
+        assert_equal(pkgs_after_purge, 0)
+        assert_equal(resources_after_purge, 0)
+
 
 class TestAdminConfigUpdate(helpers.FunctionalTestBase):
 

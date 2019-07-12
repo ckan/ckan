@@ -149,6 +149,7 @@ class TrashView(MethodView):
         return base.render(u'admin/trash.html', extra_vars=data)
 
     def post(self):
+
         deleted_revisions = model.Session.query(
             model.Revision).filter_by(state=model.State.DELETED)
         # NB: we repeat retrieval of of revisions
@@ -160,6 +161,13 @@ class TrashView(MethodView):
         if (u'purge-packages' in request.form) or (
                 u'purge-revisions' in request.form):
             if u'purge-packages' in request.form:
+                # Delete the packages first
+                for pkg in self.deleted_packages:
+                    logic.get_action(u'dataset_purge')(
+                        {u'user': g.user}, {u'id': pkg.id})
+                model.Session.remove()
+
+                # Delete associated revisions
                 revs_to_purge = []
                 for pkg in self.deleted_packages:
                     revisions = [x[0] for x in pkg.all_related_revisions]
