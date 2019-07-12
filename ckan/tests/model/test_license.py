@@ -16,6 +16,13 @@ class TestLicenseRegister(object):
     def setup(self):
         helpers.reset_db()
 
+    def teardown(self):
+        # _license_register is cached, so clear it after tests that change the
+        # config['licenses_group_url']
+        from ckan import model
+        if hasattr(model.Package, '_license_register'):
+            del model.Package._license_register
+
     def test_default_register_has_basic_properties_of_a_license(self):
         config['licenses_group_url'] = None
         reg = LicenseRegister()
