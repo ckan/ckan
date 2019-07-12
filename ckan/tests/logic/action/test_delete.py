@@ -49,11 +49,13 @@ class TestPackageDelete:
         dataset = helpers.call_action(
             'package_show', {'user': sysadmin['name']}, id=dataset['id'])
         assert_equals(dataset['state'], 'deleted')
-        # The resource is not shown though
-        assert_equals(dataset['resources'], [])
-        # The resource is still there but with state=deleted
+        # It's complete with resources
+        assert_equals([res['id'] for res in dataset['resources']],
+                      [resource['id']])
+        # The resource is still there, not deleted, otherwise it wouldn't have
+        # shown up as part of the deleted dataset
         res_obj = model.Resource.get(resource['id'])
-        assert_equals(res_obj.state, 'deleted')
+        assert_equals(res_obj.state, 'active')
 
 
 class TestResourceDelete:

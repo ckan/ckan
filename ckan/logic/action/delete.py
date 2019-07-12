@@ -92,7 +92,11 @@ def package_delete(context, data_dict):
     rev.author = user
     rev.message = _(u'REST API: Delete Package: %s') % entity.name
 
-    # delete the dataset's resources
+    # notify IResourceControllers that the dataset's resources are essentially
+    # deleted, by virtue of the dataset being deleted
+    # BUT don't actually delete the resource (state=deleted) because would mean
+    # that when a sysadmin views the deleted dataset it would show with no
+    # resources
     pkg_dict = _get_action('package_show')(context, {'id': id})
     for res in pkg_dict['resources']:
         for plugin in plugins.PluginImplementations(
@@ -100,19 +104,10 @@ def package_delete(context, data_dict):
             plugin.before_delete(context, res,
                                  pkg_dict.get('resources', []))
 
-    def pop_resource(pkg_dict, res_id):
-        for res in pkg_dict.get('resources', []):
-            if res['id'] == res_id:
-                pkg_dict['resources'].remove(res)
-                return
-
-    pkg_dict = _get_action('package_show')(context, {'id': id})
-    for res in entity.resources:
-        pop_resource(pkg_dict, res.id)
-        res.delete()
+    for res in pkg_dict['resources']:
         for plugin in plugins.PluginImplementations(
                 plugins.IResourceController):
-            plugin.after_delete(context, pkg_dict.get('resources', []))
+            plugin.after_delete(context, [])
 
     # delete the dataset
     for item in plugins.PluginImplementations(plugins.IPackageController):
