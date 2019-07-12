@@ -116,7 +116,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore datapusher googleanalytics
+ckan.plugins = stats text_view image_view recline_view datastore datapusher googleanalytics marsavin marsavinResource marsavinPackage
 # ckan.plugins = stats text_view image_view recline_view
 
 # Define which views should be created by default

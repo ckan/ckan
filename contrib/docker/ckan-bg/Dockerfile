@@ -59,9 +59,7 @@ RUN ckan-pip install -U pip && \
   chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
 # todo, dev only, remove when when dev completed.
-ADD ./ckanext-marsavin $CKAN_VENV/src/ckanext-marsavin
-WORKDIR $CKAN_VENV/src/ckan/
-RUN $CKAN_VENV/bin/python $CKAN_VENV/src/ckanext-marsavin/setup.py develop
+RUN $CKAN_VENV/bin/pip install $CKAN_VENV/src/ckan/ckanext-marsavin
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 
