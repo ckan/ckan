@@ -139,7 +139,30 @@ class ConfigView(MethodView):
         return h.redirect_to(u'admin.config')
 
 
+class TrashView(MethodView):
+    def __init__(self):
+        self.deleted_packages = model.Session.query(
+            model.Package).filter_by(state=model.State.DELETED)
+
+    def get(self):
+        data = dict(deleted_packages=self.deleted_packages)
+        return base.render(u'admin/trash.html', extra_vars=data)
+
+    def post(self):
+        if (u'purge-packages' in request.form):
+            for pkg in self.deleted_packages:
+                logic.get_action(u'dataset_purge')(
+                    {u'user': g.user}, {u'id': pkg.id})
+            model.Session.remove()
+            h.flash_success(_(u'Purge complete'))
+        else:
+            h.flash_error(_(u'Action not implemented.'))
+
+        return h.redirect_to(u'admin.trash')
+
+
 admin.add_url_rule(u'/', view_func=index, strict_slashes=False)
 admin.add_url_rule(
     u'/reset_config', view_func=ResetConfigView.as_view(str(u'reset_config')))
 admin.add_url_rule(u'/config', view_func=ConfigView.as_view(str(u'config')))
+admin.add_url_rule(u'/trash', view_func=TrashView.as_view(str(u'trash')))

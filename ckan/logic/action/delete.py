@@ -63,7 +63,8 @@ def user_delete(context, data_dict):
 def package_delete(context, data_dict):
     '''Delete a dataset (package).
 
-    This makes the dataset disappear from all web & API views
+    This makes the dataset disappear from all web & API views, apart from the
+    trash.
 
     You must be authorized to delete the dataset.
 
@@ -183,7 +184,7 @@ def resource_delete(context, data_dict):
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_delete(context, pkg_dict.get('resources', []))
-    
+
     model.repo.commit()
 
 
