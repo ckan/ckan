@@ -6,6 +6,7 @@ import datetime
 import csv
 import ckan.logic as logic
 from collections import namedtuple
+from ckan.cli import error_shout
 
 _ViewCount = namedtuple(u'ViewCount', u'id name count')
 
@@ -215,8 +216,8 @@ def update_tracking_solr(engine, start_date):
         except KeyboardInterrupt:
             click.echo(u'Stopped.')
             return
-        except Exception, e:
-            raise e
+        except Exception as e:
+            error_shout(e)
     click.echo(
         u'search index rebuilding done.' + (
             u' {} not found.'.format(not_found) if not_found else u''
