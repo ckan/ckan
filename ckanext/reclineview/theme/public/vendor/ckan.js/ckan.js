@@ -43,6 +43,11 @@ if (isNodeModule) {
   my.Client.prototype.datastoreQuery = function(queryObj, cb) {
     var actualQuery = my._normalizeQuery(queryObj);
     this.action('datastore_search', actualQuery, function(err, results) {
+      if(err || !results){
+        cb(err);
+        return;
+      }
+
       // map ckan types to our usual types ...
       var fields = _.map(results.result.fields, function(field) {
         field.type = field.type in my.ckan2JsonTableSchemaTypes ? my.ckan2JsonTableSchemaTypes[field.type] : field.type;
