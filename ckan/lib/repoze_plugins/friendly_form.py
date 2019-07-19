@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+'''
+This is a modified version of repoze.who-friendlyform, written by
+Gustavo Narea <me@gustavonarea.net>
+'''
+
+
 ##############################################################################
 #
 # Copyright (c) 2009-2010, Gustavo Narea <me@gustavonarea.net> and contributors.
@@ -15,22 +21,19 @@
 
 """Collection of :mod:`repoze.who` friendly forms"""
 
-from urlparse import urlparse, urlunparse
-from urllib import urlencode
-try:
-    from urlparse import parse_qs
-except ImportError:#pragma: no cover
-    from cgi import parse_qs
+from six.moves.urllib.parse import urlparse, urlunparse, urlencode, parse_qs
 
-from webob import Request
-# TODO: Stop using Paste; we already started using WebOb
+from webob import Request, UnicodeMultiDict
 from webob.exc import HTTPFound, HTTPUnauthorized
-from paste.request import construct_url, parse_dict_querystring, parse_formvars
 from zope.interface import implements
 
 from repoze.who.interfaces import IChallenger, IIdentifier
 
 __all__ = ['FriendlyFormPlugin']
+
+
+def construct_url(environ):
+    return Request(environ).url
 
 
 class FriendlyFormPlugin(object):
@@ -172,7 +175,9 @@ class FriendlyFormPlugin(object):
 
         elif path_info == self.logout_handler_path:
             ##    We are on the URL where repoze.who logs the user out.    ##
-            form = parse_formvars(environ)
+            r = Request(environ)
+            params = dict(list(r.GET.items()) + list(r.POST.items()))
+            form = UnicodeMultiDict(params)
             form.update(query)
             referer = environ.get('HTTP_REFERER', script_name)
             came_from = form.get('came_from', referer)
@@ -273,7 +278,7 @@ class FriendlyFormPlugin(object):
         Otherwise, it will be ``None`` or an string.
 
         """
-        variables = parse_dict_querystring(environ)
+        variables = Request(environ).queryvars
         failed_logins = variables.get(self.login_counter_name)
         if force_typecast:
             try:
