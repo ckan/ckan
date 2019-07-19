@@ -38,7 +38,7 @@ jobs:
             npm install mocha-phantomjs@3.5.0 phantomjs@~1.9.1
             ;;
           esac
-          apt install -y postgresql-client solr-jetty openjdk-8-jdk
+          apt install -y postgresql-client solr-jetty openjdk-11-jdk
 
           # Python Dependencies
           pip install -r requirement-setuptools.txt
