@@ -38,7 +38,7 @@ jobs:
             npm install mocha-phantomjs@3.5.0 phantomjs@~1.9.1
             ;;
           esac
-          apt install -y postgresql-client solr-jetty openjdk-8-jdk
+          apt install -y postgresql-client solr-jetty openjdk-11-jdk
 
           # Python Dependencies
           pip install -r requirement-setuptools.txt
@@ -48,7 +48,8 @@ jobs:
 
           # SOLR config
           cp ~/project/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-          service jetty9 restart || true  # erroring out but does seem to work
+          service jetty9 restart || true  # it says "jetty9 failed!" but it does seem to work!
+          service jetty9 check
 
           # Database Creation
           psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
