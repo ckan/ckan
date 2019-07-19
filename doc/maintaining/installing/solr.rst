@@ -60,9 +60,29 @@ installed, we need to install and configure Solr.
     Ignore any warning that it wasn't already running - some Ubuntu
     distributions choose not to start Jetty on install, but it's not important.
 
-   You should now see a welcome page from Solr if you open
-   http://localhost:8983/solr/ in your web browser (replace localhost with
-   your server address if needed).
+   You can test Solr responds correctly like this (you may need to install curl
+   first)::
+
+        $ curl http://localhost:8983/solr/
+
+        <html>
+        <head>
+        <link rel="stylesheet" type="text/css" href="solr-admin.css">
+        <link rel="icon" href="favicon.ico" type="image/ico"></link>
+        <link rel="shortcut icon" href="favicon.ico" type="image/ico"></link>
+        <title>Welcome to Solr</title>
+        </head>
+
+        <body>
+        <h1>Welcome to Solr!</h1>
+        <a href="."><img border="0" align="right" height="78" width="142" src="admin/solr_small.png" alt="Solr"/></a>
+
+
+        <a href="admin/">Solr Admin</a>
+
+
+        </body>
+        </html>
 
    .. note::
 
