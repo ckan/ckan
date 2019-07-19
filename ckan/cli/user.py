@@ -1,15 +1,20 @@
 # encoding: utf-8
 
 import logging
+import sys
 from pprint import pprint
+
 import click
 
+import ckan.logic as l
+import ckan.plugins as p
 from ckan.cli import error_shout
 
 log = logging.getLogger(__name__)
 
 
 @click.group(name=u'user', short_help=u'Manage user commands')
+@click.help_option(u'-h', u'--help')
 def user():
     pass
 
@@ -19,8 +24,8 @@ def user():
 @click.argument('args', nargs=-1)
 @click.pass_context
 def add_user(ctx, username, args):
-    '''Add new user if we use paster sysadmin add
-    or paster user add
+    '''Add new user if we use ckan sysadmin add
+    or ckan user add
     '''
     # parse args into data_dict
     data_dict = {'name': username}
@@ -87,3 +92,19 @@ def list_users():
     click.secho('count = %i' % users.count())
     for user in users:
         click.secho(get_user_str(user))
+
+
+@user.command(u'remove', short_help=u'Remove user')
+@click.argument('username')
+@click.pass_context
+def remove_user(ctx, username):
+    import ckan.model as model
+    if not username:
+        error_shout("Please specify the username to be removed")
+
+    flask_app = ctx.obj.app.apps['flask_app']._wsgi_app
+    site_user = l.get_action(u'get_site_user')({u'ignore_auth': True}, {})
+    context = {u'user': site_user[u'name']}
+    with flask_app.test_request_context():
+        p.toolkit.get_action('user_delete')(context, {'id': username})
+        click.secho('Deleted user: %s' % username, fg=u'green', bold=True)
