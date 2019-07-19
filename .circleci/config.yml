@@ -63,9 +63,6 @@ jobs:
           paster datastore -c test-core-circle-ci.ini set-permissions | psql --host=ckan-postgres --username=ckan
           paster db init -c test-core-circle-ci.ini
 
-          # No need for AppArmor to protect
-          aa-disable
-
       # Tests Backend, split across containers by segments
       - run: |
           mkdir -p ~/junit
