@@ -48,6 +48,7 @@ jobs:
 
           # SOLR config
           cp ~/project/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
+          printf "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8080\nJAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64\n" | tee /etc/default/jetty
           service jetty9 restart || true  # it says "jetty9 failed!" but it does seem to work!
           service jetty9 check
 
@@ -61,6 +62,9 @@ jobs:
           # Database Initialization
           paster datastore -c test-core-circle-ci.ini set-permissions | psql --host=ckan-postgres --username=ckan
           paster db init -c test-core-circle-ci.ini
+
+          # No need for AppArmor to protect
+          aa-disable
 
       # Tests Backend, split across containers by segments
       - run: |
