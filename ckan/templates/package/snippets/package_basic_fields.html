@@ -95,11 +95,8 @@
       <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
       <div class="controls">
         <select id="field-private" name="private" class="form-control">
-          {# a.s. default to Public - May 24, 2019 #}
-          {% for option in [('True', _('Public')), ('False', _('Private')) ] %}
-            <option value="{{ option[0] }}" {% if option[0] == data.private|trim %} selected="selected" {% endif %}>
-              {{ option[1] }}
-            </option>
+          {% for option in [('True', _('Private')), ('False', _('Public'))] %}
+          <option value="{{ option[0] }}" {% if option[0] == data.private|trim %}selected="selected"{% endif %}>{{ option[1] }}</option>
           {% endfor %}
         </select>
       </div>
