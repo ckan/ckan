@@ -11652,13 +11652,6 @@ h4 small {
   font-size: 36px;
   line-height: 1.5;
 }
-
-.homepage .stats ul li a strong {
-  display: block;
-  font-size: 36px;
-  line-height: 1.5;
-}
-
 .homepage .stats ul li a:hover {
   text-decoration: none;
 }
@@ -11666,20 +11659,13 @@ h4 small {
 .homepage.layout-2 .stats {
   margin-top: 20px;
 }
-
-/* a.s. */
-.homepage.layout-1 .stats {
-  margin-top: 20px;
-}
-
 @media (min-width: 992px) {
   .homepage [role=main] {
     padding: 20px 0;
   }
 
   .homepage.layout-1 .row1 .col2 {
-    /* a.s. move search box to the top on the home page */
-    /* position: absolute; */
+    position: absolute;
     bottom: 0;
     right: 0;
   }
@@ -11814,9 +11800,8 @@ h4 small {
 .masthead {
   margin-bottom: initial;
   padding: 10px 0;
-  color: #000;
-  /* background: #005d7a url("../../../base/images/bg.png"); */
-  background: #ffffff url("../../../base/images/bg.png");
+  color: #fff;
+  background: #005d7a url("../../../base/images/bg.png");
 }
 
 .masthead:before,
@@ -11900,7 +11885,7 @@ h4 small {
 .masthead .navigation .nav-pills li a:hover,
 .masthead .navigation .nav-pills li a:focus,
 .masthead .navigation .nav-pills li.active a {
-  background-color: #eaeaea;
+  background-color: #003647;
 }
 
 .masthead .nav>li>a,
@@ -11909,7 +11894,7 @@ h4 small {
 .masthead .nav>.active>a,
 .masthead .nav>.active>a:hover,
 .masthead .nav>.active>a:focus {
-  color: #133c55;
+  color: #fff;
   text-shadow: none;
 }
 
