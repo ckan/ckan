@@ -11887,13 +11887,12 @@ h4 small {
 .masthead .navigation .nav-pills li.active a {
   background-color: #003647;
 }
-
-.masthead .nav>li>a,
-.masthead .nav>li>a:focus,
-.masthead .nav>li>a:hover,
-.masthead .nav>.active>a,
-.masthead .nav>.active>a:hover,
-.masthead .nav>.active>a:focus {
+.masthead .nav > li > a,
+.masthead .nav > li > a:focus,
+.masthead .nav > li > a:hover,
+.masthead .nav > .active > a,
+.masthead .nav > .active > a:hover,
+.masthead .nav > .active > a:focus {
   color: #fff;
   text-shadow: none;
 }
