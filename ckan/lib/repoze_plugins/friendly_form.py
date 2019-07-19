@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
-'''
-This is a modified version of repoze.who-friendlyform, written by
-Gustavo Narea <me@gustavonarea.net>
-'''
 
+#
+# This is a modified version of repoze.who-friendlyform, written by
+# Gustavo Narea <me@gustavonarea.net>
+#
+# Modifications include:
+# * Python 3 support
+# * Replace usage of paster methods with webob ones
+#
 
 ##############################################################################
 #
-# Copyright (c) 2009-2010, Gustavo Narea <me@gustavonarea.net> and contributors.
+# Copyright (c) 2009-2010, Gustavo Narea <me@gustavonarea.net> and
+# contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the BSD-like license at
@@ -66,7 +71,7 @@ class FriendlyFormPlugin(object):
     classifications = {
         IIdentifier: ["browser"],
         IChallenger: ["browser"],
-        }
+    }
 
     def __init__(self, login_form_url, login_handler_path, post_login_url,
                  logout_handler_path, post_logout_url, rememberer_name,
@@ -129,7 +134,7 @@ class FriendlyFormPlugin(object):
         query = request.GET
 
         if path_info == self.login_handler_path:
-            ## We are on the URL where repoze.who processes authentication. ##
+            # We are on the URL where repoze.who processes authentication. #
             # Let's append the login counter to the query string of the
             # "came_from" URL. It will be used by the challenge below if
             # authorization is denied for this request.
@@ -145,9 +150,9 @@ class FriendlyFormPlugin(object):
                     credentials = {
                         'login': str(login),
                         'password': str(password),
-                        }
+                    }
                 else:
-                    credentials = {'login': login,'password': password}
+                    credentials = {'login': login, 'password': password}
 
             try:
                 credentials['max_age'] = form['remember']
@@ -174,7 +179,7 @@ class FriendlyFormPlugin(object):
             return credentials
 
         elif path_info == self.logout_handler_path:
-            ##    We are on the URL where repoze.who logs the user out.    ##
+            #    We are on the URL where repoze.who logs the user out.    #
             r = Request(environ)
             params = dict(list(r.GET.items()) + list(r.POST.items()))
             form = UnicodeMultiDict(params)
@@ -187,8 +192,8 @@ class FriendlyFormPlugin(object):
             return None
 
         elif path_info == self.login_form_url or self._get_logins(environ):
-            ##  We are on the URL that displays the from OR any other page  ##
-            ##   where the login counter is included in the query string.   ##
+            #  We are on the URL that displays the from OR any other page  #
+            #   where the login counter is included in the query string.   #
             # So let's load the counter into the environ and then hide it from
             # the query string (it will cause problems in frameworks like TG2,
             # where this unexpected variable would be passed to the controller)
@@ -216,7 +221,9 @@ class FriendlyFormPlugin(object):
         login_form_url = self._get_full_path(login_form_url, environ)
         destination = login_form_url
         # Configuring the headers to be set:
-        cookies = [(h,v) for (h,v) in app_headers if h.lower() == 'set-cookie']
+        cookies = [
+            (h, v) for (h, v) in app_headers if h.lower() == 'set-cookie'
+        ]
         headers = forget_headers + cookies
 
         if environ['PATH_INFO'] == self.logout_handler_path:
@@ -228,7 +235,7 @@ class FriendlyFormPlugin(object):
                                                   environ)
                 if came_from:
                     destination = self._insert_qs_variable(
-                                  destination, 'came_from', came_from)
+                        destination, 'came_from', came_from)
             else:
                 # Redirect to the referrer URL.
                 script_name = environ.get('SCRIPT_NAME', '')
