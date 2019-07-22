@@ -55,9 +55,9 @@ write_config() {
 # Wait for PostgreSQL
 # a.s. good when using docker, not necessary with RDS
 # a.s. while ! pg_isready -h db -U postgres; do
- while ! pg_isready -h db -U ckan; do
-   sleep 1;
- done
+# while ! pg_isready -h db -U ckan; do
+#   sleep 1;
+# done
 
 # a.s.
 # Apache Solr connection details
