@@ -2050,7 +2050,11 @@ def resource_view_get_fields(resource):
         'resource_id': resource['id'],
         'limit': 0
     }
-    result = logic.get_action('datastore_search')({}, data)
+    import ckan.plugins as p
+    try:
+        result = logic.get_action('datastore_search')({}, data)
+    except p.toolkit.ObjectNotFound:
+        return []
 
     fields = [field['id'] for field in result.get('fields', [])]
 
