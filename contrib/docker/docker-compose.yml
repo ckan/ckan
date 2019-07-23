@@ -6,6 +6,7 @@ volumes:
   ckan_config:
   ckan_home:
   ckan_storage:
+  ckan_bg_storage:
   pg_data:
 
 services:
@@ -26,6 +27,77 @@ services:
            max-file: "5"
 
 
+  ckan-bg:
+    container_name: ckan-bg
+    build:
+      context: ../../
+      dockerfile: contrib/docker/ckan-bg/Dockerfile
+      args:
+        - CKAN_SITE_URL=${CKAN_SITE_URL}
+    links:
+      # a.s.
+      - db
+      - solr
+      - redis
+    depends_on:
+      - db
+      # a.s. added solr
+      - solr
+      - redis
+    environment:
+      # a.s. used from ckan-entrypoint.sh to wait until solr is up and running
+      - solr_host=solr
+      - solr_port=8983
+
+      # a.s. notification emails distribution group when new
+      # datasets and resources are created
+      - oce_email_distribution_group=${oce_email_distribution_group}
+
+      # m.m.
+      - GAID=${GAID}
+
+      # a.s. Google tracking
+      - CKAN_TRACKING_ENABLED=True
+
+      # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
+      # s. h. - made this more generic, RDS or otherwise.  This will now be controlled by the .env file
+      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@${POSTGRES_URL}/ckan
+      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@${POSTGRES_URL}/datastore
+      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@${POSTGRES_URL}/datastore
+
+      - CKAN_SOLR_URL=http://solr:8983/solr/ckan
+      - CKAN_REDIS_URL=redis://redis:6379/1
+      - CKAN_DATAPUSHER_URL=http://datapusher:8800
+      - CKAN_SITE_URL=${CKAN_SITE_URL}
+      - CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+
+      - CKAN_SMTP_SERVER=${CKAN_SMTP_SERVER}
+      - CKAN_SMTP_STARTTLS=${CKAN_SMTP_STARTTLS}
+      - CKAN_SMTP_USER=${CKAN_SMTP_USER}
+      - CKAN_SMTP_PASSWORD=${CKAN_SMTP_PASSWORD}
+      - CKAN_SMTP_MAIL_FROM=${CKAN_SMTP_MAIL_FROM}
+
+      - HOME=/usr/lib/ckan
+
+    volumes:
+      # - ckan_config:/etc/ckan
+      # - ckan_home:/usr/lib/ckan
+      - ckan_bg_storage:/var/lib/ckan
+
+      # a.s. added next line to work locally
+      # - .:/usr/lib/ckan
+      # - ../../:/usr/lib/ckan/venv
+      # - ../..:/usr/lib/ckan/venv/src/ckan
+      # - ckan_home:/usr/lib/ckan
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
   ckan:
     container_name: ckan
     build:
@@ -34,11 +106,11 @@ services:
           - CKAN_SITE_URL=${CKAN_SITE_URL}
     links:
       # a.s.
-      # - db
+      - db
       - solr
       - redis
     depends_on:
-      # - db
+      - db
       # a.s. added solr
       - solr
     ports:
@@ -59,12 +131,9 @@ services:
       - CKAN_TRACKING_ENABLED=True
 
       # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
-      # - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
-      # - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
-      # - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
-      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${PG_RDS_PASSWORD}@${PG_RDS_URL}/ckan
-      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${PG_RDS_PASSWORD}@${PG_RDS_URL}/datastore
-      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@${PG_RDS_URL}/datastore
+      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@${POSTGRES_URL}/ckan
+      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@${POSTGRES_URL}/datastore
+      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@${POSTGRES_URL}/datastore
 
       - CKAN_SOLR_URL=http://solr:8983/solr/ckan
       - CKAN_REDIS_URL=redis://redis:6379/1
@@ -81,12 +150,6 @@ services:
       - CKAN_SMTP_MAIL_FROM=${CKAN_SMTP_MAIL_FROM}
 
       - HOME=/usr/lib/ckan
-
-      # a.s.
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION=${AWS_REGION}
-      - AWS_CKAN_GROUP=${AWS_CKAN_GROUP}
 
     volumes:
       # - ckan_config:/etc/ckan
@@ -119,25 +182,25 @@ services:
     ports:
       - "8800:8800"
 
-  # db:
-  #   container_name: db
-  #   build:
-  #     context: ../../
-  #     dockerfile: contrib/docker/postgresql/Dockerfile
-  #     args:
-  #       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
-  #       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  #   environment:
-  #     - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
-  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  #   volumes:
-  #     - pg_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     # test: ["CMD", "pg_isready", "-U", "postgres"]
-  #     test: ["CMD", "pg_isready", "-U", "ckan"]
-  #   # a.s. TODO: remove later - temp set the port so we can connect locally to check the data
-  #   ports:
-  #     - ${POSTGRES_PORT}:${POSTGRES_PORT}
+  db:
+    container_name: db
+    build:
+      context: ../../
+      dockerfile: contrib/docker/postgresql/Dockerfile
+      args:
+        - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    environment:
+      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      # test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "ckan"]
+    # a.s. TODO: remove later - temp set the port so we can connect locally to check the data
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
 
   # solr:
   #   container_name: solr
