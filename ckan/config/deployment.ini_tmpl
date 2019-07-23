@@ -116,7 +116,7 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore datapusher googleanalytics
+ckan.plugins = stats text_view image_view recline_view datastore datapusher googleanalytics marsavin marsavinResource marsavinPackage
 # ckan.plugins = stats text_view image_view recline_view
 
 # Define which views should be created by default
@@ -138,8 +138,7 @@ ckan.views.default_views = image_view text_view recline_view
 #ckan.base_templates_folder = templates-bs2
 
 ckan.site_title = AVIN
-#ckan.site_logo = /base/images/avin-logo.png
-ckan.site_logo = /base/images/avin-logo.png
+ckan.site_logo = /images/avin-logo.png
 # ckan.site_logo = /base/images/ckan-logo.png
 
 ckan.site_description =

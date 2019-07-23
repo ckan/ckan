@@ -9,7 +9,6 @@
     </thead>
     <tbody>
       {% block package_additional_info %}
-
         {% if pkg_dict.url %}
           <tr>
             <th scope="row" class="dataset-label">{{ _('Source') }}</th>
@@ -44,50 +43,6 @@
             <td class="dataset-details" property="dc:contributor">{{ pkg_dict.maintainer }}</td>
           </tr>
         {% endif %}
-
-        {# a.s. new fields #}
-        {% if pkg_dict.associated_tasks %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _('Associated Tasks') }}</th>
-              <td class="dataset-details">{{ pkg_dict.associated_tasks }}</td>
-          </tr>
-        {% endif %}
-
-        {% if pkg_dict.collection_period %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _('Collection Period') }}</th>
-              <td class="dataset-details">{{ pkg_dict.collection_period }}</td>
-          </tr>
-        {% endif %}
-
-        {% if pkg_dict.geographical_area %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _('Geographical Area') }}</th>
-              <td class="dataset-details">{{ pkg_dict.geographical_area }}</td>
-          </tr>
-        {% endif %}
-
-        {% if pkg_dict.number_of_instances %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _('Number of Instances') }}</th>
-              <td class="dataset-details">{{ pkg_dict.number_of_instances }}</td>
-          </tr>
-        {% endif %}
-
-        {% if pkg_dict.number_of_missing_values %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _('Number of Missing Values') }}</th>
-              <td class="dataset-details">{{ pkg_dict.number_of_missing_values }}</td>
-          </tr>
-        {% endif %}
-
-        {% if pkg_dict.pkg_description %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _('Package Description') }}</th>
-              <td class="dataset-details">{{ pkg_dict.pkg_description }}</td>
-          </tr>
-        {% endif %}
-        {# a.s. /new fields #}
 
         {% if pkg_dict.version %}
           <tr>

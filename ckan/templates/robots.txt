@@ -1,8 +1,5 @@
 User-agent: *
 {% block all_user_agents -%}
-{# a.s. TODO remove disallow all #}
-Disallow: /
-
 Disallow: /dataset/rate/
 Disallow: /revision/
 Disallow: /dataset/*/history

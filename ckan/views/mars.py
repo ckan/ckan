@@ -77,7 +77,7 @@ class ReqAccessView(MethodView):
             context[u'message'] = data_dict.get(u'log_message', u'')
 
             try:
-                logic.get_action(u'reqaccess_create')(context, data_dict)
+                logic.get_action(u'ckanext_marsavin_reqaccess_create')(context, data_dict)
             except logic.ValidationError as e:
                 errors = e.error_dict
                 error_summary = e.error_summary
