@@ -114,7 +114,7 @@ def plugins_update():
     # check and disable any that should not be active.
     for env in PluginGlobals.env.values():
         for service, id_ in env.singleton_services.items():
-            if service.__class__ not in _PLUGINS_CLASS:
+            if service not in _PLUGINS_CLASS:
                 PluginGlobals.plugin_instances[id_].deactivate()
 
     # Reset CKAN to reflect the currently enabled extensions.
