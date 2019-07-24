@@ -131,12 +131,6 @@ from dashboard import (
     Dashboard,
 )
 
-# a.s.
-from access_requests import (
-    AccessRequests,
-    access_request_table,
-)
-
 import ckan.migration
 
 log = logging.getLogger(__name__)

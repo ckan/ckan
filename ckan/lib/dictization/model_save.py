@@ -437,15 +437,6 @@ def user_dict_save(user_dict, context):
 
     return user
 
-# a.s.
-def reqaccess_dict_save(reqaccess_dict, context):
-    model = context['model']
-    session = context['session']
-    AccRequest = model.AccessRequests
-    reqaccess = d.table_dict_save(reqaccess_dict, AccRequest, context)
-
-    return reqaccess
-
 
 def package_api_to_dict(api1_dict, context):
 
