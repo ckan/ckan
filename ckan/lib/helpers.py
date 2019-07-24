@@ -2692,6 +2692,7 @@ def sanitize_id(id_):
 @core_helper
 def compare_pkg_dicts(original, new):
     # TODO: clean this up or make it shorter somehow
+    # TODO: what happens if someone REMOVES a value from a field that previously had a value?
 
     change_list = []
 
@@ -2850,6 +2851,39 @@ def compare_pkg_dicts(original, new):
             change_list.append(["Changed the version of", s.join(seq1), "from", original['version'], "to", new['version']])
         else:
             change_list.append(["Changed the version of", s.join(seq1), "to", new['version']])
+
+    # list of the default metadata fields for a dataset
+    # any fields that are not part of this list are custom fields added by a user or extension
+    fields = ['owner_org', 'maintainer', 'maintainer_email', 'relationships_as_object', 'private', 'num_tags',
+                'id', 'metadata_created', 'metadata_modified', 'author', 'author_email', 'state', 'version',
+                'license_id', 'type', 'resources', 'num_resources', 'tags', 'title', 'groups', 'creator_user_id',
+                'relationships_as_subject', 'name', 'isopen', 'url', 'notes', 'license_title', 'extras',
+                'license_url', 'organization', 'revision_id']
+    fields_set = set(fields)
+
+    # if there are any fields from extensions that are in the new dataset and
+    # have been updated, print a generic message stating that
+    original_set = set(original.keys())
+    new_set = set(new.keys())
+
+    addl_fields_new = new_set - fields_set # set of additional fields in the new dictionary
+    addl_fields_original = original_set - fields_set # set of additional fields in the original dictionary
+    addl_fields = addl_fields_new.intersection(addl_fields_original) # set of additional fields in both
+
+    # do NOT display a change if any additional fields have been added or deleted,
+    # since that is not a change made by the user from the web interface
+
+    # if additional fields have been changed
+    addl_fields_list = list(addl_fields)
+    for field in addl_fields_list:
+        if original[field] != new[field]:
+            if original[field]:
+                change_list.append(["Changed field", field.capitalize(), "to", new[field], "(previously", original[field] + ")", "in", s.join(seq1)])
+
+    # check the extras field to see if anything has been added, deleted, or changed
+    # that is where custom fields added via the web interface go - they do not become
+    # actual fields in a package dict
+    # TODO: add this ^^
 
 
 
