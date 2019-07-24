@@ -2688,3 +2688,169 @@ def sanitize_id(id_):
     ValueError.
     '''
     return str(uuid.UUID(id_))
+
+@core_helper
+def compare_pkg_dicts(original, new):
+    # TODO: clean this up or make it shorter somehow
+
+    change_list = []
+
+    for key in original:
+        log.info("original[" + str(key) + "]: " + str(original[key]))
+        if key in new:
+            log.info("new[" + str(key) + "]: " + str(new[key]))
+
+
+    s = ""
+    seq1 = ("<a href=\"", url_for(qualified=True, controller="dataset",
+                                    action="read", id=new['id']), "\">",
+                                    new['title'], "</a>")
+
+    # if the title has changed
+    if original['title'] != new['title']:
+        seq2 = ("<a href=\"", url_for(qualified=True, controller="dataset",
+                                        action="read", id=new['name']), "\">",
+                                        new['title'], "</a>")
+        change_list.append(["Changed title to", s.join(seq2)])
+
+    # if the owner organization changed
+    if original['owner_org'] != new['owner_org']:
+        seq2 = ("<a href=\"", url_for(qualified=True, controller="organization",
+                action="read", id=original['organization']['id']), "\">",
+                original['organization']['title'], "</a>")
+        seq3 = ("<a href=\"", url_for(qualified=True, controller="organization",
+                action="read", id=new['organization']['id']), "\">",
+                new['organization']['title'], "</a>")
+        change_list.append(["Moved", s.join(seq1),
+                                "from organization",
+                                s.join(seq2),
+                                "to organization",
+                                s.join(seq3)])
+
+    # if the maintainer of the dataset changed
+    if original['maintainer'] != new['maintainer']:
+        # if the original dataset had a maintainer
+        if original['maintainer']:
+            change_list.append(["Set maintainer of", s.join(seq1), "to", new['maintainer'], "(previously", original['maintainer'] + ")"])
+        else:
+            change_list.append(["Set maintainer of", s.join(seq1), "to", new['maintainer']])
+
+
+    # if the maintainer email of the dataset changed
+    if original['maintainer_email'] != new['maintainer_email']:
+        seq2 = ("<a href=\"mailto:", new['maintainer_email'], "\">", new['maintainer_email'], "</a>")
+        # if the original dataset had a maintainer email
+        if original['maintainer_email']:
+            seq3 = ("<a href=\"mailto:", original['maintainer_email'], "\">", original['maintainer_email'], "</a>")
+            change_list.append(["Set maintainer e-mail of", s.join(seq1), "to", s.join(seq2), "(previously", s.join(seq3) + ")"])
+        else:
+            change_list.append(["Set maintainer e-mail of", s.join(seq1), "to", s.join(seq2)])
+
+    # if the author of the dataset changed
+    if original['author'] != new['author']:
+        # if the original dataset had an author
+        if original['author']:
+            change_list.append(["Set author of", s.join(seq1), "to", new['author'], "(previously", original['author'] + ")"])
+        else:
+            change_list.append(["Set author of", s.join(seq1), "to", new['author']])
+
+    # if the author email of the dataset changed
+    if original['author_email'] != new['author_email']:
+        seq2 = ("<a href=\"mailto:", new['author_email'], "\">", new['author_email'], "</a>")
+        # if the original dataset had a author email
+        if original['author_email']:
+            seq3 = ("<a href=\"mailto:", original['author_email'], "\">", original['author_email'], "</a>")
+            change_list.append(["Set author e-mail of", s.join(seq1), "to", s.join(seq2), "(previously", s.join(seq3) + ")"])
+        else:
+            change_list.append(["Set author e-mail of", s.join(seq1), "to", s.join(seq2)])
+
+    # if the visibility of the dataset changed
+    if original['private'] != new['private']:
+        change_list.append(["Set visibility of", s.join(seq1), "to", "Private" if new['private'] else "Public"])
+
+    # if the description of the dataset changed
+    if original['notes'] != new['notes']:
+        # displays the two descriptions (like how they are displayed on resource views)
+        # TODO: figure out the best way to format this stuff
+
+        # if the original dataset had a description
+        if original['notes']:
+            change_list.append(["Updated description of", s.join(seq1),
+                                "from <br style=\"line-height:2;\">", "<blockquote>" + original['notes'] + "</blockquote>",
+                                "to <br style=\"line-height:2;\">", "<blockquote>" + new['notes'] + "</blockquote>"])
+        else:
+            change_list.append(["Updated description of", s.join(seq1),
+                                "to <br style=\"line-height:2;\">", "<blockquote>" + new['notes'] + "</blockquote>"])
+
+    # make sets out of the tags for each dataset
+    original_tags = set([tag['name'] for tag in original['tags']])
+    new_tags = set([tag['name'] for tag in new['tags']])
+    # if the tags have changed
+    if original_tags != new_tags:
+        deleted_tags = original_tags - new_tags
+        deleted_tags_list = list(deleted_tags)
+        if len(deleted_tags) == 1:
+            seq2 = ("<a href=\"", url_for(qualified=True, controller="dataset", action="search", id=deleted_tags_list[0]), "\">",
+                    deleted_tags_list[0], "</a>")
+            change_list.append(["Removed tag", s.join(seq2), "from", s.join(seq1)])
+        elif len(deleted_tags) > 1:
+             seq2 = ["<li><a href=\"" + url_for(qualified=True, controller="dataset", action="search", id=deleted_tags_list[i]) + "\">" + deleted_tags_list[i] + "</a></li> "
+                        for i in range(0, len(deleted_tags))]
+             change_list.append(["Removed the following tags from", s.join(seq1), "<ul>", s.join(seq2), "</ul>"])
+
+        added_tags = new_tags - original_tags
+        added_tags_list = list(added_tags)
+        if len(added_tags) == 1:
+            seq2 = ("<a href=\"", url_for(qualified=True, controller="dataset", action="search", id=added_tags_list[0]), "\">",
+                    added_tags_list[0], "</a>")
+            change_list.append(["Added tag", s.join(seq2), "to", s.join(seq1)])
+        elif len(added_tags) > 1:
+            seq2 = ["<li><a href=\"" + url_for(qualified=True, controller="dataset", action="search", id=added_tags_list[i]) + "\">" + added_tags_list[i] + "</a></li> "
+                    for i in range(0, len(added_tags))]
+            change_list.append(["Added the following tags to", s.join(seq1), "<ul>", s.join(seq2), "</ul>"])
+
+    # if the license has changed
+    if original['license_title'] != new['license_title']:
+        seq2 = ()
+        seq3 = ()
+        # if the license has a URL, use it
+        if 'license_url' in original and original['license_url']:
+            seq2 = ("<a href=\"", original['license_url'], "\">", original['license_title'], "</a>")
+        else:
+            seq2 = (original['license_title'])
+        if 'license_url' in new and new['license_url']:
+            seq3 = ("<a href=\"", new['license_url'], "\">", new['license_title'], "</a>")
+        else:
+            seq3 = (new['license_title'])
+        change_list.append(["Changed the license of", s.join(seq1), "to", s.join(seq3), "(previously", s.join(seq2) + ")"])
+
+    # if the name of the dataset has changed
+    # this is only visible to the user via the dataset's URL, so display the change using that
+    if original['name'] != new['name']:
+        old_url = url_for(qualified=True, controller="dataset",
+                                        action="read", id=original['name'])
+        new_url = url_for(qualified=True, controller="dataset",
+                                        action="read", id=new['name'])
+        seq2 = ("<a href=\"", old_url, "\">", old_url, "</a>")
+        seq3 = ("<a href=\"", new_url, "\">", new_url, "</a>")
+        change_list.append(["Moved the dataset from", s.join(seq2), "to", s.join(seq3)])
+
+    # if the source URL (metadata value, not the actual URL of the dataset) has changed
+    if original['url'] != new['url']:
+        seq2 = ("<a href=\"", original['url'], "\">", original['url'], "</a>")
+        seq3 = ("<a href=\"", new['url'], "\">", new['url'], "</a>")
+        if original['url']:
+            change_list.append(["Changed the source URL of", s.join(seq1), "from", s.join(seq2), "to", s.join(seq3)])
+        else:
+            change_list.append(["Changed the source URL of", s.join(seq1), "to", s.join(seq3)])
+
+    # if the user-provided version has changed
+    if original['version'] != new['version']:
+        if original['version']:
+            change_list.append(["Changed the version of", s.join(seq1), "from", original['version'], "to", new['version']])
+        else:
+            change_list.append(["Changed the version of", s.join(seq1), "to", new['version']])
+
+
+
+    return change_list
