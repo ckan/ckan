@@ -2691,8 +2691,6 @@ def sanitize_id(id_):
 
 @core_helper
 def compare_pkg_dicts(original, new):
-    # TODO: what happens if someone REMOVES a value from a field that previously had a value?
-
     change_list = []
 
     s = ""
@@ -2796,8 +2794,10 @@ def _org_change(change_list, original, new, new_pkg):
 
 def _maintainer_change(change_list, original, new, new_pkg):
     # if the original dataset had a maintainer
-    if original['maintainer']:
+    if original['maintainer'] and new['maintainer']:
         change_list.append(["Set maintainer of", new_pkg, "to", new['maintainer'], "(previously", original['maintainer'] + ")"])
+    elif not new['maintainer']:
+        change_list.append(["Removed maintainer from", new_pkg])
     else:
         change_list.append(["Set maintainer of", new_pkg, "to", new['maintainer']])
 
@@ -2805,16 +2805,20 @@ def _maintainer_email_change(change_list, original, new, new_pkg):
     s = ""
     seq2 = ("<a href=\"mailto:", new['maintainer_email'], "\">", new['maintainer_email'], "</a>")
     # if the original dataset had a maintainer email
-    if original['maintainer_email']:
+    if original['maintainer_email'] and new['maintainer_email']:
         seq3 = ("<a href=\"mailto:", original['maintainer_email'], "\">", original['maintainer_email'], "</a>")
         change_list.append(["Set maintainer e-mail of", new_pkg, "to", s.join(seq2), "(previously", s.join(seq3) + ")"])
+    elif not new['maintainer_email']:
+        change_list.append(["Removed maintainer e-mail from", new_pkg])
     else:
         change_list.append(["Set maintainer e-mail of", new_pkg, "to", s.join(seq2)])
 
 def _author_change(change_list, original, new, new_pkg):
     # if the original dataset had an author
-    if original['author']:
+    if original['author'] and new['author']:
         change_list.append(["Set author of", new_pkg, "to", new['author'], "(previously", original['author'] + ")"])
+    elif not new['author']:
+        change_list.append(["Removed author from", new_pkg])
     else:
         change_list.append(["Set author of", new_pkg, "to", new['author']])
 
@@ -2822,9 +2826,11 @@ def _author_email_change(change_list, original, new, new_pkg):
     s = ""
     seq2 = ("<a href=\"mailto:", new['author_email'], "\">", new['author_email'], "</a>")
     # if the original dataset had a author email
-    if original['author_email']:
+    if original['author_email'] and new['author_email']:
         seq3 = ("<a href=\"mailto:", original['author_email'], "\">", original['author_email'], "</a>")
         change_list.append(["Set author e-mail of", new_pkg, "to", s.join(seq2), "(previously", s.join(seq3) + ")"])
+    elif not new['author_email']:
+        change_list.append(["Removed author e-mail from", new_pkg])
     else:
         change_list.append(["Set author e-mail of", new_pkg, "to", s.join(seq2)])
 
@@ -2833,10 +2839,12 @@ def _description_change(change_list, original, new, new_pkg):
     # TODO: figure out the best way to format this stuff
 
     # if the original dataset had a description
-    if original['notes']:
+    if original['notes'] and new['notes']:
         change_list.append(["Updated description of", new_pkg,
                             "from <br style=\"line-height:2;\">", "<blockquote>" + original['notes'] + "</blockquote>",
                             "to <br style=\"line-height:2;\">", "<blockquote>" + new['notes'] + "</blockquote>"])
+    elif not new['notes']:
+        change_list.append(["Removed description from", new_pkg])
     else:
         change_list.append(["Updated description of", new_pkg,
                             "to <br style=\"line-height:2;\">", "<blockquote>" + new['notes'] + "</blockquote>"])
@@ -2894,14 +2902,18 @@ def _source_url_change(change_list, original, new, new_pkg):
     s = ""
     seq2 = ("<a href=\"", original['url'], "\">", original['url'], "</a>")
     seq3 = ("<a href=\"", new['url'], "\">", new['url'], "</a>")
-    if original['url']:
+    if original['url'] and new['url']:
         change_list.append(["Changed the source URL of", new_pkg, "from", s.join(seq2), "to", s.join(seq3)])
+    elif not new['url']:
+        change_list.append(["Removed source URL from", new_pkg])
     else:
         change_list.append(["Changed the source URL of", new_pkg, "to", s.join(seq3)])
 
 def _version_change(change_list, original, new, new_pkg):
-    if original['version']:
+    if original['version'] and new['url']:
         change_list.append(["Changed the version of", new_pkg, "from", original['version'], "to", new['version']])
+    elif not new['url']:
+        change_list.append(["Removed version number from", new_pkg])
     else:
         change_list.append(["Changed the version of", new_pkg, "to", new['version']])
 
