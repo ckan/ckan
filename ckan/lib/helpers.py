@@ -2691,6 +2691,15 @@ def sanitize_id(id_):
 
 @core_helper
 def compare_pkg_dicts(original, new):
+    '''
+    Takes two package dictionaries that represent consecutive versions of
+    the same dataset and returns a list of detailed & formatted summaries of
+    the changes between the two versions. original and new are the two package
+    dictionaries. The function assumes that both dictionaries will have
+    all of the default package dictionary keys, and also checks for additional
+    keys added by extensions and custom fields added by the user in the web
+    interface.
+    '''
     change_list = []
 
     s = ""
@@ -2764,6 +2773,28 @@ def compare_pkg_dicts(original, new):
     return change_list
 
 def _extras_to_dict(extras_list):
+    '''
+    Takes a list of dictionaries with the following format:
+    [
+        {
+            "key": <key_0>,
+            "value": <value_0>
+        },
+        ...,
+        {
+            "key": <key_n>,
+            "value": <value_n>
+        }
+    ]
+    and converts it into a single dictionary with the following
+    format:
+    {
+        key_0: value_0,
+        ...,
+        key_n: value_n
+
+    }
+    '''
     ret_dict = {}
     # the extras_list is a list of dictionaries
     for dict in extras_list:
@@ -2772,6 +2803,10 @@ def _extras_to_dict(extras_list):
     return ret_dict
 
 def _title_change(change_list, original, new):
+    '''
+    Appends a summary of a change to a dataset's title between two versions
+    (original and new) to change_list.
+    '''
     s = ""
     seq2 = ("<a href=\"", url_for(qualified=True, controller="dataset",
                                     action="read", id=new['name']), "\">",
@@ -2779,6 +2814,10 @@ def _title_change(change_list, original, new):
     change_list.append(["Changed title to", s.join(seq2), "(previously", original['title'] + ")"])
 
 def _org_change(change_list, original, new, new_pkg):
+    '''
+    Appends a summary of a change to a dataset's organization between two versions
+    (original and new) to change_list.
+    '''
     s = ""
     seq2 = ("<a href=\"", url_for(qualified=True, controller="organization",
             action="read", id=original['organization']['id']), "\">",
@@ -2793,6 +2832,10 @@ def _org_change(change_list, original, new, new_pkg):
                             s.join(seq3)])
 
 def _maintainer_change(change_list, original, new, new_pkg):
+    '''
+    Appends a summary of a change to a dataset's maintainer field between two
+    versions (original and new) to change_list.
+    '''
     # if the original dataset had a maintainer
     if original['maintainer'] and new['maintainer']:
         change_list.append(["Set maintainer of", new_pkg, "to", new['maintainer'], "(previously", original['maintainer'] + ")"])
@@ -2802,6 +2845,10 @@ def _maintainer_change(change_list, original, new, new_pkg):
         change_list.append(["Set maintainer of", new_pkg, "to", new['maintainer']])
 
 def _maintainer_email_change(change_list, original, new, new_pkg):
+    '''
+    Appends a summary of a change to a dataset's maintainer e-mail address field
+    between two versions (original and new) to change_list.
+    '''
     s = ""
     seq2 = ("<a href=\"mailto:", new['maintainer_email'], "\">", new['maintainer_email'], "</a>")
     # if the original dataset had a maintainer email
@@ -2814,6 +2861,10 @@ def _maintainer_email_change(change_list, original, new, new_pkg):
         change_list.append(["Set maintainer e-mail of", new_pkg, "to", s.join(seq2)])
 
 def _author_change(change_list, original, new, new_pkg):
+    '''
+    Appends a summary of a change to a dataset's author field between two versions
+    (original and new) to change_list.
+    '''
     # if the original dataset had an author
     if original['author'] and new['author']:
         change_list.append(["Set author of", new_pkg, "to", new['author'], "(previously", original['author'] + ")"])
@@ -2823,6 +2874,10 @@ def _author_change(change_list, original, new, new_pkg):
         change_list.append(["Set author of", new_pkg, "to", new['author']])
 
 def _author_email_change(change_list, original, new, new_pkg):
+    '''
+    Appends a summary of a change to a dataset's author e-mail address field
+    between two versions (original and new) to change_list.
+    '''
     s = ""
     seq2 = ("<a href=\"mailto:", new['author_email'], "\">", new['author_email'], "</a>")
     # if the original dataset had a author email
@@ -2835,8 +2890,12 @@ def _author_email_change(change_list, original, new, new_pkg):
         change_list.append(["Set author e-mail of", new_pkg, "to", s.join(seq2)])
 
 def _description_change(change_list, original, new, new_pkg):
-    # displays the two descriptions (like how they are displayed on resource views)
-    # TODO: figure out the best way to format this stuff
+    '''
+    Appends a summary of a change to a dataset's description between two versions
+    (original and new) to change_list.
+    '''
+
+    # TODO: find a better way to format the descriptions along with the change summary
 
     # if the original dataset had a description
     if original['notes'] and new['notes']:
@@ -2850,6 +2909,10 @@ def _description_change(change_list, original, new, new_pkg):
                             "to <br style=\"line-height:2;\">", "<blockquote>" + new['notes'] + "</blockquote>"])
 
 def _tag_change(change_list, new_tags, original_tags, new_pkg):
+    '''
+    Appends a summary of a change to a dataset's tag list between two versions
+    (original and new) to change_list.
+    '''
     s = ""
     deleted_tags = original_tags - new_tags
     deleted_tags_list = list(deleted_tags)
@@ -2874,6 +2937,10 @@ def _tag_change(change_list, new_tags, original_tags, new_pkg):
         change_list.append(["Added the following tags to", new_pkg, "<ul>", s.join(seq2), "</ul>"])
 
 def _license_change(change_list, original, new, new_pkg):
+    '''
+    Appends a summary of a change to a dataset's license between two versions
+    (original and new) to change_list.
+    '''
     s = ""
     seq2 = ()
     seq3 = ()
@@ -2889,6 +2956,10 @@ def _license_change(change_list, original, new, new_pkg):
     change_list.append(["Changed the license of", new_pkg, "to", s.join(seq3), "(previously", s.join(seq2) + ")"])
 
 def _name_change(change_list, original, new):
+    '''
+    Appends a summary of a change to a dataset's name (and thus the URL it can
+    be accessed at) between two versions (original and new) to change_list.
+    '''
     s = ""
     old_url = url_for(qualified=True, controller="dataset",
                                     action="read", id=original['name'])
@@ -2899,6 +2970,11 @@ def _name_change(change_list, original, new):
     change_list.append(["Moved the dataset from", s.join(seq2), "to", s.join(seq3)])
 
 def _source_url_change(change_list, original, new, new_pkg):
+    '''
+    Appends a summary of a change to a dataset's source URL (metadata field, not
+    its actual URL in the datahub) between two versions (original and new) to
+    change_list.
+    '''
     s = ""
     seq2 = ("<a href=\"", original['url'], "\">", original['url'], "</a>")
     seq3 = ("<a href=\"", new['url'], "\">", new['url'], "</a>")
@@ -2910,6 +2986,10 @@ def _source_url_change(change_list, original, new, new_pkg):
         change_list.append(["Changed the source URL of", new_pkg, "to", s.join(seq3)])
 
 def _version_change(change_list, original, new, new_pkg):
+    '''
+    Appends a summary of a change to a dataset's version field (inputted by the user,
+    not from version control) between two versions (original and new) to change_list.
+    '''
     if original['version'] and new['url']:
         change_list.append(["Changed the version of", new_pkg, "from", original['version'], "to", new['version']])
     elif not new['url']:
@@ -2918,6 +2998,14 @@ def _version_change(change_list, original, new, new_pkg):
         change_list.append(["Changed the version of", new_pkg, "to", new['version']])
 
 def _extension_fields(change_list, original, new, new_pkg):
+    '''
+    Checks whether any fields that have been added to the package dictionaries
+    by CKAN extensions have been changed between versions. If there have been
+    any changes between the two versions (original and new), a general summary
+    of the change is appended to change_list. This function does not produce
+    summaries for fields added or deleted by extensions, since these changes are
+    not triggered by the user in the web interface or API.
+    '''
     # list of the default metadata fields for a dataset
     # any fields that are not part of this list are custom fields added by a user or extension
     fields = ['owner_org', 'maintainer', 'maintainer_email', 'relationships_as_object', 'private', 'num_tags',
@@ -2952,6 +3040,11 @@ def _extra_fields(change_list, original, new, new_pkg):
     # check the extras field to see if anything has been added, deleted, or changed
     # that is where custom fields added via the web interface go - they do not become
     # actual fields in a package dict
+    '''
+    Checks whether a user has added, removed, or changed any custom fields from
+    the web interface (or API?) and appends a summary of each change to
+    change_list.
+    '''
 
     # what if they added the field but didn't add a value?
     s = ""
