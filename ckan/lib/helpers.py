@@ -2690,7 +2690,7 @@ def sanitize_id(id_):
     return str(uuid.UUID(id_))
 
 @core_helper
-def compare_pkg_dicts(original, new):
+def compare_pkg_dicts(original, new, old_activity_id):
     '''
     Takes two package dictionaries that represent consecutive versions of
     the same dataset and returns a list of detailed & formatted summaries of
@@ -2708,6 +2708,172 @@ def compare_pkg_dicts(original, new):
                                     new['title'], "</a>")
     new_pkg = s.join(seq1)
 
+    _check_metadata_changes(change_list, original, new, new_pkg)
+
+    _check_resource_changes(change_list, original, new, new_pkg, old_activity_id)
+
+    return change_list
+
+def _extras_to_dict(extras_list):
+    '''
+    Takes a list of dictionaries with the following format:
+    [
+        {
+            "key": <key_0>,
+            "value": <value_0>
+        },
+        ...,
+        {
+            "key": <key_n>,
+            "value": <value_n>
+        }
+    ]
+    and converts it into a single dictionary with the following
+    format:
+    {
+        key_0: value_0,
+        ...,
+        key_n: value_n
+
+    }
+    '''
+    ret_dict = {}
+    # the extras_list is a list of dictionaries
+    for dict in extras_list:
+        ret_dict[dict['key']] = dict['value']
+
+    return ret_dict
+
+def _check_resource_changes(change_list, original, new, new_pkg, old_activity_id):
+    '''
+    Checks whether a dataset's resources have changed - whether new ones have been uploaded,
+    existing ones have been deleted, or existing ones have been edited. For existing
+    resources, checks whether their names, formats, and/or descriptions have changed, as well
+    as whether a new file has been uploaded for the resource.
+    '''
+
+    # TODO: clean this up
+
+    # make a set of the resource IDs present in original and new
+    original_resource_set = set()
+    original_resource_dict = {}
+    new_resource_set = set()
+    new_resource_dict = {}
+    s = ""
+
+    for resource in original['resources']:
+        original_resource_set.add(resource['id'])
+        original_resource_dict[resource['id']] = {'name': resource['name'],
+                                        'url': resource['url'],
+                                        'description': resource['description'],
+                                        'format': resource['format']}
+
+
+    for resource in new['resources']:
+        new_resource_set.add(resource['id'])
+        new_resource_dict[resource['id']] = {'name': resource['name'],
+                                    'url': resource['url'],
+                                    'description': resource['description'],
+                                    'format': resource['format']}
+
+    # get the IDs of the resources that have been added between the versions
+    new_resources = list(new_resource_set - original_resource_set)
+    for resource_id in new_resources:
+        seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
+                action="read", id=new['id'], resource_id=resource_id), "\">",
+                new_resource_dict[resource_id]['name'], "</a>")
+        change_list.append(["Added resource", s.join(seq2), "to", new_pkg])
+
+    # get the IDs of resources that have been deleted between versions
+    deleted_resources = list(original_resource_set - new_resource_set)
+    for resource_id in deleted_resources:
+        seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
+                action="read", id=original['id'], resource_id=resource_id) + "?activity_id=" + old_activity_id, "\">",
+                original_resource_dict[resource_id]['name'], "</a>")
+        change_list.append(["Deleted resource", s.join(seq2), "from", new_pkg])
+
+    # now check the resources that are in both and see if any have been changed
+
+    # TODO: only one resource can be edited at a time like this right?
+    # so we could stop once we find the one that is edited
+    resources = new_resource_set.intersection(original_resource_set)
+    for resource_id in resources:
+        original_metadata = original_resource_dict[resource_id]
+        new_metadata = new_resource_dict[resource_id]
+
+        if original_metadata['name'] != new_metadata['name']:
+            seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
+                    action="read", id=original['id'], resource_id=resource_id) + "?activity_id=" + old_activity_id, "\">",
+                    original_resource_dict[resource_id]['name'], "</a>")
+            seq3 = ("<a href=\"", url_for(qualified=True, controller="resource",
+                    action="read", id=new['id'], resource_id=resource_id), "\">",
+                    new_resource_dict[resource_id]['name'], "</a>")
+            change_list.append(["Renamed resource", s.join(seq2), "to", s.join(seq3), "in", new_pkg])
+
+        # you can't remove a format, but if a resource's format isn't recognized, it won't have one set
+        # if a format was not originally set and the user set one
+        if not original_metadata['format'] and new_metadata['format']:
+            seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
+                    action="read", id=new['id'], resource_id=resource_id), "\">",
+                    new_resource_dict[resource_id]['name'], "</a>")
+            seq3 = ("<a href=\"", url_for(qualified=True, controller="organization",
+                    action="read", id=new['organization']['id']) + "?res_format=" + new_metadata['format'], "\">",
+                    new_metadata['format'], "</a>")
+            change_list.append(["Set format of resource", s.join(seq2), "to", s.join(seq3), "in", new_pkg])
+        # if both versions have a format but the format changed
+        elif original_metadata['format'] != new_metadata['format']:
+            seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
+                    action="read", id=original['id'], resource_id=resource_id) + "?activity_id=" + old_activity_id, "\">",
+                    original_resource_dict[resource_id]['name'], "</a>")
+            seq3 = ("<a href=\"", url_for(qualified=True, controller="organization",
+                    action="read", id=new['organization']['id']) + "?res_format=" + new_metadata['format'], "\">",
+                    new_metadata['format'], "</a>")
+            seq4 = ("<a href=\"", url_for(qualified=True, controller="organization",
+                    action="read", id=original['organization']['id']) + "?res_format=" + original_metadata['format'], "\">",
+                    original_metadata['format'], "</a>")
+            change_list.append(["Set format of resource", s.join(seq2), "to", s.join(seq3), "(previously", s.join(seq4) + ")", "in", new_pkg])
+
+        # if the description changed
+        if not original_metadata['description'] and new_metadata['description']:
+            seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
+                    action="read", id=new['id'], resource_id=resource_id), "\">",
+                    new_resource_dict[resource_id]['name'], "</a>")
+            change_list.append(["Updated description of resource", s.join(seq2), "in",
+                                new_pkg, "to <br style=\"line-height:2;\">",
+                                "<blockquote>" + new_metadata['description'] + "</blockquote>"])
+
+        # if there was a description but the user removed it
+        elif original_metadata['description'] and not new_metadata['description']:
+            seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
+                    action="read", id=new['id'], resource_id=resource_id), "\">",
+                    new_resource_dict[resource_id]['name'], "</a>")
+            change_list.append(["Removed description from resource", s.join(seq2), "in", new_pkg])
+
+        # if both have descriptions but they are different
+        elif original_metadata['description'] != new_metadata['description']:
+            seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
+                    action="read", id=new['id'], resource_id=resource_id), "\">",
+                    new_resource_dict[resource_id]['name'], "</a>")
+            change_list.append(["Updated description of resource", s.join(seq2), "in",
+                                new_pkg, "from <br style=\"line-height:2;\">",
+                                "<blockquote>" + original_metadata['description'] + "</blockquote>",
+                                "to <br style=\"line-height:2;\">",
+                                "<blockquote>" + new_metadata['description'] + "</blockquote>"])
+
+        # check if the user uploaded a new file
+        # TODO: use regular expressions to determine the actual name of the new and old files
+        if original_metadata['url'] != new_metadata['url']:
+            seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
+                    action="read", id=new['id'], resource_id=resource_id), "\">",
+                    new_resource_dict[resource_id]['name'], "</a>")
+            change_list.append(["Uploaded a new file to resource", s.join(seq2), "in", new_pkg])
+
+def _check_metadata_changes(change_list, original, new, new_pkg):
+    '''
+    Checks whether a dataset's metadata fields (fields in its package dictionary
+    not including resources) have changed between two consecutive versions and
+    puts a list of formatted summaries of these changes in change_list.
+    '''
     # if the title has changed
     if original['title'] != new['title']:
         _title_change(change_list, original, new)
@@ -2769,38 +2935,6 @@ def compare_pkg_dicts(original, new):
 
     _extension_fields(change_list, original, new, new_pkg)
     _extra_fields(change_list, original, new, new_pkg)
-
-    return change_list
-
-def _extras_to_dict(extras_list):
-    '''
-    Takes a list of dictionaries with the following format:
-    [
-        {
-            "key": <key_0>,
-            "value": <value_0>
-        },
-        ...,
-        {
-            "key": <key_n>,
-            "value": <value_n>
-        }
-    ]
-    and converts it into a single dictionary with the following
-    format:
-    {
-        key_0: value_0,
-        ...,
-        key_n: value_n
-
-    }
-    '''
-    ret_dict = {}
-    # the extras_list is a list of dictionaries
-    for dict in extras_list:
-        ret_dict[dict['key']] = dict['value']
-
-    return ret_dict
 
 def _title_change(change_list, original, new):
     '''
