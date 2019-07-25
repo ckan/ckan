@@ -235,20 +235,17 @@ def search(package_type):
         # Unless changed via config options, don't show other dataset
         # types any search page. Potential alternatives are do show them
         # on the default search page (dataset) or on one other search page
-        search_all_type = config.get(u'ckan.search.show_all_types', u'dataset')
-        search_all = False
+        search_all_types = config.get(u'ckan.search.show_all_types', 'false')
 
         try:
-            # If the "type" is set to True or False, convert to bool
-            # and we know that no type was specified, so use traditional
-            # behaviour of applying this only to dataset type
-            search_all = asbool(search_all_type)
-            search_all_type = u'dataset'
-        # Otherwise we treat as a string representing a type
+            # Convert 'true' or 'false' to boolean
+            # Rewriting search_all_types variable
+            search_all_types = asbool(search_all_types)
         except ValueError:
-            search_all = True
+            # Unsupported value been provided for asbool function
+            search_all_types = False
 
-        if not search_all or package_type != search_all_type:
+        if not search_all_types or package_type != 'dataset':
             # Only show datasets of this particular type
             fq += u' +dataset_type:{type}'.format(type=package_type)
 
