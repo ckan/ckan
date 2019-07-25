@@ -718,16 +718,15 @@ ckan.search.show_all_types
 
 Example::
 
- ckan.search.show_all_types = dataset
+ ckan.search.show_all_types = true
 
 Default value:  ``false``
 
 Controls whether a search page (e.g. ``/dataset``) should also show
 custom dataset types. The default is ``false`` meaning that no search
 page for any type will show other types. ``true`` will show other types
-on the ``/dataset`` search page. Any other value (e.g. ``dataset`` or
-``document`` will be treated as a dataset type and that type's search
-page will show datasets of all types.
+on the ``/dataset`` search page. Any other value provided (e.g. ``dataset`` or
+``document``), it will be treated as a dataset type and won't show datasets of all types.
 
 .. _ckan.search.default_include_private:
 
