@@ -17,18 +17,12 @@
       </div>
       {% block package_changes_header %}
         <h1 class="page-heading">{{ _('Changes') }}</h1>
-        {#<!-- Dataset: {% link_for pkg_dict.title, controller='package', action='read', id=pkg_dict.name %}
-        {% if activity_diff.activities[1].data.package.title != pkg_dict.title %}
-          (which had title "{{ activity_diff.activities[1].data.package.title }}" at the time)
-        {% endif %}<br>
-        User: {{ h.linked_user(activity_diff.activities[1].user_id) }}<br>
-        Date: {{ h.render_datetime(activity_diff.activities[1].timestamp, with_hours=True, with_seconds=True) }}<br>
-        Compared to previous version from date: {{ h.render_datetime(activity_diff.activities[0].timestamp, with_hours=True, with_seconds=True) }})<br> -->#}
       {% endblock %}
-
-      {% set select_list1 = h.activity_list_select(pkg_activity_list, activity_diffs[0].activities[0].id) %}
+      {% set select_list1 = h.activity_list_select(pkg_activity_list, activity_diffs[-1].activities[0].id) %}
       {% set select_list2 = h.activity_list_select(pkg_activity_list, activity_diffs[0].activities[1].id) %}
       <form id="range_form" action="{{ h.url_for('dataset.change_range') }}" >
+        <input type="hidden" name="current_old_id" value="{{ activity_diffs[-1].activities[0].id }}">
+        <input type="hidden" name="current_new_id" value="{{ activity_diffs[0].activities[1].id }}">
       View changes from
         <select class="form-control" style="width:215px;display:inline;" form="range_form" name="oldest_id">
           <pre>

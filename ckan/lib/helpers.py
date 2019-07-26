@@ -3262,13 +3262,13 @@ def _extra_fields(change_list, original, new, new_pkg):
 
 
 @core_helper
-def activity_list_select(pkg_activity_list, activity_id):
+def activity_list_select(pkg_activity_list, current_activity_id):
     select_list = []
     for activity in pkg_activity_list:
         #entry = render_datetime(activity['timestamp']) + " #" + activity['id'][0:8]
         #entry = activity['id']
         entry = render_datetime(activity['timestamp'], with_hours=True)
-        if activity['id'] == activity_id:
+        if activity['id'] == current_activity_id:
             select_list.append("<option value=\"" + activity['id'] + "\" selected>" + entry + "</option>")
         else:
             select_list.append("<option value=\"" + activity['id'] + "\">" + entry + "</option>")

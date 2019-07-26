@@ -4,6 +4,7 @@ from collections import OrderedDict
 from functools import partial
 from urllib import urlencode
 import datetime
+from datetime import datetime
 
 from flask import Blueprint, make_response
 from flask.views import MethodView
@@ -1123,6 +1124,25 @@ def change_range(package_type=None):
         u'user': g.user, u'auth_user_obj': g.userobj
     }
 
+    # check to ensure that the old activity is actually older than the new activity
+    old_activity = get_action(u'activity_show')(context, {u'id': oldest_id, u'include_data': False})
+    new_activity = get_action('activity_show')(context, {'id': newest_id, u'include_data': False})
+
+    old_timestamp = old_activity['timestamp']
+    new_timestamp = new_activity['timestamp']
+
+    t1 = datetime.strptime(old_timestamp, '%Y-%m-%dT%H:%M:%S.%f')
+    t2 = datetime.strptime(new_timestamp, '%Y-%m-%dT%H:%M:%S.%f')
+
+    time_diff = t2 - t1
+    # if the time difference is negative, just return the change that put us
+    # at the more recent ID we were just looking at
+    # TODO: do something better here - go back to the previous page, display a warning
+    # that the user can't look at a sequence where the newest item is older than the
+    # oldest one, etc
+    if time_diff.total_seconds() < 0:
+        return changes(h.get_request_param('current_new_id'))
+
     done = False
     current_id = newest_id
     diff_list = []
@@ -1156,9 +1176,6 @@ def change_range(package_type=None):
             u'pkg_activity_list': pkg_activity_list,
         }
     )
-
-
-
 
 # deprecated
 def history(package_type, id):
