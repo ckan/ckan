@@ -255,7 +255,7 @@ class IDomainObjectModification(Interface):
 
 class IFeed(Interface):
     """
-    For entending the default Atom feeds
+    For extending the default Atom feeds
     """
 
     def get_feed_class(self):
@@ -300,7 +300,7 @@ class IFeed(Interface):
 
 class IResourceUrlChange(Interface):
     u'''
-    Receives notification of changed urls.
+    Receives notification of changed URL on a resource.
     '''
 
     def notify(self, resource):
@@ -505,7 +505,7 @@ class IResourcePreview(Interface):
 class ITagController(Interface):
     u'''
     Hook into the Tag view. These will usually be called just before
-    committing or returning the respective object, i.e. all validation,
+    committing or returning the respective object, i.e. when all validation,
     synchronization and authorization setup are complete.
 
     '''
@@ -519,7 +519,7 @@ class ITagController(Interface):
 
 class IGroupController(Interface):
     u'''
-    Hook into the Group view. These will
+    Hook into the Group view. These methods will
     usually be called just before committing or returning the
     respective object i.e. when all validation, synchronization
     and authorization setup are complete.
@@ -531,12 +531,12 @@ class IGroupController(Interface):
         pass
 
     def create(self, entity):
-        u'''Called after group had been created inside group_create.
+        u'''Called after group has been created inside group_create.
         '''
         pass
 
     def edit(self, entity):
-        u'''Called after group had been updated inside group_update.
+        u'''Called after group has been updated inside group_update.
         '''
         pass
 
@@ -556,7 +556,7 @@ class IGroupController(Interface):
 
 class IOrganizationController(Interface):
     u'''
-    Hook into the Organization view. These will
+    Hook into the Organization view. These methods will
     usually be called just before committing or returning the
     respective object i.e. when all validation, synchronization
     and authorization setup are complete.
@@ -808,7 +808,7 @@ class IResourceController(Interface):
 
 class IPluginObserver(Interface):
     u'''
-    Hook into the plugin loading mechanism
+    Hook into the plugin loading mechanism itself
     '''
 
     def before_load(self, plugin):
@@ -838,7 +838,7 @@ class IPluginObserver(Interface):
 
 class IConfigurable(Interface):
     u'''
-    Initialization hook for plugins.
+    Hook called during the startup of CKAN
 
     See also :py:class:`IConfigurer`.
     '''
@@ -917,15 +917,19 @@ class IActions(Interface):
         request (as well as the usual POST request) through the Action API.
 
         By decorating a function with 'ckan.plugins.toolkit.chained_action`,
-        the action will be chained to another function defined in plugins with
-        a "first plugin wins" pattern, which means the first plugin declaring a
-        chained action should be called first. Chained actions must be
-        defined as `action_function(original_action, context, data_dict)`,
-        where the first parameter will be set to the action function in
-        the next plugin or in core ckan. The chained action may call the
-        original_action function, optionally passing different values,
-        handling exceptions, returning different values and/or raising
-        different exceptions to the caller.
+        the action will 'intercept' calls to an existing action function. This
+        allows a plugin to modify the behaviour of an existing action function.
+        Chained actions must be defined as
+        `action_function(original_action, context, data_dict)`, where the
+        function's name matches the original action function it intercepts, the
+        first parameter is the action function it intercepts (in the next
+        plugin or in core ckan). The chained action may call the
+        original_action function, optionally passing different values, handling
+        exceptions, returning different values and/or raising different
+        exceptions to the caller. When multiple plugins chain to an action, the
+        first plugin declaring is called first, and if it chooses to call the
+        original_action, then the chained action in the next plugin to be
+        declared next is called, and so on.
         '''
 
 
@@ -1181,7 +1185,7 @@ class IDatasetForm(Interface):
         '''
 
     def setup_template_variables(self, context, data_dict):
-        u'''Add variables to the template context for use in templates.
+        u'''Add variables to the template context for use in dataset templates.
 
         This function is called before a dataset template is rendered. If you
         have custom dataset templates that require some additional variables,

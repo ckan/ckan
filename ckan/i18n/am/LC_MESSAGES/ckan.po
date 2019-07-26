@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 # 
 # Translators:
-# Adrià Mercader <adria.mercader@okfn.org>, 2018
+# Khalid Mohammed <khayo7mhmd@gmail.com>, 2019
 # 
 #, fuzzy
 msgid ""
@@ -13,34 +13,34 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2018-03-27 16:10+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
-"Language-Team: Galician (https://www.transifex.com/okfn/teams/11162/gl/)\n"
+"Last-Translator: Khalid Mohammed <khayo7mhmd@gmail.com>, 2019\n"
+"Language-Team: Amharic (https://www.transifex.com/okfn/teams/11162/am/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.5.3\n"
-"Language: gl\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: am\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
-msgstr "Rematado"
+msgstr "ተጠናቋል"
 
 #: ckanext/datapusher/helpers.py:22
 msgid "Pending"
-msgstr "Pendente"
+msgstr "በመጠባበቅ ላይ"
 
 #: ckanext/datapusher/helpers.py:23
 msgid "Submitting"
-msgstr "Enviando"
+msgstr "ማስገባት"
 
 #: ckan/controllers/package.py:681 ckanext/datapusher/helpers.py:24
 msgid "Error"
-msgstr "Erro"
+msgstr "ስህተት"
 
 #: ckanext/datapusher/helpers.py:29
 msgid "Not Uploaded Yet"
-msgstr "Aínda non foi enviado"
+msgstr "ገና አልተጫነም"
 
 #: ckan/controllers/package.py:613 ckan/controllers/package.py:1076
 #: ckan/controllers/package.py:1096 ckan/controllers/package.py:1163
@@ -49,7 +49,7 @@ msgstr "Aínda non foi enviado"
 #: ckan/controllers/package.py:1614 ckanext/datapusher/plugin.py:59
 #: ckanext/datastore/controller.py:80 ckanext/resourceproxy/controller.py:33
 msgid "Resource not found"
-msgstr "Non se atopou o recurso"
+msgstr "መረጃው አልተገኘም"
 
 #: ckan/controllers/api.py:66 ckan/controllers/group.py:156
 #: ckan/controllers/home.py:27 ckan/controllers/package.py:144
@@ -61,108 +61,108 @@ msgstr "Non se atopou o recurso"
 #: ckan/views/user.py:87 ckan/views/user.py:110 ckan/views/user.py:476
 #: ckanext/datapusher/plugin.py:68
 msgid "Not authorized to see this page"
-msgstr "Non está autorizado para ver esta páxina"
+msgstr "ይሀን ገጽ ለማየት ፍቃድ የሎትም!"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:12
 #: ckanext/datapusher/templates/datapusher/resource_data.html:12
 msgid "Upload to DataStore"
-msgstr "Enviar o almacén de datos"
+msgstr "መረጃ ማከማቻው ውስጥ ጫን"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:19
 #: ckanext/datapusher/templates/datapusher/resource_data.html:19
 msgid "Upload error:"
-msgstr "Produciuse un erro de envío:"
+msgstr "የመጫን ላይ የተፈጠረ ስህተት:"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:25
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:27
 #: ckanext/datapusher/templates/datapusher/resource_data.html:25
 #: ckanext/datapusher/templates/datapusher/resource_data.html:27
 msgid "Error:"
-msgstr "Erro:"
+msgstr "ስህተት:"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:36
 #: ckanext/datapusher/templates/datapusher/resource_data.html:36
 msgid "Error traceback:"
-msgstr "Rastrexo de erros:"
+msgstr "የስህተቱ ምንጭ:"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:48
 #: ckanext/datapusher/templates/datapusher/resource_data.html:48
 msgid "Status"
-msgstr "Estado"
+msgstr "ወቅታዊ ሁኔታ"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:52
 #: ckanext/datapusher/templates/datapusher/resource_data.html:52
 msgid "Last updated"
-msgstr "Última actualización"
+msgstr "የተሻሻለበት የመጨረሻ ጊዜ"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:56
 #: ckanext/datapusher/templates/datapusher/resource_data.html:56
 msgid "Never"
-msgstr "Nunca"
+msgstr "በጭራሽ"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:62
 #: ckanext/datapusher/templates/datapusher/resource_data.html:62
 msgid "Upload Log"
-msgstr "Rexistro de envío"
+msgstr "የተሻሻለበት ዝርዝር ማስታወሻ"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:76
 #: ckanext/datapusher/templates/datapusher/resource_data.html:76
 msgid "Details"
-msgstr "Detalles"
+msgstr "ዝርዝሮች"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:83
 #: ckanext/datapusher/templates/datapusher/resource_data.html:83
 msgid "End of log"
-msgstr "Fin do rexistro"
+msgstr "የማስታወሻ መጨረሻ"
 
 #: ckanext/datapusher/templates-bs2/package/resource_edit_base.html:5
 #: ckanext/datapusher/templates/package/resource_edit_base.html:5
 msgid "DataStore"
-msgstr "Almacén de datos"
+msgstr "የመረጃ ማከማቻ"
 
 #: ckanext/datastore/controller.py:53
 #, python-format
 msgid "format: must be one of %s"
-msgstr "formato: debe ser un de %s"
+msgstr "ቅርጸት: %s ከነዚ አንዱ መሆን አለበት።"
 
 #: ckanext/datastore/controller.py:65
 msgid "DataStore resource not found"
-msgstr "Non se atopou o recurso «Almacén de datos»"
+msgstr "የመረጃ ማከማቻው አልተገኘም"
 
 #: ckanext/datastore/controller.py:101
 msgid ""
 "Data Dictionary saved. Any type overrides will take effect when the resource"
 " is next uploaded to DataStore"
 msgstr ""
+"ይህ ዳታ መዝገበ-ቃላት ተቀምጠዋል፤ማንኛውም አይነት መሻሪያዎች ወይም ማሻሻያዎች የሚተገበሩበት በቀጣዩ የመረጃ ማከማቻ "
+"ውስጥ በሚደረግ የመረጃ ምዝገባ ጊዜ ነው።"
 
 #: ckanext/datastore/backend/postgres.py:1032
 msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
 msgstr ""
-"Os datos eran incorrectos (por exemplo: un valor numérico estaba fora do "
-"intervalo ou foi inserido nun campo de texto)."
+"መረጃው ያልተፈቀደ ነው። (ለምሳሌ: በመረጃው ውስጥ ያለ ቁጥራዊ እሴት ከተሰጠው ገደብ ያለፈ ነው ወይም ወደ ጽሁፍ መስክ"
+" ተገብቷል)"
 
 #: ckanext/datastore/logic/action.py:258 ckanext/datastore/logic/action.py:286
 #: ckanext/datastore/logic/action.py:344 ckanext/datastore/logic/action.py:457
 msgid "Resource \"{0}\" was not found."
-msgstr "Non se atopou o recurso «{0}»."
+msgstr "የመረጃ ምንጭ \"{0}\" አልተገኘም።"
 
 #: ckanext/datastore/logic/auth.py:19
 msgid "User {0} not authorized to update resource {1}"
-msgstr "O usuario {0} non está autorizado para actualizar o recurso {1}"
+msgstr "ተጠቃሚ {0} ይሀንን የመረጃ ምንጭ ለማሻሻል ፍቃድ የለውም።"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:19
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:21
 msgid "CKAN Data API"
-msgstr "API de datos do CKAN"
+msgstr "የ CKAN የመረጃ ኤፒአይ"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:23
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:25
 msgid "Access resource data via a web API with powerful query support"
-msgstr ""
-"Acceso ao recurso de datos mediante unha API web con servizo completo de "
-"consulta"
+msgstr "ጠንካራ የጠያቂ ድጋፍ ባለው የድር ኤፒአይ በመጠቀም መረጃ ያግኙ።"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:26
 msgid ""
@@ -170,90 +170,91 @@ msgid ""
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
+" ለበለጠ መረጃ <a             "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">የ CKAN የመረጃ ኤፒአይ እና የመረጃ ማከማቻ መግለጫ ሰነድ</a>.</p> "
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:33
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:35
 msgid "Endpoints"
-msgstr "Puntos de acceso"
+msgstr "ማገባደጃ"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:37
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:39
 msgid ""
 "The Data API can be accessed via the following actions of the CKAN action "
 "API."
-msgstr ""
-"A API de Datos é accesíbel mediante as seguintes accións da API de acción do"
-" CKAN."
+msgstr "የመረጃው ኤፒአይ በሚከተሉት የ CKAN ኤፒአይ ድርጊት ሂደቶች ማግኝት ይችላሉ።"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:44
 msgid "Create"
-msgstr "Crear"
+msgstr "ፍጠር"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:46
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:48
 msgid "Update / Insert"
-msgstr "Actualizar / Inserir"
+msgstr "አሻሽል / አስገባ"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:50
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:52
 msgid "Query"
-msgstr "Consulta"
+msgstr "መጠይቅ"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:54
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:56
 msgid "Query (via SQL)"
-msgstr "Consulta (con SQL)"
+msgstr "መጠይቅ (በ SQL)"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:66
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:68
 msgid "Querying"
-msgstr "Consultando"
+msgstr "በመጠይቅ ላይ"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:70
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:72
 msgid "Query example (first 5 results)"
-msgstr "Exemplo de consulta (primeiros cinco resultados)"
+msgstr "የመጠይቅ ምሳሌ (የመጀመሪያ 5 ውጤቶች)"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:75
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:77
 msgid "Query example (results containing 'jones')"
-msgstr "Exemplo de consulta (resultados contendo «jones»)"
+msgstr "የመጠይቅ ምሳሌ ('ጆንስ'ን የያዙ ውጤቶች)"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:80
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:82
 msgid "Query example (via SQL statement)"
-msgstr "Consulta exemplo (con sentencia SQL)"
+msgstr "የመጠይቅ ምሳሌ (በ SQL አረፍተ ነገር በኩል)"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:91
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:93
 msgid "Example: Javascript"
-msgstr "Exemplo: Javascript"
+msgstr "ምሳሌ: ጃቫስክሪፕት"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:95
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:97
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr "Unha consulta ajax (JSONP) sinxela á API de datos usando jQuery."
+msgstr "jQuery በመጠቀም ወደ መረጃ ኤፒአይ ቀላል የአጃክስ (JSONP) ጥያቄ"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:116
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
-msgstr "Exemplo: Python"
+msgstr "ምሳሌ: ፓይቶን"
 
 #: ckan/templates/group/member_new.html:60
 #: ckanext/datastore/templates-bs2/datastore/dictionary.html:26
 #: ckanext/datastore/templates/datastore/dictionary.html:20
 msgid "Save"
-msgstr "Gardar"
+msgstr "አስቀምጥ"
 
 #: ckanext/datastore/templates-bs2/datastore/dictionary.html:16
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:3
 msgid "Field {num}."
-msgstr "Campo {num}."
+msgstr "መስክ {num}"
 
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:12
 msgid "Type Override"
-msgstr ""
+msgstr "የእሴት አይነት መሻር"
 
 #: ckanext/datastore/templates-bs2/datastore/dictionary.html:18
 #: ckanext/datastore/templates-bs2/package/resource_read.html:20
@@ -261,7 +262,7 @@ msgstr ""
 #: ckanext/datastore/templates/package/resource_read.html:21
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:18
 msgid "Label"
-msgstr "Etiqueta"
+msgstr "መለዮ"
 
 #: ckan/templates/group/snippets/group_form.html:20
 #: ckan/templates/organization/snippets/organization_form.html:20
@@ -273,25 +274,25 @@ msgstr "Etiqueta"
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:24
 #: ckanext/datastore/templates/package/resource_read.html:22
 msgid "Description"
-msgstr "Descrición"
+msgstr "መግለጫ"
 
 #: ckanext/datastore/templates-bs2/package/resource_edit_base.html:6
 #: ckanext/datastore/templates-bs2/package/resource_read.html:14
 #: ckanext/datastore/templates/package/resource_edit_base.html:6
 #: ckanext/datastore/templates/package/resource_read.html:14
 msgid "Data Dictionary"
-msgstr "Dicionario de datos"
+msgstr "የመረጃ መዝገበ-ቃላት"
 
 #: ckanext/datastore/templates-bs2/package/resource_read.html:18
 #: ckanext/datastore/templates/package/resource_read.html:19
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:17
 msgid "Column"
-msgstr "Columna"
+msgstr "አምድ"
 
 #: ckanext/datastore/templates-bs2/package/resource_read.html:19
 #: ckanext/datastore/templates/package/resource_read.html:20
 msgid "Type"
-msgstr "Tipo"
+msgstr "አይነት"
 
 #: ckan/public-bs2/base/javascript/modules/activity-stream.js:97
 #: ckan/public-bs2/base/javascript/modules/popover-context.js:62
@@ -309,12 +310,12 @@ msgstr "Tipo"
 #: ckanext/reclineview/theme/templates/recline_view.html:14
 #: ckanext/textview/theme/templates/text_view.html:9
 msgid "Loading..."
-msgstr "Loading..."
+msgstr "በመጫን ላይ"
 
 #: ckanext/datastore/templates-bs2/package/snippets/data_api_button.html:10
 #: ckanext/datastore/templates/package/snippets/data_api_button.html:9
 msgid "Data API"
-msgstr "API de datos"
+msgstr "የመረጃ ኤፒአይ"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
 msgid ""
@@ -322,41 +323,40 @@ msgid ""
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
-" Pode obter máis información na <a "
+" ለበለጠ መረጃ <a             "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">documentación da API principal de datos do CKAN e do "
-"almacén de datos</a>.</p>"
+"target=\"_blank\">የ CKAN የመረጃ ኤፒአይ እና የመረጃ ማከማቻ መግለጫ ሰነድ</a>.</p> "
 
 #: ckanext/datatablesview/plugin.py:47 ckanext/reclineview/plugin.py:128
 msgid "Table"
-msgstr "Táboa"
+msgstr "ሰንጠረዥ"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:6
 msgid "Responsive display"
-msgstr "Deseño adaptábel"
+msgstr "ተግባቢ እይታ"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:12
 msgid "Show Columns"
-msgstr "Amosar as columnas"
+msgstr "አምዶችን አሳይ"
 
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:28
 msgid "Hide/Unhide Columns"
-msgstr "Agachar/amosar as columnas"
+msgstr "አምዶችን ሸሽግ / አትሸሽግ"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
-msgstr "Conxuntos de datos por páxina"
+msgstr "የመረጃ ስብስቦች በገጽ"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:13
 msgid "Test conf"
-msgstr "Configuración de proba"
+msgstr "የመዋቅር ፍተሻ"
 
 #: ckan/templates/group/read.html:13 ckan/templates/organization/read.html:19
 #: ckan/templates/package/search.html:29
 #: ckan/templates/snippets/sort_by.html:14
 #: ckanext/example_idatasetform/templates/package/search.html:12
 msgid "Relevance"
-msgstr "Relevancia"
+msgstr "ተገቢነት"
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:14
 #: ckan/templates/organization/bulk_process.html:97
@@ -368,7 +368,7 @@ msgstr "Relevancia"
 #: ckan/templates/snippets/sort_by.html:15
 #: ckanext/example_idatasetform/templates/package/search.html:13
 msgid "Name Ascending"
-msgstr "Nome ascendente"
+msgstr "በስም ከታች ወደላይ ደርድር"
 
 #: ckan/templates/group/index.html:20 ckan/templates/group/read.html:15
 #: ckan/templates/organization/bulk_process.html:98
@@ -380,7 +380,7 @@ msgstr "Nome ascendente"
 #: ckan/templates/snippets/sort_by.html:16
 #: ckanext/example_idatasetform/templates/package/search.html:14
 msgid "Name Descending"
-msgstr "Nome descendente"
+msgstr "በስም ከላይ ወደታች ደርድር"
 
 #: ckan/templates/group/read.html:16
 #: ckan/templates/organization/bulk_process.html:99
@@ -390,15 +390,15 @@ msgstr "Nome descendente"
 #: ckan/templates/snippets/sort_by.html:17
 #: ckanext/example_idatasetform/templates/package/search.html:15
 msgid "Last Modified"
-msgstr "Última modificación"
+msgstr "ለመጨረሻ ጊዜ የተሻሻለው"
 
 #: ckanext/example_idatasetform/templates/package/search.html:16
 msgid "Custom Field Ascending"
-msgstr "Campo personalizado ascendente"
+msgstr "የራስ የተበጀ የመዘርዘሪያ ገለጻ ከታች ወደላይ ደርድር"
 
 #: ckanext/example_idatasetform/templates/package/search.html:17
 msgid "Custom Field Descending"
-msgstr "Campo personalizado descendente"
+msgstr "የራስ የተበጀ የመዘርዘሪያ ገለጻ ከላይ ወደታች ደርድር"
 
 #: ckan/templates/group/read.html:17 ckan/templates/organization/read.html:23
 #: ckan/templates/package/search.html:33
@@ -407,34 +407,34 @@ msgstr "Campo personalizado descendente"
 #: ckan/templates/snippets/sort_by.html:19
 #: ckanext/example_idatasetform/templates/package/search.html:18
 msgid "Popular"
-msgstr "Popular"
+msgstr "ታዋቂ"
 
 #: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 #: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
 msgid "Custom Text"
-msgstr "Texto personalizado"
+msgstr "በራስ የተዘጋጀ ጽሁፍ"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 msgid "custom text"
-msgstr "texto personalizado"
+msgstr "በራስ የተዘጋጀ ጽሁፍ"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
 msgid "Country Code"
-msgstr "Código de país"
+msgstr "የአገር ኮድ"
 
 #: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
 msgid "custom resource text"
-msgstr "texto personalizado de recurso"
+msgstr "በራስ የተዘጋጀ የመረጃ ምንጭ ጽሁፍ"
 
 #: ckanext/example_itranslation/templates/home/index.html:4
 msgid "This is an untranslated string"
-msgstr "Este texto non está traducido"
+msgstr "ይህ ያልተተረጎመ ቃል/ሃረግ/አረፍተነገር ነው።"
 
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
 msgid "This group has no description"
-msgstr "Este grupo non ten unha descrición"
+msgstr "ይህ ቡድን መግለጫ የለውም።"
 
 #: ckan/templates/group/snippets/group_item.html:32
 #: ckan/templates/organization/snippets/organization_item.html:31
@@ -442,21 +442,19 @@ msgstr "Este grupo non ten unha descrición"
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
-msgstr[0] "{num} conxunto de datos"
-msgstr[1] "{num} conxuntos de datos"
+msgstr[0] "{num} የመረጃ ስብስብ"
+msgstr[1] "{num} የመረጃ ስብስቦች"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
 msgid "0 Datasets"
-msgstr "0 conxuntos de datos"
+msgstr "0 የመረጃ ስብስቦች"
 
 #: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
-msgstr ""
-"A ferramenta de vista previa do CKAN ten moitas e moi potentes "
-"funcionalidades"
+msgstr "የ CKAN ምረጃ ቅድመ-እይታ መሣሪያ ብዙ ጠንካራ ገፅታዎች አሉት።"
 
 #: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
 #: ckan/templates/group/snippets/info.html:32
@@ -470,7 +468,7 @@ msgstr ""
 #: ckan/templates/user/read_base.html:49
 #: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:12
 msgid "Followers"
-msgstr "Seguidores"
+msgstr "ተከታዮች"
 
 #: ckan/logic/__init__.py:99 ckan/logic/action/__init__.py:60
 #: ckan/templates/package/edit_base.html:21
@@ -480,227 +478,225 @@ msgstr "Seguidores"
 #: ckan/templates/snippets/context/dataset.html:13
 #: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:15
 msgid "Resources"
-msgstr "Recursos"
+msgstr "የመረጃ ምንጭ"
 
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:80
 #: ckan/public/base/javascript/modules/image-upload.js:80
 #: ckan/templates/macros/form.html:424 ckanext/imageview/plugin.py:27
 #: ckanext/imageview/plugin.py:32
 msgid "Image"
-msgstr "Imaxe"
+msgstr "ምስል"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "Image url"
-msgstr "URL da imaxe"
+msgstr "የምስል ዩአርኤል(URL)"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
-msgstr ""
-"ex.: http://example.com/image.jpg (se estiver en branco usará o URL do "
-"recurso)"
+msgstr "eg. http://example.com/image.jpg (ባዶ ጥቅል ዩአርኤልን ከተጠቀመ)"
 
 #: ckanext/reclineview/plugin.py:101
 msgid "Data Explorer"
-msgstr "Navegador de datos"
+msgstr "የመረጃ አስሽ"
 
 #: ckanext/reclineview/plugin.py:171
 #: ckanext/reclineview/theme/public/recline_view.js:200
 #: ckanext/reclineview/theme/public/recline_view.min.js:14
 msgid "Graph"
-msgstr "Gráfico"
+msgstr "ግራፍ"
 
 #: ckanext/reclineview/plugin.py:231
 #: ckanext/reclineview/theme/public/recline_view.js:207
 #: ckanext/reclineview/theme/public/recline_view.min.js:14
 msgid "Map"
-msgstr "Mapa"
+msgstr "ካርታ"
 
 #: ckanext/reclineview/theme/public/recline_view.js:28
 #: ckanext/reclineview/theme/public/recline_view.min.js:1
 msgid "error loading view"
-msgstr "produciuse un erro ao cargar a vista"
+msgstr "እይታን በመጫን ላይ የተፈጠረ ስህተት"
 
 #: ckanext/reclineview/theme/public/recline_view.js:75
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
 msgid "Could not load view"
-msgstr "Non foi posíbel cargar a vista"
+msgstr "እይታን መጫን አልቻለም"
 
 #: ckanext/reclineview/theme/public/recline_view.js:77
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
 msgid "DataStore returned an error"
-msgstr "O almacén de datos devolveu un erro"
+msgstr "የመረጃ ማከማቻው(DataStore) ስህተት መልሷል"
 
 #: ckanext/reclineview/theme/public/recline_view.js:79
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
 msgid "DataProxy returned an error"
-msgstr "O proxy de datos devolveu un erro"
+msgstr "የመረጃ ተኪው(DataProxy) ስህተት መልሷል"
 
 #: ckanext/reclineview/theme/public/recline_view.js:193
 #: ckanext/reclineview/theme/public/recline_view.min.js:14
 msgid "Grid"
-msgstr "Grella"
+msgstr "ፍርግርግ"
 
 #: ckan/templates/package/snippets/view_form_filters.html:46
 #: ckanext/reclineview/theme/public/recline_view.js:215
 #: ckanext/reclineview/theme/public/recline_view.min.js:14
 msgid "Filters"
-msgstr "Filtros"
+msgstr "ማጣሪያዎች"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "Row offset"
-msgstr "Desprazamento de fila"
+msgstr "የረድፍ መነሻ"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "eg: 0"
-msgstr "ex.: 0"
+msgstr "ምሳሌ፡ 0"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr "Número de filas"
+msgstr "የረድፎች ቁጥር"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "eg: 100"
-msgstr "ex.: 100"
+msgstr "ምሳሌ፡ 100"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:6
 msgid "Graph type"
-msgstr "Tipo de gráfico"
+msgstr "የግራፍ አይነት"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:7
 msgid "Group (Axis 1)"
-msgstr "Grupo (eixe 1)"
+msgstr "ቡድን (ዘንግ 1)"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:8
 msgid "Series (Axis 2)"
-msgstr "Series (eixe 2)"
+msgstr "ተከታታይ (ዘንግ 2)"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:6
 msgid "Field type"
-msgstr "Tipo de campo"
+msgstr "የመስክ አይነት"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:7
 msgid "Latitude field"
-msgstr "Campo de latitude"
+msgstr "የላቲቱድ(Latitude) መስክ"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:8
 msgid "Longitude field"
-msgstr "Campo de lonxitude"
+msgstr "የሎንግቱድ(Longitude) መስክ"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:9
 msgid "GeoJSON field"
-msgstr "Campo de GeoJSON"
+msgstr "የ GeoJSON መስክ"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:10
 msgid "Auto zoom to features"
-msgstr "Achegamento automático ás funcionalidades"
+msgstr "ወደ ባህሪያት በራስ-አጉላ"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:11
 msgid "Cluster markers"
-msgstr "Marcadores de clúster"
+msgstr "ክላስተር ሰሪዎች"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 msgid "Total number of Datasets"
-msgstr "Número total de conxuntos de datos"
+msgstr "የመረጃ ስብስቦች ጠቅላላ ብዛት"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
 msgid "Date"
-msgstr "Data"
+msgstr "ቀን"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr "Total de conxuntos de datos"
+msgstr "ጠቅላላ የመረጃ ስብስቦች"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr "Revisións de conxuntos de datos por semana"
+msgstr "የመረጃ ስብስቦች ሳምንታዊ ግምገማ"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr "Todas as revisións de conxuntos de datos"
+msgstr "የመረጃ ስብስቦች ጠቅላላ ግምገማ"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr "Novos conxuntos de datos"
+msgstr "አዳዲስ የመረጃ ስብስቦች"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:180
 msgid "Top Rated Datasets"
-msgstr "Conxuntos de datos mellor valorados"
+msgstr "ከፍተኛ ደረጃ የተሰጣቸው የመረጃ ስብስቦች"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:64
 msgid "Average rating"
-msgstr "Valoración media"
+msgstr "አማካኝ ደረጃ"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:65
 msgid "Number of ratings"
-msgstr "Número de valoracións"
+msgstr "የደረጃ ሰጪዎች ብዛት"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:79
 msgid "No ratings"
-msgstr "Sen valoración"
+msgstr "የተሰጡ ደረጃዎች የሉም"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:84
 #: ckanext/stats/templates/ckanext/stats/index.html:181
 msgid "Most Edited Datasets"
-msgstr "Conxuntos de datos máis editados"
+msgstr "በብዛት የታደሱ የመረጃ ስብስቦች"
 
 #: ckan/logic/converters.py:148 ckan/logic/validators.py:151
 #: ckan/logic/validators.py:193 ckan/templates/package/read_base.html:19
 #: ckan/tests/config/test_middleware.py:619
 #: ckanext/stats/templates/ckanext/stats/index.html:89
 msgid "Dataset"
-msgstr "Conxunto de datos"
+msgstr "የመረጃ ስብስብ"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:90
 msgid "Number of edits"
-msgstr "Número de edicións"
+msgstr "ጠቅላላ አርትዖቶች(እድሳቶች)"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:103
 msgid "No edited datasets"
-msgstr "Non foi editado ningún conxunto de datos"
+msgstr "የታደሱ የመረጃ ስብስቦች የሉም"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:108
 #: ckanext/stats/templates/ckanext/stats/index.html:182
 msgid "Largest Groups"
-msgstr "Grupos máis grandes"
+msgstr "ትላልቅ ቡድኖች"
 
 #: ckan/logic/converters.py:173 ckan/logic/validators.py:246
 #: ckanext/stats/templates/ckanext/stats/index.html:113
 msgid "Group"
-msgstr "Grupo"
+msgstr "ቡድን"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:114
 msgid "Number of datasets"
-msgstr "Número de conxuntos de datos"
+msgstr "የመረጃ ስብስቦች ብዛት"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:127
 msgid "No groups"
-msgstr "Sen grupos"
+msgstr "ምንም ቡድኖች የሉም"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:132
 #: ckanext/stats/templates/ckanext/stats/index.html:183
 msgid "Top Tags"
-msgstr "Etiquetas máis utilizadas"
+msgstr "ከፍተኛ መለያዎች"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:136
 msgid "Tag Name"
-msgstr "Nome da etiqueta"
+msgstr "የመለያ ስም"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:137
 #: ckanext/stats/templates/ckanext/stats/index.html:157
 msgid "Number of Datasets"
-msgstr "Número de conxuntos de datos"
+msgstr "የመረጃ ስብስቦች ብዛት"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr "Usuarios que crearon máis conxuntos de datos"
+msgstr "ብዙ የመረጃ ስብስቦችን የፈጠሩ ተጠቃሚዎች"
 
 #: ckan/logic/converters.py:123 ckan/logic/validators.py:216
 #: ckan/logic/validators.py:233 ckan/logic/validators.py:714
@@ -708,74 +704,74 @@ msgstr "Usuarios que crearon máis conxuntos de datos"
 #: ckan/templates/organization/members.html:19
 #: ckanext/stats/templates/ckanext/stats/index.html:156
 msgid "User"
-msgstr "Usuario"
+msgstr "ተጠቃሚ"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
-msgstr "Menú de estatísticas"
+msgstr "የስታቲሥቲክስ ማውጫ"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:178
 msgid "Total Number of Datasets"
-msgstr "Número total de conxuntos de datos"
+msgstr "ጠቅላላ የመረጃ ስብስቦች ብዛት"
 
 #: ckanext/textview/plugin.py:67 ckanext/textview/plugin.py:69
 msgid "Text"
-msgstr "Texto"
+msgstr "ጽሁፍ"
 
 #: ckanext/webpageview/plugin.py:22 ckanext/webpageview/plugin.py:27
 msgid "Website"
-msgstr "Sitio web"
+msgstr "ድረ-ጣብያ"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "Web Page url"
-msgstr "URL de páxina web"
+msgstr "ድረ-ገጽ ዩአርኤል(URL)"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
-msgstr "ex.: http://example.com (se estiver en branco usará o URL do recurso)"
+msgstr "eg. http://example.com (ባዶ ጥቅል ዩአርኤልን ከተጠቀመ)"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:23
 #: ckan/templates/package/snippets/resource_view.html:64
 #: ckanext/webpageview/theme/templates/webpage_view.html:2
 msgid "Your browser does not support iframes."
-msgstr "O seu navegador non admite «iframes»"
+msgstr "የእርሶ አሳሽ(browser) 'iframes'ን አይጠቀምም/አይደግፍም።"
 
 #: ckan/authz.py:207
 #, python-format
 msgid "Authorization function not found: %s"
-msgstr "Non se atopou a función de autorización: %s"
+msgstr "የፈቀዳ(Authorization) ተግባር አልተገኘም፡ %s"
 
 #: ckan/authz.py:219 ckan/templates/header.html:11
 msgid "Admin"
-msgstr "Administrador"
+msgstr "አስተዳዳሪ"
 
 #: ckan/authz.py:223
 msgid "Editor"
-msgstr "Editor"
+msgstr "አርታዒ"
 
 #: ckan/authz.py:227
 msgid "Member"
-msgstr "Membro"
+msgstr "አባል"
 
 #: ckan/controllers/admin.py:34 ckan/views/admin.py:76
 msgid "Need to be system administrator to administer"
-msgstr "Para poder administrar, vostede ten que ser administrador do sistema"
+msgstr "ለማስተዳደር የስርዐቱ አስተዳዳሪ(system administrator) መሆን አለቦት"
 
 #: ckan/controllers/admin.py:50 ckan/templates/admin/config.html:14
 msgid "Site Title"
-msgstr "Título do sitio"
+msgstr "የጣብያው ስም"
 
 #: ckan/controllers/admin.py:51 ckan/templates/admin/config.html:16
 msgid "Style"
-msgstr "Estilo"
+msgstr "አቀራረብ"
 
 #: ckan/controllers/admin.py:52 ckan/templates/admin/config.html:18
 msgid "Site Tag Line"
-msgstr "Lema do sitio"
+msgstr "የጣብያው መለያ መስመር"
 
 #: ckan/controllers/admin.py:53
 msgid "Site Tag Logo"
-msgstr "Logotipo do sitio"
+msgstr "የጣብያው መለያ አርማ"
 
 #: ckan/controllers/admin.py:55 ckan/templates/admin/config.html:25
 #: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:19
@@ -785,58 +781,56 @@ msgstr "Logotipo do sitio"
 #: ckan/templates/organization/read_base.html:19
 #: ckan/templates/user/edit_user_form.html:14
 msgid "About"
-msgstr "Sobre"
+msgstr "ምንነት"
 
 #: ckan/controllers/admin.py:55 ckan/templates/admin/config.html:25
 msgid "About page text"
-msgstr "Texto da páxina «Sobre»"
+msgstr "ስለ ገጽ ጽሁፉ"
 
 #: ckan/controllers/admin.py:56 ckan/templates/admin/config.html:27
 msgid "Intro Text"
-msgstr "Texto de introdución"
+msgstr "መግቢያ ጽሁፍ"
 
 #: ckan/controllers/admin.py:56 ckan/templates/admin/config.html:27
 msgid "Text on home page"
-msgstr "Texto na páxina principal"
+msgstr "መነሻ ገጽ ላይ ያለው ጽሁፍ"
 
 #: ckan/controllers/admin.py:57 ckan/templates/admin/config.html:29
 msgid "Custom CSS"
-msgstr "CSS personalizado"
+msgstr "የራስ CSS"
 
 #: ckan/controllers/admin.py:57 ckan/templates/admin/config.html:29
 msgid "Customisable css inserted into the page header"
-msgstr "Folla de estilo CSS personalizábel inserida na cabeceira da páxina"
+msgstr "በራስ መሻሻል የሚችህል CSS በገጹ አናት ላይ ገብቷል"
 
 #: ckan/controllers/admin.py:58 ckan/templates/admin/config.html:31
 msgid "Homepage"
-msgstr "Páxina de inicio"
+msgstr "መነሻ ገጽ"
 
 #: ckan/controllers/admin.py:161 ckan/views/admin.py:175
 #, python-format
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr ""
-"Non é posíbel purgar o paquete %s por mor de que a revisión asociada %s "
-"inclúe paquetes de datos no eliminados %s"
+msgstr " ተዛማጅ ከለሳው %s ያልጠፉ ጥቅሎችን(ፓኬጆችን) %s ስለሚያካትት ጥቅል(ፓኬጅ) %s'ን ማጽዳት አይቻልም።"
 
 #: ckan/controllers/admin.py:183 ckan/views/admin.py:197
 #, python-format
 msgid "Problem purging revision %s: %s"
-msgstr "Produciuse un problema ao purgar a revisión %s: %s"
+msgstr "ክለሳ %s 'ን የማጽዳት ችግር: %s"
 
 #: ckan/controllers/admin.py:185 ckan/views/admin.py:199
 msgid "Purge complete"
-msgstr "Rematou a purga"
+msgstr "ጽዳቱ ሙሉ በሙሉ ተጠናቋል"
 
 #: ckan/controllers/admin.py:187 ckan/views/admin.py:201
 msgid "Action not implemented."
-msgstr "Acción non incorporada."
+msgstr "ድርጊቱ/እርምጃው አልተተገበረም"
 
 #: ckan/controllers/api.py:127 ckan/controllers/api.py:218
 #: ckan/views/api.py:112 ckan/views/api.py:299
 msgid "Access denied"
-msgstr "Acceso denegado"
+msgstr "እንዳይገቡ ተከልክሏል"
 
 #: ckan/controllers/api.py:133 ckan/controllers/api.py:227
 #: ckan/logic/action/create.py:911 ckan/logic/converters.py:123
@@ -847,63 +841,63 @@ msgstr "Acceso denegado"
 #: ckan/logic/validators.py:246 ckan/logic/validators.py:270
 #: ckan/logic/validators.py:714 ckan/views/api.py:119 ckan/views/api.py:308
 msgid "Not found"
-msgstr "Non foi posíbel atopalo"
+msgstr "አልተገኘም"
 
 #: ckan/controllers/api.py:139 ckan/views/api.py:126
 msgid "Bad request"
-msgstr "Solicitude incorrecta"
+msgstr "አግባብ የሌለው ጥያቄ"
 
 #: ckan/controllers/api.py:167
 #, python-format
 msgid "Action name not known: %s"
-msgstr "A acción %s é descoñecida"
+msgstr "የድርጊቱ/እርምጃው ስም አይታወክም፡ %s"
 
 #: ckan/controllers/api.py:188 ckan/views/api.py:268
 #, python-format
 msgid "JSON Error: %s"
-msgstr "Erro do JSON: %s"
+msgstr "JSON ስህተት: %s"
 
 #: ckan/controllers/api.py:194 ckan/views/api.py:274
 #, python-format
 msgid "Bad request data: %s"
-msgstr "Solicitude incorrecta de datos: %s"
+msgstr "አግባብ የሌለው የመረጃ ጥያቄ: %s"
 
 #: ckan/controllers/api.py:283
 msgid "No revision specified"
-msgstr "Non se especificou ningunha revisión"
+msgstr "ምንም ክለሳ አልተገለጸም"
 
 #: ckan/controllers/api.py:287
 #, python-format
 msgid "There is no revision with id: %s"
-msgstr "Non hai ningunha revisión co ID: %s"
+msgstr "መለያ ቁጥር %s ያለው ክለሳ የለም"
 
 #: ckan/controllers/api.py:297
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
-msgstr "Falta o termo de busca («since_id=UUID» ou «since_time=TIMESTAMP»)"
+msgstr "የሚታሰሰውን ቃል አላስገቡም ('since_id=UUID' ወይም  'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:309
 #, python-format
 msgid "Could not read parameters: %r"
-msgstr "Non é posíbel ler os parametros: %r"
+msgstr "የተሰጡትን ፓራሜትሮች ማንበብ አልተቻለም፡ %r"
 
 #: ckan/controllers/api.py:370
 #, python-format
 msgid "Bad search option: %s"
-msgstr "A opción de busca está errada: %s"
+msgstr "ልክ ያልሆነ የፍለጋ አማርጭ ፡ %s"
 
 #: ckan/controllers/api.py:373
 #, python-format
 msgid "Unknown register: %s"
-msgstr "Rexistro descoñecido: %s"
+msgstr "ያልታወከ ተመዝጋቢ፡ %s"
 
 #: ckan/controllers/api.py:382
 #, python-format
 msgid "Malformed qjson value: %r"
-msgstr "Valor qjson defectuoso: %r"
+msgstr "በትክክል ያልተሰራ የ qjson ዋጋ፡ %r"
 
 #: ckan/controllers/api.py:392
 msgid "Request params must be in form of a json encoded dictionary."
-msgstr "Os parámetros requiridos deben estar codificados en formato json."
+msgstr "የጥያቀው ፓራትሮች በ json encoded dictionary ቅርጽ መሆን አለባቸው።"
 
 #: ckan/controllers/feed.py:234 ckan/controllers/group.py:128
 #: ckan/controllers/group.py:226 ckan/controllers/group.py:394
@@ -916,16 +910,16 @@ msgstr "Os parámetros requiridos deben estar codificados en formato json."
 #: ckan/controllers/package.py:1280 ckan/logic/action/create.py:1373
 #: ckan/views/feed.py:143
 msgid "Group not found"
-msgstr "Non se atopou o grupo"
+msgstr "ቡድኑ አልተገኘም"
 
 #: ckan/controllers/feed.py:245 ckan/logic/action/create.py:1373
 #: ckan/views/feed.py:160
 msgid "Organization not found"
-msgstr "Non se atopou a organización"
+msgstr "ድርጅቱ አልተገኘም"
 
 #: ckan/controllers/group.py:130 ckan/controllers/group.py:581
 msgid "Incorrect group type"
-msgstr "Tipo de grupo incorrecto"
+msgstr "የተሳሳተ የቡድን አይነት"
 
 #: ckan/controllers/group.py:306 ckan/controllers/home.py:61
 #: ckan/controllers/package.py:256 ckan/lib/helpers.py:1036
@@ -938,7 +932,7 @@ msgstr "Tipo de grupo incorrecto"
 #: ckan/templates/organization/read_base.html:6
 #: ckan/templates/package/base.html:14 ckan/views/home.py:46
 msgid "Organizations"
-msgstr "Organizacións"
+msgstr "ድርጅቶች"
 
 #: ckan/controllers/group.py:307 ckan/controllers/home.py:62
 #: ckan/controllers/package.py:257 ckan/lib/helpers.py:1037
@@ -952,7 +946,7 @@ msgstr "Organizacións"
 #: ckan/templates/revision/diff.html:16 ckan/templates/revision/read.html:84
 #: ckan/tests/config/test_middleware.py:632 ckan/views/home.py:47
 msgid "Groups"
-msgstr "Grupos"
+msgstr "ቡድኖች"
 
 #: ckan/controllers/group.py:308 ckan/controllers/home.py:63
 #: ckan/controllers/package.py:258 ckan/lib/helpers.py:1038
@@ -962,19 +956,19 @@ msgstr "Grupos"
 #: ckan/templates/tag/index.html:3 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:12 ckan/views/home.py:48
 msgid "Tags"
-msgstr "Etiquetas"
+msgstr "መለዮዎች"
 
 #: ckan/controllers/group.py:309 ckan/controllers/home.py:64
 #: ckan/controllers/package.py:259 ckan/lib/helpers.py:1039
 #: ckan/views/home.py:49
 msgid "Formats"
-msgstr "Formatos"
+msgstr "ቅርጸቶች"
 
 #: ckan/controllers/group.py:310 ckan/controllers/home.py:65
 #: ckan/controllers/package.py:260 ckan/lib/helpers.py:1040
 #: ckan/views/home.py:50
 msgid "Licenses"
-msgstr "Licencias"
+msgstr "ፈቃዶች"
 
 #: ckan/controllers/group.py:396 ckan/controllers/group.py:513
 #: ckan/controllers/package.py:345 ckan/controllers/package.py:576
@@ -982,15 +976,15 @@ msgstr "Licencias"
 #: ckan/controllers/package.py:1443
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr "O usuario %r non está autorizado para editar %s"
+msgstr "ተጠቃሚ %r ይህን %s ለማደስ ፍቃድ የለውም"
 
 #: ckan/controllers/group.py:443
 msgid "Not authorized to perform bulk update"
-msgstr "Non está autorizado para facer unha actualización masiva."
+msgstr "ሰፊ ማሻሻያ ለማድረግ ፍቃድ የሎትም"
 
 #: ckan/controllers/group.py:461
 msgid "Unauthorized to create a group"
-msgstr "Non está autorizado para crear un grupo"
+msgstr "ቡድን ለመፍጠር ፈካድ የሎትም"
 
 #: ckan/controllers/group.py:539 ckan/controllers/group.py:569
 #: ckan/controllers/package.py:944 ckan/controllers/package.py:992
@@ -998,113 +992,108 @@ msgstr "Non está autorizado para crear un grupo"
 #: ckan/controllers/user.py:551 ckan/views/user.py:193 ckan/views/user.py:300
 #: ckan/views/user.py:620
 msgid "Integrity Error"
-msgstr "Produciuse un erro de integridade"
+msgstr "የአደረጃጀት ስህተት"
 
 #: ckan/controllers/group.py:595
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
-msgstr "O usuario %r non está autorizado para editar %s autorizacións"
+msgstr "ተጠቃሚ %r ይህን %s ፈቃዶችን ለማደስ ፍቃድ የለውም"
 
 #: ckan/controllers/group.py:615 ckan/controllers/group.py:630
 #, python-format
 msgid "Unauthorized to delete group %s"
-msgstr "Non está autorizado para eliminar o grupo %s"
+msgstr "%s ቡድን ለመሰረዝ ፍቃድ የለውም"
 
 #: ckan/controllers/group.py:621
 msgid "Organization has been deleted."
-msgstr "A organización foi eliminada correctamente."
+msgstr "ድርጅቱ ተሰርዟል።"
 
 #: ckan/controllers/group.py:623
 msgid "Group has been deleted."
-msgstr "O grupo foi eliminado correctamente."
+msgstr "ቡድኑ ተሰርዟል።"
 
 #: ckan/controllers/group.py:625
 #, python-format
 msgid "%s has been deleted."
-msgstr "%s foi eliminado correctamente."
+msgstr "%s ተሰርዟል።"
 
 #: ckan/controllers/group.py:657
 #, python-format
 msgid "User %r not authorized to edit members of %s"
-msgstr "O usuario %r non está autorizado para editar os membros de %s"
+msgstr "ተጠቃሚ %r የ %s አባላትን ለማደስ ፍቃድ የለውም"
 
 #: ckan/controllers/group.py:670
 #, python-format
 msgid "Unauthorized to create group %s members"
-msgstr ""
+msgstr "የ %s ቡድን ውስጥ አባላትን  ለመፍጠር ፍቃድ የለውም"
 
 #: ckan/controllers/group.py:712
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr "Non está autorizado para engadir membros no grupo %s"
+msgstr "የ %s ቡድን ውስጥ አባላትን  ለመጨመር ፍቃድ የለውም"
 
 #: ckan/controllers/group.py:731 ckan/controllers/group.py:744
 #, python-format
 msgid "Unauthorized to delete group %s members"
-msgstr "Non está autorizado para eliminar membros do grupo %s"
+msgstr "የ %s ቡድን ውስጥ አባላትን  ለማጥፋት ፍቃድ የለውም"
 
 #: ckan/controllers/group.py:738
 msgid "Group member has been deleted."
-msgstr "O membro do grupo foi eliminado correctamente."
+msgstr "የቡድን አባል ተሰርዟል።"
 
 #: ckan/controllers/group.py:762 ckan/controllers/package.py:436
 msgid "Select two revisions before doing the comparison."
-msgstr "Seleccione dúas revisións antes de facer a comparación."
+msgstr "ንጽጽሩን ከማድረግዎ በፊት ሁለት ለውጦችን(ክለሳዎችን) ይምረጡ።"
 
 #: ckan/controllers/group.py:786
 msgid "CKAN Group Revision History"
-msgstr "Historial de revisións do grupo CKAN"
+msgstr "የ CKAN ቡድን ክለሳ ታሪክ"
 
 #: ckan/controllers/group.py:790
 msgid "Recent changes to CKAN Group: "
-msgstr "Cambios recentes no Grupo CKAN:"
+msgstr "በ CKAN ቡድን ላይ የቅርብ ጊዜ ለውጦች: "
 
 #: ckan/controllers/group.py:811 ckan/controllers/package.py:487
 msgid "Log message: "
-msgstr "Mensaxe do rexistro:"
+msgstr "የምዝገባ(ማስታወሻ) መልእክት"
 
 #: ckan/controllers/group.py:861 ckan/controllers/package.py:1193
 #: ckan/controllers/user.py:719 ckan/views/user.py:650
 msgid "You are now following {0}"
-msgstr "Está a seguir a  {0}"
+msgstr "አሁን {0} ን እየተከተልክ ነው"
 
 #: ckan/controllers/group.py:881 ckan/controllers/package.py:1212
 #: ckan/controllers/user.py:739 ckan/views/user.py:672
 msgid "You are no longer following {0}"
-msgstr "Xa non está a seguir a  {0}"
+msgstr "{0} ን ከአሁን በኋላ አይከተሉትም"
 
 #: ckan/controllers/group.py:901 ckan/controllers/user.py:584
 #: ckan/views/user.py:697
 #, python-format
 msgid "Unauthorized to view followers %s"
-msgstr "Non está autorizado para ver os seguidores de %s"
+msgstr "ተከታዮችን  %s ለማየት ፍቃድ የለዎትም"
 
 #: ckan/controllers/home.py:35
 msgid "This site is currently off-line. Database is not initialised."
-msgstr ""
-"Este sitio está desconectado neste intre. A base de datos no está preparada."
+msgstr "ይህ ጣቢያ በአሁኑ ሰዓት ከመስመር ውጭ ነው፤ ዳታቤዙ አልተነሳም።"
 
 #: ckan/controllers/home.py:73 ckan/views/home.py:58
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
-msgstr ""
-"<a href=\"%s\">Actualice o seu perfil</a> e engada o seu enderezo de "
-"correo-e."
+msgstr "እባክዎን  <a href=\"%s\">ፕሮፋሎዎን ያሻሽሉ </a>እና የኢሜይል አድራሻዎን ያክሉ።"
 
 #: ckan/controllers/home.py:75 ckan/views/home.py:60
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr ""
-"%s utiliza o seu enderezo de correo-e se vostede necesita restabelecer o seu"
-" contrasinal."
+msgstr "የይለፍ ቃልዎን ዳግም ማጽደቅ ከፈለጉ %s የኢሜይል አድራሻዎን ይጠቀማል።"
 
 #: ckan/controllers/package.py:304
 msgid "Invalid search query: {error_message}"
-msgstr "A busca é incorrecta: {error_message}"
+msgstr "ልክ ያልኾነ የፍለጋ መጠይቅ: {error_message}"
 
 #: ckan/controllers/package.py:323
 msgid "Parameter \"{parameter_name}\" is not an integer"
-msgstr "O parámetro «{parameter_name}» non é un enteiro"
+msgstr "ፓራሜትር \"{parameter_name}\" ኢንቲጀር አይደለም"
 
 #: ckan/controllers/package.py:343 ckan/controllers/package.py:351
 #: ckan/controllers/package.py:389 ckan/controllers/package.py:456
@@ -1116,177 +1105,175 @@ msgstr "O parámetro «{parameter_name}» non é un enteiro"
 #: ckan/controllers/package.py:1415 ckan/controllers/package.py:1450
 #: ckan/controllers/package.py:1557
 msgid "Dataset not found"
-msgstr "Non se atopou o conxunto de datos"
+msgstr "የመረጃ ስብስቡ አልተገኘም"
 
 #: ckan/controllers/package.py:377 ckan/controllers/package.py:379
 #: ckan/controllers/package.py:381
 #, python-format
 msgid "Invalid revision format: %r"
-msgstr "O formato de revisión non é válido: %r"
+msgstr "ልክ ያልሆነ የክለሳ ቅርጸት: %r"
 
 #: ckan/controllers/package.py:415
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
-msgstr ""
-"Non é posíbel ver os conxuntos de datos do tipo «{package_type}» "
-"({file_!r})."
+msgstr "ይህን \"{package_type}\" አይነት የመረጃ ስብስብን መመልከት አይደገፍም ({file_!r})።"
 
 #: ckan/controllers/package.py:454 ckan/controllers/package.py:839
 #: ckan/controllers/package.py:940 ckan/controllers/package.py:988
 #: ckan/controllers/package.py:1239
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr "Non está autorizado para ler o paquete %s"
+msgstr "ጥቅል %s ለማንበብ  ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:463
 msgid "CKAN Dataset Revision History"
-msgstr "Historial de revisión do conxunto de datos do CKAN"
+msgstr "የ CKAN የመረጃ ስብስብ ክለሳ ታሪክ"
 
 #: ckan/controllers/package.py:466
 msgid "Recent changes to CKAN Dataset: "
-msgstr "Cambios recentes no conxunto de datos do CKAN"
+msgstr "በ CKAN የመረጃ ስብስብ ላይ የቅርብ ጊዜ ለውጦች: "
 
 #: ckan/controllers/package.py:522
 msgid "Unauthorized to create a package"
-msgstr "Non está autorizado para crear un paquete"
+msgstr "ጥቅል ለመፍጠር  ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:598
 msgid "Unauthorized to edit this resource"
-msgstr "Non está autorizado para editar este recurso"
+msgstr "ይህን የመረጃ ምንጭ ለማደስ ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:666
 msgid "Unauthorized to update dataset"
-msgstr "Non está autorizado para actualizar o conxunto de datos"
+msgstr "የመረጃ ስብስብ ለማሻሻል  ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:668 ckan/controllers/package.py:705
 #: ckan/controllers/package.py:731
 msgid "The dataset {id} could not be found."
-msgstr "Non foi posíbel atopar o conxunto de datos {id}"
+msgstr "የመለያ ቁጥር(ID) {id} ያለው የመረጃ ስብስብ ሊገኝ አልቻለም።"
 
 #: ckan/controllers/package.py:672
 msgid "You must add at least one data resource"
-msgstr "Ten que engadir, polo menos, un conxunto de datos"
+msgstr "ቢያንስ አንድ የመረጃ ምንጭ መጨመር አለብዎት"
 
 #: ckan/controllers/package.py:703
 msgid "Unauthorized to create a resource"
-msgstr "Non está autorizado para crear un recurso"
+msgstr "የመረጃ ምንጭ ለመፍጠር  ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:736
 msgid "Unauthorized to create a resource for this package"
-msgstr "Non está autorizado para crear un recurso para este paquete"
+msgstr "ለዚህ ጥቅል የመረጃ ምንጭ ለመፍጠር  ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:950
 msgid "Unable to add package to search index."
-msgstr ""
+msgstr "ለፍለጋ ኢንዴክስ ጥቅል ማከል አልተቻለም።"
 
 #: ckan/controllers/package.py:998
 msgid "Unable to update search index."
-msgstr ""
+msgstr "የፍለጋ ኢንዴክስ ማሻሻል አልቻለም።"
 
 #: ckan/controllers/package.py:1035
 msgid "Dataset has been deleted."
-msgstr ""
+msgstr "የመረጃ ስብስብ ተሰርዟል።"
 
 #: ckan/controllers/package.py:1040 ckan/controllers/package.py:1058
 #, python-format
 msgid "Unauthorized to delete package %s"
-msgstr "Non está autorizado para eliminar o paquete %s"
+msgstr "ይህን  %s ጥቅል ለመሰረዝ ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:1063
 msgid "Resource has been deleted."
-msgstr "Foi eliminado o recurso."
+msgstr "የመረጃ ምንጭ ተሰርዟል።"
 
 #: ckan/controllers/package.py:1074
 #, python-format
 msgid "Unauthorized to delete resource %s"
-msgstr "Non está autorizado para eliminar o recurso %s"
+msgstr "ይህን  %s የመረጃ ምንጭ ለመሰረዝ ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:1133 ckan/controllers/package.py:1576
 msgid "Resource view not found"
-msgstr ""
+msgstr "የመረጃ ምንጩ እይታ አልተገኘም"
 
 #: ckan/controllers/package.py:1172
 msgid "Resource data not found"
-msgstr ""
+msgstr "የመረጃ ምንጩ መረጃ አልተገኘም"
 
 #: ckan/controllers/package.py:1181
 msgid "No download is available"
-msgstr ""
+msgstr "ምንም የሚወርድ ነገር የለም"
 
 #: ckan/controllers/package.py:1318
 #, python-format
 msgid "Unauthorized to read dataset %s"
-msgstr "Non está autorizado para ler o conxunto de datos %s"
+msgstr "ይህን  %s የመረጃ ስብስብ ለማንበብ ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:1426
 #, python-format
 msgid "Unauthorized to read resource %s"
-msgstr "Non está autorizado para ler o recurso %s"
+msgstr "ይህን  %s የመረጃ ምንጭ ለማንበብ ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:1490
 msgid "Unauthorized to edit resource"
-msgstr "Non está autorizado para editar o recurso"
+msgstr "የመረጃ ምንጭ ለማደስ ፍቃድ የለዎትም"
 
 #: ckan/controllers/package.py:1508
 msgid "View not found"
-msgstr ""
+msgstr "እይታ አልተገኘም"
 
 #: ckan/controllers/package.py:1514
 msgid "View Type Not found"
-msgstr ""
+msgstr "የእይታ አይነት አልተገኘም"
 
 #: ckan/controllers/package.py:1570
 msgid "Bad resource view data"
-msgstr ""
+msgstr "መጥፎ የመረጃ እይታ"
 
 #: ckan/controllers/package.py:1579
 msgid "Resource view not supplied"
-msgstr ""
+msgstr "የመረጃ እይታ አልቀረበም"
 
 #: ckan/controllers/package.py:1608
 msgid "No preview has been defined."
-msgstr ""
+msgstr "ምንም ቅድመ-እይታ አልተገለጸም።"
 
 #: ckan/controllers/revision.py:45
 msgid "CKAN Repository Revision History"
-msgstr ""
+msgstr "የ CKAN ማከማቻ ክለሳ ታሪክ"
 
 #: ckan/controllers/revision.py:47
 msgid "Recent changes to the CKAN repository."
-msgstr ""
+msgstr "በ CKAN ማከማቻ ላይ የቅርብ ጊዜ ለውጦች"
 
 #: ckan/controllers/revision.py:111
 #, python-format
 msgid "Datasets affected: %s.\n"
-msgstr ""
+msgstr "የተለወጡ የመረጃ ስብስቦች: %s.\n"
 
 #: ckan/controllers/revision.py:191
 msgid "Revision updated"
-msgstr ""
+msgstr "የተሻሻለ ክለሳ"
 
 #: ckan/controllers/tag.py:60
 msgid "Other"
-msgstr ""
+msgstr "ሌላ"
 
 #: ckan/controllers/tag.py:74
 msgid "Tag not found"
-msgstr ""
+msgstr "መለዮ አልተገኘም"
 
 #: ckan/controllers/user.py:162 ckan/views/user.py:290
 msgid "Unauthorized to register as a user."
-msgstr "Non está autorizado para rexistrarse como usuario"
+msgstr "እንደ ተተቃሚ ለመመዝገብ ፍቃድ የለዎትም።"
 
 #: ckan/controllers/user.py:180
 msgid "Unauthorized to create a user"
-msgstr "Non está autorizado para crear un usuario"
+msgstr "ተጠቃሚ ለመፍጠር ፍቃድ የለዎትም"
 
 #: ckan/controllers/user.py:211 ckan/views/user.py:426
 msgid "Unauthorized to delete user with id \"{user_id}\"."
-msgstr "Non está autorizado para eliminar o usuario co ID  «{user_id}»."
+msgstr "የመለያ ቁጥር(ID) \"{user_id}\" ያለውን ተጠቃሚ ለመሰረዝ ፍቃድ የለዎትም"
 
 #: ckan/controllers/user.py:225 ckan/controllers/user.py:288
 #: ckan/views/user.py:168 ckan/views/user.py:444
 msgid "No user specified"
-msgstr ""
+msgstr "ምንም ተጠቃሚ አልተጠቀሰም"
 
 #: ckan/controllers/user.py:231 ckan/controllers/user.py:313
 #: ckan/controllers/user.py:376 ckan/controllers/user.py:547
@@ -1294,7 +1281,7 @@ msgstr ""
 #: ckan/views/user.py:616
 #, python-format
 msgid "Unauthorized to edit user %s"
-msgstr "Non está autorizado para editar o usuario %s"
+msgstr "ተጠቃሚ %s ን ለማደስ ፍቃድ የለዎትም"
 
 #: ckan/controllers/user.py:233 ckan/controllers/user.py:248
 #: ckan/controllers/user.py:315 ckan/controllers/user.py:378
@@ -1303,422 +1290,422 @@ msgstr "Non está autorizado para editar o usuario %s"
 #: ckan/views/user.py:315 ckan/views/user.py:452 ckan/views/user.py:573
 #: ckan/views/user.py:618
 msgid "User not found"
-msgstr ""
+msgstr "ተጠቃሚ አልተገኘም"
 
 #: ckan/controllers/user.py:235 ckan/controllers/user.py:368
 #: ckan/views/user.py:226 ckan/views/user.py:454
 msgid "Profile updated"
-msgstr ""
+msgstr "ፕሮፋይል ተሻሽⶀል"
 
 #: ckan/controllers/user.py:246 ckan/views/user.py:313
 #, python-format
 msgid "Unauthorized to create user %s"
-msgstr "Non está autorizado para crear o usuario %s"
+msgstr "ተጠቃሚ %s ለመፍጠር ፍቃድ የለዎትም"
 
 #: ckan/controllers/user.py:252 ckan/views/user.py:306
 msgid "Bad Captcha. Please try again."
-msgstr ""
+msgstr "መጥፎ Captcha፤ እባክዎ እንደገና ይሞክሩ።"
 
 #: ckan/controllers/user.py:266 ckan/views/user.py:325
 #, python-format
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
-msgstr ""
+msgstr "ተጠቃሚ \"%s\" አሁን ተመዝግቧል፤ ነገር ግን እርስዎ እንደ \"%s\" በመጠቀም ላይ ነዎት።"
 
 #: ckan/controllers/user.py:294 ckan/views/user.py:174
 msgid "Unauthorized to edit a user."
-msgstr "Non está autorizado para editar un usuario"
+msgstr "ተጠቃሚን ለማደስ ፍቃድ የለዎትም።"
 
 #: ckan/controllers/user.py:321 ckan/views/user.py:252
 #, python-format
 msgid "User %s not authorized to edit %s"
-msgstr "O usuario %s non está autorizado para editar %s"
+msgstr "ተጠቃሚ  %s %sን ለማደስ ፍቃድ የለውም"
 
 #: ckan/controllers/user.py:386 ckan/views/user.py:210
 msgid "Password entered was incorrect"
-msgstr ""
+msgstr "ያስገቡት የይለፍ ቃል የተሳሳተ ነው"
 
 #: ckan/controllers/user.py:387 ckan/templates/user/edit_user_form.html:29
 #: ckan/views/user.py:212
 msgid "Old Password"
-msgstr ""
+msgstr "የድሮ የይለፍ ቃል"
 
 #: ckan/controllers/user.py:387 ckan/views/user.py:212
 msgid "incorrect password"
-msgstr ""
+msgstr "የተሳሳተ የይለፍ ቃል"
 
 #: ckan/controllers/user.py:427 ckan/views/user.py:386
 msgid "Login failed. Bad username or password."
-msgstr ""
+msgstr "ለመግባት ያደረጉት ሙከራ የተሳሳተ ልዩ ስም ወይም ይለፍ ቃል  በማስገባትዎ አልተሳካም።"
 
 #: ckan/controllers/user.py:460 ckan/views/user.py:504
 msgid "Unauthorized to request reset password."
-msgstr "Non está autorizado para solicitar o reinicio do contrasinal."
+msgstr "የይለፍ ቃል ዳግም የማጽደቅ ጥያቄ ለማቅረብ ፍቃድ የለውም"
 
 #: ckan/controllers/user.py:489 ckan/views/user.py:530
 #, python-format
 msgid "\"%s\" matched several users"
-msgstr ""
+msgstr "\"%s\" ከብዙ ተጠቃሚዎች ጋር ተዛምዷል(ተመሳስⶀል )"
 
 #: ckan/controllers/user.py:491 ckan/controllers/user.py:493
 #: ckan/views/user.py:532 ckan/views/user.py:534
 #, python-format
 msgid "No such user: %s"
-msgstr ""
+msgstr "%s የሚባል ተጠቃሚ የለም"
 
 #: ckan/controllers/user.py:498 ckan/views/user.py:542
 msgid "Please check your inbox for a reset code."
-msgstr ""
+msgstr "እባክዎ ዳግም ማስጀመሪያ ኮድ ለማግኘት የኢሜይልዎን ገቢ መልዕክት ሳጥንዎን ይመልከቱ።"
 
 #: ckan/controllers/user.py:502 ckan/views/user.py:546
 #, python-format
 msgid "Could not send reset link: %s"
-msgstr ""
+msgstr "ዳግም ማስጀመር አገናኝ(link) %s መላክ አልተቻለም"
 
 #: ckan/controllers/user.py:515 ckan/views/user.py:568
 msgid "Unauthorized to reset password."
-msgstr "Non está autorizado para reiniciar o contrasinal."
+msgstr "የይለፍ ቃል ዳግም ለማጽደቅ ፍቃድ የለውም።"
 
 #: ckan/controllers/user.py:527 ckan/views/user.py:577
 msgid "Invalid reset key. Please try again."
-msgstr ""
+msgstr "ያስገቡት ልክ ያልሆነ ዳግም ማስጀመሪያ ቁልፍ ነው፤ እባክዎ እንደገና ይሞክሩ።"
 
 #: ckan/controllers/user.py:544 ckan/views/user.py:613
 msgid "Your password has been reset."
-msgstr ""
+msgstr "የይለፍ ቃልዎ ዳግም ተዘጋጅቷል።"
 
 #: ckan/controllers/user.py:566
 msgid "Your password must be 4 characters or longer."
-msgstr ""
+msgstr "የይለፍ ቃልዎ 4 ትዕምርት(character) ወይም ከዚያ በላይ መሆን አለበት።"
 
 #: ckan/controllers/user.py:569 ckan/views/user.py:592
 msgid "The passwords you entered do not match."
-msgstr ""
+msgstr "ያስገባኸው የይለፍ ቃል ከበፊቱ ጋር አይመሳሰልም።"
 
 #: ckan/controllers/user.py:572 ckan/views/user.py:595
 msgid "You must provide a password"
-msgstr ""
+msgstr "የይለፍ ቃል መስጠት(ማቅረብ) አለብዎት"
 
 #: ckan/controllers/user.py:640 ckan/views/dashboard.py:58
 msgid "Follow item not found"
-msgstr ""
+msgstr "የሚከተሉት ንጥል አልተገኘም"
 
 #: ckan/controllers/user.py:644 ckan/views/dashboard.py:62
 msgid "{0} not found"
-msgstr ""
+msgstr "{0} አልተገኘም"
 
 #: ckan/controllers/user.py:658 ckan/views/dashboard.py:76
 msgid "Everything"
-msgstr ""
+msgstr "ሁሉም ነገር"
 
 #: ckan/controllers/util.py:18 ckan/logic/action/__init__.py:62
 msgid "Missing Value"
-msgstr ""
+msgstr "የጠፋ(የተረሳ) ዋጋ"
 
 #: ckan/controllers/util.py:23
 msgid "Redirecting to external site is not allowed."
-msgstr ""
+msgstr "ወደ ውጫዊ ጣብያ መቀየር አይፈቀድም።"
 
 #: ckan/lib/activity_streams.py:60
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} መለዮ {tag} የመረጃ ስብስብ {dataset} ላይ ጨመረ።"
 
 #: ckan/lib/activity_streams.py:63
 msgid "{actor} updated the group {group}"
-msgstr ""
+msgstr "{actor} ቡድን {group} አሻሻለ።"
 
 #: ckan/lib/activity_streams.py:66
 msgid "{actor} updated the organization {organization}"
-msgstr ""
+msgstr "{actor} ድርጅት {organization} አሻሻለ።"
 
 #: ckan/lib/activity_streams.py:69
 msgid "{actor} updated the dataset {dataset}"
-msgstr ""
+msgstr "{actor} የመረጃ ስብስብ {dataset} አሻሻለ።"
 
 #: ckan/lib/activity_streams.py:72
 msgid "{actor} changed the extra {extra} of the dataset {dataset}"
-msgstr ""
+msgstr "{actor} የመረጃ ስብስብ {dataset} ን ተጨማሪ(ትርፍ) {extra} ለወጠ።"
 
 #: ckan/lib/activity_streams.py:75
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
-msgstr ""
+msgstr "{actor} የመረጃ ስብስብ {dataset} ን የመረጃ ምንጭ {resource} አሻሻለ።"
 
 #: ckan/lib/activity_streams.py:78
 msgid "{actor} updated their profile"
-msgstr ""
+msgstr "{actor} ፕሮፋይላቸውን አሻሽለዋል።"
 
 #: ckan/lib/activity_streams.py:81
 msgid "{actor} deleted the group {group}"
-msgstr ""
+msgstr "{actor} ቡድን {group} ን  አጠፋ።"
 
 #: ckan/lib/activity_streams.py:84
 msgid "{actor} deleted the organization {organization}"
-msgstr ""
+msgstr "{actor} ድርጅት {organization} ን  አጠፋ።"
 
 #: ckan/lib/activity_streams.py:87
 msgid "{actor} deleted the dataset {dataset}"
-msgstr ""
+msgstr "{actor} የመረጃ ስብስብ {dataset} ን  አጠፋ።"
 
 #: ckan/lib/activity_streams.py:90
 msgid "{actor} deleted the extra {extra} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} ከመረጃ ስብስብ {dataset} ተጨማሪ(ትርፍ) {extra} ን  አጠፋ።"
 
 #: ckan/lib/activity_streams.py:93
 msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} ከመረጃ ስብስብ {dataset} የመረጃ ምንጭ {resource} አጠፋ።"
 
 #: ckan/lib/activity_streams.py:97
 msgid "{actor} created the group {group}"
-msgstr ""
+msgstr "{actor} ቡድን {group} ፈጠረ።"
 
 #: ckan/lib/activity_streams.py:100
 msgid "{actor} created the organization {organization}"
-msgstr ""
+msgstr "{actor} ድርጅት {organization} ፈጠረ።"
 
 #: ckan/lib/activity_streams.py:103
 msgid "{actor} created the dataset {dataset}"
-msgstr ""
+msgstr "{actor} የመረጃ ስብስብ {dataset} ፈጠረ።"
 
 #: ckan/lib/activity_streams.py:106
 msgid "{actor} added the extra {extra} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} ለመረጃ ስብስብ {dataset} ን ተጨማሪ(ትርፍ) {extra} ፈጠረ።"
 
 #: ckan/lib/activity_streams.py:109
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} ለመረጃ ስብስብ {dataset} ን የመረጃ ምንጭ {resource} ፈጠረ።"
 
 #: ckan/lib/activity_streams.py:112
 msgid "{actor} signed up"
-msgstr ""
+msgstr "{actor} ተመዝግቧል"
 
 #: ckan/lib/activity_streams.py:115
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} ከመረጃ ስብስብ {dataset} መለዮ {tag} አጠፋ።"
 
 #: ckan/lib/activity_streams.py:118
 msgid "{actor} started following {dataset}"
-msgstr ""
+msgstr "{actor} የመረጃ ስብስብ {dataset} ን መከተል ጀመረ።"
 
 #: ckan/lib/activity_streams.py:121
 msgid "{actor} started following {user}"
-msgstr ""
+msgstr "{actor} ተጠቃሚ {user} ን መከተል ጀመረ።"
 
 #: ckan/lib/activity_streams.py:124
 msgid "{actor} started following {group}"
-msgstr ""
+msgstr "{actor} ቡድን {group} ን መከተል ጀመረ።"
 
 #: ckan/lib/datapreview.py:265 ckan/templates/group/edit_base.html:16
 #: ckan/templates/organization/edit_base.html:17
 #: ckan/templates/package/resource_read.html:38
 #: ckan/templates/package/resource_views.html:4
 msgid "View"
-msgstr ""
+msgstr "እይታ"
 
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} አዲስ እንቅስቃሴ ከ {site_title}"
+msgstr[1] "{n} አዲስ እንቅስቃሴዎች ከ {site_title}"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
-msgstr "xaneiro"
+msgstr "ጥር"
 
 #: ckan/lib/formatters.py:23
 msgid "February"
-msgstr "febreiro"
+msgstr "የካቲት"
 
 #: ckan/lib/formatters.py:27
 msgid "March"
-msgstr "marzo"
+msgstr "መጋቢት"
 
 #: ckan/lib/formatters.py:31
 msgid "April"
-msgstr "abril"
+msgstr "ሚያዚያ"
 
 #: ckan/lib/formatters.py:35
 msgid "May"
-msgstr "maio"
+msgstr "ግንቦት"
 
 #: ckan/lib/formatters.py:39
 msgid "June"
-msgstr "xuño"
+msgstr "ሰኔ"
 
 #: ckan/lib/formatters.py:43
 msgid "July"
-msgstr "xullo"
+msgstr "ሃምሌ"
 
 #: ckan/lib/formatters.py:47
 msgid "August"
-msgstr "agosto"
+msgstr "ነሃሴ"
 
 #: ckan/lib/formatters.py:51
 msgid "September"
-msgstr "setembro"
+msgstr "መስከረም"
 
 #: ckan/lib/formatters.py:55
 msgid "October"
-msgstr "outubro"
+msgstr "ጥምቀት"
 
 #: ckan/lib/formatters.py:59
 msgid "November"
-msgstr "novembro"
+msgstr "ህዳር"
 
 #: ckan/lib/formatters.py:63
 msgid "December"
-msgstr "decembro"
+msgstr "ታህሳስ"
 
 #: ckan/lib/formatters.py:114
 msgid "Just now"
-msgstr "Agora mesmo"
+msgstr "አሁን"
 
 #: ckan/lib/formatters.py:116
 msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
-msgstr[0] "Vai {mins} minuto"
-msgstr[1] "Vai {mins} minutos"
+msgstr[0] "ከ {mins} ደቂቃ በፊት"
+msgstr[1] "ከ {mins} ደቂቃዎች በፊት"
 
 #: ckan/lib/formatters.py:119
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
-msgstr[0] "Vai {hours} hora"
-msgstr[1] "Vai {hours} horas"
+msgstr[0] "ከ {hours} ሰዐት በፊት"
+msgstr[1] "ከ {hours} ሰዐታት  በፊት"
 
 #: ckan/lib/formatters.py:125
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
-msgstr[0] "Vai {days} día"
-msgstr[1] "Vai {days} días"
+msgstr[0] "ከ {days} ቀን በፊት"
+msgstr[1] "ከ {days} ቀናት  በፊት"
 
 #: ckan/lib/formatters.py:128
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
-msgstr[0] "Vai {months} mes"
-msgstr[1] "Vai {months} meses"
+msgstr[0] "ከ {months} ወር በፊት"
+msgstr[1] "ከ {months} ወራት  በፊት"
 
 #: ckan/lib/formatters.py:130
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
-msgstr[0] "Vai máis de {years} ano"
-msgstr[1] "Vai máis de {years} anos"
+msgstr[0] "ከ {years} ዓመት  በፊት"
+msgstr[1] "ከ {years} ዓመታት  በፊት"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
-msgstr "{day} de {month} de {year}, {hour:02}:{min:02} ({timezone})"
+msgstr ""
 
 #: ckan/lib/formatters.py:151
 msgid "{month} {day}, {year}"
-msgstr "{day} de {month} de {year}"
+msgstr ""
 
 #: ckan/lib/formatters.py:167
 msgid "{bytes} bytes"
-msgstr "{bytes} bytes"
+msgstr ""
 
 #: ckan/lib/formatters.py:169
 msgid "{kibibytes} KiB"
-msgstr "{kibibytes} KiB"
+msgstr ""
 
 #: ckan/lib/formatters.py:171
 msgid "{mebibytes} MiB"
-msgstr "{mebibytes} MiB"
+msgstr ""
 
 #: ckan/lib/formatters.py:173
 msgid "{gibibytes} GiB"
-msgstr "{gibibytes} GiB"
+msgstr ""
 
 #: ckan/lib/formatters.py:175
 msgid "{tebibytes} TiB"
-msgstr "{tebibytes} TiB"
+msgstr ""
 
 #: ckan/lib/formatters.py:187
 msgid "{n}"
-msgstr "{n}"
+msgstr ""
 
 #: ckan/lib/formatters.py:189
 msgid "{k}k"
-msgstr "{k}k"
+msgstr ""
 
 #: ckan/lib/formatters.py:191
 msgid "{m}M"
-msgstr "{m}M"
+msgstr ""
 
 #: ckan/lib/formatters.py:193
 msgid "{g}G"
-msgstr "{g}G"
+msgstr ""
 
 #: ckan/lib/formatters.py:195
 msgid "{t}T"
-msgstr "{t}T"
+msgstr ""
 
 #: ckan/lib/formatters.py:197
 msgid "{p}P"
-msgstr "{p}P"
+msgstr ""
 
 #: ckan/lib/formatters.py:199
 msgid "{e}E"
-msgstr "{e}E"
+msgstr ""
 
 #: ckan/lib/formatters.py:201
 msgid "{z}Z"
-msgstr "{z}Z"
+msgstr ""
 
 #: ckan/lib/formatters.py:203
 msgid "{y}Y"
-msgstr "{y}Y"
+msgstr ""
 
 #: ckan/lib/helpers.py:1251
 msgid "Update your avatar at gravatar.com"
-msgstr "Actualice o seu avatar en gravatar.com"
+msgstr "አቫታርዎን gravatar.com ላይ ያሻሽሉ"
 
 #: ckan/lib/helpers.py:1523 ckan/lib/helpers.py:1536
 msgid "Unknown"
-msgstr "Descoñecido"
+msgstr "ያልታወቀ"
 
 #: ckan/lib/helpers.py:1587
 msgid "Unnamed resource"
-msgstr ""
+msgstr "ያልተሰየመ የመረጃ ምንጭ"
 
 #: ckan/lib/helpers.py:1627
 msgid "Created new dataset."
-msgstr ""
+msgstr "አዲስ የመረጃ ስብስብ ተፈጠⶂል።"
 
 #: ckan/lib/helpers.py:1629
 msgid "Edited resources."
-msgstr ""
+msgstr "የተለወጡ የመረጃ ምንጮች"
 
 #: ckan/lib/helpers.py:1631
 msgid "Edited settings."
-msgstr ""
+msgstr "የታደሱ  ውቅሮች"
 
 #: ckan/lib/helpers.py:1877
 msgid "{number} view"
 msgid_plural "{number} views"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} እይታ"
+msgstr[1] "{number} እይታዎች"
 
 #: ckan/lib/helpers.py:1879
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} የቅርብ ጊዜ እይታ"
+msgstr[1] "{number} የቅርብ ጊዜ እይታዎች"
 
 #: ckan/lib/mailer.py:46
 #, python-format
 msgid "%s <%s>"
-msgstr "%s <%s>"
+msgstr ""
 
 #: ckan/lib/mailer.py:116
 msgid "No recipient email address available!"
-msgstr ""
+msgstr "ምንም የተቀባይ የኢሜይል አድራሻ የለም!"
 
 #: ckan/lib/mailer.py:134 ckan/templates/home/snippets/stats.html:17
 msgid "organization"
-msgstr ""
+msgstr "ድርጅት"
 
 #: ckan/lib/mailer.py:135 ckan/templates/home/snippets/stats.html:23
 msgid "group"
-msgstr ""
+msgstr "ቡድን"
 
 #: ckan/lib/navl/dictization_functions.py:16
 #: ckan/lib/navl/dictization_functions.py:19
@@ -1732,34 +1719,34 @@ msgstr ""
 #: ckan/logic/action/get.py:2033 ckan/logic/action/update.py:261
 #: ckan/logic/validators.py:615
 msgid "Missing value"
-msgstr ""
+msgstr "የጠፋ(የተረሳ) ዋጋ"
 
 #: ckan/lib/navl/validators.py:68
 #, python-format
 msgid "The input field %(name)s was not expected."
-msgstr ""
+msgstr "የግብዓት መስኩ  %(name)s አልተጠበቀም።"
 
 #: ckan/lib/navl/validators.py:120
 msgid "Please enter an integer value"
-msgstr ""
+msgstr "እባክዎ ኢንቲጀር እሴትን ያስገቡ"
 
 #: ckan/lib/navl/validators.py:126
 msgid "Must be a Unicode string value"
-msgstr ""
+msgstr "የዩኒኮድ ሕብረቁምፊ(string) እሴት መሆን አለበት"
 
 #: ckan/logic/__init__.py:99 ckan/logic/action/__init__.py:60
 msgid "Package resource(s) invalid"
-msgstr ""
+msgstr "ጥቅል መርጃ (ዎች) አያገለግሉም"
 
 #: ckan/logic/__init__.py:106 ckan/logic/__init__.py:108
 #: ckan/logic/action/__init__.py:62 ckan/logic/action/__init__.py:64
 msgid "Extras"
-msgstr ""
+msgstr "ተጨማሪ(ትርፍ) ነገሮች"
 
 #: ckan/logic/converters.py:76 ckan/logic/converters.py:91
 #, python-format
 msgid "Tag vocabulary \"%s\" does not exist"
-msgstr ""
+msgstr "የመለዮ ዝርዝር \"%s\" የለም"
 
 #: ckan/logic/converters.py:182
 msgid "Could not parse as valid JSON"
@@ -1767,51 +1754,51 @@ msgstr ""
 
 #: ckan/logic/validators.py:35 ckan/logic/validators.py:44
 msgid "An organization must be provided"
-msgstr ""
+msgstr "ድርጅት መሰጠት አለበት"
 
 #: ckan/logic/validators.py:49
 msgid "Organization does not exist"
-msgstr ""
+msgstr "ድርጅት የለም"
 
 #: ckan/logic/validators.py:54
 msgid "You cannot add a dataset to this organization"
-msgstr ""
+msgstr "ወደዚህ ድርጅት የመረጃ ስብስብ መጨመር አይችሉም"
 
 #: ckan/logic/validators.py:94
 msgid "Invalid integer"
-msgstr ""
+msgstr "ልክ ያልሆነ ኢንቲጀር"
 
 #: ckan/logic/validators.py:99
 msgid "Must be a natural number"
-msgstr ""
+msgstr "ተፈጥሯዊ ቁጥር መሆን አለበት"
 
 #: ckan/logic/validators.py:105
 msgid "Must be a postive integer"
-msgstr ""
+msgstr "አዎንታዊ ኢንቲጀር መሆን አለበት"
 
 #: ckan/logic/validators.py:132
 msgid "Date format incorrect"
-msgstr ""
+msgstr "የቀን ቅርጸት ትክክል አይደለም"
 
 #: ckan/logic/validators.py:141
 msgid "No links are allowed in the log_message."
-msgstr ""
+msgstr "በ log_message ውስጥ ምንም አገናኞች(links) አይፈቀዱም"
 
 #: ckan/logic/validators.py:161
 msgid "Dataset id already exists"
-msgstr ""
+msgstr "የመረጃ ስብስቡ መለያ ቁጥር አስቀድሞም ይገኛል"
 
 #: ckan/logic/validators.py:202
 msgid "Resource"
-msgstr ""
+msgstr "የመረጃ ምንጭ"
 
 #: ckan/logic/validators.py:256
 msgid "That group name or ID does not exist."
-msgstr ""
+msgstr "ያ የቡድን ስም ወይም መለያ ቁጥር የለም።"
 
 #: ckan/logic/validators.py:270
 msgid "Activity type"
-msgstr ""
+msgstr "የእንቅስቃሴ አይነት"
 
 #: ckan/logic/validators.py:333
 msgid "Names must be strings"
@@ -1819,530 +1806,533 @@ msgstr ""
 
 #: ckan/logic/validators.py:337
 msgid "That name cannot be used"
-msgstr ""
+msgstr "ስሞች ሕብረቁምፊዎች መሆን አለባቸው"
 
 #: ckan/logic/validators.py:340
 #, python-format
 msgid "Must be at least %s characters long"
-msgstr ""
+msgstr "ቢያንስ %s ቁምፊዎች(characters) መሆን አለበት"
 
 #: ckan/logic/validators.py:342 ckan/logic/validators.py:631
 #, python-format
 msgid "Name must be a maximum of %i characters long"
-msgstr ""
+msgstr "ስም ቢበዛ % i ቁምፊዎች መሆን አለበት"
 
 #: ckan/logic/validators.py:345
 msgid ""
 "Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
 "-_"
 msgstr ""
+"የእንግሊዘኛ አነስተኛ ፊደል ና ቁጥር ቁምፊዎች(ascii characters) እና እነዚህን ምልክቶች '-_'መሆን አለበት።"
 
 #: ckan/logic/validators.py:363
 msgid "That URL is already in use."
-msgstr ""
+msgstr "ያ ዩአርኤል አስቀድሞ ጥቅም ላይ ውሏል።"
 
 #: ckan/logic/validators.py:368
 #, python-format
 msgid "Name \"%s\" length is less than minimum %s"
-msgstr ""
+msgstr "ስም \"%s\" ርዝመት ከአነስተኛው ገደብ %s በታች ነው"
 
 #: ckan/logic/validators.py:372
 #, python-format
 msgid "Name \"%s\" length is more than maximum %s"
-msgstr ""
+msgstr "ስም  \"%s\" ርዝመት ከከፍተኛው ገደብ %s በታች ነው"
 
 #: ckan/logic/validators.py:378
 #, python-format
 msgid "Version must be a maximum of %i characters long"
-msgstr ""
+msgstr "ስሪት ቢበዛ % i ቁምፊዎች መሆን አለበት"
 
 #: ckan/logic/validators.py:396
 #, python-format
 msgid "Duplicate key \"%s\""
-msgstr ""
+msgstr "የተደገመ ቁልፍ  \"%s\""
 
 #: ckan/logic/validators.py:412
 msgid "Group name already exists in database"
-msgstr ""
+msgstr "የቡድን ስም የመረጃ-ጎታ(database) ውስጥ ይገኛል"
 
 #: ckan/logic/validators.py:418
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
-msgstr ""
+msgstr "መለዮ \"%s\" ርዝመት ከአነስተኛው ገደብ %s በታች ነው"
 
 #: ckan/logic/validators.py:422
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
-msgstr ""
+msgstr "መለዮ \"%s\" ርዝመት ከከፍተኛው ገደብ %i በታች ነው"
 
 #: ckan/logic/validators.py:430
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
 msgstr ""
+"መለዮ \"%s\" ነጠላ የአነስተኛ ፊደል (ascii) እና ቁጥር ቁምፊዎች(characters) እና እነዚህን ምልክቶች "
+"'-_'መሆን አለበት።"
 
 #: ckan/logic/validators.py:438
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
-msgstr ""
+msgstr "መለዮ \"%s\" የእንግሊዘኛ አቢይ ሆሄ(uppercase) መሆን የለበትም"
 
 #: ckan/logic/validators.py:547
 msgid "User names must be strings"
-msgstr ""
+msgstr "ልዩ-ስሞች ሕብረቁምፊዎች መሆን አለባቸው"
 
 #: ckan/logic/validators.py:562
 msgid "That login name is not available."
-msgstr ""
+msgstr "ያ የመለያ ስም አልተገኘም።"
 
 #: ckan/logic/validators.py:566
 msgid "That login name can not be modified."
-msgstr ""
+msgstr "ያ የመለያ ስም መለወጥ አይቻልም።"
 
 #: ckan/logic/validators.py:577
 msgid "Please enter both passwords"
-msgstr ""
+msgstr "እባክዎ ሁለቱንም የይለፍ ቃላት ያስገቡ"
 
 #: ckan/logic/validators.py:585
 msgid "Passwords must be strings"
-msgstr ""
+msgstr "የይለፍ-ቃላት ህብረቁምፊዎች መሆን አለባቸው"
 
 #: ckan/logic/validators.py:589
 msgid "Your password must be 8 characters or longer"
-msgstr ""
+msgstr "የይለፍ ቃልዎ 8 ቁምፊዎች ወይም ከዚያ በላይ መሆን አለበት"
 
 #: ckan/logic/validators.py:598
 msgid "The passwords you entered do not match"
-msgstr ""
+msgstr "ያስገባሃቸው የይለፍ ቃሎች አይዛመዱም"
 
 #: ckan/logic/validators.py:619
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
 msgstr ""
+"አይፈለጌ መልዕክት ይመስላል ስለሚመስሉ አርትኦት(እደሳ) አይፈቀድም። እባክዎ በእርስዎ ዝርዝር ውስጥ ያሉ አገናኞችን "
+"ያስወግዱ!"
 
 #: ckan/logic/validators.py:628
 #, python-format
 msgid "Name must be at least %s characters long"
-msgstr ""
+msgstr "ስም ቢያንስ %s ቁምፊዎች መሆን አለበት"
 
 #: ckan/logic/validators.py:636
 msgid "That vocabulary name is already in use."
-msgstr ""
+msgstr "ያን የቃላት-ዝርዝር  ስም አስቀድሞም ጥቅም ላይ ውሏል። "
 
 #: ckan/logic/validators.py:642
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr ""
+msgstr "የቁልፍ እሴት ከ %s ወደ %s መለወጥ አይቻልም።  ይህ ቁልፍ ተነባቢ ብቻ ነው!"
 
 #: ckan/logic/validators.py:651
 msgid "Tag vocabulary was not found."
-msgstr ""
+msgstr "የመለያ ዝርዝር አልተገኘም። "
 
 #: ckan/logic/validators.py:664
 #, python-format
 msgid "Tag %s does not belong to vocabulary %s"
-msgstr ""
+msgstr "መለያ  %s የዝርዝር %s አይደለም"
 
 #: ckan/logic/validators.py:670
 msgid "No tag name"
-msgstr ""
+msgstr "ምንም የመለያ ስም የለም"
 
 #: ckan/logic/validators.py:683
 #, python-format
 msgid "Tag %s already belongs to vocabulary %s"
-msgstr ""
+msgstr "መለያ  %s ቀድሞውኑ የዝርዝር %s ነው"
 
 #: ckan/logic/validators.py:706
 msgid "Please provide a valid URL"
-msgstr ""
+msgstr "እባክህ ልክ የሆነ ዩአርኤል ያቅርቡ"
 
 #: ckan/logic/validators.py:720
 msgid "role does not exist."
-msgstr ""
+msgstr "ሚናው የለም።"
 
 #: ckan/logic/validators.py:749
 msgid "Datasets with no organization can't be private."
-msgstr ""
+msgstr "ምንም ድርጅት የሌላቸው የመረጃ ስብስቦች የግል ሊሆኑ አይችሉም።"
 
 #: ckan/logic/validators.py:755
 msgid "Not a list"
-msgstr ""
+msgstr "ዝርዝር አይደለም"
 
 #: ckan/logic/validators.py:758
 msgid "Not a string"
-msgstr ""
+msgstr "ሕብረቁምፊ(string) አይደለም"
 
 #: ckan/logic/validators.py:790
 msgid "This parent would create a loop in the hierarchy"
-msgstr ""
+msgstr "ይህ ወላጅ በሥነ-ተዋረድ ውስጥ ሁረት ይፈጥራል"
 
 #: ckan/logic/validators.py:800
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
-msgstr ""
+msgstr "\"filter_fields\" እና \"filter_values\" ተመሳሳይ ርዝመት ሊኖራቸው ይገባል"
 
 #: ckan/logic/validators.py:811
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
-msgstr ""
+msgstr "\"filter_values\" ሲሞላ  \"filter_fields\" ያስፈልጋል"
 
 #: ckan/logic/validators.py:814
 msgid "\"filter_values\" is required when \"filter_fields\" is filled"
-msgstr ""
+msgstr "\"filter_fields\" ሲሞላ  \"filter_values\" ያስፈልጋል"
 
 #: ckan/logic/validators.py:828
 msgid "There is a schema field with the same name"
-msgstr ""
+msgstr "ተመሳሳይ ስም ያለው የመርጃ መስክ አለ"
 
 #: ckan/logic/validators.py:854
 msgid "Email {email} is not a valid format"
-msgstr ""
+msgstr "ኢሜል {email} ትክክለኛ ቅርጸት የለውም"
 
 #: ckan/logic/action/create.py:184 ckan/logic/action/create.py:668
 #, python-format
 msgid "REST API: Create object %s"
-msgstr ""
+msgstr "REST ኤፒአይ: ቅንጣት %s ፍጠር"
 
 #: ckan/logic/action/create.py:547
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
-msgstr ""
+msgstr "REST ኤፒአይ: ጥቅል ግንኙነት %s %s %s ፍጠር"
 
 #: ckan/logic/action/create.py:588
 #, python-format
 msgid "REST API: Create member object %s"
-msgstr ""
+msgstr "REST ኤፒአይ: የአባል ቅንጣት %s ፍጠር"
 
 #: ckan/logic/action/create.py:807
 msgid "Trying to create an organization as a group"
-msgstr ""
+msgstr "አንድ ድርጅት እንደ ቡድን የመፍጠር ሙከራ"
 
 #: ckan/logic/action/create.py:896
 msgid "You must supply a package id or name (parameter \"package\")."
-msgstr ""
+msgstr "የጥቅል መለያ ቁጥር ወይም ስም (parameter \"package\") ማቅረብ አለብዎት።"
 
 #: ckan/logic/action/create.py:899
 msgid "You must supply a rating (parameter \"rating\")."
-msgstr ""
+msgstr "ደረጃ አሰጣጥ (parameter \"package\") ማቅረብ አለብዎት።"
 
 #: ckan/logic/action/create.py:904
 msgid "Rating must be an integer value."
-msgstr ""
+msgstr "ደረጃ የቁጥር እሴት መሆን አለበት።"
 
 #: ckan/logic/action/create.py:908
 #, python-format
 msgid "Rating must be between %i and %i."
-msgstr ""
+msgstr "ደረጃ በ %i እና በ %i መካከል መሆን አለበት።"
 
 #: ckan/logic/action/create.py:1078
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr ""
+msgstr "የግብዣ ኢሜይል መላክ ላይ ስህተት አጋጥሟል ፤ ተጠቃሚ {0} አልተፈጠረም"
 
 #: ckan/logic/action/create.py:1254 ckan/logic/action/create.py:1261
 msgid "You must be logged in to follow users"
-msgstr ""
+msgstr "ተጠቃሚዎችን ለመከታተል መግባት አለቦት"
 
 #: ckan/logic/action/create.py:1274
 msgid "You cannot follow yourself"
-msgstr ""
+msgstr "እራስዎን መከተል አይችሉም"
 
 #: ckan/logic/action/create.py:1282 ckan/logic/action/create.py:1339
 #: ckan/logic/action/create.py:1478
 msgid "You are already following {0}"
-msgstr ""
+msgstr "{0}ን አስቀድመው እየተከታተሉ ነው"
 
 #: ckan/logic/action/create.py:1313 ckan/logic/action/create.py:1321
 msgid "You must be logged in to follow a dataset."
-msgstr ""
+msgstr "የመረጃ-ስብስብን ለመከተል መግባት አለብዎት"
 
 #: ckan/logic/action/create.py:1379
 msgid "User {username} does not exist."
-msgstr ""
+msgstr "ተጠቃሚ {username} የለም።"
 
 #: ckan/logic/action/create.py:1454 ckan/logic/action/create.py:1462
 msgid "You must be logged in to follow a group."
-msgstr ""
+msgstr "ቡድንን ለመከተል መግባት አለብዎት።"
 
 #: ckan/logic/action/delete.py:54
 msgid " Delete User: {0}"
-msgstr ""
+msgstr "ተጠቃሚ {0}ን አጥፋ"
 
 #: ckan/logic/action/delete.py:92
 #, python-format
 msgid "REST API: Delete Package: %s"
-msgstr ""
+msgstr "REST ኤፒአይ: ጥቅል %s አጥፋ"
 
 #: ckan/logic/action/delete.py:276 ckan/logic/action/delete.py:372
 #, python-format
 msgid "REST API: Delete %s"
-msgstr ""
+msgstr "REST ኤፒአይ: %s አጥፋ"
 
 #: ckan/logic/action/delete.py:318
 #, python-format
 msgid "REST API: Delete Member: %s"
-msgstr ""
+msgstr "REST ኤፒአይ: አባል %s አጥፋ"
 
 #: ckan/logic/action/delete.py:358
 msgid "Organization cannot be deleted while it still has datasets"
-msgstr ""
+msgstr "ድርጅት የመረጃ-ስብስቦች እስካሉት ድረስ  ሊጠፋ አይችልም"
 
 #: ckan/logic/action/delete.py:560 ckan/logic/action/delete.py:586
 #: ckan/logic/action/get.py:2432 ckan/logic/action/update.py:906
 msgid "id not in data"
-msgstr ""
+msgstr "መረጃው ውስጥ መለያ ቁጥር የለም"
 
 #: ckan/logic/action/delete.py:564 ckan/logic/action/get.py:2435
 #: ckan/logic/action/update.py:910
 #, python-format
 msgid "Could not find vocabulary \"%s\""
-msgstr ""
+msgstr "የቃላት ዝርዝር \"%s\" ሊገኝ አልተቻለም"
 
 #: ckan/logic/action/delete.py:594
 #, python-format
 msgid "Could not find tag \"%s\""
-msgstr ""
+msgstr "የቃላት ዝርዝር መለዮ \"%s\" ሊገኝ አልተቻለም"
 
 #: ckan/logic/action/delete.py:607 ckan/logic/action/delete.py:611
 msgid "You must be logged in to unfollow something."
-msgstr ""
+msgstr "አንድ ነገርን ላለመከተል መግባት አለብዎት"
 
 #: ckan/logic/action/delete.py:622
 msgid "You are not following {0}."
-msgstr ""
+msgstr "እርስዎ {0}ን እየተከተሉ አይደለም።"
 
 #: ckan/logic/action/get.py:1095 ckan/logic/action/update.py:77
 #: ckan/logic/action/update.py:91
 msgid "Resource was not found."
-msgstr ""
+msgstr "የመረጃ-ምንጩ አልተገኘም።"
 
 #: ckan/logic/action/get.py:2037
 msgid "Do not specify if using \"query\" parameter"
-msgstr ""
+msgstr "የ \"query\" ፓራሜትር በመጠቀም ላይ ከሆንክ መጠቀስ የለብህም"
 
 #: ckan/logic/action/get.py:2046
 msgid "Must be <field>:<value> pair(s)"
-msgstr ""
+msgstr "<field>: <value> ጥንድ (ዎች) መሆን አለበት"
 
 #: ckan/logic/action/get.py:2078
 msgid "Field \"{field}\" not recognised in resource_search."
-msgstr ""
+msgstr "መስክ  \"{field}\" በምንጭ ጥናት(resource_search) ውስጥ አልተጠቀሰም።"
 
 #: ckan/logic/action/update.py:265 ckan/logic/action/update.py:991
 msgid "Package was not found."
-msgstr ""
+msgstr "ጥቅሉ አልተገኘም።"
 
 #: ckan/logic/action/update.py:308 ckan/logic/action/update.py:526
 #: ckan/logic/action/update.py:1009
 #, python-format
 msgid "REST API: Update object %s"
-msgstr ""
+msgstr "REST ኤፒአይ: ቅንጣት %s አሻሽል"
 
 #: ckan/logic/action/update.py:405
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
-msgstr ""
+msgstr "REST ኤፒአይ: ጥቅል ግንኙነት %s %s %s አሻሽል"
 
 #: ckan/logic/action/update.py:766
 msgid "TaskStatus was not found."
-msgstr ""
+msgstr "የስራ ወቅታዊ አቋም አልተገኘም።"
 
 #: ckan/logic/action/update.py:995
 msgid "Organization was not found."
-msgstr ""
+msgstr "ድርጅት አልተገኘም።"
 
 #: ckan/logic/auth/create.py:27 ckan/logic/auth/create.py:45
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr "O usuario %s non está autorizado para crear paquetes"
+msgstr "ተጠቃሚ %s ጥቅሎችን ለመፍጠር ፈቃድ የለውም"
 
 #: ckan/logic/auth/create.py:31 ckan/logic/auth/update.py:45
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr "O usuario %s non está autorizado para editar estes grupos "
+msgstr "ተጠቃሚ %s እነዚህን ቡድኖች ለማደስ ፈቃድ የለውም"
 
 #: ckan/logic/auth/create.py:38
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
-msgstr ""
-"O usuario %s non está autorizado para engadir conxuntos de datos a esta "
-"organización"
+msgstr "ተጠቃሚ %s ለዚህ ድርጅት የመረጃ-ስብስብ ለመጨመር ፈቃድ የለውም"
 
 #: ckan/logic/auth/create.py:61
 msgid "No dataset id provided, cannot check auth."
-msgstr ""
+msgstr "ምንም የመረጃ-ስብስቡ መለያ ቁጥር አልተሰጠም ፤ ፈቃድዎን ማረጋገጥ አልተቻለም።"
 
 #: ckan/logic/auth/create.py:68 ckan/logic/auth/delete.py:34
 #: ckan/logic/auth/get.py:137 ckan/logic/auth/update.py:63
 msgid "No package found for this resource, cannot check auth."
-msgstr ""
+msgstr "ለእዚህ የመረጃ-ምንጭ ምንም ጥቅል(ፓኬጅ) አልተገኘም ፤ ፈቃድዎን ማረጋገጥ አልተቻለም።"
 
 #: ckan/logic/auth/create.py:76
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
-msgstr ""
+msgstr "ተጠቃሚ %s በመረጃ-ስብስብ %s ላይ መረጃዎችን ለመፍጠር  ፈቃድ የለውም"
 
 #: ckan/logic/auth/create.py:108
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr ""
+msgstr "ተጠቃሚ %s እነዚህን ጥቅሎች ለማደስ ፈቃድ የለውም"
 
 #: ckan/logic/auth/create.py:119
 #, python-format
 msgid "User %s not authorized to create groups"
-msgstr ""
+msgstr "ተጠቃሚ %s ቡድኖች ለመፍጠር ፈቃድ የለውም"
 
 #: ckan/logic/auth/create.py:129
 #, python-format
 msgid "User %s not authorized to create organizations"
-msgstr ""
+msgstr "ተጠቃሚ %s ድርጅቶች ለመፍጠር ፈቃድ የለውም"
 
 #: ckan/logic/auth/create.py:145
 msgid "User {user} not authorized to create users via the API"
-msgstr ""
+msgstr "ተጠቃሚ {user} ተጠቃሚዎች በኤፒአይ በኩል ለመፍጠር ፈቃድ የለውም"
 
 #: ckan/logic/auth/create.py:148
 msgid "Not authorized to create users"
-msgstr "Non está autorizado para crear usuarios"
+msgstr "ተጠቃሚዎች በኤፒአይ በኩል ለመፍጠር ፈቃድ የለውም"
 
 #: ckan/logic/auth/create.py:189
 msgid "Group was not found."
-msgstr ""
+msgstr "ቡድኑ አልተገኘም።"
 
 #: ckan/logic/auth/create.py:220
 #, python-format
 msgid "User %s not authorized to add members"
-msgstr ""
+msgstr "ተጠቃሚ %s አባላት ለመጨመር ፈቃድ የለውም"
 
 #: ckan/logic/auth/create.py:244 ckan/logic/auth/update.py:115
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr ""
+msgstr "ተጠቃሚ %s ቡድን %sን ለማደስ ፈቃድ የለውም"
 
 #: ckan/logic/auth/delete.py:40
 #, python-format
 msgid "User %s not authorized to delete resource %s"
-msgstr ""
+msgstr "ተጠቃሚ %s የመረጃ-ምንጭ %sን  ለማጥፋት ፈቃድ የለውም"
 
 #: ckan/logic/auth/delete.py:56
 msgid "Resource view not found, cannot check auth."
-msgstr ""
+msgstr "የመረጃ እይታው አልተገኘም ፤ ፈቃድዎን ማረጋገጥ አልተቻለም።"
 
 #: ckan/logic/auth/delete.py:73
 #, python-format
 msgid "User %s not authorized to delete relationship %s"
-msgstr ""
+msgstr "ተጠቃሚ %s ግንኙነት %sን  ለማጥፋት ፈቃድ የለውም"
 
 #: ckan/logic/auth/delete.py:82
 #, python-format
 msgid "User %s not authorized to delete groups"
-msgstr ""
+msgstr "ተጠቃሚ %s ቡድኖች ለማጥፋት ፈቃድ የለውም"
 
 #: ckan/logic/auth/delete.py:86
 #, python-format
 msgid "User %s not authorized to delete group %s"
-msgstr ""
+msgstr "ተጠቃሚ %s ቡድን %sን  ለማጥፋት ፈቃድ የለውም"
 
 #: ckan/logic/auth/delete.py:103
 #, python-format
 msgid "User %s not authorized to delete organizations"
-msgstr ""
+msgstr "ተጠቃሚ %s ድርጅቶች ለማጥፋት ፈቃድ የለውም"
 
 #: ckan/logic/auth/delete.py:107
 #, python-format
 msgid "User %s not authorized to delete organization %s"
-msgstr ""
+msgstr "ተጠቃሚ %s ድርጅት %sን  ለማጥፋት ፈቃድ የለውም"
 
 #: ckan/logic/auth/delete.py:120
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr ""
+msgstr "ተጠቃሚ %s የሥራ ሁኔታን  ለማጥፋት ፈቃድ የለውም"
 
 #: ckan/logic/auth/get.py:13 ckan/logic/auth/get.py:270
 msgid "Not authorized"
-msgstr ""
+msgstr "ፈቃድ የለዎትም"
 
 #: ckan/logic/auth/get.py:109
 #, python-format
 msgid "User %s not authorized to read these packages"
-msgstr ""
+msgstr "ተጠቃሚ %s እነዚህን ጥቅሎች(ፓኬጆች) ለማንበብ ፈቃድ የለውም"
 
 #: ckan/logic/auth/get.py:124
 #, python-format
 msgid "User %s not authorized to read package %s"
-msgstr ""
+msgstr "ተጠቃሚ %s ጥቅል(ፓኬጅ) %sን ለማንበብ ፈቃድ የለውም"
 
 #: ckan/logic/auth/get.py:143
 #, python-format
 msgid "User %s not authorized to read resource %s"
-msgstr ""
+msgstr "ተጠቃሚ %s የመረጃ-ምንጭ %sን ለማንበብ ፈቃድ የለውም"
 
 #: ckan/logic/auth/get.py:170
 #, python-format
 msgid "User %s not authorized to read group %s"
-msgstr ""
+msgstr "ተጠቃሚ %s ቡድን %sን ለማንበብ ፈቃድ የለውም"
 
 #: ckan/logic/auth/get.py:237
 msgid "You must be logged in to access your dashboard."
-msgstr ""
+msgstr "ዳሽቦርድዎን ለማግኘት መግባት አለብዎት"
 
 #: ckan/logic/auth/update.py:39
 #, python-format
 msgid "User %s not authorized to edit package %s"
-msgstr ""
+msgstr "ተጠቃሚ %s ጥቅል(ፓኬጅ) %sን ለማደስ ፈቃድ የለውም"
 
 #: ckan/logic/auth/update.py:71
 #, python-format
 msgid "User %s not authorized to edit resource %s"
-msgstr ""
+msgstr "ተጠቃሚ %s የመረጃ-ምንጭ %sን ለማደስ ፈቃድ የለውም"
 
 #: ckan/logic/auth/update.py:100
 #, python-format
 msgid "User %s not authorized to change state of package %s"
-msgstr ""
+msgstr "ተጠቃሚ %s የጥቅል(ፓኬጅ) %sን ሁኔታ(አቇም) ለመለወጥ ፈቃድ የለውም"
 
 #: ckan/logic/auth/update.py:128
 #, python-format
 msgid "User %s not authorized to edit organization %s"
-msgstr ""
+msgstr "ተጠቃሚ %s ድርጅት %sን ለማደስ ፈቃድ የለውም"
 
 #: ckan/logic/auth/update.py:145
 #, python-format
 msgid "User %s not authorized to change state of group %s"
-msgstr ""
+msgstr "ተጠቃሚ %s የቡድን %sን ሁኔታ(አቇም) ለመለወጥ ፈቃድ የለውም"
 
 #: ckan/logic/auth/update.py:162
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
-msgstr ""
+msgstr "ተጠቃሚ %s የቡድን %sን ፈቃድ ለመለወጥ ፈቃድ የለውም"
 
 #: ckan/logic/auth/update.py:190
 msgid "Have to be logged in to edit user"
-msgstr ""
+msgstr "ተጠቃሚን ለማደስ መግባት አለብህ"
 
 #: ckan/logic/auth/update.py:198
 #, python-format
 msgid "User %s not authorized to edit user %s"
-msgstr ""
+msgstr "ተጠቃሚ %s ተጠቃሚ %sን ለማደስ ፈቃድ የለውም"
 
 #: ckan/logic/auth/update.py:209
 msgid "User {0} not authorized to update user {1}"
-msgstr ""
+msgstr "ተጠቃሚ {0} ተጠቃሚ {1}ን ለማሻሻል ፈቃድ የለውም"
 
 #: ckan/logic/auth/update.py:217
 #, python-format
 msgid "User %s not authorized to change state of revision"
-msgstr ""
+msgstr "ተጠቃሚ %s የክለሳውን ሁኔታ(አቇም) ለመለወጥ ፈቃድ የለውም"
 
 #: ckan/logic/auth/update.py:226
 #, python-format
 msgid "User %s not authorized to update task_status table"
-msgstr ""
+msgstr "ተጠቃሚ %s የሥራ ሁኔታ ሰንጠረዥን ለማሻሻል ፈቃድ የለውም"
 
 #: ckan/logic/auth/update.py:240
 #, python-format
 msgid "User %s not authorized to update term_translation table"
-msgstr ""
+msgstr "ተጠቃሚ %s የቃል ትርጉም ሰንጠረዥን ለማሻሻል ፈቃድ የለውም"
 
 #: ckan/model/license.py:223
 msgid "License not specified"
-msgstr ""
+msgstr "ፈቃድ አልተጠቀሰም"
 
 #: ckan/model/license.py:233
 msgid "Open Data Commons Public Domain Dedication and License (PDDL)"
@@ -2354,35 +2344,35 @@ msgstr ""
 
 #: ckan/model/license.py:253
 msgid "Open Data Commons Attribution License"
-msgstr ""
+msgstr "ክፍት የመረጃ የጋራ ባለቤትነት ፈቃድ"
 
 #: ckan/model/license.py:264
 msgid "Creative Commons CCZero"
-msgstr ""
+msgstr "የጋራ የፈጠራ ሲሲዜሮ(CCZero)"
 
 #: ckan/model/license.py:273
 msgid "Creative Commons Attribution"
-msgstr ""
+msgstr "የጋራ የፈጠራ ባለቤትነት"
 
 #: ckan/model/license.py:283
 msgid "Creative Commons Attribution Share-Alike"
-msgstr ""
+msgstr "የጋራ ፈጠራ ባለቤትነት ተመሳሳይ-አጋሪ"
 
 #: ckan/model/license.py:292
 msgid "GNU Free Documentation License"
-msgstr ""
+msgstr "GNU ነጻ ሰነድ ፈቃድ"
 
 #: ckan/model/license.py:302
 msgid "Other (Open)"
-msgstr ""
+msgstr "ለላ(ክፍት)"
 
 #: ckan/model/license.py:312
 msgid "Other (Public Domain)"
-msgstr ""
+msgstr "ሌላ (የህዝብ ጎራ/Domain)"
 
 #: ckan/model/license.py:322
 msgid "Other (Attribution)"
-msgstr ""
+msgstr "ሌላ (እውቅና)"
 
 #: ckan/model/license.py:334
 msgid "UK Open Government Licence (OGL)"
@@ -2390,110 +2380,110 @@ msgstr ""
 
 #: ckan/model/license.py:342
 msgid "Creative Commons Non-Commercial (Any)"
-msgstr ""
+msgstr "ንግድ ያልሆነ የጋራ ፈጠራ (ማንኛውም)"
 
 #: ckan/model/license.py:350
 msgid "Other (Non-Commercial)"
-msgstr ""
+msgstr "ሌላ (ንግድ ያልሆነ)"
 
 #: ckan/model/license.py:358
 msgid "Other (Not Open)"
-msgstr ""
+msgstr "ሌላ (ይፋ ያልሆነ)"
 
 #: ckan/model/package_relationship.py:54
 #, python-format
 msgid "depends on %s"
-msgstr ""
+msgstr "በ %s ላይ ጥገኛ ነው"
 
 #: ckan/model/package_relationship.py:54
 #, python-format
 msgid "is a dependency of %s"
-msgstr ""
+msgstr "የ %s ጥገኝነት ነው"
 
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "derives from %s"
-msgstr ""
+msgstr "የሚወጣው ከ %s ነው"
 
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "has derivation %s"
-msgstr ""
+msgstr "አወጣጥ %s አለው"
 
 #: ckan/model/package_relationship.py:56
 #, python-format
 msgid "links to %s"
-msgstr ""
+msgstr "ከ %s ጋር ያገናኛል"
 
 #: ckan/model/package_relationship.py:56
 #, python-format
 msgid "is linked from %s"
-msgstr ""
+msgstr "ከ %s የተገናኘ ነው"
 
 #: ckan/model/package_relationship.py:57
 #, python-format
 msgid "is a child of %s"
-msgstr ""
+msgstr "የ %s ልጅ ነው"
 
 #: ckan/model/package_relationship.py:57
 #, python-format
 msgid "is a parent of %s"
-msgstr ""
+msgstr "የ %s ወላጅ ነው"
 
 #: ckan/model/package_relationship.py:61
 #, python-format
 msgid "has sibling %s"
-msgstr ""
+msgstr "%s የሚባል አቻ አለው"
 
 #: ckan/public-bs2/base/javascript/modules/api-info.js:96
 #: ckan/public/base/javascript/modules/api-info.js:96
 msgid "There is no API data to load for this resource"
-msgstr ""
+msgstr "ለዚህ የመረጃ-ምንጭ ምንም የሚጫን የኤፒአይ መረጃ የለም"
 
 #: ckan/public-bs2/base/javascript/modules/api-info.js:124
 #: ckan/public/base/javascript/modules/api-info.js:124
 msgid "Failed to load data API information"
-msgstr ""
+msgstr "የኤፒአይ መረጃ መጫን አልተሳካም"
 
 #: ckan/public-bs2/base/javascript/modules/autocomplete.js:195
 #: ckan/public/base/javascript/modules/autocomplete.js:195
 msgid "Start typing…"
-msgstr ""
+msgstr "መተየብ(መጻፍ) ይጀምሩ..."
 
 #: ckan/public-bs2/base/javascript/modules/autocomplete.js:195
 #: ckan/public/base/javascript/modules/autocomplete.js:195
 msgid "No matches found"
-msgstr ""
+msgstr "ምንም ተዛማጆች አልተገኙም"
 
 #: ckan/public-bs2/base/javascript/modules/autocomplete.js:204
 #: ckan/public/base/javascript/modules/autocomplete.js:204
 #, python-format
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ግብዓቱ በጣም አጭር ነው ፤ ቢያንስ አንድ ቁምፊ(ትዕምርት) መሆን አለበት"
+msgstr[1] "ግብዓቱ በጣም አጭር ነው ፤ ቢያንስ %(num)d ቁምፊዎች(ትዕምርቶች) መሆን አለበት"
 
 #: ckan/public-bs2/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
-msgstr ""
+msgstr "በዚህ ቅጽ ላይ ያልተቀመጡ(ያልተያዙ) ለውጦች አሉ"
 
 #: ckan/public-bs2/base/javascript/modules/confirm-action.js:97
 #: ckan/public/base/javascript/modules/confirm-action.js:101
 msgid "Please Confirm Action"
-msgstr ""
+msgstr "እባክዎን እርምጃውን(ድርጊቱን) ያረጋግጡ"
 
 #: ckan/public-bs2/base/javascript/modules/confirm-action.js:100
 #: ckan/public/base/javascript/modules/confirm-action.js:104
 msgid "Are you sure you want to perform this action?"
-msgstr ""
+msgstr " ይህንን እርምጃ ማከናወን መፈለግዎን እርግጠኛ ነዎት?"
 
 #: ckan/public-bs2/base/javascript/modules/confirm-action.js:102
 #: ckan/public/base/javascript/modules/confirm-action.js:106
 #: ckan/templates/user/new_user_form.html:9
 #: ckan/templates/user/perform_reset.html:26
 msgid "Confirm"
-msgstr ""
+msgstr "አረጋግጥ"
 
 #: ckan/public-bs2/base/javascript/modules/confirm-action.js:103
 #: ckan/public-bs2/base/javascript/modules/resource-reorder.js:59
@@ -2509,34 +2499,34 @@ msgstr ""
 #: ckan/templates/package/confirm_delete.html:15
 #: ckan/templates/package/confirm_delete_resource.html:14
 msgid "Cancel"
-msgstr ""
+msgstr "ሰርዝ"
 
 #: ckan/public-bs2/base/javascript/modules/follow.js:70
 #: ckan/public/base/javascript/modules/follow.js:70
 #: ckan/templates/snippets/follow_button.html:9
 msgid "Unfollow"
-msgstr ""
+msgstr "አትከተል"
 
 #: ckan/public-bs2/base/javascript/modules/follow.js:73
 #: ckan/public/base/javascript/modules/follow.js:73
 #: ckan/templates/snippets/follow_button.html:14
 msgid "Follow"
-msgstr ""
+msgstr "ተከተል"
 
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:60
 #: ckan/public/base/javascript/modules/image-upload.js:60
 msgid "Link"
-msgstr ""
+msgstr "አገናኝ(ሊንክ)"
 
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:61
 #: ckan/public/base/javascript/modules/image-upload.js:61
 msgid "Link to a URL on the internet (you can also link to an API)"
-msgstr ""
+msgstr "በኢንተርኔት ላይ ወደ ዩአርኤል አገናኝ (ወደ ኤ.ፒ.አይ መገናኘት ይችላሉ)"
 
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:68
 #: ckan/public/base/javascript/modules/image-upload.js:68
 msgid "Upload"
-msgstr ""
+msgstr "አስቀምጥ"
 
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:72
 #: ckan/public/base/javascript/modules/image-upload.js:72
@@ -2544,12 +2534,12 @@ msgstr ""
 #: ckan/templates/macros/form.html:241
 #: ckan/templates/snippets/search_form.html:69
 msgid "Remove"
-msgstr ""
+msgstr "አስወግድ"
 
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:87
 #: ckan/public/base/javascript/modules/image-upload.js:87
 msgid "Upload a file on your computer"
-msgstr ""
+msgstr "በኮምፒዩተርዎ ውስጥ ያለ ፋይል ያስቀምጡ"
 
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:110
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:178
@@ -2562,76 +2552,76 @@ msgstr ""
 #: ckan/templates/package/snippets/package_basic_fields.html:13
 #: ckan/templates/package/snippets/resource_form.html:26
 msgid "URL"
-msgstr ""
+msgstr "ዩአርኤል"
 
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:119
 #: ckan/public-bs2/base/javascript/modules/image-upload.js:209
 #: ckan/public/base/javascript/modules/image-upload.js:119
 #: ckan/public/base/javascript/modules/image-upload.js:209
 msgid "File"
-msgstr ""
+msgstr "ፋይል"
 
 #: ckan/public-bs2/base/javascript/modules/resource-reorder.js:56
 #: ckan/public-bs2/base/javascript/modules/resource-view-reorder.js:50
 #: ckan/public/base/javascript/modules/resource-reorder.js:56
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:50
 msgid "Save order"
-msgstr ""
+msgstr "ቅደም-ተከተሉን አስቀምጥ"
 
 #: ckan/public-bs2/base/javascript/modules/resource-reorder.js:69
 #: ckan/public-bs2/base/javascript/modules/resource-view-reorder.js:59
 #: ckan/public/base/javascript/modules/resource-reorder.js:69
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:59
 msgid "Saving..."
-msgstr ""
+msgstr "እያስቀመጠ..."
 
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:57
 #: ckan/public/base/javascript/modules/resource-upload-field.js:57
 msgid "Upload a file"
-msgstr ""
+msgstr "ፋይል አስቀምጥ"
 
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:144
 #: ckan/public/base/javascript/modules/resource-upload-field.js:144
 msgid "An Error Occurred"
-msgstr ""
+msgstr "ስህተት ተፈጥሯል"
 
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:201
 #: ckan/public/base/javascript/modules/resource-upload-field.js:201
 msgid "Unable to upload file"
-msgstr ""
+msgstr "ፋይል ማስቀመጥ አልተቻለም"
 
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:252
 #: ckan/public/base/javascript/modules/resource-upload-field.js:252
 msgid "Unable to authenticate upload"
-msgstr ""
+msgstr "ማስቀመጡን ማረጋገጥ አልተቻለም"
 
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:260
 #: ckan/public/base/javascript/modules/resource-upload-field.js:260
 msgid "Resource uploaded"
-msgstr ""
+msgstr "የመረጃ ምንጩ ተቀምⶆል"
 
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:266
 #: ckan/public/base/javascript/modules/resource-upload-field.js:266
 msgid "Unable to get data for uploaded file"
-msgstr ""
+msgstr "ለተቀመጠው ፋይል መረጃ ለማግኘት አልተቻለም"
 
 #: ckan/public-bs2/base/javascript/modules/resource-upload-field.js:272
 #: ckan/public/base/javascript/modules/resource-upload-field.js:272
 msgid ""
 "You are uploading a file. Are you sure you want to navigate away and stop "
 "this upload?"
-msgstr ""
+msgstr "ፋይል እያስቀመጡ ነው ፤ ወደ ሌላ ቦታ መሄድ ማስቆም እንደሚፈልጉ እርግጠኛ ነዎት?"
 
 #: ckan/public-bs2/base/javascript/modules/resource-view-filters.js:9
 #: ckan/public/base/javascript/modules/resource-view-filters.js:9
 #: ckan/templates/package/snippets/view_form_filters.html:16
 msgid "Add Filter"
-msgstr ""
+msgstr "ማጣሪያ ጨምር"
 
 #: ckan/public-bs2/base/javascript/modules/resource-view-filters.js:52
 #: ckan/public/base/javascript/modules/resource-view-filters.js:52
 msgid "Select a field"
-msgstr ""
+msgstr "መስክ ምረጥ"
 
 #: ckan/public-bs2/base/javascript/modules/slug-preview.js:57
 #: ckan/public/base/javascript/modules/slug-preview.js:57
@@ -2645,24 +2635,24 @@ msgstr ""
 #: ckan/templates/package/resource_edit_base.html:12
 #: ckan/templates/package/snippets/resource_item.html:56
 msgid "Edit"
-msgstr ""
+msgstr "አድስ"
 
 #: ckan/public-bs2/base/javascript/modules/table-toggle-more.js:25
 #: ckan/public/base/javascript/modules/table-toggle-more.js:25
 msgid "Show more"
-msgstr ""
+msgstr "ተጨማሪ አሳይ"
 
 #: ckan/public-bs2/base/javascript/modules/table-toggle-more.js:26
 #: ckan/public/base/javascript/modules/table-toggle-more.js:26
 msgid "Hide"
-msgstr ""
+msgstr "ደብቅ"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:13
 #: ckan/public-bs2/base/test/spec/module.spec.js:385
 #: ckan/public/base/test/spec/i18n.spec.js:13
 #: ckan/public/base/test/spec/module.spec.js:385
 msgid "foo"
-msgstr ""
+msgstr "ፎ.."
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:17
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:46
@@ -2674,14 +2664,14 @@ msgstr ""
 #: ckan/public/base/test/spec/i18n.spec.js:54
 msgid "no translation"
 msgid_plural "no translations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ምንም ትርጉም የለም"
+msgstr[1] "ምንም ትርጉሞች የሉም"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:22
 #: ckan/public/base/test/spec/i18n.spec.js:22
 #, python-format
 msgid "hello %(name)s!"
-msgstr ""
+msgstr "ሰላም %(name)s!"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:29
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:76
@@ -2694,8 +2684,8 @@ msgstr ""
 #, python-format
 msgid "no %(attr)s translation"
 msgid_plural "no %(attr)s translations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ምንም %(attr)s ትርጉም የለም"
+msgstr[1] "ምንም %(attr)s ትርጉሞች የሉም"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:39
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:40
@@ -2711,8 +2701,8 @@ msgstr[1] ""
 #: ckan/public/base/test/spec/module.spec.js:397
 msgid "bar"
 msgid_plural "bars"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ባር"
+msgstr[1] "ባሮች"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:61
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:65
@@ -2723,8 +2713,8 @@ msgstr[1] ""
 #, python-format
 msgid "%(color)s shirt"
 msgid_plural "%(color)s shirts"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(color)s ሸሚዝ"
+msgstr[1] "%(color)s ሸሚዞች"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:93
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:94
@@ -2735,8 +2725,8 @@ msgstr[1] ""
 #, python-format
 msgid "%(num)d item"
 msgid_plural "%(num)d items"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d እቃ"
+msgstr[1] "%(num)d እቃዎች"
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:100
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:105
@@ -2747,70 +2737,72 @@ msgstr[1] ""
 #, python-format
 msgid "%(num)d missing translation"
 msgid_plural "%(num)d missing translations"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num)d ትርጉም የሌለው"
+msgstr[1] "%(num)d ትርጉም የሌላቸው"
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
-msgstr ""
+msgstr "ስህተት  %(error_code)s"
 
 #: ckan/templates/footer.html:9
 msgid "About {0}"
-msgstr ""
+msgstr "ስለ {0}"
 
 #: ckan/templates/footer.html:15
 msgid "CKAN API"
-msgstr ""
+msgstr "የ CKAN ኤፒአይ(API)"
 
 #: ckan/templates/footer.html:16
 msgid "CKAN Association"
-msgstr ""
+msgstr "የ CKAN ማህበር"
 
 #: ckan/templates/footer.html:24
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
+"<strong>አምራች </strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:9
 msgid "Sysadmin settings"
-msgstr ""
+msgstr "የዋና አስተዳደሩ ውቅሮች"
 
 #: ckan/templates/header.html:16
 msgid "View profile"
-msgstr ""
+msgstr "መገለጫ(ፕሮፋይል) ይመልከቱ"
 
 #: ckan/templates/header.html:23
 #, python-format
 msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ዳሽቦርድ (%(num)d አዲስ እቃ)"
+msgstr[1] "ዳሽቦርድ (%(num)d አዲስ እቃዎች)"
 
 #: ckan/templates/header.html:27 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
-msgstr ""
+msgstr "ዳሽቦርድ"
 
 #: ckan/templates/header.html:33 ckan/templates/user/dashboard.html:16
 msgid "Edit settings"
-msgstr ""
+msgstr "ቅንብሮችን አድስ"
 
 #: ckan/templates/header.html:35
 msgid "Settings"
-msgstr ""
+msgstr "ቅንብሮች"
 
 #: ckan/templates/header.html:40 ckan/templates/header.html:42
 msgid "Log out"
-msgstr ""
+msgstr "ውጣ"
 
 #: ckan/templates/header.html:52 ckan/templates/user/logout_first.html:14
 msgid "Log in"
-msgstr ""
+msgstr "ይግቡ"
 
 #: ckan/templates/header.html:54 ckan/templates/user/new.html:3
 msgid "Register"
-msgstr ""
+msgstr "ይመዝገቡ"
 
 #: ckan/templates/group/read_base.html:17
 #: ckan/templates/group/snippets/info.html:36 ckan/templates/header.html:87
@@ -2827,70 +2819,70 @@ msgstr ""
 #: ckan/templates/user/read.html:11 ckan/templates/user/read_base.html:19
 #: ckan/templates/user/read_base.html:53
 msgid "Datasets"
-msgstr ""
+msgstr "የመረጃ ስብስቦች"
 
 #: ckan/templates/header.html:94
 msgid "Search Datasets"
-msgstr ""
+msgstr "የመረጃ ስብስቦች ፈልግ"
 
 #: ckan/templates/header.html:95 ckan/templates/home/snippets/search.html:11
 #: ckan/templates/snippets/simple_search.html:5
 #: ckan/templates/user/snippets/user_search.html:6
 msgid "Search"
-msgstr ""
+msgstr "ፈልግ"
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
-msgstr ""
+msgstr "ወደ ይዘት ዝለል"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
-msgstr ""
+msgstr "ያነሰ ጫን"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:17
 msgid "Load more"
-msgstr ""
+msgstr "የበዛ ጫን"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:23
 msgid "No activities are within this activity stream"
-msgstr ""
+msgstr "በዚህ የእንቅስቃሴ ዥረት ውስጥ ምንም እንቅስቃሴዎች የሉም"
 
 #: ckan/templates/admin/base.html:3
 msgid "Administration"
-msgstr ""
+msgstr "አስተዳደር"
 
 #: ckan/templates/admin/base.html:8
 msgid "Sysadmins"
-msgstr ""
+msgstr "ዋና አስተዳደሪዎች"
 
 #: ckan/templates/admin/base.html:9
 msgid "Config"
-msgstr ""
+msgstr "ውቅር"
 
 #: ckan/templates/admin/base.html:10 ckan/templates/admin/trash.html:29
 msgid "Trash"
-msgstr ""
+msgstr "መጣያ"
 
 #: ckan/templates/admin/config.html:23 ckan/templates/macros/autoform.html:62
 msgid "Site logo"
-msgstr ""
+msgstr "የጣቢያ አርማ"
 
 #: ckan/templates/admin/config.html:35
 #: ckan/templates/admin/confirm_reset.html:7
 msgid "Are you sure you want to reset the config?"
-msgstr ""
+msgstr "ውቅሩን ዳግም ማጽደቅ እንደሚፈልጉ እርግጠኛ ነዎት?"
 
 #: ckan/templates/admin/config.html:35
 msgid "Reset"
-msgstr ""
+msgstr "ዳግም አጽድቅ"
 
 #: ckan/templates/admin/config.html:36
 msgid "Update Config"
-msgstr ""
+msgstr "ውቅሩን አሻሽል"
 
 #: ckan/templates/admin/config.html:45
 msgid "CKAN config options"
-msgstr ""
+msgstr "የ CKAN የውቅር አማራጮች"
 
 #: ckan/templates/admin/config.html:52
 #, python-format
@@ -2911,15 +2903,26 @@ msgid ""
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p> "
 msgstr ""
+"<p><strong>የጣቢያ ርዕስ: </strong> ይህ  የ CKAN አብነት መጠሪያ ነው።  በ CKAN ውስጥ በተለያዩ "
+"ቦታዎች ይታያል።</P><p><strong> አቀማመጥ: </strong>የተለያዩ ቀለል በጣም ፈጣን የሆኑ  የቀለም ገጽትዎች "
+"ይምረጡ።</p><p><strong> የጣቢያ አርማ አርማ: </strong> ይህ በሁሉንም የ CKAN አብነቶች ራስጌ ላይ "
+"ይገኛል።</p><p><strong>ምንነት:</strong>  ይህ ጽሑፍ በዚህ የ CKAN አብነት  <a "
+"href=\"%(about_url)s\\> ስለ ገጽ </a>ላይ ይታያል። </p><p><strong> መግቢያ "
+"ጽሑፍ:</strong> ይህ ጽሑፍ በዚህ የ CKAN አብነት <a href=\"%(home_url)s\\> የመነሻ ገጽ </a> "
+"ላይ ለጎብኚዎች እንደ አቀባበል ይታያል።</p><p><strong> ብጁ CSS: </ strong> ይህ በእያንዳንዱ ገፅ "
+"<code>&lt;ራስ&gt; </code> ያለ የራስ ማሳመሪያ ነው። አብነቶቹን ይበልጥ በራስ  ሙሉ በሙሉ ለማሳመር ከፈለጉ"
+" <a href=\"%(docs_url)s\"target=\"_blank\">የ CKAN ሰነድን </a>እንዲያነቡ እንመክራለን።  "
+"</p><p><strong> መነሻ ገጽ:</strong> ይሄ  በመነሻ ገጽዎ ላይ ለሚታዩ ሞደሎች ቀድሞ የተበጀውን አቀማመጥ "
+"ለመምረጥ ነው።</p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
 msgid "Confirm Reset"
-msgstr ""
+msgstr "ዳግም ማጽደቅን ያረጋግጡ"
 
 #: ckan/templates/admin/index.html:15
 msgid "Administer CKAN"
-msgstr ""
+msgstr "CKANን አስተዳድር"
 
 #: ckan/templates/admin/index.html:20
 #, python-format
@@ -2928,104 +2931,107 @@ msgid ""
 "Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
 "CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
 msgstr ""
+"<p>ዋና አስተዳዳሪ እንደመሆንዎ መጠን በዚህ የ CKAN አብነት ላይ ሙሉ ቁጥጥር አለዎት። በጥንቃቄ ይቀጥሉ!</P> "
+"<p>የዋና አስተዳዳሪ ስራዎችን ለማወቅ እና የአጠቃቀም መመሪያን ለማግኘት የ CKAN <a "
+"href=\"%(docs_url)s\" target=\"_blank\"> ዋና አስተዳዳሪ መመሪያ</a>ን ይመልከቱ።</p> "
 
 #: ckan/templates/admin/trash.html:20
 msgid "Purge"
-msgstr ""
+msgstr "አጥፋ"
 
 #: ckan/templates/admin/trash.html:32
 msgid " <p>Purge deleted datasets forever and irreversibly.</p> "
-msgstr ""
+msgstr "<p>የመረጃ ስብስቦቹ ፈጽሞ በማይሽር መልኩ ጠፍተዋል።</p>"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
-msgstr ""
+msgstr "ይህ መረጃ በአሁኑ ጊዜ በቅድመ-እይታ ሊታይ አይችልም።"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:11
 #: ckan/templates/package/resource_read.html:133
 #: ckan/templates/package/snippets/resource_view.html:34
 msgid "Click here for more information."
-msgstr ""
+msgstr "ለተጨማሪ መረጃ እዚህ ጠቅ ያድርጉ።"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:18
 #: ckan/templates/package/snippets/resource_view.html:41
 msgid "Download resource"
-msgstr ""
+msgstr "የመረጃ ምንጭ አውርድ"
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "No preview available."
-msgstr ""
+msgstr "ምንም ቅድመ እይታ አይገኝም።"
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:5
 msgid "More details..."
-msgstr ""
+msgstr "ተጨማሪ ዝርዝሮች..."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:12
 #, python-format
 msgid "No handler defined for data type: %(type)s."
-msgstr ""
+msgstr "ስለ  %(type)s የመረጃ አይነት ምንም ተቆጣጣሪ አልተገለጸም።"
 
 #: ckan/templates/development/snippets/form.html:5
 msgid "Standard"
-msgstr ""
+msgstr "መደበኛ"
 
 #: ckan/templates/development/snippets/form.html:5
 msgid "Standard Input"
-msgstr ""
+msgstr "መደበኛ ግብዓት"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium"
-msgstr ""
+msgstr "መካከለኛ"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium Width Input"
-msgstr ""
+msgstr "መካከለኛ ስፋት ግብዓት"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full"
-msgstr ""
+msgstr "ሙሉ"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full Width Input"
-msgstr ""
+msgstr "ሙሉ ስፋት ግብዓት"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large"
-msgstr ""
+msgstr "ትልቅ"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large Input"
-msgstr ""
+msgstr "ትልቅ ግብዓት"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend"
-msgstr ""
+msgstr "ጭማሪ"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend Input"
-msgstr ""
+msgstr "ጭማሪ Input"
 
 #: ckan/templates/development/snippets/form.html:13
 msgid "Custom Field (empty)"
-msgstr ""
+msgstr "የራስ መስክ (ባዶ)"
 
 #: ckan/templates/development/snippets/form.html:19
 #: ckan/templates/snippets/custom_form_fields.html:20
 #: ckan/templates/snippets/custom_form_fields.html:37
 msgid "Custom Field"
-msgstr ""
+msgstr "የራስ መስክ "
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
-msgstr ""
+msgstr "ምልክት ማድረግ"
 
 #: ckan/templates/development/snippets/form.html:23
 msgid "Textarea"
-msgstr ""
+msgstr "የጽሑፍ ቦታ"
 
 #: ckan/templates/development/snippets/form.html:24
 msgid "Select"
-msgstr ""
+msgstr "ምረጥ"
 
 #: ckan/templates/group/activity_stream.html:3
 #: ckan/templates/group/activity_stream.html:6
@@ -3040,21 +3046,21 @@ msgstr ""
 #: ckan/templates/user/activity_stream.html:6
 #: ckan/templates/user/read_base.html:20
 msgid "Activity Stream"
-msgstr ""
+msgstr "የእንቅስቃሴ ዥረት"
 
 #: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:6
 #: ckan/templates/organization/admins.html:3
 #: ckan/templates/organization/admins.html:6
 msgid "Administrators"
-msgstr ""
+msgstr "አስተዳዳሪዎች"
 
 #: ckan/templates/group/base_form_page.html:7
 msgid "Add a Group"
-msgstr ""
+msgstr "ቡድን ጨምር"
 
 #: ckan/templates/group/base_form_page.html:11
 msgid "Group Form"
-msgstr ""
+msgstr "የቡድን ቅፅ"
 
 #: ckan/templates/group/confirm_delete.html:3
 #: ckan/templates/group/confirm_delete.html:15
@@ -3069,16 +3075,16 @@ msgstr ""
 #: ckan/templates/package/confirm_delete_resource.html:3
 #: ckan/templates/package/confirm_delete_resource.html:15
 msgid "Confirm Delete"
-msgstr ""
+msgstr "ማጥፋትን አረጋግጥ"
 
 #: ckan/templates/group/confirm_delete.html:11
 msgid "Are you sure you want to delete group - {name}?"
-msgstr ""
+msgstr " ቡድን {name}ን ለማጥፋት መፈለግዎን እርግጠኛ ነዎት?"
 
 #: ckan/templates/group/confirm_delete_member.html:11
 #: ckan/templates/organization/confirm_delete_member.html:11
 msgid "Are you sure you want to delete member - {name}?"
-msgstr ""
+msgstr "አባል {name}ን ለማጥፋት መፈለግዎን እርግጠኛ ነዎት?"
 
 #: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:3
 #: ckan/templates/group/edit_base.html:11
@@ -3090,51 +3096,51 @@ msgstr ""
 #: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/read_base.html:14
 msgid "Manage"
-msgstr ""
+msgstr "አስተካክል"
 
 #: ckan/templates/group/edit.html:12
 msgid "Edit Group"
-msgstr ""
+msgstr "ቡድን አድስ"
 
 #: ckan/templates/group/edit_base.html:21 ckan/templates/group/members.html:3
 #: ckan/templates/organization/edit_base.html:24
 #: ckan/templates/organization/members.html:3
 msgid "Members"
-msgstr ""
+msgstr "አባላት"
 
 #: ckan/templates/group/history.html:3 ckan/templates/group/history.html:6
 #: ckan/templates/package/history.html:3 ckan/templates/package/history.html:6
 msgid "History"
-msgstr ""
+msgstr "ታሪክ"
 
 #: ckan/templates/group/index.html:13
 #: ckan/templates/user/dashboard_groups.html:7
 msgid "Add Group"
-msgstr ""
+msgstr "ቡድን ጨምር"
 
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
-msgstr ""
+msgstr "ቡድኖችን ፈልግ..."
 
 #: ckan/templates/group/index.html:29
 msgid "There are currently no groups for this site"
-msgstr ""
+msgstr "በአሁኑ ጊዜ ለዚህ ጣቢያ ምንም ቡድኖች የሉም።"
 
 #: ckan/templates/group/index.html:31
 #: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
-msgstr ""
+msgstr "ለምን አሁን አይፈጥሩም?"
 
 #: ckan/templates/group/member_new.html:8
 #: ckan/templates/organization/member_new.html:10
 msgid "Back to all members"
-msgstr ""
+msgstr "ወደ ሁሉም አባላት ተመለስ"
 
 #: ckan/templates/group/member_new.html:10
 #: ckan/templates/organization/member_new.html:7
 #: ckan/templates/organization/member_new.html:12
 msgid "Edit Member"
-msgstr ""
+msgstr "አባል አድስ"
 
 #: ckan/templates/group/member_new.html:10
 #: ckan/templates/group/member_new.html:64 ckan/templates/group/members.html:6
@@ -3143,46 +3149,46 @@ msgstr ""
 #: ckan/templates/organization/member_new.html:63
 #: ckan/templates/organization/members.html:8
 msgid "Add Member"
-msgstr ""
+msgstr "አባል ጨምር"
 
 #: ckan/templates/group/member_new.html:18
 #: ckan/templates/organization/member_new.html:19
 msgid "Existing User"
-msgstr ""
+msgstr "ነባር ተጠቃሚ"
 
 #: ckan/templates/group/member_new.html:21
 #: ckan/templates/organization/member_new.html:22
 msgid "If you wish to add an existing user, search for their username below."
-msgstr ""
+msgstr "ነባር ተጠቃሚን መጨመር ካሰቡ ከታች ልዩ ስማቸውን ይፈልጉ።"
 
 #: ckan/templates/group/member_new.html:38
 #: ckan/templates/organization/member_new.html:39
 msgid "or"
-msgstr ""
+msgstr "ወይም"
 
 #: ckan/templates/group/member_new.html:42
 #: ckan/templates/organization/member_new.html:43
 msgid "New User"
-msgstr ""
+msgstr "አዲስ ተጠቃሚ"
 
 #: ckan/templates/group/member_new.html:45
 #: ckan/templates/organization/member_new.html:46
 msgid "If you wish to invite a new user, enter their email address."
-msgstr ""
+msgstr "አዲስ ተጠቃሚ ለመጋበዝ ከፈለጉ የኢሜል አድራሻቸውን ያስገቡ።"
 
 #: ckan/templates/group/member_new.html:55
 #: ckan/templates/group/members.html:15
 #: ckan/templates/organization/member_new.html:54
 #: ckan/templates/organization/members.html:20
 msgid "Role"
-msgstr ""
+msgstr "ሚና"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
 #: ckan/templates/organization/member_new.html:57
 #: ckan/templates/organization/members.html:36
 msgid "Are you sure you want to delete this member?"
-msgstr ""
+msgstr "ይህን አባል ማጥፋት ይፈልጋሉ እርግጠኛ ነዎት?"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/group/members.html:31
@@ -3197,12 +3203,12 @@ msgstr ""
 #: ckan/templates/revision/read.html:24
 #: ckan/templates/user/edit_user_form.html:45
 msgid "Delete"
-msgstr ""
+msgstr "አጥፋ"
 
 #: ckan/templates/group/member_new.html:77
 #: ckan/templates/organization/member_new.html:76
 msgid "What are roles?"
-msgstr ""
+msgstr "ሚናዎች ምንድን ናቸው?"
 
 #: ckan/templates/group/member_new.html:80
 msgid ""
@@ -3210,72 +3216,75 @@ msgid ""
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
 msgstr ""
+" <p><strong>አስተዳዳሪ:</strong>  የቡድን መረጃ ማርትዕ(ማደስ) እና  የድርጅት አባላትን ማስተዳደር "
+"ይችላል። </p><p><strong>አባል:</strong> በቡድኖች ውስጥ የመረጃ ስብስቦችን መጨመር/ማስወገድ ይችላሉ። "
+"</p>"
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
 msgid "Create a Group"
-msgstr ""
+msgstr "ቡድን ፍጠር"
 
 #: ckan/templates/group/new_group_form.html:17
 msgid "Update Group"
-msgstr ""
+msgstr "ቡድን አሻሽል"
 
 #: ckan/templates/group/new_group_form.html:19
 msgid "Create Group"
-msgstr ""
+msgstr "ቡድን ፍጠር"
 
 #: ckan/templates/group/read.html:19 ckan/templates/organization/read.html:25
 #: ckan/templates/snippets/search_form.html:3
 msgid "Search datasets..."
-msgstr ""
+msgstr "የመረጃ ስብስቦችን ፈልግ..."
 
 #: ckan/templates/group/snippets/feeds.html:3
 msgid "Datasets in group: {group}"
-msgstr ""
+msgstr "በቡድን {group} ውስጥ ያሉ የመረጃ ስብስቦች"
 
 #: ckan/templates/group/snippets/feeds.html:4
 #: ckan/templates/organization/snippets/feeds.html:4
 msgid "Recent Revision History"
-msgstr ""
+msgstr "የቅርብ ጊዜ የክለሳ ታሪክ"
 
 #: ckan/templates/group/snippets/group_form.html:10
 #: ckan/templates/organization/snippets/organization_form.html:10
 #: ckan/templates/package/snippets/resource_form.html:30
 msgid "Name"
-msgstr ""
+msgstr "ስም"
 
 #: ckan/templates/group/snippets/group_form.html:10
 msgid "My Group"
-msgstr ""
+msgstr "ቡድኔ"
 
 #: ckan/templates/group/snippets/group_form.html:18
 msgid "my-group"
-msgstr ""
+msgstr "ቡድኔ"
 
 #: ckan/templates/group/snippets/group_form.html:20
 msgid "A little information about my group..."
-msgstr ""
+msgstr "ስለ ቡድኔ ትንሽ መረጃ..."
 
 #: ckan/templates/group/snippets/group_form.html:38
 msgid "Are you sure you want to delete this Group?"
-msgstr ""
+msgstr "ይህን ቡድን ለማጥፋት እንደሚፈልጉ እርግጠኛ ነዎት?"
 
 #: ckan/templates/group/snippets/group_form.html:41
 msgid "Save Group"
-msgstr ""
+msgstr "ቡድን አስቀምጥ"
 
 #: ckan/templates/group/snippets/group_item.html:38
 #: ckan/templates/group/snippets/group_item.html:39
 msgid "View {name}"
-msgstr ""
+msgstr "{name} አሳይ"
 
 #: ckan/templates/group/snippets/group_item.html:43
 msgid "Remove dataset from this group"
-msgstr ""
+msgstr "ከዚህ ቡድን የመረጃ ስብስብ ያስወግዱ"
 
 #: ckan/templates/group/snippets/helper.html:4
 msgid "What are Groups?"
-msgstr ""
+msgstr "ቡድኖች ምንድን ናቸው?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
@@ -3284,11 +3293,14 @@ msgid ""
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets. "
 msgstr ""
+"የተለያዩ የመረጃ ስብስቦችን በብዛት ለመፍጠር ፣ ለማቀናበር እና ለመቆጣጠር የ CKAN ቡድኖችን መጠቀም ይችላሉ። ለምሳሌ"
+" ያህል የመረጃ ስብስቦችን ለአንድ ፕሮጀክት ፣ ቡድን ወይም በሆነ በተለየ ጭብጥ ለማንሸራሸር ፤ ሰዎች የራስዎን የታተሙ "
+"የመረጃ ስብስቦች በቀላል መንገድ እንዲፈልጉ እና እንዲያገኙ ያስችላል።"
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
 msgid "Compare"
-msgstr ""
+msgstr "አነጻጽር"
 
 #: ckan/templates/group/snippets/info.html:16
 #: ckan/templates/organization/bulk_process.html:72
@@ -3297,13 +3309,13 @@ msgstr ""
 #: ckan/templates/snippets/organization.html:37
 #: ckan/templates/snippets/package_item.html:42
 msgid "Deleted"
-msgstr ""
+msgstr "ተፍⶆል"
 
 #: ckan/templates/group/snippets/info.html:24
 #: ckan/templates/package/snippets/package_context.html:7
 #: ckan/templates/snippets/organization.html:45
 msgid "read more"
-msgstr ""
+msgstr "ተጨማሪ ያንብቡ"
 
 #: ckan/templates/group/snippets/revisions_table.html:7
 #: ckan/templates/package/snippets/revisions_table.html:7
@@ -3311,14 +3323,14 @@ msgstr ""
 #: ckan/templates/revision/read.html:39
 #: ckan/templates/revision/snippets/revisions_list.html:4
 msgid "Revision"
-msgstr ""
+msgstr "ክለሳ"
 
 #: ckan/templates/group/snippets/revisions_table.html:8
 #: ckan/templates/package/snippets/revisions_table.html:8
 #: ckan/templates/revision/read.html:53
 #: ckan/templates/revision/snippets/revisions_list.html:5
 msgid "Timestamp"
-msgstr ""
+msgstr "የጊዜ ማህተም"
 
 #: ckan/templates/group/snippets/revisions_table.html:9
 #: ckan/templates/package/snippets/additional_info.html:25
@@ -3328,18 +3340,18 @@ msgstr ""
 #: ckan/templates/revision/read.html:50
 #: ckan/templates/revision/snippets/revisions_list.html:6
 msgid "Author"
-msgstr ""
+msgstr "ጸሃፊ(ደራሲ)"
 
 #: ckan/templates/group/snippets/revisions_table.html:10
 #: ckan/templates/package/snippets/revisions_table.html:10
 #: ckan/templates/revision/read.html:56
 #: ckan/templates/revision/snippets/revisions_list.html:8
 msgid "Log Message"
-msgstr ""
+msgstr "የምዝገባ(ማስታወሻ) መልእክት"
 
 #: ckan/templates/home/index.html:4
 msgid "Welcome"
-msgstr ""
+msgstr "እንኳን ደህና መጡ!"
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
@@ -3362,56 +3374,72 @@ msgid ""
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 msgstr ""
+"<p>CKAN በዓለም ቀዳሚ አዕምሯዊ ነጻ የግልጽ መረጃ ማስቀመጫ እና መለዋወጫ መድረክ ነው።</p> <p>CKAN መረጃን "
+"ሙሉ ለሙሉ ማተም ፣ ማጋራት ፣ በቀላሉ ማግኘት እና መጠቀም (የመረጃ ማከማቸት እና ጠንካራ መረጃ ኤፒአይዎች አቅርቦትን "
+"ያካትታል) የሚያስችሉ መሳሪያዎችህን የያዘ የተⶁላ ሶፍትዌር ነው።</p> CKAN መረጃዎቻቸውን ለህብረተሰቡ ክፍት እና "
+"ተደራሽ ለማድረግ የሚፈልጉ ታላላቅ አታሚዎች (ብሄራዊ እና ክልላዊ መንግሥታት, ኩባንያዎች እና ድርጅቶች) የታለመ ነው። "
+"CKAN በዓለም ዙሪያ ያሉ መንግስታዊ እና የተጠቃሚ ቡድኖች ጥቅም ላይ ይውላል ፤ የተለያዩ አከባቢያዊ ፣ ሃገራዊ እና "
+"አለም አቀፋዊ የመንግስትና የማህበረሰብ የመረጃ መድረኮችንም ይሸፍናል። ለምሳሌ፣ እንደ ዩናይትድ ኪንግደም <a "
+"href=\"http://data.gov.uk\"> data.gov.uk </a> ፣ የአውሮፓ ህብረት <a "
+"href=\"http://publicdata.eu/\">publicdata.eu </a> ፣ ብራዚላውያን <a "
+"href=\"http://dados.gov.br/\"> dados.gov.br </a> ፣ የደች እና የኔዘርላንድ መንግስት ፖርቶች"
+" እንዲሁም በአሜሪካ ፣ በእንግሊዝ ፣ በአርጀንቲና  በፊንላንድ እና በሌሎች ቦታዎች የከተማ እና ማዘጋጃ ጣቢያዎች "
+"ይጠቀማሉ። </P> <p> CKAN: <a href=\"http://ckan.org/\"> http://ckan.org/</a><br "
+"/> የ CKAN ጉብኝት: <a href=\"http://ckan.org/tour/\"> "
+"http://ckan.org/tour/</a><br /> የባህሪያት አጠቃላይ እይታ <a> "
+"href=\"http://ckan.org/features/\"> http://ckan.org/features/</a></p>"
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
-msgstr ""
+msgstr "ወደ CKAN እንኳን ደህና መጡ"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will "
 msgstr ""
+"ይህ ስለ CKAN ወይም በአጠቃላይ ስለ ጣቢያው ጥሩ የምዕራፍ አንቀፅ ነው። እዚህ ለመሄድ ምንም ግልባጭ የለንም ነገር "
+"ግን በቅርብ ጊዜ እንሰራለን። "
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
-msgstr ""
+msgstr "ይህ ተለይቶ የቀረበ ክፍል ነው"
 
 #: ckan/templates/home/snippets/search.html:2
 msgid "E.g. environment"
-msgstr ""
+msgstr "ለምሳሌ:- አካባቢ"
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
-msgstr ""
+msgstr "መረጃ ፈልግ"
 
 #: ckan/templates/home/snippets/search.html:8
 msgid "Search datasets"
-msgstr ""
+msgstr "የመረጃ ስብስብ ፈልግ"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
-msgstr ""
+msgstr "ታዋቂ ማለዮዎች"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
-msgstr ""
+msgstr "{0} ስታቲስቲክስ"
 
 #: ckan/templates/home/snippets/stats.html:11
 msgid "dataset"
-msgstr ""
+msgstr "የመረጃ ስብስብ"
 
 #: ckan/templates/home/snippets/stats.html:11
 msgid "datasets"
-msgstr ""
+msgstr "የመረጃ ስብስቦች"
 
 #: ckan/templates/home/snippets/stats.html:17
 msgid "organizations"
-msgstr ""
+msgstr "ድርጅቶች"
 
 #: ckan/templates/home/snippets/stats.html:23
 msgid "groups"
-msgstr ""
+msgstr "ቡድኖች"
 
 #: ckan/templates/macros/form.html:126
 #, python-format
@@ -3420,22 +3448,25 @@ msgid ""
 "target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
+"እዚህጋ <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"html=\"true\">ምልክታዊ ቅርጸት/አቀማመጥ (Markdown formatting) </a> መጠቀም ይችላሉ "
 
 #: ckan/templates/macros/form.html:277
 msgid "This field is required"
-msgstr ""
+msgstr "ይሄን ቦታ መሞላት ያስፈልጋል"
 
 #: ckan/templates/macros/form.html:277
 msgid "Custom"
-msgstr ""
+msgstr "የራስ ምርጫ"
 
 #: ckan/templates/macros/form.html:302
 msgid "The form contains invalid entries:"
-msgstr ""
+msgstr "ቅጹ ልክ ያልኾኑ ግቤቶች(entries) አሉት "
 
 #: ckan/templates/macros/form.html:407
 msgid "Required field"
-msgstr ""
+msgstr "መሞላት ያለበት"
 
 #: ckan/templates/macros/form.html:422
 msgid "http://example.com/my-image.jpg"
@@ -3443,42 +3474,42 @@ msgstr ""
 
 #: ckan/templates/macros/form.html:423
 msgid "Image URL"
-msgstr ""
+msgstr "የምስል URL"
 
 #: ckan/templates/macros/form.html:438
 msgid "Clear Upload"
-msgstr ""
+msgstr "የተከማቸውን አጽዳ"
 
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Organization Form"
-msgstr ""
+msgstr "የድርጅት ፎርም"
 
 #: ckan/templates/organization/bulk_process.html:3
 #: ckan/templates/organization/bulk_process.html:11
 msgid "Edit datasets"
-msgstr ""
+msgstr "የመረጃ ስብስቦችን አድስ"
 
 #: ckan/templates/organization/bulk_process.html:16
 msgid " found for \"{query}\""
-msgstr ""
+msgstr "ለ \"{query}\" የተገኘ"
 
 #: ckan/templates/organization/bulk_process.html:18
 msgid "Sorry no datasets found for \"{query}\""
-msgstr ""
+msgstr "እናዝናለን ለ \"{query}\" ምንም የመረጃ ስብስቦች አልተገኙም"
 
 #: ckan/templates/organization/bulk_process.html:37
 msgid "Make public"
-msgstr ""
+msgstr "ይፋ አድርገው"
 
 #: ckan/templates/organization/bulk_process.html:41
 msgid "Make private"
-msgstr ""
+msgstr "የግል አድርግ"
 
 #: ckan/templates/organization/bulk_process.html:70
 #: ckan/templates/package/read.html:18
 #: ckan/templates/snippets/package_item.html:40
 msgid "Draft"
-msgstr ""
+msgstr "ረቂቅ"
 
 #: ckan/templates/organization/bulk_process.html:75
 #: ckan/templates/package/read.html:11
@@ -3487,34 +3518,34 @@ msgstr ""
 #: ckan/templates/snippets/private.html:2
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "Private"
-msgstr ""
+msgstr "የግል"
 
 #: ckan/templates/organization/bulk_process.html:88
 msgid "This organization has no datasets associated to it"
-msgstr ""
+msgstr "ይህ ድርጅት ከእሱ ጋር የተያያዘ የመረጃ ስብስቦች የለውም"
 
 #: ckan/templates/organization/confirm_delete.html:11
 msgid "Are you sure you want to delete organization - {name}?"
-msgstr ""
+msgstr "{name}  ይህን ድርጅት ማጥፋት እንደሚፋልጉ እርግጠኛ ነዎት?"
 
 #: ckan/templates/organization/edit.html:6
 #: ckan/templates/organization/snippets/info.html:13
 #: ckan/templates/organization/snippets/info.html:16
 msgid "Edit Organization"
-msgstr ""
+msgstr "ድርጅትን አድስ"
 
 #: ckan/templates/organization/index.html:13
 #: ckan/templates/user/dashboard_organizations.html:7
 msgid "Add Organization"
-msgstr ""
+msgstr "ድርጅትን ጨምር"
 
 #: ckan/templates/organization/index.html:20
 msgid "Search organizations..."
-msgstr ""
+msgstr "ድርጅት ፈልግ..."
 
 #: ckan/templates/organization/index.html:29
 msgid "There are currently no organizations for this site"
-msgstr ""
+msgstr "በአሁኑ ጊዜ ለዚህ ጣቢያ ምንም ድርጅቶች የሉም "
 
 #: ckan/templates/organization/member_new.html:31
 #: ckan/templates/user/edit_user_form.html:8
@@ -3525,15 +3556,15 @@ msgstr ""
 #: ckan/templates/user/request_reset.html:16
 #: ckan/templates/user/snippets/login_form.html:20
 msgid "Username"
-msgstr ""
+msgstr "ልዩ ስም"
 
 #: ckan/templates/organization/member_new.html:49
 msgid "Email address"
-msgstr ""
+msgstr "የኢሜይል አድራሻ"
 
 #: ckan/templates/organization/member_new.html:59
 msgid "Update Member"
-msgstr ""
+msgstr "አባል አሻሽል"
 
 #: ckan/templates/organization/member_new.html:79
 msgid ""
@@ -3543,6 +3574,10 @@ msgid ""
 "<p><strong>Member:</strong> Can view the organization's private datasets, "
 "but not add new datasets.</p> "
 msgstr ""
+"<p><strong>አስተዳዳሪ:</strong>የመረጃ ስብስቦችን መጨመር ፣ ማደስ እና ማጥፋት ይችላል ፤ እንዲሁም የድርጅት"
+" አባላትን ማስተዳደር ይችላል። </p> <p><strong>አርታዒ:</strong> የመረጃ ስብስቦችን መጨመር እና ማደስ "
+"ይችላል ፤ ነገር ግን የድርጅት አባላትን ማስተዳደር አይችልም። </p><p><strong>አባል:</strong> የድርጅቱን "
+"የግል የመረጃ ስብስቦች ሊያዩ ይችላሉ፤ ነገር ግን ማሻሻልም ሆነ አዲስ መጨመር አይችልም። </p>"
 
 #: ckan/templates/organization/members.html:14
 msgid "{count} member"
@@ -3555,24 +3590,24 @@ msgstr[1] ""
 #: ckan/templates/organization/new.html:7
 #: ckan/templates/organization/new.html:12
 msgid "Create an Organization"
-msgstr ""
+msgstr "ድርጅት ፍጠር"
 
 #: ckan/templates/organization/new_organization_form.html:17
 msgid "Update Organization"
-msgstr ""
+msgstr "ድርጅት አሻሽል"
 
 #: ckan/templates/organization/new_organization_form.html:19
 msgid "Create Organization"
-msgstr ""
+msgstr "ድርጅት ፍጠር"
 
 #: ckan/templates/organization/snippets/feeds.html:3
 msgid "Datasets in organization: {group}"
-msgstr ""
+msgstr "በድርጅት ውስጥ ያሉ የመረጃ ስብስቦች : {group}"
 
 #: ckan/templates/organization/snippets/help.html:4
 #: ckan/templates/organization/snippets/helper.html:4
 msgid "What are Organizations?"
-msgstr ""
+msgstr "ድርጅቶች ምንድን ናቸው?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
@@ -3583,6 +3618,10 @@ msgid ""
 "individual users the right to publish datasets from that particular "
 "organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
+"<p>ድርጅቶች እንደ የመረጃ ስብስብ ማተሚያ (ለለምሳሌ፡ የጤና ዲፓርትመንት) ሆነው ያገለግላሉ።  ይህ ማለት የመረጃ "
+"ስብስቦች የሚታተሙት በግለሰብ ሳይሆን በነዚህ ድርጅቶች ነው። </p><p>በድርጅቶች ውስጥ አስተዳዳሪዎች በተጠቀሰው "
+"ድርጅት (ለምሳሌ የብሄራዊ ስታቲስቲክስ ጽ/ቤት) ውስጥ ለአባላቶቻቸው የየራሳቸው ሚና እና  የመረጃ ስብስቦችን የማተም "
+"መብት እንዲያገኙ ፈቃድ መስጠት ይችላሉ።"
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
@@ -3590,42 +3629,46 @@ msgid ""
 "datasets. Users can have different roles within an Organization, depending "
 "on their level of authorisation to create, edit and publish. "
 msgstr ""
+"የ CKAN ድርጅቶች የተለያዩ የመረጃ ስብስቦችን ለመፍጠር ፣ ለማስተዳደር እና ለማተም ያገለግላሉ። ተጠቃሚዎች "
+"በድርጅታቸው ውስጥ  ለመፍጠር ፣ ለማደስ እና ለማተም በፍቃድ ደረጃቸው የሚወሰን የተለያዩ ሚናዎች ሊኖራቸው ይችላል።"
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
-msgstr ""
+msgstr "ድርጅቴ"
 
 #: ckan/templates/organization/snippets/organization_form.html:18
 msgid "my-organization"
-msgstr ""
+msgstr "ድርጅቴ"
 
 #: ckan/templates/organization/snippets/organization_form.html:20
 msgid "A little information about my organization..."
-msgstr ""
+msgstr "ስለ ድርጅቴ ትንሽ መረጃ"
 
 #: ckan/templates/organization/snippets/organization_form.html:38
 msgid ""
 "Are you sure you want to delete this Organization? Note*: Deleting cannot be"
 " performed while public or private datasets belong to this organization."
 msgstr ""
+" ይህን ድርጅት ለማጥፋት መፈለግዎን እርግጠኛ ነዎት? ማስታወሻ * በዚህ ድርጅት ውስጥ ንብረት የሆኑ የህዝብ ወይም የግል"
+" የመረጃ ስብስቦች እስካሉ ድረስ ማጥፋት አይችሉም።"
 
 #: ckan/templates/organization/snippets/organization_form.html:41
 msgid "Save Organization"
-msgstr ""
+msgstr "ድርጅቱን አስቀምጥ"
 
 #: ckan/templates/organization/snippets/organization_item.html:42
 #: ckan/templates/organization/snippets/organization_item.html:43
 msgid "View {organization_name}"
-msgstr ""
+msgstr "{organization_name} አሳይ"
 
 #: ckan/templates/package/base.html:22 ckan/templates/package/new.html:9
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
 msgid "Create Dataset"
-msgstr ""
+msgstr "የመረጃ ስብስብ ፍጠር"
 
 #: ckan/templates/package/base_form_page.html:22
 msgid "What are datasets?"
-msgstr ""
+msgstr "የመረጃ ስብስቦች ምንድናቸው?"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
@@ -3633,80 +3676,82 @@ msgid ""
 "with a description and other information, at a fixed URL. Datasets are what "
 "users see when searching for data. "
 msgstr ""
+"የ CKAN የመረጃ-ስብስብ ቋሚ ዩአርኤል ያላቸው የመረጃ ምንጮችን(ለምሳሌ፡ ፋይሎች) እስከ መግለጫቸውና ሌሎች መረጃዎች "
+"የያዘ  ስብስብ ነው። የመረጃ ስብስቦች ተጠቃሚዎች መረጃ ሲፈልጉ የሚመለከⶆቸው ናቸው።"
 
 #: ckan/templates/package/confirm_delete.html:12
 msgid "Are you sure you want to delete dataset - {name}?"
-msgstr ""
+msgstr "የመረጃ ስብስብ {name}ን ማጥፋት መፈለግዎን እርግጠኛ ነዎት?"
 
 #: ckan/templates/package/confirm_delete_resource.html:11
 msgid "Are you sure you want to delete resource - {name}?"
-msgstr ""
+msgstr "የመረጃ ምንጭ {name}ን ማጥፋት መፈለግዎን እርግጠኛ ነዎት?"
 
 #: ckan/templates/package/edit_base.html:16
 msgid "View dataset"
-msgstr ""
+msgstr "የመረጃ ስብስብ አሳይ"
 
 #: ckan/templates/package/edit_base.html:20
 msgid "Edit metadata"
-msgstr ""
+msgstr "የመረጃ ስብስብ አድስ"
 
 #: ckan/templates/package/edit_view.html:3
 #: ckan/templates/package/edit_view.html:4
 #: ckan/templates/package/edit_view.html:8
 #: ckan/templates/package/edit_view.html:12
 msgid "Edit view"
-msgstr ""
+msgstr "እይታን  አድስ"
 
 #: ckan/templates/package/edit_view.html:20
 #: ckan/templates/package/new_view.html:28
 #: ckan/templates/package/snippets/resource_item.html:32
 msgid "Preview"
-msgstr ""
+msgstr "ቅድመ-እይታ"
 
 #: ckan/templates/package/edit_view.html:21
 msgid "Update"
-msgstr ""
+msgstr "አሻሽል"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Associate this group with this dataset"
-msgstr ""
+msgstr "ይህን ቡድን ከዚህ የመረጃ ስብስብ ጋር አጎዳኝ"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Add to group"
-msgstr ""
+msgstr "ወደ ቡድን ጨምር"
 
 #: ckan/templates/package/group_list.html:23
 msgid "There are no groups associated with this dataset"
-msgstr ""
+msgstr "ከዚህ የመረጃ ስብስብ ጋር የተዛመዱ ቡድኖች የሉም"
 
 #: ckan/templates/package/new_package_form.html:15
 msgid "Update Dataset"
-msgstr ""
+msgstr "የመረጃ ስብስብ አሻሽል"
 
 #: ckan/templates/package/new_resource.html:5
 msgid "Add data to the dataset"
-msgstr ""
+msgstr "ወደዚህ የመረጃ ስብስብ መረጃ ጨምር"
 
 #: ckan/templates/package/new_resource.html:11
 #: ckan/templates/package/new_resource_not_draft.html:8
 msgid "Add New Resource"
-msgstr ""
+msgstr "አዲስ የመረጃ ምንጭ ጨምር"
 
 #: ckan/templates/package/new_resource_not_draft.html:3
 #: ckan/templates/package/new_resource_not_draft.html:4
 msgid "Add resource"
-msgstr ""
+msgstr "የመረጃ ምንጭ ጨምር"
 
 #: ckan/templates/package/new_resource_not_draft.html:16
 msgid "New resource"
-msgstr ""
+msgstr "አዲስ የመረጃ ምንጭ"
 
 #: ckan/templates/package/new_view.html:3
 #: ckan/templates/package/new_view.html:4
 #: ckan/templates/package/new_view.html:8
 #: ckan/templates/package/new_view.html:12
 msgid "Add view"
-msgstr ""
+msgstr "እይታ ጨምር"
 
 #: ckan/templates/package/new_view.html:19
 msgid ""
@@ -3716,11 +3761,15 @@ msgid ""
 "structured-data-the-data-explorer' target='_blank'>Data Explorer "
 "documentation</a>. "
 msgstr ""
+"የመረጃ ማከማቻ የውጫዊ ቅጥያ ከሌለ የውሂብ አሳሽ እይታዎች ፈጣን እና አስተማማኝ ላይሆኑ ይችላሉ። ለተጨማሪ መረጃ "
+"እባክዎ <a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
+"#viewing-structured-data-the-data-explorer' target='_blank'> የመረጃ አሳሽ</a> "
+"ሰነዶችን ይመልከቱ። "
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:83
 msgid "Add"
-msgstr ""
+msgstr "ጨምር"
 
 #: ckan/templates/package/read_base.html:32
 #, python-format
@@ -3728,71 +3777,73 @@ msgid ""
 "This is an old revision of this dataset, as edited at %(timestamp)s. It may "
 "differ significantly from the <a href=\"%(url)s\">current revision</a>."
 msgstr ""
+"ይህ የዚህ የመረጃ ስብስብ በ%(timestamp)s የታደሰው የቀድሞ ክለሳ ነው። አሁን ካለው <a "
+"href=\"%(url)s\"> ወቅታዊ ክለሳ </a> ጋር በከፍተኛ ሁኔታ ሊለያይ ይችላል።"
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
-msgstr ""
+msgstr "ሁሉም የመረጃ ምንጮች"
 
 #: ckan/templates/package/resource_edit_base.html:19
 msgid "View resource"
-msgstr ""
+msgstr "የመረጃ ምንጮች አሳይ"
 
 #: ckan/templates/package/resource_edit_base.html:24
 #: ckan/templates/package/resource_edit_base.html:30
 msgid "Edit resource"
-msgstr ""
+msgstr "የመረጃ ምንጭ አድስ"
 
 #: ckan/templates/package/resource_edit_base.html:26
 msgid "Views"
-msgstr ""
+msgstr "እይታዎች"
 
 #: ckan/templates/package/resource_read.html:40
 msgid "API Endpoint"
-msgstr ""
+msgstr "የኤፒአይ መጨረሻ"
 
 #: ckan/templates/package/resource_read.html:42
 #: ckan/templates/package/snippets/resource_item.html:47
 msgid "Go to resource"
-msgstr ""
+msgstr "ወደ መረጃ ምንጭ ሂድ"
 
 #: ckan/templates/package/resource_read.html:44
 #: ckan/templates/package/snippets/resource_item.html:44
 msgid "Download"
-msgstr ""
+msgstr "አውርድ"
 
 #: ckan/templates/package/resource_read.html:76
 #: ckan/templates/package/resource_read.html:78
 msgid "URL:"
-msgstr ""
+msgstr "ዩአርኤል:"
 
 #: ckan/templates/package/resource_read.html:86
 msgid "From the dataset abstract"
-msgstr ""
+msgstr "ከመረጃ ስብስቡ ጭብጥ"
 
 #: ckan/templates/package/resource_read.html:88
 #, python-format
 msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
-msgstr ""
+msgstr "ምንጭ: <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckan/templates/package/resource_read.html:127
 msgid "There are no views created for this resource yet."
-msgstr ""
+msgstr "ለዚህ የመረጃ ምንጭ የተፈጠረ እይታ ገና የለም።"
 
 #: ckan/templates/package/resource_read.html:131
 msgid "Not seeing the views you were expecting?"
-msgstr ""
+msgstr "የጠበቋቸውን እይታዎች እያዩ አይደለም?"
 
 #: ckan/templates/package/resource_read.html:136
 msgid "Here are some reasons you may not be seeing expected views:"
-msgstr ""
+msgstr "የተጠበቁትን እይታዎች ላያገኙ የሚችሉባቸው አንዳንድ ምክንያቶች እነሆ:"
 
 #: ckan/templates/package/resource_read.html:138
 msgid "No view has been created that is suitable for this resource"
-msgstr ""
+msgstr "ለእዚህ የመረጃ ምንጭ ተስማሚ የሆነ ምንም እይታ አልተፈጠረም"
 
 #: ckan/templates/package/resource_read.html:139
 msgid "The site administrators may not have enabled the relevant view plugins"
-msgstr ""
+msgstr "የድረ ገፁ አስተዳዳሪዎች ተያያዥ የማሳያ ተሰኪዎችን ላያካትቱ ይችላሉ"
 
 #: ckan/templates/package/resource_read.html:140
 msgid ""
@@ -3800,67 +3851,69 @@ msgid ""
 "or the data may not have been pushed to the DataStore, or the DataStore "
 "hasn't finished processing the data yet"
 msgstr ""
+"አንድ እይታ የመረጃ ማከማቻውን ከፈለገ የመረጃ ማከማቻ መጫወቻው ሊነቃ አልቻለም ፤ ወይም መረጃው በመረጃ ማከማቻው ውስጥ"
+" ላይሆን ይችላል ፤ ወይም የመረጃ ማከማቻው መረጃውን አስተናግዶ አልጨረሰም።"
 
 #: ckan/templates/package/resource_read.html:162
 msgid "Additional Information"
-msgstr ""
+msgstr "ተጭማሪ መረጃ"
 
 #: ckan/templates/package/resource_read.html:166
 #: ckan/templates/package/snippets/additional_info.html:6
 #: ckan/templates/revision/diff.html:43
 #: ckan/templates/snippets/additional_info.html:11
 msgid "Field"
-msgstr ""
+msgstr "መስክ"
 
 #: ckan/templates/package/resource_read.html:167
 #: ckan/templates/package/snippets/additional_info.html:7
 #: ckan/templates/snippets/additional_info.html:12
 msgid "Value"
-msgstr ""
+msgstr "ዋጋ"
 
 #: ckan/templates/package/resource_read.html:172
 msgid "Data last updated"
-msgstr ""
+msgstr "መረጃው መጨረሻ የተሻሻለው"
 
 #: ckan/templates/package/resource_read.html:173
 #: ckan/templates/package/resource_read.html:177
 #: ckan/templates/package/resource_read.html:181
 #: ckan/templates/package/resource_read.html:185
 msgid "unknown"
-msgstr ""
+msgstr "ያልታወቀ"
 
 #: ckan/templates/package/resource_read.html:176
 msgid "Metadata last updated"
-msgstr ""
+msgstr "ልዕለ-መረጃ ለመጨረሻ ጊዜ የተሻሻለው"
 
 #: ckan/templates/package/resource_read.html:180
 #: ckan/templates/package/snippets/additional_info.html:70
 msgid "Created"
-msgstr ""
+msgstr "ተፈጥሯል"
 
 #: ckan/templates/package/resource_read.html:184
 #: ckan/templates/package/snippets/resource_form.html:39
 #: ckan/templates/package/snippets/resource_info.html:16
 msgid "Format"
-msgstr ""
+msgstr "ቅርጸት"
 
 #: ckan/templates/package/resource_read.html:188
 #: ckan/templates/package/snippets/package_basic_fields.html:30
 #: ckan/templates/snippets/license.html:21
 msgid "License"
-msgstr ""
+msgstr "ፈቃድ"
 
 #: ckan/templates/package/resource_views.html:10
 msgid "New view"
-msgstr ""
+msgstr "አዲስ ዕይታ"
 
 #: ckan/templates/package/resource_views.html:28
 msgid "This resource has no views"
-msgstr ""
+msgstr "ይህ መረጃ ምንም እይታ የለውም"
 
 #: ckan/templates/package/resources.html:8
 msgid "Add new resource"
-msgstr ""
+msgstr "አዲስ የመረጃ ምንጭ ይጨምሩ"
 
 #: ckan/templates/package/resources.html:20
 #: ckan/templates/package/snippets/resources_list.html:26
@@ -3869,18 +3922,20 @@ msgid ""
 " <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
 "add some?</a></p> "
 msgstr ""
+" <p class=\"empty\">ይህ የመረጃ ስብስብ ምንም መረጃ የለውም ፣ <a href=\"%(url)s\">ለምን "
+"አይጨምሩም?</a></p> "
 
 #: ckan/templates/package/search.html:52
 msgid "API"
-msgstr ""
+msgstr "ኤፒአይ"
 
 #: ckan/templates/package/search.html:53
 msgid "API Docs"
-msgstr ""
+msgstr "የኤፒአይ ሰነዶች"
 
 #: ckan/templates/package/search.html:55
 msgid "full {format} dump"
-msgstr ""
+msgstr "ሙሉ {format} ጭነት"
 
 #: ckan/templates/package/search.html:56
 #, python-format
@@ -3888,6 +3943,8 @@ msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
 msgstr ""
+"እንዲሁም ይሄን  %(api_link)s በመጠቀም ይህን መዝገብ መድረስ ይችላሉ። (see %(api_doc_link)sን "
+"ተመልከት ወይም %(dump_link)sን አውርድ)"
 
 #: ckan/templates/package/search.html:60
 #, python-format
@@ -3895,115 +3952,120 @@ msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
 msgstr ""
+"እንዲሁም ይሄን  %(api_link)s በመጠቀም ይህን መዝገብ መድረስ ይችላሉ። (see %(api_doc_link)sን "
+"ተመልከት)"
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
-msgstr ""
+msgstr "ሁሉም እይታዎች"
 
 #: ckan/templates/package/view_edit_base.html:12
 msgid "View view"
-msgstr ""
+msgstr "እይታን አሳይ"
 
 #: ckan/templates/package/view_edit_base.html:37
 msgid "View preview"
-msgstr ""
+msgstr "ቅድመ-ዕይታ አሳይ"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
 msgid "Additional Info"
-msgstr ""
+msgstr "ተጨማሪ መረጃ"
 
 #: ckan/templates/package/snippets/additional_info.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "Source"
-msgstr ""
+msgstr "ምንጭ"
 
 #: ckan/templates/package/snippets/additional_info.html:37
 #: ckan/templates/package/snippets/additional_info.html:42
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
 msgid "Maintainer"
-msgstr ""
+msgstr "ጠብቂ"
 
 #: ckan/templates/package/snippets/additional_info.html:49
 #: ckan/templates/package/snippets/package_metadata_fields.html:10
 msgid "Version"
-msgstr ""
+msgstr "ስሪት"
 
 #: ckan/templates/package/snippets/additional_info.html:56
 #: ckan/templates/package/snippets/package_basic_fields.html:114
 #: ckan/templates/user/read_base.html:91
 msgid "State"
-msgstr ""
+msgstr "ወቅታዊ ሁኔታ"
 
 #: ckan/templates/package/snippets/additional_info.html:62
 msgid "Last Updated"
-msgstr ""
+msgstr "መጨረሻ የተሻሻለው"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
-msgstr ""
+msgstr "የመረጃ ስብስብን ከመፍጠርዎ በፊት ድርጅት መፍጠር ያስፈልግዎታል።"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
-msgstr ""
+msgstr "አዲስ ድርጅት ፍጠር"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:18
 msgid "There are no organizations to which you can assign this dataset."
-msgstr ""
+msgstr "ይህንን የመረጃ ስብስብ ሊመድቡ የሚችሉበት ምንም ድርጅት የለም።"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:19
 msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
-msgstr ""
+msgstr "ከመቀጠልዎ በፊት አንድ ድርጅት እንዲፈጥር የስርዓት አስተዳዳሪውን ይጠይቁ።"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 #: ckan/templates/package/snippets/view_form.html:8
 msgid "Title"
-msgstr ""
+msgstr "ርዕስ"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 msgid "eg. A descriptive title"
-msgstr ""
+msgstr "ምሳሌ፡ ገላጭ ርዕስ"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:13
 msgid "eg. my-dataset"
-msgstr ""
+msgstr "ምሳሌ፡ የመረጃ ስብስቤ"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:19
 msgid "eg. Some useful notes about the data"
-msgstr ""
+msgstr "ምሳሌ፡ ስለ መረጃው አንዳንድ ጠቃሚ ማስታወሻዎች"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:24
 msgid "eg. economy, mental health, government"
-msgstr ""
+msgstr "ምሳሌ፡ ኢኮኖሚ ፣ የአእምሮ ጤና ፣ መንግስት"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:45
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
 msgstr ""
+"የፍቃድ መግለጫዎች እና ተጨማሪ መረጃዎች በ <a "
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> ማግኘት "
+"ይችላሉ።"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:76
 #: ckan/templates/snippets/organization.html:23
 msgid "Organization"
-msgstr ""
+msgstr "ድርጅት"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:80
 msgid "No organization"
-msgstr ""
+msgstr "ምንም ድርጅት የለም"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:95
 msgid "Visibility"
-msgstr ""
+msgstr "የታይነት ደረጃ"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:98
 msgid "Public"
-msgstr ""
+msgstr "ይፋ"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:117
 msgid "Active"
-msgstr ""
+msgstr "ንቁ"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
@@ -4013,14 +4075,18 @@ msgid ""
 "under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
 "Database License</a>."
 msgstr ""
+"ከዚህ በላይ የመረጡት <i>የመረጃ ፈቃድ</i> በዚህ የመረጃ ስብስብ ውስጥ ያከሏቸው ማናቸውም የመገልገያ ፋይሎች ይዘት "
+"ብቻ ይመለከታል። ይህን ቅጽ በማስገባት በ<a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">መረጃ ስርዓት ፈቃድ</a> መሠረት"
+" ወደ ቅጽ (ፎርሙ) ያስገባኸውን <i>ሜታዳታ</i> ዋጋ ለመልቀቅ ተስማምተሃል።"
 
 #: ckan/templates/package/snippets/package_form.html:39
 msgid "Are you sure you want to delete this dataset?"
-msgstr ""
+msgstr "ይህን የመረጃ ስብስብ ማጥፋት መፈለግዎን እርግጠኛ ነዎት?"
 
 #: ckan/templates/package/snippets/package_form.html:43
 msgid "Next: Add Data"
-msgstr ""
+msgstr "ቀጣይ፡ መረጃ ይጨምሩ"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "http://example.com/dataset.json"
@@ -4034,29 +4100,29 @@ msgstr ""
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
 #: ckan/templates/user/new_user_form.html:6
 msgid "Joe Bloggs"
-msgstr ""
+msgstr "Siham Mohammmed"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 msgid "Author Email"
-msgstr ""
+msgstr "የጸሃፊው ኢሜይል"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 #: ckan/templates/user/new_user_form.html:7
 msgid "joe@example.com"
-msgstr ""
+msgstr "khayo7mhmd@gmail.com"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 msgid "Maintainer Email"
-msgstr ""
+msgstr "የተቆጣጣሪው ኢሜይል"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
-msgstr ""
+msgstr "መረጃ አሻሽል"
 
 #: ckan/templates/package/snippets/resource_form.html:26
 msgid "Data"
-msgstr ""
+msgstr "መረጃ"
 
 #: ckan/templates/package/snippets/resource_form.html:26
 msgid "http://example.com/external-data.csv"
@@ -4064,351 +4130,354 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_form.html:30
 msgid "eg. January 2011 Gold Prices"
-msgstr ""
+msgstr "ምሳሌ፡ ነሃሴ 1989 የተወለዱ ህጻናት"
 
 #: ckan/templates/package/snippets/resource_form.html:34
 msgid "Some useful notes about the data"
-msgstr ""
+msgstr "ስለዚህ መረጃ አንዳንድ ጠቃሚ ማስታወሻዎችህ"
 
 #: ckan/templates/package/snippets/resource_form.html:39
 msgid "eg. CSV, XML or JSON"
-msgstr ""
+msgstr "ምሳሌ፡ CSV, XML ወይም JSON"
 
 #: ckan/templates/package/snippets/resource_form.html:42
 msgid "This will be guessed automatically. Leave blank if you wish"
-msgstr ""
+msgstr "ይህ በራስ-ሰር(automatically) ስለሚገመት ከፈለጉ ባዶውን መተው ይችላሉ"
 
 #: ckan/templates/package/snippets/resource_form.html:53
 msgid "eg. 2012-06-05"
-msgstr ""
+msgstr "ምሳሌ፡ 1997-08-20"
 
 #: ckan/templates/package/snippets/resource_form.html:55
 msgid "File Size"
-msgstr ""
+msgstr "የፋይል መጠን"
 
 #: ckan/templates/package/snippets/resource_form.html:55
 msgid "eg. 1024"
-msgstr ""
+msgstr "ምሳሌ፡ 1024"
 
 #: ckan/templates/package/snippets/resource_form.html:57
 #: ckan/templates/package/snippets/resource_form.html:59
 msgid "MIME Type"
-msgstr ""
+msgstr "የ MIME አይነት"
 
 #: ckan/templates/package/snippets/resource_form.html:57
 #: ckan/templates/package/snippets/resource_form.html:59
 msgid "eg. application/json"
-msgstr ""
+msgstr "ምሳሌ፡ application/json"
 
 #: ckan/templates/package/snippets/resource_form.html:67
 msgid "Are you sure you want to delete this resource?"
-msgstr ""
+msgstr "ይህን የመረጃ ምንጭ ማጥፋት መፈለግዎን እርግጠኛ ነዎት?"
 
 #: ckan/templates/package/snippets/resource_form.html:73
 msgid "Previous"
-msgstr ""
+msgstr "በፊት"
 
 #: ckan/templates/package/snippets/resource_form.html:76
 msgid "Save & add another"
-msgstr ""
+msgstr "አስከምጥና ሌላ ጨምር"
 
 #: ckan/templates/package/snippets/resource_form.html:79
 msgid "Finish"
-msgstr ""
+msgstr "ጨርስ"
 
 #: ckan/templates/package/snippets/resource_help.html:2
 msgid "What's a resource?"
-msgstr ""
+msgstr "የመረጃ ምንጭ ምንድነው?"
 
 #: ckan/templates/package/snippets/resource_help.html:4
 msgid "A resource can be any file or link to a file containing useful data."
-msgstr ""
+msgstr "የመረጃ ምንጭ ማንኛውም ፋይል ወይም ጠቃሚ መረጃ ወዳለው ፋይል የሚያደርስ አገናኝ(ሊንክ) ማለት ነው።"
 
 #: ckan/templates/package/snippets/resource_item.html:23
 msgid "Explore"
-msgstr ""
+msgstr "አስስ"
 
 #: ckan/templates/package/snippets/resource_item.html:35
 msgid "More information"
-msgstr ""
+msgstr "ለበለጠ መረጃ"
 
 #: ckan/templates/package/snippets/resource_view.html:10
 msgid "Fullscreen"
-msgstr ""
+msgstr "ሙሉ ማያ"
 
 #: ckan/templates/package/snippets/resource_view.html:18
 msgid "Embed"
-msgstr ""
+msgstr "አካት"
 
 #: ckan/templates/package/snippets/resource_view.html:32
 msgid "This resource view is not available at the moment."
-msgstr ""
+msgstr "ይሀን የመረጃ ምንጭ እይታ ለጊዜው አይገኝም።"
 
 #: ckan/templates/package/snippets/resource_view.html:74
 msgid "Embed resource view"
-msgstr ""
+msgstr "የመረጃ ምንጭ እይታ አካት"
 
 #: ckan/templates/package/snippets/resource_view.html:77
 msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
 msgstr ""
+"የመክተቻውን ኮድ ጥሬ HTML ወደ ሚደግፍ CMS ወይም የብሎግ ሶፍትዌር ቀድቶ መለተፍ(copy and paste) ይችላሉ"
 
 #: ckan/templates/package/snippets/resource_view.html:80
 msgid "Width"
-msgstr ""
+msgstr "ስፋት"
 
 #: ckan/templates/package/snippets/resource_view.html:83
 msgid "Height"
-msgstr ""
+msgstr "ርዝመት"
 
 #: ckan/templates/package/snippets/resource_view.html:86
 msgid "Code"
-msgstr ""
+msgstr "ኮድ"
 
 #: ckan/templates/package/snippets/resource_views_list.html:8
 msgid "Resource Preview"
-msgstr ""
+msgstr "የመረጃ ምንጭ ቅድመ-ዕይታ"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
-msgstr ""
+msgstr "መረጃ እና የመረጃ ምንጮች"
 
 #: ckan/templates/package/snippets/resources_list.html:30
 msgid "This dataset has no data"
-msgstr ""
+msgstr "ይህ የመረጃ ስብስብ ምንም መረጃ የለውም"
 
 #: ckan/templates/package/snippets/revisions_table.html:24
 #, python-format
 msgid "Read dataset as of %s"
-msgstr ""
+msgstr "የመረጃ ስብስብ እንደ %s አንብብ"
 
 #: ckan/templates/package/snippets/stages.html:23
 #: ckan/templates/package/snippets/stages.html:25
 msgid "Create dataset"
-msgstr ""
+msgstr "የመረጃ ስብስብ ፍጠር"
 
 #: ckan/templates/package/snippets/stages.html:30
 #: ckan/templates/package/snippets/stages.html:34
 #: ckan/templates/package/snippets/stages.html:36
 msgid "Add data"
-msgstr ""
+msgstr "መረጃ ጨምር"
 
 #: ckan/templates/package/snippets/view_form.html:8
 msgid "eg. My View"
-msgstr ""
+msgstr "ምሳሌ፡ የኔ እይታ"
 
 #: ckan/templates/package/snippets/view_form.html:9
 msgid "eg. Information about my view"
-msgstr ""
+msgstr "ምሳሌ፡ ገለጻ ስለኔ እይታ"
 
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
-msgstr ""
+msgstr "ማጣሪያ አስወግድ"
 
 #: ckan/templates/package/snippets/view_help.html:2
 msgid "What's a view?"
-msgstr ""
+msgstr "እይታ ምንድነው?"
 
 #: ckan/templates/package/snippets/view_help.html:4
 msgid "A view is a representation of the data held against a resource"
-msgstr ""
+msgstr "እይታ ማለት በሆነ ምንጭ የተደገፈ አንጻራዊ የመረጃ ውክልና ነው።"
 
 #: ckan/templates/revision/diff.html:6
 msgid "Differences"
-msgstr ""
+msgstr "ልዩነቶች"
 
 #: ckan/templates/revision/diff.html:13 ckan/templates/revision/diff.html:18
 #: ckan/templates/revision/diff.html:23
 msgid "Revision Differences"
-msgstr ""
+msgstr "የክለሳ ልዩነቶች"
 
 #: ckan/templates/revision/diff.html:44
 msgid "Difference"
-msgstr ""
+msgstr "ልዩነት"
 
 #: ckan/templates/revision/diff.html:54
 msgid "No Differences"
-msgstr ""
+msgstr "ምንም ልዩነቶች የሉም"
 
 #: ckan/templates/revision/list.html:3 ckan/templates/revision/list.html:6
 #: ckan/templates/revision/list.html:10
 msgid "Revision History"
-msgstr ""
+msgstr "የክለሳ ታሪክ ዝርዝር"
 
 #: ckan/templates/revision/list.html:6 ckan/templates/revision/read.html:8
 msgid "Revisions"
-msgstr ""
+msgstr "ክለሳዎች"
 
 #: ckan/templates/revision/read.html:30
 msgid "Undelete"
-msgstr ""
+msgstr "አታጥፋ"
 
 #: ckan/templates/revision/read.html:64
 msgid "Changes"
-msgstr ""
+msgstr "ለውጦች"
 
 #: ckan/templates/revision/read.html:74
 msgid "Datasets' Tags"
-msgstr ""
+msgstr "የመረጃ ስብስቦችህ መለዮ"
 
 #: ckan/templates/revision/snippets/revisions_list.html:7
 msgid "Entity"
-msgstr ""
+msgstr "አካል"
 
 #: ckan/templates/snippets/activity_item.html:3
 msgid "New activity item"
-msgstr ""
+msgstr "አዲስ የእንቅስቃሴ ንጥል"
 
 #: ckan/templates/snippets/add_dataset.html:6
 msgid "Add Dataset"
-msgstr ""
+msgstr "የመረጃ ስብስብ ጨምር"
 
 #: ckan/templates/snippets/datapusher_status.html:8
 msgid "Datapusher status: {status}."
-msgstr ""
+msgstr "የመረጃ ገፊው(Datapusher) ወቅታዊ ሁነታ፡ {status} ።"
 
 #: ckan/templates/snippets/disqus_trackback.html:2
 msgid "Trackback URL"
-msgstr ""
+msgstr "የምንጭ ፍለጋ URL"
 
 #: ckan/templates/snippets/facet_list.html:82
 msgid "Show More {facet_type}"
-msgstr ""
+msgstr "ተጨማሪ አሳይ {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:85
 msgid "Show Only Popular {facet_type}"
-msgstr ""
+msgstr "ታዋኪ የሆኑትን ብቻ አሳይ {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:89
 msgid "There are no {facet_type} that match this search"
-msgstr ""
+msgstr "ከዚ ፍለጋ ጋር የሚመሳሰል  {facet_type} የለም"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 msgid "Home"
-msgstr ""
+msgstr "መነሻ"
 
 #: ckan/templates/snippets/language_selector.html:3
 msgid "Language"
-msgstr ""
+msgstr "ቋንቋ"
 
 #: ckan/templates/snippets/language_selector.html:11
 #: ckan/templates/snippets/search_form.html:42
 #: ckan/templates/snippets/simple_search.html:15
 #: ckan/templates/snippets/sort_by.html:22
 msgid "Go"
-msgstr ""
+msgstr "ሂድ"
 
 #: ckan/templates/snippets/license.html:14
 msgid "No License Provided"
-msgstr ""
+msgstr "ምንም አይነት ፍቃድ አላቀረቡም"
 
 #: ckan/templates/snippets/license.html:28
 msgid "This dataset satisfies the Open Definition."
-msgstr ""
+msgstr "ይሀ የመረጃ ስብስብ የመረጃን ግልጽነት ትርጉም ያሟላል።"
 
 #: ckan/templates/snippets/organization.html:48
 msgid "There is no description for this organization"
-msgstr ""
+msgstr "ለዚህ ድርጅት ምንም መግለጫ የለም"
 
 #: ckan/templates/snippets/package_item.html:57
 msgid "This dataset has no description"
-msgstr ""
+msgstr "ይህ የመረጃ ስብስብ ምንም መግለጫ የለውም"
 
 #: ckan/templates/snippets/search_form.html:33
 #: ckan/templates/snippets/simple_search.html:8
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr ""
+msgstr "ቅደም ተከተል"
 
 #: ckan/templates/snippets/search_form.html:74
 msgid "Filter Results"
-msgstr ""
+msgstr "ውጤቶችን አታራ"
 
 #: ckan/templates/snippets/search_form.html:81
 msgid " <p class=\"extra\">Please try another search.</p> "
-msgstr ""
+msgstr " <p class=\"extra\">እባክዎን ሌላ ፍለጋ ይሞክሩ።</p> "
 
 #: ckan/templates/snippets/search_form.html:87
 msgid ""
 " <p id=\"search-error\"><strong>There was an error while searching.</strong>"
 " Please try again.</p> "
 msgstr ""
+" <p id=\"search-error\"><strong>በፍለጋው ላይ ችግር አጋጥሟል </strong> እባክዎ እንደገና "
+"ይሞክሩ።</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ለ \"{query}\" {number} የመረጃ ስብስብ ተገኝቷል"
+msgstr[1] "ለ \"{query}\" {number} የመረጃ ስብስቦች ተገኝተዋል"
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
-msgstr ""
+msgstr "ለ \"{query}\" ምንም አይነት የመረጃ ስብስብ አልተገኘም"
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} የመረጃ ስብስብ ተገኝቷል"
+msgstr[1] "{number} የመረጃ ስብስቦች ተገኝተዋል"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
-msgstr ""
+msgstr "ምንም አይነት የመረጃ ስብስብ አልተገኘም"
 
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ለ \"{query}\" {number} ቡድን ተገኝቷል"
+msgstr[1] "ለ \"{query}\" {number} ቡድኖች ተገኝተዋል"
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
-msgstr ""
+msgstr "ለ \"{query}\"  ምንም አይነት ቡድኖች አልተገኙም"
 
 #: ckan/templates/snippets/search_result_text.html:23
 msgid "{number} group found"
 msgid_plural "{number} groups found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} ቡድን ተገኝቷል"
+msgstr[1] "{number} ቡድኖች ተገኝተዋል"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
-msgstr ""
+msgstr "ምንም አይነት ቡድኖች አልተገኙም"
 
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ለ \"{query}\" {number} ድርጅት ተገኝቷል"
+msgstr[1] "ለ \"{query}\" {number} ድርጅቶች ተገኝተዋል"
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
-msgstr ""
+msgstr "ለ \"{query}\"  ምንም አይነት ድርጅቶች አልተገኙም"
 
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} ድርጅት ተገኝቷል"
+msgstr[1] "{number} ድርጅቶች ተገኝተዋል"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
-msgstr ""
+msgstr "ምንም አይነት ድርጅቶች አልተገኙም"
 
 #: ckan/templates/snippets/social.html:5
 msgid "Social"
-msgstr ""
+msgstr "ማህበራዊ"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
-msgstr ""
+msgstr "ይዘዙ"
 
 #: ckan/templates/snippets/subscribe.html:4
 #: ckan/templates/user/edit_user_form.html:12
 #: ckan/templates/user/new_user_form.html:7
 #: ckan/templates/user/read_base.html:82
 msgid "Email"
-msgstr ""
+msgstr "ኢሜይል"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
@@ -4417,102 +4486,102 @@ msgstr ""
 #: ckan/templates/snippets/context/user.html:23
 #: ckan/templates/user/read_base.html:57
 msgid "Edits"
-msgstr ""
+msgstr "አርትዖቶች"
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
 msgid "Search Tags"
-msgstr ""
+msgstr "መለያዎችን ፈልግ"
 
 #: ckan/templates/user/dashboard.html:19 ckan/templates/user/dashboard.html:37
 msgid "News feed"
-msgstr ""
+msgstr "የዜና ቋት"
 
 #: ckan/templates/user/dashboard.html:20
 #: ckan/templates/user/dashboard_datasets.html:12
 msgid "My Datasets"
-msgstr ""
+msgstr "ስብስቦቼ"
 
 #: ckan/templates/user/dashboard.html:21
 #: ckan/templates/user/dashboard_organizations.html:12
 msgid "My Organizations"
-msgstr ""
+msgstr "ድርጅቶቼ"
 
 #: ckan/templates/user/dashboard.html:22
 #: ckan/templates/user/dashboard_groups.html:12
 msgid "My Groups"
-msgstr ""
+msgstr "ቡድኖቼ"
 
 #: ckan/templates/user/dashboard.html:39
 msgid "Activity from items that I'm following"
-msgstr ""
+msgstr "እንቅስቃሴ እየተከተልኳቸው ካሉት ንጥሎች"
 
 #: ckan/templates/user/dashboard_datasets.html:17
 #: ckan/templates/user/read.html:20
 msgid "You haven't created any datasets."
-msgstr ""
+msgstr "ምንም የመረጃ ስብስቦች አልፈጠሩም።"
 
 #: ckan/templates/user/dashboard_datasets.html:19
 #: ckan/templates/user/dashboard_groups.html:22
 #: ckan/templates/user/dashboard_organizations.html:23
 #: ckan/templates/user/read.html:22
 msgid "Create one now?"
-msgstr ""
+msgstr "አሁን ይፍጠር?"
 
 #: ckan/templates/user/dashboard_groups.html:20
 msgid "You are not a member of any groups."
-msgstr ""
+msgstr "የማንኛውም ቡድን አባል አይደሉም።"
 
 #: ckan/templates/user/dashboard_organizations.html:21
 msgid "You are not a member of any organizations."
-msgstr ""
+msgstr "የማንኛቸውም ድርጅቶች አባል አይደሉም።"
 
 #: ckan/templates/user/edit.html:6 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/list.html:6 ckan/templates/user/list.html:13
 #: ckan/templates/user/read_base.html:5 ckan/templates/user/read_base.html:8
 #: ckan/templates/user/snippets/user_search.html:2
 msgid "Users"
-msgstr ""
+msgstr "ተጠቃሚዎች"
 
 #: ckan/templates/user/edit.html:17
 msgid "Account Info"
-msgstr ""
+msgstr "የአካውንቶ መረጃ"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
 " Your profile lets other CKAN users know about who you are and what you do. "
-msgstr ""
+msgstr " መገለጫህ(ፕሮፋይልህ) ስለማን እንደሆንክ እና ምን እንደምታደርግ ሌሎች የ CKAN ተጠቃሚዎችን ያሳውቃቸዋል።"
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
-msgstr ""
+msgstr "ዝርዝሮችን ለውጥ"
 
 #: ckan/templates/user/edit_user_form.html:10
 msgid "Full name"
-msgstr ""
+msgstr "ሙሉ ስም"
 
 #: ckan/templates/user/edit_user_form.html:10
 msgid "eg. Joe Bloggs"
-msgstr ""
+msgstr "ምሳሌ: ሙና መሀመድ"
 
 #: ckan/templates/user/edit_user_form.html:12
 msgid "eg. joe@example.com"
-msgstr ""
+msgstr "ምሳሌ: muna@example.com"
 
 #: ckan/templates/user/edit_user_form.html:14
 msgid "A little information about yourself"
-msgstr ""
+msgstr "ስለራስዎ ትንሽ መረጃ"
 
 #: ckan/templates/user/edit_user_form.html:17
 msgid "Subscribe to notification emails"
-msgstr ""
+msgstr "ለማስታወቅያ ኢሜል መዝግብ"
 
 #: ckan/templates/user/edit_user_form.html:26
 msgid "Change password"
-msgstr ""
+msgstr "የይለፍ ቃል ቀይር"
 
 #: ckan/templates/user/edit_user_form.html:29
 msgid "Sysadmin Password"
-msgstr ""
+msgstr "የአስተዳዳሪ ይለፍ ቃል"
 
 #: ckan/templates/user/edit_user_form.html:37
 #: ckan/templates/user/logout_first.html:11
@@ -4520,218 +4589,223 @@ msgstr ""
 #: ckan/templates/user/perform_reset.html:25
 #: ckan/templates/user/snippets/login_form.html:22
 msgid "Password"
-msgstr ""
+msgstr "የይለፍ ቃል "
 
 #: ckan/templates/user/edit_user_form.html:39
 msgid "Confirm Password"
-msgstr ""
+msgstr "የይለፍ ቃሉን አረጋግጥ"
 
 #: ckan/templates/user/edit_user_form.html:45
 msgid "Are you sure you want to delete this User?"
-msgstr ""
+msgstr "ይህን ተጠቃሚ መሰረዝ እንደሚፈልጉ እርግጠኛ ነዎት ?"
 
 #: ckan/templates/user/edit_user_form.html:50
 msgid "Are you sure you want to regenerate the API key?"
-msgstr ""
+msgstr "እርግጠኛ ነዎት የኤፒአይ ቁልፉን እንደገና ማደስ እንደሚፈልጉ እርግጠኛ ነዎት ?"
 
 #: ckan/templates/user/edit_user_form.html:50
 msgid "Regenerate API Key"
-msgstr ""
+msgstr "የኤፒአይ ቁልፍ ዳግም ያድሱ"
 
 #: ckan/templates/user/edit_user_form.html:54
 msgid "Update Profile"
-msgstr ""
+msgstr "ፕሮፋይል አሻሽል"
 
 #: ckan/templates/user/list.html:3
 #: ckan/templates/user/snippets/user_search.html:11
 msgid "All Users"
-msgstr ""
+msgstr "ሁሉም ተጠቃሚዎች"
 
 #: ckan/templates/user/login.html:3 ckan/templates/user/login.html:6
 #: ckan/templates/user/login.html:12
 #: ckan/templates/user/snippets/login_form.html:28
 msgid "Login"
-msgstr ""
+msgstr "ግባ"
 
 #: ckan/templates/user/login.html:25
 msgid "Need an Account?"
-msgstr ""
+msgstr "አካውንት ይፈልጋሉ?"
 
 #: ckan/templates/user/login.html:27
 msgid "Then sign right up, it only takes a minute."
-msgstr ""
+msgstr "እንድዳውስ ባንድ አፍታ ይመዝገቡ።"
 
 #: ckan/templates/user/login.html:30
 msgid "Create an Account"
-msgstr ""
+msgstr "አካውንት ፍጠር"
 
 #: ckan/templates/user/login.html:42
 msgid "Forgotten your password?"
-msgstr ""
+msgstr "የይለፍ ቃልዎን ረስተዋል?"
 
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
-msgstr ""
+msgstr "ምንም ችግር የለም፤ ዳግም ለማስጀመር የይለፍ ቃል መልሶ ማግኛ ቅርጸታችንን ይጠቀሙ።"
 
 #: ckan/templates/user/login.html:47
 msgid "Forgot your password?"
-msgstr ""
+msgstr "የይለፍ ቃልዎን ረስተዋል?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
 msgid "Logged Out"
-msgstr ""
+msgstr "ዘግተው ወጥተዋል"
 
 #: ckan/templates/user/logout.html:11
 msgid "You are now logged out."
-msgstr ""
+msgstr "አሁን ዘግተው ወጥተዋል።"
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr ""
+msgstr "አስቀድመው እንደ {user} ሆነው ገብተዋል።"
 
 #: ckan/templates/user/logout_first.html:9
 msgid "Logout"
-msgstr ""
+msgstr "ውጣ"
 
 #: ckan/templates/user/logout_first.html:12
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr ""
+msgstr "አስታውሰኝ"
 
 #: ckan/templates/user/logout_first.html:20
 msgid "You're already logged in"
-msgstr ""
+msgstr "አስቀድመው ገብተዋል"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You need to log out before you can log in with another account."
-msgstr ""
+msgstr "በሌላ አካውንት መግባት ከመቻልዎ በፊት መውጣት ያስፈልግዎታል።"
 
 #: ckan/templates/user/logout_first.html:23
 msgid "Log out now"
-msgstr ""
+msgstr "አሁን ዘግተው ይውጡ"
 
 #: ckan/templates/user/new.html:6
 msgid "Registration"
-msgstr ""
+msgstr "ምዝገባ"
 
 #: ckan/templates/user/new.html:14
 msgid "Register for an Account"
-msgstr ""
+msgstr "አካውንት ለማግኘት ይመዝገቡ"
 
 #: ckan/templates/user/new.html:26
 msgid "Why Sign Up?"
-msgstr ""
+msgstr "ለምን መመዝገብ አስፈለገ?"
 
 #: ckan/templates/user/new.html:28
 msgid "Create datasets, groups and other exciting things"
 msgstr ""
+"የመረጃ ስብስቦችን፣ ቡድኖችን፣ ድርጅቶችን እና ሌሎች አስደሳች ነገሮችን መፍጠር እንዲሁም ማግኘት ይችላሉ። መረጃዎቹንም "
+"በፈለጉት አቀራረብ ማየትና በፈለጉት ቅርጸት ማውረድ ይችላሉ። ከዛም ባለፈ በጣብያው ላይ ባሉት የእይታና ቅድመ-እይታ "
+"መሳሪያዎች ማገናዘብ፣ ማጥናት... ወዘተ ይችላሉ።"
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
-msgstr ""
+msgstr "ልዩ ስም"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr ""
+msgstr "ሙሉ ስም"
 
 #: ckan/templates/user/new_user_form.html:19
 msgid "Create Account"
-msgstr ""
+msgstr "አካውንት ፍጠር"
 
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:14
 msgid "Reset Your Password"
-msgstr ""
+msgstr "የይለፍ ቃልዎን ዳግም ያጽድቁ"
 
 #: ckan/templates/user/perform_reset.html:7
 msgid "Password Reset"
-msgstr ""
+msgstr "የይለፍ ቃል ዳግም አጽድቅ"
 
 #: ckan/templates/user/perform_reset.html:21
 msgid "You can also change username. It can not be modified later."
-msgstr ""
+msgstr "እንዲሁም ልዩ ስምዎን መቀየር ይችላሉ።  በኋላ መለወጥ አይቻልም።"
 
 #: ckan/templates/user/perform_reset.html:29
 msgid "Update Password"
-msgstr ""
+msgstr "የይለፍ ቃል አሻሻል"
 
 #: ckan/templates/user/perform_reset.html:43
 #: ckan/templates/user/request_reset.html:32
 msgid "How does this work?"
-msgstr ""
+msgstr "ይሄ እንዴት ነው የሚሰራው?"
 
 #: ckan/templates/user/perform_reset.html:45
 msgid "Simply enter a new password and we'll update your account"
-msgstr ""
+msgstr "በቀላሉ አዲስ የይለፍ ቃል ያስገቡና መለያዎን እናሻሽላለን።"
 
 #: ckan/templates/user/read.html:27
 msgid "User hasn't created any datasets."
-msgstr ""
+msgstr "ተጠቃሚ የመረጃ ስብስብ አልፈጠረም።"
 
 #: ckan/templates/user/read_base.html:39
 msgid "You have not provided a biography."
-msgstr ""
+msgstr "ስለራስዎ የገለጹት ነገር የለም።"
 
 #: ckan/templates/user/read_base.html:41
 msgid "This user has no biography."
-msgstr ""
+msgstr "ይህ ተጠቃሚ ስለራሱ የገለጸው ነገር የለም።"
 
 #: ckan/templates/user/read_base.html:73
 msgid "Open ID"
-msgstr ""
+msgstr "ክፍት የመለዮ ቁጥር(ID)"
 
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "This means only you can see this"
-msgstr ""
+msgstr "ይህ ማለት ይሀን ማየት የሚችሉት እርስዎ ብቻ ኖት"
 
 #: ckan/templates/user/read_base.html:87
 msgid "Member Since"
-msgstr ""
+msgstr "አባል የሆኑበት ጊዜ"
 
 #: ckan/templates/user/read_base.html:96
 msgid "API Key"
-msgstr ""
+msgstr "የኤፒአይ ቁልፍ"
 
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:13
 msgid "Reset your password"
-msgstr ""
+msgstr "የይለፍ ቃልዎን ዳግም ያጽድቁ"
 
 #: ckan/templates/user/request_reset.html:6
 msgid "Password reset"
-msgstr ""
+msgstr "የይለፍ ቃል ዳግም አጽደቅ"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "Request reset"
-msgstr ""
+msgstr "ዳግም ለማጽደቅ ጥያቄ"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
 msgstr ""
+"የተጠቃሚ ስምዎን(username) ወደ ሳጥኑ ውስጥ ያስገቡ እና አዲስ የይለፍ ቃል ለማስገባት አገናኝ(link) ያለው "
+"ኢሜይል እንልክልዎታለን።"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:15
 #: ckan/templates/user/snippets/followee_dropdown.html:16
 msgid "Activity from:"
-msgstr ""
+msgstr "እንቅስቃሴ ከ "
 
 #: ckan/templates/user/snippets/followee_dropdown.html:23
 msgid "Search list..."
-msgstr ""
+msgstr "የፍለጋ ዝርዝር..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:44
 msgid "You are not following anything"
-msgstr ""
+msgstr "ምንም ነገር እየተከተሉ አይደለም"
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
-msgstr ""
+msgstr "ምንም ተከታዮች የሉም"
 
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
-msgstr ""
+msgstr "ተጠቃሚዎችን ፈልግ"
 
 #: ckan/views/user.py:588
 msgid "Your password must be 8 characters or longer."
-msgstr ""
+msgstr "የይለፍ ቃልዎ 8 ትዕምርቶች(characters) ወይም ከዚያ በላይ መሆን አለበት"

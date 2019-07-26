@@ -84,13 +84,15 @@ def drill_down_url(alternative_url=None, **by):
 
 
 def remove_field(package_type, key, value=None, replace=None):
+    if not package_type or package_type == u'dataset':
+        url = h.url_for(u'dataset.search')
+    else:
+        url = h.url_for(u'{0}_search'.format(package_type))
     return h.remove_url_param(
         key,
         value=value,
         replace=replace,
-        controller=u'dataset',
-        action=u'search',
-        alternative_url=package_type
+        alternative_url=url
     )
 
 

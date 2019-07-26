@@ -4,6 +4,7 @@ main:
   extra:
     preload:
       - vendor/vendor
+      - vendor/bootstrap
   contents:
     - apply-html-class.js
     - plugins/jquery.inherit.js

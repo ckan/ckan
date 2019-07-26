@@ -13,7 +13,8 @@
 
 [DEFAULT]
 
-# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
+# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PUBLIC ENVIRONMENT*
+# With debug mode enabled, a visitor to your site could execute malicious commands.
 debug = false
 
 [server:main]
