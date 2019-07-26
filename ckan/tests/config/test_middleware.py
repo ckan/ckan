@@ -144,18 +144,15 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         app = app.app
 
         environ = {
-            'PATH_INFO': '/hello',
+            'PATH_INFO': '/',
             'REQUEST_METHOD': 'GET',
         }
         wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around(environ)
 
-        # Even though this route is defined in Flask, there is catch all route
-        # in Pylons for all requests to point arbitrary urls to templates with
-        # the same name, so we get two positive answers
         eq_(answers, [(True, 'flask_app', 'core'),
-                      (True, 'pylons_app', 'core')])
+                      (False, 'pylons_app')])
 
     def test_ask_around_flask_core_route_post(self):
 
@@ -165,7 +162,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         app = app.app
 
         environ = {
-            'PATH_INFO': '/hello',
+            'PATH_INFO': '/group/new',
             'REQUEST_METHOD': 'POST',
         }
         wsgiref.util.setup_testing_defaults(environ)
@@ -330,7 +327,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
 
-        res = app.get('/hello')
+        res = app.get('/')
 
         eq_(res.environ['ckan.app'], 'flask_app')
 
@@ -562,7 +559,7 @@ class MockRoutingPlugin(p.SingletonPlugin):
                      controller=self.controller, action='view')
 
         # This one conflicts with a core Flask route
-        _map.connect('/hello',
+        _map.connect('/about',
                      controller=self.controller, action='view')
 
         _map.connect('/pylons_route_flask_url_for',
