@@ -27,8 +27,8 @@ class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):
 
         cookies = []
         for k, v in super_cookies:
-            replace_with = u'; HttpOnly' if self.httponly else u''
-            v = v.replace(u'; HttpOnly', u'') + replace_with
+            replace_with = '; HttpOnly' if self.httponly else ''
+            v = v.replace('; HttpOnly', '') + replace_with
             cookies.append((k, v))
 
         return cookies
@@ -36,7 +36,7 @@ class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):
 
 def make_plugin(secret=None,
                 secretfile=None,
-                cookie_name=u'auth_tkt',
+                cookie_name='auth_tkt',
                 secure=False,
                 include_ip=False,
                 timeout=None,
