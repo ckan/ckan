@@ -1,0 +1,42 @@
+On {{ h.render_datetime(activity_diff.activities[1].timestamp, with_hours=True, with_seconds=True) }}, {{ h.linked_user(activity_diff.activities[1].user_id) }}:
+
+{% set changes = h.compare_pkg_dicts(activity_diff.activities[0].data.package, activity_diff.activities[1].data.package, activity_diff.activities[0].id) %}
+<ul>
+{% for change in changes %}
+<li>
+  {% for element in change %}
+    {{ element|safe }}
+  {% endfor %}
+</li>
+  <br>
+{% endfor %}
+</ul>
+
+{# button to show JSON metadata diff - not shown by default #}
+<input type="button" onClick="show_metadata()" class="btn" value="Show metadata diff" id="metadata_button"></input>
+<div id="metadata_diff" style="display:none;">
+{% block package_changes_diff %}
+  <pre>
+    {{ activity_diff['diff']|safe }}
+  </pre>
+{% endblock %}
+</div>
+
+<script>
+  function show_metadata() {
+    var div = document.getElementById("metadata_diff");
+    if (div.style.display === "none") {
+      div.style.display = "block";
+    }
+    else {
+      div.style.display = "none";
+    }
+    var btn = document.getElementById("metadata_button");
+    if (btn.value === "Show metadata diff") {
+      btn.value = "Hide metadata diff";
+    }
+    else {
+      btn.value = "Show metadata diff";
+    }
+  }
+</script>

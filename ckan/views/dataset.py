@@ -1103,13 +1103,61 @@ def changes(id, package_type=None):
     # changed, and we need a link to it which works
     pkg_id = activity_diff[u'activities'][1][u'data'][u'package'][u'id']
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
+    pkg_activity_list = get_action(u'package_activity_list')(context, {u'id': pkg_id, u'limit': 100})
 
     return base.render(
         u'package/changes.html', {
-            u'activity_diff': activity_diff,
+            u'activity_diffs': [activity_diff],
             u'pkg_dict': current_pkg_dict,
+            u'pkg_activity_list': pkg_activity_list,
         }
     )
+
+def change_range(package_type=None):
+
+    newest_id = h.get_request_param('newest_id')
+    oldest_id = h.get_request_param('oldest_id')
+
+    context = {
+        u'model': model, u'session': model.Session,
+        u'user': g.user, u'auth_user_obj': g.userobj
+    }
+
+    done = False
+    current_id = newest_id
+    diff_list = []
+
+    while done == False:
+        try:
+            activity_diff = get_action(u'activity_diff')(
+                context, {u'id': current_id, u'object_type': u'package',
+                          u'diff_type': u'html'})
+        except NotFound as e:
+            log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
+            return base.abort(404, _(u'Activity not found'))
+        except NotAuthorized:
+            return base.abort(403, _(u'Unauthorized to view activity data'))
+
+        diff_list.append(activity_diff)
+
+        if activity_diff['activities'][0]['id'] == oldest_id:
+            done = True
+        else:
+            current_id = activity_diff['activities'][0]['id']
+
+    pkg_id = diff_list[0][u'activities'][1][u'data'][u'package'][u'id']
+    current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
+    pkg_activity_list = get_action(u'package_activity_list')(context, {u'id': pkg_id, u'limit': 100})
+
+    return base.render(
+        u'package/changes.html', {
+            u'activity_diffs': diff_list,
+            u'pkg_dict': current_pkg_dict,
+            u'pkg_activity_list': pkg_activity_list,
+        }
+    )
+
+
 
 
 # deprecated
@@ -1141,6 +1189,8 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/activity/<id>', view_func=activity)
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
+
+    blueprint.add_url_rule(u'/change_range', view_func=change_range)
 
     # Duplicate resource create and edit for backward compatibility. Note,
     # we cannot use resource.CreateView directly here, because of
