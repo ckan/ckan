@@ -1,4 +1,4 @@
-On {{ h.render_datetime(activity_diff.activities[1].timestamp, with_hours=True, with_seconds=True) }}, {{ h.linked_user(activity_diff.activities[1].user_id) }}:
+<strong>On {{ h.render_datetime(activity_diff.activities[1].timestamp, with_hours=True, with_seconds=True) }}, {{ h.linked_user(activity_diff.activities[1].user_id) }}:</strong>
 
 {% set changes = h.compare_pkg_dicts(activity_diff.activities[0].data.package, activity_diff.activities[1].data.package, activity_diff.activities[0].id) %}
 <ul>

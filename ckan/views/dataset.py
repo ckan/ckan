@@ -1115,6 +1115,11 @@ def changes(id, package_type=None):
     )
 
 def change_range(package_type=None):
+    '''
+    Called when a user specifies a range of versions they want to look at changes between.
+    Verifies that the range is valid and finds the set of activity diffs for the changes
+    in the given version range, then re-renders changes.html with the list.
+    '''
 
     newest_id = h.get_request_param('newest_id')
     oldest_id = h.get_request_param('oldest_id')
