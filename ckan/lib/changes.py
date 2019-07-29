@@ -1,10 +1,10 @@
+# encoding: utf-8
+
 '''
 Functions used by the helper function compare_pkg_dicts() to analyze
 the differences between two versions of a dataset.
 '''
-
 from helpers import url_for
-
 
 def _extras_to_dict(extras_list):
     '''
@@ -57,20 +57,18 @@ def _check_resource_changes(change_list, original, new, new_pkg,
     for resource in original['resources']:
         original_resource_set.add(resource['id'])
         original_resource_dict[resource['id']] = {
-                    'name': resource['name'],
-                    'url': resource['url'],
-                    'description': resource['description'],
-                    'format': resource['format']
-                }
+            'name': resource['name'],
+            'url': resource['url'],
+            'description': resource['description'],
+            'format': resource['format']}
 
     for resource in new['resources']:
         new_resource_set.add(resource['id'])
         new_resource_dict[resource['id']] = {
-                    'name': resource['name'],
-                    'url': resource['url'],
-                    'description': resource['description'],
-                    'format': resource['format']
-                }
+            'name': resource['name'],
+            'url': resource['url'],
+            'description': resource['description'],
+            'format': resource['format']}
 
     # get the IDs of the resources that have been added between the versions
     new_resources = list(new_resource_set - original_resource_set)
@@ -100,17 +98,17 @@ def _check_resource_changes(change_list, original, new, new_pkg,
 
         if original_metadata['name'] != new_metadata['name']:
             seq2 = ("<a href=\"", url_for(qualified=True,
-                                            controller="resource",
-                                            action="read",
-                                            id=original['id'],
-                                            resource_id=resource_id) +
+                    controller="resource",
+                    action="read",
+                    id=original['id'],
+                    resource_id=resource_id) +
                     "?activity_id=" + old_activity_id, "\">",
                     original_resource_dict[resource_id]['name'], "</a>")
             seq3 = ("<a href=\"", url_for(qualified=True,
-                                            controller="resource",
-                                            action="read",
-                                            id=new['id'],
-                                            resource_id=resource_id),
+                    controller="resource",
+                    action="read",
+                    id=new['id'],
+                    resource_id=resource_id),
                     "\">",
                     new_resource_dict[resource_id]['name'], "</a>")
             change_list.append(["Renamed resource", s.join(seq2),
@@ -122,39 +120,39 @@ def _check_resource_changes(change_list, original, new, new_pkg,
         # if a format was not originally set and the user set one
         if not original_metadata['format'] and new_metadata['format']:
             seq2 = ("<a href=\"", url_for(qualified=True,
-                                            controller="resource",
-                                            action="read",
-                                            id=new['id'],
-                                            resource_id=resource_id),
+                    controller="resource",
+                    action="read",
+                    id=new['id'],
+                    resource_id=resource_id),
                     "\">",
                     new_resource_dict[resource_id]['name'], "</a>")
             seq3 = ("<a href=\"", url_for(qualified=True,
-                                            controller="organization",
-                                            action="read",
-                                            id=new['organization']['id'])
-                    + "?res_format=" + new_metadata['format'], "\">",
+                    controller="organization",
+                    action="read",
+                    id=new['organization']['id']) +
+                    "?res_format=" + new_metadata['format'], "\">",
                     new_metadata['format'], "</a>")
             change_list.append(["Set format of resource", s.join(seq2),
                                 "to", s.join(seq3), "in", new_pkg])
         # if both versions have a format but the format changed
         elif original_metadata['format'] != new_metadata['format']:
             seq2 = ("<a href=\"", url_for(qualified=True,
-                                            controller="resource",
-                                            action="read",
-                                            id=original['id'],
-                                            resource_id=resource_id)
+                    controller="resource",
+                    action="read",
+                    id=original['id'],
+                    resource_id=resource_id)
                     + "?activity_id=" + old_activity_id, "\">",
                     original_resource_dict[resource_id]['name'], "</a>")
             seq3 = ("<a href=\"", url_for(qualified=True,
-                                            controller="organization",
-                                            action="read",
-                                            id=new['organization']['id'])
+                    controller="organization",
+                    action="read",
+                    id=new['organization']['id'])
                     + "?res_format=" + new_metadata['format'], "\">",
                     new_metadata['format'], "</a>")
             seq4 = ("<a href=\"", url_for(qualified=True,
-                                            controller="organization",
-                                            action="read",
-                                            id=original['organization']['id'])
+                    controller="organization",
+                    action="read",
+                    id=original['organization']['id'])
                     + "?res_format=" + original_metadata['format'], "\">",
                     original_metadata['format'], "</a>")
             change_list.append(["Set format of resource",
@@ -164,13 +162,13 @@ def _check_resource_changes(change_list, original, new, new_pkg,
                                 "in", new_pkg])
 
         # if the description changed
-        if not original_metadata['description'] and
+        if not original_metadata['description'] and \
                 new_metadata['description']:
             seq2 = ("<a href=\"", url_for(qualified=True,
-                                            controller="resource",
-                                            action="read",
-                                            id=new['id'],
-                                            resource_id=resource_id), "\">",
+                    controller="resource",
+                    action="read",
+                    id=new['id'],
+                    resource_id=resource_id), "\">",
                     new_resource_dict[resource_id]['name'], "</a>")
             change_list.append(["Updated description of resource",
                                 s.join(seq2), "in",
@@ -179,7 +177,7 @@ def _check_resource_changes(change_list, original, new, new_pkg,
                                 + "</blockquote>"])
 
         # if there was a description but the user removed it
-        elif original_metadata['description'] and
+        elif original_metadata['description'] and \
                 not new_metadata['description']:
             seq2 = ("<a href=\"", url_for(qualified=True,
                                             controller="resource",
@@ -211,7 +209,8 @@ def _check_resource_changes(change_list, original, new, new_pkg,
                                 "</blockquote>"])
 
         # check if the user uploaded a new file
-        # TODO: use regular expressions to determine the actual name of the new and old files
+        # TODO: use regular expressions to determine the actual name of the
+        # new and old files
         if original_metadata['url'] != new_metadata['url']:
             seq2 = ("<a href=\"", url_for(qualified=True,
                                             controller="resource",
@@ -226,9 +225,10 @@ def _check_resource_changes(change_list, original, new, new_pkg,
 
 def _check_metadata_changes(change_list, original, new, new_pkg):
     '''
-    Checks whether a dataset's metadata fields (fields in its package dictionary
-    not including resources) have changed between two consecutive versions and
-    puts a list of formatted summaries of these changes in change_list.
+    Checks whether a dataset's metadata fields (fields in its package
+    dictionary not including resources) have changed between two consecutive
+    versions and puts a list of formatted summaries of these changes in
+    change_list.
     '''
     # if the title has changed
     if original['title'] != new['title']:

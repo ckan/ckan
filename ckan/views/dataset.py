@@ -1105,7 +1105,7 @@ def changes(id, package_type=None):
     pkg_id = activity_diff[u'activities'][1][u'data'][u'package'][u'id']
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
     pkg_activity_list = get_action(u'package_activity_list')(context,
-                            {u'id': pkg_id, u'limit': 100})
+                                    {u'id': pkg_id, u'limit': 100})
 
     return base.render(
         u'package/changes.html', {
@@ -1135,13 +1135,11 @@ def change_range(package_type=None):
     # check to ensure that the old activity is actually older than
     # the new activity
     old_activity = get_action(u'activity_show')(context, {
-                    u'id': oldest_id,
-                    u'include_data': False
-            })
+        u'id': oldest_id,
+        u'include_data': False})
     new_activity = get_action('activity_show')(context, {
-                    u'id': newest_id,
-                    u'include_data': False
-            })
+        u'id': newest_id,
+        u'include_data': False})
 
     old_timestamp = old_activity['timestamp']
     new_timestamp = new_activity['timestamp']
@@ -1166,7 +1164,7 @@ def change_range(package_type=None):
         try:
             activity_diff = get_action(u'activity_diff')(
                 context, {u'id': current_id, u'object_type': u'package',
-                          u'diff_type': u'html'})
+                u'diff_type': u'html'})
         except NotFound as e:
             log.info(u'Activity not found: {} - {}'.format(str(e),
                                                             current_id))
@@ -1185,8 +1183,7 @@ def change_range(package_type=None):
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
     pkg_activity_list = get_action(u'package_activity_list')(context, {
                         u'id': pkg_id,
-                        u'limit': 100
-                })
+                        u'limit': 100})
 
     return base.render(
         u'package/changes.html', {
@@ -1195,6 +1192,7 @@ def change_range(package_type=None):
             u'pkg_activity_list': pkg_activity_list,
         }
     )
+
 
 # deprecated
 def history(package_type, id):
