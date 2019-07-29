@@ -17,29 +17,10 @@
   {% endblock %}
 
   {% block package_metadata_fields_maintainer %}
-    <!-- a.s. required field -->
-    {{ form.input('maintainer', label=_('Maintainer'), id='field-maintainer', placeholder=_('Joe Bloggs'), value=data.maintainer, error=errors.maintainer, classes=['control-medium'], is_required=true) }}
+    {{ form.input('maintainer', label=_('Maintainer'), id='field-maintainer', placeholder=_('Joe Bloggs'), value=data.maintainer, error=errors.maintainer, classes=['control-medium']) }}
 
-    <!-- a.s. required field -->
-    {{ form.input('maintainer_email', label=_('Maintainer Email'), id='field-maintainer-email', placeholder=_('joe@example.com'), value=data.maintainer_email, error=errors.maintainer_email, classes=['control-medium'], is_required=true) }}
+    {{ form.input('maintainer_email', label=_('Maintainer Email'), id='field-maintainer-email', placeholder=_('joe@example.com'), value=data.maintainer_email, error=errors.maintainer_email, classes=['control-medium']) }}
   {% endblock %}
-
-  {% block package_metadata_fields_oce_extra %}
-    <!-- a.s. new fields -->
-    {{ form.input('associated_tasks', label=_('Associated Tasks'), id='field-associated-tasks', placeholder=_(''), value=data.associated_tasks, error=errors.associated_tasks, classes=['control-medium'], is_required=false) }}
-
-    {{ form.input('collection_period', label=_('Collection Period'), id='field-collection-period', placeholder=_(''), value=data.collection_period, error=errors.collection_period, classes=['control-medium'], is_required=false) }}
-
-    {{ form.input('geographical_area', label=_('Geographical Area'), id='field-geographical-area', placeholder=_(''), value=data.geographical_area, error=errors.geographical_area, classes=['control-medium'], is_required=false) }}
-
-    {{ form.input('number_of_instances', label=_('Number of Instances'), id='field-number-of-instances', placeholder=_(''), value=data.number_of_instances, error=errors.number_of_instances, classes=['control-medium'], is_required=true) }}
-
-    {{ form.input('number_of_missing_values', label=_('Number of Missing Values'), id='field-number-of-missing-values', placeholder=_(''), value=data.number_of_missing_values, error=errors.number_of_missing_values, classes=['control-medium'], is_required=false) }}
-
-    {{ form.input('pkg_description', label=_('Package Description'), id='field-pkg-description', placeholder=_(''), value=data.pkg_description, error=errors.pkg_description, classes=['control-medium'], is_required=true) }}
-    <!-- a.s. -->
-  {% endblock %}
-
 
   {% block package_metadata_fields_custom %}
     {% block custom_fields %}

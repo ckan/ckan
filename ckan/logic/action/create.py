@@ -7,13 +7,10 @@ import random
 import re
 from socket import error as socket_error
 import string
-import os
 
 import paste.deploy.converters
 from sqlalchemy import func
-from six import text_type
 
-import ckan.lib.helpers as h
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.plugins as plugins
@@ -29,9 +26,6 @@ import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
 
 from ckan.common import _, config
-
-import ckan.lib.jobs as jobs
-
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -77,20 +71,6 @@ def package_create(context, data_dict):
     :param maintainer_email: the email address of the dataset's maintainer
         (optional)
     :type maintainer_email: string
-    # a.s. new fields
-    :param associated_tasks:
-    :type associated_tasks: string
-    :param collection_period:
-    :type collection_period: string
-    :param geographical_area:
-    :type geographical_area: string
-    :param number_of_instances:
-    :type number_of_instances: string
-    :param number_of_missing_values:
-    :type number_of_missing_values: string
-    :param pkg_description:
-    :type pkg_description: string
-    # a.s.
     :param license_id: the id of the dataset's license, see
         :py:func:`~ckan.logic.action.get.license_list` for available values
         (optional)
@@ -152,10 +132,6 @@ def package_create(context, data_dict):
     '''
     model = context['model']
     user = context['user']
-
-    # a.s.
-    recipient = {}
-    email_dict = {}
 
     if 'type' not in data_dict:
         package_plugin = lib_plugins.lookup_package_plugin()
@@ -253,40 +229,9 @@ def package_create(context, data_dict):
     if return_id_only:
         return pkg.id
 
-    # a.s. send a msg to OCE distribution group
-    email_dict['subject'] = 'AVIN Dataset has been added'
-    email_dict['body'] = 'New Dataset has been created: ' + '\n\n' + \
-        '--------------------------------' + '\n' + \
-        u'Package Name: ' + pkg.name + '\n' + \
-        u'Package Title: ' + pkg.title + '\n' + \
-        u'Package Author: ' + pkg.author + '\n' + \
-        u'Package Maintainer: ' + pkg.maintainer + '\n' + \
-        u'Package Notes: ' + pkg.notes + '\n' + \
-        '--------------------------------' + '\n'
-    recipient['display_name'] = os.environ['oce_email_distribution_group']
-    recipient['email'] = os.environ['oce_email_distribution_group']
-
-    # if _mail_recipient(recipient, email_dict):
-    #     log.info(
-    #         'create.py.package_create: a.s. - email to OCE distribution group sent')
-
-    jobs.enqueue(_mail_recipient, [recipient, email_dict])
-
-    # send email
-    test_email = {'recipient_name': recipient['display_name'],
-                  'recipient_email': recipient['email'],
-                  'subject': email_dict['subject'],
-                  'body': email_dict['body'],
-                  'headers': {'header1': 'value1'}}
-
-    # mailer.mail_recipient(**test_email)
-
-    log.info(
-        'create.py.package_create: a.s. - email to OCE distribution group sent')
-
     return _get_action('package_show')(
-        context.copy(), {'id': pkg.id}
-    )
+                context.copy(), {'id': pkg.id}
+            )
 
 
 def resource_create(context, data_dict):
@@ -332,12 +277,6 @@ def resource_create(context, data_dict):
     '''
     model = context['model']
     user = context['user']
-
-    # a.s.
-    recipient = {}
-    email_dict = {}
-    email_context = {}
-    email_resource = {}
 
     package_id = _get_or_bust(data_dict, 'package_id')
     if not data_dict.get('url'):
@@ -402,44 +341,6 @@ def resource_create(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_create(context, resource)
 
-    # a.s. send a msg to OCE distribution group
-    email_context = context['package']
-    email_resource = email_context.resources[-1]
-    email_dict['subject'] = u'AVIN Resource has been added'
-    email_dict['body'] = u'New Resource has been created: ' + '\n\n' + \
-        '--------------------------------' + '\n' + \
-        u'Package Name: ' + email_context.name + '\n' + \
-        u'Package Title: ' + email_context.title + '\n' + \
-        u'Package Author: ' + email_context.author + '\n' + \
-        u'Package Maintainer: ' + email_context.maintainer + '\n' + \
-        u'Package Notes: ' + email_context.notes + '\n' + \
-        '--------------------------------' + '\n' + \
-        u'Resource Name: ' + email_resource.name + '\n' + \
-        u'Resource URL: ' + email_resource.url + '\n' + \
-        u'Resource Description: ' + email_resource.description + '\n' + \
-        '--------------------------------' + '\n'
-    recipient['display_name'] = os.environ['oce_email_distribution_group']
-    recipient['email'] = os.environ['oce_email_distribution_group']
-
-    # a.s. disable to test a delay
-    # if _mail_recipient(recipient, email_dict):
-    #     log.info(
-    #         'create.py.resource_create: a.s. - email to OCE distribution group sent')
-
-    # send email
-    test_email = {'recipient_name': recipient['display_name'],
-                  'recipient_email': recipient['email'],
-                  'subject': email_dict['subject'],
-                  'body': email_dict['body'],
-                  'headers': {'header1': 'value1'}}
-
-    jobs.enqueue(_mail_recipient, [recipient, email_dict])
-
-    # mailer.mail_recipient(**test_email)
-
-    log.info(
-        'create.py.resource_create: a.s. - email to OCE distribution group sent')
-
     return resource
 
 
@@ -491,7 +392,7 @@ def resource_view_create(context, data_dict):
 
     max_order = model.Session.query(
         func.max(model.ResourceView.order)
-    ).filter_by(resource_id=resource_id).first()
+        ).filter_by(resource_id=resource_id).first()
 
     order = 0
     if max_order[0] is not None:
@@ -1017,90 +918,8 @@ def rating_create(context, data_dict):
     return ret_dict
 
 
-def _mail_recipient(recipient=None, email_dict=None):
-    try:
-        # send email
-        email = {'recipient_name': recipient['display_name'],
-                 'recipient_email': recipient['email'],
-                 'subject': email_dict['subject'],
-                 'body': email_dict['body'],
-                 #  'headers': {'header1': 'value1'}
-                 }
-        mailer.mail_recipient(**email)
-
-    except mailer.MailerException as e:
-        h.flash_error(_('Could not send an email: %s') %
-                      text_type(e))
-        raise
-    return
-
-
-# a.s.
-def reqaccess_create(context, data_dict):
-    ''' Create a new access request.
-
-    :param id: the id of the new requestor (optional, not recommended, auto-generate)
-    :type id: string
-    :param user_ip_address: the ip address of the requestor
-    :type user_ip_address: string
-    :param maintainer_name: the maintainer's name
-    :type maintainer_name: string
-    :param maintainer_email: the email address for the maintainer
-    :type maintainer_email: string
-    :param user_msg: a message to the maintainer from the requestor (optional)
-    :type user_msg: string
-
-    :returns: the newly created request access
-    :rtype: dictionary
-
-    # a.s. end of the section
-
-    '''
-
-    model = context['model']
-    # schema = context.get('schema') or ckan.logic.schema.default_reqaccess_schema()
-    schema = ckan.logic.schema.default_reqaccess_schema()
-    session = context['session']
-
-    data, errors = _validate(data_dict, schema, context)
-
-    if errors:
-        for er in errors:
-            log.info(
-                'Validation errors in create.py a.s. - {er}'.format(er=er))
-
-        session.rollback()
-        raise ValidationError(errors)
-
-    model_save.reqaccess_dict_save(data, context)
-
-    if not context.get('defer_commit'):
-        model.repo.commit()
-        log.info('create.py: a.s. - access request committed to the db')
-
-    # a.s.
-    recipient = {}
-    email_dict = {}
-
-    recipient['display_name'] = data_dict['maintainer_name']
-    recipient['email'] = data_dict['maintainer_email']
-
-    email_dict['subject'] = data_dict['subject']
-    email_dict['body'] = u'Requestor\'s Email: ' + \
-        data_dict['user_email'] + '\n' + \
-        u'Resource Name: ' + \
-        data_dict['resource_name'] + \
-        '\n\nMessage:\n' + data_dict['user_msg']
-
-    # a.s. send a msg to data maintainer
-    if _mail_recipient(recipient, email_dict):
-        log.info('create.py: a.s. - email to a maintainer sent')
-
-    return data_dict
-
-
 def user_create(context, data_dict):
-    ''' Create a new user.
+    '''Create a new user.
 
     You must be authorized to create users.
 

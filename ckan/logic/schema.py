@@ -118,22 +118,8 @@ def default_create_package_schema(
         'title': [if_empty_same_as("name"), unicode_safe],
         'author': [ignore_missing, unicode_safe],
         'author_email': [ignore_missing, unicode_safe, email_validator],
-
-        # a.s. validate maintainer fields aren't empty
-        # 'maintainer': [ignore_missing, unicode_safe],
-        # 'maintainer_email': [ignore_missing, unicode_safe, email_validator],
-        'maintainer': [not_empty, unicode_safe],
-        'maintainer_email': [not_empty, unicode_safe, email_validator],
-
-        # a.s. additional fields Jun 7, 2019
-        'associated_tasks': [ignore_missing, unicode_safe],
-        'collection_period': [ignore_missing, unicode_safe],
-        'geographical_area': [ignore_missing, unicode_safe],
-        'number_of_instances': [not_empty, unicode_safe],
-        'number_of_missing_values': [ignore_missing, unicode_safe],
-        'pkg_description': [not_empty, unicode_safe],
-        # a.s.
-
+        'maintainer': [ignore_missing, unicode_safe],
+        'maintainer_email': [ignore_missing, unicode_safe, email_validator],
         'license_id': [ignore_missing, unicode_safe],
         'notes': [ignore_missing, unicode_safe],
         'url': [ignore_missing, unicode_safe],
@@ -401,32 +387,6 @@ def default_update_relationship_schema(
     schema['type'] = [ignore_missing]
 
     return schema
-
-# a.s.
-# reqaccess schema
-@validator_args
-def default_reqaccess_schema(
-        ignore_missing, unicode_safe, name_validator,
-        not_empty, email_validator,
-        ignore):
-    return {
-        'id': [ignore_missing, unicode_safe],
-        'user_ip_address': [ignore_missing, unicode_safe],
-        'user_email': [not_empty, unicode_safe, email_validator],
-        'user_msg': [ignore_missing, unicode_safe],
-        'maintainer_name': [not_empty, unicode_safe],
-        'maintainer_email': [not_empty, unicode_safe, email_validator],
-        'created': [ignore],
-    }
-
-
-@validator_args
-def reqaccess_new_form_schema(
-        unicode_safe):
-    schema = default_user_schema()
-
-    return schema
-# a.s. end of section
 
 
 @validator_args

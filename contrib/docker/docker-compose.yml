@@ -28,6 +28,7 @@ services:
 
 
   ckan-bg:
+#    command: tail -f /dev/null
     container_name: ckan-bg
     build:
       context: ../../
