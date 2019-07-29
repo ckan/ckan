@@ -45,12 +45,6 @@ def _get_package_new_page(app):
 
 
 class TestExampleIUploaderPlugin(helpers.FunctionalTestBase):
-    def __init__(self):
-        super(TestExampleIUploaderPlugin, self).__init__()
-        self.fs = None
-        self.fake_open = None
-        self.fake_os = None
-
     @classmethod
     def setup_class(cls):
         super(TestExampleIUploaderPlugin, cls).setup_class()
@@ -65,10 +59,15 @@ class TestExampleIUploaderPlugin(helpers.FunctionalTestBase):
     def _apply_config_changes(cls, cfg):
         cfg['ckan.storage_path'] = '/doesnt_exist'
 
+        # webassets needs somewhere on disk to cache assets, however it is
+        # really hard to patch it to use the fake disk, so we simply let it
+        # write files to the real disk. Therefore /tmp must exist.
+        cfg['ckan.webassets.path'] = '/tmp/webassets'
+
     def setup(self):
-        # Set up a fake filesystem for the uploads to be stored
         super(TestExampleIUploaderPlugin, self).setup()
 
+    # Uses a fake filesystem for the uploads to be stored.
     # Set up a mock open which tries the real filesystem first then falls
     # back to the mock filesystem.
     # Would be nicer if we could mock open on a specific module, but because

@@ -106,10 +106,17 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
             return 'This was served from Flask'
 
         # This endpoint is defined both in Flask and in Pylons core
-        flask_app.add_url_rule('/flask_core', view_func=test_view)
+        flask_app.add_url_rule(
+            '/flask_core',
+            view_func=test_view,
+            endpoint='flask_core.index')
 
         # This endpoint is defined both in Flask and a Pylons extension
-        flask_app.add_url_rule('/pylons_and_flask', view_func=test_view)
+        flask_app.add_url_rule(
+            '/pylons_and_flask',
+            view_func=test_view,
+            endpoint='pylons_and_flask.index'
+        )
 
     def test_ask_around_is_called(self):
 
