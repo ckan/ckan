@@ -2737,15 +2737,15 @@ def activity_list_select(pkg_activity_list, current_activity_id):
                                 with_seconds=True)
         if activity['id'] == current_activity_id:
             select_list.append("<option value=\"" +
-                activity['id'] +
-                "\" selected>" +
-                entry +
-                "</option>")
+                                activity['id'] +
+                                "\" selected>" +
+                                entry +
+                                "</option>")
         else:
             select_list.append("<option value=\"" +
-                activity['id'] +
-                "\">" +
-                entry +
-                "</option>")
+                                activity['id'] +
+                                "\">" +
+                                entry +
+                                "</option>")
 
     return select_list

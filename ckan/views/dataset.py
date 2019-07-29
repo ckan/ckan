@@ -1105,7 +1105,7 @@ def changes(id, package_type=None):
     pkg_id = activity_diff[u'activities'][1][u'data'][u'package'][u'id']
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
     pkg_activity_list = get_action(u'package_activity_list')(context,
-                                    {u'id': pkg_id, u'limit': 100})
+                                        {u'id': pkg_id, u'limit': 100})
 
     return base.render(
         u'package/changes.html', {
@@ -1124,8 +1124,8 @@ def change_range(package_type=None):
     re-renders changes.html with the list.
     '''
 
-    newest_id = h.get_request_param('newest_id')
-    oldest_id = h.get_request_param('oldest_id')
+    newest_id = h.get_request_param(u'newest_id')
+    oldest_id = h.get_request_param(u'oldest_id')
 
     context = {
         u'model': model, u'session': model.Session,
@@ -1137,15 +1137,15 @@ def change_range(package_type=None):
     old_activity = get_action(u'activity_show')(context, {
         u'id': oldest_id,
         u'include_data': False})
-    new_activity = get_action('activity_show')(context, {
+    new_activity = get_action(u'activity_show')(context, {
         u'id': newest_id,
         u'include_data': False})
 
-    old_timestamp = old_activity['timestamp']
-    new_timestamp = new_activity['timestamp']
+    old_timestamp = old_activity[u'timestamp']
+    new_timestamp = new_activity[u'timestamp']
 
-    t1 = datetime.strptime(old_timestamp, '%Y-%m-%dT%H:%M:%S.%f')
-    t2 = datetime.strptime(new_timestamp, '%Y-%m-%dT%H:%M:%S.%f')
+    t1 = datetime.strptime(old_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
+    t2 = datetime.strptime(new_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
 
     time_diff = t2 - t1
     # if the time difference is negative, just return the change that put us
@@ -1154,7 +1154,7 @@ def change_range(package_type=None):
     # display a warning that the user can't look at a sequence where
     # the newest item is older than the oldest one, etc
     if time_diff.total_seconds() < 0:
-        return changes(h.get_request_param('current_new_id'))
+        return changes(h.get_request_param(u'current_new_id'))
 
     done = False
     current_id = newest_id
@@ -1164,10 +1164,10 @@ def change_range(package_type=None):
         try:
             activity_diff = get_action(u'activity_diff')(
                 context, {u'id': current_id, u'object_type': u'package',
-                u'diff_type': u'html'})
+                            u'diff_type': u'html'})
         except NotFound as e:
             log.info(u'Activity not found: {} - {}'.format(str(e),
-                                                            current_id))
+                        current_id))
             return base.abort(404, _(u'Activity not found'))
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to view activity data'))
@@ -1182,8 +1182,8 @@ def change_range(package_type=None):
     pkg_id = diff_list[0][u'activities'][1][u'data'][u'package'][u'id']
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
     pkg_activity_list = get_action(u'package_activity_list')(context, {
-                        u'id': pkg_id,
-                        u'limit': 100})
+                    u'id': pkg_id,
+                    u'limit': 100})
 
     return base.render(
         u'package/changes.html', {

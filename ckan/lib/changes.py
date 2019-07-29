@@ -6,6 +6,7 @@ the differences between two versions of a dataset.
 '''
 from helpers import url_for
 
+
 def _extras_to_dict(extras_list):
     '''
     Takes a list of dictionaries with the following format:
@@ -52,42 +53,42 @@ def _check_resource_changes(change_list, original, new, new_pkg,
     original_resource_dict = {}
     new_resource_set = set()
     new_resource_dict = {}
-    s = ""
+    s = u""
 
     for resource in original['resources']:
         original_resource_set.add(resource['id'])
         original_resource_dict[resource['id']] = {
-            'name': resource['name'],
-            'url': resource['url'],
-            'description': resource['description'],
-            'format': resource['format']}
+            u'name': resource['name'],
+            u'url': resource['url'],
+            u'description': resource['description'],
+            u'format': resource['format']}
 
     for resource in new['resources']:
         new_resource_set.add(resource['id'])
         new_resource_dict[resource['id']] = {
-            'name': resource['name'],
-            'url': resource['url'],
-            'description': resource['description'],
-            'format': resource['format']}
+            u'name': resource['name'],
+            u'url': resource['url'],
+            u'description': resource['description'],
+            u'format': resource['format']}
 
     # get the IDs of the resources that have been added between the versions
     new_resources = list(new_resource_set - original_resource_set)
     for resource_id in new_resources:
-        seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
-                action="read", id=new['id'], resource_id=resource_id), "\">",
-                new_resource_dict[resource_id]['name'], "</a>")
+        seq2 = (u"<a href=\"", url_for(qualified=True, controller=u"resource",
+                action=u"read", id=new['id'], resource_id=resource_id), u"\">",
+                new_resource_dict[resource_id]['name'], u"</a>")
         change_list.append(["Added resource",
-                            s.join(seq2), "to",
+                            s.join(seq2), u"to",
                             new_pkg])
 
     # get the IDs of resources that have been deleted between versions
     deleted_resources = list(original_resource_set - new_resource_set)
     for resource_id in deleted_resources:
-        seq2 = ("<a href=\"", url_for(qualified=True, controller="resource",
-                action="read", id=original['id'], resource_id=resource_id) +
-                "?activity_id=" + old_activity_id, "\">",
-                original_resource_dict[resource_id]['name'], "</a>")
-        change_list.append(["Deleted resource", s.join(seq2), "from", new_pkg])
+        seq2 = (u"<a href=\"", url_for(qualified=True, controller=u"resource",
+                action=u"read", id=original['id'], resource_id=resource_id) +
+                u"?activity_id=" + old_activity_id, u"\">",
+                original_resource_dict[resource_id]['name'], u"</a>")
+        change_list.append(["Deleted resource", s.join(seq2), u"from", new_pkg])
 
     # now check the resources that are in both and see if any
     # have been changed
@@ -97,130 +98,130 @@ def _check_resource_changes(change_list, original, new, new_pkg,
         new_metadata = new_resource_dict[resource_id]
 
         if original_metadata['name'] != new_metadata['name']:
-            seq2 = ("<a href=\"", url_for(qualified=True,
-                    controller="resource",
-                    action="read",
+            seq2 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"resource",
+                    action=u"read",
                     id=original['id'],
                     resource_id=resource_id) +
-                    "?activity_id=" + old_activity_id, "\">",
-                    original_resource_dict[resource_id]['name'], "</a>")
-            seq3 = ("<a href=\"", url_for(qualified=True,
-                    controller="resource",
-                    action="read",
+                    u"?activity_id=" + old_activity_id, u"\">",
+                    original_resource_dict[resource_id]['name'], u"</a>")
+            seq3 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"resource",
+                    action=u"read",
                     id=new['id'],
                     resource_id=resource_id),
-                    "\">",
-                    new_resource_dict[resource_id]['name'], "</a>")
+                    u"\">",
+                    new_resource_dict[resource_id]['name'], u"</a>")
             change_list.append(["Renamed resource", s.join(seq2),
-                                "to", s.join(seq3), "in", new_pkg])
+                                u"to", s.join(seq3), u"in", new_pkg])
 
         # you can't remove a format, but if a resource's format isn't
         # recognized, it won't have one set
 
         # if a format was not originally set and the user set one
         if not original_metadata['format'] and new_metadata['format']:
-            seq2 = ("<a href=\"", url_for(qualified=True,
-                    controller="resource",
-                    action="read",
+            seq2 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"resource",
+                    action=u"read",
                     id=new['id'],
                     resource_id=resource_id),
-                    "\">",
-                    new_resource_dict[resource_id]['name'], "</a>")
-            seq3 = ("<a href=\"", url_for(qualified=True,
-                    controller="organization",
-                    action="read",
+                    u"\">",
+                    new_resource_dict[resource_id]['name'], u"</a>")
+            seq3 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"organization",
+                    action=u"read",
                     id=new['organization']['id']) +
-                    "?res_format=" + new_metadata['format'], "\">",
-                    new_metadata['format'], "</a>")
-            change_list.append(["Set format of resource", s.join(seq2),
-                                "to", s.join(seq3), "in", new_pkg])
+                    u"?res_format=" + new_metadata['format'], u"\">",
+                    new_metadata['format'], u"</a>")
+            change_list.append([u"Set format of resource", s.join(seq2),
+                                u"to", s.join(seq3), u"in", new_pkg])
         # if both versions have a format but the format changed
         elif original_metadata['format'] != new_metadata['format']:
-            seq2 = ("<a href=\"", url_for(qualified=True,
-                    controller="resource",
-                    action="read",
+            seq2 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"resource",
+                    action=u"read",
                     id=original['id'],
                     resource_id=resource_id)
-                    + "?activity_id=" + old_activity_id, "\">",
-                    original_resource_dict[resource_id]['name'], "</a>")
-            seq3 = ("<a href=\"", url_for(qualified=True,
-                    controller="organization",
-                    action="read",
+                    + u"?activity_id=" + old_activity_id, u"\">",
+                    original_resource_dict[resource_id]['name'], u"</a>")
+            seq3 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"organization",
+                    action=u"read",
                     id=new['organization']['id'])
-                    + "?res_format=" + new_metadata['format'], "\">",
-                    new_metadata['format'], "</a>")
-            seq4 = ("<a href=\"", url_for(qualified=True,
-                    controller="organization",
-                    action="read",
+                    + u"?res_format=" + new_metadata['format'], u"\">",
+                    new_metadata['format'], u"</a>")
+            seq4 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"organization",
+                    action=u"read",
                     id=original['organization']['id'])
-                    + "?res_format=" + original_metadata['format'], "\">",
-                    original_metadata['format'], "</a>")
-            change_list.append(["Set format of resource",
+                    + u"?res_format=" + original_metadata['format'], u"\">",
+                    original_metadata['format'], u"</a>")
+            change_list.append([u"Set format of resource",
                                 s.join(seq2),
-                                "to", s.join(seq3),
-                                "(previously", s.join(seq4) + ")",
-                                "in", new_pkg])
+                                u"to", s.join(seq3),
+                                u"(previously", s.join(seq4) + u")",
+                                u"in", new_pkg])
 
         # if the description changed
         if not original_metadata['description'] and \
                 new_metadata['description']:
-            seq2 = ("<a href=\"", url_for(qualified=True,
-                    controller="resource",
-                    action="read",
+            seq2 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"resource",
+                    action=u"read",
                     id=new['id'],
-                    resource_id=resource_id), "\">",
-                    new_resource_dict[resource_id]['name'], "</a>")
-            change_list.append(["Updated description of resource",
-                                s.join(seq2), "in",
-                                new_pkg, "to <br style=\"line-height:2;\">",
-                                "<blockquote>" + new_metadata['description']
-                                + "</blockquote>"])
+                    resource_id=resource_id), u"\">",
+                    new_resource_dict[resource_id]['name'], u"</a>")
+            change_list.append([u"Updated description of resource",
+                                s.join(seq2), u"in",
+                                new_pkg, u"to <br style=\"line-height:2;\">",
+                                u"<blockquote>" + new_metadata['description']
+                                + u"</blockquote>"])
 
         # if there was a description but the user removed it
         elif original_metadata['description'] and \
                 not new_metadata['description']:
-            seq2 = ("<a href=\"", url_for(qualified=True,
-                                            controller="resource",
-                                            action="read",
-                                            id=new['id'],
-                                            resource_id=resource_id), "\">",
-                    new_resource_dict[resource_id]['name'], "</a>")
-            change_list.append(["Removed description from resource",
-                                s.join(seq2), "in", new_pkg])
+            seq2 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"resource",
+                    action=u"read",
+                    id=new['id'],
+                    resource_id=resource_id), u"\">",
+                    new_resource_dict[resource_id]['name'], u"</a>")
+            change_list.append([u"Removed description from resource",
+                                s.join(seq2), u"in", new_pkg])
 
         # if both have descriptions but they are different
         elif original_metadata['description'] != new_metadata['description']:
-            seq2 = ("<a href=\"", url_for(qualified=True,
-                                            controller="resource",
-                                            action="read",
-                                            id=new['id'],
-                                            resource_id=resource_id), "\">",
-                    new_resource_dict[resource_id]['name'], "</a>")
-            change_list.append(["Updated description of resource",
-                                s.join(seq2), "in",
+            seq2 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"resource",
+                    action=u"read",
+                    id=new['id'],
+                    resource_id=resource_id), u"\">",
+                    new_resource_dict[resource_id]['name'], u"</a>")
+            change_list.append([u"Updated description of resource",
+                                s.join(seq2), u"in",
                                 new_pkg,
-                                "from <br style=\"line-height:2;\">",
-                                "<blockquote>" +
+                                u"from <br style=\"line-height:2;\">",
+                                u"<blockquote>" +
                                 original_metadata['description'] +
-                                "</blockquote>",
-                                "to <br style=\"line-height:2;\">",
-                                "<blockquote>" +
+                                u"</blockquote>",
+                                u"to <br style=\"line-height:2;\">",
+                                u"<blockquote>" +
                                 new_metadata['description'] +
-                                "</blockquote>"])
+                                u"</blockquote>"])
 
         # check if the user uploaded a new file
         # TODO: use regular expressions to determine the actual name of the
         # new and old files
         if original_metadata['url'] != new_metadata['url']:
-            seq2 = ("<a href=\"", url_for(qualified=True,
-                                            controller="resource",
-                                            action="read",
-                                            id=new['id'],
-                                            resource_id=resource_id),
-                                            "\">",
-                    new_resource_dict[resource_id]['name'], "</a>")
-            change_list.append(["Uploaded a new file to resource",
-                                s.join(seq2), "in", new_pkg])
+            seq2 = (u"<a href=\"", url_for(qualified=True,
+                    controller=u"resource",
+                    action=u"read",
+                    id=new['id'],
+                    resource_id=resource_id),
+                    u"\">",
+                    new_resource_dict[resource_id]['name'], u"</a>")
+            change_list.append([u"Uploaded a new file to resource",
+                                s.join(seq2), u"in", new_pkg])
 
 
 def _check_metadata_changes(change_list, original, new, new_pkg):
@@ -256,8 +257,8 @@ def _check_metadata_changes(change_list, original, new, new_pkg):
 
     # if the visibility of the dataset changed
     if original['private'] != new['private']:
-        change_list.append(["Set visibility of", new_pkg, "to",
-                            "Private" if new['private'] else "Public"])
+        change_list.append([u"Set visibility of", new_pkg, u"to",
+                            u"Private" if new['private'] else u"Public"])
 
     # if the description of the dataset changed
     if original['notes'] != new['notes']:
@@ -295,17 +296,18 @@ def _check_metadata_changes(change_list, original, new, new_pkg):
     _extension_fields(change_list, original, new, new_pkg)
     _extra_fields(change_list, original, new, new_pkg)
 
+
 def _title_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's title between two versions
     (original and new) to change_list.
     '''
-    s = ""
-    seq2 = ("<a href=\"", url_for(qualified=True, controller="dataset",
-                                    action="read", id=new['name']), "\">",
-                                    new['title'], "</a>")
-    change_list.append(["Changed title to", s.join(seq2),
-                        "(previously", original['title'] + ")"])
+    s = u""
+    seq2 = (u"<a href=\"", url_for(qualified=True, controller=u"dataset",
+            action=u"read", id=new['name']), u"\">",
+            new['title'], u"</a>")
+    change_list.append([u"Changed title to", s.join(seq2),
+                        u"(previously", original['title'] + u")"])
 
 
 def _org_change(change_list, original, new, new_pkg):
@@ -313,23 +315,23 @@ def _org_change(change_list, original, new, new_pkg):
     Appends a summary of a change to a dataset's organization between
     two versions (original and new) to change_list.
     '''
-    s = ""
-    seq2 = ("<a href=\"", url_for(qualified=True,
-                                    controller="organization",
-                                    action="read",
-                                    id=original['organization']['id']),
-            "\">",
-            original['organization']['title'], "</a>")
-    seq3 = ("<a href=\"", url_for(qualified=True,
-                                    controller="organization",
-                                    action="read",
-                                    id=new['organization']['id']),
-            "\">",
-            new['organization']['title'], "</a>")
-    change_list.append(["Moved", new_pkg,
-                        "from organization",
+    s = u""
+    seq2 = (u"<a href=\"", url_for(qualified=True,
+            controller=u"organization",
+            action=u"read",
+            id=original['organization']['id']),
+            u"\">",
+            original['organization']['title'], u"</a>")
+    seq3 = (u"<a href=\"", url_for(qualified=True,
+            controller=u"organization",
+            action=u"read",
+            id=new['organization']['id']),
+            u"\">",
+            new['organization']['title'], u"</a>")
+    change_list.append([u"Moved", new_pkg,
+                        u"from organization",
                         s.join(seq2),
-                        "to organization",
+                        u"to organization",
                         s.join(seq3)])
 
 
@@ -340,13 +342,14 @@ def _maintainer_change(change_list, original, new, new_pkg):
     '''
     # if the original dataset had a maintainer
     if original['maintainer'] and new['maintainer']:
-        change_list.append(["Set maintainer of", new_pkg,
-                            "to", new['maintainer'],
-                            "(previously", original['maintainer'] + ")"])
+        change_list.append([u"Set maintainer of", new_pkg,
+                            u"to", new['maintainer'],
+                            u"(previously", original['maintainer'] + u")"])
     elif not new['maintainer']:
-        change_list.append(["Removed maintainer from", new_pkg])
+        change_list.append([u"Removed maintainer from", new_pkg])
     else:
-        change_list.append(["Set maintainer of", new_pkg, "to", new['maintainer']])
+        change_list.append([u"Set maintainer of", new_pkg, u"to",
+                            new['maintainer']])
 
 
 def _maintainer_email_change(change_list, original, new, new_pkg):
@@ -354,36 +357,36 @@ def _maintainer_email_change(change_list, original, new, new_pkg):
     Appends a summary of a change to a dataset's maintainer e-mail address
     field between two versions (original and new) to change_list.
     '''
-    s = ""
-    seq2 = ("<a href=\"mailto:", new['maintainer_email'], "\">",
-            new['maintainer_email'], "</a>")
+    s = u""
+    seq2 = (u"<a href=\"mailto:", new['maintainer_email'], u"\">",
+            new['maintainer_email'], u"</a>")
     # if the original dataset had a maintainer email
     if original['maintainer_email'] and new['maintainer_email']:
-        seq3 = ("<a href=\"mailto:", original['maintainer_email'], "\">",
-                original['maintainer_email'], "</a>")
-        change_list.append(["Set maintainer e-mail of",
-                            new_pkg, "to", s.join(seq2),
-                            "(previously", s.join(seq3) + ")"])
+        seq3 = (u"<a href=\"mailto:", original['maintainer_email'], u"\">",
+                original['maintainer_email'], u"</a>")
+        change_list.append([u"Set maintainer e-mail of",
+                            new_pkg, u"to", s.join(seq2),
+                            u"(previously", s.join(seq3) + u")"])
     elif not new['maintainer_email']:
-        change_list.append(["Removed maintainer e-mail from", new_pkg])
+        change_list.append([u"Removed maintainer e-mail from", new_pkg])
     else:
-        change_list.append(["Set maintainer e-mail of",
-                            new_pkg, "to", s.join(seq2)])
+        change_list.append([u"Set maintainer e-mail of",
+                            new_pkg, u"to", s.join(seq2)])
 
 
 def _author_change(change_list, original, new, new_pkg):
     '''
-    Appends a summary of a change to a dataset's author field between two versions
-    (original and new) to change_list.
+    Appends a summary of a change to a dataset's author field between two
+    versions (original and new) to change_list.
     '''
     # if the original dataset had an author
     if original['author'] and new['author']:
-        change_list.append(["Set author of", new_pkg, "to", new['author'],
-                            "(previously", original['author'] + ")"])
+        change_list.append([u"Set author of", new_pkg, u"to", new['author'],
+                            u"(previously", original['author'] + u")"])
     elif not new['author']:
-        change_list.append(["Removed author from", new_pkg])
+        change_list.append([u"Removed author from", new_pkg])
     else:
-        change_list.append(["Set author of", new_pkg, "to", new['author']])
+        change_list.append([u"Set author of", new_pkg, u"to", new['author']])
 
 
 def _author_email_change(change_list, original, new, new_pkg):
@@ -391,49 +394,50 @@ def _author_email_change(change_list, original, new, new_pkg):
     Appends a summary of a change to a dataset's author e-mail address field
     between two versions (original and new) to change_list.
     '''
-    s = ""
-    seq2 = ("<a href=\"mailto:", new['author_email'], "\">",
-            new['author_email'], "</a>")
+    s = u""
+    seq2 = (u"<a href=\"mailto:", new['author_email'], u"\">",
+            new['author_email'], u"</a>")
     # if the original dataset had a author email
     if original['author_email'] and new['author_email']:
-        seq3 = ("<a href=\"mailto:", original['author_email'], "\">",
-                original['author_email'], "</a>")
-        change_list.append(["Set author e-mail of", new_pkg, "to",
-                            s.join(seq2), "(previously", s.join(seq3) + ")"])
+        seq3 = (u"<a href=\"mailto:", original['author_email'], u"\">",
+                original['author_email'], u"</a>")
+        change_list.append([u"Set author e-mail of", new_pkg, u"to",
+                            s.join(seq2), u"(previously", s.join(seq3) + u")"])
     elif not new['author_email']:
-        change_list.append(["Removed author e-mail from", new_pkg])
+        change_list.append([u"Removed author e-mail from", new_pkg])
     else:
-        change_list.append(["Set author e-mail of", new_pkg,
-                            "to", s.join(seq2)])
+        change_list.append([u"Set author e-mail of", new_pkg,
+                            u"to", s.join(seq2)])
 
 
 def _description_change(change_list, original, new, new_pkg):
     '''
-    Appends a summary of a change to a dataset's description between two versions
-    (original and new) to change_list.
+    Appends a summary of a change to a dataset's description between two
+    versions (original and new) to change_list.
     '''
 
-    # TODO: find a better way to format the descriptions along with the change summary
+    # TODO: find a better way to format the descriptions along with the
+    # change summary
 
     # if the original dataset had a description
     if original['notes'] and new['notes']:
-        change_list.append(["Updated description of", new_pkg,
-                            "from <br style=\"line-height:2;\">",
-                            "<blockquote>" +
+        change_list.append([u"Updated description of", new_pkg,
+                            u"from <br style=\"line-height:2;\">",
+                            u"<blockquote>" +
                             original['notes'] +
-                            "</blockquote>",
-                            "to <br style=\"line-height:2;\">",
-                            "<blockquote>" +
+                            u"</blockquote>",
+                            u"to <br style=\"line-height:2;\">",
+                            u"<blockquote>" +
                             new['notes'] +
-                            "</blockquote>"])
+                            u"</blockquote>"])
     elif not new['notes']:
-        change_list.append(["Removed description from", new_pkg])
+        change_list.append([u"Removed description from", new_pkg])
     else:
-        change_list.append(["Updated description of", new_pkg,
-                            "to <br style=\"line-height:2;\">",
-                            "<blockquote>" +
+        change_list.append([u"Updated description of", new_pkg,
+                            u"to <br style=\"line-height:2;\">",
+                            u"<blockquote>" +
                             new['notes'] +
-                            "</blockquote>"])
+                            u"</blockquote>"])
 
 
 def _tag_change(change_list, new_tags, original_tags, new_pkg):
@@ -441,46 +445,46 @@ def _tag_change(change_list, new_tags, original_tags, new_pkg):
     Appends a summary of a change to a dataset's tag list between two
     versions (original and new) to change_list.
     '''
-    s = ""
+    s = u""
     deleted_tags = original_tags - new_tags
     deleted_tags_list = list(deleted_tags)
     if len(deleted_tags) == 1:
-        seq2 = ("<a href=\"", url_for(qualified=True,
-                                        controller="dataset",
-                                        action="search",
-                                        id=deleted_tags_list[0]),
-                "\">",
-                deleted_tags_list[0], "</a>")
-        change_list.append(["Removed tag", s.join(seq2), "from", new_pkg])
+        seq2 = (u"<a href=\"", url_for(qualified=True,
+                controller=u"dataset",
+                action=u"search",
+                id=deleted_tags_list[0]),
+                u"\">",
+                deleted_tags_list[0], u"</a>")
+        change_list.append([u"Removed tag", s.join(seq2), u"from", new_pkg])
     elif len(deleted_tags) > 1:
-         seq2 = ["<li><a href=\"" + url_for(qualified=True,
-                                            controller="dataset",
-                                            action="search",
-                                            id=deleted_tags_list[i]) +
-                    "\">" + deleted_tags_list[i] + "</a></li> "
-                    for i in range(0, len(deleted_tags))]
-         change_list.append(["Removed the following tags from", new_pkg,
-                            "<ul>", s.join(seq2), "</ul>"])
+         seq2 = [u"<li><a href=\"" + url_for(qualified=True,
+                controller=u"dataset",
+                action=u"search",
+                id=deleted_tags_list[i]) +
+                u"\">" + deleted_tags_list[i] + u"</a></li> "
+                for i in range(0, len(deleted_tags))]
+         change_list.append([u"Removed the following tags from", new_pkg,
+                            u"<ul>", s.join(seq2), u"</ul>"])
 
     added_tags = new_tags - original_tags
     added_tags_list = list(added_tags)
     if len(added_tags) == 1:
-        seq2 = ("<a href=\"", url_for(qualified=True,
-                                        controller="dataset",
-                                        action="search",
-                                        id=added_tags_list[0]),
-                "\">",
-                added_tags_list[0], "</a>")
-        change_list.append(["Added tag", s.join(seq2), "to", new_pkg])
+        seq2 = (u"<a href=\"", url_for(qualified=True,
+                controller=u"dataset",
+                action=u"search",
+                id=added_tags_list[0]),
+                u"\">",
+                added_tags_list[0], u"</a>")
+        change_list.append([u"Added tag", s.join(seq2), u"to", new_pkg])
     elif len(added_tags) > 1:
-        seq2 = ["<li><a href=\"" + url_for(qualified=True,
-                                            controller="dataset",
-                                            action="search",
-                                            id=added_tags_list[i]) +
-                "\">" + added_tags_list[i] + "</a></li> "
+        seq2 = [u"<li><a href=\"" + url_for(qualified=True,
+                controller=u"dataset",
+                action=u"search",
+                id=added_tags_list[i]) +
+                u"\">" + added_tags_list[i] + u"</a></li> "
                 for i in range(0, len(added_tags))]
-        change_list.append(["Added the following tags to", new_pkg,
-                            "<ul>", s.join(seq2), "</ul>"])
+        change_list.append([u"Added the following tags to", new_pkg,
+                            u"<ul>", s.join(seq2), u"</ul>"])
 
 
 def _license_change(change_list, original, new, new_pkg):
@@ -488,22 +492,22 @@ def _license_change(change_list, original, new, new_pkg):
     Appends a summary of a change to a dataset's license between two versions
     (original and new) to change_list.
     '''
-    s = ""
+    s = u""
     seq2 = ()
     seq3 = ()
     # if the license has a URL, use it
     if 'license_url' in original and original['license_url']:
-        seq2 = ("<a href=\"", original['license_url'], "\">",
-                original['license_title'], "</a>")
+        seq2 = (u"<a href=\"", original['license_url'], u"\">",
+                original['license_title'], u"</a>")
     else:
         seq2 = (original['license_title'])
     if 'license_url' in new and new['license_url']:
-        seq3 = ("<a href=\"", new['license_url'], "\">",
-                new['license_title'], "</a>")
+        seq3 = (u"<a href=\"", new['license_url'], u"\">",
+                new['license_title'], u"</a>")
     else:
         seq3 = (new['license_title'])
-    change_list.append(["Changed the license of", new_pkg, "to",
-                        s.join(seq3), "(previously", s.join(seq2) + ")"])
+    change_list.append([u"Changed the license of", new_pkg, u"to",
+                        s.join(seq3), u"(previously", s.join(seq2) + u")"])
 
 
 def _name_change(change_list, original, new):
@@ -512,19 +516,19 @@ def _name_change(change_list, original, new):
     can be accessed at) between two versions (original and new) to
     change_list.
     '''
-    s = ""
+    s = u""
     old_url = url_for(qualified=True,
-                        controller="dataset",
-                        action="read",
-                        id=original['name'])
+                    controller=u"dataset",
+                    action=u"read",
+                    id=original['name'])
     new_url = url_for(qualified=True,
-                        controller="dataset",
-                        action="read",
-                        id=new['name'])
-    seq2 = ("<a href=\"", old_url, "\">", old_url, "</a>")
-    seq3 = ("<a href=\"", new_url, "\">", new_url, "</a>")
-    change_list.append(["Moved the dataset from", s.join(seq2),
-                        "to", s.join(seq3)])
+                    controller=u"dataset",
+                    action=u"read",
+                    id=new['name'])
+    seq2 = (u"<a href=\"", old_url, u"\">", old_url, u"</a>")
+    seq3 = (u"<a href=\"", new_url, u"\">", new_url, u"</a>")
+    change_list.append([u"Moved the dataset from", s.join(seq2),
+                        u"to", s.join(seq3)])
 
 
 def _source_url_change(change_list, original, new, new_pkg):
@@ -533,17 +537,17 @@ def _source_url_change(change_list, original, new, new_pkg):
     not its actual URL in the datahub) between two versions (original and
     new) to change_list.
     '''
-    s = ""
-    seq2 = ("<a href=\"", original['url'], "\">", original['url'], "</a>")
-    seq3 = ("<a href=\"", new['url'], "\">", new['url'], "</a>")
+    s = u""
+    seq2 = (u"<a href=\"", original['url'], u"\">", original['url'], u"</a>")
+    seq3 = (u"<a href=\"", new['url'], u"\">", new['url'], u"</a>")
     if original['url'] and new['url']:
-        change_list.append(["Changed the source URL of", new_pkg,
-                            "from", s.join(seq2), "to", s.join(seq3)])
+        change_list.append([u"Changed the source URL of", new_pkg,
+                            u"from", s.join(seq2), u"to", s.join(seq3)])
     elif not new['url']:
-        change_list.append(["Removed source URL from", new_pkg])
+        change_list.append([u"Removed source URL from", new_pkg])
     else:
-        change_list.append(["Changed the source URL of",
-                            new_pkg, "to", s.join(seq3)])
+        change_list.append([u"Changed the source URL of",
+                            new_pkg, u"to", s.join(seq3)])
 
 
 def _version_change(change_list, original, new, new_pkg):
@@ -553,14 +557,14 @@ def _version_change(change_list, original, new, new_pkg):
     and new) to change_list.
     '''
     if original['version'] and new['url']:
-        change_list.append(["Changed the version of", new_pkg,
-                            "from", original['version'],
-                            "to", new['version']])
+        change_list.append([u"Changed the version of", new_pkg,
+                            u"from", original['version'],
+                            u"to", new['version']])
     elif not new['url']:
-        change_list.append(["Removed version number from", new_pkg])
+        change_list.append([u"Removed version number from", new_pkg])
     else:
-        change_list.append(["Changed the version of", new_pkg,
-                            "to", new['version']])
+        change_list.append([u"Changed the version of", new_pkg,
+                            u"to", new['version']])
 
 
 def _extension_fields(change_list, original, new, new_pkg):
@@ -575,16 +579,16 @@ def _extension_fields(change_list, original, new, new_pkg):
     '''
     # list of the default metadata fields for a dataset
     # any fields that are not part of this list are custom fields added by a
-    #user or extension
+    # user or extension
     fields = ['owner_org', 'maintainer', 'maintainer_email',
-                'relationships_as_object', 'private', 'num_tags',
-                'id', 'metadata_created', 'metadata_modified',
-                'author', 'author_email', 'state', 'version',
-                'license_id', 'type', 'resources', 'num_resources',
-                'tags', 'title', 'groups', 'creator_user_id',
-                'relationships_as_subject', 'name', 'isopen', 'url',
-                'notes', 'license_title', 'extras',
-                'license_url', 'organization', 'revision_id']
+            'relationships_as_object', 'private', 'num_tags',
+            'id', 'metadata_created', 'metadata_modified',
+            'author', 'author_email', 'state', 'version',
+            'license_id', 'type', 'resources', 'num_resources',
+            'tags', 'title', 'groups', 'creator_user_id',
+            'relationships_as_subject', 'name', 'isopen', 'url',
+            'notes', 'license_title', 'extras',
+            'license_url', 'organization', 'revision_id']
     fields_set = set(fields)
 
     # if there are any fields from extensions that are in the new dataset and
@@ -608,14 +612,14 @@ def _extension_fields(change_list, original, new, new_pkg):
     for field in addl_fields_list:
         if original[field] != new[field]:
             if original[field]:
-                change_list.append(["Changed value of field",
-                                    field.capitalize(), "to",
-                                    new[field], "(previously",
-                                    original[field] + ")", "in", new_pkg])
+                change_list.append([u"Changed value of field",
+                                    field.capitalize(), u"to",
+                                    new[field], u"(previously",
+                                    original[field] + u")", u"in", new_pkg])
             else:
-                change_list.append(["Changed value of field",
-                                    field.capitalize(), "to",
-                                    new[field], "in", new_pkg])
+                change_list.append([u"Changed value of field",
+                                    field.capitalize(), u"to",
+                                    new[field], u"in", new_pkg])
 
 
 def _extra_fields(change_list, original, new, new_pkg):
@@ -625,7 +629,7 @@ def _extra_fields(change_list, original, new, new_pkg):
     change_list.
     '''
 
-    s = ""
+    s = u""
     if 'extras' in new:
         extra_fields_new = _extras_to_dict(new['extras'])
         extra_new_set = set(extra_fields_new.keys())
@@ -640,36 +644,36 @@ def _extra_fields(change_list, original, new, new_pkg):
             new_fields = list(extra_new_set - extra_original_set)
             if len(new_fields) == 1:
                 if extra_fields_new[new_fields[0]]:
-                    change_list.append(["Added field", s.join(("<q>",
-                                        new_fields[0], "</q>")),
-                                        "with value", s.join(("<q>",
-                                        extra_fields_new[new_fields[0]],
-                                        "</q>")),
-                                        "to", new_pkg])
+                    change_list.append([u"Added field", s.join((u"<q>",
+                                            new_fields[0], u"</q>")),
+                                        u"with value", s.join((u"<q>",
+                                            extra_fields_new[new_fields[0]],
+                                            u"</q>")),
+                                        u"to", new_pkg])
                 else:
-                    change_list.append(["Added field", s.join(("<q>",
-                                        new_fields[0], "</q>")),
-                                        "to", new_pkg])
+                    change_list.append([u"Added field", s.join((u"<q>",
+                                        new_fields[0], u"</q>")),
+                                        u"to", new_pkg])
             elif len(new_fields) > 1:
-                seq2 = ["<li><q>" + new_fields[i] + "</q> with value <q>" +
-                        extra_fields_new[new_fields[i]] + "</q></li>"
+                seq2 = [u"<li><q>" + new_fields[i] + u"</q> with value <q>" +
+                        extra_fields_new[new_fields[i]] + u"</q></li>"
                         if extra_fields_new[new_fields[i]]
-                        else "<li><q>" + new_fields[i] + "</q></li>"
+                        else u"<li><q>" + new_fields[i] + u"</q></li>"
                         for i in range(0, len(new_fields))]
-                change_list.append(["Added the following fields to",
-                                    new_pkg, "<ul>", s.join(seq2), "</ul>"])
+                change_list.append([u"Added the following fields to",
+                                    new_pkg, u"<ul>", s.join(seq2), u"</ul>"])
 
             # if some fields were deleted
             deleted_fields = list(extra_original_set - extra_new_set)
             if len(deleted_fields) == 1:
-                change_list.append(["Removed field", s.join(("<q>",
-                                    deleted_fields[0], "</q>")),
-                                    "from", new_pkg])
+                change_list.append([u"Removed field", s.join((u"<q>",
+                                    deleted_fields[0], u"</q>")),
+                                    u"from", new_pkg])
             elif len(deleted_fields) > 1:
-                seq2 = ["<li><q>" + deleted_fields[i] + "</q></li>"
+                seq2 = [u"<li><q>" + deleted_fields[i] + u"</q></li>"
                         for i in range(0, len(deleted_fields))]
-                change_list.append(["Removed the following fields from",
-                                    new_pkg, "<ul>", s.join(seq2), "</ul>"])
+                change_list.append([u"Removed the following fields from",
+                                    new_pkg, u"<ul>", s.join(seq2), u"</ul>"])
 
             # if some existing fields were changed
             # list of extra fields in both the original and new versions
@@ -677,20 +681,21 @@ def _extra_fields(change_list, original, new, new_pkg):
             for field in extra_fields:
                 if extra_fields_original[field] != extra_fields_new[field]:
                     if extra_fields_original[field]:
-                        change_list.append(["Changed value of field",
-                                            s.join(("<q>", field, "</q>")),
-                                            "to", s.join(("<q>",
-                                            extra_fields_new[field], "</q>")),
-                                            "(previously", s.join(("<q>",
-                                            extra_fields_original[field],
-                                            "</q>")) + ")",
-                                            "in", new_pkg])
+                        change_list.append([u"Changed value of field",
+                                                s.join((u"<q>", field, u"</q>")),
+                                                u"to", s.join((u"<q>",
+                                                extra_fields_new[field],
+                                                u"</q>")),
+                                                u"(previously", s.join((u"<q>",
+                                                extra_fields_original[field],
+                                                u"</q>")) + u")",
+                                                u"in", new_pkg])
                     else:
-                        change_list.append(["Changed value of field",
-                                            s.join(("<q>", field, "</q>")),
-                                            "to", s.join(("<q>",
-                                            extra_fields_new[field], "</q>")),
-                                            "in", new_pkg])
+                        change_list.append([u"Changed value of field",
+                                            s.join((u"<q>", field, u"</q>")),
+                                            u"to", s.join((u"<q>",
+                                            extra_fields_new[field], u"</q>")),
+                                            u"in", new_pkg])
 
         # if the original version didn't have an extras field,
         # the user could only have added a field (not changed or deleted)
@@ -698,33 +703,33 @@ def _extra_fields(change_list, original, new, new_pkg):
             new_fields = list(extra_new_set)
             if len(new_fields) == 1:
                 if extra_fields_new[new_fields[0]]:
-                    change_list.append(["Added field", s.join(("<q>",
-                                        new_fields[0], "</q>")),
-                                        "with value", s.join(("<q>",
+                    change_list.append([u"Added field", s.join((u"<q>",
+                                        new_fields[0], u"</q>")),
+                                        u"with value", s.join((u"<q>",
                                         extra_fields_new[new_fields[0]],
-                                        "</q>")),
-                                        "to", new_pkg])
+                                        u"</q>")),
+                                        u"to", new_pkg])
                 else:
-                    change_list.append(["Added field", s.join(("<q>",
-                                        new_fields[0], "</q>")),
-                                        "to", new_pkg])
+                    change_list.append([u"Added field", s.join((u"<q>",
+                                        new_fields[0], u"</q>")),
+                                        u"to", new_pkg])
             elif len(new_fields) > 1:
-                seq2 = ["<li><q>" + new_fields[i] + "</q> with value <q>" +
-                        extra_fields_new[new_fields[i]] + "</q></li>"
+                seq2 = [u"<li><q>" + new_fields[i] + u"</q> with value <q>" +
+                        extra_fields_new[new_fields[i]] + u"</q></li>"
                         if extra_fields_new[new_fields[i]]
-                        else "<li><q>" + new_fields[i] + "</q></li>"
+                        else u"<li><q>" + new_fields[i] + u"</q></li>"
                         for i in range(0, len(new_fields))]
-                change_list.append(["Added the following fields to",
-                                    new_pkg, "<ul>", s.join(seq2), "</ul>"])
+                change_list.append([u"Added the following fields to",
+                                    new_pkg, u"<ul>", s.join(seq2), u"</ul>"])
 
     elif 'extras' in original:
         deleted_fields = _extras_to_dict(original['extras']).keys()
         if len(deleted_fields) == 1:
-            change_list.append(["Removed field", s.join(("<q>",
-                                deleted_fields[0], "</q>")), "from",
+            change_list.append([u"Removed field", s.join((u"<q>",
+                                deleted_fields[0], u"</q>")), u"from",
                                 new_pkg])
         elif len(deleted_fields) > 1:
-            seq2 = ["<li><q>" + deleted_fields[i] +
-                    "</q></li>" for i in range(0, len(deleted_fields))]
-            change_list.append(["Removed the following fields from",
-                                new_pkg, "<ul>", s.join(seq2), "</ul>"])
+            seq2 = [u"<li><q>" + deleted_fields[i] +
+                    u"</q></li>" for i in range(0, len(deleted_fields))]
+            change_list.append([u"Removed the following fields from",
+                                new_pkg, u"<ul>", s.join(seq2), u"</ul>"])
