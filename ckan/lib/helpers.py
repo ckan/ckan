@@ -2705,33 +2705,45 @@ def compare_pkg_dicts(original, new, old_activity_id):
 
     s = ""
     seq1 = ("<a href=\"", url_for(qualified=True, controller="dataset",
-                                    action="read", id=new['id']), "\">",
-                                    new['title'], "</a>")
+            action="read", id=new['id']), "\">",
+            new['title'], "</a>")
     new_pkg = s.join(seq1)
 
     _check_metadata_changes(change_list, original, new, new_pkg)
 
-    _check_resource_changes(change_list, original, new, new_pkg, old_activity_id)
+    _check_resource_changes(change_list, original, new, new_pkg,
+                            old_activity_id)
 
     # if the dataset was updated but none of the fields we check were changed,
     # display a message stating that
     if len(change_list) == 0:
-        change_list.append(["No fields were updated. See metadata diff for more details."])
+        change_list.append(["No fields were updated. \
+                            See metadata diff for more details."])
 
     return change_list
 
 @core_helper
 def activity_list_select(pkg_activity_list, current_activity_id):
     '''
-    Builds an HTML formatted list of options for the select lists on the "Changes"
-    summary page.
+    Builds an HTML formatted list of options for the select lists
+    on the "Changes" summary page.
     '''
     select_list = []
     for activity in pkg_activity_list:
-        entry = render_datetime(activity['timestamp'], with_hours=True, with_seconds=True)
+        entry = render_datetime(activity['timestamp'],
+                                with_hours=True,
+                                with_seconds=True)
         if activity['id'] == current_activity_id:
-            select_list.append("<option value=\"" + activity['id'] + "\" selected>" + entry + "</option>")
+            select_list.append("<option value=\"" +
+                                activity['id'] +
+                                "\" selected>" +
+                                entry +
+                                "</option>")
         else:
-            select_list.append("<option value=\"" + activity['id'] + "\">" + entry + "</option>")
+            select_list.append("<option value=\"" +
+                                activity['id'] +
+                                "\">" +
+                                entry +
+                                "</option>")
 
     return select_list

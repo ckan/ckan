@@ -1104,7 +1104,8 @@ def changes(id, package_type=None):
     # changed, and we need a link to it which works
     pkg_id = activity_diff[u'activities'][1][u'data'][u'package'][u'id']
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
-    pkg_activity_list = get_action(u'package_activity_list')(context, {u'id': pkg_id, u'limit': 100})
+    pkg_activity_list = get_action(u'package_activity_list')(context,
+                            {u'id': pkg_id, u'limit': 100})
 
     return base.render(
         u'package/changes.html', {
@@ -1114,11 +1115,13 @@ def changes(id, package_type=None):
         }
     )
 
+
 def change_range(package_type=None):
     '''
-    Called when a user specifies a range of versions they want to look at changes between.
-    Verifies that the range is valid and finds the set of activity diffs for the changes
-    in the given version range, then re-renders changes.html with the list.
+    Called when a user specifies a range of versions they want to look at
+    changes between. Verifies that the range is valid and finds the set of
+    activity diffs for the changes in the given version range, then
+    re-renders changes.html with the list.
     '''
 
     newest_id = h.get_request_param('newest_id')
@@ -1129,9 +1132,16 @@ def change_range(package_type=None):
         u'user': g.user, u'auth_user_obj': g.userobj
     }
 
-    # check to ensure that the old activity is actually older than the new activity
-    old_activity = get_action(u'activity_show')(context, {u'id': oldest_id, u'include_data': False})
-    new_activity = get_action('activity_show')(context, {'id': newest_id, u'include_data': False})
+    # check to ensure that the old activity is actually older than
+    # the new activity
+    old_activity = get_action(u'activity_show')(context, {
+                    u'id': oldest_id,
+                    u'include_data': False
+            })
+    new_activity = get_action('activity_show')(context, {
+                    u'id': newest_id,
+                    u'include_data': False
+            })
 
     old_timestamp = old_activity['timestamp']
     new_timestamp = new_activity['timestamp']
@@ -1142,9 +1152,9 @@ def change_range(package_type=None):
     time_diff = t2 - t1
     # if the time difference is negative, just return the change that put us
     # at the more recent ID we were just looking at
-    # TODO: do something better here - go back to the previous page, display a warning
-    # that the user can't look at a sequence where the newest item is older than the
-    # oldest one, etc
+    # TODO: do something better here - go back to the previous page,
+    # display a warning that the user can't look at a sequence where
+    # the newest item is older than the oldest one, etc
     if time_diff.total_seconds() < 0:
         return changes(h.get_request_param('current_new_id'))
 
@@ -1152,13 +1162,14 @@ def change_range(package_type=None):
     current_id = newest_id
     diff_list = []
 
-    while done == False:
+    while not done:
         try:
             activity_diff = get_action(u'activity_diff')(
                 context, {u'id': current_id, u'object_type': u'package',
                           u'diff_type': u'html'})
         except NotFound as e:
-            log.info(u'Activity not found: {} - {}'.format(str(e), current_id))
+            log.info(u'Activity not found: {} - {}'.format(str(e),
+                                                            current_id))
             return base.abort(404, _(u'Activity not found'))
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to view activity data'))
@@ -1172,7 +1183,10 @@ def change_range(package_type=None):
 
     pkg_id = diff_list[0][u'activities'][1][u'data'][u'package'][u'id']
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
-    pkg_activity_list = get_action(u'package_activity_list')(context, {u'id': pkg_id, u'limit': 100})
+    pkg_activity_list = get_action(u'package_activity_list')(context, {
+                        u'id': pkg_id,
+                        u'limit': 100
+                })
 
     return base.render(
         u'package/changes.html', {
