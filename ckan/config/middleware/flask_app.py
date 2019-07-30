@@ -512,6 +512,6 @@ def _setup_webassets(app):
 
     webassets_folder = get_webassets_path()
 
-    @app.route('/webassets/<path:path>')
+    @app.route('/webassets/<path:path>', endpoint='webassets.index')
     def webassets(path):
         return send_from_directory(webassets_folder, path)
