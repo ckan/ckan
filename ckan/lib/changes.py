@@ -658,22 +658,24 @@ def _extra_fields(change_list, original, new, new_pkg):
                 if extra_fields_new[new_fields[0]]:
                     change_list.append(
                         [u"Added field",
-                        s.join(
-                            (u"<q>",
-                            new_fields[0],
-                            u"</q>")
-                        ),
+                        s.join((u"<q>",
+                                new_fields[0],
+                                u"</q>")),
                         u"with value",
-                        s.join(
-                            (u"<q>",
-                            extra_fields_new[new_fields[0]],
-                            u"</q>")
-                        ), u"to", new_pkg]
+                        s.join((u"<q>",
+                                extra_fields_new[new_fields[0]],
+                                u"</q>")),
+                        u"to", new_pkg]
                     )
                 else:
-                    change_list.append([u"Added field", s.join((u"<q>",
-                                        new_fields[0], u"</q>")),
-                                        u"to", new_pkg])
+                    change_list.append(
+                        [u"Added field",
+                        s.join((u"<q>",
+                                new_fields[0],
+                                u"</q>")
+                            ),
+                        u"to", new_pkg]
+                    )
             elif len(new_fields) > 1:
                 seq2 = [u"<li><q>" + new_fields[i] + u"</q> with value <q>" +
                         extra_fields_new[new_fields[i]] + u"</q></li>"
@@ -703,35 +705,26 @@ def _extra_fields(change_list, original, new, new_pkg):
                     if extra_fields_original[field]:
                         change_list.append(
                             [u"Changed value of field",
-                            s.join(
-                                (u"<q>", field, u"</q>")
-                            ),
+                            s.join((u"<q>",
+                                    field, u"</q>")),
                             u"to",
-                            s.join(
-                                (u"<q>",
-                                extra_fields_new[field],
-                                u"</q>")
-                            ),
+                            s.join((u"<q>",
+                                    extra_fields_new[field],
+                                    u"</q>")),
                             u"(previously",
-                            s.join(
-                                (u"<q>",
-                                extra_fields_original[field],
-                                u"</q>")
-                            ) + u")",
-                            u"in", new_pkg]
+                            s.join((u"<q>",
+                                    extra_fields_original[field],
+                                    u"</q>")) +
+                            u")", u"in", new_pkg]
                         )
                     else:
                         change_list.append(
                             [u"Changed value of field",
-                            s.join(
-                                (u"<q>", field, u"</q>")
-                            ),
+                            s.join((u"<q>", field, u"</q>")),
                             u"to",
-                            s.join(
-                                (u"<q>",
-                                extra_fields_new[field],
-                                u"</q>")
-                            ),
+                            s.join((u"<q>",
+                                    extra_fields_new[field],
+                                    u"</q>")),
                             u"in", new_pkg]
                         )
 
@@ -743,18 +736,18 @@ def _extra_fields(change_list, original, new, new_pkg):
                 if extra_fields_new[new_fields[0]]:
                     change_list.append(
                         [u"Added field",
-                        s.join(
-                            (u"<q>", new_fields[0], u"</q>")
-                        ),
+                        s.join((u"<q>", new_fields[0], u"</q>")),
                         u"with value",
-                        s.join(
-                            (u"<q>", extra_fields_new[new_fields[0]], u"</q>")
-                        ),
+                        s.join((u"<q>",
+                                extra_fields_new[new_fields[0]],
+                                u"</q>")),
                         u"to", new_pkg]
                     )
                 else:
-                    change_list.append([u"Added field", s.join((u"<q>",
-                                        new_fields[0], u"</q>")),
+                    change_list.append([u"Added field",
+                                        s.join((u"<q>",
+                                                new_fields[0],
+                                                u"</q>")),
                                         u"to", new_pkg])
             elif len(new_fields) > 1:
                 seq2 = [u"<li><q>" + new_fields[i] + u"</q> with value <q>" +
