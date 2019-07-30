@@ -1106,8 +1106,10 @@ def changes(id, package_type=None):
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
     pkg_activity_list = get_action(u'package_activity_list')(
         context, {
-        u'id': pkg_id,
-        u'limit': 100})
+            u'id': pkg_id,
+            u'limit': 100
+        }
+    )
 
     return base.render(
         u'package/changes.html', {
@@ -1170,8 +1172,9 @@ def change_range(package_type=None):
                     u'object_type': u'package',
                     u'diff_type': u'html'})
         except NotFound as e:
-            log.info(u'Activity not found: {} - {}'.format(str(e),
-                                                            current_id))
+            log.info(
+                u'Activity not found: {} - {}'.format(str(e), current_id)
+            )
             return base.abort(404, _(u'Activity not found'))
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to view activity data'))

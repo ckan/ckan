@@ -459,10 +459,13 @@ def _tag_change(change_list, new_tags, original_tags, new_pkg):
         change_list.append([u"Removed tag", s.join(seq2), u"from", new_pkg])
     elif len(deleted_tags) > 1:
         seq2 = [
-            u"<li><a href=\"" + url_for(qualified=True,
-            controller=u"dataset",
-            action=u"search",
-            id=deleted_tags_list[i]) +
+            u"<li><a href=\"" +
+            url_for(
+                qualified=True,
+                controller=u"dataset",
+                action=u"search",
+                id=deleted_tags_list[i]
+            ) +
             u"\">" + deleted_tags_list[i] + u"</a></li> "
             for i in range(0, len(deleted_tags))
         ]
@@ -654,11 +657,18 @@ def _extra_fields(change_list, original, new, new_pkg):
             if len(new_fields) == 1:
                 if extra_fields_new[new_fields[0]]:
                     change_list.append(
-                        [u"Added field", s.join((u"<q>",
-                        new_fields[0], u"</q>")),
-                        u"with value", s.join((u"<q>",
-                        extra_fields_new[new_fields[0]],
-                        u"</q>")), u"to", new_pkg]
+                        [u"Added field",
+                        s.join(
+                            (u"<q>",
+                            new_fields[0],
+                            u"</q>")
+                        ),
+                        u"with value",
+                        s.join(
+                            (u"<q>",
+                            extra_fields_new[new_fields[0]],
+                            u"</q>")
+                        ), u"to", new_pkg]
                     )
                 else:
                     change_list.append([u"Added field", s.join((u"<q>",
@@ -693,21 +703,35 @@ def _extra_fields(change_list, original, new, new_pkg):
                     if extra_fields_original[field]:
                         change_list.append(
                             [u"Changed value of field",
-                            s.join((u"<q>", field, u"</q>")),
-                            u"to", s.join((u"<q>",
-                            extra_fields_new[field],
-                            u"</q>")),
-                            u"(previously", s.join((u"<q>",
-                            extra_fields_original[field],
-                            u"</q>")) + u")",
+                            s.join(
+                                (u"<q>", field, u"</q>")
+                            ),
+                            u"to",
+                            s.join(
+                                (u"<q>",
+                                extra_fields_new[field],
+                                u"</q>")
+                            ),
+                            u"(previously",
+                            s.join(
+                                (u"<q>",
+                                extra_fields_original[field],
+                                u"</q>")
+                            ) + u")",
                             u"in", new_pkg]
                         )
                     else:
                         change_list.append(
                             [u"Changed value of field",
-                            s.join((u"<q>", field, u"</q>")),
-                            u"to", s.join((u"<q>",
-                            extra_fields_new[field], u"</q>")),
+                            s.join(
+                                (u"<q>", field, u"</q>")
+                            ),
+                            u"to",
+                            s.join(
+                                (u"<q>",
+                                extra_fields_new[field],
+                                u"</q>")
+                            ),
                             u"in", new_pkg]
                         )
 
@@ -717,12 +741,17 @@ def _extra_fields(change_list, original, new, new_pkg):
             new_fields = list(extra_new_set)
             if len(new_fields) == 1:
                 if extra_fields_new[new_fields[0]]:
-                    change_list.append([u"Added field", s.join((u"<q>",
-                                        new_fields[0], u"</q>")),
-                                        u"with value", s.join((u"<q>",
-                                        extra_fields_new[new_fields[0]],
-                                        u"</q>")),
-                                        u"to", new_pkg])
+                    change_list.append(
+                        [u"Added field",
+                        s.join(
+                            (u"<q>", new_fields[0], u"</q>")
+                        ),
+                        u"with value",
+                        s.join(
+                            (u"<q>", extra_fields_new[new_fields[0]], u"</q>")
+                        ),
+                        u"to", new_pkg]
+                    )
                 else:
                     change_list.append([u"Added field", s.join((u"<q>",
                                         new_fields[0], u"</q>")),
