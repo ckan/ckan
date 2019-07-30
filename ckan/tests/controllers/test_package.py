@@ -1609,6 +1609,28 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_equal(len(ds_titles), 1)
         assert_true('Dataset One' in ds_titles)
 
+    def test_search_page_results_tags(self):
+        '''Searching with a tag returns expected results with multiple tags'''
+
+        app = self._get_test_app()
+        factories.Dataset(name="dataset-one", title='Dataset One',
+                          tags=[
+                              {'name': 'my-tag-1'},
+                              {'name': 'my-tag-2'},
+                              {'name': 'my-tag-3'},
+                          ])
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        params = '/dataset/?tags=my-tag-1&tags=my-tag-2&tags=my-tag-3'
+        tag_search_response = app.get(params)
+
+        assert_true('1 dataset found' in tag_search_response)
+
+        search_response_html = BeautifulSoup(tag_search_response.body)
+        ds_titles = search_response_html.select('.filtered')
+        assert_equal(len(ds_titles), 3)
+
     def test_search_page_results_private(self):
         '''Private datasets don't show up in dataset search results.'''
         app = self._get_test_app()

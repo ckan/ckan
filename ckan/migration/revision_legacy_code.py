@@ -247,7 +247,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
         # },
         # order_by=[rev_table.c.continuity_id, rev_table.c.revision_id.desc()]
         # ---------------------
-        )
+    )
     base_mapper = class_mapper(base_object)
     # add in 'relationship' stuff from continuity onto revisioned obj
     # 3 types of relationship
@@ -399,8 +399,8 @@ def make_revision(instances):
         model.Session.execute(
             revision_table.update().where(
                 and_(revision_table.c.id == instance.id,
-                     revision_table.c.current == u'1')
-            ).values(current=u'0')
+                     revision_table.c.current is True)
+            ).values(current=False)
         )
 
         q = model.Session.query(revision_cls)

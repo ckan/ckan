@@ -1,0 +1,15 @@
+stats_css:
+  output: ckanext_stats/%(version)s_stats.css
+  contents:
+    - css/stats.css
+
+stats:
+  output: ckanext_stats/%(version)s_stats.js
+  extra:
+    preload:
+      - ckanext_stats/stats_css
+  contents:
+    - vendor/excanvas.js
+    - vendor/jquery.flot.js
+    - javascript/modules/plot.js
+    - javascript/modules/stats-nav.js

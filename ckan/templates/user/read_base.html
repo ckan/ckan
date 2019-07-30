@@ -16,8 +16,8 @@
 {% endblock %}
 
 {% block content_primary_nav %}
-  {{ h.build_nav_icon('user.read', _('Datasets'), id=user.name) }}
-  {{ h.build_nav_icon('user.activity', _('Activity Stream'), id=user.name) }}
+  {{ h.build_nav_icon('user.read', _('Datasets'), id=user.name, icon='sitemap') }}
+  {{ h.build_nav_icon('user.activity', _('Activity Stream'), id=user.name, icon='clock-o') }}
 {% endblock %}
 
 {% block secondary_content %}

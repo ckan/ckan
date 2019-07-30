@@ -20,7 +20,7 @@ def simple_conv_specs(s):
     See http://docs.python.org/library/stdtypes.html#string-formatting
 
     '''
-    simple_conv_specs_re = re.compile('\%\w')
+    simple_conv_specs_re = re.compile(r'\%\w')
     return simple_conv_specs_re.findall(s)
 
 
@@ -32,7 +32,7 @@ def mapping_keys(s):
     See http://docs.python.org/library/stdtypes.html#string-formatting
 
     '''
-    mapping_keys_re = re.compile('\%\([^\)]*\)\w')
+    mapping_keys_re = re.compile(r'\%\([^\)]*\)\w')
     return sorted(mapping_keys_re.findall(s))
 
 
@@ -44,7 +44,7 @@ def replacement_fields(s):
     See http://docs.python.org/library/string.html#formatstrings
 
     '''
-    repl_fields_re = re.compile('\{[^\}]*\}')
+    repl_fields_re = re.compile(r'\{[^\}]*\}')
     return sorted(repl_fields_re.findall(s))
 
 

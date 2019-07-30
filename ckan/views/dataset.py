@@ -84,13 +84,15 @@ def drill_down_url(alternative_url=None, **by):
 
 
 def remove_field(package_type, key, value=None, replace=None):
+    if not package_type or package_type == u'dataset':
+        url = h.url_for(u'dataset.search')
+    else:
+        url = h.url_for(u'{0}_search'.format(package_type))
     return h.remove_url_param(
         key,
         value=value,
         replace=replace,
-        controller=u'dataset',
-        action=u'search',
-        alternative_url=package_type
+        alternative_url=url
     )
 
 
@@ -209,7 +211,7 @@ def search(package_type):
         extra_vars[u'fields_grouped'] = fields_grouped = {}
         search_extras = {}
         fq = u''
-        for (param, value) in request.args.items():
+        for (param, value) in request.args.items(multi=True):
             if param not in [u'q', u'page', u'sort'] \
                     and len(value) and not param.startswith(u'_'):
                 if not param.startswith(u'ext_'):
@@ -297,7 +299,6 @@ def search(package_type):
         )
         extra_vars[u'search_facets'] = query[u'search_facets']
         extra_vars[u'page'].items = query[u'results']
-
     except SearchQueryError as se:
         # User's search parameters are invalid, in such a way that is not
         # achievable with the web interface, so return a proper error to
@@ -319,7 +320,6 @@ def search(package_type):
 
     # FIXME: try to avoid using global variables
     g.search_facets_limits = {}
-
     for facet in extra_vars[u'search_facets'].keys():
         try:
             limit = int(

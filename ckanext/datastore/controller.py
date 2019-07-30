@@ -87,7 +87,7 @@ class DatastoreController(BaseController):
                         'plain',
                         'language',
                         'fields']},
-                )
+            )
         except ObjectNotFound:
             abort(404, _('DataStore resource not found'))
 
@@ -123,7 +123,7 @@ class DatastoreController(BaseController):
                     'id': f['id'],
                     'type': f['type'],
                     'info': fi if isinstance(fi, dict) else {}
-                    } for f, fi in izip_longest(fields, info)]})
+                } for f, fi in izip_longest(fields, info)]})
 
             h.flash_success(_('Data Dictionary saved. Any type overrides will '
                               'take effect when the resource is next uploaded '
@@ -172,7 +172,7 @@ def dump_to(
             'sort': sort,
             'records_format': records_format,
             'include_total': False,
-            }, **search_params))
+        }, **search_params))
 
     result = result_page(offset, limit)
 

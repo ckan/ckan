@@ -3,10 +3,11 @@
 {% block styles %}
   {{ super() }}
 
-  {# Import example_theme.css using Fanstatic.
-     'example_theme/' is the name that the example_theme/fanstatic directory
-     was registered with when the toolkit.add_resource() function was called.
-     'example_theme.css' is the path to the CSS file, relative to the root of
-     the fanstatic directory. #}
-  {% resource 'example_theme/example_theme.css' %}
+  {# Import example_theme.css using Webassets.  'example_theme/' is
+    the name that the example_theme/fanstatic directory was registered
+    with when the toolkit.add_resource() function was called.
+    'example_theme' is the name to the Webassets bundle file,
+    registered inside webassets.yml file. #}
+  {% asset 'example_theme/example_theme' %}
+
 {% endblock %}

@@ -66,38 +66,6 @@ class TestPackage:
         assert package.all_revisions[1].revision_id == revision_id
         assert package.all_revisions[1].revision_timestamp == timestamp
 
-    def test_create_package(self):
-        package = model.Package.by_name(self.name)
-        assert package.name == self.name
-        assert package.notes == self.notes
-        assert package.license.id == u'odc-by'
-        assert package.license.title == u'Open Data Commons Attribution License', package.license.title
-
-    def test_update_package(self):
-        newnotes = u'Written by Beethoven'
-        author = u'jones'
-
-        rev2 = model.repo.new_revision()
-        pkg = model.Package.by_name(self.name)
-        pkg.notes = newnotes
-        rev2.author = u'jones'
-        model.Session.commit()
-        try:
-            model.Session.expunge_all()
-        except AttributeError: # sqlalchemy 0.4
-            model.Session.clear()
-        outpkg = model.Package.by_name(self.name)
-        assert outpkg.notes == newnotes
-        assert len(outpkg.all_revisions) > 0
-        assert outpkg.all_revisions[0].revision.author == author
-
-    def test_package_license(self):
-        # Check unregistered license_id causes license to be 'None'.
-        package = model.Package.by_name(self.name)
-        package.license_id = u'zzzzzzz'
-        assert package.license == None
-        model.Session.remove() # forget change
-
     def test_as_dict(self):
         pkg = model.Package.by_name(self.name)
         out = pkg.as_dict()
@@ -110,72 +78,6 @@ class TestPackage:
         assert_equal(out['notes'], pkg.notes)
         assert_equal(out['notes_rendered'], '<p>A great package  like <a href="/dataset/pollution_stats">package:pollution_stats</a></p>')
 
-
-class TestPackageWithTags:
-    """
-    WARNING: with sqlite these tests may fail (depending on the order they are
-    run in) as sqlite does not support ForeignKeys properly.
-    """
-    # Todo: Remove comment, since it pertains to sqlite, which CKAN doesn't support?
-
-    @classmethod
-    def setup_class(self):
-        model.repo.init_db()
-        rev1 = model.repo.new_revision()
-        self.tagname = u'test tag m2m!'
-        self.tagname2 = u'testtagm2m2'
-        self.tagname3 = u'test tag3!'
-        self.pkgname = u'testpkgm2m'
-        pkg = model.Package(name=self.pkgname)
-        self.tag = model.Tag(name=self.tagname)
-        self.tag2 = model.Tag(name=self.tagname2)
-        pkg2tag = model.PackageTag(package=pkg, tag=self.tag)
-        pkg.add_tag(self.tag2)
-        model.Session.add_all([pkg,self.tag,self.tag2,pkg2tag])
-        model.Session.commit()
-        self.pkg2tag_id = pkg2tag.id
-        self.rev = rev1
-
-    @classmethod
-    def teardown_class(self):
-        model.repo.rebuild_db()
-
-    def test_1(self):
-        pkg = model.Package.by_name(self.pkgname)
-        assert len(pkg.get_tags()) == 2
-        # pkg2tag = model.Session.query(model.PackageTag).get(self.pkg2tag_id)
-        # assert pkg2tag.package.name == self.pkgname
-
-    def test_tags(self):
-        pkg = model.Package.by_name(self.pkgname)
-        # TODO: go back to this
-        # 2 default packages each with 2 tags so we have 2 + 4
-        all = model.Session.query(model.Tag).all()
-        assert len(all) == 3, all
-
-    def test_add_tag_by_name(self):
-        rev = model.repo.new_revision()
-        pkg = model.Package.by_name(self.pkgname)
-        pkg.add_tag_by_name(self.tagname3)
-        model.Session.commit()
-        try:
-            model.Session.expunge_all()
-        except AttributeError: # sqlalchemy 0.4
-            model.Session.clear()
-        outpkg = model.Package.by_name(self.pkgname)
-        assert len(outpkg.get_tags()) == 3
-        t1 = model.Tag.by_name(self.tagname)
-        assert len(t1.package_tags) == 1
-
-    def test_add_tag_by_name_existing(self):
-        try:
-            model.Session.expunge_all()
-        except AttributeError: # sqlalchemy 0.4
-            model.Session.clear()
-        pkg = model.Package.by_name(self.pkgname)
-        assert len(pkg.get_tags()) == 3, len(pkg.get_tags())
-        pkg.add_tag_by_name(self.tagname)
-        assert len(pkg.get_tags()) == 3
 
 
 class TestPackageTagSearch:
@@ -354,21 +256,3 @@ class TestRelatedRevisions:
     def test_1_all_revisions(self):
         assert len(self.pkg1.all_revisions) == 3, self.pkg1.all_revisions
         assert len(self.pkg1.all_related_revisions) == 6, self.pkg1.all_related_revisions
-
-
-class TestPackagePurge:
-    @classmethod
-    def setup_class(self):
-        CreateTestData.create()
-    @classmethod
-    def teardown_class(self):
-        model.repo.rebuild_db()
-    def test_purge(self):
-        pkgs = model.Session.query(model.Package).all()
-        for p in pkgs:
-           p.purge()
-        model.Session.commit()
-        pkgs = model.Session.query(model.Package).all()
-        assert len(pkgs) == 0
-
-

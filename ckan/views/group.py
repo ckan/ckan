@@ -466,8 +466,12 @@ def read(group_type, is_organization, id=None, limit=20):
     # if the user specified a group id, redirect to the group name
     if data_dict['id'] == group_dict['id'] and \
             data_dict['id'] != group_dict['name']:
-        return h.redirect_to(u'{}.read'.format(group_type),
-                             id=group_dict['name'])
+
+        url_with_name = h.url_for(u'{}.read'.format(group_type),
+                                  id=group_dict['name'])
+
+        return h.redirect_to(
+            h.add_url_param(alternative_url=url_with_name))
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -578,7 +582,7 @@ def members(id, group_type, is_organization):
         u"members": members,
         u"group_dict": group_dict,
         u"group_type": group_type
-        }
+    }
     return base.render(_replace_group_org(u'group/members.html'), extra_vars)
 
 
@@ -692,7 +696,7 @@ def followers(id, group_type, is_organization):
         u"group_dict": group_dict,
         u"group_type": group_type,
         u"followers": followers
-        }
+    }
     return base.render(u'group/followers.html', extra_vars)
 
 

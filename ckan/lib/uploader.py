@@ -79,20 +79,8 @@ def get_storage_path():
     # None means it has not been set. False means not in config.
     if _storage_path is None:
         storage_path = config.get('ckan.storage_path')
-        ofs_impl = config.get('ofs.impl')
-        ofs_storage_dir = config.get('ofs.storage_dir')
         if storage_path:
             _storage_path = storage_path
-        elif ofs_impl == 'pairtree' and ofs_storage_dir:
-            log.warn('''Please use config option ckan.storage_path instead of
-                     ofs.storage_dir''')
-            _storage_path = ofs_storage_dir
-            return _storage_path
-        elif ofs_impl:
-            log.critical('''We only support local file storage form version 2.2
-                         of ckan please specify ckan.storage_path in your
-                         config for your uploads''')
-            _storage_path = False
         else:
             log.critical('''Please specify a ckan.storage_path in your config
                          for your uploads''')
