@@ -797,7 +797,7 @@ def job_clear_schema(ignore_missing, list_of_strings):
 
 
 @validator_args
-def package_sfu_schema(
+def package_revise_schema(
         ignore_missing, list_of_strings,
         collect_prefix_validate, json_or_string,
         json_list_or_string, dict_only):

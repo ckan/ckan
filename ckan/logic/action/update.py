@@ -355,8 +355,8 @@ def package_update(context, data_dict):
     return output
 
 
-def package_sfu(context, data_dict):
-    '''Update a dataset (package) in a transaction with Select, Filter and
+def package_revise(context, data_dict):
+    '''Revise a dataset (package) selectively with Select, Filter and
     Update parameters.
 
     You must be authorized to edit the dataset and the groups that it belongs
@@ -394,7 +394,7 @@ def package_sfu(context, data_dict):
     '''
     model = context['model']
 
-    schema = schema_.package_sfu_schema()
+    schema = schema_.package_revise_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
@@ -445,7 +445,7 @@ def package_sfu(context, data_dict):
     for k, v in sorted(data['update__'].items()):
         dfunc.update_merge_string_key(orig, k, v)
 
-    _check_access('package_sfu', context, orig)
+    _check_access('package_revise', context, orig)
 
     # future-proof return dict by putting package data under
     # "package". We will want to return activity info

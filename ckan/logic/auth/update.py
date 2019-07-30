@@ -48,7 +48,7 @@ def package_update(context, data_dict):
     return {'success': True}
 
 
-def package_sfu(context, data_dict):
+def package_revise(context, data_dict):
     return authz.is_authorized('package_update', context, data_dict['update'])
 
 
