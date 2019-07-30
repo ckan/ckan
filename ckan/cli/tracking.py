@@ -145,7 +145,8 @@ def update_tracking(engine, summary_date):
     sql = u'''UPDATE tracking_summary t
                 SET package_id = COALESCE(
                     (SELECT id FROM package p
-                    WHERE p.name = regexp_replace(' ' || t.url, '^[ ]{1}(/\w{2}){0,1}' || %s, ''))
+                    WHERE p.name = regexp_replace
+                      (' ' || t.url, '^[ ]{1}(/\\w{2}){0,1}' || %s, ''))
                     ,'~~not~found~~')
                 WHERE t.package_id IS NULL
                 AND tracking_type = 'page';'''
@@ -202,8 +203,8 @@ def update_tracking_solr(engine, start_date):
 
     total = len(package_ids)
     not_found = 0
-    click.echo('{} package index{} to be rebuilt starting from {}'.format(
-        total, '' if total < 2 else 'es', start_date)
+    click.echo(u'{} package index{} to be rebuilt starting from {}'.format(
+        total, u'' if total < 2 else u'es', start_date)
     )
 
     from ckan.lib.search import rebuild
