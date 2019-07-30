@@ -356,19 +356,19 @@ def package_update(context, data_dict):
 
 
 def package_revise(context, data_dict):
-    '''Revise a dataset (package) selectively with Select, Filter and
-    Update parameters.
+    '''Revise a dataset (package) selectively with match, filter and
+    update parameters.
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
 
-    :param select: a dict containing "id" or "name" values of the dataset
-                   to update, all values provided must match the current
-                   dataset values or a ValidationError will be raised. e.g.
-                   ``{"name": "my-data", "resources": {["name": "big.csv"]}}``
-                   would abort if the my-data dataset's first resource name
-                   is not "big.csv".
-    :type select: dict
+    :param match: a dict containing "id" or "name" values of the dataset
+                  to update, all values provided must match the current
+                  dataset values or a ValidationError will be raised. e.g.
+                  ``{"name": "my-data", "resources": {["name": "big.csv"]}}``
+                  would abort if the my-data dataset's first resource name
+                  is not "big.csv".
+    :type match: dict
     :param filter: a list of string patterns of fields to remove from the
                    current dataset. e.g. ``["-resources__1"]`` would remove the
                    second resource, ``["+title", "+resources", "-*"]`` would
@@ -384,7 +384,7 @@ def package_revise(context, data_dict):
                     fields returned)
     :type include: list of string patterns
 
-    select and update parameters may also be passed as path keys, e.g.
+    match and update parameters may also be passed as path keys, e.g.
     ``update__resource__1f9ab__description="file here"`` would set the
     description of resource id starting with "1f9ab" to "file here".
 
@@ -401,12 +401,12 @@ def package_revise(context, data_dict):
         raise ValidationError(errors)
 
     name_or_id = (
-        data['select__'].get('id') or
-        data.get('select', {}).get('id') or
-        data['select__'].get('name') or
-        data.get('select', {}).get('name'))
+        data['match__'].get('id') or
+        data.get('match', {}).get('id') or
+        data['match__'].get('name') or
+        data.get('match', {}).get('name'))
     if name_or_id is None:
-        raise ValidationError({'select__id': _('Missing value')})
+        raise ValidationError({'match__id': _('Missing value')})
 
     package_show_context = dict(
         context,
@@ -419,15 +419,15 @@ def package_revise(context, data_dict):
     pkg = package_show_context['package']  # side-effect of package_show
 
     unmatched = []
-    if 'select' in data:
-        unmatched.extend(dfunc.check_dict(orig, data['select']))
+    if 'match' in data:
+        unmatched.extend(dfunc.check_dict(orig, data['match']))
 
-    for k, v in sorted(data['select__'].items()):
+    for k, v in sorted(data['match__'].items()):
         unmatched.extend(dfunc.check_string_key(orig, k, v))
 
     if unmatched:
         model.Session.rollback()
-        raise ValidationError([{'select': [
+        raise ValidationError([{'match': [
             '__'.join(str(p) for p in unm)
             for unm in unmatched
         ]}])

@@ -804,10 +804,10 @@ def package_revise_schema(
     return {
         u'__before': [
             collect_prefix_validate(
-                u'select__', u'json_or_string'),
+                u'match__', u'json_or_string'),
             collect_prefix_validate(
                 u'update__', u'json_or_string')],
-        u'select': [
+        u'match': [
             ignore_missing, json_or_string, dict_only],
         u'filter': [
             ignore_missing, json_list_or_string, list_of_strings],
@@ -816,6 +816,6 @@ def package_revise_schema(
         u'include': [
             ignore_missing, json_list_or_string, list_of_strings],
         # collect_prefix moves values to these, always dicts:
-        u'select__': [],
+        u'match__': [],
         u'update__': [],
     }
