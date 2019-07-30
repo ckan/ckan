@@ -1104,8 +1104,10 @@ def changes(id, package_type=None):
     # changed, and we need a link to it which works
     pkg_id = activity_diff[u'activities'][1][u'data'][u'package'][u'id']
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
-    pkg_activity_list = get_action(u'package_activity_list')(context,
-                                        {u'id': pkg_id, u'limit': 100})
+    pkg_activity_list = get_action(u'package_activity_list')(
+        context, {
+        u'id': pkg_id,
+        u'limit': 100})
 
     return base.render(
         u'package/changes.html', {
@@ -1163,11 +1165,13 @@ def change_range(package_type=None):
     while not done:
         try:
             activity_diff = get_action(u'activity_diff')(
-                context, {u'id': current_id, u'object_type': u'package',
-                            u'diff_type': u'html'})
+                context, {
+                    u'id': current_id,
+                    u'object_type': u'package',
+                    u'diff_type': u'html'})
         except NotFound as e:
             log.info(u'Activity not found: {} - {}'.format(str(e),
-                        current_id))
+                                                            current_id))
             return base.abort(404, _(u'Activity not found'))
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to view activity data'))
@@ -1182,8 +1186,8 @@ def change_range(package_type=None):
     pkg_id = diff_list[0][u'activities'][1][u'data'][u'package'][u'id']
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
     pkg_activity_list = get_action(u'package_activity_list')(context, {
-                    u'id': pkg_id,
-                    u'limit': 100})
+        u'id': pkg_id,
+        u'limit': 100})
 
     return base.render(
         u'package/changes.html', {

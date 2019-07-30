@@ -202,8 +202,8 @@ def update_tracking_solr(engine, start_date):
 
     total = len(package_ids)
     not_found = 0
-    click.echo('{} package index{} to be rebuilt starting from {}'.format(
-        total, '' if total < 2 else 'es', start_date)
+    click.echo(u'{} package index{} to be rebuilt starting from {}'.format(
+        total, u'' if total < 2 else u'es', start_date)
     )
 
     from ckan.lib.search import rebuild

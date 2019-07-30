@@ -88,7 +88,8 @@ def _check_resource_changes(change_list, original, new, new_pkg,
                 action=u"read", id=original['id'], resource_id=resource_id) +
                 u"?activity_id=" + old_activity_id, u"\">",
                 original_resource_dict[resource_id]['name'], u"</a>")
-        change_list.append(["Deleted resource", s.join(seq2), u"from", new_pkg])
+        change_list.append(
+            ["Deleted resource", s.join(seq2), u"from", new_pkg])
 
     # now check the resources that are in both and see if any
     # have been changed
@@ -457,13 +458,15 @@ def _tag_change(change_list, new_tags, original_tags, new_pkg):
                 deleted_tags_list[0], u"</a>")
         change_list.append([u"Removed tag", s.join(seq2), u"from", new_pkg])
     elif len(deleted_tags) > 1:
-         seq2 = [u"<li><a href=\"" + url_for(qualified=True,
-                controller=u"dataset",
-                action=u"search",
-                id=deleted_tags_list[i]) +
-                u"\">" + deleted_tags_list[i] + u"</a></li> "
-                for i in range(0, len(deleted_tags))]
-         change_list.append([u"Removed the following tags from", new_pkg,
+        seq2 = [
+            u"<li><a href=\"" + url_for(qualified=True,
+            controller=u"dataset",
+            action=u"search",
+            id=deleted_tags_list[i]) +
+            u"\">" + deleted_tags_list[i] + u"</a></li> "
+            for i in range(0, len(deleted_tags))
+        ]
+        change_list.append([u"Removed the following tags from", new_pkg,
                             u"<ul>", s.join(seq2), u"</ul>"])
 
     added_tags = new_tags - original_tags
@@ -496,12 +499,12 @@ def _license_change(change_list, original, new, new_pkg):
     seq2 = ()
     seq3 = ()
     # if the license has a URL, use it
-    if 'license_url' in original and original['license_url']:
+    if u'license_url' in original and original['license_url']:
         seq2 = (u"<a href=\"", original['license_url'], u"\">",
                 original['license_title'], u"</a>")
     else:
         seq2 = (original['license_title'])
-    if 'license_url' in new and new['license_url']:
+    if u'license_url' in new and new['license_url']:
         seq3 = (u"<a href=\"", new['license_url'], u"\">",
                 new['license_title'], u"</a>")
     else:
@@ -517,14 +520,18 @@ def _name_change(change_list, original, new):
     change_list.
     '''
     s = u""
-    old_url = url_for(qualified=True,
-                    controller=u"dataset",
-                    action=u"read",
-                    id=original['name'])
-    new_url = url_for(qualified=True,
-                    controller=u"dataset",
-                    action=u"read",
-                    id=new['name'])
+    old_url = url_for(
+        qualified=True,
+        controller=u"dataset",
+        action=u"read",
+        id=original['name']
+    )
+    new_url = url_for(
+        qualified=True,
+        controller=u"dataset",
+        action=u"read",
+        id=new['name']
+    )
     seq2 = (u"<a href=\"", old_url, u"\">", old_url, u"</a>")
     seq3 = (u"<a href=\"", new_url, u"\">", new_url, u"</a>")
     change_list.append([u"Moved the dataset from", s.join(seq2),
@@ -580,15 +587,17 @@ def _extension_fields(change_list, original, new, new_pkg):
     # list of the default metadata fields for a dataset
     # any fields that are not part of this list are custom fields added by a
     # user or extension
-    fields = ['owner_org', 'maintainer', 'maintainer_email',
-            'relationships_as_object', 'private', 'num_tags',
-            'id', 'metadata_created', 'metadata_modified',
-            'author', 'author_email', 'state', 'version',
-            'license_id', 'type', 'resources', 'num_resources',
-            'tags', 'title', 'groups', 'creator_user_id',
-            'relationships_as_subject', 'name', 'isopen', 'url',
-            'notes', 'license_title', 'extras',
-            'license_url', 'organization', 'revision_id']
+    fields = [
+        u'owner_org', u'maintainer', u'maintainer_email',
+        u'relationships_as_object', u'private', u'num_tags',
+        u'id', u'metadata_created', u'metadata_modified',
+        u'author', u'author_email', u'state', u'version',
+        u'license_id', u'type', u'resources', u'num_resources',
+        u'tags', u'title', u'groups', u'creator_user_id',
+        u'relationships_as_subject', u'name', u'isopen', u'url',
+        u'notes', u'license_title', u'extras',
+        u'license_url', u'organization', u'revision_id'
+    ]
     fields_set = set(fields)
 
     # if there are any fields from extensions that are in the new dataset and
@@ -630,13 +639,13 @@ def _extra_fields(change_list, original, new, new_pkg):
     '''
 
     s = u""
-    if 'extras' in new:
+    if u'extras' in new:
         extra_fields_new = _extras_to_dict(new['extras'])
         extra_new_set = set(extra_fields_new.keys())
 
         # if the original version has an extra fields, we need
         # to compare the new version'sextras to the original ones
-        if 'extras' in original:
+        if u'extras' in original:
             extra_fields_original = _extras_to_dict(original['extras'])
             extra_original_set = set(extra_fields_original.keys())
 
@@ -644,12 +653,13 @@ def _extra_fields(change_list, original, new, new_pkg):
             new_fields = list(extra_new_set - extra_original_set)
             if len(new_fields) == 1:
                 if extra_fields_new[new_fields[0]]:
-                    change_list.append([u"Added field", s.join((u"<q>",
-                                            new_fields[0], u"</q>")),
-                                        u"with value", s.join((u"<q>",
-                                            extra_fields_new[new_fields[0]],
-                                            u"</q>")),
-                                        u"to", new_pkg])
+                    change_list.append(
+                        [u"Added field", s.join((u"<q>",
+                        new_fields[0], u"</q>")),
+                        u"with value", s.join((u"<q>",
+                        extra_fields_new[new_fields[0]],
+                        u"</q>")), u"to", new_pkg]
+                    )
                 else:
                     change_list.append([u"Added field", s.join((u"<q>",
                                         new_fields[0], u"</q>")),
@@ -681,21 +691,25 @@ def _extra_fields(change_list, original, new, new_pkg):
             for field in extra_fields:
                 if extra_fields_original[field] != extra_fields_new[field]:
                     if extra_fields_original[field]:
-                        change_list.append([u"Changed value of field",
-                                                s.join((u"<q>", field, u"</q>")),
-                                                u"to", s.join((u"<q>",
-                                                extra_fields_new[field],
-                                                u"</q>")),
-                                                u"(previously", s.join((u"<q>",
-                                                extra_fields_original[field],
-                                                u"</q>")) + u")",
-                                                u"in", new_pkg])
+                        change_list.append(
+                            [u"Changed value of field",
+                            s.join((u"<q>", field, u"</q>")),
+                            u"to", s.join((u"<q>",
+                            extra_fields_new[field],
+                            u"</q>")),
+                            u"(previously", s.join((u"<q>",
+                            extra_fields_original[field],
+                            u"</q>")) + u")",
+                            u"in", new_pkg]
+                        )
                     else:
-                        change_list.append([u"Changed value of field",
-                                            s.join((u"<q>", field, u"</q>")),
-                                            u"to", s.join((u"<q>",
-                                            extra_fields_new[field], u"</q>")),
-                                            u"in", new_pkg])
+                        change_list.append(
+                            [u"Changed value of field",
+                            s.join((u"<q>", field, u"</q>")),
+                            u"to", s.join((u"<q>",
+                            extra_fields_new[field], u"</q>")),
+                            u"in", new_pkg]
+                        )
 
         # if the original version didn't have an extras field,
         # the user could only have added a field (not changed or deleted)
@@ -722,7 +736,7 @@ def _extra_fields(change_list, original, new, new_pkg):
                 change_list.append([u"Added the following fields to",
                                     new_pkg, u"<ul>", s.join(seq2), u"</ul>"])
 
-    elif 'extras' in original:
+    elif u'extras' in original:
         deleted_fields = _extras_to_dict(original['extras']).keys()
         if len(deleted_fields) == 1:
             change_list.append([u"Removed field", s.join((u"<q>",

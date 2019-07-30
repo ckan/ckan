@@ -61,7 +61,7 @@ def less():
     directory = output[0].strip()
     if not directory:
         error_shout(u'Command "{}" returned nothing. Check that npm is '
-                    u'installed.'.format(' '.join(command)))
+                    u'installed.'.format(u' '.join(command)))
     less_bin = os.path.join(directory, u'lessc')
 
     public = config.get(u'ckan.base_public_folder')
