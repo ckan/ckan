@@ -248,17 +248,14 @@ def package_update(context, data_dict):
     if pkg is None:
         raise NotFound(_('Package was not found.'))
     context["package"] = pkg
+
+    # immutable fields
     data_dict["id"] = pkg.id
     data_dict['type'] = pkg.type
 
     _check_access('package_update', context, data_dict)
-    return _package_update(context, data_dict)
 
-
-def _package_update(context, data_dict):
-    model = context['model']
     user = context['user']
-    pkg = context['package']
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     if 'schema' in context:
@@ -448,17 +445,15 @@ def package_sfu(context, data_dict):
     for k, v in sorted(data['update__'].items()):
         dfunc.update_merge_string_key(orig, k, v)
 
-    # immutable fields
-    orig['id'] = pkg.id
-    orig['type'] = pkg.type
-
     _check_access('package_sfu', context, orig)
 
     # future-proof return dict by putting package data under
     # "package". We will want to return activity info
     # on update or "nothing changed" status once possible
     rval = {
-        'package': _package_update(dict(context, package=pkg), orig)}
+        'package': _get_action('package_update')(
+            dict(context, package=pkg),
+            orig)}
     if 'include' in data_dict:
         dfunc.filter_glob_match(rval, data_dict['include'])
     return rval
