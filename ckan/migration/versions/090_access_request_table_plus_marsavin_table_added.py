@@ -7,7 +7,7 @@ def upgrade(migrate_engine):
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS public.package_marsavin (
-    contact_id uuid DEFAULT uuid_generate_v4 (),
+    id uuid DEFAULT uuid_generate_v4 (),
     package_id text,
     associated_tasks text,
     collection_period text,
