@@ -4,30 +4,22 @@
 def upgrade(migrate_engine):
     migrate_engine.execute(
         '''
-CREATE TABLE IF NOT EXISTS public.package_marsavin (
-    id text NOT NULL,
-    package_id text,
-    associated_tasks text,
-    collection_period text,
-    geographical_area text,
-    number_of_instances text,
-    number_of_missing_values text,
-    pkg_description text
-);
-
-ALTER TABLE public.package_marsavin OWNER TO ckan;
-
-CREATE TABLE IF NOT EXISTS public.access_request (
-    id text NOT NULL,
-    user_ip_address text,
-    user_email text,
-    maintainer_name text,
-    maintainer_email text,
-    user_msg text,
-    created timestamp without time zone
-);
+ALTER TABLE package
+	ADD COLUMN associated_tasks text,
+	ADD COLUMN collection_period text,
+	ADD COLUMN geographical_area text,
+	ADD COLUMN number_of_instances text,
+	ADD COLUMN number_of_missing_values text,
+	ADD COLUMN pkg_description text;
 
 
-ALTER TABLE public.access_request OWNER TO ckan;
+ALTER TABLE package_revision
+	ADD COLUMN associated_tasks text,
+	ADD COLUMN collection_period text,
+	ADD COLUMN geographical_area text,
+	ADD COLUMN number_of_instances text,
+	ADD COLUMN number_of_missing_values text,
+	ADD COLUMN pkg_description text;
+
         '''
     )
