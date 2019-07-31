@@ -4,7 +4,7 @@
 def upgrade(migrate_engine):
     migrate_engine.execute(
         '''
-CREATE TABLE public.package_marsavin (
+CREATE TABLE IF NOT EXISTS public.package_marsavin (
     id text NOT NULL,
     package_id text,
     associated_tasks text,
@@ -17,7 +17,7 @@ CREATE TABLE public.package_marsavin (
 
 ALTER TABLE public.package_marsavin OWNER TO ckan;
 
-CREATE TABLE public.access_request (
+CREATE TABLE IF NOT EXISTS public.access_request (
     id text NOT NULL,
     user_ip_address text,
     user_email text,
