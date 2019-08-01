@@ -38,6 +38,7 @@ services:
       dockerfile: contrib/docker/ckan-bg/Dockerfile
       args:
         - CKAN_SITE_URL=${CKAN_SITE_URL}
+        - MARS_PLUGIN_VERSION=${MARS_PLUGIN_VERSION}
 #    links:
 #      # a.s.
 #      - db
@@ -112,6 +113,7 @@ services:
       context: ../../
       args:
           - CKAN_SITE_URL=${CKAN_SITE_URL}
+          - MARS_PLUGIN_VERSION=${MARS_PLUGIN_VERSION}
 #    links:
 #      # a.s.
 #      - db

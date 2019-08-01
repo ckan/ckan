@@ -33,6 +33,7 @@ ENV CKAN_STORAGE_PATH=/var/lib/ckan
 
 # Build-time variables specified by docker-compose.yml / .env
 ARG CKAN_SITE_URL
+ARG MARS_PLUGIN_VERSION
 
 # Create ckan user
 RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
@@ -51,8 +52,7 @@ RUN ckan-pip install -U pip && \
   ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
   ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
   ckan-pip install -e $CKAN_VENV/src/ckan/ && \
-#  ckan-pip install -e git+https://github.com/marsdd/ckanext-marsavin.git#egg=ckanext-marsavin && \
-  ckan-pip install https://github.com/marsdd/ckanext-marsavin/archive/convert-to-plugin-model-move.zip && \
+  ckan-pip install https://github.com/marsdd/ckanext-marsavin/archive/$MARS_PLUGIN_VERSION.zip && \
   ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
   cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
   chmod +x /ckan-entrypoint.sh && \
