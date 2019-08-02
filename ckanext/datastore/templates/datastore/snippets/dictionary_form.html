@@ -8,31 +8,33 @@
   as part of the "info" object on the column.
 #}
 
-{{ form.input('info__' ~ position ~ '__label',
-  label=_('Label'), id='field-f' ~ position ~ 'label',
-  value=field.get('info', {}).get('label', ''), classes=['control-full']) }}
+{% block form_fields %}
+  {{ form.input('info__' ~ position ~ '__label',
+    label=_('Label'), id='field-f' ~ position ~ 'label',
+    value=field.get('info', {}).get('label', ''), classes=['control-full']) }}
 
-<div class="ddict-description collapse">
-  {{ form.markdown('info__' ~ position ~ '__notes',
-    label=_('Description'), id='field-d' ~ position ~ 'notes',
-    value=field.get('info', {}).get('notes', '')) }}
-</div>
+  <div class="ddict-description collapse">
+    {{ form.markdown('info__' ~ position ~ '__notes',
+      label=_('Description'), id='field-d' ~ position ~ 'notes',
+      value=field.get('info', {}).get('notes', '')) }}
+  </div>
 
-<div class="ddict-type-override collapse">
-  {{ form.select('info__' ~ position ~ '__type_override',
-    label=_('Type Override'), options=[
-    {'name': '', 'value': ''},
-    {'name': 'text', 'value': 'text'},
-    {'name': 'numeric', 'value': 'numeric'},
-    {'name': 'timestamp', 'value': 'timestamp'},
-    ], selected=field.get('info', {}).get('type_override', '')) }}
-</div>
+  <div class="ddict-type-override collapse">
+    {{ form.select('info__' ~ position ~ '__type_override',
+      label=_('Type Override'), options=[
+      {'name': '', 'value': ''},
+      {'name': 'text', 'value': 'text'},
+      {'name': 'numeric', 'value': 'numeric'},
+      {'name': 'timestamp', 'value': 'timestamp'},
+      ], selected=field.get('info', {}).get('type_override', '')) }}
+  </div>
 
-<div class="ddict-view-filter collapse">
-  {{ form.select('info__' ~ position ~ '__view_filter',
-    label=_('View Filter'), options=[
-    {'name': '', 'value': ''},
-    {'name': 'autocomplete', 'value': _('autocomplete')},
-    {'name': 'search', 'value': _('search')},
-    ], selected=field.get('info', {}).get('view_filter', '')) }}
-</div>
+  <div class="ddict-view-filter collapse">
+    {{ form.select('info__' ~ position ~ '__view_filter',
+      label=_('View Filter'), options=[
+      {'name': '', 'value': ''},
+      {'name': 'autocomplete', 'value': _('autocomplete')},
+      {'name': 'search', 'value': _('search')},
+      ], selected=field.get('info', {}).get('view_filter', '')) }}
+  </div>
+{% endblock %}
