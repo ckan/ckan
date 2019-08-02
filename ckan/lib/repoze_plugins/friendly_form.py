@@ -246,8 +246,8 @@ class FriendlyFormPlugin(object):
             # the login counter in the query string
             environ[u'repoze.who.logins'] += 1
             # Re-building the URL:
-            destination = self._set_logins_in_url(destination,
-                                                  environ[u'repoze.who.logins'])
+            destination = self._set_logins_in_url(
+                destination, environ[u'repoze.who.logins'])
 
         return HTTPFound(location=destination, headers=headers)
 
