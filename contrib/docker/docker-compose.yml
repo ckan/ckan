@@ -26,6 +26,9 @@ services:
            max-size: "20m"
            max-file: "5"
 
+    networks:
+      - ckan
+
 
   ckan-bg:
 #    command: tail -f /dev/null
@@ -35,11 +38,12 @@ services:
       dockerfile: contrib/docker/ckan-bg/Dockerfile
       args:
         - CKAN_SITE_URL=${CKAN_SITE_URL}
-    links:
-      # a.s.
-      - db
-      - solr
-      - redis
+        - MARS_PLUGIN_VERSION=${MARS_PLUGIN_VERSION}
+#    links:
+#      # a.s.
+#      - db
+#      - solr
+#      - redis
     depends_on:
       - db
       # a.s. added solr
@@ -99,23 +103,28 @@ services:
         max-size: "20m"
         max-file: "5"
 
+    networks:
+      - ckan
+
   ckan:
-    container_name: ckan
+    #container_name: ckan
+
     build:
       context: ../../
       args:
           - CKAN_SITE_URL=${CKAN_SITE_URL}
-    links:
-      # a.s.
-      - db
-      - solr
-      - redis
+          - MARS_PLUGIN_VERSION=${MARS_PLUGIN_VERSION}
+#    links:
+#      # a.s.
+#      - db
+#      - solr
+#      - redis
     depends_on:
       - db
       # a.s. added solr
       - solr
-    ports:
-      - "0.0.0.0:${CKAN_PORT}:5000"
+#    ports:
+#      - "0.0.0.0:${CKAN_PORT}:5000"
     environment:
       # a.s. used from ckan-entrypoint.sh to wait until solr is up and running
       - solr_host=solr
@@ -169,6 +178,17 @@ services:
            max-size: "20m"
            max-file: "5"
 
+    networks:
+      - ckan
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.8'
+#          memory: '50M'
+#        reservations:
+#          cpus: '0.5'
+#          memory: '50M'
+
     # logging:
     #   driver: awslogs
     #   options:
@@ -202,6 +222,8 @@ services:
     # a.s. TODO: remove later - temp set the port so we can connect locally to check the data
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    networks:
+      - ckan
 
   # solr:
   #   container_name: solr
@@ -216,3 +238,21 @@ services:
     # a.s. TODO: remove this later. Needed only for local machine to check the data
     ports:
       - 6379:6379
+    networks:
+      - ckan
+
+
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "5000:5000"
+
+    networks:
+      - ckan
+
+
+networks:
+  ckan:
+    driver: bridge
+

@@ -11,7 +11,6 @@ import ckan.lib.helpers as h
 from ckan.common import g, config, _
 
 home = Blueprint(u'home', __name__)
-contact = Blueprint(u'contact', __name__)
 
 
 @home.before_request
@@ -19,9 +18,9 @@ def before_request():
     u'''set context and check authorization'''
     try:
         context = {
-            u'model': model,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj}
+                u'model': model,
+                u'user': g.user,
+                u'auth_user_obj': g.userobj}
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
         abort(403)
@@ -70,27 +69,9 @@ def about():
     return base.render(u'home/about.html', extra_vars={})
 
 
-def contact():
-    u''' display contact page'''
-    return base.render(u'home/contact.html', extra_vars={})
-
-
-def terms():
-    u''' display terms page'''
-    return base.render(u'home/terms_conditions.html', extra_vars={})
-
-
-def privacy():
-    u''' display privacy page'''
-    return base.render(u'home/privacy.html', extra_vars={})
-
-
 util_rules = [
     (u'/', index),
-    (u'/about', about),
-    (u'/contact', contact),
-    (u'/terms', terms),
-    (u'/privacy', privacy)
+    (u'/about', about)
 ]
 for rule, view_func in util_rules:
     home.add_url_rule(rule, view_func=view_func)

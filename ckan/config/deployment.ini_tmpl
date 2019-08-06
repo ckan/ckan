@@ -92,6 +92,8 @@ ckan.auth.roles_that_cascade_to_sub_groups = admin
 ## Search Settings
 
 ckan.site_id = default
+ckan.cache_enabled = True
+ckan.cache_expires = 600
 #solr_url = http://127.0.0.1:8983/solr
 
 

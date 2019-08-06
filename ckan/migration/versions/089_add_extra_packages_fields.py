@@ -21,17 +21,5 @@ ALTER TABLE package_revision
 	ADD COLUMN number_of_missing_values text,
 	ADD COLUMN pkg_description text;
 
-CREATE TABLE public.access_request (
-    id text NOT NULL,
-    user_ip_address text,
-    user_email text,
-    maintainer_name text,
-    maintainer_email text,
-    user_msg text,
-    created timestamp without time zone
-);
-
-
-ALTER TABLE public.access_request OWNER TO ckan;
         '''
     )
