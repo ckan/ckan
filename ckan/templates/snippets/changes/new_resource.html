@@ -1,0 +1,13 @@
+<li>
+  <p>
+    {{ _('Added resource <a href="{resource_url}">{resource_title}</a>
+        to <a href="{pkg_url}">{dataset}</a>').format(
+          pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+          dataset = ah.title,
+          resource_url = h.url_for(qualified=True, controller='resource',
+                                    action='read', id=ah.pkg_id,
+                                    resource_id = ah.resource_id),
+          resource_title = ah.resource_name
+        )|safe }}
+  </p>
+</li>

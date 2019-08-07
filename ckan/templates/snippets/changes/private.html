@@ -1,0 +1,10 @@
+<li>
+  <p>
+    {{ _('Set visibility of <a href="{pkg_url}">{dataset}</a> to
+          {visibility}').format(
+            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+            dataset = ah.title,
+            visibility = ah.new
+          )|safe }}
+  </p>
+</li>

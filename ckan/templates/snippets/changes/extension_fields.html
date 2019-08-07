@@ -1,0 +1,11 @@
+<li>
+  <p>
+    {{ _('Changed value of field <q>{field_name}</q> to <q>{new_field}</q> in
+        <a href="{pkg_url}">{dataset}</a>').format(
+          pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+          dataset = ah.title,
+          field_name = ah.field_name,
+          new_field = ah.new_field
+    )|safe }}
+  </p>
+</li>

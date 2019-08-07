@@ -1,0 +1,58 @@
+<li>
+  <p>
+    {% if ah.method == "remove1" %}
+      {{ _('Removed tag <a href="{tag_link}">{tag}</a> from
+          <a href="{pkg_url}">{dataset}</a>').format(
+            tag_link = h.url_for(controller='dataset', action='search') +
+            "?tags=" + ah.tag,
+            tag = ah.tag,
+            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+            dataset = ah.title
+      )|safe }}
+    {% elif ah.method == "remove2" %}
+      {{ _('Removed the following tags from <a href="{pkg_url}">{dataset}
+          </a>').format(
+          pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+          dataset = ah.title
+      )|safe }}
+      <ul>
+        {% for item in ah.tags %}
+          <li>
+            {{ _('<a href="{tag_link}">{tag}</a>').format(
+                  tag_link = h.url_for(controller='dataset', action='search') +
+                  "?tags=" + item,
+                  tag = item
+            )}}
+          </li>
+        {% endfor %}
+      </ul>
+    {% elif ah.method == "add1" %}
+      {{ _('Added tag <a href="{tag_link}">{tag}</a> to
+          <a href="{pkg_url}">{dataset}</a>').format(
+            tag_link = h.url_for(controller='dataset', action='search') +
+            "?tags=" + ah.tag,
+            tag = ah.tag,
+            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+            dataset = ah.title
+      )|safe }}
+    {% elif ah.method == "add2" %}
+      {{ _('Added the following tags to <a href="{pkg_url}">{dataset}
+          </a>').format(
+          pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+          dataset = ah.title
+      )|safe }}
+      <ul>
+        {% for item in ah.tags %}
+          <li>
+            {# TODO: figure out which controller to actually use here #}
+            {{ _('<a href="{tag_link}">{tag}</a>').format(
+                  tag_link = h.url_for(controller='dataset', action='search') +
+                  "?tags=" + item,
+                  tag = item
+            )}}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </p>
+</li>

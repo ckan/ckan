@@ -1,0 +1,26 @@
+<li>
+  <p>
+    {% if ah.method == "change" %}
+      {{ _('Changed the version of <a href="{pkg_url}">{dataset}</a>
+          to {new_version} (previously {old_version})').format(
+            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+            dataset = ah.title,
+            old_version = ah.old_version,
+            new_version = ah.new_version
+          )|safe }}
+    {% elif ah.method == "remove" %}
+      {{ _('Removed the version from <a href="{pkg_url}">{dataset}
+          </a>').format(
+            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+            dataset = ah.title
+          )|safe }}
+    {% elif ah.method == "add" %}
+      {{ _('Changed the version of <a href="{pkg_url}">{dataset}</a>
+          to {new_version}').format(
+            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+            dataset = ah.title,
+            new_version = ah.new_version
+          )|safe }}
+    {% endif %}
+  </p>
+</li>

@@ -1,0 +1,35 @@
+<li>
+  <p>
+    {% if ah.method == "add" %}
+      {{ _('Set format of resource <a href="{resource_url}">{resource_name}
+          </a> to <a href="{format_url}">{format}</a> in
+          <a href="{pkg_url}">{dataset}</a>').format(
+            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+            dataset = ah.title,
+            resource_url = h.url_for(controller='resource', action='read',
+                                      id=ah.pkg_id, resource_id=ah.resource_id),
+            resource_name = ah.resource_name,
+            format_url = h.url_for(controller="organization", action="read",
+                                    id=ah.org_id) + "?res_format=" + ah.format,
+            format = ah.format
+          )|safe }}
+    {% elif ah.method == "change" %}
+      {{ _('Set format of resource <a href="{resource_url}">{resource_name}
+          </a> to <a href="{new_format_url}">{new_format}</a>
+          (previously <a href="{old_format_url}">{old_format}</a>) in
+          <a href="{pkg_url}">{dataset}</a>').format(
+            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+            dataset = ah.title,
+            resource_url = h.url_for(controller='resource', action='read',
+                                      id=ah.pkg_id, resource_id=ah.resource_id),
+            resource_name = ah.resource_name,
+            new_format_url = h.url_for(controller="organization", action="read",
+                                    id=ah.org_id) + "?res_format=" + ah.new_format,
+            new_format = ah.new_format,
+            old_format_url = h.url_for(controller="organization", action="read",
+                                    id=ah.org_id) + "?res_format=" + ah.old_format,
+            old_format = ah.old_format
+          )|safe }}
+    {% endif %}
+  </p>
+</li>

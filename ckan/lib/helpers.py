@@ -2704,11 +2704,7 @@ def compare_pkg_dicts(original, new, old_activity_id):
     from changes import _check_metadata_changes, _check_resource_changes
     change_list = []
 
-    s = ""
-    seq1 = ("<a href=\"", url_for(qualified=True, controller="dataset",
-            action="read", id=new['id']), "\">",
-            new['title'], "</a>")
-    new_pkg = s.join(seq1)
+    new_pkg = {u'pkg_id': new['id'], u'name': new['name'], u'title': new['title']}
 
     _check_metadata_changes(change_list, original, new, new_pkg)
 

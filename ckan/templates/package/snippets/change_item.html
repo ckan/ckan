@@ -3,17 +3,20 @@
 {% set changes = h.compare_pkg_dicts(activity_diff.activities[0].data.package, activity_diff.activities[1].data.package, activity_diff.activities[0].id) %}
 <ul>
 {% for change in changes %}
-<li>
-  {% for element in change %}
+  {% snippet "snippets/changes/{}.html".format(
+    change.type), ah=change %}
+<!-- <li>
+  {#{% for element in change %}
     {{ element|safe }}
-  {% endfor %}
-</li>
+  {% endfor %}#}
+</li> -->
   <br>
 {% endfor %}
 </ul>
 
 {# button to show JSON metadata diff - not shown by default #}
 <input type="button" onClick="show_metadata()" class="btn" value="Show metadata diff" id="metadata_button"></input>
+
 <div id="metadata_diff" style="display:none;">
 {% block package_changes_diff %}
   <pre>

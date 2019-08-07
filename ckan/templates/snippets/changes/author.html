@@ -1,0 +1,25 @@
+<li>
+  <p>
+    {% if ah.method == "change" %}
+      {{ _('Set author of <a href="{pkg_url}">{dataset}</a> to
+          {new_author} (previously {old_author})').format(
+            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+            dataset = ah.title,
+            new_author = ah.new_author,
+            old_author = ah.old_author
+          )|safe }}
+    {% elif ah.method == "add" %}
+      {{ _('Set author of <a href="{pkg_url}">{dataset}</a> to
+          {new_author}').format(
+            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+            dataset = ah.title,
+            new_author = ah.new_author
+          )|safe }}
+    {% elif ah.method == "remove" %}
+      {{ _('Removed author from <a href="{pkg_url}">{dataset}</a>').format(
+        pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+        dataset = ah.title
+      )|safe }}
+    {% endif %}
+  </p>
+</li>
