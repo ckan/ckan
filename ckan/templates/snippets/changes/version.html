@@ -21,6 +21,8 @@
             dataset = ah.title,
             new_version = ah.new_version
           )|safe }}
+    {% else %}
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
     {% endif %}
   </p>
 </li>

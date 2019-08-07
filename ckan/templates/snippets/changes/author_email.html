@@ -25,6 +25,8 @@
         pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
         dataset = ah.title
       )|safe }}
+    {% else %}
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
     {% endif %}
   </p>
 </li>

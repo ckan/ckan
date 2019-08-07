@@ -5,11 +5,6 @@
 {% for change in changes %}
   {% snippet "snippets/changes/{}.html".format(
     change.type), ah=change %}
-<!-- <li>
-  {#{% for element in change %}
-    {{ element|safe }}
-  {% endfor %}#}
-</li> -->
   <br>
 {% endfor %}
 </ul>

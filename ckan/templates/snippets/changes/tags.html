@@ -53,6 +53,8 @@
           </li>
         {% endfor %}
       </ul>
+    {% else %}
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
     {% endif %}
   </p>
 </li>

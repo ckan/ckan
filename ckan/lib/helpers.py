@@ -2700,6 +2700,11 @@ def compare_pkg_dicts(original, new, old_activity_id):
     all of the default package dictionary keys, and also checks for additional
     keys added by extensions and custom fields added by the user in the web
     interface.
+
+    Returns a list of dictionaries, each of which corresponds to a change to the
+    dataset made in this revision. The dictionaries each contain a string
+    indicating the type of change made as well as other data necessary to
+    form a detailed summary of the change.
     '''
     from changes import _check_metadata_changes, _check_resource_changes
     change_list = []
@@ -2714,8 +2719,7 @@ def compare_pkg_dicts(original, new, old_activity_id):
     # if the dataset was updated but none of the fields we check were changed,
     # display a message stating that
     if len(change_list) == 0:
-        change_list.append(["No fields were updated. \
-                            See metadata diff for more details."])
+        change_list.append({u'type': 'no_change'})
 
     return change_list
 

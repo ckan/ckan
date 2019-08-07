@@ -35,6 +35,8 @@
             new_desc = ah.new_desc,
             old_desc = ah.old_desc
           )|safe }}
+    {% else %}
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
     {% endif %}
   </p>
 </li>

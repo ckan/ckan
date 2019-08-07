@@ -30,6 +30,8 @@
                                     id=ah.org_id) + "?res_format=" + ah.old_format,
             old_format = ah.old_format
           )|safe }}
+    {% else %}
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
     {% endif %}
   </p>
 </li>
