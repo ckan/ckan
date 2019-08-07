@@ -80,7 +80,11 @@
           {% set key, value = extra %}
           <tr rel="dc:relation" resource="_:extra{{ i }}">
             <th scope="row" class="dataset-label" property="rdfs:label">{{ _(key) }}</th>
-            <td class="dataset-details" property="rdf:value">{{ value }}</td>
+            {% if h.is_url(value) %}
+              <td class="dataset-details" property="rdf:value">{{ h.link_to(value, value, rel='foaf:homepage', target='_blank') }}</td>
+            {% else %}
+              <td class="dataset-details" property="rdf:value">{{ value }}</td>
+            {% endif %}
           </tr>
         {% endfor %}
       {% endblock %}
