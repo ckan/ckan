@@ -2710,7 +2710,7 @@ def compare_pkg_dicts(original, new, old_activity_id):
     change_list = []
 
     new_pkg = {u'pkg_id': new['id'], u'name': new['name'],
-                u'title': new['title']}
+        u'title': new['title']}
 
     _check_metadata_changes(change_list, original, new, new_pkg)
 

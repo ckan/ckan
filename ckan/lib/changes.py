@@ -225,7 +225,7 @@ def _check_metadata_changes(change_list, original, new, new_pkg):
         change_list.append({u'type': u'private', u'pkg_id': new_pkg['pkg_id'],
                             u'title': new_pkg['title'],
                             u'new':
-                            u'Private' if bool(new['private']) \
+                            u'Private' if bool(new['private'])
                             else u'Public'})
 
     # if the description of the dataset changed
@@ -305,13 +305,13 @@ def _maintainer_change(change_list, original, new, new_pkg):
     elif not new['maintainer']:
         change_list.append({u'type': u'maintainer', u'pkg_id':
                             new_pkg['pkg_id'], u'title': new_pkg['title'],
-                            u'method':u 'remove'})
+                            u'method': u'remove'})
     # if there wasn't one there before
     else:
         change_list.append({u'type': 'maintainer', u'pkg_id':
                             new_pkg['pkg_id'], u'title': new_pkg['title'],
                             u'new_maintainer': new['maintainer'],
-                            u'method': 'add'})
+                            u'method': u'add'})
 
 
 def _maintainer_email_change(change_list, original, new, new_pkg):
@@ -382,8 +382,8 @@ def _author_email_change(change_list, original, new, new_pkg):
     else:
         change_list.append({u'type': u'author_email', u'pkg_id':
                             new_pkg['pkg_id'], u'title': new_pkg['title'],
-                             u'new_author_email': new['author_email'],
-                             u'method': u'add'})
+                            u'new_author_email': new['author_email'],
+                            u'method': u'add'})
 
 
 def _description_change(change_list, original, new, new_pkg):
