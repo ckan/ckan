@@ -71,7 +71,7 @@ class DatasetActivitySessionExtension(SessionExtension):
 
             # Don't create activities for private datasets.
             if obj.private:
-               continue
+                continue
 
             activities[obj.id] = activity
 
@@ -107,7 +107,7 @@ class DatasetActivitySessionExtension(SessionExtension):
 
                     # Don't create activities for private datasets.
                     if package.private:
-                       continue
+                        continue
 
                     if package.id in activities:
                         continue

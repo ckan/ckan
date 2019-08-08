@@ -2701,15 +2701,16 @@ def compare_pkg_dicts(original, new, old_activity_id):
     keys added by extensions and custom fields added by the user in the web
     interface.
 
-    Returns a list of dictionaries, each of which corresponds to a change to the
-    dataset made in this revision. The dictionaries each contain a string
-    indicating the type of change made as well as other data necessary to
-    form a detailed summary of the change.
+    Returns a list of dictionaries, each of which corresponds to a change
+    to the dataset made in this revision. The dictionaries each contain a
+    string indicating the type of change made as well as other data necessary
+    to form a detailed summary of the change.
     '''
     from changes import _check_metadata_changes, _check_resource_changes
     change_list = []
 
-    new_pkg = {u'pkg_id': new['id'], u'name': new['name'], u'title': new['title']}
+    new_pkg = {u'pkg_id': new['id'], u'name': new['name'],
+                u'title': new['title']}
 
     _check_metadata_changes(change_list, original, new, new_pkg)
 
