@@ -10760,3 +10760,18 @@ iframe {
 .reduced-padding {
   padding: 3px 5px;
 }
+
+.select-time {
+  width: 250px;
+  display: inline;
+}
+
+br.line-height2 {
+  line-height: 2;
+}
+
+.select-div {
+  width:250px;
+  position:absolute;
+  right:30px;
+}

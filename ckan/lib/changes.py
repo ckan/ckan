@@ -119,7 +119,7 @@ def _check_resource_changes(change_list, original, new, new_pkg,
 
         # if a format was not originally set and the user set one
         if not original_metadata['format'] and new_metadata['format']:
-            change_list.append({u'type': 'resource_format',
+            change_list.append({u'type': u'resource_format',
                                 u'method': u'add',
                                 u'pkg_id': new_pkg['pkg_id'],
                                 u'title': new_pkg['title'],
@@ -308,7 +308,7 @@ def _maintainer_change(change_list, original, new, new_pkg):
                             u'method': u'remove'})
     # if there wasn't one there before
     else:
-        change_list.append({u'type': 'maintainer', u'pkg_id':
+        change_list.append({u'type': u'maintainer', u'pkg_id':
                             new_pkg['pkg_id'], u'title': new_pkg['title'],
                             u'new_maintainer': new['maintainer'],
                             u'method': u'add'})
@@ -336,7 +336,7 @@ def _maintainer_email_change(change_list, original, new, new_pkg):
     else:
         change_list.append({u'type': u'maintainer_email', u'pkg_id':
                             new_pkg['pkg_id'], u'title': new_pkg['title'],
-                            'new_maintainer_email': new['maintainer_email'],
+                            u'new_maintainer_email': new['maintainer_email'],
                             u'method': u'add'})
 
 
@@ -441,8 +441,8 @@ def _license_change(change_list, original, new, new_pkg):
     Appends a summary of a change to a dataset's license between two versions
     (original and new) to change_list.
     '''
-    original_license_url = ""
-    new_license_url = ""
+    original_license_url = u""
+    new_license_url = u""
     # if the license has a URL
     if u'license_url' in original and original['license_url']:
         original_license_url = original['license_url']
@@ -501,7 +501,7 @@ def _version_change(change_list, original, new, new_pkg):
     '''
     # if both old and new versions have version numbers
     if original['version'] and new['version']:
-        change_list.append({u'type': 'version', u'method': u'change',
+        change_list.append({u'type': u'version', u'method': u'change',
                             u'pkg_id': new_pkg['pkg_id'], u'title':
                             new_pkg['title'], u'old_version':
                             original['version'], u'new_version':

@@ -3,7 +3,7 @@
     {% if ah.method == "add" %}
       {{ _('Updated description of resource <a href="{resource_url}">
           {resource_name}</a> in <a href="{pkg_url}">{dataset}</a>
-          to <br style="line-height:2;"><blockquote>{new_desc}</blockquote>'
+          to <br class="line-height2"><blockquote>{new_desc}</blockquote>'
           ).format(
             pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
             dataset = ah.title,
@@ -24,8 +24,8 @@
     {% elif ah.method == "change" %}
       {{ _('Updated description of resource <a href="{resource_url}">
           {resource_name}</a> in <a href="{pkg_url}">{dataset}</a>
-          from <br style="line-height:2;"><blockquote>{old_desc}</blockquote>
-          to <br style="line-height:2;"><blockquote>{new_desc}</blockquote>'
+          from <br class="line-height2"><blockquote>{old_desc}</blockquote>
+          to <br class="line-height2"><blockquote>{new_desc}</blockquote>'
           ).format(
             pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
             dataset = ah.title,
