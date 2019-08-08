@@ -95,7 +95,10 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
 fi
 
 set_environment
+# initialize core db
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
+# initialize plugin db
+ckan-paster --plugin=ckanext-marsavin db init --config= -c "${CKAN_CONFIG}/production.ini"
 
 cd /usr/lib/ckan/venv/src/ckan && ckan-paster search-index rebuild -c "${CKAN_CONFIG}/production.ini"
 exec "$@"
