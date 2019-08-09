@@ -2706,7 +2706,7 @@ def compare_pkg_dicts(original, new, old_activity_id):
     string indicating the type of change made as well as other data necessary
     to form a detailed summary of the change.
     '''
-    from changes import _check_metadata_changes, _check_resource_changes
+    from changes import check_metadata_changes, check_resource_changes
     change_list = []
 
     new_pkg = {
@@ -2715,10 +2715,10 @@ def compare_pkg_dicts(original, new, old_activity_id):
         u'title': new['title']
     }
 
-    _check_metadata_changes(change_list, original, new, new_pkg)
+    check_metadata_changes(change_list, original, new, new_pkg)
 
-    _check_resource_changes(change_list, original, new, new_pkg,
-                            old_activity_id)
+    check_resource_changes(change_list, original, new, new_pkg,
+                           old_activity_id)
 
     # if the dataset was updated but none of the fields we check were changed,
     # display a message stating that

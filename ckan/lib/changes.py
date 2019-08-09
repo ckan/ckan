@@ -1,10 +1,10 @@
 # encoding: utf-8
 
 '''
-Functions used by the helper function compare_pkg_dicts() to analyze
-the differences between two versions of a dataset.
+Functions for generating a list of differences between two versions of a
+dataset
 '''
-from helpers import url_for
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -40,14 +40,14 @@ def _extras_to_dict(extras_list):
     return ret_dict
 
 
-def _check_resource_changes(change_list, original, new, new_pkg,
-                            old_activity_id):
+def check_resource_changes(change_list, original, new, new_pkg,
+                           old_activity_id):
     '''
-    Checks whether a dataset's resources have changed - whether new ones have
-    been uploaded, existing ones have been deleted, or existing ones have
-    been edited. For existing resources, checks whether their names, formats,
-    and/or descriptions have changed, as well as whether a new file has been
-    uploaded for the resource.
+    Compares two versions of a dataset and records the changes between them
+    (just the resources) in change_list. e.g. resources that are added, changed
+    or deleted. For existing resources, checks whether their names, formats,
+    and/or descriptions have changed, as well as whether the url changed (e.g.
+    a new file has been uploaded for the resource).
     '''
 
     # make a set of the resource IDs present in original and new
@@ -55,7 +55,6 @@ def _check_resource_changes(change_list, original, new, new_pkg,
     original_resource_dict = {}
     new_resource_set = set()
     new_resource_dict = {}
-    s = u""
 
     for resource in original['resources']:
         original_resource_set.add(resource['id'])
@@ -126,7 +125,8 @@ def _check_resource_changes(change_list, original, new, new_pkg,
                                 u'resource_id': resource_id,
                                 u'resource_name':
                                 new_resource_dict[resource_id]['name'],
-                                u'org_id': new['organization']['id'],
+                                u'org_id': new['organization']['id']
+                                    if new['organization'] else u'',
                                 u'format': new_metadata['format']})
 
         # if both versions have a format but the format changed
@@ -138,7 +138,8 @@ def _check_resource_changes(change_list, original, new, new_pkg,
                                 u'resource_id': resource_id,
                                 u'resource_name':
                                 new_resource_dict[resource_id]['name'],
-                                u'org_id': new['organization']['id'],
+                                u'org_id': new['organization']['id']
+                                    if new['organization'] else u'',
                                 u'old_format': original_metadata['format'],
                                 u'new_format': new_metadata['format']})
 
@@ -177,7 +178,7 @@ def _check_resource_changes(change_list, original, new, new_pkg,
                                 u'new_desc': new_metadata['description'],
                                 u'old_desc': original_metadata['description']})
 
-        # check if the user uploaded a new file
+        # check if the url changes (e.g. user uploaded a new file)
         # TODO: use regular expressions to determine the actual name of the
         # new and old files
         if original_metadata['url'] != new_metadata['url']:
@@ -189,12 +190,10 @@ def _check_resource_changes(change_list, original, new, new_pkg,
                                 new_resource_dict[resource_id]['name']})
 
 
-def _check_metadata_changes(change_list, original, new, new_pkg):
+def check_metadata_changes(change_list, original, new, new_pkg):
     '''
-    Checks whether a dataset's metadata fields (fields in its package
-    dictionary not including resources) have changed between two consecutive
-    versions and puts a list of formatted summaries of these changes in
-    change_list.
+    Compares two versions of a dataset and records the changes between them
+    (excluding resources) in change_list.
     '''
     # if the title has changed
     if original['title'] != new['title']:
@@ -280,7 +279,9 @@ def _org_change(change_list, original, new, new_pkg):
     Appends a summary of a change to a dataset's organization between
     two versions (original and new) to change_list.
     '''
-    change_list.append({u'type': u'org', u'pkg_id': new_pkg['pkg_id'],
+    change_list.append({u'type': u'org',
+                        u'method': u'change',
+                        u'pkg_id': new_pkg['pkg_id'],
                         u'title': new_pkg['title'],
                         u'original_org_id': original['organization']['id'],
                         u'original_org_title':
@@ -578,7 +579,6 @@ def _extra_fields(change_list, original, new, new_pkg):
     from the web interface (or API?) and appends a summary of each change to
     change_list.
     '''
-    s = u""
     if u'extras' in new:
         extra_fields_new = _extras_to_dict(new['extras'])
         extra_new_set = set(extra_fields_new.keys())
