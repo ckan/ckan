@@ -27,12 +27,12 @@
       View changes from
         <select class="form-control select-time" form="range_form" name="oldest_id">
           <pre>
-            {{ select_list1[1:]|safe }}
+            {{ select_list1[1:]|join }}
           </pre>
         </select> to
         <select class="form-control select-time" form="range_form" name="newest_id">
           <pre>
-            {{ select_list2|safe }}
+            {{ select_list2|join }}
           </pre>
         </select>
         </form>

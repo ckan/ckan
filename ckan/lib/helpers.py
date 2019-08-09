@@ -36,6 +36,7 @@ from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
 from six import string_types, text_type
+import jinja2
 
 import ckan.exceptions
 import ckan.model as model
@@ -2735,19 +2736,20 @@ def activity_list_select(pkg_activity_list, current_activity_id):
     on the "Changes" summary page.
     '''
     select_list = []
+    template = jinja2.Template(
+        u'<option value="{{activity_id}}" {{selected}}>'
+        '{{timestamp}}</option>',
+        autoescape=True)
     for activity in pkg_activity_list:
         entry = render_datetime(activity['timestamp'],
                                 with_hours=True,
                                 with_seconds=True)
-        if activity['id'] == current_activity_id:
-            select_list.append(
-                "<option value=\"" + activity['id'] +
-                "\" selected>" + entry + "</option>"
-            )
-        else:
-            select_list.append(
-                "<option value=\"" + activity['id'] + "\">" +
-                entry + "</option>"
-            )
+        select_list.append(Markup(
+            template
+            .render(activity_id=activity['id'], timestamp=entry,
+                    selected='selected'
+                    if activity['id'] == current_activity_id
+                    else '')
+        ))
 
     return select_list
