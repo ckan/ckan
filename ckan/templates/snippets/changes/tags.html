@@ -1,6 +1,6 @@
 <li>
   <p>
-    {% if ah.method == "remove1" %}
+    {% if ah.method == "remove_one" %}
       {{ _('Removed tag <a href="{tag_link}">{tag}</a> from
           <a href="{pkg_url}">{dataset}</a>').format(
             tag_link = h.url_for(controller='dataset', action='search') +
@@ -9,7 +9,7 @@
             pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
             dataset = ah.title
       )|safe }}
-    {% elif ah.method == "remove2" %}
+    {% elif ah.method == "remove_multiple" %}
       {{ _('Removed the following tags from <a href="{pkg_url}">{dataset}
           </a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
@@ -26,7 +26,7 @@
           </li>
         {% endfor %}
       </ul>
-    {% elif ah.method == "add1" %}
+    {% elif ah.method == "add_one" %}
       {{ _('Added tag <a href="{tag_link}">{tag}</a> to
           <a href="{pkg_url}">{dataset}</a>').format(
             tag_link = h.url_for(controller='dataset', action='search') +
@@ -35,7 +35,7 @@
             pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
             dataset = ah.title
       )|safe }}
-    {% elif ah.method == "add2" %}
+    {% elif ah.method == "add_multiple" %}
       {{ _('Added the following tags to <a href="{pkg_url}">{dataset}
           </a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),

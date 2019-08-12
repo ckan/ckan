@@ -23,12 +23,12 @@
         <input type="hidden" name="current_old_id" value="{{ activity_diffs[-1].activities[0].id }}">
         <input type="hidden" name="current_new_id" value="{{ activity_diffs[0].activities[1].id }}">
       View changes from
-        <select class="form-control select-time" form="range_form" name="oldest_id">
+        <select class="form-control select-time" form="range_form" name="old_id">
           <pre>
             {{ select_list1[1:]|join }}
           </pre>
         </select> to
-        <select class="form-control select-time" form="range_form" name="newest_id">
+        <select class="form-control select-time" form="range_form" name="new_id">
           <pre>
             {{ select_list2|join }}
           </pre>

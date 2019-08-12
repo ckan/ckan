@@ -28,7 +28,7 @@ class TestCheckMetadataChanges(object):
         new = helpers.call_action(u'package_patch', id=original['id'],
                                   title=u'New title')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'title')
@@ -41,7 +41,7 @@ class TestCheckMetadataChanges(object):
         new = helpers.call_action(u'package_patch', id=original['id'],
                                   name=u'new-name')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'name')
@@ -55,7 +55,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             extras=[{u'key': u'subject', u'value': u'science'}])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'custom_fields')
@@ -73,7 +73,7 @@ class TestCheckMetadataChanges(object):
             extras=[{u'key': u'subject', u'value': u'science'},
                     {u'key': u'topic', u'value': u'wind'}])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'custom_fields')
@@ -90,7 +90,7 @@ class TestCheckMetadataChanges(object):
             extras=[{u'key': u'subject', u'value': u'scientific'},
                     {u'key': u'topic', u'value': u'wind'}])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'custom_fields')
@@ -109,7 +109,7 @@ class TestCheckMetadataChanges(object):
             extras=[{u'key': u'subject', u'value': u'scientific'},
                     {u'key': u'topic', u'value': u'rain'}])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 2, changes
         for change in changes:
@@ -132,7 +132,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             extras=[{u'key': u'topic', u'value': u'wind'}])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'custom_fields')
@@ -149,7 +149,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             extras=[{u'key': u'topic', u'value': u'wind'}])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'custom_fields')
@@ -163,7 +163,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             maintainer=u'new maintainer')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'maintainer')
         eq(changes[0]['method'], u'add')
@@ -176,7 +176,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             maintainer=u'new maintainer')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'maintainer')
         eq(changes[0]['method'], u'change')
@@ -190,7 +190,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             maintainer=u'')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'maintainer')
         eq(changes[0]['method'], u'remove')
@@ -202,7 +202,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             notes=u'new notes')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'description')
         eq(changes[0]['method'], u'add')
@@ -215,7 +215,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             notes=u'new notes')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'description')
         eq(changes[0]['method'], u'change')
@@ -229,7 +229,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             notes=u'')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'description')
         eq(changes[0]['method'], u'remove')
@@ -243,7 +243,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             owner_org=new_org['id'])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'org')
         eq(changes[0]['method'], u'add')
@@ -258,7 +258,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             owner_org=new_org['id'])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'org')
         eq(changes[0]['method'], u'change')
@@ -274,7 +274,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             owner_org=None)
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'org')
         eq(changes[0]['method'], u'remove')
@@ -286,7 +286,7 @@ class TestCheckMetadataChanges(object):
         new = helpers.call_action(u'package_patch', id=original['id'],
                                   private=True)
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'private')
@@ -299,7 +299,7 @@ class TestCheckMetadataChanges(object):
         new = helpers.call_action(u'package_patch', id=original['id'],
                                   private=False)
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'private')
@@ -312,7 +312,7 @@ class TestCheckMetadataChanges(object):
                                   tags=[{u'name': u'rivers'},
                                         {u'name': u'oceans'}])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'tags')
@@ -327,7 +327,7 @@ class TestCheckMetadataChanges(object):
                                         {u'name': u'oceans'},
                                         {u'name': u'streams'}])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'tags')
@@ -341,7 +341,7 @@ class TestCheckMetadataChanges(object):
         new = helpers.call_action(u'package_patch', id=original['id'],
                                   tags=[{u'name': u'rivers'}])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'tags')
@@ -356,7 +356,7 @@ class TestCheckMetadataChanges(object):
         new = helpers.call_action(u'package_patch', id=original['id'],
                                   tags=[{u'name': u'rivers'}])
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'tags')
@@ -370,7 +370,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             url=u'new url')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'source_url')
         eq(changes[0]['method'], u'add')
@@ -383,7 +383,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             url=u'new url')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'source_url')
         eq(changes[0]['method'], u'change')
@@ -397,7 +397,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             url=u'')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'source_url')
         eq(changes[0]['method'], u'remove')
@@ -409,7 +409,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             version=u'new version')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'version')
         eq(changes[0]['method'], u'add')
@@ -422,7 +422,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             version=u'new version')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'version')
         eq(changes[0]['method'], u'change')
@@ -436,7 +436,7 @@ class TestCheckMetadataChanges(object):
             u'package_patch', id=original['id'],
             version=u'')
 
-        check_metadata_changes(changes, original, new, _new_pkg(new))
+        check_metadata_changes(changes, original, new)
 
         eq(changes[0]['type'], u'version')
         eq(changes[0]['method'], u'remove')
@@ -456,7 +456,7 @@ class TestCheckResourceChanges(object):
                         u'format': u'png',
                         u'name': u'Image 1'}])
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'new_resource')
@@ -474,7 +474,7 @@ class TestCheckResourceChanges(object):
                         u'format': u'png',
                         u'name': u'Image 2'}])
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 2, changes
         eq(changes[0]['type'], u'new_resource')
@@ -498,7 +498,7 @@ class TestCheckResourceChanges(object):
         new['resources'][1][u'url'] = u'http://example.com/image_changed.png'
         new = helpers.call_action(u'package_update', **new)
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'new_file')
@@ -517,7 +517,7 @@ class TestCheckResourceChanges(object):
         new['resources'][1]['format'] = u'jpg'
         new = helpers.call_action(u'package_update', **new)
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'resource_format')
@@ -536,7 +536,7 @@ class TestCheckResourceChanges(object):
         new['resources'][1]['name'] = u'Image changed'
         new = helpers.call_action(u'package_update', **new)
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'resource_name')
@@ -558,7 +558,7 @@ class TestCheckResourceChanges(object):
         new['resources'][1]['description'] = u'changed'
         new = helpers.call_action(u'package_update', **new)
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'resource_desc')
@@ -575,7 +575,7 @@ class TestCheckResourceChanges(object):
         new['resources'][0]['new key'] = u'new value'
         new = helpers.call_action(u'package_update', **new)
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'resource_extra')
@@ -594,7 +594,7 @@ class TestCheckResourceChanges(object):
         new['resources'][0]['key1'] = u'new value'
         new = helpers.call_action(u'package_update', **new)
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'resource_extra')
@@ -614,7 +614,7 @@ class TestCheckResourceChanges(object):
         del new['resources'][0]['key1']
         new = helpers.call_action(u'package_update', **new)
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'resource_extra')
@@ -638,7 +638,7 @@ class TestCheckResourceChanges(object):
         new['resources'][1]['name'] = u'changed-2'
         new = helpers.call_action(u'package_update', **new)
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 2, changes
         eq(changes[0]['type'], u'resource_name')
@@ -662,7 +662,7 @@ class TestCheckResourceChanges(object):
         del new['resources'][0]
         new = helpers.call_action(u'package_update', **new)
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'delete_resource')
@@ -685,7 +685,7 @@ class TestCheckResourceChanges(object):
         del new['resources'][0]
         new = helpers.call_action(u'package_update', **new)
 
-        check_resource_changes(changes, original, new, _new_pkg(new), u'fake')
+        check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 2, changes
         eq(changes[0]['type'], u'delete_resource')

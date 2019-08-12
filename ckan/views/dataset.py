@@ -1128,8 +1128,8 @@ def changes_multiple(package_type=None):
     re-renders changes.html with the list.
     '''
 
-    newest_id = h.get_request_param(u'newest_id')
-    oldest_id = h.get_request_param(u'oldest_id')
+    new_id = h.get_request_param(u'new_id')
+    old_id = h.get_request_param(u'old_id')
 
     context = {
         u'model': model, u'session': model.Session,
@@ -1139,10 +1139,10 @@ def changes_multiple(package_type=None):
     # check to ensure that the old activity is actually older than
     # the new activity
     old_activity = get_action(u'activity_show')(context, {
-        u'id': oldest_id,
+        u'id': old_id,
         u'include_data': False})
     new_activity = get_action(u'activity_show')(context, {
-        u'id': newest_id,
+        u'id': new_id,
         u'include_data': False})
 
     old_timestamp = old_activity[u'timestamp']
@@ -1161,7 +1161,7 @@ def changes_multiple(package_type=None):
         return changes(h.get_request_param(u'current_new_id'))
 
     done = False
-    current_id = newest_id
+    current_id = new_id
     diff_list = []
 
     while not done:
@@ -1181,7 +1181,7 @@ def changes_multiple(package_type=None):
 
         diff_list.append(activity_diff)
 
-        if activity_diff['activities'][0]['id'] == oldest_id:
+        if activity_diff['activities'][0]['id'] == old_id:
             done = True
         else:
             current_id = activity_diff['activities'][0]['id']

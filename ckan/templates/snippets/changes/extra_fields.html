@@ -1,6 +1,6 @@
 <li>
   <p>
-    {% if ah.method == "add1" %}
+    {% if ah.method == "add_one_value" %}
       {{ _('Added field <q>{key}</q> with value
         <q>{value}</q> to <a href="{pkg_url}">{dataset}</a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
@@ -8,14 +8,14 @@
           key = ah.key,
           value = ah.value
         )|safe }}
-    {% elif ah.method == "add2" %}
+    {% elif ah.method == "add_one_no_value" %}
       {{ _('Added field <q>{key}</q>
         to <a href="{pkg_url}">{dataset}</a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
           dataset = ah.title,
           key = ah.key
         )|safe }}
-    {% elif ah.method == "add3" %}
+    {% elif ah.method == "add_multiple" %}
       {{ _('Added the following fields to <a href="{pkg_url}">{dataset}
           </a>').format(
             pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
@@ -24,10 +24,10 @@
       <ul>
         {% for item in ah.key_list %}
           <li>
-            {% if ah.values[item] != "" %}
+            {% if ah.value_list[item] != "" %}
               {{ _('{key} with value {value}').format(
                 key = item,
-                value = ah.values[item]
+                value = ah.value_list[item]
               )|safe }}
             {% else %}
               {{ _('{key}').format(
@@ -37,7 +37,7 @@
           </li>
         {% endfor %}
       </ul>
-    {% elif ah.method == "change1" %}
+    {% elif ah.method == "change_with_old_value" %}
       {{ _('Changed value of field <q>{key}</q> to <q>{new_val}</q>
           (previously <q>{old_val}</q>) in <a href="{pkg_url}">
           {dataset}</a>').format(
@@ -47,7 +47,7 @@
             new_val = ah.new_value,
             old_val = ah.old_value
           )|safe }}
-    {% elif ah.method == "change2" %}
+    {% elif ah.method == "change_no_old_value" %}
       {{ _('Changed value of field <q>{key}</q> to <q>{new_val}</q>
         in <a href="{pkg_url}">{dataset}</a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
@@ -55,14 +55,14 @@
           key = ah.key,
           new_val = ah.new_value,
         )|safe }}
-    {% elif ah.method == "remove1" %}
+    {% elif ah.method == "remove_one" %}
       {{ _('Removed field <q>{key}</q> from
         <a href="{pkg_url}">{dataset}</a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
           dataset = ah.title,
           key = ah.key,
         )|safe }}
-    {% elif ah.method == "remove2" %}
+    {% elif ah.method == "remove_multiple" %}
       {{ _('Removed the following fields from <a href="{pkg_url}">{dataset}
           </a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
