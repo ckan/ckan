@@ -249,7 +249,7 @@ def check_metadata_changes(change_list, old, new):
     # if the source URL (metadata value, not the actual URL of the dataset)
     # has changed
     if old['url'] != new['url']:
-        _source_url_change(change_list, old, new)
+        _url_change(change_list, old, new)
 
     # if the user-provided version has changed
     if old['version'] != new['version']:
@@ -466,7 +466,7 @@ def _name_change(change_list, old, new):
                         old['name'], u'new_name': new['name']})
 
 
-def _source_url_change(change_list, old, new):
+def _url_change(change_list, old, new):
     '''
     Appends a summary of a change to a dataset's source URL (metadata field,
     not its actual URL in the datahub) between two versions (old and
@@ -474,19 +474,19 @@ def _source_url_change(change_list, old, new):
     '''
     # if both old and new versions have source URLs
     if old['url'] and new['url']:
-        change_list.append({u'type': u'source_url', u'method': u'change',
+        change_list.append({u'type': u'url', u'method': u'change',
                             u'pkg_id': new['id'], u'title':
                             new['title'], u'new_url': new['url'],
                             u'old_url': old['url']})
     # if the user removed the source URL
     elif not new['url']:
-        change_list.append({u'type': u'source_url', u'method': u'remove',
+        change_list.append({u'type': u'url', u'method': u'remove',
                             u'pkg_id': new['id'],
                             u'title': new['title'],
                             u'old_url': old['url']})
     # if there wasn't one there before
     else:
-        change_list.append({u'type': u'source_url', u'method': u'add',
+        change_list.append({u'type': u'url', u'method': u'add',
                             u'pkg_id': new['id'],
                             u'title': new['title'],
                             u'new_url': new['url']})
