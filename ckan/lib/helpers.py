@@ -2721,7 +2721,6 @@ def compare_pkg_dicts(old, new, old_activity_id):
 
     return change_list
 
-
 @core_helper
 def activity_list_select(pkg_activity_list, current_activity_id):
     '''

@@ -598,7 +598,7 @@ class TestCheckResourceChanges(object):
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'resource_extras')
-        eq(changes[0]['method'], u'change')
+        eq(changes[0]['method'], u'change_value_with_old')
         eq(changes[0]['key'], u'key1')
         eq(changes[0]['value_old'], u'value1')
         eq(changes[0]['value_new'], u'new value')
@@ -618,7 +618,7 @@ class TestCheckResourceChanges(object):
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'resource_extras')
-        eq(changes[0]['method'], u'remove')
+        eq(changes[0]['method'], u'remove_one')
         eq(changes[0]['key'], u'key1')
 
     def test_change_multiple_resources(self):
