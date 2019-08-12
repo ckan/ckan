@@ -1,22 +1,22 @@
 <li>
   <p>
-    {% if ah.method == "remove_one" %}
+    {% if change.method == "remove_one" %}
       {{ _('Removed tag <a href="{tag_link}">{tag}</a> from
           <a href="{pkg_url}">{dataset}</a>').format(
             tag_link = h.url_for(controller='dataset', action='search') +
-            "?tags=" + ah.tag,
-            tag = ah.tag,
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title
+            "?tags=" + change.tag,
+            tag = change.tag,
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title
       )|safe }}
-    {% elif ah.method == "remove_multiple" %}
+    {% elif change.method == "remove_multiple" %}
       {{ _('Removed the following tags from <a href="{pkg_url}">{dataset}
           </a>').format(
-          pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-          dataset = ah.title
+          pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+          dataset = change.title
       )|safe }}
       <ul>
-        {% for item in ah.tags %}
+        {% for item in change.tags %}
           <li>
             {{ _('<a href="{tag_link}">{tag}</a>').format(
                   tag_link = h.url_for(controller='dataset', action='search') +
@@ -26,23 +26,23 @@
           </li>
         {% endfor %}
       </ul>
-    {% elif ah.method == "add_one" %}
+    {% elif change.method == "add_one" %}
       {{ _('Added tag <a href="{tag_link}">{tag}</a> to
           <a href="{pkg_url}">{dataset}</a>').format(
             tag_link = h.url_for(controller='dataset', action='search') +
-            "?tags=" + ah.tag,
-            tag = ah.tag,
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title
+            "?tags=" + change.tag,
+            tag = change.tag,
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title
       )|safe }}
-    {% elif ah.method == "add_multiple" %}
+    {% elif change.method == "add_multiple" %}
       {{ _('Added the following tags to <a href="{pkg_url}">{dataset}
           </a>').format(
-          pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-          dataset = ah.title
+          pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+          dataset = change.title
       )|safe }}
       <ul>
-        {% for item in ah.tags %}
+        {% for item in change.tags %}
           <li>
             {# TODO: figure out which controller to actually use here #}
             {{ _('<a href="{tag_link}">{tag}</a>').format(

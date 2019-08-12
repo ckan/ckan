@@ -1,27 +1,27 @@
 <li>
   <p>
-    {% if ah.method == "change" %}
+    {% if change.method == "change" %}
       {{ _('Set maintainer email of <a href="{pkg_url}">{dataset}</a> to
           <a href="{new_maintainer_email_link}">{new_maintainer_email}</a>
            (previously {old_maintainer_email})').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
-            new_maintainer_email = ah.new_maintainer_email,
-            new_maintainer_email_link = "mailto:" + ah.new_maintainer_email,
-            old_maintainer_email = ah.old_maintainer_email
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
+            new_maintainer_email = change.new_maintainer_email,
+            new_maintainer_email_link = "mailto:" + change.new_maintainer_email,
+            old_maintainer_email = change.old_maintainer_email
           )|safe }}
-    {% elif ah.method == "add" %}
+    {% elif change.method == "add" %}
       {{ _('Set maintainer email of <a href="{pkg_url}">{dataset}</a> to
           <a href="{new_maintainer_email_link}">{new_maintainer_email}</a>').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
-            new_maintainer_email = ah.new_maintainer_email,
-            new_maintainer_email_link = "mailto:" + ah.new_maintainer_email
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
+            new_maintainer_email = change.new_maintainer_email,
+            new_maintainer_email_link = "mailto:" + change.new_maintainer_email
           )|safe }}
-    {% elif ah.method == "remove" %}
+    {% elif change.method == "remove" %}
       {{ _('Removed maintainer email from <a href="{pkg_url}">{dataset}</a>').format(
-        pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-        dataset = ah.title
+        pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+        dataset = change.title
       )|safe }}
     {% else %}
       {{ _('No fields were updated. See the metadata diff for more details.') }}

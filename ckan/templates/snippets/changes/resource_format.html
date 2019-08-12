@@ -1,36 +1,36 @@
 <li>
   <p>
     {% set format_search_base_url = (
-       h.url_for(controller="organization", action="read", id=ah.org_id)
-       if ah.org_id else
+       h.url_for(controller="organization", action="read", id=change.org_id)
+       if change.org_id else
        h.url_for(controller="dataset", action="search")) %}
 
-    {% if ah.method == "add" %}
+    {% if change.method == "add" %}
       {{ _('Set format of resource <a href="{resource_url}">{resource_name}
           </a> to <a href="{format_url}">{format}</a> in
           <a href="{pkg_url}">{dataset}</a>').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
             resource_url = h.url_for(controller='resource', action='read',
-                                      id=ah.pkg_id, resource_id=ah.resource_id),
-            resource_name = ah.resource_name,
-            format_url = format_search_base_url + "?res_format=" + ah.format,
-            format = ah.format
+                                      id=change.pkg_id, resource_id=change.resource_id),
+            resource_name = change.resource_name,
+            format_url = format_search_base_url + "?res_format=" + change.format,
+            format = change.format
           )|safe }}
-    {% elif ah.method == "change" %}
+    {% elif change.method == "change" %}
       {{ _('Set format of resource <a href="{resource_url}">{resource_name}
           </a> to <a href="{new_format_url}">{new_format}</a>
           (previously <a href="{old_format_url}">{old_format}</a>) in
           <a href="{pkg_url}">{dataset}</a>').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
             resource_url = h.url_for(controller='resource', action='read',
-                                      id=ah.pkg_id, resource_id=ah.resource_id),
-            resource_name = ah.resource_name,
-            new_format_url = format_search_base_url + "?res_format=" + ah.new_format,
-            new_format = ah.new_format,
-            old_format_url = format_search_base_url + "?res_format=" + ah.old_format,
-            old_format = ah.old_format
+                                      id=change.pkg_id, resource_id=change.resource_id),
+            resource_name = change.resource_name,
+            new_format_url = format_search_base_url + "?res_format=" + change.new_format,
+            new_format = change.new_format,
+            old_format_url = format_search_base_url + "?res_format=" + change.old_format,
+            old_format = change.old_format
           )|safe }}
     {% else %}
       {{ _('No fields were updated. See the metadata diff for more details.') }}

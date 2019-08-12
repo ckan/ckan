@@ -2,12 +2,12 @@
   <p>
     {{ _('Moved <a href="{pkg_url}">{dataset}</a> from <a href="{old_url}">
         {old_url}</a> to <a href="{new_url}">{new_url}</a>').format(
-          pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-          dataset = ah.title,
+          pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+          dataset = change.title,
           old_url = h.url_for(qualified=True,
-            controller='dataset', action='read', id=ah.old_name),
+            controller='dataset', action='read', id=change.old_name),
           new_url = h.url_for(qualified=True,
-            controller='dataset', action='read', id=ah.new_name)
+            controller='dataset', action='read', id=change.new_name)
         )|safe }}
   </p>
 </li>

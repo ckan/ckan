@@ -227,7 +227,7 @@ def check_metadata_changes(change_list, old, new):
 
     # if the description of the dataset changed
     if old['notes'] != new['notes']:
-        _description_change(change_list, old, new)
+        _notes_change(change_list, old, new)
 
     # make sets out of the tags for each dataset
     old_tags = set([tag['name'] for tag in old['tags']])
@@ -385,26 +385,26 @@ def _author_email_change(change_list, old, new):
                             u'method': u'add'})
 
 
-def _description_change(change_list, old, new):
+def _notes_change(change_list, old, new):
     '''
     Appends a summary of a change to a dataset's description between two
     versions (old and new) to change_list.
     '''
     # if the old dataset had a description
     if old['notes'] and new['notes']:
-        change_list.append({u'type': u'description', u'pkg_id':
+        change_list.append({u'type': u'notes', u'pkg_id':
                             new['id'], u'title': new['title'],
-                            u'new_desc': new['notes'],
-                            u'old_desc': old['notes'],
+                            u'new_notes': new['notes'],
+                            u'old_notes': old['notes'],
                             u'method': u'change'})
     elif not new['notes']:
-        change_list.append({u'type': u'description', u'pkg_id':
+        change_list.append({u'type': u'notes', u'pkg_id':
                             new['id'], u'title': new['title'],
                             u'method': u'remove'})
     else:
-        change_list.append({u'type': u'description', u'pkg_id':
+        change_list.append({u'type': u'notes', u'pkg_id':
                             new['id'], u'title': new['title'],
-                            u'new_desc': new['notes'], u'method': u'add'})
+                            u'new_notes': new['notes'], u'method': u'add'})
 
 
 def _tag_change(change_list, new_tags, old_tags, new):

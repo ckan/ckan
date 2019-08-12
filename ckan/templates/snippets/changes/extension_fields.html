@@ -2,10 +2,10 @@
   <p>
     {{ _('Changed value of field <q>{key}</q> to <q>{value}</q> in
         <a href="{pkg_url}">{dataset}</a>').format(
-          pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-          dataset = ah.title,
-          key = ah.key,
-          value = ah.value
+          pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+          dataset = change.title,
+          key = change.key,
+          value = change.value
     )|safe }}
   </p>
 </li>

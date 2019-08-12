@@ -4,7 +4,7 @@
 <ul>
 {% for change in changes %}
   {% snippet "snippets/changes/{}.html".format(
-    change.type), ah=change %}
+    change.type), change=change %}
   <br>
 {% endfor %}
 </ul>

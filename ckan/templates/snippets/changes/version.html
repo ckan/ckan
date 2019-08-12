@@ -1,25 +1,25 @@
 <li>
   <p>
-    {% if ah.method == "change" %}
+    {% if change.method == "change" %}
       {{ _('Changed the version of <a href="{pkg_url}">{dataset}</a>
           to {new_version} (previously {old_version})').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
-            old_version = ah.old_version,
-            new_version = ah.new_version
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
+            old_version = change.old_version,
+            new_version = change.new_version
           )|safe }}
-    {% elif ah.method == "remove" %}
+    {% elif change.method == "remove" %}
       {{ _('Removed the version from <a href="{pkg_url}">{dataset}
           </a>').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title
           )|safe }}
-    {% elif ah.method == "add" %}
+    {% elif change.method == "add" %}
       {{ _('Changed the version of <a href="{pkg_url}">{dataset}</a>
           to {new_version}').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
-            new_version = ah.new_version
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
+            new_version = change.new_version
           )|safe }}
     {% else %}
       {{ _('No fields were updated. See the metadata diff for more details.') }}

@@ -1,0 +1,31 @@
+<li>
+  <p>
+    {% if change.method == "change" %}
+      {{ _('Updated description of <a href="{pkg_url}">{dataset}</a> from
+            <br class="line-height2"><blockquote>{old_notes}</blockquote>
+            to <br class="line-height2"><blockquote>{new_notes}
+            </blockquote>').format(
+              pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+              dataset = change.title,
+              old_notes = change.old_notes,
+              new_notes = change.new_notes
+          )|safe }}
+    {% elif change.method == "add" %}
+      {{ _('Updated description of <a href="{pkg_url}">{dataset}</a>
+            to <br class="line-height2"><blockquote>{new_notes}
+            </blockquote>').format(
+              pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+              dataset = change.title,
+              new_notes = change.new_notes
+          )|safe }}
+    {% elif change.method == "remove" %}
+      {{ _('Removed description from <a href="{pkg_url}">{dataset}
+          </a>').format(
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title
+          )|safe }}
+    {% else %}
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
+    {% endif %}
+  </p>
+</li>

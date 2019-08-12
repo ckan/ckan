@@ -1,26 +1,26 @@
 <li>
   <p>
-    {% if ah.method == "change" %}
+    {% if change.method == "change" %}
       {{ _('Changed the source URL of <a href="{pkg_url}">{dataset}</a>
           from <a href="{old_url}">{old_url}</a> to <a href="{new_url}">
           {new_url}</a>').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
-            old_url = ah.old_url,
-            new_url = ah.new_url
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
+            old_url = change.old_url,
+            new_url = change.new_url
       )|safe }}
-    {% elif ah.method == "remove" %}
+    {% elif change.method == "remove" %}
       {{ _('Removed the source URL from <a href="{pkg_url}">{dataset}
           </a>').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
       )|safe }}
-    {% elif ah.method == "add" %}
+    {% elif change.method == "add" %}
       {{ _('Changed the source URL of <a href="{pkg_url}">{dataset}</a>
           to <a href="{new_url}">{new_url}</a>').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
-            new_url = ah.new_url
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
+            new_url = change.new_url
       )|safe }}
     {% else %}
       {{ _('No fields were updated. See the metadata diff for more details.') }}

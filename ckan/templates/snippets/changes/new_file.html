@@ -3,11 +3,11 @@
     {{ _('Uploaded a new file to resource <a href="{resource_url}">
         {resource_name}</a> in <a href="{pkg_url}">{dataset}</a>
         ').format(
-        pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-        dataset = ah.title,
+        pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+        dataset = change.title,
         resource_url = h.url_for(controller='resource', action='read',
-                                  id=ah.pkg_id, resource_id=ah.resource_id),
-        resource_name = ah.resource_name
+                                  id=change.pkg_id, resource_id=change.resource_id),
+        resource_name = change.resource_name
         )|safe }}
   </p>
 </li>

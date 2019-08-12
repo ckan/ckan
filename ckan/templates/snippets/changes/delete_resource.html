@@ -2,13 +2,13 @@
   <p>
     {{ _('Deleted resource <a href="{resource_url}">{resource_title}</a>
         from <a href="{pkg_url}">{dataset}</a>').format(
-          pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-          dataset = ah.title,
+          pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+          dataset = change.title,
           resource_url = h.url_for(qualified=True, controller='resource',
-                                    action='read', id=ah.pkg_id,
-                                    resource_id = ah.resource_id) +
-                                    "?activity_id=" + ah.old_activity_id,
-          resource_title = ah.resource_name
+                                    action='read', id=change.pkg_id,
+                                    resource_id = change.resource_id) +
+                                    "?activity_id=" + change.old_activity_id,
+          resource_title = change.resource_name
         )|safe }}
   </p>
 </li>

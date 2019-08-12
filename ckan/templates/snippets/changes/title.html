@@ -2,9 +2,9 @@
   <p>
     {{ _('Changed title to <a href="{new_title_url}">{new_title}</a>
         (previously {original_title})').format(
-          new_title_url = h.url_for(controller='dataset', action='read', id=ah.id),
-          new_title = ah.new_title,
-          original_title = ah.original_title
+          new_title_url = h.url_for(controller='dataset', action='read', id=change.id),
+          new_title = change.new_title,
+          original_title = change.original_title
         )|safe }}
   </p>
 </li>

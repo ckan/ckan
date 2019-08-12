@@ -1,24 +1,24 @@
 <li>
   <p>
-    {% if ah.method == "change" %}
+    {% if change.method == "change" %}
       {{ _('Set maintainer of <a href="{pkg_url}">{dataset}</a> to
           {new_maintainer} (previously {old_maintainer})').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
-            new_maintainer = ah.new_maintainer,
-            old_maintainer = ah.old_maintainer
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
+            new_maintainer = change.new_maintainer,
+            old_maintainer = change.old_maintainer
           )|safe }}
-    {% elif ah.method == "add" %}
+    {% elif change.method == "add" %}
       {{ _('Set maintainer of <a href="{pkg_url}">{dataset}</a> to
           {new_maintainer}').format(
-            pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-            dataset = ah.title,
-            new_maintainer = ah.new_maintainer
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
+            new_maintainer = change.new_maintainer
           )|safe }}
-    {% elif ah.method == "remove" %}
+    {% elif change.method == "remove" %}
       {{ _('Removed maintainer from <a href="{pkg_url}">{dataset}</a>').format(
-        pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
-        dataset = ah.title
+        pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+        dataset = change.title
       )|safe }}
     {% else %}
       {{ _('No fields were updated. See the metadata diff for more details.') }}
