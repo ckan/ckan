@@ -32,7 +32,7 @@ class TestCheckMetadataChanges(object):
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'title')
-        eq(changes[0]['original_title'], u'Test Dataset')
+        eq(changes[0]['old_title'], u'Test Dataset')
         eq(changes[0]['new_title'], u'New title')
 
     def test_name(self):
@@ -60,8 +60,8 @@ class TestCheckMetadataChanges(object):
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'extra_fields')
         eq(changes[0]['method'], u'add_one_value')
-        eq(changes[0]['field_name'], u'subject')
-        eq(changes[0]['field_val'], u'science')
+        eq(changes[0]['key'], u'subject')
+        eq(changes[0]['value'], u'science')
 
     # TODO how to test 'add_one_no_value'?
 
@@ -78,7 +78,7 @@ class TestCheckMetadataChanges(object):
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'extra_fields')
         eq(changes[0]['method'], u'add_multiple')
-        eq(set(changes[0]['fields']), set([u'subject', u'topic']))
+        eq(set(changes[0]['key_list']), set([u'subject', u'topic']))
 
     def test_change_extra(self):
         changes = []
@@ -93,11 +93,11 @@ class TestCheckMetadataChanges(object):
         check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
-        eq(changes[0]['type'], u'custom_fields')
-        eq(changes[0]['method'], u'change1')
+        eq(changes[0]['type'], u'extra_fields')
+        eq(changes[0]['method'], u'change_with_old_value')
         eq(changes[0]['field_name'], u'subject')
-        eq(changes[0]['field_val_old'], u'science')
-        eq(changes[0]['field_val_new'], u'scientific')
+        eq(changes[0]['old_value'], u'science')
+        eq(changes[0]['new_value'], u'scientific')
 
     def test_change_multiple_extras(self):
         changes = []
@@ -113,13 +113,13 @@ class TestCheckMetadataChanges(object):
 
         assert len(changes) == 2, changes
         for change in changes:
-            eq(change['type'], u'custom_fields')
-            eq(change['method'], u'change1')
-            if change['field_name'] == u'subject':
-                eq(change['field_val_new'], u'scientific')
+            eq(change['type'], u'extra_fields')
+            eq(change['method'], u'change_with_old_value')
+            if change['field'] == u'subject':
+                eq(change['new_value'], u'scientific')
             else:
-                eq(changes[0]['field_name'], u'topic')
-                eq(change['field_val_new'], u'rain')
+                eq(changes[0]['field'], u'topic')
+                eq(change['new_value'], u'rain')
 
     # TODO how to test change2?
 
@@ -135,8 +135,8 @@ class TestCheckMetadataChanges(object):
         check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
-        eq(changes[0]['type'], u'custom_fields')
-        eq(changes[0]['method'], u'remove1')
+        eq(changes[0]['type'], u'extra_fields')
+        eq(changes[0]['method'], u'remove_one')
         eq(changes[0]['field_name'], u'subject')
 
     def test_delete_multiple_extras(self):
@@ -152,8 +152,8 @@ class TestCheckMetadataChanges(object):
         check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
-        eq(changes[0]['type'], u'custom_fields')
-        eq(changes[0]['method'], u'remove2')
+        eq(changes[0]['type'], u'extra_fields')
+        eq(changes[0]['method'], u'remove_multiple')
         eq(set(changes[0]['fields']), set((u'subject', u'geography')))
 
     def test_add_maintainer(self):
@@ -206,7 +206,7 @@ class TestCheckMetadataChanges(object):
 
         eq(changes[0]['type'], u'notes')
         eq(changes[0]['method'], u'add')
-        eq(changes[0]['new_desc'], u'new notes')
+        eq(changes[0]['new_notes'], u'new notes')
 
     def test_change_notes(self):
         changes = []
@@ -217,10 +217,10 @@ class TestCheckMetadataChanges(object):
 
         check_metadata_changes(changes, original, new)
 
-        eq(changes[0]['type'], u'description')
+        eq(changes[0]['type'], u'notes')
         eq(changes[0]['method'], u'change')
-        eq(changes[0]['old_desc'], u'first notes')
-        eq(changes[0]['new_desc'], u'new notes')
+        eq(changes[0]['old_notes'], u'first notes')
+        eq(changes[0]['new_notes'], u'new notes')
 
     def test_remove_notes(self):
         changes = []
@@ -231,7 +231,7 @@ class TestCheckMetadataChanges(object):
 
         check_metadata_changes(changes, original, new)
 
-        eq(changes[0]['type'], u'description')
+        eq(changes[0]['type'], u'notes')
         eq(changes[0]['method'], u'remove')
 
     @helpers.change_config(u'ckan.auth.create_unowned_dataset', True)
@@ -262,7 +262,7 @@ class TestCheckMetadataChanges(object):
 
         eq(changes[0]['type'], u'org')
         eq(changes[0]['method'], u'change')
-        eq(changes[0]['original_org_id'], original['organization']['id'])
+        eq(changes[0]['old_org_id'], original['organization']['id'])
         eq(changes[0]['new_org_id'], new_org['id'])
 
     @helpers.change_config(u'ckan.auth.create_unowned_dataset', True)
@@ -316,7 +316,7 @@ class TestCheckMetadataChanges(object):
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'tags')
-        eq(changes[0]['method'], u'add1')
+        eq(changes[0]['method'], u'add_one')
         eq(changes[0]['tag'], u'oceans')
 
     def test_add_multiple_tags(self):
@@ -345,7 +345,7 @@ class TestCheckMetadataChanges(object):
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'tags')
-        eq(changes[0]['method'], u'remove1')
+        eq(changes[0]['method'], u'remove_one')
         eq(changes[0]['tag'], u'oceans')
 
     def test_remove_multiple_tags(self):
@@ -360,7 +360,7 @@ class TestCheckMetadataChanges(object):
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'tags')
-        eq(changes[0]['method'], u'remove2')
+        eq(changes[0]['method'], u'remove_multiple')
         eq(set(changes[0]['tags']), set((u'oceans', u'streams')))
 
     def test_add_url(self):
@@ -372,7 +372,7 @@ class TestCheckMetadataChanges(object):
 
         check_metadata_changes(changes, original, new)
 
-        eq(changes[0]['type'], u'source_url')
+        eq(changes[0]['type'], u'url')
         eq(changes[0]['method'], u'add')
         eq(changes[0]['new_url'], u'new url')
 
@@ -385,7 +385,7 @@ class TestCheckMetadataChanges(object):
 
         check_metadata_changes(changes, original, new)
 
-        eq(changes[0]['type'], u'source_url')
+        eq(changes[0]['type'], u'url')
         eq(changes[0]['method'], u'change')
         eq(changes[0]['old_url'], u'first url')
         eq(changes[0]['new_url'], u'new url')
@@ -399,7 +399,7 @@ class TestCheckMetadataChanges(object):
 
         check_metadata_changes(changes, original, new)
 
-        eq(changes[0]['type'], u'source_url')
+        eq(changes[0]['type'], u'url')
         eq(changes[0]['method'], u'remove')
 
     def test_add_version(self):
@@ -578,8 +578,8 @@ class TestCheckResourceChanges(object):
         check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
-        eq(changes[0]['type'], u'resource_extra')
-        eq(changes[0]['method'], u'add')
+        eq(changes[0]['type'], u'resource_extras')
+        eq(changes[0]['method'], u'add_one_value')
         eq(changes[0]['key'], u'new key')
         eq(changes[0]['value'], u'new value')
 

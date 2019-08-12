@@ -50,13 +50,14 @@ def check_resource_changes(change_list, old, new, old_activity_id):
     '''
 
     # list of default fields in a resource's metadata dictionary - used
-    # later to determine whether extra fields have been added/changed/removed
-    # fields = [u'package_id', u'url', u'revision_id', u'description',
-    #             u'format', u'hash', u'name', u'resource_type',
-    #             u'mimetype', u'mimetype_inner', u'cache_url',
-    #             u'size', u'created', u'last_modified',
-    #             u'cache_last_updated', u'upload']
-    # default_fields_set = set(fields)
+    # later to ensure that we don't count changes to default fields as changes
+    # to extra fields
+    fields = [u'package_id', u'url', u'revision_id', u'description',
+                u'format', u'hash', u'name', u'resource_type',
+                u'mimetype', u'mimetype_inner', u'cache_url',
+                u'size', u'created', u'last_modified',
+                u'cache_last_updated', u'upload']
+    default_fields_set = set(fields)
 
     # make a set of the resource IDs present in old and new
     old_resource_set = set()
@@ -197,8 +198,12 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                                 new_metadata['name']})
 
         # check any extra fields in the resource
+        # remove default fields from these sets to make sure we only check
+        # for changes to extra fields
         old_fields_set = set(old_metadata.keys())
+        old_fields_set = old_fields_set - default_fields_set
         new_fields_set = set(new_metadata.keys())
+        new_fields_set = new_fields_set - default_fields_set
 
         # determine if any new extra fields have been added
         new_fields = list(new_fields_set - old_fields_set)
@@ -283,6 +288,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                                         new_metadata['name'],
                                         u'key': field,
                                         u'new_value': new_metadata[field]})
+
 
 def check_metadata_changes(change_list, old, new):
     '''
@@ -403,6 +409,7 @@ def _org_change(change_list, old, new):
                             u'new_org_id': new['organization']['id'],
                             u'new_org_title':
                             new['organization']['title']})
+
 
 def _maintainer_change(change_list, old, new):
     '''
@@ -753,7 +760,8 @@ def _extra_fields(change_list, old, new):
                 if extra_fields_old[field] != extra_fields_new[field]:
                     if extra_fields_old[field]:
                         change_list.append({u'type': u'extra_fields',
-                                            u'method': u'change_with_old_value',
+                                            u'method':
+                                            u'change_with_old_value',
                                             u'pkg_id': new['id'],
                                             u'title': new['title'],
                                             u'key': field,
