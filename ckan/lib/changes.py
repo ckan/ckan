@@ -567,8 +567,8 @@ def _extension_fields(change_list, old, new):
             change_list.append({u'type': u'extension_fields',
                                 u'pkg_id': new['id'],
                                 u'title': new['title'],
-                                u'field_name': field,
-                                u'new_field': new[field]})
+                                u'key': field,
+                                u'value': new[field]})
 
 
 def _extra_fields(change_list, old, new):
@@ -595,22 +595,22 @@ def _extra_fields(change_list, old, new):
                                         u'method': u'add1',
                                         u'pkg_id': new['id'],
                                         u'title': new['title'],
-                                        u'field_name': new_fields[0],
-                                        u'field_val':
+                                        u'key': new_fields[0],
+                                        u'value':
                                         extra_fields_new[new_fields[0]]})
                 else:
                     change_list.append({u'type': u'extra_fields',
                                         u'method': u'add2',
                                         u'pkg_id': new['id'],
                                         u'title': new['title'],
-                                        u'field_name': new_fields[0]})
+                                        u'key': new_fields[0]})
             elif len(new_fields) > 1:
                 change_list.append({u'type': u'extra_fields',
                                     u'method': u'add3',
                                     u'pkg_id': new['id'],
                                     u'title': new['title'],
-                                    u'fields': new_fields,
-                                    u'field_vals': extra_fields_new})
+                                    u'key_list': new_fields,
+                                    u'values': extra_fields_new})
 
             # if some fields were deleted
             deleted_fields = list(extra_old_set - extra_new_set)
@@ -619,13 +619,13 @@ def _extra_fields(change_list, old, new):
                                     u'method': u'remove1',
                                     u'pkg_id': new['id'],
                                     u'title': new['title'],
-                                    u'field_name': deleted_fields[0]})
+                                    u'key': deleted_fields[0]})
             elif len(deleted_fields) > 1:
                 change_list.append({u'type': u'extra_fields',
                                     u'method': u'remove2',
                                     u'pkg_id': new['id'],
                                     u'title': new['title'],
-                                    u'fields': deleted_fields})
+                                    u'key_list': deleted_fields})
 
             # if some existing fields were changed
             # list of extra fields in both the old and new versions
@@ -637,18 +637,18 @@ def _extra_fields(change_list, old, new):
                                             u'method': u'change1',
                                             u'pkg_id': new['id'],
                                             u'title': new['title'],
-                                            u'field_name': field,
-                                            u'field_val_old':
+                                            u'key': field,
+                                            u'old_value':
                                             extra_fields_old[field],
-                                            u'field_val_new':
+                                            u'new_value':
                                             extra_fields_new[field]})
                     else:
                         change_list.append({u'type': u'extra_fields',
                                             u'method': u'change2',
                                             u'pkg_id': new['id'],
                                             u'title': new['title'],
-                                            u'field_name': field,
-                                            u'field_val_new':
+                                            u'key': field,
+                                            u'new_value':
                                             extra_fields_new[field]})
 
         # if the old version didn't have an extras field,
@@ -661,23 +661,23 @@ def _extra_fields(change_list, old, new):
                                         u'method': u'add1',
                                         u'pkg_id': new['id'],
                                         u'title': new['title'],
-                                        u'field_name': new_fields[0],
-                                        u'field_val':
+                                        u'key': new_fields[0],
+                                        u'value':
                                         extra_fields_new[new_fields[0]]})
                 else:
                     change_list.append({u'type': u'extra_fields',
                                         u'method': u'add2',
                                         u'pkg_id': new['id'],
                                         u'title': new['title'],
-                                        u'field_name': new_fields[0]})
+                                        u'key': new_fields[0]})
 
             elif len(new_fields) > 1:
                 change_list.append({u'type': u'extra_fields',
                                     u'method': u'add3',
                                     u'pkg_id': new['id'],
                                     u'title': new['title'],
-                                    u'fields': new_fields,
-                                    u'field_vals': extra_fields_new})
+                                    u'key_list': new_fields,
+                                    u'values': extra_fields_new})
 
     elif u'extras' in old:
         deleted_fields = _extras_to_dict(old['extras']).keys()
@@ -686,10 +686,10 @@ def _extra_fields(change_list, old, new):
                                 u'method': u'remove1',
                                 u'pkg_id': new['id'],
                                 u'title': new['title'],
-                                u'field_name': deleted_fields[0]})
+                                u'key': deleted_fields[0]})
         elif len(deleted_fields) > 1:
             change_list.append({u'type': u'extra_fields',
                                 u'method': u'remove2',
                                 u'pkg_id': new['id'],
                                 u'title': new['title'],
-                                u'fields': deleted_fields})
+                                u'key_list': deleted_fields})

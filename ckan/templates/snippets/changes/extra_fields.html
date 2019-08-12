@@ -1,19 +1,19 @@
 <li>
   <p>
     {% if ah.method == "add1" %}
-      {{ _('Added field <q>{field_name}</q> with value
-        <q>{field_val}</q> to <a href="{pkg_url}">{dataset}</a>').format(
+      {{ _('Added field <q>{key}</q> with value
+        <q>{value}</q> to <a href="{pkg_url}">{dataset}</a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
           dataset = ah.title,
-          field_name = ah.field_name,
-          field_val = ah.field_val
+          key = ah.key,
+          value = ah.value
         )|safe }}
     {% elif ah.method == "add2" %}
-      {{ _('Added field <q>{field_name}</q>
+      {{ _('Added field <q>{key}</q>
         to <a href="{pkg_url}">{dataset}</a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
           dataset = ah.title,
-          field_name = ah.field_name
+          key = ah.key
         )|safe }}
     {% elif ah.method == "add3" %}
       {{ _('Added the following fields to <a href="{pkg_url}">{dataset}
@@ -22,12 +22,12 @@
             dataset = ah.title
           )|safe }}
       <ul>
-        {% for item in ah.fields %}
+        {% for item in ah.key_list %}
           <li>
-            {% if ah.field_vals[item] != "" %}
+            {% if ah.values[item] != "" %}
               {{ _('{key} with value {value}').format(
                 key = item,
-                value = ah.field_vals[item]
+                value = ah.values[item]
               )|safe }}
             {% else %}
               {{ _('{key}').format(
@@ -38,29 +38,29 @@
         {% endfor %}
       </ul>
     {% elif ah.method == "change1" %}
-      {{ _('Changed value of field <q>{field}</q> to <q>{new_val}</q>
+      {{ _('Changed value of field <q>{key}</q> to <q>{new_val}</q>
           (previously <q>{old_val}</q>) in <a href="{pkg_url}">
           {dataset}</a>').format(
             pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
             dataset = ah.title,
-            field = ah.field_name,
-            new_val = ah.field_val_new,
-            old_val = ah.field_val_old
+            key = ah.key,
+            new_val = ah.new_value,
+            old_val = ah.old_value
           )|safe }}
     {% elif ah.method == "change2" %}
-      {{ _('Changed value of field <q>{field}</q> to <q>{new_val}</q>
+      {{ _('Changed value of field <q>{key}</q> to <q>{new_val}</q>
         in <a href="{pkg_url}">{dataset}</a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
           dataset = ah.title,
-          field = ah.field_name,
-          new_val = ah.field_val_new,
+          key = ah.key,
+          new_val = ah.new_value,
         )|safe }}
     {% elif ah.method == "remove1" %}
-      {{ _('Removed field <q>{field}</q> from
+      {{ _('Removed field <q>{key}</q> from
         <a href="{pkg_url}">{dataset}</a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
           dataset = ah.title,
-          field = ah.field_name,
+          key = ah.key,
         )|safe }}
     {% elif ah.method == "remove2" %}
       {{ _('Removed the following fields from <a href="{pkg_url}">{dataset}
@@ -69,10 +69,10 @@
           dataset = ah.title
         )|safe }}
       <ul>
-        {% for item in ah.fields %}
+        {% for item in ah.key_list %}
           <li>
-            {{ _('<q>{field}</q>').format(
-                field = item
+            {{ _('<q>{key}</q>').format(
+                key = item
             )| safe }}
           </li>
         {% endfor %}
