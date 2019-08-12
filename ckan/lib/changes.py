@@ -52,11 +52,13 @@ def check_resource_changes(change_list, old, new, old_activity_id):
     # list of default fields in a resource's metadata dictionary - used
     # later to ensure that we don't count changes to default fields as changes
     # to extra fields
-    fields = [u'package_id', u'url', u'revision_id', u'description',
-                u'format', u'hash', u'name', u'resource_type',
-                u'mimetype', u'mimetype_inner', u'cache_url',
-                u'size', u'created', u'last_modified',
-                u'cache_last_updated', u'upload']
+    fields = [
+        u'package_id', u'url', u'revision_id', u'description',
+        u'format', u'hash', u'name', u'resource_type',
+        u'mimetype', u'mimetype_inner', u'cache_url',
+        u'size', u'created', u'last_modified',
+        u'cache_last_updated', u'upload'
+    ]
     default_fields_set = set(fields)
 
     # make a set of the resource IDs present in old and new
@@ -67,19 +69,24 @@ def check_resource_changes(change_list, old, new, old_activity_id):
 
     for resource in old['resources']:
         old_resource_set.add(resource['id'])
+        # old_resource_dict[resource['id']] = {
+        #     u'name': resource['name'],
+        #     u'url': resource['url'],
+        #     u'description': resource['description'],
+        #     u'format': resource['format']}
         old_resource_dict[resource['id']] = {
-            u'name': resource['name'],
-            u'url': resource['url'],
-            u'description': resource['description'],
-            u'format': resource['format']}
+            key:value for (key,value) in resource.items() if key != 'id'}
 
     for resource in new['resources']:
         new_resource_set.add(resource['id'])
+        # new_resource_dict[resource['id']] = {
+        #     u'name': resource['name'],
+        #     u'url': resource['url'],
+        #     u'description': resource['description'],
+        #     u'format': resource['format']}
         new_resource_dict[resource['id']] = {
-            u'name': resource['name'],
-            u'url': resource['url'],
-            u'description': resource['description'],
-            u'format': resource['format']}
+            key:value for (key,value) in resource.items() if key != 'id'}
+
 
     # get the IDs of the resources that have been added between the versions
     new_resources = list(new_resource_set - old_resource_set)
@@ -201,14 +208,19 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         # remove default fields from these sets to make sure we only check
         # for changes to extra fields
         old_fields_set = set(old_metadata.keys())
+        log.info(old_fields_set)
         old_fields_set = old_fields_set - default_fields_set
+        log.info(old_fields_set)
         new_fields_set = set(new_metadata.keys())
+        log.info(new_fields_set)
         new_fields_set = new_fields_set - default_fields_set
+        log.info(new_fields_set)
 
         # determine if any new extra fields have been added
         new_fields = list(new_fields_set - old_fields_set)
+        log.info("new fields: " + str(new_fields))
         if len(new_fields) == 1:
-            if new_metadata['key']:
+            if new_metadata[new_fields[0]]:
                 change_list.append({u'type': u'resource_extras',
                                     u'method': u'add_one_value',
                                     u'pkg_id': new['id'],
@@ -241,6 +253,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
 
         # determine if any extra fields have been removed
         deleted_fields = list(old_fields_set - new_fields_set)
+        log.info("deleted fields: " + str(deleted_fields))
         if len(deleted_fields) == 1:
             change_list.append({u'type': u'resource_extras',
                                 u'method': u'remove_one',
@@ -265,6 +278,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         # still have to check if any of the values associated with the fields
         # have actually changed
         changed_fields = list(new_fields_set.intersection(old_fields_set))
+        log.info("changed fields: " + str(changed_fields))
         for field in changed_fields:
             if new_metadata[field] != old_metadata[field]:
                 if new_metadata[field] and old_metadata[field]:
@@ -288,6 +302,15 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                                         new_metadata['name'],
                                         u'key': field,
                                         u'new_value': new_metadata[field]})
+                elif not new_metadata[field]:
+                    change_list.append({u'type': u'resource_extras',
+                                        u'method': u'change_value_no_new',
+                                        u'pkg_id': new['id'],
+                                        u'title': new['title'],
+                                        u'resource_id': resource_id,
+                                        u'resource_name':
+                                        new_metadata['name'],
+                                        u'key': field})
 
 
 def check_metadata_changes(change_list, old, new):
@@ -380,8 +403,8 @@ def _org_change(change_list, old, new):
     two versions (old and new) to change_list.
     '''
 
-    # # if both versions belong to an organization
-    if old['organization'] and new['organization']:
+    # if both versions belong to an organization
+    if old['owner_org'] and new['owner_org']:
         change_list.append({u'type': u'org',
                             u'method': u'change',
                             u'pkg_id': new['id'],
@@ -392,7 +415,7 @@ def _org_change(change_list, old, new):
                             u'new_org_id': new['organization']['id'],
                             u'new_org_title': new['organization']['title']})
     # if the user removed the organization
-    elif not new['organization']:
+    elif not new['owner_org']:
         change_list.append({u'type': u'org',
                             u'method': u'remove',
                             u'pkg_id': new['id'],
@@ -401,7 +424,7 @@ def _org_change(change_list, old, new):
                             u'old_org_title':
                             old['organization']['title']})
     # if the dataset was not in an organization before and it is now
-    else:
+    elif new['owner_org']:
         change_list.append({u'type': u'org',
                             u'method': u'add',
                             u'pkg_id': new['id'],

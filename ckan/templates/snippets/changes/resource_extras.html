@@ -86,8 +86,20 @@
           old_val = change.old_value
         )|safe }}
     {% elif change.method == "change_value_no_old" %}
-      {{ _('Changed value of field <q>{key}</q> of resource <a href="{resource_url}">
-        {resource_name}</a> to <q>{new_val}</q>in <a href="{pkg_url}">
+      {{ _('Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource <a href="{resource_url}">
+        {resource_name}</a> in <a href="{pkg_url}">
+          {dataset}</a>').format(
+          pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+          dataset = change.title,
+          resource_url = h.url_for(controller='resource', action='read',
+                                  id=change.pkg_id, resource_id=change.resource_id),
+          resource_name = change.resource_name,
+          key = change.key,
+          new_val = change.new_value
+        )|safe }}
+    {% elif change.method == "change_value_no_new" %}
+      {{ _('Removed the value of field <q>{key}</q> in resource <a href="{resource_url}">
+        {resource_name}</a> in <a href="{pkg_url}">
           {dataset}</a>').format(
           pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
           dataset = change.title,

@@ -95,7 +95,7 @@ class TestCheckMetadataChanges(object):
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'extra_fields')
         eq(changes[0]['method'], u'change_with_old_value')
-        eq(changes[0]['field_name'], u'subject')
+        eq(changes[0]['key'], u'subject')
         eq(changes[0]['old_value'], u'science')
         eq(changes[0]['new_value'], u'scientific')
 
@@ -115,10 +115,10 @@ class TestCheckMetadataChanges(object):
         for change in changes:
             eq(change['type'], u'extra_fields')
             eq(change['method'], u'change_with_old_value')
-            if change['field'] == u'subject':
+            if change['key'] == u'subject':
                 eq(change['new_value'], u'scientific')
             else:
-                eq(changes[0]['field'], u'topic')
+                eq(changes[0]['key'], u'topic')
                 eq(change['new_value'], u'rain')
 
     # TODO how to test change2?
@@ -137,7 +137,7 @@ class TestCheckMetadataChanges(object):
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'extra_fields')
         eq(changes[0]['method'], u'remove_one')
-        eq(changes[0]['field_name'], u'subject')
+        eq(changes[0]['key'], u'subject')
 
     def test_delete_multiple_extras(self):
         changes = []
@@ -154,7 +154,7 @@ class TestCheckMetadataChanges(object):
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'extra_fields')
         eq(changes[0]['method'], u'remove_multiple')
-        eq(set(changes[0]['fields']), set((u'subject', u'geography')))
+        eq(set(changes[0]['key_list']), set((u'subject', u'geography')))
 
     def test_add_maintainer(self):
         changes = []
