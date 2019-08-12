@@ -58,12 +58,12 @@ class TestCheckMetadataChanges(object):
         check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
-        eq(changes[0]['type'], u'custom_fields')
-        eq(changes[0]['method'], u'add1')
+        eq(changes[0]['type'], u'extra_fields')
+        eq(changes[0]['method'], u'add_one_value')
         eq(changes[0]['field_name'], u'subject')
         eq(changes[0]['field_val'], u'science')
 
-    # TODO how to test 'add2'?
+    # TODO how to test 'add_one_no_value'?
 
     def test_add_multiple_extras(self):
         changes = []
@@ -76,8 +76,8 @@ class TestCheckMetadataChanges(object):
         check_metadata_changes(changes, original, new)
 
         assert len(changes) == 1, changes
-        eq(changes[0]['type'], u'custom_fields')
-        eq(changes[0]['method'], u'add3')
+        eq(changes[0]['type'], u'extra_fields')
+        eq(changes[0]['method'], u'add_multiple')
         eq(set(changes[0]['fields']), set([u'subject', u'topic']))
 
     def test_change_extra(self):
@@ -204,7 +204,7 @@ class TestCheckMetadataChanges(object):
 
         check_metadata_changes(changes, original, new)
 
-        eq(changes[0]['type'], u'description')
+        eq(changes[0]['type'], u'notes')
         eq(changes[0]['method'], u'add')
         eq(changes[0]['new_desc'], u'new notes')
 
@@ -331,7 +331,7 @@ class TestCheckMetadataChanges(object):
 
         assert len(changes) == 1, changes
         eq(changes[0]['type'], u'tags')
-        eq(changes[0]['method'], u'add2')
+        eq(changes[0]['method'], u'add_multiple')
         eq(set(changes[0]['tags']), set((u'oceans', u'streams')))
 
     def test_delete_tag(self):

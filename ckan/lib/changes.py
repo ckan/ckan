@@ -49,6 +49,15 @@ def check_resource_changes(change_list, old, new, old_activity_id):
     a new file has been uploaded for the resource).
     '''
 
+    # list of default fields in a resource's metadata dictionary - used
+    # later to determine whether extra fields have been added/changed/removed
+    # fields = [u'package_id', u'url', u'revision_id', u'description',
+    #             u'format', u'hash', u'name', u'resource_type',
+    #             u'mimetype', u'mimetype_inner', u'cache_url',
+    #             u'size', u'created', u'last_modified',
+    #             u'cache_last_updated', u'upload']
+    # default_fields_set = set(fields)
+
     # make a set of the resource IDs present in old and new
     old_resource_set = set()
     old_resource_dict = {}
@@ -185,8 +194,95 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                                 u'title': new['title'],
                                 u'resource_id': resource_id,
                                 u'resource_name':
-                                new_resource_dict[resource_id]['name']})
+                                new_metadata['name']})
 
+        # check any extra fields in the resource
+        old_fields_set = set(old_metadata.keys())
+        new_fields_set = set(new_metadata.keys())
+
+        # determine if any new extra fields have been added
+        new_fields = list(new_fields_set - old_fields_set)
+        if len(new_fields) == 1:
+            if new_metadata['key']:
+                change_list.append({u'type': u'resource_extras',
+                                    u'method': u'add_one_value',
+                                    u'pkg_id': new['id'],
+                                    u'title': new['title'],
+                                    u'resource_id': resource_id,
+                                    u'resource_name':
+                                    new_metadata['name'],
+                                    u'key': new_fields[0],
+                                    u'value': new_metadata[new_fields[0]]})
+            else:
+                change_list.append({u'type': u'resource_extras',
+                                    u'method': u'add_one_no_value',
+                                    u'pkg_id': new['id'],
+                                    u'title': new['title'],
+                                    u'resource_id': resource_id,
+                                    u'resource_name':
+                                    new_metadata['name'],
+                                    u'key': new_fields[0]})
+        elif len(new_fields) > 1:
+            change_list.append({u'type': u'resource_extras',
+                                u'method': u'add_multiple',
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
+                                u'resource_id': resource_id,
+                                u'resource_name':
+                                new_metadata['name'],
+                                u'key_list': new_fields,
+                                u'value_list':
+                                [new_metadata[field] for field in new_fields]})
+
+        # determine if any extra fields have been removed
+        deleted_fields = list(old_fields_set - new_fields_set)
+        if len(deleted_fields) == 1:
+            change_list.append({u'type': u'resource_extras',
+                                u'method': u'remove_one',
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
+                                u'resource_id': resource_id,
+                                u'resource_name':
+                                new_metadata['name'],
+                                u'key': deleted_fields[0]})
+        elif len(deleted_fields) > 1:
+            change_list.append({u'type': u'resource_extras',
+                                u'method': u'remove_multiple',
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
+                                u'resource_id': resource_id,
+                                u'resource_name':
+                                new_metadata['name'],
+                                u'key_list': deleted_fields})
+
+        # determine if any extra fields have been changed
+        # changed_fields is only a set of POTENTIALLY changed fields - we
+        # still have to check if any of the values associated with the fields
+        # have actually changed
+        changed_fields = list(new_fields_set.intersection(old_fields_set))
+        for field in changed_fields:
+            if new_metadata[field] != old_metadata[field]:
+                if new_metadata[field] and old_metadata[field]:
+                    change_list.append({u'type': u'resource_extras',
+                                        u'method': u'change_value_with_old',
+                                        u'pkg_id': new['id'],
+                                        u'title': new['title'],
+                                        u'resource_id': resource_id,
+                                        u'resource_name':
+                                        new_metadata['name'],
+                                        u'key': field,
+                                        u'old_value': old_metadata[field],
+                                        u'new_value': new_metadata[field]})
+                elif not old_metadata[field]:
+                    change_list.append({u'type': u'resource_extras',
+                                        u'method': u'change_value_no_old',
+                                        u'pkg_id': new['id'],
+                                        u'title': new['title'],
+                                        u'resource_id': resource_id,
+                                        u'resource_name':
+                                        new_metadata['name'],
+                                        u'key': field,
+                                        u'new_value': new_metadata[field]})
 
 def check_metadata_changes(change_list, old, new):
     '''
