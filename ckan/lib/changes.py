@@ -397,7 +397,7 @@ def _org_change(change_list, old, new):
                             u'new_org_id': new['organization']['id'],
                             u'new_org_title': new['organization']['title']})
     # if the user removed the organization
-    elif not new['owner_org']:
+    elif not new['owner_org'] or new['owner_org'] == None:
         change_list.append({u'type': u'org',
                             u'method': u'remove',
                             u'pkg_id': new['id'],

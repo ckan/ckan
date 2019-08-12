@@ -600,8 +600,8 @@ class TestCheckResourceChanges(object):
         eq(changes[0]['type'], u'resource_extras')
         eq(changes[0]['method'], u'change_value_with_old')
         eq(changes[0]['key'], u'key1')
-        eq(changes[0]['value_old'], u'value1')
-        eq(changes[0]['value_new'], u'new value')
+        eq(changes[0]['old_value'], u'value1')
+        eq(changes[0]['new_value'], u'new value')
 
     def test_remove_resource_extra(self):
         changes = []
