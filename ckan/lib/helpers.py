@@ -2698,8 +2698,8 @@ def compare_pkg_dicts(original, new, old_activity_id):
     the same dataset and returns a list of detailed & formatted summaries of
     the changes between the two versions. original and new are the two package
     dictionaries. The function assumes that both dictionaries will have
-    all of the default package dictionary keys, and also checks for additional
-    keys added by extensions and custom fields added by the user in the web
+    all of the default package dictionary keys, and also checks for fields
+    added by extensions and extra fields added by the user in the web
     interface.
 
     Returns a list of dictionaries, each of which corresponds to a change
@@ -2710,16 +2710,20 @@ def compare_pkg_dicts(original, new, old_activity_id):
     from changes import check_metadata_changes, check_resource_changes
     change_list = []
 
-    new_pkg = {
-        u'pkg_id': new['id'],
-        u'name': new['name'],
-        u'title': new['title']
-    }
+    # new_pkg = {
+    #     u'pkg_id': new['id'],
+    #     u'name': new['name'],
+    #     u'title': new['title']
+    # }
 
-    check_metadata_changes(change_list, original, new, new_pkg)
+    # check_metadata_changes(change_list, original, new, new_pkg)
 
-    check_resource_changes(change_list, original, new, new_pkg,
-                           old_activity_id)
+    # check_resource_changes(change_list, original, new, new_pkg,
+    #                        old_activity_id)
+
+    check_metadata_changes(change_list, original, new)
+
+    check_resource_changes(change_list, original, new, old_activity_id)
 
     # if the dataset was updated but none of the fields we check were changed,
     # display a message stating that

@@ -3,7 +3,7 @@
     {{ _('Renamed resource <a href="{old_resource_url}">{old_resource_name}
         </a> to <a href="{new_resource_url}">{new_resource_name}</a>
         in <a href="{pkg_url}">{dataset}</a>').format(
-          pkg_url = h.url_for(controller='dataset', action='read', id=ah.pkg_id),
+          pkg_url = h.url_for(controller='dataset', action='read', id=ah.new_pkg_id),
           dataset = ah.title,
           old_resource_url = h.url_for(qualified=True, controller='resource',
                                         action='read', id=ah.old_pkg_id,

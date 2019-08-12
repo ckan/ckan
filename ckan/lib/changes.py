@@ -40,8 +40,7 @@ def _extras_to_dict(extras_list):
     return ret_dict
 
 
-def check_resource_changes(change_list, original, new, new_pkg,
-                           old_activity_id):
+def check_resource_changes(change_list, original, new, old_activity_id):
     '''
     Compares two versions of a dataset and records the changes between them
     (just the resources) in change_list. e.g. resources that are added, changed
@@ -76,8 +75,8 @@ def check_resource_changes(change_list, original, new, new_pkg,
     new_resources = list(new_resource_set - original_resource_set)
     for resource_id in new_resources:
         change_list.append({u'type': u'new_resource',
-                            u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title'],
+                            u'pkg_id': new['id'],
+                            u'title': new['title'],
                             u'resource_name':
                             new_resource_dict[resource_id]['name'],
                             u'resource_id': resource_id})
@@ -86,8 +85,8 @@ def check_resource_changes(change_list, original, new, new_pkg,
     deleted_resources = list(original_resource_set - new_resource_set)
     for resource_id in deleted_resources:
         change_list.append({u'type': u'delete_resource',
-                            u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title'],
+                            u'pkg_id': new['id'],
+                            u'title': new['title'],
                             u'resource_id': resource_id,
                             u'resource_name':
                             original_resource_dict[resource_id]['name'],
@@ -102,8 +101,7 @@ def check_resource_changes(change_list, original, new, new_pkg,
 
         if original_metadata['name'] != new_metadata['name']:
             change_list.append({u'type': u'resource_name',
-                                u'pkg_id': new_pkg['pkg_id'],
-                                u'title': new_pkg['title'],
+                                u'title': new['title'],
                                 u'old_pkg_id': original['id'],
                                 u'new_pkg_id': new['id'],
                                 u'resource_id': resource_id,
@@ -120,8 +118,8 @@ def check_resource_changes(change_list, original, new, new_pkg,
         if not original_metadata['format'] and new_metadata['format']:
             change_list.append({u'type': u'resource_format',
                                 u'method': u'add',
-                                u'pkg_id': new_pkg['pkg_id'],
-                                u'title': new_pkg['title'],
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
                                 u'resource_id': resource_id,
                                 u'resource_name':
                                 new_resource_dict[resource_id]['name'],
@@ -133,8 +131,8 @@ def check_resource_changes(change_list, original, new, new_pkg,
         elif original_metadata['format'] != new_metadata['format']:
             change_list.append({u'type': u'resource_format',
                                 u'method': u'change',
-                                u'pkg_id': new_pkg['pkg_id'],
-                                u'title': new_pkg['title'],
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
                                 u'resource_id': resource_id,
                                 u'resource_name':
                                 new_resource_dict[resource_id]['name'],
@@ -148,8 +146,8 @@ def check_resource_changes(change_list, original, new, new_pkg,
                 new_metadata['description']:
             change_list.append({u'type': u'resource_desc',
                                 u'method': u'add',
-                                u'pkg_id': new_pkg['pkg_id'],
-                                u'title': new_pkg['title'],
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
                                 u'resource_id': resource_id,
                                 u'resource_name':
                                 new_resource_dict[resource_id]['name'],
@@ -160,8 +158,8 @@ def check_resource_changes(change_list, original, new, new_pkg,
                 not new_metadata['description']:
             change_list.append({u'type': u'resource_desc',
                                 u'method': u'remove',
-                                u'pkg_id': new_pkg['pkg_id'],
-                                u'title': new_pkg['title'],
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
                                 u'resource_id': resource_id,
                                 u'resource_name':
                                 new_resource_dict[resource_id]['name']})
@@ -170,8 +168,8 @@ def check_resource_changes(change_list, original, new, new_pkg,
         elif original_metadata['description'] != new_metadata['description']:
             change_list.append({u'type': u'resource_desc',
                                 u'method': u'change',
-                                u'pkg_id': new_pkg['pkg_id'],
-                                u'title': new_pkg['title'],
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
                                 u'resource_id': resource_id,
                                 u'resource_name':
                                 new_resource_dict[resource_id]['name'],
@@ -183,14 +181,14 @@ def check_resource_changes(change_list, original, new, new_pkg,
         # new and old files
         if original_metadata['url'] != new_metadata['url']:
             change_list.append({u'type': u'new_file',
-                                u'pkg_id': new_pkg['pkg_id'],
-                                u'title': new_pkg['title'],
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
                                 u'resource_id': resource_id,
                                 u'resource_name':
                                 new_resource_dict[resource_id]['name']})
 
 
-def check_metadata_changes(change_list, original, new, new_pkg):
+def check_metadata_changes(change_list, original, new):
     '''
     Compares two versions of a dataset and records the changes between them
     (excluding resources) in change_list.
@@ -201,67 +199,67 @@ def check_metadata_changes(change_list, original, new, new_pkg):
 
     # if the owner organization changed
     if original['owner_org'] != new['owner_org']:
-        _org_change(change_list, original, new, new_pkg)
+        _org_change(change_list, original, new)
 
     # if the maintainer of the dataset changed
     if original['maintainer'] != new['maintainer']:
-        _maintainer_change(change_list, original, new, new_pkg)
+        _maintainer_change(change_list, original, new)
 
     # if the maintainer email of the dataset changed
     if original['maintainer_email'] != new['maintainer_email']:
-        _maintainer_email_change(change_list, original, new, new_pkg)
+        _maintainer_email_change(change_list, original, new)
 
     # if the author of the dataset changed
     if original['author'] != new['author']:
-        _author_change(change_list, original, new, new_pkg)
+        _author_change(change_list, original, new)
 
     # if the author email of the dataset changed
     if original['author_email'] != new['author_email']:
-        _author_email_change(change_list, original, new, new_pkg)
+        _author_email_change(change_list, original, new)
 
     # if the visibility of the dataset changed
     if original['private'] != new['private']:
-        change_list.append({u'type': u'private', u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title'],
+        change_list.append({u'type': u'private', u'pkg_id': new['id'],
+                            u'title': new['title'],
                             u'new':
                             u'Private' if bool(new['private'])
                             else u'Public'})
 
     # if the description of the dataset changed
     if original['notes'] != new['notes']:
-        _description_change(change_list, original, new, new_pkg)
+        _description_change(change_list, original, new)
 
     # make sets out of the tags for each dataset
     original_tags = set([tag['name'] for tag in original['tags']])
     new_tags = set([tag['name'] for tag in new['tags']])
     # if the tags have changed
     if original_tags != new_tags:
-        _tag_change(change_list, new_tags, original_tags, new_pkg)
+        _tag_change(change_list, new_tags, original_tags, new)
 
     # if the license has changed
     if original['license_title'] != new['license_title']:
-        _license_change(change_list, original, new, new_pkg)
+        _license_change(change_list, original, new)
 
     # if the name of the dataset has changed
     # this is only visible to the user via the dataset's URL,
     # so display the change using that
     if original['name'] != new['name']:
-        _name_change(change_list, original, new, new_pkg)
+        _name_change(change_list, original, new)
 
     # if the source URL (metadata value, not the actual URL of the dataset)
     # has changed
     if original['url'] != new['url']:
-        _source_url_change(change_list, original, new, new_pkg)
+        _source_url_change(change_list, original, new)
 
     # if the user-provided version has changed
     if original['version'] != new['version']:
-        _version_change(change_list, original, new, new_pkg)
+        _version_change(change_list, original, new)
 
     # check whether fields added by extensions or custom fields
     # (in the "extras" field) have been changed
 
-    _extension_fields(change_list, original, new, new_pkg)
-    _extra_fields(change_list, original, new, new_pkg)
+    _extension_fields(change_list, original, new)
+    _extra_fields(change_list, original, new)
 
 
 def _title_change(change_list, original, new):
@@ -274,15 +272,15 @@ def _title_change(change_list, original, new):
                         u'original_title': original['title']})
 
 
-def _org_change(change_list, original, new, new_pkg):
+def _org_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's organization between
     two versions (original and new) to change_list.
     '''
     change_list.append({u'type': u'org',
                         u'method': u'change',
-                        u'pkg_id': new_pkg['pkg_id'],
-                        u'title': new_pkg['title'],
+                        u'pkg_id': new['id'],
+                        u'title': new['title'],
                         u'original_org_id': original['organization']['id'],
                         u'original_org_title':
                         original['organization']['title'],
@@ -290,7 +288,7 @@ def _org_change(change_list, original, new, new_pkg):
                         u'new_org_title': new['organization']['title']})
 
 
-def _maintainer_change(change_list, original, new, new_pkg):
+def _maintainer_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's maintainer field between two
     versions (original and new) to change_list.
@@ -298,24 +296,24 @@ def _maintainer_change(change_list, original, new, new_pkg):
     # if the original dataset had a maintainer
     if original['maintainer'] and new['maintainer']:
         change_list.append({u'type': u'maintainer', u'method': u'change',
-                            u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title'], u'new_maintainer':
+                            u'pkg_id': new['id'],
+                            u'title': new['title'], u'new_maintainer':
                             new['maintainer'], u'old_maintainer':
                             original['maintainer']})
     # if they removed the maintainer
     elif not new['maintainer']:
         change_list.append({u'type': u'maintainer', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'method': u'remove'})
     # if there wasn't one there before
     else:
         change_list.append({u'type': u'maintainer', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'new_maintainer': new['maintainer'],
                             u'method': u'add'})
 
 
-def _maintainer_email_change(change_list, original, new, new_pkg):
+def _maintainer_email_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's maintainer e-mail address
     field between two versions (original and new) to change_list.
@@ -323,7 +321,7 @@ def _maintainer_email_change(change_list, original, new, new_pkg):
     # if the original dataset had a maintainer email
     if original['maintainer_email'] and new['maintainer_email']:
         change_list.append({u'type': u'maintainer_email', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'new_maintainer_email': new['maintainer_email'],
                             u'old_maintainer_email':
                             original['maintainer_email'],
@@ -331,63 +329,63 @@ def _maintainer_email_change(change_list, original, new, new_pkg):
     # if they removed the maintainer email
     elif not new['maintainer_email']:
         change_list.append({u'type': u'maintainer_email', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'method': u'remove'})
     # if there wasn't one there before e
     else:
         change_list.append({u'type': u'maintainer_email', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'new_maintainer_email': new['maintainer_email'],
                             u'method': u'add'})
 
 
-def _author_change(change_list, original, new, new_pkg):
+def _author_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's author field between two
     versions (original and new) to change_list.
     '''
     # if the original dataset had an author
     if original['author'] and new['author']:
-        change_list.append({u'type': u'author', u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title'], u'new_author':
+        change_list.append({u'type': u'author', u'pkg_id': new['id'],
+                            u'title': new['title'], u'new_author':
                             new['author'], u'old_author': original['author'],
                             u'method': u'change'})
     # if they removed the author
     elif not new['author']:
-        change_list.append({u'type': u'author', u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title'], u'method': u'remove'})
+        change_list.append({u'type': u'author', u'pkg_id': new['id'],
+                            u'title': new['title'], u'method': u'remove'})
     # if there wasn't one there before
     else:
-        change_list.append({u'type': u'author', u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title'], u'new_author':
+        change_list.append({u'type': u'author', u'pkg_id': new['id'],
+                            u'title': new['title'], u'new_author':
                             new['author'], u'method': u'add'})
 
 
-def _author_email_change(change_list, original, new, new_pkg):
+def _author_email_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's author e-mail address field
     between two versions (original and new) to change_list.
     '''
     if original['author_email'] and new['author_email']:
         change_list.append({u'type': u'author_email', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'new_author_email': new['author_email'],
                             u'old_author_email': original['author_email'],
                             u'method': u'change'})
     # if they removed the author
     elif not new['author_email']:
         change_list.append({u'type': u'author_email', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'method': u'remove'})
     # if there wasn't one there before
     else:
         change_list.append({u'type': u'author_email', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'new_author_email': new['author_email'],
                             u'method': u'add'})
 
 
-def _description_change(change_list, original, new, new_pkg):
+def _description_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's description between two
     versions (original and new) to change_list.
@@ -395,21 +393,21 @@ def _description_change(change_list, original, new, new_pkg):
     # if the original dataset had a description
     if original['notes'] and new['notes']:
         change_list.append({u'type': u'description', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'new_desc': new['notes'],
                             u'old_desc': original['notes'],
                             u'method': u'change'})
     elif not new['notes']:
         change_list.append({u'type': u'description', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'method': u'remove'})
     else:
         change_list.append({u'type': u'description', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'new_desc': new['notes'], u'method': u'add'})
 
 
-def _tag_change(change_list, new_tags, original_tags, new_pkg):
+def _tag_change(change_list, new_tags, original_tags, new):
     '''
     Appends a summary of a change to a dataset's tag list between two
     versions (original and new) to change_list.
@@ -418,26 +416,26 @@ def _tag_change(change_list, new_tags, original_tags, new_pkg):
     deleted_tags_list = list(deleted_tags)
     if len(deleted_tags) == 1:
         change_list.append({u'type': u'tags', u'method': u'remove1', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'tag': deleted_tags_list[0]})
     elif len(deleted_tags) > 1:
         change_list.append({u'type': u'tags', u'method': u'remove2', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'tags': deleted_tags_list})
 
     added_tags = new_tags - original_tags
     added_tags_list = list(added_tags)
     if len(added_tags) == 1:
         change_list.append({u'type': u'tags', u'method': u'add1', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'tag': added_tags_list[0]})
     elif len(added_tags) > 1:
         change_list.append({u'type': u'tags', u'method': u'add2', u'pkg_id':
-                            new_pkg['pkg_id'], u'title': new_pkg['title'],
+                            new['id'], u'title': new['title'],
                             u'tags': added_tags_list})
 
 
-def _license_change(change_list, original, new, new_pkg):
+def _license_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's license between two versions
     (original and new) to change_list.
@@ -449,26 +447,26 @@ def _license_change(change_list, original, new, new_pkg):
         original_license_url = original['license_url']
     if u'license_url' in new and new['license_url']:
         new_license_url = new['license_url']
-    change_list.append({u'type': u'license', u'pkg_id': new_pkg['pkg_id'],
-                        u'title': new_pkg['title'],
+    change_list.append({u'type': u'license', u'pkg_id': new['id'],
+                        u'title': new['title'],
                         u'old_url': original_license_url,
                         u'new_url': new_license_url, u'new_title':
                         new['license_title'], u'old_title':
                         original['license_title']})
 
 
-def _name_change(change_list, original, new, new_pkg):
+def _name_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's name (and thus the URL it
     can be accessed at) between two versions (original and new) to
     change_list.
     '''
-    change_list.append({u'type': u'name', u'pkg_id': new_pkg['pkg_id'],
-                        u'title': new_pkg['title'], u'old_name':
+    change_list.append({u'type': u'name', u'pkg_id': new['id'],
+                        u'title': new['title'], u'old_name':
                         original['name'], u'new_name': new['name']})
 
 
-def _source_url_change(change_list, original, new, new_pkg):
+def _source_url_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's source URL (metadata field,
     not its actual URL in the datahub) between two versions (original and
@@ -477,24 +475,24 @@ def _source_url_change(change_list, original, new, new_pkg):
     # if both old and new versions have source URLs
     if original['url'] and new['url']:
         change_list.append({u'type': u'source_url', u'method': u'change',
-                            u'pkg_id': new_pkg['pkg_id'], u'title':
-                            new_pkg['title'], u'new_url': new['url'],
+                            u'pkg_id': new['id'], u'title':
+                            new['title'], u'new_url': new['url'],
                             u'old_url': original['url']})
     # if the user removed the source URL
     elif not new['url']:
         change_list.append({u'type': u'source_url', u'method': u'remove',
-                            u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title'],
+                            u'pkg_id': new['id'],
+                            u'title': new['title'],
                             u'old_url': original['url']})
     # if there wasn't one there before
     else:
         change_list.append({u'type': u'source_url', u'method': u'add',
-                            u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title'],
+                            u'pkg_id': new['id'],
+                            u'title': new['title'],
                             u'new_url': new['url']})
 
 
-def _version_change(change_list, original, new, new_pkg):
+def _version_change(change_list, original, new):
     '''
     Appends a summary of a change to a dataset's version field (inputted
     by the user, not from version control) between two versions (original
@@ -503,24 +501,24 @@ def _version_change(change_list, original, new, new_pkg):
     # if both old and new versions have version numbers
     if original['version'] and new['version']:
         change_list.append({u'type': u'version', u'method': u'change',
-                            u'pkg_id': new_pkg['pkg_id'], u'title':
-                            new_pkg['title'], u'old_version':
+                            u'pkg_id': new['id'], u'title':
+                            new['title'], u'old_version':
                             original['version'], u'new_version':
                             new['version']})
     # if the user removed the version number
     elif not new['version']:
         change_list.append({u'type': u'version', u'method': u'remove',
-                            u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title']})
+                            u'pkg_id': new['id'],
+                            u'title': new['title']})
     # if there wasn't one there before
     else:
         change_list.append({u'type': u'version', u'method': u'add',
-                            u'pkg_id': new_pkg['pkg_id'],
-                            u'title': new_pkg['title'],
+                            u'pkg_id': new['id'],
+                            u'title': new['title'],
                             u'new_version': new['version']})
 
 
-def _extension_fields(change_list, original, new, new_pkg):
+def _extension_fields(change_list, original, new):
     '''
     Checks whether any fields that have been added to the package
     dictionaries by CKAN extensions have been changed between versions.
@@ -567,15 +565,15 @@ def _extension_fields(change_list, original, new, new_pkg):
     for field in addl_fields_list:
         if original[field] != new[field]:
             change_list.append({u'type': u'extension_fields',
-                                u'pkg_id': new_pkg['pkg_id'],
-                                u'title': new_pkg['title'],
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
                                 u'field_name': field,
                                 u'new_field': new[field]})
 
 
-def _extra_fields(change_list, original, new, new_pkg):
+def _extra_fields(change_list, original, new):
     '''
-    Checks whether a user has added, removed, or changed any custom fields
+    Checks whether a user has added, removed, or changed any extra fields
     from the web interface (or API?) and appends a summary of each change to
     change_list.
     '''
@@ -593,40 +591,40 @@ def _extra_fields(change_list, original, new, new_pkg):
             new_fields = list(extra_new_set - extra_original_set)
             if len(new_fields) == 1:
                 if extra_fields_new[new_fields[0]]:
-                    change_list.append({u'type': u'custom_fields',
+                    change_list.append({u'type': u'extra_fields',
                                         u'method': u'add1',
-                                        u'pkg_id': new_pkg['pkg_id'],
-                                        u'title': new_pkg['title'],
+                                        u'pkg_id': new['id'],
+                                        u'title': new['title'],
                                         u'field_name': new_fields[0],
                                         u'field_val':
                                         extra_fields_new[new_fields[0]]})
                 else:
-                    change_list.append({u'type': u'custom_fields',
+                    change_list.append({u'type': u'extra_fields',
                                         u'method': u'add2',
-                                        u'pkg_id': new_pkg['pkg_id'],
-                                        u'title': new_pkg['title'],
+                                        u'pkg_id': new['id'],
+                                        u'title': new['title'],
                                         u'field_name': new_fields[0]})
             elif len(new_fields) > 1:
-                change_list.append({u'type': u'custom_fields',
+                change_list.append({u'type': u'extra_fields',
                                     u'method': u'add3',
-                                    u'pkg_id': new_pkg['pkg_id'],
-                                    u'title': new_pkg['title'],
+                                    u'pkg_id': new['id'],
+                                    u'title': new['title'],
                                     u'fields': new_fields,
                                     u'field_vals': extra_fields_new})
 
             # if some fields were deleted
             deleted_fields = list(extra_original_set - extra_new_set)
             if len(deleted_fields) == 1:
-                change_list.append({u'type': u'custom_fields',
+                change_list.append({u'type': u'extra_fields',
                                     u'method': u'remove1',
-                                    u'pkg_id': new_pkg['pkg_id'],
-                                    u'title': new_pkg['title'],
+                                    u'pkg_id': new['id'],
+                                    u'title': new['title'],
                                     u'field_name': deleted_fields[0]})
             elif len(deleted_fields) > 1:
-                change_list.append({u'type': u'custom_fields',
+                change_list.append({u'type': u'extra_fields',
                                     u'method': u'remove2',
-                                    u'pkg_id': new_pkg['pkg_id'],
-                                    u'title': new_pkg['title'],
+                                    u'pkg_id': new['id'],
+                                    u'title': new['title'],
                                     u'fields': deleted_fields})
 
             # if some existing fields were changed
@@ -635,20 +633,20 @@ def _extra_fields(change_list, original, new, new_pkg):
             for field in extra_fields:
                 if extra_fields_original[field] != extra_fields_new[field]:
                     if extra_fields_original[field]:
-                        change_list.append({u'type': u'custom_fields',
+                        change_list.append({u'type': u'extra_fields',
                                             u'method': u'change1',
-                                            u'pkg_id': new_pkg['pkg_id'],
-                                            u'title': new_pkg['title'],
+                                            u'pkg_id': new['id'],
+                                            u'title': new['title'],
                                             u'field_name': field,
                                             u'field_val_old':
                                             extra_fields_original[field],
                                             u'field_val_new':
                                             extra_fields_new[field]})
                     else:
-                        change_list.append({u'type': u'custom_fields',
+                        change_list.append({u'type': u'extra_fields',
                                             u'method': u'change2',
-                                            u'pkg_id': new_pkg['pkg_id'],
-                                            u'title': new_pkg['title'],
+                                            u'pkg_id': new['id'],
+                                            u'title': new['title'],
                                             u'field_name': field,
                                             u'field_val_new':
                                             extra_fields_new[field]})
@@ -659,39 +657,39 @@ def _extra_fields(change_list, original, new, new_pkg):
             new_fields = list(extra_new_set)
             if len(new_fields) == 1:
                 if extra_fields_new[new_fields[0]]:
-                    change_list.append({u'type': u'custom_fields',
+                    change_list.append({u'type': u'extra_fields',
                                         u'method': u'add1',
-                                        u'pkg_id': new_pkg['pkg_id'],
-                                        u'title': new_pkg['title'],
+                                        u'pkg_id': new['id'],
+                                        u'title': new['title'],
                                         u'field_name': new_fields[0],
                                         u'field_val':
                                         extra_fields_new[new_fields[0]]})
                 else:
-                    change_list.append({u'type': u'custom_fields',
+                    change_list.append({u'type': u'extra_fields',
                                         u'method': u'add2',
-                                        u'pkg_id': new_pkg['pkg_id'],
-                                        u'title': new_pkg['title'],
+                                        u'pkg_id': new['id'],
+                                        u'title': new['title'],
                                         u'field_name': new_fields[0]})
 
             elif len(new_fields) > 1:
-                change_list.append({u'type': u'custom_fields',
+                change_list.append({u'type': u'extra_fields',
                                     u'method': u'add3',
-                                    u'pkg_id': new_pkg['pkg_id'],
-                                    u'title': new_pkg['title'],
+                                    u'pkg_id': new['id'],
+                                    u'title': new['title'],
                                     u'fields': new_fields,
                                     u'field_vals': extra_fields_new})
 
     elif u'extras' in original:
         deleted_fields = _extras_to_dict(original['extras']).keys()
         if len(deleted_fields) == 1:
-            change_list.append({u'type': u'custom_fields',
+            change_list.append({u'type': u'extra_fields',
                                 u'method': u'remove1',
-                                u'pkg_id': new_pkg['pkg_id'],
-                                u'title': new_pkg['title'],
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
                                 u'field_name': deleted_fields[0]})
         elif len(deleted_fields) > 1:
-            change_list.append({u'type': u'custom_fields',
+            change_list.append({u'type': u'extra_fields',
                                 u'method': u'remove2',
-                                u'pkg_id': new_pkg['pkg_id'],
-                                u'title': new_pkg['title'],
+                                u'pkg_id': new['id'],
+                                u'title': new['title'],
                                 u'fields': deleted_fields})
