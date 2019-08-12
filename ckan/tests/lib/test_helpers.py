@@ -820,7 +820,7 @@ class TestActivityListSelect(object):
         out = h.activity_list_select([pkg_activity], 'id1')
 
         html = out[0]
-        print html
+        print(html)
         eq_(str(html),
             '<option value="id1" selected>February 1, 2018, 10:58:59 (UTC)'
             '</option>')

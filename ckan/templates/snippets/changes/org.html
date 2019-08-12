@@ -1,15 +1,35 @@
 <li>
   <p>
-    {{ _('Moved <a href="{pkg_url}">{dataset}</a> from organization <a href="{old_org}">{old_org_title}</a> to
-        organization <a href="{new_org}">{new_org_title}</a>').format(
-          pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
-          dataset = change.title,
-          old_org = h.url_for(controller='organization', action='read',
-          id=change.original_org_id),
-          old_org_title = change.original_org_title,
-          new_org = h.url_for(controller='organization', action='read',
-          id=change.new_org_id),
-          new_org_title = change.new_org_title
-        )|safe }}
+    {% if change.method == "change" %}
+      {{ _('Moved <a href="{pkg_url}">{dataset}</a> from organization <a href="{old_org}">{old_org_title}</a> to
+          organization <a href="{new_org}">{new_org_title}</a>').format(
+            pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+            dataset = change.title,
+            old_org = h.url_for(controller='organization', action='read',
+            id=change.old_org_id),
+            old_org_title = change.old_org_title,
+            new_org = h.url_for(controller='organization', action='read',
+            id=change.new_org_id),
+            new_org_title = change.new_org_title
+          )|safe }}
+      {% elif change.method == "remove" %}
+        {{ _('Removed <a href="{pkg_url}">{dataset}</a> from organization
+            <a href="{old_org}">{old_org_title}</a>').format(
+              pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+              dataset = change.title,
+              old_org = h.url_for(controller='organization', action='read',
+              id=change.old_org_id),
+              old_org_title = change.old_org_title
+            )|safe }}
+      {% elif change.method == "add" %}
+        {{ _('Added <a href="{pkg_url}">{dataset}</a> to organization
+            <a href="{new_org}">{new_org_title}</a>').format(
+              pkg_url = h.url_for(controller='dataset', action='read', id=change.pkg_id),
+              dataset = change.title,
+              new_org = h.url_for(controller='organization', action='read',
+              id=change.new_org_id),
+              new_org_title = change.new_org_title
+            )|safe }}
+    {% endif %}
   </p>
 </li>
