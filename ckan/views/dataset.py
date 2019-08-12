@@ -1120,7 +1120,7 @@ def changes(id, package_type=None):
     )
 
 
-def change_range(package_type=None):
+def changes_multiple(package_type=None):
     '''
     Called when a user specifies a range of versions they want to look at
     changes between. Verifies that the range is valid and finds the set of
@@ -1231,7 +1231,7 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
 
-    blueprint.add_url_rule(u'/change_range', view_func=change_range)
+    blueprint.add_url_rule(u'/changes_multiple', view_func=changes_multiple)
 
     # Duplicate resource create and edit for backward compatibility. Note,
     # we cannot use resource.CreateView directly here, because of
