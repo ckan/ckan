@@ -57,7 +57,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         u'format', u'hash', u'name', u'resource_type',
         u'mimetype', u'mimetype_inner', u'cache_url',
         u'size', u'created', u'last_modified',
-        u'cache_last_updated', u'upload'
+        u'cache_last_updated', u'upload', u'position'
     ]
     default_fields_set = set(fields)
 
@@ -69,24 +69,13 @@ def check_resource_changes(change_list, old, new, old_activity_id):
 
     for resource in old['resources']:
         old_resource_set.add(resource['id'])
-        # old_resource_dict[resource['id']] = {
-        #     u'name': resource['name'],
-        #     u'url': resource['url'],
-        #     u'description': resource['description'],
-        #     u'format': resource['format']}
         old_resource_dict[resource['id']] = {
-            key:value for (key,value) in resource.items() if key != 'id'}
+            key: value for (key, value) in resource.items() if key != u'id'}
 
     for resource in new['resources']:
         new_resource_set.add(resource['id'])
-        # new_resource_dict[resource['id']] = {
-        #     u'name': resource['name'],
-        #     u'url': resource['url'],
-        #     u'description': resource['description'],
-        #     u'format': resource['format']}
         new_resource_dict[resource['id']] = {
-            key:value for (key,value) in resource.items() if key != 'id'}
-
+            key: value for (key, value) in resource.items() if key != u'id'}
 
     # get the IDs of the resources that have been added between the versions
     new_resources = list(new_resource_set - old_resource_set)
@@ -208,17 +197,12 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         # remove default fields from these sets to make sure we only check
         # for changes to extra fields
         old_fields_set = set(old_metadata.keys())
-        log.info(old_fields_set)
         old_fields_set = old_fields_set - default_fields_set
-        log.info(old_fields_set)
         new_fields_set = set(new_metadata.keys())
-        log.info(new_fields_set)
         new_fields_set = new_fields_set - default_fields_set
-        log.info(new_fields_set)
 
         # determine if any new extra fields have been added
         new_fields = list(new_fields_set - old_fields_set)
-        log.info("new fields: " + str(new_fields))
         if len(new_fields) == 1:
             if new_metadata[new_fields[0]]:
                 change_list.append({u'type': u'resource_extras',
@@ -253,7 +237,6 @@ def check_resource_changes(change_list, old, new, old_activity_id):
 
         # determine if any extra fields have been removed
         deleted_fields = list(old_fields_set - new_fields_set)
-        log.info("deleted fields: " + str(deleted_fields))
         if len(deleted_fields) == 1:
             change_list.append({u'type': u'resource_extras',
                                 u'method': u'remove_one',
@@ -278,7 +261,6 @@ def check_resource_changes(change_list, old, new, old_activity_id):
         # still have to check if any of the values associated with the fields
         # have actually changed
         changed_fields = list(new_fields_set.intersection(old_fields_set))
-        log.info("changed fields: " + str(changed_fields))
         for field in changed_fields:
             if new_metadata[field] != old_metadata[field]:
                 if new_metadata[field] and old_metadata[field]:

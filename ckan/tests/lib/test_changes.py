@@ -597,7 +597,7 @@ class TestCheckResourceChanges(object):
         check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
-        eq(changes[0]['type'], u'resource_extra')
+        eq(changes[0]['type'], u'resource_extras')
         eq(changes[0]['method'], u'change')
         eq(changes[0]['key'], u'key1')
         eq(changes[0]['value_old'], u'value1')
@@ -617,7 +617,7 @@ class TestCheckResourceChanges(object):
         check_resource_changes(changes, original, new, u'fake')
 
         assert len(changes) == 1, changes
-        eq(changes[0]['type'], u'resource_extra')
+        eq(changes[0]['type'], u'resource_extras')
         eq(changes[0]['method'], u'remove')
         eq(changes[0]['key'], u'key1')
 
