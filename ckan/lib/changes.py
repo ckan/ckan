@@ -396,17 +396,8 @@ def _org_change(change_list, old, new):
                             old['organization']['title'],
                             u'new_org_id': new['organization']['id'],
                             u'new_org_title': new['organization']['title']})
-    # if the user removed the organization
-    elif not new['owner_org'] or new['owner_org'] == None:
-        change_list.append({u'type': u'org',
-                            u'method': u'remove',
-                            u'pkg_id': new['id'],
-                            u'title': new['title'],
-                            u'old_org_id': old['organization']['id'],
-                            u'old_org_title':
-                            old['organization']['title']})
     # if the dataset was not in an organization before and it is now
-    elif new['owner_org']:
+    elif not old['owner_org'] and new['owner_org']:
         change_list.append({u'type': u'org',
                             u'method': u'add',
                             u'pkg_id': new['id'],
@@ -414,6 +405,15 @@ def _org_change(change_list, old, new):
                             u'new_org_id': new['organization']['id'],
                             u'new_org_title':
                             new['organization']['title']})
+    # if the user removed the organization
+    else:
+        change_list.append({u'type': u'org',
+                            u'method': u'remove',
+                            u'pkg_id': new['id'],
+                            u'title': new['title'],
+                            u'old_org_id': old['organization']['id'],
+                            u'old_org_title':
+                            old['organization']['title']})
 
 
 def _maintainer_change(change_list, old, new):
