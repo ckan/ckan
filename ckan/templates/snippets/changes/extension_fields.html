@@ -5,7 +5,9 @@
         pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
           pkg_url = h.url_for(controller='dataset',
                               action='read', id=change.pkg_id),
-          pkg_name = change.title
+          pkg_name = change.title,
+          key = change.key,
+          value = change.value
         )|safe
     )}}
   </p>
