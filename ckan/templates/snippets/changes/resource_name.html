@@ -1,19 +1,25 @@
 <li>
   <p>
-    {{ _('Renamed resource <a href="{old_resource_url}">{old_resource_name}
-        </a> to <a href="{new_resource_url}">{new_resource_name}</a>
-        in <a href="{pkg_url}">{dataset}</a>').format(
-          pkg_url = h.url_for(controller='dataset', action='read', id=change.new_pkg_id),
-          dataset = change.title,
-          old_resource_url = h.url_for(qualified=True, controller='resource',
-                                        action='read', id=change.old_pkg_id,
-                                        resource_id=change.resource_id) +
-                                        "?activity_id=" + change.old_activity_id,
-          old_resource_name = change.old_resource_name,
-          new_resource_url = h.url_for(qualified=True, controller='resource',
-                                        action='read', id=change.new_pkg_id,
-                                        resource_id=change.resource_id),
-          new_resource_name = change.new_resource_name
-        )|safe }}
+    {{ _('Renamed resource {old_resource_link} to {new_resource_link}
+        in {pkg_link}').format(
+          pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
+            pkg_url = h.url_for(controller='dataset',
+                                action='read', id=change.pkg_id),
+            pkg_name = change.title
+          )|safe,
+          old_resource_link = '<a href="{resource_url}">{resource_name}</a>'.format(
+            resource_url = h.url_for(qualified=True, controller='resource',
+                                          action='read', id=change.old_pkg_id,
+                                          resource_id=change.resource_id) +
+                                          "?activity_id=" + change.old_activity_id,
+            resource_name = change.old_resource_name
+          )|safe,
+          new_resource_link = '<a href="{resource_url}">{resource_name}</a>'.format(
+            resource_url = h.url_for(qualified=True, controller='resource',
+                                          action='read', id=change.new_pkg_id,
+                                          resource_id=change.resource_id),
+            resource_name = change.new_resource_name
+          )|safe
+        ) }}
   </p>
 </li>
