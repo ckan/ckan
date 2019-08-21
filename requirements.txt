@@ -63,5 +63,5 @@ weberror==0.13.1          # via pylons
 webhelpers==1.3
 webob==1.0.8
 webtest==1.4.3
-werkzeug==0.14.1
+werkzeug==0.15.5
 zope.interface==4.3.2
