@@ -155,6 +155,10 @@ class CKANTestApp(webtest.TestApp):
             self._flask_app = self.app.apps['flask_app']._wsgi_app
         return self._flask_app
 
+    def post(self, url, *args, **kwargs):
+        url = url.encode('utf8')  # or maybe it should be url_encoded?
+        return super(CKANTestApp, self).post(url, *args, **kwargs)
+
 
 def _get_test_app():
     '''Return a webtest.TestApp for CKAN, with legacy templates disabled.

@@ -87,4 +87,4 @@ class TestPluggablePreviews(base.FunctionalTestCase):
 
     def test_iframe_url_is_correct(self):
         result = self.app.get(self.url)
-        assert self.preview_url in result.body, (self.preview_url, result.body)
+        assert str(self.preview_url) in result.body, (self.preview_url, result.body)
