@@ -10,6 +10,24 @@ Changelog
 v.2.9.0 TBA
 ==================
 
+ * This version requires changes to the ``who.ini`` configuration file. If your
+   setup doesn't use the one bundled with this repo, you will have to manually
+   change the following lines::
+
+        use = ckan.lib.auth_tkt:make_plugin
+
+   to::
+
+        use = ckan.lib.repoze_plugins.auth_tkt:make_plugin
+
+   And also::
+
+        use = repoze.who.plugins.friendlyform:FriendlyFormPlugin
+
+   to::
+
+        use = ckan.lib.repoze_plugins.friendly_form:FriendlyFormPlugin
+
  * When upgrading from previous CKAN versions, the Activity Stream needs a
    migrate_package_activity.py running for displaying the history of dataset
    changes. This can be performed while CKAN is running or stopped (whereas the

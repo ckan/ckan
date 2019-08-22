@@ -176,14 +176,6 @@ def make_flask_stack(conf, **app_conf):
 
     babel.localeselector(get_locale)
 
-    @app.route('/hello', methods=['GET'])
-    def hello_world():
-        return 'Hello World, this is served by Flask'
-
-    @app.route('/hello', methods=['POST'])
-    def hello_world_post():
-        return 'Hello World, this was posted to Flask'
-
     # WebAssets
     _setup_webassets(app)
 
@@ -520,6 +512,6 @@ def _setup_webassets(app):
 
     webassets_folder = get_webassets_path()
 
-    @app.route('/webassets/<path:path>')
+    @app.route('/webassets/<path:path>', endpoint='webassets.index')
     def webassets(path):
         return send_from_directory(webassets_folder, path)
