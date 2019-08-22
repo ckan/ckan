@@ -112,10 +112,10 @@ def plugins_update():
     # the file containing them is imported, for example if two or more
     # extensions are defined in the same file.  Therefore we do a sanity
     # check and disable any that should not be active.
-    for env in PluginGlobals.env_registry.values():
-        for service in env.services.copy():
-            if service.__class__ not in _PLUGINS_CLASS:
-                service.deactivate()
+    for env in PluginGlobals.env.values():
+        for service, id_ in env.singleton_services.items():
+            if service not in _PLUGINS_CLASS:
+                PluginGlobals.plugin_instances[id_].deactivate()
 
     # Reset CKAN to reflect the currently enabled extensions.
     import ckan.config.environment as environment
