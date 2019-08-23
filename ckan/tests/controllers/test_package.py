@@ -6,13 +6,18 @@ from nose.tools import (
     assert_not_equal,
     assert_raises,
     assert_true,
-    assert_in
+    assert_not_in,
+    assert_in,
 )
+import mock
 
 from ckan.lib.helpers import url_for
 
 import ckan.model as model
+import ckan.model.activity as activity_model
 import ckan.plugins as p
+import ckan.lib.dictization as dictization
+from ckan.logic.validators import object_id_validators, package_id_exists
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -628,6 +633,78 @@ class TestPackageRead(helpers.FunctionalTestBase):
                          id=dataset1['name']) + ".n3"
         app = self._get_test_app()
         app.get(offset, status=404)
+
+    def test_read_dataset_as_it_used_to_be(self):
+        dataset = factories.Dataset(title='Original title')
+        activity = model.Session.query(model.Activity) \
+            .filter_by(object_id=dataset['id']) \
+            .one()
+        dataset['title'] = 'Changed title'
+        helpers.call_action('package_update', **dataset)
+
+        app = helpers._get_test_app()
+        sysadmin = factories.Sysadmin()
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = app.get(url_for('dataset.read',
+                                   id=dataset['name'],
+                                   activity_id=activity.id),
+                           extra_environ=env)
+        response.mustcontain('Original title')
+
+    def test_read_dataset_as_it_used_to_be_but_is_unmigrated(self):
+        # Renders the dataset using the activity detail, when that Activity was
+        # created with an earlier version of CKAN, and it has not been migrated
+        # (with migrate_package_activity.py), which should give a 404
+        app = self._get_test_app()
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        # delete the modern Activity object that's been automatically created
+        modern_activity = model.Session.query(model.Activity) \
+            .filter_by(object_id=dataset['id']) \
+            .one()
+        revision_id = modern_activity.revision_id
+        modern_activity.delete()
+
+        # Create an Activity object as it was in earlier versions of CKAN.
+        # This code is based on:
+        # https://github.com/ckan/ckan/blob/b348bf2fe68db6704ea0a3e22d533ded3d8d4344/ckan/model/package.py#L508
+        activity_type = 'changed'
+        dataset_table_dict = dictization.table_dictize(
+            model.Package.get(dataset['id']), context={'model': model})
+        activity = model.Activity(
+            user_id=user['id'],
+            object_id=dataset['id'],
+            revision_id=revision_id,
+            activity_type="%s package" % activity_type,
+            data={
+                # "actor": a legacy activity had no "actor"
+                # "package": a legacy activity had just the package table,
+                # rather than the result of package_show
+                'package': dataset_table_dict,
+            }
+        )
+        model.Session.add(activity)
+        # a legacy activity had a ActivityDetail associated with the Activity
+        # This code is based on:
+        # https://github.com/ckan/ckan/blob/b348bf2fe68db6704ea0a3e22d533ded3d8d4344/ckan/model/package.py#L542
+        activity_detail = model.ActivityDetail(
+            activity_id=activity.id,
+            object_id=dataset['id'],
+            object_type=u"Package",
+            activity_type=activity_type,
+            data={u'package': dataset_table_dict})
+        model.Session.add(activity_detail)
+        model.Session.flush()
+
+        sysadmin = factories.Sysadmin()
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = app.get(url_for('dataset.read',
+                                   id=dataset['name'],
+                                   activity_id=activity.id),
+                           extra_environ=env,
+                           status=404)
 
 
 class TestPackageDelete(helpers.FunctionalTestBase):
@@ -1532,6 +1609,28 @@ class TestSearch(helpers.FunctionalTestBase):
         assert_equal(len(ds_titles), 1)
         assert_true('Dataset One' in ds_titles)
 
+    def test_search_page_results_tags(self):
+        '''Searching with a tag returns expected results with multiple tags'''
+
+        app = self._get_test_app()
+        factories.Dataset(name="dataset-one", title='Dataset One',
+                          tags=[
+                              {'name': 'my-tag-1'},
+                              {'name': 'my-tag-2'},
+                              {'name': 'my-tag-3'},
+                          ])
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        params = '/dataset/?tags=my-tag-1&tags=my-tag-2&tags=my-tag-3'
+        tag_search_response = app.get(params)
+
+        assert_true('1 dataset found' in tag_search_response)
+
+        search_response_html = BeautifulSoup(tag_search_response.body)
+        ds_titles = search_response_html.select('.filtered')
+        assert_equal(len(ds_titles), 3)
+
     def test_search_page_results_private(self):
         '''Private datasets don't show up in dataset search results.'''
         app = self._get_test_app()
@@ -1780,6 +1879,24 @@ class TestDatasetRead(helpers.FunctionalTestBase):
         redirected_response = response.follow()
         expected_url = url_for('dataset.read', id=dataset['name'])
         assert_equal(redirected_response.request.path, expected_url)
+        assert_equal(redirected_response.request.query_string, '')
+
+    def test_redirect_also_with_activity_parameter(self):
+        dataset = factories.Dataset()
+        activity = activity_model.package_activity_list(dataset['id'], limit=1,
+                                                        offset=0)[0]
+        # view as an admin because viewing the old versions of a dataset
+        sysadmin = factories.Sysadmin()
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        app = helpers._get_test_app()
+        response = app.get(url_for('dataset.read', id=dataset['id'],
+                                   activity_id=activity.id),
+                           status=302, extra_environ=env)
+        redirected_response = response.follow(extra_environ=env)
+        expected_path = url_for('dataset.read', id=dataset['name'])
+        assert_equal(redirected_response.request.path, expected_path)
+        assert_equal(redirected_response.request.query_string,
+                     'activity_id={}'.format(activity.id))
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self):
         dataset = factories.Dataset(id='abc', name='abc')
@@ -1812,11 +1929,10 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
                   response)
         assert_in('created the dataset', response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
+        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['id']),
                   response)
 
     def _clear_activities(self):
-        model.Session.query(model.ActivityDetail).delete()
         model.Session.query(model.Activity).delete()
         model.Session.flush()
 
@@ -1836,15 +1952,120 @@ class TestActivity(helpers.FunctionalTestBase):
                   response)
         assert_in('updated the dataset', response)
         assert_in('<a href="/dataset/{}">Dataset with changed title'
-                  .format(dataset['name']),
+                  .format(dataset['id']),
                   response)
 
-    def test_add_resource_to_dataset(self):
+    def test_delete_dataset(self):
+        app = self._get_test_app()
+        user = factories.User()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'], user=user)
+        self._clear_activities()
+        helpers.call_action(
+            'package_delete', context={'user': user['name']}, **dataset)
+
+        url = url_for('organization.activity',
+                      id=org['id'])
+        response = app.get(url)
+        assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
+                  response)
+        assert_in('deleted the dataset', response)
+        assert_in('<a href="/dataset/{}">Test Dataset'
+                  .format(dataset['id']),
+                  response)
+
+    def test_admin_can_see_old_versions(self):
+        app = self._get_test_app()
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        dataset = factories.Dataset(user=user)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url, extra_environ=env)
+        assert_in('View this version', response)
+
+    def test_public_cant_see_old_versions(self):
         app = self._get_test_app()
         user = factories.User()
         dataset = factories.Dataset(user=user)
-        self._clear_activities()
-        factories.Resource(package_id=dataset['id'], user=user)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_not_in('View this version', response)
+
+    def test_admin_can_see_changes(self):
+        app = self._get_test_app()
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        dataset = factories.Dataset()  # activities by system user aren't shown
+        dataset['title'] = 'Changed'
+        helpers.call_action('package_update', **dataset)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url, extra_environ=env)
+        assert_in('Changes', response)
+        changes_page = response.click('Changes', extra_environ=env)
+
+    def test_public_cant_see_changes(self):
+        app = self._get_test_app()
+        dataset = factories.Dataset()  # activities by system user aren't shown
+        dataset['title'] = 'Changed'
+        helpers.call_action('package_update', **dataset)
+
+        url = url_for('dataset.activity',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_not_in('Changes', response)
+
+    def test_legacy_changed_package_activity(self):
+        '''Render an activity that was created with an earlier version of CKAN,
+        and it has not been migrated (with migrate_package_activity.py)
+        '''
+        app = self._get_test_app()
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        # delete the modern Activity object that's been automatically created
+        modern_activity = model.Session.query(model.Activity) \
+            .filter_by(object_id=dataset['id']) \
+            .one()
+        revision_id = modern_activity.revision_id
+        modern_activity.delete()
+
+        # Create an Activity object as it was in earlier versions of CKAN.
+        # This code is based on:
+        # https://github.com/ckan/ckan/blob/b348bf2fe68db6704ea0a3e22d533ded3d8d4344/ckan/model/package.py#L508
+        activity_type = 'changed'
+        dataset_table_dict = dictization.table_dictize(
+            model.Package.get(dataset['id']), context={'model': model})
+        activity = model.Activity(
+            user_id=user['id'],
+            object_id=dataset['id'],
+            revision_id=revision_id,
+            activity_type="%s package" % activity_type,
+            data={
+                # "actor": a legacy activity had no "actor"
+                # "package": a legacy activity had just the package table,
+                # rather than the result of package_show
+                'package': dataset_table_dict,
+            }
+        )
+        model.Session.add(activity)
+        # a legacy activity had a ActivityDetail associated with the Activity
+        # This code is based on:
+        # https://github.com/ckan/ckan/blob/b348bf2fe68db6704ea0a3e22d533ded3d8d4344/ckan/model/package.py#L542
+        activity_detail = model.ActivityDetail(
+            activity_id=activity.id,
+            object_id=dataset['id'],
+            object_type=u"Package",
+            activity_type=activity_type,
+            data={u'package': dataset_table_dict})
+        model.Session.add(activity_detail)
+        model.Session.flush()
 
         url = url_for('dataset.activity',
                       id=dataset['id'])
@@ -1852,24 +2073,73 @@ class TestActivity(helpers.FunctionalTestBase):
         assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
                   response)
         assert_in('updated the dataset', response)
-        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['name']),
+        assert_in('<a href="/dataset/{}">Test Dataset'.format(dataset['id']),
                   response)
 
-    def test_delete_dataset(self):
+    # ckanext-canada uses their IActivity to add their custom activity to the
+    # list of validators: https://github.com/open-data/ckanext-canada/blob/6870e5bc38a04aa8cef191b5e9eb361f9560872b/ckanext/canada/plugins.py#L596
+    # but it's easier here to just hack patch it in
+    @mock.patch(
+        'ckan.logic.validators.object_id_validators', dict(
+            object_id_validators.items() +
+            [('changed datastore', package_id_exists)])
+    )
+    def test_custom_activity(self):
+        '''Render a custom activity
+        '''
         app = self._get_test_app()
+
         user = factories.User()
-        dataset = factories.Dataset(user=user)
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=organization['id'], user=user)
+        resource = factories.Resource(package_id=dataset['id'])
         self._clear_activities()
-        helpers.call_action(
-            'package_delete', context={'user': user['name']}, **dataset)
+
+        # Create a custom Activity object. This one is inspired by:
+        # https://github.com/open-data/ckanext-canada/blob/master/ckanext/canada/activity.py
+        activity_dict = {
+            'user_id': user['id'],
+            'object_id': dataset['id'],
+            'activity_type': 'changed datastore',
+            'data': {
+                'resource_id': resource['id'],
+                'pkg_type': dataset['type'],
+                'resource_name': 'june-2018',
+                'owner_org': organization['name'],
+                'count': 5,
+            }
+        }
+        helpers.call_action('activity_create', **activity_dict)
 
         url = url_for('dataset.activity',
                       id=dataset['id'])
-        env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.get(url, extra_environ=env)
+        response = app.get(url)
         assert_in('<a href="/user/{}">Mr. Test User'.format(user['name']),
                   response)
-        assert_in('deleted the dataset', response)
-        assert_in('<a href="/dataset/{}">Test Dataset'
-                  .format(dataset['name']),
-                  response)
+        # it renders the activity with fallback.html, since we've not defined
+        # changed_datastore.html in this case
+        assert_in('changed datastore', response)
+
+
+class TestChanges(object):  # i.e. the diff
+    @classmethod
+    def setup_class(cls):
+        helpers.reset_db()
+
+    def test_simple(self):
+        user = factories.User()
+        dataset = factories.Dataset(title='First title', user=user)
+        dataset['title'] = 'Second title'
+        helpers.call_action('package_update', **dataset)
+
+        app = helpers._get_test_app()
+        activity = activity_model.package_activity_list(
+            dataset['id'], limit=1, offset=0)[0]
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(url_for('dataset.changes',
+                                   id=activity.id),
+                           extra_environ=env)
+        response.mustcontain('First')
+        response.mustcontain('Second')

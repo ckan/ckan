@@ -21,6 +21,32 @@ from ckan.plugins.toolkit import ValidationError
 
 
 class TestDatastoreCreateNewTests(DatastoreFunctionalTestBase):
+    def test_create_works_with_empty_array_in_json_field(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'package_id': package['id']
+            },
+            'fields': [{'id': 'movie', 'type': 'text'},
+                       {'id': 'directors', 'type': 'json'}],
+            'records': [{'movie': 'sideways', 'directors': []}]
+        }
+        result = helpers.call_action('datastore_create', **data)
+        assert result['resource_id'] is not None
+
+    def test_create_works_with_empty_object_in_json_field(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'package_id': package['id']
+            },
+            'fields': [{'id': 'movie', 'type': 'text'},
+                       {'id': 'director', 'type': 'json'}],
+            'records': [{'movie': 'sideways', 'director': {}}]
+        }
+        result = helpers.call_action('datastore_create', **data)
+        assert result['resource_id'] is not None     
+
     def test_create_creates_index_on_primary_key(self):
         package = factories.Dataset()
         data = {

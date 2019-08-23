@@ -18,7 +18,7 @@ class TestIConfigurerToolkitAddCkanAdminTab(helpers.FunctionalTestBase):
 
         toolkit.add_ckan_admin_tab(config, 'my_route_name', 'my_label')
 
-        nosetools.assert_equal({'ckan.admin_tabs': {'my_route_name': 'my_label'}}, config)
+        nosetools.assert_equal({'ckan.admin_tabs': {'my_route_name': {'label': 'my_label', 'icon': None}}}, config)
 
     def test_add_ckan_admin_tab_twice(self):
         '''
@@ -31,7 +31,7 @@ class TestIConfigurerToolkitAddCkanAdminTab(helpers.FunctionalTestBase):
         toolkit.add_ckan_admin_tab(config, 'my_route_name', 'my_label')
 
         expected_dict = {
-            'ckan.admin_tabs': {'my_route_name': 'my_label'}
+            'ckan.admin_tabs': {'my_route_name': {'label': 'my_label', 'icon': None}}
         }
 
         nosetools.assert_equal(expected_dict, config)
@@ -47,7 +47,7 @@ class TestIConfigurerToolkitAddCkanAdminTab(helpers.FunctionalTestBase):
         toolkit.add_ckan_admin_tab(config, 'my_route_name', 'my_replacement_label')
 
         expected_dict = {
-            'ckan.admin_tabs': {'my_route_name': 'my_replacement_label'}
+            'ckan.admin_tabs': {'my_route_name': {'label': 'my_replacement_label', 'icon': None}}
         }
 
         nosetools.assert_equal(expected_dict, config)
@@ -63,8 +63,8 @@ class TestIConfigurerToolkitAddCkanAdminTab(helpers.FunctionalTestBase):
 
         expected_dict = {
             'ckan.admin_tabs': {
-                'my_other_route_name': 'my_other_label',
-                'my_route_name': 'my_label'
+                'my_other_route_name': {'label': 'my_other_label', 'icon': None},
+                'my_route_name': {'label': 'my_label', 'icon': None}
             }
         }
 
@@ -75,7 +75,7 @@ class TestIConfigurerToolkitAddCkanAdminTab(helpers.FunctionalTestBase):
         Config already has a ckan.admin_tabs option.
         '''
         config = {
-            'ckan.admin_tabs': {'my_existing_route': 'my_existing_label'}
+            'ckan.admin_tabs': {'my_existing_route': {'label': 'my_existing_label', 'icon': None}}
         }
 
         toolkit.add_ckan_admin_tab(config, 'my_route_name', 'my_label')
@@ -83,9 +83,9 @@ class TestIConfigurerToolkitAddCkanAdminTab(helpers.FunctionalTestBase):
 
         expected_dict = {
             'ckan.admin_tabs': {
-                'my_existing_route': 'my_existing_label',
-                'my_other_route_name': 'my_other_label',
-                'my_route_name': 'my_label'
+                'my_existing_route': {'label': 'my_existing_label', 'icon': None},
+                'my_other_route_name': {'label': 'my_other_label', 'icon': None},
+                'my_route_name': {'label': 'my_label', 'icon': None}
             }
         }
 
@@ -105,8 +105,8 @@ class TestIConfigurerToolkitAddCkanAdminTab(helpers.FunctionalTestBase):
         expected_dict = {
             'ckan.my_option': 'This is my option',
             'ckan.admin_tabs': {
-                'my_other_route_name': 'my_other_label',
-                'my_route_name': 'my_label'
+                'my_other_route_name': {'label': 'my_other_label', 'icon': None},
+                'my_route_name': {'label': 'my_label', 'icon': None}
             }
         }
 

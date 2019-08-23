@@ -21,9 +21,9 @@
 {% endblock %}
 
 {% block content_primary_nav %}
-  {{ h.build_nav_icon('resource.edit', _('Edit resource'), id=pkg.name, resource_id=res.id) }}
+  {{ h.build_nav_icon('resource.edit', _('Edit resource'), id=pkg.name, resource_id=res.id, icon='pencil-square-o') }}
   {% block inner_primary_nav %}{% endblock %}
-  {{ h.build_nav_icon('resource.views', _('Views'), id=pkg.name, resource_id=res.id) }}
+  {{ h.build_nav_icon('resource.views', _('Views'), id=pkg.name, resource_id=res.id, icon='bars') }}
 {% endblock %}
 
 {% block primary_content_inner %}
@@ -37,5 +37,5 @@
 
 {% block scripts %}
   {{ super() }}
-  {% resource 'vendor/fileupload' %}
+  {% asset 'vendor/fileupload' %}
 {% endblock %}

@@ -8,6 +8,7 @@ volumes:
   ckan_storage:
   ckan_bg_storage:
   pg_data:
+  solr_data:
 
 services:
 

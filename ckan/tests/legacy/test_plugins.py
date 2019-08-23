@@ -101,7 +101,7 @@ class TestPlugins(object):
 
         # synchronous_search automatically gets loaded
         current_plugins = set([plugins.get_plugin(p) for p in ['mapper_plugin', 'routes_plugin', 'synchronous_search'] + find_system_plugins()])
-        assert PluginGlobals.env().services == current_plugins
+        assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
         # cleanup
         config['ckan.plugins'] = config_plugins
         plugins.load_all()
@@ -175,10 +175,15 @@ class TestPlugins(object):
 
     def test_routes_plugin_fired(self):
         with plugins.use_plugin('routes_plugin'):
-            routes_plugin = PluginGlobals.env_registry['pca'].plugin_registry['RoutesPlugin'].__instance__
-            assert routes_plugin.calls_made == ['before_map', 'after_map'], \
-                   routes_plugin.calls_made
+            pca = PluginGlobals.env['pca']
+            routes_plugin_idx = pca.singleton_services[
+                pca.plugin_registry['RoutesPlugin']
+            ]
 
+            routes_plugin = PluginGlobals.plugin_instances[routes_plugin_idx]
+
+            assert routes_plugin.calls_made == ['before_map', 'after_map'], \
+                routes_plugin.calls_made
 
     def test_action_plugin_override(self):
         status_show_original = logic.get_action('status_show')(None, {})

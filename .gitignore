@@ -23,6 +23,7 @@ tmp/*
 solr_runtime/*
 fl_notes.txt
 *.ini
+!ckan/migration/alembic.ini
 .noseids
 *~
 .idea

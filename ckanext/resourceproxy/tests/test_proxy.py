@@ -3,7 +3,8 @@
 import requests
 import unittest
 import json
-import httpretty
+import responses
+import six
 
 from ckan.tests.helpers import _get_test_app
 from ckan.common import config
@@ -68,15 +69,13 @@ class TestProxyPrettyfied(unittest.TestCase):
         self.url = 'http://www.ckan.org/static/example.json'
         self.data_dict = set_resource_url(self.url)
 
-    def register(self, *args, **kwargs):
-        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.GET, *args,
-                                         **kwargs)
-        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.HEAD, *args,
-                                         **kwargs)
+    def mock_out_urls(self, *args, **kwargs):
+        responses.add(responses.GET, *args, **kwargs)
+        responses.add(responses.HEAD, *args, **kwargs)
 
-    @httpretty.activate
+    @responses.activate
     def test_resource_proxy_on_200(self):
-        self.register(
+        self.mock_out_urls(
             self.url,
             content_type='application/json',
             body=JSON_STRING)
@@ -86,9 +85,9 @@ class TestProxyPrettyfied(unittest.TestCase):
         assert result.status_code == 200, result.status_code
         assert "yes, I'm proxied" in result.content, result.content
 
-    @httpretty.activate
+    @responses.activate
     def test_resource_proxy_on_404(self):
-        self.register(
+        self.mock_out_urls(
             self.url,
             body="I'm not here",
             content_type='application/json',
@@ -105,12 +104,12 @@ class TestProxyPrettyfied(unittest.TestCase):
         assert result.status_int == 409, result.status
         assert '404' in result.body
 
-    @httpretty.activate
+    @responses.activate
     def test_large_file(self):
         cl = controller.MAX_FILE_SIZE + 1
-        self.register(
+        self.mock_out_urls(
             self.url,
-            content_length=cl,
+            headers={'Content-Length': six.text_type(cl)},
             body='c' * cl)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
@@ -118,12 +117,12 @@ class TestProxyPrettyfied(unittest.TestCase):
         assert result.status_int == 409, result.status
         assert 'too large' in result.body, result.body
 
-    @httpretty.activate
+    @responses.activate
     def test_large_file_streaming(self):
         cl = controller.MAX_FILE_SIZE + 1
-        self.register(
+        self.mock_out_urls(
             self.url,
-            streaming=True,
+            stream=True,
             body='c' * cl)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
@@ -131,8 +130,9 @@ class TestProxyPrettyfied(unittest.TestCase):
         assert result.status_int == 409, result.status
         assert 'too large' in result.body, result.body
 
-    @httpretty.activate
+    @responses.activate
     def test_invalid_url(self):
+        responses.add_passthru(config['solr_url'])
         self.data_dict = set_resource_url('http:invalid_url')
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)

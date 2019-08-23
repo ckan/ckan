@@ -61,7 +61,6 @@ class CreateTestData(object):
         cls.user_refs.append(u'tester')
 
     @classmethod
-
     def create_translations_test_data(cls):
         import ckan.model
         CreateTestData.create()
@@ -99,6 +98,7 @@ class CreateTestData(object):
 
         ckan.model.Session.commit()
 
+    @classmethod
     def create_vocabs_test_data(cls):
         import ckan.model
         CreateTestData.create()
@@ -512,9 +512,12 @@ left arrow <
         user_ref = name
         assert user_ref
         for k, v in user_dict.items():
-            if v:
-                # avoid unicode warnings
-                user_dict[k] = text_type(v)
+            if v is not None:
+                if bool(v):
+                    user_dict[k] = v
+                else:
+                    # avoid unicode warnings
+                    user_dict[k] = text_type(v)
         user = model.User(name=text_type(name), **user_dict)
         model.Session.add(user)
         cls.user_refs.append(user_ref)

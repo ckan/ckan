@@ -394,7 +394,7 @@ def default_user_schema(
         ignore_missing, unicode_safe, name_validator, user_name_validator,
         user_password_validator, user_password_not_empty,
         ignore_not_sysadmin, not_empty, email_validator,
-        user_about_validator, ignore):
+        user_about_validator, ignore, boolean_validator):
     return {
         'id': [ignore_missing, unicode_safe],
         'name': [
@@ -409,7 +409,8 @@ def default_user_schema(
         'sysadmin': [ignore_missing, ignore_not_sysadmin],
         'apikey': [ignore],
         'reset_key': [ignore],
-        'activity_streams_email_notifications': [ignore_missing],
+        'activity_streams_email_notifications': [ignore_missing,
+                                                 boolean_validator],
         'state': [ignore_missing],
     }
 
@@ -615,13 +616,16 @@ def default_dashboard_activity_list_schema(
 @validator_args
 def default_activity_list_schema(
         not_missing, unicode_safe, configured_default,
-        natural_number_validator, limit_to_configured_maximum):
+        natural_number_validator, limit_to_configured_maximum,
+        ignore_missing, boolean_validator, ignore_not_sysadmin):
     schema = default_pagination_schema()
     schema['id'] = [not_missing, unicode_safe]
     schema['limit'] = [
         configured_default('ckan.activity_list_limit', 31),
         natural_number_validator,
         limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
+    schema['include_hidden_activity'] = [
+        ignore_missing, ignore_not_sysadmin, boolean_validator]
     return schema
 
 
@@ -630,6 +634,7 @@ def default_autocomplete_schema(
         not_missing, unicode_safe, ignore_missing, natural_number_validator):
     return {
         'q': [not_missing, unicode_safe],
+        'ignore_self': [ignore_missing],
         'limit': [ignore_missing, natural_number_validator]
     }
 
