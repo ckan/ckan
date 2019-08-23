@@ -49,3 +49,4 @@ contrib/docker/*.env
 
 #python virtualenv
 venv
+var
