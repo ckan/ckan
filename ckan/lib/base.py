@@ -266,7 +266,6 @@ class BaseController(WSGIController):
             if not error.connection_invalidated:
                 raise
             log.info('DBAPIError: %s' % error.message.rstrip())
-            model.Session.connection().should_close_with_result = True
             start_response(503, {})
             return ""
         finally:
