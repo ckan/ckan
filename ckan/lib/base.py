@@ -16,6 +16,7 @@ from pylons.decorators import jsonify
 from pylons.templating import cached_template, pylons_globals
 from webhelpers.html import literal
 from jinja2.exceptions import TemplateNotFound
+from sqlalchemy.exc import DBAPIError
 
 from flask import (
     render_template as flask_render_template,
@@ -261,6 +262,13 @@ class BaseController(WSGIController):
 
         try:
             res = WSGIController.__call__(self, environ, start_response)
+        except DBAPIError as error:
+            if not error.connection_invalidated:
+                raise
+            log.info('DBAPIError: %s' % error.message.rstrip())
+            model.Session.connection().should_close_with_result = True
+            start_response(503, {})
+            return ""
         finally:
             model.Session.remove()
 
