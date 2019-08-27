@@ -8,15 +8,7 @@ import ckan.plugins as plugins
 
 class TestExampleIConfigurer(helpers.FunctionalTestBase):
 
-    @classmethod
-    def setup_class(cls):
-        super(TestExampleIConfigurer, cls).setup_class()
-        plugins.load('example_iconfigurer')
-
-    @classmethod
-    def teardown_class(cls):
-        plugins.unload('example_iconfigurer')
-        super(TestExampleIConfigurer, cls).teardown_class()
+    _load_plugins = ['example_iconfigurer']
 
     def test_template_renders(self):
         '''Our controller renders the extension's config template.'''
