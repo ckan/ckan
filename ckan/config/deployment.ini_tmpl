@@ -150,6 +150,7 @@ ckan.preview.direct = png jpg gif
 ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
 ckan.display_timezone = server
 ckan.featured_orgs = city-of-toronto the-ontario-ministry-of-transportation government-of-canada
+ckan.featured_orgs_homepage = ministry-of-transportation government-of-canada blackberry-qnx
 
 # package_hide_extras = for_search_index_only
 #package_edit_return_url = http://another.frontend/dataset/<NAME>
