@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+import six
+
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.logic.auth as logic_auth
@@ -184,8 +186,14 @@ def _check_group_auth(context, data_dict):
             id = group_blob.get('id') or group_blob.get('name')
             if not id:
                 continue
-        else:
+        elif isinstance(group_blob, six.string_types):
             id = group_blob
+        else:
+            msg = _(
+                u'Only lists of dicts can be placed'
+                   u' against subschema %(schema)s, not %(type)s'
+            ) % ({'schema': 'group', 'type': type(group_blob)})
+            raise logic.ValidationError({'group': [msg]})
         grp = model.Group.get(id)
         if grp is None:
             raise logic.NotFound(_('Group was not found.'))
