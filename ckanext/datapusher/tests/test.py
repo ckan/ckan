@@ -23,11 +23,13 @@ class TestDatastoreCreate():
 
     @classmethod
     def setup_class(cls):
+        cls._original_config = dict(config)
+        config['ckan.plugins'] = 'datastore datapusher'
+
         cls.app = helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
-        p.load('datapusher')
+
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -41,6 +43,8 @@ class TestDatastoreCreate():
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
         p.unload('datapusher')
+        config.clear()
+        config.update(cls._original_config)
 
     def test_create_ckan_resource_in_package(self):
         package = model.Package.get('annakarenina')
