@@ -1498,7 +1498,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         fq = "(creator_user_id:{0} AND +state:draft)".format(user['id'])
         results = logic.get_action('package_search')(
-            {'user': sysadmin['name']},
+            {'user': sysadmin['name'], 'sysadmin': True},
             {'fq': fq})['results']
 
         names = [r['name'] for r in results]

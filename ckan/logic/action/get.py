@@ -1888,6 +1888,8 @@ def package_search(context, data_dict):
                 else 'capacity:public +' + data_dict['fq']
         if include_drafts:
             data_dict['fq'] += ' +state:(active OR draft)'
+        if not include_drafts and not context.get('sysadmin'):
+            data_dict['fq'] += ' -state:draft'
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
