@@ -1295,6 +1295,23 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         eq(len(results), 0)
 
+    def test_package_search_with_fq_for_org_includes_only_org_datasets(self):
+        '''
+        Searching for datasets by organization returns only datasets from the
+        organization.
+        '''
+        user = factories.User()
+        org1 = factories.Organization(user=user)
+        org2 = factories.Organization(user=user)
+        dataset1 = factories.Dataset(user=user, owner_org=org1['name'], name="dataset1")
+        factories.Dataset(user=user, owner_org=org2['name'], name="dataset2")
+
+        fq = "owner_org:" + org1['id']
+        results = helpers.call_action('package_search', fq=fq)['results']
+
+        eq(len(results), 1)
+        nose.tools.assert_equal(results[0]['name'], dataset1['name'])
+
     def test_package_search_with_include_drafts_option_excludes_drafts_for_anon_user(self):
         '''
         An anon user can't user include_drafts to get draft datasets.
