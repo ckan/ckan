@@ -151,8 +151,6 @@ def package_create(context, data_dict):
     else:
         schema = package_plugin.create_package_schema()
 
-    _check_access('package_create', context, data_dict)
-
     if 'api_version' not in context:
         # check_data_dict() is deprecated. If the package_plugin has a
         # check_data_dict() we'll call it, if it doesn't have the method we'll
@@ -171,6 +169,8 @@ def package_create(context, data_dict):
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               data.get('name'), data_dict)
+
+    _check_access('package_create', context, data_dict)
 
     if errors:
         model.Session.rollback()
