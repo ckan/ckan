@@ -1479,7 +1479,7 @@ def user_show(context, data_dict):
     if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []
 
-        fq = "+creator_user_id:{0}".format(user_dict['id'])
+        fq = "creator_user_id:{0}".format(user_dict['id'])
 
         search_dict = {'rows': 50}
 
