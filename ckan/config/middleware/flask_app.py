@@ -82,13 +82,6 @@ def make_flask_stack(conf, **app_conf):
     debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
     testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
     app = flask_app = CKANFlask(__name__)
-    # Set jinja_options as soon as possible as it won't affect
-    # tempaltes in any way after JinjaEnvironment created. It may be
-    # not obvious, but some of `app` properties are implemented as
-    # property descriptors, so even assigning can implicitly create
-    # JinjaEnvironment.
-    #
-    # https://flask.palletsprojects.com/en/1.1.x/api/#flask.Flask.jinja_options
     app.jinja_options = jinja_extensions.get_jinja_env_options()
 
     app.debug = debug
@@ -97,7 +90,6 @@ def make_flask_stack(conf, **app_conf):
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
     app.url_rule_class = CKAN_Rule
 
-    app.jinja_options = jinja_extensions.get_jinja_env_options()
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
     if config:
