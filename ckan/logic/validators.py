@@ -5,8 +5,10 @@ import datetime
 from itertools import count
 import re
 import mimetypes
+import string
 
 from six import string_types
+from six.moves.urllib.parse import urlparse
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
@@ -687,15 +689,13 @@ def tag_not_in_vocabulary(key, tag_dict, errors, context):
 
 def url_validator(key, data, errors, context):
     ''' Checks that the provided value (if it is present) is a valid URL '''
-    import urlparse
-    import string
 
     url = data.get(key, None)
     if not url:
         return
 
     try:
-        pieces = urlparse.urlparse(url)
+        pieces = urlparse(url)
         if all([pieces.scheme, pieces.netloc]) and \
            set(pieces.netloc) <= set(string.letters + string.digits + '-.') and \
            pieces.scheme in ['http', 'https']:

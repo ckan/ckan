@@ -12,7 +12,8 @@ The basic recipe is to call:
 which builds the dictionary by iterating over the table columns.
 '''
 import datetime
-import urlparse
+
+from six.moves.urllib.parse import urlsplit
 
 from ckan.common import config
 from sqlalchemy.sql import select
@@ -115,7 +116,7 @@ def resource_dictize(res, context):
                                     resource_id=res.id,
                                     filename=cleaned_name,
                                     qualified=True)
-    elif resource['url'] and not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
+    elif resource['url'] and not urlsplit(url).scheme and not context.get('for_edit'):
         resource['url'] = u'http://' + url.lstrip('/')
     return resource
 

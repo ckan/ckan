@@ -7,14 +7,13 @@ import sqlalchemy
 import os
 import pprint
 import sqlalchemy.engine.url as sa_url
-import urlparse
 import datetime
 import hashlib
 import json
 from cStringIO import StringIO
 
 from six.moves.urllib.parse import (
-    urlencode, unquote, urlunparse, parse_qsl
+    urlencode, unquote, urlunparse, parse_qsl, urlparse
 )
 from six import string_types, text_type
 
