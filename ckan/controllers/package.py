@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import logging
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 import datetime
 import mimetypes
 import cgi

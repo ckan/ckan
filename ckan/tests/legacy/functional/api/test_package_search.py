@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from urllib import quote
+from six.moves.urllib.parse import quote
 
 import webhelpers
 

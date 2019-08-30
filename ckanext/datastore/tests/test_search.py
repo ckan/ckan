@@ -2,10 +2,11 @@
 
 import json
 import nose
-import urllib
 import pprint
 
 import sqlalchemy.orm as orm
+
+from six.moves.urllib.parse import urlencode
 
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
@@ -1148,7 +1149,7 @@ class TestDatastoreSQLLegacyTests(DatastoreLegacyTestBase):
             where a.author = b.author
             limit 2
             '''.format(self.data['resource_id'])
-        data = urllib.urlencode({'sql': query})
+        data = urlencode({'sql': query})
         auth = {'Authorization': str(self.normal_user.apikey)}
         res = self.app.post('/api/action/datastore_search_sql', params=data,
                             extra_environ=auth)
@@ -1211,7 +1212,7 @@ class TestDatastoreSQLLegacyTests(DatastoreLegacyTestBase):
         ]
         for query in test_cases:
             data = {'sql': query.replace('\n', '')}
-            postparams = urllib.urlencode(data)
+            postparams = urlencode(data)
             res = self.app.post('/api/action/datastore_search_sql',
                                 params=postparams,
                                 status=403)

@@ -12,11 +12,9 @@ import re
 import os
 import pytz
 import tzlocal
-import urllib
 import pprint
 import copy
 import urlparse
-from urllib import urlencode
 import uuid
 
 from paste.deploy import converters
@@ -35,7 +33,9 @@ from routes import url_for as _routes_default_url_for
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
+
 from six import string_types, text_type
+from six.moves.urllib.parse import urlencode, quote, unquote
 
 import ckan.exceptions
 import ckan.model as model
@@ -573,7 +573,7 @@ def full_current_url():
 @core_helper
 def current_url():
     ''' Returns current url unquoted'''
-    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
+    return unquote(request.environ['CKAN_CURRENT_URL'])
 
 
 @core_helper
@@ -1332,7 +1332,7 @@ def gravatar(email_hash, size=100, default=None):
 
     if default not in _VALID_GRAVATAR_DEFAULTS:
         # treat the default as a url
-        default = urllib.quote(default, safe='')
+        default = quote(default, safe='')
 
     return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
         class="gravatar" width="%s" height="%s" alt="Gravatar" />'''
