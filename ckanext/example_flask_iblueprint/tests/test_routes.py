@@ -24,27 +24,11 @@ class TestFlaskIBlueprint(helpers.FunctionalTestBase):
 
         eq_(u'Hello World, this is served from an extension', res.body)
 
-    def test_plugin_route_core_pylons_override(self):
-        u'''Test extension overrides pylons core route.'''
-        res = self.app.get(u'/about')
-
-        ok_(u'This is an about page served from an extention, overriding the pylons url.' in res.body)
-
     def test_plugin_route_core_flask_override(self):
         u'''Test extension overrides flask core route.'''
-        res = self.app.get(u'/hello')
+        res = self.app.get(u'/')
 
         ok_(u'Hello World, this is served from an extension, overriding the flask url.' in res.body)
-
-# TODO This won't work until the url_for work is merged
-#    def test_plugin_route_core_flask_override_with_template(self):
-#        u'''
-#        Test extension overrides a python core route, rendering a core
-#        template (home/about.html).
-#        '''
-#        res = self.app.get(u'/about_core')
-#
-#        ok_(u'<title>About - CKAN</title>' in res.ubody)
 
     def test_plugin_route_with_helper(self):
         u'''
