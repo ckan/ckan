@@ -25,8 +25,11 @@ RUN apt-get -q -y update \
         git-core \
         vim \
         wget \
+        curl \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y redis-tools
 
 # Define environment variables
 ENV CKAN_HOME /usr/lib/ckan
