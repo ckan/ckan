@@ -22,19 +22,7 @@ def _get_package_edit_page(app, package_name):
 
 
 class TestPackageController(helpers.FunctionalTestBase):
-    @classmethod
-    def _apply_config_changes(cls, cfg):
-        cfg['ckan.plugins'] = 'example_idatasetform'
-
-    @classmethod
-    def setup_class(cls):
-        super(TestPackageController, cls).setup_class()
-
-    @classmethod
-    def teardown_class(cls):
-        if plugins.plugin_loaded('example_idatasetform'):
-            plugins.unload('example_idatasetform')
-        super(TestPackageController, cls).teardown_class()
+    _load_plugins = ['example_idatasetform']
 
     def test_edit_converted_extra_field(self):
         dataset = factories.Dataset(custom_text='foo')
