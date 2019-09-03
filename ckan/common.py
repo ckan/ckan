@@ -12,6 +12,7 @@ from collections import MutableMapping
 
 import flask
 import pylons
+import six
 
 from werkzeug.local import Local, LocalProxy
 
