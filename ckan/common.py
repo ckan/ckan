@@ -208,3 +208,37 @@ request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
 g = c = LocalProxy(_get_c)
 session = LocalProxy(_get_session)
+
+# replacement for converters that previously came from paste.deploy.compat [#4797]
+truthy = frozenset(['true', 'yes', 'on', 'y', 't', '1'])
+falsy = frozenset(['false', 'no', 'off', 'n', 'f', '0'])
+
+def asbool(obj):
+    if isinstance(obj, basestring):
+        obj = obj.strip().lower()
+        if obj in truthy:
+            return True
+        elif obj in falsy:
+            return False
+        else:
+            raise ValueError("String is not true/false: {}".format(onj))
+    return bool(obj)
+
+def asint(obj):
+    try:
+        return int(obj)
+    except (TypeError, ValueError):
+        raise ValueError("Bad integer value: {}".format(obj))
+
+def aslist(onj, sep=None, strip=True):
+    if isinstance(obj, basestring):
+        lst = obj.split(sep)
+        if strip:
+            lst = [v.strip() for v in lst]
+        return lst
+    elif isinstance(obj, (list, tuple)):
+        return obj
+    elif obj is None:
+        return []
+    else:
+        return [obj]
