@@ -209,14 +209,12 @@ request = CKANRequest(_get_request)
 g = c = LocalProxy(_get_c)
 session = LocalProxy(_get_session)
 
-# replacement for converters that previously came from paste.deploy.converters
-# [#4797]
 truthy = frozenset([u'true', u'yes', u'on', u'y', u't', u'1'])
 falsy = frozenset([u'false', u'no', u'off', u'n', u'f', u'0'])
 
 
 def asbool(obj):
-    if isinstance(obj, basestring):
+    if isinstance(obj, six.string_types):
         obj = obj.strip().lower()
         if obj in truthy:
             return True
@@ -235,7 +233,7 @@ def asint(obj):
 
 
 def aslist(obj, sep=None, strip=True):
-    if isinstance(obj, basestring):
+    if isinstance(obj, six.string_types):
         lst = obj.split(sep)
         if strip:
             lst = [v.strip() for v in lst]
