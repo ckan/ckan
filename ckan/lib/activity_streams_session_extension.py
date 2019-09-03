@@ -2,7 +2,7 @@
 
 from ckan.common import config
 from sqlalchemy.orm.session import SessionExtension
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 import logging
 
 log = logging.getLogger(__name__)

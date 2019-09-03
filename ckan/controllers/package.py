@@ -7,7 +7,7 @@ import mimetypes
 import cgi
 
 from ckan.common import config
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 import paste.fileapp
 from six import string_types, text_type
 

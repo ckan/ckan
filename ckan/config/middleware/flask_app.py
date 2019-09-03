@@ -18,7 +18,7 @@ from werkzeug.routing import Rule
 from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from fanstatic import Fanstatic
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
