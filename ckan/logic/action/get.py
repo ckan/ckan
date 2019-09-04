@@ -2669,7 +2669,7 @@ def user_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
-    activity_stream = user_activity_list(context, data_dict)
+    activity_stream = logic.get_action('user_activity_list')(context, data_dict)
     offset = int(data_dict.get('offset', 0))
     extra_vars = {
         'controller': 'user',
@@ -2755,7 +2755,7 @@ def organization_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
-    activity_stream = organization_activity_list(context, data_dict)
+    activity_stream = logic.get_action('organization_activity_list')(context, data_dict)
     offset = int(data_dict.get('offset', 0))
     extra_vars = {
         'controller': 'organization',
