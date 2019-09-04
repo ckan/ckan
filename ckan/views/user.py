@@ -3,7 +3,7 @@ import logging
 
 from flask import Blueprint
 from flask.views import MethodView
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import text_type
 
 import ckan.lib.authenticator as authenticator

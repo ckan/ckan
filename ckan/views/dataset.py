@@ -7,7 +7,7 @@ import datetime
 
 from flask import Blueprint, make_response
 from flask.views import MethodView
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import string_types, text_type
 
 import ckan.lib.i18n as i18n

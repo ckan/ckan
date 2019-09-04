@@ -11,7 +11,7 @@ from pyutilib.component.core import PluginGlobals, implements
 from pyutilib.component.core import ExtensionPoint as PluginImplementations
 from pyutilib.component.core import SingletonPlugin as _pca_SingletonPlugin
 from pyutilib.component.core import Plugin as _pca_Plugin
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import string_types
 
 import interfaces

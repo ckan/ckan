@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import text_type
 from werkzeug import import_string, cached_property
 

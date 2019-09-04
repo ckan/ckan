@@ -7,7 +7,7 @@ import warnings
 import xml.dom.minidom
 import urllib2
 
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 
 import ckan.model as model
 import ckan.plugins as p

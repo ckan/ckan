@@ -7,7 +7,7 @@ import time
 from threading import Lock
 import re
 
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from ckan.common import config
 
 import ckan

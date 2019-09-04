@@ -146,7 +146,7 @@ class _Toolkit(object):
         )
         from ckan.lib.jobs import enqueue as enqueue_job
 
-        from paste.deploy import converters
+        import ckan.common as converters
         import pylons
         import webhelpers.html.tags
 
