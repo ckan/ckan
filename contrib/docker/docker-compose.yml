@@ -76,7 +76,7 @@ services:
      <<: *ckan_app
      container_name: ckan_run_harvester
      image: docker_ckan
-     entrypoint: /ckan-harvester-entrypoint.sh
+     entrypoint: /ckan-run-harvester-entrypoint.sh
      user: root
      command: /bin/bash -c "echo 'ckan_run_harvester started' && cron -f 2>&1 "
      ports: []

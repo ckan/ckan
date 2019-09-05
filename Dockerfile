@@ -66,6 +66,8 @@ RUN ckan-pip install -U pip && \
     chmod +x /ckan-entrypoint.sh && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-harvester-entrypoint.sh /ckan-harvester-entrypoint.sh && \
     chmod +x /ckan-harvester-entrypoint.sh && \
+    cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-run-harvester-entrypoint.sh /ckan-run-harvester-entrypoint.sh && \
+    chmod +x /ckan-run-harvester-entrypoint.sh && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
 # Install needed libraries
@@ -81,6 +83,7 @@ COPY ./contrib/docker/pycsw/pycsw.cfg $CKAN_VENV/src/pycsw/default.cfg
 COPY ./contrib/docker/src/ckanext-harvest $CKAN_VENV/src/ckanext-harvest
 COPY ./contrib/docker/src/ckanext-spatial $CKAN_VENV/src/ckanext-spatial
 COPY ./contrib/docker/src/ckanext-cioos_theme $CKAN_VENV/src/ckanext-cioos_theme
+COPY ./contrib/docker/src/ckanext-cioos_harvest $CKAN_VENV/src/ckanext-cioos_harvest
 COPY ./contrib/docker/src/ckanext-scheming $CKAN_VENV/src/ckanext-scheming
 COPY ./contrib/docker/src/ckanext-composite $CKAN_VENV/src/ckanext-composite
 COPY ./contrib/docker/src/ckanext-repeating $CKAN_VENV/src/ckanext-repeating
@@ -103,6 +106,7 @@ RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-sp
 RUN ln -s $CKAN_VENV/src/pycsw/pycsw $CKAN_VENV/src/ckanext-spatial/pycsw
 
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-cioos_theme && python setup.py install && python setup.py develop"
+RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-cioos_harvest && python setup.py install && python setup.py develop"
 #RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-doi && python setup.py install && python setup.py develop"
 
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-scheming/requirements.txt"
