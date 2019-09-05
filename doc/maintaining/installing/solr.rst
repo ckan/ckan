@@ -51,10 +51,6 @@ installed, we need to install and configure Solr.
 
     sudo service jetty8 restart
 
-   Or for Ubuntu 14.04::
-
-    sudo service jetty restart
-
    .. note::
 
     Ignore any warning that it wasn't already running - some Ubuntu
@@ -114,10 +110,6 @@ installed, we need to install and configure Solr.
    For Ubuntu 16.04::
 
     sudo service jetty8 restart
-
-   or for Ubuntu 14.04::
-
-    sudo service jetty restart
 
    Check that Solr is running by opening http://localhost:8983/solr/.
 
