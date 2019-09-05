@@ -4,6 +4,7 @@ from collections import OrderedDict
 from functools import partial
 from urllib import urlencode
 import datetime
+from datetime import datetime
 
 from flask import Blueprint, make_response
 from flask.views import MethodView
@@ -1103,11 +1104,99 @@ def changes(id, package_type=None):
     # changed, and we need a link to it which works
     pkg_id = activity_diff[u'activities'][1][u'data'][u'package'][u'id']
     current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
+    pkg_activity_list = get_action(u'package_activity_list')(
+        context, {
+            u'id': pkg_id,
+            u'limit': 100
+        }
+    )
 
     return base.render(
         u'package/changes.html', {
-            u'activity_diff': activity_diff,
+            u'activity_diffs': [activity_diff],
             u'pkg_dict': current_pkg_dict,
+            u'pkg_activity_list': pkg_activity_list,
+        }
+    )
+
+
+def changes_multiple(package_type=None):
+    '''
+    Called when a user specifies a range of versions they want to look at
+    changes between. Verifies that the range is valid and finds the set of
+    activity diffs for the changes in the given version range, then
+    re-renders changes.html with the list.
+    '''
+
+    new_id = h.get_request_param(u'new_id')
+    old_id = h.get_request_param(u'old_id')
+
+    context = {
+        u'model': model, u'session': model.Session,
+        u'user': g.user, u'auth_user_obj': g.userobj
+    }
+
+    # check to ensure that the old activity is actually older than
+    # the new activity
+    old_activity = get_action(u'activity_show')(context, {
+        u'id': old_id,
+        u'include_data': False})
+    new_activity = get_action(u'activity_show')(context, {
+        u'id': new_id,
+        u'include_data': False})
+
+    old_timestamp = old_activity[u'timestamp']
+    new_timestamp = new_activity[u'timestamp']
+
+    t1 = datetime.strptime(old_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
+    t2 = datetime.strptime(new_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
+
+    time_diff = t2 - t1
+    # if the time difference is negative, just return the change that put us
+    # at the more recent ID we were just looking at
+    # TODO: do something better here - go back to the previous page,
+    # display a warning that the user can't look at a sequence where
+    # the newest item is older than the oldest one, etc
+    if time_diff.total_seconds() < 0:
+        return changes(h.get_request_param(u'current_new_id'))
+
+    done = False
+    current_id = new_id
+    diff_list = []
+
+    while not done:
+        try:
+            activity_diff = get_action(u'activity_diff')(
+                context, {
+                    u'id': current_id,
+                    u'object_type': u'package',
+                    u'diff_type': u'html'})
+        except NotFound as e:
+            log.info(
+                u'Activity not found: {} - {}'.format(str(e), current_id)
+            )
+            return base.abort(404, _(u'Activity not found'))
+        except NotAuthorized:
+            return base.abort(403, _(u'Unauthorized to view activity data'))
+
+        diff_list.append(activity_diff)
+
+        if activity_diff['activities'][0]['id'] == old_id:
+            done = True
+        else:
+            current_id = activity_diff['activities'][0]['id']
+
+    pkg_id = diff_list[0][u'activities'][1][u'data'][u'package'][u'id']
+    current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
+    pkg_activity_list = get_action(u'package_activity_list')(context, {
+        u'id': pkg_id,
+        u'limit': 100})
+
+    return base.render(
+        u'package/changes.html', {
+            u'activity_diffs': diff_list,
+            u'pkg_dict': current_pkg_dict,
+            u'pkg_activity_list': pkg_activity_list,
         }
     )
 
@@ -1141,6 +1230,8 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/activity/<id>', view_func=activity)
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
+
+    blueprint.add_url_rule(u'/changes_multiple', view_func=changes_multiple)
 
     # Duplicate resource create and edit for backward compatibility. Note,
     # we cannot use resource.CreateView directly here, because of

@@ -36,6 +36,7 @@ from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
 from six import string_types, text_type
+import jinja2
 
 import ckan.exceptions
 import ckan.model as model
@@ -2688,3 +2689,60 @@ def sanitize_id(id_):
     ValueError.
     '''
     return str(uuid.UUID(id_))
+
+
+@core_helper
+def compare_pkg_dicts(old, new, old_activity_id):
+    '''
+    Takes two package dictionaries that represent consecutive versions of
+    the same dataset and returns a list of detailed & formatted summaries of
+    the changes between the two versions. old and new are the two package
+    dictionaries. The function assumes that both dictionaries will have
+    all of the default package dictionary keys, and also checks for fields
+    added by extensions and extra fields added by the user in the web
+    interface.
+
+    Returns a list of dictionaries, each of which corresponds to a change
+    to the dataset made in this revision. The dictionaries each contain a
+    string indicating the type of change made as well as other data necessary
+    to form a detailed summary of the change.
+    '''
+    from changes import check_metadata_changes, check_resource_changes
+    change_list = []
+
+    check_metadata_changes(change_list, old, new)
+
+    check_resource_changes(change_list, old, new, old_activity_id)
+
+    # if the dataset was updated but none of the fields we check were changed,
+    # display a message stating that
+    if len(change_list) == 0:
+        change_list.append({u'type': 'no_change'})
+
+    return change_list
+
+
+@core_helper
+def activity_list_select(pkg_activity_list, current_activity_id):
+    '''
+    Builds an HTML formatted list of options for the select lists
+    on the "Changes" summary page.
+    '''
+    select_list = []
+    template = jinja2.Template(
+        u'<option value="{{activity_id}}" {{selected}}>'
+        '{{timestamp}}</option>',
+        autoescape=True)
+    for activity in pkg_activity_list:
+        entry = render_datetime(activity['timestamp'],
+                                with_hours=True,
+                                with_seconds=True)
+        select_list.append(Markup(
+            template
+            .render(activity_id=activity['id'], timestamp=entry,
+                    selected='selected'
+                    if activity['id'] == current_activity_id
+                    else '')
+        ))
+
+    return select_list
