@@ -270,9 +270,14 @@ class TestCheckMetadataChanges(object):
         changes = []
         old_org = Organization()
         original = Dataset(owner_org=old_org['id'])
+
+        import ckan.model as model
+        pkg = model.Package.get(original['id'])
+        pkg.owner_org = None
+        pkg.save()
+
         new = helpers.call_action(
-            u'package_patch', id=original['id'],
-            owner_org=None)
+            u'package_show', id=original['id'])
 
         check_metadata_changes(changes, original, new)
 
