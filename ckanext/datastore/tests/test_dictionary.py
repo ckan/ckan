@@ -1,16 +1,16 @@
 # encoding: utf-8
 
-from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase, DatastoreLegacyTestBase
+from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 
 
-class TestDatastoreDictionary(DatastoreLegacyTestBase):
+class TestDatastoreDictionary(DatastoreFunctionalTestBase):
 
     @classmethod
     def setup_class(cls):
-        cls.app = helpers._get_test_app()
         super(TestDatastoreDictionary, cls).setup_class()
+        cls.app = helpers._get_test_app()
 
     def test_read(self):
         user = factories.User()
