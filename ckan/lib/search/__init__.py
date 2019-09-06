@@ -317,7 +317,7 @@ def check_solr_schema_version(schema_file=None):
     if not len(version):
         msg = 'Could not extract version info from the SOLR schema'
         if schema_file:
-            msg =+ ', using file {}'.format(schema_file)
+            msg += ', using file {}'.format(schema_file)
         raise SearchError(msg)
 
     if not version in SUPPORTED_SCHEMA_VERSIONS:
