@@ -117,8 +117,12 @@ class LicenseRegister(object):
 
     def load_licenses(self, license_url):
         try:
-            response = requests.get(license_url)
-            license_data = response.json()
+            if license_url.startswith('file://'):
+                with open(license_url.replace('file://', ''), 'r') as f:
+                    license_data = json.load(f)
+            else:
+                response = requests.get(license_url)
+                license_data = response.json()
         except requests.RequestException as e:
             msg = "Couldn't get the licenses file {}: {}".format(license_url, e)
             raise Exception(msg)
