@@ -5,7 +5,7 @@ import logging
 import six
 import pysolr
 
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from werkzeug.datastructures import MultiDict
 
 import ckan.logic as logic

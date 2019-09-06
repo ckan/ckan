@@ -12,6 +12,7 @@ from collections import MutableMapping
 
 import flask
 import pylons
+import six
 
 from werkzeug.local import Local, LocalProxy
 
@@ -208,3 +209,39 @@ request = CKANRequest(_get_request)
 # Provide a `c`  alias for `g` for backwards compatibility
 g = c = LocalProxy(_get_c)
 session = LocalProxy(_get_session)
+
+truthy = frozenset([u'true', u'yes', u'on', u'y', u't', u'1'])
+falsy = frozenset([u'false', u'no', u'off', u'n', u'f', u'0'])
+
+
+def asbool(obj):
+    if isinstance(obj, six.string_types):
+        obj = obj.strip().lower()
+        if obj in truthy:
+            return True
+        elif obj in falsy:
+            return False
+        else:
+            raise ValueError(u"String is not true/false: {}".format(obj))
+    return bool(obj)
+
+
+def asint(obj):
+    try:
+        return int(obj)
+    except (TypeError, ValueError):
+        raise ValueError(u"Bad integer value: {}".format(obj))
+
+
+def aslist(obj, sep=None, strip=True):
+    if isinstance(obj, six.string_types):
+        lst = obj.split(sep)
+        if strip:
+            lst = [v.strip() for v in lst]
+        return lst
+    elif isinstance(obj, (list, tuple)):
+        return obj
+    elif obj is None:
+        return []
+    else:
+        return [obj]

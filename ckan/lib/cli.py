@@ -37,7 +37,7 @@ import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.plugins as p
 from ckan.common import config
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 # This is a test Flask request context to be used internally.
 # Do not use it!
 _cli_test_request_context = None

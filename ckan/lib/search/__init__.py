@@ -8,7 +8,7 @@ import xml.dom.minidom
 
 import requests
 
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 
 import ckan.model as model
 import ckan.plugins as p

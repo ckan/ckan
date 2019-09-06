@@ -47,7 +47,7 @@ from babel.core import (LOCALE_ALIASES,
                         get_locale_identifier,
                         UnknownLocaleError)
 from babel.support import Translations
-from paste.deploy.converters import aslist
+from ckan.common import aslist
 from pylons import i18n
 import pylons
 import polib

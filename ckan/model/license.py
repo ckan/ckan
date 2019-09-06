@@ -6,7 +6,7 @@ import re
 import requests
 
 from ckan.common import config
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import text_type, string_types
 
 from ckan.common import _, json
