@@ -192,8 +192,8 @@ class AskAppDispatcherMiddleware(object):
         if app_name == 'flask_app':
             # This request will be served by Flask, but we still need the
             # Pylons URL builder (Routes) to work
-            parts = urlparse(config.get('ckan.site_url',
-                                                 'http://0.0.0.0:5000'))
+            parts = urlparse(
+                config.get('ckan.site_url', 'http://0.0.0.0:5000'))
             request_config = routes_request_config()
             request_config.host = str(parts.netloc + parts.path)
             request_config.protocol = str(parts.scheme)

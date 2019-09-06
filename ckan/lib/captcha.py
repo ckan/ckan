@@ -13,7 +13,8 @@ def check_recaptcha(request):
         # Recaptcha not enabled
         return
 
-    client_ip_address = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
+    client_ip_address = request.environ.get(
+        'REMOTE_ADDR', 'Unknown IP Address')
 
     # reCAPTCHA v2
     recaptcha_response_field = request.form.get('g-recaptcha-response', '')
@@ -36,6 +37,7 @@ def check_recaptcha(request):
     except IndexError:
         # Something weird with recaptcha response
         raise CaptchaError()
+
 
 class CaptchaError(ValueError):
     pass

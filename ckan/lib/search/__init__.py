@@ -315,8 +315,10 @@ def check_solr_schema_version(schema_file=None):
 
     version = tree.documentElement.getAttribute('version')
     if not len(version):
-        raise SearchError('Could not extract version info from the SOLR'
-                          ' schema, using file: \n%s' % url)
+        msg = 'Could not extract version info from the SOLR schema'
+        if schema_file:
+            msg =+ ', using file {}'.format(schema_file)
+        raise SearchError(msg)
 
     if not version in SUPPORTED_SCHEMA_VERSIONS:
         raise SearchError('SOLR schema version not supported: %s. Supported'
