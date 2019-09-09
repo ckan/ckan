@@ -73,6 +73,8 @@ RUN ckan-pip install -U pip && \
 # Install needed libraries
 RUN ckan-pip install factory_boy
 RUN ckan-pip install mock
+RUN ckan-pip install urllib3
+
 # for debugging
 RUN ckan-pip install flask_debugtoolbar
 
