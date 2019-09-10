@@ -300,7 +300,10 @@ def check_access(action, context, data_dict=None):
         context = _prepopulate_context(context)
 
         # checking config for global require_auth
-        if config.get('ckan.auth.require_auth', 'false') == 'true' and not context['auth_user_obj'] and not context.get('ignore_auth', False):
+        if (
+            config.get('ckan.auth.require_auth', 'false') == 'true' 
+            and not context['auth_user_obj'] and not context.get('ignore_auth', False)
+            ):
             raise NotAuthorized('Authentication Required')
 
         logic_authorization = authz.is_authorized(action, context,
