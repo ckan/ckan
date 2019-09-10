@@ -469,7 +469,6 @@ class TestPep8(object):
         'ckanext/multilingual/plugin.py',
         'ckanext/resourceproxy/plugin.py',
         'ckanext/stats/controller.py',
-        'ckanext/stats/plugin.py',
         'ckanext/stats/stats.py',
         'ckanext/stats/tests/test_stats_lib.py',
         'ckanext/stats/tests/test_stats_plugin.py',
