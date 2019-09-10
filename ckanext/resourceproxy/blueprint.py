@@ -3,7 +3,7 @@
 from logging import getLogger
 
 import requests
-import urlparse
+from six.moves.urllib.parse import urlsplit
 from flask import Blueprint, make_response
 
 import ckan.lib.base as base
@@ -37,7 +37,7 @@ def proxy_resource(context, data_dict):
         return abort(404, _(u'Resource not found'))
     url = resource[u'url']
 
-    parts = urlparse.urlsplit(url)
+    parts = urlsplit(url)
     if not parts.scheme or not parts.netloc:
         return abort(409, _(u'Invalid URL.'))
 
