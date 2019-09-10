@@ -20,9 +20,11 @@ def get_proxified_resource_url(data_dict, proxy_schemes=[u'http', u'https']):
     :param proxy_schemes: list of url schemes to proxy for.
     :type data_dict: list
     '''
+    url = data_dict[u'resource'][u'url']
+    if not p.plugin_loaded(u'resource_proxy'):
+        return url
 
     ckan_url = config.get(u'ckan.site_url', u'//localhost:5000')
-    url = data_dict[u'resource'][u'url']
     scheme = urlparse.urlparse(url).scheme
     compare_domains = datapreview.compare_domains
     if not compare_domains([ckan_url, url]) and scheme in proxy_schemes:

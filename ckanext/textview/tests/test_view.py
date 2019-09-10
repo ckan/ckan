@@ -105,7 +105,6 @@ class TestTextView(object):
                             id=self.package.name, resource_id=self.resource_id,
                             view_id=self.resource_view['id'])
         result = app.get(url)
-        print(result.body)
         assert (('text_view.js' in result.body) or  # Source file
                 ('textview.js' in result.body))     # Compiled file
         # Restore the config to its original values
