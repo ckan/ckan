@@ -6,6 +6,12 @@
   <article class="module">
     <div class="module-content">
       {{ content}}
+
+      <br />
+      {% if code[0] == 403 %}
+        <i>{% link_for _('Log in?'), named_route='user.login' %}</i>
+      {% endif %}
+
     </div>
   </article>
 {% endblock %}
