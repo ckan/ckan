@@ -467,7 +467,6 @@ class TestPep8(object):
         'ckanext/example_idatasetform/plugin.py',
         'ckanext/example_itemplatehelpers/plugin.py',
         'ckanext/multilingual/plugin.py',
-        'ckanext/resourceproxy/plugin.py',
         'ckanext/stats/controller.py',
         'ckanext/stats/plugin.py',
         'ckanext/stats/stats.py',
