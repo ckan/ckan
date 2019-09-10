@@ -8,10 +8,12 @@ import ckan.lib.datapreview as datapreview
 import urlparse
 from ckan.common import config
 
+from ckanext.resourceproxy import blueprint
+
 log = getLogger(__name__)
 
 
-def get_proxified_resource_url(data_dict, proxy_schemes=['http','https']):
+def get_proxified_resource_url(data_dict, proxy_schemes=['http', 'https']):
     '''
     :param data_dict: contains a resource and package dict
     :type data_dict: dictionary
@@ -25,10 +27,10 @@ def get_proxified_resource_url(data_dict, proxy_schemes=['http','https']):
     compare_domains = datapreview.compare_domains
     if not compare_domains([ckan_url, url]) and scheme in proxy_schemes:
         url = h.url_for(
-            action='proxy_resource',
-            controller='ckanext.resourceproxy.controller:ProxyController',
+            'resource_proxy.proxy_view',
             id=data_dict['package']['name'],
-            resource_id=data_dict['resource']['id'])
+            resource_id=data_dict['resource']['id']
+        )
         log.info('Proxified url is {0}'.format(url))
     return url
 
@@ -46,30 +48,35 @@ class ResourceProxy(p.SingletonPlugin):
     1. Import the proxy plugin if it exists
         ``import ckanext.resourceproxy.plugin as proxy``
 
-    2. In you extension, make sure that the proxy plugin is
-        enabled by checking the ``ckan.resource_proxy_enabled`` config variable.
+    2. In you extension, make sure that the proxy plugin is enabled by
+        checking the ``ckan.resource_proxy_enabled`` config variable.
         ``config.get('ckan.resource_proxy_enabled', False)``
+
     """
-    p.implements(p.IRoutes, inherit=True)
     p.implements(p.ITemplateHelpers, inherit=True)
+    p.implements(p.IBlueprint)
 
-
-    def before_map(self, m):
-        m.connect('/dataset/{id}/resource/{resource_id}/proxy',
-                    controller='ckanext.resourceproxy.controller:ProxyController',
-                    action='proxy_resource')
-        return m
+    def get_blueprint(self):
+        return blueprint.resource_proxy
 
     def get_helpers(self):
         return {'view_resource_url': self.view_resource_url}
 
-    def view_resource_url(self, resource_view, resource,
-                          package, proxy_schemes=['http','https']):
+    def view_resource_url(
+        self,
+        resource_view,
+        resource,
+        package,
+        proxy_schemes=['http', 'https']
+    ):
         '''
         Returns the proxy url if its availiable
         '''
-        data_dict = {'resource_view': resource_view,
-                     'resource': resource,
-                     'package': package}
-        return get_proxified_resource_url(data_dict,
-                                          proxy_schemes=proxy_schemes)
+        data_dict = {
+            'resource_view': resource_view,
+            'resource': resource,
+            'package': package
+        }
+        return get_proxified_resource_url(
+            data_dict, proxy_schemes=proxy_schemes
+        )
