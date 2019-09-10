@@ -8,7 +8,7 @@ render = base.render
 example_iconfigurer = Blueprint(u'example_iconfigurer', __name__)
 
 
-def config_one(self):
+def config_one():
     u'''Render the config template with the first custom title.'''
 
     return render(
@@ -17,7 +17,7 @@ def config_one(self):
     )
 
 
-def config_two(self):
+def config_two():
     u'''Render the config template with the second custom title.'''
     return render(
         u'admin/myext_config.html',
@@ -25,7 +25,7 @@ def config_two(self):
     )
 
 
-def build_extra_admin_nav(self):
+def build_extra_admin_nav():
     u'''Return results of helpers.build_extra_admin_nav for testing.'''
     return helpers.build_extra_admin_nav()
 

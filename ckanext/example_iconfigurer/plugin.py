@@ -7,9 +7,9 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckanext.example_iconfigurer.blueprint as blueprint
 
-class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
 
-    '''
+class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
+    u'''
     An example IConfigurer plugin that shows:
 
     1. How to implement ``toolkit.add_ckan_admin_tab()`` in the
@@ -27,26 +27,31 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
 
     def update_config(self, config):
         # Add extension templates directory
-        toolkit.add_template_directory(config, 'templates')
+        toolkit.add_template_directory(config, u'templates')
         # Add a new ckan-admin tabs for our extension
-        toolkit.add_ckan_admin_tab(config, 'example_iconfigurer.config_one',
-                                   'My First Custom Config Tab')
-        toolkit.add_ckan_admin_tab(config, 'example_iconfigurer.config_two',
-                                   'My Second Custom Config Tab')
+        toolkit.add_ckan_admin_tab(
+            config, u'example_iconfigurer.config_one',
+            u'My First Custom Config Tab'
+        )
+        toolkit.add_ckan_admin_tab(
+            config, u'example_iconfigurer.config_two',
+            u'My Second Custom Config Tab'
+        )
 
     def update_config_schema(self, schema):
 
-        ignore_missing = toolkit.get_validator('ignore_missing')
-        is_positive_integer = toolkit.get_validator('is_positive_integer')
+        ignore_missing = toolkit.get_validator(u'ignore_missing')
+        is_positive_integer = toolkit.get_validator(u'is_positive_integer')
 
         schema.update({
             # This is an existing CKAN core configuration option, we are just
             # making it available to be editable at runtime
-            'ckan.datasets_per_page': [ignore_missing, is_positive_integer],
+            u'ckan.datasets_per_page': [ignore_missing, is_positive_integer],
 
             # This is a custom configuration option
-            'ckanext.example_iconfigurer.test_conf': [ignore_missing,
-                                                      text_type],
+            u'ckanext.example_iconfigurer.test_conf': [
+                ignore_missing, text_type
+            ],
         })
 
         return schema
