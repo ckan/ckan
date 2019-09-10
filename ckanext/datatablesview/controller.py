@@ -96,8 +96,7 @@ class DataTablesController(BaseController):
 
         h.redirect_to(
             h.url_for(
-                controller=u'ckanext.datastore.controller:DatastoreController',
-                action=u'dump',
+                u'datastore.dump',
                 resource_id=resource_view[u'resource_id'])
             + u'?' + urlencode({
                 u'q': search_text,

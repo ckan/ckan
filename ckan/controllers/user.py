@@ -3,7 +3,7 @@
 import logging
 
 from ckan.common import config
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import text_type
 
 import ckan.lib.base as base

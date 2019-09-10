@@ -11,6 +11,7 @@ from ckan.tests import helpers
 import ckanext.datastore.backend.postgres as db
 import responses
 import nose
+from nose.tools import assert_equals
 import sqlalchemy.orm as orm
 from ckan.common import config
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
@@ -22,11 +23,13 @@ class TestDatastoreCreate():
 
     @classmethod
     def setup_class(cls):
+        cls._original_config = dict(config)
+        config['ckan.plugins'] = 'datastore datapusher'
+
         cls.app = helpers._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
-        p.load('datapusher')
+
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -40,6 +43,8 @@ class TestDatastoreCreate():
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
         p.unload('datapusher')
+        config.clear()
+        config.update(cls._original_config)
 
     def test_create_ckan_resource_in_package(self):
         package = model.Package.get('annakarenina')
@@ -232,3 +237,33 @@ class TestDatastoreCreate():
 
         self.app.post('/api/action/datapusher_hook', params=postparams,
                       status=409)
+
+    @responses.activate
+    @helpers.change_config(
+        'ckan.datapusher.callback_url_base', 'https://ckan.example.com')
+    @helpers.change_config(
+        'ckan.datapusher.url', 'http://datapusher.ckan.org')
+    def test_custom_callback_url_base(self):
+
+        package = model.Package.get('annakarenina')
+        resource = package.resources[0]
+
+        responses.add(
+            responses.POST,
+            'http://datapusher.ckan.org/job',
+            content_type='application/json',
+            body=json.dumps({'job_id': 'foo', 'job_key': 'barloco'})
+        )
+        responses.add_passthru(config['solr_url'])
+
+        tests.call_action_api(
+            self.app, 'datapusher_submit', apikey=self.sysadmin_user.apikey,
+            resource_id=resource.id,
+            ignore_hash=True
+        )
+
+        data = json.loads(responses.calls[-1].request.body)
+        assert_equals(
+            data['result_url'],
+            'https://ckan.example.com/api/3/action/datapusher_hook'
+        )

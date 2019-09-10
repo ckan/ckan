@@ -8,7 +8,7 @@ import re
 from socket import error as socket_error
 import string
 
-import paste.deploy.converters
+import ckan.common
 from sqlalchemy import func
 
 import ckan.lib.plugins as lib_plugins
@@ -441,7 +441,7 @@ def resource_create_default_resource_views(context, data_dict):
 
     dataset_dict = data_dict.get('package')
 
-    create_datastore_views = paste.deploy.converters.asbool(
+    create_datastore_views = ckan.common.asbool(
         data_dict.get('create_datastore_views', False))
 
     return ckan.lib.datapreview.add_views_to_resource(
@@ -478,7 +478,7 @@ def package_create_default_resource_views(context, data_dict):
 
     _check_access('package_create_default_resource_views', context, data_dict)
 
-    create_datastore_views = paste.deploy.converters.asbool(
+    create_datastore_views = ckan.common.asbool(
         data_dict.get('create_datastore_views', False))
 
     return ckan.lib.datapreview.add_views_to_dataset_resources(
@@ -604,7 +604,15 @@ def member_create(context, data_dict=None):
         filter(model.Member.table_id == obj.id).\
         filter(model.Member.group_id == group.id).\
         filter(model.Member.state == 'active').first()
-    if not member:
+    if member:
+        user_obj = model.User.get(user)
+        if member.table_name == u'user' and \
+                member.table_id == user_obj.id and \
+                member.capacity == u'admin' and \
+                capacity != u'admin':
+            raise logic.NotAuthorized("Administrators cannot revoke their "
+                                      "own admin status")
+    else:
         member = model.Member(table_name=obj_type,
                               table_id=obj.id,
                               group_id=group.id,
@@ -1163,7 +1171,7 @@ def activity_create(context, activity_dict, **kw):
                         'ignore_auth must be passed in the context not as '
                         'a param')
 
-    if not paste.deploy.converters.asbool(
+    if not ckan.common.asbool(
             config.get('ckan.activity_streams_enabled', 'true')):
         return
 

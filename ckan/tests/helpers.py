@@ -155,6 +155,10 @@ class CKANTestApp(webtest.TestApp):
             self._flask_app = self.app.apps['flask_app']._wsgi_app
         return self._flask_app
 
+    def post(self, url, *args, **kwargs):
+        url = url.encode('utf8')  # or maybe it should be url_encoded?
+        return super(CKANTestApp, self).post(url, *args, **kwargs)
+
 
 def _get_test_app():
     '''Return a webtest.TestApp for CKAN, with legacy templates disabled.
@@ -198,9 +202,12 @@ class FunctionalTestBase(object):
         # Make a copy of the Pylons config, so we can restore it in teardown.
         cls._original_config = dict(config)
         cls._apply_config_changes(config)
+        try:
+            config['ckan.plugins'] = ' '.join(cls._load_plugins)
+            del cls._test_app  # reload with the new plugins
+        except AttributeError:
+            pass
         cls._get_test_app()
-        for plugin in getattr(cls, '_load_plugins', []):
-            p.load(plugin)
 
     @classmethod
     def _apply_config_changes(cls, cfg):

@@ -399,8 +399,8 @@ def make_revision(instances):
         model.Session.execute(
             revision_table.update().where(
                 and_(revision_table.c.id == instance.id,
-                     revision_table.c.current == u'1')
-            ).values(current=u'0')
+                     revision_table.c.current is True)
+            ).values(current=False)
         )
 
         q = model.Session.query(revision_cls)

@@ -11,21 +11,8 @@ def hello_plugin():
     return u'Hello World, this is served from an extension'
 
 
-def override_pylons_about():
-    u'''A simple replacement for the pylons About page.'''
-    return render_template(u'about.html')
-
-
-def override_pylons_about_with_core_template():
-    u'''
-    Override the pylons about controller to render the core about page
-    template.
-    '''
-    return render_template(u'home/about.html')
-
-
-def override_flask_hello():
-    u'''A simple replacement for the flash Hello view function.'''
+def override_flask_home():
+    u'''A simple replacement for the flash Home view function.'''
     html = u'''<!DOCTYPE html>
 <html>
     <head>
@@ -94,10 +81,7 @@ class ExampleFlaskIBlueprintPlugin(p.SingletonPlugin):
         # Add plugin url rules to Blueprint object
         rules = [
             (u'/hello_plugin', u'hello_plugin', hello_plugin),
-            (u'/about', u'about', override_pylons_about),
-            (u'/about_core', u'about_core',
-                override_pylons_about_with_core_template),
-            (u'/hello', u'hello', override_flask_hello),
+            (u'/', u'home', override_flask_home),
             (u'/helper_not_here', u'helper_not_here', helper_not_here),
             (u'/helper', u'helper_here', helper_here),
         ]

@@ -3,7 +3,7 @@ import logging
 
 from flask import Blueprint
 from flask.views import MethodView
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from six import text_type
 
 import ckan.lib.authenticator as authenticator
@@ -123,7 +123,10 @@ def index():
 
 
 def me():
-    route = u'dashboard.index' if g.user else u'user.login'
+    if g.user:
+        route = config.get(u'ckan.route_after_login', u'dashboard.index')
+    else:
+        route = u'user.login'
     return h.redirect_to(route)
 
 

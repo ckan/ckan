@@ -3,7 +3,7 @@
 from nose import tools as nose_tools
 
 from ckan.tests import helpers
-from ckan.lib.auth_tkt import make_plugin
+from ckan.lib.repoze_plugins.auth_tkt import make_plugin
 
 
 class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):

@@ -8,7 +8,7 @@ from collections import defaultdict
 from logging import getLogger
 
 from ckan.common import config
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 
 import ckan.plugins as p
 import ckan.model as model
@@ -206,7 +206,8 @@ def is_authorized(action, context, data_dict=None):
             return {
                 'success': False,
                 'msg': 'Action {0} requires an authenticated user'.format(
-                    action)
+                    (auth_function if not isinstance(auth_function, functools.partial)
+                        else auth_function.func).__name__)
             }
 
         return auth_function(context, data_dict)

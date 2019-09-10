@@ -1,0 +1,11 @@
+<li>
+  <p>
+    {{ _('Changed title to {title_link} (previously {old_title})').format(
+          title_link = '<a href="{new_url}">{new_title}</a>'.format(
+            new_url = h.url_for(controller='dataset', action='read', id=change.id),
+            new_title = change.new_title
+          )|safe,
+          old_title = change.old_title
+      ) }}
+  </p>
+</li>
