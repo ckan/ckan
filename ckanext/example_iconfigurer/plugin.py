@@ -27,6 +27,7 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
 
     def update_config(self, config):
         # Add extension templates directory
+
         toolkit.add_template_directory(config, u'templates')
         # Add a new ckan-admin tabs for our extension
         toolkit.add_ckan_admin_tab(
