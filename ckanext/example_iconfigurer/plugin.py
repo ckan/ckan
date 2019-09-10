@@ -5,7 +5,7 @@ from six import text_type
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-
+import ckanext.example_iconfigurer.blueprint as blueprint
 
 class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
 
@@ -21,7 +21,7 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
     '''
 
     plugins.implements(plugins.IConfigurer)
-    plugins.implements(plugins.IRoutes, inherit=True)
+    plugins.implements(plugins.IBlueprint)
 
     # IConfigurer
 
@@ -29,9 +29,9 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
         # Add extension templates directory
         toolkit.add_template_directory(config, 'templates')
         # Add a new ckan-admin tabs for our extension
-        toolkit.add_ckan_admin_tab(config, 'ckanext_myext_config_one',
+        toolkit.add_ckan_admin_tab(config, 'example_iconfigurer.config_one',
                                    'My First Custom Config Tab')
-        toolkit.add_ckan_admin_tab(config, 'ckanext_myext_config_two',
+        toolkit.add_ckan_admin_tab(config, 'example_iconfigurer.config_two',
                                    'My Second Custom Config Tab')
 
     def update_config_schema(self, schema):
@@ -51,19 +51,7 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
 
         return schema
 
-    # IRoutes
+    # IBlueprint
 
-    def before_map(self, map):
-        controller = 'ckanext.example_iconfigurer.controller:MyExtController'
-        with SubMapper(map, controller=controller) as m:
-            m.connect('ckanext_myext_config_one',
-                      '/ckan-admin/myext_config_one', action='config_one',
-                      ckan_icon='picture-o'),
-            m.connect('ckanext_myext_config_two',
-                      '/ckan-admin/myext_config_two', action='config_two',
-                      ckan_icon='picture-o'),
-
-            # route used for testing helper method
-            m.connect('build_extra_admin_nav', '/build_extra_admin_nav',
-                      action='build_extra_admin_nav'),
-        return map
+    def get_blueprint(self):
+        return blueprint.example_iconfigurer
