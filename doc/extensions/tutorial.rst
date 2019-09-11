@@ -44,14 +44,20 @@ Creating a new extension
    CKAN config file to activate the extension's features.
 
 
-You can use the ``paster create`` command to create an "empty" extension from
+You can use ``cookiecutter`` command to create an "empty" extension from
 a template. First, activate your CKAN virtual environment:
 
 .. parsed-literal::
 
    |activate|
 
-When you run the ``paster create`` command, your new extension's directory will
+Install the ``cookiecutter`` python module:
+
+.. parsed-literal::
+
+   pip install cookiecutter
+
+When you run ``cookiecutter``, your new extension's directory will
 be created in the current working directory by default (you can override this
 with the ``-o`` option), so change to the directory that you want your
 extension to be created in. Usually you'll want to track your extension code
@@ -65,17 +71,19 @@ contains the CKAN git repo. Let's use the parent directory instead:
 
 Now run the ``paster create`` command to create your extension::
 
-    paster --plugin=ckan create -t ckanext ckanext-iauthfunctions
+    cookiecutter https://github.com/<user>/<repo>.git
+
+The command will present a few prompts. The information you give will
+end up in your extension's ``setup.py`` file (where you can edit them later if
+you want).
 
 .. note::
 
-   The last argument to the ``paster create`` command
-   (``ckanext-iauthfunctions`` in this example) is the name for your next
-   extension. CKAN extension names *have* to begin with ``ckanext-``.
-
-The command will ask you to answer a few questions. The answers you give will
-end up in your extension's ``setup.py`` file (where you can edit them later if
-you want).
+   The first prompt is for is the name of your next
+   extension. CKAN extension names *have* to begin with ``ckanext-``. This
+   tutorial uses the project name ``ckanext-iauthfunctions``.
+   The prompts for ``project_shortname`` and ``plugin_class_name`` can be
+   ignored. They will be filled in automatically.
 
 Once this command has completed, your new CKAN extension's project
 directory will have been created and will contain a few directories and files
@@ -111,8 +119,9 @@ Creating a plugin class
    extension's features.
 
 
-Now create the file ``ckanext-iauthfunctions/ckanext/iauthfunctions/plugin.py``
-with the following contents:
+``cookiecutter`` should have created the following file file
+``ckanext-iauthfunctions/ckanext/iauthfunctions/plugin.py``.
+Edit it to match the following:
 
 .. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v1.py
 
@@ -132,11 +141,12 @@ in this example, that inherits from CKAN's
 Adding the plugin to ``setup.py``
 =================================
 
-Now let's add our class to the ``entry_points`` in ``setup.py``.  This
+Now let's add our class to the ``entry_points`` in ``setup.py``. This
 identifies the plugin class to CKAN once the extension is installed in CKAN's
 virtualenv, and associates a plugin name with the class.  Edit
 ``ckanext-iauthfunctions/setup.py`` and add a line to
 the ``entry_points`` section like this::
+
 
     entry_points='''
         [ckan.plugins]
