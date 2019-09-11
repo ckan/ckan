@@ -440,8 +440,7 @@ group named ``curators``.
 
    If you've already created a ``curators`` group and want to test what happens
    when the site has no ``curators`` group, you can use CKAN's command line
-   interface to :ref`clean and reinitialize your database
-   <database management>`.
+   interface to :ref:`clean and reinitialize your database <database management>`.
 
 Try visiting the ``/group`` page in CKAN with our ``example_iauthfunctions``
 plugin activated in your CKAN config file and with no ``curators`` group in
