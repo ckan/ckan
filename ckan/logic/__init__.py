@@ -14,7 +14,7 @@ import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
 
-from ckan.common import _, c, config
+from ckan.common import _, c, config, asbool
 
 log = logging.getLogger(__name__)
 _validate = df.validate
@@ -300,7 +300,7 @@ def check_access(action, context, data_dict=None):
         context = _prepopulate_context(context)
 
         # checking config for global require_auth
-        if (config.get('ckan.auth.require_auth', 'false') == 'true' and
+        if (asbool(config.get('ckan.auth.require_auth', False)) and
                 not context['auth_user_obj'] and
                 not context.get('ignore_auth', False)):
             raise NotAuthorized('Authentication Required')
