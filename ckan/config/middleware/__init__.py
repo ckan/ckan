@@ -1,12 +1,11 @@
 # encoding: utf-8
 
 """WSGI app initialization"""
-import urllib
-import urlparse
-import urllib
 
 import webob
 from routes import request_config as routes_request_config
+
+from six.moves.urllib.parse import urlparse, quote
 
 from ckan.lib.i18n import get_locales_from_config
 from ckan.config.environment import load_environment
@@ -147,13 +146,13 @@ class AskAppDispatcherMiddleware(object):
             path_info = environ['PATH_INFO']
             # sort out weird encodings
             path_info = \
-                '/'.join(urllib.quote(pce, '') for pce in path_info.split('/'))
+                '/'.join(quote(pce, '') for pce in path_info.split('/'))
 
             qs = environ.get('QUERY_STRING')
 
             if qs:
                 # sort out weird encodings
-                qs = urllib.quote(qs, '')
+                qs = quote(qs, '')
                 environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
             else:
                 environ['CKAN_CURRENT_URL'] = path_info
@@ -193,8 +192,8 @@ class AskAppDispatcherMiddleware(object):
         if app_name == 'flask_app':
             # This request will be served by Flask, but we still need the
             # Pylons URL builder (Routes) to work
-            parts = urlparse.urlparse(config.get('ckan.site_url',
-                                                 'http://0.0.0.0:5000'))
+            parts = urlparse(
+                config.get('ckan.site_url', 'http://0.0.0.0:5000'))
             request_config = routes_request_config()
             request_config.host = str(parts.netloc + parts.path)
             request_config.protocol = str(parts.scheme)

@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 import logging
-import urlparse
 
+from six.moves.urllib.parse import urlparse
 from flask import Blueprint, make_response
 from six import text_type
 import webhelpers.feedgenerator
@@ -477,7 +477,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
         authority_name = config.get(u'ckan.feeds.authority_name', u'').strip()
         if not authority_name:
             site_url = config.get(u'ckan.site_url', u'').strip()
-            authority_name = urlparse.urlparse(site_url).netloc
+            authority_name = urlparse(site_url).netloc
 
     if not authority_name:
         log.warning(u'No authority_name available for feed generation.  '
