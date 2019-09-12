@@ -5,7 +5,8 @@ import sys
 import cgitb
 import warnings
 import xml.dom.minidom
-import urllib2
+
+import requests
 
 from ckan.common import asbool
 
@@ -257,11 +258,13 @@ def _get_schema_from_solr(file_offset):
 
     url = solr_url.strip('/') + file_offset
 
-    req = urllib2.Request(url=url)
     if http_auth:
-        req.add_header('Authorization', http_auth)
+        response = requests.get(
+            url, headers={'Authorization': http_auth})
+    else:
+        response = requests.get(url)
 
-    return urllib2.urlopen(req)
+    return response
 
 def check_solr_schema_version(schema_file=None):
     '''
@@ -299,19 +302,23 @@ def check_solr_schema_version(schema_file=None):
         try:
             # Try Managed Schema
             res = _get_schema_from_solr(SOLR_SCHEMA_FILE_OFFSET_MANAGED)
-        except urllib2.HTTPError:
+            res.raise_for_status()
+        except requests.HTTPError:
             # Fallback to Manually Edited schema.xml
             res = _get_schema_from_solr(SOLR_SCHEMA_FILE_OFFSET_CLASSIC)
+        schema_content = res.text
     else:
-        url = 'file://%s' % schema_file
-        res = urllib2.urlopen(url)
+        with open(schema_file, 'rb') as f:
+            schema_content = f.read()
 
-    tree = xml.dom.minidom.parseString(res.read())
+    tree = xml.dom.minidom.parseString(schema_content)
 
     version = tree.documentElement.getAttribute('version')
     if not len(version):
-        raise SearchError('Could not extract version info from the SOLR'
-                          ' schema, using file: \n%s' % url)
+        msg = 'Could not extract version info from the SOLR schema'
+        if schema_file:
+            msg += ', using file {}'.format(schema_file)
+        raise SearchError(msg)
 
     if not version in SUPPORTED_SCHEMA_VERSIONS:
         raise SearchError('SOLR schema version not supported: %s. Supported'

@@ -260,18 +260,6 @@ class CkanServerCase(BaseCase):
         return process
 
     @staticmethod
-    def _wait_for_url(url='http://127.0.0.1:5000/', timeout=15):
-        for i in range(int(timeout)*100):
-            import urllib2
-            import time
-            try:
-                response = urllib2.urlopen(url)
-            except urllib2.URLError:
-                time.sleep(0.01)
-            else:
-                break
-
-    @staticmethod
     def _stop_ckan_server(process):
         pid = process.pid
         pid = int(pid)
