@@ -308,9 +308,13 @@ The settings for harvesters are fairly straightforward. The one exception is the
   "remote_groups": "create",
   "remote_orgs": "create",
   "use_default_schema": true,
-  "force_package_type": "dataset"
+  "force_package_type": "dataset",
+  "groups_filter_include": ["cioos"],
+  "spatial_crs": "4326",
+  "spatial_filter": "POLYGON((-128.17701209 51.62096599, -127.92157996 51.62096599, -127.92157996 51.73507366, -128.17701209 51.73507366, -128.17701209 51.62096599))"
 }
 ```
+Note that `use_default_schema` and `force_package_type` are not needed and will cause validation errors if harvesting between two ckans using the same custom schema (the CIOOS setup)
 
 ---
 
@@ -557,8 +561,71 @@ containers on build. See issue this issue on stack overflow https://stackoverflo
 for a solution.
 
 ---
+# Update solr schema
 
-# Update CKAN and its extensions
+This method uses dockers copy command to copy the new schema file into a running
+solr container
+
+```bash
+cd ~/ckan
+sudo docker cp ~/ckan/ckan/config/solr/schema.xml solr:/opt/solr/server/solr/ckan/conf
+```
+
+restart solr container
+
+```bash
+cd ~/ckan/contrib/docker
+sudo docker-compose restart solr
+```
+
+rebuild search index
+
+```bash
+sudo docker exec -it ckan //usr/local/bin/ckan-paster --plugin=ckan search-index rebuild --config=/etc/ckan/production.ini
+```
+
+# Update CKAN
+If you need to update CKAN to a new version you can either remove the docker_ckan_home volume or update the volume with the new ckan core files. After which you need to rebuild the CKAN image and any docker containers based on that image. If you are working with a live / production system the prefered method is to update the volume and rebuild which will result in the least amount of down time.
+
+update local repo
+```bash
+cd ~/ckan
+git pull
+```
+
+Then copy updated ckan core files into the volume
+
+```bash
+cd ~/ckan
+sudo cp -r . $VOL_CKAN_HOME/venv/src/ckan
+```
+
+update permissions (optional but recommended)
+
+```bash
+sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/
+```
+or on windows run the command directly in the ckan container
+
+```bash
+sudo docker exec -it ckan chown 900:900 -R $CKAN_HOME
+```
+
+Now rebuild the CKAN docker image
+
+```bash
+cd ~/ckan/contrib/docker
+sudo docker-compose build ckan
+```
+
+update affected containers.
+
+```bash
+cd ~/ckan/contrib/docker
+sudo docker-compose up -d
+```
+
+# Update CKAN extensions
 
 enable volume environment variables to make accessing the volumes easier
 

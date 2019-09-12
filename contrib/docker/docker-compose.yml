@@ -9,7 +9,7 @@ x-ckan: &ckan_app
     - db
     - solr
     - redis
-    - pycsw
+    # - pycsw
   ports:
     - "0.0.0.0:${CKAN_PORT}:5000"
   environment:
@@ -24,7 +24,10 @@ x-ckan: &ckan_app
     - CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+    #- TZ=Canada/Vancouver
+  #restart: always
   volumes:
+    - "/etc/localtime:/etc/localtime:ro"
     - ckan_config:/etc/ckan
     - ckan_home:/usr/lib/ckan
     - ckan_storage:/var/lib/ckan
@@ -88,6 +91,7 @@ services:
   datapusher:
     container_name: datapusher
     image: clementmouchet/datapusher
+    #restart: always
     ports:
       - "8800:8800"
 
@@ -105,6 +109,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - PGDATA=/var/lib/postgresql/data/db
     volumes:
+      - "/etc/localtime:/etc/localtime:ro"
       - pg_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "ckan"]
@@ -120,6 +125,7 @@ services:
   redis:
     container_name: redis
     image: redis:latest
+    #restart: always
 
   pycsw:
     container_name: pycsw
