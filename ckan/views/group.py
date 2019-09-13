@@ -3,7 +3,7 @@
 import datetime
 import logging
 import re
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 
 from pylons.i18n import get_lang
 from six import string_types, text_type
