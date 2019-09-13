@@ -300,7 +300,9 @@ def check_access(action, context, data_dict=None):
         context = _prepopulate_context(context)
 
         # checking config for global require_auth
-        if (asbool(config.get('ckan.auth.allow_anonymous_access', True)) and
+        allow_anon_access =
+        asbool(config.get('ckan.auth.allow_anonymous_access', True))
+        if (not allow_anon_access
                 not context['auth_user_obj'] and
                 not context.get('ignore_auth', False)):
             raise NotAuthorized('Authentication Required')
