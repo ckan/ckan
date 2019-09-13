@@ -600,6 +600,19 @@ class TestPackageRead(helpers.FunctionalTestBase):
             status=404
         )
         assert_equal(404, response.status_int)
+    
+    @helpers.change_config('ckan.auth.allow_anonymous_access', 'false')
+    def test_anonymous_users_cannot_read_datasets_if_config_requires_auth(self):
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id']
+        )
+        app = helpers._get_test_app()
+        response = app.get(
+            url_for('dataset.read', id=dataset['name']),
+            status=403
+        )
+        assert_equal(403, response.status_int)
 
     def test_user_not_in_organization_cannot_read_private_datasets(self):
         user = factories.User()
