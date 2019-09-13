@@ -643,6 +643,22 @@ Default value: ``False`` (however the default config file template sets it to ``
 Restricts access to 'view this version' and 'changes' in the Activity Stream pages. These links provide users with the full edit history of datasets etc - what they showed in the past and the diffs between versions. If this option is set to ``False`` then only admins (e.g. whoever can edit the dataset) can see this detail. If set to ``True``, anyone can see this detail (assuming they have permission to view the dataset etc).
 
 
+.. _ckan.auth.allow_anonymous_access:
+
+ckan.auth.allow_anonymous_access
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.auth.allow_anonymous_access = false
+
+Default value: ``True``
+
+Disallows access to all actions for anonymous users. This configuration variable overrides the `auth_allow_anonymous_access` decorator for auth functions, and will make all actions/pages return a 403 error except for login/logout paths.
+
+
+
+
 .. end_config-authorization
 
 
