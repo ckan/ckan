@@ -1119,10 +1119,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
     @helpers.change_config('ckan.auth.allow_anonymous_access', 'false')
     def test_search_fails_if_anon_access_false(self):
-        factories.Dataset(title='Rivers')
-        search_result = helpers.call_action('package_search', q='rivers')
-        # nose.tools.assert_raises(logic.NotAuthorized, helpers.call_action,
-        #                          'package_search', q='rivers')
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_action,
+                                 'package_search')
 
     def test_search_fl(self):
         d1 = factories.Dataset(title='Rivers', name='test_ri')
