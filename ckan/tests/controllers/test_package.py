@@ -601,20 +601,6 @@ class TestPackageRead(helpers.FunctionalTestBase):
         )
         assert_equal(404, response.status_int)
 
-    @helpers.change_config('ckan.auth.allow_anonymous_access', 'false')
-    def test_anonymous_users_cannot_read_datasets_if_config_requires_auth(self):
-        organization = factories.Organization()
-        dataset = factories.Dataset(
-            owner_org=organization['id']
-        )
-        app = helpers._get_test_app()
-        response = app.get(
-            url_for('dataset.read', id=dataset['name']),
-            status=403
-        )
-        assert_equal(403, response.status_int)
-
-    @helpers.change_config('ckan.auth.allow_anonymous_access', 'true')
     def test_user_not_in_organization_cannot_read_private_datasets(self):
         user = factories.User()
         organization = factories.Organization()
@@ -1461,6 +1447,16 @@ class TestSearch(helpers.FunctionalTestBase):
 
         assert dataset1['name'] in page.body.decode('utf8')
 
+    @helpers.change_config('ckan.auth.allow_anonymous_access', 'false')
+    def test_anonymous_users_cannot_search_datasets_if_config_requires_auth(self):
+        dataset1 = factories.Dataset()
+
+        offset = url_for('dataset.search')
+        app = self._get_test_app()
+        page = app.get(offset)
+        assert_equal(403, page.status_int)
+
+    @helpers.change_config('ckan.auth.allow_anonymous_access', 'true')
     def test_search_language_toggle(self):
         dataset1 = factories.Dataset()
 
