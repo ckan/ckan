@@ -312,7 +312,6 @@ class TestPep8(object):
         'ckan/include/rcssmin.py',
         'ckan/include/rjsmin.py',
         'ckan/lib/app_globals.py',
-        'ckan/lib/captcha.py',
         'ckan/lib/cli.py',
         'ckan/lib/create_test_data.py',
         'ckan/lib/dictization/__init__.py',

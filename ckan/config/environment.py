@@ -4,12 +4,13 @@
 import os
 import logging
 import warnings
-from urlparse import urlparse
 import pytz
 
 import sqlalchemy
 from pylons import config as pylons_config
 import formencode
+
+from six.moves.urllib.parse import urlparse
 
 import ckan.config.routing as routing
 import ckan.model as model
