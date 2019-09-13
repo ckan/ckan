@@ -47,6 +47,7 @@ class TestPackageShow(helpers.FunctionalTestBase):
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_action,
                                  'pacakge_show', id=dataset1['id'])
 
+    @helpers.change_config('ckan.auth.allow_anonymous_access', 'true')
     def test_package_show_with_full_dataset(self):
         # an full dataset
         org = factories.Organization()
@@ -1125,13 +1126,14 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         eq(search_result['results'][0]['title'], 'Rivers')
         eq(search_result['count'], 1)
-    
+
     @helpers.change_config('ckan.auth.allow_anonymous_access', 'false')
     def test_search_fails_if_anon_access_false(self):
         factories.Dataset(title='Rivers')
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_action,
                                  'package_search', q='rivers')
 
+    @helpers.change_config('ckan.auth.allow_anonymous_access', 'true')
     def test_search_fl(self):
         d1 = factories.Dataset(title='Rivers', name='test_ri')
         d2 = factories.Dataset(title='Lakes')
