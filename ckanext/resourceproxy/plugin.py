@@ -2,10 +2,11 @@
 
 from logging import getLogger
 
+from six.moves.urllib.parse import urlparse
+
 import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview
-import urlparse
 from ckan.common import config
 
 from ckanext.resourceproxy import blueprint
@@ -25,7 +26,7 @@ def get_proxified_resource_url(data_dict, proxy_schemes=[u'http', u'https']):
         return url
 
     ckan_url = config.get(u'ckan.site_url', u'//localhost:5000')
-    scheme = urlparse.urlparse(url).scheme
+    scheme = urlparse(url).scheme
     compare_domains = datapreview.compare_domains
     if not compare_domains([ckan_url, url]) and scheme in proxy_schemes:
         url = h.url_for(
