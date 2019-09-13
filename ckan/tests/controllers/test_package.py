@@ -1453,7 +1453,7 @@ class TestSearch(helpers.FunctionalTestBase):
 
         offset = url_for('dataset.search')
         app = self._get_test_app()
-        page = app.get(offset)
+        page = app.get(offset, expect_errors=True)
         assert_equal(403, page.status_int)
 
     @helpers.change_config('ckan.auth.allow_anonymous_access', 'true')

@@ -47,7 +47,6 @@ class TestPackageShow(helpers.FunctionalTestBase):
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_action,
                                  'package_show', id=dataset1['id'])
 
-    @helpers.change_config('ckan.auth.allow_anonymous_access', 'true')
     def test_package_show_with_full_dataset(self):
         # an full dataset
         org = factories.Organization()
