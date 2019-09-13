@@ -303,7 +303,7 @@ def check_access(action, context, data_dict=None):
         allow_anon_access = asbool(
             config.get('ckan.auth.allow_anonymous_access', True)
         )
-        if (not allow_anon_access
+        if (not allow_anon_access and
                 not context['auth_user_obj'] and
                 not context.get('ignore_auth', False)):
             raise NotAuthorized('Authentication Required')
