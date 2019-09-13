@@ -768,6 +768,12 @@ class TestUserList(helpers.FunctionalTestBase):
         assert 'email' not in got_user
         assert 'datasets' not in got_user
 
+    @helpers.change_config('ckan.auth.allow_anonymous_access', 'false')
+    def test_user_list_raises_not_authorized_if_config_allow_anon_access_false(self):
+        user = factories.User()
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_action,
+                                 'user_list')
+
     def test_user_list_edits(self):
 
         user = factories.User()
@@ -1116,11 +1122,6 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         eq(search_result['results'][0]['title'], 'Rivers')
         eq(search_result['count'], 1)
-
-    @helpers.change_config('ckan.auth.allow_anonymous_access', 'false')
-    def test_search_fails_if_anon_access_false(self):
-        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_action,
-                                 'package_search')
 
     def test_search_fl(self):
         d1 = factories.Dataset(title='Rivers', name='test_ri')

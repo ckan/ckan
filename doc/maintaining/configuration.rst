@@ -657,8 +657,6 @@ Default value: ``True``
 Disallows access to all actions for anonymous users. This configuration variable overrides the `auth_allow_anonymous_access` decorator for auth functions, and will make all actions/pages return a 403 error except for login/logout paths.
 
 
-
-
 .. end_config-authorization
 
 
