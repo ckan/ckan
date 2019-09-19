@@ -313,9 +313,9 @@ def group_dictize(group, context,
             }
 
             if group_.is_organization:
-                q['fq'] = 'owner_org:"{0}"'.format(group_.id)
+                q['fq'] = '+owner_org:"{0}"'.format(group_.id)
             else:
-                q['fq'] = 'groups:"{0}"'.format(group_.name)
+                q['fq'] = '+groups:"{0}"'.format(group_.name)
 
             # Allow members of organizations to see private datasets.
             if group_.is_organization:
