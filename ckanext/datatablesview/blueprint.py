@@ -73,7 +73,7 @@ def ajax(resource_view_id):
         sort_by_num = int(request.form[u'order[%d][column]' % i])
         sort_order = (
             u'desc' if request.form[u'order[%d][dir]' %
-                                      i] == u'desc' else u'asc'
+                                    i] == u'desc' else u'asc'
         )
         sort_list.append(cols[sort_by_num] + u' ' + sort_order)
         i += 1
