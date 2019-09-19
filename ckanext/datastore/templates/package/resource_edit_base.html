@@ -3,6 +3,6 @@
 {% block inner_primary_nav %}
   {{ super() }}
   {% if res.datastore_active %}
-    {{ h.build_nav_icon('resource_dictionary', _('Data Dictionary'), id=pkg.name, resource_id=res.id) }}
+    {{ h.build_nav_icon('datastore.dictionary', _('Data Dictionary'), id=pkg.name, resource_id=res.id) }}
   {% endif %}
 {% endblock %}

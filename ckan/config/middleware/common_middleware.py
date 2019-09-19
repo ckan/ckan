@@ -1,11 +1,11 @@
 # encoding: utf-8
 
 """Common middleware used by both Flask and Pylons app stacks."""
-
-import urllib2
 import hashlib
 import json
 import cgi
+
+from six.moves.urllib.parse import unquote
 
 import sqlalchemy as sa
 from webob.request import FakeCGIBody
@@ -73,7 +73,7 @@ class TrackingMiddleware(object):
             data = {}
             for part in parts:
                 k, v = part.split('=')
-                data[k] = urllib2.unquote(v).decode("utf8")
+                data[k] = unquote(v).decode("utf8")
             start_response('200 OK', [('Content-Type', 'text/html')])
             # we want a unique anonomized key for each user so that we do
             # not count multiple clicks from the same user.

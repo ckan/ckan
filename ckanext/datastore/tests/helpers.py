@@ -92,7 +92,8 @@ class DatastoreLegacyTestBase(object):
     """
     @classmethod
     def setup_class(cls):
-        p.load(u'datastore')
+        if not p.plugin_loaded(u'datastore'):
+            p.load(u'datastore')
         reset_db()
         search.clear_all()
         engine = db.get_write_engine()

@@ -5,8 +5,9 @@
 Functions and data structures that are needed for the ckan data preview.
 """
 
-import urlparse
 import logging
+
+from six.moves.urllib.parse import urlparse
 
 from ckan.common import config
 
@@ -36,9 +37,9 @@ def compare_domains(urls):
         # all urls are interpreted as absolute urls,
         # except for urls that start with a /
         try:
-            if not urlparse.urlparse(url).scheme and not url.startswith('/'):
+            if not urlparse(url).scheme and not url.startswith('/'):
                 url = '//' + url
-            parsed = urlparse.urlparse(url.lower(), 'http')
+            parsed = urlparse(url.lower(), 'http')
             domain = (parsed.scheme, parsed.hostname, parsed.port)
         except ValueError:
             # URL is so messed up that even urlparse can't stand it

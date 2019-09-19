@@ -5,11 +5,11 @@ try:
 except ImportError:
     from StringIO import StringIO
 
-import urllib
-
 from nose.tools import assert_equal
 from paste.fixture import TestRequest
 from webhelpers.html import url_escape
+
+from six.moves.urllib.parse import quote
 
 import ckan.model as model
 from ckan.tests.legacy import CreateTestData
@@ -83,7 +83,7 @@ class ApiTestCase(object):
         if self.api_version:
             base += '/%s' % self.api_version
         utf8_encoded = (u'%s%s' % (base, path)).encode('utf8')
-        url_encoded = urllib.quote(utf8_encoded)
+        url_encoded = quote(utf8_encoded)
         return url_encoded
 
     def assert_msg_represents_anna(self, msg):

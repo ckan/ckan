@@ -5,8 +5,8 @@ Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 16.04 64-bit** or **Ubuntu 14.04 64-bit**. If
-you're not using Ubuntu 16.04 64-bit or Ubuntu 14.04 64-bit, or if you're installing CKAN for
+and easiest way to install CKAN, but it requires **Ubuntu 16.04 64-bit**. If
+you're not using Ubuntu 16.04 64-bit, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
 At the end of the installation process you will end up with two running web
@@ -48,11 +48,11 @@ CKAN:
 #. Install the Ubuntu packages that CKAN requires (and 'git', to enable you to install CKAN extensions)::
 
     sudo apt-get install -y apache2 libapache2-mod-wsgi libpq5 redis-server git-core
-    
+
 #. Then stop apache2 service to install nginx
-    
+
     sudo service apache2 stop
-    
+
     sudo apt-get install -y nginx
 
 #. Download the CKAN package:
@@ -63,12 +63,6 @@ CKAN:
 
            wget \http://packaging.ckan.org/|latest_package_name_xenial|
 
-   - On Ubuntu 14.04:
-
-       .. parsed-literal::
-
-           wget \http://packaging.ckan.org/|latest_package_name_trusty|
-
 
 #. Install the CKAN package:
 
@@ -77,12 +71,6 @@ CKAN:
        .. parsed-literal::
 
            sudo dpkg -i |latest_package_name_xenial|
-
-   - On Ubuntu 14.04:
-
-       .. parsed-literal::
-
-           sudo dpkg -i |latest_package_name_trusty|
 
     .. note:: If you get the following error it means that for some reason the
      Apache WSGI module was not enabled::
@@ -110,7 +98,7 @@ CKAN:
    |production.ini| file to reference your |postgres| server.
 
 .. note::
-     
+
    The commands mentioned below are tested for Ubuntu system
 
 Install |postgres|, running this command in a terminal::

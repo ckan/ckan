@@ -12,7 +12,7 @@ from email.header import Header
 from email import Utils
 
 from ckan.common import config
-import paste.deploy.converters
+import ckan.common
 from six import text_type
 
 import ckan
@@ -62,7 +62,7 @@ def _mail_recipient(recipient_name, recipient_email,
         smtp_password = None
     else:
         smtp_server = config.get('smtp.server', 'localhost')
-        smtp_starttls = paste.deploy.converters.asbool(
+        smtp_starttls = ckan.common.asbool(
             config.get('smtp.starttls'))
         smtp_user = config.get('smtp.user')
         smtp_password = config.get('smtp.password')
