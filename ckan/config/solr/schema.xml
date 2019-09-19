@@ -97,6 +97,11 @@ schema. In this case the version should be set to the next CKAN version number.
 
 
 <fields>
+    <field name="temporal-extent-range" type="date_range" indexed="true" stored="true" multiValued="false" />
+    <field name="temporal-extent-begin" type="date" indexed="true" stored="true" multiValued="false" />
+    <field name="temporal-extent-end" type="date" indexed="true" stored="true" multiValued="false" />
+    <field name="vertical-extent-min" type="tint" indexed="true" stored="true" multiValued="false" />
+    <field name="vertical-extent-max" type="tint" indexed="true" stored="true" multiValued="false" />
     <field name="bbox_area" type="float" indexed="true" stored="true" />
     <field name="maxx" type="float" indexed="true" stored="true" />
     <field name="maxy" type="float" indexed="true" stored="true" />
@@ -118,6 +123,7 @@ schema. In this case the version should be set to the next CKAN version number.
     <field name="ckan_url" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="download_url" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="notes" type="text" indexed="true" stored="true"/>
+    <field name="notes_translated" type="text" indexed="true" stored="true"/>
     <field name="author" type="textgen" indexed="true" stored="true" />
     <field name="author_email" type="textgen" indexed="true" stored="true" />
     <field name="maintainer" type="textgen" indexed="true" stored="true" />
