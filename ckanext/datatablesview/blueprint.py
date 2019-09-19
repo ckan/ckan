@@ -44,12 +44,12 @@ def ajax(resource_view_id):
                                    u'id': resource_view_id
                                })
 
-    draw = int(request.params[u'draw'])
-    search_text = text_type(request.params[u'search[value]'])
-    offset = int(request.params[u'start'])
-    limit = int(request.params[u'length'])
+    draw = int(request.form[u'draw'])
+    search_text = text_type(request.form[u'search[value]'])
+    offset = int(request.form[u'start'])
+    limit = int(request.form[u'length'])
     view_filters = resource_view.get(u'filters', {})
-    user_filters = text_type(request.params[u'filters'])
+    user_filters = text_type(request.form[u'filters'])
     filters = merge_filters(view_filters, user_filters)
 
     datastore_search = get_action(u'datastore_search')
@@ -68,11 +68,11 @@ def ajax(resource_view_id):
     sort_list = []
     i = 0
     while True:
-        if u'order[%d][column]' % i not in request.params:
+        if u'order[%d][column]' % i not in request.form:
             break
-        sort_by_num = int(request.params[u'order[%d][column]' % i])
+        sort_by_num = int(request.form[u'order[%d][column]' % i])
         sort_order = (
-            u'desc' if request.params[u'order[%d][dir]' %
+            u'desc' if request.form[u'order[%d][dir]' %
                                       i] == u'desc' else u'asc'
         )
         sort_list.append(cols[sort_by_num] + u' ' + sort_order)
@@ -146,8 +146,9 @@ def filtered_download(resource_view_id):
 
 
 datatablesview.add_url_rule(
-    u'/datatables/ajax/<resource_view_id>', view_func=ajax
+    u'/datatables/ajax/<resource_view_id>', view_func=ajax, methods=[u'POST']
 )
+
 datatablesview.add_url_rule(
     u'/datatables/filtered-download/<resource_view_id>',
     view_func=filtered_download
