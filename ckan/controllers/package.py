@@ -1,13 +1,13 @@
 # encoding: utf-8
 
 import logging
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 import datetime
 import mimetypes
 import cgi
 
 from ckan.common import config
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 import paste.fileapp
 from six import string_types, text_type
 

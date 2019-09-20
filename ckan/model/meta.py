@@ -2,7 +2,7 @@
 
 import datetime
 
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from ckan.common import config
 """SQLAlchemy Metadata and Session object"""
 from sqlalchemy import MetaData, and_

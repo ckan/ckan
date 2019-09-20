@@ -8,7 +8,7 @@ from collections import defaultdict
 from logging import getLogger
 
 from ckan.common import config
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 
 import ckan.plugins as p
 import ckan.model as model

@@ -6,9 +6,7 @@
 
 {% block primary_content_inner %}
 
-  {% set action = h.url_for(
-    controller='ckanext.datastore.controller:DatastoreController',
-    action='dictionary', id=pkg.name, resource_id=res.id) %}
+  {% set action = h.url_for('datastore.dictionary', id=pkg.name, resource_id=res.id) %}
 
   <form method="post" action="{{ action }}" >
     {% block dictionary_form %}

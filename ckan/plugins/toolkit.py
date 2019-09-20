@@ -146,7 +146,7 @@ class _Toolkit(object):
         )
         from ckan.lib.jobs import enqueue as enqueue_job
 
-        from paste.deploy import converters
+        import ckan.common as converters
         import pylons
         import webhelpers.html.tags
 
@@ -498,11 +498,7 @@ content type, cookies, etc.
                 return common.c.controller, common.c.action
             except AttributeError:
                 return (None, None)
-        # there are some routes('hello_world') that are not using blueprint
-        # For such case, let's assume that view function is a controller
-        # itself and action is None.
-        if len(endpoint) == 1:
-            return endpoint + (None,)
+
         return endpoint
 
     def __getattr__(self, name):

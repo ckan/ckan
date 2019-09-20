@@ -7,7 +7,7 @@ from ckan.logic.auth import (get_package_object, get_group_object,
                              get_resource_object, get_activity_object,
                              restrict_anon)
 from ckan.lib.plugins import get_permission_labels
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 
 
 def sysadmin(context, data_dict):

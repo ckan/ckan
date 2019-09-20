@@ -148,16 +148,6 @@ following contents:
 Replace ``default.ckanhosted.com`` and ``www.default.ckanhosted.com`` with the
 domain name for your site.
 
-.. note::
-
-    If you are running |apache| 2.2 or lower (eg on Ubuntu 12.04), remove this directive,
-    as it is not supported::
-
-        <Directory />
-            Require all granted
-        </Directory>
-
-
 This tells the Apache modwsgi module to redirect any requests to the web server
 to the WSGI script that you created above. Your WSGI script in turn directs the
 requests to your CKAN instance.
@@ -169,7 +159,7 @@ requests to your CKAN instance.
 Open ``/etc/apache2/ports.conf``. We need to replace the default port 80 with the 8080 one.
 
 
-   - On Apache 2.4 (eg Ubuntu 14.04 or RHEL 7):
+   - On Apache 2.4 (eg Ubuntu 18.04 or RHEL 7):
 
      Replace this line:
 
@@ -183,21 +173,6 @@ Open ``/etc/apache2/ports.conf``. We need to replace the default port 80 with th
 
             Listen 8080
 
-
-   - On Apache 2.2 (eg Ubuntu 12.04 or RHEL 6):
-
-     Replace these lines:
-
-        .. parsed-literal::
-
-            NameVirtualHost \*:80
-            Listen 80
-
-     With these ones:
-
-        .. parsed-literal::
-            NameVirtualHost \*:8080
-            Listen 8080
 
 -------------------------------
 8. Create the Nginx config file

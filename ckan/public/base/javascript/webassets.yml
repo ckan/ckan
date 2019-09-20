@@ -4,6 +4,7 @@ main:
   extra:
     preload:
       - vendor/vendor
+      - vendor/bootstrap
   contents:
     - apply-html-class.js
     - plugins/jquery.inherit.js
@@ -56,6 +57,7 @@ ckan:
     - modules/media-grid.js
     - modules/image-upload.js
     - modules/followers-counter.js
+    - modules/metadata-button.js
 
 tracking:
   output: base/%(version)s_tracking.js

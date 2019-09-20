@@ -222,7 +222,7 @@ class TestCommonRequest(object):
 
         app = helpers._get_test_app()
 
-        with app.flask_app.test_request_context(u'/hello?a=1'):
+        with app.flask_app.test_request_context(u'/?a=1'):
 
             assert u'a' in ckan_request.args
             assert u'a' in ckan_request.params
@@ -231,7 +231,7 @@ class TestCommonRequest(object):
 
         app = helpers._get_test_app()
 
-        with app.flask_app.test_request_context(u'/hello?a=1'):
+        with app.flask_app.test_request_context(u'/?a=1'):
 
             assert_raises(AttributeError, getattr, ckan_request, u'not_here')
 

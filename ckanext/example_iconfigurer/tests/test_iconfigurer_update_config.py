@@ -39,24 +39,25 @@ class TestConfigOptionUpdatePluginNotEnabled(object):
                                  **params)
 
 
-class TestConfigOptionUpdatePluginEnabled(object):
+class TestConfigOptionUpdatePluginEnabled(helpers.FunctionalTestBase):
+    _load_plugins = ('example_iconfigurer', )
 
     @classmethod
     def setup_class(cls):
-        if not plugins.plugin_loaded('example_iconfigurer'):
-            plugins.load('example_iconfigurer')
-
+        super(TestConfigOptionUpdatePluginEnabled, cls).setup_class()
         cls._datasets_per_page_original_value = \
             config.get('ckan.datasets_per_page')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_iconfigurer')
+        super(TestConfigOptionUpdatePluginEnabled, cls).teardown_class()
         config['ckan.datasets_per_page'] = \
             cls._datasets_per_page_original_value
         helpers.reset_db()
 
     def setup(self):
+        super(TestConfigOptionUpdatePluginEnabled, self).setup()
+
         helpers.reset_db()
 
     def test_update_registered_core_value(self):
@@ -91,7 +92,7 @@ class TestConfigOptionUpdatePluginEnabled(object):
 
         params = {key: value}
 
-        assert key not in config
+        assert not config.get(key)
 
         new_config = helpers.call_action('config_option_update', **params)
 
@@ -107,7 +108,7 @@ class TestConfigOptionUpdatePluginEnabled(object):
 
         # not set in globals
         globals_key = app_globals.get_globals_key(key)
-        assert not hasattr(app_globals.app_globals, globals_key)
+        assert not getattr(app_globals.app_globals, globals_key, None)
 
     def test_update_registered_core_value_in_list(self):
         '''Registering a core key/value will allow it to be included in the
