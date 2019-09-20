@@ -34,15 +34,13 @@ class TestExampleIConfigurer(helpers.FunctionalTestBase):
 class TestExampleIConfigurerBuildExtraAdminTabsHelper(helpers.FunctionalTestBase):
 
     """Tests for helpers.build_extra_admin_nav method."""
-
+    _load_plugins = ('example_iconfigurer',)
     @classmethod
     def setup_class(cls):
         super(TestExampleIConfigurerBuildExtraAdminTabsHelper, cls).setup_class()
-        plugins.load('example_iconfigurer')
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_iconfigurer')
         super(TestExampleIConfigurerBuildExtraAdminTabsHelper, cls).teardown_class()
 
     @helpers.change_config('ckan.admin_tabs', {})
@@ -55,7 +53,7 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(helpers.FunctionalTestBase
         response = app.get('/build_extra_admin_nav')
         nosetools.assert_equal(response.body, expected)
 
-    @helpers.change_config('ckan.admin_tabs', {'ckanext_myext_config_one': {'label': 'My Label', 'icon': None}})
+    @helpers.change_config('ckan.admin_tabs', {'example_iconfigurer.config_one': {'label': 'My Label', 'icon': None}})
     def test_build_extra_admin_nav_one_value_in_config(self):
         '''
         Correct string returned when ckan.admin_tabs option has single value in config.
@@ -65,12 +63,12 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(helpers.FunctionalTestBase
         response = app.get('/build_extra_admin_nav')
         nosetools.assert_equal(response.body, expected)
 
-    @helpers.change_config('ckan.admin_tabs', {'ckanext_myext_config_one': {'label': 'My Label', 'icon': 'picture-o'}, 'ckanext_myext_config_two': {'label': 'My Other Label', 'icon': None}})
+    @helpers.change_config('ckan.admin_tabs', {'example_iconfigurer.config_one': {'label': 'My Label', 'icon': 'picture-o'}, 'example_iconfigurer.config_two': {'label': 'My Other Label', 'icon': None}})
     def test_build_extra_admin_nav_two_values_in_config(self):
         '''
         Correct string returned when ckan.admin_tabs option has two values in config.
         '''
         app = self._get_test_app()
-        expected = """<li><a href="/ckan-admin/myext_config_two">My Other Label</a></li><li><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li>"""
+        expected = """<li><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li><li><a href="/ckan-admin/myext_config_two">My Other Label</a></li>"""
         response = app.get('/build_extra_admin_nav')
         nosetools.assert_equal(response.body, expected)
