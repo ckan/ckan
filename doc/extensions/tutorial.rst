@@ -71,7 +71,7 @@ contains the CKAN git repo. Let's use the parent directory instead:
 
 Now run the ``paster create`` command to create your extension::
 
-    cookiecutter https://github.com/<user>/<repo>.git
+    cookiecutter https://github.com/ckan/ckan/<path-to-template>.git
 
 The command will present a few prompts. The information you give will
 end up in your extension's ``setup.py`` file (where you can edit them later if
@@ -79,7 +79,7 @@ you want).
 
 .. note::
 
-   The first prompt is for is the name of your next
+   The first prompt is for the name of your next
    extension. CKAN extension names *have* to begin with ``ckanext-``. This
    tutorial uses the project name ``ckanext-iauthfunctions``.
    The prompts for ``project_shortname`` and ``plugin_class_name`` can be

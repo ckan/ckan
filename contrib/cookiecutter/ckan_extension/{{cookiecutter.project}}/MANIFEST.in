@@ -1,0 +1,4 @@
+include README.rst
+include LICENSE
+include requirements.txt
+recursive-include ckanext/{{ cookiecutter.project_shortname }} *.html *.json *.js *.less *.css *.mo
