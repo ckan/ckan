@@ -44,6 +44,9 @@ class DataTablesController(BaseController):
             sort_list.append(cols[sort_by_num] + u' ' + sort_order)
             i += 1
 
+        if u'_id asc' not in sort_list and u'_id desc' not in sort_list:
+            sort_list.append(u'_id asc')
+
         response = datastore_search(None, {
             u"q": search_text,
             u"resource_id": resource_view[u'resource_id'],
