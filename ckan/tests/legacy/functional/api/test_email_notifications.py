@@ -17,17 +17,29 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness, ControllerTestC
         tests.CreateTestData.create()
         cls.app = helpers._get_test_app()
         joeadmin = model.User.get('joeadmin')
-        cls.joeadmin = {'id': joeadmin.id,
-                'apikey': joeadmin.apikey,
-                }
+        cls.joeadmin = {
+            'id': joeadmin.id,
+            'apikey': joeadmin.apikey
+        }
         testsysadmin = model.User.get('testsysadmin')
-        cls.testsysadmin = {'id': testsysadmin.id,
-                'apikey': testsysadmin.apikey,
-                }
+        cls.testsysadmin = {
+            'id': testsysadmin.id,
+            'apikey': testsysadmin.apikey
+        }
         annafan = model.User.get('annafan')
-        cls.annafan = {'id': annafan.id,
-                'apikey': annafan.apikey,
-                }
+        cls.annafan = {
+            'id': annafan.id,
+            'apikey': annafan.apikey
+        }
+
+        # Register a new user.
+        cls.sara = tests.call_action_api(
+            cls.app, 'user_create',
+            apikey=cls.testsysadmin['apikey'], name='sara',
+            email='sara@sararollins.com', password='TestPassword1',
+            fullname='Sara Rollins',
+            activity_streams_email_notifications=True
+        )
 
     @classmethod
     def teardown_class(cls):
@@ -63,16 +75,6 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness, ControllerTestC
         tests.call_action_api(self.app, 'send_email_notifications',
                 apikey=self.testsysadmin['apikey'])
         self.clear_smtp_messages()
-
-        # Register a new user.
-        sara = tests.call_action_api(self.app, 'user_create',
-                apikey=self.testsysadmin['apikey'], name='sara',
-                email='sara@sararollins.com', password='TestPassword1',
-                fullname='Sara Rollins',
-                activity_streams_email_notifications=True)
-
-        # Save the user for later tests to use.
-        TestEmailNotifications.sara = sara
 
         # No notification emails should be sent to anyone at this point.
         tests.call_action_api(self.app, 'send_email_notifications',
@@ -188,13 +190,22 @@ class TestEmailNotificationsUserPreference(
         tests.CreateTestData.create()
         cls.app = helpers._get_test_app()
         joeadmin = model.User.get('joeadmin')
-        cls.joeadmin = {'id': joeadmin.id,
-                'apikey': joeadmin.apikey,
-                }
+        cls.joeadmin = {
+            'id': joeadmin.id,
+            'apikey': joeadmin.apikey
+        }
+
         testsysadmin = model.User.get('testsysadmin')
-        cls.testsysadmin = {'id': testsysadmin.id,
-                'apikey': testsysadmin.apikey,
-                }
+        cls.testsysadmin = {
+            'id': testsysadmin.id,
+            'apikey': testsysadmin.apikey
+        }
+        cls.sara = tests.call_action_api(
+            cls.app, 'user_create',
+            apikey=cls.testsysadmin['apikey'], name='sara',
+            email='sara@sararollins.com', password='TestPassword1',
+            fullname='Sara Rollins'
+        )
 
     @classmethod
     def teardown_class(self):
@@ -203,18 +214,7 @@ class TestEmailNotificationsUserPreference(
 
     def test_00_email_notifications_disabled_by_default(self):
         '''Email notifications should be disabled for new users.'''
-
-        # Register a new user.
-        sara = tests.call_action_api(self.app, 'user_create',
-                apikey=self.testsysadmin['apikey'], name='sara',
-                email='sara@sararollins.com', password='TestPassword1',
-                fullname='Sara Rollins')
-
-        # Save the user for later tests to use.
-        TestEmailNotificationsUserPreference.sara = sara
-
-        # Email notifications should be disabled for the new user.
-        assert sara['activity_streams_email_notifications'] is False
+        assert self.sara['activity_streams_email_notifications'] is False
         assert (tests.call_action_api(self.app, 'user_show',
                 apikey=self.sara['apikey'], id='sara')[
                     'activity_streams_email_notifications'] is False)

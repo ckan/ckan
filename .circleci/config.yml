@@ -14,7 +14,7 @@ jobs:
           CKAN_POSTGRES_PWD: pass
           PGPASSWORD: ckan
           NODE_TESTS_CONTAINER: 2
-          PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml
+          PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml --test-group-count 4 --test-group-random-seed=12345
       - image: postgres:10
         environment:
           POSTGRES_USER: ckan
@@ -65,13 +65,13 @@ jobs:
       - run: |
           mkdir -p ~/junit
           case $CIRCLE_NODE_INDEX in
-            0) python -m pytest $PYTEST_COMMON_OPTIONS --test-group-count 4 --test-group 1
+            0) python -m pytest $PYTEST_COMMON_OPTIONS --test-group 1
             ;;
-            1) python -m pytest $PYTEST_COMMON_OPTIONS --test-group-count 4 --test-group 2
+            1) python -m pytest $PYTEST_COMMON_OPTIONS --test-group 2
             ;;
-            2) python -m pytest $PYTEST_COMMON_OPTIONS --test-group-count 4 --test-group 3
+            2) python -m pytest $PYTEST_COMMON_OPTIONS --test-group 3
             ;;
-            3) python -m pytest $PYTEST_COMMON_OPTIONS --test-group-count 4 --test-group 4
+            3) python -m pytest $PYTEST_COMMON_OPTIONS --test-group 4
             ;;
           esac
       - store_test_results:
