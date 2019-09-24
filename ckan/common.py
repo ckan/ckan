@@ -38,6 +38,7 @@ def is_flask_request():
     A centralized way to determine whether we are in the context of a
     request being served by Flask or Pylons
     '''
+
     try:
         pylons.request.environ
         pylons_request_available = True

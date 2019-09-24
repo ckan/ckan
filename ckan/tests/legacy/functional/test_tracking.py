@@ -8,18 +8,16 @@ import datetime
 
 from ckan.lib.helpers import url_for
 import ckan.tests.legacy as tests
-
+from ckan.tests.helpers import _get_test_app
 
 class TestTracking(object):
 
-    def tearDown(self):
+    def teardown_method(self, method):
         import ckan.model as model
         model.repo.rebuild_db()
 
     def _get_app(self):
-        import paste.fixture
-        import pylons.test
-        return paste.fixture.TestApp(pylons.test.pylonsapp)
+        return _get_test_app()
 
     def _create_sysadmin(self, app):
         '''Create a sysadmin user.

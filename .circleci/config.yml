@@ -14,7 +14,7 @@ jobs:
           CKAN_POSTGRES_PWD: pass
           PGPASSWORD: ckan
           NODE_TESTS_CONTAINER: 2
-          NOSETEST_COMMON_OPTIONS: -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=/root/junit/junit.xml ckan ckanext
+          PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml
       - image: postgres:10
         environment:
           POSTGRES_USER: ckan
@@ -65,13 +65,13 @@ jobs:
       - run: |
           mkdir -p ~/junit
           case $CIRCLE_NODE_INDEX in
-            0) nosetests $NOSETEST_COMMON_OPTIONS --segments 0123
+            0) python -m pytest $PYTEST_COMMON_OPTIONS --test-group-count 4 --test-group 1
             ;;
-            1) nosetests $NOSETEST_COMMON_OPTIONS --segments 4567
+            1) python -m pytest $PYTEST_COMMON_OPTIONS --test-group-count 4 --test-group 2
             ;;
-            2) nosetests $NOSETEST_COMMON_OPTIONS --segments 89ab
+            2) python -m pytest $PYTEST_COMMON_OPTIONS --test-group-count 4 --test-group 3
             ;;
-            3) nosetests $NOSETEST_COMMON_OPTIONS --segments cdef
+            3) python -m pytest $PYTEST_COMMON_OPTIONS --test-group-count 4 --test-group 4
             ;;
           esac
       - store_test_results:

@@ -194,7 +194,8 @@ class Repository(vdm.sqlalchemy.Repository):
         self.session.remove()
         # sqlite database needs to be recreated each time as the
         # memory database is lost.
-        if self.metadata.bind.name == 'sqlite':
+
+        if self.metadata.bind.engine.url.drivername == 'sqlite':
             # this creates the tables, which isn't required inbetween tests
             # that have simply called rebuild_db.
             self.create_db()

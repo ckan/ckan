@@ -228,8 +228,8 @@ class TestCase(CommonFixtureMethods, CheckMethods, BaseCase):
 
 
 class WsgiAppCase(BaseCase):
-    wsgiapp = pylonsapp
-    assert wsgiapp, 'You need to run nose with --with-pylons'
+    # wsgiapp = pylonsapp
+    # assert wsgiapp, 'You need to run nose with --with-pylons'
     # Either that, or this file got imported somehow before the tests started
     # running, meaning the pylonsapp wasn't setup yet (which is done in
     # pylons.test.py:begin())
