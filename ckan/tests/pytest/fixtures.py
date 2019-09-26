@@ -26,11 +26,13 @@ def make_app(ckan_config):
     """
     return test_helpers._get_test_app
 
+
 @pytest.fixture
 def app(make_app):
     """Instance of client app.
     """
     return make_app()
+
 
 @pytest.fixture
 def reset_db():
@@ -38,11 +40,13 @@ def reset_db():
     """
     test_helpers.reset_db()
 
+
 @pytest.fixture
 def reset_index():
     """Clear search index.
     """
     search.clear_all()
+
 
 @pytest.fixture
 def reset_all(reset_db, reset_index):

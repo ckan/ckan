@@ -288,7 +288,7 @@ class TestFlaskUserIdentifiedInRequest:
                 extra_environ={u'REMOTE_USER': str(u'')},
             )
             assert flask.g.user == u''
-            assert flask.g.userobj == None
+            assert flask.g.userobj is None
             assert flask.g.author == u'Unknown IP Address'
             assert flask.g.remote_addr == u'Unknown IP Address'
 
@@ -349,7 +349,7 @@ class TestPylonsUserIdentifiedInRequest:
 
         # tmpl_context available on response
         assert resp.tmpl_context.user == u''
-        assert resp.tmpl_context.userobj == None
+        assert resp.tmpl_context.userobj is None
         assert resp.tmpl_context.author == u'Unknown IP Address'
         assert resp.tmpl_context.remote_addr == u'Unknown IP Address'
 
