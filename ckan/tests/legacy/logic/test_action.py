@@ -434,7 +434,7 @@ class TestAction(WsgiAppCase):
 
         task_status_id = task_status_updated.pop('id')
         task_status_updated.pop('last_updated')
-        assert task_status_updated == task_status, (task_status_updated, task_status)
+        assert task_status_updated == task_status
 
         task_status_updated['id'] = task_status_id
         task_status_updated['value'] = u'test_value_2'
@@ -445,7 +445,7 @@ class TestAction(WsgiAppCase):
         )
         task_status_updated_2 = json.loads(res.body)['result']
         task_status_updated_2.pop('last_updated')
-        assert task_status_updated_2 == task_status_updated, task_status_updated_2
+        assert task_status_updated_2 == task_status_updated
 
     def test_21_task_status_update_many(self):
         package_created = self._add_basic_package(u'test_task_status_update_many')
@@ -592,7 +592,7 @@ class TestAction(WsgiAppCase):
     def test_27_get_site_user_not_authorized(self):
         assert_raises(NotAuthorized,
                      get_action('get_site_user'),
-                     {'model': model}, {})
+                     {'model': model, 'user': ''}, {})
         user = model.User.get('test.ckan.net')
         assert not user
 
