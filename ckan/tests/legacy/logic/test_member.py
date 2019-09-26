@@ -1,32 +1,30 @@
 # encoding: utf-8
 
-from nose.tools import assert_raises
 import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.create_test_data as create_test_data
+import pytest
 
-
-class TestMemberLogic(object):
-
-    @classmethod
-    def setup_class(cls):
+@pytest.mark.ckan_pytest
+class TestMemberLogic:
+    def setup_method(self):
         model.repo.new_revision()
         create_test_data.CreateTestData.create()
-        cls.user = model.User.get('testsysadmin')
-        cls.tester = model.User.get('tester')
-        cls.group = model.Group.get('david')
-        cls.roger = model.Group.get('roger')
-        cls.pkgs = [model.Package.by_name('warandpeace'),
+        self.user = model.User.get('testsysadmin')
+        self.tester = model.User.get('tester')
+        self.group = model.Group.get('david')
+        self.roger = model.Group.get('roger')
+        self.pkgs = [model.Package.by_name('warandpeace'),
                     model.Package.by_name('annakarenina')]
 
         # 'Tester' becomes an admin for the 'roger' group
         model.repo.new_revision()
-        model.Member(group=cls.roger, table_id=cls.tester.id,
+        model.Member(group=self.roger, table_id=self.tester.id,
                      table_name='user', capacity='admin')
         model.repo.commit_and_remove()
 
-    @classmethod
-    def teardown_class(cls):
+
+    def teardown_method(self):
         model.repo.rebuild_db()
 
     def test_member_create(self):
@@ -44,8 +42,8 @@ class TestMemberLogic(object):
     def test_member_create_raises_if_user_unauthorized_to_update_group(self):
         ctx, dd = self._build_context(self.pkgs[0].id, 'package',
                                       user='unauthorized_user')
-        assert_raises(logic.NotAuthorized,
-                      logic.get_action('member_create'), ctx, dd)
+        with pytest.raises(logic.NotAuthorized):
+            logic.get_action('member_create')(ctx, dd)
 
     def test_member_create_with_child_group_permission(self):
         # 'tester' has admin priviledge for roger, so anyone can make it
@@ -55,8 +53,8 @@ class TestMemberLogic(object):
                                             user=self.tester)
 
     def test_member_create_raises_when_only_have_parent_group_permission(self):
-        assert_raises(logic.NotAuthorized,
-                      self._member_create_group_hierarchy,
+        with pytest.raises(logic.NotAuthorized):
+            self._member_create_group_hierarchy(
                       self.roger,  # parent
                       self.group,  # child
                       self.tester)
@@ -82,23 +80,20 @@ class TestMemberLogic(object):
         for key in dd.keys():
             new_dd = dd.copy()
             del new_dd[key]
-            assert_raises(logic.ValidationError,
-                          logic.get_action('member_create'), ctx, new_dd)
+            with pytest.raises(logic.ValidationError):
+                logic.get_action('member_create')(ctx, new_dd)
 
     def test_member_create_raises_if_group_wasnt_found(self):
-        assert_raises(logic.NotFound,
-                      self._member_create_in_group,
-                      self.pkgs[0].id, 'package', 'public', 'inexistent_group')
+        with pytest.raises(logic.NotFound):
+            self._member_create_in_group(self.pkgs[0].id, 'package', 'public', 'inexistent_group')
 
     def test_member_create_raises_if_object_wasnt_found(self):
-        assert_raises(logic.NotFound,
-                      self._member_create,
-                      'inexistent_package', 'package', 'public')
+        with pytest.raises(logic.NotFound):
+            self._member_create('inexistent_package', 'package', 'public')
 
     def test_member_create_raises_if_object_type_is_invalid(self):
-        assert_raises(logic.ValidationError,
-                      self._member_create,
-                      'obj_id', 'invalid_obj_type', 'public')
+        with pytest.raises(logic.ValidationError):
+            self._member_create('obj_id', 'invalid_obj_type', 'public')
 
     def test_member_list(self):
         self._member_create(self.pkgs[0].id, 'package', 'public')
@@ -110,8 +105,8 @@ class TestMemberLogic(object):
         res = self._member_list('user', 'admin')
         assert len(res) == 0, res
 
-        assert_raises(logic.NotFound,
-                      self._member_list, 'user', 'admin', 'inexistent_group')
+        with pytest.raises(logic.NotFound):
+            self._member_list( 'user', 'admin', 'inexistent_group')
 
         self._member_create(self.user.id, 'user', 'admin')
         res = self._member_list('user', 'admin')
@@ -138,29 +133,28 @@ class TestMemberLogic(object):
     def test_member_delete_raises_if_user_unauthorized_to_update_group(self):
         ctx, dd = self._build_context(self.pkgs[0].id, 'package',
                                       user='unauthorized_user')
-        assert_raises(logic.NotAuthorized,
-                      logic.get_action('member_delete'), ctx, dd)
+        with pytest.raises(logic.NotAuthorized):
+            logic.get_action('member_delete')(ctx, dd)
 
     def test_member_delete_raises_if_any_required_parameter_isnt_defined(self):
         ctx, dd = self._build_context(self.pkgs[0].id, 'package')
         for key in ['id', 'object', 'object_type']:
             new_dd = dd.copy()
             del new_dd[key]
-            assert_raises(logic.ValidationError,
-                          logic.get_action('member_delete'), ctx, new_dd)
+            with pytest.raises(logic.ValidationError):
+                logic.get_action('member_delete')(ctx, new_dd)
 
     def test_member_delete_raises_if_group_wasnt_found(self):
-        assert_raises(logic.NotFound,
-                      self._member_delete_in_group,
-                      self.pkgs[0].id, 'package', 'inexistent_group')
+        with pytest.raises(logic.NotFound):
+            self._member_delete_in_group(self.pkgs[0].id, 'package', 'inexistent_group')
 
     def test_member_delete_raises_if_object_wasnt_found(self):
-        assert_raises(logic.NotFound,
-                      self._member_delete, 'unexistent_package', 'package')
+        with pytest.raises(logic.NotFound):
+            self._member_delete('unexistent_package', 'package')
 
     def test_member_delete_raises_if_object_type_is_invalid(self):
-        assert_raises(logic.ValidationError,
-                      self._member_delete, 'obj_id', 'invalid_obj_type')
+        with pytest.raises(logic.ValidationError):
+            self._member_delete('obj_id', 'invalid_obj_type')
 
     def _member_create(self, obj, obj_type, capacity):
         '''Makes the given object a member of cls.group.'''
