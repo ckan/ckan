@@ -436,7 +436,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/plugins/toolkit.py',
     u'ckan/plugins/toolkit_sphinx_extension.py',
     u'ckan/tests/config/test_environment.py',
-    u'ckan/tests/config/test_middleware.py',
     u'ckan/tests/controllers/__init__.py',
     u'ckan/tests/controllers/test_admin.py',
     u'ckan/tests/controllers/test_api.py',

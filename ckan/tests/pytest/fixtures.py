@@ -1,17 +1,51 @@
 # -*- coding: utf-8 -*-
 import pytest
-from ckan.tests.helpers import _get_test_app
+import ckan.tests.helpers as test_helpers
+import ckan.lib.search as search
 from ckan.common import config
 
 
 @pytest.fixture
 def ckan_config(request, monkeypatch):
+    """Configuration object used by application.
+
+    Takes into account config patches introduced by `ckan_config`
+    mark.
+    """
     for mark in request.node.own_markers:
-        if mark.name == 'ckan_config':
+        if mark.name == u'ckan_config':
             monkeypatch.setitem(config, *mark.args)
     return config
 
 
 @pytest.fixture
-def app(ckan_config):
-    return _get_test_app()
+def make_app(ckan_config):
+    """Factory for client app.
+
+    Prefer using `app` instead if you have no need in lazy instantiation.
+    """
+    return test_helpers._get_test_app
+
+@pytest.fixture
+def app(make_app):
+    """Instance of client app.
+    """
+    return make_app()
+
+@pytest.fixture
+def reset_db():
+    """Clear database.
+    """
+    test_helpers.reset_db()
+
+@pytest.fixture
+def reset_index():
+    """Clear search index.
+    """
+    search.clear_all()
+
+@pytest.fixture
+def reset_all(reset_db, reset_index):
+    """Clear database and search index.
+    """
+    pass
