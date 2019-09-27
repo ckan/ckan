@@ -69,9 +69,9 @@ contains the CKAN git repo. Let's use the parent directory instead:
 
    cd |virtualenv|/src
 
-Now run the ``paster create`` command to create your extension::
+Now run ``cookiecutter`` to create your extension::
 
-    cookiecutter ckan/contrib/cookiecutter/ckan_extension
+    cookiecutter ckan/contrib/cookiecutter/ckan_extension/
 
 The command will present a few prompts. The information you give will
 end up in your extension's ``setup.py`` file (where you can edit them later if
