@@ -5,6 +5,7 @@ import ckan.logic as logic
 import ckan.lib.create_test_data as create_test_data
 import pytest
 
+
 @pytest.mark.ckan_pytest
 class TestMemberLogic:
     def setup_method(self):
@@ -15,14 +16,13 @@ class TestMemberLogic:
         self.group = model.Group.get('david')
         self.roger = model.Group.get('roger')
         self.pkgs = [model.Package.by_name('warandpeace'),
-                    model.Package.by_name('annakarenina')]
+                     model.Package.by_name('annakarenina')]
 
         # 'Tester' becomes an admin for the 'roger' group
         model.repo.new_revision()
         model.Member(group=self.roger, table_id=self.tester.id,
                      table_name='user', capacity='admin')
         model.repo.commit_and_remove()
-
 
     def teardown_method(self):
         model.repo.rebuild_db()
@@ -55,9 +55,9 @@ class TestMemberLogic:
     def test_member_create_raises_when_only_have_parent_group_permission(self):
         with pytest.raises(logic.NotAuthorized):
             self._member_create_group_hierarchy(
-                      self.roger,  # parent
-                      self.group,  # child
-                      self.tester)
+                self.roger,  # parent
+                self.group,  # child
+                self.tester)
 
     def test_member_create_accepts_group_name_or_id(self):
         by_name = self._member_create_in_group(self.pkgs[0].id, 'package',

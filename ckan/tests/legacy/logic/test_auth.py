@@ -117,7 +117,7 @@ class TestAuthOrgs(TestAuth):
         self._call_api('user_create', user, 'random_key', 403)
         self._call_api('user_create', user, 'no_org', 403)
 
-    def test_02_create_orgs(self):
+    # def test_02_create_orgs(self):
         org = {'name': 'org_no_user'}
         self._call_api('organization_create', org, 'random_key', 403)
         self._call_api('organization_create', org, 'sysadmin')
@@ -130,7 +130,7 @@ class TestAuthOrgs(TestAuth):
         org = {'name': 'org_should_not_be_created'}
         self._call_api('organization_create', org, 'org_admin', 403)
 
-    def test_03_create_dataset_no_org(self):
+    # def test_03_create_dataset_no_org(self):
 
         # no owner_org supplied
         dataset = {'name': 'admin_create_no_org'}
@@ -139,7 +139,7 @@ class TestAuthOrgs(TestAuth):
         dataset = {'name': 'should_not_be_created'}
         self._call_api('package_create', dataset, 'no_org', 403)
 
-    def test_04_create_dataset_with_org(self):
+    # def test_04_create_dataset_with_org(self):
         org_with_user = self._call_api('organization_show', {'id':
             'org_with_user'}, 'sysadmin')
         dataset = {'name': 'admin_create_with_user',
@@ -154,7 +154,7 @@ class TestAuthOrgs(TestAuth):
         dataset = {'name': 'user_create_with_org',
                    'owner_org': org_with_user.json['result']['id']}
 
-    def test_05_add_users_to_org(self):
+    # def test_05_add_users_to_org(self):
 
         member = {'username': 'org_admin',
                   'role': 'admin',
