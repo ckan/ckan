@@ -8,7 +8,7 @@ def validate_project_name():
     project_name = "{{ cookiecutter.project }}"
     if not project_name.startswith('ckanext-'):
         print("\nERROR: Project name must start with 'ckanext-' > {}"
-            .format(project_name))
+              .format(project_name))
         sys.exit(1)
 
 
