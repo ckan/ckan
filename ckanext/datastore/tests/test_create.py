@@ -17,7 +17,6 @@ from ckan.plugins.toolkit import ValidationError
 from ckanext.datastore.tests.helpers import set_url_type, execute_sql, when_was_last_analyze
 
 
-@pytest.mark.ckan_pytest
 @pytest.mark.usefixtures('reset_all', 'app')
 class TestDatastoreCreateNewTests:
     def _has_index_on_field(self, resource_id, field):
@@ -384,7 +383,6 @@ class TestDatastoreCreateNewTests:
         assert_not_equal(last_analyze, None)
 
 
-@pytest.mark.ckan_pytest
 class TestDatastoreCreate:
     sysadmin_user = None
     normal_user = None
@@ -1350,7 +1348,6 @@ class TestDatastoreCreate:
         assert res_dict['error']['message'].startswith('The data was invalid')
 
 
-@pytest.mark.ckan_pytest
 @pytest.mark.usefixtures('reset_all', 'app')
 class TestDatastoreFunctionCreate:
     @pytest.mark.ckan_config('ckan.plugins', 'datastore')
@@ -1402,7 +1399,6 @@ class TestDatastoreFunctionCreate:
                             definition=u'BEGIN RETURN NEW; END;')
 
 
-@pytest.mark.ckan_pytest
 @pytest.mark.usefixtures('reset_all')
 class TestDatastoreCreateTriggers:
     @pytest.mark.ckan_config('ckan.plugins', 'datastore')

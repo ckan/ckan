@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pytest
 import ckanext.datastore.tests.helpers as test_helpers
 

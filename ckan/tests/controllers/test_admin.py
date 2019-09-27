@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from nose.tools import assert_true, assert_equal
-
+import pytest
 from bs4 import BeautifulSoup
 from ckan.lib.helpers import url_for
 from ckan.common import config
@@ -36,6 +36,7 @@ def _reset_config(app):
     )
 
 
+@pytest.mark.usefixtures('reset_db')
 class TestConfig(helpers.FunctionalTestBase):
     '''View tests to go along with 'Customizing look and feel' docs.'''
 

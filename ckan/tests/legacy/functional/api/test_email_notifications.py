@@ -61,14 +61,14 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness, ControllerTestC
         tests.call_action_api(self.app, 'send_email_notifications',
                 status=403)
 
-    def test_00_send_email_notifications_not_authorized(self):
+    # def test_00_send_email_notifications_not_authorized(self):
         '''Unauthorized users shouldn't be able to send email notifications.
 
         '''
         tests.call_action_api(self.app, 'send_email_notifications',
                 apikey=self.annafan['apikey'], status=403)
 
-    def test_01_no_email_notifications_after_registration(self):
+    # def test_01_no_email_notifications_after_registration(self):
         '''A new user who isn't following anything shouldn't get any emails.'''
 
         # Clear any emails already sent due to CreateTestData.create().
@@ -81,7 +81,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness, ControllerTestC
                 apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
 
-    def test_02_one_new_activity(self):
+    # def test_02_one_new_activity(self):
         '''A user with one new activity should get one email.'''
 
         # Make Sara follow something, have to do this to get new activity.
@@ -105,7 +105,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness, ControllerTestC
 
         self.clear_smtp_messages()
 
-    def test_03_multiple_new_activities(self):
+    # def test_03_multiple_new_activities(self):
         '''Test that a user with multiple new activities gets just one email.
 
         '''
@@ -127,7 +127,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness, ControllerTestC
 
         self.clear_smtp_messages()
 
-    def test_04_no_repeat_email_notifications(self):
+    # def test_04_no_repeat_email_notifications(self):
         '''Test that a user does not get a second email notification for the
         same new activity.
 
@@ -138,7 +138,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness, ControllerTestC
                 apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
 
-    def test_05_no_email_if_seen_on_dashboard(self):
+    # def test_05_no_email_if_seen_on_dashboard(self):
         '''Test that emails are not sent for activities already seen on dash.
 
         If a user gets some new activities in her dashboard activity stream,
@@ -166,11 +166,11 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness, ControllerTestC
                 apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
 
-    def test_05_no_email_notifications_when_disabled_site_wide(self):
+    # def test_05_no_email_notifications_when_disabled_site_wide(self):
         '''Users should not get email notifications when the feature is
         disabled site-wide by a sysadmin.'''
 
-    def test_06_enable_email_notifications_sitewide(self):
+    # def test_06_enable_email_notifications_sitewide(self):
         '''When a sysadamin enables email notifications site wide, users
         should not get emails for new activities from before email
         notifications were enabled.

@@ -293,27 +293,27 @@ class TestAuthOrgHierarchy(TestAuth):
         member = {'username': 'john', 'role': 'admin',
                   'id': 'department-of-health'}
         self._call_api('organization_member_create', member, 'nhsadmin', 403)
-    def test_05_add_users_to_org_2(self):
+    # def test_05_add_users_to_org_2(self):
         member = {'username': 'john', 'role': 'editor',
                   'id': 'department-of-health'}
         self._call_api('organization_member_create', member, 'nhsadmin', 403)
-    def test_05_add_users_to_org_3(self):
+    # def test_05_add_users_to_org_3(self):
         member = {'username': 'john', 'role': 'admin',
                   'id': 'national-health-service'}
         self._call_api('organization_member_create', member, 'nhsadmin', 200)
-    def test_05_add_users_to_org_4(self):
+    # def test_05_add_users_to_org_4(self):
         member = {'username': 'john', 'role': 'editor',
                   'id': 'national-health-service'}
         self._call_api('organization_member_create', member, 'nhsadmin', 200)
-    def test_05_add_users_to_org_5(self):
+    # def test_05_add_users_to_org_5(self):
         member = {'username': 'john', 'role': 'admin',
                   'id': 'nhs-wirral-ccg'}
         self._call_api('organization_member_create', member, 'nhsadmin', 200)
-    def test_05_add_users_to_org_6(self):
+    # def test_05_add_users_to_org_6(self):
         member = {'username': 'john', 'role': 'editor',
                   'id': 'nhs-wirral-ccg'}
         self._call_api('organization_member_create', member, 'nhsadmin', 200)
-    def test_05_add_users_to_org_7(self):
+    # def test_05_add_users_to_org_7(self):
         member = {'username': 'john', 'role': 'editor',
                   'id': 'national-health-service'}
         self._call_api('organization_member_create', member, 'nhseditor', 403)
@@ -322,23 +322,23 @@ class TestAuthOrgHierarchy(TestAuth):
         dataset = {'name': 't1', 'owner_org': 'department-of-health'}
         self._call_api('package_create', dataset, 'nhsadmin', 403)
 
-    def test_07_add_datasets_2(self):
+    # def test_07_add_datasets_2(self):
         dataset = {'name': 't2', 'owner_org': 'national-health-service'}
         self._call_api('package_create', dataset, 'nhsadmin', 200)
 
-    def test_07_add_datasets_3(self):
+    # def test_07_add_datasets_3(self):
         dataset = {'name': 't3', 'owner_org': 'nhs-wirral-ccg'}
         self._call_api('package_create', dataset, 'nhsadmin', 200)
 
-    def test_07_add_datasets_4(self):
+    # def test_07_add_datasets_4(self):
         dataset = {'name': 't4', 'owner_org': 'department-of-health'}
         self._call_api('package_create', dataset, 'nhseditor', 403)
 
-    def test_07_add_datasets_5(self):
+    # def test_07_add_datasets_5(self):
         dataset = {'name': 't5', 'owner_org': 'national-health-service'}
         self._call_api('package_create', dataset, 'nhseditor', 200)
 
-    def test_07_add_datasets_6(self):
+    # def test_07_add_datasets_6(self):
         dataset = {'name': 't6', 'owner_org': 'nhs-wirral-ccg'}
         self._call_api('package_create', dataset, 'nhseditor', 403)
 
@@ -346,29 +346,29 @@ class TestAuthOrgHierarchy(TestAuth):
         dataset = {'name': 'adataset', 'owner_org': 'department-of-health'}
         self._call_api('package_update', dataset, 'nhsadmin', 409)
 
-    def test_08_update_datasets_2(self):
+    # def test_08_update_datasets_2(self):
         dataset = {'name': 'adataset', 'owner_org': 'national-health-service'}
         self._call_api('package_update', dataset, 'nhsadmin', 200)
 
-    def test_08_update_datasets_3(self):
+    # def test_08_update_datasets_3(self):
         dataset = {'name': 'adataset', 'owner_org': 'nhs-wirral-ccg'}
         try:
             self._call_api('package_update', dataset, 'nhsadmin', 200)
         finally:
             self._reset_a_datasets_owner_org()
 
-    def test_08_update_datasets_4(self):
+    # def test_08_update_datasets_4(self):
         dataset = {'name': 'adataset', 'owner_org': 'department-of-health'}
         self._call_api('package_update', dataset, 'nhseditor', 409)
 
-    def test_08_update_datasets_5(self):
+    # def test_08_update_datasets_5(self):
         dataset = {'name': 'adataset', 'owner_org': 'national-health-service'}
         try:
             self._call_api('package_update', dataset, 'nhseditor', 200)
         finally:
             self._reset_a_datasets_owner_org()
 
-    def test_08_update_datasets_6(self):
+    # def test_08_update_datasets_6(self):
         dataset = {'name': 'adataset', 'owner_org': 'nhs-wirral-ccg'}
         self._call_api('package_update', dataset, 'nhseditor', 409)
 
@@ -379,28 +379,28 @@ class TestAuthOrgHierarchy(TestAuth):
         finally:
             self._undelete_package_if_needed(dataset['id'])
 
-    def test_09_delete_datasets_2(self):
+    # def test_09_delete_datasets_2(self):
         dataset = {'id': 'nhs-spend'}
         try:
             self._call_api('package_delete', dataset, 'nhsadmin', 200)
         finally:
             self._undelete_package_if_needed(dataset['id'])
 
-    def test_09_delete_datasets_3(self):
+    # def test_09_delete_datasets_3(self):
         dataset = {'id': 'wirral-spend'}
         try:
             self._call_api('package_delete', dataset, 'nhsadmin', 200)
         finally:
             self._undelete_package_if_needed(dataset['id'])
 
-    def test_09_delete_datasets_4(self):
+    # def test_09_delete_datasets_4(self):
         dataset = {'id': 'nhs-spend'}
         try:
             self._call_api('package_delete', dataset, 'nhseditor', 200)
         finally:
             self._undelete_package_if_needed(dataset['id'])
 
-    def test_09_delete_datasets_5(self):
+    # def test_09_delete_datasets_5(self):
         dataset = {'id': 'wirral-spend'}
         try:
             self._call_api('package_delete', dataset, 'nhseditor', 403)
@@ -420,27 +420,27 @@ class TestAuthOrgHierarchy(TestAuth):
         self._flesh_out_organization(org)
         self._call_api('organization_update', org, 'nhsadmin', 403)
 
-    def test_10_edit_org_2(self):
+    # def test_10_edit_org_2(self):
         org = {'id': 'national-health-service', 'title': 'test'}
         self._flesh_out_organization(org)
         self._call_api('organization_update', org, 'nhsadmin', 200)
 
-    def test_10_edit_org_3(self):
+    # def test_10_edit_org_3(self):
         org = {'id': 'nhs-wirral-ccg', 'title': 'test'}
         self._flesh_out_organization(org)
         self._call_api('organization_update', org, 'nhsadmin', 200)
 
-    def test_10_edit_org_4(self):
+    # def test_10_edit_org_4(self):
         org = {'id': 'department-of-health', 'title': 'test'}
         self._flesh_out_organization(org)
         self._call_api('organization_update', org, 'nhseditor', 403)
 
-    def test_10_edit_org_5(self):
+    # def test_10_edit_org_5(self):
         org = {'id': 'national-health-service', 'title': 'test'}
         self._flesh_out_organization(org)
         self._call_api('organization_update', org, 'nhseditor', 403)
 
-    def test_10_edit_org_6(self):
+    # def test_10_edit_org_6(self):
         org = {'id': 'nhs-wirral-ccg', 'title': 'test'}
         self._flesh_out_organization(org)
         self._call_api('organization_update', org, 'nhseditor', 403)
@@ -450,12 +450,12 @@ class TestAuthOrgHierarchy(TestAuth):
         self._call_api('organization_delete', org, 'nhsadmin', 403)
         self._call_api('organization_delete', org, 'nhseditor', 403)
 
-    def test_11_delete_org_2(self):
+    # def test_11_delete_org_2(self):
         org = {'id': 'national-health-service'}
         self._call_api('organization_delete', org, 'nhsadmin', 200)
         self._call_api('organization_delete', org, 'nhseditor', 403)
 
-    def test_11_delete_org_3(self):
+    # def test_11_delete_org_3(self):
         org = {'id': 'nhs-wirral-ccg'}
         self._call_api('organization_delete', org, 'nhsadmin', 403)
         self._call_api('organization_delete', org, 'nhseditor', 403)
@@ -463,7 +463,7 @@ class TestAuthOrgHierarchy(TestAuth):
 
 class TestAuthGroups(TestAuth):
 
-    def test_01_create_groups(self):
+    def test_auth_groups(self):
         group = {'name': 'group_no_user'}
         self._call_api('group_create', group, 'random_key', 403)
         self._call_api('group_create', group, 'sysadmin')
@@ -472,7 +472,7 @@ class TestAuthGroups(TestAuth):
         self._call_api('group_create', group, 'random_key', 403)
         self._call_api('group_create', group, 'sysadmin')
 
-    def test_02_add_users_to_group(self):
+    # def test_02_add_users_to_group(self):
         self.create_user('org_admin')
         self.create_user('org_editor')
         self.create_user('org_editor_wannabe')
@@ -495,7 +495,7 @@ class TestAuthGroups(TestAuth):
                   'id': 'group_with_user'}
         self._call_api('group_member_create', member, 'org_editor', 403)
 
-    def test_03_add_dataset_to_group(self):
+    # def test_03_add_dataset_to_group(self):
         org = {'name': 'org'}
         self._call_api('organization_create', org, 'sysadmin')
         package = {'name': 'package_added_by_admin', 'owner_org': 'org'}
@@ -516,7 +516,7 @@ class TestAuthGroups(TestAuth):
         # org editor doesn't have edit rights
         self._call_api('group_update', group, 'org_editor', 403)
 
-    def test_04_modify_group(self):
+    # def test_04_modify_group(self):
         res = self._call_api('group_show',
                              {'id': 'group_with_user'},
                              'org_admin')
@@ -531,7 +531,7 @@ class TestAuthGroups(TestAuth):
         # group for this case even though spec says otherwise
         self._call_api('group_update', group, 'org_editor', 403)
 
-    def test_05_delete_group(self):
+    # def test_05_delete_group(self):
         org = {'id': 'group_with_user'}
         self._call_api('group_delete', org, 'org_editor', 403)
         self._call_api('group_delete', org, 'org_admin', 403)

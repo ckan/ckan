@@ -45,8 +45,6 @@ class TestSearch:
 
         assert self.query.count == pkg_count
 
-    def test_clear_and_rebuild_only_one(self):
-
         pkg_count = model.Session.query(model.Package).filter(model.Package.state==u'active').count()
 
         # Clear index for annakarenina

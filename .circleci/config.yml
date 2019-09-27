@@ -14,7 +14,7 @@ jobs:
           CKAN_POSTGRES_PWD: pass
           PGPASSWORD: ckan
           NODE_TESTS_CONTAINER: 2
-          PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml --test-group-count 4 --test-group-random-seed=12345
+          PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml --test-group-count 4
       - image: postgres:10
         environment:
           POSTGRES_USER: ckan

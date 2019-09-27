@@ -303,117 +303,117 @@ class TestFollow(object):
         call_action_api(self.app, 'user_follower_list',
                 id=self.russianfan['id'], status=403)
 
-    def test_00_user_cannot_get_user_follower_list(self):
+    # def test_00_user_cannot_get_user_follower_list(self):
         call_action_api(self.app, 'user_follower_list',
                 id=self.russianfan['id'], status=403,
                 apikey=self.annafan['apikey'])
 
-    def test_00_sysadmin_can_get_user_follower_list(self):
+    # def test_00_sysadmin_can_get_user_follower_list(self):
         call_action_api(self.app, 'user_follower_list',
                 id=self.russianfan['id'], status=200,
                 apikey=self.testsysadmin['apikey'])
 
-    def test_00_visitor_cannot_get_dataset_follower_list(self):
+    # def test_00_visitor_cannot_get_dataset_follower_list(self):
         call_action_api(self.app, 'dataset_follower_list',
                 id='warandpeace', status=403)
 
-    def test_00_user_cannot_get_dataset_follower_list(self):
+    # def test_00_user_cannot_get_dataset_follower_list(self):
         call_action_api(self.app, 'dataset_follower_list',
                 id='warandpeace', status=403, apikey=self.annafan['apikey'])
 
-    def test_00_sysadmin_can_get_dataset_follower_list(self):
+    # def test_00_sysadmin_can_get_dataset_follower_list(self):
         call_action_api(self.app, 'dataset_follower_list',
                 id='warandpeace', status=200,
                 apikey=self.testsysadmin['apikey'])
 
-    def test_00_visitor_cannot_get_group_follower_list(self):
+    # def test_00_visitor_cannot_get_group_follower_list(self):
         call_action_api(self.app, 'group_follower_list',
                 id='roger', status=403)
 
-    def test_00_user_cannot_get_group_follower_list(self):
+    # def test_00_user_cannot_get_group_follower_list(self):
         call_action_api(self.app, 'group_follower_list',
                 id='roger', status=403, apikey=self.annafan['apikey'])
 
-    def test_00_sysadmin_can_get_group_follower_list(self):
+    # def test_00_sysadmin_can_get_group_follower_list(self):
         call_action_api(self.app, 'group_follower_list',
                 id='roger', status=200, apikey=self.testsysadmin['apikey'])
 
-    def test_00_visitor_cannot_get_followee_list(self):
+    # def test_00_visitor_cannot_get_followee_list(self):
         call_action_api(self.app, 'followee_list',
                 id=self.russianfan['id'], status=403)
 
-    def test_00_user_cannot_get_followee_list(self):
+    # def test_00_user_cannot_get_followee_list(self):
         call_action_api(self.app, 'followee_list',
                 id=self.russianfan['id'], status=403,
                 apikey=self.annafan['apikey'])
 
-    def test_00_sysadmin_can_get_followee_list(self):
+    # def test_00_sysadmin_can_get_followee_list(self):
         call_action_api(self.app, 'followee_list',
                 id=self.russianfan['id'], status=200,
                 apikey=self.testsysadmin['apikey'])
 
-    def test_00_visitor_cannot_get_user_followee_list(self):
+    # def test_00_visitor_cannot_get_user_followee_list(self):
         '''A visitor cannot see what users a user is following.'''
         call_action_api(self.app, 'user_followee_list',
                 id=self.russianfan['id'], status=403)
 
-    def test_00_user_cannot_get_user_followee_list(self):
+    # def test_00_user_cannot_get_user_followee_list(self):
         '''A user cannot see what users another user is following.'''
         call_action_api(self.app, 'user_followee_list',
                 id=self.russianfan['id'], status=403,
                 apikey=self.annafan['apikey'])
 
-    def test_00_sysadmin_can_get_user_followee_list(self):
+    # def test_00_sysadmin_can_get_user_followee_list(self):
         '''A sysadmin can see what users another user is following.'''
         call_action_api(self.app, 'user_followee_list',
                 id=self.russianfan['id'], status=200,
                 apikey=self.testsysadmin['apikey'])
 
-    def test_00_user_can_get_own_user_followee_list(self):
+    # def test_00_user_can_get_own_user_followee_list(self):
         '''A user can see what users she herself is following.'''
         call_action_api(self.app, 'user_followee_list',
                 id=self.russianfan['id'], status=200,
                 apikey=self.russianfan['apikey'])
 
-    def test_00_visitor_cannot_get_dataset_followee_list(self):
+    # def test_00_visitor_cannot_get_dataset_followee_list(self):
         '''A visitor cannot see what datasets a user is following.'''
         call_action_api(self.app, 'dataset_followee_list',
                 id=self.russianfan['id'], status=403)
 
-    def test_00_user_cannot_get_dataset_followee_list(self):
+    # def test_00_user_cannot_get_dataset_followee_list(self):
         '''A user cannot see what datasets another user is following.'''
         call_action_api(self.app, 'dataset_followee_list',
                 id='russianfan', status=403, apikey=self.annafan['apikey'])
 
-    def test_00_sysadmin_can_get_dataset_followee_list(self):
+    # def test_00_sysadmin_can_get_dataset_followee_list(self):
         '''A sysadmin can see what datasets another user is following.'''
         call_action_api(self.app, 'dataset_followee_list',
                 id='russianfan', status=200,
                 apikey=self.testsysadmin['apikey'])
 
-    def test_00_user_can_get_own_dataset_followee_list(self):
+    # def test_00_user_can_get_own_dataset_followee_list(self):
         '''A user can see what datasets she herself is following.'''
         call_action_api(self.app, 'dataset_followee_list',
                 id=self.russianfan['id'], status=200,
                 apikey=self.russianfan['apikey'])
 
-    def test_00_visitor_cannot_get_group_followee_list(self):
+    # def test_00_visitor_cannot_get_group_followee_list(self):
         '''A visitor cannot see what groups a user is following.'''
         call_action_api(self.app, 'group_followee_list',
                 id='roger', status=403)
 
-    def test_00_user_cannot_get_group_followee_list(self):
+    # def test_00_user_cannot_get_group_followee_list(self):
         '''A user cannot see what groups another user is following.'''
         call_action_api(self.app, 'group_followee_list',
                 id='roger', status=403, apikey=self.annafan['apikey'])
 
-    def test_00_sysadmin_can_get_group_followee_list(self):
+    # def test_00_sysadmin_can_get_group_followee_list(self):
         '''A sysadmin can see what groups another user is following.'''
         call_action_api(self.app, 'group_followee_list',
                 id=self.annafan['id'], status=200,
                 apikey=self.testsysadmin['apikey'])
 
-    def test_00_user_can_get_own_group_followee_list(self):
+    # def test_00_user_can_get_own_group_followee_list(self):
         '''A user can see what groups she herself is following.'''
         call_action_api(self.app, 'group_followee_list',
                 id=self.russianfan['id'], status=200,
@@ -426,36 +426,36 @@ class TestFollow(object):
                     status=403)
             assert error['__type'] == 'Authorization Error'
 
-    def test_01_user_follow_dataset_bad_apikey(self):
+    # def test_01_user_follow_dataset_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
             error = call_action_api(self.app, 'follow_dataset',
                     id=self.warandpeace['id'], apikey=apikey,
                     status=403)
             assert error['__type'] == 'Authorization Error'
 
-    def test_01_user_follow_group_bad_apikey(self):
+    # def test_01_user_follow_group_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
             error = call_action_api(self.app, 'follow_group',
                     id=self.rogers_group['id'], apikey=apikey,
                     status=403)
             assert error['__type'] == 'Authorization Error'
 
-    def test_01_user_follow_user_missing_apikey(self):
+    # def test_01_user_follow_user_missing_apikey(self):
         error = call_action_api(self.app, 'follow_user',
                 id=self.russianfan['id'], status=403)
         assert error['__type'] == 'Authorization Error'
 
-    def test_01_user_follow_dataset_missing_apikey(self):
+    # def test_01_user_follow_dataset_missing_apikey(self):
         error = call_action_api(self.app, 'follow_dataset',
                 id=self.warandpeace['id'], status=403)
         assert error['__type'] == 'Authorization Error'
 
-    def test_01_user_follow_group_missing_apikey(self):
+    # def test_01_user_follow_group_missing_apikey(self):
         error = call_action_api(self.app, 'follow_group',
                 id=self.rogers_group['id'], status=403)
         assert error['__type'] == 'Authorization Error'
 
-    def test_01_follow_bad_object_id(self):
+    # def test_01_follow_bad_object_id(self):
         for action in ('follow_user', 'follow_dataset', 'follow_group'):
             for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
                 error = call_action_api(self.app, action,
@@ -463,7 +463,7 @@ class TestFollow(object):
                         apikey=self.annafan['apikey'], status=409)
                 assert error['id'][0].startswith('Not found')
 
-    def test_01_follow_empty_object_id(self):
+    # def test_01_follow_empty_object_id(self):
         for action in ('follow_user', 'follow_dataset', 'follow_group'):
             for object_id in ('', None):
                 error = call_action_api(self.app, action,
@@ -471,7 +471,7 @@ class TestFollow(object):
                         apikey=self.annafan['apikey'], status=409)
                 assert error['id'] == ['Missing value']
 
-    def test_01_follow_missing_object_id(self):
+    # def test_01_follow_missing_object_id(self):
         for action in ('follow_user', 'follow_dataset', 'follow_group'):
             error = call_action_api(self.app, action,
                     apikey=self.annafan['apikey'], status=409)
@@ -482,32 +482,32 @@ class TestFollow(object):
                 self.russianfan['id'], self.russianfan['id'],
                 self.testsysadmin['apikey'])
 
-    def test_02_user_follow_dataset_by_id(self):
+    # def test_02_user_follow_dataset_by_id(self):
         follow_dataset(self.app, self.annafan['id'], self.annafan['apikey'],
                 self.warandpeace['id'], self.warandpeace['id'],
                 self.testsysadmin['apikey'])
 
-    def test_02_user_follow_group_by_id(self):
+    # def test_02_user_follow_group_by_id(self):
         follow_group(self.app, self.annafan['id'], self.annafan['apikey'],
                 self.rogers_group['id'], self.rogers_group['id'],
                 self.testsysadmin['apikey'])
 
-    def test_02_user_follow_user_by_name(self):
+    # def test_02_user_follow_user_by_name(self):
         follow_user(self.app, self.annafan['id'], self.annafan['apikey'],
                 self.testsysadmin['id'], self.testsysadmin['name'],
                 self.testsysadmin['apikey'])
 
-    def test_02_user_follow_dataset_by_name(self):
+    # def test_02_user_follow_dataset_by_name(self):
         follow_dataset(self.app, self.joeadmin['id'], self.joeadmin['apikey'],
                 self.warandpeace['id'], self.warandpeace['name'],
                 self.testsysadmin['apikey'])
 
-    def test_02_user_follow_group_by_name(self):
+    # def test_02_user_follow_group_by_name(self):
         follow_group(self.app, self.joeadmin['id'], self.joeadmin['apikey'],
                 self.rogers_group['id'], self.rogers_group['name'],
                 self.testsysadmin['apikey'])
 
-    def test_03_user_follow_user_already_following(self):
+    # def test_03_user_follow_user_already_following(self):
         for object_id in (self.russianfan['id'], self.russianfan['name'],
                 self.testsysadmin['id'], self.testsysadmin['name']):
             error = call_action_api(self.app, 'follow_user',
@@ -515,25 +515,57 @@ class TestFollow(object):
                     status=409)
             assert error['message'].startswith('You are already following ')
 
-    def test_03_user_follow_dataset_already_following(self):
+    # def test_03_user_follow_dataset_already_following(self):
         for object_id in (self.warandpeace['id'], self.warandpeace['name']):
             error = call_action_api(self.app, 'follow_dataset',
                     id=object_id, apikey=self.annafan['apikey'],
                     status=409)
             assert error['message'].startswith('You are already following ')
 
-    def test_03_user_follow_group_already_following(self):
+    # def test_03_user_follow_group_already_following(self):
         for group_id in (self.rogers_group['id'], self.rogers_group['name']):
             error = call_action_api(self.app, 'follow_group',
                     id=group_id, apikey=self.annafan['apikey'],
                     status=409)
             assert error['message'].startswith('You are already following ')
 
-    def test_03_user_cannot_follow_herself(self):
+    # def test_03_user_cannot_follow_herself(self):
         error = call_action_api(self.app, 'follow_user',
                 apikey=self.annafan['apikey'], status=409,
                 id=self.annafan['id'])
         assert error['message'] == 'You cannot follow yourself'
+
+    def _followee_count_bad_id(self, action):
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+            error = call_action_api(self.app, action,
+                    status=409, id=object_id)
+            assert 'id' in error
+
+    def _followee_count_missing_id(self, action):
+        error = call_action_api(self.app, action, status=409)
+        assert error['id'] == ['Missing value']
+
+    def _followee_count_not_following_anything(self, action):
+        followee_count = call_action_api(self.app, action,
+                id=self.russianfan['id'])
+        assert followee_count == 0
+
+    def _followee_list_bad_id(self, action):
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+            error = call_action_api(self.app, action,
+                    status=409, id=object_id,
+                    apikey=self.testsysadmin['apikey'])
+            assert error['id']
+
+    def _followee_list_missing_id(self, action):
+        error = call_action_api(self.app, action, status=409,
+                apikey=self.testsysadmin['apikey'])
+        assert error['id'] == ['Missing value']
+
+    def _followee_list_not_following_anything(self, action):
+        followees = call_action_api(self.app, action,
+                id=self.russianfan['id'], apikey=self.russianfan['apikey'])
+        assert followees == []
 
     def test_04_follower_count_bad_id(self):
         for action in ('user_follower_count', 'dataset_follower_count',
@@ -543,79 +575,64 @@ class TestFollow(object):
                         status=409, id=object_id)
                 assert 'id' in error
 
-    def test_04_follower_count_missing_id(self):
+    # def test_04_follower_count_missing_id(self):
         for action in ('user_follower_count', 'dataset_follower_count',
                 'group_follower_count'):
             error = call_action_api(self.app, action, status=409)
             assert error['id'] == ['Missing value']
 
-    def test_04_user_follower_count_no_followers(self):
+    # def test_04_user_follower_count_no_followers(self):
         follower_count = call_action_api(self.app,
                 'user_follower_count', id=self.annafan['id'])
         assert follower_count == 0
 
-    def test_04_dataset_follower_count_no_followers(self):
+    # def test_04_dataset_follower_count_no_followers(self):
         follower_count = call_action_api(self.app,
                 'dataset_follower_count', id=self.annakarenina['id'])
         assert follower_count == 0
 
-    def test_04_group_follower_count_no_followers(self):
+    # def test_04_group_follower_count_no_followers(self):
         follower_count = call_action_api(self.app,
                 'group_follower_count', id=self.davids_group['id'])
         assert follower_count == 0
 
-    def _followee_count_bad_id(self, action):
-        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
-            error = call_action_api(self.app, action,
-                    status=409, id=object_id)
-            assert 'id' in error
-
-    def test_04_followee_count_bad_id(self):
+    # def test_04_followee_count_bad_id(self):
         self._followee_count_bad_id('followee_count')
 
-    def test_04_user_followee_count_bad_id(self):
+    # def test_04_user_followee_count_bad_id(self):
         self._followee_count_bad_id('user_followee_count')
 
-    def test_04_dataset_followee_count_bad_id(self):
+    # def test_04_dataset_followee_count_bad_id(self):
         self._followee_count_bad_id('dataset_followee_count')
 
-    def test_04_group_followee_count_bad_id(self):
+    # def test_04_group_followee_count_bad_id(self):
         self._followee_count_bad_id('group_followee_count')
 
-    def _followee_count_missing_id(self, action):
-        error = call_action_api(self.app, action, status=409)
-        assert error['id'] == ['Missing value']
-
-    def test_04_followee_count_missing_id(self):
+    # def test_04_followee_count_missing_id(self):
         self._followee_count_missing_id('followee_count')
 
-    def test_04_user_followee_count_missing_id(self):
+    # def test_04_user_followee_count_missing_id(self):
         self._followee_count_missing_id('user_followee_count')
 
-    def test_04_dataset_followee_count_missing_id(self):
+    # def test_04_dataset_followee_count_missing_id(self):
         self._followee_count_missing_id('dataset_followee_count')
 
-    def test_04_group_followee_count_missing_id(self):
+    # def test_04_group_followee_count_missing_id(self):
         self._followee_count_missing_id('group_followee_count')
 
-    def _followee_count_not_following_anything(self, action):
-        followee_count = call_action_api(self.app, action,
-                id=self.russianfan['id'])
-        assert followee_count == 0
-
-    def test_04_followee_count_not_following_anything(self):
+    # def test_04_followee_count_not_following_anything(self):
         self._followee_count_not_following_anything('followee_count')
 
-    def test_04_user_followee_count_not_following_anything(self):
+    # def test_04_user_followee_count_not_following_anything(self):
         self._followee_count_not_following_anything('user_followee_count')
 
-    def test_04_dataset_followee_count_not_following_anything(self):
+    # def test_04_dataset_followee_count_not_following_anything(self):
         self._followee_count_not_following_anything('dataset_followee_count')
 
-    def test_04_group_followee_count_not_following_anything(self):
+    # def test_04_group_followee_count_not_following_anything(self):
         self._followee_count_not_following_anything('group_followee_count')
 
-    def test_04_follower_list_bad_id(self):
+    # def test_04_follower_list_bad_id(self):
         for action in ('user_follower_list', 'dataset_follower_list',
                 'group_follower_list'):
             for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
@@ -624,83 +641,66 @@ class TestFollow(object):
                         apikey=self.testsysadmin['apikey'])
                 assert error['id']
 
-    def test_04_follower_list_missing_id(self):
+    # def test_04_follower_list_missing_id(self):
         for action in ('user_follower_list', 'dataset_follower_list',
                 'group_follower_list'):
             error = call_action_api(self.app, action, status=409,
                         apikey=self.testsysadmin['apikey'])
             assert error['id'] == ['Missing value']
 
-    def test_04_user_follower_list_no_followers(self):
+    # def test_04_user_follower_list_no_followers(self):
         followers = call_action_api(self.app, 'user_follower_list',
                 id=self.annafan['id'], apikey=self.testsysadmin['apikey'])
         assert followers == []
 
-    def test_04_dataset_follower_list_no_followers(self):
+    # def test_04_dataset_follower_list_no_followers(self):
         followers = call_action_api(self.app,
                 'dataset_follower_list', id=self.annakarenina['id'],
                 apikey=self.testsysadmin['apikey'])
         assert followers == []
 
-    def test_04_group_follower_list_no_followers(self):
+    # def test_04_group_follower_list_no_followers(self):
         followers = call_action_api(self.app, 'group_follower_list',
                 id=self.davids_group['id'], apikey=self.testsysadmin['apikey'])
         assert followers == []
 
-    def _followee_list_bad_id(self, action):
-        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
-            error = call_action_api(self.app, action,
-                    status=409, id=object_id,
-                    apikey=self.testsysadmin['apikey'])
-            assert error['id']
-
-    def test_04_followee_list_bad_id(self):
+    # def test_04_followee_list_bad_id(self):
         self._followee_list_bad_id('followee_list')
 
-    def test_04_user_followee_list_bad_id(self):
+    # def test_04_user_followee_list_bad_id(self):
         self._followee_list_bad_id('user_followee_list')
 
-    def test_04_dataset_followee_list_bad_id(self):
+    # def test_04_dataset_followee_list_bad_id(self):
         self._followee_list_bad_id('dataset_followee_list')
 
-    def test_04_group_followee_list_bad_id(self):
+    # def test_04_group_followee_list_bad_id(self):
         self._followee_list_bad_id('group_followee_list')
 
-    def _followee_list_missing_id(self, action):
-        error = call_action_api(self.app, action, status=409,
-                apikey=self.testsysadmin['apikey'])
-        assert error['id'] == ['Missing value']
-
-    def test_04_followee_list_missing_id(self):
+    # def test_04_followee_list_missing_id(self):
         self._followee_list_missing_id('followee_list')
 
-    def test_04_user_followee_list_missing_id(self):
+    # def test_04_user_followee_list_missing_id(self):
         self._followee_list_missing_id('user_followee_list')
 
-    def test_04_dataset_followee_missing_bad_id(self):
+    # def test_04_dataset_followee_missing_bad_id(self):
         self._followee_list_missing_id('dataset_followee_list')
 
-    def test_04_group_followee_missing_bad_id(self):
+    # def test_04_group_followee_missing_bad_id(self):
         self._followee_list_missing_id('group_followee_list')
 
-    def _followee_list_not_following_anything(self, action):
-        followees = call_action_api(self.app, action,
-                id=self.russianfan['id'], apikey=self.russianfan['apikey'])
-        assert followees == []
-
-    def test_04_followee_list_not_following_anything(self):
+    # def test_04_followee_list_not_following_anything(self):
         self._followee_list_not_following_anything('followee_list')
 
-    def test_04_user_followee_list_not_following_anything(self):
+    # def test_04_user_followee_list_not_following_anything(self):
         self._followee_list_not_following_anything('user_followee_list')
 
-    def test_04_dataset_followee_not_following_anything(self):
+    # def test_04_dataset_followee_not_following_anything(self):
         self._followee_list_not_following_anything('dataset_followee_list')
 
-    def test_04_group_followee_not_following_anything(self):
+    # def test_04_group_followee_not_following_anything(self):
         self._followee_list_not_following_anything('group_followee_list')
 
-    def test_04_am_following_bad_id(self):
+    # def test_04_am_following_bad_id(self):
         for action in ('am_following_dataset', 'am_following_user',
                 'am_following_group'):
             for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
@@ -708,7 +708,7 @@ class TestFollow(object):
                     apikey=self.annafan['apikey'], status=409, id=object_id)
                 assert error['id'][0].startswith('Not found: ')
 
-    def test_04_am_following_missing_id(self):
+    # def test_04_am_following_missing_id(self):
         for action in ('am_following_dataset', 'am_following_user',
                 'am_following_group'):
             for id in ('missing', None, ''):
@@ -720,36 +720,36 @@ class TestFollow(object):
                             apikey=self.annafan['apikey'], status=409, id=id)
                 assert error['id'] == [u'Missing value']
 
-    def test_04_am_following_dataset_bad_apikey(self):
+    # def test_04_am_following_dataset_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
             error = call_action_api(self.app,
                     'am_following_dataset', apikey=apikey, status=403,
                     id=self.warandpeace['id'])
             assert error['message'] == 'Access denied'
 
-    def test_04_am_following_dataset_missing_apikey(self):
+    # def test_04_am_following_dataset_missing_apikey(self):
         error = call_action_api(self.app, 'am_following_dataset',
                 status=403, id=self.warandpeace['id'])
         assert error['message'] == 'Access denied'
 
-    def test_04_am_following_user_bad_apikey(self):
+    # def test_04_am_following_user_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
             error = call_action_api(self.app, 'am_following_user',
                     apikey=apikey, status=403, id=self.annafan['id'])
             assert error['message'] == 'Access denied'
 
-    def test_04_am_following_user_missing_apikey(self):
+    # def test_04_am_following_user_missing_apikey(self):
         error = call_action_api(self.app, 'am_following_user',
                 status=403, id=self.annafan['id'])
         assert error['message'] == 'Access denied'
 
-    def test_04_am_following_group_bad_apikey(self):
+    # def test_04_am_following_group_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
             error = call_action_api(self.app, 'am_following_group',
                     apikey=apikey, status=403, id=self.rogers_group['id'])
             assert error['message'] == 'Access denied'
 
-    def test_04_am_following_group_missing_apikey(self):
+    # def test_04_am_following_group_missing_apikey(self):
         error = call_action_api(self.app, 'am_following_group',
                 status=403, id=self.rogers_group['id'])
         assert error['message'] == 'Access denied'

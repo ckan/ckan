@@ -392,7 +392,7 @@ def test_no_beaker_secret_crashes(make_app):
     # TODO: When Pylons is finally removed, we should test for
     # RuntimeError instead (thrown on `make_flask_stack`)
     with pytest.raises(ValueError,
-                       match=ur"'secret' or 'secretfile' must not be None"):
+                       match=u"'secret' or 'secretfile' must not be None"):
         make_app()
 
 
