@@ -71,7 +71,7 @@ contains the CKAN git repo. Let's use the parent directory instead:
 
 Now run the ``paster create`` command to create your extension::
 
-    cookiecutter https://github.com/ckan/ckan/<path-to-template>.git
+    cookiecutter ckan/contrib/cookiecutter/ckan_extension
 
 The command will present a few prompts. The information you give will
 end up in your extension's ``setup.py`` file (where you can edit them later if
