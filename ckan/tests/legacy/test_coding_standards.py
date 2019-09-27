@@ -481,6 +481,8 @@ class TestPep8(object):
         'setup.py',
         'ckan/tests/legacy/models/test_resource.py',
         'ckan/tests/legacy/models/test_revision.py',
+        'ckan/contrib/cookiecutter/ckan_extension/'\
+        '{{cookiecutter.project}}/setup.py',
     ]
     fails = {}
     passes = []

@@ -56,14 +56,14 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    namespace_packages=['ckanext'],
+        namespace_packages=['ckanext'],
 
     install_requires=[
       # CKAN extensions should not list dependencies here, but in a separate
       # ``requirements.txt`` file.
       #
       # http://docs.ckan.org/en/latest/extensions/best-practices.html
-      #add-third-party-libraries-to-requirements-txt
+      # add-third-party-libraries-to-requirements-txt
     ],
 
     # If there are data files included in your packages that need to be
@@ -76,7 +76,7 @@ setup(
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages.
     # see http://docs.python.org/3.4/distutils/setupscript.html
-    #installing-additional-files
+    # installing-additional-files
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
     data_files=[],
 
