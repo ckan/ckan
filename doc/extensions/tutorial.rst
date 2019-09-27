@@ -43,19 +43,13 @@ Creating a new extension
    Each extension contains one or more *plugins* that must be added to your
    CKAN config file to activate the extension's features.
 
-
 You can use ``cookiecutter`` command to create an "empty" extension from
-a template. First, activate your CKAN virtual environment:
+a template. Or the CLI command ``ckan generate extension`` First, activate
+your CKAN virtual environment:
 
 .. parsed-literal::
 
    |activate|
-
-Install the ``cookiecutter`` python module:
-
-.. parsed-literal::
-
-   pip install cookiecutter
 
 When you run ``cookiecutter``, your new extension's directory will
 be created in the current working directory by default (you can override this

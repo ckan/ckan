@@ -38,8 +38,8 @@ def recut():
     # Process keywords
     keywords = context['keywords'].strip().split()
     keywords = [keyword for keyword in keywords
-                if keyword not in ('ckan', 'CKAN', 'A','space',
-                                   'seperated','list','of','keywords')]
+                if keyword not in ('ckan', 'CKAN', 'A', 'space',
+                                   'seperated', 'list', 'of', 'keywords')]
     keywords.insert(0, 'CKAN')
     keywords = u' '.join(keywords)
     context['keywords'] = keywords
@@ -49,8 +49,8 @@ def recut():
     if context['project_shortname'] != short_name:
         context['project_shortname'] = short_name
 
-    plugin_class_name = '{}Plugin'.format(context['project_shortname']\
-                        .title().replace('_',''))
+    plugin_class_name = '{}Plugin'.format(context['project_shortname']
+                        .title().replace('_', ''))
     if context['plugin_class_name'] != plugin_class_name:
         context['plugin_class_name'] = plugin_class_name
 
