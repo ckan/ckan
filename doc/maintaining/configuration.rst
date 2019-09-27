@@ -607,9 +607,11 @@ Example::
 Default value: ``admin``
 
 
-Makes role permissions apply to all the groups down the hierarchy from the groups that the role is applied to.
+Makes organization permissions apply to all the organizations down the hierarchy from the organization that the role is applied to.
 
-e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
+e.g. a particular user has the 'admin' role for organization 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child organizations of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
+
+The setting is called ``ckan.auth.roles_that_cascade_to_sub_groups`` because internally organizations are Group objects with ``is_organization`` set to ``True``.
 
 
 .. _ckan.auth.public_user_details:
