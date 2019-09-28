@@ -3,6 +3,7 @@
 """
 Tests for plugin loading via PCA
 """
+import pytest
 from nose.tools import raises, assert_equal
 from unittest import TestCase
 from pyutilib.component.core import PluginGlobals
@@ -43,36 +44,35 @@ class FooBarImpl(object):
     plugins.implements(IFoo)
     plugins.implements(IBar)
 
-class TestInterface(TestCase):
 
-    def test_implemented_by(self):
-        assert IFoo.implemented_by(FooImpl)
-        assert IFoo.implemented_by(FooBarImpl)
-        assert not IFoo.implemented_by(BarImpl)
-
-    @raises(TypeError)
-    def test_implemented_by_raises_exception_on_instances(self):
-        assert not IFoo.implemented_by(FooImpl())
-
-    def test_provided_by(self):
-        assert IFoo.provided_by(FooImpl())
-        assert IFoo.provided_by(FooBarImpl())
-        assert not IFoo.provided_by(BarImpl())
+@pytest.mark.ckan_pytest
+def test_implemented_by():
+    assert IFoo.implemented_by(FooImpl)
+    assert IFoo.implemented_by(FooBarImpl)
+    assert not IFoo.implemented_by(BarImpl)
 
 
-class TestIPluginObserverPlugin(object):
+@pytest.mark.ckan_pytest
+def test_implemented_by_raises_exception_on_instances():
+    with pytest.raises(TypeError):
+        IFoo.implemented_by(FooImpl())
 
-    @classmethod
-    def setup(cls):
-        cls.observer = plugins.load('test_observer_plugin')
 
-    @classmethod
-    def teardown(cls):
-        plugins.unload('test_observer_plugin')
+@pytest.mark.ckan_pytest
+def test_provided_by():
+    assert IFoo.provided_by(FooImpl())
+    assert IFoo.provided_by(FooBarImpl())
+    assert not IFoo.provided_by(BarImpl())
 
-    def test_notified_on_load(self):
 
-        observer = self.observer
+@pytest.fixture
+def observer():
+    yield plugins.load('test_observer_plugin')
+    plugins.unload('test_observer_plugin')
+
+
+@pytest.mark.ckan_pytest
+def test_notified_on_load(observer):
         observer.reset_calls()
         with plugins.use_plugin('action_plugin'):
             assert_equal(get_calls(observer.before_load), ['action_plugin'])
@@ -80,31 +80,33 @@ class TestIPluginObserverPlugin(object):
             assert_equal(get_calls(observer.before_unload), [])
             assert_equal(get_calls(observer.after_unload), [])
 
-    def test_notified_on_unload(self):
 
+@pytest.mark.ckan_pytest
+def test_notified_on_unload(observer):
         with plugins.use_plugin('action_plugin') as action:
-            observer = self.observer
             observer.reset_calls()
         assert observer.before_load.calls == []
         assert observer.after_load.calls == []
         assert observer.before_unload.calls == _make_calls(action)
         assert observer.after_unload.calls == _make_calls(action)
 
-class TestPlugins(object):
+
+def test_plugins_load(monkeypatch):
+    # XXX: otherwise this test may fail depending on order of
+    # previously executed tests.
+    # Exception: Plugin `domain_object_mods` already loaded
+    plugins.load('test_observer_plugin').unload()
+
+    monkeypatch.setitem(config, 'ckan.plugins', 'mapper_plugin routes_plugin')
+    plugins.load_all()
+    # synchronous_search automatically gets loaded
+    current_plugins = set([plugins.get_plugin(p) for p in ['mapper_plugin', 'routes_plugin', 'synchronous_search'] + find_system_plugins()])
+    assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
 
 
-    def test_plugins_load(self):
-
-        config_plugins = config['ckan.plugins']
-        config['ckan.plugins'] = 'mapper_plugin routes_plugin'
-        plugins.load_all()
-
-        # synchronous_search automatically gets loaded
-        current_plugins = set([plugins.get_plugin(p) for p in ['mapper_plugin', 'routes_plugin', 'synchronous_search'] + find_system_plugins()])
-        assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
-        # cleanup
-        config['ckan.plugins'] = config_plugins
-        plugins.load_all()
+class TestPlugins:
+    def setup_method(self):
+        plugins.unload_all()
 
     def test_only_configured_plugins_loaded(self):
         with plugins.use_plugin('mapper_plugin') as p:
@@ -154,6 +156,7 @@ class TestPlugins(object):
                 ('after_insert', 'testpkg'),
                 ]
 
+    @pytest.mark.usefixtures('reset_db')
     def test_mapper_plugin_fired_on_delete(self):
         with plugins.use_plugin('mapper_plugin') as mapper_plugin:
             CreateTestData.create_arbitrary([{'name': u'testpkg'}])

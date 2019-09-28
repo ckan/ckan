@@ -6,7 +6,6 @@ import ckan.lib.create_test_data as create_test_data
 import pytest
 
 
-@pytest.mark.ckan_pytest
 class TestMemberLogic:
     def setup_method(self):
         model.repo.new_revision()
@@ -106,7 +105,7 @@ class TestMemberLogic:
         assert len(res) == 0, res
 
         with pytest.raises(logic.NotFound):
-            self._member_list( 'user', 'admin', 'inexistent_group')
+            self._member_list('user', 'admin', 'inexistent_group')
 
         self._member_create(self.user.id, 'user', 'admin')
         res = self._member_list('user', 'admin')

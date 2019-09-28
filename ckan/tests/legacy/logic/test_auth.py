@@ -109,6 +109,46 @@ class TestAuthOrgs(TestAuth):
         cls.create_user('org_editor')
         cls.create_user('editor_wannabe')
 
+    def _add_datasets(self, user):
+        #org admin/editor should be able to add dataset to org.
+        dataset = {'name': user + '_dataset', 'owner_org': 'org_with_user'}
+        self._call_api('package_create', dataset, user, 200)
+
+        #not able to add dataset to org admin does not belong to.
+        dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_no_user'}
+        self._call_api('package_create', dataset, user, 403)
+
+        #admin not able to make dataset not owned by a org
+        dataset = {'name': user + '_dataset_bad'}
+        self._call_api('package_create', dataset, user, 409)
+
+        #not able to add org to not existant org
+        dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_not_exist'}
+        self._call_api('package_create', dataset, user, 403)
+
+    def _update_datasets(self, user):
+        ##editor/admin should be able to update dataset
+        dataset = {'id': 'org_editor_dataset', 'title': 'test'}
+        self._call_api('package_update', dataset, user, 200)
+        # editor/admin tries to change owner org
+        dataset = {'id': 'org_editor_dataset', 'owner_org': 'org_no_user'}
+        self._call_api('package_update', dataset, user, 409)
+        # editor/admin tries to update dataset in different org
+        dataset = {'id': 'sysadmin_create_no_user', 'title': 'test'}
+        self._call_api('package_update', dataset, user, 403)
+        #non existant owner org
+        dataset = {'id': 'org_editor_dataset', 'owner_org': 'org_not_exist'}
+        self._call_api('package_update', dataset, user, 409)
+
+
+    def _delete_datasets(self, user):
+        #editor/admin should be able to update dataset
+        dataset = {'id': 'org_editor_dataset'}
+        self._call_api('package_delete', dataset, user, 200)
+        #not able to delete dataset in org user does not belong to
+        dataset = {'id': 'sysadmin_create_no_user'}
+        self._call_api('package_delete', dataset, user, 403)
+
     def test_01_create_users(self):
         user = {'name': 'user_no_auth',
                 'password': 'TestPassword1',
@@ -173,58 +213,19 @@ class TestAuthOrgs(TestAuth):
                   'id': 'org_with_user'}
         self._call_api('organization_member_create', member, 'org_editor', 403)
 
-    def _add_datasets(self, user):
-        #org admin/editor should be able to add dataset to org.
-        dataset = {'name': user + '_dataset', 'owner_org': 'org_with_user'}
-        self._call_api('package_create', dataset, user, 200)
-
-        #not able to add dataset to org admin does not belong to.
-        dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_no_user'}
-        self._call_api('package_create', dataset, user, 403)
-
-        #admin not able to make dataset not owned by a org
-        dataset = {'name': user + '_dataset_bad'}
-        self._call_api('package_create', dataset, user, 409)
-
-        #not able to add org to not existant org
-        dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_not_exist'}
-        self._call_api('package_create', dataset, user, 403)
-
-    def test_07_add_datasets(self):
+    # def test_07_add_datasets(self):
         self._add_datasets('org_admin')
         self._add_datasets('org_editor')
 
-    def _update_datasets(self, user):
-        ##editor/admin should be able to update dataset
-        dataset = {'id': 'org_editor_dataset', 'title': 'test'}
-        self._call_api('package_update', dataset, user, 200)
-        # editor/admin tries to change owner org
-        dataset = {'id': 'org_editor_dataset', 'owner_org': 'org_no_user'}
-        self._call_api('package_update', dataset, user, 409)
-        # editor/admin tries to update dataset in different org
-        dataset = {'id': 'sysadmin_create_no_user', 'title': 'test'}
-        self._call_api('package_update', dataset, user, 403)
-        #non existant owner org
-        dataset = {'id': 'org_editor_dataset', 'owner_org': 'org_not_exist'}
-        self._call_api('package_update', dataset, user, 409)
-
-    def test_08_update_datasets(self):
+    # def test_08_update_datasets(self):
         self._update_datasets('org_admin')
         self._update_datasets('org_editor')
 
-    def _delete_datasets(self, user):
-        #editor/admin should be able to update dataset
-        dataset = {'id': 'org_editor_dataset'}
-        self._call_api('package_delete', dataset, user, 200)
-        #not able to delete dataset in org user does not belong to
-        dataset = {'id': 'sysadmin_create_no_user'}
-        self._call_api('package_delete', dataset, user, 403)
-
-    def test_09_delete_datasets(self):
+    # def test_09_delete_datasets(self):
         self._delete_datasets('org_admin')
         self._delete_datasets('org_editor')
 
-    def test_10_edit_org(self):
+    # def test_10_edit_org(self):
         org = {'id': 'org_no_user', 'title': 'test'}
         #change an org user does not belong to
         self._call_api('organization_update', org, 'org_editor', 403)
@@ -235,7 +236,7 @@ class TestAuthOrgs(TestAuth):
         self._call_api('organization_update', org, 'org_editor', 403)
         self._call_api('organization_update', org, 'org_admin', 200)
 
-    def test_11_delete_org(self):
+    # def test_11_delete_org(self):
         org = {'id': 'org_no_user', 'title': 'test'}
         self._call_api('organization_delete', org, 'org_editor', 403)
         self._call_api('organization_delete', org, 'org_admin', 403)
