@@ -80,11 +80,11 @@ class TestPluggablePreviews(base.FunctionalTestCase):
         assert self.plugin.calls['setup_template_variables'] == 1, self.plugin.calls
         assert self.plugin.calls['preview_templates'] == 1, self.plugin.calls
 
-    def test_iframe_is_shown(self):
+    # def test_iframe_is_shown(self):
         result = self.app.get(self.url)
         assert 'data-module="data-viewer"' in result.body, result.body
         assert '<iframe' in result.body, result.body
 
-    def test_iframe_url_is_correct(self):
+    # def test_iframe_url_is_correct(self):
         result = self.app.get(self.url)
         assert str(self.preview_url) in result.body, (self.preview_url, result.body)

@@ -219,7 +219,7 @@ class TestEmailNotificationsUserPreference(
                 apikey=self.sara['apikey'], id='sara')[
                     'activity_streams_email_notifications'] is False)
 
-    def test_01_no_email_notifications_when_disabled(self):
+    # def test_01_no_email_notifications_when_disabled(self):
         '''Users with email notifications turned off should not get emails.'''
 
         # First make Sara follow something so she gets some new activity in
@@ -241,7 +241,7 @@ class TestEmailNotificationsUserPreference(
                 apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
 
-    def test_02_enable_email_notifications(self):
+    # def test_02_enable_email_notifications(self):
         '''Users should be able to turn email notifications on.'''
 
         # Mark all Sara's new activities as old, just to get a fresh start.
@@ -292,7 +292,7 @@ class TestEmailNotificationsUserPreference(
         assert len(self.get_smtp_messages()) == 1
         self.clear_smtp_messages()
 
-    def test_03_disable_email_notifications(self):
+    # def test_03_disable_email_notifications(self):
         '''Users should be able to turn email notifications off.'''
 
         self.sara['activity_streams_email_notifications'] = False
