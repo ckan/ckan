@@ -54,7 +54,7 @@ def extension(name, output_dir):
                u"github_user_name": github,
                u"project_shortname": project_shortname,
                u"plugin_class_name": plugin_class_name,
-               u"_source": "cli"}
+               u"_source": u"cli"}
 
     if output_dir == u'.':
         os.chdir(u'../../../..')
