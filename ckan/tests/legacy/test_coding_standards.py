@@ -487,8 +487,7 @@ class TestPep8(object):
         'contrib/cookiecutter/ckan_extension/'
         '{{cookiecutter.project}}/ckanext/{{cookiecutter.project_shortname}}'
         '/tests/test_plugin.py',
-        'contrib/cookiecutter/ckan_extension/{{cookiecutter.project}}'
-        '/ckanext/{{cookiecutter.project_shortname}}/plugin.py'
+        'contrib/cookiecutter/ckan_extension/{{cookiecutter.project}}/ckanext/{{cookiecutter.project_shortname}}/plugin.py'
     ]
     fails = {}
     passes = []
