@@ -29,7 +29,8 @@ def extension(name, output_dir):
     click.echo(u"\n")
     author = click.prompt(u"Author's name", default=u"")
     email = click.prompt(u"Author's email", default=u"")
-    github = click.prompt(u"Your Github user or organization name", default=u"")
+    github = click.prompt(u"Your Github user or organization name",
+                          default=u"")
     description = click.prompt(u"Brief description of the project",
                                default=u"")
     keywords = click.prompt(u"List of keywords (seperated by spaces)",
@@ -43,8 +44,8 @@ def extension(name, output_dir):
     keywords = u' '.join(keywords)
 
     # Set short name and plugin class name
-    project_shortname = name[8:].lower().replace(u'-', u'_')
-    plugin_class_name = project_shortname.title().replace(u'_', u'') + u'Plugin'
+    project_short = name[8:].lower().replace(u'-', u'_')
+    plugin_class_name = project_short.title().replace(u'_', u'') + u'Plugin'
 
     context = {u"project": name,
                u"description": description,
@@ -52,7 +53,7 @@ def extension(name, output_dir):
                u"author_email": email,
                u"keywords": keywords,
                u"github_user_name": github,
-               u"project_shortname": project_shortname,
+               u"project_shortname": project_short,
                u"plugin_class_name": plugin_class_name,
                u"_source": u"cli"}
 
