@@ -80,7 +80,7 @@ class TestAction(WsgiAppCase):
         assert 'warandpeace' in res['result']
         assert 'annakarenina' in res['result']
 
-    def test_01_package_list_private(self):
+    # def test_01_package_list_private(self):
         tests.call_action_api(self.app, 'organization_create',
                                         name='test_org_2',
                                         apikey=self.sysadmin_user.apikey)
@@ -110,7 +110,7 @@ class TestAction(WsgiAppCase):
         assert 'public_dataset' in res
         assert 'private_dataset' not in res
 
-    def test_02_package_autocomplete_match_name(self):
+    # def test_02_package_autocomplete_match_name(self):
         postparams = '%s=1' % json.dumps({'q': 'war', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
@@ -121,7 +121,7 @@ class TestAction(WsgiAppCase):
         assert_equal(res_obj['result'][0]['match_field'], 'name')
         assert_equal(res_obj['result'][0]['match_displayed'], 'warandpeace')
 
-    def test_02_package_autocomplete_match_title(self):
+    # def test_02_package_autocomplete_match_title(self):
         postparams = '%s=1' % json.dumps({'q': 'won', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
@@ -132,7 +132,7 @@ class TestAction(WsgiAppCase):
         assert_equal(res_obj['result'][0]['match_field'], 'title')
         assert_equal(res_obj['result'][0]['match_displayed'], 'A Wonderful Story (warandpeace)')
 
-    def test_03_create_private_package(self):
+    # def test_03_create_private_package(self):
 
         # Make an organization, because private datasets must belong to one.
         organization = tests.call_action_api(self.app, 'organization_create',
@@ -191,7 +191,7 @@ class TestAction(WsgiAppCase):
                                               **package_dict)
         assert package_created_private['private'] is True
 
-    def test_41_create_resource(self):
+    # def test_41_create_resource(self):
 
         anna_id = model.Package.by_name(u'annakarenina').id
         resource = {'package_id': anna_id, 'url': 'http://new_url'}
@@ -204,7 +204,7 @@ class TestAction(WsgiAppCase):
 
         assert resource['url'] == 'http://new_url'
 
-    def test_42_create_resource_with_error(self):
+    # def test_42_create_resource_with_error(self):
 
         anna_id = model.Package.by_name(u'annakarenina').id
         resource = {'package_id': anna_id, 'url': 'new_url', 'created': 'bad_date'}
@@ -218,7 +218,7 @@ class TestAction(WsgiAppCase):
         assert json.loads(res.body)['error'] ==  {"__type": "Validation Error", "created": ["Date format incorrect"]}
 
 
-    def test_10_user_create_parameters_missing(self):
+    # def test_10_user_create_parameters_missing(self):
         user_dict = {}
 
         postparams = '%s=1' % json.dumps(user_dict)
@@ -251,7 +251,7 @@ class TestAction(WsgiAppCase):
         assert_equal(res_obj['error'], { '__type': 'Validation Error',
                 'password': ['Your password must be 8 characters or longer']})
 
-    def test_12_user_update(self):
+    # def test_12_user_update(self):
         normal_user_dict = {'id': self.normal_user.id,
                             'name': self.normal_user.name,
                             'fullname': 'Updated normal user full name',
@@ -322,7 +322,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['error']['__type'] == 'Authorization Error'
         assert res_obj['success'] is False
 
-    def test_12_user_update_errors(self):
+    # def test_12_user_update_errors(self):
         test_calls = (
             # Empty name
                 {'user_dict': {'id': self.normal_user.id,
@@ -355,7 +355,7 @@ class TestAction(WsgiAppCase):
             for expected_message in test_call['messages']:
                 assert expected_message[1] in ''.join(res_obj['error'][expected_message[0]])
 
-    def test_user_delete(self):
+    # def test_user_delete(self):
         name = 'normal_user'
         CreateTestData.create_user(name)
         user = model.User.get(name)
@@ -382,7 +382,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] is False
         assert res_obj['error']['id'] == ['Missing value']
 
-    def test_16_user_autocomplete(self):
+    # def test_16_user_autocomplete(self):
         # Create deleted user to make sure he won't appear in the user_list
         deleted_user = CreateTestData.create_user('joe')
         deleted_user.delete()
@@ -405,7 +405,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['result'][0]['name'] == 'joeadmin'
         assert 'id','fullname' in res_obj['result'][0]
 
-    def test_17_bad_action(self):
+    # def test_17_bad_action(self):
         #Empty query
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/bad_action_name', params=postparams,
@@ -447,7 +447,7 @@ class TestAction(WsgiAppCase):
         task_status_updated_2.pop('last_updated')
         assert task_status_updated_2 == task_status_updated
 
-    def test_21_task_status_update_many(self):
+    # def test_21_task_status_update_many(self):
         package_created = self._add_basic_package(u'test_task_status_update_many')
         task_statuses = {
             'data': [
@@ -484,7 +484,7 @@ class TestAction(WsgiAppCase):
             task_status_updated.pop('last_updated')
             assert task_status == task_status_updated, (task_status_updated, task_status, i)
 
-    def test_22_task_status_normal_user_not_authorized(self):
+    # def test_22_task_status_normal_user_not_authorized(self):
         task_status = {}
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(
@@ -497,7 +497,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] is False
         assert res_obj['error']['__type'] == 'Authorization Error'
 
-    def test_23_task_status_validation(self):
+    # def test_23_task_status_validation(self):
         task_status = {}
         postparams = '%s=1' % json.dumps(task_status)
         res = self.app.post(
@@ -506,7 +506,7 @@ class TestAction(WsgiAppCase):
             status=StatusCodes.STATUS_409_CONFLICT
         )
 
-    def test_24_task_status_show(self):
+    # def test_24_task_status_show(self):
         package_created = self._add_basic_package(u'test_task_status_show')
 
         task_status = {
@@ -552,7 +552,7 @@ class TestAction(WsgiAppCase):
         task_status_show.pop('last_updated')
         assert task_status_show == task_status_updated, (task_status_show, task_status_updated)
 
-    def test_25_task_status_delete(self):
+    # def test_25_task_status_delete(self):
         package_created = self._add_basic_package(u'test_task_status_delete')
 
         task_status = {
@@ -579,7 +579,7 @@ class TestAction(WsgiAppCase):
         task_status_delete = json.loads(res.body)
         assert task_status_delete['success'] == True
 
-    def test_26_resource_show(self):
+    # def test_26_resource_show(self):
         pkg = model.Package.get('annakarenina')
         resource = pkg.resources[0]
         postparams = '%s=1' % json.dumps({'id': resource.id})
@@ -589,7 +589,7 @@ class TestAction(WsgiAppCase):
         resource_dict = resource_dictize(resource, {'model': model})
         assert result == resource_dict, (result, resource_dict)
 
-    def test_27_get_site_user_not_authorized(self):
+    # def test_27_get_site_user_not_authorized(self):
         assert_raises(NotAuthorized,
                      get_action('get_site_user'),
                      {'model': model, 'user': ''}, {})
@@ -620,7 +620,7 @@ class TestAction(WsgiAppCase):
         assert group_names == set(['annakarenina', 'warandpeace']), group_names
 
 
-    def test_30_status_show(self):
+    # def test_30_status_show(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/status_show', params=postparams)
         status = json.loads(res.body)['result']
@@ -628,19 +628,19 @@ class TestAction(WsgiAppCase):
         assert_equal(status['ckan_version'], ckan.__version__)
         assert_equal(status['site_url'], 'http://test.ckan.net')
 
-    def test_31_bad_request_format(self):
+    # def test_31_bad_request_format(self):
         postparams = '%s=1' % json.dumps('not a dict')
         res = self.app.post('/api/action/package_list', params=postparams,
                             status=400)
         assert "Bad request - JSON Error: Request data JSON decoded to 'not a dict' but it needs to be a dictionary." in res.body, res.body
 
-    def test_31_bad_request_format_not_json(self):
+    # def test_31_bad_request_format_not_json(self):
         postparams = '=1'
         res = self.app.post('/api/action/package_list', params=postparams,
                             status=400)
         assert "Bad request - JSON Error: Error decoding JSON data." in res.body, res.body
 
-    def test_32_get_domain_object(self):
+    # def test_32_get_domain_object(self):
         anna = model.Package.by_name(u'annakarenina')
         assert_equal(get_domain_object(model, anna.name).name, anna.name)
         assert_equal(get_domain_object(model, anna.id).name, anna.name)
@@ -648,14 +648,14 @@ class TestAction(WsgiAppCase):
         assert_equal(get_domain_object(model, group.name).name, group.name)
         assert_equal(get_domain_object(model, group.id).name, group.name)
 
-    def test_41_missing_action(self):
+    # def test_41_missing_action(self):
         try:
             get_action('unicorns')
             assert False, "We found a non-existent action"
         except KeyError:
             assert True
 
-    def test_42_resource_search_with_single_field_query(self):
+    # def test_42_resource_search_with_single_field_query(self):
         request_body = {
             'query': ["description:index"],
         }
@@ -672,7 +672,7 @@ class TestAction(WsgiAppCase):
         for resource in result:
             assert "index" in resource['description'].lower()
 
-    def test_42_resource_search_across_multiple_fields(self):
+    # def test_42_resource_search_across_multiple_fields(self):
         request_body = {
             'query': ["description:index", "format:json"],
         }
@@ -690,7 +690,7 @@ class TestAction(WsgiAppCase):
             assert "index" in resource['description'].lower()
             assert "json" in resource['format'].lower()
 
-    def test_42_resource_search_test_percentage_is_escaped(self):
+    # def test_42_resource_search_test_percentage_is_escaped(self):
         request_body = {
             'query': ["description:index%"],
         }
@@ -704,7 +704,7 @@ class TestAction(WsgiAppCase):
         # unescaped wildcard.
         assert count == 0
 
-    def test_42_resource_search_fields_parameter_still_accepted(self):
+    # def test_42_resource_search_fields_parameter_still_accepted(self):
         '''The fields parameter is deprecated, but check it still works.
 
         Remove this test when removing the fields parameter.  (#2603)
@@ -726,7 +726,7 @@ class TestAction(WsgiAppCase):
         for resource in result:
             assert "index" in resource['description'].lower()
 
-    def test_42_resource_search_accessible_via_get_request(self):
+    # def test_42_resource_search_accessible_via_get_request(self):
         response = self.app.get('/api/action/resource_search'
                                 '?query=description:index&query=format:json')
 

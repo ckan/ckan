@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import json
+import pytest
 from nose.tools import assert_equal, assert_not_equal, assert_raises
 
 import sqlalchemy.orm as orm
@@ -17,7 +18,9 @@ from ckanext.datastore.tests.helpers import (
     DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
 
 
+@pytest.mark.usefixtures('reset_all', 'app')
 class TestDatastoreDelete(DatastoreFunctionalTestBase):
+    @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_delete_basic(self):
         resource = factories.Resource()
         data = {
@@ -50,6 +53,7 @@ class TestDatastoreDelete(DatastoreFunctionalTestBase):
             resource['id'])
         assert results.rowcount == 0
 
+    @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_calculate_record_count_is_false(self):
         resource = factories.Resource()
         data = {
@@ -70,6 +74,7 @@ class TestDatastoreDelete(DatastoreFunctionalTestBase):
         last_analyze = when_was_last_analyze(resource['id'])
         assert_equal(last_analyze, None)
 
+    @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_calculate_record_count(self):
         resource = factories.Resource()
         data = {
@@ -143,6 +148,7 @@ class TestDatastoreDeleteLegacy(DatastoreLegacyTestBase):
         assert res_dict['result'] == data
         return res_dict
 
+    @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_datastore_deleted_during_resource_deletion(self):
         package = factories.Dataset()
         data = {
@@ -161,6 +167,7 @@ class TestDatastoreDeleteLegacy(DatastoreLegacyTestBase):
             NotFound, helpers.call_action, 'datastore_search',
             resource_id=resource_id)
 
+    @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_datastore_deleted_during_resource_only_for_deleted_resource(self):
         package = factories.Dataset()
         data = {
@@ -200,6 +207,7 @@ class TestDatastoreDeleteLegacy(DatastoreLegacyTestBase):
         assert not res_1.extras['datastore_active']
         assert res_2.extras['datastore_active']
 
+    @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_delete_invalid_resource_id(self):
         postparams = '%s=1' % json.dumps({'resource_id': 'bad'})
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -208,6 +216,7 @@ class TestDatastoreDeleteLegacy(DatastoreLegacyTestBase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
+    @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_delete_filters(self):
         self._create()
         resource_id = self.data['resource_id']
@@ -264,6 +273,7 @@ class TestDatastoreDeleteLegacy(DatastoreLegacyTestBase):
 
         self._delete()
 
+    @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_delete_is_unsuccessful_when_called_with_invalid_filters(self):
         self._create()
 
@@ -283,6 +293,7 @@ class TestDatastoreDeleteLegacy(DatastoreLegacyTestBase):
 
         self._delete()
 
+    @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_delete_is_unsuccessful_when_called_with_filters_not_as_dict(self):
         self._create()
 
@@ -300,6 +311,7 @@ class TestDatastoreDeleteLegacy(DatastoreLegacyTestBase):
 
         self._delete()
 
+    @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_delete_with_blank_filters(self):
         self._create()
 
