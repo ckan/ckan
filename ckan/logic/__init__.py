@@ -6,6 +6,7 @@ import re
 import sys
 from collections import defaultdict
 
+import sqlalchemy
 import formencode.validators
 from six import string_types, text_type
 
@@ -238,6 +239,32 @@ def _prepopulate_context(context):
     return context
 
 
+def _set_user_in_session(context):
+    '''
+    Attaches the user performing an action to the SQLAlchemy session
+
+    This is needed so the Activity Streams before_commit hook in
+    ``ckan/lib/activity_streams_session_extension.py`` can record the user
+    that performed the activity (which used to be done using revisions).
+
+    This assumes model and session properties present in the context, ie
+    should only be run after ``_prepopulate_context()`` has been executed.
+
+    If present the user object is attached both the Session class and an
+    instance of it, otherwise the hook won't get the expected attribute.
+    '''
+    user_name = context.get('user')
+    if user_name:
+        model = context['model']
+        session = context['session']
+        user_obj = session.query(
+            model.User).filter_by(name=user_name).one_or_none()
+        setattr(session, 'user', user_obj)
+        if isinstance(session, sqlalchemy.orm.scoping.ScopedSession):
+            session_instance = session()
+            setattr(session_instance, 'user', user_obj)
+
+
 def check_access(action, context, data_dict=None):
     '''Calls the authorization function for the provided action
 
@@ -451,6 +478,10 @@ def get_action(action):
                                  % (_action.__name__, kw))
 
                 context = _prepopulate_context(context)
+
+                # Attach the user (if any) to the SQLAlchemy session so it can
+                # be used in the activities before_commit hook
+                _set_user_in_session(context)
 
                 # Auth Auditing - checks that the action function did call
                 # check_access (unless there is no accompanying auth function).
