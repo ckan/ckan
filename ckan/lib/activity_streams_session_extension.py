@@ -44,14 +44,11 @@ class DatasetActivitySessionExtension(SessionExtension):
         except AttributeError:
             # session had no _object_cache; skipping this commit
             return
-
-        user = 'DUNNO'  # TODO!!
-        if user:
-            user_id = user
-        else:
-            # If the user is not logged in then revision.user is None and
-            # revision.author is their IP address. Just log them as 'not logged
-            # in' rather than logging their IP address.
+        try:
+            user_id = session.user.id
+        except AttributeError:
+            # If the user is not logged in then session.user is None or not set.
+            # Just log them as 'Not logged in' rather than logging their IP address.
             user_id = 'not logged in'
 
         # The top-level objects that we will append to the activity table. The
