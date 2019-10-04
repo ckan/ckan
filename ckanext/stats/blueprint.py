@@ -3,7 +3,6 @@
 from flask import Blueprint
 
 from ckan.plugins.toolkit import c, render
-from ckan.lib.base import BaseController
 import ckanext.stats.stats as stats_lib
 import ckan.lib.helpers as h
 

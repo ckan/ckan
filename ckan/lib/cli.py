@@ -647,8 +647,10 @@ class Sysadmin(CkanCommand):
                                       (prompts for password and email if not
                                       supplied).
                                       Field can be: apikey
-                                                    password
                                                     email
+                                                    fullname
+                                                    name (this will be the username)
+                                                    password
       sysadmin remove USERNAME      - removes user from sysadmins
     '''
 
@@ -734,8 +736,10 @@ class UserCmd(CkanCommand):
                                       - add a user (prompts for email and
                                         password if not supplied).
                                         Field can be: apikey
-                                                      password
                                                       email
+                                                      fullname
+                                                      name (this will be the username)
+                                                      password
       user setpass USERNAME           - set user password (prompts)
       user remove USERNAME            - removes user from users
       user search QUERY               - searches for a user name
