@@ -61,7 +61,7 @@ def run_migrations_online():
         poolclass=pool.NullPool
     )
     connection = connectable.connect()
-    init_model(connection)
+    init_model(connectable)
 
     context.configure(connection=connection, target_metadata=target_metadata)
 
