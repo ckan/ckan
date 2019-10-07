@@ -664,7 +664,6 @@ class TestPackageRead(helpers.FunctionalTestBase):
         modern_activity = model.Session.query(model.Activity) \
             .filter_by(object_id=dataset['id']) \
             .one()
-        revision_id = modern_activity.revision_id
         modern_activity.delete()
 
         # Create an Activity object as it was in earlier versions of CKAN.
@@ -676,7 +675,6 @@ class TestPackageRead(helpers.FunctionalTestBase):
         activity = model.Activity(
             user_id=user['id'],
             object_id=dataset['id'],
-            revision_id=revision_id,
             activity_type="%s package" % activity_type,
             data={
                 # "actor": a legacy activity had no "actor"
