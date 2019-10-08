@@ -6,6 +6,7 @@ import ckan.tests.helpers as helpers
 
 
 class TestDatastoreDictionary(DatastoreFunctionalTestBase):
+    _load_plugins = (u'datastore', u'datapusher')
 
     @classmethod
     def setup_class(cls):
