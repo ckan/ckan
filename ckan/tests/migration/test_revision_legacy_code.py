@@ -205,7 +205,7 @@ class TestPackageDictizeWithRevisions(object):
         model.Session.remove()
         make_package_revision(model.Package.by_name('annakarenina_changed2'))
 
-    def test_13_get_package_in_past(self):
+    # def test_13_get_package_in_past(self):
 
         context = {'model': model,
                    'session': model.Session}
