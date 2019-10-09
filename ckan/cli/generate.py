@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import os
+import sys
 import click
 from ckan.cli import error_shout
 from cookiecutter.main import cookiecutter
@@ -58,6 +59,11 @@ def extension(output_dir):
     if output_dir == u'.':
         os.chdir(u'../../../..')
         output_dir = os.getcwd()
+
+    if not name.startswith(u"ckanext-"):
+        print(u"\nERROR: Project name must start with 'ckanext-' > {}"
+              .format(name))
+        sys.exit(1)
 
     cookiecutter(template_loc, no_input=True, extra_context=context,
                  output_dir=output_dir)
