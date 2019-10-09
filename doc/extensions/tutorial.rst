@@ -54,13 +54,14 @@ environment:
 
 .. topic:: ``cookiecutter``
 
-When you run ``cookiecutter``, your new extension's directory will
-be created in the current working directory by default (you can override this
-with the ``-o`` option), so change to the directory that you want your
-extension to be created in. Usually you'll want to track your extension code
-using a version control system such as ``git``, so you wouldn't want to create
-your extension in the ``ckan`` source directory because that directory already
-contains the CKAN git repo. Let's use the parent directory instead:
+   When you run ``cookiecutter``, your new extension's directory will
+   be created in the current working directory by default (you can override
+   this with the ``-o`` option), so change to the directory that you want your
+   extension to be created in. Usually you'll want to track your extension code
+   using a version control system such as ``git``, so you wouldn't want to
+   create your extension in the ``ckan`` source directory because that
+   directory already contains the CKAN git repo. Let's use the parent directory
+   instead:
 
 .. parsed-literal::
 
@@ -72,9 +73,9 @@ Now run ``cookiecutter`` to create your extension::
 
 .. topic:: CLI Command
 
-Using the ``ckan generate extension`` place the extension's directory
-in the ``ckan`` source code's parent directory (this can be changed
-the using the ``-o`` option). Run the command to create the extension::
+   Using the ``ckan generate extension`` place the extension's directory
+   in the ``ckan`` source code's parent directory (this can be changed
+   the using the ``-o`` option). Run the command to create the extension::
 
     ckan generate extension
 
