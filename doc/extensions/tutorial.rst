@@ -44,12 +44,15 @@ Creating a new extension
    CKAN config file to activate the extension's features.
 
 You can use ``cookiecutter`` command to create an "empty" extension from
-a template. Or the CLI command ``ckan generate extension`` First, activate
-your CKAN virtual environment:
+a template. Or the CLI command ``ckan generate extension``. For whichever
+method you choose, the first step is to activate your CKAN virtual
+environment:
 
 .. parsed-literal::
 
    |activate|
+
+.. topic:: ``cookiecutter``
 
 When you run ``cookiecutter``, your new extension's directory will
 be created in the current working directory by default (you can override this
@@ -67,7 +70,15 @@ Now run ``cookiecutter`` to create your extension::
 
     cookiecutter ckan/contrib/cookiecutter/ckan_extension/
 
-The command will present a few prompts. The information you give will
+.. topic:: CLI Command
+
+Using the ``ckan generate extension`` place the extension's directory
+in the ``ckan`` source code's parent directory (this can be changed
+the using the ``-o`` option). Run the command to create the extension::
+
+    ckan generate extension
+
+The commands will present a few prompts. The information you give will
 end up in your extension's ``setup.py`` file (where you can edit them later if
 you want).
 
@@ -76,10 +87,8 @@ you want).
    The first prompt is for the name of your next
    extension. CKAN extension names *have* to begin with ``ckanext-``. This
    tutorial uses the project name ``ckanext-iauthfunctions``.
-   The prompts for ``project_shortname`` and ``plugin_class_name`` can be
-   ignored. They will be filled in automatically.
 
-Once this command has completed, your new CKAN extension's project
+Once the command has completed, your new CKAN extension's project
 directory will have been created and will contain a few directories and files
 to get you started::
 
