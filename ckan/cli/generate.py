@@ -13,13 +13,10 @@ def generate():
 
 
 @generate.command(name=u'extension', short_help=u"Create empty extension.")
-@click.option(u'-n', u'--name', help=u"Name of the extension (must begin "
-                                     u"with 'ckanext-')",
-              default=u"extension")
 @click.option(u'-o', u'--output-dir', help=u"Location to put the generated "
                                            u"template.",
               default=u'.')
-def extension(name, output_dir):
+def extension(output_dir):
     cur_loc = os.path.dirname(os.path.abspath(__file__))
     os.chdir(cur_loc)
     os.chdir(u'../../contrib/cookiecutter/ckan_extension/')
@@ -27,6 +24,7 @@ def extension(name, output_dir):
 
     # Prompt user for information
     click.echo(u"\n")
+    name = click.prompt(u"Extenion's name", default=u"must begin 'ckanext-'")
     author = click.prompt(u"Author's name", default=u"")
     email = click.prompt(u"Author's email", default=u"")
     github = click.prompt(u"Your Github user or organization name",
