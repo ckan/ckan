@@ -3,6 +3,7 @@
 import os
 import hashlib
 import unittest
+import pytest
 
 import nose.tools as nt
 from passlib.hash import pbkdf2_sha512
@@ -13,17 +14,8 @@ import ckan.tests.helpers as helpers
 import ckan.model as model
 
 
-class TestPassword(unittest.TestCase):
-    @classmethod
-    def teardown_class(clss):
-        model.repo.rebuild_db()
-
-    def setup(self):
-        helpers.reset_db()
-
-    def teardown(self):
-        helpers.reset_db()
-
+@pytest.mark.usefixtures('clean_db')
+class TestPassword:
     def _set_password(self, password):
         '''Copy of the old password hashing function
 

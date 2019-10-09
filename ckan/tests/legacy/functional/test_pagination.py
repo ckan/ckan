@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import re
+import pytest
 
 from nose.tools import assert_equal
 
@@ -34,18 +35,15 @@ def test_scrape_user():
     assert_equal(res, ['00', '01'])
 
 
-class TestPaginationPackage(TestController):
-    @classmethod
-    def setup_class(cls):
-        setup_test_search_index()
-        model.repo.init_db()
-
+class TestPaginationPackage:
+    @pytest.fixture
+    def initial_data(self):
         # no. entities per page is hardcoded into the controllers, so
         # create enough of each here so that we can test pagination
-        cls.num_packages_in_large_group = 51
+        num_packages_in_large_group = 51
 
         packages = []
-        for i in range(cls.num_packages_in_large_group):
+        for i in range(num_packages_in_large_group):
             packages.append({
                 # CS: nasty_string ignore
                 'name': u'dataset_%s' % str(i).zfill(2),
@@ -54,28 +52,26 @@ class TestPaginationPackage(TestController):
 
         CreateTestData.create_arbitrary(packages)
 
-    @classmethod
-    def teardown_class(self):
-        model.repo.rebuild_db()
-
-    def test_package_search_p1(self):
-        res = self.app.get(url_for('dataset.search', q='groups:group_00'))
+    @pytest.mark.usefixtures('clean_index', 'clean_db', 'initial_data')
+    def test_package_search_p1(self, app):
+        res = app.get(url_for('dataset.search', q='groups:group_00'))
         assert 'href="/dataset/?q=groups%3Agroup_00&amp;page=2"' in res
         pkg_numbers = scrape_search_results(res, 'dataset')
         assert_equal(['50', '49', '48', '47', '46', '45', '44', '43', '42', '41', '40', '39', '38', '37', '36', '35', '34', '33', '32', '31'], pkg_numbers)
 
-        res = self.app.get(url_for('dataset.search', q='groups:group_00', page=2))
+        res = app.get(url_for('dataset.search', q='groups:group_00', page=2))
         assert 'href="/dataset/?q=groups%3Agroup_00&amp;page=1"' in res
         pkg_numbers = scrape_search_results(res, 'dataset')
         assert_equal(['30', '29', '28', '27', '26', '25', '24', '23', '22', '21', '20', '19', '18', '17', '16', '15', '14', '13', '12', '11'], pkg_numbers)
 
-    def test_group_datasets_read_p1(self):
-        res = self.app.get(url_for(controller='group', action='read', id='group_00'))
+    @pytest.mark.usefixtures('clean_index', 'clean_db', 'initial_data')
+    def test_group_datasets_read_p1(self, app):
+        res = app.get(url_for(controller='group', action='read', id='group_00'))
         assert 'href="/group/group_00?page=2' in res, res
         pkg_numbers = scrape_search_results(res, 'group_dataset')
         assert_equal(['50', '49', '48', '47', '46', '45', '44', '43', '42', '41', '40', '39', '38', '37', '36', '35', '34', '33', '32', '31'], pkg_numbers)
 
-        res = self.app.get(url_for(controller='group', action='read', id='group_00', page=2))
+        res = app.get(url_for(controller='group', action='read', id='group_00', page=2))
         assert 'href="/group/group_00?page=1' in res, res
         pkg_numbers = scrape_search_results(res, 'group_dataset')
         assert_equal(['30', '29', '28', '27', '26', '25', '24', '23', '22', '21', '20', '19', '18', '17', '16', '15', '14', '13', '12', '11'], pkg_numbers)
