@@ -17,7 +17,7 @@ from ckan.plugins.toolkit import ValidationError
 from ckanext.datastore.tests.helpers import set_url_type, execute_sql, when_was_last_analyze
 
 
-@pytest.mark.usefixtures('reset_all', 'app')
+@pytest.mark.usefixtures('clean_datastore', 'app')
 class TestDatastoreCreateNewTests:
     def _has_index_on_field(self, resource_id, field):
         sql = u"""
@@ -388,7 +388,7 @@ class TestDatastoreCreate:
     normal_user = None
 
     @pytest.fixture(autouse=True)
-    def create_test_data(self, reset_all):
+    def create_test_data(self, clean_datastore):
         ctd.CreateTestData.create()
         self.sysadmin_user = model.User.get('testsysadmin')
         self.normal_user = model.User.get('annafan')
@@ -1348,7 +1348,7 @@ class TestDatastoreCreate:
         assert res_dict['error']['message'].startswith('The data was invalid')
 
 
-@pytest.mark.usefixtures('reset_all', 'app')
+@pytest.mark.usefixtures('clean_datastore', 'app')
 class TestDatastoreFunctionCreate:
     @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_nop_trigger(self):
@@ -1399,7 +1399,7 @@ class TestDatastoreFunctionCreate:
                             definition=u'BEGIN RETURN NEW; END;')
 
 
-@pytest.mark.usefixtures('reset_all')
+@pytest.mark.usefixtures('clean_datastore')
 class TestDatastoreCreateTriggers:
     @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_create_with_missing_trigger(self, app):

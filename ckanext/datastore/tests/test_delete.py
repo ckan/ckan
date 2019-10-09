@@ -18,7 +18,7 @@ from ckanext.datastore.tests.helpers import (
     DatastoreFunctionalTestBase, DatastoreLegacyTestBase)
 
 
-@pytest.mark.usefixtures('reset_all', 'app')
+@pytest.mark.usefixtures('clean_datastore', 'app')
 class TestDatastoreDelete(DatastoreFunctionalTestBase):
     @pytest.mark.ckan_config('ckan.plugins', 'datastore')
     def test_delete_basic(self):

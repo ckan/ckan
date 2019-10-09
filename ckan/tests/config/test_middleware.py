@@ -252,7 +252,7 @@ class TestAppDispatcher:
 
 
 @pytest.mark.ckan_pytest
-@pytest.mark.usefixtures(u'reset_all')
+@pytest.mark.usefixtures(u'reset_db', u'reset_index')
 class TestFlaskUserIdentifiedInRequest:
     '''Flask identifies user during each request.
 

@@ -36,7 +36,7 @@ def _reset_config(app):
     )
 
 
-@pytest.mark.usefixtures('reset_db')
+@pytest.mark.usefixtures('clean_db')
 class TestConfig(helpers.FunctionalTestBase):
     '''View tests to go along with 'Customizing look and feel' docs.'''
 

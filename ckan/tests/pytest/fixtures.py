@@ -36,20 +36,27 @@ def app(make_app):
 
 @pytest.fixture
 def reset_db():
-    """Clear database.
+    """Callable for setting DB into initial state.
     """
-    test_helpers.reset_db()
+    return test_helpers.reset_db
 
 
 @pytest.fixture
 def reset_index():
-    """Clear search index.
+    """Callable for cleaning search index.
     """
-    search.clear_all()
+    return search.clear_all
 
 
 @pytest.fixture
-def reset_all(reset_db, reset_index):
-    """Clear database and search index.
+def clean_db(reset_db):
+    """Start test with database in initial state.
     """
-    pass
+    reset_db()
+
+
+@pytest.fixture
+def clean_index(reset_index):
+    """Start test with empty index.
+    """
+    reset_index()

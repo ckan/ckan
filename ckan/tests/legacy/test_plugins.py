@@ -156,7 +156,7 @@ class TestPlugins:
                 ('after_insert', 'testpkg'),
                 ]
 
-    @pytest.mark.usefixtures('reset_db')
+    @pytest.mark.usefixtures('clean_db')
     def test_mapper_plugin_fired_on_delete(self):
         with plugins.use_plugin('mapper_plugin') as mapper_plugin:
             CreateTestData.create_arbitrary([{'name': u'testpkg'}])
