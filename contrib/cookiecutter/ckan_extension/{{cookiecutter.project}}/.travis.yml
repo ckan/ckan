@@ -1,0 +1,44 @@
+language: python
+sudo: required
+
+# use an older trusty image, because the newer images cause build errors with
+# psycopg2 that comes with CKAN<2.8:
+#   "Error: could not determine PostgreSQL version from '10.1'"
+# see https://github.com/travis-ci/travis-ci/issues/8897
+dist: trusty
+group: deprecated-2017Q4
+
+# matrix
+python:
+  - 2.7
+env:
+  - CKANVERSION=master
+  - CKANVERSION=2.7
+  - CKANVERSION=2.8
+
+# tests
+services:
+  - postgresql
+  - redis-server
+install:
+  - bash bin/travis-build.bash
+  - pip install coveralls
+script: sh bin/travis-run.sh
+after_success:
+  - coveralls
+
+# additional jobs
+matrix:
+  include:
+    - name: "Flake8 on Python 3.7"
+      dist: xenial    # required for Python 3.7
+      cache: pip
+      install: pip install flake8
+      script:
+        - flake8 --version
+        - flake8 . --count --max-complexity=10 --max-line-length=127 --statistics --exclude ckan,{{ cookiecutter.project }}
+      python: 3.7
+      # overwrite matrix
+      env:
+        - FLAKE8=true
+        - CKANVERSION=master
