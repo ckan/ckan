@@ -34,14 +34,14 @@ def app(make_app):
     return make_app()
 
 
-@pytest.fixture
+@pytest.fixture(scope=u'session')
 def reset_db():
     """Callable for setting DB into initial state.
     """
     return test_helpers.reset_db
 
 
-@pytest.fixture
+@pytest.fixture(scope=u'session')
 def reset_index():
     """Callable for cleaning search index.
     """

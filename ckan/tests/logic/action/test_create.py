@@ -7,6 +7,8 @@ import __builtin__ as builtins
 
 import six
 
+import pytest
+
 import ckan
 import ckan.logic as logic
 import ckan.model as model
@@ -412,6 +414,7 @@ class TestCreateDefaultResourceViews(object):
         assert_equals(created_views[0]['view_type'], 'image_view')
 
 
+@pytest.mark.usefixtures('clean_db')
 class TestResourceCreate(object):
     import cgi
 
@@ -421,12 +424,6 @@ class TestResourceCreate(object):
             self.filename = filename
             self.name = 'upload'
 
-    @classmethod
-    def setup_class(cls):
-        helpers.reset_db()
-
-    def setup(self):
-        model.repo.rebuild_db()
 
     def test_resource_create(self):
         context = {}

@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import pytest
 from ckan.common import config
 from difflib import unified_diff
 from nose.tools import assert_equal
@@ -446,45 +447,41 @@ class TestDelete(TestPackageForm):
 class TestNew(TestPackageForm):
     pkg_names = []
 
-    @classmethod
-    def setup_class(self):
+    @pytest.fixture
+    def env_user(self, reset_db):
         model.repo.init_db()
         CreateTestData.create_test_user()
 #        self.admin = model.User.by_name(u'russianfan')
 
 #        self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
-        self.extra_environ_tester = {'REMOTE_USER': 'tester'}
+        yield {'REMOTE_USER': 'tester'}
+        reset_db()
 
-    @classmethod
-    def teardown_class(self):
-        self.purge_packages(self.pkg_names)
-        model.repo.rebuild_db()
-
-    def test_new_plugin_hook(self):
+    def test_new_plugin_hook(self, env_user):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
         offset = url_for('dataset.new')
-        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
+        res = self.app.get(offset, extra_environ=env_user)
         new_name = u'plugged'
         fv = res.forms['dataset-edit']
         prefix = ''
         fv[prefix + 'name'] = new_name
-        res = fv.submit('save', extra_environ=self.extra_environ_tester)
+        res = fv.submit('save', extra_environ=env_user)
         # get redirected ...
         assert plugin.calls['edit'] == 0, plugin.calls
         assert plugin.calls['create'] == 1, plugin.calls
         plugins.unload('test_package_controller_plugin')
 
-    def test_after_create_plugin_hook(self):
+    def test_after_create_plugin_hook(self, env_user):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
         offset = url_for('dataset.new')
-        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
+        res = self.app.get(offset, extra_environ=env_user)
         new_name = u'plugged2'
         fv = res.forms['dataset-edit']
         prefix = ''
         fv[prefix + 'name'] = new_name
-        res = fv.submit('save', extra_environ=self.extra_environ_tester)
+        res = fv.submit('save', extra_environ=env_user)
         # get redirected ...
         assert plugin.calls['after_update'] == 0, plugin.calls
         assert plugin.calls['after_create'] == 1, plugin.calls
@@ -492,7 +489,7 @@ class TestNew(TestPackageForm):
         assert plugin.id_in_dict
         plugins.unload('test_package_controller_plugin')
 
-    def test_new_indexerror(self):
+    def test_new_indexerror(self, env_user):
         bad_solr_url = 'http://example.com/badsolrurl'
         solr_url = SolrSettings.get()[0]
         try:
@@ -500,7 +497,7 @@ class TestNew(TestPackageForm):
             new_package_name = u'new-package-missing-solr'
 
             offset = url_for('dataset.new')
-            res = self.app.get(offset, extra_environ=self.extra_environ_tester)
+            res = self.app.get(offset, extra_environ=env_user)
             fv = res.forms['dataset-edit']
             fv['name'] = new_package_name
 
@@ -508,16 +505,16 @@ class TestNew(TestPackageForm):
             # add it to the list to purge just in case
             self.pkg_names.append(new_package_name)
 
-            res = fv.submit('save', status=500, extra_environ=self.extra_environ_tester)
+            res = fv.submit('save', status=500, extra_environ=env_user)
             assert 'Unable to add package to search index' in res, res
         finally:
             SolrSettings.init(solr_url)
 
-    def test_change_locale(self):
+    def test_change_locale(self, env_user):
         offset = url_for('dataset.new')
-        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
+        res = self.app.get(offset, extra_environ=env_user)
 
-        res = self.app.get('/de/dataset/new', extra_environ=self.extra_environ_tester)
+        res = self.app.get('/de/dataset/new', extra_environ=env_user)
         try:
             assert 'Datensatz' in res.body, res.body
         finally:

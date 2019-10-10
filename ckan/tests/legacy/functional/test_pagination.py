@@ -18,7 +18,8 @@ def scrape_search_results(response, object_type):
     else:
         object_type = 'dataset'
         results = re.findall(
-            'href="/%s/%s_(\d\d)' % (object_type, object_type), str(response))
+            'href="/%s/%s_(\d\d)' % (object_type, object_type),
+            str(response))
     return results
 
 
