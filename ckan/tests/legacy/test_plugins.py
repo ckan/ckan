@@ -45,20 +45,17 @@ class FooBarImpl(object):
     plugins.implements(IBar)
 
 
-@pytest.mark.ckan_pytest
 def test_implemented_by():
     assert IFoo.implemented_by(FooImpl)
     assert IFoo.implemented_by(FooBarImpl)
     assert not IFoo.implemented_by(BarImpl)
 
 
-@pytest.mark.ckan_pytest
 def test_implemented_by_raises_exception_on_instances():
     with pytest.raises(TypeError):
         IFoo.implemented_by(FooImpl())
 
 
-@pytest.mark.ckan_pytest
 def test_provided_by():
     assert IFoo.provided_by(FooImpl())
     assert IFoo.provided_by(FooBarImpl())
@@ -71,7 +68,6 @@ def observer():
     plugins.unload('test_observer_plugin')
 
 
-@pytest.mark.ckan_pytest
 def test_notified_on_load(observer):
         observer.reset_calls()
         with plugins.use_plugin('action_plugin'):
@@ -81,7 +77,6 @@ def test_notified_on_load(observer):
             assert_equal(get_calls(observer.after_unload), [])
 
 
-@pytest.mark.ckan_pytest
 def test_notified_on_unload(observer):
         with plugins.use_plugin('action_plugin') as action:
             observer.reset_calls()

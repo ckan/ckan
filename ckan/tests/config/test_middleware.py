@@ -102,7 +102,6 @@ class MockPylonsController(p.toolkit.BaseController):
         return _(u'Groups')
 
 
-@pytest.mark.ckan_pytest
 class TestAppDispatcher:
     @pytest.fixture
     def app(cls, app):
@@ -251,7 +250,6 @@ class TestAppDispatcher:
         assert res.body == u'This was served from Flask'
 
 
-@pytest.mark.ckan_pytest
 @pytest.mark.usefixtures(u'reset_db', u'reset_index')
 class TestFlaskUserIdentifiedInRequest:
     '''Flask identifies user during each request.
@@ -312,7 +310,6 @@ class TestFlaskUserIdentifiedInRequest:
             assert flask.g.remote_addr == u'Unknown IP Address'
 
 
-@pytest.mark.ckan_pytest
 class TestPylonsUserIdentifiedInRequest:
     '''Pylons identifies user during each request.
 
@@ -372,20 +369,17 @@ class TestPylonsUserIdentifiedInRequest:
         assert resp.tmpl_context.remote_addr == u'Unknown IP Address'
 
 
-@pytest.mark.ckan_pytest
 @pytest.mark.ckan_config(u'SECRET_KEY', u'super_secret_stuff')
 def test_secret_key_is_used_if_present(app):
     assert app.flask_app.config[u'SECRET_KEY'] == u'super_secret_stuff'
 
 
-@pytest.mark.ckan_pytest
 @pytest.mark.ckan_config(u'SECRET_KEY', None)
 def test_beaker_secret_is_used_by_default(app):
     assert app.flask_app.config[u'SECRET_KEY'] == config[
         u'beaker.session.secret']
 
 
-@pytest.mark.ckan_pytest
 @pytest.mark.ckan_config(u'SECRET_KEY', None)
 @pytest.mark.ckan_config(u'beaker.session.secret', None)
 def test_no_beaker_secret_crashes(make_app):
@@ -396,7 +390,6 @@ def test_no_beaker_secret_crashes(make_app):
         make_app()
 
 
-@pytest.mark.ckan_pytest
 @pytest.mark.ckan_config(u'ckan.plugins', u'test_routing_plugin')
 @pytest.mark.ckan_config(u'ckan.use_pylons_response_cleanup_middleware', True)
 def test_pylons_route_with_cleanup_middleware_activated(app):
@@ -407,12 +400,11 @@ def test_pylons_route_with_cleanup_middleware_activated(app):
 
     response = app.get(url=u'/pylons_translated')
 
-    assert 200 == response.status_int
+    assert response.status_int == 200
     # make sure we haven't overwritten the response too early.
     assert (u'cleanup middleware' not in response.body)
 
 
-@pytest.mark.ckan_pytest
 @pytest.mark.parametrize(u'rv,app_base',
                          [((False, u'flask_app'), CKANFlask),
                           ((True, u'pylons_app', u'core'), CKANPylonsApp)])
@@ -430,7 +422,6 @@ def test_can_handle_request_with_environ(monkeypatch, app, rv, app_base):
     assert handler.called_with(environ)
 
 
-@pytest.mark.ckan_pytest
 def test_ask_around_is_called(monkeypatch, app):
     ask = mock.MagicMock()
     monkeypatch.setattr(AskAppDispatcherMiddleware, u'ask_around', ask)
@@ -438,7 +429,6 @@ def test_ask_around_is_called(monkeypatch, app):
     assert ask.called
 
 
-@pytest.mark.ckan_pytest
 def test_ask_around_is_called_with_args(monkeypatch, app):
     ckan_app = app.app
 
@@ -454,7 +444,6 @@ def test_ask_around_is_called_with_args(monkeypatch, app):
     ask.assert_called_with(environ)
 
 
-@pytest.mark.ckan_pytest
 def test_ask_around_flask_core_route_get(app):
     ckan_app = app.app
 
@@ -466,7 +455,6 @@ def test_ask_around_flask_core_route_get(app):
     assert answers == [(True, u'flask_app', u'core'), (False, u'pylons_app')]
 
 
-@pytest.mark.ckan_pytest
 def test_ask_around_flask_core_route_post(app):
     ckan_app = app.app
 
