@@ -9,7 +9,7 @@ from beaker.middleware import CacheMiddleware, SessionMiddleware
 from paste.cascade import Cascade
 from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from paste.fileapp import _FileIter
 from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from routes.middleware import RoutesMiddleware

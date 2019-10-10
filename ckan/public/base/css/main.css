@@ -10366,6 +10366,13 @@ h4 small {
 .activity .item.follow-group .icon {
   background-color: #8ba669;
 }
+.select-time {
+  width: 250px;
+  display: inline;
+}
+br.line-height2 {
+  line-height: 2;
+}
 .dropdown:hover .dropdown-menu {
   display: block;
 }

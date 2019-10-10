@@ -312,7 +312,6 @@ class TestPep8(object):
         'ckan/include/rcssmin.py',
         'ckan/include/rjsmin.py',
         'ckan/lib/app_globals.py',
-        'ckan/lib/captcha.py',
         'ckan/lib/cli.py',
         'ckan/lib/create_test_data.py',
         'ckan/lib/dictization/__init__.py',
@@ -469,7 +468,6 @@ class TestPep8(object):
         'ckanext/multilingual/plugin.py',
         'ckanext/resourceproxy/plugin.py',
         'ckanext/stats/controller.py',
-        'ckanext/stats/plugin.py',
         'ckanext/stats/stats.py',
         'ckanext/stats/tests/test_stats_lib.py',
         'ckanext/stats/tests/test_stats_plugin.py',
@@ -481,6 +479,14 @@ class TestPep8(object):
         'setup.py',
         'ckan/tests/legacy/models/test_resource.py',
         'ckan/tests/legacy/models/test_revision.py',
+        'contrib/cookiecutter/ckan_extension/'
+        '{{cookiecutter.project}}/setup.py',
+        'contrib/cookiecutter/ckan_extension/hooks/post_gen_project.py',
+        'contrib/cookiecutter/ckan_extension/'
+        '{{cookiecutter.project}}/ckanext/{{cookiecutter.project_shortname}}'
+        '/tests/test_plugin.py',
+        'contrib/cookiecutter/ckan_extension/{{cookiecutter.project}}'
+        '/ckanext/{{cookiecutter.project_shortname}}/plugin.py'
     ]
     fails = {}
     passes = []

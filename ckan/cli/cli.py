@@ -12,7 +12,11 @@ from ckan.cli import (
     translation,
     dataset,
     plugin_info,
-    user,
+    notify,
+    tracking,
+    minify,
+    less,
+    generate
 )
 
 from ckan.config.middleware import make_app
@@ -47,4 +51,8 @@ ckan.add_command(datastore.datastore)
 ckan.add_command(translation.translation)
 ckan.add_command(dataset.dataset)
 ckan.add_command(plugin_info.plugin_info)
-ckan.add_command(user.user)
+ckan.add_command(notify.notify)
+ckan.add_command(tracking.tracking)
+ckan.add_command(minify.minify)
+ckan.add_command(less.less)
+ckan.add_command(generate.generate)

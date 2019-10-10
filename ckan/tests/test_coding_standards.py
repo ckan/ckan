@@ -31,6 +31,7 @@ PROJECT_ROOT = os.path.normpath(os.path.join(HERE, u'..', u'..'))
 # Directories which are ignored when checking Python source code files
 IGNORED_DIRS = [
     u'ckan/include',
+    u'contrib/cookiecutter'
 ]
 
 
@@ -264,7 +265,6 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/lib/activity_streams.py',
     u'ckan/lib/activity_streams_session_extension.py',
     u'ckan/lib/app_globals.py',
-    u'ckan/lib/auth_tkt.py',
     u'ckan/lib/authenticator.py',
     u'ckan/lib/base.py',
     u'ckan/lib/captcha.py',
@@ -298,6 +298,7 @@ _STRING_LITERALS_WHITELIST = [
     u'ckan/lib/search/index.py',
     u'ckan/lib/search/query.py',
     u'ckan/lib/search/sql.py',
+    u'ckan/lib/repoze_plugins/auth_tkt.py',
     u'ckan/lib/uploader.py',
     u'ckan/logic/__init__.py',
     u'ckan/logic/action/__init__.py',

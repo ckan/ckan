@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 from logging import getLogger
-import urlparse
 
+from six.moves.urllib.parse import urlsplit
 import requests
 
 from ckan.common import config
@@ -33,7 +33,7 @@ def proxy_resource(context, data_dict):
         base.abort(404, _('Resource not found'))
     url = resource['url']
 
-    parts = urlparse.urlsplit(url)
+    parts = urlsplit(url)
     if not parts.scheme or not parts.netloc:
         base.abort(409, detail='Invalid URL.')
 

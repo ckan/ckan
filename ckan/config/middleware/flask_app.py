@@ -18,7 +18,7 @@ from werkzeug.routing import Rule
 from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
-from paste.deploy.converters import asbool
+from ckan.common import asbool
 from fanstatic import Fanstatic
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
@@ -82,13 +82,14 @@ def make_flask_stack(conf, **app_conf):
     debug = asbool(conf.get('debug', conf.get('DEBUG', False)))
     testing = asbool(app_conf.get('testing', app_conf.get('TESTING', False)))
     app = flask_app = CKANFlask(__name__)
+    app.jinja_options = jinja_extensions.get_jinja_env_options()
+
     app.debug = debug
     app.testing = testing
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
     app.url_rule_class = CKAN_Rule
 
-    app.jinja_options = jinja_extensions.get_jinja_env_options()
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
     if config:
@@ -175,14 +176,6 @@ def make_flask_stack(conf, **app_conf):
     babel = CKANBabel(app)
 
     babel.localeselector(get_locale)
-
-    @app.route('/hello', methods=['GET'])
-    def hello_world():
-        return 'Hello World, this is served by Flask'
-
-    @app.route('/hello', methods=['POST'])
-    def hello_world_post():
-        return 'Hello World, this was posted to Flask'
 
     # WebAssets
     _setup_webassets(app)
@@ -520,6 +513,6 @@ def _setup_webassets(app):
 
     webassets_folder = get_webassets_path()
 
-    @app.route('/webassets/<path:path>')
+    @app.route('/webassets/<path:path>', endpoint='webassets.index')
     def webassets(path):
         return send_from_directory(webassets_folder, path)

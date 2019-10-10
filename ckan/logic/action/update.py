@@ -10,7 +10,7 @@ import mimetypes
 import os
 
 from ckan.common import config
-import paste.deploy.converters as converters
+import ckan.common as converters
 from six import text_type
 
 import ckan.lib.helpers as h

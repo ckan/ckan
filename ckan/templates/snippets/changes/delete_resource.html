@@ -1,0 +1,18 @@
+<li>
+  <p>
+    {{ _('Deleted resource {resource_link} from {pkg_link}').format(
+        resource_link = '<a href="{resource_url}">{resource_name}</a>'.format(
+          resource_url = h.url_for(qualified=True, controller='resource',
+                                    action='read', id=change.pkg_id,
+                                    resource_id = change.resource_id) +
+                                    "?activity_id=" + change.old_activity_id,
+          resource_name = change.resource_name
+        )|safe,
+        pkg_link = '<a href="{pkg_url}">{pkg_name}</a>'.format(
+          pkg_url = h.url_for(controller='dataset',
+                              action='read', id=change.pkg_id),
+          pkg_name = change.title
+        )|safe
+    ) }}
+  </p>
+</li>
