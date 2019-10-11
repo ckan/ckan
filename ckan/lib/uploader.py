@@ -151,7 +151,8 @@ class Upload(object):
                 self.filename = munge.munge_filename_legacy(self.filename)
                 self.filepath = os.path.join(self.storage_path, self.filename)
                 data_dict[url_field] = self.filename
-                self.upload_file = _get_underlying_file(self.upload_field_storage)
+                self.upload_file = _get_underlying_file(
+                    self.upload_field_storage)
                 self.tmp_filepath = self.filepath + '~'
         # keep the file if there has been no change
         elif self.old_filename and not self.old_filename.startswith('http'):
