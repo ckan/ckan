@@ -489,6 +489,7 @@ class TestNew(TestPackageForm):
         assert plugin.id_in_dict
         plugins.unload('test_package_controller_plugin')
 
+    @pytest.mark.usefixtures('clean_db', 'clean_index')
     def test_new_indexerror(self, env_user):
         bad_solr_url = 'http://example.com/badsolrurl'
         solr_url = SolrSettings.get()[0]
