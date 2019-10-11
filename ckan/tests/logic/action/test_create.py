@@ -424,7 +424,6 @@ class TestResourceCreate(object):
             self.filename = filename
             self.name = 'upload'
 
-
     def test_resource_create(self):
         context = {}
         params = {
