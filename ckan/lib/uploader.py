@@ -145,8 +145,7 @@ class Upload(object):
             return
 
         if isinstance(self.upload_field_storage, (ALLOWED_UPLOAD_TYPES,)):
-            if self.upload_field_storage \
-               and self.upload_field_storage.filename:
+            if self.upload_field_storage.filename:
                 self.filename = self.upload_field_storage.filename
                 self.filename = str(datetime.datetime.utcnow()) + self.filename
                 self.filename = munge.munge_filename_legacy(self.filename)
