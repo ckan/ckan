@@ -4,6 +4,7 @@
 
 '''
 import __builtin__ as builtins
+import cgi
 
 import six
 
@@ -28,6 +29,13 @@ real_open = open
 fs = fake_filesystem.FakeFilesystem()
 fake_os = fake_filesystem.FakeOsModule(fs)
 fake_open = fake_filesystem.FakeFileOpen(fs)
+
+
+class FakeFileStorage(cgi.FieldStorage):
+    def __init__(self, fp, filename):
+        self.file = fp
+        self.filename = filename
+        self.name = 'upload'
 
 
 def mock_open_if_open_fails(*args, **kwargs):
@@ -415,14 +423,8 @@ class TestCreateDefaultResourceViews(object):
 
 
 @pytest.mark.usefixtures('clean_db')
-class TestResourceCreate(object):
-    import cgi
+class TestResourceCreate:
 
-    class FakeFileStorage(cgi.FieldStorage):
-        def __init__(self, fp, filename):
-            self.file = fp
-            self.filename = filename
-            self.name = 'upload'
 
     def test_resource_create(self):
         context = {}
@@ -538,7 +540,7 @@ class TestResourceCreate(object):
             "version": "3.0.0"
         }
         ''')
-        test_resource = TestResourceCreate.FakeFileStorage(test_file, 'test.json')
+        test_resource = FakeFileStorage(test_file, 'test.json')
 
         context = {}
         params = {
@@ -577,7 +579,7 @@ class TestResourceCreate(object):
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         ''')
-        test_resource = TestResourceCreate.FakeFileStorage(test_file, '')
+        test_resource = FakeFileStorage(test_file, '')
 
         context = {}
         params = {
@@ -612,7 +614,7 @@ class TestResourceCreate(object):
         MCGILLIVRAY PASS,1C05,1725,2015/12/31,88,239,,87,27,JAN-01,274
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         ''')
-        test_resource = TestResourceCreate.FakeFileStorage(test_file, 'test.csv')
+        test_resource = FakeFileStorage(test_file, 'test.csv')
 
         context = {}
         params = {

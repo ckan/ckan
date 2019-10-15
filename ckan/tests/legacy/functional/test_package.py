@@ -406,36 +406,34 @@ class TestEdit(TestPackageForm):
             self._reset_data()
 
 
-class TestDelete(TestPackageForm):
+class TestDelete:
 
-    pkg_names = []
-
-    @classmethod
-    def setup_class(self):
-        model.repo.init_db()
+    @pytest.fixture
+    def initial_data(self, reset_db):
+        reset_db()
         CreateTestData.create()
         CreateTestData.create_test_user()
+        yield
+        reset_db()
 
-        self.admin = model.User.by_name(u'testsysadmin')
+    @pytest.fixture
+    def users(self, initial_data):
+        admin = model.User.by_name(u'testsysadmin')
+        return {
+            'admin': {'REMOTE_USER': admin.name.encode('utf8')},
+            'tester': {'REMOTE_USER': 'tester'}
+        }
 
-        self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
-        self.extra_environ_tester = {'REMOTE_USER': 'tester'}
-
-    @classmethod
-    def teardown_class(self):
-        self.purge_packages(self.pkg_names)
-        model.repo.rebuild_db()
-
-    def test_delete(self):
+    def test_delete(self, app, users):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
 
         offset = url_for('dataset.delete', id='warandpeace')
         # Since organizations, any owned dataset can be edited/deleted by any
         # user
-        self.app.post(offset, extra_environ=self.extra_environ_tester)
+        app.post(offset, extra_environ=users['tester'])
 
-        self.app.post(offset, extra_environ=self.extra_environ_admin)
+        app.post(offset, extra_environ=users['admin'])
 
         assert model.Package.get('warandpeace').state == u'deleted'
 
@@ -444,24 +442,21 @@ class TestDelete(TestPackageForm):
         plugins.unload('test_package_controller_plugin')
 
 
-class TestNew(TestPackageForm):
-    pkg_names = []
+class TestNew:
 
     @pytest.fixture
     def env_user(self, reset_db):
-        model.repo.init_db()
+        reset_db()
         CreateTestData.create_test_user()
-#        self.admin = model.User.by_name(u'russianfan')
 
-#        self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
         yield {'REMOTE_USER': 'tester'}
         reset_db()
 
-    def test_new_plugin_hook(self, env_user):
+    def test_new_plugin_hook(self, env_user, app):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
         offset = url_for('dataset.new')
-        res = self.app.get(offset, extra_environ=env_user)
+        res = app.get(offset, extra_environ=env_user)
         new_name = u'plugged'
         fv = res.forms['dataset-edit']
         prefix = ''
@@ -472,11 +467,11 @@ class TestNew(TestPackageForm):
         assert plugin.calls['create'] == 1, plugin.calls
         plugins.unload('test_package_controller_plugin')
 
-    def test_after_create_plugin_hook(self, env_user):
+    def test_after_create_plugin_hook(self, env_user, app):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
         offset = url_for('dataset.new')
-        res = self.app.get(offset, extra_environ=env_user)
+        res = app.get(offset, extra_environ=env_user)
         new_name = u'plugged2'
         fv = res.forms['dataset-edit']
         prefix = ''
@@ -490,7 +485,7 @@ class TestNew(TestPackageForm):
         plugins.unload('test_package_controller_plugin')
 
     @pytest.mark.usefixtures('clean_db', 'clean_index')
-    def test_new_indexerror(self, env_user):
+    def test_new_indexerror(self, env_user, app):
         bad_solr_url = 'http://example.com/badsolrurl'
         solr_url = SolrSettings.get()[0]
         try:
@@ -498,50 +493,30 @@ class TestNew(TestPackageForm):
             new_package_name = u'new-package-missing-solr'
 
             offset = url_for('dataset.new')
-            res = self.app.get(offset, extra_environ=env_user)
+            res = app.get(offset, extra_environ=env_user)
             fv = res.forms['dataset-edit']
             fv['name'] = new_package_name
-
-            # this package shouldn't actually be created but
-            # add it to the list to purge just in case
-            self.pkg_names.append(new_package_name)
 
             res = fv.submit('save', status=500, extra_environ=env_user)
             assert 'Unable to add package to search index' in res, res
         finally:
             SolrSettings.init(solr_url)
 
-    def test_change_locale(self, env_user):
+    def test_change_locale(self, env_user, app):
         offset = url_for('dataset.new')
-        res = self.app.get(offset, extra_environ=env_user)
+        res = app.get(offset, extra_environ=env_user)
 
-        res = self.app.get('/de/dataset/new', extra_environ=env_user)
-        try:
-            assert 'Datensatz' in res.body, res.body
-        finally:
-            self.clear_language_setting()
+        res = app.get('/de/dataset/new', extra_environ=env_user)
+        assert 'Datensatz' in res.body, res.body
 
 
-class TestNewPreview(TestPackageBase):
-    pkgname = u'testpkg'
-    pkgtitle = u'mytesttitle'
+class TestNonActivePackages:
+    non_active_name = u'test_nonactive'
 
-    @classmethod
-    def setup_class(self):
-        pass
-        model.repo.init_db()
-
-    @classmethod
-    def teardown_class(self):
-        self.purge_packages([self.pkgname])
-        model.repo.rebuild_db()
-
-class TestNonActivePackages(TestPackageBase):
-
-    @classmethod
-    def setup_class(self):
+    @pytest.fixture(autouse=True)
+    def initial_data(self, reset_db):
+        reset_db()
         CreateTestData.create()
-        self.non_active_name = u'test_nonactive'
         pkg = model.Package(name=self.non_active_name)
         model.repo.new_revision()
         model.Session.add(pkg)
@@ -555,57 +530,57 @@ class TestNonActivePackages(TestPackageBase):
         pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         pkg.delete() # becomes non active
         model.repo.commit_and_remove()
+        yield
+        reset_db()
 
-
-    @classmethod
-    def teardown_class(self):
-        model.repo.rebuild_db()
-
-    def test_read(self):
+    def test_read(self, app):
         offset = url_for('dataset.read', id=self.non_active_name)
-        res = self.app.get(offset, status=[404])
+        res = app.get(offset, status=[404])
 
-
-    def test_read_as_admin(self):
+    def test_read_as_admin(self, app):
         offset = url_for('dataset.read', id=self.non_active_name)
-        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testsysadmin'})
+        res = app.get(offset, status=200, extra_environ={'REMOTE_USER':'testsysadmin'})
 
 
-class TestResourceListing(TestPackageBase):
-    @classmethod
-    def setup_class(cls):
+class TestResourceListing:
 
+    @pytest.fixture(autouse=True)
+    def initial_data(self, reset_db, app):
+        reset_db()
         CreateTestData.create()
-        cls.tester_user = model.User.by_name(u'tester')
-        cls.extra_environ_admin = {'REMOTE_USER': 'testsysadmin'}
-        cls.extra_environ_tester = {'REMOTE_USER': 'tester'}
-        cls.extra_environ_someone_else = {'REMOTE_USER': 'someone_else'}
-
-        tests.call_action_api(cls.app, 'organization_create',
+        users = {}
+        tester = model.User.by_name(u'tester')
+        tests.call_action_api(app, 'organization_create',
                                         name='test_org_2',
-                                        apikey=cls.tester_user.apikey)
+                                        apikey=tester.apikey)
 
-        tests.call_action_api(cls.app, 'package_create',
+        tests.call_action_api(app, 'package_create',
                                         name='crimeandpunishment',
                                         owner_org='test_org_2',
-                                        apikey=cls.tester_user.apikey)
+                                        apikey=tester.apikey)
+        yield
+        reset_db()
 
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
+    @pytest.fixture
+    def users(self):
+        return {
+            'admin': {'REMOTE_USER': 'testsysadmin'},
+            'tester': {'REMOTE_USER': 'tester'},
+            'someone_else': {'REMOTE_USER': 'someone_else'},
+        }
 
-    def test_resource_listing_premissions_sysadmin(self):
+    def test_resource_listing_premissions_sysadmin(self, app, users):
         # sysadmin 200
-         self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_admin, status=200)
+        app.get('/dataset/resources/crimeandpunishment', extra_environ=users['admin'], status=200)
 
-    def test_resource_listing_premissions_auth_user(self):
+    def test_resource_listing_premissions_auth_user(self, app, users):
         # auth user 200
-         self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_tester, status=200)
+        app.get('/dataset/resources/crimeandpunishment', extra_environ=users['tester'], status=200)
 
-    def test_resource_listing_premissions_non_auth_user(self):
+    def test_resource_listing_premissions_non_auth_user(self, app, users):
         # non auth user 403
-         self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_someone_else, status=[403])
+        app.get('/dataset/resources/crimeandpunishment', extra_environ=users['someone_else'], status=[403])
 
-    def test_resource_listing_premissions_not_logged_in(self):
+    def test_resource_listing_premissions_not_logged_in(self, app):
         # not logged in 403
-         self.app.get('/dataset/resources/crimeandpunishment', status=[403])
+        app.get('/dataset/resources/crimeandpunishment', status=[403])
