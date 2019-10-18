@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 import ckan.tests.helpers as test_helpers
+import ckan.plugins
 import ckan.lib.search as search
 from ckan.common import config
 
@@ -60,3 +61,10 @@ def clean_index(reset_index):
     """Start test with empty index.
     """
     reset_index()
+
+
+@pytest.fixture
+def with_plugins(ckan_config):
+    ckan.plugins.load_all()
+    yield
+    ckan.plugins.unload_all()

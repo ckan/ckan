@@ -2,6 +2,7 @@
 
 import pytest
 
+import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
 from ckan.common import config
 
@@ -16,10 +17,22 @@ def test_ckan_config_do_not_have_some_new_config(ckan_config):
 
 @pytest.mark.ckan_config(u'some.new.config', u'exists')
 def test_ckan_config_mark(ckan_config):
-    assert u'exists' == ckan_config[u'some.new.config']
+    assert ckan_config[u'some.new.config'] == u'exists'
 
 
 @pytest.mark.ckan_config(u'some.new.config', u'exists')
 @pytest.mark.usefixtures(u'ckan_config')
 def test_ckan_config_mark_without_explicit_config_fixture():
-    assert u'exists' == config[u'some.new.config']
+    assert config[u'some.new.config'] == u'exists'
+
+
+@pytest.mark.ckan_config(u'ckan.plugins', u'')
+@pytest.mark.usefixtures(u'with_plugins')
+def test_with_plugins_is_able_to_run_without_plugins():
+    assert not plugins.plugin_loaded(u'stats')
+
+
+@pytest.mark.ckan_config(u'ckan.plugins', u'stats')
+@pytest.mark.usefixtures(u'with_plugins')
+def test_with_plugins_is_able_to_run_with_stats():
+    assert plugins.plugin_loaded(u'stats')
