@@ -327,7 +327,7 @@ def package_update(context, data_dict):
         item.after_update(context, data)
 
     # Create activity
-    user_obj = model.User.by_name(user.decode('utf8'))
+    user_obj = model.User.by_name(user)
     if user_obj:
         user_id = user_obj.id
     else:
