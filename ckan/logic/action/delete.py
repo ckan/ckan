@@ -73,6 +73,7 @@ def package_delete(context, data_dict):
 
     '''
     model = context['model']
+    session = context['session']
     user = context['user']
     id = _get_or_bust(data_dict, 'id')
 
@@ -96,6 +97,11 @@ def package_delete(context, data_dict):
 
     for membership in dataset_memberships:
         membership.delete()
+
+    # Create activity
+    user_id = model.User.by_name(user.decode('utf8')).id
+    activity = entity.activity_stream_item('changed', user_id)
+    session.add(activity)
 
     model.repo.commit()
 

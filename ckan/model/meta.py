@@ -78,7 +78,7 @@ Session = orm.scoped_session(orm.sessionmaker(
     extension=[CkanCacheExtension(),
                CkanSessionExtension(),
                extension.PluginSessionExtension(),
-               activity.DatasetActivitySessionExtension()],
+    ],
 ))
 
 create_local_session = orm.sessionmaker(
@@ -88,7 +88,7 @@ create_local_session = orm.sessionmaker(
     extension=[CkanCacheExtension(),
                CkanSessionExtension(),
                extension.PluginSessionExtension(),
-               activity.DatasetActivitySessionExtension()],
+    ],
 )
 
 #mapper = Session.mapper

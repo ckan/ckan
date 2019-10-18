@@ -131,6 +131,7 @@ def package_create(context, data_dict):
 
     '''
     model = context['model']
+    session = context['session']
     user = context['user']
 
     if 'type' not in data_dict:
@@ -212,6 +213,11 @@ def package_create(context, data_dict):
             {'model': context['model'], 'user': context['user'],
              'ignore_auth': True},
             {'package': data})
+
+    # Create activity
+    user_id = model.User.by_name(user.decode('utf8')).id
+    activity = pkg.activity_stream_item('new', user_id)
+    session.add(activity)
 
     if not context.get('defer_commit'):
         model.repo.commit()

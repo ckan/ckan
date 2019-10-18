@@ -255,6 +255,7 @@ def package_update(context, data_dict):
 
     '''
     model = context['model']
+    session = context['session']
     user = context['user']
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:
@@ -324,6 +325,11 @@ def package_update(context, data_dict):
         item.edit(pkg)
 
         item.after_update(context, data)
+
+    # Create activity
+    user_id = model.User.by_name(user.decode('utf8')).id
+    activity = pkg.activity_stream_item('changed', user_id)
+    session.add(activity)
 
     if not context.get('defer_commit'):
         model.repo.commit()
