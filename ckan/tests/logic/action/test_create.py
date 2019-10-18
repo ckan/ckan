@@ -424,8 +424,6 @@ class TestCreateDefaultResourceViews(object):
 
 @pytest.mark.usefixtures('clean_db')
 class TestResourceCreate:
-
-
     def test_resource_create(self):
         context = {}
         params = {
@@ -453,8 +451,7 @@ class TestResourceCreate:
                       'resource_create', **data_dict)
 
     def test_doesnt_require_url(self):
-        user = factories.User()
-        dataset = factories.Dataset(user=user)
+        dataset = factories.Dataset()
         data_dict = {
             'package_id': dataset['id']
         }
