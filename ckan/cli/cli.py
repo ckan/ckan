@@ -15,7 +15,8 @@ from ckan.cli import (
     notify,
     tracking,
     minify,
-    less
+    less,
+    generate
 )
 
 from ckan.config.middleware import make_app
@@ -54,3 +55,4 @@ ckan.add_command(notify.notify)
 ckan.add_command(tracking.tracking)
 ckan.add_command(minify.minify)
 ckan.add_command(less.less)
+ckan.add_command(generate.generate)

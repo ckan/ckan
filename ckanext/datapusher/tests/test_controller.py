@@ -3,11 +3,11 @@
 import nose
 
 import ckan.tests.legacy as tests
-from ckan.tests.helpers import FunctionalTestBase
+from ckanext.datastore.tests.helpers import DatastoreFunctionalTestBase
 import ckan.tests.factories as factories
 
 
-class TestController(FunctionalTestBase):
+class TestController(DatastoreFunctionalTestBase):
     sysadmin_user = None
     normal_user = None
 
@@ -15,10 +15,10 @@ class TestController(FunctionalTestBase):
 
     @classmethod
     def setup_class(cls):
-        cls.app = cls._get_test_app()
         if not tests.is_datastore_supported():
             raise nose.SkipTest(u'Datastore not supported')
         super(TestController, cls).setup_class()
+        cls.app = cls._get_test_app()
 
     def test_resource_data(self):
         user = factories.User()
