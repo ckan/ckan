@@ -71,7 +71,6 @@ class TestPackageShow(helpers.FunctionalTestBase):
             dict_[key] = re.sub(r'\d+$', 'num', dict_[key])
 
         replace_uuid(dataset2, 'id')
-        replace_uuid(dataset2, 'revision_id')
         replace_uuid(dataset2, 'creator_user_id')
         replace_uuid(dataset2, 'owner_org')
         replace_number_suffix(dataset2, 'name')
@@ -82,12 +81,10 @@ class TestPackageShow(helpers.FunctionalTestBase):
         replace_number_suffix(dataset2['groups'][0], 'title')
         replace_number_suffix(dataset2['groups'][0], 'display_name')
         replace_uuid(dataset2['organization'], 'id')
-        replace_uuid(dataset2['organization'], 'revision_id')
         replace_number_suffix(dataset2['organization'], 'name')
         replace_number_suffix(dataset2['organization'], 'title')
         replace_datetime(dataset2['organization'], 'created')
         replace_uuid(dataset2['resources'][0], 'id')
-        replace_uuid(dataset2['resources'][0], 'revision_id')
         replace_uuid(dataset2['resources'][0], 'package_id')
         replace_number_suffix(dataset2['resources'][0], 'name')
         replace_datetime(dataset2['resources'][0], 'created')
@@ -127,7 +124,6 @@ class TestPackageShow(helpers.FunctionalTestBase):
                 u'image_url': u'http://placekitten.com/g/200/100',
                 u'is_organization': True,
                 u'name': u'test_org_num',
-                u'revision_id': u'<SOME-UUID>',
                 u'state': u'active',
                 u'title': u'Test Organization',
                 u'type': u'organization'},
@@ -150,12 +146,10 @@ class TestPackageShow(helpers.FunctionalTestBase):
                 u'package_id': u'<SOME-UUID>',
                 u'position': 0,
                 u'resource_type': None,
-                u'revision_id': u'<SOME-UUID>',
                 u'size': None,
                 u'state': u'active',
                 u'url': u'http://example.com/image.png',
                 u'url_type': None}],
-            u'revision_id': u'<SOME-UUID>',
             u'state': u'active',
             u'tags': [{
                 u'display_name': u'science',
