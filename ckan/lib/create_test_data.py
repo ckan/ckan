@@ -466,6 +466,12 @@ left arrow <
             sysadmin,
             ])
         cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
+
+        # Create activities for packages
+        for item in [pkg1, pkg2]:
+            activity = item.activity_stream_item('new', 'not logged in')
+            model.Session.add(activity)
+
         model.repo.commit_and_remove()
 
     # method used in DGU and all good tests elsewhere

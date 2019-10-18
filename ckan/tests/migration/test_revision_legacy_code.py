@@ -8,6 +8,7 @@ from ckan import model
 import ckan.lib.search as search
 from ckan.lib.dictization.model_save import package_dict_save
 from ckan.lib.create_test_data import CreateTestData
+from ckan.tests import helpers
 
 from ckan.migration.revision_legacy_code import package_dictize_with_revisions as package_dictize
 from ckan.migration.revision_legacy_code import RevisionTableMappings, make_package_revision
@@ -18,11 +19,6 @@ from ckan.migration.migrate_package_activity import PackageDictizeMonkeyPatch
 class TestPackageDictizeWithRevisions(object):
     @classmethod
     def setup_class(cls):
-        # clean the db so we can run these tests on their own
-        model.repo.rebuild_db()
-        search.clear_all()
-        CreateTestData.create()
-        make_package_revision(model.Package.by_name('annakarenina'))
 
         cls.package_expected = {
             u'author': None,
@@ -124,12 +120,17 @@ class TestPackageDictizeWithRevisions(object):
             u'type': u'dataset',
             u'url': u'http://datahub.io',
             u'version': u'0.7a',
-            }
+        }
 
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-        model.Session.remove()
+    def setup(self):
+        helpers.reset_db()
+        search.clear_all()
+        CreateTestData.create()
+        make_package_revision(model.Package.by_name('annakarenina'))
+
+    def teardown(self):
+        helpers.reset_db()
+        search.clear_all()
 
     def test_09_package_alter(self):
 
@@ -201,12 +202,10 @@ class TestPackageDictizeWithRevisions(object):
         model.Session.remove()
         make_package_revision(model.Package.by_name('annakarenina_changed2'))
 
-    def test_13_get_package_in_past(self):
-
         context = {'model': model,
                    'session': model.Session}
 
-        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()  # this depends on the previous test running :(
+        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
 
         pkgrevisions = model.Session.query(RevisionTableMappings.instance().PackageRevision).filter_by(id=anna1.id).all()
         sorted_packages = sorted(pkgrevisions, key=lambda x: x.revision_timestamp)
