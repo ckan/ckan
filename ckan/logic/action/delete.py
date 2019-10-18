@@ -99,13 +99,15 @@ def package_delete(context, data_dict):
         membership.delete()
 
     # Create activity
-    user_obj = model.User.by_name(user)
-    if user_obj:
-        user_id = user_obj.id
-    else:
-        user_id = 'not logged in'
-    activity = entity.activity_stream_item('changed', user_id)
-    session.add(activity)
+    if not entity.private:
+        user_obj = model.User.by_name(user)
+        if user_obj:
+            user_id = user_obj.id
+        else:
+            user_id = 'not logged in'
+
+        activity = entity.activity_stream_item('changed', user_id)
+        session.add(activity)
 
     model.repo.commit()
 
