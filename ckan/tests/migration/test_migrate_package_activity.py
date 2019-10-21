@@ -24,8 +24,7 @@ class TestMigrateDataset(object):
     def setup(self):
         helpers.reset_db()
 
-    @classmethod
-    def teardown_class(cls):
+    def teardown(self):
         helpers.reset_db()
 
     def test_migration(self):
@@ -208,8 +207,7 @@ class TestWipeActivityDetail(object):
     def setup(self):
         helpers.reset_db()
 
-    @classmethod
-    def teardown_class(cls):
+    def teardown(self):
         helpers.reset_db()
 
     def test_wipe_activity_detail(self):
