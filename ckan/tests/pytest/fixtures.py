@@ -16,8 +16,7 @@ def ckan_config(request, monkeypatch):
     for mark in request.node.own_markers:
         if mark.name == u'ckan_config':
             monkeypatch.setitem(config, *mark.args)
-    return config
-
+    yield config
 
 @pytest.fixture
 def make_app(ckan_config):

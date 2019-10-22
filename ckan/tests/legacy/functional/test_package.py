@@ -17,15 +17,16 @@ from ckan.logic.action import get, update
 from ckan import plugins
 from ckan.lib.search.common import SolrSettings
 
-
-
-
-existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
+existing_extra_html = (
+    '<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>',
+    '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">'
+)
 
 
 class TestPackageBase(FunctionalTestCase):
     key1 = u'key1 Less-than: < Umlaut: \xfc'
     value1 = u'value1 Less-than: < Umlaut: \xfc'
+
     # Note: Can't put a quotation mark in key1 or value1 because
     # paste.fixture doesn't unescape the value in an input field
     # on form submission. (But it works in real life.)
@@ -38,8 +39,8 @@ class TestPackageBase(FunctionalTestCase):
         return self.diff_html(res1.body, res2.body)
 
     def diff_html(self, html1, html2):
-        return '\n'.join(unified_diff(html1.split('\n'),
-                                      html2.split('\n')))
+        return '\n'.join(unified_diff(html1.split('\n'), html2.split('\n')))
+
 
 class TestPackageForm(TestPackageBase):
     '''Inherit this in tests for these form testing methods'''
@@ -54,7 +55,8 @@ class TestPackageForm(TestPackageBase):
         assert params['version'] in main_div, main_div_str
         self.check_named_element(main_div, 'a', 'href="%s"' % params['url'])
         prefix = 'Dataset-%s-' % params.get('id', '')
-        for res_index, values in self._get_resource_values(params['resources'], by_resource=True):
+        for res_index, values in self._get_resource_values(params['resources'],
+                                                           by_resource=True):
             self.check_named_element(main_div, 'tr', *values)
         assert params['notes'] in main_div, main_div_str
         license = model.Package.get_license_register()[params['license_id']]
@@ -62,7 +64,8 @@ class TestPackageForm(TestPackageBase):
         tag_names = list(params['tags'])
         self.check_named_element(main_div, 'ul', *tag_names)
         if params.has_key('state'):
-            assert 'State: %s' % params['state'] in main_div.replace('</strong>', ''), main_div_str
+            assert 'State: %s' % params['state'] in main_div.replace(
+                '</strong>', ''), main_div_str
         if isinstance(params['extras'], dict):
             extras = []
             for key, value in params['extras'].items():
@@ -75,18 +78,19 @@ class TestPackageForm(TestPackageBase):
             if not deleted:
                 key_in_html_body = self.escape_for_html_body(key)
                 value_in_html_body = self.escape_for_html_body(value)
-                self.check_named_element(main_div, 'tr', key_in_html_body, value_in_html_body)
+                self.check_named_element(main_div, 'tr', key_in_html_body,
+                                         value_in_html_body)
             else:
                 self.check_named_element(main_div, 'tr', '!' + key)
                 self.check_named_element(main_div, 'tr', '!' + value)
-
 
     def _get_resource_values(self, resources, by_resource=False):
         assert isinstance(resources, (list, tuple))
         for res_index, resource in enumerate(resources):
             if by_resource:
                 values = []
-            for i, res_field in enumerate(model.Resource.get_columns(extra_columns = False)):
+            for i, res_field in enumerate(
+                    model.Resource.get_columns(extra_columns=False)):
                 if isinstance(resource, (str, unicode)):
                     expected_value = resource if res_field == 'url' else ''
                 elif hasattr(resource, res_field):
@@ -102,7 +106,7 @@ class TestPackageForm(TestPackageBase):
                 else:
                     values.append(expected_value)
             if by_resource:
-                yield(res_index, values)
+                yield (res_index, values)
 
     def escape_for_html_body(self, unescaped_str):
         # just deal with chars in tests
@@ -116,23 +120,23 @@ class TestPackageForm(TestPackageBase):
                 params[key] = value
         prefix = ''
         main_res = self.main_div(res)
-        self.check_tag(main_res, prefix+'name', params['name'])
-        self.check_tag(main_res, prefix+'title', params['title'])
-        self.check_tag(main_res, prefix+'version', params['version'])
-        self.check_tag(main_res, prefix+'url', params['url'])
+        self.check_tag(main_res, prefix + 'name', params['name'])
+        self.check_tag(main_res, prefix + 'title', params['title'])
+        self.check_tag(main_res, prefix + 'version', params['version'])
+        self.check_tag(main_res, prefix + 'url', params['url'])
         #for res_index, res_field, expected_value in self._get_resource_values(params['resources']):
         #    ## only check fields that are on the form
         #    if res_field not in ['url', 'id', 'description', 'hash']:
         #        continue
         #    self.check_tag(main_res, '%sresources__%i__%s' % (prefix, res_index, res_field), expected_value)
-        self.check_tag_and_data(main_res, prefix+'notes', params['notes'])
+        self.check_tag_and_data(main_res, prefix + 'notes', params['notes'])
         self.check_tag_and_data(main_res, 'selected', params['license_id'])
         if isinstance(params['tags'], (str, unicode)):
             tags = map(lambda s: s.strip(), params['tags'].split(','))
         else:
             tags = params['tags']
         for tag in tags:
-            self.check_tag(main_res, prefix+'tag_string', tag)
+            self.check_tag(main_res, prefix + 'tag_string', tag)
         if params.has_key('state'):
             self.check_tag_and_data(main_res, 'selected', str(params['state']))
         if isinstance(params['extras'], dict):
@@ -149,12 +153,16 @@ class TestPackageForm(TestPackageBase):
             self.check_tag(main_res, 'extras__%s__key' % num, key_in_html_body)
             self.check_tag(main_res, 'extras__%s__value' % num, value_escaped)
             if deleted:
-                self.check_tag(main_res, 'extras__%s__deleted' % num, 'checked')
+                self.check_tag(main_res, 'extras__%s__deleted' % num,
+                               'checked')
 
         assert params['log_message'] in main_res, main_res
 
-    def _check_redirect(self, return_url_param, expected_redirect,
-                        pkg_name_to_edit='',extra_environ=None):
+    def _check_redirect(self,
+                        return_url_param,
+                        expected_redirect,
+                        pkg_name_to_edit='',
+                        extra_environ=None):
         '''
         @param return_url_param - encoded url to be given as param - if None
                        then assume redirect is specified in pylons config
@@ -185,8 +193,10 @@ class TestPackageForm(TestPackageBase):
             fv[prefix + 'name'] = new_name
             res = fv.submit('save', status=302, extra_environ=extra_environ)
             assert not 'Error' in res, res
-            redirected_to = dict(res.headers).get('Location') or dict(res.headers)['location']
-            expected_redirect_url = expected_redirect.replace('<NAME>', new_name)
+            redirected_to = dict(res.headers).get('Location') or dict(
+                res.headers)['location']
+            expected_redirect_url = expected_redirect.replace(
+                '<NAME>', new_name)
             assert redirected_to == expected_redirect_url, \
                    'Redirected to %s but should have been %s' % \
                    (redirected_to, expected_redirect_url)
@@ -201,8 +211,8 @@ class TestPackageForm(TestPackageBase):
                     pkg.purge()
                 model.repo.commit_and_remove()
 
-class TestReadOnly(TestPackageForm, HtmlCheckMethods):
 
+class TestReadOnly(TestPackageForm, HtmlCheckMethods):
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
@@ -210,7 +220,6 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-
 
     def test_read_nonexistentpackage(self):
         name = 'anonexistentpackage'
@@ -227,10 +236,14 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
             ])
         offset = url_for('dataset.read', id=pkg_name)
         res = self.app.get(offset)
+
         def check_link(res, controller, id):
-            id_in_uri = id.strip('"').replace(' ', '+') # remove quotes and percent-encode spaces
-            self.check_tag_and_data(res, 'a ', '%s/%s' % (controller, id_in_uri),
-                                    '%s:%s' % (controller, id.replace('"', '&#34;')))
+            id_in_uri = id.strip('"').replace(
+                ' ', '+')  # remove quotes and percent-encode spaces
+            self.check_tag_and_data(
+                res, 'a ', '%s/%s' % (controller, id_in_uri),
+                '%s:%s' % (controller, id.replace('"', '&#34;')))
+
         check_link(res, 'dataset', 'pkg-1')
         check_link(res, 'group', 'test-group-1')
         assert 'decoy</a>' not in res, res
@@ -253,7 +266,11 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
         name = 'annakarenina'
         cache_url = 'http://thedatahub.org/test_cache_url.csv'
         # add a cache_url to the first resource in the package
-        context = {'model': model, 'session': model.Session, 'user': 'testsysadmin'}
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': 'testsysadmin'
+        }
         data = {'id': 'annakarenina'}
         pkg = get.package_show(context, data)
         pkg['resources'][0]['cache_url'] = cache_url
@@ -270,30 +287,23 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods):
 class TestEdit(TestPackageForm):
     editpkg_name = u'editpkgtest'
 
-    @classmethod
-    def setup_class(self):
+    @pytest.fixture(autouse=True)
+    def initial_data(self, reset_db):
+        reset_db()
         CreateTestData.create()
-
-        self._reset_data()
-
-    def setup(self):
-        if not self.res:
-            self.res = self.app.get(self.offset,extra_environ=self.extra_environ_admin)
-        model.Session.remove()
-
-    @classmethod
-    def _reset_data(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        CreateTestData.create()
-        CreateTestData.create_arbitrary(
-            {'name':self.editpkg_name,
-             'url':u'editpkgurl.com',
-             'tags':[u'mytesttag'],
-             'resources':[{'url':u'url escape: & umlaut: \xfc quote: "',
-                          'description':u'description escape: & umlaut: \xfc quote "',
-                          }],
-             })
+        CreateTestData.create_arbitrary({
+            'name':
+            self.editpkg_name,
+            'url':
+            u'editpkgurl.com',
+            'tags': [u'mytesttag'],
+            'resources': [{
+                'url':
+                u'url escape: & umlaut: \xfc quote: "',
+                'description':
+                u'description escape: & umlaut: \xfc quote "',
+            }],
+        })
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
         self.pkgid = self.editpkg.id
@@ -302,112 +312,73 @@ class TestEdit(TestPackageForm):
         self.editpkg = model.Package.by_name(self.editpkg_name)
         self.admin = model.User.by_name(u'testsysadmin')
 
-        self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
+        self.extra_environ_admin = {
+            'REMOTE_USER': self.admin.name.encode('utf8')
+        }
         self.extra_environ_russianfan = {'REMOTE_USER': 'russianfan'}
-        self.res = None #get's refreshed by setup
-        model.Session.remove()
+        yield
+        reset_db()
 
-    @classmethod
-    def teardown_class(self):
-        model.repo.rebuild_db()
-
-    def test_edit_2_not_groups(self):
+    def test_edit_2_not_groups(self, app):
         # not allowed to edit groups for now
         prefix = 'Dataset-%s-' % self.pkgid
-        fv = self.res.forms['dataset-edit']
+        fv = app.get(
+            self.offset,
+            extra_environ=self.extra_environ_admin).forms['dataset-edit']
         assert not fv.fields.has_key(prefix + 'groups')
-
 
     def test_redirect_after_edit_using_param(self):
         return_url = 'http://random.site.com/dataset/<NAME>?test=param'
         # It's useful to know that this url encodes to:
         # 'http%3A%2F%2Frandom.site.com%2Fdataset%2F%3CNAME%3E%3Ftest%3Dparam'
         expected_redirect = return_url
-        self._check_redirect(return_url, expected_redirect,
-                             pkg_name_to_edit=self.editpkg_name, extra_environ=self.extra_environ_admin)
+        self._check_redirect(return_url,
+                             expected_redirect,
+                             pkg_name_to_edit=self.editpkg_name,
+                             extra_environ=self.extra_environ_admin)
 
     def test_redirect_after_edit_using_config(self):
-        return_url = '' # redirect comes from test.ini setting
+        return_url = ''  # redirect comes from test.ini setting
         expected_redirect = config['package_edit_return_url']
-        self._check_redirect(return_url, expected_redirect,
-                             pkg_name_to_edit=self.editpkg_name, extra_environ=self.extra_environ_admin)
+        self._check_redirect(return_url,
+                             expected_redirect,
+                             pkg_name_to_edit=self.editpkg_name,
+                             extra_environ=self.extra_environ_admin)
 
-    def test_edit_plugin_hook(self):
-        # just the absolute basics
-        try:
-            plugins.load('test_package_controller_plugin')
-            plugin = plugins.get_plugin('test_package_controller_plugin')
-            res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
-            new_name = u'new-name'
-            new_title = u'New Title'
-            fv = res.forms['dataset-edit']
-            prefix = ''
-            fv[prefix + 'name'] = new_name
-            fv[prefix + 'title'] = new_title
-            res = fv.submit('save', extra_environ=self.extra_environ_admin)
-            # get redirected ...
-            assert plugin.calls['edit'] == 1, plugin.calls
-            plugins.unload('test_package_controller_plugin')
-        finally:
-            self._reset_data()
-
-    def test_after_update_plugin_hook(self):
-        # just the absolute basics
-        try:
-            plugins.load('test_package_controller_plugin')
-            plugin = plugins.get_plugin('test_package_controller_plugin')
-            res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
-            new_name = u'new-name'
-            new_title = u'New Title'
-            fv = res.forms['dataset-edit']
-            prefix = ''
-            fv[prefix + 'name'] = new_name
-            fv[prefix + 'title'] = new_title
-            res = fv.submit('save', extra_environ=self.extra_environ_admin)
-            # get redirected ...
-            assert plugin.calls['after_update'] == 1, plugin.calls
-            assert plugin.calls['after_create'] == 0, plugin.calls
-            plugins.unload('test_package_controller_plugin')
-        finally:
-            self._reset_data()
-
-
-    def test_edit_404(self):
+    def test_edit_404(self, app):
         self.offset = url_for('dataset.edit', id='random_name')
-        self.res = self.app.get(self.offset, status=404)
+        app.get(self.offset, status=404)
 
+    def test_edit_pkg_with_relationships(self, app):
 
-    def test_edit_pkg_with_relationships(self):
-        # 1786
-        try:
-            # add a relationship to a package
-            pkg = model.Package.by_name(self.editpkg_name)
-            anna = model.Package.by_name(u'annakarenina')
-            model.repo.new_revision()
-            pkg.add_relationship(u'depends_on', anna)
-            model.repo.commit_and_remove()
+        # add a relationship to a package
+        pkg = model.Package.by_name(self.editpkg_name)
+        anna = model.Package.by_name(u'annakarenina')
+        model.repo.new_revision()
+        pkg.add_relationship(u'depends_on', anna)
+        model.repo.commit_and_remove()
 
-            # check relationship before the test
-            rels = model.Package.by_name(self.editpkg_name).get_relationships()
-            assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
+        # check relationship before the test
+        rels = model.Package.by_name(self.editpkg_name).get_relationships()
+        assert_equal(
+            str(rels),
+            '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
 
-            # edit the package
-            self.offset = url_for('dataset.edit', id=self.editpkg_name)
-            self.res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
-            fv = self.res.forms['dataset-edit']
-            fv['title'] = u'New Title'
-            res = fv.submit('save', extra_environ=self.extra_environ_admin)
+        # edit the package
+        self.offset = url_for('dataset.edit', id=self.editpkg_name)
+        res = app.get(self.offset, extra_environ=self.extra_environ_admin)
+        fv = res.forms['dataset-edit']
+        fv['title'] = u'New Title'
+        fv.submit('save', extra_environ=self.extra_environ_admin)
 
-            # check relationship still exists
-            rels = model.Package.by_name(self.editpkg_name).get_relationships()
-            assert_equal(str(rels), '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
-
-        finally:
-            self._reset_data()
+        # check relationship still exists
+        rels = model.Package.by_name(self.editpkg_name).get_relationships()
+        assert_equal(
+            str(rels),
+            '[<*PackageRelationship editpkgtest depends_on annakarenina>]')
 
 
 class TestDelete:
-
     @pytest.fixture
     def initial_data(self, reset_db):
         reset_db()
@@ -420,8 +391,12 @@ class TestDelete:
     def users(self, initial_data):
         admin = model.User.by_name(u'testsysadmin')
         return {
-            'admin': {'REMOTE_USER': admin.name.encode('utf8')},
-            'tester': {'REMOTE_USER': 'tester'}
+            'admin': {
+                'REMOTE_USER': admin.name.encode('utf8')
+            },
+            'tester': {
+                'REMOTE_USER': 'tester'
+            }
         }
 
     def test_delete(self, app, users):
@@ -443,7 +418,6 @@ class TestDelete:
 
 
 class TestNew:
-
     @pytest.fixture
     def env_user(self, reset_db):
         reset_db()
@@ -522,13 +496,15 @@ class TestNonActivePackages:
         model.Session.add(pkg)
         model.repo.commit_and_remove()
 
-        pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
+        pkg = model.Session.query(
+            model.Package).filter_by(name=self.non_active_name).one()
         admin = model.User.by_name(u'joeadmin')
         model.repo.commit_and_remove()
 
         model.repo.new_revision()
-        pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
-        pkg.delete() # becomes non active
+        pkg = model.Session.query(
+            model.Package).filter_by(name=self.non_active_name).one()
+        pkg.delete()  # becomes non active
         model.repo.commit_and_remove()
         yield
         reset_db()
@@ -539,47 +515,62 @@ class TestNonActivePackages:
 
     def test_read_as_admin(self, app):
         offset = url_for('dataset.read', id=self.non_active_name)
-        res = app.get(offset, status=200, extra_environ={'REMOTE_USER':'testsysadmin'})
+        res = app.get(offset,
+                      status=200,
+                      extra_environ={'REMOTE_USER': 'testsysadmin'})
 
 
 class TestResourceListing:
-
     @pytest.fixture(autouse=True)
     def initial_data(self, reset_db, app):
         reset_db()
         CreateTestData.create()
         users = {}
         tester = model.User.by_name(u'tester')
-        tests.call_action_api(app, 'organization_create',
-                                        name='test_org_2',
-                                        apikey=tester.apikey)
+        tests.call_action_api(app,
+                              'organization_create',
+                              name='test_org_2',
+                              apikey=tester.apikey)
 
-        tests.call_action_api(app, 'package_create',
-                                        name='crimeandpunishment',
-                                        owner_org='test_org_2',
-                                        apikey=tester.apikey)
+        tests.call_action_api(app,
+                              'package_create',
+                              name='crimeandpunishment',
+                              owner_org='test_org_2',
+                              apikey=tester.apikey)
         yield
         reset_db()
 
     @pytest.fixture
     def users(self):
         return {
-            'admin': {'REMOTE_USER': 'testsysadmin'},
-            'tester': {'REMOTE_USER': 'tester'},
-            'someone_else': {'REMOTE_USER': 'someone_else'},
+            'admin': {
+                'REMOTE_USER': 'testsysadmin'
+            },
+            'tester': {
+                'REMOTE_USER': 'tester'
+            },
+            'someone_else': {
+                'REMOTE_USER': 'someone_else'
+            },
         }
 
     def test_resource_listing_premissions_sysadmin(self, app, users):
         # sysadmin 200
-        app.get('/dataset/resources/crimeandpunishment', extra_environ=users['admin'], status=200)
+        app.get('/dataset/resources/crimeandpunishment',
+                extra_environ=users['admin'],
+                status=200)
 
     def test_resource_listing_premissions_auth_user(self, app, users):
         # auth user 200
-        app.get('/dataset/resources/crimeandpunishment', extra_environ=users['tester'], status=200)
+        app.get('/dataset/resources/crimeandpunishment',
+                extra_environ=users['tester'],
+                status=200)
 
     def test_resource_listing_premissions_non_auth_user(self, app, users):
         # non auth user 403
-        app.get('/dataset/resources/crimeandpunishment', extra_environ=users['someone_else'], status=[403])
+        app.get('/dataset/resources/crimeandpunishment',
+                extra_environ=users['someone_else'],
+                status=[403])
 
     def test_resource_listing_premissions_not_logged_in(self, app):
         # not logged in 403
