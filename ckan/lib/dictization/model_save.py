@@ -46,7 +46,11 @@ def resource_dict_save(res_dict, context):
             continue
         if key in fields:
             if isinstance(getattr(obj, key), datetime.datetime):
-                if getattr(obj, key).isoformat() == value:
+                if isinstance(value, string_types):
+                    db_value = getattr(obj, key).isoformat()
+                else:
+                    db_value = getattr(obj, key)
+                if  db_value == value:
                     continue
                 if key == 'last_modified' and not new:
                     obj.url_changed = True
