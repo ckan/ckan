@@ -6,7 +6,7 @@ from ckan import model
 from ckan.tests import helpers, factories
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_create_extras():
     model.repo.new_revision()
 
@@ -27,7 +27,7 @@ def test_create_extras():
     assert pkg.extras == {u"subject": u"science", u"accuracy": u"metre"}
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_delete_extras():
 
     dataset = factories.Dataset(extras=[
@@ -40,18 +40,18 @@ def test_delete_extras():
             u"value": u"metre"
         },
     ])
-    pkg = model.Package.by_name(dataset["name"])
+    pkg = model.Package.by_name(dataset[u"name"])
 
     model.repo.new_revision()
     del pkg.extras[u"subject"]
     model.Session.commit()
     model.Session.remove()
 
-    pkg = model.Package.by_name(dataset["name"])
+    pkg = model.Package.by_name(dataset[u"name"])
     assert pkg.extras == {u"accuracy": u"metre"}
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_extras_list():
     extras = [
         {
@@ -74,7 +74,7 @@ def test_extras_list():
     # unrelated extra, to check it doesn't affect things
     factories.Dataset(extras=[{u"key": u"foo", u"value": u"bar"}])
 
-    pkg = model.Package.by_name(dataset["name"])
+    pkg = model.Package.by_name(dataset[u"name"])
     assert isinstance(pkg.extras_list[0], model.PackageExtra)
     assert set([(pe.package_id, pe.key, pe.value, pe.state)
                 for pe in pkg.extras_list]) == set([

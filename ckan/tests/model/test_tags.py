@@ -6,7 +6,7 @@ from ckan import model
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_create_package_with_tags():
     model.repo.new_revision()
 
@@ -34,7 +34,7 @@ def test_create_package_with_tags():
                 ]) == set([u"science", u"geology", u"energy"])
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_delete_tag():
     dataset = factories.Dataset(tags=[{
         u"name": u"science"
@@ -43,7 +43,7 @@ def test_delete_tag():
     }, {
         u"name": u"energy"
     }])
-    pkg = model.Package.by_name(dataset["name"])
+    pkg = model.Package.by_name(dataset[u"name"])
 
     model.repo.new_revision()
 
@@ -59,5 +59,5 @@ def test_delete_tag():
     model.Session.commit()
     model.Session.remove()
 
-    pkg = model.Package.by_name(dataset["name"])
-    assert set([tag.name for tag in pkg.get_tags()]) == set(["energy"])
+    pkg = model.Package.by_name(dataset[u"name"])
+    assert set([tag.name for tag in pkg.get_tags()]) == set([u"energy"])

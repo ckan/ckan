@@ -6,7 +6,7 @@ from ckan import model
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_create():
     # Demonstrate creating a package.
     #
@@ -36,23 +36,23 @@ def test_create():
 @pytest.mark.usefixtures("clean_db")
 def test_update():
     dataset = factories.Dataset()
-    pkg = model.Package.by_name(dataset["name"])
+    pkg = model.Package.by_name(dataset[u"name"])
 
     model.repo.new_revision()
     pkg.author = u"bob"
     model.Session.commit()
     model.Session.remove()
 
-    pkg = model.Package.by_name(dataset["name"])
+    pkg = model.Package.by_name(dataset[u"name"])
     assert pkg.author == u"bob"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures(u"clean_db")
 def test_delete():
     group = factories.Group()
     dataset = factories.Dataset(
         groups=[{
-            u"id": group["id"]
+            u"id": group[u"id"]
         }],
         tags=[{
             u"name": u"science"
@@ -62,14 +62,14 @@ def test_delete():
             u"value": u"science"
         }],
     )
-    pkg = model.Package.by_name(dataset["name"])
+    pkg = model.Package.by_name(dataset[u"name"])
 
     model.repo.new_revision()
     pkg.delete()
     model.Session.commit()
     model.Session.remove()
 
-    pkg = model.Package.by_name(dataset["name"])
+    pkg = model.Package.by_name(dataset[u"name"])
     assert pkg.state == u"deleted"
     # it is removed from the group
     group = model.Group.get(group["id"])
@@ -80,7 +80,7 @@ def test_delete():
     package_tag = model.Session.query(model.PackageTag).all()[0]
     assert package_tag.state == u"active"
     tag = model.Session.query(model.Tag).all()[0]
-    assert [p.name for p in tag.packages] == [dataset["name"]]
+    assert [p.name for p in tag.packages] == [dataset[u"name"]]
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -101,11 +101,11 @@ def test_purge():
             u"value": u"science"
         }],
         groups=[{
-            u"id": group["id"]
+            u"id": group[u"id"]
         }],
-        owner_org=org["id"],
+        owner_org=org[u"id"],
     )
-    pkg = model.Package.by_name(dataset["name"])
+    pkg = model.Package.by_name(dataset[u"name"])
 
     model.repo.new_revision()
     pkg.purge()
@@ -118,11 +118,11 @@ def test_purge():
     assert not model.Session.query(model.PackageTag).all()
     assert not model.Session.query(model.Resource).all()
     # org remains, just not attached to the package
-    org = model.Group.get(org["id"])
+    org = model.Group.get(org[u"id"])
     assert org.packages() == []
     # tag object remains, just not attached to the package
     tag = model.Session.query(model.Tag).all()[0]
     assert tag.packages == []
     # group object remains, just not attached to the package
-    group = model.Group.get(group["id"])
+    group = model.Group.get(group[u"id"])
     assert group.packages() == []
