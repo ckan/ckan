@@ -37,8 +37,7 @@ def test_sorting():
         'name': "gamma",
         'title': "Gamma",
         'packages': []
-    }],
-                                 admin_user_name='testsysadmin')
+    }], admin_user_name='testsysadmin')
 
     context = {
         'model': model,

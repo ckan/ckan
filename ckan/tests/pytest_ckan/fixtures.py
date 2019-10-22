@@ -13,10 +13,14 @@ def ckan_config(request, monkeypatch):
     Takes into account config patches introduced by `ckan_config`
     mark.
     """
+    _original = config.copy()
     for mark in request.node.own_markers:
-        if mark.name == u'ckan_config':
+        if mark.name == u"ckan_config":
             monkeypatch.setitem(config, *mark.args)
     yield config
+    config.clear()
+    config.update(_original)
+
 
 @pytest.fixture
 def make_app(ckan_config):
@@ -34,14 +38,14 @@ def app(make_app):
     return make_app()
 
 
-@pytest.fixture(scope=u'session')
+@pytest.fixture(scope=u"session")
 def reset_db():
     """Callable for setting DB into initial state.
     """
     return test_helpers.reset_db
 
 
-@pytest.fixture(scope=u'session')
+@pytest.fixture(scope=u"session")
 def reset_index():
     """Callable for cleaning search index.
     """

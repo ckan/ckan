@@ -235,7 +235,6 @@ class TestImportStar(object):
         'ckan/tests/legacy/functional/api/test_package_search.py',
         'ckan/tests/legacy/functional/api/test_resource_search.py',
         'ckan/tests/legacy/functional/api/test_revision_search.py',
-        'ckan/tests/legacy/functional/test_group.py',
         'ckan/tests/legacy/functional/test_home.py',
         'ckan/tests/legacy/functional/test_package.py',
         'ckan/tests/legacy/functional/test_package_relationships.py',
