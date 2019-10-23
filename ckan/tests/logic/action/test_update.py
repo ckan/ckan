@@ -790,8 +790,9 @@ class TestResourceViewUpdate(object):
             id=resource_id,
             order=[resource_view_2["id"], resource_view_1["id"]],
         )
-        assert (result["order"],
-                [resource_view_2["id"] == resource_view_1["id"]])
+        assert result["order"] == [
+            resource_view_2["id"], resource_view_1["id"]
+        ]
 
         resource_view_list = helpers.call_action("resource_view_list",
                                                  id=resource_id)
@@ -814,8 +815,9 @@ class TestResourceViewUpdate(object):
         result = helpers.call_action("resource_view_reorder",
                                      id=resource_id,
                                      order=[resource_view_2["id"]])
-        assert (result["order"],
-                [resource_view_2["id"] == resource_view_1["id"]])
+        assert result["order"] == [
+            resource_view_2["id"], resource_view_1["id"]
+        ]
 
         resource_view_list = helpers.call_action("resource_view_list",
                                                  id=resource_id)

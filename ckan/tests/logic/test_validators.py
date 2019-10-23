@@ -635,7 +635,7 @@ def test_package_name_exists_empty():
         validators.package_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures('clean_db')
+@pytest.mark.usefixtures("clean_db")
 def test_package_name_exists():
     name = "pne_validation_test"
     dataset = factories.Dataset(name=name)
@@ -648,7 +648,7 @@ def test_resource_id_exists_empty():
         validators.resource_id_exists("", _make_context())
 
 
-@pytest.mark.usefixtures('clean_db')
+@pytest.mark.usefixtures("clean_db")
 def test_resource_id_exists():
     resource = factories.Resource()
     v = validators.resource_id_exists(resource["id"], _make_context())
@@ -660,7 +660,7 @@ def test_user_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures('clean_db')
+@pytest.mark.usefixtures("clean_db")
 def test_user_id_or_name_exists():
     user = factories.User(name="username")
     v = validators.user_id_or_name_exists(user["id"], _make_context())
@@ -674,7 +674,7 @@ def test_group_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures('clean_db')
+@pytest.mark.usefixtures("clean_db")
 def test_group_id_or_name_exists():
     group = factories.Group()
     v = validators.group_id_or_name_exists(group["id"], _make_context())

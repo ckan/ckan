@@ -33,14 +33,7 @@ def _get_object_in_context(obj_type):
 def _get_object_id_not_found(obj_type):
 
     with pytest.raises(logic.NotFound):
-        _get_function(obj_type)(
-            {
-                "model": core_model
-            },
-            {
-                "id": "not_here"
-            },
-        )
+        _get_function(obj_type)({"model": core_model}, {"id": "not_here"})
 
 
 def _get_object_id_none(obj_type):

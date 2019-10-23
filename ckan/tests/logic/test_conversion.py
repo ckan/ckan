@@ -80,7 +80,7 @@ def test_convert_to_extras_field_can_be_combined_with_more_extras():
     data, errors = validate(data_dict, schema, context)
 
     assert "extras" in data
-    assert (len(data["extras"]), 3)
+    assert len(data["extras"]) == 3
     assert sorted([e["key"] for e in data["extras"]]) == [
         "custom_text",
         "proper_extra",

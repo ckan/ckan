@@ -95,7 +95,7 @@ class TestPackageShow(object):
         replace_datetime(dataset2["resources"][0], "created")
         replace_uuid(dataset2["tags"][0], "id")
 
-        assert (dataset2 == {
+        assert dataset2 == {
             u"author":
             None,
             u"author_email":
@@ -197,7 +197,7 @@ class TestPackageShow(object):
             None,
             u"version":
             None,
-        }, )
+        }
 
     @pytest.mark.usefixtures("clean_db")
     def test_package_show_with_custom_schema(self):
@@ -438,8 +438,8 @@ class TestGroupList(object):
             child_group_returned, parent_group_returned = group_list[::-1]
         expected_parent_group = dict(parent_group.items()[:])
 
-        assert ([g["name"] for g in child_group_returned["groups"]
-                 ] == [expected_parent_group["name"]], )
+        assert [g["name"] for g in child_group_returned["groups"]
+                ] == [expected_parent_group["name"]]
 
     @pytest.mark.usefixtures("clean_db")
     def test_group_list_limit(self):
@@ -1392,17 +1392,17 @@ class TestPackageSearch(object):
         search_result = helpers.call_action("package_search", **data_dict)
 
         assert search_result["count"] == 2
-        assert (search_result["search_facets"] == {
+        assert search_result["search_facets"] == {
             "organization": {
                 "items": [{
                     "count": 2,
                     "display_name": u"Test Org",
-                    "name": "test-org-facet",
+                    "name": "test-org-facet"
                 }],
                 "title":
                 "organization",
             }
-        }, )
+        }
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_facet_limit(self):
@@ -1420,7 +1420,7 @@ class TestPackageSearch(object):
         search_result = helpers.call_action("package_search", **data_dict)
 
         assert len(search_result["search_facets"]["groups"]["items"]) == 1
-        assert (search_result["search_facets"] == {
+        assert search_result["search_facets"] == {
             "groups": {
                 "items": [{
                     "count": 2,
@@ -1430,7 +1430,7 @@ class TestPackageSearch(object):
                 "title":
                 "groups",
             }
-        }, )
+        }
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_facet_no_limit(self):
@@ -2848,9 +2848,10 @@ class TestFollow(object):
                                             id=user["name"])
 
         assert len(followee_list) == 2
-        assert (sorted([f["display_name"]
-                        for f in followee_list]) == ["Environment",
-                                                     "Finance"], )
+        assert sorted([f["display_name"] for f in followee_list]) == [
+            "Environment",
+            "Finance",
+        ]
 
     @pytest.mark.usefixtures("clean_db")
     def test_followee_list_with_q(self):
@@ -3037,8 +3038,10 @@ class TestPackageActivityList(object):
 
         activities = helpers.call_action("package_activity_list",
                                          id=dataset["id"])
-        assert ([activity["activity_type"] for activity in activities
-                 ] == ["changed package", "new package"], )
+        assert [activity["activity_type"] for activity in activities] == [
+            "changed package",
+            "new package",
+        ]
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
@@ -3464,8 +3467,8 @@ class TestUserActivityList(object):
                             **org)
 
         activities = helpers.call_action("user_activity_list", id=user["id"])
-        assert ([activity["activity_type"]
-                 for activity in activities] == ["deleted organization"], )
+        assert [activity["activity_type"]
+                for activity in activities] == ["deleted organization"]
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == org["id"]
         assert activities[0]["data"]["group"]["title"] == org["title"]
@@ -3481,8 +3484,8 @@ class TestUserActivityList(object):
                             **org)
 
         activities = helpers.call_action("user_activity_list", id=user["id"])
-        assert ([activity["activity_type"]
-                 for activity in activities] == ["deleted organization"], )
+        assert [activity["activity_type"]
+                for activity in activities] == ["deleted organization"]
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == org["id"]
         assert activities[0]["data"]["group"]["title"] == org["title"]
@@ -3551,9 +3554,10 @@ class TestGroupActivityList(object):
                             **group)
 
         activities = helpers.call_action("group_activity_list", id=group["id"])
-        assert ([activity["activity_type"]
-                 for activity in activities] == ["changed group",
-                                                 "new group"], )
+        assert [activity["activity_type"] for activity in activities] == [
+            "changed group",
+            "new group",
+        ]
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == group["id"]
         assert activities[0]["data"]["group"][
@@ -3590,8 +3594,10 @@ class TestGroupActivityList(object):
                             **dataset)
 
         activities = helpers.call_action("group_activity_list", id=group["id"])
-        assert ([activity["activity_type"] for activity in activities
-                 ] == ["changed package", "new package"], )
+        assert [activity["activity_type"] for activity in activities] == [
+            "changed package",
+            "new package",
+        ]
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
@@ -3794,8 +3800,10 @@ class TestOrganizationActivityList(object):
 
         activities = helpers.call_action("organization_activity_list",
                                          id=org["id"])
-        assert ([activity["activity_type"] for activity in activities
-                 ] == ["changed organization", "new organization"], )
+        assert [activity["activity_type"] for activity in activities] == [
+            "changed organization",
+            "new organization",
+        ]
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == org["id"]
         assert (activities[0]["data"]["group"]["title"] ==
@@ -3834,8 +3842,10 @@ class TestOrganizationActivityList(object):
 
         activities = helpers.call_action("organization_activity_list",
                                          id=org["id"])
-        assert ([activity["activity_type"] for activity in activities
-                 ] == ["changed package", "new package"], )
+        assert [activity["activity_type"] for activity in activities] == [
+            "changed package",
+            "new package",
+        ]
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
@@ -4024,8 +4034,10 @@ class TestRecentlyChangedPackagesActivityList(object):
 
         activities = helpers.call_action(
             "recently_changed_packages_activity_list", id=org["id"])
-        assert ([activity["activity_type"] for activity in activities
-                 ] == ["changed package", "new package"], )
+        assert [activity["activity_type"] for activity in activities] == [
+            "changed package",
+            "new package",
+        ]
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
@@ -4292,15 +4304,15 @@ class TestDashboardNewActivities(object):
 
         activities = helpers.call_action("dashboard_activity_list",
                                          context={"user": user["id"]})
-        assert ([activity["activity_type"]
-                 for activity in activities[::-1]] == [
-                     "new package",
-                     "changed package",
-                     "deleted package",
-                     "new group",
-                     "changed group",
-                     "deleted group",
-                 ], )
+        assert [activity["activity_type"]
+                for activity in activities[::-1]] == [
+                    "new package",
+                    "changed package",
+                    "deleted package",
+                    "new group",
+                    "changed group",
+                    "deleted group",
+                ]
         assert [activity["is_new"] for activity in activities] == [True] * 6
         assert (helpers.call_action("dashboard_new_activities_count",
                                     context={"user": user["id"]}) == 6)
@@ -4321,19 +4333,18 @@ class TestDashboardNewActivities(object):
 
         activities = helpers.call_action("dashboard_activity_list",
                                          context={"user": user["id"]})
-        assert (
-            [
-                (activity["activity_type"], activity["is_new"])
-                for activity in activities[::-1]
-            ] == [
-                ("new package", True),
-                # NB The 'new package' activity is in our activity stream and shows
-                # as "new" even though it occurred before we followed it. This is
-                # known & intended design.
-                ("changed package", True),
-            ], )
+        assert [
+            (activity["activity_type"], activity["is_new"])
+            for activity in activities[::-1]
+        ] == [
+            ("new package", True),
+            # NB The 'new package' activity is in our activity stream and shows
+            # as "new" even though it occurred before we followed it. This is
+            # known & intended design.
+            ("changed package", True),
+        ]
         assert (helpers.call_action("dashboard_new_activities_count",
-                                    context={"user": user["id"]}) == 2, )
+                                    context={"user": user["id"]}) == 2)
 
     @pytest.mark.usefixtures("clean_db")
     def test_activities_on_a_followed_group(self):
@@ -4351,13 +4362,12 @@ class TestDashboardNewActivities(object):
 
         activities = helpers.call_action("dashboard_activity_list",
                                          context={"user": user["id"]})
-        assert (
-            [(activity["activity_type"], activity["is_new"])
-             for activity in activities[::-1]] == [
-                 ("new group",
-                  False),  # False because user did this one herself
-                 ("changed group", True),
-             ], )
+        assert [(activity["activity_type"], activity["is_new"])
+                for activity in activities[::-1]] == [
+                    ("new group",
+                     False),  # False because user did this one herself
+                    ("changed group", True),
+                ]
         assert (helpers.call_action("dashboard_new_activities_count",
                                     context={"user": user["id"]}) == 1)
 

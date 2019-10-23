@@ -210,9 +210,7 @@ def test_config_option_public_activity_stream_detail():
         """
     dataset = factories.Dataset()
     context = {"user": None, "model": model}
-    helpers.call_auth(
-        "package_activity_list",
-        context=context,
-        id=dataset["id"],
-        include_data=True,
-    )
+    helpers.call_auth("package_activity_list",
+                      context=context,
+                      id=dataset["id"],
+                      include_data=True)
