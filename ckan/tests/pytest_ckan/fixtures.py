@@ -70,4 +70,4 @@ def clean_index(reset_index):
 def with_plugins(ckan_config):
     ckan.plugins.load_all()
     yield
-    ckan.plugins.unload_all()
+    # ckan.plugins.unload_all()
