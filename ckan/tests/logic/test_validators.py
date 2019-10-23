@@ -555,11 +555,11 @@ def test_string_with_whitespace_converted():
 
 
 def test_empty_string_becomes_None():
-    assert validators.int_validator("", {}) == None
+    assert validators.int_validator("", {}) is None
 
 
 def test_whitespace_string_becomes_None():
-    assert validators.int_validator("\n\n  \t", {}) == None
+    assert validators.int_validator("\n\n  \t", {}) is None
 
 
 def test_float_with_decimal_raises_Invalid():

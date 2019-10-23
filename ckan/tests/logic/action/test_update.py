@@ -714,8 +714,8 @@ class TestUpdateSendEmailNotifications(object):
 
 
 class TestResourceViewUpdate(object):
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_update(self):
         resource_view = factories.ResourceView()
         params = {
@@ -730,8 +730,8 @@ class TestResourceViewUpdate(object):
         assert result["description"] == params["description"]
 
     @mock.patch("ckan.lib.datapreview")
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(
             self, datapreview_mock):
         filterable_view = mock.MagicMock()
@@ -751,24 +751,24 @@ class TestResourceViewUpdate(object):
         }
         assert result["filters"] == expected_filters
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_update_requires_id(self):
         params = {}
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_update", **params)
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_update_requires_existing_id(self):
         params = {"id": "inexistent_id"}
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("resource_view_update", **params)
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_list_reorder(self):
         resource_view_1 = factories.ResourceView(title="View 1")
 
@@ -799,8 +799,8 @@ class TestResourceViewUpdate(object):
         assert resource_view_list[0]["title"] == "View 2"
         assert resource_view_list[1]["title"] == "View 1"
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_list_reorder_just_one_id(self):
         resource_view_1 = factories.ResourceView(title="View 1")
 
@@ -823,8 +823,8 @@ class TestResourceViewUpdate(object):
         assert resource_view_list[0]["title"] == "View 2"
         assert resource_view_list[1]["title"] == "View 1"
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_calling_with_only_id_doesnt_update_anything(self):
         resource_view = factories.ResourceView()
         params = {"id": resource_view["id"]}
@@ -847,8 +847,8 @@ class TestResourceUpdate(object):
 
             model.repo.rebuild_db()
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_url_only(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset, url="http://first")
@@ -861,8 +861,8 @@ class TestResourceUpdate(object):
         resource = helpers.call_action("resource_show", id=resource["id"])
         assert resource["url"] == "http://second"
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_extra_only(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset, newfield="first")
@@ -876,8 +876,8 @@ class TestResourceUpdate(object):
         resource = helpers.call_action("resource_show", id=resource["id"])
         assert resource["newfield"] == "second"
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_both_extra_and_url(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset,
@@ -896,8 +896,8 @@ class TestResourceUpdate(object):
         assert res_returned["url"] == "http://second"
         assert resource["newfield"] == "second"
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_extra_gets_deleted_on_both_core_and_extra_update(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset,
@@ -920,8 +920,8 @@ class TestResourceUpdate(object):
         assert res_returned["anotherfield"] == "second"
         assert "newfield" not in res_returned
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_extra_gets_deleted_on_extra_only_update(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset,
@@ -944,8 +944,8 @@ class TestResourceUpdate(object):
         assert res_returned["anotherfield"] == "second"
         assert "newfield" not in res_returned
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_persisted_if_true_and_not_provided(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset,
@@ -957,10 +957,10 @@ class TestResourceUpdate(object):
                                            url="http://example.com",
                                            name="Test")
 
-        assert res_returned["datastore_active"] == True
+        assert res_returned["datastore_active"]
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_persisted_if_false_and_not_provided(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset,
@@ -972,10 +972,10 @@ class TestResourceUpdate(object):
                                            url="http://example.com",
                                            name="Test")
 
-        assert res_returned["datastore_active"] == False
+        assert not res_returned["datastore_active"]
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_updated_if_false_and_provided(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset,
@@ -990,10 +990,10 @@ class TestResourceUpdate(object):
             datastore_active=True,
         )
 
-        assert res_returned["datastore_active"] == True
+        assert res_returned["datastore_active"]
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_is_updated_if_true_and_provided(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset,
@@ -1008,10 +1008,10 @@ class TestResourceUpdate(object):
             datastore_active=False,
         )
 
-        assert res_returned["datastore_active"] == False
+        assert not res_returned["datastore_active"]
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_datastore_active_not_present_if_not_provided_and_not_datastore_plugin_enabled(
             self):
         assert not p.plugin_loaded("datastore")
@@ -1031,8 +1031,8 @@ class TestResourceUpdate(object):
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_mimetype_by_url(self, mock_open):
         """
         The mimetype is guessed from the url
@@ -1055,8 +1055,8 @@ class TestResourceUpdate(object):
         assert org_mimetype != upd_mimetype
         assert upd_mimetype == "application/json"
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_mimetype_by_user(self):
         """
         The mimetype is supplied by the user
@@ -1087,8 +1087,8 @@ class TestResourceUpdate(object):
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_mimetype_by_upload_by_file(self, mock_open):
         """
         The mimetype is guessed from an uploaded file by the contents inside
@@ -1132,8 +1132,8 @@ class TestResourceUpdate(object):
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_mimetype_by_upload_by_filename(self, mock_open):
         """
         The mimetype is guessed from an uploaded file with a filename
@@ -1198,8 +1198,8 @@ class TestResourceUpdate(object):
         assert org_mimetype != upd_mimetype
         assert upd_mimetype == "text/csv"
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_size_of_resource_by_user(self):
         """
         The size of the resource is provided by the users
@@ -1228,8 +1228,8 @@ class TestResourceUpdate(object):
     @mock.patch.object(ckan.lib.uploader, "os", fake_os)
     @mock.patch.object(builtins, "open", side_effect=mock_open_if_open_fails)
     @mock.patch.object(ckan.lib.uploader, "_storage_path", new="/doesnt_exist")
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_size_of_resource_by_upload(self, mock_open):
         """
         The size of the resource determined by the uploaded file
@@ -1290,8 +1290,8 @@ class TestResourceUpdate(object):
 
         assert org_size > upd_size
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_extras(self):
         user = factories.User()
         dataset = factories.Dataset(
@@ -1318,8 +1318,8 @@ class TestResourceUpdate(object):
 
     @helpers.change_config("ckan.views.default_views",
                            "image_view recline_view")
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view recline_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_format_update(self):
         dataset = factories.Dataset()
 

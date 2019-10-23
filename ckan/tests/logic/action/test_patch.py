@@ -17,13 +17,13 @@ class TestPatch(object):
                                       id=dataset["id"],
                                       name="somethingnew")
 
-        assert (dataset["name"] == "somethingnew")
-        assert (dataset["notes"] == "some test now")
+        assert dataset["name"] == "somethingnew"
+        assert dataset["notes"] == "some test now"
 
         dataset2 = helpers.call_action("package_show", id=dataset["id"])
 
-        assert (dataset2["name"] == "somethingnew")
-        assert (dataset2["notes"] == "some test now")
+        assert dataset2["name"] == "somethingnew"
+        assert dataset2["notes"] == "some test now"
 
     @pytest.mark.usefixtures("clean_db")
     def test_resource_patch_updating_single_field(self):
@@ -41,14 +41,14 @@ class TestPatch(object):
                                        id=dataset["resources"][0]["id"],
                                        name="somethingnew")
 
-        assert (resource["name"] == "somethingnew")
-        assert (resource["url"] == "http://example.com/resource")
+        assert resource["name"] == "somethingnew"
+        assert resource["url"] == "http://example.com/resource"
 
         dataset2 = helpers.call_action("package_show", id=dataset["id"])
 
         resource2 = dataset2["resources"][0]
-        assert (resource2["name"] == "somethingnew")
-        assert (resource2["url"] == "http://example.com/resource")
+        assert resource2["name"] == "somethingnew"
+        assert resource2["url"] == "http://example.com/resource"
 
     @pytest.mark.usefixtures("clean_db")
     def test_group_patch_updating_single_field(self):
@@ -64,13 +64,13 @@ class TestPatch(object):
             context={"user": user["name"]},
         )
 
-        assert (group["name"] == "economy")
-        assert (group["description"] == "somethingnew")
+        assert group["name"] == "economy"
+        assert group["description"] == "somethingnew"
 
         group2 = helpers.call_action("group_show", id=group["id"])
 
-        assert (group2["name"] == "economy")
-        assert (group2["description"] == "somethingnew")
+        assert group2["name"] == "economy"
+        assert group2["description"] == "somethingnew"
 
     @pytest.mark.usefixtures("clean_db")
     def test_group_patch_preserve_datasets(self):
@@ -81,14 +81,14 @@ class TestPatch(object):
         factories.Dataset(groups=[{"name": group["name"]}])
 
         group2 = helpers.call_action("group_show", id=group["id"])
-        assert (1 == group2["package_count"])
+        assert 1 == group2["package_count"]
 
         group = helpers.call_action("group_patch",
                                     id=group["id"],
                                     context={"user": user["name"]})
 
         group3 = helpers.call_action("group_show", id=group["id"])
-        assert (1 == group3["package_count"])
+        assert 1 == group3["package_count"]
 
         group = helpers.call_action("group_patch",
                                     id=group["id"],
@@ -98,7 +98,7 @@ class TestPatch(object):
         group4 = helpers.call_action("group_show",
                                      id=group["id"],
                                      include_datasets=True)
-        assert (0 == group4["package_count"])
+        assert 0 == group4["package_count"]
 
     @pytest.mark.usefixtures("clean_db")
     def test_organization_patch_updating_single_field(self):
@@ -114,11 +114,11 @@ class TestPatch(object):
             context={"user": user["name"]},
         )
 
-        assert (organization["name"] == "economy")
-        assert (organization["description"] == "somethingnew")
+        assert organization["name"] == "economy"
+        assert organization["description"] == "somethingnew"
 
         organization2 = helpers.call_action("organization_show",
                                             id=organization["id"])
 
-        assert (organization2["name"] == "economy")
-        assert (organization2["description"] == "somethingnew")
+        assert organization2["name"] == "economy"
+        assert organization2["description"] == "somethingnew"

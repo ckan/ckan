@@ -1903,8 +1903,8 @@ class TestPackageSearch(object):
 
 
 class TestPackageAutocompleteWithDatasetForm(object):
-    @pytest.mark.ckan_config('ckan.plugins', 'example_idatasetform')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "example_idatasetform")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_custom_schema_returned(self):
         dataset1 = factories.Dataset(custom_text="foo")
 
@@ -1914,8 +1914,8 @@ class TestPackageAutocompleteWithDatasetForm(object):
         assert query["results"][0]["id"] == dataset1["id"]
         assert query["results"][0]["custom_text"] == "foo"
 
-    @pytest.mark.ckan_config('ckan.plugins', 'example_idatasetform')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "example_idatasetform")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_custom_schema_not_returned(self):
         dataset1 = factories.Dataset(custom_text="foo")
 
@@ -2391,8 +2391,8 @@ class TestOrganizationListForUser(object):
 
 
 class TestShowResourceView(object):
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_show(self):
 
         resource = factories.Resource()
@@ -2413,15 +2413,15 @@ class TestShowResourceView(object):
 
         assert result == resource_view
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_show_id_missing(self):
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_show")
 
-    @pytest.mark.ckan_config('ckan.plugins', 'image_view')
-    @pytest.mark.usefixtures('clean_db', 'with_plugins')
+    @pytest.mark.ckan_config("ckan.plugins", "image_view")
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_resource_view_show_id_not_found(self):
 
         with pytest.raises(logic.NotFound):
@@ -2453,7 +2453,7 @@ class TestGetHelpShow(object):
 
         function.__doc__ = actual_docstring
 
-        assert result == None
+        assert result is None
 
     def test_help_show_not_found(self):
 
@@ -2525,7 +2525,7 @@ class TestTagShow(object):
         assert tag_shown["name"] == "acid-rain"
         assert tag_shown["display_name"] == "acid-rain"
         assert tag_shown["id"] == tag_in_dataset["id"]
-        assert tag_shown["vocabulary_id"] == None
+        assert tag_shown["vocabulary_id"] is None
         assert "packages" not in tag_shown
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -4142,7 +4142,7 @@ class TestDashboardActivityList(object):
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == user["id"]
         # user's own activities are always marked ``'is_new': False``
-        assert activities[0]["is_new"] == False
+        assert not activities[0]["is_new"]
 
     @pytest.mark.usefixtures("clean_db")
     def test_create_dataset(self):
@@ -4158,7 +4158,7 @@ class TestDashboardActivityList(object):
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
         # user's own activities are always marked ``'is_new': False``
-        assert activities[0]["is_new"] == False
+        assert not activities[0]["is_new"]
 
     @pytest.mark.usefixtures("clean_db")
     def test_create_group(self):
@@ -4174,7 +4174,7 @@ class TestDashboardActivityList(object):
         assert activities[0]["object_id"] == group["id"]
         assert activities[0]["data"]["group"]["title"] == group["title"]
         # user's own activities are always marked ``'is_new': False``
-        assert activities[0]["is_new"] == False
+        assert not activities[0]["is_new"]
 
     @pytest.mark.usefixtures("clean_db")
     def test_create_organization(self):
@@ -4190,7 +4190,7 @@ class TestDashboardActivityList(object):
         assert activities[0]["object_id"] == org["id"]
         assert activities[0]["data"]["group"]["title"] == org["title"]
         # user's own activities are always marked ``'is_new': False``
-        assert activities[0]["is_new"] == False
+        assert not activities[0]["is_new"]
 
     def _create_bulk_package_activities(self, count):
         user = factories.User()
